@@ -113,7 +113,7 @@ export function parseBuiltinSystemNavigation(value: unknown): BuiltinSystemNavig
     const record = recordsById.get(id)
     if (!record) throw new Error(`BUILTIN_NAVIGATION_SOURCE_INVALID: 发布节点 ${id} 不存在于完整蓝图`)
     if ((record['conType'] === 'Navitem' || record['NavigationUrl'] !== null) && (typeof record['NavigationUrl'] !== 'string'
-      || !record['NavigationUrl'].startsWith('vue:/') || typeof record['conid'] !== 'string' || !record['conid'].trim())) {
+      || !record['NavigationUrl'].startsWith('vue:/') || record['conid'] !== null && (typeof record['conid'] !== 'string' || !record['conid'].trim()))) {
       throw new Error(`BUILTIN_NAVIGATION_SOURCE_INVALID: 发布页面 ${id} 的原生页面目标无效`)
     }
     let parentId = String(record['prowid'])

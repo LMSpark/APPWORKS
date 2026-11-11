@@ -332,11 +332,15 @@ function assembleBuiltinSystemNavigation(input: BuiltinNavigationAssemblyInput):
     if (!node.publishInMenu || !node.url) continue
     const authorization = authorizationById.get(node.id)
     if (!authorization) continue
-    if (authorization.target !== node.url || authorization.formKey !== node.conid) {
+    if (authorization.target !== node.url || (authorization.formKey ?? '') !== node.conid) {
       throw new Error(`BUILTIN_NAVIGATION_AUTHORIZATION_MISMATCH: ${node.id} 正式授权目标与仓内导航不一致`)
     }
-    if (!pageByPath.has(node.url.slice(4))) {
+    const page = pageByPath.get(node.url.slice(4))
+    if (!page) {
       throw new Error(`BUILTIN_NAVIGATION_PAGE_UNREGISTERED: ${node.url} 未登记为原生 Vue 页面`)
+    }
+    if (!node.conid && !page.dataSpaceId) {
+      throw new Error(`BUILTIN_NAVIGATION_DATA_SPACE_MISSING: ${node.id} 导航未绑定数据空间，页面登记也未声明`)
     }
     let parentId = node.parentId
     const visited = new Set<string>([node.id])
@@ -384,9 +388,10 @@ function buildBuiltinNavigationItem(
     .map(child => buildBuiltinNavigationItem(child, childrenByParent, pageByPath))
   const path = node.url?.slice(4)
   const page = path === undefined ? undefined : pageByPath.get(path)
+  const blueprintScenarioId = node.conid || page?.dataSpaceId
   return {id: node.id, title: node.title, itemKind: children.length > 0 ? 'module' : 'system-page',
     ...(path === undefined ? {} : {path}), ...(page?.icon === undefined ? {} : {icon: page.icon}), order: node.order,
-    ...(node.conid ? {blueprintScenarioId: node.conid} : {}), children}
+    ...(blueprintScenarioId ? {blueprintScenarioId} : {}), children}
 }
 
 /** 将 lowcode 记录和后端授权证据直接装配为应用壳唯一运行导航合同。 */

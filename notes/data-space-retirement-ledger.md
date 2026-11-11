@@ -9280,3 +9280,10 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **断链修复。** 运行时要求每个模型声明 `views.default`，补齐映射、条件、结果、字典项默认视图。状态/标志列的正式类型分两类：维度定义、来源锚点为 0/1 数值，规则、规则模板、结果、字典类型、业务分类为布尔；布尔字段改用 `FieldSwitch`，只读列以双类型显示选项呈现，启用判断统一经 `enabled()`。规则结果 `dim_category` 为非空列，参考同样必填，已设为必填。删除守卫移至确认框之前，被引用时直接提示原因。
 - **已登记差距。** 参考的映射数、事件锚点数需后端聚合，改为点选后经明细视图查看。仓内无蓝图“打开节点”跳转器，该入口未恢复。仓内删除为物理删除，不加软删除过滤（`lingma_sys_is_delete=1` 实服 0 条）。规则与条件/结果分记录保存、非原子；新规则须先存为停用并补结果后再启用，规则删除按“子表→规则”分阶段提交。
 - **验证。** typecheck、改动文件 ESLint、导航 vitest、`verify:page-thin`/`docs`/`lowcode-contracts`/`ai-codegen` 通过。实服烟测：六个页签分别加载 5/18/51/4/16/4 条；业务分类新增、编辑、删除经刷新回读确认；新增停用规则（业务分类随事件同步）、新增结果与条件，启用被“须先登记已启用来源锚点”拦截，删除规则后同编码维度定义可新增并删除（子表已清）；被映射引用的维度与被规则引用的分类删除被拦截；关键字检索 51→8。未改 Java，未新增 Node.js 服务。
+
+### 2026-11-11 文件数据管理迁移：文件管理
+
+- **迁移落点。** 参考 `FileDataManager/FileManager/index.vue` 按原路径恢复为 `src/views/FileDataManager/FileManager/index.vue`（导航 `EDF7DE3E5723E127F98B2A119BE81BF9`，父模块 `9EFFD97B4156A0D81C5CEAFFCC75381E`，场景 `23F469CC96AC4B73BA5AE593C0002BD4`，`config/pages/semi-structured/file-manager/pagedata.json`）。新增文件资源 `semi-structured:file-data`（`FileDataResource`），以 `filedata` 根目录作为 `FileDataCatalog` 的 DataView：列表经 `/api/File/list`，新增行携带原 File 经 `UploadFile` 上传后以 `DownFile` 核原字节并回列确认，删除经 `RemoveFile` 后回列；上传、删除成功后刷新原视图。`uploadBinaryVersion` 扩展 filedata 区（ACK 前缀 `/<tenant-id>/`）。
+- **断链修复。** 导航节点 `conid` 为空：系统导航校验允许空 `conid`，由 `vue-pages.json` 的 `dataSpaceId` 提供场景，两者皆缺时报 `BUILTIN_NAVIGATION_DATA_SPACE_MISSING`。参考路径保留 `index.vue` 后，组件扫描把两个 `index.vue` 生成同名导入，`virtual:spark-components` 报 “Identifier 'index' has already been declared”；`src/views/**/index.vue` 页面入口由 `vue-page-registry` 按路径懒加载，已从组件扫描排除。应用管理页测试仍断言“关联数据库”禁用，与已恢复的入口不符，已更正。
+- **已登记差距。** 参考调用 `infra.file-manager`（`/infra/file/page`），实服返回 “No static resource”，改用既有 `/api/File` 合同；列表接口不返回大小，“大小”列未恢复。`RendererTable` 无空状态文案属性，“暂无文件，请点击上传”未恢复。
+- **验证。** typecheck、改动文件 ESLint、`FileDataResource`/上传/导航/配置 vitest、`verify:page-thin`/`docs`/`lowcode-contracts`/`ai-codegen` 通过。实服烟测：菜单出现“文件数据管理→文件管理”，列表 19 条分页 15；上传 `smoke-fm-*.txt` 得 ACK `/NewApp/…`、字节核验通过并出现在列表；文件名筛选 1 条，确认删除后 `RemoveFile` 成功、列表为空。未改 Java，未新增 Node.js 服务。

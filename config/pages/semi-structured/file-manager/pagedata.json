@@ -1,0 +1,19 @@
+{
+  "scenarioId": "23F469CC96AC4B73BA5AE593C0002BD4",
+  "tables": {
+    "FileDataCatalog": {
+      "resourceType": "file",
+      "resourceId": "semi-structured:file-data",
+      "columns": [
+        {"name": "fileName", "label": "文件名称", "type": "string", "isPrimaryKey": true},
+        {"name": "path", "label": "存储路径", "type": "string"},
+        {"name": "lastModified", "label": "上传时间", "type": "string"},
+        {"name": "content", "label": "文件内容", "type": "object"}
+      ],
+      "views": {
+        "default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 15,
+          "sortExpression": [{"field": "lastModified", "direction": "desc"}]}
+      }
+    }
+  }
+}

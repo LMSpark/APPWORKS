@@ -29,16 +29,14 @@ export type LowcodeDesignFileUploadCommand = Readonly<{
 /** 完成字节回读后的实际后端单文件回执；快照还须核对 filePath 最终名，后续失败不伪造回滚。 */
 export type LowcodeDesignFileUploadResult = Readonly<Record<string, unknown>>
 
-/** 本次Excel模板原File输入；只接受已核定的原目录/字段合同，不转文本或重建Blob。 */
-export type LowcodeBinaryFileUploadCommand=Readonly<{
+/** 原生二进制File上传的已核定文件区：Excel模板目录，或文件管理的filedata根目录。 */
+type LowcodeBinaryFileArea=Readonly<{appType:'xlsxtemp';customPath:'xlsxtemp'}>|Readonly<{appType:'filedata';customPath:''}>
+/** 本次原File输入；只接受已核定的原目录/字段合同，不转文本或重建Blob。 */
+export type LowcodeBinaryFileUploadCommand=LowcodeBinaryFileArea&Readonly<{
   /** 用户本次选择的原生File，保留其文件名和二进制内容，不从JSON重建。 */
   file:File
   /** 所属声明命令的数据空间，用作原上传X-FormKey。 */
   scenarioId:string
-  /** 已核实的Excel模板文件区。 */
-  appType:'xlsxtemp'
-  /** 固定模板目录，不拼入企业或返回的完整路径。 */
-  customPath:'xlsxtemp'
   /** 原服务接收原File的multipart字段名。 */
   fieldName:'files'
   /** 存储适配在原File异步读取后、真正派发前重核原方案与当前写权限；异常表示未派发。 */
@@ -92,29 +90,29 @@ export class LowcodeDesignFileUpload {
   }
 
   /**
-   * 一次上传原生Excel File并接纳同执行域的正式单文件ACK，不主动下载或保存方案。
+   * 一次上传原生File并接纳同执行域的正式单文件ACK，不主动下载或保存方案。
    * @remarks 仅供已声明命令的存储适配调用，页面通过DataSet/DataView保存；适配先保留返回回执再调用verifyBinaryVersion。派发后错误可能已写入，禁止自动重传。
    */
   public async uploadBinaryVersion(command:LowcodeBinaryFileUploadCommand):Promise<LowcodeBinaryFileUploadReceipt>{
     const scope=this.readScope(),captured=binaryScope(scope),tenant=requiredText(scope.headers['tenant-id']??'','tenant-id'),scenarioId=requiredText(command.scenarioId,'scenarioId')
-    const resource:readonly unknown[]=[command.appType,command.customPath,command.fieldName]
-    if(!['xlsxtemp','xlsxtemp','files'].every((value,index)=>resource[index]===value)||!scope.token.trim()||!scope.headers['X-AppId']?.trim()||/[\\/]/.test(tenant))throw new LowcodeApiError(0,'二进制模板缺少原执行身份或目录合同')
+    const excel=command.appType==='xlsxtemp'
+    if(!scope.token.trim()||!scope.headers['X-AppId']?.trim()||/[\\/]/.test(tenant))throw new LowcodeApiError(0,'二进制模板缺少原执行身份或目录合同')
     const name=requiredText(command.file.name,'file.name')
-    if(/[\\/\u0000-\u001f]/.test(name)||!(/\.xlsx?$/i.test(name)))throw new LowcodeApiError(0,'仅支持原生xls或xlsx模板文件名')
+    if(/[\\/\u0000-\u001f]/.test(name)||name==='.'||name==='..'||excel&&!(/\.xlsx?$/i.test(name)))throw new LowcodeApiError(0,excel?'仅支持原生xls或xlsx模板文件名':'文件名无效')
     const bytes=new Uint8Array(await command.file.arrayBuffer()).slice()
     this.assertBinaryScope(captured)
     if(bytes.length!==command.file.size)throw new LowcodeApiError(0,'原File字节长度与选择时大小不符')
     command.assertReady?.()
     this.assertBinaryScope(captured)
     const data=new FormData()
-    data.append('customPath','xlsxtemp');data.append('appType','xlsxtemp');data.append('isReplace','false');data.append('isCrossEnt','false');data.append('newName',command.file.name);data.append('files',command.file,command.file.name)
+    data.append('customPath',command.customPath);data.append('appType',command.appType);data.append('isReplace','false');data.append('isCrossEnt','false');data.append('newName',command.file.name);data.append('files',command.file,command.file.name)
     try{
       const result=await this.requestUpload({url:'/api/File/UploadFile',method:'POST',data,headers:{...scope.headers,'X-FormKey':scenarioId}})
       this.assertBinaryScope(captured)
-      if(!Array.isArray(result)||result.length!==1||!isRecord(result[0])||result[0]['state']!=='success'||typeof result[0]['filePath']!=='string')throw new LowcodeApiError(0,'二进制模板ACK不是成功的单文件定位')
-      const path=result[0]['filePath'],prefix=`/${tenant}/xlsxtemp/`,actual=path.startsWith(prefix)?path.slice(prefix.length):''
-      if(!actual||/[\\/\u0000-\u001f]/.test(actual)||actual==='.'||actual==='..'||actual.split('.').at(-1)?.toLowerCase()!==name.split('.').at(-1)?.toLowerCase())throw new LowcodeApiError(0,'二进制模板ACK不属于原企业目录或文件后缀')
-      const receipt:LowcodeBinaryFileUploadReceipt=Object.freeze({templatePath:path,locator:Object.freeze({appType:'xlsxtemp',customPath:'xlsxtemp',fileName:actual,isCrossEnterprise:false})})
+      if(!Array.isArray(result)||result.length!==1||!isRecord(result[0])||result[0]['state']!=='success'||typeof result[0]['filePath']!=='string')throw new LowcodeApiError(0,'二进制文件ACK不是成功的单文件定位')
+      const path=result[0]['filePath'],prefix=excel?`/${tenant}/xlsxtemp/`:`/${tenant}/`,actual=path.startsWith(prefix)?path.slice(prefix.length):''
+      if(!actual||/[\\/\u0000-\u001f]/.test(actual)||actual==='.'||actual==='..'||actual.split('.').at(-1)?.toLowerCase()!==name.split('.').at(-1)?.toLowerCase())throw new LowcodeApiError(0,'二进制文件ACK不属于原企业目录或文件后缀')
+      const receipt:LowcodeBinaryFileUploadReceipt=Object.freeze({templatePath:path,locator:Object.freeze({appType:command.appType,customPath:command.customPath,fileName:actual,isCrossEnterprise:false})})
       this.binaryReceipts.set(receipt,{file:command.file,bytes,scope:captured})
       return receipt
     }catch(error){throw binaryUnconfirmed(error)}
@@ -127,7 +125,7 @@ export class LowcodeDesignFileUpload {
     this.assertBinaryScope(original.scope)
     const bytes=await this.design.readFileBytes(command.receipt.locator)
     this.assertBinaryScope(original.scope)
-    if(bytes.length!==original.bytes.length||original.bytes.some((value,index)=>bytes[index]!==value))throw new LowcodeApiError(0,'二进制模板写入后回读不一致')
+    if(bytes.length!==original.bytes.length||original.bytes.some((value,index)=>bytes[index]!==value))throw new LowcodeApiError(0,'二进制文件写入后回读不一致')
   }
 
   private assertBinaryScope(expected:string):void{if(binaryScope(this.readScope())!==expected)throw new Error('SPARK_EXECUTION_SCOPE_STALE: 二进制文件原执行域已失效')}

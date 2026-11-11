@@ -199,6 +199,17 @@
       "shellTool": false
     },
     {
+      "path": "/FileDataManager/FileManager/index",
+      "title": "文件管理",
+      "icon": "Folder",
+      "scope": "app",
+      "source": "src/views/FileDataManager/FileManager/index.vue",
+      "description": "AppWorks 系统导航登记的原生文件管理页面",
+      "dataSpaceId": "23F469CC96AC4B73BA5AE593C0002BD4",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
       "path": "/DataBaseManage/DataBaseManage/index",
       "title": "数据库管理",
       "icon": "DataBase",

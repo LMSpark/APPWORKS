@@ -7,7 +7,7 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 218,
+  "consumerCount": 219,
   "directUnmatchedCount": 126,
   "consumers": [
     {
@@ -497,6 +497,12 @@
       "scope": "publishable-lowcode-api"
     },
     {
+      "expression": "/api/File/DownFile",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-binary-file-upload.test.ts",
+      "sourceLine": 66,
+      "scope": "publishable-lowcode-api"
+    },
+    {
       "expression": "/api/File/RemoveFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
       "sourceLine": 55,
@@ -637,13 +643,13 @@
     {
       "expression": "/api/File/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "sourceLine": 112,
+      "sourceLine": 110,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "sourceLine": 153,
+      "sourceLine": 151,
       "scope": "publishable-lowcode-api"
     },
     {

@@ -13,6 +13,7 @@ import {PROJECT_TOOL_VERSION_COLUMNS, PROJECT_TOOL_VERSION_QUERY_PARAMETERS, PRO
 import {AGENT_WORKFLOW_DATA_SPACE_NAME, AGENT_WORKFLOW_FILE_COLUMNS, AGENT_WORKFLOW_FILE_RESOURCE_ID, AGENT_WORKFLOW_FILE_TABLE,
   AGENT_WORKFLOW_FILE_VIEWS, AGENT_WORKFLOW_FILE_QUERY_PARAMETERS, AgentWorkflowFileResource} from './agent-workflow/agent-workflow-file-resource'
 import {AGENT_WORKFLOW_DESIGN_RESOURCE_ID, AGENT_WORKFLOW_DESIGN_TABLES, AgentWorkflowDesignResource} from './agent-workflow/agent-workflow-design-resource'
+import {FILE_DATA_COLUMNS, FILE_DATA_QUERY_PARAMETERS, FILE_DATA_RESOURCE_ID, FILE_DATA_TABLE, FILE_DATA_VIEWS, FileDataResource} from '../semi-structured/file-data/file-data-resource'
 
 /** 文件资源执行器使用的设计文件读取接口。 */
 type LowcodeFileResourceApi = Pick<LowcodeDesignApi, 'listFiles' | 'readTextFile' | 'readFileBytes' | 'listFileVersions' | 'removeFile'>
@@ -23,7 +24,7 @@ type LowcodeFileResourceInput = Readonly<{
   /** 设计文件读取接口。 */
   api: LowcodeFileResourceApi
   /** 正式文件上传适配器；缺省时保存显式失败。 */
-  fileUpload?: Pick<LowcodeDesignFileUpload,'uploadWorkingText'|'uploadTextVersion'>
+  fileUpload?: Pick<LowcodeDesignFileUpload,'uploadWorkingText'|'uploadTextVersion'|'uploadBinaryVersion'|'verifyBinaryVersion'>
   /** 应用或会话已切换时抛错。 */
   assertCurrent: () => void
 }>
@@ -50,6 +51,11 @@ export type LowcodeFileResourceDefinition = Readonly<{
 
 function missingUpload(code: string): Pick<LowcodeDesignFileUpload, 'uploadWorkingText'> {
   return {uploadWorkingText: () => Promise.reject(new Error(`${code}: 未注入正式文件上传适配器`))}
+}
+
+function missingBinaryUpload(): Pick<LowcodeDesignFileUpload, 'uploadBinaryVersion' | 'verifyBinaryVersion'> {
+  const reject = () => Promise.reject(new Error('FILE_DATA_SAVE_OWNER: 未注入正式文件上传适配器'))
+  return {uploadBinaryVersion: reject, verifyBinaryVersion: reject}
 }
 
 function agentWorkflowDesignExecutor(input: LowcodeFileResourceInput): AgentWorkflowDesignResource {
@@ -112,5 +118,15 @@ export const LOWCODE_FILE_RESOURCE_REGISTRY: readonly LowcodeFileResourceDefinit
     queryParameters: PROJECT_TOOL_VERSION_QUERY_PARAMETERS,
     createExecutor: (input: LowcodeFileResourceInput) =>
       new ProjectToolVersionResource({applicationId: input.applicationId, api: input.api, assertCurrent: input.assertCurrent}),
+  }),
+  Object.freeze({
+    tableName: FILE_DATA_TABLE,
+    resourceId: FILE_DATA_RESOURCE_ID,
+    label: '数据文件',
+    columns: FILE_DATA_COLUMNS,
+    views: FILE_DATA_VIEWS,
+    queryParameters: FILE_DATA_QUERY_PARAMETERS,
+    createExecutor: (input: LowcodeFileResourceInput) =>
+      new FileDataResource({api: input.api, fileUpload: input.fileUpload ?? missingBinaryUpload(), assertCurrent: input.assertCurrent}),
   }),
 ])

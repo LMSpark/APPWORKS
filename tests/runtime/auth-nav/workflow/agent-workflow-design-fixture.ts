@@ -28,7 +28,7 @@ export function bindRegisteredFileResources(dataSet: DataSet, input: Readonly<{a
   const unexpected = () => Promise.reject(new Error('Unexpected file API call'))
   const executors = createLowcodeFileResourceExecutors({applicationId: 'APP', assertCurrent: input.assertCurrent ?? (() => undefined),
     api: {...input.api, listFileVersions: unexpected, removeFile: unexpected},
-    ...(input.fileUpload ? {fileUpload: {uploadWorkingText: input.fileUpload.uploadWorkingText, uploadTextVersion: unexpected}} : {})})
+    ...(input.fileUpload ? {fileUpload: {uploadWorkingText: input.fileUpload.uploadWorkingText, uploadTextVersion: unexpected, uploadBinaryVersion: unexpected, verifyBinaryVersion: unexpected}} : {})})
   for (const table of Object.values(dataSet.tables)) {
     const executor = executors[table.tableName]
     if (table.resourceType !== 'file' || !executor || !table.resourceId) continue

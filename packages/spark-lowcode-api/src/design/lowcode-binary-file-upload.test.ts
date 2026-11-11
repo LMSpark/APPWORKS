@@ -58,4 +58,13 @@ describe('original binary file ACK and independent verification',()=>{
   const f=fixture('not-a-template.txt');await expect(f.upload()).rejects.toThrow();expect(f.http.requests).toEqual([])
   const valid=fixture();valid.scope.headers['tenant-id']='';await expect(valid.upload()).rejects.toThrow();expect(valid.http.requests).toEqual([])
  })
+ it('uploads any file name to the filedata root and verifies the actual root locator',async()=>{
+  const f=fixture('report.txt');f.http.body={Code:200,Result:[{state:'success',fileName:'report.txt',filePath:'/tenant/report(1).txt'}]}
+  const receipt=await f.sdk.uploadBinaryVersion({file:f.file,scenarioId:scene,appType:'filedata',customPath:'',fieldName:'files'})
+  expect(receipt).toEqual({templatePath:'/tenant/report(1).txt',locator:{appType:'filedata',customPath:'',fileName:'report(1).txt',isCrossEnterprise:false}})
+  const form=f.http.requests[0]!.data as FormData;expect(form.get('appType')).toBe('filedata');expect(form.get('customPath')).toBe('')
+  await f.sdk.verifyBinaryVersion({receipt,file:f.file});expect(f.http.requests[1]).toMatchObject({url:'/api/File/DownFile',data:{appType:'filedata',customPath:'',fileName:'report(1).txt'}})
+  f.http.body={Code:200,Result:[{state:'success',filePath:'/tenant/sub/report.txt'}]}
+  await expect(f.sdk.uploadBinaryVersion({file:f.file,scenarioId:scene,appType:'filedata',customPath:'',fieldName:'files'})).rejects.toMatchObject({fileResourceMutationMayHaveApplied:true})
+ })
 })

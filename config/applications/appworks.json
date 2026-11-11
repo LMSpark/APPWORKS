@@ -35,6 +35,10 @@
       "resourceId": "repository:scenario-view:88A4D51B01702C3856F4632E234BF34B", "path": "config/pages/structured-config/dimension-design/pagedata.json"
     },
     {
+      "name": "fileManager", "scenarioId": "23F469CC96AC4B73BA5AE593C0002BD4",
+      "resourceId": "repository:scenario-view:23F469CC96AC4B73BA5AE593C0002BD4", "path": "config/pages/semi-structured/file-manager/pagedata.json"
+    },
+    {
       "name": "dataMenu", "scenarioId": "2CA968B3513084BA2537BB0C85AE945E",
       "resourceId": "repository:scenario-view:2CA968B3513084BA2537BB0C85AE945E", "path": "config/pages/application/data-menu/pagedata.json"
     },

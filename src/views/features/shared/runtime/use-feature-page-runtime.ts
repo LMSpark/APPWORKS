@@ -56,7 +56,7 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
     ready.value = false; loading.value = true; error.value = ''; session.dispose()
     let current: ReturnType<NativePageRuntimeSession['acquire']> | undefined
     try {
-      if (!projectId || scenario !== navigationId || nodeId !== navigationId || state !== 'resolved') {
+      if (!projectId || scenario !== scenarioId || nodeId !== navigationId || state !== 'resolved') {
         throw new Error(`${title}入口缺少正式导航身份或数据空间绑定`)
       }
       current = session.acquire({

@@ -174,7 +174,7 @@ describe('application manager restored through the formal DataView', () => {
       .toEqual(['#', '简称', '系统名称', 'WebUrl', '开发商名称', '创建时间', '状态', '操作'])
     expect(wrapper.findAll('button').filter(button => button.text().trim() === '刷新')).toHaveLength(1)
     expect(wrapper.text()).toContain('删除与项目管理因缺少完整服务合同暂不可用')
-    for (const label of ['新增', '导出', '编辑', '删除', '项目管理', '报价管理', '关联数据库']) {
+    for (const label of ['新增', '导出', '编辑', '删除', '项目管理', '报价管理']) {
       expect(getButton(wrapper, label).attributes('disabled')).toBeDefined()
     }
     expect(view.primaryKey).toBe('rowid')

@@ -9361,3 +9361,10 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
   - 绑定模型被拒绝时撤销修改；回执中断时拒绝重复确定，关窗后核验确认两表写入。
 
   报表两组测试共 27 项通过。typecheck、ESLint、`verify:ai-codegen`、`verify:page-thin`、`verify:docs`、`verify:pages-config`、`verify:lowcode-contracts`、`git diff --check` 也已通过。实服烟测仍受过期会话阻塞；后端 SaveData 是否单请求事务未经证实，所以部分失败只按回执撤销并刷新，不做补偿写入。
+
+## 2026-11-08 治理页迁移入口核验：脱敏规则配置受模型身份阻塞
+
+- **参考合同。** 参考 `1147b00` 的 `DesensitizationRuleConfig.ts` 用当前导航场景（节点 `3A45C53F29C2C005FF21AA06B2BCA133`）按 `metaName=Base_Desensitization_Rule` 查询、新增、修改、删除；分类与“是否全局匹配”来自同场景字典“脱敏分类”“脱敏全局替换”。保存前用正则、模板、示例原文生成“脱敏后样例”。
+- **仓内已核实身份。** 3A45 场景字典模型：脱敏分类 `3406a885-ac20-4f53-bca1-9c1921717763`、脱敏全局替换 `fbc9a4d7-103b-4360-9ff9-a2202cf53f79`（`evidence/data-chain-smoke/2026-11-02-dictionary-runtime-full-audit.json`）。3A45 场景下 `Base_Desensitization_Rule` 的正式模型 ID 没有证据。
+- **不能借用的绑定。** Excel 导入编辑场景 `0F93…` 的 `77915fa4…` 只输出 `rowid`、`name`，其余字段 `output:false`（`2026-11-05-excel-mapping-models-readonly.json`）；数据空间设计场景 `8D1A…p013` 只用于名称选项。两者都不能承接规则列表的完整读写，也不能伪造或猜测 3A45 的模型 ID。场景 `424875F1…` 只有 p001/p002 字典证据，同样不能推断 p000。
+- **阻塞。** 装配器要求 `modelId` 与 `metaName` 在场景内唯一匹配。实服核验需要浏览器客户端与有效会话；本轮浏览器工具未连接，仓内也没有可用凭据，因此未建页面、未写占位 pagedata。治理（导航权限、角色、用户应用授权）、流程运行、企业注册等剩余页面同样需要先实服取得场景模型身份，之后按同一模式迁移。

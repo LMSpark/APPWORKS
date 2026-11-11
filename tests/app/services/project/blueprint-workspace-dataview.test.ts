@@ -225,6 +225,15 @@ describe('BlueprintWorkspaceDataView direct DataSet contract',()=>{
     expect(fixture.saveRequests).toHaveLength(0)
   })
 
+  it('keeps stored orphan rows readable as top-level nodes for tree and navigation consumers',async()=>{
+    const fixture=createFixture({orphan:true})
+    const tree=await fixture.owner.loadProjectTree()
+    expect(tree.children.map(node=>node.nodeId)).toContain('NAV-ORPHAN')
+    const records=await fixture.owner.loadProjectRecords()
+    expect(records.find(record=>record.nodeId==='NAV-ORPHAN')?.parentNodeId).toBe('NAV-MISSING')
+    expect(fixture.saveRequests).toHaveLength(0)
+  })
+
   it('maps the synthetic root target to the formal root parent identity',async()=>{
     const fixture=createFixture()
     await fixture.owner.moveNode('NAV-BOUND','project-blueprint:APP-1',0)

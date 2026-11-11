@@ -250,7 +250,7 @@ export class BlueprintWorkspaceDataView {
     for (const field of ['prowid', 'FunOrderValue']) if (!this.hasOutput(field)) throw new Error(`蓝图 DataView 未正式输出树字段 ${field}`)
     const revision=++this.#revision, selectedNodeId=this.#nodeId
     try{
-      await this.queryProjectRows(revision,selectedNodeId)
+      await this.queryProjectRows(revision,selectedNodeId,false)
       this.#treeQueryLoaded=true
       this.synchronizeCurrentRow()
       return this.treeProjection()
@@ -264,7 +264,7 @@ export class BlueprintWorkspaceDataView {
     if (this.dirty) throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
     for (const field of ['rowid', 'SysId', 'prowid', 'FunOrderValue']) if (!this.hasOutput(field)) throw new Error(`蓝图 DataView 未正式输出树字段 ${field}`)
     const revision = ++this.#revision, selectedNodeId = this.#nodeId
-    await this.queryProjectRows(revision, selectedNodeId)
+    await this.queryProjectRows(revision, selectedNodeId, false)
     this.#treeQueryLoaded = true
     return this.projectedRecords()
   }
@@ -1131,7 +1131,9 @@ export class BlueprintWorkspaceDataView {
       ...(record.prototype===undefined?{}:{prototype:{...record.prototype}}),source:{...record.source},
       children:(byParent.get(record.nodeId)??[]).sort((a,b)=>(a.navigation?.order??0)-(b.navigation?.order??0)||a.nodeId.localeCompare(b.nodeId)).map(toNode),
     })
-    const roots=records.filter(record=>record.parentNodeId===''||record.parentNodeId==='000000'||record.parentNodeId==='0')
+    const recordIds=new Set(records.map(record=>record.nodeId))
+    // Stored orphans stay visible as top-level nodes; structural write commands still require parent closure.
+    const roots=records.filter(record=>record.parentNodeId===''||record.parentNodeId==='000000'||record.parentNodeId==='0'||!recordIds.has(record.parentNodeId))
       .sort((a,b)=>(a.navigation?.order??0)-(b.navigation?.order??0)||a.nodeId.localeCompare(b.nodeId)).map(toNode)
     const root=roots[0]
     if(!root)throw new Error('蓝图 DataView 没有可展示的正式根节点')
@@ -1158,12 +1160,7 @@ export class BlueprintWorkspaceDataView {
       for(const field of fields)if(this.hasOutput(field)&&this.view.fieldAccess(row,field).read==='visible'&&Object.hasOwn(source,field))visible[field]=source[field]
       return visible
     })
-    const ids=new Set(rows.map(row=>String(row['rowid']??'').trim()))
-    for(const row of rows){
-      const id=String(row['rowid']??'').trim(), parent=String(row['prowid']??'000000').trim()||'000000'
-      if(!id)throw new Error('蓝图 DataView 返回了缺少 rowid 的树行')
-      if(parent!=='000000'&&parent!=='0'&&!ids.has(parent))throw new Error(`蓝图 DataView 父节点闭包缺失：${id} -> ${parent}`)
-    }
+    for(const row of rows)if(!String(row['rowid']??'').trim())throw new Error('蓝图 DataView 返回了缺少 rowid 的树行')
     return validateLowcodeProjectBlueprintRecords(this.#projectId,normalizeLowcodeProjectBlueprintRecords(rows))
   }
 
@@ -1342,7 +1339,8 @@ export class BlueprintWorkspaceDataView {
     return row
   }
 
-  private async queryProjectRows(revision:number,selectedNodeId:string):Promise<DataRow[]> {
+  /** Read paths accept stored orphan rows; structural writes keep requireParentClosure so they never act on an incomplete tree. */
+  private async queryProjectRows(revision:number,selectedNodeId:string,requireParentClosure=true):Promise<DataRow[]> {
     const projectId=this.#projectId
     this.view.filterExpression=DataViewFilter.condition({field:'SysId',operator:'eq',value:projectId}).toJSON()
     this.view.queryConfig={...this.view.queryConfig,allPages:true,maxRows:MAX_BLUEPRINT_ROWS}
@@ -1355,7 +1353,7 @@ export class BlueprintWorkspaceDataView {
     if(rows.some(row=>['rowid','SysId','prowid','FunOrderValue'].some(field=>this.view.fieldAccess(row,field).read!=='visible'))){
       throw new Error('蓝图 DataView 不可读取完整树结构或排序字段，拒绝使用项目树')
     }
-    for(const row of rows){const parent=String(row['prowid']??'000000').trim()||'000000';if(parent!=='000000'&&parent!=='0'&&!ids.has(parent))throw new Error(`蓝图 DataView 父节点闭包缺失：${String(row['rowid'])} -> ${parent}`)}
+    if(requireParentClosure)for(const row of rows){const parent=String(row['prowid']??'000000').trim()||'000000';if(parent!=='000000'&&parent!=='0'&&!ids.has(parent))throw new Error(`蓝图 DataView 父节点闭包缺失：${String(row['rowid'])} -> ${parent}`)}
     this.synchronizeCurrentRow()
     return [...rows]
   }

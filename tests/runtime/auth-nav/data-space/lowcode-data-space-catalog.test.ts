@@ -9,8 +9,10 @@ import {Spark,FieldText,FieldSelect,RendererButton,RendererTable,RendererFilter,
 import RendererFieldScope from '../../../../packages/spark-component/src/components/containers/support/scope/RendererFieldScope.vue'
 import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-const {executeQuery,loadScenario,readRequestScope,openDesign}=vi.hoisted(()=>({executeQuery:vi.fn(),loadScenario:vi.fn(),openDesign:vi.fn(),
+const {executeQuery,loadScenario,loadApps,readRequestScope,openDesign}=vi.hoisted(()=>({executeQuery:vi.fn(),loadScenario:vi.fn(),loadApps:vi.fn(),openDesign:vi.fn(),
   readRequestScope:vi.fn(()=>({token:'scope-a',headers:{'X-AppId':'app-a'}}))}))
+// 应用选项来自租户应用目录（独立 DataSet，无 X-AppId 范围），与目录跨应用列表同范围。
+vi.mock('@/lowcode/lowcode-application-catalog',async importOriginal=>({...await importOriginal<Record<string,unknown>>(),loadLowcodeApplicationCatalog:loadApps}))
 vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{readRequestScope,dataSpace:{runtime:{executeQuery,save:vi.fn()}}}}))
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',()=>({loadLowcodeRuntimeScenario:loadScenario}))
 vi.mock('@/lowcode/data-space/lowcode-data-space-design',()=>({openLowcodeDataSpaceDesignSession:openDesign}))
@@ -28,7 +30,15 @@ const navigationProjection=models.Base_NavigationInfo.map((field,index)=>({field
   resourceField:field,viewField:field,type:'string',label:field,output:field!=='conid',sortOrder:index,sortDirection:null,group:0,distinct:false,
   primaryKey:index===0,value:'',valueFunction:'',expression:''}))
 function dataset(scenarioId='SCENE',includeDeleteCheck=false) {
-  const entries=Object.entries(models).filter(([name])=>includeDeleteCheck||name!=='Base_DataModel')
+  const entries=Object.entries(models).filter(([name])=>name!=='Base_AppSystemList'&&(includeDeleteCheck||name!=='Base_DataModel'))
+  return tables(scenarioId,entries)
+}
+function appsDataset() {
+  const dataSet=tables('APPS',[['Base_AppSystemList',models.Base_AppSystemList]])
+  dataSet.getTable('Base_AppSystemList')!.forEachView(view=>view.bindQueryExecutor({executeQuery}))
+  return dataSet
+}
+function tables(scenarioId:string,entries:readonly (readonly [string,readonly string[]])[]) {
   return DataSet.fromJson({scenarioId,dataSetName:scenarioId,tables:Object.fromEntries(entries.map(([name,fields])=>[name,{
     modelBinding:{modelId:`M-${name}`,modelName:name},resourceType:'database-table',resourceId:name,
     columns:fields.map((field,index)=>({name:field,type:'string',isPrimaryKey:index===0})),
@@ -89,7 +99,7 @@ function writable() {
   loadScenario.mockImplementation(({scenarioId}:{scenarioId:string})=>{
     const dataSet=dataset(scenarioId,true)
     activeDataSet=dataSet
-    for(const name of Object.keys(models))dataSet.getTable(name)!.forEachView(view=>view.bindQueryExecutor({executeQuery,save,hasUnconfirmedSave}))
+    for(const name of Object.keys(models))dataSet.getTable(name)?.forEachView(view=>view.bindQueryExecutor({executeQuery,save,hasUnconfirmedSave}))
     return Promise.resolve(dataSet)
   })
   return {save,rows:rowsByModel['Base_DataSet']!,get dataSet(){return activeDataSet},get writes(){return writes},onWrite(fn:()=>void){afterWrite=fn},
@@ -113,7 +123,8 @@ async function page(scenarioId='SCENE') {
   disposals.push(()=>wrapper.unmount());await flushPromises();return {router,wrapper}
 }
 beforeEach(()=>{
-  executeQuery.mockReset();loadScenario.mockReset();readRequestScope.mockReset();openDesign.mockReset()
+  executeQuery.mockReset();loadScenario.mockReset();loadApps.mockReset();readRequestScope.mockReset();openDesign.mockReset()
+  loadApps.mockImplementation(()=>Promise.resolve(appsDataset()))
   readRequestScope.mockReturnValue({token:'scope-a',headers:{'X-AppId':'app-a'}})
   loadScenario.mockImplementation(({scenarioId}:{scenarioId:string})=>{
     const dataSet=dataset(scenarioId)
@@ -202,11 +213,20 @@ describe('native DataView catalog',()=>{
     expect(fixture.rows.map(row=>row['rowid'])).toEqual(['TARGET'])
     expect(wrapper.text()).toContain('删除目标已变化')
   })
-  it('keeps the native 90A catalogApps view required by the catalog host',async()=>{
+  it('reads application options from the tenant application catalog, not the 90A route space',async()=>{
     const pagedata:unknown=JSON.parse(readFileSync(resolve(process.cwd(),'config/pages/data-platform/data-space-catalog/pagedata.json'),'utf8'))
-    expect(pagedata).toMatchObject({tables:{Base_AppSystemList:{views:{catalogApps:{autoLoad:false}}}}})
+    expect(pagedata).toMatchObject({tables:{Base_AppSystemList:{views:{default:{}}}}})
+    expect(pagedata).not.toMatchObject({tables:{Base_AppSystemList:{views:{catalogApps:{}}}}})
     const value=await owner();await value.initialize()
-    expect(calls('Base_AppSystemList').map(([view])=>view.viewId)).toContain('catalogApps')
+    expect(loadApps).toHaveBeenCalledTimes(1);expect(value.apps.dataSet).toBe(value.appCatalog)
+    expect(calls('Base_AppSystemList').map(([view])=>view.dataSet?.scenarioId)).toEqual(['APPS'])
+  })
+  it('releases the route space when the tenant application catalog cannot load',async()=>{
+    const destroyed:DataSet[]=[]
+    loadScenario.mockImplementation(()=>{const dataSet=dataset();const destroy=dataSet.destroy.bind(dataSet)
+      dataSet.destroy=()=>{destroyed.push(dataSet);destroy()};return Promise.resolve(dataSet)})
+    loadApps.mockRejectedValue(new Error('Catalog unavailable'))
+    await expect(owner()).rejects.toThrow('Catalog unavailable');expect(destroyed).toHaveLength(1)
   })
 
   it('preserves explicit current-row and selection behavior in builtin 7AB catalog views',()=>{
@@ -541,7 +561,7 @@ describe('catalog page entry',()=>{
     let release!:(value:DataSpaceQueryContext)=>void,oldView!:DataView
     const pending=new Promise<DataSpaceQueryContext>(resolve=>{release=resolve})
     executeQuery.mockImplementation(async(view:DataView)=>{
-      if(view.dataSet?.scenarioId==='SCENE'&&view.tableName==='Base_AppSystemList'){oldView=view;return pending}
+      if(!oldView&&view.tableName==='Base_AppSystemList'){oldView=view;return pending}
       return context(view,view.tableName==='Base_AppSystemList'?[{rowid:'APP',AppDesc:'Current application'}]:defaults[view.tableName]??[])
     })
     const {wrapper,router}=await page()

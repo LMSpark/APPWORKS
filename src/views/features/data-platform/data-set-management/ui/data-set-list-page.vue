@@ -87,7 +87,8 @@ let unsubscribe: (() => void) | undefined, generation = 0, active = true, action
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const projectId = computed(() => parseApplicationPathScope(route.path)?.projectId ?? '')
 const catalogKey = computed(() => buildDataViewKey('Base_DataSet', 'catalog', scenarioId.value))
-const appsKey = computed(() => buildDataViewKey('Base_AppSystemList', 'catalogApps', scenarioId.value))
+const appsKey = computed(() => {revision.value; const apps = owner.value?.appCatalog.scenarioId
+  return apps ? buildDataViewKey('Base_AppSystemList', 'catalogApps', apps) : ''})
 const listError = computed(() => {revision.value; return owner.value?.view.loadingError?.message ?? ''})
 const appsError = computed(() => {revision.value; return owner.value?.apps.loadingError?.message ?? ''})
 const unresolved = computed(() => {revision.value; return owner.value?.unresolvedCreatorCount ?? 0})
@@ -230,12 +231,16 @@ watch([scenarioId, projectId], async ([scenario, project]) => {
     const catalog = await LowcodeDataSpaceCatalog.load({scenarioId: scenario, projectId: project})
     if (!active || own !== generation) {catalog.dispose(); return}
     owner.value = catalog
-    const current = session.acquire({pageId: 'data-set-list-page', scenarioIds: [scenario], targetId: `${project}:${scenario}`,
-      loadScenario: async () => catalog.dataSet})
+    const appScenario = catalog.appCatalog.scenarioId
+    if (!appScenario) throw new Error('应用目录缺少正式场景身份')
+    const current = session.acquire({pageId: 'data-set-list-page', scenarioIds: [scenario, appScenario], mainScenarioId: scenario,
+      targetId: `${project}:${scenario}`, loadScenario: async id => id === scenario ? catalog.dataSet : catalog.appCatalog})
     await current.load()
     if (!active || own !== generation || !session.isCurrent(current)) return
-    unsubscribe = catalog.dataSet.onAnyViewChange({rowsChanged: () => revision.value++, selectedRowsChanged: () => revision.value++,
-      requestStateChanged: () => revision.value++, configChanged: () => revision.value++, editingChanged: () => revision.value++})
+    const changed = {rowsChanged: () => revision.value++, selectedRowsChanged: () => revision.value++,
+      requestStateChanged: () => revision.value++, configChanged: () => revision.value++, editingChanged: () => revision.value++}
+    const offs = [catalog.dataSet.onAnyViewChange(changed), catalog.appCatalog.onAnyViewChange(changed)]
+    unsubscribe = () => {for (const off of offs) off()}
     // 首次查询先完成，再挂接容器，避免autoLoad与目录初始化并发发起同一请求。
     await catalog.initialize()
     if (active && own === generation && session.isCurrent(current)) ready.value = true

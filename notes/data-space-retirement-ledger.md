@@ -9232,3 +9232,11 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **实现。** `DictionaryWorkspace` 使用显式 `design` / `data` 用途；设计打开只读定义，数据页保持定义与条目读取。变更 `dictionaryType` 时通过同一条目 DataView 按需查询并校验完整性，失败时不提交并保留编辑草稿。字典设计页补回固定参考中的键/值显示语义提示。未改 Java、未新增 Node.js 服务，未触碰实服字典数据。
 - **验证。** `pnpm run typecheck` 通过；改动文件 ESLint `--max-warnings=0` 通过；字典 workspace 2 个测试文件 100 项通过；页面 workflow 36 项通过（含参考提示和设计页不查询条目的断言）；`pnpm run verify:ai-codegen` 检查 1739 个文件通过。测试为本地夹具验证，不等同于实服验收。
 - **实服与剩余范围。** 浏览器会话停在登录表单，未使用账号凭据，未对实服执行写入；因此没有宣称字典真实页面烟测通过。整个平台元数据迁移仍未完成，后续继续依唯一台账推进并分别验证真实查询、保存回执、精确回读及重开消费。
+
+### 元数据平台进入与数据空间目录应用范围
+
+- **断链。** 含孤儿蓝图行（父节点不在本次结果内）的应用进入时报“蓝图 DataView 父节点闭包缺失”，00BE、D99 均受影响。`blueprint-workspace-dataview.ts` 改为读取侧把孤儿行作为顶层节点呈现；结构写入仍要求父链闭包，不在前端猜测重挂或删除存量孤儿记录。
+- **D99 只读烟测。** 以“元数据管理”（D99A1DCE…）进入后逐项打开：数据库管理三页、外部服务、半结构化三页、结构化配置四页、应用系统、人力资源三页、缓存管理均有真实数据或合法空态；表和视图读取较慢（约10—20秒）。SPARK 工具中的工作流设计仍为台账既定的 `[1003] 文件夹路径不存在`（目录未经正式资源生命周期建立，不折算为空，见前文决定），开发工作台“仓内蓝图尚未接入该资源”保留为差距。
+- **数据空间目录“未解析应用”。** 目录跨应用列出 `Base_DataSet`（约1530行），但应用选项原绑定 90A 场景的 `Base_AppSystemList@catalogApps`，在当前应用请求范围（`X-AppId`）下只返回本应用，致多数行显示“未解析应用”。改为由 `loadLowcodeApplicationCatalog` 装配租户应用目录 DataSet 提供 `catalogApps`，与目录同范围；两个 DataSet 登记在同一页面 PageRuntime，装配失败时一并释放。90A pagedata 中不再使用的 `catalogApps` 视图删除。实服复验：目录首页 0 处“未解析应用”，所属应用过滤列出 67 个应用。
+- **删除旧入口。** `config/pages/data-platform/data-space-catalog/{rule.json,script.js,style.css}` 只有 pagedata 在 `config/applications/appworks.json` 登记，脚本未被打包也无运行消费者，原 URL 由 `data-set-list-page.vue` 承接；按前文“旧表达与重复入口清单”删除这三份及其专用测试 `tests/runtime/page/design/data-space-four-file.test.ts`，共用 pagedata 保留。
+- **验证。** `pnpm run typecheck`、改动文件 ESLint、目录与蓝图 DataView 测试 89 项、`verify:ai-codegen`/`verify:docs`/`verify:page-thin` 均通过。未改 Java、未新增 Node.js 服务、未执行实服写入。

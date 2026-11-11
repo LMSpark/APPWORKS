@@ -1,5 +1,6 @@
 import {buildDataViewKey, resolveDataViewKey, RequestState, type DataSet, type DataView, type DataRow} from '@spark-appworks/spark-data'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {getFormalModelView, loadLowcodeApplicationCatalog} from '@/lowcode/lowcode-application-catalog'
 import {loadLowcodeRuntimeScenario} from './lowcode-data-space-runtime'
 import {openLowcodeDataSpaceDesignSession} from './lowcode-data-space-design'
 
@@ -48,14 +49,18 @@ export class LowcodeDataSpaceCatalog {
   #bindingTarget: DataRow | undefined
   #bindingRevision = 0
 
-  private constructor(public readonly dataSet: DataSet, private readonly scopeToken: string) {
+  /**
+   * 目录跨应用列出数据空间，应用选项须与之同范围：取登录租户的正式应用目录（无 X-AppId），
+   * 不用当前应用请求范围内只返回本应用的同名模型。
+   */
+  private constructor(public readonly dataSet: DataSet, public readonly appCatalog: DataSet, private readonly scopeToken: string) {
     const resolve = (model: string, name: string): DataView => {
       const view = resolveDataViewKey(buildDataViewKey(model, name, dataSet.scenarioId), dataSet)
       if (!view) throw new Error(`数据空间目录缺少正式视图 ${model}@${name}`)
       return view
     }
     this.view = resolve('Base_DataSet', 'catalog')
-    this.apps = resolve('Base_AppSystemList', 'catalogApps')
+    this.apps = getFormalModelView(appCatalog, 'Base_AppSystemList', 'catalogApps')
     this.users = resolve('Base_UserInfo', 'catalogUsers')
     this.view.queryConfig = {...this.view.queryConfig, fields: catalogFields, allPages: false, autoQuery: false}
     this.apps.queryConfig = {...this.apps.queryConfig, fields: ['rowid', 'AppDesc', 'AppName'], allPages: true}
@@ -93,11 +98,17 @@ export class LowcodeDataSpaceCatalog {
     if (!command.scenarioId.trim()) throw new Error('数据空间目录缺少正式蓝图场景')
     const scope = lowcodeApi.readRequestScope()
     if (scope.headers['X-AppId'] !== command.projectId) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 目录所属应用已失效')
-    const dataSet = await loadLowcodeRuntimeScenario(command)
-    try {
+    const assertCurrent = (): void => {
       if (scope.token !== lowcodeApi.readRequestScope().token) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 目录执行域已变化')
-      return new LowcodeDataSpaceCatalog(dataSet, scope.token)
-    } catch (error) {dataSet.destroy(); throw error}
+    }
+    const [space, apps] = await Promise.allSettled([loadLowcodeRuntimeScenario(command), loadLowcodeApplicationCatalog(assertCurrent)])
+    const loaded = [space, apps].flatMap(result => result.status === 'fulfilled' ? [result.value] : [])
+    try {
+      if (space.status === 'rejected') throw space.reason
+      if (apps.status === 'rejected') throw apps.reason
+      assertCurrent()
+      return new LowcodeDataSpaceCatalog(space.value, apps.value, scope.token)
+    } catch (error) {for (const dataSet of loaded) dataSet.destroy(); throw error}
   }
 
   public async initialize(): Promise<void> {await Promise.all([this.view.refresh(), this.apps.refresh()])}
@@ -366,5 +377,5 @@ export class LowcodeDataSpaceCatalog {
   public isCurrent(): boolean {
     try {return !this.#disposed && lowcodeApi.readRequestScope().token === this.scopeToken} catch {return false}
   }
-  public dispose(): void {this.#disposed = true; this.closeBindings(); this.#unsubscribe(); this.dataSet.destroy()}
+  public dispose(): void {this.#disposed = true; this.closeBindings(); this.#unsubscribe(); this.dataSet.destroy(); this.appCatalog.destroy()}
 }

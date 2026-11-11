@@ -9,6 +9,7 @@ AI用途：实现专题方案设计页时保留元数据空间和已保存方案
   <p v-if="loading">正在读取字典设计…</p>
   <template v-if="ready && workspace">
     <RendererForm :data-view-key="definitionKey" :children="definitionFields" grid-min-width="220px" :show-data-view-meta="false" />
+    <p class="dictionary-setting__note">注：键名称对应保存的值，值名称是用来显示</p>
     <RendererButton :data-view-key="definitionKey" label="保存设计" button-type="primary" :disabled="busy || uncertain" @click="save" />
     <RendererButton :data-view-key="definitionKey" :label="uncertain ? '核验原提交（保留本地修改）' : '取消设计修改并重读'" :disabled="busy" @click="reload" />
     <RendererButton :data-view-key="definitionKey" label="放弃设计修改并关闭" :disabled="busy || uncertain" @click="cancel" />
@@ -65,3 +66,7 @@ async function removeDefinition(): Promise<void> {
   confirmDelete.value = false
 }
 </script>
+
+<style scoped>
+.dictionary-setting__note { margin: 8px 0 0; color: var(--el-text-color-secondary); }
+</style>

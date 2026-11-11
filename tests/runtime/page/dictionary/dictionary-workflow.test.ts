@@ -126,7 +126,8 @@ describe('Dictionary independent design and data pages', () => {
     expect(data.text()).toContain('当前方案：配色')
   })
   it('opens an existing design without querying its business entries', async () => {
-    await open('design')
+    const design = await open('design')
+    expect(design.text()).toContain('键名称对应保存的值，值名称是用来显示')
     expect(http.reads.map(request => (request.data as {Table: Array<{Name: string}>}).Table[0]!.Name))
       .toEqual(['_Base_DictType'])
   })

@@ -9229,6 +9229,6 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 ### 字典设计页条目按需读取
 
 - **迁移语义。** 固定参考 `1147b00ee53a1476d4ee715c61368b453a215192` 的字典设计入口只读取当前定义；本仓设计页普通打开不需要读取完整字典条目。数据维护页仍完整读取条目，新建身份检查及编码类型变更校验仍须读取准确目标下的完整条目。
-- **实现。** `DictionaryWorkspace` 使用显式 `design` / `data` 用途；设计打开只读定义，数据页保持定义与条目读取。变更 `dictionaryType` 时通过同一条目 DataView 按需查询并校验完整性，失败时不提交并保留编辑草稿。未改 Java、未新增 Node.js 服务，未触碰实服字典数据。
-- **验证。** `pnpm run typecheck` 通过；改动文件 ESLint `--max-warnings=0` 通过；字典 workspace 2 个测试文件 100 项通过；页面 workflow 36 项通过；`pnpm run verify:ai-codegen` 检查 1739 个文件通过。测试为本地夹具验证，不等同于实服验收。
+- **实现。** `DictionaryWorkspace` 使用显式 `design` / `data` 用途；设计打开只读定义，数据页保持定义与条目读取。变更 `dictionaryType` 时通过同一条目 DataView 按需查询并校验完整性，失败时不提交并保留编辑草稿。字典设计页补回固定参考中的键/值显示语义提示。未改 Java、未新增 Node.js 服务，未触碰实服字典数据。
+- **验证。** `pnpm run typecheck` 通过；改动文件 ESLint `--max-warnings=0` 通过；字典 workspace 2 个测试文件 100 项通过；页面 workflow 36 项通过（含参考提示和设计页不查询条目的断言）；`pnpm run verify:ai-codegen` 检查 1739 个文件通过。测试为本地夹具验证，不等同于实服验收。
 - **实服与剩余范围。** 浏览器会话停在登录表单，未使用账号凭据，未对实服执行写入；因此没有宣称字典真实页面烟测通过。整个平台元数据迁移仍未完成，后续继续依唯一台账推进并分别验证真实查询、保存回执、精确回读及重开消费。

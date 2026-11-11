@@ -48,11 +48,11 @@ AI用途：恢复应用管理入口时复用本地正式场景与标准 DataView
 import {computed, inject, onBeforeUnmount, ref, watch} from 'vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
-import {getNavHomePath} from '@spark-appworks/spark-app'
+import {getNavHomePath, SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererButton, RendererTable, type RFilterProps} from '@spark-appworks/spark-component'
 import {lowcodeApi, readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
-import {buildApplicationPath} from '@/services/application-scope'
+import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
@@ -213,7 +213,14 @@ const actions = computed(() => ({wrap: true, gap: 4, children: [
     onClick: (row: DataRow) => submitApplicationDocument(row, 'system-detailed-design'),
   }},
   {type: 'r-button', props: {dataViewKey: viewKey, label: '报价管理', link: true, disabled: true}},
-  {type: 'r-button', props: {dataViewKey: viewKey, label: '关联数据库', link: true, disabled: true}},
+  {type: 'r-button', props: {
+    dataViewKey: viewKey,
+    label: '关联数据库',
+    link: true,
+    onBeforeRender: ({row, dataSource}: {row?: DataRow | null; dataSource?: DataView | null}) =>
+      Boolean(row && dataSource && canOpenApplication(row, dataSource)),
+    onClick: (row: DataRow) => openDatabaseRelations(row),
+  }},
 ] }))
 let statusGeneration = 0
 let documentGeneration = 0
@@ -262,6 +269,21 @@ async function openApplication(row: DataRow): Promise<void> {
   } catch (cause) {
     ElMessage.error(`进入应用失败：${cause instanceof Error ? cause.message : String(cause)}`)
   }
+}
+
+const DATABASE_RELATIONS_NODE_ID = '93DF05182084B1F0E8DA7283E83BBE0C'
+const DATABASE_RELATIONS_PATH = '/features/application/application-context/ui/application-database-relations-page'
+
+/** 关联数据库页属于当前应用的系统导航；目标应用只作为 sysid 调用参数传入。 */
+async function openDatabaseRelations(row: DataRow): Promise<void> {
+  const dataView = pageView.value
+  const scope = parseApplicationPathScope(router.currentRoute.value.path)
+  if (!dataView || !canOpenApplication(row, dataView) || !scope) {
+    ElMessage.error('关联数据库缺少可读的应用身份')
+    return
+  }
+  await router.push({path: buildApplicationPath(scope, DATABASE_RELATIONS_PATH),
+    query: {sysid: String(row['rowid']).trim(), [SYSTEM_PAGE_NAVIGATION_ID_QUERY]: DATABASE_RELATIONS_NODE_ID}})
 }
 
 function resolveApplicationWebUrl(row: DataRow, dataView: DataView): string {

@@ -27,6 +27,14 @@
       "resourceId": "repository:scenario-view:E328FBBF518141973C575D612CD75151", "path": "config/pages/system/flow-monitor/pagedata.json"
     },
     {
+      "name": "databaseRelations", "scenarioId": "93DF05182084B1F0E8DA7283E83BBE0C",
+      "resourceId": "repository:scenario-view:93DF05182084B1F0E8DA7283E83BBE0C", "path": "config/pages/application/database-relations/pagedata.json"
+    },
+    {
+      "name": "dataMenu", "scenarioId": "2CA968B3513084BA2537BB0C85AE945E",
+      "resourceId": "repository:scenario-view:2CA968B3513084BA2537BB0C85AE945E", "path": "config/pages/application/data-menu/pagedata.json"
+    },
+    {
       "name": "businessTableSelector", "scenarioId": "34BDBE645F461A3D83282A941D6037F4",
       "resourceId": "repository:scenario-view:34BDBE645F461A3D83282A941D6037F4", "path": "config/pages/shared/business-table-selector/pagedata.json"
     },

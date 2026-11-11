@@ -9266,3 +9266,10 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **断链修复：系统行键。** 服务端把未起别名的 `ROWID` 输出为小写 `rowid`（`row_id AS rowid`），正式字段却以 `ROWID` 作 canonicalName，凡 `valueField: "ROWID"` 的用户选项均匹配不到行，创建人显示原 ID。`DataSpaceDesignApi.formalField` 对未起别名的 ROWID 统一以实际输出名 `rowid` 消费；七份 pagedata、数据空间目录及两页面同步改用 `rowid`，删除目录对 `ROWID`/`rowid` 双键的并存判断。
 - **已登记差距。** 不在当前租户 `Base_UserInfo` 的创建人（如 U00005、U00028、U00795）显示原 ID，与参考回退一致。
 - **验证。** typecheck、改动文件 ESLint、导航/注册/数据空间/字典/结构化配置/半结构化/外部服务 vitest（并发负载下的超时用例单独复跑通过）、生成器与 `verify:*` 门禁通过。实服烟测：菜单出现“流程监控”，列表 255 条、状态筛选 35 条、重置与分页正常，创建人显示用户名；字典、逻辑视图、JSON、Excel 导入、数据库三页回归无异常。未改 Java，未新增 Node.js 服务。
+
+### 2026-11-11 应用管理迁移：关联数据库与导航宿主管理
+
+- **迁移落点。** 参考关联数据库对话框恢复为 `features/application/application-context/ui/application-database-relations-page.vue`（场景 `93DF05182084B1F0E8DA7283E83BBE0C`，`config/pages/application/database-relations/pagedata.json`）：`_base_dbInfo` 主视图、`Base_AppAndSource_Relation` 按 `sysid`/`type=database` 过滤，候选 `db_relation_sel` 为逻辑视图。参考 `features/application/data-menu/ui/` 按原路径恢复导航宿主列表与编辑对话框（场景 `2CA968B3513084BA2537BB0C85AE945E`）；数据空间、资源、字段三级选项由 `Base_DataSet`/`Base_DataModel`/`Base_DataModel_Field` 视图按调用输入查询，行操作“设计”在对话框内打开仓内数据空间设计页。两页均登记 `appworks.json`、`publishedNodeIds`、`vue-pages.json`。应用系统列表行操作“关联数据库”改为带当前导航身份进入该页，目标应用以 `sysid` 调用参数传入。
+- **断链修复。** 逻辑视图 `db_relation_sel` 的来源入参 `sysid` 在正式字段中无取值函数，mapped 模式报 `SPARK_SOURCE_INPUT 缺少取值配置`；该视图改为 `sourceInputMode: direct`，由 `queryContext` 按来源参数名完整提供 `conidsArray`/`database`/`sysid`。
+- **已登记差距。** 导航宿主节点 `IsShowAtNav=0`，实服 `GetNavigationMenus` 不返回 2CA9，页面无授权导航身份而按设计拒绝装配（“缺少正式导航身份或数据空间绑定”）；须由菜单授权开放后方可进入，不在前端绕过。数据空间选择以可筛选 `FieldSelect` 代替参考分页选择对话框；“配置”入口（数据权限页）随权限专题暂缓。
+- **验证。** typecheck、改动文件 ESLint、导航/应用资源 vitest、`verify:page-thin`/`docs`/`lowcode-contracts`/`ai-codegen` 通过。实服烟测：关联数据库列表显示 QYVirtualPlat 及服务器信息；应用列表“关联数据库”进入正确；添加对话框列出候选库，选择 PX 后“关联成功”并显示为已引用，删除确认后“删除成功”恢复原状。未改 Java，未新增 Node.js 服务。

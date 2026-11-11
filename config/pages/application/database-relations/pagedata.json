@@ -1,0 +1,34 @@
+{
+  "scenarioId": "93DF05182084B1F0E8DA7283E83BBE0C",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "_base_dbInfo": {
+      "modelBinding": {"modelId": "935f5980-fac4-4579-be51-c22bcdc0973c", "modelName": "_base_dbInfo"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
+        "valueField": "Id", "labelField": "Name",
+        "queryConfig": {"allPages": true, "fields": ["Id", "Name", "ServerName", "Port", "Type", "SchemaName", "Remark"]}
+      }}
+    },
+    "Base_AppAndSource_Relation": {
+      "modelBinding": {"modelId": "57c1d507-fd3b-404c-980c-71a64ef0dfd5", "modelName": "Base_AppAndSource_Relation"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "pageSize": 1000,
+        "filterExpression": {"logic": "and", "filters": [
+          {"field": "sysid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "sysid"}},
+          {"field": "type", "operator": "eq", "value": "database"}
+        ]},
+        "queryConfig": {"allPages": true, "fields": ["rowid", "sysid", "type", "conid", "conName", "cnName", "isRef"]}
+      }}
+    },
+    "db_relation_sel": {
+      "modelBinding": {"modelId": "aafd410a-f8e6-42c0-af40-558d420649b3", "modelName": "db_relation_sel"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
+        "queryConfig": {"allPages": true, "sourceInputMode": "direct", "fields": ["Id", "Name", "Remark", "Port", "Type"]}
+      }}
+    }
+  },
+  "viewCascades": []
+}

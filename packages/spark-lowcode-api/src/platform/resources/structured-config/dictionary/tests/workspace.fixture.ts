@@ -111,7 +111,7 @@ export function fixture(http = new DictionaryHttp(), create = false, scenarioId 
     views: {default: {autoCurrentFirst: false, autoSelectFirst: false}},
   }]))})
   for (const model of models) runtime.bindModelView(dataSet.getView(model.metaName, 'default')!, model)
-  const workspace = new DictionaryWorkspace({dataSet, dictionaryId: 'D1', create})
+  const workspace = new DictionaryWorkspace({dataSet, dictionaryId: 'D1', purpose: 'data', create})
   return {dataSet, workspace, http}
 }
 
@@ -133,4 +133,3 @@ export async function applicationOptionsFixture(http: DictionaryHttp, scenarioId
   if (view.loadingError) {dataSet.destroy(); throw view.loadingError}
   return dataSet
 }
-

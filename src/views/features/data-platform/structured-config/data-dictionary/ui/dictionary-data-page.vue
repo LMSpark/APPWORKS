@@ -49,6 +49,7 @@ const emit = defineEmits<{
 const owner = useDictionaryWorkspace({
   dictionaryId: () => props.dictionaryId,
   open: () => props.open,
+  purpose: 'data',
   pageId: 'dictionary-data-page',
   onPending: value => emit('pending', value),
 })

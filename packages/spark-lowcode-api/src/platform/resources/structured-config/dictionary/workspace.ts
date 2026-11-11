@@ -24,6 +24,8 @@ type DictionaryWorkspaceInput = Readonly<{
   dataSet: DataSet
   /** 本次唯一字典资源身份。 */
   dictionaryId: string
+  /** 设计页仅按需读取条目；数据页进入时读取完整条目视图。 */
+  purpose: 'design' | 'data'
   /** 新建时仍先正式查询空目标，取得新增权限与保存基线。 */
   create?: boolean
 }>
@@ -35,9 +37,11 @@ export class DictionaryWorkspace {
   /** 业务条目视图；普通提交与设计定义隔离。 */
   readonly entries: DataView
   readonly #input: DictionaryWorkspaceInput
+  readonly #purpose: DictionaryWorkspaceInput['purpose']
   #busy = false
   #uncertain = false
   #verificationCaptureLost = false
+  #entriesLoaded = false
   #creating: boolean
   #deleting = false
   #removed = false
@@ -49,6 +53,7 @@ export class DictionaryWorkspace {
     const entries = input.dataSet.getView('_Base_DictData', 'default')
     if (!definition || !entries) throw new Error('字典维护空间缺少正式定义或条目视图')
     this.#input = input
+    this.#purpose = input.purpose
     this.#creating = input.create === true
     this.definition = definition
     this.entries = entries
@@ -76,7 +81,7 @@ export class DictionaryWorkspace {
     if (this.#busy || this.pending && !discard) throw new Error('请先保存或明确放弃字典修改')
     this.#busy = true
     try {
-      const recoveryViews = [this.entries, this.definition]
+      const recoveryViews = this.#entriesLoaded ? [this.entries, this.definition] : [this.definition]
       const hasUnknown = recoveryViews.some(view => view.hasUnconfirmedSave)
       if (!hasUnknown && this.#verificationCaptureLost) throw new Error('字典提交结果缺少可核验的原捕获，不能安全重读')
       if (hasUnknown) {
@@ -102,8 +107,9 @@ export class DictionaryWorkspace {
       if (!result.success) throw new Error(result.message ?? '字典定义读取失败')
       const absentAfterDelete = this.#deleting && this.definition.rows.length === 0
       if (!absentAfterDelete && (!this.#creating || this.definition.rows.length > 0)) this.assertScope()
-      const loaded = await this.entries.loadFromServer({singleFlight: false})
-      if (!loaded.success) throw new Error(loaded.message ?? '字典条目读取失败')
+      if (this.#purpose === 'data' || this.#creating || this.#entriesLoaded || this.#deleting) {
+        await this.loadEntries(this.#purpose === 'design' || this.#creating || this.#deleting)
+      }
       if (absentAfterDelete) {
         if (this.entries.rows.length > 0) throw new Error('定义已不再返回，但仍有条目，需核验部分删除结果')
         this.#removed = true; this.#uncertain = false; this.#deleting = false
@@ -271,11 +277,19 @@ export class DictionaryWorkspace {
     }
     const other = target === this.definition ? this.entries : this.definition
     if (other.hasEditingChanges() || other.dirtyTracking.hasPendingChanges()) throw new Error('设计配置与业务数据必须分别维护和保存，请先取消另一类修改')
-    this.assertScope()
-    for (const view of [this.definition, this.entries]) this.assertChangesAllowed(view)
     const row = this.definition.getEditingRow(this.#input.dictionaryId)
     if (!row) throw new Error('字典定义已失效')
     const definitionChanges = this.changedFields(this.definition, this.#input.dictionaryId)
+    if (target === this.definition && definitionChanges?.includes('dictionaryType') && !this.#entriesLoaded) {
+      this.#busy = true
+      try {
+        await this.loadEntries(true)
+        this.assertScope()
+      } finally { this.#busy = false }
+    }
+    if (target === this.definition && definitionChanges?.includes('dictionaryType')) this.assertEntriesComplete()
+    this.assertScope()
+    for (const view of [this.definition, this.entries]) this.assertChangesAllowed(view)
     if (definitionChanges?.includes('AppId')) throw new Error('字典所属应用不可修改')
     if (this.#creating && (typeof row['AppId'] !== 'string' || !row['AppId'].trim())) {
       throw new Error('新建字典必须选择所属应用')
@@ -296,6 +310,7 @@ export class DictionaryWorkspace {
       }
       if (edited) DictionarySchema.validateEntry(edited, row, fields)
     }
+    if (this.#purpose === 'design') this.#entriesLoaded = false
     await this.commit(target)
     this.#creating = false
     if (this.pending) throw new Error('本次提交已确认，仍有随后发生的编辑，请保留并处理')
@@ -328,6 +343,19 @@ export class DictionaryWorkspace {
       throw error
     }
     finally { this.#busy = false }
+  }
+
+  private async loadEntries(requireComplete: boolean): Promise<void> {
+    const result = await this.entries.loadFromServer({singleFlight: false})
+    if (!result.success) throw new Error(result.message ?? '字典条目读取失败')
+    if (requireComplete) this.assertEntriesComplete()
+    this.#entriesLoaded = true
+  }
+
+  private assertEntriesComplete(): void {
+    if (!this.entries.countReported || this.entries.rows.length !== this.entries.total) {
+      throw new Error('字典条目未完整读取，不能核验新建身份或编码类型')
+    }
   }
 
   /** 按当次字段权限取标题；没有标题时保留字段，禁止据此裁剪扩展数据。 */

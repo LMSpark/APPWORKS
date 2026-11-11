@@ -17,6 +17,8 @@ import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionar
 type DictionaryPageInput = Readonly<{
   /** 正式字典身份；响应式变化时只在旧实例可安全释放后重新装配。 */
   dictionaryId: MaybeRefOrGetter<string | undefined>
+  /** 设计与数据页面分别声明条目视图的读取时机。 */
+  purpose: 'design' | 'data'
   /** 数据页目录长期挂载时由此区分关闭状态与缺少目标身份。 */
   open?: MaybeRefOrGetter<boolean>
   /** 仅设计页可新建定义；数据页必须消费已保存方案。 */
@@ -163,7 +165,8 @@ export function useDictionaryWorkspace(input: DictionaryPageInput) {
       } catch (cause) {for (const scenarioDataSet of dataSets.values()) scenarioDataSet.destroy(); throw cause}
       dataSet = opened.dataSet; await current.load()
       if (!isCurrent() || !session.isCurrent(current)) return
-      const owner = new DictionaryWorkspace({dataSet: opened.dataSet, dictionaryId: id, ...(input.create ? {create: true} : {})})
+      const owner = new DictionaryWorkspace({dataSet: opened.dataSet, dictionaryId: id, purpose: input.purpose,
+        ...(input.create ? {create: true} : {})})
       workspace.value = owner; await owner.load()
       if (!isCurrent()) return
       sparkProvide(PAGE_RUNTIME, current)

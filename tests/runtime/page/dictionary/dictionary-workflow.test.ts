@@ -125,6 +125,11 @@ describe('Dictionary independent design and data pages', () => {
     const data = await open('data')
     expect(data.text()).toContain('当前方案：配色')
   })
+  it('opens an existing design without querying its business entries', async () => {
+    await open('design')
+    expect(http.reads.map(request => (request.data as {Table: Array<{Name: string}>}).Table[0]!.Name))
+      .toEqual(['_Base_DictType'])
+  })
   it('runs the configured generic AI component from DictionaryData into the original entry draft and save path', async () => {
     const aiHttp = new WorkflowAiHttp()
     aiHttp.responses.push(
@@ -373,7 +378,7 @@ describe('Dictionary independent design and data pages', () => {
     expect(dataSet.destroyed).toBe(true)
     expect(page.emitted('saved')).toBeUndefined()
     expect(http.saves).toHaveLength(1)
-    expect(http.reads).toHaveLength(2)
+    expect(http.reads).toHaveLength(1)
     expect(http.records['_Base_DictType']![0]!['fiveValue']).toBe('卸载前提交')
   })
   it('ignores a superseded assembly and releases its DataSet after the new dictionary is ready', async () => {

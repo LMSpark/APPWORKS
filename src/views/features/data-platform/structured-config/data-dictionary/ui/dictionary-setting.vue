@@ -33,7 +33,8 @@ import {useDictionaryWorkspace} from '../model/use-dictionary-workspace'
 const props = defineProps<{dictionaryId: string; create?: boolean; applicationScenarioId?: string}>()
 const emit = defineEmits<{pending: [value: boolean]; saved: []; deleted: []; cancelled: []}>()
 const {workspace, ready, loading, busy, error, revision, uncertain, run, discard} = useDictionaryWorkspace({
-  dictionaryId: () => props.dictionaryId, ...(props.create ? {create: true, applicationScenarioId: () => props.applicationScenarioId} : {}), pageId: 'dictionary-setting',
+  dictionaryId: () => props.dictionaryId, purpose: 'design',
+  ...(props.create ? {create: true, applicationScenarioId: () => props.applicationScenarioId} : {}), pageId: 'dictionary-setting',
   onPending: value => emit('pending', value),
 })
 const confirmDelete = ref(false)

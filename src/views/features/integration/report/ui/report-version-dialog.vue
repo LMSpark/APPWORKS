@@ -23,6 +23,7 @@ import * as Components from '@spark-appworks/spark-component'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import {formatDay, isOn, textOf} from './report-format'
+import {commitReportChanges, reportPendingReason} from './report-save'
 const {PAGE_RUNTIME, RendererDialog, RendererTable, RendererButton, useSparkComponent} = Components
 type RToolbarProps = Components.RToolbarProps
 const props = defineProps<{infoKey: string; infoId: string | number; scenarioId: string}>()
@@ -45,6 +46,10 @@ async function guarded(action: () => Promise<void>): Promise<void> {
   if (busy.value) return
   busy.value = true; message.value = ''
   try { await action() } catch (cause) { message.value = failure(cause) } finally { busy.value = false }
+}
+function assertSettled(): void {
+  const reason = reportPendingReason([view(versionKey), view(props.infoKey)])
+  if (reason) throw new Error(reason)
 }
 async function loadVersions(): Promise<void> {
   const versions = view(versionKey)
@@ -82,6 +87,7 @@ function idOf(target: DataView, row: DataRow): string | number {
   return id
 }
 const add = () => guarded(async () => {
+  assertSettled()
   const versions = view(versionKey)
   const active = versions.rows.find(row => isOn(row['State']))
   const created = await versions.addRow({RptID: String(props.infoId), Version: '', State: '0',
@@ -96,40 +102,41 @@ async function closeEditor(): Promise<void> {
   await guarded(loadVersions)
 }
 const remove = (row: DataRow) => guarded(async () => {
+  assertSettled()
   const versions = view(versionKey), id = idOf(versions, row)
   if (isOn(row['State'])) throw new Error('启用中的版本不能删除，请先启动其他版本')
-  await versions.removeRow(id)
-  const result = await versions.dataSet?.saveChanges({views: [{tableName: versions.tableName, viewId: versions.viewId, ids: [id]}]})
-  if (!result?.success) {
-    if (!versions.hasUnconfirmedSave) versions.discardPendingChanges([id])
-    throw new Error(result?.error?.message ?? '删除结果未确认，请刷新核验')
+  try {
+    await versions.removeRow(id)
+    await commitReportChanges({label: '删除版本', targets: [{view: versions, ids: [id]}]})
+  } finally {
+    if (!versions.hasUnconfirmedSave) {
+      if (versions.dirtyTracking.hasPendingChanges()) versions.discardPendingChanges([id])
+      await loadVersions()
+    }
   }
   message.value = '删除成功'
-  await loadVersions()
 })
 const activate = (row: DataRow) => guarded(async () => {
+  assertSettled()
   const versions = view(versionKey), info = view(props.infoKey), id = idOf(versions, row)
   const ids = [id]
-  for (const other of versions.rows) {
-    const otherId = versions.getPkKey(other)
-    if (otherId !== undefined && otherId !== id && isOn(other['State'])) { versions.updateEditingValue(otherId, 'State', '0'); ids.push(otherId) }
-  }
-  versions.updateEditingValue(id, 'State', '1')
-  info.updateEditingValue(props.infoId, 'version_id', String(id))
-  info.updateEditingValue(props.infoId, 'version_dataid', textOf(row, 'DataFormID'))
-  const dataSet = versions.dataSet
-  if (!dataSet) throw new Error('版本视图缺少DataSet')
-  const result = await dataSet.saveChanges({views: [
-    {tableName: versions.tableName, viewId: versions.viewId, ids},
-    {tableName: info.tableName, viewId: info.viewId, ids: [props.infoId]},
-  ]})
-  if (!result.success) {
-    if (!versions.hasUnconfirmedSave) versions.discardEditingRows(ids)
-    if (!info.hasUnconfirmedSave) info.discardEditingRows([props.infoId])
-    throw new Error(result.error?.message ?? '启动结果未确认，请刷新核验')
+  try {
+    for (const other of versions.rows) {
+      const otherId = versions.getPkKey(other)
+      if (otherId !== undefined && otherId !== id && isOn(other['State'])) { versions.updateEditingValue(otherId, 'State', '0'); ids.push(otherId) }
+    }
+    versions.updateEditingValue(id, 'State', '1')
+    info.updateEditingValue(props.infoId, 'version_id', String(id))
+    info.updateEditingValue(props.infoId, 'version_dataid', textOf(row, 'DataFormID'))
+    await commitReportChanges({label: '启动版本', targets: [{view: versions, ids}, {view: info, ids: [props.infoId]}]})
+  } finally {
+    if (![versions, info].some(item => item.hasUnconfirmedSave)) {
+      if (versions.hasEditingChanges() || versions.dirtyTracking.hasPendingChanges()) versions.discardPendingChanges(ids)
+      if (info.hasEditingChanges(props.infoId) || info.dirtyTracking.hasPendingChanges(props.infoId)) info.discardPendingChanges([props.infoId])
+      await loadVersions()
+    }
   }
   message.value = `已启动版本 ${textOf(row, 'Version')}`
-  await loadVersions()
 })
 function close(): void {
   if (!busy.value) emit('close')

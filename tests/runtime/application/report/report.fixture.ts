@@ -5,9 +5,10 @@ import {ApiBackend} from '../../page/api-provider/api-provider.fixture'
 import {buildFormalModels} from '../../page/structured-config/catalog/structured-config-catalog.fixture'
 
 const fields = {
-  Base_ReportInfo: ['rowid', 'RptName', 'modid', 'modname', 'RptDesc', 'version_id'],
-  Base_Report: ['rowid', 'RptID', 'Version', 'State', 'isMerg', 'isDashboards'],
+  Base_ReportInfo: ['rowid', 'RptName', 'modid', 'modname', 'RptDesc', 'version_id', 'version_dataid'],
+  Base_Report: ['rowid', 'RptID', 'Version', 'State', 'isMerg', 'isDashboards', 'DataFormID'],
   Base_AppSystemList: ['rowid', 'AppDesc'],
+  Base_DataSet: ['rowid', 'Name', 'createtime'],
 }
 
 export async function createReportRuntime(scenario: string) {
@@ -16,12 +17,17 @@ export async function createReportRuntime(scenario: string) {
     Base_ReportInfo: [],
     Base_Report: [],
     Base_AppSystemList: [{rowid: 'APP', AppDesc: '应用'}],
+    Base_DataSet: [{rowid: 'D1', Name: '模型一', createtime: '2026-01-01'}, {rowid: 'D2', Name: '模型二', createtime: '2026-01-02'}],
   }
   const tables = Object.fromEntries(Object.entries(fields).map(([name, names]) => [name, {
     modelBinding: {modelId: `${name}-model`, modelName: name},
     views: {default: {commitMode: 'staged', valueField: 'rowid',
       ...(name === 'Base_AppSystemList' ? {labelField: 'AppDesc'} : {}),
-      queryConfig: {fields: names, allPages: true}}},
+      queryConfig: {fields: names, allPages: true}},
+      ...(name === 'Base_Report' ? {byReport: {commitMode: 'staged', valueField: 'rowid',
+        filterExpression: {field: 'RptID', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'reportId'}},
+        queryConfig: {fields: names, allPages: true}}} : {}),
+      ...(name === 'Base_DataSet' ? {picker: {queryConfig: {fields: names}}} : {})},
   }]))
   const api = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}})})
   const config = new ScenarioViewConfig(scenario, JSON.stringify({scenarioId: scenario, tables}))

@@ -22,6 +22,7 @@ import {onMounted, ref} from 'vue'
 import type {DataRow, DataView, SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import {formatDay, textOf} from './report-format'
+import {commitReportChanges, reportPendingReason} from './report-save'
 const {PAGE_RUNTIME, RendererDialog, RendererTable, RendererButton, useSparkComponent} = Components
 type RFilterProps = Components.RFilterProps
 const props = defineProps<{infoKey: string; reportKey: string; pickerKey: string; infoId: string | number}>()
@@ -60,24 +61,25 @@ async function submit(): Promise<void> {
   if (busy.value || !selectedId.value) return
   busy.value = true; message.value = ''
   const info = view(props.infoKey), report = view(props.reportKey)
+  let versionId = ''
   try {
-    const versionId = textOf(info.getEditingRow(props.infoId) ?? undefined, 'version_id')
+    const reason = reportPendingReason([info, report])
+    if (reason) throw new Error(reason)
+    versionId = textOf(info.getEditingRow(props.infoId) ?? undefined, 'version_id')
     if (!versionId || !report.getEditingRow(versionId)) throw new Error('该报表的启用版本不存在，请先在历史版本中启动一个版本')
     info.updateEditingValue(props.infoId, 'version_dataid', selectedId.value)
     report.updateEditingValue(versionId, 'DataFormID', selectedId.value)
-    const dataSet = info.dataSet
-    if (!dataSet) throw new Error('报表视图缺少DataSet')
-    const result = await dataSet.saveChanges({views: [
-      {tableName: info.tableName, viewId: info.viewId, ids: [props.infoId]},
-      {tableName: report.tableName, viewId: report.viewId, ids: [versionId]},
-    ]})
-    if (!result.success) {
-      if (!info.hasUnconfirmedSave) info.discardEditingRows([props.infoId])
-      if (!report.hasUnconfirmedSave) report.discardEditingRows([versionId])
-      throw new Error(result.error?.message ?? '绑定结果未确认，请刷新核验')
-    }
+    await commitReportChanges({label: '绑定模型', targets: [{view: info, ids: [props.infoId]}, {view: report, ids: [versionId]}]})
     emit('close')
-  } catch (cause) { message.value = failure(cause) } finally { busy.value = false }
+  } catch (cause) {
+    message.value = failure(cause)
+    if (versionId && ![info, report].some(item => item.hasUnconfirmedSave)) {
+      try {
+        if (info.hasEditingChanges(props.infoId) || info.dirtyTracking.hasPendingChanges(props.infoId)) info.discardPendingChanges([props.infoId])
+        if (report.hasEditingChanges(versionId) || report.dirtyTracking.hasPendingChanges(versionId)) report.discardPendingChanges([versionId])
+      } catch (discard) { message.value += `；撤销本地修改失败：${failure(discard)}` }
+    }
+  } finally { busy.value = false }
 }
 function close(): void {
   if (!busy.value) emit('close')

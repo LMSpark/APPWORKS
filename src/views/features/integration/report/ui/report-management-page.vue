@@ -9,12 +9,13 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
     <header class="report-page__header">
       <h1>业务报表管理</h1>
       <div v-if="ready" class="report-page__actions">
-        <RendererButton label="新增" button-type="primary" :disabled="busy || !!dialog" @click="create" />
-        <RendererButton :data-view-key="viewKey" label="刷新" action="refresh" :disabled="busy || !!dialog" />
+        <RendererButton label="新增" button-type="primary" :disabled="busy || !!dialog || unconfirmed" @click="create" />
+        <RendererButton :data-view-key="viewKey" label="刷新" action="refresh" :disabled="busy || !!dialog || unconfirmed" />
       </div>
     </header>
     <p v-if="loading" role="status">正在读取报表列表…</p>
     <p v-if="error || message" role="alert">{{ error || message }}</p>
+    <RendererButton v-if="ready && unconfirmed" label="核验原保存结果" button-type="warning" :disabled="busy" @click="verify" />
     <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
     <RendererTable v-if="ready" :data-view-key="viewKey" :children="columns" :filter="filter" :actions="actions"
       :stripe="true" :show-row-index="true" :show-data-view-meta="false"
@@ -44,6 +45,7 @@ import ReportCreateDialog from './report-create-dialog.vue'
 import ReportVersionDialog from './report-version-dialog.vue'
 import ReportModelDialog from './report-model-dialog.vue'
 import {formatDay, syncAppName, textOf} from './report-format'
+import {commitReportChanges, reportPendingReason, UNCONFIRMED_HINT, verifyReportSaves} from './report-save'
 
 const scenarioId = 'FB291E325272007AEED8921C28B93CFD'
 const key = (model: string, view = 'default') => buildDataViewKey(model, view, scenarioId)
@@ -55,7 +57,7 @@ const reportKey = key('Base_Report'), appKey = key('Base_AppSystemList'), userKe
 const dataSetKey = key('Base_DataSet'), pickerKey = key('Base_DataSet', 'picker'), statusKey = key('功能导航状态字典')
 
 type Dialog = Readonly<{kind: 'create' | 'edit' | 'version' | 'model'; infoId: string | number; reportId?: string | number; epoch: number}>
-const busy = ref(false), message = ref('')
+const busy = ref(false), message = ref(''), revision = ref(0)
 const dialog = shallowRef<Dialog>()
 let epoch = 0
 
@@ -82,8 +84,25 @@ const failure = (cause: unknown) => cause instanceof Error ? cause.message : Str
 async function guarded(action: () => Promise<void>): Promise<void> {
   if (busy.value) return
   busy.value = true; message.value = ''
-  try { await action() } catch (cause) { message.value = failure(cause) } finally { busy.value = false }
+  try { await action() } catch (cause) { message.value = failure(cause) } finally { busy.value = false; revision.value++ }
 }
+const versionsKey = key('Base_Report', 'byReport')
+function reportViews(): DataView[] {
+  return session.runtime && !session.runtime.destroyed ? [viewKey, reportKey, versionsKey].map(view) : []
+}
+const unconfirmed = computed(() => {void revision.value; return !dialog.value && reportViews().some(item => item.hasUnconfirmedSave)})
+function assertSettled(): void {
+  const reason = reportPendingReason(reportViews())
+  if (reason) throw new Error(reason)
+}
+const verify = () => guarded(async () => {
+  const views = reportViews()
+  try {
+    message.value = await verifyReportSaves(views)
+  } finally {
+    if (!views.some(item => item.hasUnconfirmedSave)) await Promise.all([view(viewKey).refresh(), view(reportKey).refresh()])
+  }
+})
 
 const col = (field: string, label: string, minWidth = 140): SparkNode =>
   ({type: 'r-text', props: {field, label, readonly: true, minWidth, sortable: false, showOverflowTooltip: true}})
@@ -108,7 +127,7 @@ const filter: RFilterProps = {
   ],
 }
 const actions = computed<RToolbarProps>(() => {
-  const disabled = busy.value || !!dialog.value
+  const disabled = busy.value || !!dialog.value || unconfirmed.value
   const button = (label: string, run: (row: DataRow) => void): SparkNode => ({type: 'r-button', props: {label, disabled, onClick: run}})
   return {children: [button('编辑', row => open('edit', row)), button('删除', row => void remove(row)),
     button('历史版本', row => open('version', row)), button('模型', row => open('model', row))]}
@@ -128,6 +147,7 @@ function idOf(target: DataView, row: DataRow): string | number {
 }
 function open(kind: Dialog['kind'], row: DataRow): void {
   try {
+    assertSettled()
     if (kind === 'model' && !textOf(row, 'version_id')) throw new Error('该报表没有启用版本，请先在历史版本中启动一个版本')
     dialog.value = {kind, infoId: idOf(view(viewKey), row), epoch: ++epoch}
   } catch (cause) { message.value = failure(cause) }
@@ -138,10 +158,7 @@ function validateEdit(row: Readonly<DataRow>): string | undefined {
 }
 const create = () => guarded(async () => {
   const info = view(viewKey), report = view(reportKey)
-  if ([info, report].some(item => item.hasUnconfirmedSave || item.hasPendingSavedRowPermissions
-    || item.hasEditingChanges() || item.dirtyTracking.hasPendingChanges())) {
-    throw new Error('报表存在待处理修改或保存结果，请先处理原记录')
-  }
+  assertSettled()
   const infoId = idOf(info, await info.addRow({}))
   let reportId: string | number | undefined
   try {
@@ -157,7 +174,10 @@ const create = () => guarded(async () => {
 async function closeDialog(reason?: 'abandoned'): Promise<void> {
   const original = reason === 'abandoned' ? dialog.value : undefined
   dialog.value = undefined
-  await guarded(async () => { await Promise.all([view(viewKey).refresh(), view(reportKey).refresh()]) })
+  await guarded(async () => {
+    if (reportViews().some(item => item.hasUnconfirmedSave)) throw new Error(`存在${UNCONFIRMED_HINT}`)
+    await Promise.all([view(viewKey).refresh(), view(reportKey).refresh()])
+  })
   if (original) {
     const warning = `已放弃原新增核验，服务端可能已部分或全部生效；请核对报表ID ${String(original.infoId)}、版本ID ${String(original.reportId)}`
     message.value = message.value ? `${warning}；刷新失败：${message.value}` : warning
@@ -165,27 +185,31 @@ async function closeDialog(reason?: 'abandoned'): Promise<void> {
 }
 const remove = (row: DataRow) => guarded(async () => {
   const info = view(viewKey), id = idOf(info, row)
-  const confirmed = await ElMessageBox.confirm(`确定删除报表"${textOf(row, 'RptName') || String(id)}"吗？`, '删除确认', {type: 'warning'})
-    .then(() => true, () => false)
-  if (!confirmed) return
-  const versions = view(key('Base_Report', 'byReport'))
+  assertSettled()
+  try {
+    await ElMessageBox.confirm(`确定删除报表"${textOf(row, 'RptName') || String(id)}"及其全部版本吗？`, '删除确认', {type: 'warning'})
+  } catch (cause) {
+    if (cause === 'cancel' || cause === 'close') return
+    throw cause
+  }
+  assertSettled()
+  const versions = view(versionsKey)
   versions.queryContext = {reportId: String(id)}
   await versions.refresh()
   if (versions.loadingError) throw versions.loadingError
   const versionIds = versions.rows.map(version => idOf(versions, version))
-  for (const versionId of versionIds) await versions.removeRow(versionId)
-  await info.removeRow(id)
-  const result = await info.dataSet?.saveChanges({views: [
-    {tableName: versions.tableName, viewId: versions.viewId, ids: versionIds},
-    {tableName: info.tableName, viewId: info.viewId, ids: [id]},
-  ]})
-  if (!result?.success) {
-    if (!info.hasUnconfirmedSave) info.discardPendingChanges([id])
-    if (!versions.hasUnconfirmedSave) versions.discardPendingChanges(versionIds)
-    throw new Error(result?.error?.message ?? '删除结果未确认，请刷新核验')
+  try {
+    for (const versionId of versionIds) await versions.removeRow(versionId)
+    await info.removeRow(id)
+    await commitReportChanges({label: '删除报表', targets: [{view: versions, ids: versionIds}, {view: info, ids: [id]}]})
+  } finally {
+    if (![info, versions].some(item => item.hasUnconfirmedSave)) {
+      if (info.dirtyTracking.hasPendingChanges()) info.discardPendingChanges([id])
+      if (versions.dirtyTracking.hasPendingChanges()) versions.discardPendingChanges(versionIds)
+      await Promise.all([info.refresh(), view(reportKey).refresh()])
+    }
   }
   message.value = '删除成功'
-  await Promise.all([info.refresh(), view(reportKey).refresh()])
 })
 </script>
 

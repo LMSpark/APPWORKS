@@ -23613,12 +23613,24 @@
     {
       "kind": "attribute",
       "className": "LowcodeDataSpaceCatalog",
+      "memberName": "appCatalog",
+      "reason": "missing-jsdoc",
+      "chainBreak": "LowcodeDataSpaceCatalog.appCatalog 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/lowcode-data-space-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "LowcodeDataSpaceCatalog",
       "memberName": "view",
       "reason": "missing-jsdoc",
       "chainBreak": "LowcodeDataSpaceCatalog.view 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/lowcode-data-space-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
-      "declarationLine": 7,
+      "declarationLine": 8,
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
       "declarationKind": "class"
     },
@@ -23630,7 +23642,7 @@
       "chainBreak": "LowcodeDataSpaceCatalog.apps 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/lowcode-data-space-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
-      "declarationLine": 8,
+      "declarationLine": 9,
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
       "declarationKind": "class"
     },
@@ -23640,18 +23652,6 @@
       "memberName": "users",
       "reason": "missing-jsdoc",
       "chainBreak": "LowcodeDataSpaceCatalog.users 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/data-space/lowcode-data-space-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
-      "declarationLine": 9,
-      "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "constructor",
-      "className": "LowcodeDataSpaceCatalog",
-      "memberName": "constructor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LowcodeDataSpaceCatalog.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/lowcode-data-space-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
       "declarationLine": 10,
@@ -23666,7 +23666,7 @@
       "chainBreak": "LowcodeDataSpaceCatalog.initialize 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/lowcode-data-space-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
-      "declarationLine": 16,
+      "declarationLine": 21,
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
       "declarationKind": "class"
     },
@@ -23678,7 +23678,7 @@
       "chainBreak": "LowcodeDataSpaceCatalog.unresolvedCreatorCount 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/lowcode-data-space-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
-      "declarationLine": 66,
+      "declarationLine": 71,
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
       "declarationKind": "class"
     },
@@ -23690,7 +23690,7 @@
       "chainBreak": "LowcodeDataSpaceCatalog.isCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/lowcode-data-space-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
-      "declarationLine": 72,
+      "declarationLine": 77,
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
       "declarationKind": "class"
     },
@@ -23702,7 +23702,7 @@
       "chainBreak": "LowcodeDataSpaceCatalog.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/lowcode-data-space-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
-      "declarationLine": 73,
+      "declarationLine": 78,
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
       "declarationKind": "class"
     },

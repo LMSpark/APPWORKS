@@ -3299,7 +3299,7 @@
     "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts.json",
-      "sourceModifiedAt": "2026-10-06T20:57:27.508Z"
+      "sourceModifiedAt": "2026-11-10T22:45:25.569Z"
     },
     "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-file-version.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-file-version.ts",
@@ -3364,7 +3364,7 @@
     "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.673Z"
+      "sourceModifiedAt": "2026-11-11T02:43:35.470Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
@@ -3379,7 +3379,7 @@
     "packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts.json",
-      "sourceModifiedAt": "2026-11-07T03:19:05.655Z"
+      "sourceModifiedAt": "2026-11-11T00:38:29.796Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/system/cache-page-read-adapter.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/system/cache-page-read-adapter.ts",
@@ -3779,7 +3779,7 @@
     "src/lowcode/data-space/lowcode-data-space-catalog.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-catalog.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.662Z"
+      "sourceModifiedAt": "2026-11-11T03:43:48.652Z"
     },
     "src/lowcode/data-space/lowcode-data-space-design.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-design.ts",
@@ -4154,7 +4154,7 @@
     "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts": {
       "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts",
       "shardFile": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts.json",
-      "sourceModifiedAt": "2026-11-10T04:39:16.047Z"
+      "sourceModifiedAt": "2026-11-11T03:48:31.573Z"
     },
     "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts": {
       "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts",
@@ -4659,7 +4659,7 @@
     "src/registries/builtin-application-registry.ts": {
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "shardFile": "files/src/registries/builtin-application-registry.ts.json",
-      "sourceModifiedAt": "2026-11-10T15:03:00.806Z"
+      "sourceModifiedAt": "2026-11-10T21:23:37.256Z"
     },
     "src/registries/vue-page-registry.ts": {
       "sourceFile": "src/registries/vue-page-registry.ts",
@@ -4759,7 +4759,7 @@
     "src/services/project/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "shardFile": "files/src/services/project/blueprint-workspace-dataview.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.816Z"
+      "sourceModifiedAt": "2026-11-11T03:33:59.876Z"
     },
     "src/services/project/navigation/project-navigation-guard.ts": {
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
@@ -4806,11 +4806,6 @@
       "shardFile": "files/src/views/app/CacheManager.vue.json",
       "sourceModifiedAt": "2026-11-08T18:16:43.508Z"
     },
-    "src/views/app/demo/CapabilityDemo.vue": {
-      "sourceFile": "src/views/app/demo/CapabilityDemo.vue",
-      "shardFile": "files/src/views/app/demo/CapabilityDemo.vue.json",
-      "sourceModifiedAt": "2026-10-31T08:58:44.022Z"
-    },
     "src/views/app/demo/CustomRTableDemo.vue": {
       "sourceFile": "src/views/app/demo/CustomRTableDemo.vue",
       "shardFile": "files/src/views/app/demo/CustomRTableDemo.vue.json",
@@ -4825,11 +4820,6 @@
       "sourceFile": "src/views/app/demo/RFormCompareDemo.vue",
       "shardFile": "files/src/views/app/demo/RFormCompareDemo.vue.json",
       "sourceModifiedAt": "2026-10-30T19:14:11.568Z"
-    },
-    "src/views/app/demo/TemplateDslDemo.vue": {
-      "sourceFile": "src/views/app/demo/TemplateDslDemo.vue",
-      "shardFile": "files/src/views/app/demo/TemplateDslDemo.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:14:13.425Z"
     },
     "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts",
@@ -5000,6 +4990,11 @@
       "sourceFile": "src/views/DataBaseManage/DataBaseManage/index.vue",
       "shardFile": "files/src/views/DataBaseManage/DataBaseManage/index.vue.json",
       "sourceModifiedAt": "2026-11-08T17:34:10.177Z"
+    },
+    "src/views/features/application/application-manager/ui/application-manager-page.vue": {
+      "sourceFile": "src/views/features/application/application-manager/ui/application-manager-page.vue",
+      "shardFile": "files/src/views/features/application/application-manager/ui/application-manager-page.vue.json",
+      "sourceModifiedAt": "2026-11-10T23:35:59.309Z"
     },
     "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts",
@@ -5214,7 +5209,7 @@
     "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-08T12:42:00.645Z"
+      "sourceModifiedAt": "2026-11-11T03:44:23.148Z"
     },
     "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue",
@@ -5389,7 +5384,7 @@
     "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts.json",
-      "sourceModifiedAt": "2026-11-08T14:35:00.253Z"
+      "sourceModifiedAt": "2026-11-11T02:43:15.536Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
@@ -5399,12 +5394,12 @@
     "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.996Z"
+      "sourceModifiedAt": "2026-11-11T02:43:15.549Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.997Z"
+      "sourceModifiedAt": "2026-11-11T02:57:14.351Z"
     },
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
@@ -5564,7 +5559,7 @@
     "src/views/features/system/cache-management/ui/cache-management-page.vue": {
       "sourceFile": "src/views/features/system/cache-management/ui/cache-management-page.vue",
       "shardFile": "files/src/views/features/system/cache-management/ui/cache-management-page.vue.json",
-      "sourceModifiedAt": "2026-11-08T15:19:02.737Z"
+      "sourceModifiedAt": "2026-11-11T00:38:29.825Z"
     },
     "src/views/platform/About.vue": {
       "sourceFile": "src/views/platform/About.vue",

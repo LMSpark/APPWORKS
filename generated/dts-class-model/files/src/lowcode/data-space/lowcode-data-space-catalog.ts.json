@@ -23,6 +23,10 @@
           "type": "object",
           "title": "DataSet"
         },
+        "appCatalog": {
+          "type": "object",
+          "title": "DataSet"
+        },
         "view": {
           "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
@@ -258,7 +262,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.662Z",
+  "generatedAt": "2026-11-11T03:43:48.652Z",
   "models": {
     "LowcodeDataSpaceCatalog": {
       "name": "LowcodeDataSpaceCatalog",
@@ -266,6 +270,7 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
+          "jsdoc": "目录跨应用列出数据空间，应用选项须与之同范围：取登录租户的正式应用目录（无 X-AppId），\n不用当前应用请求范围内只返回本应用的同名模型。",
           "signatureText": "private constructor()",
           "parameters": []
         },
@@ -273,6 +278,11 @@
           "attributes": [
             {
               "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appCatalog",
               "readable": true,
               "writable": false
             },

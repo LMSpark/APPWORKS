@@ -7,8 +7,8 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 220,
-  "directUnmatchedCount": 128,
+  "consumerCount": 218,
+  "directUnmatchedCount": 126,
   "consumers": [
     {
       "expression": "/api/v1",
@@ -1316,18 +1316,6 @@
       "expression": "/api/sse/connect",
       "sourceFile": "src/services/sse-events.ts",
       "sourceLine": 10,
-      "scope": "app-composition"
-    },
-    {
-      "expression": "/api/test",
-      "sourceFile": "src/views/app/demo/CapabilityDemo.vue",
-      "sourceLine": 213,
-      "scope": "app-composition"
-    },
-    {
-      "expression": "/api/demo",
-      "sourceFile": "src/views/app/demo/CapabilityDemo.vue",
-      "sourceLine": 315,
       "scope": "app-composition"
     }
   ]

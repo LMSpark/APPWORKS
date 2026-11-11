@@ -45,15 +45,6 @@
       "hidden": true
     },
     {
-      "path": "/demo/template-dsl",
-      "title": "Template DSL Demo",
-      "icon": "SetUp",
-      "scope": "app",
-      "source": "src/views/app/demo/TemplateDslDemo.vue",
-      "description": "模板 DSL 演示页（system-page 路由占位）",
-      "hidden": true
-    },
-    {
       "path": "/settings",
       "title": "设置",
       "icon": "Setting",
@@ -146,13 +137,6 @@
       "icon": "DataBoard",
       "scope": "app",
       "source": "src/views/app/demo/Dashboard.vue"
-    },
-    {
-      "path": "/capability-demo",
-      "title": "能力管理演示",
-      "icon": "SetUp",
-      "scope": "app",
-      "source": "src/views/app/demo/CapabilityDemo.vue"
     },
     {
       "path": "/workflow-designs",

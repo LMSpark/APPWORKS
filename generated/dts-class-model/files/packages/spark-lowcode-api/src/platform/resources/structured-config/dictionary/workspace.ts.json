@@ -26,6 +26,12 @@
         "dictionaryId": {
           "type": "string"
         },
+        "purpose": {
+          "enum": [
+            "data",
+            "design"
+          ]
+        },
         "create": {
           "enum": [
             false,
@@ -35,7 +41,8 @@
       },
       "required": [
         "dataSet",
-        "dictionaryId"
+        "dictionaryId",
+        "purpose"
       ],
       "additionalProperties": false
     },
@@ -222,18 +229,18 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.673Z",
+  "generatedAt": "2026-11-11T02:43:35.470Z",
   "models": {
     "DictionaryWorkspaceInput": {
       "name": "DictionaryWorkspaceInput",
       "jsdoc": "已装配正式模型的字典维护输入；一个实例只维护一个确定的字典。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 正式字典定义与条目模型装配出的运行空间。 */\n    dataSet: DataSet;\n    /** 本次唯一字典资源身份。 */\n    dictionaryId: string;\n    /** 新建时仍先正式查询空目标，取得新增权限与保存基线。 */\n    create?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 正式字典定义与条目模型装配出的运行空间。 */\n    dataSet: DataSet;\n    /** 本次唯一字典资源身份。 */\n    dictionaryId: string;\n    /** 设计页仅按需读取条目；数据页进入时读取完整条目视图。 */\n    purpose: 'design' | 'data';\n    /** 新建时仍先正式查询空目标，取得新增权限与保存基线。 */\n    create?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 正式字典定义与条目模型装配出的运行空间。 */\n    dataSet: DataSet;\n    /** 本次唯一字典资源身份。 */\n    dictionaryId: string;\n    /** 新建时仍先正式查询空目标，取得新增权限与保存基线。 */\n    create?: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 正式字典定义与条目模型装配出的运行空间。 */\n    dataSet: DataSet;\n    /** 本次唯一字典资源身份。 */\n    dictionaryId: string;\n    /** 设计页仅按需读取条目；数据页进入时读取完整条目视图。 */\n    purpose: 'design' | 'data';\n    /** 新建时仍先正式查询空目标，取得新增权限与保存基线。 */\n    create?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -248,6 +255,12 @@
             {
               "name": "dictionaryId",
               "jsdoc": "本次唯一字典资源身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "purpose",
+              "jsdoc": "设计页仅按需读取条目；数据页进入时读取完整条目视图。",
               "readable": true,
               "writable": false
             },

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1119,
+  "scannedFileCount": 1118,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -15995,19 +15995,6 @@
         "symbols": []
       }
     },
-    "src/views/app/demo/CapabilityDemo.vue": {
-      "file": "files/src/views/app/demo/CapabilityDemo.vue.json",
-      "module": {
-        "name": "app:views/app/demo/CapabilityDemo",
-        "sourcePath": "src/views/app/demo/CapabilityDemo.vue",
-        "sourceFile": "src/views/app/demo/CapabilityDemo.vue",
-        "packageName": "app",
-        "modulePath": "views/app/demo/CapabilityDemo",
-        "jsdoc": "@module app:views/app/demo/CapabilityDemo\n职责：提供主应用 CapabilityDemo 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/demo/CapabilityDemo。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
     "src/views/app/demo/CustomRTableDemo.vue": {
       "file": "files/src/views/app/demo/CustomRTableDemo.vue.json",
       "module": {
@@ -16043,19 +16030,6 @@
         "packageName": "app",
         "modulePath": "views/app/demo/RFormCompareDemo",
         "jsdoc": "@module app:views/app/demo/RFormCompareDemo\n职责：提供主应用 RFormCompareDemo 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/demo/RFormCompareDemo。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/demo/TemplateDslDemo.vue": {
-      "file": "files/src/views/app/demo/TemplateDslDemo.vue.json",
-      "module": {
-        "name": "app:views/app/demo/TemplateDslDemo",
-        "sourcePath": "src/views/app/demo/TemplateDslDemo.vue",
-        "sourceFile": "src/views/app/demo/TemplateDslDemo.vue",
-        "packageName": "app",
-        "modulePath": "views/app/demo/TemplateDslDemo",
-        "jsdoc": "@module app:views/app/demo/TemplateDslDemo\n职责：提供主应用 TemplateDslDemo 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/demo/TemplateDslDemo。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16521,6 +16495,19 @@
         "packageName": "app",
         "modulePath": "views/DataBaseManage/DataBaseManage/index",
         "jsdoc": "@module app:views/DataBaseManage/DataBaseManage/index\n职责：数据库目录主列表；服务器与数据库均绑定本页正式 DataView，数据库单行新增通过原 DataSet 保存。\nAI用途：数据库列表筛选、分页、明确服务器选择及跳转到正式表视图页面。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-manager/ui/application-manager-page.vue": {
+      "file": "files/src/views/features/application/application-manager/ui/application-manager-page.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-manager/ui/application-manager-page",
+        "sourcePath": "src/views/features/application/application-manager/ui/application-manager-page.vue",
+        "sourceFile": "src/views/features/application/application-manager/ui/application-manager-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-manager/ui/application-manager-page",
+        "jsdoc": "@module app:views/features/application/application-manager/ui/application-manager-page\n职责：展示 0C70 正式应用目录，提供 DataView 筛选、分页和安全的应用导航。\n边界：不猜测未确认字段，不提供新增、编辑、删除、关联或负责人写入。\nAI用途：恢复应用管理入口时复用本地正式场景与标准 DataView 组件。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

@@ -62,7 +62,7 @@ describe('lowcode session guard', () => {
   it('keeps role fields out of app and shell user contracts', () => {
     const root = resolve(__dirname, '../../../..')
     for (const file of ['src/lowcode/lowcode-runtime.ts', 'src/main.ts', 'packages/spark-app/src/types.ts',
-      'packages/spark-app/src/app/bootstrap.ts', 'src/views/app/demo/CapabilityDemo.vue']) {
+      'packages/spark-app/src/app/bootstrap.ts']) {
       const source = readFileSync(resolve(root, file), 'utf8')
       expect(source, file).not.toMatch(/\broles\b|SUPER_ADMIN/)
     }

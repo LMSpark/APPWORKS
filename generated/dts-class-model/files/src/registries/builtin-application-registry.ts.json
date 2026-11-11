@@ -41,7 +41,8 @@
         "businessTableSelector",
         "agentWorkflowFiles",
         "organizationStructure",
-        "jobManagement"
+        "jobManagement",
+        "applicationManager"
       ]
     },
     "BuiltinScenarioResource": {
@@ -111,14 +112,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-10T15:03:00.806Z",
+  "generatedAt": "2026-11-10T21:23:37.256Z",
   "models": {
     "BuiltinScenarioName": {
       "name": "BuiltinScenarioName",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'cacheManagement' | 'logicViewCatalog' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor' | 'jsonDataCatalog' | 'businessTableSelector' | 'agentWorkflowFiles' | 'organizationStructure' | 'jobManagement'",
+        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'cacheManagement' | 'logicViewCatalog' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor' | 'jsonDataCatalog' | 'businessTableSelector' | 'agentWorkflowFiles' | 'organizationStructure' | 'jobManagement' | 'applicationManager'",
         "declarationRelations": [
           {
             "kind": "union",
@@ -203,6 +204,10 @@
           {
             "kind": "union",
             "typeText": "'jobManagement'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'applicationManager'"
           }
         ],
         "members": {}

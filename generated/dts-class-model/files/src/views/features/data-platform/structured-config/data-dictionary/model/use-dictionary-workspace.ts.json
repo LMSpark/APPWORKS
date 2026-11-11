@@ -21,6 +21,12 @@
           "type": "object",
           "title": "MaybeRefOrGetter<string | undefined>"
         },
+        "purpose": {
+          "enum": [
+            "design",
+            "data"
+          ]
+        },
         "open": {
           "type": "object",
           "title": "MaybeRefOrGetter<boolean>"
@@ -51,18 +57,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-08T14:35:00.253Z",
+  "generatedAt": "2026-11-11T02:43:15.536Z",
   "models": {
     "DictionaryPageInput": {
       "name": "DictionaryPageInput",
       "jsdoc": "字典工作区实例输入；open=false表示页面仍挂载但工作区已安全关闭。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 正式字典身份；响应式变化时只在旧实例可安全释放后重新装配。 */\n    dictionaryId: MaybeRefOrGetter<string | undefined>;\n    /** 数据页目录长期挂载时由此区分关闭状态与缺少目标身份。 */\n    open?: MaybeRefOrGetter<boolean>;\n    /** 仅设计页可新建定义；数据页必须消费已保存方案。 */\n    create?: boolean;\n    /** 新建设计的正式应用选项场景；该空间与字典编辑空间由当前PageRuntime分别拥有。 */\n    applicationScenarioId?: MaybeRefOrGetter<string | undefined>;\n    /** 当前页面运行实例的标识。 */\n    pageId: string;\n    /** 宿主关闭保护所需的未提交状态，不提供行副本。 */\n    onPending?: (value: boolean) => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 正式字典身份；响应式变化时只在旧实例可安全释放后重新装配。 */\n    dictionaryId: MaybeRefOrGetter<string | undefined>;\n    /** 设计与数据页面分别声明条目视图的读取时机。 */\n    purpose: 'design' | 'data';\n    /** 数据页目录长期挂载时由此区分关闭状态与缺少目标身份。 */\n    open?: MaybeRefOrGetter<boolean>;\n    /** 仅设计页可新建定义；数据页必须消费已保存方案。 */\n    create?: boolean;\n    /** 新建设计的正式应用选项场景；该空间与字典编辑空间由当前PageRuntime分别拥有。 */\n    applicationScenarioId?: MaybeRefOrGetter<string | undefined>;\n    /** 当前页面运行实例的标识。 */\n    pageId: string;\n    /** 宿主关闭保护所需的未提交状态，不提供行副本。 */\n    onPending?: (value: boolean) => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 正式字典身份；响应式变化时只在旧实例可安全释放后重新装配。 */\n    dictionaryId: MaybeRefOrGetter<string | undefined>;\n    /** 数据页目录长期挂载时由此区分关闭状态与缺少目标身份。 */\n    open?: MaybeRefOrGetter<boolean>;\n    /** 仅设计页可新建定义；数据页必须消费已保存方案。 */\n    create?: boolean;\n    /** 新建设计的正式应用选项场景；该空间与字典编辑空间由当前PageRuntime分别拥有。 */\n    applicationScenarioId?: MaybeRefOrGetter<string | undefined>;\n    /** 当前页面运行实例的标识。 */\n    pageId: string;\n    /** 宿主关闭保护所需的未提交状态，不提供行副本。 */\n    onPending?: (value: boolean) => void;\n}>",
+            "typeText": "Readonly<{\n    /** 正式字典身份；响应式变化时只在旧实例可安全释放后重新装配。 */\n    dictionaryId: MaybeRefOrGetter<string | undefined>;\n    /** 设计与数据页面分别声明条目视图的读取时机。 */\n    purpose: 'design' | 'data';\n    /** 数据页目录长期挂载时由此区分关闭状态与缺少目标身份。 */\n    open?: MaybeRefOrGetter<boolean>;\n    /** 仅设计页可新建定义；数据页必须消费已保存方案。 */\n    create?: boolean;\n    /** 新建设计的正式应用选项场景；该空间与字典编辑空间由当前PageRuntime分别拥有。 */\n    applicationScenarioId?: MaybeRefOrGetter<string | undefined>;\n    /** 当前页面运行实例的标识。 */\n    pageId: string;\n    /** 宿主关闭保护所需的未提交状态，不提供行副本。 */\n    onPending?: (value: boolean) => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -71,6 +77,12 @@
             {
               "name": "dictionaryId",
               "jsdoc": "正式字典身份；响应式变化时只在旧实例可安全释放后重新装配。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "purpose",
+              "jsdoc": "设计与数据页面分别声明条目视图的读取时机。",
               "readable": true,
               "writable": false
             },

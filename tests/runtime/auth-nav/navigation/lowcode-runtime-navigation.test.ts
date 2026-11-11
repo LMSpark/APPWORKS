@@ -1054,10 +1054,8 @@ describe('lowcode project navigation projection', () => {
       itemKind: 'module',
     })
     expect(projection.items.at(-1)?.children?.map((child) => child.path)).toEqual([
-      '/demo/template-dsl',
       '/cache-manager',
       '/dashboard',
-      '/capability-demo',
       '/workflow-designs',
       '/dev',
     ])

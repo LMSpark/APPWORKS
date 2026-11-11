@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-manager/ui/application-manager-page",
+    "sourcePath": "src/views/features/application/application-manager/ui/application-manager-page.vue",
+    "sourceFile": "src/views/features/application/application-manager/ui/application-manager-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-manager/ui/application-manager-page",
+    "jsdoc": "@module app:views/features/application/application-manager/ui/application-manager-page\n职责：展示 0C70 正式应用目录，提供 DataView 筛选、分页和安全的应用导航。\n边界：不猜测未确认字段，不提供新增、编辑、删除、关联或负责人写入。\nAI用途：恢复应用管理入口时复用本地正式场景与标准 DataView 组件。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-10T23:35:59.309Z",
+  "models": {}
+}

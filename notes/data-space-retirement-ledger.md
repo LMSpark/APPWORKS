@@ -9273,3 +9273,10 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **断链修复。** 逻辑视图 `db_relation_sel` 的来源入参 `sysid` 在正式字段中无取值函数，mapped 模式报 `SPARK_SOURCE_INPUT 缺少取值配置`；该视图改为 `sourceInputMode: direct`，由 `queryContext` 按来源参数名完整提供 `conidsArray`/`database`/`sysid`。
 - **已登记差距。** 导航宿主节点 `IsShowAtNav=0`，实服 `GetNavigationMenus` 不返回 2CA9，页面无授权导航身份而按设计拒绝装配（“缺少正式导航身份或数据空间绑定”）；须由菜单授权开放后方可进入，不在前端绕过。数据空间选择以可筛选 `FieldSelect` 代替参考分页选择对话框；“配置”入口（数据权限页）随权限专题暂缓。
 - **验证。** typecheck、改动文件 ESLint、导航/应用资源 vitest、`verify:page-thin`/`docs`/`lowcode-contracts`/`ai-codegen` 通过。实服烟测：关联数据库列表显示 QYVirtualPlat 及服务器信息；应用列表“关联数据库”进入正确；添加对话框列出候选库，选择 PX 后“关联成功”并显示为已引用，删除确认后“删除成功”恢复原状。未改 Java，未新增 Node.js 服务。
+
+### 2026-11-11 结构化配置迁移：维度设计（维度中心）
+
+- **迁移落点。** 参考 `features/data-platform/structured-config/dimension-definition/ui/` 维度中心恢复为 `dimension-design-page.vue`（场景 `88A4D51B01702C3856F4632E234BF34B`，`config/pages/structured-config/dimension-design/pagedata.json`），十个 `Bil_Dimension_*` 正式模型各有 `default` 及按调用输入过滤的命名视图（锚点按事件、映射按锚点/维度、规则子表按规则、结果按维度编码、字典项按类型、规则/事件按分类）。六个页签：来源锚点→映射明细、事件合同→蓝图锚点、规则治理（规则、条件、结果增删改）、维度定义、字典类型→字典项、业务分类。所有编辑经统一 `dimension-record-dialog.vue`（`RendererForm` + 标准字段 + `useDataViewRecordEditing`），字段清单与单记录校验在 `dimension-field-spec.ts`。
+- **断链修复。** 运行时要求每个模型声明 `views.default`，补齐映射、条件、结果、字典项默认视图。状态/标志列的正式类型分两类：维度定义、来源锚点为 0/1 数值，规则、规则模板、结果、字典类型、业务分类为布尔；布尔字段改用 `FieldSwitch`，只读列以双类型显示选项呈现，启用判断统一经 `enabled()`。规则结果 `dim_category` 为非空列，参考同样必填，已设为必填。删除守卫移至确认框之前，被引用时直接提示原因。
+- **已登记差距。** 参考的映射数、事件锚点数需后端聚合，改为点选后经明细视图查看。仓内无蓝图“打开节点”跳转器，该入口未恢复。仓内删除为物理删除，不加软删除过滤（`lingma_sys_is_delete=1` 实服 0 条）。规则与条件/结果分记录保存、非原子；新规则须先存为停用并补结果后再启用，规则删除按“子表→规则”分阶段提交。
+- **验证。** typecheck、改动文件 ESLint、导航 vitest、`verify:page-thin`/`docs`/`lowcode-contracts`/`ai-codegen` 通过。实服烟测：六个页签分别加载 5/18/51/4/16/4 条；业务分类新增、编辑、删除经刷新回读确认；新增停用规则（业务分类随事件同步）、新增结果与条件，启用被“须先登记已启用来源锚点”拦截，删除规则后同编码维度定义可新增并删除（子表已清）；被映射引用的维度与被规则引用的分类删除被拦截；关键字检索 51→8。未改 Java，未新增 Node.js 服务。

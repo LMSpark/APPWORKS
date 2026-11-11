@@ -51,6 +51,16 @@
       "shellTool": false
     },
     {
+      "path": "/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page",
+      "title": "维度设计",
+      "icon": "Grid",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
+      "description": "AppWorks 系统导航登记的原生维度中心页面",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
       "path": "/features/system/bug-manage/ui/bug-manage-page",
       "title": "BUG管理",
       "icon": "Warning",

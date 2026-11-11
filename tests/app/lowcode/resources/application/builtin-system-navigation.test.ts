@@ -48,6 +48,7 @@ describe('AppWorks repository navigation source', () => {
     expect(navigation.nodes.filter(item=>item.kind==='Navitem')).toHaveLength(publishedNavitems)
     expect(navigation.nodes.find(item=>item.id==='E328FBBF518141973C575D612CD75151')).toMatchObject({title:'流程监控',kind:'Model',url:'vue:/features/system/flow-monitor/ui/flow-monitor-page',publishInMenu:true})
     expect(navigation.nodes.find(item=>item.id==='93DF05182084B1F0E8DA7283E83BBE0C')).toMatchObject({url:'vue:/features/application/application-context/ui/application-database-relations-page',publishInMenu:true})
+    expect(navigation.nodes.find(item=>item.id==='88A4D51B01702C3856F4632E234BF34B')).toMatchObject({url:'vue:/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page',publishInMenu:true})
     expect(navigation.nodes.find(item=>item.id==='2CA968B3513084BA2537BB0C85AE945E')).toMatchObject({url:'vue:/features/application/data-menu/ui/data-menu-page',publishInMenu:true})
   })
 

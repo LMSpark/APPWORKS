@@ -31,6 +31,10 @@
       "resourceId": "repository:scenario-view:93DF05182084B1F0E8DA7283E83BBE0C", "path": "config/pages/application/database-relations/pagedata.json"
     },
     {
+      "name": "dimensionDesign", "scenarioId": "88A4D51B01702C3856F4632E234BF34B",
+      "resourceId": "repository:scenario-view:88A4D51B01702C3856F4632E234BF34B", "path": "config/pages/structured-config/dimension-design/pagedata.json"
+    },
+    {
       "name": "dataMenu", "scenarioId": "2CA968B3513084BA2537BB0C85AE945E",
       "resourceId": "repository:scenario-view:2CA968B3513084BA2537BB0C85AE945E", "path": "config/pages/application/data-menu/pagedata.json"
     },

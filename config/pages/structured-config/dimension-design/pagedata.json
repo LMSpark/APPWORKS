@@ -1,0 +1,615 @@
+{
+  "scenarioId": "88A4D51B01702C3856F4632E234BF34B",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "Bil_Dimension_Source_Binding": {
+      "modelBinding": {
+        "modelId": "95B6BCF23F3C15E16E2A9390642E7C57",
+        "modelName": "Bil_Dimension_Source_Binding"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "id",
+              "binding_code",
+              "source_application_id",
+              "source_node_id",
+              "source_kind",
+              "source_model_meta_name",
+              "source_contract_id",
+              "event_code",
+              "payload_version",
+              "binding_version",
+              "status",
+              "description"
+            ]
+          }
+        },
+        "byEvent": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "event_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "eventCode"
+            }
+          },
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "id",
+              "binding_code",
+              "source_application_id",
+              "source_node_id",
+              "source_kind",
+              "source_model_meta_name",
+              "source_contract_id",
+              "event_code",
+              "payload_version",
+              "binding_version",
+              "status",
+              "description"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Source_Mapping": {
+      "modelBinding": {
+        "modelId": "4ACB124EE5A8D935AFD0A8B5FA4E21F9",
+        "modelName": "Bil_Dimension_Source_Mapping"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "id",
+              "binding_id",
+              "sort_no",
+              "mapping_kind",
+              "source_field_name",
+              "target_definition_code",
+              "target_member_code",
+              "mapping_value",
+              "required_flag",
+              "version_no"
+            ]
+          }
+        },
+        "byBinding": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "binding_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bindingId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "id",
+              "binding_id",
+              "sort_no",
+              "mapping_kind",
+              "source_field_name",
+              "target_definition_code",
+              "target_member_code",
+              "mapping_value",
+              "required_flag",
+              "version_no"
+            ]
+          }
+        },
+        "byDefinition": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1,
+          "filterExpression": {
+            "logic": "or",
+            "filters": [
+              {
+                "field": "target_definition_id",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "definitionId"
+                }
+              },
+              {
+                "field": "target_definition_code",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "definitionCode"
+                }
+              }
+            ]
+          },
+          "queryConfig": {
+            "fields": [
+              "id"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Rule_Template": {
+      "modelBinding": {
+        "modelId": "42A5231B93317242190DD8ED03982BA3",
+        "modelName": "Bil_Dimension_Rule_Template"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "valueField": "event_code",
+          "labelField": "template_name",
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "template_code",
+              "template_name",
+              "event_code",
+              "biz_category",
+              "source_table",
+              "priority",
+              "status",
+              "description"
+            ]
+          }
+        },
+        "byCategory": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1,
+          "filterExpression": {
+            "field": "biz_category",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bizCategory"
+            }
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Rule": {
+      "modelBinding": {
+        "modelId": "B118E0F01FB54940D02DEC9818ABAF6F",
+        "modelName": "Bil_Dimension_Rule"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1000,
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "rule_code",
+              "rule_name",
+              "event_code",
+              "biz_category",
+              "account_set_id",
+              "priority",
+              "voucher_required",
+              "auto_voucher_write",
+              "stop_after_match",
+              "status",
+              "updatetime",
+              "description"
+            ]
+          }
+        },
+        "byCategory": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1,
+          "filterExpression": {
+            "field": "biz_category",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bizCategory"
+            }
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Rule_Condition": {
+      "modelBinding": {
+        "modelId": "6E3EB3747EEAC37E1C6828272850FF16",
+        "modelName": "Bil_Dimension_Rule_Condition"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "rule_id",
+              "result_id",
+              "sort_no",
+              "field_code",
+              "operator",
+              "value_source",
+              "compare_value",
+              "compare_field",
+              "account_set_id",
+              "description"
+            ]
+          }
+        },
+        "byRule": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "rule_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "ruleId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "rule_id",
+              "result_id",
+              "sort_no",
+              "field_code",
+              "operator",
+              "value_source",
+              "compare_value",
+              "compare_field",
+              "account_set_id",
+              "description"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Rule_Result": {
+      "modelBinding": {
+        "modelId": "2C26824BC6B8A4ADCE3BBD87B217BBB9",
+        "modelName": "Bil_Dimension_Rule_Result"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "rule_id",
+              "sort_no",
+              "dim_category",
+              "collection_path",
+              "dim_code_type",
+              "dim_code",
+              "value_type",
+              "value_expr",
+              "value_name_type",
+              "value_name_expr",
+              "amount_type",
+              "amount_expr",
+              "direction_type",
+              "direction_expr",
+              "currency_type",
+              "currency_expr",
+              "period_type",
+              "period_expr",
+              "source_id_type",
+              "source_id_expr",
+              "required_flag",
+              "account_set_id",
+              "description"
+            ]
+          }
+        },
+        "byRule": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "valueField": "rowid",
+          "labelField": "dim_code",
+          "filterExpression": {
+            "field": "rule_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "ruleId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "rule_id",
+              "sort_no",
+              "dim_category",
+              "collection_path",
+              "dim_code_type",
+              "dim_code",
+              "value_type",
+              "value_expr",
+              "value_name_type",
+              "value_name_expr",
+              "amount_type",
+              "amount_expr",
+              "direction_type",
+              "direction_expr",
+              "currency_type",
+              "currency_expr",
+              "period_type",
+              "period_expr",
+              "source_id_type",
+              "source_id_expr",
+              "required_flag",
+              "account_set_id",
+              "description"
+            ]
+          }
+        },
+        "byDimCode": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1,
+          "filterExpression": {
+            "field": "dim_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "dimCode"
+            }
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Definition": {
+      "modelBinding": {
+        "modelId": "134EAF4667DC59C57F7B394DE2FA135F",
+        "modelName": "Bil_Dimension_Definition"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1000,
+          "valueField": "definition_code",
+          "labelField": "definition_name",
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "id",
+              "category_code",
+              "definition_code",
+              "definition_name",
+              "value_type",
+              "member_domain",
+              "cardinality",
+              "null_policy",
+              "version_no",
+              "effective_from",
+              "effective_to",
+              "status",
+              "description"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Dict_Type": {
+      "modelBinding": {
+        "modelId": "F4E2F41B78A5F1958FDE442704564BC3",
+        "modelName": "Bil_Dimension_Dict_Type"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "dict_type_code",
+              "dict_type_name",
+              "status",
+              "sort_no",
+              "description"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Dict_Item": {
+      "modelBinding": {
+        "modelId": "36E67FE02A120A4D262310EBB3B7CB55",
+        "modelName": "Bil_Dimension_Dict_Item"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "dict_type_code",
+              "item_code",
+              "item_name",
+              "item_value",
+              "parent_code",
+              "status",
+              "sort_no"
+            ]
+          }
+        },
+        "byType": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "dict_type_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "dictTypeCode"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "dict_type_code",
+              "item_code",
+              "item_name",
+              "item_value",
+              "parent_code",
+              "status",
+              "sort_no"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Biz_Category": {
+      "modelBinding": {
+        "modelId": "F4F2E36E50621C9389D4B1008CF56DAD",
+        "modelName": "Bil_Dimension_Biz_Category"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "valueField": "biz_category_code",
+          "labelField": "biz_category_name",
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "biz_category_code",
+              "biz_category_name",
+              "sort_no",
+              "status",
+              "description"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "viewCascades": []
+}

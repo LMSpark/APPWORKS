@@ -4,7 +4,7 @@
     @update:model-value="state.cancel">
     <p v-if="state.loading.value" role="status">正在读取业务表字段…</p>
     <p v-if="state.error.value" role="alert">{{ state.error.value }}</p>
-    <RendererForm v-if="state.ready.value" :data-view-key="dataViewKey" :auto-columns="false" :show-data-view-meta="false">
+    <RendererForm v-if="state.ready.value" :data-view-key="dataViewKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
       <FieldJson field="CodeNodeDesignJson" label="日期规则" mode="form" :schema="schema" :on-change="state.guardWrite"
         :on-editing-change="value => state.pendingInput.value = value" />
     </RendererForm>

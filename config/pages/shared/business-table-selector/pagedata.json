@@ -16,14 +16,14 @@
     },
     "_Base_TblList": {
       "modelBinding": {"modelId": "06f387a1-fe18-422a-b1ef-997002c15eaa", "modelName": "_Base_TblList"},
-      "views": {"excelStoredObject": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "tblname",
+      "views": {"storedObject": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "tblname",
         "queryConfig": {"fields": ["rowid", "tblname", "tbldesc"], "allPages": true}},
         "default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 20,
         "valueField": "rowid", "labelField": "tblname", "queryConfig": {"fields": ["rowid", "tblname", "tbldesc"]}}}
     },
     "_Base_ViewList": {
       "modelBinding": {"modelId": "7bba3b1f-23d9-40ac-86b5-11e8dfece6cf", "modelName": "_Base_ViewList"},
-      "views": {"excelStoredObject": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "vewname",
+      "views": {"storedObject": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "vewname",
         "queryConfig": {"fields": ["rowid", "dbid", "vewname", "vewdesc"], "allPages": true}},
         "default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 20,
         "valueField": "rowid", "labelField": "vewname", "queryConfig": {"fields": ["rowid", "dbid", "vewname", "vewdesc"]}}}
@@ -62,10 +62,10 @@
   },
   "resourceRelations": [],
   "viewCascades": [
-    {"kind":"query","cascadeId":"stored-table-text","parentTable":"_Base_TblList","parentViewId":"excelStoredObject","childTable":"Base_TblField","childViewId":"storedTableText","autoLoad":true,"filterBindings":[{"targetField":"tblid","operator":"in"}]},
-    {"kind":"query","cascadeId":"stored-table-value","parentTable":"_Base_TblList","parentViewId":"excelStoredObject","childTable":"Base_TblField","childViewId":"storedTableValue","autoLoad":true,"filterBindings":[{"targetField":"tblid","operator":"in"}]},
-    {"kind":"query","cascadeId":"stored-view-text","parentTable":"_Base_ViewList","parentViewId":"excelStoredObject","childTable":"Base_TblField","childViewId":"storedViewText","autoLoad":true,"filterBindings":[{"targetField":"tblid","operator":"in"}]},
-    {"kind":"query","cascadeId":"stored-view-value","parentTable":"_Base_ViewList","parentViewId":"excelStoredObject","childTable":"Base_TblField","childViewId":"storedViewValue","autoLoad":true,"filterBindings":[{"targetField":"tblid","operator":"in"}]},
+    {"kind":"query","cascadeId":"stored-table-text","parentTable":"_Base_TblList","parentViewId":"storedObject","childTable":"Base_TblField","childViewId":"storedTableText","autoLoad":true,"filterBindings":[{"targetField":"tblid","operator":"in"}]},
+    {"kind":"query","cascadeId":"stored-table-value","parentTable":"_Base_TblList","parentViewId":"storedObject","childTable":"Base_TblField","childViewId":"storedTableValue","autoLoad":true,"filterBindings":[{"targetField":"tblid","operator":"in"}]},
+    {"kind":"query","cascadeId":"stored-view-text","parentTable":"_Base_ViewList","parentViewId":"storedObject","childTable":"Base_TblField","childViewId":"storedViewText","autoLoad":true,"filterBindings":[{"targetField":"tblid","operator":"in"}]},
+    {"kind":"query","cascadeId":"stored-view-value","parentTable":"_Base_ViewList","parentViewId":"storedObject","childTable":"Base_TblField","childViewId":"storedViewValue","autoLoad":true,"filterBindings":[{"targetField":"tblid","operator":"in"}]},
     {"kind": "query", "cascadeId": "source-database-views", "parentTable": "Base_AppAndSource_Relation", "parentViewId": "default",
       "childTable": "_Base_ViewList", "childViewId": "default", "autoLoad": false, "filterBindings": [{"sourceField": "conid", "targetField": "dbid", "operator": "eq"}]},
     {"kind": "query", "cascadeId": "source-view-text-fields", "parentTable": "_Base_ViewList", "parentViewId": "default",

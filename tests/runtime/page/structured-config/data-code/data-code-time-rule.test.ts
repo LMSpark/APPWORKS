@@ -5,7 +5,7 @@ import ElementPlus, {ElSelect} from 'element-plus'
 import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {RequestState, type DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {PAGE_RUNTIME, Spark, FieldText, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, Spark, FieldText, RendererForm, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import TimeStringDialog from '@/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue'
 import ParentCodeDialog from '@/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue'
@@ -46,6 +46,11 @@ async function fixture(kind: 'time' | 'parent' = 'time', beforeOpen?: (view: Dat
 }
 
 describe('time-string rule dialog', () => {
+  it.each(['time', 'parent'] as const)('uses a full-width field column for the %s rule editor', async kind => {
+    const f = await fixture(kind)
+    await vi.waitFor(() => expect(f.wrapper.findComponent(RendererForm).exists()).toBe(true))
+    expect(f.wrapper.getComponent(RendererForm).props('gridColumns')).toBe(1)
+  })
   it('rejects confirmation after the formal business-table identity becomes masked',async()=>{
     const f=await fixture();await vi.waitFor(()=>expect(f.wrapper.findComponent(ElSelect).exists()).toBe(true))
     f.service.http.interceptors.response.use({onResponse:response=>{

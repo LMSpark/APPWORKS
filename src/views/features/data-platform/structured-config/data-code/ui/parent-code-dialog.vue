@@ -4,7 +4,7 @@
     @update:model-value="state.cancel">
     <p v-if="state.loading.value" role="status">正在读取父编码与业务字段…</p>
     <p v-if="state.error.value" role="alert">{{ state.error.value }}</p>
-    <RendererForm v-if="state.ready.value" :data-view-key="dataViewKey" :auto-columns="false" :show-data-view-meta="false">
+    <RendererForm v-if="state.ready.value" :data-view-key="dataViewKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
       <FieldText field="ParameterName" label="参数名称" :on-change="state.guardWrite" />
       <FieldJson field="CodeNodeDesignJson" label="父编码规则" mode="form" :schema="schema" :on-change="state.guardWrite"
         :on-editing-change="value => state.pendingInput.value = value" />

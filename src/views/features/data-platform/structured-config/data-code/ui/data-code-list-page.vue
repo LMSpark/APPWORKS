@@ -7,7 +7,7 @@
     <p v-if="loading" role="status">正在读取编码目录…</p>
     <p v-if="error" role="alert">{{ error }}</p>
     <template v-if="ready">
-      <RendererForm :data-view-key="appsKey" :show-data-view-meta="false" :auto-columns="false">
+      <RendererForm :data-view-key="appsKey" :show-data-view-meta="false" :auto-columns="false" :grid-columns="3">
         <FieldSelect :data-view-key="appsKey" data-member="value" :option-data-view-key="appsKey" label="应用" placeholder="请选择应用" />
       </RendererForm>
       <p v-if="queryError" role="alert">{{ queryError }}</p>
@@ -135,7 +135,7 @@ onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.di
 </script>
 
 <style scoped>
-.structured-catalog-page { display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
+.structured-catalog-page { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
 .structured-catalog-page header { display: grid; gap: 4px; }
 .structured-catalog-page h1 { margin: 0; font-size: 1.25rem; font-weight: 600; }
 .structured-catalog-page header p { margin: 0; color: var(--el-text-color-secondary); }

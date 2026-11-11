@@ -26,11 +26,11 @@ export async function resolveExcelPhysicalObject(input:ExcelPhysicalObjectInput)
  const relations=await readExcelTransformRows({dataSet:source,table:'Base_AppAndSource_Relation',viewId:'excelStoredDatabases',fields:['sysid','conName','conid'],filter:{logic:'and',filters:[{field:'sysid',operator:'eq',value:applicationId},{field:'conName',operator:'eq',value:parts[0]}]},check})
  const ids=new Set(relations.map(row=>row['conid'])),databaseId=[...ids][0]
  if(!relations.length||ids.size!==1||typeof databaseId!=='string'||!databaseId||relations.some(row=>row['sysid']!==applicationId||row['conName']!==parts[0]))throw Error('Excel数据库归属或运行库名不唯一')
- const tables=await readExcelTransformRows({dataSet:source,table:'_Base_TblList',viewId:'excelStoredObject',fields:['rowid','tblname'],filter:{logic:'and',filters:[{field:'dbid',operator:'eq',value:databaseId},{field:'tblname',operator:'eq',value:parts[1]}]},check})
+ const tables=await readExcelTransformRows({dataSet:source,table:'_Base_TblList',viewId:'storedObject',fields:['rowid','tblname'],filter:{logic:'and',filters:[{field:'dbid',operator:'eq',value:databaseId},{field:'tblname',operator:'eq',value:parts[1]}]},check})
  const table=tables[0]
  if(tables.length===1&&table?.['tblname']===parts[1]&&typeof table['rowid']==='string'&&table['rowid'])return {kind:'Table',databaseId,objectId:table['rowid']}
  if(tables.length||!input.allowView)throw Error('Excel物理表不存在或不唯一')
- const views=await readExcelTransformRows({dataSet:source,table:'_Base_ViewList',viewId:'excelStoredObject',fields:['rowid','dbid','vewname'],filter:{logic:'and',filters:[{field:'dbid',operator:'eq',value:databaseId},{field:'vewname',operator:'eq',value:parts[1]}]},check})
+ const views=await readExcelTransformRows({dataSet:source,table:'_Base_ViewList',viewId:'storedObject',fields:['rowid','dbid','vewname'],filter:{logic:'and',filters:[{field:'dbid',operator:'eq',value:databaseId},{field:'vewname',operator:'eq',value:parts[1]}]},check})
  const view=views[0]
  if(views.length!==1||view?.['dbid']!==databaseId||view['vewname']!==parts[1]||typeof view['rowid']!=='string'||!view['rowid'])throw Error('Excel物理视图不存在或不唯一')
  return {kind:'View',databaseId,objectId:view['rowid']}

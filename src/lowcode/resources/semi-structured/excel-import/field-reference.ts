@@ -182,7 +182,7 @@ export class ExcelFieldReference{
   if(input.kind==='Dict')throw new Error('已存物理引用种类错误')
   const reference=this.assertStored(input,input.kind),scope=this.#stored,databaseId=scope?.databaseId,parts=reference.refTable.split('@'),name=parts[1]
   if(!databaseId||!name)throw new Error('已存引用物理库身份缺失')
-  const object=selected(input.source,input.kind==='Table'?'_Base_TblList':'_Base_ViewList','excelStoredObject')
+  const object=selected(input.source,input.kind==='Table'?'_Base_TblList':'_Base_ViewList','storedObject')
   if(object.view.currentRow!==object.row||text(object,'rowid')!==reference.refDataid||text(object,input.kind==='Table'?'tblname':'vewname')!==name)throw new Error('已存引用对象已变化')
   const fields=this.physicalFields({source:input.source,kind:input.kind,scope:'stored',id:reference.refDataid})
   if(fields.values.textField===reference.textField&&fields.values.valueField===reference.valueField){input.check();return}

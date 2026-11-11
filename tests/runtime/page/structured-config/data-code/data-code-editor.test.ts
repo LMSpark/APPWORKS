@@ -7,6 +7,7 @@ import {defineComponent, h} from 'vue'
 import ElementPlus, {ElSelect, ElInputNumber} from 'element-plus'
 import {Spark, registerAllRenderers, RendererForm, FieldText, RendererTable, RendererButton} from '@spark-appworks/spark-component'
 import {RequestState, type DataRow} from '@spark-appworks/spark-data'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {CodeExampleWorkspace} from '@/lowcode/resources/structured-config/data-code/example-workspace'
 import {createSourceDataSet, sourceRecords} from './source-picker/fixture'
@@ -187,12 +188,17 @@ describe('code editor formal main and node views', () => {
     main.updateEditingValue('C1', 'Name', '此前名称草稿')
     const click = async (label: string) => {const button = wrapper.findAllComponents(RendererButton).find(item => item.props('label') === label); expect(button, label).toBeDefined(); await button!.get('button').trigger('click'); await flushPromises()}
     await click('设置业务表及其字段')
-    await vi.waitFor(() => expect(source.getView('Base_AppSystemList')!.requestState).toBe(RequestState.Loaded))
+    await vi.waitFor(() => expect(source.getView('_Base_TblList', 'storedObject')!.getSelectedValues()).toEqual(['T1']))
     await click('取消选择业务表')
     expect(main.getEditingRow('C1')).toMatchObject({Name: '此前名称草稿', BusTableRowid: 'T1', BusTableName: '订单'})
     await click('设置业务表及其字段'); expect(loadSource).toHaveBeenCalledTimes(1)
+    await vi.waitFor(() => expect(wrapper.findAllComponents(RendererButton).some(item => item.props('label') === '浏览其他来源')).toBe(true))
+    await click('浏览其他来源')
     const view = (model: string, id = 'default') => source.getView(model, id)!
     const choose = (model: string, key: string, id = 'default') => {const selected = view(model, id); selected.setCurrentRowById(key); selected.setSelectedRows([selected.currentRow!])}
+    const sourceForms = wrapper.findAllComponents(RendererForm).filter(form => String(form.props('dataViewKey')).startsWith(LowcodeDataCode.referenceScenarioId))
+    expect(sourceForms).toHaveLength(3)
+    expect(sourceForms.map(form => form.props('gridColumns'))).toEqual([1, 1, 1])
     await vi.waitFor(() => expect(view('Base_AppSystemList').requestState).toBe(RequestState.Loaded)); choose('Base_AppSystemList', 'A1')
     await vi.waitFor(() => expect(view('Base_AppAndSource_Relation').rows).toHaveLength(1)); choose('Base_AppAndSource_Relation', 'R1')
     await vi.waitFor(() => expect(view('_Base_TblList').rows).toHaveLength(2)); choose('_Base_TblList', 'T3')
@@ -201,6 +207,13 @@ describe('code editor formal main and node views', () => {
     expect(main.getEditingRow('C1')).toMatchObject({Name: '此前名称草稿', BusTableRowid: 'T3', BusTableName: 'table_three', KeyFields: 'code'})
     expect(main.currentRow?.['Name']).toBe('订单编码')
     expect(dataSet.getView('Base_CodeNodeDesign')!.hasEditingChanges()).toBe(false)
+    expect(state.current.http.saves).toEqual([])
+    await click('设置业务表及其字段')
+    await vi.waitFor(() => expect(view('Base_TblField', 'storedTableValue').getSelectedValues()).toEqual(['F3']))
+    expect(view('_Base_TblList', 'storedObject').getSelectedValues()).toEqual(['T3'])
+    expect(document.body.textContent).toContain('业务表的显示字段不保存')
+    await click('确定业务表')
+    expect(main.getEditingRow('C1')).toMatchObject({Name: '此前名称草稿', BusTableRowid: 'T3', BusTableName: 'table_three', KeyFields: 'code'})
     expect(state.current.http.saves).toEqual([])
     await click('取消修改')
     expect(main.hasEditingChanges()).toBe(false)
@@ -214,12 +227,55 @@ describe('code editor formal main and node views', () => {
     const loaded = vi.spyOn(LowcodeDataCode, 'loadEditor'), {wrapper} = await open()
     await vi.waitFor(() => expect(wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '设置业务表及其字段')).toBe(true))
     await wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '设置业务表及其字段')!.get('button').trigger('click')
-    await vi.waitFor(() => expect(source.getView('Base_AppSystemList')!.requestState).toBe(RequestState.Loaded))
+    await vi.waitFor(() => expect(wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '确定业务表')?.props('disabled')).toBe(false))
     const dataSet = await loaded.mock.results[0]!.value, main = dataSet.getView('Base_CodeDesign')!
     main.queryContext = {...main.queryContext, applicationId: 'OTHER'}
     await wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '确定业务表')!.get('button').trigger('click'); await flushPromises()
     expect(document.body.textContent).toContain('业务表编辑目标已改变')
     expect(main.hasEditingChanges()).toBe(false)
+    expect(state.current.http.saves).toEqual([])
+  })
+  it('reopens a persisted business reference without rewriting its historical name or guessing a source application', async () => {
+    Object.assign(state.current.http.records, sourceRecords())
+    state.current.http.records['Base_CodeDesign']![0]!['KeyFields'] = 'id'
+    const source = await createSourceDataSet(state.current.http)
+    vi.spyOn(LowcodeDataCode, 'loadReferenceSources').mockResolvedValue(source)
+    const loaded = vi.spyOn(LowcodeDataCode, 'loadEditor'), {wrapper} = await open()
+    await vi.waitFor(() => expect(wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '设置业务表及其字段')).toBe(true))
+    await wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '设置业务表及其字段')!.get('button').trigger('click')
+    await vi.waitFor(() => expect(source.getView('Base_TblField', 'storedTableValue')!.getSelectedValues()).toEqual(['F1']))
+    const main = (await loaded.mock.results[0]!.value).getView('Base_CodeDesign')!
+    expect(source.getView('_Base_TblList', 'storedObject')!.getSelectedValues()).toEqual(['T1'])
+    expect(source.getView('Base_AppSystemList')!.getSelectedValues()).toEqual([])
+    expect(source.getView('Base_AppAndSource_Relation')!.getSelectedValues()).toEqual([])
+    await wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '确定业务表')!.get('button').trigger('click'); await flushPromises()
+    expect(main.hasEditingChanges()).toBe(false)
+    expect(main.currentRow?.['BusTableName']).toBe('订单')
+    expect(state.current.http.saves).toEqual([])
+  })
+  it('preserves a changed business draft when its old reference lookup returns late', async () => {
+    Object.assign(state.current.http.records, sourceRecords())
+    state.current.http.records['Base_CodeDesign']![0]!['KeyFields'] = 'id'
+    const source = await createSourceDataSet(state.current.http)
+    vi.spyOn(LowcodeDataCode, 'loadReferenceSources').mockResolvedValue(source)
+    const loaded = vi.spyOn(LowcodeDataCode, 'loadEditor'), {wrapper} = await open()
+    await vi.waitFor(() => expect(wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '设置业务表及其字段')).toBe(true))
+    let started = false, release = () => {}
+    const barrier = new Promise<void>(resolve => {release = resolve})
+    state.current.http.interceptors.request.use({onRequest: async request => {
+      const body: unknown = request.data
+      if (isRecord(body) && Array.isArray(body['Table']) && isRecord(body['Table'][0]) && body['Table'][0]['Name'] === '_Base_TblList') {
+        started = true; await barrier
+      }
+      return request
+    }})
+    await wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '设置业务表及其字段')!.get('button').trigger('click')
+    await vi.waitFor(() => expect(started).toBe(true))
+    const main = (await loaded.mock.results[0]!.value).getView('Base_CodeDesign')!
+    main.updateEditingValue('C1', 'KeyFields', 'later_field'); release()
+    await vi.waitFor(() => expect(document.body.textContent).toContain('草稿已改变'))
+    expect(main.getEditingRow('C1')?.['KeyFields']).toBe('later_field')
+    expect(source.getView('_Base_TblList', 'storedObject')!.getSelectedValues()).toEqual([])
     expect(state.current.http.saves).toEqual([])
   })
   it('rejects create mode for an already existing identity without overwriting it', async () => {

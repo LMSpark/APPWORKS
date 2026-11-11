@@ -6,7 +6,7 @@ import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {config, flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus, {ElSelect} from 'element-plus'
-import {Spark, registerAllRenderers, RendererTable, RendererDialog, FieldSelect, FieldText} from '@spark-appworks/spark-component'
+import {Spark, registerAllRenderers, RendererForm, RendererTable, RendererDialog, FieldSelect, FieldText} from '@spark-appworks/spark-component'
 import {RequestState, type DataSet} from '@spark-appworks/spark-data'
 import {defineComponent, h} from 'vue'
 import DataCodeList from '@/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue'
@@ -84,6 +84,12 @@ describe('data-code list page', () => {
     expect(source).toContain('new NativePageRuntimeSession')
     expect(source).toContain('session.isCurrent(current)')
     expect(source).not.toContain('new PageRuntime')
+  })
+  it('gives the application selector a usable form column instead of the default 24-slot grid', async () => {
+    const {wrapper} = await openList(false)
+    await vi.waitFor(() => expect(wrapper.findComponent(RendererForm).exists()).toBe(true))
+    expect(wrapper.getComponent(RendererForm).props('gridColumns')).toBe(3)
+    wrapper.unmount()
   })
   it('loadCatalog returns scoped catalog rows', async () => {
     const dataSet = await LowcodeDataCode.loadCatalog(LowcodeDataCode.navigationScenarioId)

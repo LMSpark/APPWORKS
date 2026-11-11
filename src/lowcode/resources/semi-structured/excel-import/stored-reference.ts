@@ -79,7 +79,7 @@ export async function restoreExcelStoredObject(input:Readonly<{source:DataSet;re
  await load(databases,{field:'conName',operator:'eq',value:databaseName},check)
  const databaseIds=[...new Set(databases.rows.map(row=>{if(text(databases,row,'conName')!==databaseName)throw new Error('数据库关系范围不匹配');return text(databases,row,'conid')}))]
  if(!databaseIds.length)throw new Error('已存引用的数据库不可读或不存在')
- const tables=view(source,'_Base_TblList','excelStoredObject'),views=view(source,'_Base_ViewList','excelStoredObject')
+ const tables=view(source,'_Base_TblList','storedObject'),views=view(source,'_Base_ViewList','storedObject')
  await load(tables,objectFilter(reference,{databaseId:databaseIds,name,field:'tblname'}),check)
  await load(views,objectFilter(reference,{databaseId:databaseIds,name,field:'vewname'}),check)
  if(tables.total+views.total!==1)throw new Error('已存引用对象不存在或跨表／视图身份不唯一')

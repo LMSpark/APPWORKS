@@ -57,7 +57,7 @@ let active=true,generation=0,physicalBrowseInitialized=false,dictionaryBrowseIni
 const unsubscribers:Array<()=>void>=[]
 const key=(table:string,view='default')=>buildDataViewKey(table,view,LowcodeExcelImport.referenceScenarioId)
 const appsKey=key('Base_AppSystemList'),databasesKey=key('Base_AppAndSource_Relation'),dictionaryKey=computed(()=>buildDataViewKey('_Base_DictType',mode.value==='stored'?'excelStoredReference':'excelReferences',LowcodeDictionary.editorScenarioId))
-const objectKey=computed(()=>key(kind.value==='View'?'_Base_ViewList':'_Base_TblList',mode.value==='stored'?'excelStoredObject':'default'))
+const objectKey=computed(()=>key(kind.value==='View'?'_Base_ViewList':'_Base_TblList',mode.value==='stored'?'storedObject':'default'))
 const textKey=computed(()=>kind.value==='Dict'?dictionaryFields.value?.text.dataViewKey??'':key('Base_TblField',mode.value==='stored'?(kind.value==='View'?'storedViewText':'storedTableText'):(kind.value==='View'?'viewTextFields':'textFields')))
 const valueKey=computed(()=>kind.value==='Dict'?dictionaryFields.value?.value.dataViewKey??'':key('Base_TblField',mode.value==='stored'?(kind.value==='View'?'storedViewValue':'storedTableValue'):(kind.value==='View'?'viewValueFields':'valueFields')))
 const databaseColumns:SparkNode[]=[{type:'r-text',props:{field:'conName',label:'数据库',readonly:true}}]

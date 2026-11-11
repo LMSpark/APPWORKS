@@ -78,7 +78,7 @@ describe('Excel export reference actual query projection',()=>{
  it('loads original metadata lazily and preserves the source picker filter while saving valid mapped outputs',async()=>{
   const f=await fixture()
   try{
-   const picker=f.source.getView('_Base_TblList','excelStoredObject')!
+   const picker=f.source.getView('_Base_TblList','storedObject')!
    picker.filterExpression={field:'rowid',operator:'eq',value:'T3'}
    const before=JSON.stringify(picker.toJson())
    expect((await f.save()).success).toBe(true);expect(f.http.saves).toHaveLength(1)

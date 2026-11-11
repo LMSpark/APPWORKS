@@ -264,7 +264,7 @@ export class DataSpaceRuntimeApi {
       }})
       guard()
       if(!originals.has(result.result))throw new Error('SPARK_MODEL_ADAPTER_RESULT: 分页结果不是本次正式读取结果')
-      return result.result.withNextPageAvailable(result.nextPageAvailable)
+      return result.nextPageAvailable===undefined?result.result:result.result.withNextPageAvailable(result.nextPageAvailable)
     }
     if (params.parentResult) {
       const parentBinding = this.prepareParentQuery(view, params)

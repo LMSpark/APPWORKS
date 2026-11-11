@@ -62,16 +62,24 @@ function decodeEnvelope(input: unknown, operation: '查询' | '保存' = '查询
     try { decoded = JSON.parse(decoded) } catch { break }
   }
   if (isRecord(decoded)) {
-    const code = decoded['code'] ?? decoded['Code'] ?? decoded['status'] ?? decoded['Status']
-    const successCodes = operation === '保存' ? ['0', '200', 'success'] : ['0', '200']
-    if (code !== undefined && !successCodes.includes(String(code).toLowerCase())) {
-      const message = decoded['message'] ?? decoded['Message'] ?? decoded['msg'] ?? decoded['error'] ?? decoded['repMsg']
-      const numericCode = Number(code)
-      throw new LowcodeApiError(Number.isFinite(numericCode) ? numericCode : 0,
-        typeof message === 'string' && message.trim() ? message : `SPARK ${operation}请求失败`)
-    }
+    assertEnvelopeCode(decoded, operation)
+    // GetData wraps the resource's own AjaxResult in Result.data; its failure code must not read as empty data.
+    const result = decoded['Result'] ?? decoded['result']
+    const nested = isRecord(result) ? result['data'] : undefined
+    if (isRecord(nested)) assertEnvelopeCode(nested, operation)
   }
   return decoded
+}
+
+function assertEnvelopeCode(decoded: Readonly<Record<string, unknown>>, operation: '查询' | '保存'): void {
+  const code = decoded['code'] ?? decoded['Code'] ?? decoded['status'] ?? decoded['Status']
+  const successCodes = operation === '保存' ? ['0', '200', 'success'] : ['0', '200']
+  if (code !== undefined && !successCodes.includes(String(code).toLowerCase())) {
+    const message = decoded['message'] ?? decoded['Message'] ?? decoded['msg'] ?? decoded['error'] ?? decoded['repMsg']
+    const numericCode = Number(code)
+    throw new LowcodeApiError(Number.isFinite(numericCode) ? numericCode : 0,
+      typeof message === 'string' && message.trim() ? message : `SPARK ${operation}请求失败`)
+  }
 }
 
 /** 拥有请求执行与失效代次；保留完整 SPARK 封包供原查询结果/权限算法消费。 */

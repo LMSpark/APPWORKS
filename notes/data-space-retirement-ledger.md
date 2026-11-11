@@ -9250,3 +9250,11 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **组件缺陷修复。** 实服 `FkType` 为 int、字典 `val` 为字符串，`FieldRadio` 严格比较导致详情中反馈类型未选中。标准组件改为按字符串身份选中，原值为数值时写回保持数值；新增单测覆盖。
 - **已登记差距。** 参考“处理时间” `HandleDate` 不在正式模型中，未以其他日期字段替代，页面不提供该项。存量 `CompleteUserID` 部分保存的是姓名而非用户 `ID`，该类记录处理人下拉显示原值；保存时由所选用户行同步 `CompleteUserName`。租户仅可见 1 条 `Base_AppSystemList`，其余记录的系统名称显示原 ID，属数据可见范围而非页面错误。
 - **验证。** `pnpm run typecheck`、改动文件 ESLint、导航/注册/数据空间/组织/缓存/字段相关 vitest、`generate:class-model-surface`、`verify:lowcode-contracts`、`verify:class-model`、`verify:docs`、`verify:page-thin`、`verify:ai-codegen` 通过。认证实服只读烟测：菜单出现“BUG管理”，列表 312 条、按“合同”查询 13 条，详情对话框的简述、表单路径、反馈类型与状态正确回显，取消后关闭；未执行实服保存（共享环境无独占记录），保存回执与精确回读仍待独占测试记录验收。未改 Java，未新增 Node.js 服务。
+
+### 2026-11-11 系统运维迁移：数据恢复
+
+- **迁移落点。** 参考 `features/system/data-recovery/ui/data-recovery-page.vue` 按原路径恢复，场景 `70D5D8FACCC201A822F64B16A441BE8F` 以 `config/pages/system/data-recovery/pagedata.json` 绑定八个正式模型；应用→数据库→数据表→字段→软删除/恢复记录全部由显式查询级联连接，不手传数组。动态列由 `Base_TblField` 行生成标准 `r-text` 子组件；左侧两个 `FieldSelect` 以 record 模式移动选项视图当前行。
+- **公共能力。** `FieldSelect` record 模式选中后同步 `setCurrentRow`，下游级联按当前行取值。新增 `DataRecoveryPageReadAdapter`（`modelAdapters` 与缓存适配器合并为同一内层映射）：接口忽略请求体 PageParam，以来源入参 `pageParam` 分页并保留回执总数；参考请求同样发送 `Filter: null`，由视图 `queryContext` 声明。`nextPageAvailable` 改为可选。
+- **断链修复。** `GetData` 把资源自身 AjaxResult 包在 `Result.data` 中；内层 `Code 1004`（表无默认字段）曾被当作缺总数的空结果，报“分页缺少后端总数”。`decodeEnvelope` 现同时校验内层业务码并抛原消息，新增回归用例。
+- **已登记差距。** 原数据主键取唯一存在的 `rowid`/`id`；正式字段元数据未标识来源主键，两者都缺或并存时阻止恢复并提示。“全部数据”对未授权表由后端返回 500 权限不足，由表格显示原因，不在前端绕过。恢复记录的表名称、操作人显示原 ID（`Base_UserInfo` 未作为选项视图装配）。
+- **验证。** typecheck、改动文件 ESLint、lowcode-api/组件/运行时 vitest、`generate:class-model-surface`、`generate:lowcode-contracts`、`verify:lowcode-contracts`/`class-model`/`docs`/`page-thin`/`ai-codegen` 通过。实服烟测：应用、数据库、232 张表分页、动态列头；`Base_SysOperate_Log` 显示后端 1004 原因；`Base_PW_EditInfo` 待恢复 2 条，恢复后变 1 条并在已恢复页出现记录（回执 `mapListAdd`），撤销恢复（`status=1`，回执 `mapListEdit`）后已恢复为空、待恢复回到 2 条。未改 Java，未新增 Node.js 服务。

@@ -1,0 +1,96 @@
+{
+  "scenarioId": "70D5D8FACCC201A822F64B16A441BE8F",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "Base_AppSystemList": {
+      "modelBinding": {"modelId": "fddb0676-298c-4dbc-bd0d-71521443795e", "modelName": "Base_AppSystemList"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "pageSize": 500,
+        "valueField": "rowid", "labelField": "AppDesc",
+        "queryConfig": {"allPages": true, "fields": ["rowid", "AppDesc", "AppName"]}
+      }}
+    },
+    "Base_AppAndSource_Relation": {
+      "modelBinding": {"modelId": "76fbed4c-db66-4987-a532-47b1593fc486", "modelName": "Base_AppAndSource_Relation"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "pageSize": 500,
+        "valueField": "rowid", "labelField": "cnName",
+        "queryConfig": {"allPages": true, "fields": ["rowid", "conid", "cnName", "conName", "type"]}
+      }}
+    },
+    "_Base_TblList": {
+      "modelBinding": {"modelId": "ffb82ba5-cc77-484a-9ec7-fbed2ea9a7f7", "modelName": "_Base_TblList"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "",
+        "page": 1, "pageSize": 15, "valueField": "rowid", "labelField": "tbldesc",
+        "queryConfig": {"fields": ["rowid", "tbldesc", "tblname", "dbid"]}
+      }}
+    },
+    "Base_TblField": {
+      "modelBinding": {"modelId": "a7da6fd7-a84c-4566-a1cd-509bbcf02bbd", "modelName": "Base_TblField"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 500,
+        "queryConfig": {"allPages": true, "fields": ["rowid", "tblid", "tblname", "enname", "cnname", "DataType"]}
+      }}
+    },
+    "获取软删除的数据": {
+      "modelBinding": {"modelId": "4e488cbc-9673-4b29-b856-84aad912d774", "modelName": "获取软删除的数据"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "",
+        "page": 1, "pageSize": 15, "queryContext": {"Filter": null},
+        "queryConfig": {"pagination": "paged", "cacheType": "none", "sourceInputMode": "direct"}
+      }}
+    },
+    "获取表数据": {
+      "modelBinding": {"modelId": "38eb73eb-e622-4262-9cd8-e2990aba9846", "modelName": "获取表数据"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "",
+        "queryConfig": {"pagination": "none", "cacheType": "none", "sourceInputMode": "direct"}
+      }}
+    },
+    "Base_TableData_Recovery": {
+      "modelBinding": {"modelId": "e92d77f0-4462-4f6c-96de-15d171b40c5b", "modelName": "Base_TableData_Recovery"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "",
+        "page": 1, "pageSize": 15,
+        "filterExpression": {"field": "status", "operator": "eq", "value": 0},
+        "queryConfig": {"fields": ["rowid", "sys_id", "db_id", "data_id", "table_id", "status", "recovery_userid", "recovery_date", "recovery_type"]}
+      }}
+    },
+    "Base_UserInfo": {
+      "modelBinding": {"modelId": "4dfaa51f-b12b-452e-8e84-3be7b9da5164", "modelName": "Base_UserInfo"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 500,
+        "valueField": "ID", "labelField": "UserName",
+        "queryConfig": {"allPages": true, "fields": ["ID", "UserName"]}
+      }}
+    }
+  },
+  "viewCascades": [
+    {"kind": "query", "cascadeId": "recovery-app-databases",
+      "parentTable": "Base_AppSystemList", "parentViewId": "default", "childTable": "Base_AppAndSource_Relation", "childViewId": "default",
+      "filterBindings": [{"sourceField": "rowid", "targetField": "sysid", "operator": "eq"}]},
+    {"kind": "query", "cascadeId": "recovery-database-tables",
+      "parentTable": "Base_AppAndSource_Relation", "parentViewId": "default", "childTable": "_Base_TblList", "childViewId": "default",
+      "filterBindings": [{"sourceField": "conid", "targetField": "dbid", "operator": "eq"}]},
+    {"kind": "query", "cascadeId": "recovery-table-fields",
+      "parentTable": "_Base_TblList", "parentViewId": "default", "childTable": "Base_TblField", "childViewId": "default",
+      "filterBindings": [{"sourceField": "rowid", "targetField": "tblid", "operator": "eq"}]},
+    {"kind": "query", "cascadeId": "recovery-deleted-table",
+      "parentTable": "_Base_TblList", "parentViewId": "default", "childTable": "获取软删除的数据", "childViewId": "default",
+      "filterBindings": [], "inputBindings": [{"sourceField": "tblname", "target": "queryContext.table"}]},
+    {"kind": "query", "cascadeId": "recovery-deleted-database",
+      "parentTable": "Base_AppAndSource_Relation", "parentViewId": "default", "childTable": "获取软删除的数据", "childViewId": "default",
+      "filterBindings": [], "inputBindings": [{"sourceField": "conName", "target": "queryContext.dbname"}, {"sourceField": "conid", "target": "queryContext.dbid"}]},
+    {"kind": "query", "cascadeId": "recovery-all-table",
+      "parentTable": "_Base_TblList", "parentViewId": "default", "childTable": "获取表数据", "childViewId": "default",
+      "filterBindings": [], "inputBindings": [{"sourceField": "tblname", "target": "queryContext.TbName"}], "autoLoad": false},
+    {"kind": "query", "cascadeId": "recovery-all-database",
+      "parentTable": "Base_AppAndSource_Relation", "parentViewId": "default", "childTable": "获取表数据", "childViewId": "default",
+      "filterBindings": [], "inputBindings": [{"sourceField": "conid", "target": "queryContext.DbId"}], "autoLoad": false},
+    {"kind": "query", "cascadeId": "recovery-restored-table",
+      "parentTable": "_Base_TblList", "parentViewId": "default", "childTable": "Base_TableData_Recovery", "childViewId": "default",
+      "filterBindings": [{"sourceField": "rowid", "targetField": "table_id", "operator": "eq"}]}
+  ]
+}

@@ -50,7 +50,7 @@ AI用途：需要理解 field select 的实际渲染结构、slot/toolbar/状态
  */
 import {computed} from 'vue'
 import {useFormDisabled} from 'element-plus'
-import {DataMember} from '@spark-appworks/spark-data'
+import {DataMember, type DataRow} from '@spark-appworks/spark-data'
 import { useOptionFieldState } from '../../composables/state/useOptionFieldState'
 import { emitFieldValueUpdate, useControlledFieldChange, type FieldValueUpdateEmits } from '../../composables/value/useControlledFieldChange'
 import { coercePrimitiveOptionValue } from '../../composables/value/fieldValueCoercion'
@@ -118,9 +118,11 @@ const {handleControlledChange: changeSelection} = useControlledFieldChange<strin
   syncValue: value => {
     const view = permission.dataSource.value
     if (!view || !selectionMember.value || !isCurrentFieldEditable.value) return
-    if (value === '') {view.setSelectedRows([]); return}
+    // 单值控件同时移动当前行，使下游按字段取值的级联获得同一记录。
+    const select = (row: DataRow | null) => {view.setSelectedRows(row ? [row] : []); view.setCurrentRow(row)}
+    if (value === '') {select(null); return}
     const row = view.rows.find(record => view.getPkKey(record) === String(value))
-    if (row && options.value.some(option => option.value === value && !option.disabled)) view.setSelectedRows([row])
+    if (row && options.value.some(option => option.value === value && !option.disabled)) select(row)
   },
 })
 // 标题从当前选项源派生，不依赖关闭后已释放或候选变化前的ElOption缓存。

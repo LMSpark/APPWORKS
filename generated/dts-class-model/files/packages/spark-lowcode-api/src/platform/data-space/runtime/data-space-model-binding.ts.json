@@ -55,7 +55,7 @@
         },
         "method.execute.return": {
           "type": "object",
-          "title": "Promise<Readonly<{\n        result: DataSpaceQueryContext;\n        nextPageAvailable: boolean;\n    }>>"
+          "title": "Promise<Readonly<{\n        result: DataSpaceQueryContext;\n        nextPageAvailable?: boolean;\n    }>>"
         }
       }
     },
@@ -93,18 +93,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-07T00:08:21.902Z",
+  "generatedAt": "2026-11-11T06:36:55.919Z",
   "models": {
     "DataSpaceModelReadAdapter": {
       "name": "DataSpaceModelReadAdapter",
-      "jsdoc": "只读分页来源适配；下一页须由来源实际探测确认，结果必须来自本次read能力。",
+      "jsdoc": "只读分页来源适配；回执未报告总数时，下一页须由来源实际探测确认；报告总数时省略nextPageAvailable。结果必须来自本次read能力。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    kind: 'paged-read';\n    execute(input: Readonly<{\n        view: DataView;\n        params: Readonly<QueryParams>;\n        read: (params: QueryParams) => Promise<DataSpaceQueryContext>;\n    }>): Promise<Readonly<{\n        result: DataSpaceQueryContext;\n        nextPageAvailable: boolean;\n    }>>;\n}>",
+        "declarationTypeText": "Readonly<{\n    kind: 'paged-read';\n    execute(input: Readonly<{\n        view: DataView;\n        params: Readonly<QueryParams>;\n        read: (params: QueryParams) => Promise<DataSpaceQueryContext>;\n    }>): Promise<Readonly<{\n        result: DataSpaceQueryContext;\n        nextPageAvailable?: boolean;\n    }>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    kind: 'paged-read';\n    execute(input: Readonly<{\n        view: DataView;\n        params: Readonly<QueryParams>;\n        read: (params: QueryParams) => Promise<DataSpaceQueryContext>;\n    }>): Promise<Readonly<{\n        result: DataSpaceQueryContext;\n        nextPageAvailable: boolean;\n    }>>;\n}>",
+            "typeText": "Readonly<{\n    kind: 'paged-read';\n    execute(input: Readonly<{\n        view: DataView;\n        params: Readonly<QueryParams>;\n        read: (params: QueryParams) => Promise<DataSpaceQueryContext>;\n    }>): Promise<Readonly<{\n        result: DataSpaceQueryContext;\n        nextPageAvailable?: boolean;\n    }>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -144,7 +144,7 @@
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        result: DataSpaceQueryContext;\n        nextPageAvailable: boolean;\n    }"
+                        "name": "{\n        result: DataSpaceQueryContext;\n        nextPageAvailable?: boolean;\n    }"
                       }
                     ]
                   }

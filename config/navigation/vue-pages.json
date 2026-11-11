@@ -61,6 +61,16 @@
       "shellTool": false
     },
     {
+      "path": "/features/system/data-recovery/ui/data-recovery-page",
+      "title": "数据恢复",
+      "icon": "RefreshLeft",
+      "scope": "app",
+      "source": "src/views/features/system/data-recovery/ui/data-recovery-page.vue",
+      "description": "AppWorks 系统导航登记的原生数据恢复页面",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
       "path": "/app-list",
       "title": "应用列表",
       "icon": "Grid",

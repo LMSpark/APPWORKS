@@ -17,6 +17,7 @@ import {getBuiltinScenarioResource, isBuiltinApplication, resolveBuiltinScenario
 import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from '../resources/repository/builtin-blueprint-node-resource'
 import {registerApiModelRules,type ApiModelRuleHost} from '../resources/integration/api-management/model-rules'
 import {createCacheScenarioBindings} from '../resources/system/cache-management/runtime-bindings'
+import {createDataRecoveryScenarioBindings} from '../resources/system/data-recovery/runtime-bindings'
 import {createWorkflowScenarioBindings} from '../resources/structured-config/workflow-definition/execution/runtime-bindings'
 import {createAgentWorkflowCreationBindings} from '../resources/repository/agent-workflow/creation'
 import {createAgentWorkflowPublicationBindings} from '../resources/repository/agent-workflow/publication'
@@ -159,12 +160,17 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
  const cacheBindings = createCacheScenarioBindings({config,runtime:lowcodeApi.dataSpace.runtime,assertCurrent})
  const workflowBindings = createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent})
  const excelBindings = createExcelCatalogBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent})
+ const recoveryBindings = createDataRecoveryScenarioBindings({config,assertCurrent})
  const result = await loadScenarioDataSet({scenarioId, config, assertCurrent,
   ...agentCreation,
   ...agentPublication,
   ...cacheBindings,
   ...workflowBindings,
   ...excelBindings,
+  modelAdapters: {
+   ...cacheBindings.modelAdapters,
+   ...recoveryBindings.modelAdapters,
+  },
   commandBindings: {
    ...agentCreation.commandBindings,
    ...agentPublication.commandBindings,

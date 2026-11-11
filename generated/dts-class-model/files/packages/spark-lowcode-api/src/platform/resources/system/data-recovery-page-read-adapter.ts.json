@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/system/data-recovery-page-read-adapter",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/data-recovery-page-read-adapter.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/system/data-recovery-page-read-adapter.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/system/data-recovery-page-read-adapter",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/system/data-recovery-page-read-adapter\n职责：将软删除数据接口的分页映射为正式来源入参pageParam，并按原回执总数判断下一页。\n边界：不读取角色、不改写恢复记录、不持有页面行数组或权限副本；表、库入参由级联写入本次查询上下文。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataRecoveryPageReadAdapter"
+    ]
+  },
+  "$defs": {
+    "DataRecoveryPageIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataRecoveryPageIdentity",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "modelName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "modelId",
+        "modelName"
+      ],
+      "additionalProperties": false
+    },
+    "DataRecoveryPageReadAdapter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataRecoveryPageReadAdapter",
+      "properties": {
+        "kind": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "identity": {
+              "$ref": "#/$defs/DataRecoveryPageIdentity"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.execute.params": {
+          "type": "object",
+          "properties": {
+            "input": true
+          },
+          "additionalProperties": false
+        },
+        "method.execute.return": {
+          "type": "object",
+          "title": "ReturnType<DataSpaceModelReadAdapter['execute']>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-11T06:56:10.157Z",
+  "models": {
+    "DataRecoveryPageIdentity": {
+      "name": "DataRecoveryPageIdentity",
+      "jsdoc": "正式场景、模型ID与查询名称共同定位一个软删除数据来源。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    modelId: string;\n    modelName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    modelId: string;\n    modelName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataRecoveryPageReadAdapter": {
+      "name": "DataRecoveryPageReadAdapter",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(identity: DataRecoveryPageIdentity)",
+          "parameters": [
+            {
+              "name": "identity",
+              "type": {
+                "type": "reference",
+                "name": "DataRecoveryPageIdentity",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/data-recovery-page-read-adapter.ts"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "implements",
+            "typeText": "DataSpaceModelReadAdapter",
+            "targetName": "DataSpaceModelReadAdapter"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "execute",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "unknown",
+                    "name": "Parameters<DataSpaceModelReadAdapter['execute']>[0]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "DataSpaceModelReadAdapter['execute']"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -11,7 +11,8 @@ import type {DataRow} from '@spark-appworks/spark-data'
  * 单值选择字段的属性契约。下拉选项在展开时挂载，关闭后释放；标题读取当前同一选项源并严格匹配值类型。
  * 没有匹配选项时显示原值，不自动选中其他候选；选择、清空和取消沿原字段DataView处理。
  * dataMember=value且未指定dataField/field时，控件选择绑定视图的一条记录；选项值须为该视图主键。
- * 此模式读取选中主键数组中的单个值，选择/清空经DataView.setSelectedRows，不编辑记录或扩大字段权限；readonly和宿主禁用仍生效。
+ * 此模式读取选中主键数组中的单个值；选择/清空经DataView.setSelectedRows并同步移动当前行，供下游按字段取值的级联使用。
+ * 不编辑记录或扩大字段权限；readonly和宿主禁用仍生效。
  */
 export type RSelectProps = SparkNodeProps & SparkOptionFieldProps<string | number> & {
   /** 直接绑定平面选项视图时修剪文本选项值并排除空白；默认false。须显式声明optionValueField，只用于字段值，不能用于记录选择或级联；原视图不变，修剪后值冲突会禁用选择并提示。 */

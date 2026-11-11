@@ -272,6 +272,15 @@ describe('DataSpaceRuntimeApi', () => {
     expect(context.readFieldAccess(row, 'name')).toBe(expected)
   })
 
+  it('surfaces a nested business error envelope instead of reading it as empty data', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    http.queryResults = [{ primaryKeyField: null, allowAdd: true,
+      data: { Code: 1004, Message: '[1004] 表没有默认字段，不能恢复数据', Type: 'error' } }]
+    await expect(api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: '薪资前端模型' }))
+      .rejects.toThrow('[1004] 表没有默认字段，不能恢复数据')
+  })
+
   it('uses the selected application ID in request headers after switching applications', async () => {
     const http = new DataSpaceFixtureHttpClient()
     const api = activeApi(http)

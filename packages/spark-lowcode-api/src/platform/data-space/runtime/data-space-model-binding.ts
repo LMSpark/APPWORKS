@@ -5,10 +5,10 @@
  */
 import type {DataRow,DataView,QueryParams} from '@spark-appworks/spark-data'
 import type {DataSpaceQueryContext} from './query/data-space-query-context'
-/** 只读分页来源适配；下一页须由来源实际探测确认，结果必须来自本次read能力。 */
+/** 只读分页来源适配；回执未报告总数时，下一页须由来源实际探测确认；报告总数时省略nextPageAvailable。结果必须来自本次read能力。 */
 export type DataSpaceModelReadAdapter=Readonly<{
  kind:'paged-read'
- execute(input:Readonly<{view:DataView;params:Readonly<QueryParams>;read:(params:QueryParams)=>Promise<DataSpaceQueryContext>}>):Promise<Readonly<{result:DataSpaceQueryContext;nextPageAvailable:boolean}>>
+ execute(input:Readonly<{view:DataView;params:Readonly<QueryParams>;read:(params:QueryParams)=>Promise<DataSpaceQueryContext>}>):Promise<Readonly<{result:DataSpaceQueryContext;nextPageAvailable?:boolean}>>
 }>
 /** 数组与服务适配互斥；命令模式不能通过普通查询入口执行。 */
 export type DataSpaceModelBindingOptions=Readonly<{

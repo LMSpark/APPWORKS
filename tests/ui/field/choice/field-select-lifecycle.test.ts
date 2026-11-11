@@ -99,6 +99,7 @@ describe('FieldSelect native option lifecycle', () => {
     expect(select.props('disabled')).toBe(false)
     select.vm.$emit('update:modelValue', 'second'); await flushPromises()
     expect(f.choices.getSelectedValues()).toEqual(['second'])
+    expect(f.choices.currentRow?.['id']).toBe('second')
     expect(select.props('modelValue')).toBe('second')
     expect(f.choices.hasEditingChanges()).toBe(false)
     f.readonly.value = true; await flushPromises()
@@ -108,6 +109,7 @@ describe('FieldSelect native option lifecycle', () => {
     f.readonly.value = false; await flushPromises()
     select.vm.$emit('update:modelValue', ''); await flushPromises()
     expect(f.choices.getSelectedValues()).toEqual([])
+    expect(f.choices.currentRow).toBeNull()
   })
 
   it('rejects a delayed selection after the bound view changes', async () => {

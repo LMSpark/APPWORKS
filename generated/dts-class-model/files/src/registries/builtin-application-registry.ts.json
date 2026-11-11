@@ -43,7 +43,8 @@
         "organizationStructure",
         "jobManagement",
         "applicationManager",
-        "bugManage"
+        "bugManage",
+        "dataRecovery"
       ]
     },
     "BuiltinScenarioResource": {
@@ -113,7 +114,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-11T06:10:45.402Z",
+  "generatedAt": "2026-11-11T06:42:56.737Z",
   "models": {
     "BuiltinScenarioName": {
       "name": "BuiltinScenarioName",

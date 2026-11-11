@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/system/data-recovery/ui/data-recovery-page",
+    "sourcePath": "src/views/features/system/data-recovery/ui/data-recovery-page.vue",
+    "sourceFile": "src/views/features/system/data-recovery/ui/data-recovery-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/system/data-recovery/ui/data-recovery-page",
+    "jsdoc": "@module app:views/features/system/data-recovery/ui/data-recovery-page\n职责：按应用系统、数据库及数据表浏览软删除数据，恢复单条数据或撤销已恢复记录，并查看表全部数据。\n边界：选择、表列表、动态字段、三类数据及恢复记录均绑定同一PageRuntime的正式DataView；恢复与撤销经DataSet保存。\nAI用途：迁移系统运维数据恢复时，核对级联输入、data_id取值与恢复记录的权限及保存回执。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-11T07:00:17.936Z",
+  "models": {}
+}

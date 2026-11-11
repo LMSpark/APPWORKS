@@ -77,8 +77,12 @@ describe('standard data contract of field and display components', () => {
 
   it('picker presets forward the standard binding props to the entity picker', async () => {
     const {wrapper, input} = await fixture(props => h(FieldUserPicker, props),
-      {dataViewKey: 'T@Models@default', dataMember: 'currentRow', dataField: 'ownerId'})
-    expect(wrapper.getComponent(FieldEntityPicker).props()).toMatchObject({dataViewKey: 'T@Models@default', dataMember: 'currentRow', dataField: 'ownerId'})
+      {dataViewKey: 'T@Models@default', dataMember: 'currentRow', dataField: 'ownerId',
+        optionDataViewKey: 'T@Models@default', optionLabelFields: ['name', 'id'], optionLabelJoiner: ' / ', optionValueField: 'id'})
+    expect(wrapper.getComponent(FieldEntityPicker).props()).toMatchObject({dataViewKey: 'T@Models@default', dataMember: 'currentRow',
+      dataField: 'ownerId', optionLabelFields: ['name', 'id'], optionLabelJoiner: ' / '})
+    input['optionLabelJoiner'] = ' · '; await flushPromises()
+    expect(wrapper.getComponent(FieldEntityPicker).props('optionLabelJoiner')).toBe(' · ')
     input['dataViewKey'] = 'T@Models@other'; await flushPromises()
     expect(wrapper.getComponent(FieldEntityPicker).props('dataViewKey')).toBe('T@Models@other')
   })

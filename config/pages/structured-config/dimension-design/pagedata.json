@@ -62,6 +62,23 @@
               "description"
             ]
           }
+        },
+        "validationByEvent": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "event_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "eventCode"
+            }
+          },
+          "queryConfig": {
+            "allPages": true
+          }
         }
       }
     },

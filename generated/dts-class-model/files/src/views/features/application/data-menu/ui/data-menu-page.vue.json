@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/data-menu/ui/data-menu-page",
+    "sourcePath": "src/views/features/application/data-menu/ui/data-menu-page.vue",
+    "sourceFile": "src/views/features/application/data-menu/ui/data-menu-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/data-menu/ui/data-menu-page",
+    "jsdoc": "@module app:views/features/application/data-menu/ui/data-menu-page\n职责：恢复导航宿主管理：按名称查询宿主，新增、编辑、删除，并进入所关联数据空间的设计。\n边界：列表、候选与编辑绑定同一PageRuntime的正式DataView；删除经DataSet单ID保存。数据空间授权配置随数据权限专题暂缓。\nAI用途：迁移导航宿主时核对宿主记录写入字段、空间→资源→字段候选级联与设计入口。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-11T09:02:10.044Z",
+  "models": {}
+}

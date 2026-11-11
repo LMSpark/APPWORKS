@@ -205,6 +205,9 @@
             "type": "string"
           }
         },
+        "optionLabelJoiner": {
+          "type": "string"
+        },
         "optionDataMember": {
           "enum": [
             "page",

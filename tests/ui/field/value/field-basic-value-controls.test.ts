@@ -176,6 +176,26 @@ function mountBasicField(
 }
 
 describe('基础值字段组件', () => {
+  it.each([false, true])('FieldNumber keeps disabled accessibility state current (range=%s)', async range => {
+    const model = reactive({amount: range ? [2, 8] : 2})
+    const props = reactive({readonly: true, ...(range ? {filterMode: 'range'} : {})})
+    const wrapper = mountFieldInContext({component: FieldNumber, type: 'r-number', model, fieldName: 'amount',
+      componentProps: props, global: {plugins: [ElementPlus], components: {'el-input-number': ElInputNumber},
+        stubs: {'el-form-item': ElFormItemStub}}})
+    try {
+      expect(wrapper.findAll('[role="spinbutton"]').map(input => input.attributes('aria-disabled')))
+        .toEqual(range ? ['true', 'true'] : ['true'])
+      props.readonly = false
+      await nextTick()
+      expect(wrapper.findAll('[role="spinbutton"]').map(input => input.attributes('aria-disabled')))
+        .toEqual(range ? ['false', 'false'] : ['false'])
+      props.readonly = true
+      await nextTick()
+      expect(wrapper.findAll('[role="spinbutton"]').map(input => input.attributes('aria-disabled')))
+        .toEqual(range ? ['true', 'true'] : ['true'])
+    } finally {wrapper.unmount()}
+  })
+
   it.each([false, true])('FieldNumber consumes step and control placement through standard value binding (range=%s)', async range => {
     const model = reactive({amount: range ? [2, 8] : 2})
     const wrapper = mountFieldInContext({component: FieldNumber, type: 'r-number', model, fieldName: 'amount',

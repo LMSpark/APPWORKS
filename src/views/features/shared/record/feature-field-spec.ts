@@ -7,7 +7,7 @@ import type {DataRow} from '@spark-appworks/spark-data'
 
 export type FeatureFieldOption = Readonly<{value: string | number | boolean; label: string}>
 
-/** when 返回 false 时隐藏且不参与必填检查；optionKey 指向同一PageRuntime的选项DataView。 */
+/** when 返回 false 时隐藏；requiredWhen 和 readonlyWhen 按当前行判断，optionKey 指向同一PageRuntime的选项DataView。 */
 export type FeatureFieldSpec = Readonly<{
   field: string
   label: string
@@ -15,7 +15,22 @@ export type FeatureFieldSpec = Readonly<{
   options?: readonly FeatureFieldOption[]
   optionKey?: string
   labelFields?: string[]
+  labelJoiner?: string
   required?: boolean
+  requiredWhen?: (row: Readonly<DataRow>) => boolean
   readonly?: boolean
+  readonlyWhen?: (row: Readonly<DataRow>) => boolean
   when?: (row: Readonly<DataRow>) => boolean
 }>
+
+export function visibleFeatureFields(specs: readonly FeatureFieldSpec[], row: Readonly<DataRow> | undefined): readonly FeatureFieldSpec[] {
+  return specs.filter(spec => !spec.when || (row !== undefined && spec.when(row)))
+}
+
+export function missingFeatureField(specs: readonly FeatureFieldSpec[], row: Readonly<DataRow>): FeatureFieldSpec | undefined {
+  return visibleFeatureFields(specs, row).find(spec => {
+    const value = row[spec.field]
+    return spec.required && (!spec.requiredWhen || spec.requiredWhen(row))
+      && (value === undefined || value === null || (typeof value === 'string' && value.trim() === ''))
+  })
+}

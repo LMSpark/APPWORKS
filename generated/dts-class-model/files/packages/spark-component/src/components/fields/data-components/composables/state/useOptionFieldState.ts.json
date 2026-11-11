@@ -142,6 +142,9 @@
             "type": "string"
           }
         },
+        "optionLabelJoiner": {
+          "type": "string"
+        },
         "optionValueField": {
           "type": "string"
         },

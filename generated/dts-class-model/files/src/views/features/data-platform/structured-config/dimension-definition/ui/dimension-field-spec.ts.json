@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec",
+    "sourcePath": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts",
+    "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec\n职责：声明维度中心各记录的编辑字段、候选值及单记录校验，供统一记录对话框消费。\n边界：只描述字段与纯校验；跨记录约束（唯一性、引用、启用前置）由页面基于正式DataView结果判断。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-11T17:56:22.446Z",
+  "models": {}
+}

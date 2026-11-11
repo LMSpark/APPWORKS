@@ -41,6 +41,7 @@ type FieldOptionProps = FieldComposableProps<Pick<
   'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options'
   | 'optionLabelField'
   | 'optionLabelFields'
+  | 'optionLabelJoiner'
   | 'optionValueField'
   | 'optionDisabledField'
   | 'optionChildrenField'
@@ -132,6 +133,8 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
   const refreshPointer = () => {if(resolvedOptionDataMember.value===DataMember.Rows)refreshOptions();else invalidateOptions()}
   watch([() => props.optionValueTrim, () => props.optionValueField, () => props.optionChildrenField],
     ([active], [previous]) => {if (active || previous) invalidateOptions()}, {flush: 'sync'})
+  watch([() => Array.isArray(props.optionLabelFields) ? props.optionLabelFields.join('\u0000') : props.optionLabelFields,
+    () => props.optionLabelJoiner], invalidateOptions, {flush: 'sync'})
   // Pre-flush lets the parent unmount stale fields before a removed option view is resolved.
   watch(() => props.optionValueTrim ? optionDataView.value : undefined,
     (view, previous) => {if (view !== previous) invalidateOptions()})
@@ -175,6 +178,7 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
     return buildOptionSourceFromView(view, {
       labelField: optionLabelField.value, valueField: optionValueField.value, childrenField: optionChildrenField.value,
       trimValue: true, ...(props.optionLabelFields ? {labelFields: props.optionLabelFields} : {}),
+      ...(props.optionLabelJoiner === undefined ? {} : {labelJoiner: props.optionLabelJoiner}),
     })
   })
   const trimmedOptionError = computed(() => {
@@ -196,6 +200,9 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
     optionRevision.value
     const view = optionDataView.value
     const trimmed = trimmedOptionSource.value
+    if (props.optionLabelJoiner !== undefined && !props.optionLabelFields) {
+      throw new Error('FIELD_OPTION_LABEL: 标题连接符需要标题字段列表')
+    }
     if (props.optionLabelFields && (!view || cascade.definition.value || resolvedOptionDataMember.value !== DataMember.Rows)) {
       throw new Error('FIELD_OPTION_LABEL: 多标题字段需要直接绑定DataView.rows')
     }
@@ -208,7 +215,8 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
         ? buildOptionSourceFromView(
             view,
             {labelField: optionLabelField.value, valueField: optionValueField.value, childrenField: optionChildrenField.value,
-              ...(props.optionLabelFields ? {labelFields:props.optionLabelFields} : {})},
+              ...(props.optionLabelFields ? {labelFields:props.optionLabelFields} : {}),
+              ...(props.optionLabelJoiner === undefined ? {} : {labelJoiner:props.optionLabelJoiner})},
           )
         : resolveDataViewMember({
             dataViewKey: `${view.tableName}@${view.viewId}`,

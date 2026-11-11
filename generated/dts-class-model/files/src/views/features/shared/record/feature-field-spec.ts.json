@@ -1,0 +1,297 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/shared/record/feature-field-spec",
+    "sourcePath": "src/views/features/shared/record/feature-field-spec.ts",
+    "sourceFile": "src/views/features/shared/record/feature-field-spec.ts",
+    "packageName": "app",
+    "modulePath": "views/features/shared/record/feature-field-spec",
+    "jsdoc": "@module app:views/features/shared/record/feature-field-spec\n职责：声明统一记录对话框的一个编辑字段（组件类型、候选来源、必填、只读与显示条件）。\n边界：只描述字段；跨记录约束由页面基于正式DataView结果判断并经对话框validate返回。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FeatureFieldOption",
+      "FeatureFieldSpec"
+    ]
+  },
+  "$defs": {
+    "FeatureFieldOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FeatureFieldOption",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "label"
+      ],
+      "additionalProperties": false
+    },
+    "FeatureFieldSpec": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FeatureFieldSpec",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "text",
+            "textarea",
+            "number",
+            "select",
+            "radio",
+            "switch"
+          ]
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FeatureFieldOption"
+          }
+        },
+        "optionKey": {
+          "type": "string"
+        },
+        "labelFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "labelJoiner": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "readonly": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.requiredWhen.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.requiredWhen.return": {
+          "type": "boolean"
+        },
+        "method.readonlyWhen.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readonlyWhen.return": {
+          "type": "boolean"
+        },
+        "method.when.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.when.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-11T17:56:22.216Z",
+  "models": {
+    "FeatureFieldOption": {
+      "name": "FeatureFieldOption",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    value: string | number | boolean;\n    label: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    value: string | number | boolean;\n    label: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FeatureFieldSpec": {
+      "name": "FeatureFieldSpec",
+      "jsdoc": "when 返回 false 时隐藏；requiredWhen 和 readonlyWhen 按当前行判断，optionKey 指向同一PageRuntime的选项DataView。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    field: string;\n    label: string;\n    kind?: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'switch';\n    options?: readonly FeatureFieldOption[];\n    optionKey?: string;\n    labelFields?: string[];\n    labelJoiner?: string;\n    required?: boolean;\n    requiredWhen?: (row: Readonly<DataRow>) => boolean;\n    readonly?: boolean;\n    readonlyWhen?: (row: Readonly<DataRow>) => boolean;\n    when?: (row: Readonly<DataRow>) => boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    field: string;\n    label: string;\n    kind?: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'switch';\n    options?: readonly FeatureFieldOption[];\n    optionKey?: string;\n    labelFields?: string[];\n    labelJoiner?: string;\n    required?: boolean;\n    requiredWhen?: (row: Readonly<DataRow>) => boolean;\n    readonly?: boolean;\n    readonlyWhen?: (row: Readonly<DataRow>) => boolean;\n    when?: (row: Readonly<DataRow>) => boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelJoiner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "required",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonly",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "requiredWhen",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "readonlyWhen",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "when",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

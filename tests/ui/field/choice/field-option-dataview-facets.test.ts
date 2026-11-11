@@ -83,6 +83,29 @@ describe('选项字段应继承 DataView facets', () => {
       expect(source).toHaveLength(2)
     } finally {ds.destroy()}
   })
+  it('joins readable label fields with editing overlays without exposing masked values', () => {
+    const ds = SparkData.createDataSet({dataSetName: 'Labels', tables: {Results: {
+      tableName: 'Results', resourceType: 'static-data',
+      columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'category', type: 'string'}, {name: 'code', type: 'string'}],
+      views: {default: {rows: [{id: 'a', category: 'finance', code: 'cost'}, {id: 'b', category: 'private', code: 'secret'}]}},
+    }}})
+    const view = ds.getView('Results')!, access = view.fieldAccess.bind(view)
+    try {
+      view.updateEditingValue('a', 'code', 'new-cost')
+      vi.spyOn(view, 'fieldAccess').mockImplementation((row, field) => ({...access(row, field),
+        read: typeof row === 'object' && row !== null && row['id'] === 'b' && field === 'code' ? 'masked' : 'visible'}))
+      const source = buildOptionSourceFromView(view, {labelField: 'code', valueField: 'id', childrenField: 'children',
+        labelFields: ['category', 'code', 'id'], labelJoiner: ' / '})
+      expect(source).toMatchObject([{id: 'a', code: 'finance / new-cost / a'}, {id: 'b', code: '••••'}])
+      expect(JSON.stringify(source)).not.toContain('secret')
+      expect(view.rows[0]?.['code']).toBe('cost')
+      expect(() => buildOptionSourceFromView(view, {labelField: 'code', valueField: 'id',
+        childrenField: 'children', labelJoiner: ' / '})).toThrow('标题连接符需要标题字段列表')
+      expect(() => buildOptionSourceFromView(view, {labelField: 'id', valueField: 'id',
+        labelFields: ['category', 'code'], childrenField: 'children', labelJoiner: ' / '}))
+        .toThrow('组合标题显示字段不能覆盖选项身份')
+    } finally {ds.destroy()}
+  })
   it('refreshes direct view rows, facets and read access without an explicit cascade and releases subscriptions', async () => {
     const ds = SparkData.createDataSet({dataSetName: 'Options', tables: {
       Dict: {tableName: 'Dict', resourceType: 'static-data', columns: [{name: 'code', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'}],
@@ -107,6 +130,59 @@ describe('选项字段应继承 DataView facets', () => {
       wrapper.unmount()
       expect(off.mock.calls.some(([event]) => event === 'rowsChanged')).toBe(true)
     } finally {wrapper.unmount(); on.mockRestore(); off.mockRestore(); ds.destroy()}
+  })
+
+  it('uses the option view editing overlay and still masks unreadable labels', async () => {
+    const ds = SparkData.createDataSet({dataSetName: 'Options', tables: {
+      Dict: {tableName: 'Dict', resourceType: 'static-data',
+        columns: [{name: 'code', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'}],
+        views: {default: {valueField: 'code', labelField: 'name', rows: [{code: 'A', name: '原名称'}]}}},
+    }})
+    const view = ds.getView('Dict')!, wrapper = mountOptionProbe(ds, 'A')
+    try {
+      view.updateEditingValue('A', 'name', '编辑中的名称')
+      await flushPromises()
+      expect(wrapper.get('.option-probe').attributes('data-first-label')).toBe('编辑中的名称')
+      expect(buildOptionSourceFromView(view, {rows: [{code: 'A', name: '独立查询结果'}], labelField: 'name',
+        labelFields: ['name'], valueField: 'code', childrenField: 'children'})).toMatchObject([{name: '独立查询结果'}])
+      const access = view.fieldAccess.bind(view)
+      const permission = vi.spyOn(view, 'fieldAccess').mockImplementation((row, field) => field === 'name'
+        ? {...access(row, field), read: 'masked'} : access(row, field))
+      const source = buildOptionSourceFromView(view, {labelField: 'name', labelFields: ['name'], valueField: 'code', childrenField: 'children'})
+      expect(source).toMatchObject([{code: 'A', name: '••••'}])
+      expect(JSON.stringify(source)).not.toContain('编辑中的名称')
+      permission.mockRestore()
+      view.discardEditingRows(['A'])
+      await flushPromises()
+      expect(wrapper.get('.option-probe').attributes('data-first-label')).toBe('原名称')
+    } finally {wrapper.unmount(); ds.destroy()}
+  })
+
+  it('applies the editing overlay to nested option labels without exposing masked child values', () => {
+    const ds = SparkData.createDataSet({dataSetName: 'TreeOptions', tables: {
+      Dict: {tableName: 'Dict', resourceType: 'static-data',
+        columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'parentId', type: 'string'}, {name: 'name', type: 'string'}],
+        views: {default: {valueField: 'id', labelField: 'name',
+          treeConfig: {idField: 'id', parentIdField: 'parentId', textField: 'name', treeMode: 'flat'},
+          rows: [{id: 'P', parentId: null, name: '父项'}, {id: 'C', parentId: 'P', name: '子项'}]}}},
+    }})
+    const view = ds.getView('Dict')!
+    try {
+      view.updateEditingValue('C', 'name', '编辑中的子项')
+      const options = {labelField: 'name', labelFields: ['name'], valueField: 'id', childrenField: 'children'}
+      expect(buildOptionSourceFromView(view, options)).toMatchObject([{id: 'P', children: [{id: 'C', name: '编辑中的子项'}]}])
+      const joined = {...options, labelFields: ['name', 'id'], labelJoiner: ' / '}
+      expect(buildOptionSourceFromView(view, joined)).toMatchObject([{id: 'P', name: '父项 / P',
+        children: [{id: 'C', name: '编辑中的子项 / C'}]}])
+      const access = view.fieldAccess.bind(view)
+      const permission = vi.spyOn(view, 'fieldAccess').mockImplementation((row, field) => row?.['id'] === 'C' && field === 'name'
+        ? {...access(row, field), read: 'masked'} : access(row, field))
+      const source = buildOptionSourceFromView(view, options)
+      expect(source).toMatchObject([{id: 'P', children: [{id: 'C', name: '••••'}]}])
+      expect(JSON.stringify(source)).not.toContain('编辑中的子项')
+      expect(buildOptionSourceFromView(view, joined)).toMatchObject([{id: 'P', children: [{id: 'C', name: '••••'}]}])
+      permission.mockRestore()
+    } finally {ds.destroy()}
   })
 
   it('应默认使用 DataView.labelField/valueField/selectionDelimiter', () => {

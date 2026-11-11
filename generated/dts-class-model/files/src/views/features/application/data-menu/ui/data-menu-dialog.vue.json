@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/data-menu/ui/data-menu-dialog",
+    "sourcePath": "src/views/features/application/data-menu/ui/data-menu-dialog.vue",
+    "sourceFile": "src/views/features/application/data-menu/ui/data-menu-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/data-menu/ui/data-menu-dialog",
+    "jsdoc": "@module app:views/features/application/data-menu/ui/data-menu-dialog\n职责：新增或编辑一条导航宿主：名称、用途、数据空间、资源、显示字段及值字段。\n边界：值写入原Base_DataMenu视图并由公共记录编辑保存；资源与字段候选按所选空间/资源刷新正式视图，切换上游清空下游。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-11T08:46:34.107Z",
+  "models": {}
+}

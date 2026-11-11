@@ -24,9 +24,10 @@ export const enabled = (row: Readonly<DataRow> | undefined, field: string): bool
   return raw === true || raw === 1 || raw === '1' || raw === 'true'
 }
 const has = (field: string) => (row: Readonly<DataRow>) => text(row, field) !== ''
+const lacks = (field: string) => (row: Readonly<DataRow>) => !has(field)(row)
 const typed = (type: string, field: string, label: string): FeatureFieldSpec[] => [
   {field: type, label: `${label}类型`, kind: 'select', options: CONST_FIELD_FUNC},
-  {field, label: `${label}表达式`, required: true, when: has(type)},
+  {field, label: `${label}表达式`, required: true, requiredWhen: has(type), readonlyWhen: lacks(type)},
 ]
 
 export const DEFINITION_SPECS: readonly FeatureFieldSpec[] = [
@@ -72,13 +73,14 @@ export function ruleSpecs(eventKey: string): FeatureFieldSpec[] {
 export function conditionSpecs(resultKey: string): FeatureFieldSpec[] {
   const compares = (row: Readonly<DataRow>) => !['notnull', 'notzero'].includes(text(row, 'operator'))
   return [
-    {field: 'result_id', label: '作用结果', kind: 'select', optionKey: resultKey, labelFields: ['dim_code', 'collection_path']},
+    {field: 'result_id', label: '作用结果', kind: 'select', optionKey: resultKey,
+      labelFields: ['dim_category', 'dim_code', 'rowid'], labelJoiner: ' / '},
     {field: 'field_code', label: '字段', required: true},
     {field: 'operator', label: '运算符', kind: 'select', options: OPERATORS, required: true},
     {field: 'value_source', label: '比较来源', kind: 'select', options: CONST_FIELD, required: true, when: compares},
     {field: 'compare_value', label: '比较值', required: true, when: row => compares(row) && text(row, 'value_source') === 'CONST'},
     {field: 'compare_field', label: '比较字段', required: true, when: row => compares(row) && text(row, 'value_source') === 'FIELD'},
-    {field: 'sort_no', label: '顺序', kind: 'number', required: true},
+    {field: 'sort_no', label: '顺序', kind: 'number', required: true, when: () => false},
     {field: 'description', label: '说明', kind: 'textarea'},
   ]
 }
@@ -91,23 +93,27 @@ export const RESULT_SPECS: readonly FeatureFieldSpec[] = [
   {field: 'value_type', label: '取值类型', kind: 'select', options: [...CONST_FIELD_FUNC, {value: 'DICT', label: '字典'}], required: true},
   {field: 'value_expr', label: '取值表达式', required: true},
   {field: 'value_name_type', label: '名称类型', kind: 'select', options: [...CONST_FIELD_FUNC, {value: 'DICT', label: '字典'}]},
-  {field: 'value_name_expr', label: '名称表达式', required: true, when: has('value_name_type')},
+  {field: 'value_name_expr', label: '名称表达式', required: true, requiredWhen: has('value_name_type'), readonlyWhen: lacks('value_name_type')},
   {field: 'amount_type', label: '金额类型', kind: 'select', options: [{value: 'NONE', label: '无'}, ...CONST_FIELD_FUNC], required: true},
-  {field: 'amount_expr', label: '金额表达式', required: true, when: row => text(row, 'amount_type') !== '' && text(row, 'amount_type') !== 'NONE'},
+  {field: 'amount_expr', label: '金额表达式', required: true, requiredWhen: row => text(row, 'amount_type') !== '' && text(row, 'amount_type') !== 'NONE',
+    readonlyWhen: row => text(row, 'amount_type') === 'NONE'},
   ...typed('direction_type', 'direction_expr', '方向'),
   ...typed('currency_type', 'currency_expr', '币种'),
   ...typed('period_type', 'period_expr', '期间'),
   {field: 'source_id_type', label: '来源标识类型', kind: 'select', options: opts({FIELD: '字段', FUNC: '函数'}),
-    when: has('collection_path'), required: true},
-  {field: 'source_id_expr', label: '来源标识表达式', when: has('collection_path'), required: true},
+    required: true, requiredWhen: has('collection_path')},
+  {field: 'source_id_expr', label: '来源标识表达式', required: true, requiredWhen: has('collection_path'), readonlyWhen: lacks('source_id_type')},
   {field: 'required_flag', label: '必填', kind: 'switch'},
-  {field: 'sort_no', label: '顺序', kind: 'number', required: true},
+  {field: 'sort_no', label: '顺序', kind: 'number', required: true, when: () => false},
   {field: 'description', label: '说明', kind: 'textarea'},
 ]
 
 const COLLECTION_PATH = /^[A-Za-z_][\w]*\[\](\.[A-Za-z_][\w]*\[\])*$/u
 export function validateResult(row: Readonly<DataRow>): string | undefined {
   const path = text(row, 'collection_path')
-  if (path && !COLLECTION_PATH.test(path)) return '集合路径须使用 x[].y[] 形式'
+  if (path && (!COLLECTION_PATH.test(path)
+    || path.split('.').some(segment => ['__proto__[]', 'prototype[]', 'constructor[]'].includes(segment)))) {
+    return '集合路径须使用安全的 x[].y[] 形式'
+  }
   return undefined
 }

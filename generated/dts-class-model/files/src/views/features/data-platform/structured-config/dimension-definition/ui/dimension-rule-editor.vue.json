@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
+    "sourcePath": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
+    "jsdoc": "app 的 views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {
+    "Id": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Id",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-11T17:48:50.160Z",
+  "models": {
+    "Id": {
+      "name": "Id",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "string | number",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "string"
+          },
+          {
+            "kind": "union",
+            "typeText": "number"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

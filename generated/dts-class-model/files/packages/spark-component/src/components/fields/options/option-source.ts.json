@@ -26,6 +26,9 @@
             "type": "string"
           }
         },
+        "labelJoiner": {
+          "type": "string"
+        },
         "valueField": {
           "type": "string"
         },
@@ -52,14 +55,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-10T15:41:10.539Z",
+  "generatedAt": "2026-11-11T17:56:07.986Z",
   "models": {
     "OptionSourceOptions": {
       "name": "OptionSourceOptions",
       "jsdoc": "选项视图的输出字段及已核验的临时级联结果；不承载业务查询或权限副本。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 选项显示字段；不可读时整项不进入候选集。 */\n    labelField: string;\n    /** 显式的标题回退字段；按各字段当次权限读取。 */\n    labelFields?: readonly string[];\n    /** 显式值字段；省略时复用视图的valueField或主键。 */\n    valueField?: string;\n    /** 按调用方显式配置修剪文本值；只影响选项投影，不修改视图记录。 */\n    trimValue?: boolean;\n    /** 嵌套选项的子节点字段。 */\n    childrenField: string;\n    /** loadOptionRows已核验的本次级联结果，省略时读取正式视图。 */\n    rows?: readonly DataRow[];\n}",
+        "declarationTypeText": "{\n    /** 选项显示字段；不可读时整项不进入候选集。 */\n    labelField: string;\n    /** 显式的标题回退字段；按各字段当次权限读取。 */\n    labelFields?: readonly string[];\n    /** 连接多个非空标题；省略时使用首个可读标题。 */\n    labelJoiner?: string;\n    /** 显式值字段；省略时复用视图的valueField或主键。 */\n    valueField?: string;\n    /** 按调用方显式配置修剪文本值；只影响选项投影，不修改视图记录。 */\n    trimValue?: boolean;\n    /** 嵌套选项的子节点字段。 */\n    childrenField: string;\n    /** loadOptionRows已核验的本次级联结果，省略时读取正式视图。 */\n    rows?: readonly DataRow[];\n}",
         "members": {
           "attributes": [
             {
@@ -71,6 +74,12 @@
             {
               "name": "labelFields",
               "jsdoc": "显式的标题回退字段；按各字段当次权限读取。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelJoiner",
+              "jsdoc": "连接多个非空标题；省略时使用首个可读标题。",
               "readable": true,
               "writable": false
             },

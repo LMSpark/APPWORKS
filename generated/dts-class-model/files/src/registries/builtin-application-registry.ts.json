@@ -45,7 +45,12 @@
         "applicationManager",
         "bugManage",
         "dataRecovery",
-        "flowMonitor"
+        "flowMonitor",
+        "databaseRelations",
+        "dataMenu",
+        "dimensionDesign",
+        "fileManager",
+        "reportManagement"
       ]
     },
     "BuiltinScenarioResource": {
@@ -115,7 +120,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-11T07:28:53.535Z",
+  "generatedAt": "2026-11-11T10:40:00.715Z",
   "models": {
     "BuiltinScenarioName": {
       "name": "BuiltinScenarioName",

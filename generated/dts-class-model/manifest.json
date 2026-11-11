@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1121,
+  "scannedFileCount": 1139,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14624,6 +14624,21 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/semi-structured/file-data/file-data-resource.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/file-data/file-data-resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/file-data/file-data-resource",
+        "sourcePath": "src/lowcode/resources/semi-structured/file-data/file-data-resource.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/file-data/file-data-resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/file-data/file-data-resource",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/file-data/file-data-resource\n职责：把正式 filedata 文件区根目录作为数据空间文件资源，提供目录查询、上传新增与删除。\n边界：只用既有 /api/File 合同（list/UploadFile/DownFile/RemoveFile），上传须ACK定位并核原字节，删除须回列确认；不承诺多文件事务。\nAI用途：文件管理页通过同一 DataView 查询、新增(content携带原File)与删除时，定位本资源及其保存语义。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FileDataResource"
+        ]
+      }
+    },
     "src/lowcode/resources/semi-structured/json-data/document-resource.ts": {
       "file": "files/src/lowcode/resources/semi-structured/json-data/document-resource.ts.json",
       "module": {
@@ -14806,10 +14821,11 @@
         "sourceFile": "src/lowcode/resources/structured-config/data-code/reference-ops.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/data-code/reference-ops",
-        "jsdoc": "@module app:lowcode/resources/structured-config/data-code/reference-ops\n职责：从原生来源视图投影获准读取的表/字段选择，原子写回编码业务表或分类映射。\n边界：只消费DataView原查询与编辑检查点，不查询、不持草稿、不提交目录或更改权限。\nAI用途：引用表选择弹窗确认时复用，保持来源身份、字段读取与目标写入责任清晰。",
+        "jsdoc": "@module app:lowcode/resources/structured-config/data-code/reference-ops\n职责：从原生来源视图投影获准读取的表/字段选择，原子写回编码业务表或分类映射。\n边界：通过正式来源DataView读取引用，不持草稿、不提交目录或更改权限。\nAI用途：引用表选择弹窗确认时复用，保持来源身份、字段读取与目标写入责任清晰。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "CodeTableSelection"
+          "CodeTableSelection",
+          "CodeStoredReference"
         ]
       }
     },
@@ -16488,6 +16504,19 @@
         "symbols": []
       }
     },
+    "src/views/features/application/application-context/ui/application-database-relations-page.vue": {
+      "file": "files/src/views/features/application/application-context/ui/application-database-relations-page.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-context/ui/application-database-relations-page",
+        "sourcePath": "src/views/features/application/application-context/ui/application-database-relations-page.vue",
+        "sourceFile": "src/views/features/application/application-context/ui/application-database-relations-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-context/ui/application-database-relations-page",
+        "jsdoc": "@module app:views/features/application/application-context/ui/application-database-relations-page\n职责：恢复应用关联数据库：列出当前应用已关联的数据库，从可选数据库中添加关联，删除非默认关联。\n边界：关联、候选及数据库信息绑定同一PageRuntime的正式DataView；新增与删除经DataSet保存，默认数据库(isRef=0)不可删除。\nAI用途：迁移应用系统数据库关联时，核对sysid来源、候选视图输入参数与关联记录写入字段。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/application-manager/ui/application-manager-page.vue": {
       "file": "files/src/views/features/application/application-manager/ui/application-manager-page.vue.json",
       "module": {
@@ -16497,6 +16526,32 @@
         "packageName": "app",
         "modulePath": "views/features/application/application-manager/ui/application-manager-page",
         "jsdoc": "@module app:views/features/application/application-manager/ui/application-manager-page\n职责：展示 0C70 正式应用目录，提供 DataView 筛选、分页和安全的应用导航。\n边界：不猜测未确认字段，不提供新增、编辑、删除、关联或负责人写入。\nAI用途：恢复应用管理入口时复用本地正式场景与标准 DataView 组件。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/data-menu/ui/data-menu-dialog.vue": {
+      "file": "files/src/views/features/application/data-menu/ui/data-menu-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/application/data-menu/ui/data-menu-dialog",
+        "sourcePath": "src/views/features/application/data-menu/ui/data-menu-dialog.vue",
+        "sourceFile": "src/views/features/application/data-menu/ui/data-menu-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/data-menu/ui/data-menu-dialog",
+        "jsdoc": "@module app:views/features/application/data-menu/ui/data-menu-dialog\n职责：新增或编辑一条导航宿主：名称、用途、数据空间、资源、显示字段及值字段。\n边界：值写入原Base_DataMenu视图并由公共记录编辑保存；资源与字段候选按所选空间/资源刷新正式视图，切换上游清空下游。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/data-menu/ui/data-menu-page.vue": {
+      "file": "files/src/views/features/application/data-menu/ui/data-menu-page.vue.json",
+      "module": {
+        "name": "app:views/features/application/data-menu/ui/data-menu-page",
+        "sourcePath": "src/views/features/application/data-menu/ui/data-menu-page.vue",
+        "sourceFile": "src/views/features/application/data-menu/ui/data-menu-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/data-menu/ui/data-menu-page",
+        "jsdoc": "@module app:views/features/application/data-menu/ui/data-menu-page\n职责：恢复导航宿主管理：按名称查询宿主，新增、编辑、删除，并进入所关联数据空间的设计。\n边界：列表、候选与编辑绑定同一PageRuntime的正式DataView；删除经DataSet单ID保存。数据空间授权配置随数据权限专题暂缓。\nAI用途：迁移导航宿主时核对宿主记录写入字段、空间→资源→字段候选级联与设计入口。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -17596,6 +17651,60 @@
         "symbols": []
       }
     },
+    "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue": {
+      "file": "files/src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page",
+        "sourcePath": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
+        "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page",
+        "jsdoc": "@module app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page\n职责：维度中心——来源锚点、事件合同、规则治理（规则头/条件/结果）、维度定义、已有映射与业务分类的查看和维护。\n边界：所有列表、明细与编辑都绑定88A4数据空间的正式DataView，经DataSet提交；映射计数、锚点计数等跨行统计不在前端聚合，改为选中后查看明细。\nAI用途：迁移参考仓 integration/dimension 页面时，核对规则启用前置、引用删除守卫与条件/结果的规则归属。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts": {
+      "file": "files/src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts.json",
+      "module": {
+        "name": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec",
+        "sourcePath": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts",
+        "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec",
+        "jsdoc": "@module app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec\n职责：声明维度中心各记录的编辑字段、候选值及单记录校验，供统一记录对话框消费。\n边界：只描述字段与纯校验；跨记录约束（唯一性、引用、启用前置）由页面基于正式DataView结果判断。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion.ts": {
+      "file": "files/src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion.ts.json",
+      "module": {
+        "name": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion",
+        "sourcePath": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion.ts",
+        "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion.ts",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion",
+        "jsdoc": "app 的 views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion 模块。\n导出 DtsTypeDeclarationModel symbol: DimensionRuleDeletion（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "DimensionRuleDeletion"
+        ]
+      }
+    },
+    "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue": {
+      "file": "files/src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
+        "sourcePath": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
+        "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
+        "jsdoc": "app 的 views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue": {
       "file": "files/src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue.json",
       "module": {
@@ -17938,6 +18047,86 @@
         "symbols": []
       }
     },
+    "src/views/features/integration/report/ui/report-create-dialog.vue": {
+      "file": "files/src/views/features/integration/report/ui/report-create-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/integration/report/ui/report-create-dialog",
+        "sourcePath": "src/views/features/integration/report/ui/report-create-dialog.vue",
+        "sourceFile": "src/views/features/integration/report/ui/report-create-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/report/ui/report-create-dialog",
+        "jsdoc": "@module app:views/features/integration/report/ui/report-create-dialog\n职责：新增报表：报表头（名称、应用系统、描述）与初始版本（合并报表、看板标志）两条待新增记录在同一次DataSet保存中提交。\n边界：两条记录由宿主在正式DataView中预先新增并互相引用；取消时撤销两条待新增，保存结果未确认时保留并提示核验。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/report/ui/report-format.ts": {
+      "file": "files/src/views/features/integration/report/ui/report-format.ts.json",
+      "module": {
+        "name": "app:views/features/integration/report/ui/report-format",
+        "sourcePath": "src/views/features/integration/report/ui/report-format.ts",
+        "sourceFile": "src/views/features/integration/report/ui/report-format.ts",
+        "packageName": "app",
+        "modulePath": "views/features/integration/report/ui/report-format",
+        "jsdoc": "@module app:views/features/integration/report/ui/report-format\n职责：业务报表页面的展示格式与应用名称冗余回填。\n边界：只读写调用方传入的正式DataView编辑态，不发起查询或保存。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/report/ui/report-management-page.vue": {
+      "file": "files/src/views/features/integration/report/ui/report-management-page.vue.json",
+      "module": {
+        "name": "app:views/features/integration/report/ui/report-management-page",
+        "sourcePath": "src/views/features/integration/report/ui/report-management-page.vue",
+        "sourceFile": "src/views/features/integration/report/ui/report-management-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/report/ui/report-management-page",
+        "jsdoc": "@module app:views/features/integration/report/ui/report-management-page\n职责：业务报表管理：按名称、描述、使用状态、应用系统查询报表，新增（报表头与初始版本同批提交）、编辑、删除，维护历史版本及版本绑定模型。\n边界：列表、选项与编辑都绑定FB29数据空间的正式DataView，经DataSet提交；报表设计/预览依赖报表引擎，模板上传依赖设计文件区，均未在本页承接。\nAI用途：迁移参考仓 integration/report 页面时，核对报表头与版本双表写入、启用版本切换及模型绑定。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/report/ui/report-model-dialog.vue": {
+      "file": "files/src/views/features/integration/report/ui/report-model-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/integration/report/ui/report-model-dialog",
+        "sourcePath": "src/views/features/integration/report/ui/report-model-dialog.vue",
+        "sourceFile": "src/views/features/integration/report/ui/report-model-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/report/ui/report-model-dialog",
+        "jsdoc": "@module app:views/features/integration/report/ui/report-model-dialog\n职责：为报表的启用版本绑定数据模型（数据空间）：按名称分页查找，确定后报表头与启用版本在同一次DataSet保存中写入。\n边界：只修改报表头 version_dataid 与启用版本 DataFormID；候选来自Base_DataSet的picker视图。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/report/ui/report-save.ts": {
+      "file": "files/src/views/features/integration/report/ui/report-save.ts.json",
+      "module": {
+        "name": "app:views/features/integration/report/ui/report-save",
+        "sourcePath": "src/views/features/integration/report/ui/report-save.ts",
+        "sourceFile": "src/views/features/integration/report/ui/report-save.ts",
+        "packageName": "app",
+        "modulePath": "views/features/integration/report/ui/report-save",
+        "jsdoc": "@module app:views/features/integration/report/ui/report-save\n职责：报表多记录修改（删除、启动版本、绑定模型）的提交前检查、同批提交与失败收敛。\n边界：只经调用方DataView所属DataSet提交；结果未确认时保留原捕获交目录核验，明确失败才撤销本地修改，不重发、不承诺事务。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ReportSaveTarget"
+        ]
+      }
+    },
+    "src/views/features/integration/report/ui/report-version-dialog.vue": {
+      "file": "files/src/views/features/integration/report/ui/report-version-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/integration/report/ui/report-version-dialog",
+        "sourcePath": "src/views/features/integration/report/ui/report-version-dialog.vue",
+        "sourceFile": "src/views/features/integration/report/ui/report-version-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/report/ui/report-version-dialog",
+        "jsdoc": "@module app:views/features/integration/report/ui/report-version-dialog\n职责：报表历史版本：列出本报表的版本，新增/改名/删除版本，启动选中版本（原启用版本停用，报表头切换启用版本及模型）。\n边界：版本列表按 RptID 过滤（修正参考实现未过滤且新增遗漏 RptID 的缺陷）；启动在同一次DataSet保存中提交版本状态与报表头。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/organization/job-management/ui/job-management-page.vue": {
       "file": "files/src/views/features/organization/job-management/ui/job-management-page.vue.json",
       "module": {
@@ -17974,6 +18163,48 @@
         "modulePath": "views/features/organization/user-management/ui/user-management-page",
         "jsdoc": "@module app:views/features/organization/user-management/ui/user-management-page\n职责：展示当前租户人员任职目录并提供姓名、机构查询、重置、刷新和分页。\n边界：人员及机构选项均读取机构空间正式 DataView，不提供人员编辑或跨租户切换。\nAI用途：恢复人员目录时，核对导航身份与所消费机构空间的绑定。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/shared/record/feature-field-spec.ts": {
+      "file": "files/src/views/features/shared/record/feature-field-spec.ts.json",
+      "module": {
+        "name": "app:views/features/shared/record/feature-field-spec",
+        "sourcePath": "src/views/features/shared/record/feature-field-spec.ts",
+        "sourceFile": "src/views/features/shared/record/feature-field-spec.ts",
+        "packageName": "app",
+        "modulePath": "views/features/shared/record/feature-field-spec",
+        "jsdoc": "@module app:views/features/shared/record/feature-field-spec\n职责：声明统一记录对话框的一个编辑字段（组件类型、候选来源、必填、只读与显示条件）。\n边界：只描述字段；跨记录约束由页面基于正式DataView结果判断并经对话框validate返回。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FeatureFieldOption",
+          "FeatureFieldSpec"
+        ]
+      }
+    },
+    "src/views/features/shared/record/feature-record-dialog.vue": {
+      "file": "files/src/views/features/shared/record/feature-record-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/shared/record/feature-record-dialog",
+        "sourcePath": "src/views/features/shared/record/feature-record-dialog.vue",
+        "sourceFile": "src/views/features/shared/record/feature-record-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/shared/record/feature-record-dialog",
+        "jsdoc": "@module app:views/features/shared/record/feature-record-dialog\n职责：按字段清单新增或编辑一条正式记录（维度中心、业务报表等功能页共用）。\n边界：值写入宿主传入的原DataView并由公共记录编辑保存；页面专有校验由宿主validate给出，不另建草稿或提交通道。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/shared/record/feature-record-fields.vue": {
+      "file": "files/src/views/features/shared/record/feature-record-fields.vue.json",
+      "module": {
+        "name": "app:views/features/shared/record/feature-record-fields",
+        "sourcePath": "src/views/features/shared/record/feature-record-fields.vue",
+        "sourceFile": "src/views/features/shared/record/feature-record-fields.vue",
+        "packageName": "app",
+        "modulePath": "views/features/shared/record/feature-record-fields",
+        "jsdoc": "app 的 views/features/shared/record/feature-record-fields 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
         "symbols": []
       }
     },
@@ -18064,6 +18295,19 @@
         "packageName": "app",
         "modulePath": "views/features/system/flow-monitor/ui/flow-monitor-page",
         "jsdoc": "@module app:views/features/system/flow-monitor/ui/flow-monitor-page\n职责：恢复流程监控列表：按应用名称、流程标题、流程状态查询，分页显示办理信息、创建人及创建时间。\n边界：列表与选项绑定同一PageRuntime的正式DataView；办理信息由DataTable计算列派生，创建人经用户选项视图显示姓名。流程运行详情随工作流运行页迁移。\nAI用途：迁移系统运维流程监控时，核对状态字典、创建人映射与查询条件。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/FileDataManager/FileManager/index.vue": {
+      "file": "files/src/views/FileDataManager/FileManager/index.vue.json",
+      "module": {
+        "name": "app:views/FileDataManager/FileManager/index",
+        "sourcePath": "src/views/FileDataManager/FileManager/index.vue",
+        "sourceFile": "src/views/FileDataManager/FileManager/index.vue",
+        "packageName": "app",
+        "modulePath": "views/FileDataManager/FileManager/index",
+        "jsdoc": "@module app:views/FileDataManager/FileManager/index\n职责：恢复文件管理：按文件名称查询 filedata 文件区、拖拽上传单个文件、确认后删除文件。\n边界：列表、上传与删除都经同一PageRuntime的FileDataCatalog视图提交；上传核原字节、删除回列确认，失败后丢弃本地草稿并按实际目录重读。\nAI用途：迁移参考仓 FileDataManager/FileManager 时，核对文件区、导航身份(dataSpaceId)与保存回执。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -19744,6 +19988,10 @@
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts.json"
     },
+    "CodeStoredReference": {
+      "sourcePath": "src/lowcode/resources/structured-config/data-code/reference-ops.ts",
+      "file": "files/src/lowcode/resources/structured-config/data-code/reference-ops.ts.json"
+    },
     "CodeTableSelection": {
       "sourcePath": "src/lowcode/resources/structured-config/data-code/reference-ops.ts",
       "file": "files/src/lowcode/resources/structured-config/data-code/reference-ops.ts.json"
@@ -20924,6 +21172,10 @@
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts.json"
     },
+    "DimensionRuleDeletion": {
+      "sourcePath": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion.ts",
+      "file": "files/src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion.ts.json"
+    },
     "DirtyTrackingDelegate": {
       "sourcePath": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts",
       "file": "files/packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts.json"
@@ -21276,6 +21528,14 @@
       "sourcePath": "src/views/app/dev-system/useDevState.ts",
       "file": "files/src/views/app/dev-system/useDevState.ts.json"
     },
+    "FeatureFieldOption": {
+      "sourcePath": "src/views/features/shared/record/feature-field-spec.ts",
+      "file": "files/src/views/features/shared/record/feature-field-spec.ts.json"
+    },
+    "FeatureFieldSpec": {
+      "sourcePath": "src/views/features/shared/record/feature-field-spec.ts",
+      "file": "files/src/views/features/shared/record/feature-field-spec.ts.json"
+    },
     "FetchNestedInput": {
       "sourcePath": "packages/spark-data/src/node-tree/tree-manager.ts",
       "file": "files/packages/spark-data/src/node-tree/tree-manager.ts.json"
@@ -21423,6 +21683,10 @@
     "FileChangeEvent": {
       "sourcePath": "src/services/sse-events.ts",
       "file": "files/src/services/sse-events.ts.json"
+    },
+    "FileDataResource": {
+      "sourcePath": "src/lowcode/resources/semi-structured/file-data/file-data-resource.ts",
+      "file": "files/src/lowcode/resources/semi-structured/file-data/file-data-resource.ts.json"
     },
     "FileLoader": {
       "sourcePath": "packages/spark-utils/src/http/FileLoader.ts",
@@ -23567,6 +23831,10 @@
     "REntityPickerProps": {
       "sourcePath": "packages/spark-component/src/components/fields/data-components/picker/FieldEntityPicker/FieldEntityPicker.props.ts",
       "file": "files/packages/spark-component/src/components/fields/data-components/picker/FieldEntityPicker/FieldEntityPicker.props.ts.json"
+    },
+    "ReportSaveTarget": {
+      "sourcePath": "src/views/features/integration/report/ui/report-save.ts",
+      "file": "files/src/views/features/integration/report/ui/report-save.ts.json"
     },
     "RepositoryScenarioFailure": {
       "sourcePath": "src/lowcode/resources/repository/scenarios/protocol.ts",

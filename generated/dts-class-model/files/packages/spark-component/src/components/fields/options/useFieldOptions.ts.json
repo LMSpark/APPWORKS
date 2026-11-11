@@ -90,6 +90,9 @@
             "type": "string"
           }
         },
+        "optionLabelJoiner": {
+          "type": "string"
+        },
         "optionValueField": {
           "type": "string"
         },
@@ -341,7 +344,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-11T04:04:35.180Z",
+  "generatedAt": "2026-11-11T17:56:21.937Z",
   "models": {
     "FieldTransferOption": {
       "name": "FieldTransferOption",
@@ -378,11 +381,11 @@
       "jsdoc": "Field Option Props 的属性契约。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator' | 'valueMode'>> & {\n    multiple?: boolean | undefined;\n    /** r-select 显式启用的平面选项值修剪。 */\n    optionValueTrim?: boolean;\n}",
+        "declarationTypeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionLabelJoiner' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator' | 'valueMode'>> & {\n    multiple?: boolean | undefined;\n    /** r-select 显式启用的平面选项值修剪。 */\n    optionValueTrim?: boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator' | 'valueMode'>>",
+            "typeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionLabelJoiner' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator' | 'valueMode'>>",
             "targetName": "FieldComposableProps"
           },
           {

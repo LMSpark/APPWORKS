@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page",
+    "sourcePath": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page\n职责：维度中心——来源锚点、事件合同、规则治理（规则头/条件/结果）、维度定义、已有映射与业务分类的查看和维护。\n边界：所有列表、明细与编辑都绑定88A4数据空间的正式DataView，经DataSet提交；映射计数、锚点计数等跨行统计不在前端聚合，改为选中后查看明细。\nAI用途：迁移参考仓 integration/dimension 页面时，核对规则启用前置、引用删除守卫与条件/结果的规则归属。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-11T17:56:22.560Z",
+  "models": {}
+}

@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/integration/report/ui/report-format",
+    "sourcePath": "src/views/features/integration/report/ui/report-format.ts",
+    "sourceFile": "src/views/features/integration/report/ui/report-format.ts",
+    "packageName": "app",
+    "modulePath": "views/features/integration/report/ui/report-format",
+    "jsdoc": "@module app:views/features/integration/report/ui/report-format\n职责：业务报表页面的展示格式与应用名称冗余回填。\n边界：只读写调用方传入的正式DataView编辑态，不发起查询或保存。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "AppNameSync": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AppNameSync",
+      "properties": {
+        "info": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "apps": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "row": {
+          "type": "object",
+          "properties": {
+            "lingma_sys_params": {
+              "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+            },
+            "lingma_sys_key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "info",
+        "apps",
+        "id",
+        "row"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-11T10:38:34.398Z",
+  "models": {
+    "AppNameSync": {
+      "name": "AppNameSync",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    info: DataView;\n    apps: DataView;\n    id: string | number;\n    row: Readonly<DataRow>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    info: DataView;\n    apps: DataView;\n    id: string | number;\n    row: Readonly<DataRow>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "info",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "apps",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "row",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

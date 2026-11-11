@@ -516,8 +516,10 @@ export type SparkOptionFieldProps<TValue = unknown, TOption = unknown> = SparkFi
      * 直接查询在途或失败时不使用旧候选、不回退静态options；错误可见，原字段值保留，恢复成功后再允许选择。
      */
     optionDataViewKey?: string
-    /** 直接绑定DataView.rows时按顺序读取候选标题；空值继续，脱敏立即显示掩码，不可读字段跳过，全部为空时使用可读选项值。省略沿用optionLabelField；不用于级联临时结果或其他数据成员。 */
+    /** 直接绑定DataView.rows时按顺序读取含编辑覆盖的候选标题；空值继续，脱敏立即显示掩码，不可读字段跳过，全部为空时使用可读选项值。省略沿用optionLabelField；不用于级联临时结果或其他数据成员。 */
     optionLabelFields?: string[]
+    /** 与optionLabelFields配合，连接非空可读标题；任一标题脱敏则整体脱敏。显示字段不得与选项身份字段相同。 */
+    optionLabelJoiner?: string
     /** 选项来源 DataView 成员，默认 rows。 */
     optionDataMember?: DataMember | `${DataMember}`
     /** 选项来源成员内部字段或路径。 */

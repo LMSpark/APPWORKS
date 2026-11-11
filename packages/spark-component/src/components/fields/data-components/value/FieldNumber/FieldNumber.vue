@@ -16,6 +16,7 @@ AI用途：需要理解 field number 的实际渲染结构、slot/toolbar/状态
     <template #form>
       <div v-if="isRangeFilter" class="field-number-range">
         <el-input-number
+          :key="`start-${isCurrentFieldEditable}`"
           :model-value="rangeStart"
           :min="min"
           :max="max"
@@ -27,6 +28,7 @@ AI用途：需要理解 field number 的实际渲染结构、slot/toolbar/状态
         />
         <span class="field-number-range-separator">至</span>
         <el-input-number
+          :key="`end-${isCurrentFieldEditable}`"
           :model-value="rangeEnd"
           :min="min"
           :max="max"
@@ -39,6 +41,7 @@ AI用途：需要理解 field number 的实际渲染结构、slot/toolbar/状态
       </div>
       <el-input-number
         v-else
+        :key="isCurrentFieldEditable ? 'editable' : 'locked'"
         :model-value="typeof fieldValue === 'number' ? fieldValue : (fieldValue == null ? 0 : (typeof fieldValue === 'boolean' ? 0 : Number(fieldValue)))"
         :min="min"
         :max="max"

@@ -13,6 +13,8 @@ type OptionSourceOptions = {
   labelField: string
   /** 显式的标题回退字段；按各字段当次权限读取。 */
   labelFields?: readonly string[]
+  /** 连接多个非空标题；省略时使用首个可读标题。 */
+  labelJoiner?: string
   /** 显式值字段；省略时复用视图的valueField或主键。 */
   valueField?: string
   /** 按调用方显式配置修剪文本值；只影响选项投影，不修改视图记录。 */
@@ -31,16 +33,29 @@ function readableRows(view: DataView, rows: readonly DataRow[], options: OptionS
     || options.labelFields.some(field => typeof field !== 'string' || !field.trim()))) {
     throw new Error('FIELD_OPTION_LABEL: 标题字段必须为非空列表')
   }
+  if (options.labelJoiner !== undefined && (typeof options.labelJoiner !== 'string' || !options.labelFields)) {
+    throw new Error('FIELD_OPTION_LABEL: 标题连接符需要标题字段列表')
+  }
+  const tree = view.treeConfig
+  const identityFields = [...(Array.isArray(values) ? values : [values]), view.primaryKey,
+    ...(tree ? [tree.idField ?? view.primaryKey, tree.parentIdField ?? 'parentId'] : [])]
+  if (options.labelJoiner !== undefined && identityFields.includes(options.labelField)) {
+    throw new Error('FIELD_OPTION_LABEL: 组合标题显示字段不能覆盖选项身份')
+  }
   return rows.flatMap(row => {
     if (required.some(field => view.fieldAccess(row, field).read !== 'visible')) return []
+    const id = view.getPkKey(row)
+    const editing = options.rows === undefined && id !== undefined ? view.getEditingRow(id) : null
+    const current = editing === null ? row : {...row, ...editing,
+      ...(Array.isArray(row[options.childrenField]) ? {[options.childrenField]: row[options.childrenField]} : {})}
     const result: DataRow = {}
-    for (const [field, value] of Object.entries(row)) {
+    for (const [field, value] of Object.entries(current)) {
       if (field === options.childrenField && Array.isArray(value)) {
         result[field] = readableRows(view, value.filter(isRecord), options)
       } else if (view.fieldAccess(row, field).read === 'visible') result[field] = value
     }
     if (options.trimValue && typeof values === 'string') {
-      const value = row[values]
+      const value = current[values]
       if (value === null || value === undefined) return []
       if (typeof value === 'string') {
         const trimmed = value.trim()
@@ -49,18 +64,20 @@ function readableRows(view: DataView, rows: readonly DataRow[], options: OptionS
       }
     }
     if (options.labelFields) {
-      let label = ''
+      const labels: string[] = []
       for (const field of options.labelFields) {
         const read = view.fieldAccess(row, field).read
-        if (read === 'masked') {label = '••••'; break}
+        if (read === 'masked') {labels.splice(0, labels.length, '••••'); break}
         if (read !== 'visible') continue
-        const raw = row[field]
+        const raw = current[field]
         if (raw === null || raw === undefined) continue
         if (!['string','number','boolean'].includes(typeof raw)) throw new Error('FIELD_OPTION_LABEL: 标题不是标量值')
-        label = String(raw).trim()
-        if (label) break
+        const label = String(raw).trim()
+        if (!label) continue
+        labels.push(label)
+        if (options.labelJoiner === undefined) break
       }
-      result[options.labelField] = label || (typeof values === 'string' ? String(result[values] ?? '') : '')
+      result[options.labelField] = labels.join(options.labelJoiner ?? '') || (typeof values === 'string' ? String(result[values] ?? '') : '')
     }
     return [result]
   })

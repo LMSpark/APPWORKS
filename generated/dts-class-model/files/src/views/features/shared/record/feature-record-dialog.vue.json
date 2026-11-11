@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/shared/record/feature-record-dialog",
+    "sourcePath": "src/views/features/shared/record/feature-record-dialog.vue",
+    "sourceFile": "src/views/features/shared/record/feature-record-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/shared/record/feature-record-dialog",
+    "jsdoc": "@module app:views/features/shared/record/feature-record-dialog\n职责：按字段清单新增或编辑一条正式记录（维度中心、业务报表等功能页共用）。\n边界：值写入宿主传入的原DataView并由公共记录编辑保存；页面专有校验由宿主validate给出，不另建草稿或提交通道。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-11T17:56:22.348Z",
+  "models": {}
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/shared/record/feature-record-fields",
+    "sourcePath": "src/views/features/shared/record/feature-record-fields.vue",
+    "sourceFile": "src/views/features/shared/record/feature-record-fields.vue",
+    "packageName": "app",
+    "modulePath": "views/features/shared/record/feature-record-fields",
+    "jsdoc": "app 的 views/features/shared/record/feature-record-fields 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-11T18:05:56.435Z",
+  "models": {}
+}

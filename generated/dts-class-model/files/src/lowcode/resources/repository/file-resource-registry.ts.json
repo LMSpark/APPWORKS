@@ -62,7 +62,7 @@
         },
         "fileUpload": {
           "type": "object",
-          "title": "Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>"
+          "title": "Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion' | 'uploadBinaryVersion' | 'verifyBinaryVersion'>"
         }
       },
       "additionalProperties": false,
@@ -194,7 +194,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-08T19:14:58.822Z",
+  "generatedAt": "2026-11-11T10:15:13.169Z",
   "models": {
     "LowcodeFileResourceApi": {
       "name": "LowcodeFileResourceApi",
@@ -217,11 +217,11 @@
       "jsdoc": "一次装配传给全部文件执行器的应用身份、文件接口和会话校验。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 当前应用 ID，决定文件目录。 */\n    applicationId: string;\n    /** 设计文件读取接口。 */\n    api: LowcodeFileResourceApi;\n    /** 正式文件上传适配器；缺省时保存显式失败。 */\n    fileUpload?: Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>;\n    /** 应用或会话已切换时抛错。 */\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 当前应用 ID，决定文件目录。 */\n    applicationId: string;\n    /** 设计文件读取接口。 */\n    api: LowcodeFileResourceApi;\n    /** 正式文件上传适配器；缺省时保存显式失败。 */\n    fileUpload?: Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion' | 'uploadBinaryVersion' | 'verifyBinaryVersion'>;\n    /** 应用或会话已切换时抛错。 */\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 当前应用 ID，决定文件目录。 */\n    applicationId: string;\n    /** 设计文件读取接口。 */\n    api: LowcodeFileResourceApi;\n    /** 正式文件上传适配器；缺省时保存显式失败。 */\n    fileUpload?: Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>;\n    /** 应用或会话已切换时抛错。 */\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    /** 当前应用 ID，决定文件目录。 */\n    applicationId: string;\n    /** 设计文件读取接口。 */\n    api: LowcodeFileResourceApi;\n    /** 正式文件上传适配器；缺省时保存显式失败。 */\n    fileUpload?: Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion' | 'uploadBinaryVersion' | 'verifyBinaryVersion'>;\n    /** 应用或会话已切换时抛错。 */\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],

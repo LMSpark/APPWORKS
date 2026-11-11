@@ -39,7 +39,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-31T09:16:05.733Z",
+  "generatedAt": "2026-11-11T17:56:21.830Z",
   "models": {
     "PickerPresetDefaults": {
       "name": "PickerPresetDefaults",

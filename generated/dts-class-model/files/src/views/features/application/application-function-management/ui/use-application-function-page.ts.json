@@ -20,7 +20,8 @@
       "enum": [
         "dataSpace",
         "prototype",
-        "basic"
+        "basic",
+        "navAttr"
       ]
     },
     "NodeOption": {
@@ -68,18 +69,22 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-12T12:47:59.422Z",
+  "generatedAt": "2026-11-12T16:24:10.270Z",
   "models": {
     "BlueprintTab": {
       "name": "BlueprintTab",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'basic' | 'dataSpace' | 'prototype'",
+        "declarationTypeText": "'basic' | 'navAttr' | 'dataSpace' | 'prototype'",
         "declarationRelations": [
           {
             "kind": "union",
             "typeText": "'basic'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'navAttr'"
           },
           {
             "kind": "union",

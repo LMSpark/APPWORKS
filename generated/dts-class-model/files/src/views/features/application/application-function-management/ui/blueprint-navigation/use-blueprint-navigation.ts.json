@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation",
+    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
+    "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation\n职责：项目蓝图页“导航配置”页签：导航属性标准字段的候选、字典视图就绪、保存前导航地址规范校验。\n边界：字段直接绑定 owner 的 Base_NavigationInfo DataView 编辑覆盖，经页面“保存蓝图修改”统一保存（owner 保存前核对导航基线）；\n显示方式与水平对齐读取同一 PageRuntime 的正式字典视图，打开方式与子项位置沿仓内正式编码；不自动保存。\nAI用途：调整导航配置页签时在此维护候选与校验，不另建导航草稿或直调接口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "BlueprintNavigationInput",
+      "BlueprintFlagValues"
+    ]
+  },
+  "$defs": {
+    "BlueprintNavigationInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNavigationInput",
+      "properties": {
+        "selectedNodeId": {
+          "type": "object",
+          "title": "Ref<string>"
+        },
+        "revision": {
+          "type": "object",
+          "title": "Ref<number>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.context.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.context.return": {
+          "$ref": "../use-application-function-page.ts.json#/$defs/BlueprintTreeContext"
+        },
+        "method.active.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.active.return": {
+          "type": "boolean"
+        },
+        "method.loadDictionaries.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadDictionaries.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "BlueprintFlagValues": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintFlagValues",
+      "properties": {
+        "trueValue": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "falseValue": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "required": [
+        "trueValue",
+        "falseValue"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-12T16:35:08.174Z",
+  "models": {
+    "BlueprintNavigationInput": {
+      "name": "BlueprintNavigationInput",
+      "jsdoc": "页面向导航配置提供的上下文与 owner 宿主能力。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前有效蓝图树上下文。 */\n    context: () => BlueprintTreeContext | undefined;\n    /** 当前选中节点身份。 */\n    selectedNodeId: Readonly<Ref<string>>;\n    /** 导航配置页签处于激活状态。 */\n    active: () => boolean;\n    /** 外部 DataView 修改计数，用于重新计算当前值派生的候选。 */\n    revision: Readonly<Ref<number>>;\n    /** 读取并校验正式导航字典视图（显示方式、水平对齐）。 */\n    loadDictionaries: () => Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前有效蓝图树上下文。 */\n    context: () => BlueprintTreeContext | undefined;\n    /** 当前选中节点身份。 */\n    selectedNodeId: Readonly<Ref<string>>;\n    /** 导航配置页签处于激活状态。 */\n    active: () => boolean;\n    /** 外部 DataView 修改计数，用于重新计算当前值派生的候选。 */\n    revision: Readonly<Ref<number>>;\n    /** 读取并校验正式导航字典视图（显示方式、水平对齐）。 */\n    loadDictionaries: () => Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "selectedNodeId",
+              "jsdoc": "当前选中节点身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "jsdoc": "外部 DataView 修改计数，用于重新计算当前值派生的候选。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "context",
+              "jsdoc": "当前有效蓝图树上下文。",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "BlueprintTreeContext",
+                  "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-page.ts"
+                }
+              }
+            },
+            {
+              "name": "active",
+              "jsdoc": "导航配置页签处于激活状态。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "loadDictionaries",
+              "jsdoc": "读取并校验正式导航字典视图（显示方式、水平对齐）。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintFlagValues": {
+      "name": "BlueprintFlagValues",
+      "jsdoc": "布尔类导航开关按正式列类型取勾选/未勾选的 wire 值。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    trueValue: boolean | string | number;\n    falseValue: boolean | string | number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    trueValue: boolean | string | number;\n    falseValue: boolean | string | number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "trueValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "falseValue",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

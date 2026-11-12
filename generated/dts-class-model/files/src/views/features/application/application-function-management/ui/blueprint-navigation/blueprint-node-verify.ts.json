@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify",
+    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
+    "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify\n职责：从当前蓝图节点只读核验已保存的子树：能力名称、数据空间身份、导航地址规范及其在交付清单中唯一命中。\n边界：纯函数，只消费完整回读的已保存节点行与交付清单；环、不可读字段、子节点未回读均判失败，不以部分结果通过。\nAI用途：问题码沿参考 blueprint-node-verify；本仓交付清单为 Vue 页面注册表全部页面（单一 SPA，不比对目标 APP 包身份）。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "BlueprintNodeVerifyIssueCode",
+      "BlueprintNodeVerifyIssue",
+      "BlueprintNodeVerifyResult",
+      "BlueprintVerifyNode",
+      "BlueprintNodeVerifyInput"
+    ]
+  },
+  "$defs": {
+    "BlueprintNodeVerifyIssueCode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "BlueprintNodeVerifyIssueCode",
+      "enum": [
+        "NODE_MISSING",
+        "NODE_CYCLE",
+        "FIELD_UNREADABLE",
+        "CHILDREN_UNREAD",
+        "CAPABILITY_NAME_REQUIRED",
+        "DATA_SPACE_ID_REQUIRED",
+        "PAGE_TARGET_REQUIRED",
+        "TARGET_INVALID",
+        "TARGET_NOT_IN_DELIVERY",
+        "TARGET_NOT_UNIQUE"
+      ]
+    },
+    "BlueprintNodeVerifyIssue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNodeVerifyIssue",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "code": {
+          "$ref": "#/$defs/BlueprintNodeVerifyIssueCode"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nodeId",
+        "code",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintNodeVerifyResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNodeVerifyResult",
+      "properties": {
+        "ok": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "visitedNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BlueprintNodeVerifyIssue"
+          }
+        }
+      },
+      "required": [
+        "ok",
+        "visitedNodeIds",
+        "issues"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintVerifyNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintVerifyNode",
+      "properties": {
+        "row": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "hidden": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "row",
+        "hidden"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintNodeVerifyInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNodeVerifyInput",
+      "properties": {
+        "rootNodeId": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BlueprintVerifyNode"
+          }
+        },
+        "deliveryResources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "rootNodeId",
+        "nodes",
+        "deliveryResources"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-12T16:16:37.271Z",
+  "models": {
+    "BlueprintNodeVerifyIssueCode": {
+      "name": "BlueprintNodeVerifyIssueCode",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'NODE_MISSING' | 'NODE_CYCLE' | 'FIELD_UNREADABLE' | 'CHILDREN_UNREAD' | 'CAPABILITY_NAME_REQUIRED' | 'DATA_SPACE_ID_REQUIRED' | 'PAGE_TARGET_REQUIRED' | 'TARGET_INVALID' | 'TARGET_NOT_IN_DELIVERY' | 'TARGET_NOT_UNIQUE'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'NODE_MISSING'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'NODE_CYCLE'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'FIELD_UNREADABLE'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CHILDREN_UNREAD'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CAPABILITY_NAME_REQUIRED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'DATA_SPACE_ID_REQUIRED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'PAGE_TARGET_REQUIRED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'TARGET_INVALID'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'TARGET_NOT_IN_DELIVERY'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'TARGET_NOT_UNIQUE'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "BlueprintNodeVerifyIssue": {
+      "name": "BlueprintNodeVerifyIssue",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    code: BlueprintNodeVerifyIssueCode;\n    message: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    code: BlueprintNodeVerifyIssueCode;\n    message: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintNodeVerifyResult": {
+      "name": "BlueprintNodeVerifyResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    ok: boolean;\n    visitedNodeIds: readonly string[];\n    issues: readonly BlueprintNodeVerifyIssue[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    ok: boolean;\n    visitedNodeIds: readonly string[];\n    issues: readonly BlueprintNodeVerifyIssue[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "ok",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "visitedNodeIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "issues",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintVerifyNode": {
+      "name": "BlueprintVerifyNode",
+      "jsdoc": "一条完整回读的已保存节点行及其不可读字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    row: Readonly<Record<string, unknown>>;\n    hidden: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    row: Readonly<Record<string, unknown>>;\n    hidden: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "row",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hidden",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintNodeVerifyInput": {
+      "name": "BlueprintNodeVerifyInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    rootNodeId: string;\n    nodes: readonly BlueprintVerifyNode[];\n    deliveryResources: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    rootNodeId: string;\n    nodes: readonly BlueprintVerifyNode[];\n    deliveryResources: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rootNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deliveryResources",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -60,6 +60,7 @@ function createFixture(options:FixtureOptions={}){
         if(Array.isArray(condition['filters']))return condition['filters'].every(item=>matches(row,item))
         if(condition['logic']==='and'&&Array.isArray(condition['conditions']))return condition['conditions'].every(item=>matches(row,item))
         const field=condition['field'],value=condition['value']
+        if(typeof field==='string'&&condition['operator']==='in'&&Array.isArray(value))return value.map(String).includes(String(row[field]??''))
         return typeof field!=='string'||String(row[field]??'')===String(value??'')
       }
       return result(rows.filter(row=>row['SysId']===PROJECT&&matches(row,params.filter)))
@@ -303,5 +304,64 @@ describe('BlueprintWorkspaceDataView direct DataSet contract',()=>{
     current=false
     await expect(owner.moveNode('NAV-BOUND','NAV-ROOT',1)).rejects.toThrow('scope switched')
     expect(fixture.writeCount()).toBe(1)
+  })
+})
+
+describe('BlueprintWorkspaceDataView navigation baseline guard and saved-node read',()=>{
+  const navigationEditable={'NAV-BOUND':['NavigationUrl','prowid','FunOrderValue']}
+  const replaceStored=(fixture:ReturnType<typeof createFixture>,patch:DataRow)=>{
+    const index=fixture.rows.findIndex(row=>row['rowid']==='NAV-BOUND')
+    fixture.rows[index]={...fixture.rows[index],...patch}
+  }
+
+  it('rejects a navigation edit when the formal record changed after the query and writes nothing',async()=>{
+    const fixture=createFixture({editableByRow:navigationEditable})
+    await fixture.owner.load('NAV-BOUND')
+    fixture.owner.update('NavigationUrl','vue:/features/application/data-menu/ui/data-menu-page')
+    replaceStored(fixture,{NavigationImageWxz:'changed-elsewhere'})
+    await expect(fixture.owner.save()).rejects.toThrow('APPWORKS_NAVIGATION_STALE: NAV-BOUND 导航属性已变化: NavigationImageWxz')
+    expect(fixture.saveRequests).toHaveLength(0)
+    expect(fixture.owner.dirty).toBe(true)
+    expect(fixture.view.getEditingRow('NAV-BOUND')?.['NavigationUrl']).toBe('vue:/features/application/data-menu/ui/data-menu-page')
+  })
+
+  it('rejects when the formal record disappeared and saves once the baseline still matches',async()=>{
+    const removed=createFixture({editableByRow:navigationEditable})
+    await removed.owner.load('NAV-BOUND')
+    removed.owner.update('NavigationUrl','vue:/x/y')
+    replaceStored(removed,{SysId:'APP-OTHER'})
+    await expect(removed.owner.save()).rejects.toThrow('APPWORKS_NAVIGATION_STALE: NAV-BOUND 正式记录已不存在或不唯一')
+    expect(removed.saveRequests).toHaveLength(0)
+
+    const fixture=createFixture({editableByRow:navigationEditable})
+    await fixture.owner.load('NAV-BOUND')
+    fixture.owner.update('NavigationUrl','vue:/x/y')
+    await fixture.owner.save()
+    expect(fixture.saveRequests).toHaveLength(1)
+    expect(fixture.saveRequests[0]?.ids).toEqual(['NAV-BOUND'])
+    expect(fixture.rows.find(row=>row['rowid']==='NAV-BOUND')?.['NavigationUrl']).toBe('vue:/x/y')
+  })
+
+  it('only compares rows whose navigation fields changed, so a pure parent move ignores unrelated drift',async()=>{
+    const fixture=createFixture()
+    await fixture.owner.load('NAV-BOUND')
+    await fixture.owner.moveNode('NAV-BOUND','NAV-ROOT',0)
+    replaceStored(fixture,{NavigationImageWxz:'changed-elsewhere'})
+    await fixture.owner.save()
+    expect(fixture.saveRequests).toHaveLength(1)
+  })
+
+  it('reads every saved project node through a temporary view and rejects an incomplete read',async()=>{
+    const fixture=createFixture({hiddenFields:['NavigationUrl']})
+    await fixture.owner.load('NAV-BOUND')
+    const before=fixture.view.rows.length
+    const nodes=await fixture.owner.readSavedProjectNodes(['name','NavigationUrl','hasChild'],()=>undefined)
+    expect(nodes.map(node=>node.row['rowid']).sort()).toEqual(['NAV-BOUND','NAV-BOUND-2','NAV-GROUP','NAV-OTHER','NAV-ROOT'])
+    expect(nodes.every(node=>node.hidden.includes('NavigationUrl')&&node.hidden.includes('hasChild')&&!node.hidden.includes('name'))).toBe(true)
+    expect(fixture.view.rows.length).toBe(before)
+    expect(fixture.view.currentRow?.['rowid']).toBe('NAV-BOUND')
+
+    const incomplete=createFixture({totalDelta:1})
+    await expect(incomplete.owner.readSavedProjectNodes(['name'],()=>undefined)).rejects.toThrow('蓝图节点读取不完整')
   })
 })

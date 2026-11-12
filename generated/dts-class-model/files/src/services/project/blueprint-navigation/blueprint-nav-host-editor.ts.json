@@ -1,0 +1,780 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project/blueprint-navigation/blueprint-nav-host-editor",
+    "sourcePath": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
+    "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
+    "packageName": "app",
+    "modulePath": "services/project/blueprint-navigation/blueprint-nav-host-editor",
+    "jsdoc": "@module app:services/project/blueprint-navigation/blueprint-nav-host-editor\n职责：蓝图节点的导航宿主关系（Base_Navigation_DataRelation，prowid=节点 id）新增、编辑、删除，均经同一 DataSet 单独提交并回读核验；\n数据空间→资源→字段候选由 7AB pagedata 声明的正式视图按输入参数查询。\n边界：只操作蓝图 PageRuntime 中 7AB 场景的视图；字段名按正式列大小写解析，缺失必需列即拒绝；删除前核对目标行在当前节点下唯一；\n结果未知时再次保存只核验原提交，不以新身份重提；paramType 按参考保存为 {type,name} JSON；不配置权限（属批次5）。\nAI用途：导航配置页签的宿主关系维护在此收口，替代旧的只增命令；页面只消费本类的状态与动作。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "BlueprintNavHostTarget",
+      "BlueprintNavHostEditor"
+    ]
+  },
+  "$defs": {
+    "BlueprintNavHostTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNavHostTarget",
+      "properties": {
+        "applicationId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "hostName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "BlueprintNavHostEditor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNavHostEditor",
+      "properties": {
+        "view": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "dataSets": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "resources": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "fieldOptions": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "paramInput": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "fields": {
+          "type": "object",
+          "title": "Record<string, string>"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "hostName": {
+          "type": "string"
+        },
+        "unknown": {
+          "type": "boolean"
+        },
+        "pending": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "target": {
+              "$ref": "#/$defs/BlueprintNavHostTarget"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.viewKey.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.viewKey.return": {
+          "type": "string"
+        },
+        "method.load.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadDataSets.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadDataSets.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadResources.params": {
+          "type": "object",
+          "properties": {
+            "dataSetId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadResources.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadFields.params": {
+          "type": "object",
+          "properties": {
+            "metaName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadFields.return": {
+          "type": "object",
+          "title": "Promise<Readonly<DataRow> | undefined>"
+        },
+        "method.stageCreate.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.stageCreate.return": {
+          "type": "object",
+          "title": "Promise<Id>"
+        },
+        "method.beginEdit.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "object",
+              "title": "Id"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.beginEdit.return": true,
+        "method.value.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "object",
+              "title": "Id"
+            },
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.value.return": {
+          "type": "string"
+        },
+        "method.write.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "object",
+              "title": "Id"
+            },
+            "field": {
+              "type": "string"
+            },
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.write.return": true,
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "object",
+              "title": "Id"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discard.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "object",
+              "title": "Id"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.discard.return": true,
+        "method.remove.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "object",
+              "title": "Id"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.remove.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.column.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.column.return": {
+          "type": "string"
+        },
+        "method.loadCandidates.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "object",
+              "title": "Id"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadCandidates.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.followCascade.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "object",
+              "title": "Id"
+            },
+            "onError": {
+              "type": "object",
+              "title": "(cause: Error) => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.followCascade.return": true,
+        "method.stopCascade.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.stopCascade.return": true,
+        "method.release.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.release.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-12T16:35:06.868Z",
+  "models": {
+    "BlueprintNavHostTarget": {
+      "name": "BlueprintNavHostTarget",
+      "jsdoc": "宿主关系编辑目标：应用、节点身份、导航宿主名称（节点导航标题）与代次校验。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    applicationId: string;\n    nodeId: string;\n    hostName: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    applicationId: string;\n    nodeId: string;\n    hostName: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "applicationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hostName",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintNavHostEditor": {
+      "name": "BlueprintNavHostEditor",
+      "jsdoc": "一个蓝图节点的导航宿主关系列表与单条编辑。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(dataSet: DataSet, target: BlueprintNavHostTarget)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "target",
+              "type": {
+                "type": "reference",
+                "name": "BlueprintNavHostTarget",
+                "sourcePath": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSets",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resources",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldOptions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "paramInput",
+              "jsdoc": "处理方式与属性名称的暂存输入（单行 type/name）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "逻辑字段 → 正式列名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hostName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unknown",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pending",
+              "jsdoc": "存在本地待保存、待删除或结果未知的宿主修改。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "viewKey",
+              "jsdoc": "候选及输入视图的完整键。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "load",
+              "jsdoc": "读取当前节点的全部宿主关系与数据空间候选；返回行必须都属于当前节点。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadDataSets",
+              "jsdoc": "读取当前应用的数据空间候选。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadResources",
+              "jsdoc": "按所选数据空间读取资源候选；空值清空候选。",
+              "parameters": [
+                {
+                  "name": "dataSetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadFields",
+              "jsdoc": "按资源来源名定位资源，返回其行（未定位时为 undefined），并读取字段候选。",
+              "parameters": [
+                {
+                  "name": "metaName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Readonly",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "DataRow"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "stageCreate",
+              "jsdoc": "暂存一条新宿主关系并设为当前行；返回新行身份。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Id"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "beginEdit",
+              "jsdoc": "选中一条已有宿主关系进入编辑。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "reference",
+                    "name": "Id"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "value",
+              "jsdoc": "读取编辑行（含覆盖）中逻辑字段的值。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "reference",
+                    "name": "Id"
+                  }
+                },
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "write",
+              "jsdoc": "写入编辑覆盖（值不变时跳过）。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "reference",
+                    "name": "Id"
+                  }
+                },
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "校验并提交新增或编辑，回读核验；结果未知时再次调用只核验原提交。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "reference",
+                    "name": "Id"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discard",
+              "jsdoc": "放弃当前未提交的新增或编辑。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "reference",
+                    "name": "Id"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "remove",
+              "jsdoc": "删除一条宿主关系并核验已不存在；目标须在当前节点下唯一。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "reference",
+                    "name": "Id"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "column",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "loadCandidates",
+              "jsdoc": "打开编辑时装载三级候选，不改原值。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "reference",
+                    "name": "Id"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "followCascade",
+              "jsdoc": "跟随编辑行的上游字段：数据空间变化清空资源、资源类型与字段映射并重查资源；资源变化清空字段映射、重查字段并填入资源类型。\n每级按代次丢弃迟到结果；失败经 onError 报告，不吞错。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "reference",
+                    "name": "Id"
+                  }
+                },
+                {
+                  "name": "onError",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "cause",
+                              "type": {
+                                "type": "reference",
+                                "name": "Error"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "stopCascade",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "release",
+              "jsdoc": "释放级联监听与暂存输入视图；未提交的宿主修改由调用方先处理。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -15,6 +15,7 @@ import {DimensionSourceLedgerGuard} from '@/lowcode/resources/structured-config/
 import {createDimensionRuntime} from '../../../../runtime/application/dimension/dimension.fixture'
 import {useApplicationFunctionPage} from '@/views/features/application/application-function-management/ui/use-application-function-page'
 import ApplicationFunctionPage from '@/views/features/application/application-function-management/ui/application-function-page.vue'
+import {getVuePageOptions} from '@/registries/vue-page-registry'
 
 let capturedPage: ReturnType<typeof useApplicationFunctionPage> | undefined
 function readPageInstance(): ReturnType<typeof useApplicationFunctionPage> {
@@ -254,6 +255,7 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
     refreshBlueprintTreeProjection: vi.fn(),
     notifyExternalDataViewChanged: () => {revision.value++},
     childCreateActionState: () => 'disabled',
+    loadNavigationDictionaryOptions: vi.fn(async () => undefined),
   }
   fixtureState.current = state
   let loadCount = 0
@@ -935,5 +937,61 @@ describe('application function page dimension source design', () => {
     expect(page.dimensionSource.bindingSpecs.value.find(spec => spec.field === 'event_code')?.readonly).toBe(true)
     page.dimensionSource.close()
     readModels.mockRestore()
+  })
+})
+
+describe('application function page navigation and delivery', () => {
+  it('opens the navAttr deep link, loads navigation dictionaries and shows why desktop and host are unavailable', async () => {
+    const readModel = vi.spyOn(lowcodeApi.dataSpace.design, 'readModel').mockRejectedValue(new Error('模型不存在'))
+    const readSpace = vi.spyOn(lowcodeApi.dataSpace.design, 'readSpaceDefinition')
+      .mockImplementation(async ({dataSpaceId}) => ({dataSpaceId, name: 'Blueprint', raw: {}}))
+    const {page, state} = await setup({nodeId: 'NODE-1', blueprintTab: 'navAttr'})
+    await flushPromises()
+    expect(page.activeTab.value).toBe('navAttr')
+    expect(state.loadNavigationDictionaryOptions).toHaveBeenCalled()
+    expect(page.desktop.unavailable.value).toContain('桌面显示模型 Base_Desktop_System 未能按注册名解析')
+    expect(page.navHost.error.value).toContain('导航宿主不可用')
+    readModel.mockRestore()
+    readSpace.mockRestore()
+  })
+
+  it('verifies the saved subtree against every registered Vue page and reports missing targets', async () => {
+    const delivered = `vue:${getVuePageOptions().find(option => option.path.endsWith('/application-function-page'))!.path}`
+    fixtureState.patchRows = rows => {
+      Object.assign(rows[1]!, {conType: 'Navitem', IsShowAtNav: '1', NavigationUrl: delivered})
+      Object.assign(rows[3]!, {conType: 'Navitem', IsShowAtNav: '1', NavigationUrl: 'vue:/not-delivered'})
+    }
+    const {page, owner} = await setup({nodeId: 'NODE-1', blueprintTab: 'navAttr'})
+    expect(owner.dirty).toBe(false)
+    await page.verifyCurrentNode()
+    expect(page.verifyError.value).toBe('')
+    expect(page.verifyResult.value?.visitedNodeIds).toEqual(['NODE-1', 'NODE-2', 'NODE-3', 'NODE-4'])
+    expect(page.verifyResult.value?.issues.map(issue => [issue.nodeId, issue.code])).toEqual([['NODE-4', 'TARGET_NOT_IN_DELIVERY']])
+    page.selectTab('basic')
+    await flushPromises()
+    expect(page.verifyResult.value).toBeUndefined()
+  })
+
+  it('blocks verification while navigation changes are pending', async () => {
+    const {page, view, state} = await setup({nodeId: 'NODE-1', blueprintTab: 'navAttr'})
+    view.updateEditingValue('NODE-1', 'NavigationUrl', 'vue:/draft')
+    state.notifyExternalDataViewChanged()
+    expect(page.verifyBlockedReason.value).toContain('请先保存当前导航地址')
+    await page.verifyCurrentNode()
+    expect(page.verifyResult.value).toBeUndefined()
+  })
+
+  it('reports the export receipt without claiming the document was generated', async () => {
+    const submit = vi.spyOn(lowcodeApi.blueprint, 'submitDocument')
+      .mockResolvedValue({projectId: TARGET, kind: 'requirements-specification', status: 'submitted', coverage: 'legacy-menu-scope',
+        message: '任务提交请求已确认；文档生成状态未知'})
+    const {page} = await setup({nodeId: 'NODE-1'})
+    await page.exportRequirements()
+    expect(submit).toHaveBeenCalledWith(TARGET, 'requirements-specification')
+    expect(page.notice.value).toBe('需求说明书请求已收到提交回执；文件生成状态未知。')
+    submit.mockRejectedValueOnce(new Error('socket reset'))
+    await page.exportRequirements()
+    expect(page.error.value).toBe('导出需求说明书失败：socket reset')
+    submit.mockRestore()
   })
 })

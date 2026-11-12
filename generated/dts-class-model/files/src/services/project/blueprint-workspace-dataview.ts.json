@@ -867,6 +867,26 @@
           "type": "object",
           "title": "Promise<void>"
         },
+        "method.readSavedProjectNodes.params": {
+          "type": "object",
+          "properties": {
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readSavedProjectNodes.return": {
+          "type": "object",
+          "title": "Promise<ReadonlyArray<Readonly<{\n        row: Readonly<DataRow>;\n        hidden: readonly string[];\n    }>>>"
+        },
         "method.dispose.params": {
           "type": "object",
           "properties": {},
@@ -876,7 +896,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T07:35:07.436Z",
+  "generatedAt": "2026-11-12T16:35:06.964Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -2274,6 +2294,55 @@
                   {
                     "type": "intrinsic",
                     "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readSavedProjectNodes",
+              "jsdoc": "经同模型临时查询视图完整读取本项目已保存的全部蓝图节点，只读，不改变当前树、草稿与当前行。\n行数与总数不一致或返回跨项目行即拒绝，不以部分结果核验；hidden 为该行不可读的请求字段。",
+              "parameters": [
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Readonly",
+                      "typeArguments": [
+                        {
+                          "type": "unknown",
+                          "name": "{\n        row: Readonly<DataRow>;\n        hidden: readonly string[];\n    }"
+                        }
+                      ]
+                    }
                   }
                 ]
               }

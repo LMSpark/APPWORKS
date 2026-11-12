@@ -9,6 +9,7 @@ import {LOWCODE_APPLICATION_CATALOG_FORM_KEY, lowcodeProjectBlueprintFields, nor
 import type {PageRuntime, ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData} from '@spark-appworks/spark-project-model'
 import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
 import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/repository/builtin-blueprint-node-resource'
+import {BLUEPRINT_NAVIGATION_GUARD_FIELDS} from './blueprint-navigation/blueprint-navigation-rules'
 
 export const BLUEPRINT_WORKSPACE_FIELD_NAMES = Object.freeze([
   'rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'funCode', 'FunName', 'memo', 'htmlDesc', 'conid', 'conType', 'NavigationUrl', 'VersionId',
@@ -1588,6 +1589,7 @@ export class BlueprintWorkspaceDataView {
     const patches=new Map(ids.map(key=>[key,this.view.getEditingPatch(key)]).filter((entry):entry is [string|number,Record<string,unknown>]=>entry[1]!==undefined))
     if ([...patches].some(([key,patch])=>{const target=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===key);return !target||this.view.editActionState(target)!=='enabled'||Object.keys(patch).some(field=>this.view.fieldAccess(target,field).write!=='allowed')})) throw new Error('蓝图编辑包含当前查询不允许写入的字段')
     if (patches.size > 0) {
+      await this.assertNavigationBaseline(patches,revision,targetNodeId)
       const applied = await this.view.applyEditingRows([...patches.keys()])
       this.assertTarget(revision, targetNodeId)
       if (!applied.success || !applied.data || applied.data.failedCount > 0) throw new Error(Object.values(applied.data?.failedErrors ?? {})[0] ?? '蓝图 DataView 编辑应用失败')
@@ -1610,6 +1612,75 @@ export class BlueprintWorkspaceDataView {
     for(const [key,patch] of patches){const confirmed=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===key);if(!confirmed)throw new Error(`蓝图行 ${String(key)} 保存后无法读回`);for(const [field,value] of Object.entries(patch))if(!Object.is(confirmed[field],value))throw new Error(`蓝图字段 ${field} 保存后读回不一致`)}
     this.#unconfirmedIds=[]
     this.#acceptedReceiptPending=false
+  }
+
+  /**
+   * 修改导航属性前按正式记录核对本次查询基线：经同模型临时查询视图读取被修改节点，
+   * 任一可读导航字段与 DataView 原值不同即拒绝保存，不覆盖他人已提交的导航属性。
+   */
+  private async assertNavigationBaseline(patches:ReadonlyMap<string|number,Readonly<Record<string,unknown>>>,revision:number,targetNodeId:string):Promise<void>{
+    if(this.#readOnlySource)return
+    const guarded:readonly string[]=BLUEPRINT_NAVIGATION_GUARD_FIELDS
+    const fields=BLUEPRINT_NAVIGATION_GUARD_FIELDS.filter(field=>this.#queryOutputFields.has(field))
+    const baselines=[...patches].filter(([,patch])=>Object.keys(patch).some(field=>guarded.includes(field))).map(([key])=>{
+      const row=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===key)
+      const id=row?.['rowid']
+      if(!row||typeof id!=='string')throw new Error(`蓝图行 ${String(key)} 缺少导航属性基线`)
+      if(this.view.dirtyTracking.hasPendingChanges(key))throw new Error(`蓝图行 ${id} 存在已暂存未确认的修改，不能核对导航属性基线`)
+      return {id,row,readable:fields.filter(field=>this.view.fieldAccess(row,field).read==='visible')}
+    })
+    if(baselines.length===0)return
+    const table=this.view.dataTable
+    if(!table)throw new Error('蓝图 DataView 未注册到正式模型，不能核对导航属性基线')
+    const viewId=`navigationBaseline${crypto.randomUUID().replaceAll('-','')}`
+    const probe=this.view.createQueryView(viewId)
+    try{
+      probe.filterExpression=DataViewFilter.group({logic:'and',filters:[
+        DataViewFilter.condition({field:'SysId',operator:'eq',value:this.#projectId}).toJSON(),
+        DataViewFilter.condition({field:'rowid',operator:'in',value:baselines.map(item=>item.id)}).toJSON(),
+      ]}).toJSON()
+      probe.queryConfig={...probe.queryConfig,allPages:true,maxRows:baselines.length+1}
+      await probe.refresh()
+      this.assertTarget(revision,targetNodeId)
+      if(probe.loadingError)throw probe.loadingError
+      for(const baseline of baselines){
+        const matches=probe.rows.filter(row=>row['rowid']===baseline.id&&row['SysId']===this.#projectId)
+        const [server]=matches
+        if(matches.length!==1||!server)throw new Error(`APPWORKS_NAVIGATION_STALE: ${baseline.id} 正式记录已不存在或不唯一`)
+        const hidden=baseline.readable.filter(field=>probe.fieldAccess(server,field).read!=='visible')
+        if(hidden.length>0)throw new Error(`APPWORKS_NAVIGATION_STALE: ${baseline.id} 导航属性不可回读: ${hidden.join('、')}`)
+        const changed=baseline.readable.filter(field=>!sameWireValue(baseline.row[field],server[field]))
+        if(changed.length>0)throw new Error(`APPWORKS_NAVIGATION_STALE: ${baseline.id} 导航属性已变化: ${changed.join('、')}`)
+      }
+    }finally{
+      if(table.getView(viewId)===probe)table.destroyView(viewId)
+    }
+  }
+
+  /**
+   * 经同模型临时查询视图完整读取本项目已保存的全部蓝图节点，只读，不改变当前树、草稿与当前行。
+   * 行数与总数不一致或返回跨项目行即拒绝，不以部分结果核验；hidden 为该行不可读的请求字段。
+   */
+  public async readSavedProjectNodes(fields:readonly string[],assertCurrent:()=>void):Promise<ReadonlyArray<Readonly<{row:Readonly<DataRow>;hidden:readonly string[]}>>>{
+    this.assertUsable()
+    for(const field of ['rowid','SysId','prowid'])if(!this.hasOutput(field))throw new Error(`蓝图 DataView 未正式输出树字段 ${field}`)
+    const table=this.view.dataTable
+    if(!table)throw new Error('蓝图 DataView 未注册到正式模型，不能读取项目节点')
+    const viewId=`projectNodes${crypto.randomUUID().replaceAll('-','')}`
+    const probe=this.view.createQueryView(viewId)
+    try{
+      probe.filterExpression=DataViewFilter.condition({field:'SysId',operator:'eq',value:this.#projectId}).toJSON()
+      probe.queryConfig={...probe.queryConfig,allPages:true,maxRows:50000}
+      await probe.refresh()
+      assertCurrent()
+      if(probe.loadingError)throw probe.loadingError
+      if(!Number.isSafeInteger(probe.total)||probe.total!==probe.rows.length)throw new Error(`蓝图节点读取不完整：total=${probe.total} rows=${probe.rows.length}`)
+      if(probe.rows.some(row=>row['SysId']!==this.#projectId||typeof row['rowid']!=='string'))throw new Error('蓝图节点读取返回了跨项目或缺少 rowid 的行')
+      return probe.rows.map(row=>Object.freeze({row:Object.freeze({...row}),
+        hidden:Object.freeze(fields.filter(field=>!this.hasOutput(field)||probe.fieldAccess(row,field).read!=='visible'))}))
+    }finally{
+      if(table.getView(viewId)===probe)table.destroyView(viewId)
+    }
   }
 
   public dispose(): void {

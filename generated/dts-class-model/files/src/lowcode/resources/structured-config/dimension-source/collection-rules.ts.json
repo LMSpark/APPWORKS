@@ -77,7 +77,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-12T12:38:58.048Z",
+  "generatedAt": "2026-11-12T12:57:01.774Z",
   "models": {
     "DimensionSourceCollection": {
       "name": "DimensionSourceCollection",

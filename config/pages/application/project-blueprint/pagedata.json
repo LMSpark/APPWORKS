@@ -95,8 +95,53 @@
       "views": {
         "default": {
           "autoLoad": false
+        },
+        "byNode": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "pageSize": 200,
+          "filterExpression": {"field": "prowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "nodeId"}},
+          "queryConfig": {"allPages": true, "maxRows": 200},
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ]
         }
       }
+    },
+    "Base_DataSet": {
+      "modelBinding": {"modelId": "d8d3f3cb-d395-459a-a748-f4a82c988c45", "modelName": "Base_DataSet"},
+      "views": {"default": {"autoLoad": false}, "navHostDataSets": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
+        "valueField": "rowid", "labelField": "Name",
+        "filterExpression": {"field": "sysid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "applicationId"}},
+        "queryConfig": {"allPages": true, "fields": ["rowid", "Name", "description"]}
+      }}
+    },
+    "Base_DataModel": {
+      "modelBinding": {"modelId": "39178705-5151-47a8-8b7d-e3cfd646eab6", "modelName": "Base_DataModel"},
+      "views": {"default": {"autoLoad": false}, "navHostResources": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
+        "valueField": "MetaName", "labelField": "Name",
+        "filterExpression": {"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "dataSetId"}},
+        "queryConfig": {"allPages": true, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type", "DbName"]}
+      }}
+    },
+    "Base_DataModel_Field": {
+      "modelBinding": {"modelId": "47af5185-fb8c-4bb9-8709-a9965ab34a5b", "modelName": "Base_DataModel_Field"},
+      "views": {"default": {"autoLoad": false}, "navHostFields": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
+        "valueField": "Name", "labelField": "description",
+        "filterExpression": {"logic": "and", "filters": [
+          {"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}},
+          {"field": "type", "operator": "eq", "value": "dataModel"}
+        ]},
+        "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "description", "FieldType", "AsName"]}
+      }}
     },
     "ProjectToolVersion": {
       "resourceType": "file",

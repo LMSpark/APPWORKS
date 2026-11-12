@@ -1,0 +1,48 @@
+{
+  "scenarioId": "7AB874097A1E8711A42FD845939A6E05",
+  "tables": {
+    "Base_Desktop_System": {
+      "views": {
+        "default": {
+          "autoLoad": false
+        },
+        "byNode": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "pageSize": 2,
+          "filterExpression": {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "nodeId"}},
+          "queryConfig": {"allPages": true, "maxRows": 2}
+        }
+      }
+    },
+    "Dict_Page_Popup": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "pageSize": 200
+        }
+      }
+    },
+    "Dict_Desktop_AppType": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "pageSize": 200
+        }
+      }
+    },
+    "DesktopStyle": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "pageSize": 200
+        }
+      }
+    }
+  }
+}

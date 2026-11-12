@@ -18,8 +18,14 @@ import { useApplicationFunctionAi } from './use-application-function-ai'
 import { useApplicationFunctionDataSpace } from './use-application-function-data-space'
 import { useApplicationFunctionDimensionSource } from './use-application-function-dimension-source'
 import { useApplicationFunctionPrototype } from './use-application-function-prototype'
+import { blueprintPendingNavigationError, useBlueprintNavigation } from './blueprint-navigation/use-blueprint-navigation'
+import { useBlueprintDesktop } from './blueprint-navigation/use-blueprint-desktop'
+import { useBlueprintNavHost } from './blueprint-navigation/use-blueprint-nav-host'
+import { BLUEPRINT_VERIFY_FIELDS, verifyBlueprintNodeTree, type BlueprintNodeVerifyResult } from './blueprint-navigation/blueprint-node-verify'
+import { BlueprintDesktopEditor } from '@/services/project/blueprint-navigation/blueprint-desktop-editor'
+import { getVuePageOptions } from '@/registries/vue-page-registry'
 
-type BlueprintTab = 'basic' | 'dataSpace' | 'prototype'
+type BlueprintTab = 'basic' | 'navAttr' | 'dataSpace' | 'prototype'
 type NodeOption = Readonly<{label: string; value: string}>
 type CreatePosition = 'root' | 'sibling' | 'child'
 /** 当前有效的蓝图树上下文：同一 PageRuntime、目标应用与 owner 的组合身份。 */
@@ -141,7 +147,7 @@ async function prepareNodeOptionViews(input: Readonly<{
 
 function readTab(value: unknown): BlueprintTab {
   if (value === undefined) return 'basic'
-  if (value === 'basic' || value === 'dataSpace' || value === 'prototype') return value
+  if (value === 'basic' || value === 'navAttr' || value === 'dataSpace' || value === 'prototype') return value
   throw new Error(`蓝图页面不支持 blueprintTab=${String(value)}`)
 }
 
@@ -348,6 +354,82 @@ export function useApplicationFunctionPage() {
     notice,
   })
   onScopeDispose(() => dataSpace.dispose())
+
+  const navAttrActive = () => activeTab.value === 'navAttr' && isSelectedNodeReady.value
+  const navigation = useBlueprintNavigation({
+    context: () => treeContext.value,
+    selectedNodeId,
+    active: navAttrActive,
+    revision: state.externalDataViewRevision,
+    loadDictionaries: () => state.loadNavigationDictionaryOptions(),
+  })
+  const desktop = useBlueprintDesktop({
+    context: () => treeContext.value,
+    selectedNodeId,
+    isLive,
+    active: navAttrActive,
+    createEditor: () => new BlueprintDesktopEditor(lowcodeApi.dataSpace.design, new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp)),
+    notice,
+  })
+  onScopeDispose(() => desktop.dispose())
+  const navHost = useBlueprintNavHost({context: () => treeContext.value, selectedNodeId, isLive, active: navAttrActive, notice})
+  onScopeDispose(() => navHost.dispose())
+
+  // 子树交付核验：只读完整回读已保存节点，对照 Vue 页面注册表全部页面；节点、应用或页签变化即清除结果。
+  const verifyResult = shallowRef<BlueprintNodeVerifyResult>()
+  const verifyError = ref('')
+  const verifying = ref(false)
+  let verifyGeneration = 0
+  watch(() => [treeContext.value?.key, selectedNodeId.value, activeTab.value], () => {
+    verifyGeneration++
+    verifyResult.value = undefined
+    verifyError.value = ''
+    verifying.value = false
+  })
+  const verifyBlockedReason = computed(() => {
+    void state.externalDataViewRevision.value
+    const context = treeContext.value
+    return context && (context.owner.dirty || context.owner.hasUnconfirmedSave) ? '请先保存当前导航地址，再核验目标 APP 的实际交付' : ''
+  })
+  async function verifyCurrentNode(): Promise<void> {
+    const context = treeContext.value, nodeId = selectedNodeId.value
+    if (!context || !nodeId || verifying.value || verifyBlockedReason.value) return
+    const current = ++verifyGeneration
+    const assertCurrent = (): void => {
+      if (current !== verifyGeneration || !isLive(context, nodeId)) throw new Error('核验目标已因节点或上下文切换失效')
+    }
+    verifying.value = true
+    verifyResult.value = undefined
+    verifyError.value = ''
+    try {
+      const nodes = await context.owner.readSavedProjectNodes(BLUEPRINT_VERIFY_FIELDS, assertCurrent)
+      assertCurrent()
+      verifyResult.value = verifyBlueprintNodeTree({rootNodeId: nodeId, nodes,
+        deliveryResources: getVuePageOptions().map(page => `vue:${page.path}`)})
+    } catch (cause) {
+      if (current === verifyGeneration) verifyError.value = `核验失败：${cause instanceof Error ? cause.message : String(cause)}`
+    } finally {
+      if (current === verifyGeneration) verifying.value = false
+    }
+  }
+
+  // 需求说明书导出：只提交生成任务，如实提示回执；不承诺文件已生成或会自动下载。
+  const exporting = ref(false)
+  async function exportRequirements(): Promise<void> {
+    const context = treeContext.value
+    if (!context || exporting.value) return
+    exporting.value = true
+    error.value = ''
+    try {
+      await lowcodeApi.blueprint.submitDocument(context.projectId, 'requirements-specification')
+      if (!isCurrentContext(context.key)) return
+      notice.value = '需求说明书请求已收到提交回执；文件生成状态未知。'
+    } catch (cause) {
+      if (isCurrentContext(context.key)) error.value = `导出需求说明书失败：${cause instanceof Error ? cause.message : String(cause)}`
+    } finally {
+      exporting.value = false
+    }
+  }
 
   let ledgerGuard: DimensionSourceLedgerGuard | undefined
   const dimensionSource = useApplicationFunctionDimensionSource({
@@ -724,6 +806,11 @@ export function useApplicationFunctionPage() {
       error.value = '当前 owner 还包含工具文件或场景定义修改；本页不会替它们提交'
       return false
     }
+    const navigationError = blueprintPendingNavigationError(context.owner)
+    if (navigationError) {
+      error.value = navigationError
+      return false
+    }
     state.blueprintSaving.value = true
     try {
       await context.owner.save()
@@ -863,5 +950,15 @@ export function useApplicationFunctionPage() {
     prototype,
     dataSpace,
     dimensionSource,
+    navigation,
+    desktop,
+    navHost,
+    verifyResult,
+    verifyError,
+    verifying,
+    verifyBlockedReason,
+    verifyCurrentNode,
+    exporting,
+    exportRequirements,
   }
 }

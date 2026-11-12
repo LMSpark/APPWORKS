@@ -7,6 +7,7 @@
       </div>
       <div class="application-function-page__tabs">
         <RendererButton label="基本信息" :button-type="activeTab === 'basic' ? 'primary' : 'default'" @click="selectTab('basic')" />
+        <RendererButton label="导航配置" :button-type="activeTab === 'navAttr' ? 'primary' : 'default'" @click="selectTab('navAttr')" />
         <RendererButton label="数据空间" :button-type="activeTab === 'dataSpace' ? 'primary' : 'default'" @click="selectTab('dataSpace')" />
         <RendererButton label="需求原型" :button-type="activeTab === 'prototype' ? 'primary' : 'default'" @click="selectTab('prototype')" />
         <RendererButton
@@ -34,6 +35,8 @@
           <RendererButton label="新增子级" :disabled="!canAddChild" @click="addChildNode" />
           <RendererButton label="AI 生成下一级" :disabled="aiGenerating || treeAiConfirming" @click="openTreeAi" />
           <RendererButton v-if="aiGenerating" label="取消生成" @click="cancelAi" />
+          <RendererButton icon="Download" :circle="true" title="导出需求说明书" aria-label="导出需求说明书" :loading="exporting"
+            :disabled="exporting" @click="exportRequirements" />
         </div>
         <RendererTree
           :key="treeContext.key"
@@ -102,6 +105,24 @@
             <FieldTextarea v-bind="treeBinding" data-member="currentRow" data-field="memo" label="功能描述"
               :autosize="{minRows: 4, maxRows: 12}" @update:model-value="state.notifyExternalDataViewChanged" />
           </RendererForm>
+        </template>
+        <template v-else-if="isSelectedNodeReady && activeTab === 'navAttr'">
+          <div class="application-function-page__details-toolbar">
+            <h2>导航信息</h2>
+            <RendererButton :label="desktop.exists.value ? '取消桌面显示' : '+桌面'" :disabled="!desktop.record.value || desktop.busy.value"
+              :loading="desktop.loading.value" @click="desktop.toggle" />
+            <RendererButton label="核验当前节点" :disabled="verifying || !!verifyBlockedReason" :title="verifyBlockedReason"
+              :loading="verifying" @click="verifyCurrentNode" />
+          </div>
+          <DisplayAlert v-if="desktop.unavailable.value" :description="desktop.unavailable.value" alert-type="warning" />
+          <DisplayAlert v-if="verifyBlockedReason" :description="verifyBlockedReason" alert-type="info" />
+          <DisplayAlert v-if="verifyError" :description="verifyError" alert-type="error" />
+          <DisplayAlert v-if="verifyResult" :alert-type="verifyResult.ok ? 'success' : 'error'"
+            :description="verifyResult.ok ? `核验通过：共核验 ${verifyResult.visitedNodeIds.length} 个节点` : formatBlueprintNodeVerifyFailure(verifyResult)" />
+          <BlueprintNavigationConfig :navigation="navigation" :binding="treeBinding" :access="state.blueprintNodeFieldAccess"
+            :changed="state.notifyExternalDataViewChanged" />
+          <BlueprintNavHostDialog :host="navHost" />
+          <BlueprintDesktopDialog :desktop="desktop" />
         </template>
         <template v-else-if="isSelectedNodeReady && activeTab === 'dataSpace'">
           <div class="application-function-page__details-toolbar">
@@ -283,6 +304,10 @@ import { useApplicationFunctionPage } from './use-application-function-page'
 import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
 import BlueprintDimensionSource from './blueprint-dimension-source.vue'
+import BlueprintNavigationConfig from './blueprint-navigation/blueprint-navigation-config.vue'
+import BlueprintNavHostDialog from './blueprint-navigation/blueprint-nav-host-dialog.vue'
+import BlueprintDesktopDialog from './blueprint-navigation/blueprint-desktop-dialog.vue'
+import { formatBlueprintNodeVerifyFailure } from './blueprint-navigation/blueprint-node-verify'
 
 const {DisplayAlert, DisplayEmpty, FieldHtmlEditor, FieldSelect, FieldText, FieldTextarea, RendererButton, RendererDialog, RendererForm, RendererList, RendererTable, RendererTree} = SparkComponent
 
@@ -335,6 +360,16 @@ const {
   prototype,
   dataSpace,
   dimensionSource,
+  navigation,
+  desktop,
+  navHost,
+  verifyResult,
+  verifyError,
+  verifying,
+  verifyBlockedReason,
+  verifyCurrentNode,
+  exporting,
+  exportRequirements,
 } = useApplicationFunctionPage()
 
 const {

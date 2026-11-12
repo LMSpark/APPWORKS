@@ -9622,3 +9622,59 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **隔离浏览器烟测（无头 Edge + CDP，内存夹具，拦截全部网络，未写实服）。** 真实对话框、DataSet/PageRuntime、标准组件与 owner；脚手架位于 `artifacts/smoke-dimension-3b/`，完成后已连同临时浏览器配置删除。9/9 步通过：模型候选与来源类型切换；数据模型绑定+映射+子集合一次保存回读且保存后入口启用；事件新建写入回读并关闭子对话框；提交草稿（status=0、v1、摘要身份）+ 事实一次保存回读、已有版本只读、草稿重置为 v2；台账有记录与无法核验均拒绝且无写入；关闭丢弃未保存修改无写入；平台合同选择后事件编码强制且只读、账套字段/子集合隐藏；切换节点丢弃迟到结果；回执中断进入未知、编辑锁定、关闭拒绝丢弃、只写 1 次。外部请求 0、页面网络尝试 0、告警 0；唯一控制台错误为未知用例主动注入回执失败时 HTTP 层的预期日志。脚手架发现：Edge 配置置于 Vite 根下会被文件监听锁住（EBUSY）、对话框标题类名为 `.renderer-dialog-title`，均为脚手架问题已修正。
 - **实服只读核验边界。** 阶段0 模型与字段已认证只读核实；蓝图页仍 `hidden` 且未进入正式导航发布，没有合法入口，本批未在实服打开新对话框，也未写入。待导航发布后补认证打开核验。
 - **不在本批（登记缺口）。** 维度运行时 `source-commit-save`、`projection-currentness`、`current()`、完整台账记录查询（明细、事实、身份）：消费者是业务提交与投影运行时，不是蓝图页，且在参考 `packages/data/spark-api` 而非 `apps/appworks`，登记为维度运行时缺口。提交策略启用（参考同样未提供）、批次4、批次5（权限两个入口）、导航发布、批次2 未验证项继续开放。
+## 蓝图批次4：导航、桌面与交付
+
+对照参考固定提交 `1147b00ee` 中项目蓝图页的导航属性、桌面显示、导航宿主（`Base_Navigation_DataRelation`）、`blueprint-node-verify` 及需求说明书导出，在本仓 PageRuntime → DataSet/DataView 链上恢复批次4。只经 `GetData`/`BatchTableOperateRequestByCRUD` 与既有 `blueprint.submitDocument`，无新端点，未改 Java，未增 Node 服务。交付清单范围经用户选定为 Vue 页面注册表全部页面（`'vue:' + path`）。
+
+- **门禁（阶段0）：实服只读核验未完成。** 用户已手动登录，但开发代理访问网关超时、实时通道返回 401；按约束未猜测或重试凭据，未写库。替代处理：
+  - 桌面模型 `Base_Desktop_System` 与字典 `Dict_Page_Popup`、`Dict_Desktop_AppType`、`DesktopStyle` 不硬编码身份，运行时经数据空间设计 API 在 7AB 场景按注册名解析，再由 `LowcodeDataSpaceAssembler` 装配独立 DataSet；桌面模型缺失时页面显示“桌面显示模型 … 未能按注册名解析”并禁用“+桌面”，缺字典则该字段降级为文本并提示。
+  - 宿主候选三表（`Base_DataSet`/`Base_DataModel`/`Base_DataModel_Field`）的正式模型身份取自仓内 `data-menu` pagedata 的既有绑定。
+  - 宿主关系字段按正式列名大小写解析，缺少必需列即拒绝打开。
+  - 以上全部登记为待实服核验，不宣称线上已核实。
+- **实施。**
+  - 导航属性页签 `navAttr`（`ui/blueprint-navigation/blueprint-navigation-config.vue`、`use-blueprint-navigation.ts`，规则在 `src/services/project/blueprint-navigation/blueprint-navigation-rules.ts`）。字段绑定 owner 当前行，经页面既有显式保存提交。保存前 owner `assertNavigationBaseline` 以临时查询视图重读目标行比对 12 个导航字段，与正式记录不一致即拒绝（防 stale overwrite）。导航地址只接受规范 `vue:/...`。打开方式、子项位置用静态码，并保留未识别的已保存值；显示方式、水平位置取导航字典。
+  - 桌面（`desktop-views.json` 的 `byNode` 视图，`rowid eq GetInputParam nodeId`；`BlueprintDesktopEditor`/`BlueprintDesktopRecord`；`blueprint-desktop-dialog.vue`；`use-blueprint-desktop.ts`）。独立 PageRuntime；“+桌面”以节点标题、排序、地址、图标预填后暂存，单次提交后逐字段回读。保存结果未知时不能放弃，再次保存只核验原提交。“取消桌面显示”只在确认框显式“确定”后删除当前节点的唯一记录，并核验已不存在。
+  - 导航宿主（7AB `Base_Navigation_DataRelation.byNode`，`prowid eq GetInputParam nodeId`；候选视图 `navHostDataSets`/`navHostResources`/`navHostFields`；`BlueprintNavHostEditor`；`blueprint-nav-host-dialog.vue`；`use-blueprint-nav-host.ts`）：
+    - 列表、新增/编辑、删除确认（“确定要删除该导航宿主数据吗？”）及“数据空间设计”入口；设计对话框有待保存修改时不能关闭。
+    - 数据空间 → 资源 → 字段级联：上游变化清空下游并重查，资源类型自动回填。迟到结果由 `DataView.refresh` 的最新优先机制加编辑器代次丢弃。
+    - 校验必填及值参数名与文本参数名不同；`paramType` 按参考存为 `{type,name}` JSON。未修改的旧纯文本值不改写。
+    - 合并替代旧的只增命令：删除 `src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts` 及其测试，生成产物经生成器同步删除。
+  - 子树交付核验（`ui/blueprint-navigation/blueprint-node-verify.ts`，owner `readSavedProjectNodes`）。以临时查询视图完整读取当前项目已保存节点：`total≠rows` 即判读取不完整，出现跨项目或缺 `rowid` 的行即拒绝，不可读字段单独标出。按参考问题码核验能力名称、数据空间身份、发布到菜单的页面必须挂接 `vue:/...`、地址规范，以及交付清单中唯一命中（多个节点共用同一资源允许），另增环检测与不可读字段拒绝。owner 有未保存或未确认修改时禁止核验；切换节点、页签或上下文后清除结果。
+  - 需求说明书导出：树工具栏下载按钮调用 `submitDocument(projectId, 'requirements-specification')`，只提示“需求说明书请求已收到提交回执；文件生成状态未知。”，失败显示原因。
+- **与参考的偏差（已知，非遗漏）。** 宿主列表一次读取节点全部关系（上限 200），表格本地分页，参考为服务端每页 10；数据空间选择用可过滤 FieldSelect，参考为分页选择对话框；`paramType` 的“处理方式”字典未能核实，暂为文本输入；资源候选显示“名称 · 类型”，参考为 [表]/[视图]/[字典] 前缀；暂存的新增行在对话框打开期间已出现在同一列表视图中（单一 DataView 真源）；导出不承诺自动下载；权限配置属批次5，未迁移。
+- **未照搬的参考缺陷。** 确认框关闭事件穿透即执行删除；`HorizontalAlignment` 被强制小写；未识别子项位置值保存时丢失；导航地址 `/tenant/` 前缀拼接；宿主列表无迟到保护；桌面保存只回读存在性；子树核验无环保护。
+- **测试与烟测发现并修正。**
+  - 导航页签排序字段 `min=1` 会在打开页签时把树移动写入的 0 改为 1，使 owner 变脏并阻止核验，已改为 `min=0`，并有入口测试断言打开后不脏。
+  - 桌面整数默认值未按正式列类型转换，已按列类型转换。
+  - 装配器要求每表声明 `views.default`，已为桌面表及宿主候选三表补齐。
+  - 资源候选多标题字段无连接符时只取首个非空字段，已改为 `['Name','Type']` 加 ` · ` 连接。
+  - 两个对话框的分组标题在两列表单中只占半行，已用页面样式跨整行。
+- **ClassModel 查询 → 实现 → 验证。**
+  - `RButtonProps`（circle/icon/loading/title）→ 树工具栏导出按钮 → 入口测试“导出回执”。
+  - `RDividerProps`（content/contentPosition）→ 宿主 ①②③ 与桌面三段分组 → 烟测布局截图。
+  - `DisplayAlert`（alertType/description/title）→ 桌面不可用、核验阻止原因、核验错误与结果 → 入口测试断言提示文案。
+  - `RTableProps.actions`、`RDialogProps`、`FieldSelect` 选项合同（optionDataViewKey、optionLabelFields、optionLabelJoiner，沿共享字段声明查得）→ 宿主列表与级联表单 → 烟测候选标签“空间甲”“视图乙 · view”。
+  - `FieldNumber`、`FieldCheckbox`（trueValue/falseValue）→ 桌面排序与布尔字段 → 桌面编辑器测试回读 `'1'/'0'`。
+  - 源码改动后两次运行 `pnpm run generate:class-model-surface`；生成器同时刷新既有分片的符号序号，未手改产物。
+- **验证。**
+  - `pnpm run typecheck` 通过。
+  - 定向 vitest 30 文件 516 项通过：新增桌面编辑器 8、宿主编辑器 8、导航规则 12、子树核验 10，以及入口测试 4（navAttr 深链与不可用提示、注册表交付核验、待保存时阻止核验、导出回执与失败）。
+  - 改动文件 ESLint 0。
+  - `pnpm run verify` 退出 0；`verify:pages-config`、`verify:page-thin`（既有 85 项待审诊断，无本批文件）、目录上限、`git diff --check` 通过。
+- **隔离浏览器烟测（无头 Edge + CDP，内存夹具，拦截全部网络，未写实服）。** 脚手架位于 `artifacts/smoke-blueprint-b4/`，挂载真实宿主/桌面对话框、组合函数、PageRuntime 与标准组件，完成后已连同临时浏览器配置删除。9/9 步通过：
+  - 宿主列表按参考列渲染，并过滤其他节点。
+  - 新增对话框布局截图核对。
+  - 必填与参数名相同被拦截且无写入；级联装载并回填类型；保存一次写入并回读 JSON。
+  - 换数据空间清空下游并重查；取消无写入。
+  - 删除确认框取消不删；确定只删目标行。
+  - 回执中断进入未知、取消禁用，“核验保存结果”只写 1 次。
+  - 桌面对话框布局截图核对。
+  - 桌面新增按字典显示，以节点 rowid 写入回读，按钮切换。
+  - 取消桌面显示后删除并复原按钮。
+  - 外部请求 0、页面网络尝试 0；唯一控制台错误为未知用例主动注入回执失败时 HTTP 层的预期日志。
+- **未核实与缺口（继续开放）。**
+  - 阶段0 实服模型与字段（桌面四模型、宿主关系字段大小写、`Base_DataSet.sysid`、字段表 `type=dataModel` 过滤）待认证会话可达后只读核实。
+  - `paramType` 处理方式字典待核实。
+  - `hasChild` 字段在当前正式输出中未见，子树核验依赖完整读取而非该标志。
+  - 蓝图页未在正式导航发布，未在实服打开新页签或写入。
+  - 批次5权限两个入口、批次2 未验证项继续开放。

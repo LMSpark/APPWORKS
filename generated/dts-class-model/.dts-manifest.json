@@ -4459,27 +4459,27 @@
     "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/dimension-source/binding-editor.ts.json",
-      "sourceModifiedAt": "2026-11-12T12:42:54.060Z"
+      "sourceModifiedAt": "2026-11-12T12:56:45.949Z"
     },
     "src/lowcode/resources/structured-config/dimension-source/collection-rules.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/collection-rules.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/dimension-source/collection-rules.ts.json",
-      "sourceModifiedAt": "2026-11-12T12:38:58.048Z"
+      "sourceModifiedAt": "2026-11-12T12:57:01.774Z"
     },
     "src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts.json",
-      "sourceModifiedAt": "2026-11-12T12:47:52.585Z"
+      "sourceModifiedAt": "2026-11-12T12:56:58.343Z"
     },
     "src/lowcode/resources/structured-config/dimension-source/event-editor.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/event-editor.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/dimension-source/event-editor.ts.json",
-      "sourceModifiedAt": "2026-11-12T12:41:07.707Z"
+      "sourceModifiedAt": "2026-11-12T12:56:47.216Z"
     },
     "src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts.json",
-      "sourceModifiedAt": "2026-11-12T12:39:30.382Z"
+      "sourceModifiedAt": "2026-11-12T12:54:02.472Z"
     },
     "src/lowcode/resources/structured-config/dimension-source/source-contracts.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/source-contracts.ts",
@@ -4489,7 +4489,7 @@
     "src/lowcode/resources/structured-config/dimension-source/view-support.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/dimension-source/view-support.ts.json",
-      "sourceModifiedAt": "2026-11-12T12:38:27.694Z"
+      "sourceModifiedAt": "2026-11-12T12:56:39.240Z"
     },
     "src/lowcode/resources/structured-config/logic-view/design-ops.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/design-ops.ts",
@@ -4821,10 +4821,25 @@
       "shardFile": "files/src/services/project-planning/project-planning-inline-delivery.ts.json",
       "sourceModifiedAt": "2026-10-30T15:31:33.734Z"
     },
+    "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts": {
+      "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
+      "shardFile": "files/src/services/project/blueprint-navigation/blueprint-desktop-editor.ts.json",
+      "sourceModifiedAt": "2026-11-12T16:35:32.813Z"
+    },
+    "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts": {
+      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
+      "shardFile": "files/src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts.json",
+      "sourceModifiedAt": "2026-11-12T16:35:06.868Z"
+    },
+    "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts": {
+      "sourceFile": "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts",
+      "shardFile": "files/src/services/project/blueprint-navigation/blueprint-navigation-rules.ts.json",
+      "sourceModifiedAt": "2026-11-12T16:01:36.445Z"
+    },
     "src/services/project/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "shardFile": "files/src/services/project/blueprint-workspace-dataview.ts.json",
-      "sourceModifiedAt": "2026-11-12T07:35:07.436Z"
+      "sourceModifiedAt": "2026-11-12T16:35:06.964Z"
     },
     "src/services/project/navigation/project-navigation-guard.ts": {
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
@@ -4976,11 +4991,6 @@
       "shardFile": "files/src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts.json",
       "sourceModifiedAt": "2026-11-12T04:25:26.036Z"
     },
-    "src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts": {
-      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts",
-      "shardFile": "files/src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts.json",
-      "sourceModifiedAt": "2026-11-12T04:12:24.854Z"
-    },
     "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue": {
       "sourceFile": "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue",
       "shardFile": "files/src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue.json",
@@ -5054,7 +5064,7 @@
     "src/views/features/application/application-function-management/ui/application-function-page.vue": {
       "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page.vue",
       "shardFile": "files/src/views/features/application/application-function-management/ui/application-function-page.vue.json",
-      "sourceModifiedAt": "2026-11-12T12:48:58.689Z"
+      "sourceModifiedAt": "2026-11-12T16:15:35.710Z"
     },
     "src/views/features/application/application-function-management/ui/blueprint-dimension-event-editor.vue": {
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-dimension-event-editor.vue",
@@ -5065,6 +5075,41 @@
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-dimension-source.vue",
       "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-dimension-source.vue.json",
       "sourceModifiedAt": "2026-11-12T12:48:35.894Z"
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog.vue": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog.vue",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-12T16:34:12.654Z"
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog.vue": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog.vue",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-12T16:34:14.854Z"
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config.vue": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config.vue",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config.vue.json",
+      "sourceModifiedAt": "2026-11-12T16:25:59.538Z"
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts.json",
+      "sourceModifiedAt": "2026-11-12T16:16:37.271Z"
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts.json",
+      "sourceModifiedAt": "2026-11-12T16:35:07.126Z"
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts.json",
+      "sourceModifiedAt": "2026-11-12T16:13:52.117Z"
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts.json",
+      "sourceModifiedAt": "2026-11-12T16:35:08.174Z"
     },
     "src/views/features/application/application-function-management/ui/blueprint-source-commit-editor.vue": {
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-source-commit-editor.vue",
@@ -5084,12 +5129,12 @@
     "src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts.json",
-      "sourceModifiedAt": "2026-11-12T12:48:53.310Z"
+      "sourceModifiedAt": "2026-11-12T12:57:05.748Z"
     },
     "src/views/features/application/application-function-management/ui/use-application-function-page.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/use-application-function-page.ts.json",
-      "sourceModifiedAt": "2026-11-12T12:47:59.422Z"
+      "sourceModifiedAt": "2026-11-12T16:24:10.270Z"
     },
     "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",

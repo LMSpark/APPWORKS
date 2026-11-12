@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host",
+    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
+    "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host\n职责：导航配置页签的导航宿主关系列表、新增/编辑对话框、删除确认与“数据空间设计”入口。\n边界：全部动作经 BlueprintNavHostEditor 在蓝图 DataSet 的 byNode 视图暂存并单独提交；切换节点、上下文或离开页签后旧结果丢弃；\n保存或删除结果未知时对话框不能关闭或放弃，只能再次核验原提交。\nAI用途：页面与宿主对话框只消费本组合函数返回的状态与动作。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "BlueprintNavHostInput"
+    ]
+  },
+  "$defs": {
+    "BlueprintNavHostInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNavHostInput",
+      "properties": {
+        "selectedNodeId": {
+          "type": "object",
+          "title": "Ref<string>"
+        },
+        "notice": {
+          "type": "object",
+          "title": "Ref<string>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.context.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.context.return": {
+          "$ref": "../use-application-function-page.ts.json#/$defs/BlueprintTreeContext"
+        },
+        "method.isLive.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "../use-application-function-page.ts.json#/$defs/BlueprintTreeContext"
+            },
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isLive.return": {
+          "type": "boolean"
+        },
+        "method.active.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.active.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-12T16:13:52.117Z",
+  "models": {
+    "BlueprintNavHostInput": {
+      "name": "BlueprintNavHostInput",
+      "jsdoc": "页面向导航宿主提供的上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    context: () => BlueprintTreeContext | undefined;\n    selectedNodeId: Readonly<Ref<string>>;\n    isLive: (context: BlueprintTreeContext, nodeId: string) => boolean;\n    /** 导航配置页签处于激活状态。 */\n    active: () => boolean;\n    notice: Ref<string>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    context: () => BlueprintTreeContext | undefined;\n    selectedNodeId: Readonly<Ref<string>>;\n    isLive: (context: BlueprintTreeContext, nodeId: string) => boolean;\n    /** 导航配置页签处于激活状态。 */\n    active: () => boolean;\n    notice: Ref<string>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "selectedNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "notice",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "context",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "BlueprintTreeContext",
+                  "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-page.ts"
+                }
+              }
+            },
+            {
+              "name": "isLive",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintTreeContext",
+                    "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-page.ts"
+                  }
+                },
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "active",
+              "jsdoc": "导航配置页签处于激活状态。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

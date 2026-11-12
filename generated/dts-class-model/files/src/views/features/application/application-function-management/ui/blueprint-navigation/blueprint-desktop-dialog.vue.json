@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog",
+    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog.vue",
+    "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog\n职责：“新增桌面”对话框与“取消桌面显示”确认框。\n边界：向子组件提供桌面独立 PageRuntime；字段绑定 Base_Desktop_System@byNode 当前新增行，字典字段消费同运行时字典视图；\n只有显式“确定”才删除，结果未知时不能关闭或放弃。\nAI用途：调整桌面字段分组或标签时只改 SECTIONS。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T16:34:12.654Z",
+  "models": {}
+}

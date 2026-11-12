@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1159,
+  "scannedFileCount": 1168,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -16035,6 +16035,55 @@
         ]
       }
     },
+    "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts": {
+      "file": "files/src/services/project/blueprint-navigation/blueprint-desktop-editor.ts.json",
+      "module": {
+        "name": "app:services/project/blueprint-navigation/blueprint-desktop-editor",
+        "sourcePath": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
+        "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
+        "packageName": "app",
+        "modulePath": "services/project/blueprint-navigation/blueprint-desktop-editor",
+        "jsdoc": "@module app:services/project/blueprint-navigation/blueprint-desktop-editor\n职责：蓝图节点的桌面显示记录（Base_Desktop_System，rowid=节点 id）：运行时按注册名解析正式模型与三类桌面字典，\n装配独立 DataSet；读取 0/1 条记录，新增后逐字段回读，取消显示后核验记录已不存在。\n边界：模型身份经数据空间设计 API 按名解析，解析不到即拒绝写入；提交统一经 DataSet.saveChanges 与回读核验，\n结果未知时只核验原提交，不重放；不在前端判断权限，字段可写性取当前查询结果。\nAI用途：调整桌面显示字段或校验时在此修改；页面只消费 BlueprintDesktopRecord 的状态与动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "BlueprintDesktopOption",
+          "BlueprintDesktopLayout",
+          "BlueprintDesktopEditor",
+          "BlueprintDesktopRecord"
+        ]
+      }
+    },
+    "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts": {
+      "file": "files/src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts.json",
+      "module": {
+        "name": "app:services/project/blueprint-navigation/blueprint-nav-host-editor",
+        "sourcePath": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
+        "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
+        "packageName": "app",
+        "modulePath": "services/project/blueprint-navigation/blueprint-nav-host-editor",
+        "jsdoc": "@module app:services/project/blueprint-navigation/blueprint-nav-host-editor\n职责：蓝图节点的导航宿主关系（Base_Navigation_DataRelation，prowid=节点 id）新增、编辑、删除，均经同一 DataSet 单独提交并回读核验；\n数据空间→资源→字段候选由 7AB pagedata 声明的正式视图按输入参数查询。\n边界：只操作蓝图 PageRuntime 中 7AB 场景的视图；字段名按正式列大小写解析，缺失必需列即拒绝；删除前核对目标行在当前节点下唯一；\n结果未知时再次保存只核验原提交，不以新身份重提；paramType 按参考保存为 {type,name} JSON；不配置权限（属批次5）。\nAI用途：导航配置页签的宿主关系维护在此收口，替代旧的只增命令；页面只消费本类的状态与动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "BlueprintNavHostTarget",
+          "BlueprintNavHostEditor"
+        ]
+      }
+    },
+    "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts": {
+      "file": "files/src/services/project/blueprint-navigation/blueprint-navigation-rules.ts.json",
+      "module": {
+        "name": "app:services/project/blueprint-navigation/blueprint-navigation-rules",
+        "sourcePath": "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts",
+        "sourceFile": "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts",
+        "packageName": "app",
+        "modulePath": "services/project/blueprint-navigation/blueprint-navigation-rules",
+        "jsdoc": "@module app:services/project/blueprint-navigation/blueprint-navigation-rules\n职责：蓝图导航属性的正式规则：保存前基线比对字段、vue:/ 导航地址规范、打开方式与子项位置候选。\n边界：只判定和描述 wire 值，不改写已保存值；未识别的历史值作为显式候选保留，避免选择框静默丢值。\nAI用途：导航配置页签、owner 基线守卫与子树核验共用此规则，不另写一份地址或候选判断。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "BlueprintNavigationOption"
+        ]
+      }
+    },
     "src/services/project/blueprint-workspace-dataview.ts": {
       "file": "files/src/services/project/blueprint-workspace-dataview.ts.json",
       "module": {
@@ -16484,21 +16533,6 @@
         ]
       }
     },
-    "src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts": {
-      "file": "files/src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts.json",
-      "module": {
-        "name": "app:views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command",
-        "sourcePath": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts",
-        "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command",
-        "jsdoc": "app 的 views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command 模块。\n导出 DtsTypeDeclarationModel symbol: NavHostProjectRelationConfig（共 1 个 symbol）。",
-        "jsdocSource": "inferred",
-        "symbols": [
-          "NavHostProjectRelationConfig"
-        ]
-      }
-    },
     "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue": {
       "file": "files/src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue.json",
       "module": {
@@ -16738,6 +16772,110 @@
         "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-dimension-source\n职责：蓝图节点“维度来源设计”对话框：选择节点数据空间模型或平台注册事件，编辑来源绑定、正式来源集合与字段维度映射，\n并从已保存绑定进入“数据模型事件”“来源提交协议”维护。\n边界：全部字段与选择绑定 88A4 维度设计空间的 DataView；装载、校验、保存与回读由宿主传入的流程状态承担。\nAI用途：调整维度来源设计布局时修改本组件，不在此另建查询或保存链。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
+      }
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog.vue": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog.vue",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog\n职责：“新增桌面”对话框与“取消桌面显示”确认框。\n边界：向子组件提供桌面独立 PageRuntime；字段绑定 Base_Desktop_System@byNode 当前新增行，字典字段消费同运行时字典视图；\n只有显式“确定”才删除，结果未知时不能关闭或放弃。\nAI用途：调整桌面字段分组或标签时只改 SECTIONS。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog.vue": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog.vue",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog\n职责：导航配置页签的“导航宿主”列表、新增/编辑导航宿主对话框（数据来源→字段映射→参数处理方式）、删除确认与数据空间设计入口。\n边界：列表、表单与候选均绑定蓝图 PageRuntime 中 7AB 场景的正式视图；上游变化清空下游由编辑器级联执行；\n只有显式“确定”才删除；结果未知时对话框不能关闭或放弃。\nAI用途：调整宿主列表列或表单分组时只改本组件；业务动作在 use-blueprint-nav-host。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config.vue": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config.vue",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config\n职责：项目蓝图“导航配置”页签：导航属性标准字段。\n边界：字段绑定 owner 的 Base_NavigationInfo DataView 当前行，只写编辑覆盖并通知页面；保存与取消走页面统一入口。\nAI用途：调整导航属性表单时只改本组件绑定，候选与校验由 use-blueprint-navigation 提供。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify\n职责：从当前蓝图节点只读核验已保存的子树：能力名称、数据空间身份、导航地址规范及其在交付清单中唯一命中。\n边界：纯函数，只消费完整回读的已保存节点行与交付清单；环、不可读字段、子节点未回读均判失败，不以部分结果通过。\nAI用途：问题码沿参考 blueprint-node-verify；本仓交付清单为 Vue 页面注册表全部页面（单一 SPA，不比对目标 APP 包身份）。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "BlueprintNodeVerifyIssueCode",
+          "BlueprintNodeVerifyIssue",
+          "BlueprintNodeVerifyResult",
+          "BlueprintVerifyNode",
+          "BlueprintNodeVerifyInput"
+        ]
+      }
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop\n职责：导航配置页签的“+桌面 / 取消桌面显示”：独立 PageRuntime 承载按注册名解析的桌面 DataSet，读取当前节点桌面记录，\n新增对话框与取消确认均经 BlueprintDesktopRecord 单独提交并回读。\n边界：桌面 DataSet 不并入蓝图 owner；切换节点、上下文或离开页签后旧结果丢弃；确认框只有显式“确定”才执行删除；\n保存结果未知时对话框不允许关闭或放弃，只能再次核验原提交。\nAI用途：页面与对话框只消费本组合函数返回的状态与动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "BlueprintDesktopInput"
+        ]
+      }
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host\n职责：导航配置页签的导航宿主关系列表、新增/编辑对话框、删除确认与“数据空间设计”入口。\n边界：全部动作经 BlueprintNavHostEditor 在蓝图 DataSet 的 byNode 视图暂存并单独提交；切换节点、上下文或离开页签后旧结果丢弃；\n保存或删除结果未知时对话框不能关闭或放弃，只能再次核验原提交。\nAI用途：页面与宿主对话框只消费本组合函数返回的状态与动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "BlueprintNavHostInput"
+        ]
+      }
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation\n职责：项目蓝图页“导航配置”页签：导航属性标准字段的候选、字典视图就绪、保存前导航地址规范校验。\n边界：字段直接绑定 owner 的 Base_NavigationInfo DataView 编辑覆盖，经页面“保存蓝图修改”统一保存（owner 保存前核对导航基线）；\n显示方式与水平对齐读取同一 PageRuntime 的正式字典视图，打开方式与子项位置沿仓内正式编码；不自动保存。\nAI用途：调整导航配置页签时在此维护候选与校验，不另建导航草稿或直调接口。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "BlueprintNavigationInput",
+          "BlueprintFlagValues"
+        ]
       }
     },
     "src/views/features/application/application-function-management/ui/blueprint-source-commit-editor.vue": {
@@ -19927,6 +20065,30 @@
       "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
       "file": "files/src/services/project/blueprint-workspace-dataview.ts.json"
     },
+    "BlueprintDesktopEditor": {
+      "sourcePath": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
+      "file": "files/src/services/project/blueprint-navigation/blueprint-desktop-editor.ts.json"
+    },
+    "BlueprintDesktopInput": {
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts.json"
+    },
+    "BlueprintDesktopLayout": {
+      "sourcePath": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
+      "file": "files/src/services/project/blueprint-navigation/blueprint-desktop-editor.ts.json"
+    },
+    "BlueprintDesktopOption": {
+      "sourcePath": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
+      "file": "files/src/services/project/blueprint-navigation/blueprint-desktop-editor.ts.json"
+    },
+    "BlueprintDesktopRecord": {
+      "sourcePath": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
+      "file": "files/src/services/project/blueprint-navigation/blueprint-desktop-editor.ts.json"
+    },
+    "BlueprintFlagValues": {
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts.json"
+    },
     "BlueprintLeafMoveBatchCommand": {
       "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
       "file": "files/src/services/project/blueprint-workspace-dataview.ts.json"
@@ -19934,6 +20096,26 @@
     "BlueprintLeafMoveBatchOptions": {
       "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
       "file": "files/src/services/project/blueprint-workspace-dataview.ts.json"
+    },
+    "BlueprintNavHostEditor": {
+      "sourcePath": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
+      "file": "files/src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts.json"
+    },
+    "BlueprintNavHostInput": {
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts.json"
+    },
+    "BlueprintNavHostTarget": {
+      "sourcePath": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
+      "file": "files/src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts.json"
+    },
+    "BlueprintNavigationInput": {
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts.json"
+    },
+    "BlueprintNavigationOption": {
+      "sourcePath": "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts",
+      "file": "files/src/services/project/blueprint-navigation/blueprint-navigation-rules.ts.json"
     },
     "BlueprintNodeDataBatchItem": {
       "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
@@ -19951,6 +20133,22 @@
       "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
       "file": "files/src/services/project/blueprint-workspace-dataview.ts.json"
     },
+    "BlueprintNodeVerifyInput": {
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts.json"
+    },
+    "BlueprintNodeVerifyIssue": {
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts.json"
+    },
+    "BlueprintNodeVerifyIssueCode": {
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts.json"
+    },
+    "BlueprintNodeVerifyResult": {
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts.json"
+    },
     "BlueprintPlanningAgentInput": {
       "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "file": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json"
@@ -19966,6 +20164,10 @@
     "BlueprintTreeContext": {
       "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
       "file": "files/src/views/features/application/application-function-management/ui/use-application-function-page.ts.json"
+    },
+    "BlueprintVerifyNode": {
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts.json"
     },
     "BlueprintWorkspaceDataView": {
       "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
@@ -23278,10 +23480,6 @@
     "NavHostProjectCandidateFields": {
       "sourcePath": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
       "file": "files/src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts.json"
-    },
-    "NavHostProjectRelationConfig": {
-      "sourcePath": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts",
-      "file": "files/src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts.json"
     },
     "NavigateAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",

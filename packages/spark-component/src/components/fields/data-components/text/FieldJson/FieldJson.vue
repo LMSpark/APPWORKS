@@ -99,7 +99,9 @@ const editorText=computed(()=>{
   const text=permission.fieldValue.value
   if(text!=='') return text
   if(props.valueFormat==='native') return toText(undefined)
-  return props.emptyValue===undefined || props.valuePath?.length ? text : JSON.stringify(props.emptyValue)
+  // Vue按布尔类型把省略的emptyValue转为false；只有对象或数组能作为JSON顶层显示。
+  const initial=props.emptyValue
+  return typeof initial!=='object' || initial===null || props.valuePath?.length ? text : JSON.stringify(initial)
 })
 const revision=ref(0), error=ref('')
 const completeInput=ref(false), writing=ref(false), rejectedInput=ref(false)

@@ -1,11 +1,12 @@
 /**
  * @module app:lowcode/resources/structured-config/dimension-source/view-support
- * 职责：维度来源三类编辑器（来源绑定、数据模型事件、来源提交协议）共用的 DataView 取值归一、static-data 候选视图与单次保存回读核验。
- * 边界：只组合 spark-data DataSet/DataView 公共 API；不拼请求、不持有第二份草稿，正式写入仍由 DataSet.saveChanges 的存储适配完成。
- * AI用途：新增维度来源编辑器时复用本模块的候选视图与提交核验，不在各编辑器复制回执计数与回读比较。
+ * 职责：维度来源三类编辑器（来源绑定、数据模型事件、来源提交协议）共用的取值归一、7AB 候选视图解析与 DataSet 单次保存。
+ * 边界：只组合 spark-data DataSet/DataView 公共 API；候选、回填、列规则与引用核验由场景 pagedata 声明，
+ *   保存只经 DataSet.saveChanges，结果未知时再次保存只核验原捕获。
+ * AI用途：新增维度来源编辑器时复用本模块，不在各编辑器复制候选表、配对写值或回执比较。
  */
-import {dataSetCommandQueryResultFromLocalRows, ensureDataSetStaticInputTable, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {DATA_SPACE_DESIGN_FORM_KEY, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {DATA_SPACE_DESIGN_FORM_KEY, LOWCODE_APPLICATION_CATALOG_FORM_KEY, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 
 /** DataView 行主键身份（GUID 文本或数值）。 */
 export type Id = string | number
@@ -13,7 +14,7 @@ export type Id = string | number
 export type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModels']>>[number]
 /** 正式模型字段。 */
 export type FormalField = FormalModel['fields'][number]
-/** 保存与回读比较时的字段归一类别。 */
+/** 快照比较时的字段归一类别。 */
 export type FieldKind = 'text' | 'integer' | 'number' | 'bit'
 
 /** 维度来源编辑的正式目标：蓝图应用、节点与该节点已保存回读的主数据空间；assertCurrent 拒绝迟到结果。 */
@@ -28,13 +29,13 @@ export type DimensionSourceTarget = Readonly<{
   assertCurrent: () => void
 }>
 
+/** 同一保存中的一个正式视图及本次提交的行。 */
+export type DimensionSourceSaveTarget = Readonly<{view: DataView; ids: readonly Id[]}>
+/** 一次维度来源保存：label 用于提示，assertCurrent 在保存回执后核验目标未切换。 */
+export type DimensionSourceSave = Readonly<{dataSet: DataSet; targets: readonly DimensionSourceSaveTarget[]; label: string; assertCurrent: () => void}>
+
 export function text(value: unknown): string {
   return value === undefined || value === null ? '' : String(value).trim()
-}
-export function requiredText(value: unknown, label: string): string {
-  const result = text(value)
-  if (!result) throw new Error(`${label}不能为空`)
-  return result
 }
 export function positiveInteger(value: unknown, label: string): number {
   const result = text(value) === '' ? Number.NaN : Number(value)
@@ -50,13 +51,6 @@ export function normalized(kind: FieldKind, value: unknown): string | number {
   if (kind === 'bit') return bit(value)
   if (kind === 'integer' || kind === 'number') return text(value) === '' ? '' : Number(value)
   return text(value)
-}
-export function hasColumn(view: DataView, field: string): boolean {
-  return view.columns.some(column => column.name === field)
-}
-export function assertColumns(view: DataView, fields: readonly string[], label: string): void {
-  const missing = fields.filter(field => !hasColumn(view, field))
-  if (missing.length) throw new Error(`${label}视图缺少正式字段：${missing.join('、')}`)
 }
 export function assertReadable(view: DataView, row: Readonly<DataRow>, fields: readonly string[]): void {
   for (const field of fields) {
@@ -75,6 +69,18 @@ export function requireView(dataSet: DataSet, tableName: string, viewId: string)
   if (!view) throw new Error(`维度设计场景缺少视图 ${tableName}.${viewId}`)
   return view
 }
+/** 同一 PageRuntime 中应用目录空间（7AB）的正式模型/字段候选视图。 */
+export function catalogView(dataSet: DataSet, tableName: string, viewId: string): DataView {
+  const view = dataSet.resolveOptionView({scope: LOWCODE_APPLICATION_CATALOG_FORM_KEY, tableName, viewId})
+  if (!view) throw new Error(`蓝图运行时缺少应用目录候选视图 ${tableName}.${viewId}`)
+  return view
+}
+/** 视图在所属 PageRuntime 中的完整绑定键。 */
+export function viewKey(view: DataView): string {
+  const scenarioId = view.dataSet?.scenarioId
+  if (!scenarioId) throw new Error(`视图 ${view.tableName}.${view.viewId} 未装配到数据空间`)
+  return buildDataViewKey(view.tableName, view.viewId, scenarioId)
+}
 /** 刷新视图结果；存在未保存或结果未知的修改时由 DataView 拒绝替换。 */
 export async function refreshView(view: DataView, assertCurrent: () => void): Promise<void> {
   view.assertResultReplacementAllowed()
@@ -82,18 +88,18 @@ export async function refreshView(view: DataView, assertCurrent: () => void): Pr
   assertCurrent()
   if (view.loadingError) throw view.loadingError
 }
-/** 按顺序写入编辑值（值相同则跳过）；返回首个写入失败原因，供保存前统一拒绝。 */
-export function pairEditing(view: DataView, id: Id, values: Readonly<Record<string, unknown>>): Error | undefined {
-  try {
-    for (const [field, value] of Object.entries(values)) {
-      if (text(view.getEditingRow(id)?.[field]) !== text(value)) view.updateEditingValue(id, field, value)
-    }
-    return undefined
-  } catch (cause) {
-    return cause instanceof Error ? cause : new Error(String(cause))
-  }
+/** 视图中呈现的行 ID，不含待删除行。 */
+export function liveIds(view: DataView): readonly Id[] {
+  return view.rows.flatMap(row => {
+    const id = view.getPkKey(row)
+    return id === undefined || view.dirtyTracking.pendingDeleteIds.has(id) ? [] : [id]
+  })
 }
-/** 读取目标节点已保存数据空间的正式模型。 */
+/** 行存在编辑覆盖或待提交变更。 */
+export function changed(view: DataView, id: Id): boolean {
+  return view.hasEditingChanges(id) || view.dirtyTracking.hasPendingChanges(id)
+}
+/** 读取目标节点已保存数据空间的正式模型，供保存前的结构核验。 */
 export async function readFormalModels(readModels: DataSpaceDesignApi['readModels'], target: DimensionSourceTarget): Promise<readonly FormalModel[]> {
   if (!target.dataSpaceId) throw new Error('正式蓝图节点没有绑定数据空间')
   const models = await readModels({designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: target.dataSpaceId, assertCurrent: target.assertCurrent})
@@ -106,155 +112,32 @@ export function formalPrimaryField(model: FormalModel): FormalField | undefined 
   return found.length === 1 ? found[0] : undefined
 }
 
-/** 维度来源编辑器的 static-data 候选/输入视图集合；随编辑器释放整体移除，不作为正式数据保存。 */
-export class DimensionSourceOptionTables {
-  readonly #dataSet: DataSet
-  readonly #target: DimensionSourceTarget
-  readonly #tables: string[] = []
-
-  constructor(dataSet: DataSet, target: DimensionSourceTarget) {
-    this.#dataSet = dataSet
-    this.#target = target
-  }
-
-  /** 挂载候选视图：首列为主键，结果每次查询时由 rows 重新计算。 */
-  mount(prefix: string, columns: readonly string[], rows: () => readonly DataRow[]): DataView {
-    const view = this.#create(prefix, columns)
-    const table = view.dataTable
-    if (!table) throw new Error('维度来源候选 DataTable 未装配')
-    const resourceId = `blueprint-dimension-source:${this.#target.applicationId}:${crypto.randomUUID()}`
-    table.resourceId = resourceId
-    view.bindQueryExecutor({
-      localAggregates: false,
-      executeQuery: async query => {
-        this.#target.assertCurrent()
-        return dataSetCommandQueryResultFromLocalRows(query, rows().map(row => ({...row})), this.#target.assertCurrent)
-      },
-    }, {resource: {resourceType: 'static-data', resourceId}})
-    return view
-  }
-
-  /** 挂载暂存输入视图：只在内存编辑，保存时由编辑器读取编辑值并写入正式视图。 */
-  input(prefix: string, columns: readonly string[]): DataView {
-    const view = this.#create(prefix, columns)
-    view.commitMode = 'staged'
-    return view
-  }
-
-  release(): void {
-    for (const tableName of this.#tables.splice(0)) {
-      if (!this.#dataSet.destroyed && this.#dataSet.getTable(tableName)) this.#dataSet.removeTable(tableName)
-    }
-  }
-
-  #create(prefix: string, columns: readonly string[]): DataView {
-    const tableName = `${prefix}${crypto.randomUUID().replaceAll('-', '')}`
-    if (this.#dataSet.getTable(tableName)) throw new Error('维度来源候选临时表名称冲突')
-    ensureDataSetStaticInputTable(this.#dataSet, tableName, columns.map((name, index) => index === 0 ? {name, primary: true} : {name}))
-    this.#tables.push(tableName)
-    const view = this.#dataSet.getView(tableName, 'default')
-    if (!view) throw new Error('维度来源候选 DataView 未装配')
-    return view
-  }
-}
-
-type SaveAction = 'added' | 'changed' | 'deleted'
-type CapturedRow = Readonly<{id: Id; action: SaveAction; values: Readonly<Record<string, string | number>>}>
-type CapturedGroup = Readonly<{view: DataView; ids: readonly Id[]; rows: readonly CapturedRow[]; kinds: Readonly<Record<string, FieldKind>>}>
-/** 一个正式视图的待提交行及按字段的归一类别。 */
-export type DimensionSourceCommitTarget = Readonly<{view: DataView; ids: readonly Id[]; kinds: Readonly<Record<string, FieldKind>>}>
-
 /**
- * 维度来源编辑器的单次 DataSet 提交与回读核验：捕获本次变更，一次 saveChanges，按回执计数确认，再刷新并逐字段比较。
- * 保存结果未知时保留原捕获，重试只核验原提交，不以新身份重提；预检失败或明确失败时清除捕获。
+ * 以一次 DataSet.saveChanges 提交各视图本次变更并刷新回读；没有变更返回 false。
+ * 存在结果未知的原捕获时只提交这些视图，由 DataSet 核验原捕获，不以新身份重提。
  */
-export class DimensionSourceChangeSubmission {
-  readonly #dataSet: DataSet
-  readonly #label: string
-  readonly #assertCurrent: () => void
-  #captured: readonly CapturedGroup[] | undefined
-  #unknown: Error | undefined
-
-  constructor(dataSet: DataSet, label: string, assertCurrent: () => void) {
-    this.#dataSet = dataSet
-    this.#label = label
-    this.#assertCurrent = assertCurrent
+export async function saveDimensionSourceViews({dataSet, targets, label, assertCurrent}: DimensionSourceSave): Promise<boolean> {
+  const recovering = targets.some(({view}) => view.hasUnconfirmedSave)
+  const selected = targets.flatMap(({view, ids}) => {
+    const pending = recovering ? (view.hasUnconfirmedSave ? ids : []) : ids.filter(id => changed(view, id))
+    return pending.length ? [{view, ids: pending}] : []
+  })
+  if (!selected.length && !recovering) return false
+  const unknownMessage = `${label}保存结果未知，请重试“保存”核验原提交，不会以新身份重新提交`
+  const unknown = () => targets.some(({view}) => view.hasUnconfirmedSave)
+  let result: Awaited<ReturnType<DataSet['saveChanges']>>
+  try {
+    result = await dataSet.saveChanges({views: selected.map(({view, ids}) => ({tableName: view.tableName, viewId: view.viewId, ids: [...ids]}))})
+  } catch (cause) {
+    if (!unknown()) throw cause
+    throw new Error(`${cause instanceof Error ? cause.message : String(cause)}；${unknownMessage}`)
   }
-
-  /** 存在保存结果未知的提交。 */
-  get unknown(): boolean { return this.#unknown !== undefined }
-
-  assertSettled(): void {
-    if (this.#unknown) throw new Error(`存在保存结果未知的${this.#label}提交，请先重试保存核验`)
+  assertCurrent()
+  if (!result.success) {
+    const message = result.error?.message ?? result.message ?? `${label}保存失败`
+    throw new Error(unknown() ? `${message}；${unknownMessage}` : message)
   }
-
-  /** 捕获各视图的待提交行；返回是否存在修改。 */
-  capture(targets: readonly DimensionSourceCommitTarget[]): boolean {
-    this.assertSettled()
-    const groups: CapturedGroup[] = []
-    for (const {view, ids, kinds} of targets) {
-      const changed = ids.filter(id => view.hasEditingChanges(id) || view.dirtyTracking.hasPendingChanges(id))
-      if (!changed.length) continue
-      groups.push({view, ids: changed, kinds, rows: changed.map((id): CapturedRow => {
-        if (view.dirtyTracking.pendingDeleteIds.has(id)) return {id, action: 'deleted', values: {}}
-        const row = view.getEditingRow(id)
-        if (!row) throw new Error(`待保存${this.#label}行已不存在`)
-        return {id, action: view.dirtyTracking.isPendingCreate(id) ? 'added' : 'changed',
-          values: Object.fromEntries(Object.entries(kinds).map(([field, kind]) => [field, normalized(kind, row[field])]))}
-      })})
-    }
-    this.#captured = groups
-    return groups.length > 0
-  }
-
-  /** 提交已捕获的修改并回读逐字段核验；没有捕获时返回 false。 */
-  async submit(): Promise<boolean> {
-    const groups = this.#captured
-    if (!groups?.length) return false
-    try {
-      const response = await this.#dataSet.saveChanges({views: groups.map(group => ({tableName: group.view.tableName, viewId: group.view.viewId, ids: [...group.ids]}))})
-      this.#assertCurrent()
-      if (!response.data) throw new Error(response.error?.message ?? response.message ?? `${this.#label}保存缺少回执`)
-      const complete = groups.every(group => {
-        const receipt = response.data?.viewResults.find(item => item.tableName === group.view.tableName && item.viewId === group.view.viewId)
-        const counted = (action: SaveAction) => group.rows.filter(row => row.action === action).length
-        return receipt?.failedCount === 0 && receipt.failedEditingRows === 0
-          && receipt.createdCount === counted('added') && receipt.savedCount === counted('changed') && receipt.deletedCount === counted('deleted')
-      })
-      if (!response.success || !complete) throw new Error(response.error?.message ?? response.message ?? `${this.#label}保存未全部确认`)
-      this.#unknown = undefined
-    } catch (cause) {
-      if (cause instanceof Error && groups.some(group => group.view.hasUnconfirmedSaveFor(group.ids, cause))) {
-        this.#unknown = cause
-        throw new Error(`${cause.message}；${this.#label}保存结果未知，请重试“保存”核验原提交，不会以新身份重新提交`)
-      }
-      this.#unknown = undefined
-      this.#captured = undefined
-      throw cause
-    }
-    this.#captured = undefined
-    await this.#readback(groups)
-    return true
-  }
-
-  async #readback(groups: readonly CapturedGroup[]): Promise<void> {
-    const mismatch = (detail: string) => new Error(`${this.#label}已提交，但回读核验失败：${detail}`)
-    for (const view of new Set(groups.map(group => group.view))) {
-      if (view.hasPendingSavedRowPermissions) await view.refreshSavedRowPermissions()
-      await refreshView(view, this.#assertCurrent)
-    }
-    for (const group of groups) for (const expected of group.rows) {
-      const row = group.view.rows.find(item => group.view.getPkKey(item) === expected.id)
-      if (expected.action === 'deleted') {
-        if (row) throw mismatch(`已删除记录 ${String(expected.id)} 仍存在`)
-        continue
-      }
-      if (!row) throw mismatch(`记录 ${String(expected.id)} 未回读`)
-      for (const [field, value] of Object.entries(expected.values)) {
-        assertReadable(group.view, row, [field])
-        const kind = group.kinds[field]
-        if (!kind || normalized(kind, row[field]) !== value) throw mismatch(`记录 ${String(expected.id)} 的 ${field}`)
-      }
-    }
-  }
+  if (unknown()) throw new Error(unknownMessage)
+  for (const view of new Set(targets.map(target => target.view))) await refreshView(view, assertCurrent)
+  return true
 }

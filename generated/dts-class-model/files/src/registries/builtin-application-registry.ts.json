@@ -49,6 +49,7 @@
         "databaseRelations",
         "dataMenu",
         "dimensionDesign",
+        "dimensionLedger",
         "fileManager",
         "reportManagement"
       ]
@@ -120,7 +121,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-11T10:40:00.715Z",
+  "generatedAt": "2026-11-12T18:52:50.632Z",
   "models": {
     "BuiltinScenarioName": {
       "name": "BuiltinScenarioName",

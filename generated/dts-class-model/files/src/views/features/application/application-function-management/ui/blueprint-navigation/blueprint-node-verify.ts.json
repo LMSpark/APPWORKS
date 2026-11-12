@@ -129,17 +129,22 @@
           "items": {
             "type": "string"
           }
+        },
+        "targetPattern": {
+          "type": "object",
+          "title": "RegExp"
         }
       },
       "required": [
         "rootNodeId",
         "nodes",
-        "deliveryResources"
+        "deliveryResources",
+        "targetPattern"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-12T16:16:37.271Z",
+  "generatedAt": "2026-11-12T17:19:56.522Z",
   "models": {
     "BlueprintNodeVerifyIssueCode": {
       "name": "BlueprintNodeVerifyIssueCode",
@@ -291,14 +296,14 @@
     },
     "BlueprintNodeVerifyInput": {
       "name": "BlueprintNodeVerifyInput",
-      "jsdoc": "",
+      "jsdoc": "targetPattern 取自导航地址列在场景中声明的规范，核验与保存使用同一规则。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    rootNodeId: string;\n    nodes: readonly BlueprintVerifyNode[];\n    deliveryResources: readonly string[];\n}>",
+        "declarationTypeText": "Readonly<{\n    rootNodeId: string;\n    nodes: readonly BlueprintVerifyNode[];\n    deliveryResources: readonly string[];\n    targetPattern: RegExp;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    rootNodeId: string;\n    nodes: readonly BlueprintVerifyNode[];\n    deliveryResources: readonly string[];\n}>",
+            "typeText": "Readonly<{\n    rootNodeId: string;\n    nodes: readonly BlueprintVerifyNode[];\n    deliveryResources: readonly string[];\n    targetPattern: RegExp;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -316,6 +321,11 @@
             },
             {
               "name": "deliveryResources",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetPattern",
               "readable": true,
               "writable": false
             }

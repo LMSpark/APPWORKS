@@ -24,7 +24,7 @@ import type {
   CommitMode, RetrieveRecordOptions,
   SparkEventEmitter,
   DataViewEditingFieldChangeEvent, DataViewApplyEditingRowsResult,
-  DataViewFieldProjection, DataViewQueryContext, DataColumnOptionSource,
+  DataViewFieldProjection, DataViewQueryContext, DataColumnOptionSource, DataColumnOptionsView,
 } from './types'
 import { SaveRuleValidator } from './validation/save-rule-validator'
 
@@ -1405,6 +1405,9 @@ sortExpression?: SortExpression
   /** 本视图或查询级联子视图有未提交修改时锁定当前行与选中行；通过 applyViewConfig 配置。 */
   lockCurrentWhilePending = false
 
+  /** 本视图替换表级列 optionsView 的选项来源；通过 applyViewConfig 配置，经 columns 生效。 */
+  fieldOptions: Readonly<Record<string, DataColumnOptionsView>> = {}
+
   /** 视图级本地汇总配置；按来源能力执行，远程禁止时保留原文并由aggregateError诊断。通过applyViewConfig配置。 */
   readonly aggregates: Record<string, AggregateColumnConfig> = {}
 
@@ -1522,6 +1525,16 @@ sortExpression?: SortExpression
    * @returns 本结果或模型的列定义；没有结果列且未关联模型时返回空数组。
    */
   get columns(): readonly DataColumn[] {
+    const columns = this.baseColumns()
+    const overrides = this.fieldOptions
+    if (Object.keys(overrides).length === 0) return columns
+    return columns.map(column => {
+      const optionsView = overrides[column.name]
+      return optionsView === undefined ? column : { ...column, optionsView }
+    })
+  }
+
+  private baseColumns(): readonly DataColumn[] {
     if (this.#queryResult?.columns !== undefined) return this.#queryResult.columns
     const table = this._dataTable
     if (table === null || this.fieldProjection.length === 0) return table?.columns ?? []
@@ -3919,8 +3932,8 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   private saveRuleOptionQuery(): (source: DataColumnOptionSource, fields: readonly string[], context?: DataViewQueryContext) => Promise<DataRow[]> {
     return async (source, fields, context) => {
       const viewId = source.viewId ?? 'default'
-      const view = this.dataSet?.getView(source.tableName, viewId)
-      if (!view) throw new Error(`DATA_VIEW_SAVE_VALIDATION: ${this.tableName}@${this.viewId}: 选项来源视图不存在 ${source.tableName}@${viewId}`)
+      const view = this.dataSet?.resolveOptionView(source)
+      if (!view) throw new Error(`DATA_VIEW_SAVE_VALIDATION: ${this.tableName}@${this.viewId}: 选项来源视图不存在 ${source.scope === undefined ? '' : `${source.scope}@`}${source.tableName}@${viewId}`)
       return view.queryOptionRows({ fields, ...(context === undefined ? {} : { context }) })
     }
   }
@@ -4688,6 +4701,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
     if (vc.commitMode !== undefined) this.commitMode = vc.commitMode
     if (vc.allowDelete !== undefined) this.allowDelete = vc.allowDelete
     if (vc.lockCurrentWhilePending !== undefined) this.lockCurrentWhilePending = vc.lockCurrentWhilePending
+    if (vc.fieldOptions !== undefined) this.fieldOptions = structuredClone(vc.fieldOptions)
     if (vc.valueField !== undefined) this.valueField = vc.valueField
     if (vc.labelField !== undefined) this.labelField = vc.labelField
     if (vc.selectionDelimiter !== undefined) this.selectionDelimiter = vc.selectionDelimiter
@@ -4773,6 +4787,7 @@ toJson(): ViewMetadata {
     if (this.commitMode !== 'immediate') result.commitMode = this.commitMode
     if (!this.allowDelete) result.allowDelete = false
     if (this.lockCurrentWhilePending) result.lockCurrentWhilePending = true
+    if (Object.keys(this.fieldOptions).length > 0) result.fieldOptions = structuredClone(this.fieldOptions)
     if (this.valueField !== undefined) result.valueField = this.valueField
     if (this.labelField !== undefined) result.labelField = this.labelField
     if (this.selectionDelimiter !== ',') result.selectionDelimiter = this.selectionDelimiter

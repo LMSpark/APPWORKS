@@ -7,13 +7,52 @@
     "sourceFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
     "packageName": "@spark-appworks/spark-data",
     "modulePath": "query/data-view-option-catalog",
-    "jsdoc": "@module @spark-appworks/spark-data:query/data-view-option-catalog\n职责：为标准组件提供本次实例的派生选项目录视图，不复制正式业务记录或保存草稿。\n边界：调用方从当次可读定义投影value/label；失效时清空，释放仅删除自有目录。",
+    "jsdoc": "@module @spark-appworks/spark-data:query/data-view-option-catalog\n职责：为标准组件提供本次实例的派生选项目录视图，不复制正式业务记录或保存草稿。\n边界：调用方从当次可读定义或代码登记的常量投影value/label及附加文本列；失效时清空，释放仅删除自有目录。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "DataViewOptionCatalogOptions",
+      "DataViewOptionCatalogItem",
       "DataViewOptionCatalog"
     ]
   },
   "$defs": {
+    "DataViewOptionCatalogOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewOptionCatalogOptions",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewOptionCatalogItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewOptionCatalogItem",
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "label"
+      ],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
     "DataViewOptionCatalog": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -33,6 +72,9 @@
           "properties": {
             "dataSet": {
               "$ref": "../dataset.ts.json#/$defs/DataSet"
+            },
+            "options": {
+              "$ref": "#/$defs/DataViewOptionCatalogOptions"
             }
           },
           "additionalProperties": false
@@ -43,20 +85,7 @@
             "options": {
               "type": "array",
               "items": {
-                "type": "object",
-                "properties": {
-                  "value": {
-                    "type": "string"
-                  },
-                  "label": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "value",
-                  "label"
-                ],
-                "additionalProperties": false
+                "$ref": "#/$defs/DataViewOptionCatalogItem"
               }
             }
           },
@@ -72,15 +101,73 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T21:41:58.255Z",
+  "generatedAt": "2026-11-12T18:52:50.605Z",
   "models": {
+    "DataViewOptionCatalogOptions": {
+      "name": "DataViewOptionCatalogOptions",
+      "jsdoc": "目录声明：tableName 省略时生成实例私有名；声明时供 pagedata 列或视图 optionsView 按名引用，同一 DataSet 内不得已存在。\nfields 是 value/label 之外的文本列，可作为 optionsView.fill 的来源字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tableName?: string;\n    fields?: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tableName?: string;\n    fields?: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewOptionCatalogItem": {
+      "name": "DataViewOptionCatalogItem",
+      "jsdoc": "一条目录项；value 为唯一身份，附加列须为声明的文本字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    value: string;\n    label: string;\n} & Record<string, string>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    value: string;\n    label: string;\n} & Record<string, string>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "DataViewOptionCatalog": {
       "name": "DataViewOptionCatalog",
-      "jsdoc": "输入与函数候选的临时目录；不参与正式模型身份、权限生成或持久化。",
+      "jsdoc": "输入、函数及代码登记常量的临时目录；不参与正式模型身份、权限生成或持久化。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor(dataSet: DataSet)",
+          "signatureText": "constructor(dataSet: DataSet, options?: DataViewOptionCatalogOptions)",
           "parameters": [
             {
               "name": "dataSet",
@@ -88,6 +175,17 @@
                 "type": "reference",
                 "name": "DataSet",
                 "sourcePath": "packages/spark-data/src/dataset.ts"
+              }
+            },
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "DataViewOptionCatalogOptions",
+                "sourcePath": "packages/spark-data/src/query/data-view-option-catalog.ts"
+              },
+              "flags": {
+                "isOptional": true
               }
             }
           ]
@@ -108,22 +206,13 @@
           "methods": [
             {
               "name": "replace",
-              "jsdoc": "候选未变时不替换视图，避免使标准编辑器会话无故失效；只接受字符串身份与标题。",
+              "jsdoc": "候选未变时不替换视图，避免使标准编辑器会话无故失效；只接受字符串身份、标题及声明的附加列。",
               "parameters": [
                 {
                   "name": "options",
                   "type": {
-                    "type": "array",
-                    "elementType": {
-                      "type": "reference",
-                      "name": "Readonly",
-                      "typeArguments": [
-                        {
-                          "type": "unknown",
-                          "name": "{\n        value: string;\n        label: string;\n    }"
-                        }
-                      ]
-                    }
+                    "type": "unknown",
+                    "name": "readonly DataViewOptionCatalogItem[]"
                   }
                 }
               ],

@@ -43,7 +43,7 @@ function saveNavigationRootSession(): void {
   })
 }
 
-function makeNavigationModel(names: readonly string[] = ['rowid', 'SysId', 'prowid', 'FunName']) {
+function makeNavigationModel(names: readonly string[] = ['rowid', 'SysId', 'prowid', 'FunName', 'NavigationUrl']) {
   const rootFields = names.map((name, order) => ({id: name, modelId: '7AB874097A1E8711A42FD845939A6E05p000', name,
     canonicalName: name, type: 'string', description: name, primaryKey: name === 'rowid', output: true,
     computed: false, order, orderType: '', raw: {}}))
@@ -667,7 +667,7 @@ describe('authenticated application catalog DataView', () => {
     })
     lowcodeApi.application.clear()
     queryRows = rows
-    const rootFields = ['rowid', 'SysId', 'prowid', 'FunName'].map((name, order) => ({
+    const rootFields = ['rowid', 'SysId', 'prowid', 'FunName', 'NavigationUrl'].map((name, order) => ({
       id: name, modelId: '7AB874097A1E8711A42FD845939A6E05p000', name, canonicalName: name, type: 'string', description: name,
       primaryKey: name === 'rowid', output: true, computed: false, order, orderType: '', raw: {},
     }))
@@ -707,7 +707,7 @@ describe('authenticated application catalog DataView', () => {
     queryRows = [{rowid: 'ROOT-APP-1', SysId: 'APP-1', prowid: '000000'}]
     if (permission === 'hidden') hiddenFields = [field]
     else maskedFields = [field]
-    const rootFields = ['rowid', 'SysId', 'prowid'].map((name, order) => ({
+    const rootFields = ['rowid', 'SysId', 'prowid', 'NavigationUrl'].map((name, order) => ({
       id: name, modelId: '7AB874097A1E8711A42FD845939A6E05p000', name, canonicalName: name, type: 'string', description: name,
       primaryKey: name === 'rowid', output: true, computed: false, order, orderType: '', raw: {},
     }))

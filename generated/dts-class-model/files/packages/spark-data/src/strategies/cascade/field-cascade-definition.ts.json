@@ -86,7 +86,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T18:32:15.549Z",
+  "generatedAt": "2026-11-12T18:52:50.608Z",
   "models": {
     "DataViewFieldCascadeDefinition": {
       "name": "DataViewFieldCascadeDefinition",
@@ -139,6 +139,7 @@
             },
             {
               "name": "validateViews",
+              "jsdoc": "同伴空间的选项来源在运行解析时核验，这里只核本 DataSet 的视图。",
               "parameters": [
                 {
                   "name": "definitions",

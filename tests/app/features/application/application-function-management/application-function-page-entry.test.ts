@@ -14,8 +14,7 @@ import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
-import {DimensionSourceLedgerGuard} from '@/lowcode/resources/structured-config/dimension-source/ledger-guard'
-import {createDimensionRuntime} from '../../../../runtime/application/dimension/dimension.fixture'
+import {catalogField, createDimensionRuntime} from '../../../../runtime/application/dimension/dimension.fixture'
 import {useApplicationFunctionPage} from '@/views/features/application/application-function-management/ui/use-application-function-page'
 import ApplicationFunctionPage from '@/views/features/application/application-function-management/ui/application-function-page.vue'
 import {getVuePageOptions} from '@/registries/vue-page-registry'
@@ -33,7 +32,8 @@ vi.mock('@/views/features/application/application-function-management/ui/use-app
   }}
 })
 const fixtureState = vi.hoisted(() => ({current: undefined as unknown, execution: 'EXECUTION', createChild: 'disabled' as 'enabled' | 'disabled',
-  patchRows: undefined as undefined | ((rows: DataRow[]) => void), dimension: undefined as undefined | (() => Promise<DataSet>)}))
+  patchRows: undefined as undefined | ((rows: DataRow[]) => void), dimension: undefined as undefined | (() => Promise<DataSet>),
+  catalogModels: [] as DataRow[], catalogFields: [] as DataRow[], ledgerRows: [] as DataRow[]}))
 const aiRunner = vi.hoisted(() => ({run: vi.fn<(message: string, signal?: AbortSignal) => Promise<string>>()}))
 vi.mock('@/lowcode/resources/shared/ai-data-entry-host', () => ({AiDataEntryHost: class {
   createDraftRunner() {return aiRunner}
@@ -41,7 +41,8 @@ vi.mock('@/lowcode/resources/shared/ai-data-entry-host', () => ({AiDataEntryHost
 vi.mock('@/views/app/dev-system/useDevState', () => ({useDevState: () => fixtureState.current,
   BLUEPRINT_NODE_STATUS_SCENARIO_ID: 'FB291E325272007AEED8921C28B93CFD',
   BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID: '0C70F74793F9E858B71E0DBDEC784D57',
-  BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID: '88A4D51B01702C3856F4632E234BF34B'}))
+  BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID: '88A4D51B01702C3856F4632E234BF34B',
+  BLUEPRINT_DIMENSION_LEDGER_SCENARIO_ID: '07D264520034366B1DA25CEE5358E502'}))
 vi.mock('@spark-appworks/spark-app', async importOriginal => {
   const actual = await importOriginal<typeof import('@spark-appworks/spark-app')>()
   return {...actual, useSystemPageDirtySource: vi.fn()}
@@ -81,6 +82,7 @@ vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
 
 const CATALOG = LOWCODE_APPLICATION_CATALOG_FORM_KEY
 const DIMENSION = '88A4D51B01702C3856F4632E234BF34B'
+const LEDGER = '07D264520034366B1DA25CEE5358E502'
 const TARGET = 'APP-TARGET'
 const NAVIGATION = 'BLUEPRINT-PAGE'
 const HOST_FIELDS = ['rowid', 'prowid', 'dataSetId', 'DataName', 'ValParamName', 'TextParamName', 'selectValParam', 'selectTextParam', 'selectPid']
@@ -95,7 +97,7 @@ afterEach(() => {
   disposals.splice(0).forEach(dispose => dispose())
   datasets.splice(0).forEach(dataSet => {if (!dataSet.destroyed) dataSet.destroy()})
 })
-beforeEach(() => {fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; fixtureState.patchRows = undefined; fixtureState.dimension = undefined; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
+beforeEach(() => {fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; fixtureState.patchRows = undefined; fixtureState.dimension = undefined; fixtureState.catalogModels = []; fixtureState.catalogFields = []; fixtureState.ledgerRows = []; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
 
 function matches(row: DataRow, filter: unknown, context: Readonly<Record<string, unknown>> = {}): boolean {
   if (!isDataRow(filter)) return true
@@ -111,15 +113,34 @@ function matches(row: DataRow, filter: unknown, context: Readonly<Record<string,
   return actual === expected
 }
 
-type PagedataColumn = Readonly<{name: string; pattern?: string; patternMessage?: string}>
-const blueprintPagedata: {tables: Record<string, {columns?: PagedataColumn[]}>} =
-  JSON.parse(readFileSync(resolve(process.cwd(), 'config/pages/application/project-blueprint/pagedata.json'), 'utf8'))
+type PagedataColumn = Readonly<{name: string; type?: string; pattern?: string; patternMessage?: string; computeExpression?: string}>
+type PagedataView = Readonly<{queryConfig?: {fields?: string[]}; filterExpression?: unknown}>
+type PagedataTable = Readonly<{modelBinding: {modelId: string; modelName: string}; columns?: PagedataColumn[]; views: Record<string, PagedataView>}>
+const readPagedata = (path: string): {tables: Record<string, PagedataTable>} => JSON.parse(readFileSync(resolve(process.cwd(), path), 'utf8'))
+const blueprintPagedata = readPagedata('config/pages/application/project-blueprint/pagedata.json')
+const ledgerPagedata = readPagedata('config/pages/structured-config/dimension-ledger/pagedata.json')
+const NUMBER_FIELDS = ['FunOrderValue', 'IsOutput', 'IsPKey', 'lingma_sys_is_delete']
+/** 正式 pagedata 表：视图投影与过滤引用的字段为模型列，pagedata 计算列追加其后。 */
+function pagedataTable(table: PagedataTable) {
+  const computed = (table.columns ?? []).filter(column => column.computeExpression)
+  const fields = new Set(['rowid'])
+  for (const view of Object.values(table.views)) {
+    view.queryConfig?.fields?.forEach(field => fields.add(field))
+    for (const match of JSON.stringify(view.filterExpression ?? {}).matchAll(/"field":"([^"]+)"/g)) if (match[1]) fields.add(match[1])
+  }
+  return {modelBinding: table.modelBinding, views: table.views, columns: [...[...fields].filter(name => !computed.some(column => column.name === name))
+    .map(name => ({name, type: NUMBER_FIELDS.includes(name) ? 'number' : 'string', isPrimaryKey: name === 'rowid'})), ...computed]}
+}
+function bindAllViews(dataSet: DataSet, source: Record<string, PagedataTable>, table: string, rows: DataRow[]) {
+  for (const viewId of Object.keys(source[table]!.views)) bindRows(dataSet.getView(table, viewId)!, rows)
+}
+const CATALOG_MODEL_TABLES = ['Base_DataModel', 'Base_DataModel_Field'] as const
 const NAVIGATION_URL_RULE = blueprintPagedata.tables['Base_NavigationInfo']?.columns?.find(column => column.name === 'NavigationUrl')
 const DICTIONARY_VIEWS = ['NavigationType', 'NavigationShowType_Content', 'NavChildrenLocation', 'Navigationposition', 'DataCatalogParamType',
   'Dict_Page_Popup', 'Dict_Desktop_AppType', 'DesktopStyle']
 
 function catalogDataSet() {
-  const tables = Object.fromEntries([
+  const tables: Record<string, unknown> = Object.fromEntries([
     {model: 'Base_Navigation_DataRelation', fields: HOST_FIELDS},
     {model: 'Base_AppSystemList', fields: ['rowid', 'AppName']},
     {model: 'Base_NavigationInfo', fields: NODE_FIELDS},
@@ -134,6 +155,7 @@ function catalogDataSet() {
       ...(navigation ? {savedProjectNodes: {autoLoad: false, queryConfig: {allPages: true, maxRows: 50000},
         filterExpression: {field: 'SysId', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'projectId'}}}} : {})}}]
   }))
+  for (const table of CATALOG_MODEL_TABLES) tables[table] = pagedataTable(blueprintPagedata.tables[table]!)
   const dataSet = DataSet.fromJson({scenarioId: CATALOG, tables})
   datasets.push(dataSet)
   return dataSet
@@ -207,6 +229,8 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
   const view = ownerDataSet.getView('Base_NavigationInfo')!
   const save = bindRows(view, rows)
   bindRows(ownerDataSet.getView('Base_NavigationInfo', 'savedProjectNodes')!, rows)
+  bindAllViews(ownerDataSet, blueprintPagedata.tables, 'Base_DataModel', fixtureState.catalogModels)
+  bindAllViews(ownerDataSet, blueprintPagedata.tables, 'Base_DataModel_Field', fixtureState.catalogFields)
   const versionRows: DataRow[] = [
     {rowid: 'VER-1', prowid: 'NODE-1', VersionName: 'Tester[2024-01-01 00:00:00] first', desc: '<p>v1<script>x()</script></p>'},
     {rowid: 'VER-OTHER', prowid: 'NODE-2', VersionName: 'other', desc: '<p>other</p>'},
@@ -216,8 +240,8 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
     if (fixtureState.execution !== 'EXECUTION') throw new Error('owner执行应用已切换')
   })
   const statusScenario = 'FB291E325272007AEED8921C28B93CFD', memberScenario = '0C70F74793F9E858B71E0DBDEC784D57'
-  const runtime = new PageRuntime({pageId: NAVIGATION, scenarioIds: [CATALOG, LowcodeDictionary.editorScenarioId, statusScenario, memberScenario, DIMENSION],
-    deferredScenarioIds: [statusScenario, memberScenario, DIMENSION],
+  const runtime = new PageRuntime({pageId: NAVIGATION, scenarioIds: [CATALOG, LowcodeDictionary.editorScenarioId, statusScenario, memberScenario, DIMENSION, LEDGER],
+    deferredScenarioIds: [statusScenario, memberScenario, DIMENSION, LEDGER],
     loadScenario: async scenarioId => {
       if (scenarioId === LowcodeDictionary.editorScenarioId) {
         const dictionary = DataSet.fromJson({scenarioId, tables: {_Base_DictData: {modelBinding: {modelId: 'DICT-ID', modelName: '_Base_DictData'},
@@ -232,6 +256,12 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
       if (scenarioId === DIMENSION) {
         if (!fixtureState.dimension) throw new Error('fixture dimension scenario missing')
         return fixtureState.dimension()
+      }
+      if (scenarioId === LEDGER) {
+        const ledger = DataSet.fromJson({scenarioId, tables: {Bil_Dimension_Set: pagedataTable(ledgerPagedata.tables['Bil_Dimension_Set']!)}})
+        datasets.push(ledger)
+        bindAllViews(ledger, ledgerPagedata.tables, 'Bil_Dimension_Set', fixtureState.ledgerRows)
+        return ledger
       }
       if (scenarioId === statusScenario) return optionDataSet(statusScenario, [
         {model: '功能导航状态字典', fields: ['rowid', 'val', 'txt'], rows: [{rowid: 'S0', val: '0', txt: '规划'}, {rowid: 'S1', val: '1', txt: '开发'}]},
@@ -818,18 +848,15 @@ describe('application function page data space', () => {
 })
 
 describe('application function page dimension source design', () => {
-  type FormalModel = Awaited<ReturnType<typeof lowcodeApi.dataSpace.design.readModels>>[number]
-  const formalField = (id: string, canonicalName: string): FormalModel['fields'][number] => ({id, modelId: 'MODEL', name: canonicalName,
-    canonicalName, primaryKey: false, description: canonicalName, type: 'string', output: true, computed: false, order: 0, orderType: '', raw: {}})
-  const formalModel: FormalModel = {id: 'MODEL', name: '费用单', metaName: 'Expense', sourceType: 'table', sourceId: 'DB', sourceName: 'Expense',
-    primaryKey: 'rowid', businessMain: false, raw: {}, fields: [formalField('F-AMOUNT', 'amount')]}
-
   async function dimension() {
     const f = await createDimensionRuntime('R1', true, false)
     disposals.push(() => f.runtime.dispose())
     f.http.records['Bil_Dimension_Source_Mapping'] = []
     f.http.records['Bil_Dimension_Definition'] = [{id: 'D1', definition_code: 'cost', definition_name: '成本', status: true}]
     fixtureState.dimension = async () => f.dataSet
+    fixtureState.catalogModels = [{rowid: 'MODEL', dataSetId: 'SPACE-A', Name: 'Expense', MetaName: 'expense_table', Type: '数据库表'},
+      {rowid: 'OTHER', dataSetId: 'SPACE-B', Name: 'Other', MetaName: 'other_table', Type: '数据库表'}]
+    fixtureState.catalogFields = [catalogField('F-ROWID', 'MODEL', 'RowID', {IsPKey: 1}), catalogField('F-AMOUNT', 'MODEL', 'amount')]
     return f
   }
   async function bound() {
@@ -856,26 +883,25 @@ describe('application function page dimension source design', () => {
     expect(pending.dimensionSource.disabledReason.value).toBe('数据空间绑定尚未保存回读，不能进行维度来源设计')
   })
 
-  it('loads the deferred dimension scenario on open and lists the saved space models', async () => {
+  it('loads the deferred dimension scenario on open and lists the saved space models from the catalog', async () => {
     const f = await dimension()
-    const readModels = vi.spyOn(lowcodeApi.dataSpace.design, 'readModels').mockResolvedValue([formalModel])
     const {page, state, wrapper} = await bound()
-    expect(state.blueprintPageRuntime.value.getDataSet(DIMENSION)).toBeUndefined()
+    const runtime = state.blueprintPageRuntime.value
+    expect(runtime.getDataSet(DIMENSION)).toBeUndefined()
     expect(button(wrapper).attributes('disabled')).toBeUndefined()
     await page.dimensionSource.openEditor()
     expect(page.dimensionSource.dialogError.value).toBe('')
-    expect(readModels).toHaveBeenCalledWith(expect.objectContaining({dataSpaceId: 'SPACE-A'}))
-    const models = state.blueprintPageRuntime.value.resolveView(page.dimensionSource.modelViewKey.value)
-    expect(models?.rows.map(row => row['id'])).toEqual(['MODEL'])
-    expect(models?.dataSet).toBe(f.dataSet)
-    readModels.mockRestore()
+    expect(runtime.getDataSet(DIMENSION)).toBe(f.dataSet)
+    const models = runtime.resolveView(page.dimensionSource.modelViewKey.value)
+    expect(models?.rows.map(row => row['rowid'])).toEqual(['MODEL'])
+    expect(models?.dataSet).toBe(runtime.getDataSet(CATALOG))
   })
 
   it('drops a late model result when the selected node changes', async () => {
-    await dimension()
+    const f = await dimension()
     let release!: () => void
     const gate = new Promise<void>(resolve => {release = resolve})
-    const readModels = vi.spyOn(lowcodeApi.dataSpace.design, 'readModels').mockImplementation(async () => {await gate; return [formalModel]})
+    fixtureState.dimension = async () => {await gate; return f.dataSet}
     const {page} = await bound()
     const pending = page.dimensionSource.openEditor()
     expect(page.dimensionSource.open.value).toBe(true)
@@ -887,15 +913,13 @@ describe('application function page dimension source design', () => {
     expect(page.dimensionSource.open.value).toBe(false)
     expect(page.dimensionSource.dialogError.value).toBe('')
     expect(page.dimensionSource.modelViewKey.value).toBe('')
-    readModels.mockRestore()
   })
 
   it('cancels a drafted binding without writing anything', async () => {
     const f = await dimension()
-    const readModels = vi.spyOn(lowcodeApi.dataSpace.design, 'readModels').mockResolvedValue([formalModel])
     const {page, state} = await bound()
     await page.dimensionSource.openEditor()
-    await page.dimensionSource.selectModel({id: 'MODEL'})
+    await page.dimensionSource.selectModel({rowid: 'MODEL'})
     expect(page.dimensionSource.dialogError.value).toBe('')
     const binding = state.blueprintPageRuntime.value.resolveView(page.dimensionSource.bindingViewKey.value)!
     binding.updateEditingValue(page.dimensionSource.bindingId.value!, 'binding_code', 'draft')
@@ -904,15 +928,13 @@ describe('application function page dimension source design', () => {
     expect(page.dimensionSource.open.value).toBe(false)
     expect(binding.rows.filter(row => row['binding_code'] === 'draft')).toEqual([])
     expect(f.http.saves).toEqual([])
-    readModels.mockRestore()
   })
 
-  it('saves the binding and mappings once and reports the verified readback', async () => {
+  it('saves the binding and mappings once, fills names from the option views, and refuses protected changes once the ledger uses it', async () => {
     const f = await dimension()
-    const readModels = vi.spyOn(lowcodeApi.dataSpace.design, 'readModels').mockResolvedValue([formalModel])
     const {page, state} = await bound()
     await page.dimensionSource.openEditor()
-    await page.dimensionSource.selectModel({id: 'MODEL'})
+    await page.dimensionSource.selectModel({rowid: 'MODEL'})
     const runtime = state.blueprintPageRuntime.value
     const binding = runtime.resolveView(page.dimensionSource.bindingViewKey.value)!
     const id = page.dimensionSource.bindingId.value!
@@ -924,6 +946,7 @@ describe('application function page dimension source design', () => {
     const mappingId = mapping.rows.map(row => mapping.getPkKey(row)).at(-1)!
     mapping.updateEditingValue(mappingId, 'source_field_id', 'F-AMOUNT')
     mapping.updateEditingValue(mappingId, 'target_definition_id', 'D1')
+    await vi.waitFor(() => expect(mapping.getEditingRow(mappingId)).toMatchObject({source_field_name: 'amount', target_definition_code: 'cost'}))
     await page.dimensionSource.save()
     expect(page.dimensionSource.dialogError.value).toBe('')
     expect(page.notice.value).toBe('维度来源绑定已保存并回读确认')
@@ -935,20 +958,18 @@ describe('application function page dimension source design', () => {
     expect(f.http.records['Bil_Dimension_Source_Mapping']).toEqual([expect.objectContaining({binding_id: id, source_field_id: 'F-AMOUNT',
       source_field_name: 'amount', target_definition_id: 'D1', target_definition_code: 'cost'})])
 
-    const guard = vi.spyOn(DimensionSourceLedgerGuard.prototype, 'hasRecords').mockResolvedValue(true)
+    fixtureState.ledgerRows.push({rowid: 'S1', source_binding_id: String(id), lingma_sys_is_delete: 0})
     binding.updateEditingValue(id, 'binding_version', 2)
     const saves = f.http.saves.length
     await page.dimensionSource.save()
-    expect(guard).toHaveBeenCalledWith(String(id), expect.any(Function))
+    expect(runtime.getDataSet(LEDGER)).toBeDefined()
     expect(page.dimensionSource.dialogError.value).toBe('已有正式维度结果使用此来源绑定，不能变更角色、模型、关联字段或绑定版本')
     expect(f.http.saves).toHaveLength(saves)
-    guard.mockRestore()
-    readModels.mockRestore()
   })
 
   it('selects a registered platform event contract and forces its event code', async () => {
     await dimension()
-    const readModels = vi.spyOn(lowcodeApi.dataSpace.design, 'readModels').mockResolvedValue([])
+    fixtureState.catalogModels = []
     const {page, state} = await bound()
     await page.dimensionSource.openEditor()
     expect(page.dimensionSource.candidateKind.value).toBe('platform-event')
@@ -962,7 +983,6 @@ describe('application function page dimension source design', () => {
     expect(page.dimensionSource.bindingSpecs.value.map(spec => spec.field)).not.toContain('account_field_id')
     expect(page.dimensionSource.bindingSpecs.value.find(spec => spec.field === 'event_code')?.readonly).toBe(true)
     page.dimensionSource.close()
-    readModels.mockRestore()
   })
 })
 

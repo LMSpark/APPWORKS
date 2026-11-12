@@ -162,7 +162,7 @@ export class PageRuntime {
       for(let i=0;i<dataSets.length;i++){
         const ds=dataSets[i];const id=ids[i]
         if(!ds || !id || ds.scenarioId!==id || ds.destroyed)throw new Error('场景装配返回错误的数据空间身份')
-        this.#applyScenarioInputs(id,ds)
+        this.#applyScenarioInputs(id,ds);this.#bindPeers(ds)
         this.#dataSets.set(id,ds)
       }
       this.#loaded=true;this.#configPending=false
@@ -192,8 +192,12 @@ export class PageRuntime {
     try {
       this.#assertGeneration(generation)
       if(alreadyOwned || ds.scenarioId!==id || ds.destroyed)throw new Error('场景装配返回错误的数据空间身份')
-      this.#applyScenarioInputs(id,ds);this.#dataSets.set(id,ds);return ds
+      this.#applyScenarioInputs(id,ds);this.#bindPeers(ds);this.#dataSets.set(id,ds);return ds
     } catch(error) {if(!alreadyOwned)ds.destroy();throw error}
+  }
+  /** 选项来源跨空间只解析本次调用声明且已装配的同伴 DataSet。 */
+  #bindPeers(ds:DataSet):void {
+    ds.bindPeerDataSets(id=>!this.#destroyed && this.call.scenarioIds.includes(id) ? this.#dataSets.get(id) : undefined)
   }
   #applyScenarioInputs(id:string,ds:DataSet):void {
     const inputs=this.call.scenarioInputs

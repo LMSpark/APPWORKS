@@ -86,7 +86,7 @@ export class SaveRuleValidator {
     const sources = new Map<string, Promise<DataRow[]>>()
     const read = (source: DataColumnOptionSource): Promise<DataRow[]> => {
       const fields = [...new Set([source.valueField, source.labelField ?? source.valueField])]
-      const key = JSON.stringify([source.tableName, source.viewId ?? 'default', fields])
+      const key = JSON.stringify([source.scope ?? '', source.tableName, source.viewId ?? 'default', fields])
       const cached = sources.get(key) ?? input.query(source, fields)
       sources.set(key, cached)
       return cached

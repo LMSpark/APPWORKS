@@ -1391,6 +1391,10 @@
         "lockCurrentWhilePending": {
           "type": "boolean"
         },
+        "fieldOptions": {
+          "type": "object",
+          "title": "Record<string, DataColumnOptionsView>"
+        },
         "aggregates": {
           "type": "object",
           "title": "Record<string, AggregateColumnConfig>"
@@ -1547,6 +1551,7 @@
         "commitMode",
         "allowDelete",
         "lockCurrentWhilePending",
+        "fieldOptions",
         "treeMode",
         "logger"
       ],
@@ -3248,7 +3253,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T05:23:19.939Z",
+  "generatedAt": "2026-11-12T18:52:50.599Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -5178,6 +5183,12 @@
             {
               "name": "lockCurrentWhilePending",
               "jsdoc": "本视图或查询级联子视图有未提交修改时锁定当前行与选中行；通过 applyViewConfig 配置。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldOptions",
+              "jsdoc": "本视图替换表级列 optionsView 的选项来源；通过 applyViewConfig 配置，经 columns 生效。",
               "readable": true,
               "writable": true
             },

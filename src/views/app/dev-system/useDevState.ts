@@ -104,7 +104,12 @@ export const BLUEPRINT_NODE_STATUS_SCENARIO_ID = 'FB291E325272007AEED8921C28B93C
 export const BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID = '0C70F74793F9E858B71E0DBDEC784D57'
 /** 维度来源绑定与映射所在的仓库内置空间；用户应用不持有其配置文件，按需从仓库配置装配。 */
 export const BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID = getBuiltinScenarioResource('dimensionDesign').scenarioId
-const BLUEPRINT_OPTION_SCENARIO_IDS: readonly string[] = [BLUEPRINT_NODE_STATUS_SCENARIO_ID, BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID, BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID]
+/** 正式维度结果台账空间；维度来源保存前核验受保护字段引用，按需从仓库配置装配。 */
+export const BLUEPRINT_DIMENSION_LEDGER_SCENARIO_ID = getBuiltinScenarioResource('dimensionLedger').scenarioId
+const BLUEPRINT_REPOSITORY_SCENARIOS = new Map([[BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID, getBuiltinScenarioResource('dimensionDesign')],
+  [BLUEPRINT_DIMENSION_LEDGER_SCENARIO_ID, getBuiltinScenarioResource('dimensionLedger')]])
+const BLUEPRINT_OPTION_SCENARIO_IDS: readonly string[] = [BLUEPRINT_NODE_STATUS_SCENARIO_ID, BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID,
+  BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID, BLUEPRINT_DIMENSION_LEDGER_SCENARIO_ID]
 
 /** Status Message 的语义模型。 */
 export type StatusMessage = {
@@ -335,9 +340,10 @@ export function useDevState() {
             // 按需空间在首载之后装配：核对同一 owner 的项目、工作区、认证令牌与执行应用，不复用已清空的首载令牌。
             const assertDeferred=()=>{if(projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId)throw new Error('蓝图按需空间装配期间项目或认证作用域已切换')}
             assertDeferred()
-            const dataSet=scenarioId===BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID
+            const repository=BLUEPRINT_REPOSITORY_SCENARIOS.get(scenarioId)
+            const dataSet=repository
               ?await assembleLowcodeRuntimeScenario({projectId:executionProjectId,scenarioId,assertCurrent:assertDeferred,
-                config:new ProjectBlueprintDomain.ScenarioViewConfig(scenarioId,await readRepositoryScenarioText(getBuiltinScenarioResource('dimensionDesign'),assertDeferred))})
+                config:new ProjectBlueprintDomain.ScenarioViewConfig(scenarioId,await readRepositoryScenarioText(repository,assertDeferred))})
               :await loadLowcodeRuntimeScenario({projectId:executionProjectId,scenarioId})
             try{assertDeferred()}catch(error){dataSet.destroy();throw error}
             return dataSet
@@ -393,7 +399,7 @@ export function useDevState() {
     if(!runtime?.isLoaded)throw new Error('导航字典候选所需 PAGE_RUNTIME 未就绪')
     const projectKey=projectId.value,revision=blueprintWorkspaceLoadRevision
     const scenarioId=LowcodeDictionary.editorScenarioId
-    for(const viewId of ['NavigationType','NavigationShowType_Content','NavChildrenLocation','Navigationposition']){
+    for(const viewId of ['NavigationType','NavigationShowType_Content','NavChildrenLocation','Navigationposition','DataCatalogParamType','Dict_Page_Popup','Dict_Desktop_AppType','DesktopStyle']){
       const view=runtime.resolveView(`${scenarioId}@_Base_DictData@${viewId}`)
       if(!view)throw new Error(`导航字典视图缺失 ${viewId}`)
       if(view.rows.length>0&&!view.loadingError)continue

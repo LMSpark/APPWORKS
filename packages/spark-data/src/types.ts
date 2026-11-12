@@ -153,6 +153,8 @@ export type ComputedColumnFn = {
 
 /** 同一 DataSet 内的选项来源视图；viewId 省略为 default。 */
 export type DataColumnOptionSource = {
+  /** 同一页面运行实例中的同伴空间 ID；声明时 tableName 为该空间的正式模型名称。 */
+  scope?: string
   tableName: string
   viewId?: string
   /** 与列值比较的选项字段。 */
@@ -756,6 +758,11 @@ export type ViewMetadata = {
   /** 本视图或其查询级联子视图有未提交修改时，拒绝切换当前行与选中行。 */
   lockCurrentWhilePending?: boolean
   /**
+   * 本视图的列选项来源：字段名 → optionsView，替换该列的表级 optionsView。
+   * 同表多个视图承载不同来源语义时使用；编辑回填、保存引用核对与写回都按当前视图生效，其余列规则不变。
+   */
+  fieldOptions?: Readonly<Record<string, DataColumnOptionsView>>
+  /**
    * 视图级聚合配置——输出名 → 聚合列配置。
    *
    * `aggregates` 是配置态输出，会被 `DataView.toJson()` 持久化；每个 key 是
@@ -977,7 +984,8 @@ export type DataViewFieldCascade = Readonly<{
   valueFormat: 'native' | 'selection-string'
   /** field 缺省时取该视图选中主键数组；指针和编辑覆盖仅属于取值绑定。 */
   parents: ReadonlyArray<Readonly<{ tableName: string; viewId: string; field?: string; parameter: string }>>
-  optionsView: Readonly<{ tableName: string; viewId: string }>
+  /** scope 为同伴空间 ID 时 tableName 为其正式模型名称；父输入与目标仍属本 DataSet。 */
+  optionsView: Readonly<{ scope?: string; tableName: string; viewId: string }>
   valuePolicy: Readonly<{ mode: 'retain' } | { mode: 'clear' | 'retain-valid';
     clearValue: string | number | boolean | null | ReadonlyArray<string | number | boolean> }>
 }>

@@ -83,7 +83,8 @@ export class DataViewFieldCascadeBinding {
 
   options() {
     const reference = this.definition.optionsView
-    const view = this.view(reference.tableName, reference.viewId)
+    const view = this.dataSet.resolveOptionView(reference)
+    if (!view || view.destroyed || this.dataSet.destroyed) throw new Error('FIELD_CASCADE_VIEW: 选项视图已失效')
     const configuredFields = view.valueField ?? (view.effectivePkFields.length === 1 ? view.effectivePkFields[0] : undefined)
     const valueFields = Array.isArray(configuredFields) ? [...configuredFields] : configuredFields
     if (valueFields === undefined || (Array.isArray(valueFields) && valueFields.length === 0)) {
@@ -91,13 +92,19 @@ export class DataViewFieldCascadeBinding {
     }
     const fields = typeof valueFields === 'string' ? [valueFields] : [...valueFields]
     if (view.labelField !== undefined) fields.push(view.labelField)
+    if (fields.some(field => !view.columns.some(column => column.name === field))) {
+      throw new Error(`FIELD_CASCADE_FIELD: 输出字段不存在 ${this.definition.cascadeId}`)
+    }
+    const resolvesSame = (): boolean => {
+      try { return this.dataSet.resolveOptionView(reference) === view } catch { return false }
+    }
     if (view.treeConfig) {
       fields.push(view.treeConfig.idField ?? view.primaryKey, view.treeConfig.parentIdField ?? 'parentId')
       if (view.treeConfig.textField !== undefined) fields.push(view.treeConfig.textField)
     }
     const delimiter = view.selectionDelimiter
     return { view, fields: [...new Set(fields)],
-      isCurrent: () => !view.destroyed && this.dataSet.getView(reference.tableName, reference.viewId) === view
+      isCurrent: () => !view.destroyed && resolvesSame()
         && DataViewCascadeValueBinding.equal(valueFields, view.valueField ?? view.effectivePkFields[0])
         && view.selectionDelimiter === delimiter,
       evaluate: (current: unknown, rows: readonly DataRow[]) => {

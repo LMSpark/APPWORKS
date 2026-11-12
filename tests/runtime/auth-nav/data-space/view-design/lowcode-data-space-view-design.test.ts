@@ -174,6 +174,7 @@ describe('native view definitions through the designer DataSet', () => {
       treeConfig: {idField: 'id', textField: 'label', treeMode: 'flat' as const},
       aggregates: {recordCount: {type: 'count' as const, field: 'id'}}, selectionDelimiter: '|', commitMode: 'staged' as const,
       allowDelete: false, lockCurrentWhilePending: true,
+      fieldOptions: {label: {tableName: 'Orders', viewId: 'detail', valueField: 'label', fill: {id: 'id'}}},
     } satisfies Required<Omit<ViewMetadata, 'tableName' | 'viewId' | 'rows'>>
     try {
       const identity = {dataSetId: 'SPACE', dataModelId: 'MODEL', dataModelName: 'OrdersModel', tableName: 'Orders'}

@@ -896,7 +896,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T16:35:06.964Z",
+  "generatedAt": "2026-11-12T17:20:15.168Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -2300,7 +2300,7 @@
             },
             {
               "name": "readSavedProjectNodes",
-              "jsdoc": "经同模型临时查询视图完整读取本项目已保存的全部蓝图节点，只读，不改变当前树、草稿与当前行。\n行数与总数不一致或返回跨项目行即拒绝，不以部分结果核验；hidden 为该行不可读的请求字段。",
+              "jsdoc": "经场景声明的 savedProjectNodes 视图完整读取本项目已保存的全部蓝图节点，只读，不改变当前树、草稿与当前行。\n行数与总数不一致或返回跨项目行即拒绝，不以部分结果核验；hidden 为该行不可读的请求字段。",
               "parameters": [
                 {
                   "name": "fields",

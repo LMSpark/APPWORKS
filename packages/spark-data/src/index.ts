@@ -267,5 +267,5 @@ export type { ColumnValidationRule, ValidationRuleType } from './validation/colu
 // ===== 事件发射器（spark-data 是 SSoT；spark-component 等下游 re-export） =====
 
 export { createEventEmitter } from './core/event-emitter'
-export {DataViewOptionCatalog} from './query/data-view-option-catalog'
+export {DataViewOptionCatalog, type DataViewOptionCatalogOptions, type DataViewOptionCatalogItem} from './query/data-view-option-catalog'
 export type { SparkEventEmitter } from './types'

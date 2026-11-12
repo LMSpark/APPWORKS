@@ -743,6 +743,47 @@
         "method.getView.return": {
           "$ref": "data-view.ts.json#/$defs/DataView"
         },
+        "method.bindPeerDataSets.params": {
+          "type": "object",
+          "properties": {
+            "resolver": {
+              "type": "object",
+              "title": "(scenarioId: string) => DataSet | undefined"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bindPeerDataSets.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.resolveOptionView.params": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "object",
+              "properties": {
+                "scope": {
+                  "type": "string"
+                },
+                "tableName": {
+                  "type": "string"
+                },
+                "viewId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "tableName"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveOptionView.return": {
+          "$ref": "data-view.ts.json#/$defs/DataView"
+        },
         "method.saveChanges.params": {
           "type": "object",
           "properties": {
@@ -834,7 +875,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T17:02:31.971Z",
+  "generatedAt": "2026-11-12T18:53:49.125Z",
   "models": {
     "DataSetSavePreflightError": {
       "name": "DataSetSavePreflightError",
@@ -1981,6 +2022,82 @@
                   },
                   "flags": {
                     "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataView",
+                  "sourcePath": "packages/spark-data/src/data-view.ts"
+                }
+              }
+            },
+            {
+              "name": "bindPeerDataSets",
+              "jsdoc": "绑定同一页面运行实例中的同伴 DataSet 解析器；选项来源声明 scope 时经此解析，不推导首空间或同名表。\n@returns 解除本次绑定。",
+              "parameters": [
+                {
+                  "name": "resolver",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "scenarioId",
+                              "type": {
+                                "type": "intrinsic",
+                                "name": "string"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "optional",
+                            "elementType": {
+                              "type": "reference",
+                              "name": "DataSet",
+                              "sourcePath": "packages/spark-data/src/dataset.ts"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "resolveOptionView",
+              "jsdoc": "解析选项来源视图：无 scope 时 tableName 为本 DataSet 表键；有 scope 时为同伴 DataSet 的正式模型名称，scope 不得指向自身。\n同伴未绑定、未装配或已销毁时抛错；模型名称不唯一由完整视图键解析拒绝。",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        scope?: string;\n        tableName: string;\n        viewId?: string;\n    }"
+                      }
+                    ]
                   }
                 }
               ],

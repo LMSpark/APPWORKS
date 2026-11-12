@@ -18,6 +18,7 @@ import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, B
 import {registerApiModelRules,type ApiModelRuleHost} from '../resources/integration/api-management/model-rules'
 import {createCacheScenarioBindings} from '../resources/system/cache-management/runtime-bindings'
 import {registerNavigationHostModelRules} from '../resources/system/navigation-host/model-rules'
+import {registerDimensionSourceModelRules} from '../resources/structured-config/dimension-source/model-rules'
 import {createDataRecoveryScenarioBindings} from '../resources/system/data-recovery/runtime-bindings'
 import {createWorkflowScenarioBindings} from '../resources/structured-config/workflow-definition/execution/runtime-bindings'
 import {createAgentWorkflowCreationBindings} from '../resources/repository/agent-workflow/creation'
@@ -124,6 +125,7 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
  try{
   registerApiModelRules(result.dataSet,{...(input.getPage?{getPage:input.getPage}:{}),...(input.assertCurrent?{assertCurrent:input.assertCurrent}:{})})
   registerNavigationHostModelRules(result.dataSet)
+  registerDimensionSourceModelRules(result.dataSet)
   return result
  }
  catch(error){result.dataSet.destroy();throw error}

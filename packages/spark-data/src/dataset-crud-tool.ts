@@ -772,7 +772,7 @@ export class DataSetCrudTool {
         ? (cascade.tableName === tableName && cascade.targetField === columnName)
           || cascade.parents.some(parent => parent.tableName === tableName && (parent.field === columnName
             || (parent.field === undefined && this.dataSet.getView(parent.tableName, parent.viewId)?.effectivePkFields.includes(columnName))))
-          || (cascade.optionsView.tableName === tableName && this.cascadeOptionsReferenceField(cascade, columnName))
+          || (cascade.optionsView.scope === undefined && cascade.optionsView.tableName === tableName && this.cascadeOptionsReferenceField(cascade, columnName))
         : (cascade.parentTable === tableName && cascade.when?.some(condition => condition.field === columnName) === true)
           || (cascade.parentTable === tableName
           && cascade.inputBindings?.some(binding => binding.sourceField === columnName || binding.when?.field === columnName
@@ -944,7 +944,7 @@ export class DataSetCrudTool {
         ? { ...cascade,
           ...(cascade.tableName === tableName ? { tableName: newTableName } : {}),
           parents: cascade.parents.map(parent => parent.tableName === tableName ? { ...parent, tableName: newTableName } : parent),
-          ...(cascade.optionsView.tableName === tableName ? {
+          ...(cascade.optionsView.scope === undefined && cascade.optionsView.tableName === tableName ? {
             optionsView: { ...cascade.optionsView, tableName: newTableName },
           } : {}),
         }
@@ -1075,7 +1075,7 @@ export class DataSetCrudTool {
     }
     if ((this.dataSet.viewCascades ?? []).some(cascade => cascade.kind === 'field'
       && ((cascade.tableName === tableName && cascade.viewId === viewId)
-        || (cascade.optionsView.tableName === tableName && cascade.optionsView.viewId === viewId)
+        || (cascade.optionsView.scope === undefined && cascade.optionsView.tableName === tableName && cascade.optionsView.viewId === viewId)
         || cascade.parents.some(parent => parent.tableName === tableName && parent.viewId === viewId)))) {
       throw new Error(`deleteView: ${tableName}@${viewId} is referenced by viewCascades`)
     }
@@ -1479,7 +1479,7 @@ export class DataSetCrudTool {
       if (filter?.kind !== undefined && (cascade.kind ?? 'query') !== filter.kind) return false
       if (cascade.kind === 'field') {
         return (filter?.parentTable === undefined || cascade.parents.some(parent => parent.tableName === filter.parentTable))
-          && (filter?.childTable === undefined || cascade.optionsView.tableName === filter.childTable)
+          && (filter?.childTable === undefined || (cascade.optionsView.scope === undefined && cascade.optionsView.tableName === filter.childTable))
       }
       if (filter?.parentTable !== undefined && cascade.parentTable !== filter.parentTable) return false
       if (filter?.childTable !== undefined && cascade.childTable !== filter.childTable) return false

@@ -25,7 +25,7 @@ export function useFieldCascadeOptions(binding: ReturnType<typeof useActiveField
   })
   const view = computed(() => {
     const spec = definition.value
-    return spec ? dataSet.value?.getView(spec.optionsView.tableName, spec.optionsView.viewId) : undefined
+    return spec ? dataSet.value?.resolveOptionView(spec.optionsView) : undefined
   })
   watch(dataSet, (ds, _, cleanup) => {
     generation++; state.value = idle; configuration.value++

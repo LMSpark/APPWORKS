@@ -53,7 +53,7 @@ async function open(options: {wait?: boolean; nodeId?: string} = {}) {
   })
   const router = createRouter({history: createMemoryHistory(), routes: [{
     path: `/apps/:projectId${USER_PATH}`, component: UserPage,
-    meta: {blueprintScenarioId: nodeId, nodeId, systemPageIdentityState: 'resolved'},
+    meta: {blueprintScenarioId: ORGANIZATION_SCENARIO, nodeId, systemPageIdentityState: 'resolved'},
   }]})
   await router.push(`/apps/APP${USER_PATH}`)
   await router.isReady()

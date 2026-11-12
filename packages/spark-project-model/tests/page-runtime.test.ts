@@ -161,6 +161,16 @@ describe('PageRuntime lifecycle',()=>{
   })
   it('isolates datasets for two calls of the same shared tool',async()=>{const shared=tool();const a=new PageRuntime({tool:shared,scenarioIds:['a'],loadScenario:async id=>data(id)});const b=new PageRuntime({tool:shared,scenarioIds:['a'],loadScenario:async id=>data(id)});await Promise.all([a.load(),b.load()]);expect(a.instanceId).not.toBe(b.instanceId);expect(a.getDataSet('a')).not.toBe(b.getDataSet('a'));a.dispose();expect(b.getDataSet('a')?.destroyed).toBe(false);b.dispose()})
   it('loads multiple declared scenarios and never defaults local binding to the first',async()=>{const runtime=new PageRuntime({tool:tool(),scenarioIds:['a','b'],loadScenario:async id=>data(id)});await runtime.load();expect(runtime.getDataSet('a')?.scenarioId).toBe('a');expect(runtime.getDataSet('b')?.scenarioId).toBe('b');expect(()=>runtime.resolveView('Orders@default')).toThrow('主场景');expect(runtime.resolveView('#b@Orders@default')).toBeUndefined();expect(()=>runtime.resolveView('#c@Orders@default')).toThrow('未声明');runtime.dispose()})
+  it('resolves scoped option sources only to declared and loaded peer datasets',async()=>{
+    const peer=():DataSet=>DataSet.fromJson({dataSetName:'b',scenarioId:'b',tables:{Fields:{tableName:'Fields',modelBinding:{modelId:'F',modelName:'Fields'},columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{}}}}})
+    const runtime=new PageRuntime({tool:tool(),scenarioIds:['a','b'],deferredScenarioIds:['b'],loadScenario:async id=>id==='b'?peer():data(id)})
+    await runtime.load();const own=runtime.getDataSet('a')!
+    expect(()=>own.resolveOptionView({scope:'b',tableName:'Fields'})).toThrow('未装配')
+    const loaded=await runtime.ensureScenarioLoaded('b')
+    expect(own.resolveOptionView({scope:'b',tableName:'Fields'})).toBe(loaded.getView('Fields'))
+    expect(()=>own.resolveOptionView({scope:'c',tableName:'Fields'})).toThrow('未装配')
+    runtime.dispose()
+  })
   it('invalidates loading and destroys late scenario data after disposal',async()=>{let resolve:(ds:DataSet)=>void=()=>{};const runtime=new PageRuntime({tool:tool(),scenarioIds:['a'],loadScenario:()=>new Promise(res=>{resolve=res})});const loading=runtime.load();const rejection=expect(loading).rejects.toThrow('DESTROYED');runtime.dispose();const ds=data('a');resolve(ds);await rejection;expect(ds.destroyed).toBe(true);expect(runtime.generation).toBe(2)})
   it('destroys successful siblings when any declared scenario fails',async()=>{const ds=data('a');const runtime=new PageRuntime({tool:tool(),scenarioIds:['a','b'],loadScenario:async id=>{if(id==='b')throw new Error('missing scene');return ds}});await expect(runtime.load()).rejects.toThrow('missing scene');expect(ds.destroyed).toBe(true);expect(runtime.isLoaded).toBe(false)})
   it('rejects wrong scenario assembly and duplicate call declarations',async()=>{const ds=data('wrong');const runtime=new PageRuntime({tool:tool(),scenarioIds:['a'],loadScenario:async()=>ds});await expect(runtime.load()).rejects.toThrow('身份');expect(ds.destroyed).toBe(true);expect(()=>new PageRuntime({tool:tool(),scenarioIds:['a','a'],loadScenario:async id=>data(id)})).toThrow('重复')})

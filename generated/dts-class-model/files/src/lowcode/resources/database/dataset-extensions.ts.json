@@ -421,6 +421,15 @@
           "type": "object",
           "title": "(tableName: string, viewId?: string) => SparkData.DataView | undefined"
         },
+        "_peerResolver": true,
+        "bindPeerDataSets": {
+          "type": "object",
+          "title": "(resolver: (scenarioId: string) => SparkData.DataSet | undefined) => () => void"
+        },
+        "resolveOptionView": {
+          "type": "object",
+          "title": "(source: Readonly<{ scope?: string; tableName: string; viewId?: string; }>) => SparkData.DataView | undefined"
+        },
         "saveChanges": {
           "type": "object",
           "title": "(options?: SparkData.DataSetSaveChangesOptions) => Promise<SparkData.CrudResult<SparkData.DataSetSaveChangesResult>>"
@@ -531,6 +540,9 @@
         "destroyed",
         "getTable",
         "getView",
+        "_peerResolver",
+        "bindPeerDataSets",
+        "resolveOptionView",
         "saveChanges",
         "saveChangesInPhases",
         "resolveUnconfirmedSaves",

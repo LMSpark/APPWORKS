@@ -58,7 +58,7 @@ export class DataViewFieldCascadeRuntime {
       configChanged: (table, view) => {
         for (const entry of this.#entries.values()) {
           const options = entry.binding.definition.optionsView
-          if (options.tableName !== table || options.viewId !== view) continue
+          if (options.scope !== undefined || options.tableName !== table || options.viewId !== view) continue
           this.invalidate(entry)
           this.prime(entry)
         }

@@ -18,6 +18,12 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "DataViewOptionFillRuntime",
+      "properties": {
+        "pending": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -46,7 +52,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T17:02:26.189Z",
+  "generatedAt": "2026-11-12T18:53:49.123Z",
   "models": {
     "DataViewOptionFillRuntime": {
       "name": "DataViewOptionFillRuntime",
@@ -67,6 +73,14 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "pending",
+              "jsdoc": "是否有在途回填；无在途时保存不得插入额外异步步骤，保持派发时序。",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "settled",

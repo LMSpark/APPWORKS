@@ -163,11 +163,36 @@ describe('loadLowcodeRuntimeScenario', () => {
 
   it('assembles the full shared 7AB scenario for a dynamic app without reading builtin blueprint rows',async()=>{
     const scene=getBuiltinScenarioResource('projectBlueprint')
-    const scenario=JSON.parse(readFileSync(scene.path,'utf8')) as {tables:Record<string,{modelBinding?:{modelId:string;modelName:string}} >}
+    type OptionSource={tableName:string;valueField?:string;labelField?:string;fill?:Record<string,string>}
+    const scenario=JSON.parse(readFileSync(scene.path,'utf8')) as {tables:Record<string,{modelBinding?:{modelId:string;modelName:string}
+      columns?:Array<{name:string;computeExpression?:string;optionsView?:OptionSource}>
+      views?:Record<string,{queryConfig?:{fields?:string[]};filterExpression?:unknown;sortExpression?:unknown}>}>
+      viewCascades?:Array<{tableName:string;targetField?:string;parents?:Array<{tableName:string;field:string}>;optionsView?:OptionSource}>}
     const configuredModels=Object.values(scenario.tables).flatMap(table=>table.modelBinding?[table.modelBinding]:[])
-    const fields=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode','NavigationUrl','NavigationImageWxz','MobileUrl',
+    const baseFields=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode','NavigationUrl','NavigationImageWxz','MobileUrl',
       'NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment','IsShowAtNav','IsShowChildItem','BeginGroup',
       'conid','conType','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
+    // 正式输出须覆盖 pagedata 视图投影、过滤/排序、非计算列规则、选项来源与级联引用的字段，否则装配按缺失字段拒绝。
+    const referenced=new Map<string,Set<string>>()
+    const add=(table:string,field:string|undefined)=>{if(field)(referenced.get(table)??referenced.set(table,new Set(baseFields)).get(table)!).add(field)}
+    const addSource=(owner:string,source:OptionSource|undefined)=>{
+      if(!source)return
+      add(source.tableName,source.valueField);add(source.tableName,source.labelField)
+      for(const [target,field] of Object.entries(source.fill??{})){add(owner,target);add(source.tableName,field)}
+    }
+    for(const [name,table] of Object.entries(scenario.tables)){
+      for(const column of table.columns??[]){if(!column.computeExpression)add(name,column.name);addSource(name,column.optionsView)}
+      for(const view of Object.values(table.views??{})){
+        for(const field of view.queryConfig?.fields??[])add(name,field)
+        for(const match of JSON.stringify([view.filterExpression??{},view.sortExpression??[]]).matchAll(/"field":"([^"]+)"/g))add(name,match[1])
+      }
+    }
+    for(const cascade of scenario.viewCascades??[]){
+      add(cascade.tableName,cascade.targetField);addSource(cascade.tableName,cascade.optionsView)
+      for(const parent of cascade.parents??[])add(parent.tableName,parent.field)
+    }
+    const modelFields=new Map(Object.entries(scenario.tables).flatMap(([name,table])=>table.modelBinding
+      ?[[table.modelBinding.modelName,[...referenced.get(name)??baseFields]] as const]:[]))
     mocks.readRequestScope.mockReturnValue(scope('dynamic-token','APP-A'))
     mocks.readText.mockResolvedValue(JSON.stringify(scenario))
     mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId:scene.scenarioId,name:'动态应用共享蓝图空间'})
@@ -176,7 +201,7 @@ describe('loadLowcodeRuntimeScenario', () => {
       const binding=configuredModels.find(model=>model.modelName===metaName)
       if(!binding)throw new Error(`fixture model missing: ${metaName}`)
       return {id:binding.modelId,name:metaName,metaName,sourceName:`source_${metaName}`,sourceId:'DB',sourceType:'table',
-        primaryKey:'rowid',businessMain:false,raw:{},fields:fields.map((name,index)=>({id:`${binding.modelId}-${name}`,modelId:binding.modelId,
+        primaryKey:'rowid',businessMain:false,raw:{},fields:(modelFields.get(metaName)??baseFields).map((name,index)=>({id:`${binding.modelId}-${name}`,modelId:binding.modelId,
           name,canonicalName:name,type:'string',primaryKey:name==='rowid',description:'',output:true,computed:false,order:index,orderType:'',raw:{}}))}
     }))
     const dataSet=await loadLowcodeRuntimeScenario({projectId:'APP-A',scenarioId:scene.scenarioId})

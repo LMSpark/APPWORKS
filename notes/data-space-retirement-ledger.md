@@ -9597,7 +9597,7 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 5. 数据模型事件编辑器（Rule_Template/事件）、来源提交协议草稿与正式回读（source-commit-save/projection-currentness）、维度台账查询（公共层+测试）。
 6. 批次4、批次5（权限两个入口）、导航发布、已认证实服烟测、批次2 未验证项。
 
-## 蓝图批次3b：维度来源完整业务（续完 3b-1 断点）
+## 蓝图批次3b：维度来源完整业务（续完 3b-1 断点）— 实现方式已由文末“蓝图批次3b与4：按 SPARK data 统一链返工”取代
 
 对照参考固定提交 `1147b00ee` 的 `blueprint-dimension-source.vue`、`blueprint-dimension-event-editor.vue`、`blueprint-source-commit-editor.vue` 及数据管理 `DimensionSourceBinding`/`DimensionSourceCommit`/`DimensionDesign`，在本仓 PageRuntime → DataSet/DataView 链上恢复蓝图“维度来源设计”的其余业务。只经 `GetData`/`BatchTableOperateRequestByCRUD`，无新端点，未改 Java，未增 Node 服务。
 
@@ -9622,7 +9622,7 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **隔离浏览器烟测（无头 Edge + CDP，内存夹具，拦截全部网络，未写实服）。** 真实对话框、DataSet/PageRuntime、标准组件与 owner；脚手架位于 `artifacts/smoke-dimension-3b/`，完成后已连同临时浏览器配置删除。9/9 步通过：模型候选与来源类型切换；数据模型绑定+映射+子集合一次保存回读且保存后入口启用；事件新建写入回读并关闭子对话框；提交草稿（status=0、v1、摘要身份）+ 事实一次保存回读、已有版本只读、草稿重置为 v2；台账有记录与无法核验均拒绝且无写入；关闭丢弃未保存修改无写入；平台合同选择后事件编码强制且只读、账套字段/子集合隐藏；切换节点丢弃迟到结果；回执中断进入未知、编辑锁定、关闭拒绝丢弃、只写 1 次。外部请求 0、页面网络尝试 0、告警 0；唯一控制台错误为未知用例主动注入回执失败时 HTTP 层的预期日志。脚手架发现：Edge 配置置于 Vite 根下会被文件监听锁住（EBUSY）、对话框标题类名为 `.renderer-dialog-title`，均为脚手架问题已修正。
 - **实服只读核验边界。** 阶段0 模型与字段已认证只读核实；蓝图页仍 `hidden` 且未进入正式导航发布，没有合法入口，本批未在实服打开新对话框，也未写入。待导航发布后补认证打开核验。
 - **不在本批（登记缺口）。** 维度运行时 `source-commit-save`、`projection-currentness`、`current()`、完整台账记录查询（明细、事实、身份）：消费者是业务提交与投影运行时，不是蓝图页，且在参考 `packages/data/spark-api` 而非 `apps/appworks`，登记为维度运行时缺口。提交策略启用（参考同样未提供）、批次4、批次5（权限两个入口）、导航发布、批次2 未验证项继续开放。
-## 蓝图批次4：导航、桌面与交付
+## 蓝图批次4：导航、桌面与交付 — 编辑器、独立运行时与手工规则已由文末“蓝图批次3b与4：按 SPARK data 统一链返工”取代
 
 对照参考固定提交 `1147b00ee` 中项目蓝图页的导航属性、桌面显示、导航宿主（`Base_Navigation_DataRelation`）、`blueprint-node-verify` 及需求说明书导出，在本仓 PageRuntime → DataSet/DataView 链上恢复批次4。只经 `GetData`/`BatchTableOperateRequestByCRUD` 与既有 `blueprint.submitDocument`，无新端点，未改 Java，未增 Node 服务。交付清单范围经用户选定为 Vue 页面注册表全部页面（`'vue:' + path`）。
 
@@ -9678,3 +9678,38 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
   - `hasChild` 字段在当前正式输出中未见，子树核验依赖完整读取而非该标志。
   - 蓝图页未在正式导航发布，未在实服打开新页签或写入。
   - 批次5权限两个入口、批次2 未验证项继续开放。
+
+## 蓝图批次3b与4：按 SPARK data 统一链返工
+
+用户纠偏：移植到仓内必须走统一 SPARK data 与标准组件，凡绕过数据层都要返工。上两节的页面编辑器、独立 PageRuntime、手工候选查询、手写权限与列类型推导、`desktop-views.json`、`ledger-views.json` 均违反 0.4，已删除并改由正式 pagedata 声明、公共数据链与标准组件承接。只经 `GetData`/`BatchTableOperateRequestByCRUD`，无新端点，未改 Java，未增 Node 服务。批次4部分已在前一提交推送，本节一并记录批次3b返工与收尾。
+
+- **用户决定。** 桌面与字典模型身份实服只读核实后写入 pagedata；保存只经公共 `DataSet.saveChanges` 核验；`optionsView.fill` 扩展为编辑时回填；JSON 文本列子键绑定放在标准组件；选项来源可声明同一 PageRuntime 内的同伴 DataSet（`optionsView.scope`）；映射来源字段双来源用视图级 `fieldOptions` 覆盖，平台合同字段经 `DataViewOptionCatalog`。
+- **实服只读核验（用户手动登录，已核实）。** 范围：7AB 场景的 `Base_DataSet`/`Base_DataModel`/`Base_DataModel_Field` 本空间身份与所需列（原 pagedata 身份取自其他空间，无法装配，已更正）；`Base_Desktop_System` 与桌面字典；宿主关系列；导航字典；账套场景 `Bil_Dimension_Set` 的主键与所需列。只读，未保存。凭据与线上 ID 不入台账。
+- **公共能力（spark-data / spark-component / spark-project-model）。**
+  - 编辑时回填：`DataViewOptionFillRuntime` 按 `optionsView.fill` 在父值变化时查询并写入，最新优先、只写可写字段、清空父值时联动清空；`DataSet.saveChanges` 只在有在途回填时等待，无在途时不插入额外异步步骤（否则改变保存派发与渲染的先后，曾使设计页“已知待写锁定”用例回归，已修正并复验）。
+  - 跨 DataSet 选项来源：`DataSet.bindPeerDataSets`/`resolveOptionView`，PageRuntime 装配后绑定同伴；只有选项来源（字段级联与列 `optionsView`，含 fill 与保存校验）可声明 `scope`，级联父输入与目标仍限本 DataSet；引用在绑定时核验，缺失显式失败。
+  - 视图级 `ViewMetadata.fieldOptions` 覆盖表级列选项来源，经 `DataView.columns` 对回填、保存校验与写回生效，pagedata 校验同步；`DataViewOptionCatalog` 支持固定表名与附加文本列。
+  - `FieldJson` 按 `valuePath` 子键读写 JSON 文本列并保留未编辑成员；空值显示 `emptyValue` 初始结构但不制造编辑覆盖。
+- **批次4（宿主、桌面、导航）。** 宿主与桌面改由 7AB pagedata 的 `byNode` 视图、列规则（必填、trim）、`optionsView`/fill、字段级联（数据空间→资源→文本/值/父级字段，`retain-valid`）与查询级联承接；跨字段规则“值参数名称与文本参数名称不能相同”经 `setQuerySaveRule` 在场景装配注册；`paramType` 用 `FieldJson` form 模式按 `{type,name}` 子键编辑，处理方式取 `DataCatalogParamType` 字典视图。导航页签改字典视图与标准组件字段权限。组合函数只做“新增/删除/提交/回读”编排，提交只经 `DataSet.saveChanges({views:[…ids]})`。
+- **批次3b（维度来源）。** 三个编辑器与账套守卫改为直接绑定 88A4 正式表视图：模型与字段候选来自 7AB 视图（经 `scope`），字段输出名由 7AB pagedata 本地计算列给出（AsName 优先，否则 Name，rowid 归一）；单字段规则与成员核对写 88A4 列规则，同行跨字段写 `setQuerySaveRule`（`model-rules.ts`），跨行、跨模型与持久快照比较（版本递增、映射对唯一、集合树、定义启用、台账引用、正式模型结构）留在保存命令。提交协议直接编辑 `Commit_Policy`/`Commit_Field` 正式行，新版本号为最新+1，主键经 `addRowWithIdentity`。账套守卫改为 07D2 场景正式 pagedata（新登记 `dimensionLedger` 内置场景），删除 `ledger-views.json` 与独立装配。`view-support.ts` 只保留保存与正式主键辅助。
+- **本轮烟测发现并修正的断链。**
+  - 宿主对话框四个下拉在字段级联候选上使用多标题字段：级联查询只取视图值字段与 `labelField`，标准组件按合同拒绝（`FIELD_OPTION_LABEL`），打开新增/编辑即抛错。改为使用 pagedata 选项视图声明的 `labelField`（资源显示名称，字段显示 description，为空回退字段名）。与参考偏差：资源不再显示“名称 · 类型”，类型由回填字段展示。
+  - 宿主 `paramType` 处理方式与桌面弹出方式、分类、图标风格四个字典视图（`autoLoad:false`）从未被读取，真实页面下拉为空；入口测试把字典读取函数 mock 掉而未发现。已并入导航页签激活时的 `loadNavigationDictionaryOptions`，同一 PageRuntime、同一失效核验。
+  - 其他已在本轮修正的回归：目录 `NavigationUrl` 夹具、`FieldJson` 空值、crud-tool 场景守卫、用户管理元数据、`saveChanges` 回填等待时序、场景装配测试 7AB 夹具字段（改为按 pagedata 列规则、视图字段、过滤排序与级联字段推导）。
+- **验证。**
+  - `pnpm run generate:class-model-surface`、`pnpm run generate:lowcode-contracts`（611 端点、223 消费者）已重跑；`pnpm run typecheck` 通过；改动的 43 个 ts/vue 文件 ESLint 0；`pnpm run verify` 退出 0（JSON 行序列化待审提示为既有项）。
+  - 定向 vitest 15 文件 366 项通过；全量 531 文件中 4 个在高负载下超时或依赖已修夹具，隔离复跑 4 文件 163 项全部通过。
+- **隔离浏览器烟测（无头 Edge + CDP，内存夹具，拦截全部网络，未写实服）。** 挂载真实维度来源、宿主、桌面对话框与组合函数，使用 7AB、字典真实 pagedata 装配的 DataSet 与同一 PageRuntime；脚手架 `artifacts/smoke-blueprint-rework/`，完成后连同临时浏览器配置删除。17/17 步通过：
+  - 维度来源：模型候选来自 7AB 视图并排除其他空间、来源类型切换；编辑时 fill 回填名称与编码，绑定+映射+子集合一次保存；事件列规则拦截无写入、补齐后写入回读；提交协议草稿与事实一次保存、草稿重置为 v2；台账有记录与无法核验均拒绝；关闭丢弃无写入；平台合同事件编码只读、账套字段与子集合隐藏；迟到结果丢弃；回执中断进入未知、关闭拒绝丢弃、只写 1 次。
+  - 宿主：按节点列出；列规则与同名参数模型规则拦截无写入；数据空间→资源→字段级联、资源类型编辑时回填；换空间按 `retain-valid` 清空并重查；JSON 子键写回 `paramType` 后一次保存回读；取消无写入；删除确认取消不删、确定只删目标；回执中断进入未知，核验只写 1 次。
+  - 桌面：按节点预填、以节点 rowid 新增、字典标签显示、一次保存回读、按钮切换；取消显示确认后删除并复原。
+  - 外部请求 0、页面网络尝试 0；控制台 2 条为两个未知用例主动注入回执失败时 HTTP 层的预期日志。
+  - 烟测脚手架自身更正（非产品缺陷）：字段级联候选在级联状态而非视图 rows；维度正式模型字段 ID 须与目录字段一致；SPARK 字段权限随返回行下发，空结果的新增行不携带隐藏字段信息（服务端仍独立授权），删去该断言。
+- **仍开放的缺口。**
+  - 桌面表部分字段在实服当前输出中未见，待蓝图页发布后在实服打开核验。
+  - 宿主映射字段只核成员身份，不核字段是否适合作为文本/值参数。
+  - 正式模型结构核验（集合父子主键、提交协议六模型）仍经数据空间设计 API 的 `readModels` 投影，属业务命令读取。
+  - 来源子集合须先保存父集合才能挂子集合；子集合的子外键/子主键在明细表单编辑。
+  - 平台合同的目标维度定义由用户手选，经 `byCode` 按编码核对，不自动配对。
+  - `ValueFun` 仅含空白时无法由列规则表达，保存命令判定。
+  - 蓝图页未在正式导航发布，未在实服打开新对话框或写入；批次5权限两个入口、批次2 未验证项继续开放。

@@ -23,14 +23,14 @@ AI用途：调整宿主列表列或表单分组时只改本组件；业务动作
         <FieldText field="title" label="标题" placeholder="请输入标题" />
         <RendererDivider class="blueprint-nav-host__divider" content-position="left" content="① 数据来源：选择数据空间及其中要关联的资源" />
         <FieldSelect field="dataSetId" label="数据空间" :option-data-view-key="host.dataSetOptionKey.value" :filterable="true" />
-        <FieldSelect field="dataName" label="资源选择" :option-label-fields="['Name', 'Type']" option-label-joiner=" · " :filterable="true" />
+        <FieldSelect field="dataName" label="资源选择" :filterable="true" />
         <FieldText field="dataType" label="资源类型" placeholder="选择资源后自动填充" :readonly="true" />
         <RendererDivider class="blueprint-nav-host__divider" content-position="left" content="② 字段映射：将资源字段映射到导航参数，用于下拉选项的显示和传值" />
-        <FieldSelect field="selectTextParam" label="文本字段" :option-label-fields="['description', 'Name']" :filterable="true" />
+        <FieldSelect field="selectTextParam" label="文本字段" :filterable="true" />
         <FieldText field="TextParamName" label="文本参数名称" placeholder="如：textParam" />
-        <FieldSelect field="selectValParam" label="值字段" :option-label-fields="['description', 'Name']" :filterable="true" />
+        <FieldSelect field="selectValParam" label="值字段" :filterable="true" />
         <FieldText field="ValParamName" label="值参数名称" placeholder="如：valueParam" />
-        <FieldSelect field="selectPid" label="父级字段" :option-label-fields="['description', 'Name']" :filterable="true" :clearable="true" />
+        <FieldSelect field="selectPid" label="父级字段" :filterable="true" :clearable="true" />
         <RendererDivider class="blueprint-nav-host__divider" content-position="left" content="③ 参数处理方式：设置参数的处理方式和属性名称" />
         <FieldJson class="blueprint-nav-host__divider" field="paramType" label="参数处理方式" mode="form" :empty-value="{}" :schema="paramSchema" />
       </RendererForm>

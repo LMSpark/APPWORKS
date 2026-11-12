@@ -1,5 +1,5 @@
 {
-  "gapCount": 3872,
+  "gapCount": 3844,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -7025,13 +7025,61 @@
     },
     {
       "kind": "attribute",
+      "className": "DataViewOptionCatalogOptions",
+      "memberName": "tableName",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DataViewOptionCatalogOptions.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-data/src/query/data-view-option-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
+      "declarationLine": 13,
+      "sourceFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DataViewOptionCatalogOptions",
+      "memberName": "fields",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DataViewOptionCatalogOptions.fields 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-data/src/query/data-view-option-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
+      "declarationLine": 14,
+      "sourceFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DataViewOptionCatalogItem",
+      "memberName": "value",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DataViewOptionCatalogItem.value 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-data/src/query/data-view-option-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
+      "declarationLine": 18,
+      "sourceFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DataViewOptionCatalogItem",
+      "memberName": "label",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DataViewOptionCatalogItem.label 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-data/src/query/data-view-option-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
+      "declarationLine": 19,
+      "sourceFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
       "className": "DataViewOptionCatalog",
       "memberName": "view",
       "reason": "missing-jsdoc",
       "chainBreak": "DataViewOptionCatalog.view 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/data-view-option-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
-      "declarationLine": 12,
+      "declarationLine": 25,
       "sourceFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
       "declarationKind": "class"
     },
@@ -7043,7 +7091,7 @@
       "chainBreak": "DataViewOptionCatalog.dataViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/data-view-option-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
-      "declarationLine": 13,
+      "declarationLine": 26,
       "sourceFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
       "declarationKind": "class"
     },
@@ -7055,7 +7103,7 @@
       "chainBreak": "DataViewOptionCatalog.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/data-view-option-catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
-      "declarationLine": 14,
+      "declarationLine": 27,
       "sourceFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
       "declarationKind": "class"
     },
@@ -8927,24 +8975,12 @@
     {
       "kind": "method",
       "className": "DataViewFieldCascadeDefinition",
-      "memberName": "validateViews",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataViewFieldCascadeDefinition.validateViews 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/strategies/cascade/field-cascade-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/strategies/cascade/field-cascade-definition.ts",
-      "declarationLine": 7,
-      "sourceFile": "packages/spark-data/src/strategies/cascade/field-cascade-definition.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "DataViewFieldCascadeDefinition",
       "memberName": "validateRuntime",
       "reason": "missing-jsdoc",
       "chainBreak": "DataViewFieldCascadeDefinition.validateRuntime 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/strategies/cascade/field-cascade-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/strategies/cascade/field-cascade-definition.ts",
-      "declarationLine": 8,
+      "declarationLine": 9,
       "sourceFile": "packages/spark-data/src/strategies/cascade/field-cascade-definition.ts",
       "declarationKind": "class"
     },
@@ -9050,7 +9086,7 @@
       "chainBreak": "DataViewOptionFillRuntime.destroy 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/strategies/cascade/option-fill-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts",
-      "declarationLine": 14,
+      "declarationLine": 16,
       "sourceFile": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts",
       "declarationKind": "class"
     },
@@ -9133,7 +9169,7 @@
       "chainBreak": "DataColumnOptionSource.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 115,
+      "declarationLine": 117,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9145,7 +9181,7 @@
       "chainBreak": "DataColumnOptionSource.viewId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 116,
+      "declarationLine": 118,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9157,7 +9193,7 @@
       "chainBreak": "DataColumnOptionsView.context 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 124,
+      "declarationLine": 126,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9169,7 +9205,7 @@
       "chainBreak": "DataColumnOptionsView.fill 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 125,
+      "declarationLine": 127,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9181,7 +9217,7 @@
       "chainBreak": "DataColumnValueFunction.format 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 132,
+      "declarationLine": 134,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9193,7 +9229,7 @@
       "chainBreak": "DataColumnValueFunction.capabilities 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 133,
+      "declarationLine": 135,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9205,7 +9241,7 @@
       "chainBreak": "DataColumnValueFunction.sources 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 134,
+      "declarationLine": 136,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9217,7 +9253,7 @@
       "chainBreak": "TableModelBinding.modelId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 268,
+      "declarationLine": 270,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9229,7 +9265,7 @@
       "chainBreak": "TableModelBinding.modelName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 269,
+      "declarationLine": 271,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9241,7 +9277,7 @@
       "chainBreak": "DataViewFieldProjection.fieldId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 509,
+      "declarationLine": 511,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9253,7 +9289,7 @@
       "chainBreak": "DataViewFieldProjection.source 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 510,
+      "declarationLine": 512,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9265,7 +9301,7 @@
       "chainBreak": "DataViewFieldProjection.resourceFieldId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 511,
+      "declarationLine": 513,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9277,7 +9313,7 @@
       "chainBreak": "DataViewFieldProjection.resourceField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 512,
+      "declarationLine": 514,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9289,7 +9325,7 @@
       "chainBreak": "DataViewFieldProjection.viewField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 513,
+      "declarationLine": 515,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9301,7 +9337,7 @@
       "chainBreak": "DataViewFieldProjection.type 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 514,
+      "declarationLine": 516,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9313,7 +9349,7 @@
       "chainBreak": "DataViewFieldProjection.label 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 515,
+      "declarationLine": 517,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9325,7 +9361,7 @@
       "chainBreak": "DataViewFieldProjection.output 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 516,
+      "declarationLine": 518,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9337,7 +9373,7 @@
       "chainBreak": "DataViewFieldProjection.sortOrder 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 517,
+      "declarationLine": 519,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9349,7 +9385,7 @@
       "chainBreak": "DataViewFieldProjection.sortDirection 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 518,
+      "declarationLine": 520,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9361,7 +9397,7 @@
       "chainBreak": "DataViewFieldProjection.group 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 519,
+      "declarationLine": 521,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9373,7 +9409,7 @@
       "chainBreak": "DataViewFieldProjection.distinct 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 520,
+      "declarationLine": 522,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9385,7 +9421,7 @@
       "chainBreak": "DataViewFieldProjection.primaryKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 521,
+      "declarationLine": 523,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9397,7 +9433,7 @@
       "chainBreak": "DataViewFieldProjection.value 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 522,
+      "declarationLine": 524,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9409,7 +9445,7 @@
       "chainBreak": "DataViewFieldProjection.valueFunction 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 523,
+      "declarationLine": 525,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9421,7 +9457,7 @@
       "chainBreak": "DataViewFieldProjection.expression 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 524,
+      "declarationLine": 526,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9433,7 +9469,7 @@
       "chainBreak": "DataResourceRelationFieldMapping.parentResourceField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 726,
+      "declarationLine": 733,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9445,7 +9481,7 @@
       "chainBreak": "DataResourceRelationFieldMapping.childResourceField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 727,
+      "declarationLine": 734,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9456,7 +9492,7 @@
       "chainBreak": "DataResourceRelation 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 729,
+      "declarationLine": 736,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -9468,7 +9504,7 @@
       "chainBreak": "DataResourceRelationInput.filterExpression 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 749,
+      "declarationLine": 756,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9480,7 +9516,7 @@
       "chainBreak": "DataResourceRelationInput.childField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 750,
+      "declarationLine": 757,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9492,7 +9528,7 @@
       "chainBreak": "DataResourceRelationInput.parentField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 751,
+      "declarationLine": 758,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9504,7 +9540,7 @@
       "chainBreak": "DataResourceRelationInput.fieldMappings 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 752,
+      "declarationLine": 759,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9516,7 +9552,7 @@
       "chainBreak": "DataResourceRelationInput.condition 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 753,
+      "declarationLine": 760,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9528,7 +9564,7 @@
       "chainBreak": "DataViewQueryCascade.kind 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 801,
+      "declarationLine": 808,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9539,7 +9575,7 @@
       "chainBreak": "DataViewFieldCascade 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 826,
+      "declarationLine": 833,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -9551,7 +9587,7 @@
       "chainBreak": "DataViewFieldCascade.kind 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 827,
+      "declarationLine": 834,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9563,7 +9599,7 @@
       "chainBreak": "DataViewFieldCascade.cascadeId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 828,
+      "declarationLine": 835,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9575,7 +9611,7 @@
       "chainBreak": "DataViewFieldCascade.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 829,
+      "declarationLine": 836,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9587,7 +9623,7 @@
       "chainBreak": "DataViewFieldCascade.viewId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 830,
+      "declarationLine": 837,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9599,19 +9635,7 @@
       "chainBreak": "DataViewFieldCascade.targetField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 831,
-      "sourceFile": "packages/spark-data/src/types.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataViewFieldCascade",
-      "memberName": "optionsView",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataViewFieldCascade.optionsView 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 841,
+      "declarationLine": 838,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9623,7 +9647,7 @@
       "chainBreak": "DataViewFieldCascade.valuePolicy 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 845,
+      "declarationLine": 854,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9634,7 +9658,7 @@
       "chainBreak": "DataViewFieldCascadeAddress 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 854,
+      "declarationLine": 863,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -9646,7 +9670,7 @@
       "chainBreak": "DataViewFieldCascadeAddress.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 855,
+      "declarationLine": 864,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9658,7 +9682,7 @@
       "chainBreak": "DataViewFieldCascadeAddress.viewId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 856,
+      "declarationLine": 865,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9670,7 +9694,7 @@
       "chainBreak": "DataViewFieldCascadeAddress.field 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 857,
+      "declarationLine": 866,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9681,7 +9705,7 @@
       "chainBreak": "DataViewFieldCascadeState 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 859,
+      "declarationLine": 868,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -9693,7 +9717,7 @@
       "chainBreak": "DataViewFieldCascadeState.status 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 860,
+      "declarationLine": 869,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9705,7 +9729,7 @@
       "chainBreak": "DataViewFieldCascadeState.options 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 861,
+      "declarationLine": 870,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9717,7 +9741,7 @@
       "chainBreak": "DataViewFieldCascadeState.valueStatus 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 862,
+      "declarationLine": 871,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9729,7 +9753,7 @@
       "chainBreak": "DataViewFieldCascadeState.error 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 863,
+      "declarationLine": 872,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9741,7 +9765,7 @@
       "chainBreak": "DataSetContract.getFieldCascadeState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1199,
+      "declarationLine": 1208,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9753,7 +9777,7 @@
       "chainBreak": "DataSetContract.refreshFieldCascade 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1200,
+      "declarationLine": 1209,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9765,7 +9789,7 @@
       "chainBreak": "DataSetContract.onFieldCascadeChange 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1201,
+      "declarationLine": 1210,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9777,7 +9801,7 @@
       "chainBreak": "DataSetDiscardAndReloadOptions.views 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1338,
+      "declarationLine": 1347,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -36857,7 +36881,7 @@
       "chainBreak": "DimensionSourceSavedBinding.id 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/binding-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
-      "declarationLine": 17,
+      "declarationLine": 18,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
       "declarationKind": "interface"
     },
@@ -36869,7 +36893,7 @@
       "chainBreak": "DimensionSourceSavedBinding.sourceKind 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/binding-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
-      "declarationLine": 18,
+      "declarationLine": 19,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
       "declarationKind": "interface"
     },
@@ -36881,7 +36905,7 @@
       "chainBreak": "DimensionSourceSavedBinding.eventCode 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/binding-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
-      "declarationLine": 19,
+      "declarationLine": 20,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
       "declarationKind": "interface"
     },
@@ -36893,7 +36917,7 @@
       "chainBreak": "DimensionSourceSavedBinding.bindingVersion 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/binding-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
-      "declarationLine": 20,
+      "declarationLine": 21,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
       "declarationKind": "interface"
     },
@@ -36905,7 +36929,7 @@
       "chainBreak": "DimensionSourceSavedBinding.projectionRole 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/binding-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
-      "declarationLine": 21,
+      "declarationLine": 22,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
       "declarationKind": "interface"
     },
@@ -36917,7 +36941,7 @@
       "chainBreak": "DimensionSourceSavedBinding.modelId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/binding-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
-      "declarationLine": 22,
+      "declarationLine": 23,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
       "declarationKind": "interface"
     },
@@ -36929,7 +36953,43 @@
       "chainBreak": "DimensionSourceSavedBinding.modelMetaName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/binding-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
-      "declarationLine": 23,
+      "declarationLine": 24,
+      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DimensionSourceModel",
+      "memberName": "id",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DimensionSourceModel.id 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/binding-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+      "declarationLine": 28,
+      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DimensionSourceModel",
+      "memberName": "name",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DimensionSourceModel.name 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/binding-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+      "declarationLine": 29,
+      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DimensionSourceModel",
+      "memberName": "sourceName",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DimensionSourceModel.sourceName 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/binding-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+      "declarationLine": 30,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
       "declarationKind": "interface"
     },
@@ -37097,19 +37157,7 @@
       "chainBreak": "DimensionSourceCommitPolicyEditor.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts",
-      "declarationLine": 39,
-      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "DimensionSourceCommitPolicyEditor",
-      "memberName": "dispose",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DimensionSourceCommitPolicyEditor.dispose 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts",
-      "declarationLine": 60,
+      "declarationLine": 40,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts",
       "declarationKind": "class"
     },
@@ -37121,7 +37169,7 @@
       "chainBreak": "DimensionSourceEventEditor.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/event-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/event-editor.ts",
-      "declarationLine": 33,
+      "declarationLine": 30,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/event-editor.ts",
       "declarationKind": "class"
     },
@@ -37133,32 +37181,8 @@
       "chainBreak": "DimensionSourceEventEditor.hasDraft 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/event-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/event-editor.ts",
-      "declarationLine": 44,
+      "declarationLine": 39,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/event-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "DimensionSourceEventEditor",
-      "memberName": "dispose",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DimensionSourceEventEditor.dispose 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/event-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/dimension-source/event-editor.ts",
-      "declarationLine": 51,
-      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/event-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "constructor",
-      "className": "DimensionSourceLedgerGuard",
-      "memberName": "constructor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DimensionSourceLedgerGuard.constructor 的构造语义链断开：构造签名没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts",
-      "declarationLine": 6,
-      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts",
       "declarationKind": "class"
     },
     {
@@ -37318,88 +37342,76 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "constructor",
-      "className": "DimensionSourceOptionTables",
-      "memberName": "constructor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DimensionSourceOptionTables.constructor 的构造语义链断开：构造签名没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/view-support.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
-      "declarationLine": 50,
-      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "DimensionSourceOptionTables",
-      "memberName": "release",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DimensionSourceOptionTables.release 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/view-support.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
-      "declarationLine": 55,
-      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
-      "declarationKind": "class"
-    },
-    {
       "kind": "attribute",
-      "className": "DimensionSourceCommitTarget",
+      "className": "DimensionSourceSaveTarget",
       "memberName": "view",
       "reason": "missing-jsdoc",
-      "chainBreak": "DimensionSourceCommitTarget.view 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "DimensionSourceSaveTarget.view 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/view-support.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
-      "declarationLine": 59,
+      "declarationLine": 31,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
       "declarationKind": "interface"
     },
     {
       "kind": "attribute",
-      "className": "DimensionSourceCommitTarget",
+      "className": "DimensionSourceSaveTarget",
       "memberName": "ids",
       "reason": "missing-jsdoc",
-      "chainBreak": "DimensionSourceCommitTarget.ids 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "DimensionSourceSaveTarget.ids 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/view-support.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
-      "declarationLine": 60,
+      "declarationLine": 32,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
       "declarationKind": "interface"
     },
     {
       "kind": "attribute",
-      "className": "DimensionSourceCommitTarget",
-      "memberName": "kinds",
+      "className": "DimensionSourceSave",
+      "memberName": "dataSet",
       "reason": "missing-jsdoc",
-      "chainBreak": "DimensionSourceCommitTarget.kinds 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "DimensionSourceSave.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/view-support.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
-      "declarationLine": 61,
+      "declarationLine": 36,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
       "declarationKind": "interface"
     },
     {
-      "kind": "constructor",
-      "className": "DimensionSourceChangeSubmission",
-      "memberName": "constructor",
+      "kind": "attribute",
+      "className": "DimensionSourceSave",
+      "memberName": "targets",
       "reason": "missing-jsdoc",
-      "chainBreak": "DimensionSourceChangeSubmission.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "chainBreak": "DimensionSourceSave.targets 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/view-support.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
-      "declarationLine": 69,
+      "declarationLine": 37,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
-      "declarationKind": "class"
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DimensionSourceSave",
+      "memberName": "label",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DimensionSourceSave.label 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/view-support.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
+      "declarationLine": 38,
+      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
+      "declarationKind": "interface"
     },
     {
       "kind": "method",
-      "className": "DimensionSourceChangeSubmission",
-      "memberName": "assertSettled",
+      "className": "DimensionSourceSave",
+      "memberName": "assertCurrent",
       "reason": "missing-jsdoc",
-      "chainBreak": "DimensionSourceChangeSubmission.assertSettled 的成员语义链断开：method 声明没有 JSDoc。",
+      "chainBreak": "DimensionSourceSave.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/dimension-source/view-support.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
-      "declarationLine": 72,
+      "declarationLine": 39,
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
-      "declarationKind": "class"
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "module",
@@ -41009,330 +41021,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "attribute",
-      "className": "BlueprintDesktopOption",
-      "memberName": "tableName",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintDesktopOption.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-desktop-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationLine": 14,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintDesktopOption",
-      "memberName": "valueField",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintDesktopOption.valueField 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-desktop-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationLine": 15,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintDesktopOption",
-      "memberName": "labelField",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintDesktopOption.labelField 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-desktop-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationLine": 16,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintDesktopLayout",
-      "memberName": "fields",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintDesktopLayout.fields 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-desktop-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationLine": 20,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintDesktopLayout",
-      "memberName": "options",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintDesktopLayout.options 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-desktop-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationLine": 21,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintDesktopLayout",
-      "memberName": "warnings",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintDesktopLayout.warnings 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-desktop-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationLine": 22,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "constructor",
-      "className": "BlueprintDesktopEditor",
-      "memberName": "constructor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintDesktopEditor.constructor 的构造语义链断开：构造签名没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-desktop-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationLine": 27,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintDesktopRecord",
-      "memberName": "view",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintDesktopRecord.view 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-desktop-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationLine": 39,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintDesktopRecord",
-      "memberName": "layout",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintDesktopRecord.layout 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-desktop-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationLine": 40,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintDesktopRecord",
-      "memberName": "nodeId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintDesktopRecord.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-desktop-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationLine": 47,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintDesktopRecord",
-      "memberName": "unknown",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintDesktopRecord.unknown 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-desktop-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationLine": 54,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintNavHostTarget",
-      "memberName": "applicationId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostTarget.applicationId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 20,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintNavHostTarget",
-      "memberName": "nodeId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostTarget.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 21,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintNavHostTarget",
-      "memberName": "hostName",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostTarget.hostName 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 22,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "method",
-      "className": "BlueprintNavHostTarget",
-      "memberName": "assertCurrent",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostTarget.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 23,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintNavHostEditor",
-      "memberName": "view",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostEditor.view 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 28,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintNavHostEditor",
-      "memberName": "dataSets",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostEditor.dataSets 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 29,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintNavHostEditor",
-      "memberName": "resources",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostEditor.resources 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 30,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintNavHostEditor",
-      "memberName": "fieldOptions",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostEditor.fieldOptions 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 31,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "constructor",
-      "className": "BlueprintNavHostEditor",
-      "memberName": "constructor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostEditor.constructor 的构造语义链断开：构造签名没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 36,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintNavHostEditor",
-      "memberName": "nodeId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostEditor.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 37,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintNavHostEditor",
-      "memberName": "hostName",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostEditor.hostName 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 38,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintNavHostEditor",
-      "memberName": "unknown",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostEditor.unknown 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 39,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "BlueprintNavHostEditor",
-      "memberName": "column",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostEditor.column 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 66,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "BlueprintNavHostEditor",
-      "memberName": "stopCascade",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavHostEditor.stopCascade 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationLine": 74,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintNavigationOption",
-      "memberName": "value",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavigationOption.value 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-navigation-rules.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts",
-      "declarationLine": 11,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintNavigationOption",
-      "memberName": "label",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNavigationOption.label 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/blueprint-navigation/blueprint-navigation-rules.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts",
-      "declarationLine": 12,
-      "sourceFile": "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts",
-      "declarationKind": "interface"
-    },
-    {
       "kind": "module",
       "className": "app:services/project/blueprint-workspace-dataview",
       "moduleName": "app:services/project/blueprint-workspace-dataview",
@@ -41770,7 +41458,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 226,
+      "declarationLine": 221,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -43625,7 +43313,7 @@
       "chainBreak": "ExternalDataViewSession.isDirty 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 32,
+      "declarationLine": 34,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -43637,7 +43325,7 @@
       "chainBreak": "ExternalDataViewSession.hasUnconfirmedSave 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 33,
+      "declarationLine": 35,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -43649,7 +43337,7 @@
       "chainBreak": "ExternalDataViewSession.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 34,
+      "declarationLine": 36,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -43661,7 +43349,7 @@
       "chainBreak": "ExternalDataViewSession.prepareContextChange 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 35,
+      "declarationLine": 37,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -43673,7 +43361,7 @@
       "chainBreak": "ExternalDataViewSession.moveBlueprintNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 36,
+      "declarationLine": 38,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -43685,7 +43373,7 @@
       "chainBreak": "ExternalDataViewSession.moveBlueprintNodeRelative 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 37,
+      "declarationLine": 39,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -43697,7 +43385,7 @@
       "chainBreak": "ExternalDataViewSession.treeProjection 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 42,
+      "declarationLine": 44,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -43709,7 +43397,7 @@
       "chainBreak": "ExternalDataViewSession.hasTreeProjection 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 43,
+      "declarationLine": 45,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -43721,7 +43409,7 @@
       "chainBreak": "ExternalDataViewSession.childCreateActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 44,
+      "declarationLine": 46,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -44019,17 +43707,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "BlueprintNodeVerifyInput",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintNodeVerifyInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
-      "declarationLine": 17,
-      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "attribute",
       "className": "BlueprintNodeVerifyInput",
       "memberName": "rootNodeId",
@@ -44037,7 +43714,7 @@
       "chainBreak": "BlueprintNodeVerifyInput.rootNodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
-      "declarationLine": 18,
+      "declarationLine": 19,
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
       "declarationKind": "interface"
     },
@@ -44049,7 +43726,7 @@
       "chainBreak": "BlueprintNodeVerifyInput.nodes 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
-      "declarationLine": 19,
+      "declarationLine": 20,
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
       "declarationKind": "interface"
     },
@@ -44061,7 +43738,19 @@
       "chainBreak": "BlueprintNodeVerifyInput.deliveryResources 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
-      "declarationLine": 20,
+      "declarationLine": 21,
+      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "BlueprintNodeVerifyInput",
+      "memberName": "targetPattern",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BlueprintNodeVerifyInput.targetPattern 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
+      "declarationLine": 22,
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",
       "declarationKind": "interface"
     },
@@ -44073,7 +43762,7 @@
       "chainBreak": "BlueprintDesktopInput.context 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
-      "declarationLine": 15,
+      "declarationLine": 13,
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
       "declarationKind": "typeAlias"
     },
@@ -44085,7 +43774,7 @@
       "chainBreak": "BlueprintDesktopInput.selectedNodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
-      "declarationLine": 16,
+      "declarationLine": 14,
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
       "declarationKind": "interface"
     },
@@ -44097,19 +43786,7 @@
       "chainBreak": "BlueprintDesktopInput.isLive 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
-      "declarationLine": 17,
-      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "method",
-      "className": "BlueprintDesktopInput",
-      "memberName": "createEditor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintDesktopInput.createEditor 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
-      "declarationLine": 20,
+      "declarationLine": 15,
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
       "declarationKind": "typeAlias"
     },
@@ -44121,9 +43798,20 @@
       "chainBreak": "BlueprintDesktopInput.notice 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
-      "declarationLine": 21,
+      "declarationLine": 18,
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
       "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "Id",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Id 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "method",
@@ -44133,7 +43821,7 @@
       "chainBreak": "BlueprintNavHostInput.context 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
-      "declarationLine": 15,
+      "declarationLine": 14,
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -44145,7 +43833,7 @@
       "chainBreak": "BlueprintNavHostInput.selectedNodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
-      "declarationLine": 16,
+      "declarationLine": 15,
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
       "declarationKind": "interface"
     },
@@ -44157,7 +43845,7 @@
       "chainBreak": "BlueprintNavHostInput.isLive 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
-      "declarationLine": 17,
+      "declarationLine": 16,
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -44169,32 +43857,8 @@
       "chainBreak": "BlueprintNavHostInput.notice 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
-      "declarationLine": 20,
+      "declarationLine": 19,
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintFlagValues",
-      "memberName": "trueValue",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintFlagValues.trueValue 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
-      "declarationLine": 26,
-      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "BlueprintFlagValues",
-      "memberName": "falseValue",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintFlagValues.falseValue 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
-      "declarationLine": 27,
-      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
       "declarationKind": "interface"
     },
     {

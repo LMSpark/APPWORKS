@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1169,
+  "scannedFileCount": 1168,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -9501,9 +9501,11 @@
         "sourceFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
         "packageName": "@spark-appworks/spark-data",
         "modulePath": "query/data-view-option-catalog",
-        "jsdoc": "@module @spark-appworks/spark-data:query/data-view-option-catalog\n职责：为标准组件提供本次实例的派生选项目录视图，不复制正式业务记录或保存草稿。\n边界：调用方从当次可读定义投影value/label；失效时清空，释放仅删除自有目录。",
+        "jsdoc": "@module @spark-appworks/spark-data:query/data-view-option-catalog\n职责：为标准组件提供本次实例的派生选项目录视图，不复制正式业务记录或保存草稿。\n边界：调用方从当次可读定义或代码登记的常量投影value/label及附加文本列；失效时清空，释放仅删除自有目录。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
+          "DataViewOptionCatalogOptions",
+          "DataViewOptionCatalogItem",
           "DataViewOptionCatalog"
         ]
       }
@@ -14958,11 +14960,12 @@
         "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/dimension-source/binding-editor",
-        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/binding-editor\n职责：蓝图节点“维度来源设计”的来源绑定 owner：数据模型或平台注册事件来源、字段→维度映射、根模型子集合；\n装载唯一绑定、草稿、正式校验、单次保存与回读核验，已有正式维度结果时拒绝变更受保护字段。\n边界：绑定/映射/集合/维度定义均经 88A4 场景 DataView 读写；正式模型经数据空间设计 API 读取，平台合同来自 source-contracts 注册表；\n候选只作为 static-data 选项视图呈现。数据模型事件与来源提交协议由各自编辑器维护。\nAI用途：修改维度来源绑定校验或保存核验时在此调整，页面组合式函数只负责门禁、代次与对话框状态。",
+        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/binding-editor\n职责：蓝图节点“维度来源设计”的来源绑定 owner：数据模型或平台注册事件来源、字段→维度映射、根模型子集合；\n装载唯一绑定、新增草稿、版本/集合结构/维度启用/台账引用等业务核验，并以一次 DataSet 保存提交。\n边界：绑定/映射/集合/维度定义经 88A4 场景 DataView 读写；模型与字段候选是同一 PageRuntime 中 7AB 的正式视图，\n平台合同是 spark-data 选项目录；必填、格式、不可变、候选引用与名称回填由 pagedata 列及视图规则承担，跨字段约束由场景模型规则承担。\n正式模型结构（集合父子主键、外键身份）仍经数据空间设计 API 读取核验。数据模型事件与来源提交协议由各自编辑器维护。\nAI用途：修改维度来源绑定的业务核验时在此调整，页面组合式函数只负责门禁、代次与对话框状态。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DimensionSourceKind",
           "DimensionSourceSavedBinding",
+          "DimensionSourceModel",
           "DimensionSourceBindingEditorInput",
           "DimensionSourceBindingEditor"
         ]
@@ -14976,7 +14979,7 @@
         "sourceFile": "src/lowcode/resources/structured-config/dimension-source/collection-rules.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/dimension-source/collection-rules",
-        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/collection-rules\n职责：数据模型来源子集合（Bil_Dimension_Source_Collection）的结构与正式模型校验：集合树、安全名称、父子主键与子外键身份。\n边界：纯规则，不读写 DataView；正式模型由调用方经数据空间设计 API 读取后传入。平台注册事件来源不支持集合。\nAI用途：调整来源集合约束时在此修改，绑定编辑器只负责收集编辑行并按呈现顺序重排 sort_no。",
+        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/collection-rules\n职责：数据模型来源子集合（Bil_Dimension_Source_Collection）的结构与正式模型校验：集合树、保留名称、父子主键与子外键身份。\n边界：纯规则，不读写 DataView；必填、安全名称与候选引用由场景 pagedata 列规则承担，正式模型由调用方经数据空间设计 API 读取后传入。\nAI用途：调整来源集合约束时在此修改，绑定编辑器只负责收集编辑行并按呈现顺序重排 sort_no。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DimensionSourceCollection"
@@ -14991,7 +14994,7 @@
         "sourceFile": "src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/dimension-source/commit-policy-editor",
-        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/commit-policy-editor\n职责：已保存来源绑定的“来源提交协议”草稿 owner：列出不可变版本，按正式模型校验六个协议模型与来源事实，\n以稳定 policy 身份（绑定 ID + 版本摘要）单次保存 policy 与事实字段并回读核验。\n边界：只保存 status=0 的草稿版本，不启用、不核验物理约束与后端并发；草稿表单与事实行是 static 暂存输入，\n正式写入只经 Commit_Policy.byBinding / Commit_Field.byPolicy 视图的 DataSet 保存。\nAI用途：调整来源提交协议约束时在此修改，页面只负责打开、绑定输入与提示。",
+        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/commit-policy-editor\n职责：已保存来源绑定的“来源提交协议”草稿 owner：列出不可变版本，以稳定 policy 身份（绑定 ID + 版本摘要）新增草稿版本，\n按正式模型核验六个协议模型与来源事实后，以一次 DataSet 保存提交 policy 与事实字段。\n边界：只保存 status=0 的草稿版本，不启用、不核验物理约束与后端并发。草稿与事实直接是 Commit_Policy.draftByBinding /\nCommit_Field.draftByPolicy 的待新增行；模型与字段候选、必填、格式、不可变与引用由 pagedata 列规则承担，\n协议模型的类型、同源与实体列结构经数据空间设计 API 读取正式模型核验。\nAI用途：调整来源提交协议约束时在此修改，页面只负责打开、绑定视图与提示。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DimensionSourceCommitPolicyEditorInput",
@@ -15007,7 +15010,7 @@
         "sourceFile": "src/lowcode/resources/structured-config/dimension-source/event-editor.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/dimension-source/event-editor",
-        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/event-editor\n职责：已保存数据模型来源绑定的“维护数据模型事件”owner：按绑定事件编码装载唯一事件合同（Bil_Dimension_Rule_Template），\n校验业务分类、来源字段与引用约束，单次保存并回读核验。\n边界：只服务 data-model 来源且事件编码不属于平台注册事件；内置事件合同不可修改；事件合同、规则、绑定与业务分类均经 88A4 DataView 读取，\n正式模型经数据空间设计 API 读取。不维护规则本身。\nAI用途：调整数据模型事件合同约束时在此修改，页面只负责打开、表单绑定与提示。",
+        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/event-editor\n职责：已保存数据模型来源绑定的“维护数据模型事件”owner：按绑定事件编码装载唯一事件合同（Bil_Dimension_Rule_Template），\n核验来源绑定与正式模型、模板编码唯一及规则/绑定引用约束，以一次 DataSet 保存提交。\n边界：只服务 data-model 来源且事件编码不属于平台注册事件；内置事件合同不可修改。业务分类与来源字段候选、必填与不可变由 pagedata\n列规则承担，启用事件的业务日期字段由场景模型规则承担；正式模型与主键经同一 PageRuntime 中 7AB 的候选视图读取。不维护规则本身。\nAI用途：调整数据模型事件合同约束时在此修改，页面只负责打开、表单绑定与提示。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DimensionSourceEventEditorInput",
@@ -15023,11 +15026,22 @@
         "sourceFile": "src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/dimension-source/ledger-guard",
-        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/ledger-guard\n职责：判断来源绑定是否已被正式维度结果（07D2 场景 Bil_Dimension_Set.source_binding_id）引用，供绑定保存前拒绝变更受保护字段。\n边界：运行时经数据空间设计 API 解析 07D2 正式模型，按 ledger-views.json 装配独立 DataSet 查询后销毁；任何读取失败、\n字段不可读或结果无法完整核验都抛错（由调用方拒绝保存），不当作“无记录”。不写入台账。\nAI用途：调整台账引用判定时在此修改；绑定编辑器只消费 hasRecords 的布尔结果。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "DimensionSourceLedgerGuard"
-        ]
+        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/ledger-guard\n职责：判断来源绑定是否已被正式维度结果（台账场景 Bil_Dimension_Set.source_binding_id）引用，供绑定保存前拒绝变更受保护字段。\n边界：只消费同一 PageRuntime 中按需装配的台账场景 bySourceBinding 视图；任何读取失败、字段不可读或结果无法完整核验\n都抛错（由调用方拒绝保存），不当作“无记录”。不写入台账。\nAI用途：调整台账引用判定时在此修改；绑定编辑器只消费布尔结果。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/structured-config/dimension-source/model-rules.ts": {
+      "file": "files/src/lowcode/resources/structured-config/dimension-source/model-rules.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/dimension-source/model-rules",
+        "sourcePath": "src/lowcode/resources/structured-config/dimension-source/model-rules.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/dimension-source/model-rules.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/dimension-source/model-rules",
+        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/model-rules\n职责：维度设计场景（88A4）来源绑定、字段映射与事件合同的跨字段保存约束：来源类型与模型/平台合同一致、\n来源凭证投影与账套字段、常量映射值、启用事件的业务日期字段。\n边界：只在 88A4 场景的既有正式模型上注册；单字段必填、格式、不可变与候选引用由 pagedata 列规则承担，\n版本递增、集合结构与台账引用等需对照已存快照或正式模型的约束由编辑器保存命令承担。\nAI用途：所有装配该场景的页面经场景装配统一获得本约束，编辑器不再自行重复。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
       }
     },
     "src/lowcode/resources/structured-config/dimension-source/source-contracts.ts": {
@@ -15054,7 +15068,7 @@
         "sourceFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/dimension-source/view-support",
-        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/view-support\n职责：维度来源三类编辑器（来源绑定、数据模型事件、来源提交协议）共用的 DataView 取值归一、static-data 候选视图与单次保存回读核验。\n边界：只组合 spark-data DataSet/DataView 公共 API；不拼请求、不持有第二份草稿，正式写入仍由 DataSet.saveChanges 的存储适配完成。\nAI用途：新增维度来源编辑器时复用本模块的候选视图与提交核验，不在各编辑器复制回执计数与回读比较。",
+        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/view-support\n职责：维度来源三类编辑器（来源绑定、数据模型事件、来源提交协议）共用的取值归一、7AB 候选视图解析与 DataSet 单次保存。\n边界：只组合 spark-data DataSet/DataView 公共 API；候选、回填、列规则与引用核验由场景 pagedata 声明，\n保存只经 DataSet.saveChanges，结果未知时再次保存只核验原捕获。\nAI用途：新增维度来源编辑器时复用本模块，不在各编辑器复制候选表、配对写值或回执比较。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "Id",
@@ -15062,9 +15076,8 @@
           "FormalField",
           "FieldKind",
           "DimensionSourceTarget",
-          "DimensionSourceOptionTables",
-          "DimensionSourceCommitTarget",
-          "DimensionSourceChangeSubmission"
+          "DimensionSourceSaveTarget",
+          "DimensionSourceSave"
         ]
       }
     },
@@ -15711,6 +15724,19 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/system/navigation-host/model-rules.ts": {
+      "file": "files/src/lowcode/resources/system/navigation-host/model-rules.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/navigation-host/model-rules",
+        "sourcePath": "src/lowcode/resources/system/navigation-host/model-rules.ts",
+        "sourceFile": "src/lowcode/resources/system/navigation-host/model-rules.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/navigation-host/model-rules",
+        "jsdoc": "@module app:lowcode/resources/system/navigation-host/model-rules\n职责：导航宿主关系（Base_Navigation_DataRelation）的跨字段保存约束：值参数名称与文本参数名称不能相同。\n边界：只在应用目录场景的既有正式模型上注册；单字段必填、去空格与候选成员由 pagedata 列规则承担，不在此重复。\nAI用途：所有装配该场景的页面经场景装配统一获得本约束，页面不再自行校验。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/main.ts": {
       "file": "files/src/main.ts.json",
       "module": {
@@ -16047,55 +16073,6 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ProjectPlanningDeliveryContext"
-        ]
-      }
-    },
-    "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts": {
-      "file": "files/src/services/project/blueprint-navigation/blueprint-desktop-editor.ts.json",
-      "module": {
-        "name": "app:services/project/blueprint-navigation/blueprint-desktop-editor",
-        "sourcePath": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-        "sourceFile": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-        "packageName": "app",
-        "modulePath": "services/project/blueprint-navigation/blueprint-desktop-editor",
-        "jsdoc": "@module app:services/project/blueprint-navigation/blueprint-desktop-editor\n职责：蓝图节点的桌面显示记录（Base_Desktop_System，rowid=节点 id）：运行时按注册名解析正式模型与三类桌面字典，\n装配独立 DataSet；读取 0/1 条记录，新增后逐字段回读，取消显示后核验记录已不存在。\n边界：模型身份经数据空间设计 API 按名解析，解析不到即拒绝写入；提交统一经 DataSet.saveChanges 与回读核验，\n结果未知时只核验原提交，不重放；不在前端判断权限，字段可写性取当前查询结果。\nAI用途：调整桌面显示字段或校验时在此修改；页面只消费 BlueprintDesktopRecord 的状态与动作。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "BlueprintDesktopOption",
-          "BlueprintDesktopLayout",
-          "BlueprintDesktopEditor",
-          "BlueprintDesktopRecord"
-        ]
-      }
-    },
-    "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts": {
-      "file": "files/src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts.json",
-      "module": {
-        "name": "app:services/project/blueprint-navigation/blueprint-nav-host-editor",
-        "sourcePath": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-        "sourceFile": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-        "packageName": "app",
-        "modulePath": "services/project/blueprint-navigation/blueprint-nav-host-editor",
-        "jsdoc": "@module app:services/project/blueprint-navigation/blueprint-nav-host-editor\n职责：蓝图节点的导航宿主关系（Base_Navigation_DataRelation，prowid=节点 id）新增、编辑、删除，均经同一 DataSet 单独提交并回读核验；\n数据空间→资源→字段候选由 7AB pagedata 声明的正式视图按输入参数查询。\n边界：只操作蓝图 PageRuntime 中 7AB 场景的视图；字段名按正式列大小写解析，缺失必需列即拒绝；删除前核对目标行在当前节点下唯一；\n结果未知时再次保存只核验原提交，不以新身份重提；paramType 按参考保存为 {type,name} JSON；不配置权限（属批次5）。\nAI用途：导航配置页签的宿主关系维护在此收口，替代旧的只增命令；页面只消费本类的状态与动作。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "BlueprintNavHostTarget",
-          "BlueprintNavHostEditor"
-        ]
-      }
-    },
-    "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts": {
-      "file": "files/src/services/project/blueprint-navigation/blueprint-navigation-rules.ts.json",
-      "module": {
-        "name": "app:services/project/blueprint-navigation/blueprint-navigation-rules",
-        "sourcePath": "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts",
-        "sourceFile": "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts",
-        "packageName": "app",
-        "modulePath": "services/project/blueprint-navigation/blueprint-navigation-rules",
-        "jsdoc": "@module app:services/project/blueprint-navigation/blueprint-navigation-rules\n职责：蓝图导航属性的正式规则：保存前基线比对字段、vue:/ 导航地址规范、打开方式与子项位置候选。\n边界：只判定和描述 wire 值，不改写已保存值；未识别的历史值作为显式候选保留，避免选择框静默丢值。\nAI用途：导航配置页签、owner 基线守卫与子树核验共用此规则，不另写一份地址或候选判断。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "BlueprintNavigationOption"
         ]
       }
     },
@@ -16784,7 +16761,7 @@
         "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-dimension-source.vue",
         "packageName": "app",
         "modulePath": "views/features/application/application-function-management/ui/blueprint-dimension-source",
-        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-dimension-source\n职责：蓝图节点“维度来源设计”对话框：选择节点数据空间模型或平台注册事件，编辑来源绑定、正式来源集合与字段维度映射，\n并从已保存绑定进入“数据模型事件”“来源提交协议”维护。\n边界：全部字段与选择绑定 88A4 维度设计空间的 DataView；装载、校验、保存与回读由宿主传入的流程状态承担。\nAI用途：调整维度来源设计布局时修改本组件，不在此另建查询或保存链。",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-dimension-source\n职责：蓝图节点“维度来源设计”对话框：选择节点数据空间模型或平台注册事件，编辑来源绑定、正式来源集合与字段维度映射，\n并从已保存绑定进入“数据模型事件”“来源提交协议”维护。\n边界：绑定、映射与集合绑定 88A4 维度设计空间的 DataView，模型与字段候选绑定同一 PageRuntime 中 7AB 的候选视图，\n平台合同绑定选项目录视图；当前子集合在详情表单编辑，子外键与子主键按场景字段级联取候选。装载、校验、保存与回读由宿主传入的流程状态承担。\nAI用途：调整维度来源设计布局时修改本组件，不在此另建查询或保存链。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16797,7 +16774,7 @@
         "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog.vue",
         "packageName": "app",
         "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog",
-        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog\n职责：“新增桌面”对话框与“取消桌面显示”确认框。\n边界：向子组件提供桌面独立 PageRuntime；字段绑定 Base_Desktop_System@byNode 当前新增行，字典字段消费同运行时字典视图；\n只有显式“确定”才删除，结果未知时不能关闭或放弃。\nAI用途：调整桌面字段分组或标签时只改 SECTIONS。",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-desktop-dialog\n职责：“新增桌面”对话框与“取消桌面显示”确认框。\n边界：字段绑定页面运行时中 7AB 场景 Base_Desktop_System@byNode 的当前新增行；弹出方式、分类与图标风格消费数据字典场景的命名视图；\n字段可读、可写由正式查询的字段权限决定；只有显式“确定”才删除，结果未知时不能关闭或放弃。\nAI用途：调整桌面字段分组或标签时只改模板。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16810,7 +16787,7 @@
         "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog.vue",
         "packageName": "app",
         "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog",
-        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog\n职责：导航配置页签的“导航宿主”列表、新增/编辑导航宿主对话框（数据来源→字段映射→参数处理方式）、删除确认与数据空间设计入口。\n边界：列表、表单与候选均绑定蓝图 PageRuntime 中 7AB 场景的正式视图；上游变化清空下游由编辑器级联执行；\n只有显式“确定”才删除；结果未知时对话框不能关闭或放弃。\nAI用途：调整宿主列表列或表单分组时只改本组件；业务动作在 use-blueprint-nav-host。",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog\n职责：导航配置页签的“导航宿主”列表、新增/编辑导航宿主对话框（数据来源→字段映射→参数处理方式）、删除确认与数据空间设计入口。\n边界：列表与表单绑定 7AB 场景 byNode 视图；数据空间候选来自列 optionsView 所指视图，资源与三个字段映射由场景字段级联提供候选，\n资源类型由列 fill 回填；参数处理方式按 JSON 文本列的 type/name 子键编辑；只有显式“确定”才删除；结果未知时对话框不能关闭或放弃。\nAI用途：调整宿主列表列或表单分组时只改本组件；业务动作在 use-blueprint-nav-host。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16823,7 +16800,7 @@
         "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config.vue",
         "packageName": "app",
         "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config",
-        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config\n职责：项目蓝图“导航配置”页签：导航属性标准字段。\n边界：字段绑定 owner 的 Base_NavigationInfo DataView 当前行，只写编辑覆盖并通知页面；保存与取消走页面统一入口。\nAI用途：调整导航属性表单时只改本组件绑定，候选与校验由 use-blueprint-navigation 提供。",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config\n职责：项目蓝图“导航配置”页签：导航属性标准字段。\n边界：字段绑定 owner 的 Base_NavigationInfo DataView 当前行，可读、可写由正式查询的字段权限决定；只写编辑覆盖并通知页面，\n保存与取消走页面统一入口；候选来自正式字典视图。\nAI用途：调整导航属性表单时只改本组件绑定，候选视图键由 use-blueprint-navigation 提供。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16855,7 +16832,7 @@
         "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
         "packageName": "app",
         "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop",
-        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop\n职责：导航配置页签的“+桌面 / 取消桌面显示”：独立 PageRuntime 承载按注册名解析的桌面 DataSet，读取当前节点桌面记录，\n新增对话框与取消确认均经 BlueprintDesktopRecord 单独提交并回读。\n边界：桌面 DataSet 不并入蓝图 owner；切换节点、上下文或离开页签后旧结果丢弃；确认框只有显式“确定”才执行删除；\n保存结果未知时对话框不允许关闭或放弃，只能再次核验原提交。\nAI用途：页面与对话框只消费本组合函数返回的状态与动作。",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop\n职责：导航配置页签的“+桌面 / 取消桌面显示”：读取当前节点的桌面记录（主键即节点 id），新增对话框与取消确认。\n边界：直接使用蓝图 DataSet 中 7AB 场景声明的 Base_Desktop_System@byNode；默认值只写入新行可写的字段；\n保存与删除只经 DataSet.saveChanges 提交本行并回读，结果未知时对话框不能关闭或放弃，再次提交只核验原捕获。\nAI用途：页面与对话框只消费本组合函数返回的状态与动作。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "BlueprintDesktopInput"
@@ -16870,7 +16847,7 @@
         "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
         "packageName": "app",
         "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host",
-        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host\n职责：导航配置页签的导航宿主关系列表、新增/编辑对话框、删除确认与“数据空间设计”入口。\n边界：全部动作经 BlueprintNavHostEditor 在蓝图 DataSet 的 byNode 视图暂存并单独提交；切换节点、上下文或离开页签后旧结果丢弃；\n保存或删除结果未知时对话框不能关闭或放弃，只能再次核验原提交。\nAI用途：页面与宿主对话框只消费本组合函数返回的状态与动作。",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host\n职责：导航配置页签的导航宿主关系列表、新增/编辑对话框、删除确认与“数据空间设计”入口。\n边界：直接使用蓝图 DataSet 中 7AB 场景的 byNode 视图；必填、候选成员、资源类型回填与字段级联由场景 pagedata 声明，\n跨字段约束由场景装配注册的模型规则执行；保存与删除只经 DataSet.saveChanges 提交本行，结果未知时再次提交只核验原捕获。\nAI用途：页面与宿主对话框只消费本组合函数返回的状态与动作。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "BlueprintNavHostInput"
@@ -16885,11 +16862,10 @@
         "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
         "packageName": "app",
         "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation",
-        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation\n职责：项目蓝图页“导航配置”页签：导航属性标准字段的候选、字典视图就绪、保存前导航地址规范校验。\n边界：字段直接绑定 owner 的 Base_NavigationInfo DataView 编辑覆盖，经页面“保存蓝图修改”统一保存（owner 保存前核对导航基线）；\n显示方式与水平对齐读取同一 PageRuntime 的正式字典视图，打开方式与子项位置沿仓内正式编码；不自动保存。\nAI用途：调整导航配置页签时在此维护候选与校验，不另建导航草稿或直调接口。",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation\n职责：项目蓝图页“导航配置”页签：导航属性字典候选视图的键与读取状态、模块节点判定。\n边界：字段直接绑定 owner 的 Base_NavigationInfo DataView，经页面“保存蓝图修改”统一保存；导航地址规范由场景列规则在保存时校验；\n跳转方式、显示方式、子项位置与水平对齐读取同一 PageRuntime 的正式字典视图；不自动保存。\nAI用途：调整导航配置页签时在此维护候选视图，不另建导航草稿、候选常量或直调接口。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "BlueprintNavigationInput",
-          "BlueprintFlagValues"
+          "BlueprintNavigationInput"
         ]
       }
     },
@@ -16901,7 +16877,7 @@
         "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-source-commit-editor.vue",
         "packageName": "app",
         "modulePath": "views/features/application/application-function-management/ui/blueprint-source-commit-editor",
-        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-source-commit-editor\n职责：“来源提交协议”子对话框：只读查看已有不可变版本，录入新版本草稿（六个协议模型、来源主键/提交引用字段、提交事实字段）。\n边界：已有版本绑定 88A4 Commit_Policy.byBinding / Commit_Field.byPolicy；草稿表单与事实行绑定暂存输入视图；校验、保存与回读由宿主流程状态承担。\nAI用途：调整来源提交协议布局时修改本组件，不在此另建查询或保存链。",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-source-commit-editor\n职责：“来源提交协议”子对话框：只读查看已有不可变版本，录入新版本草稿（六个协议模型、来源主键/提交引用字段、提交事实字段）。\n边界：已有版本绑定 88A4 Commit_Policy.byBinding / Commit_Field.byPolicy；草稿与事实行是 draftByBinding / draftByPolicy 的待新增行，\n模型与字段候选绑定 7AB 候选视图；平台注册事件来源从模型候选表选择来源模型。校验、保存与回读由宿主流程状态承担。\nAI用途：调整来源提交协议布局时修改本组件，不在此另建查询或保存链。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16944,7 +16920,7 @@
         "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts",
         "packageName": "app",
         "modulePath": "views/features/application/application-function-management/ui/use-application-function-dimension-source",
-        "jsdoc": "@module app:views/features/application/application-function-management/ui/use-application-function-dimension-source\n职责：项目蓝图页“维度来源设计”入口：已保存主数据空间门禁、按需装配 88A4 维度设计空间、来源绑定对话框及其\n“数据模型事件”“来源提交协议”子对话框的状态与代次丢弃。\n边界：装载、校验、保存与回读由 DimensionSourceBindingEditor / DimensionSourceEventEditor / DimensionSourceCommitPolicyEditor 承担；\n本模块只组合标准组件所需的视图键与子组件配置。切换节点、上下文或主数据空间时关闭全部对话框并丢弃迟到结果与本次草稿。\nAI用途：调整入口门禁或对话框交互时修改本模块，不在页面另建查询或保存链。",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/use-application-function-dimension-source\n职责：项目蓝图页“维度来源设计”入口：已保存主数据空间门禁、按需装配 88A4 维度设计空间、来源绑定对话框及其\n“数据模型事件”“来源提交协议”子对话框的状态与代次丢弃。\n边界：装载、校验、保存与回读由 DimensionSourceBindingEditor / DimensionSourceEventEditor / DimensionSourceCommitPolicyEditor 承担；\n本模块只组合标准组件所需的视图键与子组件配置，候选、回填与级联由场景 pagedata 声明。切换节点、上下文或主数据空间时\n关闭全部对话框并丢弃迟到结果与本次草稿。\nAI用途：调整入口门禁或对话框交互时修改本模块，不在页面另建查询或保存链。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ApplicationFunctionDimensionSourceInput"
@@ -20080,29 +20056,9 @@
       "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
       "file": "files/src/services/project/blueprint-workspace-dataview.ts.json"
     },
-    "BlueprintDesktopEditor": {
-      "sourcePath": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "file": "files/src/services/project/blueprint-navigation/blueprint-desktop-editor.ts.json"
-    },
     "BlueprintDesktopInput": {
       "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
       "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts.json"
-    },
-    "BlueprintDesktopLayout": {
-      "sourcePath": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "file": "files/src/services/project/blueprint-navigation/blueprint-desktop-editor.ts.json"
-    },
-    "BlueprintDesktopOption": {
-      "sourcePath": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "file": "files/src/services/project/blueprint-navigation/blueprint-desktop-editor.ts.json"
-    },
-    "BlueprintDesktopRecord": {
-      "sourcePath": "src/services/project/blueprint-navigation/blueprint-desktop-editor.ts",
-      "file": "files/src/services/project/blueprint-navigation/blueprint-desktop-editor.ts.json"
-    },
-    "BlueprintFlagValues": {
-      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
-      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts.json"
     },
     "BlueprintLeafMoveBatchCommand": {
       "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
@@ -20112,25 +20068,13 @@
       "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
       "file": "files/src/services/project/blueprint-workspace-dataview.ts.json"
     },
-    "BlueprintNavHostEditor": {
-      "sourcePath": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "file": "files/src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts.json"
-    },
     "BlueprintNavHostInput": {
       "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
       "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts.json"
     },
-    "BlueprintNavHostTarget": {
-      "sourcePath": "src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts",
-      "file": "files/src/services/project/blueprint-navigation/blueprint-nav-host-editor.ts.json"
-    },
     "BlueprintNavigationInput": {
       "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts",
       "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-navigation.ts.json"
-    },
-    "BlueprintNavigationOption": {
-      "sourcePath": "src/services/project/blueprint-navigation/blueprint-navigation-rules.ts",
-      "file": "files/src/services/project/blueprint-navigation/blueprint-navigation-rules.ts.json"
     },
     "BlueprintNodeDataBatchItem": {
       "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
@@ -21556,6 +21500,14 @@
       "sourcePath": "packages/spark-data/src/query/data-view-option-catalog.ts",
       "file": "files/packages/spark-data/src/query/data-view-option-catalog.ts.json"
     },
+    "DataViewOptionCatalogItem": {
+      "sourcePath": "packages/spark-data/src/query/data-view-option-catalog.ts",
+      "file": "files/packages/spark-data/src/query/data-view-option-catalog.ts.json"
+    },
+    "DataViewOptionCatalogOptions": {
+      "sourcePath": "packages/spark-data/src/query/data-view-option-catalog.ts",
+      "file": "files/packages/spark-data/src/query/data-view-option-catalog.ts.json"
+    },
     "DataViewOptionFillRuntime": {
       "sourcePath": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts",
       "file": "files/packages/spark-data/src/strategies/cascade/option-fill-runtime.ts.json"
@@ -21752,10 +21704,6 @@
       "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
       "file": "files/src/lowcode/resources/structured-config/dimension-source/binding-editor.ts.json"
     },
-    "DimensionSourceChangeSubmission": {
-      "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
-      "file": "files/src/lowcode/resources/structured-config/dimension-source/view-support.ts.json"
-    },
     "DimensionSourceCollection": {
       "sourcePath": "src/lowcode/resources/structured-config/dimension-source/collection-rules.ts",
       "file": "files/src/lowcode/resources/structured-config/dimension-source/collection-rules.ts.json"
@@ -21767,10 +21715,6 @@
     "DimensionSourceCommitPolicyEditorInput": {
       "sourcePath": "src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts",
       "file": "files/src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts.json"
-    },
-    "DimensionSourceCommitTarget": {
-      "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
-      "file": "files/src/lowcode/resources/structured-config/dimension-source/view-support.ts.json"
     },
     "DimensionSourceContract": {
       "sourcePath": "src/lowcode/resources/structured-config/dimension-source/source-contracts.ts",
@@ -21792,17 +21736,21 @@
       "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
       "file": "files/src/lowcode/resources/structured-config/dimension-source/binding-editor.ts.json"
     },
-    "DimensionSourceLedgerGuard": {
-      "sourcePath": "src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts",
-      "file": "files/src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts.json"
+    "DimensionSourceModel": {
+      "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+      "file": "files/src/lowcode/resources/structured-config/dimension-source/binding-editor.ts.json"
     },
-    "DimensionSourceOptionTables": {
+    "DimensionSourceSave": {
       "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
       "file": "files/src/lowcode/resources/structured-config/dimension-source/view-support.ts.json"
     },
     "DimensionSourceSavedBinding": {
       "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
       "file": "files/src/lowcode/resources/structured-config/dimension-source/binding-editor.ts.json"
+    },
+    "DimensionSourceSaveTarget": {
+      "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
+      "file": "files/src/lowcode/resources/structured-config/dimension-source/view-support.ts.json"
     },
     "DimensionSourceTarget": {
       "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",

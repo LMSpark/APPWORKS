@@ -46,6 +46,7 @@ import { DataTable } from './data-table'
 import { createCrudService } from './strategies/crud/crud-service'
 import { normalizeDataSetMetadata, normalizeScenarioId } from './metadata'
 import { assertNoSeparator } from './core/utils'
+import { buildDataViewKey, resolveDataViewKey } from './core/data-view-key'
 import { DataViewCascadeValueBinding } from './strategies/cascade/cascade-value-binding'
 import { ResourceRelationDefinition } from './query/resource-relation-definition'
 import { DataViewFieldCascadeDefinition } from './strategies/cascade/field-cascade-definition'
@@ -1106,7 +1107,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
 
     const relatedCascade = (this.viewCascades ?? []).find(
       dep => dep.kind === 'field'
-        ? dep.tableName === tableName || dep.optionsView.tableName === tableName
+        ? dep.tableName === tableName || (dep.optionsView.scope === undefined && dep.optionsView.tableName === tableName)
           || dep.parents.some(parent => parent.tableName === tableName)
         : dep.parentTable === tableName || dep.childTable === tableName,
     )
@@ -1496,6 +1497,30 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     return t.getView(viewId)
   }
 
+  private _peerResolver: ((scenarioId: string) => DataSet | undefined) | undefined
+
+  /**
+   * 绑定同一页面运行实例中的同伴 DataSet 解析器；选项来源声明 scope 时经此解析，不推导首空间或同名表。
+   * @returns 解除本次绑定。
+   */
+  bindPeerDataSets(resolver: (scenarioId: string) => DataSet | undefined): () => void {
+    this._peerResolver = resolver
+    return () => { if (this._peerResolver === resolver) this._peerResolver = undefined }
+  }
+
+  /**
+   * 解析选项来源视图：无 scope 时 tableName 为本 DataSet 表键；有 scope 时为同伴 DataSet 的正式模型名称，scope 不得指向自身。
+   * 同伴未绑定、未装配或已销毁时抛错；模型名称不唯一由完整视图键解析拒绝。
+   */
+  resolveOptionView(source: Readonly<{ scope?: string; tableName: string; viewId?: string }>): DataView | undefined {
+    const viewId = source.viewId ?? 'default'
+    if (source.scope === undefined) return this.getView(source.tableName, viewId)
+    if (source.scope === this.scenarioId) throw new Error(`OPTION_SOURCE_SCOPE: 本空间选项来源不声明 scope ${source.tableName}@${viewId}`)
+    const peer = this._peerResolver?.(source.scope)
+    if (!peer || peer.destroyed) throw new Error(`OPTION_SOURCE_SCOPE: 选项来源空间未装配 ${source.scope}`)
+    return resolveDataViewKey(buildDataViewKey(source.tableName, viewId, source.scope), peer)
+  }
+
   /**
    * 保存 DataSet 范围内的编辑态和 staged 变更。
    *
@@ -1505,7 +1530,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * 来源明确持有未知提交时，本轮仅核验所选视图的原捕获，不应用新编辑或派发其他视图；剩余修改须随后显式保存。
    */
   async saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>> {
-    await this._optionFillRuntime?.settled()
+    if (this._optionFillRuntime?.pending === true) await this._optionFillRuntime.settled()
     const requested = this.resolveSaveChangesTargets(options)
     const recovering = requested.some(target => target.view.hasUnconfirmedSave)
     const targets = recovering ? requested.filter(target => target.view.hasUnconfirmedSave) : requested

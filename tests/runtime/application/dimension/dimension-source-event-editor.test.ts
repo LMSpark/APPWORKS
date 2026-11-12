@@ -1,26 +1,12 @@
-import {afterEach, describe, expect, it, vi} from 'vitest'
-import type {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import {afterEach, describe, expect, it} from 'vitest'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type {DimensionSourceSavedBinding} from '@/lowcode/resources/structured-config/dimension-source/binding-editor'
 import {DimensionSourceEventEditor} from '@/lowcode/resources/structured-config/dimension-source/event-editor'
-import {createDimensionRuntime} from './dimension.fixture'
+import {catalogField, createDimensionSourceRuntime} from './dimension.fixture'
 
-type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModels']>>[number]
-type FormalField = FormalModel['fields'][number]
+const runtimes: PageRuntime[] = []
+afterEach(() => runtimes.splice(0).forEach(runtime => runtime.dispose()))
 
-const runtimes: PageRuntime[] = [], editors: DimensionSourceEventEditor[] = []
-afterEach(() => {
-  editors.splice(0).forEach(editor => editor.dispose())
-  runtimes.splice(0).forEach(runtime => runtime.dispose())
-})
-
-function field(id: string, canonicalName: string, output = true): FormalField {
-  return {id, modelId: 'MODEL', name: canonicalName, canonicalName, primaryKey: canonicalName === 'rowid', description: canonicalName,
-    type: 'string', output, computed: false, order: 0, orderType: '', raw: {}}
-}
-const expense: FormalModel = {id: 'MODEL', name: '费用单', metaName: 'Expense', sourceType: 'table', sourceId: 'DB', sourceName: 'Expense',
-  primaryKey: 'rowid', businessMain: false, raw: {}, fields: [field('F-ROWID', 'rowid'), field('F-NO', 'bill_no'), field('F-DATE', 'bill_date'),
-    field('F-SECRET', 'secret', false)]}
 const savedBinding: DimensionSourceSavedBinding = {id: 'B1', sourceKind: 'data-model', eventCode: 'expense.changed', bindingVersion: 1,
   projectionRole: 'business-result', modelId: 'MODEL', modelMetaName: 'Expense'}
 const bindingRow = {id: 'B1', binding_code: 'expense-source', source_application_id: 'APP', source_node_id: 'NODE', source_kind: 'data-model',
@@ -34,17 +20,14 @@ type Seed = Readonly<{events?: Array<Record<string, unknown>>; rules?: Array<Rec
   binding?: DimensionSourceSavedBinding}>
 
 async function open(seed: Seed = {}) {
-  const f = await createDimensionRuntime()
+  const f = await createDimensionSourceRuntime()
   runtimes.push(f.runtime)
+  f.http.records['Base_DataModel_Field']!.push(catalogField('F-NO', 'MODEL', 'bill_no'), catalogField('F-DATE', 'MODEL', 'bill_date'))
   f.http.records['Bil_Dimension_Source_Binding'] = seed.bindings ?? [bindingRow]
   f.http.records['Bil_Dimension_Rule_Template'] = seed.events ?? []
   f.http.records['Bil_Dimension_Rule'] = seed.rules ?? []
-  f.http.records['Bil_Dimension_Biz_Category'] = [{rowid: 'C1', biz_category_code: 'finance', biz_category_name: '财务', status: true},
-    {rowid: 'C2', biz_category_code: 'retired', biz_category_name: '停用', status: false}]
-  const readModels = vi.fn<DataSpaceDesignApi['readModels']>(async () => [expense])
-  const editor = new DimensionSourceEventEditor({dataSet: f.dataSet, readModels, binding: seed.binding ?? savedBinding,
+  const editor = new DimensionSourceEventEditor({dataSet: f.dataSet, binding: seed.binding ?? savedBinding,
     target: {applicationId: 'APP', nodeId: 'NODE', dataSpaceId: 'SPACE-A', assertCurrent: () => undefined}})
-  editors.push(editor)
   return {...f, editor}
 }
 
@@ -60,7 +43,8 @@ describe('维度来源数据模型事件编辑 owner', () => {
     expect(f.editor.isNew).toBe(true)
     expect(f.editor.template.getEditingRow(f.editor.eventId!)).toMatchObject({template_code: 'expense.changed', event_code: 'expense.changed',
       source_table: 'Expense', source_pk_field: 'rowid'})
-    expect(f.editor.outputFieldOptions.rows.map(row => row['canonicalName'])).toEqual(['rowid', 'bill_no', 'bill_date'])
+    expect(f.editor.categories.rows.map(row => row['biz_category_code'])).toEqual(['finance'])
+    expect(f.editor.outputFields.rows.map(row => row['canonicalName'])).toEqual(['rowid', 'amount', 'account_set', 'total', 'commit_id', 'bill_no', 'bill_date'])
     edit(f, {template_name: '费用变化', biz_category: 'finance', biz_date_field: 'bill_date', status: true})
     await expect(f.editor.save()).resolves.toBe(true)
     expect(f.http.records['Bil_Dimension_Rule_Template']).toEqual([expect.objectContaining({template_code: 'expense.changed',
@@ -70,11 +54,11 @@ describe('维度来源数据模型事件编辑 owner', () => {
   })
 
   it.each([
-    ['an unregistered category', {template_name: 'x', biz_category: 'ghost'}, '维度事件业务分类未正式登记、未启用或不唯一：ghost'],
-    ['a disabled category', {template_name: 'x', biz_category: 'retired'}, '维度事件业务分类未正式登记、未启用或不唯一：retired'],
-    ['a non-output business number field', {template_name: 'x', biz_category: 'finance', biz_no_field: 'secret'}, '业务编号字段不属于当前模型输出字段：secret'],
+    ['an unregistered category', {template_name: 'x', biz_category: 'ghost'}, 'biz_category 不在当前可选范围内或不唯一'],
+    ['a disabled category', {template_name: 'x', biz_category: 'retired'}, 'biz_category 不在当前可选范围内或不唯一'],
+    ['a non-output business number field', {template_name: 'x', biz_category: 'finance', biz_no_field: 'secret'}, 'biz_no_field 不在当前可选范围内或不唯一'],
     ['enabling without a business date field', {template_name: 'x', biz_category: 'finance', status: true}, '启用事件业务日期字段不能为空'],
-    ['a missing event name', {biz_category: 'finance'}, '维度事件名称不能为空'],
+    ['a missing event name', {biz_category: 'finance'}, 'template_name 不能为空'],
   ])('rejects %s without writing', async (_name, values, message) => {
     const f = await open()
     await f.editor.load()
@@ -103,11 +87,14 @@ describe('维度来源数据模型事件编辑 owner', () => {
     expect(f.http.records['Bil_Dimension_Rule_Template']?.[0]).toMatchObject({template_name: '费用单变化'})
   })
 
-  it('refuses builtin events, foreign source tables and platform event codes', async () => {
+  it('refuses builtin events, foreign source tables, models outside the node space and platform event codes', async () => {
     const builtin = await open({events: [{...eventRow, builtin_flag: true}]})
     await expect(builtin.editor.load()).rejects.toThrow('内置事件合同不能由数据模型事件编辑器修改：expense.changed')
     const foreign = await open({events: [{...eventRow, source_table: 'Other'}]})
     await expect(foreign.editor.load()).rejects.toThrow('现有事件来源资源与当前正式模型不一致：Expense')
+    const outside = await open({bindings: [{...bindingRow, source_model_id: 'FOREIGN', source_model_meta_name: 'Foreign'}],
+      binding: {...savedBinding, modelId: 'FOREIGN', modelMetaName: 'Foreign'}})
+    await expect(outside.editor.load()).rejects.toThrow('当前蓝图节点未绑定维度来源模型：Foreign')
     const platform = await open({bindings: [{...bindingRow, event_code: 'enterprise.task.changed'}],
       binding: {...savedBinding, eventCode: 'enterprise.task.changed'}})
     await expect(platform.editor.load()).rejects.toThrow('事件编码属于平台注册事件，不能作为数据模型事件维护：enterprise.task.changed')

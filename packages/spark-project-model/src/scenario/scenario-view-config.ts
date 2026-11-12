@@ -89,7 +89,7 @@ export class ScenarioViewConfig {
     fieldProjection: true, queryContext: true, queryConfig: true, filterExpression: true, sortExpression: true,
     autoCurrentFirst: true, autoSelectFirst: true, page: true, pageSize: true, treeConfig: true,
     valueField: true, labelField: true, selectionDelimiter: true, autoLoad: true, commitMode: true, aggregates: true,
-    allowDelete: true, lockCurrentWhilePending: true,
+    allowDelete: true, lockCurrentWhilePending: true, fieldOptions: true,
   })
   readonly #scenarioId: string
   readonly #config: ScenarioConfigObject
@@ -235,8 +235,9 @@ export class ScenarioViewConfig {
       if (this.relationTables(relation).includes(tableName)) references.add(`resourceRelations[${index}]`)
     })
     for (const [index, value] of configObjects(this.#config['viewCascades']).entries()) {
+      const options = value['kind'] === 'field' ? record(value['optionsView'], 'optionsView') : undefined
       const endpoints = value['kind'] === 'field'
-        ? [value['tableName'], record(value['optionsView'], 'optionsView')['tableName'],
+        ? [value['tableName'], ...(options?.['scope'] === undefined ? [options?.['tableName']] : []),
           ...configObjects(value['parents']).map(parent => parent['tableName'])]
         : [value['parentTable'], value['childTable']]
       if (endpoints.includes(tableName)) references.add(`viewCascades[${index}]`)
@@ -573,9 +574,10 @@ export class ScenarioViewConfig {
   }
 
   private cascadeTables(cascade: ScenarioConfigObject): string[] {
+    const options = cascade['kind'] === 'field' ? record(cascade['optionsView'], 'optionsView') : undefined
     return cascade['kind'] === 'field'
       ? [name(cascade['tableName'], 'viewCascades.tableName'),
-        name(record(cascade['optionsView'], 'optionsView')['tableName'], 'optionsView.tableName'),
+        ...(options?.['scope'] === undefined ? [name(options?.['tableName'], 'optionsView.tableName')] : []),
         ...configObjects(cascade['parents']).map(parent => name(parent['tableName'], 'parents.tableName'))]
       : [name(cascade['parentTable'], 'parentTable'), name(cascade['childTable'], 'childTable')]
   }
@@ -729,16 +731,7 @@ export class ScenarioViewConfig {
       }
       for (const key of ['unique', 'immutable']) optionalBoolean(column, key, columnPath)
       if ('trim' in column && column['trim'] !== 'reject' && column['trim'] !== 'normalize') throw new Error(`${columnPath}.trim 无效`)
-      if ('optionsView' in column) {
-        const options = this.validateOptionSource(column['optionsView'], `${columnPath}.optionsView`, ['context', 'fill'])
-        for (const key of ['context', 'fill']) {
-          if (!(key in options)) continue
-          for (const [target, source] of Object.entries(record(options[key], `${columnPath}.optionsView.${key}`))) {
-            name(target, `${columnPath}.optionsView.${key}`)
-            name(source, `${columnPath}.optionsView.${key}.${target}`)
-          }
-        }
-      }
+      if ('optionsView' in column) this.validateColumnOptions(column['optionsView'], `${columnPath}.optionsView`)
       if ('valueFunction' in column) {
         const definitionPath = `${columnPath}.valueFunction`
         const definition = record(column['valueFunction'], definitionPath)
@@ -757,12 +750,24 @@ export class ScenarioViewConfig {
     })
   }
 
+  private validateColumnOptions(input: unknown, path: string): void {
+    const options = this.validateOptionSource(input, path, ['context', 'fill'])
+    for (const key of ['context', 'fill']) {
+      if (!(key in options)) continue
+      for (const [target, source] of Object.entries(record(options[key], `${path}.${key}`))) {
+        name(target, `${path}.${key}`)
+        name(source, `${path}.${key}.${target}`)
+      }
+    }
+  }
+
   private validateOptionSource(input: unknown, path: string, extra: readonly string[]): ScenarioConfigObject {
     const source = record(input, path)
-    keys(source, ['tableName', 'viewId', 'valueField', 'labelField', ...extra], path)
+    keys(source, ['scope', 'tableName', 'viewId', 'valueField', 'labelField', ...extra], path)
     name(source['tableName'], `${path}.tableName`)
     name(source['valueField'], `${path}.valueField`)
-    for (const key of ['viewId', 'labelField']) if (key in source) name(source[key], `${path}.${key}`)
+    for (const key of ['scope', 'viewId', 'labelField']) if (key in source) name(source[key], `${path}.${key}`)
+    if (source['scope'] === this.#scenarioId) throw new Error(`${path}.scope 不能指向本空间`)
     return source
   }
 
@@ -770,6 +775,11 @@ export class ScenarioViewConfig {
     keys(view, Object.keys(ScenarioViewConfig.#viewProperties), path)
     if ('onRequestComplete' in view) SparkData.DataViewQuery.parseCompletionHandler(view['onRequestComplete'], `${path}.onRequestComplete`)
     for (const key of ['autoCurrentFirst', 'autoSelectFirst', 'autoLoad', 'allowDelete', 'lockCurrentWhilePending']) optionalBoolean(view, key, path)
+    if ('fieldOptions' in view) {
+      for (const [field, options] of Object.entries(record(view['fieldOptions'], `${path}.fieldOptions`))) {
+        this.validateColumnOptions(options, `${path}.fieldOptions.${name(field, `${path}.fieldOptions`)}`)
+      }
+    }
     for (const key of ['labelField', 'selectionDelimiter']) {
       if (key in view && typeof view[key] !== 'string') throw new Error(`${path}.${key} 必须是字符串`)
     }

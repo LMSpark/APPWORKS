@@ -152,28 +152,31 @@
     },
     "Base_DataModel": {
       "modelBinding": {"modelId": "039526c0-65f8-482a-9b3d-ceeed1a86e49", "modelName": "Base_DataModel"},
-      "views": {"default": {"autoLoad": false}, "navHostResources": {
-        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
-        "valueField": "MetaName", "labelField": "Name",
-        "filterExpression": {"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "dataSetId"}},
-        "queryConfig": {"allPages": true, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type"]}
-      }, "navHostResource": {
-        "autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "pageSize": 2,
-        "valueField": "rowid", "labelField": "Name",
-        "queryConfig": {"maxRows": 2, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type"]}
-      }}
+      "views": {
+        "default": {"autoLoad": false},
+        "navHostResources": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "MetaName", "labelField": "Name", "filterExpression": {"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "dataSetId"}}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type"]}},
+        "navHostResource": {"autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "pageSize": 2, "valueField": "rowid", "labelField": "Name", "queryConfig": {"maxRows": 2, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type"]}},
+        "dimensionSourceModels": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "rowid", "labelField": "Name", "filterExpression": {"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "dataSetId"}}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type"]}},
+        "dimensionSourceModelNames": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "Name", "labelField": "Name", "filterExpression": {"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "dataSetId"}}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type"]}}
+      }
     },
     "Base_DataModel_Field": {
       "modelBinding": {"modelId": "4e8929b0-bb04-4015-a476-b4d85674a2d5", "modelName": "Base_DataModel_Field"},
-      "views": {"default": {"autoLoad": false}, "navHostFields": {
-        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
-        "valueField": "Name", "labelField": "description",
-        "filterExpression": {"logic": "and", "filters": [
-          {"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}},
-          {"field": "type", "operator": "eq", "value": "dataModel"}
-        ]},
-        "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "description", "FieldType", "AsName"]}
-      }}
+      "columns": [
+        {"name": "canonicalName", "type": "string", "label": "输出名", "computeExpression": "AsName || (String(Name || '').toLowerCase() === 'rowid' ? 'rowid' : Name)"}
+      ],
+      "views": {
+        "default": {"autoLoad": false},
+        "dimensionSourceFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "rowid", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionSourceFieldNames": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "canonicalName", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionSourceKeyFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "rowid", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}, {"logic": "or", "filters": [{"field": "ValueFun", "operator": "is-null"}, {"field": "ValueFun", "operator": "is-empty"}, {"field": "ValueFun", "operator": "eq", "value": "null"}, {"field": "ValueFun", "operator": "eq", "value": "\"\""}]}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionCollectionKeyFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "rowid", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}, {"logic": "or", "filters": [{"field": "ValueFun", "operator": "is-null"}, {"field": "ValueFun", "operator": "is-empty"}, {"field": "ValueFun", "operator": "eq", "value": "null"}, {"field": "ValueFun", "operator": "eq", "value": "\"\""}]}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionCollectionPrimaryFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "rowid", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}, {"field": "IsPKey", "operator": "eq", "value": 1}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionSpacePrimaryFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "rowid", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "dataSetId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}, {"field": "IsPKey", "operator": "eq", "value": 1}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "dataSetId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionCommitFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "canonicalName", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}, {"logic": "or", "filters": [{"field": "ValueFun", "operator": "is-null"}, {"field": "ValueFun", "operator": "is-empty"}, {"field": "ValueFun", "operator": "eq", "value": "null"}, {"field": "ValueFun", "operator": "eq", "value": "\"\""}]}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionCommitPrimaryFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "canonicalName", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}, {"field": "IsPKey", "operator": "eq", "value": 1}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "navHostFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "Name", "labelField": "description", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "description", "FieldType", "AsName"]}}
+      }
     },
     "Base_Desktop_System": {
       "modelBinding": {"modelId": "7AB874097A1E8711A42FD845939A6E05p008", "modelName": "Base_Desktop_System"},

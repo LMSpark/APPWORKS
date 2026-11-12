@@ -54,9 +54,9 @@ export class DataViewFieldCascadeDefinition {
       throw new Error('FIELD_CASCADE_CONFIG: parents 字段或参数重复')
     }
     const options = object(value['optionsView'], 'optionsView')
-    exactKeys(options, ['tableName', 'viewId'], 'optionsView')
-    const optionsView = { tableName: name(options['tableName'], 'optionsView.tableName'),
-      viewId: name(options['viewId'], 'optionsView.viewId') }
+    exactKeys(options, ['scope', 'tableName', 'viewId'], 'optionsView')
+    const optionsView = { ...(options['scope'] === undefined ? {} : { scope: name(options['scope'], 'optionsView.scope') }),
+      tableName: name(options['tableName'], 'optionsView.tableName'), viewId: name(options['viewId'], 'optionsView.viewId') }
     const policy = object(value['valuePolicy'], 'valuePolicy')
     exactKeys(policy, ['mode', 'clearValue'], 'valuePolicy')
     const mode = policy['mode']
@@ -122,10 +122,11 @@ export class DataViewFieldCascadeDefinition {
     return fields
   }
 
+  /** 同伴空间的选项来源在运行解析时核验，这里只核本 DataSet 的视图。 */
   static validateViews(definitions: readonly DataViewFieldCascade[], hasView: (tableName: string, viewId: string) => boolean): void {
     for (const definition of definitions) {
       if (!hasView(definition.tableName, definition.viewId)
-        || !hasView(definition.optionsView.tableName, definition.optionsView.viewId)
+        || (definition.optionsView.scope === undefined && !hasView(definition.optionsView.tableName, definition.optionsView.viewId))
         || definition.parents.some(parent => !hasView(parent.tableName, parent.viewId))) {
         throw new Error(`FIELD_CASCADE_VIEW: 视图不存在 ${definition.cascadeId}`)
       }
@@ -135,20 +136,24 @@ export class DataViewFieldCascadeDefinition {
   static validateRuntime(definitions: readonly DataViewFieldCascade[], dataSet: DataSet): void {
     this.validateViews(definitions, (tableName, viewId) => dataSet.getView(tableName, viewId) !== undefined)
     for (const definition of definitions) {
+      if (definition.optionsView.scope !== undefined && definition.optionsView.scope === dataSet.scenarioId) throw new Error(`FIELD_CASCADE_VIEW: 本空间选项来源不声明 scope ${definition.cascadeId}`)
       const target = dataSet.getView(definition.tableName, definition.viewId)
-      const options = dataSet.getView(definition.optionsView.tableName, definition.optionsView.viewId)
-      if (!target || !options) throw new Error(`FIELD_CASCADE_VIEW: 视图不存在 ${definition.cascadeId}`)
+      const options = definition.optionsView.scope === undefined
+        ? dataSet.getView(definition.optionsView.tableName, definition.optionsView.viewId) : undefined
+      if (!target || (definition.optionsView.scope === undefined && !options)) throw new Error(`FIELD_CASCADE_VIEW: 视图不存在 ${definition.cascadeId}`)
       const output = new Set(target.columns.map(column => column.name))
       const parentMissing = definition.parents.some(parent => {
         const view = dataSet.getView(parent.tableName, parent.viewId)
         return parent.field !== undefined && !view?.columns.some(column => column.name === parent.field)
       })
-      const valueFields = options.valueField ?? (options.effectivePkFields.length === 1 ? options.effectivePkFields[0] : undefined)
-      const optionFields = typeof valueFields === 'string' ? [valueFields] : valueFields ?? []
-      if (!output.has(definition.targetField) || parentMissing || optionFields.length === 0
-        || [...optionFields, ...(options.labelField === undefined ? [] : [options.labelField])]
+      if (!output.has(definition.targetField) || parentMissing) throw new Error(`FIELD_CASCADE_FIELD: 输出字段不存在 ${definition.cascadeId}`)
+      if (options) {
+        const valueFields = options.valueField ?? (options.effectivePkFields.length === 1 ? options.effectivePkFields[0] : undefined)
+        const optionFields = typeof valueFields === 'string' ? [valueFields] : valueFields ?? []
+        if (optionFields.length === 0 || [...optionFields, ...(options.labelField === undefined ? [] : [options.labelField])]
           .some(field => !options.columns.some(column => column.name === field))) {
-        throw new Error(`FIELD_CASCADE_FIELD: 输出字段不存在 ${definition.cascadeId}`)
+          throw new Error(`FIELD_CASCADE_FIELD: 输出字段不存在 ${definition.cascadeId}`)
+        }
       }
       const targetColumn = target.columns.find(column => column.name === definition.targetField)
       if (targetColumn?.computeExpression !== undefined || target.effectivePkFields.includes(definition.targetField)) {

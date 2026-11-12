@@ -32,6 +32,11 @@ export class DataViewOptionFillRuntime {
     })
   }
 
+  /** 是否有在途回填；无在途时保存不得插入额外异步步骤，保持派发时序。 */
+  get pending(): boolean {
+    return this.#pending.size > 0
+  }
+
   /** 等待全部在途回填（含回填触发的后续回填）结束。 */
   async settled(): Promise<void> {
     while (this.#pending.size > 0) await Promise.all([...this.#pending])
@@ -51,8 +56,8 @@ export class DataViewOptionFillRuntime {
     let match: DataRow | undefined
     if (!empty(value)) {
       const viewId = source.viewId ?? 'default'
-      const options = this.dataSet.getView(source.tableName, viewId)
-      if (!options) throw new Error(`选项来源视图不存在 ${source.tableName}@${viewId}`)
+      const options = this.dataSet.resolveOptionView(source)
+      if (!options) throw new Error(`选项来源视图不存在 ${source.scope === undefined ? '' : `${source.scope}@`}${source.tableName}@${viewId}`)
       const context = source.context === undefined ? undefined
         : Object.fromEntries(Object.entries(source.context).map(([parameter, field]) => [parameter, row[field]]))
       const rows = await options.queryOptionRows({ fields: [...new Set([source.valueField, ...Object.values(fill)])],

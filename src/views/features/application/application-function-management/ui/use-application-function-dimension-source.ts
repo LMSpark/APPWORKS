@@ -3,16 +3,17 @@
  * 职责：项目蓝图页“维度来源设计”入口：已保存主数据空间门禁、按需装配 88A4 维度设计空间、来源绑定对话框及其
  *   “数据模型事件”“来源提交协议”子对话框的状态与代次丢弃。
  * 边界：装载、校验、保存与回读由 DimensionSourceBindingEditor / DimensionSourceEventEditor / DimensionSourceCommitPolicyEditor 承担；
- *   本模块只组合标准组件所需的视图键与子组件配置。切换节点、上下文或主数据空间时关闭全部对话框并丢弃迟到结果与本次草稿。
+ *   本模块只组合标准组件所需的视图键与子组件配置，候选、回填与级联由场景 pagedata 声明。切换节点、上下文或主数据空间时
+ *   关闭全部对话框并丢弃迟到结果与本次草稿。
  * AI用途：调整入口门禁或对话框交互时修改本模块，不在页面另建查询或保存链。
  */
 import {computed, ref, shallowRef, watch, type Ref} from 'vue'
-import type {DataRow, DataSet, DataView, SparkNode} from '@spark-appworks/spark-data'
+import type {DataRow, DataView, SparkNode} from '@spark-appworks/spark-data'
 import {DimensionSourceBindingEditor, type DimensionSourceBindingEditorInput, type DimensionSourceKind}
   from '@/lowcode/resources/structured-config/dimension-source/binding-editor'
 import {DimensionSourceCommitPolicyEditor} from '@/lowcode/resources/structured-config/dimension-source/commit-policy-editor'
 import {DimensionSourceEventEditor} from '@/lowcode/resources/structured-config/dimension-source/event-editor'
-import type {DimensionSourceTarget} from '@/lowcode/resources/structured-config/dimension-source/view-support'
+import {viewKey, type DimensionSourceTarget, type Id} from '@/lowcode/resources/structured-config/dimension-source/view-support'
 import {BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID} from '@/views/app/dev-system/useDevState'
 import type {FeatureFieldOption, FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import type {BlueprintTreeContext} from './use-application-function-page'
@@ -52,14 +53,18 @@ const COMMIT_MODEL_ROLES: ReadonlyArray<readonly [string, string]> = [['source_m
   ['intent_meta_name', '提交意图模型'], ['successor_meta_name', '后继登记模型'], ['fact_meta_name', '提交事实模型'], ['head_meta_name', '当前状态视图']]
 const textColumn = (field: string, label: string, minWidth: number): SparkNode =>
   ({type: 'r-text', props: {field, label, readonly: true, minWidth, showOverflowTooltip: true}})
-/** 来源模型候选表的展示列。 */
+/** 来源模型候选表（7AB Base_DataModel）的展示列。 */
 export const DIMENSION_SOURCE_MODEL_COLUMNS: readonly SparkNode[] = Object.freeze([
-  textColumn('name', '模型名称', 200), textColumn('metaName', '注册名', 200), textColumn('id', '模型 ID', 260),
+  textColumn('Name', '注册名', 200), textColumn('MetaName', '来源名', 200), textColumn('rowid', '模型 ID', 260),
 ])
-/** 平台注册事件合同候选表的展示列。 */
+/** 平台注册事件合同候选表（DataViewOptionCatalog）的展示列。 */
 export const DIMENSION_SOURCE_CONTRACT_COLUMNS: readonly SparkNode[] = Object.freeze([
   textColumn('name', '合同名称', 180), textColumn('eventCode', '事件编码', 200), textColumn('payloadVersion', '载荷版本', 100),
-  textColumn('id', '合同 ID', 220),
+  textColumn('value', '合同 ID', 220),
+])
+const COLLECTION_COLUMNS: readonly SparkNode[] = Object.freeze([
+  textColumn('sort_no', '顺序', 70), textColumn('collection_name', '集合名称', 140), textColumn('source_model_meta_name', '子模型', 180),
+  textColumn('parent_key_field_name', '父主键', 140), textColumn('child_key_field_name', '子外键', 140), textColumn('child_pk_field_name', '子主键', 140),
 ])
 const COMMIT_POLICY_COLUMNS: readonly SparkNode[] = Object.freeze([
   textColumn('policy_version', '版本', 80), textColumn('status', '状态', 80), textColumn('field_count', '事实数', 80),
@@ -82,17 +87,17 @@ export type ApplicationFunctionDimensionSourceInput = Readonly<{
   persistedDataSpaceId: Readonly<Ref<string>>
   /** conid 编辑覆盖尚未保存回读。 */
   bindingPending: Readonly<Ref<boolean>>
-  /** 读取数据空间正式模型（含字段）。 */
+  /** 读取数据空间正式模型（含字段），只用于保存前的结构核验。 */
   readModels: DimensionSourceBindingEditorInput['readModels']
   /** 来源绑定已被正式维度结果引用时为 true；无法核验时抛错。 */
-  hasLedgerRecords: DimensionSourceBindingEditorInput['hasLedgerRecords']
+  hasLedgerRecords: (context: BlueprintTreeContext, bindingId: string, assertCurrent: () => void) => Promise<boolean>
   /** 页面错误提示。 */
   error: Ref<string>
   /** 页面成功提示。 */
   notice: Ref<string>
 }>
 
-type DimensionSourceSession = Readonly<{dataSet: DataSet; target: DimensionSourceTarget}>
+type DimensionSourceSession = Readonly<{dataSet: DimensionSourceBindingEditorInput['dataSet']; target: DimensionSourceTarget}>
 
 function describe(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause)
@@ -122,10 +127,14 @@ function labelOf(labels: FieldLabels, field: string): Omit<FeatureFieldSpec, 'fi
   if (!spec) throw new Error(`维度来源字段缺少表单配置：${field}`)
   return spec
 }
-function rowId(view: DataView, row: Readonly<DataRow>, label: string): string | number {
+function rowId(view: DataView, row: Readonly<DataRow>, label: string): Id {
   const id = view.getPkKey(row)
   if (id === undefined) throw new Error(`${label}缺少身份`)
   return id
+}
+function currentId(view: DataView): Id | undefined {
+  const row = view.currentRow
+  return row ? view.getPkKey(row) : undefined
 }
 
 /** 维度来源设计对话框及其事件、提交协议子对话框的状态与动作。 */
@@ -145,7 +154,7 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
   const commitNotice = ref('')
   const commitEditor = shallowRef<DimensionSourceCommitPolicyEditor>()
   const commitLoaded = ref(false)
-  const selectedPolicyId = ref<string | number>()
+  const selectedPolicyId = ref<Id>()
   /** 编辑器内部状态非响应式；每次动作结束后递增以刷新派生配置。 */
   const generation = ref(0)
   let revision = 0
@@ -162,21 +171,21 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
     void generation.value
     return commitLoaded.value ? commitEditor.value : undefined
   }
-  const keyOf = <T extends {viewKey(view: DataView): string}>(owner: T | undefined, pick: (owner: T) => DataView): string =>
-    owner ? owner.viewKey(pick(owner)) : ''
+  const keyOf = <T>(owner: T | undefined, pick: (owner: T) => DataView): string => owner === undefined ? '' : viewKey(pick(owner))
 
-  const modelViewKey = computed(() => keyOf(active(), current => current.modelOptions))
-  const contractViewKey = computed(() => keyOf(active(), current => current.contractOptions))
+  const modelViewKey = computed(() => keyOf(active(), current => current.models))
+  const contractViewKey = computed(() => keyOf(active(), current => current.contracts))
   const bindingViewKey = computed(() => keyOf(active(), current => current.binding))
   const mappingViewKey = computed(() => keyOf(active(), current => current.mapping))
   const collectionViewKey = computed(() => keyOf(active(), current => current.collection))
+  const collectionId = computed(() => { const current = active(); return current ? currentId(current.collection) : undefined })
   const bindingId = computed(() => active()?.bindingId)
   const sourceKind = computed(() => active()?.sourceKind)
   const modelCount = computed(() => active()?.modelCount ?? 0)
   const sourceLabel = computed(() => {
     const current = active()
     if (current?.sourceKind === 'platform-event' && current.contract) return `平台注册事件：${current.contract.name} · v${current.contract.payloadVersion}`
-    return current?.model ? `数据模型：${current.model.name}（${current.model.metaName}）` : ''
+    return current?.model ? `数据模型：${current.model.name}（${current.model.sourceName}）` : ''
   })
   const platformNonDimensionFields = computed(() => active()?.platformNonDimensionFields() ?? [])
   const unknown = computed(() => active()?.unknown ?? false)
@@ -192,9 +201,7 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
     const platform = current.sourceKind === 'platform-event'
     return current.bindingFormFields().map(field => {
       const spec = typedSpec(current.binding, field, labelOf(BINDING_FIELD_LABELS, field))
-      if (field === 'account_field_id') {
-        return {...spec, optionKey: current.viewKey(current.accountFieldOptions), labelFields: ['canonicalName', 'name'], labelJoiner: ' · '}
-      }
+      if (field === 'account_field_id') return {...spec, optionKey: viewKey(current.accountFields)}
       return platform && (field === 'event_code' || field === 'payload_version') ? {...spec, readonly: true} : spec
     })
   })
@@ -203,6 +210,7 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
     const current = active()
     if (!current) return []
     const readonly = () => locked.value
+    const sourceFields = current.sourceKind === 'platform-event' ? current.contractFields : current.sourceFields
     const flag: SparkNode = isBoolean(current.mapping, 'required_flag')
       ? {type: 'r-switch', props: {field: 'required_flag', label: '必填', width: 80, showCellControl: true, cellReadonly: readonly}}
       : {type: 'r-select', props: {field: 'required_flag', label: '必填', width: 100, showCellControl: true, cellReadonly: readonly,
@@ -210,10 +218,9 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
     return [
       {type: 'r-text', props: {field: 'sort_no', label: '顺序', width: 70, readonly: true}},
       {type: 'r-select', props: {field: 'source_field_id', label: '来源字段', minWidth: 200, showCellControl: true, cellReadonly: readonly,
-        optionDataViewKey: current.viewKey(current.fieldOptions), optionValueField: 'id', optionLabelFields: ['name', 'type'],
-        optionLabelJoiner: ' · ', filterable: true}},
+        optionDataViewKey: viewKey(sourceFields), filterable: true}},
       {type: 'r-select', props: {field: 'target_definition_id', label: '目标维度', minWidth: 220, showCellControl: true, cellReadonly: readonly,
-        optionDataViewKey: current.viewKey(current.definition), optionValueField: 'id', optionLabelFields: ['definition_name', 'definition_code'],
+        optionDataViewKey: viewKey(current.definition), optionValueField: 'id', optionLabelFields: ['definition_name', 'definition_code'],
         optionLabelJoiner: ' · ', filterable: true}},
       {type: 'r-select', props: {field: 'mapping_kind', label: '映射类型', width: 130, showCellControl: true, cellReadonly: readonly,
         options: MAPPING_KIND_OPTIONS}},
@@ -226,21 +233,18 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
     ]
   })
 
-  const collectionColumns = computed<readonly SparkNode[]>(() => {
+  /** 当前子集合详情：子外键与子主键候选由场景字段级联按子模型重新查询，名称由列回填。 */
+  const collectionSpecs = computed<readonly FeatureFieldSpec[]>(() => {
     const current = active()
     if (!current) return []
-    const readonly = () => locked.value
     return [
-      {type: 'r-text', props: {field: 'collection_name', label: '集合名称', minWidth: 140, showCellControl: true, cellReadonly: readonly}},
-      {type: 'r-select', props: {field: 'parent_collection_id', label: '父集合（空为根记录）', minWidth: 170, showCellControl: true,
-        cellReadonly: readonly, clearable: true, optionDataViewKey: current.viewKey(current.collectionParentOptions), optionValueField: 'id',
-        optionLabelField: 'collectionName'}},
-      {type: 'r-select', props: {field: 'source_model_id', label: '子模型', minWidth: 210, showCellControl: true, cellReadonly: readonly,
-        optionDataViewKey: current.viewKey(current.modelOptions), optionValueField: 'id', optionLabelFields: ['name', 'metaName'],
-        optionLabelJoiner: ' · ', filterable: true}},
-      {type: 'r-select', props: {field: 'child_key_field_id', label: '子外键', minWidth: 200, showCellControl: true, cellReadonly: readonly,
-        optionDataViewKey: current.viewKey(current.collectionFieldOptions), optionValueField: 'id', optionLabelField: 'label', filterable: true}},
-      textColumn('child_pk_field_name', '正式主键', 160),
+      {field: 'collection_name', label: '集合名称', required: true},
+      {field: 'parent_collection_id', label: '父集合（空为根记录；须先保存）', kind: 'select', optionKey: viewKey(current.collectionParents)},
+      {field: 'source_model_id', label: '子模型', kind: 'select', required: true, optionKey: viewKey(current.models),
+        labelFields: ['Name', 'MetaName'], labelJoiner: ' · '},
+      {field: 'parent_key_field_id', label: '父主键', kind: 'select', required: true, optionKey: viewKey(current.spacePrimaryFields)},
+      {field: 'child_key_field_id', label: '子外键', kind: 'select', required: true},
+      {field: 'child_pk_field_id', label: '子主键', kind: 'select', required: true},
     ]
   })
 
@@ -250,13 +254,12 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
   const eventSpecs = computed<readonly FeatureFieldSpec[]>(() => {
     const current = activeEvent()
     if (!current) return []
-    const fieldOptions = {optionKey: current.viewKey(current.outputFieldOptions), labelFields: ['canonicalName', 'type'], labelJoiner: ' · '}
     return ['event_code', 'source_table', 'source_pk_field', ...current.formFields()].map(field => {
       const spec = typedSpec(current.template, field, labelOf(EVENT_FIELD_LABELS, field))
       if (field === 'biz_category') {
-        return {...spec, optionKey: current.viewKey(current.categories), labelFields: ['biz_category_name', 'biz_category_code'], labelJoiner: ' · '}
+        return {...spec, optionKey: viewKey(current.categories), labelFields: ['biz_category_name', 'biz_category_code'], labelJoiner: ' · '}
       }
-      return field === 'biz_no_field' || field === 'biz_date_field' ? {...spec, ...fieldOptions} : spec
+      return field === 'biz_no_field' || field === 'biz_date_field' ? {...spec, optionKey: viewKey(current.outputFields)} : spec
     })
   })
 
@@ -265,19 +268,19 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
   const commitFieldViewKey = computed(() => keyOf(activeCommit(), current => current.fields))
   const commitDraftViewKey = computed(() => keyOf(activeCommit(), current => current.draft))
   const commitFactViewKey = computed(() => keyOf(activeCommit(), current => current.facts))
+  const commitModelViewKey = computed(() => keyOf(activeCommit(), current => current.models))
+  const commitSourceSelectable = computed(() => activeCommit()?.sourceSelectable ?? false)
   const commitDraftId = computed(() => activeCommit()?.draftId)
   const commitFactCount = computed(() => activeCommit()?.factIds().length ?? 0)
   const commitDraftSpecs = computed<readonly FeatureFieldSpec[]>(() => {
     const current = activeCommit()
     if (!current) return []
-    const models = {kind: 'select' as const, required: true, optionKey: current.viewKey(current.modelOptions), labelFields: ['metaName', 'name'],
-      labelJoiner: ' · '}
+    const models = {kind: 'select' as const, required: true, optionKey: viewKey(current.models)}
     return [
-      {field: 'policy_version', label: '新版本号', required: true},
-      ...COMMIT_MODEL_ROLES.map(([field, label]) => ({field, label, ...models})),
+      {field: 'policy_version', label: '新版本号', readonly: true},
+      ...COMMIT_MODEL_ROLES.map(([field, label]) => field === 'source_meta_name' ? {field, label, readonly: true} : {field, label, ...models}),
       {field: 'source_key_field', label: '来源主键', readonly: true},
-      {field: 'source_commit_field', label: '提交引用字段', kind: 'select', required: true, optionKey: current.viewKey(current.sourceFieldOptions),
-        labelFields: ['canonicalName', 'type'], labelJoiner: ' · '},
+      {field: 'source_commit_field', label: '提交引用字段', kind: 'select', required: true, optionKey: viewKey(current.sourceFields)},
     ]
   })
   const commitFactColumns = computed<readonly SparkNode[]>(() => {
@@ -287,8 +290,7 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
     return [
       {type: 'r-text', props: {field: 'field_id', label: '事实标识', minWidth: 150, showCellControl: true, cellReadonly: readonly}},
       {type: 'r-select', props: {field: 'source_field', label: '来源字段', minWidth: 170, showCellControl: true, cellReadonly: readonly,
-        optionDataViewKey: current.viewKey(current.sourceFieldOptions), optionValueField: 'canonicalName', optionLabelField: 'canonicalName',
-        filterable: true}},
+        optionDataViewKey: viewKey(current.sourceFields), filterable: true}},
       {type: 'r-text', props: {field: 'source_path', label: '结构化路径（可选，如 ["task","status"]）', minWidth: 220, showCellControl: true,
         cellReadonly: readonly}},
       {type: 'r-select', props: {field: 'value_type', label: '值类型', width: 140, showCellControl: true, cellReadonly: readonly,
@@ -305,12 +307,16 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
     onClick: (row: DataRow) => void selectContract(row)}}]}))
   const mappingActions = computed(() => ({children: [{type: 'r-button', props: {label: '移除', disabled: locked.value,
     onClick: (row: DataRow) => void removeMapping(row)}}]}))
-  const collectionActions = computed(() => ({children: [{type: 'r-button', props: {label: '移除', disabled: locked.value,
-    onClick: (row: DataRow) => void removeCollection(row)}}]}))
+  const collectionActions = computed(() => ({children: [
+    {type: 'r-button', props: {label: '编辑', disabled: locked.value, onClick: (row: DataRow) => void selectCollection(row)}},
+    {type: 'r-button', props: {label: '移除', disabled: locked.value, onClick: (row: DataRow) => void removeCollection(row)}},
+  ]}))
   const commitPolicyActions = computed(() => ({children: [{type: 'r-button', props: {label: '查看', disabled: commitLocked.value,
     onClick: (row: DataRow) => void selectPolicy(row)}}]}))
   const commitFactActions = computed(() => ({children: [{type: 'r-button', props: {label: '移除', disabled: commitLocked.value,
     onClick: (row: DataRow) => void removeFact(row)}}]}))
+  const commitModelActions = computed(() => ({children: [{type: 'r-button', props: {label: '选择', disabled: commitLocked.value,
+    onClick: (row: DataRow) => void chooseCommitSource(row)}}]}))
 
   /** 关闭事件子对话框：丢弃事件草稿（结果未知时拒绝并返回原因）。 */
   function releaseEvent(): string {
@@ -325,12 +331,10 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
       return ''
     } catch (cause) {
       return describe(cause)
-    } finally {
-      current.dispose()
     }
   }
 
-  /** 关闭提交协议子对话框：草稿只在暂存输入中，结果未知时保留原提交并返回原因。 */
+  /** 关闭提交协议子对话框：丢弃草稿与事实行（结果未知时保留原提交并返回原因）。 */
   function releaseCommit(): string {
     const current = commitEditor.value
     commitEditor.value = undefined
@@ -341,9 +345,12 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
     selectedPolicyId.value = undefined
     generation.value++
     if (!current) return ''
-    const failure = current.unknown ? '来源提交协议草稿保存结果未知，未丢弃原提交，请重新打开后核对正式版本' : ''
-    current.dispose()
-    return failure
+    try {
+      current.discard()
+      return ''
+    } catch (cause) {
+      return describe(cause)
+    }
   }
 
   /** 释放全部编辑器：代次递增使迟到结果失效，丢弃本次草稿；返回丢弃失败原因。 */
@@ -377,7 +384,7 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
     if (failure) input.error.value = failure
   })
 
-  /** 打开维度来源设计：按需装配 88A4 空间并读取节点已保存数据空间的正式模型。 */
+  /** 打开维度来源设计：按需装配 88A4 空间并读取节点已保存数据空间的正式模型候选。 */
   async function openEditor(): Promise<void> {
     const context = input.context()
     const nodeId = input.selectedNodeId.value
@@ -400,7 +407,8 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
       const dataSet = await context.runtime.ensureScenarioLoaded(BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID)
       assertCurrent()
       const target: DimensionSourceTarget = {applicationId: context.projectId, nodeId, dataSpaceId, assertCurrent}
-      const created = new DimensionSourceBindingEditor({dataSet, readModels: input.readModels, hasLedgerRecords: input.hasLedgerRecords, target})
+      const created = new DimensionSourceBindingEditor({dataSet, target, readModels: input.readModels,
+        hasLedgerRecords: (id, check) => input.hasLedgerRecords(context, id, check)})
       editor.value = created
       session = {dataSet, target}
       await created.loadModels()
@@ -412,7 +420,7 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
     }
   }
 
-  async function run(action: (current: DimensionSourceBindingEditor) => Promise<void>, report: Ref<string> = dialogError): Promise<void> {
+  async function run(action: (current: DimensionSourceBindingEditor) => Promise<void> | void, report: Ref<string> = dialogError): Promise<void> {
     const current = editor.value
     if (!current || busy.value || loading.value) return
     const request = revision
@@ -433,11 +441,12 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
     if (locked.value || (kind === 'data-model' && modelCount.value === 0)) return
     candidateKind.value = kind
   }
-  const selectModel = (row: Readonly<DataRow>) => run(current => current.selectSource('data-model', String(row['id'] ?? '')))
-  const selectContract = (row: Readonly<DataRow>) => run(current => current.selectSource('platform-event', String(row['id'] ?? '')))
+  const selectModel = (row: Readonly<DataRow>) => run(current => current.selectSource('data-model', String(row['rowid'] ?? '')))
+  const selectContract = (row: Readonly<DataRow>) => run(current => current.selectSource('platform-event', String(row['value'] ?? '')))
   const addMapping = () => run(current => current.addMapping())
   const removeMapping = (row: Readonly<DataRow>) => run(current => current.removeMapping(rowId(current.mapping, row, '来源字段映射')))
   const addCollection = () => run(current => current.addCollection())
+  const selectCollection = (row: Readonly<DataRow>) => run(current => current.selectCollection(rowId(current.collection, row, '来源子集合')))
   const removeCollection = (row: Readonly<DataRow>) => run(current => current.removeCollection(rowId(current.collection, row, '来源子集合')))
 
   /** 一次保存绑定、映射与子集合并回读核验；成功后保持打开，以便继续维护事件与提交协议。 */
@@ -462,7 +471,7 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
     if (!binding || !current || binding.sourceKind !== 'data-model' || locked.value) return
     eventOpen.value = true
     await run(async () => {
-      const created = new DimensionSourceEventEditor({...current, binding, readModels: input.readModels})
+      const created = new DimensionSourceEventEditor({...current, binding})
       eventEditor.value = created
       await created.load()
     }, eventError)
@@ -513,6 +522,7 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
     selectedPolicyId.value = id
   })
   const backToDraft = () => { selectedPolicyId.value = undefined }
+  const chooseCommitSource = (row: Readonly<DataRow>) => withCommit(current => current.chooseSource(String(row['rowid'] ?? '')))
   const addFact = () => withCommit(current => current.addFact())
   const removeFact = (row: Readonly<DataRow>) => withCommit(current => current.removeFact(rowId(current.facts, row, '来源事实草稿行')))
   const saveCommitDraft = () => withCommit(async current => {
@@ -533,17 +543,18 @@ export function useApplicationFunctionDimensionSource(input: ApplicationFunction
   return {
     open, loading, busy, dialogError, dialogNotice, canOpen, disabledReason, unknown, locked,
     candidateKind, modelCount, sourceKind, sourceLabel, platformNonDimensionFields,
-    modelViewKey, contractViewKey, bindingViewKey, mappingViewKey, collectionViewKey, bindingId,
-    bindingSpecs, mappingColumns, collectionColumns,
+    modelViewKey, contractViewKey, bindingViewKey, mappingViewKey, collectionViewKey, collectionId, bindingId,
+    bindingSpecs, mappingColumns, collectionColumns: COLLECTION_COLUMNS, collectionSpecs,
     modelColumns: DIMENSION_SOURCE_MODEL_COLUMNS, contractColumns: DIMENSION_SOURCE_CONTRACT_COLUMNS,
     modelActions, contractActions, mappingActions, collectionActions,
     eventEntryReason, commitEntryReason,
-    openEditor, chooseCandidateKind, selectModel, selectContract, addMapping, removeMapping, addCollection, removeCollection, save, close,
+    openEditor, chooseCandidateKind, selectModel, selectContract, addMapping, removeMapping, addCollection, selectCollection, removeCollection, save, close,
     eventOpen, eventError, eventViewKey, eventId, eventUnknown, eventSpecs, openEventEditor, saveEvent, closeEvent,
     commitOpen, commitError, commitNotice, commitUnknown, commitLocked, selectedPolicyId,
-    commitPolicyViewKey, commitFieldViewKey, commitDraftViewKey, commitFactViewKey, commitDraftId, commitFactCount, commitDraftSpecs,
+    commitPolicyViewKey, commitFieldViewKey, commitDraftViewKey, commitFactViewKey, commitModelViewKey, commitSourceSelectable,
+    commitDraftId, commitFactCount, commitDraftSpecs,
     commitPolicyColumns: COMMIT_POLICY_COLUMNS, commitFieldColumns: COMMIT_FIELD_COLUMNS, commitFactColumns,
-    commitPolicyActions, commitFactActions, openCommitEditor, backToDraft, addFact, saveCommitDraft, closeCommit,
+    commitPolicyActions, commitFactActions, commitModelActions, openCommitEditor, backToDraft, chooseCommitSource, addFact, saveCommitDraft, closeCommit,
     dispose,
   }
 }

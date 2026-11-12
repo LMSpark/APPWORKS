@@ -1,7 +1,8 @@
 <!--
 @module app:views/features/application/application-function-management/ui/blueprint-source-commit-editor
 职责：“来源提交协议”子对话框：只读查看已有不可变版本，录入新版本草稿（六个协议模型、来源主键/提交引用字段、提交事实字段）。
-边界：已有版本绑定 88A4 Commit_Policy.byBinding / Commit_Field.byPolicy；草稿表单与事实行绑定暂存输入视图；校验、保存与回读由宿主流程状态承担。
+边界：已有版本绑定 88A4 Commit_Policy.byBinding / Commit_Field.byPolicy；草稿与事实行是 draftByBinding / draftByPolicy 的待新增行，
+  模型与字段候选绑定 7AB 候选视图；平台注册事件来源从模型候选表选择来源模型。校验、保存与回读由宿主流程状态承担。
 AI用途：调整来源提交协议布局时修改本组件，不在此另建查询或保存链。
 -->
 <template>
@@ -26,6 +27,11 @@ AI用途：调整来源提交协议布局时修改本组件，不在此另建查
     </template>
     <template v-else-if="commitDraftId !== undefined">
       <h3>新版本草稿</h3>
+      <template v-if="commitSourceSelectable">
+        <p>选择来源业务模型：来源主键取其唯一正式主键，提交引用字段从其输出字段选择。</p>
+        <RendererTable :data-view-key="commitModelViewKey" :children="[...modelColumns]" :actions="commitModelActions"
+          :show-data-view-meta="false" :show-pagination="false" />
+      </template>
       <FeatureRecordFields :data-view-key="commitDraftViewKey" :record-id="commitDraftId" :specs="commitDraftSpecs" :locked="commitLocked"
         :columns="2" />
       <p>事实类型须与正式回读的值一致，不自动转换。日期可保留为字符串；日期时间须包含 UTC 时区和毫秒。草稿保存不代表实际行值已通过验证。</p>
@@ -48,6 +54,7 @@ import type {useApplicationFunctionDimensionSource} from './use-application-func
 
 const props = defineProps<{source: ReturnType<typeof useApplicationFunctionDimensionSource>}>()
 const {busy, commitError, commitNotice, commitUnknown, commitLocked, selectedPolicyId, commitPolicyViewKey, commitFieldViewKey,
-  commitDraftViewKey, commitFactViewKey, commitDraftId, commitFactCount, commitDraftSpecs, commitPolicyColumns, commitFieldColumns,
-  commitFactColumns, commitPolicyActions, commitFactActions, backToDraft, addFact, saveCommitDraft, closeCommit} = props.source
+  commitDraftViewKey, commitFactViewKey, commitModelViewKey, commitSourceSelectable, commitDraftId, commitFactCount, commitDraftSpecs,
+  commitPolicyColumns, commitFieldColumns, commitFactColumns, commitPolicyActions, commitFactActions, commitModelActions, modelColumns,
+  backToDraft, addFact, saveCommitDraft, closeCommit} = props.source
 </script>

@@ -219,7 +219,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@265862": {
+                "__@iterator@264853": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -274,7 +274,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@265862"
+                "__@iterator@264853"
               ],
               "additionalProperties": false
             },
@@ -504,7 +504,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@265862": {
+                "__@iterator@264853": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -559,7 +559,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@265862"
+                "__@iterator@264853"
               ],
               "additionalProperties": false
             },
@@ -845,7 +845,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@265862": {
+                    "__@iterator@264853": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -900,7 +900,7 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@265862"
+                    "__@iterator@264853"
                   ],
                   "additionalProperties": false
                 },
@@ -1299,7 +1299,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@265862": {
+                "__@iterator@264853": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1354,7 +1354,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@265862"
+                "__@iterator@264853"
               ],
               "additionalProperties": false
             },
@@ -1587,7 +1587,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@265862": {
+                "__@iterator@264853": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1642,7 +1642,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@265862"
+                "__@iterator@264853"
               ],
               "additionalProperties": false
             },
@@ -1992,7 +1992,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@265862": {
+                    "__@iterator@264853": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -2047,7 +2047,7 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@265862"
+                    "__@iterator@264853"
                   ],
                   "additionalProperties": false
                 },
@@ -2472,7 +2472,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@265862": {
+                "__@iterator@264853": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2527,7 +2527,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@265862"
+                "__@iterator@264853"
               ],
               "additionalProperties": false
             },
@@ -2760,7 +2760,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@265862": {
+                "__@iterator@264853": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2815,7 +2815,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@265862"
+                "__@iterator@264853"
               ],
               "additionalProperties": false
             },
@@ -3098,6 +3098,13 @@
                 false,
                 true
               ]
+            },
+            "fieldOptions": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": {
+                "$ref": "types.ts.json#/$defs/DataColumnOptionsView"
+              }
             },
             "aggregates": {
               "type": "object",
@@ -3685,6 +3692,9 @@
                     "optionsView": {
                       "type": "object",
                       "properties": {
+                        "scope": {
+                          "type": "string"
+                        },
                         "tableName": {
                           "type": "string"
                         },
@@ -3924,6 +3934,9 @@
                     "optionsView": {
                       "type": "object",
                       "properties": {
+                        "scope": {
+                          "type": "string"
+                        },
                         "tableName": {
                           "type": "string"
                         },
@@ -4788,7 +4801,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-31T04:04:44.032Z",
+  "generatedAt": "2026-11-12T18:52:50.601Z",
   "models": {
     "DataSetCrudToolCreateTableOptions": {
       "name": "DataSetCrudToolCreateTableOptions",

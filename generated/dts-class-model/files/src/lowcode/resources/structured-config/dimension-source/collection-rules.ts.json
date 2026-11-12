@@ -7,7 +7,7 @@
     "sourceFile": "src/lowcode/resources/structured-config/dimension-source/collection-rules.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/structured-config/dimension-source/collection-rules",
-    "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/collection-rules\n职责：数据模型来源子集合（Bil_Dimension_Source_Collection）的结构与正式模型校验：集合树、安全名称、父子主键与子外键身份。\n边界：纯规则，不读写 DataView；正式模型由调用方经数据空间设计 API 读取后传入。平台注册事件来源不支持集合。\nAI用途：调整来源集合约束时在此修改，绑定编辑器只负责收集编辑行并按呈现顺序重排 sort_no。",
+    "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/collection-rules\n职责：数据模型来源子集合（Bil_Dimension_Source_Collection）的结构与正式模型校验：集合树、保留名称、父子主键与子外键身份。\n边界：纯规则，不读写 DataView；必填、安全名称与候选引用由场景 pagedata 列规则承担，正式模型由调用方经数据空间设计 API 读取后传入。\nAI用途：调整来源集合约束时在此修改，绑定编辑器只负责收集编辑行并按呈现顺序重排 sort_no。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DimensionSourceCollection"
@@ -77,7 +77,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-12T12:57:01.774Z",
+  "generatedAt": "2026-11-12T18:52:50.626Z",
   "models": {
     "DimensionSourceCollection": {
       "name": "DimensionSourceCollection",

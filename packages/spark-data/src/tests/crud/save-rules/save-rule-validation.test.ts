@@ -5,11 +5,11 @@ import type { DataRow, DataSetMetadata, DataColumn } from '../../../types'
 type Command = { changes: ReadonlyArray<{ identity: { metaName: string }; changes: { added?: readonly DataRow[]; changed?: readonly DataRow[] } }> }
 
 let sequence = 0
-function query(tableName: string, rows: DataRow[]) {
+function query(tableName: string, rows: DataRow[], scenarioId = 'SPACE') {
   return {
     rows, total: rows.length,
     assertIdentity(identity: { scenarioId: string; metaName: string }) {
-      if (identity.scenarioId !== 'SPACE' || identity.metaName !== tableName) throw new Error('identity mismatch')
+      if (identity.scenarioId !== scenarioId || identity.metaName !== tableName) throw new Error('identity mismatch')
     },
     rowKey: (row: DataRow) => row['id'],
     prepareNewRow: (row: DataRow) => ({ ...row, id: `NEW${++sequence}` }),
@@ -27,14 +27,15 @@ function query(tableName: string, rows: DataRow[]) {
 type Source = Readonly<{ rows: DataRow[]; filter?: (row: DataRow, context: Record<string, unknown>) => boolean }>
 
 async function open(tables: DataSetMetadata['tables'], sources: Record<string, Source>, extra?: Partial<DataSetMetadata>) {
-  const dataSet = DataSet.fromJson({ scenarioId: 'SPACE', dataSetName: 'SPACE', tables, ...extra })
+  const scenarioId = extra?.scenarioId ?? 'SPACE'
+  const dataSet = DataSet.fromJson({ scenarioId, dataSetName: scenarioId, tables, ...extra })
   const save = vi.fn(async (_command: Command): Promise<never> => { throw new Error('owner reached') })
   for (const [tableName, table] of Object.entries(tables)) {
     for (const viewId of Object.keys(table.views ?? {})) {
       dataSet.getView(tableName, viewId)!.bindQueryExecutor({ save, executeQuery: async (_view, params) => {
         const source = sources[tableName] ?? { rows: [] }
         const context = { ...params?.context }
-        return query(tableName, source.rows.filter(row => source.filter?.(row, context) ?? true).map(row => ({ ...row })))
+        return query(tableName, source.rows.filter(row => source.filter?.(row, context) ?? true).map(row => ({ ...row })), scenarioId)
       } })
     }
   }
@@ -214,6 +215,96 @@ describe('declared save rules', () => {
         expect(save.mock.calls[0]![0].changes[0]!.changes.changed![0]).toMatchObject({source: 'A1', title: 'One', kind: 'table'})
       } finally { dataSet.destroy() }
     })
+  })
+
+  describe('option sources in a peer DataSet', () => {
+    const fields = {rows: [{id: 'F1', modelId: 'M1', name: 'amount'}, {id: 'F2', modelId: 'M2', name: 'code'}],
+      filter: (row: DataRow, context: Record<string, unknown>) => context['modelId'] === undefined || row['modelId'] === context['modelId']}
+    const openPeer = () => open({Fields: {tableName: 'Fields', modelBinding: model('Fields'),
+      columns: [id, {name: 'modelId', type: 'string'}, {name: 'name', type: 'string'}], views: {default: {valueField: 'id', labelField: 'name'}}}},
+    {Fields: fields}, {scenarioId: 'PEER'})
+
+    it('fills and validates a scoped column option source through the bound peer and fails while the peer is absent', async () => {
+      const {dataSet: peer} = await openPeer()
+      const {dataSet, save} = await open({Params: {tableName: 'Params', modelBinding: model('Params'), columns: [id,
+        {name: 'fieldId', type: 'string', optionsView: {scope: 'PEER', tableName: 'Fields', valueField: 'id', fill: {fieldName: 'name'}}},
+        {name: 'fieldName', type: 'string'}], views: {default: {commitMode: 'staged'}}}},
+      {Params: {rows: [{id: '1', fieldId: '', fieldName: ''}]}})
+      try {
+        const view = dataSet.getView('Params')!
+        await view.refresh()
+        expect(() => dataSet.resolveOptionView({scope: 'PEER', tableName: 'Fields'})).toThrow('OPTION_SOURCE_SCOPE')
+        expect(() => dataSet.resolveOptionView({scope: 'SPACE', tableName: 'Params'})).toThrow('OPTION_SOURCE_SCOPE')
+        dataSet.bindPeerDataSets(scenarioId => scenarioId === 'PEER' ? peer : undefined)
+        view.updateEditingValue('1', 'fieldId', 'F2')
+        await vi.waitFor(() => expect(view.getEditingRow('1')).toMatchObject({fieldName: 'code'}))
+        view.updateEditingValue('1', 'fieldId', 'MISSING')
+        await expect(dataSet.saveChanges()).rejects.toThrow('不在当前可选范围内或不唯一')
+        view.updateEditingValue('1', 'fieldId', 'F1')
+        await expect(dataSet.saveChanges()).rejects.toThrow('owner reached')
+        expect(save.mock.calls[0]![0].changes[0]!.changes.changed![0]).toMatchObject({fieldId: 'F1', fieldName: 'amount'})
+      } finally { dataSet.destroy(); peer.destroy() }
+    })
+
+    it('runs a field cascade whose options view belongs to the peer DataSet', async () => {
+      const {dataSet: peer} = await openPeer()
+      const {dataSet} = await open({Params: {tableName: 'Params', modelBinding: model('Params'),
+        columns: [id, {name: 'modelId', type: 'string'}, {name: 'fieldId', type: 'string'}], views: {default: {commitMode: 'staged'}}}},
+      {Params: {rows: [{id: '1', modelId: 'M1', fieldId: 'F1'}]}}, {viewCascades: [{kind: 'field', cascadeId: 'model-field', tableName: 'Params', viewId: 'default',
+        valueFormat: 'native', targetField: 'fieldId', parents: [{tableName: 'Params', viewId: 'default', field: 'modelId', parameter: 'modelId'}],
+        optionsView: {scope: 'PEER', tableName: 'Fields', viewId: 'default'}, valuePolicy: {mode: 'retain-valid', clearValue: ''}}]})
+      try {
+        dataSet.bindPeerDataSets(scenarioId => scenarioId === 'PEER' ? peer : undefined)
+        const view = dataSet.getView('Params')!
+        await view.refresh()
+        const address = {tableName: 'Params', viewId: 'default', field: 'fieldId'}
+        await expect(dataSet.refreshFieldCascade(address)).resolves.toMatchObject({status: 'ready', valueStatus: 'valid'})
+        view.updateEditingValue('1', 'modelId', 'M2')
+        await vi.waitFor(() => expect(view.getEditingRow('1')).toMatchObject({fieldId: ''}))
+        expect(dataSet.getFieldCascadeState(address).options.map(row => row['id'])).toEqual(['F2'])
+      } finally { dataSet.destroy(); peer.destroy() }
+    })
+  })
+
+  it('applies view-level option sources per view, including a named option catalog', async () => {
+    const {dataSet, save} = await open({
+      Maps: {tableName: 'Maps', modelBinding: model('Maps'), columns: [id, {name: 'kind', type: 'string'},
+        {name: 'sourceId', type: 'string', required: true}, {name: 'sourceName', type: 'string'}],
+      views: {
+        default: {},
+        model: {commitMode: 'staged', filterExpression: {field: 'kind', operator: 'eq', value: 'model'},
+          fieldOptions: {sourceId: {tableName: 'Fields', valueField: 'id', fill: {sourceName: 'name'}}}},
+        contract: {commitMode: 'staged', filterExpression: {field: 'kind', operator: 'eq', value: 'contract'},
+          fieldOptions: {sourceId: {tableName: 'ContractField', valueField: 'value', fill: {sourceName: 'name'}}}},
+      }},
+      Fields: {tableName: 'Fields', modelBinding: model('Fields'), columns: [id, {name: 'name', type: 'string'}], views: {default: {}}},
+    }, {Maps: {rows: [{id: '1', kind: 'model', sourceId: '', sourceName: ''}, {id: '2', kind: 'contract', sourceId: '', sourceName: ''}]},
+      Fields: {rows: [{id: 'F1', name: 'amount'}]}})
+    const {DataViewOptionCatalog} = await import('../../../query/data-view-option-catalog')
+    const catalog = new DataViewOptionCatalog(dataSet, {tableName: 'ContractField', fields: ['name']})
+    try {
+      expect(() => new DataViewOptionCatalog(dataSet, {tableName: 'ContractField'})).toThrow('选项目录表已存在')
+      expect(() => catalog.replace([{value: 'status', label: '状态', extra: 'x'}])).toThrow('声明的文本字段')
+      catalog.replace([{value: 'status', label: '任务状态', name: 'taskStatus'}])
+      await expect(catalog.view.queryOptionRows({fields: ['value', 'name']})).resolves.toEqual([{value: 'status', name: 'taskStatus'}])
+      const byModel = dataSet.getView('Maps', 'model')!, byContract = dataSet.getView('Maps', 'contract')!
+      await byModel.refresh(); await byContract.refresh()
+      expect(byModel.columns.find(column => column.name === 'sourceId')?.optionsView?.tableName).toBe('Fields')
+      expect(byContract.columns.find(column => column.name === 'sourceId')?.optionsView?.tableName).toBe('ContractField')
+      expect(byModel.toJson().fieldOptions).toEqual({sourceId: {tableName: 'Fields', valueField: 'id', fill: {sourceName: 'name'}}})
+      byModel.updateEditingValue('1', 'sourceId', 'F1')
+      byContract.updateEditingValue('2', 'sourceId', 'status')
+      await vi.waitFor(() => {
+        expect(byModel.getEditingRow('1')).toMatchObject({sourceName: 'amount'})
+        expect(byContract.getEditingRow('2')).toMatchObject({sourceName: 'taskStatus'})
+      })
+      byContract.updateEditingValue('2', 'sourceId', 'F1')
+      await expect(dataSet.saveChanges()).rejects.toThrow('Maps@contract.sourceId')
+      byContract.updateEditingValue('2', 'sourceId', 'status')
+      await expect(dataSet.saveChanges()).rejects.toThrow('owner reached')
+      const changed = save.mock.calls.flatMap(call => call[0].changes.flatMap(change => change.changes.changed ?? []))
+      expect(changed).toEqual(expect.arrayContaining([expect.objectContaining({sourceId: 'status', sourceName: 'taskStatus'})]))
+    } finally { catalog.dispose(); dataSet.destroy() }
   })
 
   it('rechecks an earlier prepared view when a later view awaits options', async () => {

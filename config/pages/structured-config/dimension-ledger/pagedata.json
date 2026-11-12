@@ -4,14 +4,19 @@
   "resourceRelations": [],
   "tables": {
     "Bil_Dimension_Set": {
-      "modelBinding": {"modelName": "Bil_Dimension_Set"},
+      "modelBinding": {
+        "modelId": "07D264520034366B1DA25CEE5358E502p000",
+        "modelName": "Bil_Dimension_Set"
+      },
       "views": {
         "default": {
           "autoLoad": false,
           "autoCurrentFirst": false,
           "autoSelectFirst": false,
           "pageSize": 50,
-          "queryConfig": {"fields": ["rowid", "source_binding_id", "lingma_sys_is_delete"]}
+          "queryConfig": {
+            "fields": ["rowid", "source_binding_id", "lingma_sys_is_delete"]
+          }
         },
         "bySourceBinding": {
           "autoLoad": false,
@@ -24,7 +29,9 @@
             "value": {"Type": "GetInputParam", "ParamName": "bindingId"}
           },
           "sortExpression": [{"field": "lingma_sys_is_delete", "direction": "asc"}],
-          "queryConfig": {"fields": ["rowid", "source_binding_id", "lingma_sys_is_delete"]}
+          "queryConfig": {
+            "fields": ["rowid", "source_binding_id", "lingma_sys_is_delete"]
+          }
         }
       }
     }

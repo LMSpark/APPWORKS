@@ -2,7 +2,8 @@
 @module app:views/features/application/application-function-management/ui/blueprint-dimension-source
 职责：蓝图节点“维度来源设计”对话框：选择节点数据空间模型或平台注册事件，编辑来源绑定、正式来源集合与字段维度映射，
   并从已保存绑定进入“数据模型事件”“来源提交协议”维护。
-边界：全部字段与选择绑定 88A4 维度设计空间的 DataView；装载、校验、保存与回读由宿主传入的流程状态承担。
+边界：绑定、映射与集合绑定 88A4 维度设计空间的 DataView，模型与字段候选绑定同一 PageRuntime 中 7AB 的候选视图，
+  平台合同绑定选项目录视图；当前子集合在详情表单编辑，子外键与子主键按场景字段级联取候选。装载、校验、保存与回读由宿主传入的流程状态承担。
 AI用途：调整维度来源设计布局时修改本组件，不在此另建查询或保存链。
 -->
 <template>
@@ -40,6 +41,8 @@ AI用途：调整维度来源设计布局时修改本组件，不在此另建查
           </div>
           <RendererTable :data-view-key="collectionViewKey" :children="[...collectionColumns]" :actions="collectionActions"
             :show-data-view-meta="false" :show-pagination="false" />
+          <FeatureRecordFields v-if="collectionId !== undefined" :key="String(collectionId)" :data-view-key="collectionViewKey"
+            :record-id="collectionId" :specs="collectionSpecs" :locked="locked" :columns="2" />
 
           <div class="dimension-source__header">
             <div>
@@ -86,8 +89,8 @@ import type {useApplicationFunctionDimensionSource} from './use-application-func
 const props = defineProps<{source: ReturnType<typeof useApplicationFunctionDimensionSource>}>()
 const source = props.source
 const {loading, busy, dialogError, dialogNotice, unknown, locked, candidateKind, modelCount, sourceKind, sourceLabel,
-  platformNonDimensionFields, modelViewKey, contractViewKey, bindingViewKey, mappingViewKey, collectionViewKey, bindingId,
-  bindingSpecs, mappingColumns, collectionColumns, modelColumns, contractColumns, modelActions, contractActions, mappingActions,
+  platformNonDimensionFields, modelViewKey, contractViewKey, bindingViewKey, mappingViewKey, collectionViewKey, collectionId, bindingId,
+  bindingSpecs, mappingColumns, collectionColumns, collectionSpecs, modelColumns, contractColumns, modelActions, contractActions, mappingActions,
   collectionActions, eventEntryReason, commitEntryReason, eventOpen, commitOpen, chooseCandidateKind, addMapping, addCollection,
   openEventEditor, openCommitEditor, save, close} = source
 const subOpen = computed(() => eventOpen.value || commitOpen.value)

@@ -7,9 +7,11 @@
     "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
     "packageName": "app",
     "modulePath": "views/features/application/application-function-management/ui/use-application-function-page",
-    "jsdoc": "app 的 views/features/application/application-function-management/ui/use-application-function-page 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdoc": "app 的 views/features/application/application-function-management/ui/use-application-function-page 模块。\n导出 DtsTypeDeclarationModel symbol: BlueprintTreeContext（共 1 个 symbol）。",
     "jsdocSource": "inferred",
-    "symbols": []
+    "symbols": [
+      "BlueprintTreeContext"
+    ]
   },
   "$defs": {
     "BlueprintTab": {
@@ -17,6 +19,7 @@
       "title": "BlueprintTab",
       "enum": [
         "dataSpace",
+        "prototype",
         "basic"
       ]
     },
@@ -65,14 +68,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-12T05:35:21.142Z",
+  "generatedAt": "2026-11-12T06:55:35.180Z",
   "models": {
     "BlueprintTab": {
       "name": "BlueprintTab",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'basic' | 'dataSpace'",
+        "declarationTypeText": "'basic' | 'dataSpace' | 'prototype'",
         "declarationRelations": [
           {
             "kind": "union",
@@ -81,6 +84,10 @@
           {
             "kind": "union",
             "typeText": "'dataSpace'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'prototype'"
           }
         ],
         "members": {}
@@ -117,7 +124,7 @@
     },
     "BlueprintTreeContext": {
       "name": "BlueprintTreeContext",
-      "jsdoc": "",
+      "jsdoc": "当前有效的蓝图树上下文：同一 PageRuntime、目标应用与 owner 的组合身份。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    key: string;\n    projectId: string;\n    owner: BlueprintWorkspaceDataView;\n    runtime: PageRuntime;\n}>",

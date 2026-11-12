@@ -23,151 +23,35 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "RHtmlEditorProps",
-      "properties": {
-        "type": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "children": {
-          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
-        },
-        "permissionDeniedMode": {
-          "enum": [
-            "disable",
-            "hide"
-          ]
-        },
-        "dataViewKey": {
-          "type": "string"
-        },
-        "dataMember": {
-          "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
-            "value",
-            "currentRow",
-            "selectedRows",
-            "aggregateResult",
-            "selectionAggregateResult",
-            "pageSize",
-            "mutating",
-            "loadingError",
-            "mutatingError"
-          ]
-        },
-        "dataField": {
-          "type": "string"
-        },
-        "width": {
-          "type": "number"
-        },
-        "minWidth": {
-          "type": "number"
-        },
-        "showOverflowTooltip": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "header": {
-          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
-        },
-        "resizable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "clearable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "modelValue": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string"
-        },
-        "field": {
-          "type": "string"
-        },
-        "label": {
-          "type": "string"
-        },
-        "readonly": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "editOnDblclick": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "saveOnCellExit": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "placeholder": {
-          "type": "string"
-        },
-        "onChange": {
+      "$defs": {
+        "method.imageUploader.params": {
           "type": "object",
-          "title": "(...args: unknown[]) => void | Promise<void>"
+          "properties": {
+            "file": {
+              "type": "object",
+              "title": "File"
+            }
+          },
+          "additionalProperties": false
         },
-        "titleAlign": {
-          "enum": [
-            "left",
-            "right",
-            "center"
-          ]
+        "method.imageUploader.return": {
+          "type": "object",
+          "title": "Promise<string>"
         },
-        "valueAlign": {
-          "enum": [
-            "left",
-            "right",
-            "center"
-          ]
+        "method.onImageUploadState.params": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "$ref": "../../composables/state/useHtmlEditorState.ts.json#/$defs/RichTextImageUploadState"
+            }
+          },
+          "additionalProperties": false
         },
-        "headerCellClassName": {
-          "type": "string"
-        },
-        "cellClassName": {
-          "type": "string"
-        },
-        "titleClassName": {
-          "type": "string"
-        },
-        "valueClassName": {
-          "type": "string"
-        },
-        "sortable": {
-          "enum": [
-            false,
-            true,
-            "custom"
-          ]
-        },
-        "rows": {
-          "type": "number"
-        }
-      },
-      "additionalProperties": false
+        "method.onImageUploadState.return": true
+      }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.159Z",
+  "generatedAt": "2026-11-12T06:06:39.031Z",
   "models": {
     "RHtmlEditorProps": {
       "name": "RHtmlEditorProps",
@@ -181,7 +65,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkMultilineFieldProps<string>",
+        "declarationTypeText": "SparkNodeProps & SparkMultilineFieldProps<string> & {\n    /** 宿主图片上传器：接收用户选择的原生图片 File，返回已持久化且可经富文本安全策略的图片地址；缺省时不显示图片按钮。 */\n    imageUploader?: (file: File) => Promise<string>;\n    /** 图片上传进行数与最近错误变化时通知宿主（如上传中或失败时阻止保存）。 */\n    onImageUploadState?: (state: RichTextImageUploadState) => void;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -192,9 +76,57 @@
             "kind": "intersection",
             "typeText": "SparkMultilineFieldProps<string>",
             "targetName": "SparkMultilineFieldProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 宿主图片上传器：接收用户选择的原生图片 File，返回已持久化且可经富文本安全策略的图片地址；缺省时不显示图片按钮。 */\n    imageUploader?: (file: File) => Promise<string>;\n    /** 图片上传进行数与最近错误变化时通知宿主（如上传中或失败时阻止保存）。 */\n    onImageUploadState?: (state: RichTextImageUploadState) => void;\n}"
           }
         ],
-        "members": {}
+        "members": {
+          "methods": [
+            {
+              "name": "imageUploader",
+              "jsdoc": "宿主图片上传器：接收用户选择的原生图片 File，返回已持久化且可经富文本安全策略的图片地址；缺省时不显示图片按钮。",
+              "parameters": [
+                {
+                  "name": "file",
+                  "type": {
+                    "type": "reference",
+                    "name": "File"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onImageUploadState",
+              "jsdoc": "图片上传进行数与最近错误变化时通知宿主（如上传中或失败时阻止保存）。",
+              "parameters": [
+                {
+                  "name": "state",
+                  "type": {
+                    "type": "reference",
+                    "name": "RichTextImageUploadState",
+                    "sourcePath": "packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
       }
     }
   }

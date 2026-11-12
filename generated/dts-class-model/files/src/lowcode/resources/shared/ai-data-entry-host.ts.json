@@ -95,11 +95,19 @@
           "properties": {},
           "additionalProperties": false
         },
-        "method.releaseClean.return": true
+        "method.releaseClean.return": true,
+        "method.createDraftRunner.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.createDraftRunner.return": {
+          "$ref": "../../../../packages/spark-lowcode-api/src/realtime/ai-turn-draft-runner.ts.json#/$defs/AiTurnDraftRunner"
+        }
       }
     }
   },
-  "generatedAt": "2026-10-25T08:42:55.821Z",
+  "generatedAt": "2026-11-12T06:12:46.460Z",
   "models": {
     "AiDataEntryHostInput": {
       "name": "AiDataEntryHostInput",
@@ -251,6 +259,15 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            },
+            {
+              "name": "createDraftRunner",
+              "jsdoc": "以同一 DataSet 的正式轮次资源与当前租户 Agent 创建草稿运行器，供“生成→严格校验→预览→确认”类页面流程使用。\n@throws 租户映射缺失或登录/应用身份已变化。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "AiTurnDraftRunner"
               }
             }
           ]

@@ -8,6 +8,7 @@
       <div class="application-function-page__tabs">
         <RendererButton label="基本信息" :button-type="activeTab === 'basic' ? 'primary' : 'default'" @click="selectTab('basic')" />
         <RendererButton label="数据空间" :button-type="activeTab === 'dataSpace' ? 'primary' : 'default'" @click="selectTab('dataSpace')" />
+        <RendererButton label="需求原型" :button-type="activeTab === 'prototype' ? 'primary' : 'default'" @click="selectTab('prototype')" />
         <RendererButton
           v-if="canSaveChanges || state.blueprintSaving.value"
           label="保存蓝图修改"
@@ -21,7 +22,9 @@
     </header>
 
     <DisplayAlert v-if="error" :description="error" alert-type="error" />
+    <DisplayAlert v-if="notice" :description="notice" alert-type="success" />
     <DisplayAlert v-if="loading" description="正在读取当前应用蓝图…" alert-type="info" />
+    <DisplayAlert v-if="aiGenerating" description="AI 正在生成，完成后先预览，确认后才写入" alert-type="info" />
 
     <section v-if="treeContext" class="application-function-page__workspace">
       <aside class="application-function-page__tree">
@@ -29,6 +32,8 @@
           <RendererButton label="新增根模块" button-type="primary" :disabled="!canAddRoot" @click="addRootNode" />
           <RendererButton label="新增同级" :disabled="!canAddSibling" @click="addSiblingNode" />
           <RendererButton label="新增子级" :disabled="!canAddChild" @click="addChildNode" />
+          <RendererButton label="AI 生成下一级" :disabled="aiGenerating || treeAiConfirming" @click="openTreeAi" />
+          <RendererButton v-if="aiGenerating" label="取消生成" @click="cancelAi" />
         </div>
         <RendererTree
           :key="treeContext.key"
@@ -72,6 +77,7 @@
           <div class="application-function-page__details-toolbar">
             <h2>基本信息</h2>
             <RendererButton label="保存名称" :disabled="!canSaveName" @click="saveNodeName" />
+            <RendererButton label="AI 回填" :disabled="aiGenerating" @click="generateFormAi" />
           </div>
           <DisplayAlert v-if="optionsError" :description="optionsError" alert-type="warning" />
           <RendererForm v-bind="treeBinding" context-data-member="currentRow" :auto-columns="false"
@@ -102,6 +108,51 @@
           description="数据空间编辑属于后续迁移批次；本批只保留 blueprintTab 定位，不提供未核实的编辑入口。"
           alert-type="info"
         />
+        <template v-else-if="isSelectedNodeReady && activeTab === 'prototype'">
+          <div class="application-function-page__details-toolbar">
+            <h2>需求原型</h2>
+            <RendererButton label="保存原型" button-type="primary" :disabled="!canSavePrototype || uploadBlocked" @click="savePrototype" />
+            <RendererButton label="预览" @click="openPreview" />
+            <RendererButton label="保存为历史版本" :disabled="versionBusy || uploadBlocked" @click="beginCreateVersion" />
+          </div>
+          <DisplayAlert v-if="uploadState.pending > 0" description="图片正在上传，完成前不能保存或切换节点" alert-type="info" />
+          <DisplayAlert v-else-if="uploadState.error" :description="`图片上传失败：${uploadState.error}`" alert-type="error" />
+          <RendererForm v-bind="treeBinding" context-data-member="currentRow" :auto-columns="false"
+            :show-data-view-meta="false" :grid-columns="1" label-width="120px">
+            <FieldHtmlEditor
+              :key="selectedNodeId"
+              v-bind="treeBinding"
+              data-member="currentRow"
+              data-field="htmlDesc"
+              label="原型描述"
+              :image-uploader="imageUploader"
+              :on-image-upload-state="onImageUploadState"
+              @update:model-value="state.notifyExternalDataViewChanged"
+            />
+          </RendererForm>
+          <div class="application-function-page__versions">
+            <h3>历史版本</h3>
+            <RendererList
+              v-if="versionViewKey"
+              :data-view-key="versionViewKey"
+              row-key="rowid"
+              :show-data-view-meta="false"
+              :show-pagination="false"
+              empty-text="暂无历史版本"
+              :on-item-click="selectVersion"
+            >
+              <template #default="{ row }">
+                <span :class="['application-function-page__version', { 'is-selected': isSelectedVersion(row) }]">
+                  {{ versionLabel(row) }}
+                </span>
+              </template>
+            </RendererList>
+            <div class="application-function-page__details-toolbar">
+              <RendererButton label="设为当前版本" :disabled="!selectedVersion || versionBusy" @click="applySelectedVersion" />
+              <RendererButton label="删除版本" button-type="danger" :disabled="!selectedVersion || versionBusy" @click="beginDeleteVersion" />
+            </div>
+          </div>
+        </template>
         <DisplayEmpty v-else description="请选择蓝图节点" />
       </section>
     </section>
@@ -119,6 +170,83 @@
         <RendererButton label="确认删除" button-type="danger" @click="confirmDelete" />
       </template>
     </RendererDialog>
+
+    <RendererDialog v-if="treeAiOpen" :model-value="true" title="AI 生成下一级蓝图节点" width="560px" @update:model-value="cancelAi">
+      <RendererForm v-if="inputViewKey" :data-view-key="inputViewKey" :context-row-id="inputRowId" :auto-columns="false"
+        :show-data-view-meta="false" :grid-columns="1">
+        <FieldTextarea
+          data-member="currentRow"
+          data-field="requirement"
+          label="需求描述"
+          :autosize="{minRows: 4, maxRows: 10}"
+          @update:model-value="touchInput"
+        />
+      </RendererForm>
+      <template #footer>
+        <RendererButton label="取消" @click="cancelAi" />
+        <RendererButton label="生成" button-type="primary" :disabled="aiGenerating || !treeAiRequirement.trim()" :loading="aiGenerating" @click="generateTreeAi" />
+      </template>
+    </RendererDialog>
+
+    <RendererDialog v-if="treeAiPreview" :model-value="true" title="确认写入 AI 蓝图节点" width="760px" @update:model-value="cancelAi">
+      <DisplayAlert :description="`将在“${treeAiPreview.parentLabel}”下新增 ${treeAiPreview.rows.length} 个节点；已写入 ${treeAiCreated} 个。取消不会写入剩余节点。`" alert-type="info" />
+      <table class="application-function-page__preview-table">
+        <thead><tr><th>导航标题</th><th>能力名称</th><th>节点类型</th><th>交付状态</th><th>能力简述</th></tr></thead>
+        <tbody>
+          <tr v-for="item in treeAiPreview.rows" :key="item.capabilityName">
+            <td>{{ item.navigationTitle }}</td><td>{{ item.capabilityName }}</td><td>{{ item.kind }}</td><td>{{ item.deliveryStatus }}</td><td>{{ item.description }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <template #footer>
+        <RendererButton label="取消" :disabled="treeAiConfirming" @click="cancelAi" />
+        <RendererButton label="确认写入" button-type="primary" :loading="treeAiConfirming" @click="confirmTreeAi" />
+      </template>
+    </RendererDialog>
+
+    <RendererDialog v-if="formAiPreview" :model-value="true" title="确认 AI 回填" width="560px" @update:model-value="cancelAi">
+      <dl class="application-function-page__preview-list">
+        <template v-for="item in formAiPreviewItems" :key="item.field">
+          <dt>{{ item.label }}</dt><dd>{{ item.value }}</dd>
+        </template>
+      </dl>
+      <template #footer>
+        <RendererButton label="取消" @click="cancelAi" />
+        <RendererButton label="回填到表单" button-type="primary" @click="confirmFormAi" />
+      </template>
+    </RendererDialog>
+
+    <RendererDialog v-if="previewHtml !== undefined" :model-value="true" title="需求原型预览" width="860px" @update:model-value="closePreview">
+      <!-- previewHtml 已经 sanitizeRichTextHtml 白名单清洗 -->
+      <!-- eslint-disable-next-line vue/no-v-html -->
+      <div v-if="previewHtml" class="application-function-page__prototype-preview" v-html="previewHtml" />
+      <DisplayEmpty v-else description="当前节点没有原型描述" />
+    </RendererDialog>
+
+    <RendererDialog v-if="versionDialogOpen" :model-value="true" title="保存为历史版本" width="480px" @update:model-value="cancelCreateVersion">
+      <RendererForm v-if="inputViewKey" :data-view-key="inputViewKey" :context-row-id="inputRowId" :auto-columns="false"
+        :show-data-view-meta="false" :grid-columns="1">
+        <FieldTextarea
+          data-member="currentRow"
+          data-field="versionDescription"
+          label="版本描述"
+          :autosize="{minRows: 2, maxRows: 6}"
+          @update:model-value="touchInput"
+        />
+      </RendererForm>
+      <template #footer>
+        <RendererButton label="取消" @click="cancelCreateVersion" />
+        <RendererButton label="保存" button-type="primary" :loading="versionBusy" @click="confirmCreateVersion" />
+      </template>
+    </RendererDialog>
+
+    <RendererDialog v-if="deletingVersion" :model-value="true" title="删除确认" width="420px" @update:model-value="cancelDeleteVersion">
+      <DisplayAlert :description="`确定要删除版本“${deletingVersion.versionName}”吗？`" alert-type="warning" />
+      <template #footer>
+        <RendererButton label="取消" @click="cancelDeleteVersion" />
+        <RendererButton label="确定" button-type="danger" @click="confirmDeleteVersion" />
+      </template>
+    </RendererDialog>
   </main>
 </template>
 
@@ -128,7 +256,7 @@ import * as SparkComponent from '@spark-appworks/spark-component'
 import type { DataRow } from '@spark-appworks/spark-data'
 import { useApplicationFunctionPage } from './use-application-function-page'
 
-const {DisplayAlert, DisplayEmpty, FieldSelect, FieldText, FieldTextarea, RendererButton, RendererDialog, RendererForm, RendererTree} = SparkComponent
+const {DisplayAlert, DisplayEmpty, FieldHtmlEditor, FieldSelect, FieldText, FieldTextarea, RendererButton, RendererDialog, RendererForm, RendererList, RendererTree} = SparkComponent
 
 const {
   state,
@@ -171,7 +299,24 @@ const {
   saveNodeName,
   onStageChange,
   cancelBlueprintChanges,
+  notice,
+  inputViewKey,
+  inputRowId,
+  touchInput,
+  ai,
+  prototype,
 } = useApplicationFunctionPage()
+
+const {
+  treeAiOpen, treeAiRequirement, treeAiPreview, treeAiCreated, treeAiConfirming, formAiPreview, formAiPreviewItems, aiGenerating,
+  openTreeAi, generateTreeAi, confirmTreeAi, generateFormAi, confirmFormAi, cancelAi,
+} = ai
+const {
+  uploadState, uploadBlocked, canSavePrototype, previewHtml, versionViewKey, versionDialogOpen, selectedVersion,
+  deletingVersion, versionBusy, onImageUploadState, imageUploader, savePrototype, openPreview, closePreview, selectVersion,
+  isSelectedVersion, versionLabel, beginCreateVersion, cancelCreateVersion, confirmCreateVersion, applySelectedVersion, beginDeleteVersion, cancelDeleteVersion,
+  confirmDeleteVersion,
+} = prototype
 
 const treeProps = computed(() => {
   const context = treeContext.value

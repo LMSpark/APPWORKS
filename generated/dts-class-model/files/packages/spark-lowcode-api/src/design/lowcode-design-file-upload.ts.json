@@ -109,6 +109,22 @@
             "customPath"
           ],
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "appType": {
+              "const": "wwwroot"
+            },
+            "customPath": {
+              "const": "ApplicationFunMan/Prototype"
+            }
+          },
+          "required": [
+            "appType",
+            "customPath"
+          ],
+          "additionalProperties": false
         }
       ]
     },
@@ -239,7 +255,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-11T10:17:18.090Z",
+  "generatedAt": "2026-11-12T06:08:30.540Z",
   "models": {
     "LowcodeDesignFileUploadOptions": {
       "name": "LowcodeDesignFileUploadOptions",
@@ -334,10 +350,10 @@
     },
     "LowcodeBinaryFileArea": {
       "name": "LowcodeBinaryFileArea",
-      "jsdoc": "原生二进制File上传的已核定文件区：Excel模板目录，或文件管理的filedata根目录。",
+      "jsdoc": "原生二进制File上传的已核定文件区：Excel模板目录、文件管理的filedata根目录，或站点wwwroot下的需求原型图片目录。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    appType: 'xlsxtemp';\n    customPath: 'xlsxtemp';\n}> | Readonly<{\n    appType: 'filedata';\n    customPath: '';\n}>",
+        "declarationTypeText": "Readonly<{\n    appType: 'xlsxtemp';\n    customPath: 'xlsxtemp';\n}> | Readonly<{\n    appType: 'filedata';\n    customPath: '';\n}> | Readonly<{\n    appType: 'wwwroot';\n    customPath: 'ApplicationFunMan/Prototype';\n}>",
         "declarationRelations": [
           {
             "kind": "union",
@@ -347,6 +363,11 @@
           {
             "kind": "union",
             "typeText": "Readonly<{\n    appType: 'filedata';\n    customPath: '';\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    appType: 'wwwroot';\n    customPath: 'ApplicationFunMan/Prototype';\n}>",
             "targetName": "Readonly"
           }
         ],

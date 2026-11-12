@@ -43,6 +43,8 @@ export type {
 export type { CancellableControl } from './components/containers/support/interactionControl.js'
 export {useDataViewRecordEditing} from './components/containers/support/crud/useDataViewRecordEditing.js'
 export type {DataViewRecordEditing,DataViewRecordEditingInput,DataViewRecordEditingFinish} from './components/containers/support/crud/useDataViewRecordEditing.js'
+export {sanitizeRichTextHtml} from './components/fields/data-components/composables/value/richTextHtmlPolicy.js'
+export type {RichTextImageUploadState} from './components/fields/data-components/composables/state/useHtmlEditorState.js'
 
 // ── 5. DI Keys + SparkNode 结构常量 ──
 export {

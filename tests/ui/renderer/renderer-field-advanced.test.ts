@@ -182,6 +182,51 @@ describe('advanced renderer fields', async () => {
     expect(model['content']).toBe('<p><strong>new</strong></p>')
   })
 
+  it('html editor sanitizes source html and keeps the unfinished source draft', async () => {
+    const model = createEditableFieldModel('<p>old</p>')
+    const wrapper = await mountWithFieldContext(FieldHtmlEditor, model)
+
+    await wrapper.find('.toggle-source').trigger('click')
+    await wrapper.find('textarea').setValue('<p onclick="x()">hi<script>alert(1)</script><img src="javascript:x" onerror="y()"><a href="https://e.com">l</a></p>')
+    expect(model['content']).toBe('<p>hi<a href="https://e.com" rel="noopener noreferrer">l</a></p>')
+    expect(requireHtmlTextArea(wrapper.find('textarea').element, 'source textarea').value).toContain('<script>')
+  })
+
+  it('html editor never renders stored script or event attributes into the edit surface', async () => {
+    const model = createEditableFieldModel('<p style="color: red; position: fixed" class="evil task-list">a<img src="/Files/a.png" onerror="z()"></p>')
+    const wrapper = await mountWithFieldContext(FieldHtmlEditor, model)
+    const surface = wrapper.find('.html-editor-surface').element.innerHTML
+    expect(surface).toBe('<p style="color: red" class="task-list">a<img src="/Files/a.png"></p>')
+  })
+
+  it('html editor uploads images through the host uploader and reports pending and failures', async () => {
+    const model = createEditableFieldModel('<p>a</p>')
+    const states: Array<{pending: number; error: string}> = []
+    let resolveUpload!: (value: string) => void
+    const imageUploader = (_file: File) => new Promise<string>(resolve => {resolveUpload = resolve})
+    const wrapper = await mountWithFieldContext(FieldHtmlEditor, model, undefined,
+      {imageUploader, onImageUploadState: (state: {pending: number; error: string}) => states.push({...state})})
+    const input = wrapper.find('input.html-editor-image-input')
+    const file = new File(['x'], 'shot.png', {type: 'image/png'})
+    Object.defineProperty(input.element, 'files', {value: [file], configurable: true})
+    await input.trigger('change')
+    expect(states.at(-1)).toEqual({pending: 1, error: ''})
+    expect(wrapper.find('[role="status"]').exists()).toBe(true)
+    resolveUpload('/tenant/ApplicationFunMan/Prototype/shot.png')
+    await new Promise(resolve => setTimeout(resolve, 0))
+    expect(model['content']).toBe('<p>a</p><img src="/tenant/ApplicationFunMan/Prototype/shot.png" alt="shot.png">')
+    expect(states.at(-1)).toEqual({pending: 0, error: ''})
+
+    const failing = await mountWithFieldContext(FieldHtmlEditor, createEditableFieldModel(''), undefined,
+      {imageUploader: async () => {throw new Error('上传失败')}, onImageUploadState: (state: {pending: number; error: string}) => states.push({...state})})
+    const failingInput = failing.find('input.html-editor-image-input')
+    Object.defineProperty(failingInput.element, 'files', {value: [file], configurable: true})
+    await failingInput.trigger('change')
+    await new Promise(resolve => setTimeout(resolve, 0))
+    expect(states.at(-1)).toEqual({pending: 0, error: '上传失败'})
+    expect(failing.find('[role="alert"]').text()).toBe('上传失败')
+  })
+
   it('date field should switch to range mode when range filtering is enabled', async () => {
     const model = createEditableFieldModel(['2026-01-01', '2026-01-31'])
     const wrapper = await mountWithFieldContext(FieldDate, model, undefined, { filterMode: 'range' })

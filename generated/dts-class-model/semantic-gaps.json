@@ -1,5 +1,5 @@
 {
-  "gapCount": 3772,
+  "gapCount": 3786,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -5596,6 +5596,36 @@
       "declarationKind": "typeAlias"
     },
     {
+      "kind": "attribute",
+      "className": "RichTextImageUploadState",
+      "memberName": "pending",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RichTextImageUploadState.pending 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts",
+      "declarationLine": 25,
+      "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts",
+      "componentLevel": "field-level",
+      "componentLayer": "data-field",
+      "componentDirectory": "fields/data-components",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "RichTextImageUploadState",
+      "memberName": "error",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RichTextImageUploadState.error 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts",
+      "declarationLine": 26,
+      "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts",
+      "componentLevel": "field-level",
+      "componentLayer": "data-field",
+      "componentDirectory": "fields/data-components",
+      "declarationKind": "interface"
+    },
+    {
       "kind": "module",
       "className": "@spark-appworks/spark-component:components/fields/data-components/text/FieldJson/JsonDataViewChoice",
       "moduleName": "@spark-appworks/spark-component:components/fields/data-components/text/FieldJson/JsonDataViewChoice",
@@ -11140,7 +11170,7 @@
       "chainBreak": "LowcodeDesignFileUpload.uploadWorkingText 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 59,
+      "declarationLine": 62,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "class"
     },
@@ -11152,7 +11182,7 @@
       "chainBreak": "LowcodeDesignFileUpload.uploadTextVersion 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 60,
+      "declarationLine": 63,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "class"
     },
@@ -40673,7 +40703,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.hasOutput 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 139,
+      "declarationLine": 141,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -40685,7 +40715,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.hasPendingRootCreate 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 140,
+      "declarationLine": 142,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -40697,7 +40727,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.hasPendingChildCreate 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 141,
+      "declarationLine": 143,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -40709,7 +40739,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.assertCanAddChild 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 151,
+      "declarationLine": 153,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -40721,7 +40751,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.preflightChildNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 153,
+      "declarationLine": 155,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -40733,7 +40763,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.addChildNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 154,
+      "declarationLine": 156,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -40745,7 +40775,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.childCreateActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 176,
+      "declarationLine": 179,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -40757,7 +40787,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canRead 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 177,
+      "declarationLine": 180,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -40769,7 +40799,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canWrite 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 178,
+      "declarationLine": 181,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -40781,7 +40811,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canWriteFields 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 179,
+      "declarationLine": 182,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -40793,7 +40823,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.value 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 180,
+      "declarationLine": 185,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -40805,7 +40835,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.update 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 181,
+      "declarationLine": 186,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -40817,7 +40847,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 184,
+      "declarationLine": 189,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -40829,7 +40859,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 188,
+      "declarationLine": 193,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -43069,6 +43099,66 @@
       "sourceFile": "src/views/DataBaseManage/DataBaseManage/index.vue"
     },
     {
+      "kind": "attribute",
+      "className": "BlueprintAiDraft",
+      "memberName": "navigationTitle",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BlueprintAiDraft.navigationTitle 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/application-function-page-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/application-function-page-contract.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page-contract.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "BlueprintAiDraft",
+      "memberName": "capabilityName",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BlueprintAiDraft.capabilityName 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/application-function-page-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/application-function-page-contract.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page-contract.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "BlueprintAiDraft",
+      "memberName": "description",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BlueprintAiDraft.description 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/application-function-page-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/application-function-page-contract.ts",
+      "declarationLine": 12,
+      "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page-contract.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "BlueprintAiDraft",
+      "memberName": "kind",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BlueprintAiDraft.kind 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/application-function-page-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/application-function-page-contract.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page-contract.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "BlueprintAiDraft",
+      "memberName": "deliveryStatus",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BlueprintAiDraft.deliveryStatus 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/application-function-page-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/application-function-page-contract.ts",
+      "declarationLine": 14,
+      "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page-contract.ts",
+      "declarationKind": "interface"
+    },
+    {
       "kind": "module",
       "className": "app:views/features/application/application-function-management/ui/application-function-page",
       "moduleName": "app:views/features/application/application-function-management/ui/application-function-page",
@@ -43078,6 +43168,30 @@
       "declarationFile": "src/views/features/application/application-function-management/ui/application-function-page.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page.vue"
+    },
+    {
+      "kind": "attribute",
+      "className": "ApplicationFunctionAiInput",
+      "memberName": "error",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ApplicationFunctionAiInput.error 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/use-application-function-ai.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/use-application-function-ai.ts",
+      "declarationLine": 34,
+      "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-ai.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ApplicationFunctionAiInput",
+      "memberName": "notice",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ApplicationFunctionAiInput.notice 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/use-application-function-ai.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/use-application-function-ai.ts",
+      "declarationLine": 35,
+      "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-ai.ts",
+      "declarationKind": "interface"
     },
     {
       "kind": "module",
@@ -43137,17 +43251,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "BlueprintTreeContext",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BlueprintTreeContext 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/application/application-function-management/ui/use-application-function-page.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
-      "declarationLine": 9,
-      "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "attribute",
       "className": "BlueprintTreeContext",
       "memberName": "key",
@@ -43155,7 +43258,7 @@
       "chainBreak": "BlueprintTreeContext.key 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/use-application-function-page.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
-      "declarationLine": 10,
+      "declarationLine": 11,
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
       "declarationKind": "interface"
     },
@@ -43167,7 +43270,7 @@
       "chainBreak": "BlueprintTreeContext.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/use-application-function-page.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
-      "declarationLine": 11,
+      "declarationLine": 12,
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
       "declarationKind": "interface"
     },
@@ -43179,7 +43282,7 @@
       "chainBreak": "BlueprintTreeContext.owner 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/use-application-function-page.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
-      "declarationLine": 12,
+      "declarationLine": 13,
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
       "declarationKind": "interface"
     },
@@ -43191,8 +43294,80 @@
       "chainBreak": "BlueprintTreeContext.runtime 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-function-management/ui/use-application-function-page.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
-      "declarationLine": 13,
+      "declarationLine": 14,
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ApplicationFunctionPrototypeInput",
+      "memberName": "context",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ApplicationFunctionPrototypeInput.context 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/use-application-function-prototype.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+      "declarationLine": 14,
+      "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "ApplicationFunctionPrototypeInput",
+      "memberName": "selectedNodeId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ApplicationFunctionPrototypeInput.selectedNodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/use-application-function-prototype.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+      "declarationLine": 17,
+      "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ApplicationFunctionPrototypeInput",
+      "memberName": "notifyChanged",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ApplicationFunctionPrototypeInput.notifyChanged 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/use-application-function-prototype.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+      "declarationLine": 26,
+      "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "ApplicationFunctionPrototypeInput",
+      "memberName": "userName",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ApplicationFunctionPrototypeInput.userName 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/use-application-function-prototype.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+      "declarationLine": 29,
+      "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "ApplicationFunctionPrototypeInput",
+      "memberName": "error",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ApplicationFunctionPrototypeInput.error 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/use-application-function-prototype.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+      "declarationLine": 34,
+      "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ApplicationFunctionPrototypeInput",
+      "memberName": "notice",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ApplicationFunctionPrototypeInput.notice 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/application-function-management/ui/use-application-function-prototype.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+      "declarationLine": 35,
+      "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
       "declarationKind": "interface"
     },
     {

@@ -20,6 +20,7 @@ export type {
 export { LowcodeDesignApi } from './design/lowcode-design-api.js'
 export { LowcodeDesignFileUpload } from './design/lowcode-design-file-upload.js'
 export {ExcelTemplateUploadResource,type PreparedExcelTemplateUpload,type ExcelTemplateUploadResourceInput} from './platform/resources/semi-structured/excel-import/template-upload-resource.js'
+export {RichTextImageUploadResource,type RichTextImageUploadResourceInput} from './platform/resources/rich-text/rich-text-image-upload-resource.js'
 export type {
   LowcodeFileDirectory,
   LowcodeFileEntry,
@@ -42,6 +43,7 @@ export type {
 export { DataSpaceRuntimeApi } from './platform/data-space/runtime/data-space-runtime-api.js'
 export { DataSpaceQueryAggregation } from './platform/data-space/runtime/query/data-space-query-aggregation.js'
 export { AiTurnResource } from './realtime/ai-turn-resource.js'
+export { AiTurnDraftRunner, type AiTurnDraftRunnerInput } from './realtime/ai-turn-draft-runner.js'
 export { AiAgentConfigResource } from './realtime/agent-config/ai-agent-config-resource.js'
 export { AiDataEntrySession } from './realtime/data-entry/ai-data-entry-session.js'
 export type { AiDataEntryAdapter, AiDataEntrySessionInput } from './realtime/data-entry/ai-data-entry-session.js'

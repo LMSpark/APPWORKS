@@ -102,6 +102,46 @@
   margin-bottom: 1rem;
 }
 
+.application-function-page__versions {
+  margin-top: 1rem;
+}
+
+.application-function-page__version.is-selected {
+  font-weight: 600;
+  color: var(--el-color-primary);
+}
+
+.application-function-page__preview-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.application-function-page__preview-table th,
+.application-function-page__preview-table td {
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--el-border-color-lighter);
+  text-align: left;
+  vertical-align: top;
+}
+
+.application-function-page__preview-list dt {
+  font-weight: 600;
+}
+
+.application-function-page__preview-list dd {
+  margin: 0 0 0.5rem;
+  white-space: pre-wrap;
+}
+
+.application-function-page__prototype-preview {
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.application-function-page__prototype-preview img {
+  max-width: 100%;
+}
+
 @media (max-width: 860px) {
   .application-function-page__workspace {
     grid-template-columns: 1fr;

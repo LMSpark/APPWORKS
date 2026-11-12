@@ -766,7 +766,7 @@
             },
             "addBlueprintModuleNode": {
               "type": "object",
-              "title": "(parentNodeId: string | null) => Promise<string>"
+              "title": "(parentNodeId: string | null, fields?: Readonly<Record<string, unknown>>) => Promise<string>"
             },
             "listReferenceProjects": {
               "type": "object",

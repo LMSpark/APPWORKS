@@ -9472,3 +9472,61 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
   - 正式导航发布与应用管理“项目管理”开放。
   - 认证实服与浏览器烟测。
   - 完整 `apps/appworks` 其余业务域逐功能验收。
+
+## 蓝图批次2：AI 与需求原型（含批次1两条注意项）
+
+- **范围与对照。** 对照参考固定提交 `1147b00ee` 的 `apps/appworks` 蓝图页逐项实现，只迁移行为，不复制 Vue 整页：
+  - AI 下一级节点：生成 → 严格协议校验（非单个 JSON 对象、空 rows、多余字段一律拒绝）→ 预览（父级标签与行表）→ 用户确认后逐个经 owner 新增。部分失败停在当前项，再次确认从该项继续；取消不写入。
+  - AI 表单回填：生成 → 校验 → 预览 → 确认后写入当前行 DataView 编辑覆盖，不保存，由用户显式保存。全部字段先经 `owner.canWrite`，任一拒绝则不写任何字段。
+  - 需求原型：`htmlDesc` 富文本编辑；图片上传中或失败时禁止保存，上传中还禁止切换节点/页签；保存与预览统一经白名单清洗（含旧 `a[link]`→`href`）。
+  - 历史版本 `Base_Navigation_Desc_Version`：只列当前节点版本；支持预览（清洗）、新增（名称 `用户[时间] 描述`，正文为清洗后的当前原型）、设为当前版本、删除（确认框显示版本名，取消不写入）。结果未知时只重提原命令。
+  - 防串数据：切换节点或上下文会作废进行中的 AI 请求与预览，迟到结果丢弃；版本请求有代次，旧结果丢弃。
+- **公共层补齐（均有测试）。**
+  - spark-component：`sanitizeRichTextHtml`；`FieldHtmlEditor` 的 `imageUploader/onImageUploadState`；`useHtmlEditorState.readEditable()`。
+  - spark-lowcode-api：`RichTextImageUploadResource`（经 `LowcodeDesignFileUpload` 的 `ApplicationFunMan/Prototype` 目录）、`AiTurnDraftRunner`。
+  - app：`AiDataEntryHost.createDraftRunner()`。选用 runner 而不是 `AiDataEntrySession`，因为后者不覆盖“指定父级新增”和“表单回填”两种目标。
+  - owner：`addRootModule(fields?)`/`addModuleNode(parent, fields?)` 只接受白名单内容字段（name、FunName、memo、status、conType），父级、排序与身份字段仍由 owner 决定。
+  - `orderValue`：按正式列类型写排序值（数值列写 number）。修复批次1新增节点在数值列上被 `validateColumns` 拒绝的缺陷。
+- **页面输入走 DataView（烟测发现并修复的真实缺陷）。**
+  - 首版弹窗中的 `FieldTextarea` 使用显式 `modelValue`。按 `useFieldPermission` 合同，未绑定 DataView 成员的字段只能展示；且没有表单宿主时，`useResolvedFieldContext` 回落为 detail 只读模式。结果是需求描述与版本描述无法输入，单测因直接调用 setter 而未发现。
+  - 修复按 `useDevSystem` 提示词先例实施：在同一 owner DataSet 上以 `ensureDataSetStaticInputTable` 装配唯一命名的 static-data 输入表（`requirement`/`versionDescription`），视图设为 staged，并核验 `runtime.resolveView(key)`；上下文变化或卸载时 `removeTable`；不参与正式保存。弹窗用 `RendererForm :data-view-key :context-row-id` 包裹 `FieldTextarea data-field`；composable 在确认时从该 DataView 读值，不再保留第二份 ref。
+  - 同类问题：需求原型的 `FieldHtmlEditor` 原先没有表单宿主，渲染为只读。已与基本信息页签一样放入 owner 绑定的 `RendererForm`。
+- **批次1注意项处理。**
+  - 懒加载模式下，`refreshView` 经 `runLazy` 与进行中的展开/定位串行；结构写命令前执行 `lazyIdle()`。入口测试“queues a structural refresh behind an in-flight lazy expand”覆盖。
+  - 懒加载模式下，父节点未装载的行不再提升为根；完整树模式保持原孤儿可见语义。入口测试“keeps a lazily appended row … out of the root layer”与 owner 既有孤儿测试覆盖。
+- **ClassModel 查询 → 实现 → 验证对应。**
+  - `RHtmlEditorProps`（`imageUploader`/`onImageUploadState`）→ 原型编辑器 → `renderer-field-advanced` 与入口测试、浏览器烟测（上传失败阻断保存）。
+  - `RListProps`（`dataViewKey/rowKey/onItemClick/showPagination/emptyText/showDataViewMeta`，默认插槽 row）→ 版本列表 → 入口版本用例、烟测（只列当前节点版本）。
+  - `RFormProps`（`dataViewKey/contextRowId/contextDataMember/autoColumns/showDataViewMeta/gridColumns`）+ `useResolvedFieldContext` 宿主推导 + `useFieldPermission` 写入合同 → 弹窗输入与原型编辑器的表单宿主 → 烟测输入与保存。
+  - `RDialogProps`、`RButtonProps`、`RTreeProps`、`RTextareaProps` → 弹窗、按钮与树 → 烟测。
+  - `ensureDataSetStaticInputTable`（spark-data 公共导出）→ 页面输入 DataView → 入口 `typeInput` 断言 `resourceType=static-data`。
+  - `AiTurnResource` → `AiTurnDraftRunner` → runner 单测与入口 AI 用例。
+  - `LowcodeDesignFileUpload` → `RichTextImageUploadResource` → 资源单测。
+  - owner `addRootModule/addModuleNode` 已在 `blueprint-workspace-dataview` 分片中投影。
+  - 源码改动后重新运行了 `generate:class-model-surface`，新增页面模块与公共成员均已投影。
+- **验证。**
+  - `pnpm run typecheck` 通过。
+  - 入口测试 28 项通过，其中新增 8 项 AI/原型用例。
+  - `tests/app/features/application`、`tests/ui/field`、`renderer-field-advanced` 共 31 文件 460 项通过；`blueprint|dev-system` 过滤 9 文件 149 项通过。
+  - lowcode-api（draft runner、rich-text、ai-turn、data-entry）5 文件 85 项通过。
+  - 23 个改动/新增源文件 ESLint 通过。
+  - `verify:pages-config` ok，`verify:page-thin` ok，`verify:class-model` 49 项通过，`git diff --check` 0 行。
+- **隔离浏览器烟测（无头 Edge + CDP，内存夹具，未写实服数据）。**
+  - 环境：真实页面、真实 `SystemPageIdentityPool`、真实 DataSet/PageRuntime/owner；仅宿主状态、场景装载、AI 宿主三处接缝换为内存夹具；页内拦截 fetch/XHR/beacon/EventSource。脚手架位于 gitignored 的 `artifacts/smoke-blueprint-batch2/`，不提交。
+  - 结果 20/20 步通过：
+    - 树懒加载挂载；表单 AI 预览、回填、不保存、取消恢复；树 AI 非法输出拒绝、两行预览、确认后在选中节点下新增并可见；生成中切换节点后迟到结果丢弃。
+    - 原型显示当前节点；版本只列当前节点；上传失败可见且禁止保存、无写入；保存经清洗（`onclick`/`javascript:` 被去除）；版本预览经清洗；设为当前版本写入清洗正文；新增版本归属当前节点；删除确认/取消/确认后其他节点版本保留。
+  - 网络尝试 0 次，控制台错误 0 条。夹具写入日志为 6 条（2 次新增节点、原型保存、应用版本、版本新增、版本删除）。
+  - 上传失败来自执行身份守卫（`SPARK_EXECUTION_SCOPE_REQUIRED`），请求未发出，符合“未登录不旁路”。
+- **未核实（需认证实服）。**
+  - wwwroot 原型图片 ACK 路径格式与浏览器显示。
+  - `Base_Navigation_Desc_Version` 写权限与服务端 rowid。
+  - 阶段字典是否含 `plan`。
+  - 各租户 AI 代理映射（`VITE_AI_DATA_ENTRY_AGENTS`）。
+  - 实服 `FunOrderValue` 列类型（已按列类型适配）。
+- **仍开放（不缩范围）。**
+  - 批次3–4：数据空间与维度来源、导航/桌面/宿主、交付与导出。
+  - 批次5：两个权限入口。
+  - 正式导航发布与应用管理“项目管理”开放。
+  - 认证实服烟测。
+  - 完整 `apps/appworks` 其余业务域逐功能验收。

@@ -497,7 +497,12 @@
         },
         "method.addRootModule.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "fields": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
           "additionalProperties": false
         },
         "method.addRootModule.return": {
@@ -629,6 +634,10 @@
           "properties": {
             "parentNodeId": {
               "type": "string"
+            },
+            "fields": {
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -831,7 +840,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T05:25:04.434Z",
+  "generatedAt": "2026-11-12T06:31:05.757Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -1509,7 +1518,34 @@
             {
               "name": "addRootModule",
               "jsdoc": "Create an unmounted root module through the current formal Base_NavigationInfo query owner; returns its formal row id.",
-              "parameters": [],
+              "parameters": [
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
               "type": {
                 "type": "reference",
                 "name": "Promise",
@@ -1804,13 +1840,39 @@
             },
             {
               "name": "addModuleNode",
-              "jsdoc": "在已存在父节点下新增一个默认模块节点（同级/子级新增共用），排序值取已装载同级最大值 + 1。\n存在子节点未知回执时只核验原新增，不创建第二条。",
+              "jsdoc": "在已存在父节点下新增一个默认模块节点（同级/子级新增共用），排序值取已装载同级最大值 + 1。\n存在子节点未知回执时只核验原新增，不创建第二条（此时忽略 fields）。\nfields 只允许覆盖内容字段（名称/能力名/描述/阶段/类型），父级、排序与身份字段仍由 owner 决定。",
               "parameters": [
                 {
                   "name": "parentNodeId",
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                },
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

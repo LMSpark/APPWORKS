@@ -4,7 +4,7 @@
  * 边界：正式Agent轮次仍经同DataSet的AiTurnResource；租户映射只读部署配置；不读取管理端Agent配置、不保存业务DataView。
  * AI用途：将当前已配置Agent与精确目标DataView组合成可安全重挂、停止和清理的通用录入owner。
  */
-import {AiDataEntrySession, AiTurnResource, type AiDataEntryAdapter} from '@spark-appworks/spark-lowcode-api'
+import {AiDataEntrySession, AiTurnDraftRunner, AiTurnResource, type AiDataEntryAdapter} from '@spark-appworks/spark-lowcode-api'
 import type {DataSet, DataView} from '@spark-appworks/spark-data'
 import {lowcodeApi, lowcodeHttp} from '@/lowcode/lowcode-runtime'
 import type {AiDataEntryAttachment, AiDataEntryHostCapability} from '@spark-appworks/spark-component'
@@ -161,6 +161,15 @@ export class AiDataEntryHost implements AiDataEntryHostCapability {
       this.#sessionAgentId = undefined
       this.notify()
     }
+  }
+
+  /**
+   * 以同一 DataSet 的正式轮次资源与当前租户 Agent 创建草稿运行器，供“生成→严格校验→预览→确认”类页面流程使用。
+   * @throws 租户映射缺失或登录/应用身份已变化。
+   */
+  public createDraftRunner(): AiTurnDraftRunner {
+    this.assertScope()
+    return new AiTurnDraftRunner({dataSet: this.#dataSet, turnResource: this.#turns, agentId: this.agentForCurrentTenant()})
   }
 
   private notify(): void { for (const listener of this.#listeners) listener() }

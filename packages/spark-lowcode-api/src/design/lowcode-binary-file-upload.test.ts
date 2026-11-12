@@ -67,4 +67,12 @@ describe('original binary file ACK and independent verification',()=>{
   f.http.body={Code:200,Result:[{state:'success',filePath:'/tenant/sub/report.txt'}]}
   await expect(f.sdk.uploadBinaryVersion({file:f.file,scenarioId:scene,appType:'filedata',customPath:'',fieldName:'files'})).rejects.toMatchObject({fileResourceMutationMayHaveApplied:true})
  })
+ it('uploads prototype images only to the tenant wwwroot prototype directory',async()=>{
+  const bad=fixture('a.svg');await expect(bad.sdk.uploadBinaryVersion({file:bad.file,scenarioId:scene,appType:'wwwroot',customPath:'ApplicationFunMan/Prototype',fieldName:'files'})).rejects.toThrow();expect(bad.http.requests).toEqual([])
+  const f=fixture('图.png');f.http.body={Code:200,Result:[{state:'success',filePath:'/tenant/ApplicationFunMan/Prototype/图_1.png'}]}
+  const receipt=await f.sdk.uploadBinaryVersion({file:f.file,scenarioId:scene,appType:'wwwroot',customPath:'ApplicationFunMan/Prototype',fieldName:'files'})
+  expect(receipt.locator).toEqual({appType:'wwwroot',customPath:'ApplicationFunMan/Prototype',fileName:'图_1.png',isCrossEnterprise:false})
+  f.http.body={Code:200,Result:[{state:'success',filePath:'/tenant/图_2.png'}]}
+  await expect(f.sdk.uploadBinaryVersion({file:f.file,scenarioId:scene,appType:'wwwroot',customPath:'ApplicationFunMan/Prototype',fieldName:'files'})).rejects.toMatchObject({fileResourceMutationMayHaveApplied:true})
+ })
 })

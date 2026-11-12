@@ -1,19 +1,25 @@
 import { computed, onBeforeUnmount, onScopeDispose, ref, shallowRef, watch } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource } from '@spark-appworks/spark-app'
-import { buildDataViewKey, DataViewFilter, isDataRow, type DataRow, type DataView } from '@spark-appworks/spark-data'
+import { buildDataViewKey, DataViewFilter, ensureDataSetStaticInputTable, isDataRow, type DataRow, type DataSet, type DataView } from '@spark-appworks/spark-data'
 import { PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component'
 import type { PageRuntime } from '@spark-appworks/spark-project-model'
-import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, RichTextImageUploadResource, type AiTurnDraftRunner } from '@spark-appworks/spark-lowcode-api'
 import { loadLowcodeRuntimeScenario, readLowcodeExecutionProject } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { lowcodeApi, lowcodeDesignFileUpload, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
+import { AiDataEntryHost } from '@/lowcode/resources/shared/ai-data-entry-host'
 import type { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import { BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID, BLUEPRINT_NODE_STATUS_SCENARIO_ID, useDevState } from '@/views/app/dev-system/useDevState'
 import { resolveNavHostProjectBinding, resolveProjectCandidate } from '@/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract'
+import { blueprintEditingFields as editingFields } from './application-function-page-contract'
+import { useApplicationFunctionAi } from './use-application-function-ai'
+import { useApplicationFunctionPrototype } from './use-application-function-prototype'
 
-type BlueprintTab = 'basic' | 'dataSpace'
+type BlueprintTab = 'basic' | 'dataSpace' | 'prototype'
 type NodeOption = Readonly<{label: string; value: string}>
 type CreatePosition = 'root' | 'sibling' | 'child'
-type BlueprintTreeContext = Readonly<{
+/** 当前有效的蓝图树上下文：同一 PageRuntime、目标应用与 owner 的组合身份。 */
+export type BlueprintTreeContext = Readonly<{
   key: string
   projectId: string
   owner: BlueprintWorkspaceDataView
@@ -43,6 +49,8 @@ function readNodeId(row: unknown): string {
 export const BLUEPRINT_STATUS_OPTION_VIEW_KEY = buildDataViewKey('功能导航状态字典', 'default', BLUEPRINT_NODE_STATUS_SCENARIO_ID)
 /** 节点负责人候选视图：按当前应用成员过滤后的用户目录（rowid/UserName）。 */
 export const BLUEPRINT_PERSON_OPTION_VIEW_KEY = buildDataViewKey('Base_UserInfo', 'default', BLUEPRINT_NODE_STATUS_SCENARIO_ID)
+/** 蓝图页弹窗输入 DataView 的唯一输入行。 */
+const BLUEPRINT_INPUT_ROW = 'INPUT'
 /** 节点类型与 Base_NavigationInfo.conType 正式取值一致。 */
 export const BLUEPRINT_NODE_TYPE_OPTIONS: readonly NodeOption[] = Object.freeze([
   {value: 'Model', label: '模块'},
@@ -68,18 +76,25 @@ function sortedSiblings(view: DataView, parentId: string): DataRow[] {
       || readText(a, 'rowid').localeCompare(readText(b, 'rowid')))
 }
 
-/** 当前行仅编辑覆盖（未暂存、无待核验命令）中的字段；存在其他待处理状态时返回 undefined。 */
-function editingFields(owner: BlueprintWorkspaceDataView): readonly string[] | undefined {
-  const row = owner.view.currentRow
-  if (!row) return owner.dirty ? undefined : []
-  const key = owner.view.getPkKey(row)
-  if (key === undefined || owner.hasPendingBlueprintCommand || owner.view.dirtyTracking.hasPendingChanges(key)) return undefined
-  const fields = Object.keys(owner.view.getEditingPatch(key) ?? {})
-  const othersDirty = owner.view.rows.some(candidate => {
-    const id = owner.view.getPkKey(candidate)
-    return candidate !== row && id !== undefined && (owner.view.hasEditingChanges(id) || owner.view.dirtyTracking.hasPendingChanges(id))
-  })
-  return othersDirty ? undefined : fields
+/** 同一 DataSet 复用一个草稿运行器与一个图片上传资源（它们在 DataSet 上注册固定命令表）。 */
+const draftRunners = new WeakMap<DataSet, AiTurnDraftRunner>()
+const imageUploaders = new WeakMap<DataSet, RichTextImageUploadResource>()
+
+function draftRunnerFor(dataSet: DataSet): AiTurnDraftRunner {
+  const cached = draftRunners.get(dataSet)
+  if (cached) return cached
+  const runner = new AiDataEntryHost({dataSet}).createDraftRunner()
+  draftRunners.set(dataSet, runner)
+  return runner
+}
+
+function imageUploaderFor(dataSet: DataSet): RichTextImageUploadResource {
+  const cached = imageUploaders.get(dataSet)
+  if (cached) return cached
+  const readScope = () => lowcodeApi.readRequestScope()
+  const resource = new RichTextImageUploadResource({dataSet, upload: lowcodeDesignFileUpload, readScope})
+  imageUploaders.set(dataSet, resource)
+  return resource
 }
 
 async function refreshComplete(view: DataView, label: string, assertCurrent: () => void): Promise<void> {
@@ -122,7 +137,7 @@ async function prepareNodeOptionViews(input: Readonly<{
 
 function readTab(value: unknown): BlueprintTab {
   if (value === undefined) return 'basic'
-  if (value === 'basic' || value === 'dataSpace') return value
+  if (value === 'basic' || value === 'dataSpace' || value === 'prototype') return value
   throw new Error(`蓝图页面不支持 blueprintTab=${String(value)}`)
 }
 
@@ -154,6 +169,8 @@ export function useApplicationFunctionPage() {
   const optionsRuntimeId = ref('')
   const peopleAvailable = ref(false)
   const optionsError = ref('')
+  const notice = ref('')
+  const applicationLabel = ref('')
   let loadRevision = 0
   let releasePreflight = () => {}
 
@@ -222,6 +239,104 @@ export function useApplicationFunctionPage() {
 
   function isCurrentContext(key: string): boolean {
     return treeContext.value?.key === key
+  }
+
+  function isLive(context: BlueprintTreeContext, nodeId: string): boolean {
+    return isCurrentContext(context.key) && selectedNodeId.value === nodeId
+  }
+
+  // 弹窗输入（AI 需求描述、版本描述）走同 DataSet 的 static-data 输入 DataView，由标准字段写入；不参与正式保存。
+  let pageInput: Readonly<{dataSet: DataSet; tableName: string; view: DataView}> | undefined
+  const inputViewKey = ref('')
+  const inputRevision = ref(0)
+  function releasePageInput(): void {
+    const current = pageInput
+    pageInput = undefined
+    inputViewKey.value = ''
+    if (current && !current.dataSet.destroyed && current.dataSet.getView(current.tableName, 'default') === current.view) {
+      current.dataSet.removeTable(current.tableName)
+    }
+  }
+  function mountPageInput(context: BlueprintTreeContext): void {
+    const dataSet = context.owner.dataSet
+    const tableName = `BlueprintPageInput${crypto.randomUUID().replaceAll('-', '')}`
+    if (dataSet.getTable(tableName)) throw new Error('蓝图页输入临时表名称冲突')
+    ensureDataSetStaticInputTable(dataSet, tableName, [{name: 'inputId', primary: true}, {name: 'requirement'}, {name: 'versionDescription'}])
+    const view = dataSet.getView(tableName, 'default')
+    if (!view) throw new Error('蓝图页输入 DataView 未装配')
+    pageInput = {dataSet, tableName, view}
+    view.commitMode = 'staged'
+    view.appendRow({inputId: BLUEPRINT_INPUT_ROW, requirement: '', versionDescription: ''})
+    view.setCurrentRowById(BLUEPRINT_INPUT_ROW)
+    const key = buildDataViewKey(tableName, 'default', dataSet.scenarioId)
+    if (context.runtime.resolveView(key) !== view) throw new Error('蓝图页输入 DataView 不属于当前运行时')
+    inputViewKey.value = key
+  }
+  watch([() => treeContext.value?.runtime, () => treeContext.value?.owner.dataSet], () => {
+    releasePageInput()
+    const context = treeContext.value
+    if (!context) return
+    try {
+      mountPageInput(context)
+    } catch (cause) {
+      releasePageInput()
+      error.value = cause instanceof Error ? cause.message : String(cause)
+    } finally {
+      inputRevision.value++
+    }
+  }, {immediate: true, flush: 'sync'})
+  function readInput(field: string): string {
+    void inputRevision.value
+    const value = pageInput?.view.getEditingRow(BLUEPRINT_INPUT_ROW)?.[field]
+    return typeof value === 'string' ? value : ''
+  }
+  function resetInput(field: string): void {
+    if (pageInput) pageInput.view.updateEditingValue(BLUEPRINT_INPUT_ROW, field, '')
+    inputRevision.value++
+  }
+  function touchInput(): void {
+    inputRevision.value++
+  }
+
+  const ai = useApplicationFunctionAi({
+    context: () => treeContext.value,
+    selectedNodeId,
+    isLive,
+    applicationLabel: () => applicationLabel.value,
+    createRunner: context => draftRunnerFor(context.owner.dataSet),
+    createNode: (parentNodeId, fields) => state.addBlueprintModuleNode(parentNodeId, fields),
+    expand: nodeId => { if (!expandedKeys.value.includes(nodeId)) expandedKeys.value = [...expandedKeys.value, nodeId] },
+    notifyChanged: () => state.notifyExternalDataViewChanged(),
+    readInput,
+    resetInput,
+    error,
+    notice,
+  })
+
+  const prototype = useApplicationFunctionPrototype({
+    context: () => treeContext.value,
+    isLive,
+    selectedNodeId,
+    active: computed(() => activeTab.value === 'prototype'),
+    createUploader: context => imageUploaderFor(context.owner.dataSet),
+    saveOwner: () => saveBlueprintChanges(),
+    notifyChanged: () => state.notifyExternalDataViewChanged(),
+    revision: state.externalDataViewRevision,
+    userName: () => {
+      const principal = readLowcodePrincipal()
+      return principal?.displayName ?? principal?.username ?? ''
+    },
+    readInput,
+    resetInput,
+    error,
+    notice,
+  })
+
+  /** 图片上传进行中时禁止切换节点或页签，避免上传结果插入到其他节点。 */
+  function uploadsBlockSwitch(): boolean {
+    if (prototype.uploadState.value.pending === 0) return false
+    error.value = '图片正在上传，请等待完成后再切换'
+    return true
   }
 
   /** 新增位置对应的父节点：root→null；sibling→选中节点的父级（根层同级即根模块）；child→选中节点。 */
@@ -325,6 +440,7 @@ export function useApplicationFunctionPage() {
   }
 
   async function selectNode(nodeId: string, context: BlueprintTreeContext): Promise<void> {
+    if (requestedNodeId.value !== nodeId && uploadsBlockSwitch()) return
     try {
       if (state.hasAnyDirty.value && state.selectedNode.value?.nodeId !== nodeId) {
         throw new Error('当前蓝图存在未处理修改，先完成原节点保存或核验后再切换')
@@ -497,6 +613,7 @@ export function useApplicationFunctionPage() {
         || resolveProjectCandidate(applications, application, {valueField: 'rowid', labelField: 'AppName'}) !== projectId) {
         throw new Error('当前租户正式应用目录未确认蓝图目标')
       }
+      applicationLabel.value = readText(application, 'AppName')
       assertNoPendingChanges()
       if (!await state.openEditingProject({projectId})) throw new Error('当前工作区尚不能切换到被设计应用')
       assertCurrent()
@@ -554,19 +671,24 @@ export function useApplicationFunctionPage() {
   }
 
   function selectTab(tab: BlueprintTab): void {
+    if (tab !== activeTab.value && uploadsBlockSwitch()) return
     activeTab.value = tab
   }
 
-  async function saveBlueprintChanges(): Promise<void> {
+  async function saveBlueprintChanges(): Promise<boolean> {
     const context = treeContext.value
-    if (!context || !isCurrentContext(context.key) || state.blueprintSaving.value) return
+    if (!context || !isCurrentContext(context.key) || state.blueprintSaving.value) return false
     if (stageSaving.value) {
       error.value = '节点阶段正在保存，完成后再保存基本信息'
-      return
+      return false
+    }
+    if (prototype.uploadBlocked.value) {
+      error.value = prototype.uploadState.value.pending > 0 ? '图片正在上传，请稍后保存' : '存在上传失败的图片，请重新上传后保存'
+      return false
     }
     if (state.hasAnyFileDirty.value || state.editor.dirtyScenarioIds.length > 0) {
       error.value = '当前 owner 还包含工具文件或场景定义修改；本页不会替它们提交'
-      return
+      return false
     }
     state.blueprintSaving.value = true
     try {
@@ -574,8 +696,10 @@ export function useApplicationFunctionPage() {
       if (!isCurrentContext(context.key)) throw new Error('保存期间蓝图项目或运行时身份已变化')
       state.refreshBlueprintTreeProjection()
       error.value = ''
+      return true
     } catch (cause) {
       error.value = String(cause)
+      return false
     } finally {
       state.blueprintSaving.value = false
       state.notifyExternalDataViewChanged()
@@ -650,7 +774,7 @@ export function useApplicationFunctionPage() {
     () => { void loadTarget() },
     { immediate: true },
   )
-  onScopeDispose(() => {loadRevision++; releasePreflight(); sparkRemove(PAGE_RUNTIME)})
+  onScopeDispose(() => {loadRevision++; releasePreflight(); releasePageInput(); sparkRemove(PAGE_RUNTIME)})
   onBeforeUnmount(stopTargetWatch)
 
   return {
@@ -697,5 +821,11 @@ export function useApplicationFunctionPage() {
     onStageChange,
     cancelBlueprintChanges,
     loadTarget,
+    notice,
+    inputViewKey,
+    inputRowId: BLUEPRINT_INPUT_ROW,
+    touchInput,
+    ai,
+    prototype,
   }
 }

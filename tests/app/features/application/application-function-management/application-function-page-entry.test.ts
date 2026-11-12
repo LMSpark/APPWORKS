@@ -6,7 +6,8 @@ import ElementPlus from 'element-plus'
 import {DataSet, isDataRow, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
-import {FieldText} from '@spark-appworks/spark-component'
+import {FieldText, sanitizeRichTextHtml} from '@spark-appworks/spark-component'
+import {BLUEPRINT_AI_REJECTED} from '@/views/features/application/application-function-management/ui/application-function-page-contract'
 import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {useApplicationFunctionPage} from '@/views/features/application/application-function-management/ui/use-application-function-page'
@@ -24,7 +25,11 @@ vi.mock('@/views/features/application/application-function-management/ui/use-app
     return capturedPage
   }}
 })
-const fixtureState = vi.hoisted(() => ({current: undefined as unknown, execution: 'EXECUTION'}))
+const fixtureState = vi.hoisted(() => ({current: undefined as unknown, execution: 'EXECUTION', createChild: 'disabled' as 'enabled' | 'disabled'}))
+const aiRunner = vi.hoisted(() => ({run: vi.fn<(message: string, signal?: AbortSignal) => Promise<string>>()}))
+vi.mock('@/lowcode/resources/shared/ai-data-entry-host', () => ({AiDataEntryHost: class {
+  createDraftRunner() {return aiRunner}
+}}))
 vi.mock('@/views/app/dev-system/useDevState', () => ({useDevState: () => fixtureState.current,
   BLUEPRINT_NODE_STATUS_SCENARIO_ID: 'FB291E325272007AEED8921C28B93CFD',
   BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID: '0C70F74793F9E858B71E0DBDEC784D57'}))
@@ -46,14 +51,18 @@ const CATALOG = LOWCODE_APPLICATION_CATALOG_FORM_KEY
 const TARGET = 'APP-TARGET'
 const NAVIGATION = 'BLUEPRINT-PAGE'
 const HOST_FIELDS = ['rowid', 'prowid', 'dataSetId', 'DataName', 'ValParamName', 'TextParamName', 'selectValParam', 'selectTextParam', 'selectPid']
-const NODE_FIELDS = ['rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'FunName', 'funCode', 'conType', 'NavigationUrl', 'memo', 'status']
+const NODE_FIELDS = ['rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'FunName', 'funCode', 'conType', 'NavigationUrl', 'memo', 'status',
+  'personCharge', 'NavigationImageWxz', 'MobileUrl', 'NavigationType', 'ChildItemLocation', 'NavigationShowType', 'HorizontalAlignment',
+  'IsShowAtNav', 'IsShowChildItem', 'BeginGroup', 'conid', 'htmlDesc']
+const VERSION_FIELDS = ['rowid', 'prowid', 'VersionName', 'desc']
 const datasets: DataSet[] = []
+let createdRows = 0
 const disposals: Array<() => void> = []
 afterEach(() => {
   disposals.splice(0).forEach(dispose => dispose())
   datasets.splice(0).forEach(dataSet => {if (!dataSet.destroyed) dataSet.destroy()})
 })
-beforeEach(() => {fixtureState.execution = 'EXECUTION'; vi.mocked(loadLowcodeRuntimeScenario).mockReset()})
+beforeEach(() => {fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
 
 function matches(row: DataRow, filter: unknown): boolean {
   if (!isDataRow(filter)) return true
@@ -73,6 +82,7 @@ function catalogDataSet() {
     {model: 'Base_Navigation_DataRelation', fields: HOST_FIELDS},
     {model: 'Base_AppSystemList', fields: ['rowid', 'AppName']},
     {model: 'Base_NavigationInfo', fields: NODE_FIELDS},
+    {model: 'Base_Navigation_Desc_Version', fields: VERSION_FIELDS},
   ].map(({model, fields}) => {
     return [model, {modelBinding: {modelId: `${model}-ID`, modelName: model},
       columns: fields.map(name => ({name, type: name === 'FunOrderValue' ? 'number' : 'string', isPrimaryKey: name === 'rowid'})),
@@ -84,10 +94,13 @@ function catalogDataSet() {
   return dataSet
 }
 
-function bindRows(view: DataView, rows: DataRow[], hidden: readonly string[] = []) {
+function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: readonly string[]; crud?: boolean}> = {}) {
+  const hidden = options.hidden ?? []
+  const crud = options.crud ? 'enabled' as const : 'disabled' as const
   const result = (selected: DataRow[]) => ({
     rows: selected.map(row => ({...row})), total: selected.length, countReported: true, resultPrimaryKey: 'rowid',
     assertIdentity: () => undefined,
+    prepareNewRow: (data: DataRow) => ({...data, rowid: typeof data['rowid'] === 'string' && data['rowid'] ? data['rowid'] : `NEW-${++createdRows}`}),
     rowKey: (row: Readonly<DataRow>) => row['rowid'],
     fieldAccess: (_key: unknown, field: string) => ({
       read: hidden.includes(field) ? 'invisible' as const : 'visible' as const,
@@ -95,20 +108,25 @@ function bindRows(view: DataView, rows: DataRow[], hidden: readonly string[] = [
       component: 'editable' as const, required: false, writeMode: 'editable' as const,
     }),
     readFieldAccess: (_row: Readonly<DataRow>, field: string) => hidden.includes(field) ? 'invisible' as const : 'visible' as const,
-    addActionState: () => 'disabled' as const, editActionState: () => 'enabled' as const,
-    deleteActionState: () => 'disabled' as const, createChildActionState: () => 'disabled' as const,
+    addActionState: () => crud, editActionState: () => 'enabled' as const,
+    deleteActionState: () => crud, createChildActionState: () => fixtureState.createChild,
     viewActionState: () => 'enabled' as const,
   })
   type Save = NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['save']>
   const save = vi.fn(async (command: Parameters<Save>[0]) =>
     command.changes.map(change => {
-      const changed = change.changes.changed ?? []
+      const changed = change.changes.changed ?? [], added = change.changes.added ?? [], deleted = change.changes.deleted ?? []
       for (const patch of changed) {
         const row = rows.find(candidate => candidate['rowid'] === patch['rowid'])
         if (!row) throw new Error('test save target missing')
         Object.assign(row, patch)
       }
-      return {metaName: change.identity.metaName, changed, added: [], deleted: [],
+      for (const row of added) rows.push({...row})
+      for (const row of deleted) {
+        const index = rows.findIndex(candidate => candidate['rowid'] === row['rowid'])
+        if (index >= 0) rows.splice(index, 1)
+      }
+      return {metaName: change.identity.metaName, changed, added, deleted,
         changedFields: changed.map(row => Object.keys(row)), context: result(rows)}
     }))
   view.bindQueryExecutor({queryColumns: target => target.columns,
@@ -133,14 +151,20 @@ function optionDataSet(scenarioId: string, models: ReadonlyArray<{model: string;
 async function setup(query: Record<string, string | string[] | undefined> = {}, hidden: readonly string[] = [],
   candidateLoaded?: (dataSet: DataSet) => Promise<void>, memberUserIds = 'USER-1, USER-2') {
   const ownerDataSet = catalogDataSet()
+  const node = (row: DataRow): DataRow => ({...Object.fromEntries(NODE_FIELDS.map(field => [field, ''])), ...row})
   const rows: DataRow[] = [
-    {rowid: 'NODE-1', SysId: TARGET, prowid: '000000', FunOrderValue: 0, name: 'Root', FunName: 'Root', conType: 'Model', funCode: 'ROOT', memo: '', NavigationUrl: ''},
-    {rowid: 'NODE-2', SysId: TARGET, prowid: 'NODE-1', FunOrderValue: 0, name: 'Child', FunName: 'Child', conType: 'Model', funCode: 'CHILD', memo: '', NavigationUrl: ''},
-    {rowid: 'NODE-3', SysId: TARGET, prowid: 'NODE-2', FunOrderValue: 0, name: 'Grandchild', FunName: 'Grandchild', conType: 'Model', funCode: 'GRAND', memo: '', NavigationUrl: ''},
-    {rowid: 'NODE-4', SysId: TARGET, prowid: 'NODE-3', FunOrderValue: 0, name: 'Leaf', FunName: 'Leaf', conType: 'Model', funCode: 'LEAF', memo: '', NavigationUrl: ''},
+    node({rowid: 'NODE-1', SysId: TARGET, prowid: '000000', FunOrderValue: 0, name: 'Root', FunName: 'Root', conType: 'Model', funCode: 'ROOT', memo: '', NavigationUrl: ''}),
+    node({rowid: 'NODE-2', SysId: TARGET, prowid: 'NODE-1', FunOrderValue: 0, name: 'Child', FunName: 'Child', conType: 'Model', funCode: 'CHILD', memo: '', NavigationUrl: ''}),
+    node({rowid: 'NODE-3', SysId: TARGET, prowid: 'NODE-2', FunOrderValue: 0, name: 'Grandchild', FunName: 'Grandchild', conType: 'Model', funCode: 'GRAND', memo: '', NavigationUrl: ''}),
+    node({rowid: 'NODE-4', SysId: TARGET, prowid: 'NODE-3', FunOrderValue: 0, name: 'Leaf', FunName: 'Leaf', conType: 'Model', funCode: 'LEAF', memo: '', NavigationUrl: ''}),
   ]
   const view = ownerDataSet.getView('Base_NavigationInfo')!
   const save = bindRows(view, rows)
+  const versionRows: DataRow[] = [
+    {rowid: 'VER-1', prowid: 'NODE-1', VersionName: 'Tester[2024-01-01 00:00:00] first', desc: '<p>v1<script>x()</script></p>'},
+    {rowid: 'VER-OTHER', prowid: 'NODE-2', VersionName: 'other', desc: '<p>other</p>'},
+  ]
+  const versionSave = bindRows(ownerDataSet.getView('Base_Navigation_Desc_Version')!, versionRows, {crud: true})
   const owner = new BlueprintWorkspaceDataView(ownerDataSet, TARGET, () => {
     if (fixtureState.execution !== 'EXECUTION') throw new Error('owner执行应用已切换')
   })
@@ -174,7 +198,7 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
     loadBlueprintLazyTreeFromDataView: vi.fn(async () => owner.loadProjectTreeLazy()),
     loadBlueprintChildrenFromDataView: vi.fn(async (nodeId: string) => {await owner.loadChildren(nodeId); revision.value++}),
     locateBlueprintNodeFromDataView: vi.fn(async (nodeId: string) => owner.locateNode(nodeId)),
-    addBlueprintModuleNode: vi.fn(async (_parent: string | null) => 'NODE-2'),
+    addBlueprintModuleNode: vi.fn(async (_parent: string | null, _fields?: Readonly<Record<string, string>>) => 'NODE-2'),
     removeNodeByIdAndWait: vi.fn(async () => true),
     statusMessages: ref<Array<{text: string}>>([]),
     selectNodeById: vi.fn(async (nodeId: string) => {await owner.load(nodeId); selectedNode.value = {nodeId}}),
@@ -190,7 +214,7 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
       rowid: 'HOST-RELATION', prowid: NAVIGATION, dataSetId: CATALOG, DataName: 'Base_AppSystemList',
       ValParamName: 'sysid', TextParamName: 'sysname', selectValParam: 'rowid', selectTextParam: 'AppName', selectPid: '',
     }])
-    bindRows(dataSet.getView('Base_AppSystemList')!, [{rowid: TARGET, AppName: 'Designed application'}], hidden)
+    bindRows(dataSet.getView('Base_AppSystemList')!, [{rowid: TARGET, AppName: 'Designed application'}], {hidden})
     if (++loadCount === 2 && candidateLoaded) await candidateLoaded(dataSet)
     return dataSet
   })
@@ -207,7 +231,7 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
   }})
   disposals.push(() => wrapper.unmount())
   await flushPromises()
-  return {page: readPageInstance(), state, owner, view, rows, save, wrapper, router, path}
+  return {page: readPageInstance(), state, owner, view, rows, save, wrapper, router, path, versionRows, versionSave}
 }
 
 describe('application function page entry', () => {
@@ -329,6 +353,41 @@ describe('application function page entry', () => {
     expect(owner.dirty).toBe(false)
   })
 
+  it('keeps a lazily appended row whose parent is not loaded out of the root layer', async () => {
+    const {owner, rows, view} = await setup()
+    rows.push({rowid: 'NODE-ORPHAN', SysId: TARGET, prowid: 'NODE-GONE', FunOrderValue: 0, name: 'Orphan', FunName: 'Orphan', conType: 'Model', funCode: 'ORPHAN', memo: '', NavigationUrl: ''})
+    await expect(owner.locateNode('NODE-ORPHAN')).rejects.toThrow('未读取到蓝图父节点')
+    expect(view.rows.some(row => row['rowid'] === 'NODE-ORPHAN')).toBe(true)
+    const tree = owner.treeProjection()
+    expect(tree.nodeId).toBe('NODE-1')
+    expect(JSON.stringify(tree)).not.toContain('NODE-ORPHAN')
+  })
+
+  it('queues a structural refresh behind an in-flight lazy expand so expanded children survive', async () => {
+    fixtureState.createChild = 'enabled'
+    const {owner, view} = await setup()
+    const order: string[] = []
+    const append = view.appendQueryRows.bind(view)
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const appendSpy = vi.spyOn(view, 'appendQueryRows').mockImplementationOnce(async options => {
+      order.push('expand-start'); await gate; const result = await append(options); order.push('expand-end'); return result
+    })
+    const refresh = view.refresh.bind(view)
+    const refreshSpy = vi.spyOn(view, 'refresh').mockImplementation(async () => {order.push('refresh'); return refresh()})
+    const expanding = owner.loadChildren('NODE-3')
+    await flushPromises()
+    const adding = owner.addChildNode('NODE-1', {FunName: 'Added', name: 'Added', conType: 'Model', FunOrderValue: 9})
+    await flushPromises()
+    expect(order).toEqual(['expand-start'])
+    release()
+    await expanding
+    await adding
+    expect(order.indexOf('refresh')).toBeGreaterThan(order.indexOf('expand-end'))
+    expect(owner.childrenLoaded('NODE-3')).toBe(true)
+    appendSpy.mockRestore(); refreshSpy.mockRestore()
+  })
+
   it.each([
     {sysid: '', projectId: TARGET},
     {sysid: [TARGET, 'ANOTHER']},
@@ -404,5 +463,169 @@ describe('application function page entry', () => {
     expect(rows[0]?.['name']).toBe('Saved')
     expect(view.currentRow?.['name']).toBe('Saved')
     expect(state.hasAnyDirty.value).toBe(false)
+  })
+})
+
+function aiDraft(name: string, kind = 'page') {
+  return {navigationTitle: `Title ${name}`, capabilityName: name, description: `About ${name}`, kind, deliveryStatus: 'plan'}
+}
+
+/** 按标准字段路径写入页面输入 DataView（static-data，不参与正式保存）。 */
+function typeInput(setupResult: Awaited<ReturnType<typeof setup>>, field: string, value: string): void {
+  const {page, state} = setupResult
+  const input = state.blueprintPageRuntime.value.resolveView(page.inputViewKey.value)
+  expect(input?.dataTable?.resourceType).toBe('static-data')
+  input?.updateEditingValue(page.inputRowId, field, value)
+  page.touchInput()
+}
+
+describe('application function page AI and prototype', () => {
+  it('merges only whitelisted AI fields into owner module creation', async () => {
+    fixtureState.createChild = 'enabled'
+    const {owner, rows} = await setup()
+    await expect(owner.addModuleNode('NODE-1', {funCode: 'X'})).rejects.toThrow('不允许覆盖字段 funCode')
+    await owner.addModuleNode('NODE-1', {FunName: 'AI Page', name: 'AiPage', memo: 'desc', status: 'plan', conType: 'Navitem'})
+    expect(rows.find(row => row['name'] === 'AiPage')).toMatchObject({prowid: 'NODE-1', FunName: 'AI Page', memo: 'desc', status: 'plan', conType: 'Navitem'})
+  })
+
+  it('rejects invalid tree output and writes nothing on reject or cancel', async () => {
+    const ctx = await setup({nodeId: 'NODE-1'})
+    const {page, state} = ctx
+    page.ai.openTreeAi()
+    await flushPromises()
+    typeInput(ctx, 'requirement', 'build pages')
+    expect(page.ai.treeAiRequirement.value).toBe('build pages')
+    aiRunner.run.mockResolvedValueOnce('```json\n{"rows":[]}\n```')
+    await page.ai.generateTreeAi()
+    expect(page.error.value).toContain(BLUEPRINT_AI_REJECTED)
+    expect(page.ai.treeAiPreview.value).toBeUndefined()
+    expect(page.ai.treeAiOpen.value).toBe(true)
+    aiRunner.run.mockResolvedValueOnce(JSON.stringify({rows: [{...aiDraft('PageA'), extra: 1}]}))
+    await page.ai.generateTreeAi()
+    expect(page.ai.treeAiPreview.value).toBeUndefined()
+    aiRunner.run.mockResolvedValueOnce(JSON.stringify({rows: [aiDraft('PageA')]}))
+    await page.ai.generateTreeAi()
+    expect(page.ai.treeAiPreview.value?.rows).toHaveLength(1)
+    expect(aiRunner.run.mock.calls[0]?.[0]).toContain('写入位置：Root')
+    page.ai.cancelAi()
+    expect(page.ai.treeAiPreview.value).toBeUndefined()
+    expect(state.addBlueprintModuleNode).not.toHaveBeenCalled()
+  })
+
+  it('writes confirmed tree drafts under the selected parent and resumes after a partial failure', async () => {
+    const ctx = await setup({nodeId: 'NODE-1'})
+    const {page, state} = ctx
+    page.ai.openTreeAi()
+    await flushPromises()
+    typeInput(ctx, 'requirement', 'two pages')
+    aiRunner.run.mockResolvedValueOnce(JSON.stringify({rows: [aiDraft('PageA'), aiDraft('ModB', 'module')]}))
+    await page.ai.generateTreeAi()
+    state.addBlueprintModuleNode.mockResolvedValueOnce('NEW-A').mockRejectedValueOnce(new Error('denied'))
+    await page.ai.confirmTreeAi()
+    expect(page.error.value).toContain('1/2')
+    expect(page.ai.treeAiCreated.value).toBe(1)
+    await page.ai.confirmTreeAi()
+    expect(state.addBlueprintModuleNode.mock.calls).toEqual([
+      ['NODE-1', {FunName: 'Title PageA', name: 'PageA', memo: 'About PageA', status: 'plan', conType: 'Navitem'}],
+      ['NODE-1', {FunName: 'Title ModB', name: 'ModB', memo: 'About ModB', status: 'plan', conType: 'Model'}],
+      ['NODE-1', {FunName: 'Title ModB', name: 'ModB', memo: 'About ModB', status: 'plan', conType: 'Model'}],
+    ])
+    expect(page.ai.treeAiPreview.value).toBeUndefined()
+    expect(page.notice.value).toContain('2')
+    expect(page.expandedKeys.value).toContain('NODE-1')
+  })
+
+  it('backfills a confirmed form draft into the editing overlay without saving', async () => {
+    const {page, view, save} = await setup({nodeId: 'NODE-1'})
+    aiRunner.run.mockResolvedValueOnce(JSON.stringify(aiDraft('Filled', 'module')))
+    await page.ai.generateFormAi()
+    expect(page.ai.formAiPreviewItems.value.map(item => item.value)).toContain('Filled')
+    expect(view.getEditingRow('NODE-1')?.['name']).toBe('Root')
+    page.ai.confirmFormAi()
+    expect(page.error.value).toBe('')
+    expect(view.getEditingRow('NODE-1')).toMatchObject({name: 'Filled', FunName: 'Title Filled', conType: 'Model', status: 'plan'})
+    expect(save).not.toHaveBeenCalled()
+    expect(page.notice.value).toBe('AI内容已回填到表单')
+  })
+
+  it('writes no backfill field when any draft field is not writable', async () => {
+    const {page, owner, view} = await setup({nodeId: 'NODE-1'})
+    aiRunner.run.mockResolvedValueOnce(JSON.stringify(aiDraft('Denied')))
+    await page.ai.generateFormAi()
+    vi.spyOn(owner, 'canWrite').mockImplementation(field => field !== 'status')
+    page.ai.confirmFormAi()
+    expect(page.error.value).toContain('status')
+    expect(view.hasEditingChanges('NODE-1')).toBe(false)
+  })
+
+  it('drops a late form result after the selected node changes', async () => {
+    const {page, view} = await setup({nodeId: 'NODE-1'})
+    let resolve!: (text: string) => void
+    aiRunner.run.mockImplementationOnce(() => new Promise<string>(done => {resolve = done}))
+    const pending = page.ai.generateFormAi()
+    await flushPromises()
+    page.onNodeClick({rowid: 'NODE-2'})
+    await flushPromises()
+    expect(page.selectedNodeId.value).toBe('NODE-2')
+    resolve(JSON.stringify(aiDraft('Late')))
+    await pending
+    expect(page.ai.formAiPreview.value).toBeUndefined()
+    expect(page.ai.aiGenerating.value).toBe(false)
+    expect(view.getEditingRow('NODE-2')?.['name']).toBe('Child')
+  })
+
+  it('saves sanitized prototype html and blocks saving or switching while uploads are unsettled', async () => {
+    const {page, view, rows, save, state} = await setup({nodeId: 'NODE-1', blueprintTab: 'prototype'})
+    expect(page.activeTab.value).toBe('prototype')
+    const raw = '<p onclick="x()">hi</p><script>bad()</script>'
+    view.updateEditingValue('NODE-1', 'htmlDesc', raw)
+    state.notifyExternalDataViewChanged()
+    page.prototype.onImageUploadState({pending: 1, error: ''})
+    expect(await page.prototype.savePrototype()).toBe(false)
+    page.selectTab('basic')
+    expect(page.activeTab.value).toBe('prototype')
+    expect(page.error.value).toContain('图片正在上传')
+    page.prototype.onImageUploadState({pending: 0, error: 'boom'})
+    expect(await page.prototype.savePrototype()).toBe(false)
+    expect(save).not.toHaveBeenCalled()
+    page.prototype.onImageUploadState({pending: 0, error: ''})
+    const saved = await page.prototype.savePrototype()
+    expect(page.error.value).toBe('')
+    expect(saved).toBe(true)
+    expect(rows[0]?.['htmlDesc']).toBe(sanitizeRichTextHtml(raw))
+    expect(rows[0]?.['htmlDesc']).not.toMatch(/script|onclick/)
+    expect(page.notice.value).toBe('需求原型已保存')
+  })
+
+  it('lists, previews, applies, creates and deletes versions of the selected node only', async () => {
+    const ctx = await setup({nodeId: 'NODE-1', blueprintTab: 'prototype'})
+    const {page, state, rows, versionRows} = ctx
+    await flushPromises()
+    const versions = state.blueprintPageRuntime.value.resolveView(page.prototype.versionViewKey.value)
+    expect(versions?.rows.map(row => row['rowid'])).toEqual(['VER-1'])
+    page.prototype.selectVersion({rowid: 'VER-1'})
+    page.prototype.openPreview()
+    expect(page.prototype.previewHtml.value).toContain('v1')
+    expect(page.prototype.previewHtml.value).not.toContain('script')
+    await page.prototype.applySelectedVersion()
+    expect(page.error.value).toBe('')
+    expect(rows[0]?.['htmlDesc']).toBe(sanitizeRichTextHtml('<p>v1<script>x()</script></p>'))
+    page.prototype.beginCreateVersion()
+    await flushPromises()
+    expect(page.prototype.versionDialogOpen.value).toBe(true)
+    typeInput(ctx, 'versionDescription', 'second')
+    await page.prototype.confirmCreateVersion()
+    expect(page.error.value).toBe('')
+    expect(page.prototype.versionDialogOpen.value).toBe(false)
+    const created = versionRows.find(row => String(row['VersionName']).endsWith('] second'))
+    expect(created).toMatchObject({prowid: 'NODE-1', desc: rows[0]?.['htmlDesc']})
+    page.prototype.selectVersion({rowid: 'VER-1'})
+    page.prototype.beginDeleteVersion()
+    expect(page.prototype.deletingVersion.value?.versionName).toContain('first')
+    await page.prototype.confirmDeleteVersion()
+    expect(page.error.value).toBe('')
+    expect(versionRows.map(row => row['rowid'])).not.toContain('VER-1')
+    expect(versionRows.map(row => row['rowid'])).toContain('VER-OTHER')
+    expect(page.notice.value).toBe('删除成功')
   })
 })

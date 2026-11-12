@@ -2009,7 +2009,7 @@
     "packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.190Z"
+      "sourceModifiedAt": "2026-11-12T06:43:53.918Z"
     },
     "packages/spark-component/src/components/fields/data-components/composables/state/useOptionFieldState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useOptionFieldState.ts",
@@ -2020,6 +2020,11 @@
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/value/fieldValueCoercion.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/composables/value/fieldValueCoercion.ts.json",
       "sourceModifiedAt": "2026-10-07T02:30:27.186Z"
+    },
+    "packages/spark-component/src/components/fields/data-components/composables/value/richTextHtmlPolicy.ts": {
+      "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/value/richTextHtmlPolicy.ts",
+      "shardFile": "files/packages/spark-component/src/components/fields/data-components/composables/value/richTextHtmlPolicy.ts.json",
+      "sourceModifiedAt": "2026-11-12T06:18:29.269Z"
     },
     "packages/spark-component/src/components/fields/data-components/composables/value/useControlledFieldChange.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/value/useControlledFieldChange.ts",
@@ -2189,12 +2194,12 @@
     "packages/spark-component/src/components/fields/data-components/text/FieldHtmlEditor/FieldHtmlEditor.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldHtmlEditor/FieldHtmlEditor.props.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldHtmlEditor/FieldHtmlEditor.props.ts.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.159Z"
+      "sourceModifiedAt": "2026-11-12T06:06:39.031Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldHtmlEditor/FieldHtmlEditor.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldHtmlEditor/FieldHtmlEditor.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldHtmlEditor/FieldHtmlEditor.vue.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.159Z"
+      "sourceModifiedAt": "2026-11-12T06:06:46.746Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts",
@@ -2479,7 +2484,7 @@
     "packages/spark-component/src/index.ts": {
       "sourceFile": "packages/spark-component/src/index.ts",
       "shardFile": "files/packages/spark-component/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-10T10:09:58.206Z"
+      "sourceModifiedAt": "2026-11-12T06:07:02.160Z"
     },
     "packages/spark-component/src/page/actions/action-data.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/action-data.ts",
@@ -3079,7 +3084,7 @@
     "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts.json",
-      "sourceModifiedAt": "2026-11-11T10:17:18.090Z"
+      "sourceModifiedAt": "2026-11-12T06:08:30.540Z"
     },
     "packages/spark-lowcode-api/src/design/lowcode-file-identity.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-file-identity.ts",
@@ -3089,7 +3094,7 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-11T06:35:00.405Z"
+      "sourceModifiedAt": "2026-11-12T06:12:10.429Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3316,6 +3321,11 @@
       "shardFile": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json",
       "sourceModifiedAt": "2026-10-06T20:57:27.510Z"
     },
+    "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts.json",
+      "sourceModifiedAt": "2026-11-12T06:11:08.943Z"
+    },
     "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts.json",
@@ -3395,6 +3405,11 @@
       "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts.json",
       "sourceModifiedAt": "2026-11-08T01:20:14.563Z"
+    },
+    "packages/spark-lowcode-api/src/realtime/ai-turn-draft-runner.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-draft-runner.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/realtime/ai-turn-draft-runner.ts.json",
+      "sourceModifiedAt": "2026-11-12T06:43:53.921Z"
     },
     "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
@@ -4374,7 +4389,7 @@
     "src/lowcode/resources/shared/ai-data-entry-host.ts": {
       "sourceFile": "src/lowcode/resources/shared/ai-data-entry-host.ts",
       "shardFile": "files/src/lowcode/resources/shared/ai-data-entry-host.ts.json",
-      "sourceModifiedAt": "2026-10-25T08:42:55.821Z"
+      "sourceModifiedAt": "2026-11-12T06:12:46.460Z"
     },
     "src/lowcode/resources/shared/navigation-authorization-resource.ts": {
       "sourceFile": "src/lowcode/resources/shared/navigation-authorization-resource.ts",
@@ -4774,7 +4789,7 @@
     "src/services/project/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "shardFile": "files/src/services/project/blueprint-workspace-dataview.ts.json",
-      "sourceModifiedAt": "2026-11-12T05:25:04.434Z"
+      "sourceModifiedAt": "2026-11-12T06:31:05.757Z"
     },
     "src/services/project/navigation/project-navigation-guard.ts": {
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
@@ -4954,7 +4969,7 @@
     "src/views/app/dev-system/useDevState.ts": {
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "shardFile": "files/src/views/app/dev-system/useDevState.ts.json",
-      "sourceModifiedAt": "2026-11-12T05:31:58.179Z"
+      "sourceModifiedAt": "2026-11-12T06:16:46.297Z"
     },
     "src/views/app/dev-system/useDevSystem.ts": {
       "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
@@ -4996,15 +5011,30 @@
       "shardFile": "files/src/views/features/application/application-context/ui/application-database-relations-page.vue.json",
       "sourceModifiedAt": "2026-11-11T08:42:48.546Z"
     },
+    "src/views/features/application/application-function-management/ui/application-function-page-contract.ts": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page-contract.ts",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/application-function-page-contract.ts.json",
+      "sourceModifiedAt": "2026-11-12T06:20:48.814Z"
+    },
     "src/views/features/application/application-function-management/ui/application-function-page.vue": {
       "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page.vue",
       "shardFile": "files/src/views/features/application/application-function-management/ui/application-function-page.vue.json",
-      "sourceModifiedAt": "2026-11-12T05:33:12.949Z"
+      "sourceModifiedAt": "2026-11-12T06:56:47.121Z"
+    },
+    "src/views/features/application/application-function-management/ui/use-application-function-ai.ts": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-ai.ts",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/use-application-function-ai.ts.json",
+      "sourceModifiedAt": "2026-11-12T06:55:44.317Z"
     },
     "src/views/features/application/application-function-management/ui/use-application-function-page.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/use-application-function-page.ts.json",
-      "sourceModifiedAt": "2026-11-12T05:35:21.142Z"
+      "sourceModifiedAt": "2026-11-12T06:55:35.180Z"
+    },
+    "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/use-application-function-prototype.ts.json",
+      "sourceModifiedAt": "2026-11-12T06:56:01.387Z"
     },
     "src/views/features/application/application-manager/ui/application-manager-page.vue": {
       "sourceFile": "src/views/features/application/application-manager/ui/application-manager-page.vue",

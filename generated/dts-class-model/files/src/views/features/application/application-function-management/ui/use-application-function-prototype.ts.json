@@ -1,0 +1,315 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/use-application-function-prototype",
+    "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+    "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/use-application-function-prototype",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/use-application-function-prototype\n职责：项目蓝图页“需求原型”页签：htmlDesc 富文本保存（上传中/上传失败阻断、统一清洗）、清洗后预览，以及 Base_Navigation_Desc_Version 版本的列举、新增、应用与删除。\n边界：原型正文只经 owner 的 Base_NavigationInfo DataView 编辑与保存；版本只经同 PageRuntime 的版本 DataView（staged）+ DataSet.saveChanges 提交并回读核验。\n结果未知时只重提原命令，不新增第二条；切换节点或上下文后旧版本请求结果丢弃。\nAI用途：修改需求原型或版本行为时，在此处保持“清洗→提交→回读核验”与代次校验，不得旁路 DataView。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ApplicationFunctionPrototypeInput"
+    ]
+  },
+  "$defs": {
+    "ApplicationFunctionPrototypeInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApplicationFunctionPrototypeInput",
+      "properties": {
+        "selectedNodeId": {
+          "type": "object",
+          "title": "Ref<string>"
+        },
+        "active": {
+          "type": "object",
+          "title": "Ref<boolean>"
+        },
+        "revision": {
+          "type": "object",
+          "title": "Ref<number>"
+        },
+        "error": {
+          "type": "object",
+          "title": "Ref<string>"
+        },
+        "notice": {
+          "type": "object",
+          "title": "Ref<string>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.context.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.context.return": {
+          "$ref": "use-application-function-page.ts.json#/$defs/BlueprintTreeContext"
+        },
+        "method.isLive.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "use-application-function-page.ts.json#/$defs/BlueprintTreeContext"
+            },
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isLive.return": {
+          "type": "boolean"
+        },
+        "method.createUploader.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "use-application-function-page.ts.json#/$defs/BlueprintTreeContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createUploader.return": {
+          "type": "object",
+          "properties": {
+            "upload": {
+              "type": "object",
+              "title": "(file: File) => Promise<string>"
+            }
+          },
+          "required": [
+            "upload"
+          ],
+          "additionalProperties": false
+        },
+        "method.saveOwner.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.saveOwner.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.notifyChanged.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.notifyChanged.return": true,
+        "method.userName.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.userName.return": {
+          "type": "string"
+        },
+        "method.readInput.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readInput.return": {
+          "type": "string"
+        },
+        "method.resetInput.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resetInput.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-12T06:56:01.387Z",
+  "models": {
+    "ApplicationFunctionPrototypeInput": {
+      "name": "ApplicationFunctionPrototypeInput",
+      "jsdoc": "页面向原型流程提供的上下文与保存入口。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    context: () => BlueprintTreeContext | undefined;\n    /** 上下文仍是当前树且选中节点仍为 nodeId。 */\n    isLive: (context: BlueprintTreeContext, nodeId: string) => boolean;\n    selectedNodeId: Readonly<Ref<string>>;\n    /** 当前页签是否为需求原型；仅在该页签装载版本列表。 */\n    active: Readonly<Ref<boolean>>;\n    /** 当前 DataSet 的富文本图片上传资源（同一 DataSet 复用）。 */\n    createUploader: (context: BlueprintTreeContext) => Readonly<{\n        upload: (file: File) => Promise<string>;\n    }>;\n    /** 沿 owner 保存全部编辑覆盖；成功返回 true，失败已写入 error。 */\n    saveOwner: () => Promise<boolean>;\n    notifyChanged: () => void;\n    /** 外部 DataView 修订号，供计算属性感知编辑状态变化。 */\n    revision: Readonly<Ref<number>>;\n    userName: () => string;\n    /** 页面输入 DataView 当前值（requirement / versionDescription）。 */\n    readInput: (field: string) => string;\n    /** 清空页面输入 DataView 的指定字段。 */\n    resetInput: (field: string) => void;\n    error: Ref<string>;\n    notice: Ref<string>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    context: () => BlueprintTreeContext | undefined;\n    /** 上下文仍是当前树且选中节点仍为 nodeId。 */\n    isLive: (context: BlueprintTreeContext, nodeId: string) => boolean;\n    selectedNodeId: Readonly<Ref<string>>;\n    /** 当前页签是否为需求原型；仅在该页签装载版本列表。 */\n    active: Readonly<Ref<boolean>>;\n    /** 当前 DataSet 的富文本图片上传资源（同一 DataSet 复用）。 */\n    createUploader: (context: BlueprintTreeContext) => Readonly<{\n        upload: (file: File) => Promise<string>;\n    }>;\n    /** 沿 owner 保存全部编辑覆盖；成功返回 true，失败已写入 error。 */\n    saveOwner: () => Promise<boolean>;\n    notifyChanged: () => void;\n    /** 外部 DataView 修订号，供计算属性感知编辑状态变化。 */\n    revision: Readonly<Ref<number>>;\n    userName: () => string;\n    /** 页面输入 DataView 当前值（requirement / versionDescription）。 */\n    readInput: (field: string) => string;\n    /** 清空页面输入 DataView 的指定字段。 */\n    resetInput: (field: string) => void;\n    error: Ref<string>;\n    notice: Ref<string>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "selectedNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "active",
+              "jsdoc": "当前页签是否为需求原型；仅在该页签装载版本列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "jsdoc": "外部 DataView 修订号，供计算属性感知编辑状态变化。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "notice",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "context",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "BlueprintTreeContext",
+                  "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-page.ts"
+                }
+              }
+            },
+            {
+              "name": "isLive",
+              "jsdoc": "上下文仍是当前树且选中节点仍为 nodeId。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintTreeContext",
+                    "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-page.ts"
+                  }
+                },
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "createUploader",
+              "jsdoc": "当前 DataSet 的富文本图片上传资源（同一 DataSet 复用）。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintTreeContext",
+                    "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-page.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        upload: (file: File) => Promise<string>;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveOwner",
+              "jsdoc": "沿 owner 保存全部编辑覆盖；成功返回 true，失败已写入 error。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "notifyChanged",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "userName",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "readInput",
+              "jsdoc": "页面输入 DataView 当前值（requirement / versionDescription）。",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "resetInput",
+              "jsdoc": "清空页面输入 DataView 的指定字段。",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

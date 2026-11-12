@@ -20,11 +20,30 @@ AI用途：需要理解 field html editor 的实际渲染结构、slot/toolbar/�
           <el-button size="small" class="toggle-source" :disabled="!isCurrentFieldEditable" @click="toggleSourceMode">
             {{ sourceMode ? '预览' : 'HTML' }}
           </el-button>
+          <template v-if="imageUploader">
+            <el-button
+              size="small"
+              class="insert-image"
+              :loading="imageUploadPending > 0"
+              :disabled="!isCurrentFieldEditable || sourceMode"
+              @click="imageInputRef?.click()"
+            >图片</el-button>
+            <input
+              ref="imageInputRef"
+              class="html-editor-image-input"
+              type="file"
+              accept="image/png,image/jpeg,image/gif,image/webp"
+              hidden
+              @change="handleImageSelect"
+            >
+          </template>
         </div>
+        <div v-if="imageUploadPending > 0" class="html-editor-upload-status" role="status">图片上传中…</div>
+        <div v-if="imageUploadError" class="html-editor-upload-error" role="alert">{{ imageUploadError }}</div>
 
         <el-input
           v-if="sourceMode"
-          :model-value="htmlValue"
+          :model-value="sourceDraft"
           type="textarea"
           :rows="rows"
           :disabled="!isCurrentFieldEditable"
@@ -89,13 +108,18 @@ const {
 } = permission
 
 const editorRef = ref<HTMLElement | null>(null)
+const imageInputRef = ref<HTMLInputElement | null>(null)
 
 const {
   sourceMode,
+  sourceDraft,
   htmlValue,
   plainValue,
+  imageUploadPending,
+  imageUploadError,
   handleSourceChange,
   handleSurfaceInput,
+  handleImageSelect,
   applyCommand,
   toggleSourceMode,
   getPlainTableValue,
@@ -106,6 +130,8 @@ const {
   syncValue,
   emitUpdate: value => emitFieldValueUpdate(emit, value),
   getRowRawValue,
+  readImageUploader: () => props.imageUploader,
+  onImageUploadState: state => props.onImageUploadState?.(state),
 })
 </script>
 
@@ -139,6 +165,16 @@ const {
 
 .html-editor-text {
   word-break: break-word;
+}
+
+.html-editor-upload-status,
+.html-editor-upload-error {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.html-editor-upload-error {
+  color: var(--el-color-danger, #f56c6c);
 }
 
 .html-editor-preview :deep(p) {

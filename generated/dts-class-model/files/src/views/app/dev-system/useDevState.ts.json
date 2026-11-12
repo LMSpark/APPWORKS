@@ -912,7 +912,7 @@
         },
         "addBlueprintModuleNode": {
           "type": "object",
-          "title": "(parentNodeId: string | null) => Promise<string>"
+          "title": "(parentNodeId: string | null, fields?: Readonly<Record<string, unknown>>) => Promise<string>"
         },
         "listReferenceProjects": {
           "type": "object",
@@ -1067,7 +1067,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-12T05:31:58.179Z",
+  "generatedAt": "2026-11-12T06:16:46.297Z",
   "models": {
     "StatusMessage": {
       "name": "StatusMessage",

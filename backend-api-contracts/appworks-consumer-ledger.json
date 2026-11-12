@@ -7,8 +7,8 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 219,
-  "directUnmatchedCount": 126,
+  "consumerCount": 223,
+  "directUnmatchedCount": 127,
   "consumers": [
     {
       "expression": "/api/v1",
@@ -649,7 +649,7 @@
     {
       "expression": "/api/File/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "sourceLine": 151,
+      "sourceLine": 152,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -960,6 +960,24 @@
     },
     {
       "expression": "/api/File/DownFile",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.test.ts",
+      "sourceLine": 15,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/UploadFile",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.test.ts",
+      "sourceLine": 28,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/DownFile",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.test.ts",
+      "sourceLine": 37,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/DownFile",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.test.ts",
       "sourceLine": 15,
       "scope": "publishable-lowcode-api"
@@ -1076,6 +1094,12 @@
       "expression": "/api/ai-agent/get",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
       "sourceLine": 267,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/v1/turns/T1/cancel",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-draft-runner.test.ts",
+      "sourceLine": 54,
       "scope": "publishable-lowcode-api"
     },
     {

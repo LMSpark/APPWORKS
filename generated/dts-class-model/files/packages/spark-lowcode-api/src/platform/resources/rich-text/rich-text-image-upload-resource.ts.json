@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/rich-text/rich-text-image-upload-resource",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/rich-text/rich-text-image-upload-resource",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/rich-text/rich-text-image-upload-resource\n职责：把富文本图片上传装配为宿主 DataSet 上的运行时写命令 DataView：一行命令=一张原 File 上传并按 ACK 回读字节核验。\n边界：只写 wwwroot 需求原型图片目录；不保存业务行、不删除文件。原 File 仅留本实例 RAM，不进入 JSON 命令行；结果未知只核原 ACK，不重传。\nAI用途：富文本编辑器的 imageUploader 经本资源 upload(file) 取得已核验的持久图片地址，再由业务 DataView 保存 HTML。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RichTextImageUploadResourceInput",
+      "RichTextImageUploadResource"
+    ]
+  },
+  "$defs": {
+    "RichTextImageUploadResourceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RichTextImageUploadResourceInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "upload": {
+          "$ref": "../../../design/lowcode-design-file-upload.ts.json#/$defs/LowcodeDesignFileUpload"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "../../data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceRequestScope"
+        }
+      }
+    },
+    "RichTextImageUploadResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RichTextImageUploadResource",
+      "properties": {
+        "resourceId": true,
+        "view": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "hasUnconfirmedUpload": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/RichTextImageUploadResourceInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.upload.params": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "object",
+              "title": "File"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.upload.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-12T06:11:08.943Z",
+  "models": {
+    "RichTextImageUploadResourceInput": {
+      "name": "RichTextImageUploadResourceInput",
+      "jsdoc": "构造输入：同一请求身份下的上传 SDK 与执行域读取。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 宿主 PageRuntime 拥有的数据空间；命令表依附它并随其销毁。 */\n    dataSet: DataSet;\n    /** 与当前执行域一致的二进制上传/字节核验能力。 */\n    upload: LowcodeDesignFileUpload;\n    /** 读取本次真实执行域；与构造时指纹不一致即拒绝旧意图。 */\n    readScope: () => DataSpaceRequestScope;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 宿主 PageRuntime 拥有的数据空间；命令表依附它并随其销毁。 */\n    dataSet: DataSet;\n    /** 与当前执行域一致的二进制上传/字节核验能力。 */\n    upload: LowcodeDesignFileUpload;\n    /** 读取本次真实执行域；与构造时指纹不一致即拒绝旧意图。 */\n    readScope: () => DataSpaceRequestScope;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "宿主 PageRuntime 拥有的数据空间；命令表依附它并随其销毁。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "upload",
+              "jsdoc": "与当前执行域一致的二进制上传/字节核验能力。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "jsdoc": "读取本次真实执行域；与构造时指纹不一致即拒绝旧意图。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestScope",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "RichTextImageUploadResource": {
+      "name": "RichTextImageUploadResource",
+      "jsdoc": "一 DataSet 一实例；上传串行，未知回执须先核验或确认未生效后才接受下一张图片。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "在宿主 DataSet 上创建命令表并绑定提交；同名表已存在或执行身份缺失时拒绝。",
+          "signatureText": "constructor(input: RichTextImageUploadResourceInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "RichTextImageUploadResourceInput",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "jsdoc": "运行时命令资源身份，不对应后端模型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "view",
+              "jsdoc": "命令行 DataView：commandId 主键；originalName/size 为输入；imagePath 为核验后的只读回执。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasUnconfirmedUpload",
+              "jsdoc": "是否存在结果未知、须先核验的原上传。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "upload",
+              "jsdoc": "串行上传一张图片：经命令 DataView 新增一行并由 DataSet.saveChanges 提交，返回核验后的持久路径。\n存在未知回执时先只核验原命令（不重传）；核验仍未确定则拒绝本次上传。",
+              "parameters": [
+                {
+                  "name": "file",
+                  "type": {
+                    "type": "reference",
+                    "name": "File"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

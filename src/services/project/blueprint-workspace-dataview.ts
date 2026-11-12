@@ -22,6 +22,8 @@ const VIEW_NAME = 'default'
 const MAX_BLUEPRINT_ROWS = 50_000
 const MAX_BLUEPRINT_DEPTH = 64
 const LAZY_PARENT_BATCH = 100
+/** addModuleNode 可由调用方覆盖的内容字段。 */
+const BLUEPRINT_MODULE_OVERRIDE_FIELDS: ReadonlySet<string> = new Set(['name', 'FunName', 'memo', 'status', 'conType'])
 
 function isBlueprintRootParent(value: string): boolean {
   return value === '' || value === '000000' || value === '0'
@@ -360,6 +362,11 @@ export class BlueprintWorkspaceDataView {
     return run
   }
 
+  /** 结构写命令在本地新增/暂存前等待进行中的展开或定位完成，避免增量结果与本地新增行交错导致总数口径失配。 */
+  private async lazyIdle():Promise<void>{
+    if(this.#lazyParents!==undefined)await this.#lazyFlight.catch(()=>undefined)
+  }
+
   private findProjectRow(nodeId:string):DataRow|undefined{
     return this.view.rows.find(row=>row['rowid']===nodeId&&row['SysId']===this.#projectId)
   }
@@ -381,11 +388,15 @@ export class BlueprintWorkspaceDataView {
     await this.appendLoadedLazyParents()
   }
 
-  /** 原 DataView 刷新后恢复懒加载已展开的父节点；完整树或单目标模式下只刷新。 */
+  /** 原 DataView 刷新后恢复懒加载已展开的父节点；懒加载模式与进行中的展开/定位排队串行，完整树或单目标模式下只刷新。 */
   private async refreshView():Promise<void>{
-    await this.view.refresh()
-    if(this.view.loadingError)throw this.view.loadingError
-    if(this.#lazyParents!==undefined){this.assertLazyRows(this.view.rows);await this.appendLoadedLazyParents()}
+    const refresh=async():Promise<void>=>{
+      await this.view.refresh()
+      if(this.view.loadingError)throw this.view.loadingError
+      if(this.#lazyParents!==undefined){this.assertLazyRows(this.view.rows);await this.appendLoadedLazyParents()}
+    }
+    if(this.#lazyParents===undefined)return refresh()
+    return this.runLazy(refresh)
   }
 
   private async appendLoadedLazyParents():Promise<void>{
@@ -690,8 +701,12 @@ export class BlueprintWorkspaceDataView {
   }
 
   /** Create an unmounted root module through the current formal Base_NavigationInfo query owner; returns its formal row id. */
-  public async addRootModule(): Promise<string|number> {
+  public async addRootModule(fields?: Readonly<Record<string, unknown>>): Promise<string|number> {
     this.assertWritable()
+    const overrides = Object.entries(fields ?? {})
+    const unsupported = overrides.find(([field]) => !BLUEPRINT_MODULE_OVERRIDE_FIELDS.has(field))
+    if (unsupported) throw new Error(`蓝图新增模块不允许覆盖字段 ${unsupported[0]}`)
+    await this.lazyIdle()
     if (this.isBusy) throw new Error('蓝图 DataView 正在查询或保存')
     if (this.hasUnconfirmedSave) {
       if (this.#unconfirmedRootId === undefined) throw new Error('蓝图 DataView 存在其他未确认保存')
@@ -719,9 +734,10 @@ export class BlueprintWorkspaceDataView {
 
     const input: Record<string, unknown> = {
       SysId: this.#projectId, prowid: '000000', name: '新模块', memo: '', funCode: '', personCharge: '', status: '',
-      conType: 'Model', FunName: '新模块', FunOrderValue: '0', NavigationImageWxz: 'FolderOpened', NavigationUrl: '', MobileUrl: '',
+      conType: 'Model', FunName: '新模块', FunOrderValue: this.orderValue(0), NavigationImageWxz: 'FolderOpened', NavigationUrl: '', MobileUrl: '',
       NavigationType: '', ChildItemLocation: 'Left', NavigationShowType: '', HorizontalAlignment: '',
       IsShowAtNav: '1', IsShowChildItem: '1', BeginGroup: '0', conid: '', htmlDesc: '',
+      ...Object.fromEntries(overrides),
     }
     for (const field of Object.keys(input)) {
       if (!this.hasOutput(field)) throw new Error(`蓝图 DataView 未正式输出根模块新增字段 ${field}`)
@@ -1098,6 +1114,7 @@ export class BlueprintWorkspaceDataView {
 
   public async addChildNode(parentNodeId:string,input:Record<string,unknown>,explicitNodeId?:string):Promise<string|number>{
     this.assertWritable()
+    await this.lazyIdle()
     if(this.hasPendingChildCreate){
       const id=this.#unconfirmedChildId
       if(id===undefined)throw new Error('蓝图子节点待核验身份缺失')
@@ -1159,19 +1176,24 @@ export class BlueprintWorkspaceDataView {
 
   /**
    * 在已存在父节点下新增一个默认模块节点（同级/子级新增共用），排序值取已装载同级最大值 + 1。
-   * 存在子节点未知回执时只核验原新增，不创建第二条。
+   * 存在子节点未知回执时只核验原新增，不创建第二条（此时忽略 fields）。
+   * fields 只允许覆盖内容字段（名称/能力名/描述/阶段/类型），父级、排序与身份字段仍由 owner 决定。
    */
-  public async addModuleNode(parentNodeId:string):Promise<string|number>{
+  public async addModuleNode(parentNodeId:string,fields?:Readonly<Record<string,unknown>>):Promise<string|number>{
     const parentId=parentNodeId.trim()
     if(!parentId||isBlueprintRootParent(parentId))throw new Error('蓝图 DataView 新增模块父节点身份无效')
+    const overrides=Object.entries(fields??{})
+    const unsupported=overrides.find(([field])=>!BLUEPRINT_MODULE_OVERRIDE_FIELDS.has(field))
+    if(unsupported)throw new Error(`蓝图新增模块不允许覆盖字段 ${unsupported[0]}`)
     if(this.hasPendingChildCreate)return this.addChildNode(parentId,{})
     await this.loadChildren(parentId)
     const orders=this.view.rows.filter(row=>String(row['prowid']??'').trim()===parentId).map(row=>Number(row['FunOrderValue']??0)).filter(Number.isFinite)
     const order=orders.length?Math.max(...orders)+1:0
     return this.addChildNode(parentId,{
-      name:'新模块',FunName:'新模块',memo:'',funCode:'',personCharge:'',status:'',conType:'Model',FunOrderValue:String(order),
+      name:'新模块',FunName:'新模块',memo:'',funCode:'',personCharge:'',status:'',conType:'Model',FunOrderValue:this.orderValue(order),
       NavigationImageWxz:'FolderOpened',NavigationUrl:'',MobileUrl:'',NavigationType:'',ChildItemLocation:'Left',NavigationShowType:'',
       HorizontalAlignment:'',IsShowAtNav:'0',IsShowChildItem:'1',BeginGroup:'0',conid:'',htmlDesc:'',
+      ...Object.fromEntries(overrides),
     })
   }
 
@@ -1329,8 +1351,10 @@ export class BlueprintWorkspaceDataView {
       children:(byParent.get(record.nodeId)??[]).sort((a,b)=>(a.navigation?.order??0)-(b.navigation?.order??0)||a.nodeId.localeCompare(b.nodeId)).map(toNode),
     })
     const recordIds=new Set(records.map(record=>record.nodeId))
-    // Stored orphans stay visible as top-level nodes; structural write commands still require parent closure.
-    const roots=records.filter(record=>record.parentNodeId===''||record.parentNodeId==='000000'||record.parentNodeId==='0'||!recordIds.has(record.parentNodeId))
+    // 完整树模式：已存储孤儿行作为顶层可见，结构写命令仍要求父链闭合。
+    // 懒加载模式：父节点尚未装载的行只是增量结果（如定位中途），不提升为根，待父节点装载后挂到原位置。
+    const lazy=this.#lazyParents!==undefined
+    const roots=records.filter(record=>record.parentNodeId===''||record.parentNodeId==='000000'||record.parentNodeId==='0'||(!lazy&&!recordIds.has(record.parentNodeId)))
       .sort((a,b)=>(a.navigation?.order??0)-(b.navigation?.order??0)||a.nodeId.localeCompare(b.nodeId)).map(toNode)
     const root=roots[0]
     if(!root)throw new Error('蓝图 DataView 没有可展示的正式根节点')
@@ -1386,6 +1410,12 @@ export class BlueprintWorkspaceDataView {
   }
 
   public canWriteFields(fields:readonly string[]):boolean{return fields.length>0&&fields.every(field=>this.canWrite(field))}
+
+  /** 按正式列类型表示新增节点排序值：数值列写 number，其余列写字符串。 */
+  private orderValue(order:number):number|string{
+    const type=this.view.dataTable?.columns.find(column=>column.name==='FunOrderValue')?.type.toLowerCase()
+    return type!==undefined&&['number','int','integer','decimal','float','double'].includes(type)?order:String(order)
+  }
 
   public value(field: string): unknown {
     const row = this.row
@@ -1466,6 +1496,7 @@ export class BlueprintWorkspaceDataView {
 
   private async saveIds(targetIds?:Array<string|number>,expectedSavedCount?:number): Promise<void> {
     this.assertWritable()
+    await this.lazyIdle()
     if(this.#batchStageBlocked)throw new Error('蓝图 DataView 批量暂存回滚未确认，保存已阻断')
     if (this.isBusy) throw new Error('蓝图 DataView 正在查询或保存')
     const targetNodeId=this.#nodeId, revision=this.#revision

@@ -1900,12 +1900,12 @@ export function useDevState() {
     }
   }
 
-  /** 页面新增根模块/同级/子级：沿原 DataView owner 保存并回读，返回新节点正式身份；失败直接抛出由页面呈现。 */
-  async function addBlueprintModuleNode(parentNodeId:string|null):Promise<string>{
+  /** 页面新增根模块/同级/子级：沿原 DataView owner 保存并回读，返回新节点正式身份；失败直接抛出由页面呈现。fields 仅覆盖内容字段；待核验时忽略。 */
+  async function addBlueprintModuleNode(parentNodeId:string|null,fields?:Readonly<Record<string,unknown>>):Promise<string>{
     const session=await loadBlueprintWorkspaceDataView()
     const pending=parentNodeId===null?session.hasPendingRootCreate:session.hasPendingChildCreate
     if(hasExternalDataViewChanges()&&!pending)throw new Error('树行 DataView 有未保存修改，请先保存或取消后再新增节点')
-    const id=parentNodeId===null?await session.addRootModule():await session.addModuleNode(parentNodeId)
+    const id=parentNodeId===null?await session.addRootModule(fields):await session.addModuleNode(parentNodeId,fields)
     refreshBlueprintTreeProjection()
     externalDataViewRevision.value++
     await syncRuntimeNavigationIfDefaultProject()

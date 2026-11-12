@@ -9,7 +9,9 @@
     "modulePath": "components/fields/data-components/composables/state/useHtmlEditorState",
     "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/composables/state/useHtmlEditorState\n职责：提供 useHtmlEditorState（未注册组件类型）相关的组合式状态或行为封装，复用字段值、选项、权限、动作和交互控制逻辑。\n边界：只服务 field-level/data-field 的 setup/runtime 组合，不直接声明页面配置，也不替代组件 props。\nAI用途：需要理解 use html editor state 的响应式状态来源、值转换或事件副作用时，使用本模块定位实际运行规则。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": [],
+    "symbols": [
+      "RichTextImageUploadState"
+    ],
     "componentLevel": "field-level",
     "componentLayer": "data-field",
     "componentDirectory": "fields/data-components"
@@ -29,6 +31,10 @@
         },
         "isCurrentFieldEditable": {
           "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "onImageUploadState": {
+          "type": "object",
+          "title": "(state: RichTextImageUploadState) => void"
         }
       },
       "required": [
@@ -67,11 +73,38 @@
           },
           "additionalProperties": false
         },
-        "method.getRowRawValue.return": true
+        "method.getRowRawValue.return": true,
+        "method.readImageUploader.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readImageUploader.return": {
+          "type": "object",
+          "title": "(file: File) => Promise<string>"
+        }
       }
+    },
+    "RichTextImageUploadState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RichTextImageUploadState",
+      "properties": {
+        "pending": {
+          "type": "number"
+        },
+        "error": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "pending",
+        "error"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.190Z",
+  "generatedAt": "2026-11-12T06:43:53.918Z",
   "models": {
     "UseHtmlEditorStateOptions": {
       "name": "UseHtmlEditorStateOptions",
@@ -83,7 +116,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** editor Ref 字段。 */\n    editorRef: Ref<HTMLElement | null>;\n    /** field Value 字段。 */\n    fieldValue: ValueRef<unknown>;\n    /** 是否 is Current Field Editable。 */\n    isCurrentFieldEditable: ValueRef<boolean>;\n    /** sync Value 回调。 */\n    syncValue: (value: string) => void;\n    /** emit Update 回调。 */\n    emitUpdate: (value: string) => void;\n    /** get Row Raw Value 回调。 */\n    getRowRawValue: (row: DataRow) => unknown;\n}",
+        "declarationTypeText": "{\n    /** editor Ref 字段。 */\n    editorRef: Ref<HTMLElement | null>;\n    /** field Value 字段。 */\n    fieldValue: ValueRef<unknown>;\n    /** 是否 is Current Field Editable。 */\n    isCurrentFieldEditable: ValueRef<boolean>;\n    /** sync Value 回调。 */\n    syncValue: (value: string) => void;\n    /** emit Update 回调。 */\n    emitUpdate: (value: string) => void;\n    /** get Row Raw Value 回调。 */\n    getRowRawValue: (row: DataRow) => unknown;\n    /** 读取当前宿主图片上传器（随 props 变化）；上传器返回已持久化的图片地址，缺省时不提供图片插入。 */\n    readImageUploader?: () => ((file: File) => Promise<string>) | undefined;\n    /** 图片上传进行数与最近错误的变化通知。 */\n    onImageUploadState?: ((state: RichTextImageUploadState) => void) | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -103,6 +136,12 @@
               "jsdoc": "是否 is Current Field Editable。",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "onImageUploadState",
+              "jsdoc": "图片上传进行数与最近错误的变化通知。",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
@@ -156,6 +195,76 @@
                 "type": "intrinsic",
                 "name": "unknown"
               }
+            },
+            {
+              "name": "readImageUploader",
+              "jsdoc": "读取当前宿主图片上传器（随 props 变化）；上传器返回已持久化的图片地址，缺省时不提供图片插入。",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reflection",
+                  "declaration": {
+                    "signatures": [
+                      {
+                        "parameters": [
+                          {
+                            "name": "file",
+                            "type": {
+                              "type": "reference",
+                              "name": "File"
+                            }
+                          }
+                        ],
+                        "type": {
+                          "type": "reference",
+                          "name": "Promise",
+                          "typeArguments": [
+                            {
+                              "type": "intrinsic",
+                              "name": "string"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "RichTextImageUploadState": {
+      "name": "RichTextImageUploadState",
+      "jsdoc": "富文本图片上传状态：pending 为进行中的上传数，error 为最近一次失败原因（成功开始新上传时清空）。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "field-level",
+        "layer": "data-field",
+        "directory": "fields/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    pending: number;\n    error: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pending: number;\n    error: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pending",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "readable": true,
+              "writable": false
             }
           ]
         }

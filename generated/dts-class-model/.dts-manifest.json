@@ -4459,7 +4459,37 @@
     "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/dimension-source/binding-editor.ts.json",
-      "sourceModifiedAt": "2026-11-12T08:26:01.092Z"
+      "sourceModifiedAt": "2026-11-12T12:42:54.060Z"
+    },
+    "src/lowcode/resources/structured-config/dimension-source/collection-rules.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/collection-rules.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/dimension-source/collection-rules.ts.json",
+      "sourceModifiedAt": "2026-11-12T12:38:58.048Z"
+    },
+    "src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/dimension-source/commit-policy-editor.ts.json",
+      "sourceModifiedAt": "2026-11-12T12:47:52.585Z"
+    },
+    "src/lowcode/resources/structured-config/dimension-source/event-editor.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/event-editor.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/dimension-source/event-editor.ts.json",
+      "sourceModifiedAt": "2026-11-12T12:41:07.707Z"
+    },
+    "src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts.json",
+      "sourceModifiedAt": "2026-11-12T12:39:30.382Z"
+    },
+    "src/lowcode/resources/structured-config/dimension-source/source-contracts.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/source-contracts.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/dimension-source/source-contracts.ts.json",
+      "sourceModifiedAt": "2026-11-12T12:38:41.415Z"
+    },
+    "src/lowcode/resources/structured-config/dimension-source/view-support.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/dimension-source/view-support.ts.json",
+      "sourceModifiedAt": "2026-11-12T12:38:27.694Z"
     },
     "src/lowcode/resources/structured-config/logic-view/design-ops.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/design-ops.ts",
@@ -5016,11 +5046,6 @@
       "shardFile": "files/src/views/features/application/application-context/ui/application-database-relations-page.vue.json",
       "sourceModifiedAt": "2026-11-11T08:42:48.546Z"
     },
-    "src/views/features/application/application-function-management/ui/application-function-dimension-source-dialog.vue": {
-      "sourceFile": "src/views/features/application/application-function-management/ui/application-function-dimension-source-dialog.vue",
-      "shardFile": "files/src/views/features/application/application-function-management/ui/application-function-dimension-source-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-12T08:09:41.888Z"
-    },
     "src/views/features/application/application-function-management/ui/application-function-page-contract.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page-contract.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/application-function-page-contract.ts.json",
@@ -5029,7 +5054,22 @@
     "src/views/features/application/application-function-management/ui/application-function-page.vue": {
       "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page.vue",
       "shardFile": "files/src/views/features/application/application-function-management/ui/application-function-page.vue.json",
-      "sourceModifiedAt": "2026-11-12T08:10:02.708Z"
+      "sourceModifiedAt": "2026-11-12T12:48:58.689Z"
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-dimension-event-editor.vue": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-dimension-event-editor.vue",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-dimension-event-editor.vue.json",
+      "sourceModifiedAt": "2026-11-12T12:48:42.564Z"
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-dimension-source.vue": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-dimension-source.vue",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-dimension-source.vue.json",
+      "sourceModifiedAt": "2026-11-12T12:48:35.894Z"
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-source-commit-editor.vue": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-source-commit-editor.vue",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-source-commit-editor.vue.json",
+      "sourceModifiedAt": "2026-11-12T12:48:47.022Z"
     },
     "src/views/features/application/application-function-management/ui/use-application-function-ai.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-ai.ts",
@@ -5044,12 +5084,12 @@
     "src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts.json",
-      "sourceModifiedAt": "2026-11-12T08:21:46.112Z"
+      "sourceModifiedAt": "2026-11-12T12:48:53.310Z"
     },
     "src/views/features/application/application-function-management/ui/use-application-function-page.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/use-application-function-page.ts.json",
-      "sourceModifiedAt": "2026-11-12T08:09:17.608Z"
+      "sourceModifiedAt": "2026-11-12T12:47:59.422Z"
     },
     "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",

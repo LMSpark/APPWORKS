@@ -15,7 +15,7 @@ export const keys = {
   validationBinding: `${scenario}@Bil_Dimension_Source_Binding@validationByEvent`,
 }
 type Table = Readonly<{modelBinding: {modelId: string; modelName: string}
-  views: Record<string, {queryConfig?: {fields?: string[]}; filterExpression?: unknown}>}>
+  views: Record<string, {queryConfig?: {fields?: string[]}; filterExpression?: unknown; sortExpression?: unknown}>}>
 
 export async function createDimensionRuntime(ruleId = 'R1', anchorMetadata = true, preload = true) {
   const parsed = JSON.parse(pagedata) as {tables: Record<string, Table>; viewCascades: unknown[]}
@@ -26,27 +26,42 @@ export async function createDimensionRuntime(ruleId = 'R1', anchorMetadata = tru
     const all = new Set<string>()
     for (const view of Object.values(source[name]!.views)) {
       for (const field of view.queryConfig?.fields ?? []) all.add(field)
-      for (const match of JSON.stringify(view.filterExpression ?? {}).matchAll(/"field":"([^"]+)"/g)) if (match[1]) all.add(match[1])
+      for (const match of JSON.stringify([view.filterExpression ?? {}, view.sortExpression ?? []]).matchAll(/"field":"([^"]+)"/g)) {
+        if (match[1]) all.add(match[1])
+      }
     }
     return [name, [...all]]
   }))
   const bindingFields = fields['Bil_Dimension_Source_Binding']
   if (!bindingFields) throw new Error('维度来源模型缺失')
-  if (anchorMetadata) {
-    bindingFields.push('source_model_id', 'effective_from', 'effective_to')
-    const mappingFields = fields['Bil_Dimension_Source_Mapping']
-    mappingFields?.push(...['source_field_id', 'target_definition_id'].filter(name => !mappingFields.includes(name)))
+  const extend = (table: string, names: readonly string[]) => {
+    const list = fields[table] ?? (fields[table] = [])
+    list.push(...names.filter(name => !list.includes(name)))
   }
+  if (anchorMetadata) {
+    extend('Bil_Dimension_Source_Binding', ['source_model_id', 'effective_from', 'effective_to', 'projection_role', 'account_field_id', 'account_field_name'])
+    extend('Bil_Dimension_Source_Mapping', ['source_field_id', 'target_definition_id'])
+    extend('Bil_Dimension_Source_Collection', ['id', 'binding_id', 'parent_collection_id', 'collection_name', 'source_model_id', 'source_model_meta_name',
+      'parent_key_field_id', 'parent_key_field_name', 'child_key_field_id', 'child_key_field_name', 'child_pk_field_id', 'child_pk_field_name', 'sort_no'])
+    extend('Bil_Dimension_Source_Commit_Policy', ['id', 'binding_id', 'status', 'protocol_version', 'binding_version', 'policy_version', 'field_count',
+      'source_meta_name', 'root_meta_name', 'intent_meta_name', 'successor_meta_name', 'fact_meta_name', 'head_meta_name', 'source_key_field', 'source_commit_field'])
+    extend('Bil_Dimension_Source_Commit_Field', ['id', 'policy_id', 'field_id', 'source_field', 'source_path', 'value_type', 'required_flag'])
+    extend('Bil_Dimension_Rule_Template', ['template_category', 'source_pk_field', 'biz_no_field', 'biz_date_field', 'builtin_flag',
+      'voucher_required', 'auto_voucher_write', 'stop_after_match'])
+  }
+  const idKeyed = ['Bil_Dimension_Source_Binding', 'Bil_Dimension_Source_Mapping', 'Bil_Dimension_Definition', 'Bil_Dimension_Source_Collection',
+    'Bil_Dimension_Source_Commit_Policy', 'Bil_Dimension_Source_Commit_Field']
+  const integerStatus = ['Bil_Dimension_Source_Binding', 'Bil_Dimension_Source_Commit_Policy']
   const models = buildFormalModels(fields).map(model => {
     const binding = source[model.name]!.modelBinding
-    const pk = ['Bil_Dimension_Source_Binding', 'Bil_Dimension_Source_Mapping', 'Bil_Dimension_Definition'].includes(model.name) ? 'id' : 'rowid'
+    const pk = idKeyed.includes(model.name) ? 'id' : 'rowid'
     return {...model, id: binding.modelId, primaryKey: pk, fields: model.fields.map(field => ({...field, modelId: binding.modelId,
       primaryKey: field.name === pk, type: ['priority', 'sort_no'].includes(field.name) ? 'number' :
-        ['voucher_required', 'auto_voucher_write', 'stop_after_match', 'required_flag'].includes(field.name)
-          || field.name === 'status' && model.name !== 'Bil_Dimension_Source_Binding' ? 'boolean' : field.type}))}
+        ['voucher_required', 'auto_voucher_write', 'stop_after_match', 'required_flag', 'builtin_flag'].includes(field.name)
+          || field.name === 'status' && !integerStatus.includes(model.name) ? 'boolean' : field.type}))}
   })
   const http = new ApiBackend()
-  for (const name of ['Bil_Dimension_Source_Binding', 'Bil_Dimension_Source_Mapping', 'Bil_Dimension_Definition']) http.primaryKeys[name] = 'id'
+  for (const name of idKeyed) http.primaryKeys[name] = 'id'
   http.records = {
     Bil_Dimension_Rule: [],
     Bil_Dimension_Rule_Condition: [],

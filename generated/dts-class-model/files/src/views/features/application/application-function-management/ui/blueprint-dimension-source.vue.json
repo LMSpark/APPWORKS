@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/blueprint-dimension-source",
+    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-dimension-source.vue",
+    "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-dimension-source.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/blueprint-dimension-source",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-dimension-source\n职责：蓝图节点“维度来源设计”对话框：选择节点数据空间模型或平台注册事件，编辑来源绑定、正式来源集合与字段维度映射，\n并从已保存绑定进入“数据模型事件”“来源提交协议”维护。\n边界：全部字段与选择绑定 88A4 维度设计空间的 DataView；装载、校验、保存与回读由宿主传入的流程状态承担。\nAI用途：调整维度来源设计布局时修改本组件，不在此另建查询或保存链。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T12:48:35.894Z",
+  "models": {}
+}

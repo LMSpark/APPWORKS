@@ -109,6 +109,143 @@
           "queryConfig": {
             "allPages": true
           }
+        },
+        "byId": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bindingId"
+            }
+          },
+          "queryConfig": {
+            "allPages": true
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Source_Collection": {
+      "modelBinding": {
+        "modelId": "9CB04D73585EFB93209DD2AC68885544",
+        "modelName": "Bil_Dimension_Source_Collection"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true
+          }
+        },
+        "byBinding": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "binding_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bindingId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Source_Commit_Policy": {
+      "modelBinding": {
+        "modelId": "E84D5E4B6B4AEF085C3383E24594D3A9",
+        "modelName": "Bil_Dimension_Source_Commit_Policy"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "queryConfig": {
+            "allPages": true
+          }
+        },
+        "byBinding": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "binding_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bindingId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "policy_version",
+              "direction": "desc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Source_Commit_Field": {
+      "modelBinding": {
+        "modelId": "22D284F79EA6D72127A733608FDC17AA",
+        "modelName": "Bil_Dimension_Source_Commit_Field"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "queryConfig": {
+            "allPages": true
+          }
+        },
+        "byPolicy": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "policy_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "policyId"
+            }
+          },
+          "queryConfig": {
+            "allPages": true
+          }
         }
       }
     },
@@ -283,6 +420,44 @@
               "rowid"
             ]
           }
+        },
+        "editByEvent": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "event_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "eventCode"
+            }
+          },
+          "queryConfig": {
+            "allPages": true
+          }
+        },
+        "byTemplateCode": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "template_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "templateCode"
+            }
+          },
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "template_code"
+            ]
+          }
         }
       }
     },
@@ -332,6 +507,28 @@
           "queryConfig": {
             "fields": [
               "rowid"
+            ]
+          }
+        },
+        "byEvent": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "event_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "eventCode"
+            }
+          },
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "event_code",
+              "status"
             ]
           }
         }

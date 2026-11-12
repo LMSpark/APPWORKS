@@ -9579,7 +9579,7 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
   - 正式导航发布与应用管理“项目管理”开放。
   - 认证实服烟测；批次2未核实项保持不变。
   - 完整 `apps/appworks` 其余业务域逐功能验收。
-## 蓝图批次3b-1（维度来源：数据模型绑定与字段映射）— 断点
+## 蓝图批次3b-1（维度来源：数据模型绑定与字段映射）— 断点（第1—5项已由下节“蓝图批次3b”续完）
 
 完成并验证：
 - 88A4 作为蓝图 PageRuntime 延迟场景（useDevState，经 readRepositoryScenarioText + assembleLowcodeRuntimeScenario 装配，assertDeferred 范围校验）。
@@ -9596,3 +9596,29 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 4. 来源集合 Bil_Dimension_Source_Collection、Commit_Policy、Commit_Field：模型身份按参考为 {scenarioId, metaName} 运行时正式解析；拟按 dictionary/resource.ts 先例经 readModelBatch 运行时装配 pagedata，或经已认证只读会话取得正式 ID 后写入 pagedata（禁止编造）。
 5. 数据模型事件编辑器（Rule_Template/事件）、来源提交协议草稿与正式回读（source-commit-save/projection-currentness）、维度台账查询（公共层+测试）。
 6. 批次4、批次5（权限两个入口）、导航发布、已认证实服烟测、批次2 未验证项。
+
+## 蓝图批次3b：维度来源完整业务（续完 3b-1 断点）
+
+对照参考固定提交 `1147b00ee` 的 `blueprint-dimension-source.vue`、`blueprint-dimension-event-editor.vue`、`blueprint-source-commit-editor.vue` 及数据管理 `DimensionSourceBinding`/`DimensionSourceCommit`/`DimensionDesign`，在本仓 PageRuntime → DataSet/DataView 链上恢复蓝图“维度来源设计”的其余业务。只经 `GetData`/`BatchTableOperateRequestByCRUD`，无新端点，未改 Java，未增 Node 服务。
+
+- **门禁（用户手动登录后已认证只读核验，已核实）。** 88A4 中 `Bil_Dimension_Source_Collection`、`_Commit_Policy`、`_Commit_Field` 三个模型按注册名存在，正式模型身份与字段已核实并写入 88A4 pagedata；Binding 表的 `account_field_id/name`、`projection_role`、`source_contract_id`、`effective_from/to` 与 Mapping 表的 `source_field_id`、`target_definition_id` 已核实；07D2 中 `Bil_Dimension_Set` 存在且含 `source_binding_id`、`lingma_sys_is_delete`。只读，未保存、未写库；凭据与线上 ID 不入台账和提交说明。
+- **实施。**
+  - 平台合同注册表 `dimension-source/source-contracts.ts`（冻结，只登记参考唯一合同 `platform.enterprise-task.v2`）。绑定支持“平台注册事件”来源：`event_code`/`payload_version` 强制取合同值且只读，更换合同或载荷版本须递增 `binding_version`；平台映射只列维度语义字段并自动配对唯一维度定义；账套字段仅数据模型来源可用，`source-voucher` 时必填；`source-voucher` 只允许数据模型来源。
+  - `target_member_id/code`：参考从不写入，本仓同样只保留读到的原值，**与参考一致**。
+  - 来源子集合规则 `collection-rules.ts`（名称/保留字/同级重名/遮盖父字段、父集合存在且无环、父子主键为正式主键、外键为非计算输出字段、有子集合禁删、深度优先重排 `sort_no`）；集合与绑定、映射同一次 `saveChanges` 并回读签名。
+  - 数据模型事件编辑器 `event-editor.ts`（`Rule_Template.editByEvent/byEvent`）：仅在绑定已保存且回读一致后进入；平台事件编码、内置事件、非当前模型来源拒绝；启用时业务日期字段必填、模板编码唯一；被引用时合同字段不可改，有启用规则时不可停用；新建默认 `builtin_flag=0`、`voucher_required=0`、`auto_voucher_write=0`、`stop_after_match=1`；保存后精确回读。
+  - 来源提交协议草稿 `commit-policy-editor.ts`（`Commit_Policy.byBinding`、`Commit_Field.byPolicy`）：只读已有版本、只新建草稿，不提供修改、删除或启用；校验绑定版本/应用/`business-result` 角色、六个角色模型同属节点数据空间且互异（五表一视图、同一 `sourceId`）、来源模型即绑定模型、提交字段为非主键字符串、各角色实体列齐全；`policy_version` 大于现有最大版本；策略 ID 按参考摘要规则取前 32 位；策略行（`status=0`）与全部事实行一次保存后回读绑定、策略和字段签名。
+  - 07D2 台账存在性守卫 `ledger-guard.ts` + `ledger-views.json`：运行时经数据空间设计 API 按注册名解析正式模型，交给 `LowcodeDataSpaceAssembler` 装配独立 DataSet，按 `source_binding_id` 查未删除记录，最多 1 行后销毁；有记录时拒绝改投影角色、账套字段、模型、绑定版本和子集合，查询失败同样拒绝（宁可拒绝）。
+  - 页面：对话框按参考名改为 `ui/blueprint-dimension-source.vue`，新增 `blueprint-dimension-event-editor.vue`、`blueprint-source-commit-editor.vue`；子对话框状态并入既有 `use-application-function-dimension-source.ts`，未新增页面 TS，`ui/` 目录 10 个 ts/vue。保存后保持主对话框打开（与参考一致），以便继续维护事件和提交协议；切换节点/上下文/主数据空间关闭全部对话框并按代次丢弃迟到结果；结果未知时拒绝丢弃。
+- **ClassModel 查询 → 实现 → 验证。**
+  - `RDialogProps`（title/width/top/footer 插槽）→ 三个对话框 → 烟测打开/关闭与子对话框层叠。
+  - `RTableProps`（dataViewKey/children/actions/showCellControl/cellReadonly）→ 模型/合同候选、映射、子集合、已有版本、事实字段表 → 烟测候选渲染与按选项视图显示。
+  - `FieldSelect` 选项合同（optionDataViewKey/optionValueField 缺省为视图 valueField 再主键/optionLabelField(s)/optionLabelJoiner）→ 账套字段、目标维度、来源字段、子外键、业务分类、业务编号/日期字段 → 烟测“成本 · cost”“amount · decimal”“ExpenseLine.expense_id”“财务 · finance”。
+  - `DisplayAlert`（title/description/alertType/showIcon）→ 错误、成功、未知、草稿提示 → 烟测提示文案断言。
+  - `RendererButton` → 来源类型切换与各入口 → 烟测按钮可用性（未知状态锁定）。
+  - `RSwitchProps`/`RNumber` → 事件状态与优先级 → 事件编辑用例。
+  - 源码改动后运行 `pnpm run generate:class-model-surface`；生成器同时刷新了若干既有过期分片，未手改产物。
+- **验证。** `pnpm run typecheck` 通过；定向 vitest 8 文件 147 项通过（含平台事件选择、台账守卫拒绝、草稿版本递增等新增用例；夹具字段收集补齐 sortExpression）；改动文件 ESLint 0；`pnpm run verify`（typecheck + lint + 全部 verify:rules，含 class-model）退出 0；`verify:pages-config`、`verify:page-thin`、目录上限 ok；`git diff --check` 干净。AI 模型既有 warnings（DataViewFilter、ScenarioViewConfig）非本批引入。
+- **隔离浏览器烟测（无头 Edge + CDP，内存夹具，拦截全部网络，未写实服）。** 真实对话框、DataSet/PageRuntime、标准组件与 owner；脚手架位于 `artifacts/smoke-dimension-3b/`，完成后已连同临时浏览器配置删除。9/9 步通过：模型候选与来源类型切换；数据模型绑定+映射+子集合一次保存回读且保存后入口启用；事件新建写入回读并关闭子对话框；提交草稿（status=0、v1、摘要身份）+ 事实一次保存回读、已有版本只读、草稿重置为 v2；台账有记录与无法核验均拒绝且无写入；关闭丢弃未保存修改无写入；平台合同选择后事件编码强制且只读、账套字段/子集合隐藏；切换节点丢弃迟到结果；回执中断进入未知、编辑锁定、关闭拒绝丢弃、只写 1 次。外部请求 0、页面网络尝试 0、告警 0；唯一控制台错误为未知用例主动注入回执失败时 HTTP 层的预期日志。脚手架发现：Edge 配置置于 Vite 根下会被文件监听锁住（EBUSY）、对话框标题类名为 `.renderer-dialog-title`，均为脚手架问题已修正。
+- **实服只读核验边界。** 阶段0 模型与字段已认证只读核实；蓝图页仍 `hidden` 且未进入正式导航发布，没有合法入口，本批未在实服打开新对话框，也未写入。待导航发布后补认证打开核验。
+- **不在本批（登记缺口）。** 维度运行时 `source-commit-save`、`projection-currentness`、`current()`、完整台账记录查询（明细、事实、身份）：消费者是业务提交与投影运行时，不是蓝图页，且在参考 `packages/data/spark-api` 而非 `apps/appworks`，登记为维度运行时缺口。提交策略启用（参考同样未提供）、批次4、批次5（权限两个入口）、导航发布、批次2 未验证项继续开放。

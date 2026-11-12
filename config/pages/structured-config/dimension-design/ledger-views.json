@@ -1,0 +1,33 @@
+{
+  "scenarioId": "07D264520034366B1DA25CEE5358E502",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "Bil_Dimension_Set": {
+      "modelBinding": {"modelName": "Bil_Dimension_Set"},
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 50,
+          "queryConfig": {"fields": ["rowid", "source_binding_id", "lingma_sys_is_delete"]}
+        },
+        "bySourceBinding": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 50,
+          "filterExpression": {
+            "field": "source_binding_id",
+            "operator": "eq",
+            "value": {"Type": "GetInputParam", "ParamName": "bindingId"}
+          },
+          "sortExpression": [{"field": "lingma_sys_is_delete", "direction": "asc"}],
+          "queryConfig": {"fields": ["rowid", "source_binding_id", "lingma_sys_is_delete"]}
+        }
+      }
+    }
+  },
+  "viewCascades": []
+}

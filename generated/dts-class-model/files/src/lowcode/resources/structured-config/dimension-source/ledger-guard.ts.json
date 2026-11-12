@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/dimension-source/ledger-guard",
+    "sourcePath": "src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/dimension-source/ledger-guard.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/dimension-source/ledger-guard",
+    "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/ledger-guard\n职责：判断来源绑定是否已被正式维度结果（07D2 场景 Bil_Dimension_Set.source_binding_id）引用，供绑定保存前拒绝变更受保护字段。\n边界：运行时经数据空间设计 API 解析 07D2 正式模型，按 ledger-views.json 装配独立 DataSet 查询后销毁；任何读取失败、\n字段不可读或结果无法完整核验都抛错（由调用方拒绝保存），不当作“无记录”。不写入台账。\nAI用途：调整台账引用判定时在此修改；绑定编辑器只消费 hasRecords 的布尔结果。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DimensionSourceLedgerGuard"
+    ]
+  },
+  "$defs": {
+    "DimensionSourceLedgerGuard": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionSourceLedgerGuard",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "design": {
+              "type": "object",
+              "title": "Pick<DataSpaceDesignApi, 'readModel' | 'readSpaceDefinition'>"
+            },
+            "assembler": {
+              "$ref": "../../../data-space/lowcode-data-space-assembler.ts.json#/$defs/LowcodeDataSpaceAssembler"
+            },
+            "source": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasRecords.params": {
+          "type": "object",
+          "properties": {
+            "bindingId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasRecords.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-12T12:39:30.382Z",
+  "models": {
+    "DimensionSourceLedgerGuard": {
+      "name": "DimensionSourceLedgerGuard",
+      "jsdoc": "维度台账引用守卫：一次查询装配一个独立 DataSet，结束即销毁。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(design: Pick<DataSpaceDesignApi, 'readModel' | 'readSpaceDefinition'>, assembler: LowcodeDataSpaceAssembler, source?: string)",
+          "parameters": [
+            {
+              "name": "design",
+              "type": {
+                "type": "reference",
+                "name": "Pick",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSpaceDesignApi"
+                  },
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "readModel"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "readSpaceDefinition"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assembler",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceAssembler",
+                "sourcePath": "src/lowcode/data-space/lowcode-data-space-assembler.ts"
+              }
+            },
+            {
+              "name": "source",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "hasRecords",
+              "jsdoc": "来源绑定存在未删除的正式维度结果时返回 true；无法完整核验时抛错。",
+              "parameters": [
+                {
+                  "name": "bindingId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

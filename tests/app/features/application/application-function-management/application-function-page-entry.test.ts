@@ -11,6 +11,7 @@ import {BLUEPRINT_AI_REJECTED} from '@/views/features/application/application-fu
 import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {DimensionSourceLedgerGuard} from '@/lowcode/resources/structured-config/dimension-source/ledger-guard'
 import {createDimensionRuntime} from '../../../../runtime/application/dimension/dimension.fixture'
 import {useApplicationFunctionPage} from '@/views/features/application/application-function-management/ui/use-application-function-page'
 import ApplicationFunctionPage from '@/views/features/application/application-function-management/ui/application-function-page.vue'
@@ -898,11 +899,41 @@ describe('application function page dimension source design', () => {
     await page.dimensionSource.save()
     expect(page.dimensionSource.dialogError.value).toBe('')
     expect(page.notice.value).toBe('维度来源绑定已保存并回读确认')
-    expect(page.dimensionSource.open.value).toBe(false)
+    expect(page.dimensionSource.open.value).toBe(true)
+    expect(page.dimensionSource.eventEntryReason.value).toBe('')
+    expect(page.dimensionSource.commitEntryReason.value).toBe('')
     expect(f.http.records['Bil_Dimension_Source_Binding']).toEqual([expect.objectContaining({id, source_application_id: TARGET,
       source_node_id: 'NODE-2', source_model_id: 'MODEL', binding_code: 'expense-source'})])
     expect(f.http.records['Bil_Dimension_Source_Mapping']).toEqual([expect.objectContaining({binding_id: id, source_field_id: 'F-AMOUNT',
       source_field_name: 'amount', target_definition_id: 'D1', target_definition_code: 'cost'})])
+
+    const guard = vi.spyOn(DimensionSourceLedgerGuard.prototype, 'hasRecords').mockResolvedValue(true)
+    binding.updateEditingValue(id, 'binding_version', 2)
+    const saves = f.http.saves.length
+    await page.dimensionSource.save()
+    expect(guard).toHaveBeenCalledWith(String(id), expect.any(Function))
+    expect(page.dimensionSource.dialogError.value).toBe('已有正式维度结果使用此来源绑定，不能变更角色、模型、关联字段或绑定版本')
+    expect(f.http.saves).toHaveLength(saves)
+    guard.mockRestore()
+    readModels.mockRestore()
+  })
+
+  it('selects a registered platform event contract and forces its event code', async () => {
+    await dimension()
+    const readModels = vi.spyOn(lowcodeApi.dataSpace.design, 'readModels').mockResolvedValue([])
+    const {page, state} = await bound()
+    await page.dimensionSource.openEditor()
+    expect(page.dimensionSource.candidateKind.value).toBe('platform-event')
+    const contracts = state.blueprintPageRuntime.value.resolveView(page.dimensionSource.contractViewKey.value)!
+    await page.dimensionSource.selectContract(contracts.rows[0]!)
+    expect(page.dimensionSource.dialogError.value).toBe('')
+    expect(page.dimensionSource.sourceKind.value).toBe('platform-event')
+    const binding = state.blueprintPageRuntime.value.resolveView(page.dimensionSource.bindingViewKey.value)!
+    expect(binding.getEditingRow(page.dimensionSource.bindingId.value!)).toMatchObject({source_kind: 'platform-event',
+      event_code: 'enterprise.task.changed'})
+    expect(page.dimensionSource.bindingSpecs.value.map(spec => spec.field)).not.toContain('account_field_id')
+    expect(page.dimensionSource.bindingSpecs.value.find(spec => spec.field === 'event_code')?.readonly).toBe(true)
+    page.dimensionSource.close()
     readModels.mockRestore()
   })
 })

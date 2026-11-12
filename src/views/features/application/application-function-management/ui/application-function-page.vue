@@ -263,7 +263,7 @@
       <DataPlanningPane :state="state" :field-access="state.blueprintNodeFieldAccess('conid')" />
     </RendererDialog>
 
-    <ApplicationFunctionDimensionSourceDialog v-if="dimensionSourceOpen" :source="dimensionSource" />
+    <BlueprintDimensionSource v-if="dimensionSourceOpen" :source="dimensionSource" />
 
     <RendererDialog v-if="deletingVersion" :model-value="true" title="删除确认" width="420px" @update:model-value="cancelDeleteVersion">
       <DisplayAlert :description="`确定要删除版本“${deletingVersion.versionName}”吗？`" alert-type="warning" />
@@ -282,7 +282,7 @@ import type { DataRow } from '@spark-appworks/spark-data'
 import { useApplicationFunctionPage } from './use-application-function-page'
 import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
-import ApplicationFunctionDimensionSourceDialog from './application-function-dimension-source-dialog.vue'
+import BlueprintDimensionSource from './blueprint-dimension-source.vue'
 
 const {DisplayAlert, DisplayEmpty, FieldHtmlEditor, FieldSelect, FieldText, FieldTextarea, RendererButton, RendererDialog, RendererForm, RendererList, RendererTable, RendererTree} = SparkComponent
 

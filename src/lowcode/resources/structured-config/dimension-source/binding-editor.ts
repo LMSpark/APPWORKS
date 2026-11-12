@@ -1,166 +1,175 @@
 /**
  * @module app:lowcode/resources/structured-config/dimension-source/binding-editor
- * 职责：蓝图节点“维度来源设计”的数据模型来源绑定与字段→维度映射编辑 owner：装载唯一绑定、草稿、正式校验、单次保存与回读核验。
- * 边界：只处理 source_kind=data-model；绑定/映射/维度定义均经 88A4 场景 DataView 读写，正式模型经数据空间设计 API 读取，
- *   模型与字段候选只作为 static-data 选项视图呈现，不作为正式数据副本保存。平台事件、来源集合、提交协议不在本模块。
+ * 职责：蓝图节点“维度来源设计”的来源绑定 owner：数据模型或平台注册事件来源、字段→维度映射、根模型子集合；
+ *   装载唯一绑定、草稿、正式校验、单次保存与回读核验，已有正式维度结果时拒绝变更受保护字段。
+ * 边界：绑定/映射/集合/维度定义均经 88A4 场景 DataView 读写；正式模型经数据空间设计 API 读取，平台合同来自 source-contracts 注册表；
+ *   候选只作为 static-data 选项视图呈现。数据模型事件与来源提交协议由各自编辑器维护。
  * AI用途：修改维度来源绑定校验或保存核验时在此调整，页面组合式函数只负责门禁、代次与对话框状态。
  */
-import {buildDataViewKey, dataSetCommandQueryResultFromLocalRows, ensureDataSetStaticInputTable, DataSetSavePreflightError,
-  type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {DATA_SPACE_DESIGN_FORM_KEY, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import {buildDataViewKey, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import type {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import {normalizeCollection, validateCollectionModels, validateCollectionTree, type DimensionSourceCollection} from './collection-rules'
+import {dimensionSourceContract, DIMENSION_SOURCE_CONTRACTS, type DimensionSourceContract} from './source-contracts'
+import {assertColumns, assertReadable, bit, columnValue, DimensionSourceChangeSubmission, DimensionSourceOptionTables, formalPrimaryField,
+  normalized, pairEditing, positiveInteger, readFormalModels, refreshView, requiredText, requireView, text,
+  type DimensionSourceTarget, type FieldKind, type FormalModel, type Id} from './view-support'
 
-/** DataView 行主键身份（GUID 文本或数值）。 */
-type Id = string | number
-/** 数据空间设计 API 返回的正式模型（含字段）。 */
-type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModels']>>[number]
-type SaveAction = 'added' | 'changed' | 'deleted'
-type CapturedRow = Readonly<{id: Id; action: SaveAction; values: Readonly<Record<string, string | number>>}>
-type CapturedGroup = Readonly<{view: DataView; ids: readonly Id[]; rows: readonly CapturedRow[]}>
-type FieldKind = 'text' | 'integer' | 'bit'
+/** 维度来源类别：节点数据空间模型或平台注册事件。 */
+export type DimensionSourceKind = 'data-model' | 'platform-event'
+/** 已保存且无草稿的来源绑定身份，供数据模型事件与来源提交协议编辑器复核。 */
+export type DimensionSourceSavedBinding = Readonly<{
+  id: string
+  sourceKind: DimensionSourceKind
+  eventCode: string
+  bindingVersion: number
+  projectionRole: string
+  modelId: string
+  modelMetaName: string
+}>
 
 const BINDING_TABLE = 'Bil_Dimension_Source_Binding'
 const MAPPING_TABLE = 'Bil_Dimension_Source_Mapping'
+const COLLECTION_TABLE = 'Bil_Dimension_Source_Collection'
 const DEFINITION_TABLE = 'Bil_Dimension_Definition'
 const BINDING_VIEW = 'byNode'
 const MAPPING_VIEW = 'editByBinding'
-const SOURCE_KIND = 'data-model'
+const COLLECTION_VIEW = 'byBinding'
 const BUSINESS_RESULT = 'business-result'
+const SOURCE_VOUCHER = 'source-voucher'
 
 const BINDING_FIELD_KINDS: Readonly<Record<string, FieldKind>> = {
   binding_code: 'text', source_application_id: 'text', source_node_id: 'text', source_kind: 'text', source_model_id: 'text',
-  source_model_meta_name: 'text', event_code: 'text', payload_version: 'integer', binding_version: 'integer', status: 'bit',
-  effective_from: 'text', effective_to: 'text', description: 'text', projection_role: 'text',
+  source_model_meta_name: 'text', source_contract_id: 'text', event_code: 'text', payload_version: 'integer', binding_version: 'integer',
+  status: 'bit', effective_from: 'text', effective_to: 'text', description: 'text', projection_role: 'text',
+  account_field_id: 'text', account_field_name: 'text',
 }
 const MAPPING_FIELD_KINDS: Readonly<Record<string, FieldKind>> = {
   binding_id: 'text', source_field_id: 'text', source_field_name: 'text', target_definition_id: 'text', target_definition_code: 'text',
   mapping_kind: 'text', mapping_value: 'text', required_flag: 'bit', sort_no: 'integer', version_no: 'integer',
 }
-const OPTIONAL_BINDING_FIELDS = ['effective_from', 'effective_to', 'description', 'projection_role']
+const COLLECTION_FIELD_KINDS: Readonly<Record<string, FieldKind>> = {
+  binding_id: 'text', parent_collection_id: 'text', collection_name: 'text', source_model_id: 'text', source_model_meta_name: 'text',
+  parent_key_field_id: 'text', parent_key_field_name: 'text', child_key_field_id: 'text', child_key_field_name: 'text',
+  child_pk_field_id: 'text', child_pk_field_name: 'text', sort_no: 'integer',
+}
 const DEFINITION_FIELDS = ['id', 'definition_code', 'status'] as const
+const PROTECTED_FIELDS = ['projection_role', 'account_field_id', 'account_field_name', 'source_model_id', 'source_model_meta_name', 'binding_version'] as const
 
-/** 维度来源编辑的正式目标：蓝图应用、节点与该节点已保存回读的主数据空间；assertCurrent 拒绝迟到结果。 */
-export type DimensionSourceBindingTarget = Readonly<{
-  /** 蓝图所属应用 ID，写入 source_application_id。 */
-  applicationId: string
-  /** 蓝图节点稳定 ID，写入 source_node_id。 */
-  nodeId: string
-  /** 节点已保存的主数据空间（conid）；来源模型必须属于该空间。 */
-  dataSpaceId: string
-  /** 编辑目标仍为当前节点与上下文；失效时抛错。 */
-  assertCurrent: () => void
-}>
-
-/** 编辑器装配输入：已装配的 88A4 DataSet、正式目标及正式模型读取入口。 */
+/** 编辑器装配输入：已装配的 88A4 DataSet、正式目标、正式模型读取与维度台账引用核验入口。 */
 export type DimensionSourceBindingEditorInput = Readonly<{
   /** 维度设计场景（88A4）运行 DataSet。 */
   dataSet: DataSet
   /** 本次编辑的正式目标。 */
-  target: DimensionSourceBindingTarget
+  target: DimensionSourceTarget
   /** 读取数据空间正式模型（含字段）。 */
   readModels: DataSpaceDesignApi['readModels']
+  /** 来源绑定已有未删除的正式维度结果时为 true；无法核验时抛错。 */
+  hasLedgerRecords: (bindingId: string, assertCurrent: () => void) => Promise<boolean>
 }>
 
-function text(value: unknown): string {
-  return value === undefined || value === null ? '' : String(value).trim()
-}
-function requiredText(value: unknown, label: string): string {
-  const result = text(value)
-  if (!result) throw new Error(`${label}不能为空`)
-  return result
-}
-function positiveInteger(value: unknown, label: string): number {
-  const result = text(value) === '' ? Number.NaN : Number(value)
-  if (!Number.isInteger(result) || result < 1) throw new Error(`${label}必须是正整数`)
-  return result
-}
-function bit(value: unknown): number {
-  if (typeof value === 'boolean') return value ? 1 : 0
-  if (typeof value === 'number') return value === 0 ? 0 : 1
-  return ['1', 'true', 'yes', '\u0001'].includes(text(value).toLowerCase()) ? 1 : 0
-}
+type PersistedBinding = Readonly<Record<string, string | number> & {collections: string}>
+type SourceFieldOption = Readonly<{id: string; canonicalName: string; name: string; type: string; dimensionCode: string}>
+type NormalizedMapping = Readonly<{
+  binding_id: string
+  source_field_id: string
+  source_field_name: string
+  target_definition_id: string
+  target_definition_code: string
+  mapping_kind: string
+  mapping_value: string
+  sort_no: number
+  version_no: number
+}>
+
 function projectionRole(value: unknown): string {
   const role = text(value)
   if (role === '' || role === BUSINESS_RESULT) return BUSINESS_RESULT
-  if (role === 'source-voucher') return role
+  if (role === SOURCE_VOUCHER) return role
   throw new Error(`来源投影角色不受支持：${role}`)
 }
-function normalized(kind: FieldKind, value: unknown): string | number {
-  if (kind === 'bit') return bit(value)
-  if (kind === 'integer') return text(value) === '' ? '' : Number(value)
-  return text(value)
-}
-function hasColumn(view: DataView, field: string): boolean {
-  return view.columns.some(column => column.name === field)
-}
-function assertColumns(view: DataView, fields: readonly string[], label: string): void {
-  const missing = fields.filter(field => !hasColumn(view, field))
-  if (missing.length) throw new Error(`${label}视图缺少正式字段：${missing.join('、')}`)
-}
-function assertReadable(view: DataView, row: Readonly<DataRow>, fields: readonly string[]): void {
-  for (const field of fields) {
-    if (view.fieldAccess(row, field).read !== 'visible') throw new Error(`字段 ${field} 无法读取，不能核验维度来源绑定`)
-  }
-}
-/** 按正式列类型写入整数或 0/1 标志：布尔列写布尔，文本列写数字文本，其余写数字，避免 DataView 类型校验拒绝。 */
-function columnValue(view: DataView, field: string, value: number | boolean): string | number | boolean {
-  const type = view.columns.find(column => column.name === field)?.type.toLowerCase() ?? ''
-  const numeric = typeof value === 'boolean' ? (value ? 1 : 0) : value
-  if (type === 'boolean' || type === 'bool') return numeric === 1
-  return ['string', 'varchar', 'text'].includes(type) ? String(numeric) : numeric
-}
-function requireView(dataSet: DataSet, tableName: string, viewId: string): DataView {
-  const view = dataSet.getView(tableName, viewId)
-  if (!view) throw new Error(`维度设计场景缺少视图 ${tableName}.${viewId}`)
-  return view
+function sourceKind(value: unknown): DimensionSourceKind {
+  const kind = text(value)
+  if (kind === 'data-model' || kind === 'platform-event') return kind
+  throw new Error(`来源类型不受支持：${kind}`)
 }
 
-/** 蓝图节点数据模型来源绑定编辑器；一次实例只服务一个节点目标，关闭时须 dispose。 */
+/** 蓝图节点来源绑定编辑器；一次实例只服务一个节点目标，关闭时须 dispose。 */
 export class DimensionSourceBindingEditor {
   /** 节点来源绑定 DataView（byNode）。 */
   readonly binding: DataView
   /** 当前绑定的字段映射 DataView（editByBinding）。 */
   readonly mapping: DataView
+  /** 当前绑定的根模型子集合 DataView（byBinding）。 */
+  readonly collection: DataView
   /** 维度定义候选 DataView（default）。 */
   readonly definition: DataView
-  /** 正式模型候选 static-data DataView。 */
+  /** 正式模型候选 static-data DataView（主键 id）。 */
   readonly modelOptions: DataView
-  /** 当前根模型正式输出字段候选 static-data DataView。 */
+  /** 平台注册事件合同候选 static-data DataView（主键 id）。 */
+  readonly contractOptions: DataView
+  /** 映射来源字段候选：根模型正式输出字段或平台合同维度字段。 */
   readonly fieldOptions: DataView
+  /** 根模型账套字段候选：输出且非计算字段。 */
+  readonly accountFieldOptions: DataView
+  /** 子集合父集合候选：本次编辑中的其它集合。 */
+  readonly collectionParentOptions: DataView
+  /** 子集合外键候选：节点数据空间各模型输出且非计算字段。 */
+  readonly collectionFieldOptions: DataView
   readonly #input: DimensionSourceBindingEditorInput
-  readonly #tables: string[] = []
+  readonly #options: DimensionSourceOptionTables
+  readonly #submission: DimensionSourceChangeSubmission
   readonly #stop: () => void
   #models: readonly FormalModel[] = []
+  #kind: DimensionSourceKind | undefined
   #model: FormalModel | undefined
+  #contract: DimensionSourceContract | undefined
   #bindingId: Id | undefined
-  #persistedVersion: number | undefined
+  #persisted: PersistedBinding | undefined
   #mappingIds = new Set<Id>()
-  #captured: readonly CapturedGroup[] | undefined
-  #unknown: Error | undefined
+  #collectionIds = new Set<Id>()
   #pairFailure: Error | undefined
 
-  /** 解析 88A4 的绑定、映射、维度定义视图并建立模型/字段 static-data 选项视图；视图或正式字段缺失时抛错。 */
+  /** 解析 88A4 的绑定、映射、集合、维度定义视图并建立 static-data 候选视图；视图或正式字段缺失时抛错。 */
   constructor(input: DimensionSourceBindingEditorInput) {
     this.#input = input
-    const {dataSet} = input
+    const {dataSet, target} = input
     this.binding = requireView(dataSet, BINDING_TABLE, BINDING_VIEW)
     this.mapping = requireView(dataSet, MAPPING_TABLE, MAPPING_VIEW)
+    this.collection = requireView(dataSet, COLLECTION_TABLE, COLLECTION_VIEW)
     this.definition = requireView(dataSet, DEFINITION_TABLE, 'default')
-    assertColumns(this.binding, Object.keys(BINDING_FIELD_KINDS).filter(field => !OPTIONAL_BINDING_FIELDS.includes(field)), '来源绑定')
+    assertColumns(this.binding, Object.keys(BINDING_FIELD_KINDS), '来源绑定')
     assertColumns(this.mapping, Object.keys(MAPPING_FIELD_KINDS), '来源字段映射')
+    assertColumns(this.collection, Object.keys(COLLECTION_FIELD_KINDS), '来源子集合')
     assertColumns(this.definition, DEFINITION_FIELDS, '维度定义')
+    this.#options = new DimensionSourceOptionTables(dataSet, target)
+    this.#submission = new DimensionSourceChangeSubmission(dataSet, '来源绑定', target.assertCurrent)
     try {
-      this.modelOptions = this.#mountOptions('DimensionSourceModelOption', ['id', 'name', 'metaName', 'sourceName'],
+      this.modelOptions = this.#options.mount('DimensionSourceModelOption', ['id', 'name', 'metaName', 'sourceName'],
         () => this.#models.map(model => ({id: model.id, name: model.name, metaName: model.metaName, sourceName: model.sourceName})))
-      this.fieldOptions = this.#mountOptions('DimensionSourceFieldOption', ['id', 'canonicalName', 'name', 'type'],
-        () => this.#outputFields().map(field => ({id: field.id, canonicalName: field.canonicalName, name: field.name, type: field.type})))
+      this.contractOptions = this.#options.mount('DimensionSourceContractOption', ['id', 'name', 'eventCode', 'payloadVersion', 'label'],
+        () => DIMENSION_SOURCE_CONTRACTS.map(contract => ({id: contract.id, name: contract.name, eventCode: contract.eventCode,
+          payloadVersion: contract.payloadVersion, label: `${contract.name} · v${contract.payloadVersion}`})))
+      this.fieldOptions = this.#options.mount('DimensionSourceFieldOption', ['id', 'canonicalName', 'name', 'type', 'dimensionCode'],
+        () => this.#sourceFields())
+      this.accountFieldOptions = this.#options.mount('DimensionSourceAccountOption', ['id', 'canonicalName', 'name'],
+        () => (this.#kind === 'data-model' ? this.#model?.fields ?? [] : []).filter(field => field.output && !field.computed)
+          .map(field => ({id: field.id, canonicalName: field.canonicalName, name: field.name})))
+      this.collectionParentOptions = this.#options.mount('DimensionSourceCollectionParent', ['id', 'collectionName'],
+        () => this.collectionIds().map(id => ({id, collectionName: text(this.collection.getEditingRow(id)?.['collection_name']) || String(id)})))
+      this.collectionFieldOptions = this.#options.mount('DimensionSourceCollectionField', ['id', 'canonicalName', 'metaName', 'label'],
+        () => this.#models.flatMap(model => model.fields.filter(field => field.output && !field.computed)
+          .map(field => ({id: field.id, canonicalName: field.canonicalName, metaName: model.metaName, label: `${model.metaName}.${field.canonicalName}`}))))
     } catch (cause) {
-      this.#releaseTables()
+      this.#options.release()
       throw cause
     }
     this.#stop = dataSet.onAnyViewChange({editingFieldChanged: (tableName, viewId, event) => {
-      if (tableName !== MAPPING_TABLE || viewId !== MAPPING_VIEW || !this.#mappingIds.has(event.rowId)) return
-      if (event.field === 'source_field_id') this.#pair(event.rowId, 'source_field_name', this.#fieldName(event.nextValue))
-      else if (event.field === 'target_definition_id') this.#pair(event.rowId, 'target_definition_code', this.#definitionCode(event.nextValue))
+      if (tableName === MAPPING_TABLE && viewId === MAPPING_VIEW && this.#mappingIds.has(event.rowId)) this.#pairMapping(event.rowId, event.field, event.nextValue)
+      else if (tableName === BINDING_TABLE && viewId === BINDING_VIEW && event.rowId === this.#bindingId && event.field === 'account_field_id') {
+        this.#track(pairEditing(this.binding, event.rowId, {account_field_name: this.#accountName(event.nextValue)}))
+      } else if (tableName === COLLECTION_TABLE && viewId === COLLECTION_VIEW && this.#collectionIds.has(event.rowId)) {
+        this.#pairCollection(event.rowId, event.field, event.nextValue)
+      }
     }})
   }
 
@@ -169,78 +178,114 @@ export class DimensionSourceBindingEditor {
     return buildDataViewKey(view.tableName, view.viewId, this.#input.dataSet.scenarioId)
   }
 
-  /** 已选根模型；未选择时为 undefined。 */
+  /** 当前来源类别；未选择来源时为 undefined。 */
+  get sourceKind(): DimensionSourceKind | undefined { return this.#kind }
+
+  /** 已选根模型（数据模型来源）。 */
   get model(): FormalModel | undefined { return this.#model }
 
-  /** 当前编辑的来源绑定行 ID；未选择模型时为 undefined。 */
+  /** 已选平台注册事件合同。 */
+  get contract(): DimensionSourceContract | undefined { return this.#contract }
+
+  /** 当前编辑的来源绑定行 ID；未选择来源时为 undefined。 */
   get bindingId(): Id | undefined { return this.#bindingId }
 
   /** 存在保存结果未知的提交时为 true；此时只能重试核验原提交，不能修改、丢弃或新建。 */
-  get unknown(): boolean { return this.#unknown !== undefined }
+  get unknown(): boolean { return this.#submission.unknown }
 
-  /** 绑定视图实际输出的可编辑表单字段。 */
+  /** 节点数据空间正式模型数量。 */
+  get modelCount(): number { return this.#models.length }
+
+  /** 绑定表单字段：平台事件来源不提供根模型账套字段。 */
   bindingFormFields(): readonly string[] {
-    return ['binding_code', 'event_code', 'payload_version', 'binding_version', 'status', 'effective_from', 'effective_to', 'description']
-      .filter(field => hasColumn(this.binding, field))
+    return ['binding_code', 'event_code', 'payload_version', 'binding_version', 'projection_role',
+      ...(this.#kind === 'data-model' ? ['account_field_id'] : []), 'status', 'effective_from', 'effective_to', 'description']
+  }
+
+  /** 平台合同中不能映射为维度的字段名称（供页面提示）。 */
+  platformNonDimensionFields(): readonly string[] {
+    return this.#contract?.fields.filter(field => field.semanticRole !== 'dimension').map(field => field.name) ?? []
   }
 
   /** 当前映射行 ID（呈现顺序，不含待删除行）。 */
   mappingIds(): readonly Id[] {
-    return this.mapping.rows.flatMap(row => {
-      const id = this.mapping.getPkKey(row)
-      return id === undefined || this.mapping.dirtyTracking.pendingDeleteIds.has(id) ? [] : [id]
-    })
+    return this.#liveIds(this.mapping)
   }
 
-  /** 本编辑器持有的绑定或映射存在未保存修改。 */
+  /** 当前子集合行 ID（呈现顺序，不含待删除行）。 */
+  collectionIds(): readonly Id[] {
+    return this.#liveIds(this.collection)
+  }
+
+  /** 本编辑器持有的绑定、映射或集合存在未保存修改。 */
   hasDraft(): boolean {
     const changed = (view: DataView, id: Id) => view.hasEditingChanges(id) || view.dirtyTracking.hasPendingChanges(id)
-    return (this.#bindingId !== undefined && changed(this.binding, this.#bindingId)) || [...this.#mappingIds].some(id => changed(this.mapping, id))
+    return (this.#bindingId !== undefined && changed(this.binding, this.#bindingId))
+      || [...this.#mappingIds].some(id => changed(this.mapping, id)) || [...this.#collectionIds].some(id => changed(this.collection, id))
   }
 
-  /** 读取节点已保存数据空间的正式模型，并刷新模型候选与维度定义候选。 */
+  /** 已保存、无草稿且结果确认的来源绑定；否则为 undefined。 */
+  savedBinding(): DimensionSourceSavedBinding | undefined {
+    const id = this.#bindingId
+    if (id === undefined || !this.#kind || this.unknown || this.hasDraft() || this.binding.dirtyTracking.isPendingCreate(id)) return undefined
+    const row = this.binding.rows.find(item => this.binding.getPkKey(item) === id)
+    if (!row) return undefined
+    return {id: String(id), sourceKind: this.#kind, eventCode: text(row['event_code']), bindingVersion: Number(row['binding_version']),
+      projectionRole: projectionRole(row['projection_role']), modelId: text(row['source_model_id']), modelMetaName: text(row['source_model_meta_name'])}
+  }
+
+  /** 读取节点已保存数据空间的正式模型，并刷新各候选视图与维度定义候选。 */
   async loadModels(): Promise<void> {
-    this.#models = await this.#readModels()
-    await this.#refresh(this.modelOptions)
-    await this.#refresh(this.definition)
+    this.#models = await readFormalModels(this.#input.readModels, this.#input.target)
+    for (const view of [this.modelOptions, this.contractOptions, this.collectionFieldOptions, this.definition]) await this.#refresh(view)
   }
 
-  /** 选择根来源模型：唯一已有绑定直接编辑，不存在时新增草稿，多于一个时拒绝。 */
-  async selectModel(modelId: string): Promise<void> {
-    if (this.#unknown) throw new Error('存在保存结果未知的来源绑定提交，请先重试保存核验')
+  /** 选择来源（模型 ID 或平台合同 ID）：唯一已有绑定直接编辑，不存在时新增草稿，多于一个时拒绝。 */
+  async selectSource(kind: DimensionSourceKind, referenceId: string): Promise<void> {
+    this.#submission.assertSettled()
     if (this.hasDraft()) throw new Error('当前来源绑定还有未保存修改，请先保存或取消')
-    const model = this.#models.find(item => item.id === modelId)
-    if (!model) throw new Error(`来源模型不属于当前数据空间：${modelId}`)
+    const model = kind === 'data-model' ? this.#models.find(item => item.id === referenceId) : undefined
+    if (kind === 'data-model' && !model) throw new Error(`来源模型不属于当前数据空间：${referenceId}`)
+    const contract = kind === 'platform-event' ? dimensionSourceContract(referenceId) : undefined
     const {target} = this.#input
     this.#discardOwned()
-    this.#model = undefined
-    this.#bindingId = undefined
-    this.#mappingIds = new Set()
+    this.#reset()
     this.binding.queryContext = {applicationId: target.applicationId, nodeId: target.nodeId}
     await this.#refresh(this.binding)
     const matches = this.binding.rows.filter(row => {
-      assertReadable(this.binding, row, ['source_kind', 'source_model_id'])
-      return text(row['source_kind']) === SOURCE_KIND && text(row['source_model_id']) === model.id
+      assertReadable(this.binding, row, ['source_kind', 'source_model_id', 'source_contract_id'])
+      return text(row['source_kind']) === kind
+        && (model ? text(row['source_model_id']) === model.id : text(row['source_contract_id']) === contract?.id)
     })
     if (matches.length > 1) throw new Error(`蓝图节点来源存在 ${matches.length} 个绑定，不能自动选择，请先治理重复配置`)
     const existing = matches[0]
     let id: Id | undefined
     if (existing) {
+      assertReadable(this.binding, existing, Object.keys(BINDING_FIELD_KINDS))
+      if (model && text(existing['source_model_meta_name']) !== model.metaName) throw new Error('来源绑定模型注册名与正式数据空间不一致')
+      if (contract && (text(existing['event_code']) !== contract.eventCode || Number(existing['payload_version']) !== contract.payloadVersion)) {
+        throw new Error('来源绑定与平台注册事件合同不一致')
+      }
       id = this.binding.getPkKey(existing)
-      this.#persistedVersion = positiveInteger(existing['binding_version'], '绑定版本')
     } else {
-      const row = await this.binding.addRow(this.#bindingDefaults(model))
+      const row = await this.binding.addRow(this.#bindingDefaults(kind, model, contract))
       target.assertCurrent()
       id = this.binding.getPkKey(row)
-      this.#persistedVersion = undefined
     }
     if (id === undefined) throw new Error('来源绑定缺少唯一身份')
     this.#bindingId = id
+    this.#kind = kind
     this.#model = model
+    this.#contract = contract
     this.mapping.queryContext = {bindingId: String(id)}
     await this.#refresh(this.mapping)
     this.#mappingIds = new Set(this.mappingIds())
-    await this.#refresh(this.fieldOptions)
+    this.collection.queryContext = {bindingId: String(id)}
+    await this.#refresh(this.collection)
+    this.#collectionIds = new Set(this.collectionIds())
+    if (kind === 'platform-event' && this.#collectionIds.size) throw new Error('平台注册事件来源不支持数据空间集合，请先治理已有集合记录')
+    this.#persisted = existing ? this.#snapshot() : undefined
+    for (const view of [this.fieldOptions, this.accountFieldOptions, this.collectionParentOptions]) await this.#refresh(view)
   }
 
   /** 为当前绑定新增一条直接字段映射草稿，顺序号接续末尾，映射版本取绑定版本。 */
@@ -265,79 +310,270 @@ export class DimensionSourceBindingEditor {
     if (await this.mapping.removeRow(id) !== true) throw new Error('来源字段映射删除未完成')
   }
 
-  /** 校验后以一次 DataSet 保存提交绑定与映射，并回读核验；无修改返回 false。保存结果未知时重试只核验原提交，不以新身份重提。 */
+  /** 新增一条根记录下的子集合草稿：父主键取根模型正式主键。 */
+  async addCollection(): Promise<void> {
+    const bindingId = this.#requireBinding()
+    const root = this.#requireDataModel()
+    const primary = formalPrimaryField(root)
+    if (!primary) throw new Error(`模型 ${root.metaName} 缺少正式主键输出`)
+    const row = await this.collection.addRow({binding_id: String(bindingId), parent_collection_id: '', collection_name: '',
+      source_model_id: '', source_model_meta_name: '', parent_key_field_id: primary.id, parent_key_field_name: primary.canonicalName,
+      child_key_field_id: '', child_key_field_name: '', child_pk_field_id: '', child_pk_field_name: '',
+      sort_no: columnValue(this.collection, 'sort_no', this.collectionIds().length + 1)})
+    this.#input.target.assertCurrent()
+    const id = this.collection.getPkKey(row)
+    if (id === undefined || this.#collectionIds.has(id)) throw new Error('新增来源子集合缺少唯一身份')
+    this.#collectionIds.add(id)
+    await this.#refresh(this.collectionParentOptions)
+  }
+
+  /** 删除一条子集合；仍有下级集合时拒绝。 */
+  async removeCollection(id: Id): Promise<void> {
+    this.#requireBinding()
+    if (!this.#collectionIds.has(id)) throw new Error('来源子集合不属于本次编辑')
+    const child = this.collectionIds().find(other => text(this.collection.getEditingRow(other)?.['parent_collection_id']) === String(id))
+    if (child !== undefined) {
+      const name = text(this.collection.getEditingRow(id)?.['collection_name']) || String(id)
+      throw new Error(`请先移除 ${name} 下的子集合`)
+    }
+    if (await this.collection.removeRow(id) !== true) throw new Error('来源子集合删除未完成')
+    await this.#refresh(this.collectionParentOptions)
+  }
+
+  /** 校验后以一次 DataSet 保存提交绑定、映射与集合，并回读核验；无修改返回 false。保存结果未知时重试只核验原提交。 */
   async save(): Promise<boolean> {
-    const {dataSet, target} = this.#input
-    if (!this.#unknown) {
+    const {target} = this.#input
+    if (!this.#submission.unknown) {
       await this.validate()
       target.assertCurrent()
-      this.#captured = this.#capture()
+      const bindingId = this.#requireBinding()
+      const changed = this.#submission.capture([
+        {view: this.binding, ids: [bindingId], kinds: BINDING_FIELD_KINDS},
+        {view: this.mapping, ids: [...this.#mappingIds], kinds: MAPPING_FIELD_KINDS},
+        {view: this.collection, ids: [...this.#collectionIds], kinds: COLLECTION_FIELD_KINDS},
+      ])
+      if (!changed) return false
     }
-    const groups = this.#captured
-    if (!groups?.length) return false
-    try {
-      const response = await dataSet.saveChanges({views: groups.map(group => ({tableName: group.view.tableName, viewId: group.view.viewId, ids: [...group.ids]}))})
-      target.assertCurrent()
-      if (!response.data) throw new Error(response.error?.message ?? response.message ?? '来源绑定保存缺少回执')
-      const complete = groups.every(group => {
-        const receipt = response.data?.viewResults.find(item => item.tableName === group.view.tableName && item.viewId === group.view.viewId)
-        const counted = (action: SaveAction) => group.rows.filter(row => row.action === action).length
-        return receipt?.failedCount === 0 && receipt.failedEditingRows === 0
-          && receipt.createdCount === counted('added') && receipt.savedCount === counted('changed') && receipt.deletedCount === counted('deleted')
-      })
-      if (!response.success || !complete) throw new Error(response.error?.message ?? response.message ?? '来源绑定保存未全部确认')
-      this.#unknown = undefined
-    } catch (cause) {
-      if (cause instanceof Error && groups.some(group => group.view.hasUnconfirmedSaveFor(group.ids, cause))) {
-        this.#unknown = cause
-        throw new Error(`${cause.message}；来源绑定保存结果未知，请重试“保存”核验原提交，不会以新身份重新提交`)
-      }
-      this.#unknown = undefined
-      if (cause instanceof DataSetSavePreflightError) this.#captured = undefined
-      throw cause
-    }
-    await this.#readback(groups)
-    this.#captured = undefined
+    const expectedMappings = this.mappingIds()
+    const expectedCollections = this.collectionIds()
+    if (!await this.#submission.submit()) return false
+    const bindingId = this.#requireBinding()
+    const mismatch = (detail: string) => new Error(`来源绑定已提交，但回读核验失败：${detail}`)
+    for (const view of [this.binding, this.mapping, this.collection]) await this.#refresh(view)
+    if (!this.binding.rows.some(row => this.binding.getPkKey(row) === bindingId)) throw mismatch(`来源绑定 ${String(bindingId)} 未回读`)
+    const same = (actual: readonly Id[], expected: readonly Id[]) => actual.length === expected.length && actual.every(id => expected.includes(id))
+    if (!same(this.mappingIds(), expectedMappings)) throw mismatch('字段映射集合')
+    if (!same(this.collectionIds(), expectedCollections)) throw mismatch('来源子集合')
+    this.#mappingIds = new Set(this.mappingIds())
+    this.#collectionIds = new Set(this.collectionIds())
+    this.#persisted = this.#snapshot()
     return true
   }
 
-  /** 端口自参考 normalizeBinding/normalizeMapping、#validateFormalSource、#assertTargetDefinitions 的保存前校验；同时按呈现顺序重排 sort_no。 */
+  /** 保存前校验：绑定身份、来源合同与账套字段、映射、子集合、维度定义；受保护字段变化且已有正式结果时拒绝。按呈现顺序重排 sort_no。 */
   async validate(): Promise<void> {
     if (this.#pairFailure) throw this.#pairFailure
     const bindingId = this.#requireBinding()
     const {target} = this.#input
+    const kind = sourceKind(this.binding.getEditingRow(bindingId)?.['source_kind'])
+    if (kind !== this.#kind) throw new Error('来源绑定的来源类型不可转移')
+    const contract = kind === 'platform-event' ? dimensionSourceContract(text(this.binding.getEditingRow(bindingId)?.['source_contract_id'])) : undefined
+    if (contract) {
+      const failure = pairEditing(this.binding, bindingId, {event_code: contract.eventCode,
+        payload_version: columnValue(this.binding, 'payload_version', contract.payloadVersion)})
+      if (failure) throw failure
+    }
     const header = this.binding.getEditingRow(bindingId)
     if (!header) throw new Error('来源绑定已不存在')
-    if (text(header['source_kind']) !== SOURCE_KIND) throw new Error(`来源类型不受支持：${text(header['source_kind'])}`)
     const binding = {
       id: requiredText(bindingId, '来源绑定 id'),
       binding_code: requiredText(header['binding_code'], '来源绑定编码'),
       source_application_id: requiredText(header['source_application_id'], '来源应用'),
       source_node_id: requiredText(header['source_node_id'], '来源蓝图节点'),
-      source_model_id: requiredText(header['source_model_id'], '来源模型'),
-      source_model_meta_name: requiredText(header['source_model_meta_name'], '来源模型注册名'),
       event_code: requiredText(header['event_code'], '来源事件编码'),
       payload_version: positiveInteger(header['payload_version'], '事件载荷版本'),
       binding_version: positiveInteger(header['binding_version'], '绑定版本'),
       status: bit(header['status']),
+      projection_role: projectionRole(header['projection_role']),
+      account_field_id: text(header['account_field_id']),
+      account_field_name: text(header['account_field_name']),
     }
-    if (hasColumn(this.binding, 'projection_role')) projectionRole(header['projection_role'])
-    if (binding.source_application_id !== target.applicationId || binding.source_node_id !== target.nodeId) {
-      throw new Error('来源绑定不属于当前蓝图节点')
+    if (binding.source_application_id !== target.applicationId || binding.source_node_id !== target.nodeId) throw new Error('来源绑定不属于当前蓝图节点')
+    if (kind === 'data-model') {
+      requiredText(header['source_model_id'], '来源模型')
+      requiredText(header['source_model_meta_name'], '来源模型注册名')
+      if (text(header['source_contract_id'])) throw new Error('数据模型来源不能引用平台事件合同')
+    } else if (text(header['source_model_id']) || text(header['source_model_meta_name'])) {
+      throw new Error('平台注册事件来源不能绑定数据模型')
     }
-    if (this.#persistedVersion !== undefined && binding.binding_version < this.#persistedVersion) throw new Error('绑定版本不能倒退')
+    if (binding.projection_role === SOURCE_VOUCHER && kind !== 'data-model') throw new Error('来源凭证投影必须绑定节点数据空间模型')
+    const accountRequired = binding.projection_role === SOURCE_VOUCHER || binding.account_field_id !== '' || binding.account_field_name !== ''
+    if (accountRequired) {
+      if (kind !== 'data-model') throw new Error('根模型账套字段只适用于数据模型来源')
+      requiredText(binding.account_field_id, '正式账套字段')
+      requiredText(binding.account_field_name, '正式账套字段输出名')
+    }
+    const persisted = this.#persisted
+    if (persisted) {
+      const version = Number(persisted['binding_version'])
+      const contractChanged = text(header['source_contract_id']) !== persisted['source_contract_id']
+        || binding.event_code !== persisted['event_code'] || binding.payload_version !== persisted['payload_version']
+      if (binding.binding_version < version || (contractChanged && binding.binding_version <= version)) {
+        throw new Error(contractChanged ? '平台事件合同或载荷版本变化时必须增加绑定版本' : '绑定版本不能倒退')
+      }
+    }
+    const mappings = this.#normalizedMappings(binding.id)
+    const collections = this.#normalizedCollections(binding.id)
+    validateCollectionTree(collections)
+    if (binding.status === 1 && mappings.length === 0) throw new Error('启用来源绑定前至少配置一个正式字段映射')
+    const pairs = new Set<string>()
+    for (const [index, mapping] of mappings.entries()) {
+      const pair = `${mapping.source_field_id}\u0000${mapping.target_definition_id}`
+      if (pairs.has(pair)) throw new Error(`第 ${index + 1} 行与已有字段维度映射重复`)
+      pairs.add(pair)
+      if (mapping.mapping_kind === 'constant' && !mapping.mapping_value) throw new Error(`第 ${index + 1} 行常量映射缺少映射值`)
+    }
+    if (contract) this.#assertPlatformMappings(contract, mappings)
+    else await this.#assertFormalSource({header, accountRequired, mappings, collections})
+    await this.#assertDefinitions(mappings, binding.status === 1)
+    if (persisted && this.#protectedChanged(persisted)
+      && await this.#input.hasLedgerRecords(binding.id, target.assertCurrent)) {
+      throw new Error('已有正式维度结果使用此来源绑定，不能变更角色、模型、关联字段或绑定版本')
+    }
+    target.assertCurrent()
+  }
+
+  /** 丢弃本编辑器持有的绑定、映射与集合草稿，不写入任何数据；保存结果未知时拒绝。 */
+  discard(): void {
+    this.#submission.assertSettled()
+    this.#discardOwned()
+  }
+
+  /** 释放订阅与临时选项表；不丢弃草稿，调用方须先 discard 或已保存。 */
+  dispose(): void {
+    this.#stop()
+    this.#options.release()
+  }
+
+  async #refresh(view: DataView): Promise<void> {
+    await refreshView(view, this.#input.target.assertCurrent)
+  }
+
+  #liveIds(view: DataView): readonly Id[] {
+    return view.rows.flatMap(row => {
+      const id = view.getPkKey(row)
+      return id === undefined || view.dirtyTracking.pendingDeleteIds.has(id) ? [] : [id]
+    })
+  }
+
+  #reset(): void {
+    this.#kind = undefined
+    this.#model = undefined
+    this.#contract = undefined
+    this.#bindingId = undefined
+    this.#persisted = undefined
+    this.#mappingIds = new Set()
+    this.#collectionIds = new Set()
+    this.#pairFailure = undefined
+  }
+
+  #requireBinding(): Id {
+    this.#submission.assertSettled()
+    if (this.#bindingId === undefined || !this.#kind) throw new Error('请先选择来源')
+    return this.#bindingId
+  }
+
+  #requireDataModel(): FormalModel {
+    if (this.#kind !== 'data-model' || !this.#model) throw new Error('平台注册事件来源不支持数据空间集合')
+    return this.#model
+  }
+
+  #bindingDefaults(kind: DimensionSourceKind, model: FormalModel | undefined, contract: DimensionSourceContract | undefined): Record<string, unknown> {
+    const {target} = this.#input
+    return {binding_code: '', source_application_id: target.applicationId, source_node_id: target.nodeId, source_kind: kind,
+      source_model_id: model?.id ?? '', source_model_meta_name: model?.metaName ?? '', source_contract_id: contract?.id ?? '',
+      event_code: contract?.eventCode ?? '', payload_version: columnValue(this.binding, 'payload_version', contract?.payloadVersion ?? 1),
+      binding_version: columnValue(this.binding, 'binding_version', 1), status: columnValue(this.binding, 'status', false),
+      projection_role: BUSINESS_RESULT, account_field_id: '', account_field_name: ''}
+  }
+
+  #sourceFields(): readonly SourceFieldOption[] {
+    if (this.#contract) {
+      return this.#contract.fields.filter(field => field.semanticRole === 'dimension')
+        .map(field => ({id: field.id, canonicalName: field.name, name: field.name, type: field.valueType, dimensionCode: field.dimensionCode ?? ''}))
+    }
+    return (this.#model?.fields ?? []).filter(field => field.output)
+      .map(field => ({id: field.id, canonicalName: field.canonicalName, name: field.name, type: field.type, dimensionCode: ''}))
+  }
+
+  #accountName(value: unknown): string {
+    return this.#model?.fields.find(field => field.output && !field.computed && field.id === text(value))?.canonicalName ?? ''
+  }
+
+  #definitionByCode(code: string): Readonly<Record<string, unknown>> | undefined {
+    const found = this.definition.rows.filter(row => text(row['definition_code']) === code)
+    return found.length === 1 ? found[0] : undefined
+  }
+
+  #track(failure: Error | undefined): void {
+    if (failure) this.#pairFailure = failure
+  }
+
+  #pairMapping(id: Id, field: string, value: unknown): void {
+    if (field === 'source_field_id') {
+      const source = this.#sourceFields().find(item => item.id === text(value))
+      this.#track(pairEditing(this.mapping, id, {source_field_name: source?.canonicalName ?? ''}))
+      if (this.#contract) {
+        const definition = source?.dimensionCode ? this.#definitionByCode(source.dimensionCode) : undefined
+        this.#track(pairEditing(this.mapping, id, {target_definition_id: text(definition?.['id'])}))
+      }
+    } else if (field === 'target_definition_id') {
+      const found = this.definition.rows.filter(row => text(row['id']) === text(value))
+      this.#track(pairEditing(this.mapping, id, {target_definition_code: found.length === 1 ? text(found[0]?.['definition_code']) : ''}))
+    }
+  }
+
+  #pairCollection(id: Id, field: string, value: unknown): void {
+    if (field === 'source_model_id') {
+      const child = this.#models.find(model => model.id === text(value))
+      const primary = child ? formalPrimaryField(child) : undefined
+      this.#track(pairEditing(this.collection, id, {source_model_meta_name: child?.metaName ?? '', child_pk_field_id: primary?.id ?? '',
+        child_pk_field_name: primary?.canonicalName ?? '', child_key_field_id: '', child_key_field_name: ''}))
+      for (const other of this.collectionIds()) {
+        if (text(this.collection.getEditingRow(other)?.['parent_collection_id']) === String(id)) this.#pairParentKey(other)
+      }
+    } else if (field === 'parent_collection_id') {
+      this.#pairParentKey(id)
+    } else if (field === 'child_key_field_id') {
+      const meta = text(this.collection.getEditingRow(id)?.['source_model_meta_name'])
+      const child = this.#models.find(model => model.metaName === meta)
+      const key = child?.fields.find(item => item.output && !item.computed && item.id === text(value))
+      this.#track(pairEditing(this.collection, id, {child_key_field_name: key?.canonicalName ?? ''}))
+    } else if (field === 'collection_name') {
+      this.collectionParentOptions.refresh().catch((cause: unknown) => this.#track(cause instanceof Error ? cause : new Error(String(cause))))
+    }
+  }
+
+  #pairParentKey(id: Id): void {
+    const parentId = text(this.collection.getEditingRow(id)?.['parent_collection_id'])
+    const parentMeta = parentId ? text(this.collection.getEditingRow(parentId)?.['source_model_meta_name']) : this.#model?.metaName
+    const parent = this.#models.find(model => model.metaName === parentMeta)
+    const primary = parent ? formalPrimaryField(parent) : undefined
+    this.#track(pairEditing(this.collection, id, {parent_key_field_id: primary?.id ?? '', parent_key_field_name: primary?.canonicalName ?? ''}))
+  }
+
+  #normalizedMappings(bindingId: string): readonly NormalizedMapping[] {
     const ids = this.mappingIds()
     for (const [index, id] of ids.entries()) {
       if (Number(this.mapping.getEditingRow(id)?.['sort_no']) !== index + 1) this.mapping.updateEditingValue(id, 'sort_no', columnValue(this.mapping, 'sort_no', index + 1))
     }
-    const mappings = ids.map((id, index) => {
+    return ids.map((id, index) => {
       const row = this.mapping.getEditingRow(id)
       const label = (name: string) => `第 ${index + 1} 行${name}`
       if (!row) throw new Error(`${label('来源字段映射')}已不存在`)
       const kind = requiredText(row['mapping_kind'], label('映射类型'))
       if (kind !== 'direct' && kind !== 'constant') throw new Error(`${label('映射类型')}不受支持：${kind}`)
       const mapping = {
-        id: requiredText(id, label('来源字段映射 id')),
         binding_id: requiredText(row['binding_id'], label('来源绑定 id')),
         source_field_id: requiredText(row['source_field_id'], label('来源字段')),
         source_field_name: requiredText(row['source_field_name'], label('来源字段名')),
@@ -348,28 +584,66 @@ export class DimensionSourceBindingEditor {
         sort_no: positiveInteger(row['sort_no'], label('映射顺序')),
         version_no: positiveInteger(row['version_no'], label('映射版本')),
       }
-      if (mapping.binding_id !== binding.id) throw new Error(`${label('来源字段映射')}不属于当前来源绑定`)
+      if (mapping.binding_id !== bindingId) throw new Error(`${label('来源字段映射')}不属于当前来源绑定`)
       return mapping
     })
-    if (binding.status === 1 && mappings.length === 0) throw new Error('启用来源绑定前至少配置一个正式字段映射')
-    const pairs = new Set<string>()
-    for (const [index, mapping] of mappings.entries()) {
-      const pair = `${mapping.source_field_id}\u0000${mapping.target_definition_id}`
-      if (pairs.has(pair)) throw new Error(`第 ${index + 1} 行与已有字段维度映射重复`)
-      pairs.add(pair)
-      if (mapping.mapping_kind === 'constant' && !mapping.mapping_value) throw new Error(`第 ${index + 1} 行常量映射缺少映射值`)
+  }
+
+  #normalizedCollections(bindingId: string): readonly DimensionSourceCollection[] {
+    const ids = this.collectionIds()
+    if (this.#kind !== 'data-model' && ids.length) throw new Error('平台注册事件来源不支持数据空间集合')
+    for (const [index, id] of ids.entries()) {
+      if (Number(this.collection.getEditingRow(id)?.['sort_no']) !== index + 1) {
+        this.collection.updateEditingValue(id, 'sort_no', columnValue(this.collection, 'sort_no', index + 1))
+      }
     }
-    const models = await this.#readModels()
-    const model = models.find(item => item.metaName === binding.source_model_meta_name)
-    if (!model) throw new Error(`根来源模型不属于正式蓝图节点数据空间：${binding.source_model_meta_name}`)
-    if (model.id !== binding.source_model_id) throw new Error('根来源模型正式身份与来源绑定不一致')
+    return ids.map((id, index) => {
+      const row = this.collection.getEditingRow(id)
+      if (!row) throw new Error(`第 ${index + 1} 行来源子集合已不存在`)
+      const collection = normalizeCollection(String(id), row, index)
+      if (collection.binding_id !== bindingId) throw new Error(`第 ${index + 1} 行来源子集合不属于当前来源绑定`)
+      return collection
+    })
+  }
+
+  #assertPlatformMappings(contract: DimensionSourceContract, mappings: readonly NormalizedMapping[]): void {
+    const fields = new Map(contract.fields.map(field => [field.id, field]))
+    for (const [index, mapping] of mappings.entries()) {
+      const field = fields.get(mapping.source_field_id)
+      if (!field) throw new Error(`第 ${index + 1} 行来源字段不属于平台注册事件合同：${mapping.source_field_id}`)
+      if (field.name !== mapping.source_field_name) throw new Error(`第 ${index + 1} 行来源字段名称与平台注册事件合同不一致：${field.name}`)
+      if (field.semanticRole !== 'dimension') {
+        throw new Error(`第 ${index + 1} 行来源字段 ${field.name} 的语义角色是 ${field.semanticRole}，不能映射为维度定义`)
+      }
+      if (field.dimensionCode !== mapping.target_definition_code) throw new Error(`第 ${index + 1} 行来源字段 ${field.name} 只能映射到维度 ${field.dimensionCode ?? ''}`)
+    }
+  }
+
+  async #assertFormalSource(input: Readonly<{header: Readonly<Record<string, unknown>>; accountRequired: boolean
+    mappings: readonly NormalizedMapping[]; collections: readonly DimensionSourceCollection[]}>): Promise<void> {
+    const {header, accountRequired, mappings, collections} = input
+    const models = await readFormalModels(this.#input.readModels, this.#input.target)
+    const metaName = text(header['source_model_meta_name'])
+    const root = models.find(item => item.metaName === metaName)
+    if (!root) throw new Error(`根来源模型不属于正式蓝图节点数据空间：${metaName}`)
+    if (root.id !== text(header['source_model_id'])) throw new Error('根来源模型正式身份与来源绑定不一致')
+    if (accountRequired) {
+      const account = root.fields.find(field => field.id === text(header['account_field_id']))
+      if (!account?.output || account.computed || account.canonicalName !== text(header['account_field_name'])) {
+        throw new Error('账套字段必须匹配根模型正式输出字段身份与名称')
+      }
+    }
     for (const [index, mapping] of mappings.entries()) {
       if (mapping.mapping_kind !== 'direct') continue
-      const field = model.fields.find(item => item.id === mapping.source_field_id)
+      const field = root.fields.find(item => item.id === mapping.source_field_id)
       if (!field?.output || field.canonicalName !== mapping.source_field_name) {
         throw new Error(`第 ${index + 1} 行直接来源字段必须匹配根模型正式输出字段身份与名称`)
       }
     }
+    validateCollectionModels(root, models, collections)
+  }
+
+  async #assertDefinitions(mappings: readonly NormalizedMapping[], requireEnabled: boolean): Promise<void> {
     await this.#refresh(this.definition)
     for (const [index, mapping] of mappings.entries()) {
       const found = this.definition.rows.filter(row => {
@@ -381,154 +655,37 @@ export class DimensionSourceBindingEditor {
       if (text(definition['definition_code']) !== mapping.target_definition_code) {
         throw new Error(`第 ${index + 1} 行目标维度身份与编码不一致：${mapping.target_definition_code}`)
       }
-      if (binding.status === 1 && bit(definition['status']) !== 1) throw new Error(`第 ${index + 1} 行目标维度未启用：${mapping.target_definition_code}`)
+      if (requireEnabled && bit(definition['status']) !== 1) throw new Error(`第 ${index + 1} 行目标维度未启用：${mapping.target_definition_code}`)
     }
   }
 
-  /** 丢弃本编辑器持有的绑定与映射草稿，不写入任何数据；保存结果未知时拒绝。 */
-  discard(): void {
-    if (this.#unknown) throw new Error('来源绑定保存结果未知，不能丢弃原提交；请先重试保存核验')
-    this.#discardOwned()
-    this.#captured = undefined
+  #collectionsSignature(): string {
+    return JSON.stringify(this.collectionIds().map(id => {
+      const row = this.collection.getEditingRow(id) ?? {}
+      return [String(id), ...Object.entries(COLLECTION_FIELD_KINDS).map(([field, kind]) => normalized(kind, row[field]))]
+    }))
   }
 
-  /** 释放订阅与临时选项表；不丢弃草稿，调用方须先 discard 或已保存。 */
-  dispose(): void {
-    this.#stop()
-    this.#releaseTables()
+  #snapshot(): PersistedBinding {
+    const id = this.#bindingId
+    const row = id === undefined ? undefined : this.binding.rows.find(item => this.binding.getPkKey(item) === id)
+    if (!row) throw new Error('来源绑定已不存在')
+    return {...Object.fromEntries(Object.entries(BINDING_FIELD_KINDS).map(([field, kind]) => [field,
+      field === 'projection_role' ? projectionRole(row[field]) : normalized(kind, row[field])])), collections: this.#collectionsSignature()}
   }
 
-  async #readModels(): Promise<readonly FormalModel[]> {
-    const {target} = this.#input
-    if (!target.dataSpaceId) throw new Error('正式蓝图节点没有绑定数据空间')
-    const models = await this.#input.readModels({designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: target.dataSpaceId,
-      assertCurrent: target.assertCurrent})
-    target.assertCurrent()
-    return models
-  }
-
-  async #refresh(view: DataView): Promise<void> {
-    view.assertResultReplacementAllowed()
-    await view.refresh()
-    this.#input.target.assertCurrent()
-    if (view.loadingError) throw view.loadingError
-  }
-
-  #requireBinding(): Id {
-    if (this.#unknown) throw new Error('存在保存结果未知的来源绑定提交，请先重试保存核验')
-    if (this.#bindingId === undefined || !this.#model) throw new Error('请先选择来源模型')
-    return this.#bindingId
-  }
-
-  #bindingDefaults(model: FormalModel): Record<string, unknown> {
-    const {target} = this.#input
-    return {binding_code: '', source_application_id: target.applicationId, source_node_id: target.nodeId, source_kind: SOURCE_KIND,
-      source_model_id: model.id, source_model_meta_name: model.metaName, event_code: '', payload_version: columnValue(this.binding, 'payload_version', 1),
-      binding_version: columnValue(this.binding, 'binding_version', 1),
-      status: columnValue(this.binding, 'status', false), ...(hasColumn(this.binding, 'projection_role') ? {projection_role: BUSINESS_RESULT} : {})}
-  }
-
-  #outputFields(): FormalModel['fields'] {
-    return this.#model?.fields.filter(field => field.output) ?? []
-  }
-
-  #fieldName(value: unknown): string {
-    return this.#outputFields().find(field => field.id === text(value))?.canonicalName ?? ''
-  }
-
-  #definitionCode(value: unknown): string {
-    const found = this.definition.rows.filter(row => text(row['id']) === text(value))
-    return found.length === 1 ? text(found[0]?.['definition_code']) : ''
-  }
-
-  #pair(id: Id, field: string, value: string): void {
-    try {
-      if (text(this.mapping.getEditingRow(id)?.[field]) !== value) this.mapping.updateEditingValue(id, field, value)
-      this.#pairFailure = undefined
-    } catch (cause) {
-      this.#pairFailure = cause instanceof Error ? cause : new Error(String(cause))
-    }
+  #protectedChanged(persisted: PersistedBinding): boolean {
+    const id = this.#bindingId
+    const header = id === undefined ? undefined : this.binding.getEditingRow(id)
+    if (!header) return true
+    return PROTECTED_FIELDS.some(field => (field === 'projection_role' ? projectionRole(header[field])
+      : normalized(BINDING_FIELD_KINDS[field] ?? 'text', header[field])) !== persisted[field])
+      || this.#collectionsSignature() !== persisted.collections
   }
 
   #discardOwned(): void {
     if (this.#mappingIds.size) this.mapping.discardPendingChanges([...this.#mappingIds])
+    if (this.#collectionIds.size) this.collection.discardPendingChanges([...this.#collectionIds])
     if (this.#bindingId !== undefined) this.binding.discardPendingChanges([this.#bindingId])
-  }
-
-  #capture(): readonly CapturedGroup[] {
-    const bindingId = this.#requireBinding()
-    const groups: CapturedGroup[] = []
-    const add = (view: DataView, ids: readonly Id[], kinds: Readonly<Record<string, FieldKind>>) => {
-      const changed = ids.filter(id => view.hasEditingChanges(id) || view.dirtyTracking.hasPendingChanges(id))
-      if (!changed.length) return
-      groups.push({view, ids: changed, rows: changed.map((id): CapturedRow => {
-        if (view.dirtyTracking.pendingDeleteIds.has(id)) return {id, action: 'deleted', values: {}}
-        const row = view.getEditingRow(id)
-        if (!row) throw new Error('待保存来源绑定行已不存在')
-        return {id, action: view.dirtyTracking.isPendingCreate(id) ? 'added' : 'changed', values: Object.fromEntries(Object.entries(kinds)
-          .filter(([field]) => hasColumn(view, field)).map(([field, kind]) => [field, normalized(kind, row[field])]))}
-      })})
-    }
-    add(this.binding, [bindingId], BINDING_FIELD_KINDS)
-    add(this.mapping, [...this.#mappingIds], MAPPING_FIELD_KINDS)
-    return groups
-  }
-
-  async #readback(groups: readonly CapturedGroup[]): Promise<void> {
-    const bindingId = this.#requireBinding()
-    const expectedMappings = this.mappingIds()
-    for (const view of [this.binding, this.mapping]) {
-      if (view.hasPendingSavedRowPermissions) await view.refreshSavedRowPermissions()
-      await this.#refresh(view)
-    }
-    const mismatch = (detail: string) => new Error(`来源绑定保存后读回不一致：${detail}`)
-    for (const group of groups) for (const expected of group.rows) {
-      const row = group.view.rows.find(item => group.view.getPkKey(item) === expected.id)
-      if (expected.action === 'deleted') {
-        if (row) throw mismatch(`已删除记录 ${String(expected.id)} 仍存在`)
-        continue
-      }
-      if (!row) throw mismatch(`记录 ${String(expected.id)} 未回读`)
-      const kinds = group.view === this.binding ? BINDING_FIELD_KINDS : MAPPING_FIELD_KINDS
-      for (const [field, value] of Object.entries(expected.values)) {
-        assertReadable(group.view, row, [field])
-        const kind = kinds[field]
-        if (!kind || normalized(kind, row[field]) !== value) throw mismatch(`记录 ${String(expected.id)} 的 ${field}`)
-      }
-    }
-    const header = this.binding.rows.find(row => this.binding.getPkKey(row) === bindingId)
-    if (!header) throw mismatch(`来源绑定 ${String(bindingId)} 未回读`)
-    const actual = this.mappingIds()
-    if (actual.length !== expectedMappings.length || actual.some(id => !expectedMappings.includes(id))) throw mismatch('字段映射集合')
-    this.#persistedVersion = positiveInteger(header['binding_version'], '绑定版本')
-    this.#mappingIds = new Set(actual)
-  }
-
-  #mountOptions(prefix: string, columns: readonly string[], rows: () => readonly DataRow[]): DataView {
-    const {dataSet, target} = this.#input
-    const tableName = `${prefix}${crypto.randomUUID().replaceAll('-', '')}`
-    if (dataSet.getTable(tableName)) throw new Error('维度来源候选临时表名称冲突')
-    ensureDataSetStaticInputTable(dataSet, tableName, columns.map((name, index) => index === 0 ? {name, primary: true} : {name}))
-    this.#tables.push(tableName)
-    const table = dataSet.getTable(tableName)
-    const view = dataSet.getView(tableName, 'default')
-    if (!table || !view) throw new Error('维度来源候选 DataView 未装配')
-    const resourceId = `blueprint-dimension-source:${target.applicationId}:${crypto.randomUUID()}`
-    table.resourceId = resourceId
-    view.bindQueryExecutor({
-      localAggregates: false,
-      executeQuery: async query => {
-        target.assertCurrent()
-        return dataSetCommandQueryResultFromLocalRows(query, rows().map(row => ({...row})), target.assertCurrent)
-      },
-    }, {resource: {resourceType: 'static-data', resourceId}})
-    return view
-  }
-
-  #releaseTables(): void {
-    const {dataSet} = this.#input
-    for (const tableName of this.#tables.splice(0)) {
-      if (!dataSet.destroyed && dataSet.getTable(tableName)) dataSet.removeTable(tableName)
-    }
   }
 }

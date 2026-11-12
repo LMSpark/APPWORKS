@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/dimension-source/collection-rules",
+    "sourcePath": "src/lowcode/resources/structured-config/dimension-source/collection-rules.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/dimension-source/collection-rules.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/dimension-source/collection-rules",
+    "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/collection-rules\n职责：数据模型来源子集合（Bil_Dimension_Source_Collection）的结构与正式模型校验：集合树、安全名称、父子主键与子外键身份。\n边界：纯规则，不读写 DataView；正式模型由调用方经数据空间设计 API 读取后传入。平台注册事件来源不支持集合。\nAI用途：调整来源集合约束时在此修改，绑定编辑器只负责收集编辑行并按呈现顺序重排 sort_no。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DimensionSourceCollection"
+    ]
+  },
+  "$defs": {
+    "DimensionSourceCollection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionSourceCollection",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "binding_id": {
+          "type": "string"
+        },
+        "parent_collection_id": {
+          "type": "string"
+        },
+        "collection_name": {
+          "type": "string"
+        },
+        "source_model_id": {
+          "type": "string"
+        },
+        "source_model_meta_name": {
+          "type": "string"
+        },
+        "parent_key_field_id": {
+          "type": "string"
+        },
+        "parent_key_field_name": {
+          "type": "string"
+        },
+        "child_key_field_id": {
+          "type": "string"
+        },
+        "child_key_field_name": {
+          "type": "string"
+        },
+        "child_pk_field_id": {
+          "type": "string"
+        },
+        "child_pk_field_name": {
+          "type": "string"
+        },
+        "sort_no": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "binding_id",
+        "parent_collection_id",
+        "collection_name",
+        "source_model_id",
+        "source_model_meta_name",
+        "parent_key_field_id",
+        "parent_key_field_name",
+        "child_key_field_id",
+        "child_key_field_name",
+        "child_pk_field_id",
+        "child_pk_field_name",
+        "sort_no"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-12T12:38:58.048Z",
+  "models": {
+    "DimensionSourceCollection": {
+      "name": "DimensionSourceCollection",
+      "jsdoc": "一条来源子集合配置（已归一）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    binding_id: string;\n    parent_collection_id: string;\n    collection_name: string;\n    source_model_id: string;\n    source_model_meta_name: string;\n    parent_key_field_id: string;\n    parent_key_field_name: string;\n    child_key_field_id: string;\n    child_key_field_name: string;\n    child_pk_field_id: string;\n    child_pk_field_name: string;\n    sort_no: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    binding_id: string;\n    parent_collection_id: string;\n    collection_name: string;\n    source_model_id: string;\n    source_model_meta_name: string;\n    parent_key_field_id: string;\n    parent_key_field_name: string;\n    child_key_field_id: string;\n    child_key_field_name: string;\n    child_pk_field_id: string;\n    child_pk_field_name: string;\n    sort_no: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "binding_id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parent_collection_id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "collection_name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source_model_id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source_model_meta_name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parent_key_field_id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parent_key_field_name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "child_key_field_id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "child_key_field_name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "child_pk_field_id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "child_pk_field_name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sort_no",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

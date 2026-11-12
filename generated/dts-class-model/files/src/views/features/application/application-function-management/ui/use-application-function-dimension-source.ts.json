@@ -7,7 +7,7 @@
     "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts",
     "packageName": "app",
     "modulePath": "views/features/application/application-function-management/ui/use-application-function-dimension-source",
-    "jsdoc": "@module app:views/features/application/application-function-management/ui/use-application-function-dimension-source\n职责：项目蓝图页“维度来源设计”入口：已保存主数据空间门禁、按需装配 88A4 维度设计空间、对话框状态与代次丢弃。\n边界：绑定/映射的装载、校验、保存与回读由 DimensionSourceBindingEditor 承担；本模块只组合标准组件所需的视图键与列配置，\n切换节点、上下文或主数据空间时关闭对话框并丢弃迟到结果与本次草稿。\nAI用途：调整入口门禁或对话框交互时修改本模块，不在页面另建查询或保存链。",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/use-application-function-dimension-source\n职责：项目蓝图页“维度来源设计”入口：已保存主数据空间门禁、按需装配 88A4 维度设计空间、来源绑定对话框及其\n“数据模型事件”“来源提交协议”子对话框的状态与代次丢弃。\n边界：装载、校验、保存与回读由 DimensionSourceBindingEditor / DimensionSourceEventEditor / DimensionSourceCommitPolicyEditor 承担；\n本模块只组合标准组件所需的视图键与子组件配置。切换节点、上下文或主数据空间时关闭全部对话框并丢弃迟到结果与本次草稿。\nAI用途：调整入口门禁或对话框交互时修改本模块，不在页面另建查询或保存链。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ApplicationFunctionDimensionSourceInput"
@@ -32,6 +32,7 @@
           "title": "Ref<boolean>"
         },
         "readModels": true,
+        "hasLedgerRecords": true,
         "error": {
           "type": "object",
           "title": "Ref<string>"
@@ -69,18 +70,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T08:21:46.112Z",
+  "generatedAt": "2026-11-12T12:48:53.310Z",
   "models": {
     "ApplicationFunctionDimensionSourceInput": {
       "name": "ApplicationFunctionDimensionSourceInput",
-      "jsdoc": "页面向维度来源设计流程提供的上下文、已保存主数据空间与模型读取入口。",
+      "jsdoc": "页面向维度来源设计流程提供的上下文、已保存主数据空间、模型读取与台账引用核验入口。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 当前有效蓝图树上下文；无上下文时返回 undefined。 */\n    context: () => BlueprintTreeContext | undefined;\n    /** 上下文仍是当前树且选中节点仍为 nodeId。 */\n    isLive: (context: BlueprintTreeContext, nodeId: string) => boolean;\n    /** 当前选中的蓝图节点身份。 */\n    selectedNodeId: Readonly<Ref<string>>;\n    /** 当前节点正式回读的 conid；未绑定或不可读为空串。 */\n    persistedDataSpaceId: Readonly<Ref<string>>;\n    /** conid 编辑覆盖尚未保存回读。 */\n    bindingPending: Readonly<Ref<boolean>>;\n    /** 读取数据空间正式模型（含字段）。 */\n    readModels: DimensionSourceBindingEditorInput['readModels'];\n    /** 页面错误提示。 */\n    error: Ref<string>;\n    /** 页面成功提示。 */\n    notice: Ref<string>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 当前有效蓝图树上下文；无上下文时返回 undefined。 */\n    context: () => BlueprintTreeContext | undefined;\n    /** 上下文仍是当前树且选中节点仍为 nodeId。 */\n    isLive: (context: BlueprintTreeContext, nodeId: string) => boolean;\n    /** 当前选中的蓝图节点身份。 */\n    selectedNodeId: Readonly<Ref<string>>;\n    /** 当前节点正式回读的 conid；未绑定或不可读为空串。 */\n    persistedDataSpaceId: Readonly<Ref<string>>;\n    /** conid 编辑覆盖尚未保存回读。 */\n    bindingPending: Readonly<Ref<boolean>>;\n    /** 读取数据空间正式模型（含字段）。 */\n    readModels: DimensionSourceBindingEditorInput['readModels'];\n    /** 来源绑定已被正式维度结果引用时为 true；无法核验时抛错。 */\n    hasLedgerRecords: DimensionSourceBindingEditorInput['hasLedgerRecords'];\n    /** 页面错误提示。 */\n    error: Ref<string>;\n    /** 页面成功提示。 */\n    notice: Ref<string>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 当前有效蓝图树上下文；无上下文时返回 undefined。 */\n    context: () => BlueprintTreeContext | undefined;\n    /** 上下文仍是当前树且选中节点仍为 nodeId。 */\n    isLive: (context: BlueprintTreeContext, nodeId: string) => boolean;\n    /** 当前选中的蓝图节点身份。 */\n    selectedNodeId: Readonly<Ref<string>>;\n    /** 当前节点正式回读的 conid；未绑定或不可读为空串。 */\n    persistedDataSpaceId: Readonly<Ref<string>>;\n    /** conid 编辑覆盖尚未保存回读。 */\n    bindingPending: Readonly<Ref<boolean>>;\n    /** 读取数据空间正式模型（含字段）。 */\n    readModels: DimensionSourceBindingEditorInput['readModels'];\n    /** 页面错误提示。 */\n    error: Ref<string>;\n    /** 页面成功提示。 */\n    notice: Ref<string>;\n}>",
+            "typeText": "Readonly<{\n    /** 当前有效蓝图树上下文；无上下文时返回 undefined。 */\n    context: () => BlueprintTreeContext | undefined;\n    /** 上下文仍是当前树且选中节点仍为 nodeId。 */\n    isLive: (context: BlueprintTreeContext, nodeId: string) => boolean;\n    /** 当前选中的蓝图节点身份。 */\n    selectedNodeId: Readonly<Ref<string>>;\n    /** 当前节点正式回读的 conid；未绑定或不可读为空串。 */\n    persistedDataSpaceId: Readonly<Ref<string>>;\n    /** conid 编辑覆盖尚未保存回读。 */\n    bindingPending: Readonly<Ref<boolean>>;\n    /** 读取数据空间正式模型（含字段）。 */\n    readModels: DimensionSourceBindingEditorInput['readModels'];\n    /** 来源绑定已被正式维度结果引用时为 true；无法核验时抛错。 */\n    hasLedgerRecords: DimensionSourceBindingEditorInput['hasLedgerRecords'];\n    /** 页面错误提示。 */\n    error: Ref<string>;\n    /** 页面成功提示。 */\n    notice: Ref<string>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -107,6 +108,12 @@
             {
               "name": "readModels",
               "jsdoc": "读取数据空间正式模型（含字段）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasLedgerRecords",
+              "jsdoc": "来源绑定已被正式维度结果引用时为 true；无法核验时抛错。",
               "readable": true,
               "writable": false
             },

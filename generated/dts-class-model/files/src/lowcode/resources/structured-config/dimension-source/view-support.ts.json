@@ -1,0 +1,710 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/dimension-source/view-support",
+    "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/dimension-source/view-support",
+    "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/view-support\n职责：维度来源三类编辑器（来源绑定、数据模型事件、来源提交协议）共用的 DataView 取值归一、static-data 候选视图与单次保存回读核验。\n边界：只组合 spark-data DataSet/DataView 公共 API；不拼请求、不持有第二份草稿，正式写入仍由 DataSet.saveChanges 的存储适配完成。\nAI用途：新增维度来源编辑器时复用本模块的候选视图与提交核验，不在各编辑器复制回执计数与回读比较。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "Id",
+      "FormalModel",
+      "FormalField",
+      "FieldKind",
+      "DimensionSourceTarget",
+      "DimensionSourceOptionTables",
+      "DimensionSourceCommitTarget",
+      "DimensionSourceChangeSubmission"
+    ]
+  },
+  "$defs": {
+    "Id": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Id",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "FormalModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalModel",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "type": "string"
+        },
+        "businessMain": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalField"
+          }
+        },
+        "raw": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRow"
+        },
+        "sourceInputBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts.json#/$defs/DataSpaceSourceInputBinding"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "metaName",
+        "name",
+        "sourceName",
+        "sourceId",
+        "sourceType",
+        "primaryKey",
+        "businessMain",
+        "fields",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "FormalField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalField",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "canonicalName": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "output": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "computed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "order": {
+          "type": "number"
+        },
+        "orderType": {
+          "type": "string"
+        },
+        "allowAIAdd": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "raw": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRow"
+        }
+      },
+      "required": [
+        "id",
+        "modelId",
+        "name",
+        "canonicalName",
+        "type",
+        "primaryKey",
+        "description",
+        "output",
+        "computed",
+        "order",
+        "orderType",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "FieldKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "FieldKind",
+      "enum": [
+        "number",
+        "integer",
+        "text",
+        "bit"
+      ]
+    },
+    "DimensionSourceTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionSourceTarget",
+      "properties": {
+        "applicationId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "DimensionSourceOptionTables": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionSourceOptionTables",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "target": {
+              "$ref": "#/$defs/DimensionSourceTarget"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.mount.params": {
+          "type": "object",
+          "properties": {
+            "prefix": {
+              "type": "string"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rows": {
+              "type": "object",
+              "title": "() => readonly DataRow[]"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.mount.return": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "method.input.params": {
+          "type": "object",
+          "properties": {
+            "prefix": {
+              "type": "string"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.input.return": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "method.release.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.release.return": true
+      }
+    },
+    "DimensionSourceCommitTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionSourceCommitTarget",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "kinds": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "$ref": "#/$defs/FieldKind"
+          }
+        }
+      },
+      "required": [
+        "view",
+        "ids",
+        "kinds"
+      ],
+      "additionalProperties": false
+    },
+    "DimensionSourceChangeSubmission": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionSourceChangeSubmission",
+      "properties": {
+        "unknown": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "label": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertSettled.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertSettled.return": true,
+        "method.capture.params": {
+          "type": "object",
+          "properties": {
+            "targets": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DimensionSourceCommitTarget"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.capture.return": {
+          "type": "boolean"
+        },
+        "method.submit.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.submit.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-12T12:38:27.694Z",
+  "models": {
+    "Id": {
+      "name": "Id",
+      "jsdoc": "DataView 行主键身份（GUID 文本或数值）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "string | number",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "string"
+          },
+          {
+            "kind": "union",
+            "typeText": "number"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FormalModel": {
+      "name": "FormalModel",
+      "jsdoc": "数据空间设计 API 返回的正式模型（含字段）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<DataSpaceDesignApi['readModels']>>[number]",
+        "members": {}
+      }
+    },
+    "FormalField": {
+      "name": "FormalField",
+      "jsdoc": "正式模型字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FormalModel['fields'][number]",
+        "members": {}
+      }
+    },
+    "FieldKind": {
+      "name": "FieldKind",
+      "jsdoc": "保存与回读比较时的字段归一类别。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'text' | 'integer' | 'number' | 'bit'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'text'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'integer'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'number'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'bit'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DimensionSourceTarget": {
+      "name": "DimensionSourceTarget",
+      "jsdoc": "维度来源编辑的正式目标：蓝图应用、节点与该节点已保存回读的主数据空间；assertCurrent 拒绝迟到结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 蓝图所属应用 ID，写入 source_application_id。 */\n    applicationId: string;\n    /** 蓝图节点稳定 ID，写入 source_node_id。 */\n    nodeId: string;\n    /** 节点已保存的主数据空间（conid）；来源模型必须属于该空间。 */\n    dataSpaceId: string;\n    /** 编辑目标仍为当前节点与上下文；失效时抛错。 */\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 蓝图所属应用 ID，写入 source_application_id。 */\n    applicationId: string;\n    /** 蓝图节点稳定 ID，写入 source_node_id。 */\n    nodeId: string;\n    /** 节点已保存的主数据空间（conid）；来源模型必须属于该空间。 */\n    dataSpaceId: string;\n    /** 编辑目标仍为当前节点与上下文；失效时抛错。 */\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "applicationId",
+              "jsdoc": "蓝图所属应用 ID，写入 source_application_id。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "蓝图节点稳定 ID，写入 source_node_id。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "jsdoc": "节点已保存的主数据空间（conid）；来源模型必须属于该空间。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "编辑目标仍为当前节点与上下文；失效时抛错。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DimensionSourceOptionTables": {
+      "name": "DimensionSourceOptionTables",
+      "jsdoc": "维度来源编辑器的 static-data 候选/输入视图集合；随编辑器释放整体移除，不作为正式数据保存。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(dataSet: DataSet, target: DimensionSourceTarget)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "target",
+              "type": {
+                "type": "reference",
+                "name": "DimensionSourceTarget",
+                "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "mount",
+              "jsdoc": "挂载候选视图：首列为主键，结果每次查询时由 rows 重新计算。",
+              "parameters": [
+                {
+                  "name": "prefix",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "columns",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                },
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "unknown",
+                            "name": "readonly DataRow[]"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataView"
+              }
+            },
+            {
+              "name": "input",
+              "jsdoc": "挂载暂存输入视图：只在内存编辑，保存时由编辑器读取编辑值并写入正式视图。",
+              "parameters": [
+                {
+                  "name": "prefix",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "columns",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataView"
+              }
+            },
+            {
+              "name": "release",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DimensionSourceCommitTarget": {
+      "name": "DimensionSourceCommitTarget",
+      "jsdoc": "一个正式视图的待提交行及按字段的归一类别。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    view: DataView;\n    ids: readonly Id[];\n    kinds: Readonly<Record<string, FieldKind>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    view: DataView;\n    ids: readonly Id[];\n    kinds: Readonly<Record<string, FieldKind>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ids",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kinds",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DimensionSourceChangeSubmission": {
+      "name": "DimensionSourceChangeSubmission",
+      "jsdoc": "维度来源编辑器的单次 DataSet 提交与回读核验：捕获本次变更，一次 saveChanges，按回执计数确认，再刷新并逐字段比较。\n保存结果未知时保留原捕获，重试只核验原提交，不以新身份重提；预检失败或明确失败时清除捕获。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(dataSet: DataSet, label: string, assertCurrent: () => void)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "label",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "unknown",
+              "jsdoc": "存在保存结果未知的提交。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertSettled",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "capture",
+              "jsdoc": "捕获各视图的待提交行；返回是否存在修改。",
+              "parameters": [
+                {
+                  "name": "targets",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DimensionSourceCommitTarget[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "submit",
+              "jsdoc": "提交已捕获的修改并回读逐字段核验；没有捕获时返回 false。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

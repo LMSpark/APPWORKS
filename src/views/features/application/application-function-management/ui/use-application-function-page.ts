@@ -6,8 +6,10 @@ import { PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component
 import type { PageRuntime } from '@spark-appworks/spark-project-model'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, RichTextImageUploadResource, type AiTurnDraftRunner } from '@spark-appworks/spark-lowcode-api'
 import { loadLowcodeRuntimeScenario, readLowcodeExecutionProject } from '@/lowcode/data-space/lowcode-data-space-runtime'
-import { lowcodeApi, lowcodeDesignFileUpload, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
+import { LowcodeDataSpaceAssembler } from '@/lowcode/data-space/lowcode-data-space-assembler'
+import { lowcodeApi, lowcodeDesignFileUpload, lowcodeHttp, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { AiDataEntryHost } from '@/lowcode/resources/shared/ai-data-entry-host'
+import { DimensionSourceLedgerGuard } from '@/lowcode/resources/structured-config/dimension-source/ledger-guard'
 import type { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import { BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID, BLUEPRINT_NODE_STATUS_SCENARIO_ID, useDevState } from '@/views/app/dev-system/useDevState'
 import { resolveNavHostProjectBinding, resolveProjectCandidate } from '@/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract'
@@ -347,6 +349,7 @@ export function useApplicationFunctionPage() {
   })
   onScopeDispose(() => dataSpace.dispose())
 
+  let ledgerGuard: DimensionSourceLedgerGuard | undefined
   const dimensionSource = useApplicationFunctionDimensionSource({
     context: () => treeContext.value,
     isLive,
@@ -354,6 +357,10 @@ export function useApplicationFunctionPage() {
     persistedDataSpaceId: state.persistedDataSpaceId,
     bindingPending: state.sceneBindingPending,
     readModels: request => lowcodeApi.dataSpace.design.readModels(request),
+    hasLedgerRecords: (bindingId, assertCurrent) => {
+      ledgerGuard ??= new DimensionSourceLedgerGuard(lowcodeApi.dataSpace.design, new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp))
+      return ledgerGuard.hasRecords(bindingId, assertCurrent)
+    },
     error,
     notice,
   })

@@ -7,113 +7,61 @@
     "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/structured-config/dimension-source/binding-editor",
-    "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/binding-editor\n职责：蓝图节点“维度来源设计”的数据模型来源绑定与字段→维度映射编辑 owner：装载唯一绑定、草稿、正式校验、单次保存与回读核验。\n边界：只处理 source_kind=data-model；绑定/映射/维度定义均经 88A4 场景 DataView 读写，正式模型经数据空间设计 API 读取，\n模型与字段候选只作为 static-data 选项视图呈现，不作为正式数据副本保存。平台事件、来源集合、提交协议不在本模块。\nAI用途：修改维度来源绑定校验或保存核验时在此调整，页面组合式函数只负责门禁、代次与对话框状态。",
+    "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/binding-editor\n职责：蓝图节点“维度来源设计”的来源绑定 owner：数据模型或平台注册事件来源、字段→维度映射、根模型子集合；\n装载唯一绑定、草稿、正式校验、单次保存与回读核验，已有正式维度结果时拒绝变更受保护字段。\n边界：绑定/映射/集合/维度定义均经 88A4 场景 DataView 读写；正式模型经数据空间设计 API 读取，平台合同来自 source-contracts 注册表；\n候选只作为 static-data 选项视图呈现。数据模型事件与来源提交协议由各自编辑器维护。\nAI用途：修改维度来源绑定校验或保存核验时在此调整，页面组合式函数只负责门禁、代次与对话框状态。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "DimensionSourceBindingTarget",
+      "DimensionSourceKind",
+      "DimensionSourceSavedBinding",
       "DimensionSourceBindingEditorInput",
       "DimensionSourceBindingEditor"
     ]
   },
   "$defs": {
-    "Id": {
+    "DimensionSourceKind": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "Id",
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "number"
-        }
+      "title": "DimensionSourceKind",
+      "enum": [
+        "data-model",
+        "platform-event"
       ]
     },
-    "FormalModel": {
+    "DimensionSourceSavedBinding": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "FormalModel",
+      "title": "DimensionSourceSavedBinding",
       "properties": {
         "id": {
           "type": "string"
         },
-        "metaName": {
+        "sourceKind": {
+          "$ref": "#/$defs/DimensionSourceKind"
+        },
+        "eventCode": {
           "type": "string"
         },
-        "name": {
+        "bindingVersion": {
+          "type": "number"
+        },
+        "projectionRole": {
           "type": "string"
         },
-        "sourceName": {
+        "modelId": {
           "type": "string"
         },
-        "sourceId": {
+        "modelMetaName": {
           "type": "string"
-        },
-        "sourceType": {
-          "type": "string"
-        },
-        "primaryKey": {
-          "type": "string"
-        },
-        "businessMain": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "fields": {
-          "type": "array",
-          "items": {
-            "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalField"
-          }
-        },
-        "raw": {
-          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRow"
-        },
-        "sourceInputBindings": {
-          "type": "array",
-          "items": {
-            "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts.json#/$defs/DataSpaceSourceInputBinding"
-          }
         }
       },
       "required": [
         "id",
-        "metaName",
-        "name",
-        "sourceName",
-        "sourceId",
-        "sourceType",
-        "primaryKey",
-        "businessMain",
-        "fields",
-        "raw"
+        "sourceKind",
+        "eventCode",
+        "bindingVersion",
+        "projectionRole",
+        "modelId",
+        "modelMetaName"
       ],
       "additionalProperties": false
-    },
-    "DimensionSourceBindingTarget": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "DimensionSourceBindingTarget",
-      "properties": {
-        "applicationId": {
-          "type": "string"
-        },
-        "nodeId": {
-          "type": "string"
-        },
-        "dataSpaceId": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false,
-      "$defs": {
-        "method.assertCurrent.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.assertCurrent.return": true
-      }
     },
     "DimensionSourceBindingEditorInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -125,19 +73,30 @@
           "title": "DataSet"
         },
         "target": {
-          "$ref": "#/$defs/DimensionSourceBindingTarget"
+          "$ref": "view-support.ts.json#/$defs/DimensionSourceTarget"
         },
-        "readModels": {
-          "type": "object",
-          "title": "(input: DataSpaceFormalScenarioReadInput) => Promise<readonly Readonly<{ id: string; metaName: string; name: string; sourceName: string; ... 6 more ...; sourceInputBindings?: readonly DataSpaceSourceInputBinding[]; }>[]>"
-        }
+        "readModels": true
       },
-      "required": [
-        "dataSet",
-        "target",
-        "readModels"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.hasLedgerRecords.params": {
+          "type": "object",
+          "properties": {
+            "bindingId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasLedgerRecords.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        }
+      }
     },
     "DimensionSourceBindingEditor": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -150,23 +109,47 @@
         "mapping": {
           "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
+        "collection": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
         "definition": {
           "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "modelOptions": {
           "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
+        "contractOptions": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
         "fieldOptions": {
           "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
+        "accountFieldOptions": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "collectionParentOptions": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "collectionFieldOptions": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "sourceKind": {
+          "$ref": "#/$defs/DimensionSourceKind"
+        },
         "model": {
-          "$ref": "#/$defs/FormalModel"
+          "$ref": "view-support.ts.json#/$defs/FormalModel"
+        },
+        "contract": {
+          "$ref": "source-contracts.ts.json#/$defs/DimensionSourceContract"
         },
         "bindingId": {
-          "$ref": "#/$defs/Id"
+          "$ref": "view-support.ts.json#/$defs/Id"
         },
         "unknown": {
           "type": "boolean"
+        },
+        "modelCount": {
+          "type": "number"
         }
       },
       "additionalProperties": false,
@@ -203,6 +186,17 @@
             "type": "string"
           }
         },
+        "method.platformNonDimensionFields.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.platformNonDimensionFields.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "method.mappingIds.params": {
           "type": "object",
           "properties": {},
@@ -211,7 +205,18 @@
         "method.mappingIds.return": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Id"
+            "$ref": "view-support.ts.json#/$defs/Id"
+          }
+        },
+        "method.collectionIds.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.collectionIds.return": {
+          "type": "array",
+          "items": {
+            "$ref": "view-support.ts.json#/$defs/Id"
           }
         },
         "method.hasDraft.params": {
@@ -222,6 +227,14 @@
         "method.hasDraft.return": {
           "type": "boolean"
         },
+        "method.savedBinding.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.savedBinding.return": {
+          "$ref": "#/$defs/DimensionSourceSavedBinding"
+        },
         "method.loadModels.params": {
           "type": "object",
           "properties": {},
@@ -231,16 +244,19 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.selectModel.params": {
+        "method.selectSource.params": {
           "type": "object",
           "properties": {
-            "modelId": {
+            "kind": {
+              "$ref": "#/$defs/DimensionSourceKind"
+            },
+            "referenceId": {
               "type": "string"
             }
           },
           "additionalProperties": false
         },
-        "method.selectModel.return": {
+        "method.selectSource.return": {
           "type": "object",
           "title": "Promise<void>"
         },
@@ -257,12 +273,34 @@
           "type": "object",
           "properties": {
             "id": {
-              "$ref": "#/$defs/Id"
+              "$ref": "view-support.ts.json#/$defs/Id"
             }
           },
           "additionalProperties": false
         },
         "method.removeMapping.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.addCollection.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.addCollection.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.removeCollection.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "view-support.ts.json#/$defs/Id"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeCollection.return": {
           "type": "object",
           "title": "Promise<void>"
         },
@@ -299,79 +337,76 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T08:26:01.092Z",
+  "generatedAt": "2026-11-12T12:42:54.060Z",
   "models": {
-    "Id": {
-      "name": "Id",
-      "jsdoc": "DataView 行主键身份（GUID 文本或数值）。",
+    "DimensionSourceKind": {
+      "name": "DimensionSourceKind",
+      "jsdoc": "维度来源类别：节点数据空间模型或平台注册事件。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "string | number",
+        "declarationTypeText": "'data-model' | 'platform-event'",
         "declarationRelations": [
           {
             "kind": "union",
-            "typeText": "string"
+            "typeText": "'data-model'"
           },
           {
             "kind": "union",
-            "typeText": "number"
+            "typeText": "'platform-event'"
           }
         ],
         "members": {}
       }
     },
-    "FormalModel": {
-      "name": "FormalModel",
-      "jsdoc": "数据空间设计 API 返回的正式模型（含字段）。",
+    "DimensionSourceSavedBinding": {
+      "name": "DimensionSourceSavedBinding",
+      "jsdoc": "已保存且无草稿的来源绑定身份，供数据模型事件与来源提交协议编辑器复核。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Awaited<ReturnType<DataSpaceDesignApi['readModels']>>[number]",
-        "members": {}
-      }
-    },
-    "DimensionSourceBindingTarget": {
-      "name": "DimensionSourceBindingTarget",
-      "jsdoc": "维度来源编辑的正式目标：蓝图应用、节点与该节点已保存回读的主数据空间；assertCurrent 拒绝迟到结果。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 蓝图所属应用 ID，写入 source_application_id。 */\n    applicationId: string;\n    /** 蓝图节点稳定 ID，写入 source_node_id。 */\n    nodeId: string;\n    /** 节点已保存的主数据空间（conid）；来源模型必须属于该空间。 */\n    dataSpaceId: string;\n    /** 编辑目标仍为当前节点与上下文；失效时抛错。 */\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    id: string;\n    sourceKind: DimensionSourceKind;\n    eventCode: string;\n    bindingVersion: number;\n    projectionRole: string;\n    modelId: string;\n    modelMetaName: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 蓝图所属应用 ID，写入 source_application_id。 */\n    applicationId: string;\n    /** 蓝图节点稳定 ID，写入 source_node_id。 */\n    nodeId: string;\n    /** 节点已保存的主数据空间（conid）；来源模型必须属于该空间。 */\n    dataSpaceId: string;\n    /** 编辑目标仍为当前节点与上下文；失效时抛错。 */\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    id: string;\n    sourceKind: DimensionSourceKind;\n    eventCode: string;\n    bindingVersion: number;\n    projectionRole: string;\n    modelId: string;\n    modelMetaName: string;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
             {
-              "name": "applicationId",
-              "jsdoc": "蓝图所属应用 ID，写入 source_application_id。",
+              "name": "id",
               "readable": true,
               "writable": false
             },
             {
-              "name": "nodeId",
-              "jsdoc": "蓝图节点稳定 ID，写入 source_node_id。",
+              "name": "sourceKind",
               "readable": true,
               "writable": false
             },
             {
-              "name": "dataSpaceId",
-              "jsdoc": "节点已保存的主数据空间（conid）；来源模型必须属于该空间。",
+              "name": "eventCode",
               "readable": true,
               "writable": false
-            }
-          ],
-          "methods": [
+            },
             {
-              "name": "assertCurrent",
-              "jsdoc": "编辑目标仍为当前节点与上下文；失效时抛错。",
-              "parameters": [],
-              "type": {
-                "type": "intrinsic",
-                "name": "void"
-              }
+              "name": "bindingVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectionRole",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelMetaName",
+              "readable": true,
+              "writable": false
             }
           ]
         }
@@ -379,14 +414,14 @@
     },
     "DimensionSourceBindingEditorInput": {
       "name": "DimensionSourceBindingEditorInput",
-      "jsdoc": "编辑器装配输入：已装配的 88A4 DataSet、正式目标及正式模型读取入口。",
+      "jsdoc": "编辑器装配输入：已装配的 88A4 DataSet、正式目标、正式模型读取与维度台账引用核验入口。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 维度设计场景（88A4）运行 DataSet。 */\n    dataSet: DataSet;\n    /** 本次编辑的正式目标。 */\n    target: DimensionSourceBindingTarget;\n    /** 读取数据空间正式模型（含字段）。 */\n    readModels: DataSpaceDesignApi['readModels'];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 维度设计场景（88A4）运行 DataSet。 */\n    dataSet: DataSet;\n    /** 本次编辑的正式目标。 */\n    target: DimensionSourceTarget;\n    /** 读取数据空间正式模型（含字段）。 */\n    readModels: DataSpaceDesignApi['readModels'];\n    /** 来源绑定已有未删除的正式维度结果时为 true；无法核验时抛错。 */\n    hasLedgerRecords: (bindingId: string, assertCurrent: () => void) => Promise<boolean>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 维度设计场景（88A4）运行 DataSet。 */\n    dataSet: DataSet;\n    /** 本次编辑的正式目标。 */\n    target: DimensionSourceBindingTarget;\n    /** 读取数据空间正式模型（含字段）。 */\n    readModels: DataSpaceDesignApi['readModels'];\n}>",
+            "typeText": "Readonly<{\n    /** 维度设计场景（88A4）运行 DataSet。 */\n    dataSet: DataSet;\n    /** 本次编辑的正式目标。 */\n    target: DimensionSourceTarget;\n    /** 读取数据空间正式模型（含字段）。 */\n    readModels: DataSpaceDesignApi['readModels'];\n    /** 来源绑定已有未删除的正式维度结果时为 true；无法核验时抛错。 */\n    hasLedgerRecords: (bindingId: string, assertCurrent: () => void) => Promise<boolean>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -410,17 +445,59 @@
               "readable": true,
               "writable": false
             }
+          ],
+          "methods": [
+            {
+              "name": "hasLedgerRecords",
+              "jsdoc": "来源绑定已有未删除的正式维度结果时为 true；无法核验时抛错。",
+              "parameters": [
+                {
+                  "name": "bindingId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            }
           ]
         }
       }
     },
     "DimensionSourceBindingEditor": {
       "name": "DimensionSourceBindingEditor",
-      "jsdoc": "蓝图节点数据模型来源绑定编辑器；一次实例只服务一个节点目标，关闭时须 dispose。",
+      "jsdoc": "蓝图节点来源绑定编辑器；一次实例只服务一个节点目标，关闭时须 dispose。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "解析 88A4 的绑定、映射、维度定义视图并建立模型/字段 static-data 选项视图；视图或正式字段缺失时抛错。",
+          "jsdoc": "解析 88A4 的绑定、映射、集合、维度定义视图并建立 static-data 候选视图；视图或正式字段缺失时抛错。",
           "signatureText": "constructor(input: DimensionSourceBindingEditorInput)",
           "parameters": [
             {
@@ -448,6 +525,12 @@
               "writable": false
             },
             {
+              "name": "collection",
+              "jsdoc": "当前绑定的根模型子集合 DataView（byBinding）。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "definition",
               "jsdoc": "维度定义候选 DataView（default）。",
               "readable": true,
@@ -455,31 +538,73 @@
             },
             {
               "name": "modelOptions",
-              "jsdoc": "正式模型候选 static-data DataView。",
+              "jsdoc": "正式模型候选 static-data DataView（主键 id）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contractOptions",
+              "jsdoc": "平台注册事件合同候选 static-data DataView（主键 id）。",
               "readable": true,
               "writable": false
             },
             {
               "name": "fieldOptions",
-              "jsdoc": "当前根模型正式输出字段候选 static-data DataView。",
+              "jsdoc": "映射来源字段候选：根模型正式输出字段或平台合同维度字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "accountFieldOptions",
+              "jsdoc": "根模型账套字段候选：输出且非计算字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "collectionParentOptions",
+              "jsdoc": "子集合父集合候选：本次编辑中的其它集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "collectionFieldOptions",
+              "jsdoc": "子集合外键候选：节点数据空间各模型输出且非计算字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceKind",
+              "jsdoc": "当前来源类别；未选择来源时为 undefined。",
               "readable": true,
               "writable": false
             },
             {
               "name": "model",
-              "jsdoc": "已选根模型；未选择时为 undefined。",
+              "jsdoc": "已选根模型（数据模型来源）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contract",
+              "jsdoc": "已选平台注册事件合同。",
               "readable": true,
               "writable": false
             },
             {
               "name": "bindingId",
-              "jsdoc": "当前编辑的来源绑定行 ID；未选择模型时为 undefined。",
+              "jsdoc": "当前编辑的来源绑定行 ID；未选择来源时为 undefined。",
               "readable": true,
               "writable": false
             },
             {
               "name": "unknown",
               "jsdoc": "存在保存结果未知的提交时为 true；此时只能重试核验原提交，不能修改、丢弃或新建。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelCount",
+              "jsdoc": "节点数据空间正式模型数量。",
               "readable": true,
               "writable": false
             }
@@ -504,7 +629,16 @@
             },
             {
               "name": "bindingFormFields",
-              "jsdoc": "绑定视图实际输出的可编辑表单字段。",
+              "jsdoc": "绑定表单字段：平台事件来源不提供根模型账套字段。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "readonly string[]"
+              }
+            },
+            {
+              "name": "platformNonDimensionFields",
+              "jsdoc": "平台合同中不能映射为维度的字段名称（供页面提示）。",
               "parameters": [],
               "type": {
                 "type": "unknown",
@@ -521,8 +655,17 @@
               }
             },
             {
+              "name": "collectionIds",
+              "jsdoc": "当前子集合行 ID（呈现顺序，不含待删除行）。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "readonly Id[]"
+              }
+            },
+            {
               "name": "hasDraft",
-              "jsdoc": "本编辑器持有的绑定或映射存在未保存修改。",
+              "jsdoc": "本编辑器持有的绑定、映射或集合存在未保存修改。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -530,8 +673,21 @@
               }
             },
             {
+              "name": "savedBinding",
+              "jsdoc": "已保存、无草稿且结果确认的来源绑定；否则为 undefined。",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DimensionSourceSavedBinding",
+                  "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts"
+                }
+              }
+            },
+            {
               "name": "loadModels",
-              "jsdoc": "读取节点已保存数据空间的正式模型，并刷新模型候选与维度定义候选。",
+              "jsdoc": "读取节点已保存数据空间的正式模型，并刷新各候选视图与维度定义候选。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -545,11 +701,19 @@
               }
             },
             {
-              "name": "selectModel",
-              "jsdoc": "选择根来源模型：唯一已有绑定直接编辑，不存在时新增草稿，多于一个时拒绝。",
+              "name": "selectSource",
+              "jsdoc": "选择来源（模型 ID 或平台合同 ID）：唯一已有绑定直接编辑，不存在时新增草稿，多于一个时拒绝。",
               "parameters": [
                 {
-                  "name": "modelId",
+                  "name": "kind",
+                  "type": {
+                    "type": "reference",
+                    "name": "DimensionSourceKind",
+                    "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts"
+                  }
+                },
+                {
+                  "name": "referenceId",
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
@@ -591,7 +755,46 @@
                   "type": {
                     "type": "reference",
                     "name": "Id",
-                    "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts"
+                    "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addCollection",
+              "jsdoc": "新增一条根记录下的子集合草稿：父主键取根模型正式主键。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "removeCollection",
+              "jsdoc": "删除一条子集合；仍有下级集合时拒绝。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "reference",
+                    "name": "Id",
+                    "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts"
                   }
                 }
               ],
@@ -608,7 +811,7 @@
             },
             {
               "name": "save",
-              "jsdoc": "校验后以一次 DataSet 保存提交绑定与映射，并回读核验；无修改返回 false。保存结果未知时重试只核验原提交，不以新身份重提。",
+              "jsdoc": "校验后以一次 DataSet 保存提交绑定、映射与集合，并回读核验；无修改返回 false。保存结果未知时重试只核验原提交。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -623,7 +826,7 @@
             },
             {
               "name": "validate",
-              "jsdoc": "端口自参考 normalizeBinding/normalizeMapping、#validateFormalSource、#assertTargetDefinitions 的保存前校验；同时按呈现顺序重排 sort_no。",
+              "jsdoc": "保存前校验：绑定身份、来源合同与账套字段、映射、子集合、维度定义；受保护字段变化且已有正式结果时拒绝。按呈现顺序重排 sort_no。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -638,7 +841,7 @@
             },
             {
               "name": "discard",
-              "jsdoc": "丢弃本编辑器持有的绑定与映射草稿，不写入任何数据；保存结果未知时拒绝。",
+              "jsdoc": "丢弃本编辑器持有的绑定、映射与集合草稿，不写入任何数据；保存结果未知时拒绝。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

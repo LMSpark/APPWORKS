@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/blueprint-source-commit-editor",
+    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-source-commit-editor.vue",
+    "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-source-commit-editor.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/blueprint-source-commit-editor",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-source-commit-editor\n职责：“来源提交协议”子对话框：只读查看已有不可变版本，录入新版本草稿（六个协议模型、来源主键/提交引用字段、提交事实字段）。\n边界：已有版本绑定 88A4 Commit_Policy.byBinding / Commit_Field.byPolicy；草稿表单与事实行绑定暂存输入视图；校验、保存与回读由宿主流程状态承担。\nAI用途：调整来源提交协议布局时修改本组件，不在此另建查询或保存链。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T12:48:47.022Z",
+  "models": {}
+}

@@ -8,6 +8,7 @@ import {
   buildComponentMap,
   getVuePageEntry,
   getPublicPaths,
+  getSystemPageIdentityCompanions,
   getVuePageOptions,
   hasVuePage,
   parseVuePagesConfig,
@@ -24,8 +25,8 @@ describe('Vue page registry', () => {
       protocol: 'spark-appworks.vue-pages',
       schemaVersion: 1,
       pages: [
-        {path: '/configured', title: 'Configured', scope: 'catalog', source: 'src/views/app/Settings.vue', dataSpaceId: ' SPACE-ID '},
-        {path: '/unconfigured', title: 'Unconfigured', scope: 'catalog', source: 'src/views/app/Settings.vue'},
+        {path: '/configured', title: 'Configured', scope: 'enterprise', source: 'src/views/app/Settings.vue', dataSpaceId: ' SPACE-ID '},
+        {path: '/unconfigured', title: 'Unconfigured', scope: 'enterprise', source: 'src/views/app/Settings.vue'},
       ],
     })
 
@@ -37,7 +38,7 @@ describe('Vue page registry', () => {
     expect(() => parseVuePagesConfig({
       protocol: 'spark-appworks.vue-pages',
       schemaVersion: 1,
-      pages: [{path: '/blank', title: 'Blank', scope: 'catalog', source: 'src/views/app/Settings.vue', dataSpaceId: '   '}],
+      pages: [{path: '/blank', title: 'Blank', scope: 'enterprise', source: 'src/views/app/Settings.vue', dataSpaceId: '   '}],
     })).toThrow('dataSpaceId must be a non-empty string')
   })
 
@@ -46,30 +47,61 @@ describe('Vue page registry', () => {
       protocol: 'spark-appworks.vue-pages',
       schemaVersion: 1,
       pages: [
-        {path: '/same', title: 'First', scope: 'catalog', source: 'src/views/app/Settings.vue', dataSpaceId: 'SPACE-1'},
-        {path: '/same', title: 'Second', scope: 'catalog', source: 'src/views/app/Settings.vue', dataSpaceId: 'SPACE-2'},
+        {path: '/same', title: 'First', scope: 'enterprise', source: 'src/views/app/Settings.vue', dataSpaceId: 'SPACE-1'},
+        {path: '/same', title: 'Second', scope: 'enterprise', source: 'src/views/app/Settings.vue', dataSpaceId: 'SPACE-2'},
       ],
     })).toThrow('duplicated page path "/same"')
   })
 
+  it('rejects identityHost on a visible page and on a host of another scope', () => {
+    const source = 'src/views/app/Settings.vue'
+    expect(() => parseVuePagesConfig({protocol: 'spark-appworks.vue-pages', schemaVersion: 1, pages: [
+      {path: '/host', title: 'Host', scope: 'enterprise', source},
+      {path: '/companion', title: 'Companion', scope: 'enterprise', source, identityHost: '/host'},
+    ]})).toThrow('identityHost requires hidden: true')
+    expect(() => parseVuePagesConfig({protocol: 'spark-appworks.vue-pages', schemaVersion: 1, pages: [
+      {path: '/host', title: 'Host', scope: 'app', source},
+      {path: '/companion', title: 'Companion', scope: 'enterprise', source, hidden: true, identityHost: '/host'},
+    ]})).toThrow('identityHost must be a visible page of the same scope')
+  })
+
+  it('requires dataSpaceId for navigationId and unique menu identities', () => {
+    const source = 'src/views/app/Settings.vue'
+    expect(() => parseVuePagesConfig({protocol: 'spark-appworks.vue-pages', schemaVersion: 1, pages: [
+      {path: '/a', title: 'A', scope: 'enterprise', source, navigationId: 'NAV'},
+    ]})).toThrow('navigationId requires dataSpaceId')
+    expect(() => parseVuePagesConfig({protocol: 'spark-appworks.vue-pages', schemaVersion: 1, pages: [
+      {path: '/a', title: 'A', scope: 'enterprise', source, dataSpaceId: 'SPACE'},
+      {path: '/b', title: 'B', scope: 'enterprise', source, dataSpaceId: 'OTHER', navigationId: 'SPACE'},
+    ]})).toThrow('duplicated navigation identity "SPACE"')
+  })
+
+  it('derives identity companions from identityHost declarations', () => {
+    expect(getSystemPageIdentityCompanions()).toEqual(expect.arrayContaining([
+      {path: '/features/data-platform/structured-config/logic-view/ui/logic-view-design-page',
+        hostPath: '/features/data-platform/structured-config/logic-view/ui/logic-view-list-page'},
+      {path: '/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page',
+        hostPath: '/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page'},
+    ]))
+  })
+
   it.each([
-    ['/features/data-platform/data-set-management/ui/data-set-list-page', false],
-    ['/features/data-platform/data-set-management/design/ui/data-set-design-page', false],
-    ['/features/data-platform/semi-structured/json-data/ui/json-data-page', false],
-    ['/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page', false],
-    ['/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page', false],
-    ['/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page', false],
-    ['/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page', false],
-    ['/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page', false],
-    ['/features/data-platform/structured-config/data-code/ui/data-code-editor-page', false],
-    ['/features/data-platform/structured-config/logic-view/ui/logic-view-design-page', false],
-    ['/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page', false],
-    ['/features/organization/organization-structure/ui/organization-structure-page', false],
-  ])('resolves the unchanged native navigation path to its matching source: %s', (path, shellTool) => {
+    ['/features/data-platform/data-set-management/ui/data-set-list-page', 'app'],
+    ['/features/data-platform/data-set-management/design/ui/data-set-design-page', 'app'],
+    ['/features/data-platform/semi-structured/json-data/ui/json-data-page', 'enterprise'],
+    ['/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page', 'enterprise'],
+    ['/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page', 'enterprise'],
+    ['/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page', 'enterprise'],
+    ['/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page', 'enterprise'],
+    ['/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page', 'app'],
+    ['/features/data-platform/structured-config/data-code/ui/data-code-editor-page', 'app'],
+    ['/features/data-platform/structured-config/logic-view/ui/logic-view-design-page', 'app'],
+    ['/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page', 'app'],
+    ['/features/organization/organization-structure/ui/organization-structure-page', 'enterprise'],
+  ])('resolves the unchanged native navigation path to its matching source: %s', (path, scope) => {
     const entry = getVuePageEntry(path)
     expect(entry?.source).toBe(`src/views${path}.vue`)
-    expect(entry?.scope).toBe('app')
-    expect(entry?.shellTool).toBe(shellTool)
+    expect(entry?.scope).toBe(scope)
     expect(typeof entry?.load).toBe('function')
   })
 
@@ -92,12 +124,11 @@ describe('Vue page registry', () => {
     expect(publicPaths.has('/dashboard')).toBe(false)
     expect(navTree.homePath).toBe('/')
     expect(navTree.items.some(node => node.path === '/about')).toBe(true)
-    expect(options.some(option => option.path === '/dev' && option.scope === 'app')).toBe(true)
+    expect(options.some(option => option.path === '/dev')).toBe(false)
+    expect(options.some(option => option.path === '/tenants')).toBe(false)
     expect(options.some(option => option.path === '/workflow-designs' && option.source === 'src/views/app/WorkflowDesigns.vue')).toBe(true)
-    expect(getVuePageEntry('/features/system/cache-management/ui/cache-management-page')?.source)
-      .toBe('src/views/features/system/cache-management/ui/cache-management-page.vue')
-    expect(options.find(option => option.path === '/features/system/cache-management/ui/cache-management-page')?.shellTool)
-      .toBe(false)
+    expect(getVuePageEntry('/features/system/cache-management/ui/cache-management-page')).toMatchObject({
+      source: 'src/views/features/system/cache-management/ui/cache-management-page.vue', scope: 'enterprise', group: '系统支持管理'})
     expect(getVuePageEntry('/features/data-platform/database-management/ui/service-management-page')?.source)
       .toBe('src/views/features/data-platform/database-management/ui/service-management-page.vue')
     expect(getVuePageEntry('/features/data-platform/database-management/table-and-view/ui/table-and-view-page')?.source)
@@ -111,8 +142,7 @@ describe('Vue page registry', () => {
     expect(getVuePageEntry(blueprintPath)).toMatchObject({
       source: `src/views${blueprintPath}.vue`,
       scope: 'app',
-      hidden: true,
-      shellTool: false,
+      order: 1,
     })
   })
 

@@ -24,19 +24,19 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-11T04:02:24.311Z",
+  "generatedAt": "2026-11-12T21:01:11.173Z",
   "models": {
     "NavAccessOptions": {
       "name": "NavAccessOptions",
       "jsdoc": "初始化选项",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 导航树未加载时的回退首页路径（默认 '/dev' 开发工作台） */\n    defaultHomePath?: string;\n}",
+        "declarationTypeText": "{\n    /** 导航树未加载时的回退首页路径（默认公共首页 '/'） */\n    defaultHomePath?: string;\n}",
         "members": {
           "attributes": [
             {
               "name": "defaultHomePath",
-              "jsdoc": "导航树未加载时的回退首页路径（默认 '/dev' 开发工作台）",
+              "jsdoc": "导航树未加载时的回退首页路径（默认公共首页 '/'）",
               "readable": true,
               "writable": false
             }

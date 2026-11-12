@@ -11,9 +11,6 @@ import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/
 import NavIcon from '@/components/NavIcon.vue'
 import { ProjectNavigationGuard } from '@/services/project/navigation/project-navigation-guard'
 import { APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath } from '@/services/application-scope'
-import {getBuiltinApplicationDescriptor, getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {readBuiltinSystemNavigation} from '@/lowcode/resources/repository/builtin-system-navigation'
-import {BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/repository/builtin-blueprint-node-resource'
 import { DataSet, type DataRow } from '@spark-appworks/spark-data'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
@@ -21,14 +18,11 @@ import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspa
 import { PageRuntime, ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import { createLowcodeProjectGateways } from '@/lowcode/lowcode-runtime'
 import * as VuePageRegistry from '@/registries/vue-page-registry'
+import { lowcodeEnterpriseNavigation, lowcodePlatformNavigation } from '@/lowcode/system-navigation'
 
 const applicationCatalogReader = vi.hoisted(() => ({read: vi.fn<(applicationId: string, assertCurrent: () => void) => Promise<unknown>>()}))
 const applicationListReader = vi.hoisted(() => ({read: vi.fn<(assertCurrent: () => void) => Promise<unknown[]>>()}))
 const navigationRootReader = vi.hoisted(() => ({read: vi.fn<(systemId: string, assertCurrent: () => void) => Promise<string>>()}))
-const builtinBlueprintRecords=JSON.parse(readFileSync('notes/evidence/workbench-tool-mapping-20261029/builtin-blueprint-business-records.json','utf8')) as {
-  applicationId:string
-  rows:Array<Record<string,unknown>>
-}
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({ loadLowcodeRuntimeScenario: vi.fn() }))
 vi.mock('@/lowcode/lowcode-application-catalog', () => ({
   readLowcodeApplications: applicationListReader.read,
@@ -40,7 +34,6 @@ import {
   assembleLowcodeRuntimeNavigation,
   activateLowcodeApplication,
   enterLowcodeApplicationCatalog,
-  lowcodeApplicationCatalogNavigation,
   lowcodeEnterpriseDisplayName,
   lowcodeApi,
   readLowcodeRuntimeNavigation,
@@ -222,91 +215,6 @@ describe('project reference application catalog owner', () => {
 
     expect(readBlueprint).toHaveBeenCalledWith('APP-TARGET')
     expect(blueprint.nodeId).toBe('TARGET-PAGE')
-  })
-
-  it('loads the complete builtin blueprint for a cross-project reference through the existing gateway', async () => {
-    saveExecutionScope('APP-CURRENT')
-    const scene=getBuiltinScenarioResource('projectBlueprint')
-    const text=readFileSync(scene.path,'utf8')
-    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text))
-    const sourceRevision=[...new Uint8Array(digest)].map(value=>value.toString(16).padStart(2,'0')).join('')
-    vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({resourceId:scene.resourceId,scenarioId:scene.scenarioId,text,sourceRevision}),
-      {status:200,headers:{'Content-Type':'application/json'}})))
-    const readBlueprint = vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([])
-    const gateway = createLowcodeProjectGateways('APP-CURRENT')
-
-    const blueprint = await gateway.projectReferences.loadProjectBlueprint(builtinBlueprintRecords.applicationId)
-
-    const nodeIds:string[]=[]
-    const collect=(node:typeof blueprint):void=>{
-      if(typeof node.nodeId!=='string')throw new Error('builtin blueprint projection has no node identity')
-      nodeIds.push(node.nodeId)
-      for(const child of node.children??[])collect(child as typeof blueprint)
-    }
-    collect(blueprint)
-    expect(nodeIds).toHaveLength(builtinBlueprintRecords.rows.length)
-    expect(new Set(nodeIds)).toEqual(new Set(builtinBlueprintRecords.rows.map(row=>String(row['rowid']))))
-    expect(readBlueprint).not.toHaveBeenCalled()
-  })
-
-  it('destroys the temporary builtin DataSet when its declared node view cannot project identities',async()=>{
-    saveExecutionScope('APP-CURRENT')
-    const scene=getBuiltinScenarioResource('projectBlueprint')
-    const config=JSON.parse(readFileSync(scene.path,'utf8')) as {tables:Record<string,{resourceType:string;resourceId:string;columns:Array<{name:string}>;views:Record<string,unknown>}>}
-    const table=JSON.parse(JSON.stringify(config.tables[BUILTIN_BLUEPRINT_NODE_TABLE_NAME])) as typeof config.tables[string]
-    table.columns=table.columns.filter(column=>column.name!=='rowid'&&column.name!=='SysId')
-    const text=JSON.stringify({scenarioId:scene.scenarioId,tables:{[BUILTIN_BLUEPRINT_NODE_TABLE_NAME]:table}})
-    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text))
-    const sourceRevision=[...new Uint8Array(digest)].map(value=>value.toString(16).padStart(2,'0')).join('')
-    vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({resourceId:scene.resourceId,scenarioId:scene.scenarioId,text,sourceRevision}),
-      {status:200,headers:{'Content-Type':'application/json'}})))
-    const createDataSet=vi.spyOn(DataSet,'fromJson')
-    const gateway=createLowcodeProjectGateways('APP-CURRENT')
-
-    await expect(gateway.projectReferences.loadProjectBlueprint(builtinBlueprintRecords.applicationId)).rejects.toThrow('蓝图 DataView 缺少正式可输出的 rowid 或 SysId')
-
-    const workspaceDataSet=createDataSet.mock.results.map(result=>result.value).find(dataSet=>dataSet?.getTable(BUILTIN_BLUEPRINT_NODE_TABLE_NAME))
-    expect(workspaceDataSet).toBeDefined()
-    expect(workspaceDataSet?.destroyed).toBe(true)
-  })
-})
-
-describe('AppWorks builtin navigation authorization projection', () => {
-  it('keeps the existing shell tool group and stable /dev identity', async () => {
-    const applicationId = getBuiltinApplicationDescriptor().id
-    saveExecutionScope(applicationId, applicationId)
-    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({items: [], contexts: []})
-
-    const first = await readLowcodeRuntimeNavigation()
-    const second = await readLowcodeRuntimeNavigation()
-    const tools = first.items.find(item => item.id === 'appworks-system-tools')
-    const dev = tools?.children?.find(item => item.path === '/dev')
-
-    expect(dev).toMatchObject({id: 'appworks-tool-dev', itemKind: 'system-page', path: '/dev'})
-    expect(second.items.find(item => item.id === 'appworks-system-tools')).toEqual(tools)
-  })
-
-  it('does not promote a partially authorized parent chain into a root system page', async () => {
-    const applicationId = getBuiltinApplicationDescriptor().id
-    saveExecutionScope(applicationId, applicationId)
-    const navigation = await readBuiltinSystemNavigation()
-    const nodesById = new Map(navigation.nodes.map(node => [node.id, node]))
-    const leaf = navigation.nodes.find(node => node.kind === 'Navitem' && node.url?.includes('/table-and-view-page'))
-    if (!leaf) throw new Error('missing registered navigation fixture')
-    const parent = nodesById.get(leaf.parentId)
-    if (!parent) throw new Error('missing immediate parent fixture')
-    const readAuthorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({
-      items: [
-        {id: parent.id, target: '', targetKind: 'empty', formKey: null, children: []},
-        {id: leaf.id, target: leaf.url!, targetKind: 'vue', formKey: leaf.conid, children: []},
-      ], contexts: [],
-    })
-
-    const result = await readLowcodeRuntimeNavigation()
-
-    expect(readAuthorization).toHaveBeenCalledWith(applicationId, applicationId)
-    expect(result.items.map(item => item.id)).toEqual(['appworks-system-tools'])
-    expect(result.items.some(item => item.id === parent.id)).toBe(false)
   })
 })
 
@@ -931,12 +839,12 @@ describe('lowcode project navigation projection', () => {
     const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords')
     const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization')
 
-    await expect(readLowcodeRuntimeNavigation()).resolves.toEqual(lowcodeApplicationCatalogNavigation())
+    await expect(readLowcodeRuntimeNavigation()).resolves.toEqual(lowcodeEnterpriseNavigation())
 
     expect(scope).not.toHaveBeenCalled()
     expect(records).not.toHaveBeenCalled()
     expect(authorization).not.toHaveBeenCalled()
-    expect(lowcodeApplicationCatalogNavigation().projectId).toBe(APPLICATION_CATALOG_PROJECT_ID)
+    expect(lowcodeEnterpriseNavigation().projectId).toBe(APPLICATION_CATALOG_PROJECT_ID)
     expect(lowcodeApi.application.get()).toBeNull()
   })
 
@@ -973,34 +881,38 @@ describe('lowcode project navigation projection', () => {
     })).toBe('领码科技')
   })
 
-  it('keeps catalog pages reachable from the application catalog without a tenant route segment', () => {
-    const catalog = lowcodeApplicationCatalogNavigation()
+  it('builds the enterprise menu from enterprise pages with groups ordered by their members', () => {
+    const catalog = lowcodeEnterpriseNavigation()
 
     expect(catalog.homePath).toBe('/app-list')
     expect(buildApplicationPath({ projectId: catalog.projectId ?? APPLICATION_CATALOG_PROJECT_ID }, catalog.homePath ?? '/app-list'))
       .toBe('/apps/homepage/app-list')
-    expect(catalog.items.map((child) => child.path)).toEqual([
-      '/settings',
-      '/app-list',
-      '/tenants',
-      '/apps',
-    ])
-    expect(catalog.items.every((child) => child.itemKind === 'system-page')).toBe(true)
+    expect(catalog.items[0]?.path).toBe('/app-list')
+    expect(catalog.items.at(-1)?.path).toBe('/settings')
+    const database = catalog.items.find(item => item.id === 'appworks-enterprise-group:数据库管理')
+    expect(database).toMatchObject({itemKind: 'module', order: 11})
+    expect(database?.children?.map(child => child.order)).toEqual([11, 12, 13])
+    const visible = VuePageRegistry.getVuePageOptions().filter(page => page.scope === 'enterprise' && page.hidden !== true)
+    const leaves = catalog.items.flatMap(item => item.children ?? [item])
+    expect(leaves.map(leaf => leaf.path).sort()).toEqual(visible.map(page => page.path).sort())
+    expect(leaves.every(leaf => leaf.itemKind === 'system-page')).toBe(true)
+    expect(leaves.some(leaf => leaf.path === '/tenants')).toBe(false)
   })
 
-  it('passes only a configured Vue page dataSpaceId to the system-page navigation item', () => {
-    const pages = VuePageRegistry.getVuePageOptions()
-    const configuredScenarioId = 'FORM-EXPLICIT-1'
-    vi.spyOn(VuePageRegistry, 'getVuePageOptions').mockReturnValue(pages.map(page => page.path === '/settings'
-      ? {...page, dataSpaceId: configuredScenarioId}
-      : page))
+  it('projects dataSpaceId and navigationId into the system-page navigation identity', () => {
+    const leaves = lowcodeEnterpriseNavigation().items.flatMap(item => item.children ?? [item])
+    const people = VuePageRegistry.getVuePageOptions().find(page => page.navigationId !== undefined && page.scope === 'enterprise')
+    if (!people?.dataSpaceId || !people.navigationId) throw new Error('expected an enterprise page with its own navigation identity')
+    expect(leaves.find(leaf => leaf.path === people.path)).toMatchObject({id: people.navigationId, blueprintScenarioId: people.dataSpaceId})
+    expect(leaves.find(leaf => leaf.path === '/app-list')?.blueprintScenarioId).toBeUndefined()
+  })
 
-    const navigation = lowcodeApplicationCatalogNavigation()
-    const configured = navigation.items.find(item => item.path === '/settings')
-    const unconfigured = navigation.items.find(item => item.path === '/app-list')
-
-    expect(configured?.blueprintScenarioId).toBe(configuredScenarioId)
-    expect(unconfigured?.blueprintScenarioId).toBeUndefined()
+  it('builds the platform menu from platform pages only', () => {
+    const platform = lowcodePlatformNavigation()
+    const visible = VuePageRegistry.getVuePageOptions().filter(page => page.scope === 'platform' && page.hidden !== true)
+    expect(platform.items.flatMap(item => item.children ?? [item]).map(leaf => leaf.path).sort())
+      .toEqual(visible.map(page => page.path).sort())
+    expect(platform).not.toHaveProperty('projectId')
   })
 
   it.each(['Payroll.Calculate', 'Payroll.Calculate.Renamed'])('keeps the menu title and nested home path for capability %s', (name) => {
@@ -1048,17 +960,14 @@ describe('lowcode project navigation projection', () => {
     })
     expect(projection.items[0]?.children?.[0]).not.toHaveProperty('formKey')
     expect(projection.items[0]?.children?.[0]).not.toHaveProperty('dataSpaceId')
-    expect(projection.items.at(-1)).toMatchObject({
-      id: 'appworks-system-tools',
-      title: 'SPARK 工具',
-      itemKind: 'module',
-    })
-    expect(projection.items.at(-1)?.children?.map((child) => child.path)).toEqual([
-      '/cache-manager',
-      '/workflow-designs',
-      '/dev',
-    ])
-    expect(projection.items.at(-1)?.children?.every((child) => !('dataSpaceId' in child))).toBe(true)
+    const design = projection.items.at(-1)
+    expect(design).toMatchObject({id: 'appworks-application-design', title: '应用设计', itemKind: 'module'})
+    expect(design?.children?.[0]).toMatchObject({id: '7AB874097A1E8711A42FD845939A6E05', title: '项目蓝图',
+      path: '/features/application/application-function-management/ui/application-function-page'})
+    const appPages = VuePageRegistry.getVuePageOptions().filter(page => page.scope === 'app' && page.hidden !== true)
+    expect(design?.children?.flatMap(child => child.children ?? [child]).map(leaf => leaf.path).sort())
+      .toEqual(appPages.map(page => page.path).sort())
+    expect(design?.children?.some(child => child.path === '/dev')).toBe(false)
   })
 
   it('keeps the cfg tool target separate from the scenario call parameter', () => {
@@ -1079,13 +988,14 @@ describe('lowcode project navigation projection', () => {
     expect(projection.items[0]?.path).not.toContain('orders')
   })
 
-  it('lands apps without business pages on the development workbench with its navigation identity', () => {
+  it('lands apps without business pages on the current application blueprint with its navigation identity', () => {
     const projection = assembleLowcodeRuntimeNavigation({
       applicationName: '空应用', projectId: 'PROJECT-1', navigationRootId: 'ROOT-1',
       records: [], authorization: { items: [], contexts: [] },
     })
 
-    expect(projection.homePath).toBe(`/dev?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=appworks-tool-dev`)
+    expect(projection.homePath).toBe('/features/application/application-function-management/ui/application-function-page'
+      + `?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=7AB874097A1E8711A42FD845939A6E05`)
   })
 
   it('rejects cfg navigation targets that cannot name one tool file directory', () => {

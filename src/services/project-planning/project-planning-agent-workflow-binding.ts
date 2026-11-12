@@ -106,7 +106,7 @@ export type ResolveScopedProjectPlanningRunInputOptions =
 export type ProjectPlanningAgentWorkflowBindingOptions = Readonly<{
   /** 按 moduleInstanceId 获取 ProjectWorkspace 编辑器。 */
   getProjectPlanningEditor: (context: { moduleInstanceId: string }) => ProjectWorkspace
-  /** 当前 inline DevSystem PageRuntime owner。 */
+  /** 当前 inline 蓝图 PageRuntime owner。 */
   blueprintDataView?: BlueprintWorkspaceDataView
   /** 本次 AI run 内，按项目身份读取已确认的 DataView completion result；作用域不跨 run。 */
   getDataViewCompletionResult?: (projectId: string) => ProjectPlanningCompletionResult | undefined
@@ -536,8 +536,8 @@ function guardProjectPlanningBlueprint(
     } catch (error: unknown) {
       const pendingError = error instanceof Error ? error.message : String(error)
       const ownerState = owner
-      if (Boolean(ownerState.hasUnconfirmedSave)) throw new Error(`项目策划 DataView 新增回执未知；保留原 DataView command，请沿工作台 Save All 核验：${pendingError}`)
-      if (Boolean(ownerState.hasPendingChildCreate)) throw new Error(`项目策划 DataView 新增命令仍待回读；保留原 DataView command，请沿工作台 Save All 核验：${pendingError}`)
+      if (Boolean(ownerState.hasUnconfirmedSave)) throw new Error(`项目策划 DataView 新增回执未知；保留原 DataView command，请沿蓝图核验待定提交 核验：${pendingError}`)
+      if (Boolean(ownerState.hasPendingChildCreate)) throw new Error(`项目策划 DataView 新增命令仍待回读；保留原 DataView command，请沿蓝图核验待定提交 核验：${pendingError}`)
       throw error
     }
     if (ids.length !== plannedChildren.length || ids.some((id,index) => String(id) !== plannedChildren[index]?.nodeId)) {

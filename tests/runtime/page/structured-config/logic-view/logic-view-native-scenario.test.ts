@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs'
 import {expect,it} from 'vitest'
-import {resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 const scenarioId='EB720370EF06A5A656838F87E0716D6B'
 it('declares consumers by source identity across spaces without filtering away drifted model names',()=>{
@@ -17,7 +17,7 @@ it('declares an independent staged output publication view scoped to the origina
  expect(fields.views['default']).toBeDefined();expect(fields.views['sourceDetails']).toBeDefined()
 })
 it('declares a formal catalog and an independent exact editor target without eager queries',()=>{
- const resource=resolveBuiltinScenarioResource(scenarioId)
+ const resource=resolveSystemScenarioResource(scenarioId)
  expect(resource?.path).toBe('config/pages/structured-config/logic-view-catalog/pagedata.json')
  if(!resource)throw Error('Missing logical view scenario')
  const config=new ScenarioViewConfig(scenarioId,readFileSync(resource.path,'utf8')).toJSON()

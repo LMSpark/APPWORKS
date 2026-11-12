@@ -340,11 +340,19 @@
         },
         "method.formatDisplay.return": {
           "type": "string"
+        },
+        "method.member.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.member.return": {
+          "$ref": "../context/useFieldPermission.ts.json#/$defs/FieldMemberRef"
         }
       }
     }
   },
-  "generatedAt": "2026-11-12T17:28:21.270Z",
+  "generatedAt": "2026-11-12T20:41:11.232Z",
   "models": {
     "FieldTransferOption": {
       "name": "FieldTransferOption",
@@ -625,7 +633,7 @@
       "jsdoc": "Use Option Field Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 组件属性集合。 */\n    props: FieldOptionProps & FieldPermissionProps<TValue>;\n    /** 类型标识。 */\n    type: string;\n    /** fallback Value 字段。 */\n    fallbackValue: TValue;\n    /** coerce 回调。 */\n    coerce: (rawValue: unknown) => TValue;\n    /** format Display 回调。 */\n    formatDisplay?: (value: unknown, helpers: UseFieldOptionsReturn) => string;\n}",
+        "declarationTypeText": "{\n    /** 组件属性集合。 */\n    props: FieldOptionProps & FieldPermissionProps<TValue>;\n    /** 类型标识。 */\n    type: string;\n    /** fallback Value 字段。 */\n    fallbackValue: TValue;\n    /** coerce 回调。 */\n    coerce: (rawValue: unknown) => TValue;\n    /** format Display 回调。 */\n    formatDisplay?: (value: unknown, helpers: UseFieldOptionsReturn) => string;\n    /** 绑定源字段内 JSON 成员；记录选择模式不适用。 */\n    member?: () => FieldMemberRef | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -689,6 +697,19 @@
               "type": {
                 "type": "intrinsic",
                 "name": "string"
+              }
+            },
+            {
+              "name": "member",
+              "jsdoc": "绑定源字段内 JSON 成员；记录选择模式不适用。",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "FieldMemberRef",
+                  "sourcePath": "packages/spark-component/src/components/fields/context/useFieldPermission.ts"
+                }
               }
             }
           ]

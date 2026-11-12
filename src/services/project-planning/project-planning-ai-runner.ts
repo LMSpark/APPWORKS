@@ -5,7 +5,7 @@
  * AI用途：规划模块/页面概要或排查项目策划 Agent 时，用本模块理解 services/project-planning-ai-runner。
  */
 /**
- * projectPlanning inline AI runner — 与 DevSystem 共享正式 DataView owner。
+ * projectPlanning inline AI runner — 与 蓝图 共享正式 DataView owner。
  *
  * 统一入口：`runProjectPlanningAiSession` → `AiAgentHost.run('projectPlanning', input)`。
  * 调用方注入 `ProjectWorkspace` 与 Base_NavigationInfo DataView owner。
@@ -37,7 +37,7 @@ import { createProjectPlanningInlineDeliveryPort } from '@/services/project-plan
 export type ProjectPlanningAiRunOptions = ResolveScopedProjectPlanningRunInputOptions & Readonly<{
   /** inline 宿主显式启用后在 run 结束时保存蓝图；默认 false。 */
   saveBlueprintAfterRun?: boolean
-  /** DevSystem inline only: the live, already loaded PageRuntime DataView owner. */
+  /** 蓝图 inline only: the live, already loaded PageRuntime DataView owner. */
   blueprintDataView?: BlueprintWorkspaceDataView
 }>
 

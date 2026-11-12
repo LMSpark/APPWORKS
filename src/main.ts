@@ -60,13 +60,14 @@ import {
   enterLowcodeApplicationCatalog,
   hasLowcodeSession,
   lowcodeApi,
-  lowcodeApplicationCatalogNavigation,
   readLowcodePageFile,
   readLowcodePrincipal,
   readLowcodeRuntimeNavigation,
 } from './lowcode/lowcode-runtime'
+import { lowcodePlatformNavigation } from './lowcode/system-navigation'
 import {
   APPLICATION_CATALOG_PROJECT_ID,
+  PLATFORM_PATH_PREFIX,
   buildApplicationPath,
   parseApplicationPathScope,
   stripApplicationPath,
@@ -85,7 +86,6 @@ const {
   SYSTEM_PAGE_NAVIGATION_ID_QUERY,
 } = SparkAppRuntime
 const startupLogger = createLogger('main')
-const PLATFORM_PATH_PREFIX = '/platform'
 const HOST_APP_CONFIG: AppConfig = {
   apiBaseUrl: '/api',
   logLevel: import.meta.env.PROD ? 'info' : 'debug',
@@ -350,7 +350,7 @@ async function startApp() {
 
     // 4. 构建 Vue 组件页面注册表（数据来自根级 config/navigation/vue-pages.json）
     startupLogger.info('📄 构建 Vue 组件页面映射...')
-    const { buildComponentMap, buildPreAuthNavTree, getPublicPaths } = await import('./registries/vue-page-registry')
+    const { buildComponentMap, buildPreAuthNavTree, getPublicPaths, getSystemPageIdentityCompanions } = await import('./registries/vue-page-registry')
     const componentMap = await buildComponentMap()
 
     // 登录前导航树 — 从 Vue page registry scope='public' 自动派生
@@ -407,10 +407,7 @@ async function startApp() {
         pageComponent: SparkPageRenderer,
         loadScenario: loadLowcodeRuntimeScenario,
         componentMap,
-        systemPageIdentityCompanions: [{
-          path: '/features/data-platform/structured-config/logic-view/ui/logic-view-design-page',
-          hostPath: '/features/data-platform/structured-config/logic-view/ui/logic-view-list-page',
-        }],
+        systemPageIdentityCompanions: getSystemPageIdentityCompanions(),
         isAuthenticated: hasLowcodeSession,
         applicationPathPrefix: '/apps/:projectId',
         preAuthNavTree,
@@ -418,8 +415,8 @@ async function startApp() {
         loadNavigation: async () => {
           return readLowcodeRuntimeNavigation()
         },
-        loadPlatformNavigation: () => Promise.resolve(lowcodeApplicationCatalogNavigation()),
-        isPlatformNavigationEnabled: () => false,
+        loadPlatformNavigation: () => Promise.resolve(lowcodePlatformNavigation()),
+        isPlatformNavigationEnabled: hasLowcodeSession,
         platformPathPrefix: PLATFORM_PATH_PREFIX,
       },
 

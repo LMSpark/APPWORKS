@@ -1,14 +1,12 @@
 /**
  * @module app:services/project/blueprint-workspace-dataview
  * 职责：通过当前项目的蓝图 DataView 统一查询、编辑覆盖、取消和 DataSet 保存，并提供同源树投影。
- * 边界：动态项目绑定正式 Base_NavigationInfo，仓内 AppWorks 绑定RepositoryBlueprintNode文件视图；不复制业务草稿。
+ * 边界：项目蓝图绑定正式 Base_NavigationInfo；不复制业务草稿。
  * 字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。
  */
 import {buildDataViewKey, DataViewFilter, RequestState, type DataRow, type DataSet, type DataView, type DataViewFilterTree} from '@spark-appworks/spark-data'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY, lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords, validateLowcodeProjectBlueprintRecords, type LowcodeProjectBlueprintRecord} from '@spark-appworks/spark-lowcode-api'
 import type {PageRuntime, ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData} from '@spark-appworks/spark-project-model'
-import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
-import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/repository/builtin-blueprint-node-resource'
 export const BLUEPRINT_WORKSPACE_FIELD_NAMES = Object.freeze([
   'rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'funCode', 'FunName', 'memo', 'htmlDesc', 'conid', 'conType', 'NavigationUrl', 'VersionId',
   'DifficultyFactor', 'Manhour', 'Number', 'Sum', 'Total', 'personCharge', 'status', 'IsShowAtNav', 'NavigationType',
@@ -121,7 +119,6 @@ export class BlueprintWorkspaceDataView {
   #projectId: string
   #tableName = MODEL_NAME
   #viewId = VIEW_NAME
-  #readOnlySource = false
   #nodeId = ''
   #revision = 0
   #disposed = false
@@ -150,24 +147,12 @@ export class BlueprintWorkspaceDataView {
     this.#projectId = projectId.trim()
     if (!this.#projectId) throw new Error('蓝图 DataView 缺少项目身份')
     if (dataSet.scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY) throw new Error('蓝图 DataView 场景身份不匹配')
-    const repositoryTable=dataSet.getTable(BUILTIN_BLUEPRINT_NODE_TABLE_NAME)
-    const repositoryView=dataSet.getView(BUILTIN_BLUEPRINT_NODE_TABLE_NAME,VIEW_NAME)
-    if(this.#projectId===getBuiltinApplicationDescriptor().id){
-      if(!repositoryTable||!repositoryView
-        ||repositoryTable.resourceType!=='file'||repositoryTable.resourceId!==BUILTIN_BLUEPRINT_NODE_RESOURCE_ID||repositoryTable.modelBinding){
-        throw new Error('BUILTIN_BLUEPRINT_IDENTITY: 仓内蓝图文件视图不能绑定到当前项目或模型')
-      }
-      this.#tableName=BUILTIN_BLUEPRINT_NODE_TABLE_NAME
-      this.#readOnlySource=true
-      this.view=repositoryView
-    }else{
-      const table = dataSet.getTable(MODEL_NAME)
-      const view = dataSet.getView(MODEL_NAME, VIEW_NAME)
-      if (!table || !view || table.modelBinding?.modelName !== MODEL_NAME || !table.modelBinding.modelId.trim()) {
-        throw new Error('蓝图 DataView 未绑定正式 Base_NavigationInfo 模型')
-      }
-      this.view = view
+    const table = dataSet.getTable(MODEL_NAME)
+    const view = dataSet.getView(MODEL_NAME, VIEW_NAME)
+    if (!table || !view || table.modelBinding?.modelName !== MODEL_NAME || !table.modelBinding.modelId.trim()) {
+      throw new Error('蓝图 DataView 未绑定正式 Base_NavigationInfo 模型')
     }
+    this.view = view
     this.view.commitMode = 'staged'
     const queryOutputFields = new Set(this.view.queryColumns.map(column => column.name))
     const queryFields = BLUEPRINT_WORKSPACE_FIELD_NAMES.filter(field => queryOutputFields.has(field))
@@ -180,19 +165,14 @@ export class BlueprintWorkspaceDataView {
   }
 
   public get projectId(): string {return this.#projectId}
-  /** Standard component binding for this owner: formal model key, or the exact trusted local-file DataView. */
+  /** Standard component binding for this owner's formal model view. */
   public get standardComponentBinding(): Readonly<{dataViewKey?: string}> {
     const scenarioId=this.view.dataSet?.scenarioId
     const modelName=this.view.dataTable?.modelBinding?.modelName
     if(scenarioId&&modelName)return {dataViewKey:buildDataViewKey(modelName,this.view.viewId,scenarioId)}
-    if(this.#readOnlySource&&scenarioId===LOWCODE_APPLICATION_CATALOG_FORM_KEY
-      &&this.view.tableName===BUILTIN_BLUEPRINT_NODE_TABLE_NAME
-      &&this.view.dataTable?.resourceType==='file'
-      &&this.view.dataTable.resourceId===BUILTIN_BLUEPRINT_NODE_RESOURCE_ID
-      &&!this.view.dataTable.modelBinding)return {dataViewKey:buildDataViewKey(this.view.tableName,this.view.viewId,scenarioId)}
     return {}
   }
-  /** Rebind the parked owner to a newly acquired same-project DevSystem scope. */
+  /** Rebind the parked owner to a newly acquired same-project 蓝图 scope. */
   public rebindScope(assertCurrent: () => void): void {
     if (this.#disposed) throw new Error('蓝图 DataView owner 已释放，不能重新绑定作用域')
     this.assertCurrent = assertCurrent
@@ -1695,9 +1675,7 @@ export class BlueprintWorkspaceDataView {
     if (this.#disposed) throw new Error('蓝图 DataView 已释放')
     this.assertCurrent()
     const table=this.dataSet.getTable(this.#tableName)
-    const tableValid=this.#readOnlySource
-      ? table?.resourceType==='file'&&table.resourceId===BUILTIN_BLUEPRINT_NODE_RESOURCE_ID&&!table.modelBinding
-      : table?.modelBinding?.modelName===MODEL_NAME&&Boolean(table.modelBinding.modelId.trim())
+    const tableValid=table?.modelBinding?.modelName===MODEL_NAME&&Boolean(table.modelBinding.modelId.trim())
     if (this.dataSet.scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY || !tableValid
       || this.dataSet.getView(this.#tableName, this.#viewId) !== this.view) {
       throw new Error('蓝图 DataView 场景或视图身份已变化')
@@ -1706,7 +1684,6 @@ export class BlueprintWorkspaceDataView {
 
   private assertWritable():void{
     this.assertUsable()
-    if(this.#readOnlySource)throw new Error('BUILTIN_BLUEPRINT_READ_ONLY: 仓内蓝图来源当前只读，不能新增、移动、修改或删除')
   }
 }
 

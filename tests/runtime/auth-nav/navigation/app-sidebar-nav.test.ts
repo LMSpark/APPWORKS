@@ -165,11 +165,11 @@ describe('AppSidebar navigation rendering', () => {
         path: '/dev',
       },
       {
-        id: 'platform-cache',
+        id: 'platform-workflow',
         itemKind: 'system-page',
-        title: '缓存管理',
-        icon: 'Coin',
-        path: '/cache-manager',
+        title: '工作流设计',
+        icon: 'Share',
+        path: '/workflow-designs',
       },
     ]
     const platformDev = items[1]

@@ -1,0 +1,489 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:core/data-field-member",
+    "sourcePath": "packages/spark-data/src/core/data-field-member.ts",
+    "sourceFile": "packages/spark-data/src/core/data-field-member.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "core/data-field-member",
+    "jsdoc": "@module @spark-appworks/spark-data:core/data-field-member\n职责：JSON 源字段内单个成员的严格定位、读取与合并写回。\n边界：只计算源字段的新值，不读写 DataView、不判断权限；编辑、取消、权限和保存差异仍沿源字段。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataFieldMemberPath",
+      "DataFieldMemberFormat",
+      "DataFieldMemberRef",
+      "DataFieldMemberEdit",
+      "DataFieldMember"
+    ]
+  },
+  "$defs": {
+    "DataFieldMemberPath": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "DataFieldMemberPath",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      }
+    },
+    "DataFieldMemberFormat": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataFieldMemberFormat",
+      "enum": [
+        "text",
+        "native"
+      ]
+    },
+    "DataFieldMemberRef": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataFieldMemberRef",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "path": {
+          "$ref": "#/$defs/DataFieldMemberPath"
+        },
+        "format": {
+          "enum": [
+            "text",
+            "native"
+          ]
+        }
+      },
+      "required": [
+        "field",
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "DataFieldMemberEdit": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataFieldMemberEdit",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "path": {
+          "$ref": "#/$defs/DataFieldMemberPath"
+        },
+        "format": {
+          "enum": [
+            "text",
+            "native"
+          ]
+        },
+        "value": true
+      },
+      "required": [
+        "field",
+        "path",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "MemberContainer": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "MemberContainer",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        {
+          "type": "array",
+          "items": true
+        }
+      ]
+    },
+    "DataFieldMember": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataFieldMember",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.root.params": {
+          "type": "object",
+          "properties": {
+            "raw": true,
+            "format": {
+              "$ref": "#/$defs/DataFieldMemberFormat"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.root.return": {
+          "$ref": "#/$defs/MemberContainer"
+        },
+        "method.parent.params": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "$ref": "#/$defs/MemberContainer"
+            },
+            "path": {
+              "$ref": "#/$defs/DataFieldMemberPath"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.parent.return": {
+          "$ref": "#/$defs/MemberContainer"
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "raw": true,
+            "member": {
+              "type": "object",
+              "title": "Omit<DataFieldMemberRef, 'field'>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": true,
+        "method.equivalent.params": {
+          "type": "object",
+          "properties": {
+            "left": true,
+            "right": true,
+            "format": {
+              "$ref": "#/$defs/DataFieldMemberFormat"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.equivalent.return": {
+          "type": "boolean"
+        },
+        "method.merge.params": {
+          "type": "object",
+          "properties": {
+            "raw": true,
+            "edit": {
+              "type": "object",
+              "title": "Omit<DataFieldMemberEdit, 'field'>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.merge.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-12T21:18:43.089Z",
+  "models": {
+    "DataFieldMemberPath": {
+      "name": "DataFieldMemberPath",
+      "jsdoc": "源字段内的成员路径；字符串为对象键，数字为已存在数组项下标。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReadonlyArray<string | number>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReadonlyArray<string | number>",
+            "targetName": "ReadonlyArray"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataFieldMemberFormat": {
+      "name": "DataFieldMemberFormat",
+      "jsdoc": "text 源字段保存 JSON 文本，native 源字段保存原生对象或数组。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'text' | 'native'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'text'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'native'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataFieldMemberRef": {
+      "name": "DataFieldMemberRef",
+      "jsdoc": "定位一个 JSON 源字段成员。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 承载 JSON 的源字段，权限和保存均以此字段为准。 */\n    field: string;\n    /** 成员路径，不能为空。 */\n    path: DataFieldMemberPath;\n    /** 源字段存储格式，默认 text。 */\n    format?: DataFieldMemberFormat;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 承载 JSON 的源字段，权限和保存均以此字段为准。 */\n    field: string;\n    /** 成员路径，不能为空。 */\n    path: DataFieldMemberPath;\n    /** 源字段存储格式，默认 text。 */\n    format?: DataFieldMemberFormat;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "field",
+              "jsdoc": "承载 JSON 的源字段，权限和保存均以此字段为准。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "jsdoc": "成员路径，不能为空。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "format",
+              "jsdoc": "源字段存储格式，默认 text。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataFieldMemberEdit": {
+      "name": "DataFieldMemberEdit",
+      "jsdoc": "一次成员写入；value 为 undefined 时移除对象成员。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataFieldMemberRef & Readonly<{\n    value: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataFieldMemberRef",
+            "targetName": "DataFieldMemberRef"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    value: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "MemberContainer": {
+      "name": "MemberContainer",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Record<string, unknown> | unknown[]",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Record<string, unknown>",
+            "targetName": "Record"
+          },
+          {
+            "kind": "union",
+            "typeText": "unknown[]"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataFieldMember": {
+      "name": "DataFieldMember",
+      "jsdoc": "JSON 成员路径算法；对象叶允许缺失，父容器必须已存在，不补建中间层。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "JSON 成员路径算法；对象叶允许缺失，父容器必须已存在，不补建中间层。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "root",
+              "jsdoc": "解析源字段；空文本、null 或 undefined 视为空对象，其它非容器值显式失败。",
+              "parameters": [
+                {
+                  "name": "raw",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "format",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataFieldMemberFormat",
+                    "sourcePath": "packages/spark-data/src/core/data-field-member.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "MemberContainer",
+                "sourcePath": "packages/spark-data/src/core/data-field-member.ts"
+              }
+            },
+            {
+              "name": "parent",
+              "jsdoc": "返回叶所在容器；数组下标必须已存在，对象中间层必须已存在。",
+              "parameters": [
+                {
+                  "name": "root",
+                  "type": {
+                    "type": "reference",
+                    "name": "MemberContainer",
+                    "sourcePath": "packages/spark-data/src/core/data-field-member.ts"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataFieldMemberPath",
+                    "sourcePath": "packages/spark-data/src/core/data-field-member.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "MemberContainer",
+                "sourcePath": "packages/spark-data/src/core/data-field-member.ts"
+              }
+            },
+            {
+              "name": "read",
+              "jsdoc": "读取源字段成员；缺失的对象叶返回 undefined。",
+              "parameters": [
+                {
+                  "name": "raw",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "member",
+                  "type": {
+                    "type": "reference",
+                    "name": "Omit",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataFieldMemberRef",
+                        "sourcePath": "packages/spark-data/src/core/data-field-member.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "field"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            },
+            {
+              "name": "equivalent",
+              "jsdoc": "两个源字段值解析后 JSON 等价；任一方不是有效 JSON 容器时视为不等价。",
+              "parameters": [
+                {
+                  "name": "left",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "right",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "format",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataFieldMemberFormat",
+                    "sourcePath": "packages/spark-data/src/core/data-field-member.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "merge",
+              "jsdoc": "克隆源字段后替换一个成员，保留其它成员。\n@returns 合并后的源字段值；结果与原值 JSON 等价时返回原值，避免格式差异制造编辑覆盖。",
+              "parameters": [
+                {
+                  "name": "raw",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "edit",
+                  "type": {
+                    "type": "reference",
+                    "name": "Omit",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataFieldMemberEdit",
+                        "sourcePath": "packages/spark-data/src/core/data-field-member.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "field"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

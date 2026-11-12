@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/page-design/DevPreviewTab",
+    "sourcePath": "src/views/features/application/application-function-management/ui/page-design/DevPreviewTab.vue",
+    "sourceFile": "src/views/features/application/application-function-management/ui/page-design/DevPreviewTab.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/page-design/DevPreviewTab",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/page-design/DevPreviewTab\n职责：蓝图页“页面设计”的工具真实运行实例预览。\n边界：不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解页面设计如何预览工具时，用本模块定位。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T21:29:12.936Z",
+  "models": {}
+}

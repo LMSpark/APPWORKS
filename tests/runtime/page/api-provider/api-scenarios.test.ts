@@ -1,7 +1,6 @@
-﻿import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {RequestState, type DataView} from '@spark-appworks/spark-data'
-import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
 import {createApiService, seed, NAV, CONFIG, API, pagedata} from './api-provider.fixture'
 
 const api = vi.hoisted(() => ({current: undefined as unknown as ReturnType<typeof import('./api-provider.fixture')['createApiService']>}))
@@ -40,9 +39,9 @@ const byId = (view: DataView, id: string) => view.rows.find(row => view.getPkKey
 const http = () => api.current.state.http
 const views = (tableName: string, viewId = 'default') => [{tableName, viewId}]
 
-describe('builtin application external-service scenarios', () => {
-  it.each([NAV, CONFIG, API])('loads registered %s through the builtin application scope', async scenarioId => {
-    const projectId = getBuiltinApplicationDescriptor().id
+describe('registered external-service scenarios', () => {
+  it.each([NAV, CONFIG, API])('loads registered %s for any application scope', async scenarioId => {
+    const projectId = 'APP-OTHER'
     api.current.service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': projectId}})
     const dataSet = await open(scenarioId, scenarioId === NAV ? undefined : 'P1', projectId)
     const tableName = scenarioId === API ? 'Base_DataServiceInterface' : 'Base_InterfaceProvider'

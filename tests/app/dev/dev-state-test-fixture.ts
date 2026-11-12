@@ -1,5 +1,5 @@
 import type { PageToolFileName, ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
-import { useDevState } from '@/views/app/dev-system/useDevState'
+import { useDevState } from '@/views/features/application/application-function-management/ui/blueprint-state/useDevState'
 import { resetAppProjectWorkspace } from '@/services/project/project-shell'
 
 export type DevState = ReturnType<typeof useDevState>

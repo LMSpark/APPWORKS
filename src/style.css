@@ -406,51 +406,6 @@ body .app-tab-bar__tab--active {
   border-color: var(--spark-border-color);
 }
 
-/* ==================== 开发工作台全局修饰 ==================== */
-
-body .dev-system {
-  color: var(--spark-text-primary);
-}
-
-body .dev-system .dev-header,
-body .dev-system .dev-status-bar,
-body .dev-system .workspace-footer,
-body .dev-system .file-header,
-body .dev-system .version-side {
-  border-color: var(--spark-border-color);
-  background: var(--spark-bg-page);
-}
-
-body .dev-system .dev-body {
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--spark-bg-soft) 78%, transparent), transparent 160px),
-    var(--spark-bg-sunken);
-}
-
-body .dev-system .dev-body__tree,
-body .dev-system .dev-body__workspace {
-  border-color: var(--spark-border-color);
-  border-radius: var(--spark-radius-md);
-  background: var(--spark-bg-page);
-}
-
-body .dev-system .dev-tree__toolbar {
-  border-color: var(--spark-border-color);
-  background: var(--spark-bg-soft);
-}
-
-body .dev-system .tree-node {
-  min-width: 0;
-}
-
-body .dev-system .node-path {
-  color: var(--spark-text-placeholder);
-}
-
-body .dev-system .editor-area--dataset {
-  background: var(--spark-bg-soft);
-}
-
 /* ==================== SPARK 页面通用工具类 ==================== */
 
 .spark-page-surface {

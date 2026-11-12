@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/settings/local-page-cache-card",
+    "sourcePath": "src/views/app/settings/local-page-cache-card.vue",
+    "sourceFile": "src/views/app/settings/local-page-cache-card.vue",
+    "packageName": "app",
+    "modulePath": "views/app/settings/local-page-cache-card",
+    "jsdoc": "@module app:views/app/settings/local-page-cache-card\n职责：在系统设置中查看与清理浏览器 localStorage 里的页面文件缓存（spark_page_ / spark_file_）。\n边界：只处理本机缓存，不触及后端缓存（后端缓存由 AppWorks 缓存管理页经 DataView 维护）；缓存回收仍由 FileLoader 按 lastAccess LRU 执行。\nAI用途：需要定位本机页面缓存的查看、删除或清空入口时，用本模块定位 views/app/settings/local-page-cache-card。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T19:53:31.119Z",
+  "models": {}
+}

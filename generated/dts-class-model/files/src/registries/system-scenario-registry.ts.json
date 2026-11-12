@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:registries/system-scenario-registry",
+    "sourcePath": "src/registries/system-scenario-registry.ts",
+    "sourceFile": "src/registries/system-scenario-registry.ts",
+    "packageName": "app",
+    "modulePath": "registries/system-scenario-registry",
+    "jsdoc": "@module app:registries/system-scenario-registry\n职责：登记 AppWorks 系统页使用的仓内场景资源（pagedata），供任一应用及目录作用域按场景身份解析。\n边界：只登记资源身份与路径，不携带应用身份、不复制场景正文；场景正文经 SPARK data 仓内文件 DataView 读取。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "SystemScenarioName",
+      "SystemScenarioResource"
+    ]
+  },
+  "$defs": {
+    "SystemScenarioName": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SystemScenarioName",
+      "enum": [
+        "dataSpaceDesign",
+        "dataSpaceCatalog",
+        "dataDictionary",
+        "projectBlueprint",
+        "cacheManagement",
+        "logicViewCatalog",
+        "apiProvider",
+        "apiConfig",
+        "apiInterface",
+        "dataCodeCatalog",
+        "dataCodeEditor",
+        "workflowCatalog",
+        "excelImportCatalog",
+        "pdfInspectCatalog",
+        "excelImportEditor",
+        "workflowEditor",
+        "jsonDataCatalog",
+        "businessTableSelector",
+        "agentWorkflowFiles",
+        "organizationStructure",
+        "jobManagement",
+        "applicationManager",
+        "bugManage",
+        "dataRecovery",
+        "flowMonitor",
+        "databaseRelations",
+        "dataMenu",
+        "dimensionDesign",
+        "dimensionLedger",
+        "fileManager",
+        "reportManagement"
+      ]
+    },
+    "SystemScenarioResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SystemScenarioResource",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/SystemScenarioName"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "scenarioId",
+        "resourceId",
+        "path"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-12T20:46:54.869Z",
+  "models": {
+    "SystemScenarioName": {
+      "name": "SystemScenarioName",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof systemScenarioNames[number]",
+        "members": {}
+      }
+    },
+    "SystemScenarioResource": {
+      "name": "SystemScenarioResource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: SystemScenarioName;\n    scenarioId: string;\n    resourceId: string;\n    path: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: SystemScenarioName;\n    scenarioId: string;\n    resourceId: string;\n    path: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

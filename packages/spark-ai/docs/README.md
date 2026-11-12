@@ -14,7 +14,7 @@
 |------|------|
 | [`transport-and-session-zh-cn.md`](transport-and-session-zh-cn.md) | V4 传输、session-turn / app-sse、ai-turn-bridge 序列与排错 |
 | [`class-model-knowledge-system-zh-cn.md`](class-model-knowledge-system-zh-cn.md) | ClassModel 知识体系：SSOT、JSON bundle、componentIndex、消费矩阵、按需加载、参数检测 |
-| [`pagedesign-devsystem-zh-cn.md`](pagedesign-devsystem-zh-cn.md) | APP 层 pageDesign × DevSystem 接线与排错 |
+| [`pagedesign-devsystem-zh-cn.md`](pagedesign-devsystem-zh-cn.md) | APP 层 pageDesign × 蓝图 接线与排错 |
 
 ## 附录（已并入主文档，保留速查）
 

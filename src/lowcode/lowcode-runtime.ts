@@ -11,21 +11,18 @@ import type {
 } from '@spark-appworks/spark-app'
 import { NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY } from '@spark-appworks/spark-app'
 import * as ProjectModel from '@spark-appworks/spark-project-model'
-import { createRequest, isRecord } from '@spark-appworks/spark-utils'
-import {DataSet} from '@spark-appworks/spark-data'
+import { createRequest } from '@spark-appworks/spark-utils'
 import { parseQuery } from 'vue-router'
-import { getVuePageOptions } from '@/registries/vue-page-registry'
-import { APPLICATION_CATALOG_PROJECT_ID, buildConfigPageNavigationPath } from '@/services/application-scope'
+import { buildConfigPageNavigationPath } from '@/services/application-scope'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { loadLowcodeRuntimeScenario } from './data-space/lowcode-data-space-runtime'
 import {readLowcodeApplicationById, readLowcodeApplications, readLowcodeNavigationRootId} from './lowcode-application-catalog'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
-import {getBuiltinApplicationDescriptor, getBuiltinScenarioResource, isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {readRepositoryScenarioText} from './resources/repository/scenarios/resource'
 import {createRepositoryScenarioVersion, listRepositoryScenarioVersions, readRepositoryScenarioVersion, writeRepositoryScenarioToHost} from './resources/repository/scenarios/host-client'
-import {builtinSystemApplication, readBuiltinNavigationRootId, readBuiltinSystemNavigation, type BuiltinSystemNavigation} from './resources/repository/builtin-system-navigation'
 import {readNavigationAuthorizationDataView} from './resources/shared/navigation-authorization-resource'
-import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from './resources/repository/builtin-blueprint-node-resource'
+import {applicationDesignItems, lowcodeEnterpriseNavigation, withApplicationDesign} from './system-navigation'
 
 /** 当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。 */
 export type LowcodePrincipal = Readonly<{
@@ -40,19 +37,14 @@ export const lowcodeHttp = createRequest({ timeout: 30_000 })
 export const lowcodeApi = new LowcodePlatform.LowcodeApi({
   http: lowcodeHttp,
   ...(typeof window === 'undefined' ? {} : { sessionStorage: window.sessionStorage }),
-  readApplicationById: async (applicationId, assertCurrent) => {
-    if (!isBuiltinApplication(applicationId)) return readLowcodeApplicationById(applicationId, assertCurrent)
-    assertCurrent()
-    const application = builtinSystemApplication()
-    assertCurrent()
-    return application
-  },
-  readNavigationRootId: async (systemId, assertCurrent) => {
-    if (!isBuiltinApplication(systemId)) return readLowcodeNavigationRootId(systemId, assertCurrent)
-    const rootId = await readBuiltinNavigationRootId(systemId, assertCurrent)
-    assertCurrent()
-    return rootId
-  },
+  readApplicationById: readLowcodeApplicationById,
+  readNavigationRootId: readLowcodeNavigationRootId,
+})
+
+/** 未进入应用时（企业级、平台级）的数据空间请求入口：只携带登录身份，不带应用头。 */
+export const lowcodeCatalogDataSpace = new LowcodePlatform.DataSpaceApi({
+  http: lowcodeHttp,
+  readScope: () => lowcodeApi.readAuthenticatedRequestScope(),
 })
 
 const scenarioFileUpload = new LowcodePlatform.LowcodeDesignFileUpload({
@@ -103,9 +95,6 @@ export function lowcodeRequestHeaders(): Record<string, string> {
 }
 
 export async function readLowcodePageFile(command: ProjectModel.PageFileReadCommand): Promise<string> {
-  if (isBuiltinApplication(command.projectId)) {
-    throw new Error('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE: AppWorks 工具三文件不从远端程序源读取')
-  }
   const versions = command.versionId === undefined ? undefined : LowcodePlatform.parseLowcodeBlueprintFileVersions(command.versionId)
   const key = command.fileName === 'rule.json' ? 'rule' : command.fileName === 'script.js' ? 'script' : 'style'
   const version = versions?.[key]
@@ -115,32 +104,6 @@ export async function readLowcodePageFile(command: ProjectModel.PageFileReadComm
     customPath: toolFilePath(command.projectId, command.pageId),
     fileName: versions === undefined ? command.fileName : LowcodePlatform.lowcodeBlueprintVersionedFileName(command.fileName, versions),
   })
-}
-
-function assertRemoteToolFilesAllowed(projectId: string): void {
-  if (isBuiltinApplication(projectId)) {
-    throw new Error('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE: AppWorks 工具三文件不从远端程序源读取或写入')
-  }
-}
-
-export function lowcodeApplicationCatalogNavigation(): RuntimeNavigation {
-  const items = getVuePageOptions()
-    .filter((page) => page.scope === 'catalog')
-    .map((page) => ({
-      id: `appworks-application-${page.path.slice(1)}`,
-      title: page.title,
-      itemKind: 'system-page' as const,
-      path: page.path,
-      ...(page.icon === undefined ? {} : { icon: page.icon }),
-      ...(page.dataSpaceId === undefined ? {} : {blueprintScenarioId: page.dataSpaceId}),
-    }))
-  return {
-    title: 'SPARK 应用工场',
-    projectId: APPLICATION_CATALOG_PROJECT_ID,
-    childPlacement: 'header',
-    homePath: '/app-list',
-    items,
-  }
 }
 
 /** 正式蓝图记录和后端授权证据，按节点身份投影宿主导航。 */
@@ -260,13 +223,12 @@ function firstRuntimePage(items: readonly RuntimeNavigationItem[]): RuntimeNavig
   return undefined
 }
 
-/** Apps without business pages land on the development workbench shell tool, keeping its navigation identity. */
+/** 无业务页的应用落到“应用设计”的首项（项目蓝图），保留其导航身份。 */
 function runtimeLanding(
   businessItems: readonly RuntimeNavigationItem[],
   navigationItems: readonly RuntimeNavigationItem[],
 ): RuntimeNavigationItem | undefined {
-  return firstRuntimePage(businessItems)
-    ?? navigationItems.find(item => item.id === 'appworks-system-tools')?.children?.find(item => item.path === '/dev')
+  return firstRuntimePage(businessItems) ?? firstRuntimePage(applicationDesignItems(navigationItems))
 }
 
 function systemPageLandingPath(item: RuntimeNavigationItem): string {
@@ -282,116 +244,6 @@ function systemPageLandingPath(item: RuntimeNavigationItem): string {
   }
   const separator = queryIndex < 0 ? '?' : '&'
   return `${routeTarget}${separator}${encodeURIComponent(SYSTEM_PAGE_NAVIGATION_ID_QUERY)}=${encodeURIComponent(item.id)}${hash}`
-}
-
-function withShellSystemTools(businessChildren: readonly RuntimeNavigationItem[]): RuntimeNavigationItem[] {
-  const businessPaths = new Set<string>()
-  const collectPaths = (nodes: readonly RuntimeNavigationItem[]): void => {
-    for (const node of nodes) {
-      if (node.path !== undefined) businessPaths.add(node.path)
-      collectPaths(node.children ?? [])
-    }
-  }
-  collectPaths(businessChildren)
-  const toolChildren = getVuePageOptions()
-    .filter((page) => page.scope === 'app' && page.shellTool !== false && !businessPaths.has(page.path))
-    .map((page) => ({
-      id: `appworks-tool-${page.path.slice(1).replaceAll('/', '-')}`,
-      title: page.title,
-      itemKind: 'system-page' as const,
-      path: page.path,
-      ...(page.icon === undefined ? {} : { icon: page.icon }),
-    }))
-  const items: RuntimeNavigationItem[] = [...businessChildren]
-  if (toolChildren.length > 0) {
-    items.push({
-      id: 'appworks-system-tools',
-      title: 'SPARK 工具',
-      itemKind: 'module',
-      children: toolChildren,
-    })
-  }
-  return items
-}
-
-type BuiltinNavigationAssemblyInput = Readonly<{
-  applicationName: string
-  projectId: string
-  navigation: BuiltinSystemNavigation
-  authorization: LowcodePlatform.LowcodeNavigationAuthorizationEvidence
-}>
-
-/** Project repository navigation through the existing backend authorization response. */
-function assembleBuiltinSystemNavigation(input: BuiltinNavigationAssemblyInput): RuntimeNavigation {
-  const authorizationById = new Map<string, LowcodePlatform.LowcodeNavigationAuthorizationItem>()
-  flattenAuthorizationItems(input.authorization.items, authorizationById)
-  const pageByPath = new Map(getVuePageOptions().map(page => [page.path, page]))
-  const nodesById = new Map(input.navigation.nodes.map(node => [node.id, node]))
-  const candidateIds = new Set<string>()
-  for (const node of input.navigation.nodes) {
-    if (!node.publishInMenu || !node.url) continue
-    const authorization = authorizationById.get(node.id)
-    if (!authorization) continue
-    if (authorization.target !== node.url || (authorization.formKey ?? '') !== node.conid) {
-      throw new Error(`BUILTIN_NAVIGATION_AUTHORIZATION_MISMATCH: ${node.id} 正式授权目标与仓内导航不一致`)
-    }
-    const page = pageByPath.get(node.url.slice(4))
-    if (!page) {
-      throw new Error(`BUILTIN_NAVIGATION_PAGE_UNREGISTERED: ${node.url} 未登记为原生 Vue 页面`)
-    }
-    if (!node.conid && !page.dataSpaceId) {
-      throw new Error(`BUILTIN_NAVIGATION_DATA_SPACE_MISSING: ${node.id} 导航未绑定数据空间，页面登记也未声明`)
-    }
-    let parentId = node.parentId
-    const visited = new Set<string>([node.id])
-    const parentChain: string[] = []
-    let completeParentChain = true
-    while (parentId !== input.navigation.navigationRootId) {
-      if (visited.has(parentId)) throw new Error(`BUILTIN_NAVIGATION_PARENT_CYCLE: ${node.id} 的父链出现循环`)
-      visited.add(parentId)
-      const parent = nodesById.get(parentId)
-      if (!parent || !authorizationById.has(parent.id)) {completeParentChain = false; break}
-      parentChain.push(parent.id)
-      parentId = parent.parentId
-    }
-    if (completeParentChain) {
-      parentChain.forEach(id => candidateIds.add(id))
-      candidateIds.add(node.id)
-    }
-  }
-  const candidates = input.navigation.nodes.filter(node => candidateIds.has(node.id))
-  const childrenByParent = new Map<string, Array<typeof candidates[number]>>()
-  for (const node of candidates) {
-    const siblings = childrenByParent.get(node.parentId) ?? []
-    siblings.push(node)
-    childrenByParent.set(node.parentId, siblings)
-  }
-  const items = sortBuiltinNavigationNodes(candidates.filter(node => !candidateIds.has(node.parentId)))
-    .map(node => buildBuiltinNavigationItem(node, childrenByParent, pageByPath))
-  const navigationItems = withShellSystemTools(items)
-  const landing = runtimeLanding(items, navigationItems)
-  const homePath = landing?.itemKind === 'system-page' ? systemPageLandingPath(landing) : landing?.path
-  return {id: input.navigation.navigationRootId, projectId: input.projectId, title: input.applicationName,
-    childPlacement: 'header', ...(homePath === undefined ? {} : {homePath}), items: navigationItems}
-}
-
-function sortBuiltinNavigationNodes(nodes: ReadonlyArray<BuiltinSystemNavigation['nodes'][number]>): Array<BuiltinSystemNavigation['nodes'][number]> {
-  return [...nodes].sort((left, right) => left.order - right.order || left.id.localeCompare(right.id))
-}
-
-function buildBuiltinNavigationItem(
-  node: BuiltinSystemNavigation['nodes'][number],
-  childrenByParent: ReadonlyMap<string, ReadonlyArray<BuiltinSystemNavigation['nodes'][number]>>,
-  pageByPath: ReadonlyMap<string, ReturnType<typeof getVuePageOptions>[number]>,
-): RuntimeNavigationItem {
-  const children = sortBuiltinNavigationNodes(childrenByParent.get(node.id) ?? [])
-    .map(child => buildBuiltinNavigationItem(child, childrenByParent, pageByPath))
-  const path = node.url?.slice(4)
-  const page = path === undefined ? undefined : pageByPath.get(path)
-  const blueprintScenarioId = node.conid || page?.dataSpaceId
-  return {id: node.id, title: node.title, itemKind: children.length > 0 ? 'module' : 'system-page',
-    ...(path === undefined ? {} : {path}), ...(page?.icon === undefined ? {} : {icon: page.icon}), order: node.order,
-    ...(blueprintScenarioId ? {blueprintScenarioId} : {}), children}
 }
 
 /** 将 lowcode 记录和后端授权证据直接装配为应用壳唯一运行导航合同。 */
@@ -413,7 +265,7 @@ export function assembleLowcodeRuntimeNavigation(
   const businessChildren = sortBlueprintRecords(
     candidates.filter(record => !candidateIds.has(record.parentNodeId)),
   ).map(record => buildRuntimeNavigationItem(record, childrenByParent, authorizationById))
-  const navigationItems = withShellSystemTools(businessChildren)
+  const navigationItems = withApplicationDesign(businessChildren)
   const landingItem = runtimeLanding(businessChildren, navigationItems)
   const homePath = landingItem?.itemKind === 'system-page'
     ? systemPageLandingPath(landingItem)
@@ -431,7 +283,7 @@ export function assembleLowcodeRuntimeNavigation(
 export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<RuntimeNavigation> {
   const explicitProjectId = projectId?.trim()
   const activeContext = lowcodeApi.application.get()
-  if (!explicitProjectId && activeContext === null) return lowcodeApplicationCatalogNavigation()
+  if (!explicitProjectId && activeContext === null) return lowcodeEnterpriseNavigation()
   const executionScope = lowcodeApi.readRequestScope()
   const executionScopeToken = executionScope.token
   const executionProjectId = executionScope.headers['X-AppId']
@@ -464,30 +316,14 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
   let navigationRootId: string
   try {
     if (explicitProjectId && activeContext?.application.id !== explicitProjectId) {
-      application = await readWithinExecutionScope(isBuiltinApplication(explicitProjectId)
-        ? Promise.resolve(builtinSystemApplication())
-        : readLowcodeApplicationById(explicitProjectId, assertExecutionScope))
-      navigationRootId = await readWithinExecutionScope(isBuiltinApplication(application.id)
-        ? readBuiltinNavigationRootId(application.id, assertExecutionScope)
-        : readLowcodeNavigationRootId(application.id, assertExecutionScope))
+      application = await readWithinExecutionScope(readLowcodeApplicationById(explicitProjectId, assertExecutionScope))
+      navigationRootId = await readWithinExecutionScope(readLowcodeNavigationRootId(application.id, assertExecutionScope))
       assertExecutionScope()
     } else if (activeContext !== null) {
       application = activeContext.application
       navigationRootId = activeContext.navigationRootId
     } else {
       throw new Error('缺少 lowcode 应用上下文')
-    }
-    if (isBuiltinApplication(application.id)) {
-      const [navigation, authorization] = await Promise.all([
-        readWithinExecutionScope(readBuiltinSystemNavigation(assertExecutionScope)),
-        readWithinExecutionScope(readNavigationAuthorizationDataView({applicationId: application.id,
-          navigationRootId, assertCurrent: assertExecutionScope})),
-      ])
-      if (navigation.navigationRootId !== navigationRootId) {
-        throw new Error('BUILTIN_NAVIGATION_ROOT_MISMATCH: 仓内导航根与当前应用选择不一致')
-      }
-      return assembleBuiltinSystemNavigation({applicationName: application.name, projectId: application.id,
-        navigation, authorization})
     }
     const runtimeSession = new NativePageRuntimeSession()
     const runtime = runtimeSession.acquire({
@@ -553,9 +389,6 @@ function projectBlueprintRecordNode(
 }
 
 async function readLowcodeProjectBlueprintEditorTree(projectId: string): Promise<ProjectModel.ProjectBlueprintTreeData> {
-  if (isBuiltinApplication(projectId)) {
-    return readBuiltinProjectBlueprintTree(projectId)
-  }
   const records = await lowcodeApi.blueprint.readRecords(projectId)
   const recordIds = new Set(records.map(record => record.nodeId))
   const childrenByParent = new Map<string, LowcodePlatform.LowcodeProjectBlueprintRecord[]>()
@@ -585,42 +418,6 @@ async function readLowcodeProjectBlueprintEditorTree(projectId: string): Promise
     ...root,
     children: root.children ?? [],
   }
-}
-
-async function readBuiltinProjectBlueprintTree(projectId:string):Promise<ProjectModel.ProjectBlueprintTreeData>{
-  const descriptor=getBuiltinApplicationDescriptor()
-  if(projectId!==descriptor.id)throw new Error('BUILTIN_BLUEPRINT_IDENTITY: 跨项目引用目标不是仓内 AppWorks')
-  const scope=lowcodeApi.readRequestScope()
-  const assertCurrent=():void=>{
-    let current:ReturnType<typeof lowcodeApi.readRequestScope>
-    try{current=lowcodeApi.readRequestScope()}
-    catch{throw new Error('SPARK_EXECUTION_SCOPE_STALE: 仓内蓝图引用所属请求作用域已失效')}
-    if(current.token!==scope.token||current.headers['X-AppId']!==scope.headers['X-AppId']){
-      throw new Error('SPARK_EXECUTION_SCOPE_STALE: 仓内蓝图引用所属请求作用域已变化')
-    }
-  }
-  assertCurrent()
-  const scene=getBuiltinScenarioResource('projectBlueprint')
-  const text=await readRepositoryScenarioText(scene,assertCurrent)
-  assertCurrent()
-  const config=new ProjectModel.ScenarioViewConfig(scene.scenarioId,text).toJSON()
-  const configuredTables=config['tables']
-  const configured=isRecord(configuredTables)?configuredTables[BUILTIN_BLUEPRINT_NODE_TABLE_NAME]:undefined
-  if(!isRecord(configured)||configured['resourceType']!=='file'
-    ||configured['resourceId']!==BUILTIN_BLUEPRINT_NODE_RESOURCE_ID||Object.hasOwn(configured,'modelBinding')){
-    throw new Error('BUILTIN_BLUEPRINT_SOURCE_MISSING: 7AB 未声明仓内蓝图文件 DataView')
-  }
-  const dataSet=DataSet.fromJson({scenarioId:scene.scenarioId,tables:{[BUILTIN_BLUEPRINT_NODE_TABLE_NAME]:configured}})
-  let owner:BlueprintWorkspaceDataView|undefined
-  try{
-    const view=dataSet.getView(BUILTIN_BLUEPRINT_NODE_TABLE_NAME,'default')
-    if(!view)throw new Error('BUILTIN_BLUEPRINT_SOURCE_MISSING: 仓内蓝图文件 DataView 不存在')
-    new BuiltinBlueprintNodeResource({applicationId:projectId,scenarioId:scene.scenarioId,assertCurrent}).bind(view)
-    owner=new BlueprintWorkspaceDataView(dataSet,projectId,assertCurrent)
-    const tree=await owner.loadProjectTree()
-    assertCurrent()
-    return tree
-  }finally{owner?.dispose();dataSet.destroy()}
 }
 
 /** 固定应用工作区的工具、场景、蓝图与引用 IO；运行时仍核对当前请求 scope。 */
@@ -688,7 +485,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
     scenarioViews: {
       readScope: () => lowcodeApi.readRequestScope().token,
       readText: async scenarioId => {
-        const resource = resolveBuiltinScenarioResource(scenarioId)
+        const resource = resolveSystemScenarioResource(scenarioId)
         if (resource) {
             const scope = lowcodeApi.readRequestScope()
             const assertCurrent = (): void => {
@@ -713,7 +510,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
         }
       },
       writeText: async (scenarioId, text, expectedText) => {
-        const resource = resolveBuiltinScenarioResource(scenarioId)
+        const resource = resolveSystemScenarioResource(scenarioId)
         if (resource) {
           const currentScope = lowcodeApi.readRequestScope()
           if (currentScope.token !== executionScope.token || currentScope.headers['X-AppId'] !== normalizedProjectId) {
@@ -736,7 +533,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
       },
       listVersions: async scenarioId => {
         const assertCurrent = captureScenarioReadScope()
-        const resource = resolveBuiltinScenarioResource(scenarioId)
+        const resource = resolveSystemScenarioResource(scenarioId)
         if (resource) {
           if (!import.meta.env.DEV) throw new Error('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE: 构建态不提供仓内场景历史')
           const versions = [...await listRepositoryScenarioVersions(resource)]
@@ -752,7 +549,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
       readVersion: async (scenarioId, version) => {
         if (!Number.isSafeInteger(version) || version < 0) throw new Error('版本号必须为非负安全整数')
         const assertCurrent = captureScenarioReadScope()
-        const resource = resolveBuiltinScenarioResource(scenarioId)
+        const resource = resolveSystemScenarioResource(scenarioId)
         if (resource) {
           if (!import.meta.env.DEV) throw new Error('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE: 构建态不提供仓内场景历史')
           const text = await readRepositoryScenarioVersion(resource, version)
@@ -771,7 +568,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
         const customPath = scenarioViewPath(normalizedProjectId, scenarioId)
         const requestScope = lowcodeApi.readRequestScope()
         const scope = requestScope.token
-        const resource = resolveBuiltinScenarioResource(scenarioId)
+        const resource = resolveSystemScenarioResource(scenarioId)
         if (resource) {
           if (!import.meta.env.DEV) throw new ProjectModel.ScenarioViewVersionNotAppliedError(resource.resourceId,
             scope, version, '构建态不提供仓内场景历史')
@@ -862,36 +659,30 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
 export function createPageToolFilesIo(projectId:string){
   const appId=projectId.trim()
   return {
-    list:async(app:string,page:string)=>{assertRemoteToolFilesAllowed(appId);if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配');return (await lowcodeApi.design.listFiles({appType:'designfile',folderPath:toolFilePath(appId,page)})).map(file=>file.name)},
+    list:async(app:string,page:string)=>{if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配');return (await lowcodeApi.design.listFiles({appType:'designfile',folderPath:toolFilePath(appId,page)})).map(file=>file.name)},
     read:async(app:string,page:string,name:string)=>{
-      assertRemoteToolFilesAllowed(appId)
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       if(name.length===0||name!==name.trim()||name==='.'||name==='..'||/[\\/\u0000-\u001f\u007f]/.test(name))throw new Error('FILE_SCOPE: 文件名无效')
       try{return await lowcodeApi.design.readTextFile({appType:'designfile',customPath:toolFilePath(appId,page),fileName:name})}
       catch(error){if(error instanceof LowcodePlatform.LowcodeApiError&&error.code===404)return null;throw error}
     },
     upload:async(command:Readonly<{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string}>)=>{
-      assertRemoteToolFilesAllowed(appId)
       if(command.appId!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       await scenarioFileUpload.uploadTextVersion({customPath:toolFilePath(appId,command.pageId),fileName:command.fileName,text:command.text})
     },
     restoreWorkingFile:async(command:Readonly<{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string}>)=>{
-      assertRemoteToolFilesAllowed(appId)
       if(command.appId!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       await scenarioFileUpload.uploadWorkingText({customPath:toolFilePath(appId,command.pageId),fileName:command.fileName,text:command.text})
     },
     listVersions:async({appId:app,customPath,fileName}:{appId:string;customPath:string;fileName:'rule.json'|'script.js'|'style.css'})=>{
-      assertRemoteToolFilesAllowed(appId)
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       return [...await lowcodeApi.design.listFileVersions({appType:'designfile',customPath:assertProjectFilePath(appId,customPath),fileName})]
     },
     uploadVersion:async({appId:app,customPath,fileName,version,text}:{appId:string;customPath:string;fileName:'rule.json'|'script.js'|'style.css';version:number;text:string})=>{
-      assertRemoteToolFilesAllowed(appId)
       if(app!==appId||!Number.isSafeInteger(version)||version<1)throw new Error('FILE_SCOPE: 快照应用或版本号无效')
       await scenarioFileUpload.uploadTextVersion({customPath:assertProjectFilePath(appId,customPath),fileName:`${version}__${fileName}`,text})
     },
     readVersion:async({appId:app,customPath,fileName,version}:{appId:string;customPath:string;fileName:'rule.json'|'script.js'|'style.css';version:number}):Promise<string|null>=>{
-      assertRemoteToolFilesAllowed(appId)
       if(app!==appId||!Number.isSafeInteger(version)||version<0)throw new Error('FILE_SCOPE: 快照应用或版本号无效')
       const path=assertProjectFilePath(appId,customPath)
       try{
@@ -901,7 +692,6 @@ export function createPageToolFilesIo(projectId:string){
       catch(error){if(error instanceof LowcodePlatform.LowcodeApiError&&error.code===404)return null;throw error}
     },
     remove:async(app:string,page:string,name:string)=>{
-      assertRemoteToolFilesAllowed(appId)
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       await lowcodeApi.design.removeFile({appType:'designfile',customPath:toolFilePath(appId,page),fileName:name})
     },

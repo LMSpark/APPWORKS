@@ -10,7 +10,7 @@ import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {buildDataViewKey} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
-import {parseApplicationPathScope} from '@/services/application-scope'
+import {resolveExecutionProjectId} from '@/services/application-scope'
 
 /** 一个原生功能页的正式数据身份及组件上下文。 */
 type FeaturePageRuntimeOptions = Readonly<{
@@ -28,7 +28,7 @@ type FeaturePageRuntimeOptions = Readonly<{
   optionModels?: readonly string[]
 }>
 
-/** 当前应用作用域内加载主视图，切换或卸载时撤销原实例。 */
+/** 在路由的执行作用域（应用或目录）内加载主视图，切换或卸载时撤销原实例。 */
 export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
   const {scenarioId, modelName, componentType, title} = options
   const navigationId = options.navigationId ?? scenarioId
@@ -41,7 +41,7 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
   })
   const ready = ref(false), loading = ref(false), error = ref('')
   const target = computed(() => ({
-    projectId: parseApplicationPathScope(route.path)?.projectId,
+    projectId: resolveExecutionProjectId(route.path),
     scenario: route.meta['blueprintScenarioId'],
     nodeId: route.meta['nodeId'],
     state: route.meta['systemPageIdentityState'],

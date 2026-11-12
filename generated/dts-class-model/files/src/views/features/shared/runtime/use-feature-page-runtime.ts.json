@@ -48,7 +48,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-11T10:15:13.173Z",
+  "generatedAt": "2026-11-12T20:53:11.433Z",
   "models": {
     "FeaturePageRuntimeOptions": {
       "name": "FeaturePageRuntimeOptions",

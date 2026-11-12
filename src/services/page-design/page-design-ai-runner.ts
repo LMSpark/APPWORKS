@@ -5,10 +5,10 @@
  * AI用途：排查 pageDesign 会话、工具门禁或页面三文件生成链路时，用本模块定位 services/page-design-ai-runner。
  */
 /**
- * DevSystem 面板内 pageDesign AI — 使用 DevSystem 当前 ProjectWorkspace。
+ * 蓝图 面板内 pageDesign AI — 使用 蓝图 当前 ProjectWorkspace。
  *
  * `command.editor` 必须与手动编辑同一 `editor.project`，保存/撤销语义一致。
- * 工具编辑直接进入 DevSystem 当前正式文件 DataView。
+ * 工具编辑直接进入 蓝图 当前正式文件 DataView。
  */
 import { createAiRunAdapter, noopTraceSink } from '@spark-appworks/spark-app'
 import type {
@@ -58,7 +58,7 @@ preserveExistingInteractions?: boolean
 }
 
 /**
- * DevSystem 侧 channel：仅转发 tool call 状态，不承载 stream/delta/reasoning（见 trace / spark-ai）。
+ * 蓝图 侧 channel：仅转发 tool call 状态，不承载 stream/delta/reasoning（见 trace / spark-ai）。
  */
 export type PageDesignAiRunEvents = {
     /** on Tool Call 事件回调。 */
@@ -86,11 +86,11 @@ beforeFunctionCall?: AiRunBeforeFunctionCall
 onAbort?: AiRunAbortHandler
     /** user Message 字段。 */
 userMessage?: string
-  /** 只有宿主显式启用后才在 inline run 结束时交付；DevSystem 默认手动保存。 */
+  /** 只有宿主显式启用后才在 inline run 结束时交付；蓝图 默认手动保存。 */
   saveDirtyFilesAfterRun?: boolean
   /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */
   deliverySaveFileNames?: readonly PageToolFileName[]
-  /** DevSystem当前 PageTool 文件 DataView 保存入口；autoSave时必需。 */
+  /** 蓝图当前 PageTool 文件 DataView 保存入口；autoSave时必需。 */
   savePageFile?: (pageId:string,name:PageToolFileName,text:string)=>Promise<void>
 }
 

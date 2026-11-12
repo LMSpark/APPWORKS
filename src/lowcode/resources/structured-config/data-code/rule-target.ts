@@ -4,12 +4,12 @@
  * 边界：不查询、不复制草稿、不更改权限；规则入口及持续目标校验共用。
  */
 import {RequestState,type DataSet} from '@spark-appworks/spark-data'
-import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
 
 /** @param dataSet 当前编码设计实例。 @param nodeId 本次规则节点。 @returns 已核身份与可读性的当前有效业务表ID。 */
 export function readCodeRuleBusinessTable(dataSet:DataSet,nodeId:string|number):string{
   const main=dataSet.getView('Base_CodeDesign'),nodes=dataSet.getView('Base_CodeNodeDesign'),owner=main?.currentRow
-  if(dataSet.destroyed||dataSet.scenarioId!==getBuiltinScenarioResource('dataCodeEditor').scenarioId||!main||!nodes||!owner||main.rows.length!==1
+  if(dataSet.destroyed||dataSet.scenarioId!==getSystemScenarioResource('dataCodeEditor').scenarioId||!main||!nodes||!owner||main.rows.length!==1
     ||main.dataTable?.modelBinding?.modelName!=='Base_CodeDesign'||nodes.dataTable?.modelBinding?.modelName!=='Base_CodeNodeDesign')throw new Error('编码规则所属设计已改变')
   if([main,nodes].some(view=>view.hasUnconfirmedSave||view.mutating||view.requestState!==RequestState.Loaded))throw new Error('编码规则目标正在读取、保存或结果未确认')
   const id=main.getPkKey(owner),node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId)

@@ -70,6 +70,8 @@ export {
   getDataViewFilterFieldOperators, getDataViewFilterFunctionDefinitions, isUnaryDataViewFilterOperator,
 } from './query/filter/data-view-filter-catalog'
 export { isDataRow } from './core/data-row-guards'
+export { DataFieldMember } from './core/data-field-member'
+export type { DataFieldMemberEdit, DataFieldMemberFormat, DataFieldMemberPath, DataFieldMemberRef } from './core/data-field-member'
 
 export type { FieldRenderState, PermissionActionContext } from './script-types'
 

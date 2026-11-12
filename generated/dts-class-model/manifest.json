@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1168,
+  "scannedFileCount": 1153,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -6415,7 +6415,8 @@
           "DataViewEditingEventName",
           "DataViewEditingEvents",
           "DataViewEditingSource",
-          "DataViewEditingWriteInput"
+          "DataViewEditingWriteInput",
+          "DataViewEditingMemberWriteInput"
         ]
       }
     },
@@ -6555,7 +6556,8 @@
         "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/useFieldPermission\n职责：维护 @spark-appworks/spark-component 中 components/fields/context/useFieldPermission 的字段权限投影。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/fields/context/useFieldPermission 的声明、导出和使用边界时，从本模块开始。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
-          "FieldPermissionProps"
+          "FieldPermissionProps",
+          "FieldMemberRef"
         ]
       }
     },
@@ -8414,6 +8416,7 @@
           "SparkNodeProps",
           "SparkTitleContentProps",
           "SparkDataDisplayProps",
+          "SparkFieldMemberProps",
           "SparkFieldSemanticProps",
           "SparkPrimaryActionTextProps",
           "SparkReadonlyActionTextProps",
@@ -9112,6 +9115,25 @@
           "PageRoute",
           "ScriptContext",
           "PageComponentAccessInScript"
+        ]
+      }
+    },
+    "packages/spark-data/src/core/data-field-member.ts": {
+      "file": "files/packages/spark-data/src/core/data-field-member.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:core/data-field-member",
+        "sourcePath": "packages/spark-data/src/core/data-field-member.ts",
+        "sourceFile": "packages/spark-data/src/core/data-field-member.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "core/data-field-member",
+        "jsdoc": "@module @spark-appworks/spark-data:core/data-field-member\n职责：JSON 源字段内单个成员的严格定位、读取与合并写回。\n边界：只计算源字段的新值，不读写 DataView、不判断权限；编辑、取消、权限和保存差异仍沿源字段。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DataFieldMemberPath",
+          "DataFieldMemberFormat",
+          "DataFieldMemberRef",
+          "DataFieldMemberEdit",
+          "DataFieldMember"
         ]
       }
     },
@@ -12971,7 +12993,7 @@
         "packageName": "app",
         "modulePath": "lowcode/data-space/lowcode-data-space-runtime",
         "jsdoc": "@module app:lowcode/data-space/lowcode-data-space-runtime\n职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用身份由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LoadScenarioDataSetInput",
           "AssembleLowcodeRuntimeScenarioInput"
@@ -14170,37 +14192,6 @@
         "symbols": []
       }
     },
-    "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts": {
-      "file": "files/src/lowcode/resources/repository/builtin-blueprint-node-resource.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/repository/builtin-blueprint-node-resource",
-        "sourcePath": "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts",
-        "sourceFile": "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/repository/builtin-blueprint-node-resource",
-        "jsdoc": "app 的 lowcode/resources/repository/builtin-blueprint-node-resource 模块。\n导出 DtsTypeDeclarationModel symbol: BuiltinBlueprintNodeResource（共 1 个 symbol）。",
-        "jsdocSource": "inferred",
-        "symbols": [
-          "BuiltinBlueprintNodeResource"
-        ]
-      }
-    },
-    "src/lowcode/resources/repository/builtin-system-navigation.ts": {
-      "file": "files/src/lowcode/resources/repository/builtin-system-navigation.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/repository/builtin-system-navigation",
-        "sourcePath": "src/lowcode/resources/repository/builtin-system-navigation.ts",
-        "sourceFile": "src/lowcode/resources/repository/builtin-system-navigation.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/repository/builtin-system-navigation",
-        "jsdoc": "app 的 lowcode/resources/repository/builtin-system-navigation 模块。\n导出 DtsTypeDeclarationModel symbol: BuiltinBlueprintRecord, BuiltinSystemNavigation（共 2 个 symbol）。",
-        "jsdocSource": "inferred",
-        "symbols": [
-          "BuiltinBlueprintRecord",
-          "BuiltinSystemNavigation"
-        ]
-      }
-    },
     "src/lowcode/resources/repository/file-resource-query-parameters.ts": {
       "file": "files/src/lowcode/resources/repository/file-resource-query-parameters.ts.json",
       "module": {
@@ -14285,7 +14276,7 @@
         "sourceFile": "src/lowcode/resources/repository/scenarios/resource.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/repository/scenarios/resource",
-        "jsdoc": "@module app:lowcode/resources/repository/scenarios/resource\n职责：把登记的仓内场景与导航JSON接入SPARK data文件DataView，并校验资源及视图身份。\n边界：开发态场景每次查询经host client读取新鲜文本；构建态消费打包文件。状态与持久化仍由SPARK data资源适配承接。\nAI用途：系统应用程序定义统一从本模块读取，不能直接读取配置文件或改走lowcode补救。",
+        "jsdoc": "@module app:lowcode/resources/repository/scenarios/resource\n职责：把登记的仓内系统场景 pagedata 接入SPARK data文件DataView，并校验资源及视图身份。\n边界：开发态场景每次查询经host client读取新鲜文本；构建态消费打包文件。状态与持久化仍由SPARK data资源适配承接。\nAI用途：系统应用程序定义统一从本模块读取，不能直接读取配置文件或改走lowcode补救。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -15737,6 +15728,19 @@
         "symbols": []
       }
     },
+    "src/lowcode/system-navigation.ts": {
+      "file": "files/src/lowcode/system-navigation.ts.json",
+      "module": {
+        "name": "app:lowcode/system-navigation",
+        "sourcePath": "src/lowcode/system-navigation.ts",
+        "sourceFile": "src/lowcode/system-navigation.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/system-navigation",
+        "jsdoc": "@module app:lowcode/system-navigation\n职责：由 Vue 系统页登记生成平台级、企业级菜单及每个应用末尾的“应用设计”分组。\n边界：只投影登记的页面身份与分组，不读取后端菜单授权；页面数据权限仍由各页查询结果决定。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/main.ts": {
       "file": "files/src/main.ts.json",
       "module": {
@@ -15750,21 +15754,19 @@
         "symbols": []
       }
     },
-    "src/registries/builtin-application-registry.ts": {
-      "file": "files/src/registries/builtin-application-registry.ts.json",
+    "src/registries/system-scenario-registry.ts": {
+      "file": "files/src/registries/system-scenario-registry.ts.json",
       "module": {
-        "name": "app:registries/builtin-application-registry",
-        "sourcePath": "src/registries/builtin-application-registry.ts",
-        "sourceFile": "src/registries/builtin-application-registry.ts",
+        "name": "app:registries/system-scenario-registry",
+        "sourcePath": "src/registries/system-scenario-registry.ts",
+        "sourceFile": "src/registries/system-scenario-registry.ts",
         "packageName": "app",
-        "modulePath": "registries/builtin-application-registry",
-        "jsdoc": "app 的 registries/builtin-application-registry 模块。\n导出 DtsTypeDeclarationModel symbol: BuiltinScenarioName, BuiltinScenarioResource, BuiltinNavigationResource, BuiltinApplicationDescriptor（共 4 个 symbol）。",
-        "jsdocSource": "inferred",
+        "modulePath": "registries/system-scenario-registry",
+        "jsdoc": "@module app:registries/system-scenario-registry\n职责：登记 AppWorks 系统页使用的仓内场景资源（pagedata），供任一应用及目录作用域按场景身份解析。\n边界：只登记资源身份与路径，不携带应用身份、不复制场景正文；场景正文经 SPARK data 仓内文件 DataView 读取。",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": [
-          "BuiltinScenarioName",
-          "BuiltinScenarioResource",
-          "BuiltinNavigationResource",
-          "BuiltinApplicationDescriptor"
+          "SystemScenarioName",
+          "SystemScenarioResource"
         ]
       }
     },
@@ -15776,10 +15778,11 @@
         "sourceFile": "src/registries/vue-page-registry.ts",
         "packageName": "app",
         "modulePath": "registries/vue-page-registry",
-        "jsdoc": "@module app:registries/vue-page-registry\n职责：提供 src 应用层的 vue page registry 能力，连接运行时上下文、视图组件和服务。\n边界：只服务应用入口和组合层，不修改基础包协议，也不承担服务端职责。\nAI用途：排查应用启动、运行时上下文或局部 UI 接线时，用本模块确认源码入口。\n\nVue system-page registry.\nJSON config only declares pages. This registry binds those declarations to\nVite component loaders and exposes the derived route/navigation helpers.",
+        "jsdoc": "@module app:registries/vue-page-registry\n职责：登记原生 Vue 系统页及其所属层级（公共、平台、企业、应用），派生路由组件与三层菜单元数据。\n边界：只服务应用入口和组合层，不修改基础包协议，也不承担服务端职责。\nAI用途：排查系统页归属、菜单分组或页面身份时，用本模块确认登记合同。\n\nVue system-page registry.\nJSON config only declares pages. This registry binds those declarations to\nVite component loaders and exposes the derived route/navigation helpers.",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "PageScope"
+          "PageScope",
+          "VuePageOption"
         ]
       }
     },
@@ -15969,7 +15972,7 @@
         "sourceFile": "src/services/project-model-artifacts/index.ts",
         "packageName": "app",
         "modulePath": "services/project-model-artifacts/index",
-        "jsdoc": "@module app:services/project-model-artifacts/index\n职责：提供应用运行时 service 层的 index 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nDevSystem 设计器制品：rule / pagedata 编辑器的 schema 与投影。\n消费 spark-project-model 的领域类型，但不反向进入该包。",
+        "jsdoc": "@module app:services/project-model-artifacts/index\n职责：提供应用运行时 service 层的 index 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\n蓝图 设计器制品：rule / pagedata 编辑器的 schema 与投影。\n消费 spark-project-model 的领域类型，但不反向进入该包。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -15982,7 +15985,7 @@
         "sourceFile": "src/services/project-model-artifacts/rule-editor.ts",
         "packageName": "app",
         "modulePath": "services/project-model-artifacts/rule-editor",
-        "jsdoc": "@module app:services/project-model-artifacts/rule-editor\n职责：提供应用运行时 service 层的 rule editor 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nDevSystem 规则编辑器制品：规则树策略与规则 JSON Schema。\n属于应用层，不属于 spark-project-model 领域包。",
+        "jsdoc": "@module app:services/project-model-artifacts/rule-editor\n职责：提供应用运行时 service 层的 rule editor 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\n蓝图 规则编辑器制品：规则树策略与规则 JSON Schema。\n属于应用层，不属于 spark-project-model 领域包。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -16069,7 +16072,7 @@
         "sourceFile": "src/services/project-planning/project-planning-inline-delivery.ts",
         "packageName": "app",
         "modulePath": "services/project-planning/project-planning-inline-delivery",
-        "jsdoc": "@module app:services/project-planning-inline-delivery\n职责：向活跃 projectPlanning runner 报告本轮 Base_NavigationInfo DataView 提交结果。\n边界：只核对 captured DevSystem workspace 的蓝图 DataView 回执，不创建第二保存入口。\nAI用途：理解 projectPlanning inline runner 的提交结果和仍待保存状态。",
+        "jsdoc": "@module app:services/project-planning-inline-delivery\n职责：向活跃 projectPlanning runner 报告本轮 Base_NavigationInfo DataView 提交结果。\n边界：只核对 captured 蓝图 workspace 的蓝图 DataView 回执，不创建第二保存入口。\nAI用途：理解 projectPlanning inline runner 的提交结果和仍待保存状态。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ProjectPlanningDeliveryContext"
@@ -16084,7 +16087,7 @@
         "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
         "packageName": "app",
         "modulePath": "services/project/blueprint-workspace-dataview",
-        "jsdoc": "@module app:services/project/blueprint-workspace-dataview\n职责：通过当前项目的蓝图 DataView 统一查询、编辑覆盖、取消和 DataSet 保存，并提供同源树投影。\n边界：动态项目绑定正式 Base_NavigationInfo，仓内 AppWorks 绑定RepositoryBlueprintNode文件视图；不复制业务草稿。\n字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。",
+        "jsdoc": "@module app:services/project/blueprint-workspace-dataview\n职责：通过当前项目的蓝图 DataView 统一查询、编辑覆盖、取消和 DataSet 保存，并提供同源树投影。\n边界：项目蓝图绑定正式 Base_NavigationInfo；不复制业务草稿。\n字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "BlueprintNodeFormData",
@@ -16164,7 +16167,7 @@
         "sourceFile": "src/services/project/project-shell.ts",
         "packageName": "app",
         "modulePath": "services/project/project-shell",
-        "jsdoc": "@module app:services/project/project-shell\n职责：App 层项目壳——committed ProjectWorkspace 缓存、项目蓝图工作区单例、运行菜单同步、项目切换 inject。\n边界：不进入 spark-project-model 内核；DevSystem 编辑宿主与 committed 投影分离。\nAI用途：切换项目、同步运行菜单或获取 committed ProjectWorkspace 单例时，用本模块定位壳层服务。",
+        "jsdoc": "@module app:services/project/project-shell\n职责：App 层项目壳——committed ProjectWorkspace 缓存、项目蓝图工作区单例、运行菜单同步、项目切换 inject。\n边界：不进入 spark-project-model 内核；蓝图 编辑宿主与 committed 投影分离。\nAI用途：切换项目、同步运行菜单或获取 committed ProjectWorkspace 单例时，用本模块定位壳层服务。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ProjectSwitchService",
@@ -16236,386 +16239,6 @@
         "symbols": []
       }
     },
-    "src/views/app/CacheManager.vue": {
-      "file": "files/src/views/app/CacheManager.vue.json",
-      "module": {
-        "name": "app:views/app/CacheManager",
-        "sourcePath": "src/views/app/CacheManager.vue",
-        "sourceFile": "src/views/app/CacheManager.vue",
-        "packageName": "app",
-        "modulePath": "views/app/CacheManager",
-        "jsdoc": "@module app:views/app/CacheManager\n职责：提供主应用 CacheManager 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/CacheManager。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts": {
-      "file": "files/src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts.json",
-      "module": {
-        "name": "app:views/app/dev-system/blueprint-workspace/blueprint-readonly-info",
-        "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts",
-        "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/blueprint-workspace/blueprint-readonly-info",
-        "jsdoc": "app 的 views/app/dev-system/blueprint-workspace/blueprint-readonly-info 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
-        "jsdocSource": "inferred",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue": {
-      "file": "files/src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo",
-        "sourcePath": "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue",
-        "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo",
-        "jsdoc": "app 的 views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
-        "jsdocSource": "inferred",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue": {
-      "file": "files/src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/blueprint-workspace/BlueprintWorkspace",
-        "sourcePath": "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue",
-        "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/blueprint-workspace/BlueprintWorkspace",
-        "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/BlueprintWorkspace\n职责：编排选中正式节点的六阶段编辑、真实API保存与三文件交付。\n边界：节点分组是领域真源，远端回执不得覆盖等待期间的新编辑。\nAI用途：保存策划、原型、场景绑定、估算、交付或发布前定位实际控制链。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue": {
-      "file": "files/src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/blueprint-workspace/DataPlanningPane",
-        "sourcePath": "src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue",
-        "sourceFile": "src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/blueprint-workspace/DataPlanningPane",
-        "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/DataPlanningPane\n职责：编辑正式场景绑定并挂载共享场景视图设计器。\n边界：场景dirty时禁止改绑定；模型定义由后端提供，不写conType。\nAI用途：在数据规划阶段编辑场景共享视图并处理缺文件显式新建。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/blueprint-workspace/DeliveryPane.vue": {
-      "file": "files/src/views/app/dev-system/blueprint-workspace/DeliveryPane.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/blueprint-workspace/DeliveryPane",
-        "sourcePath": "src/views/app/dev-system/blueprint-workspace/DeliveryPane.vue",
-        "sourceFile": "src/views/app/dev-system/blueprint-workspace/DeliveryPane.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/blueprint-workspace/DeliveryPane",
-        "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/DeliveryPane\n职责：展示页面工具三文件编辑与真实运行实例预览。\n边界：三文件独立追加编号快照，场景pagedata不进入工具发布指针。\nAI用途：编辑rule/script/style并触发父工作台真实交付动作。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/blueprint-workspace/EstimatePane.vue": {
-      "file": "files/src/views/app/dev-system/blueprint-workspace/EstimatePane.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/blueprint-workspace/EstimatePane",
-        "sourcePath": "src/views/app/dev-system/blueprint-workspace/EstimatePane.vue",
-        "sourceFile": "src/views/app/dev-system/blueprint-workspace/EstimatePane.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/blueprint-workspace/EstimatePane",
-        "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/EstimatePane\n职责：编辑当前节点估算与交付责任字段。\n边界：仅发出保存动作，真实写入及节点身份校验由父工作台执行。\nAI用途：维护节点工作量并按当前节点ID关联项目经理任务。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/blueprint-workspace/PrototypePane.vue": {
-      "file": "files/src/views/app/dev-system/blueprint-workspace/PrototypePane.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/blueprint-workspace/PrototypePane",
-        "sourcePath": "src/views/app/dev-system/blueprint-workspace/PrototypePane.vue",
-        "sourceFile": "src/views/app/dev-system/blueprint-workspace/PrototypePane.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/blueprint-workspace/PrototypePane",
-        "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/PrototypePane\n职责：编辑当前节点原型HTML说明。\n边界：原型归prototype分组，不作为PageTool运行规则。\nAI用途：编辑原型说明并提交父工作台真实保存。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/blueprint-workspace/ReleasePane.vue": {
-      "file": "files/src/views/app/dev-system/blueprint-workspace/ReleasePane.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/blueprint-workspace/ReleasePane",
-        "sourcePath": "src/views/app/dev-system/blueprint-workspace/ReleasePane.vue",
-        "sourceFile": "src/views/app/dev-system/blueprint-workspace/ReleasePane.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/blueprint-workspace/ReleasePane",
-        "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/ReleasePane\n职责：编辑导航发布可见性和类型并展示运行资源摘要。\n边界：运行资源只读投影，发布写入由父工作台真实API确认。\nAI用途：设置正式节点导航发布参数并查看cfg或vue资源表面。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/childPlacementLabels.ts": {
-      "file": "files/src/views/app/dev-system/childPlacementLabels.ts.json",
-      "module": {
-        "name": "app:views/app/dev-system/childPlacementLabels",
-        "sourcePath": "src/views/app/dev-system/childPlacementLabels.ts",
-        "sourceFile": "src/views/app/dev-system/childPlacementLabels.ts",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/childPlacementLabels",
-        "jsdoc": "@module app:views/app/dev-system/childPlacementLabels\n职责：提供正式navigation.placement的界面选项与标签。\n边界：只翻译展示文本，不持有布局真源或重写业务kind。\nAI用途：显示top/left/right/parent/tabs/popup正式布局值。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/components/NodeBasicInfo.vue": {
-      "file": "files/src/views/app/dev-system/components/NodeBasicInfo.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/components/NodeBasicInfo",
-        "sourcePath": "src/views/app/dev-system/components/NodeBasicInfo.vue",
-        "sourceFile": "src/views/app/dev-system/components/NodeBasicInfo.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/components/NodeBasicInfo",
-        "jsdoc": "@module app:views/app/dev-system/components/NodeBasicInfo\n职责：直接编辑正式kind及能力、导航、数据空间、原型四组草稿。\n边界：节点身份只读，模型名称是后端只读依赖投影，不保留旧平铺字段。\nAI用途：为选中节点配置四组领域信息并标记蓝图dirty。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/components/NodeLayoutConfig.vue": {
-      "file": "files/src/views/app/dev-system/components/NodeLayoutConfig.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/components/NodeLayoutConfig",
-        "sourcePath": "src/views/app/dev-system/components/NodeLayoutConfig.vue",
-        "sourceFile": "src/views/app/dev-system/components/NodeLayoutConfig.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/components/NodeLayoutConfig",
-        "jsdoc": "@module app:views/app/dev-system/components/NodeLayoutConfig\n职责：通过标准字段组件编辑正式ChildItemLocation值。\n边界：布局标签不改写wire值；字段权限和提交由当前蓝图DataView承接。\nAI用途：仅在模块节点配置子项布局。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/components/NodeStateConfig.vue": {
-      "file": "files/src/views/app/dev-system/components/NodeStateConfig.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/components/NodeStateConfig",
-        "sourcePath": "src/views/app/dev-system/components/NodeStateConfig.vue",
-        "sourceFile": "src/views/app/dev-system/components/NodeStateConfig.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/components/NodeStateConfig",
-        "jsdoc": "@module app:views/app/dev-system/components/NodeStateConfig\n职责：编辑正式导航发布、子项显示、分组和排序。\n边界：状态字段直接绑定当前蓝图DataView；显示方式与对齐沿正式独立字典视图读取。\nAI用途：调整节点导航展示并经原DataView显式保存。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/components/NodeTargetConfig.vue": {
-      "file": "files/src/views/app/dev-system/components/NodeTargetConfig.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/components/NodeTargetConfig",
-        "sourcePath": "src/views/app/dev-system/components/NodeTargetConfig.vue",
-        "sourceFile": "src/views/app/dev-system/components/NodeTargetConfig.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/components/NodeTargetConfig",
-        "jsdoc": "@module app:views/app/dev-system/components/NodeTargetConfig\n职责：编辑导航目标和打开方式，按独立命令输入创建并绑定工具。\n边界：导航字段绑定正式蓝图 DataView；候选和工具 ID 输入绑定当前 runtime 的短生命周期 DataView。\nAI用途：选择原生页面、配置工具或外部链接并按现有创建 saga 绑定新工具。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/composables/useDevFileEditor.ts": {
-      "file": "files/src/views/app/dev-system/composables/useDevFileEditor.ts.json",
-      "module": {
-        "name": "app:views/app/dev-system/composables/useDevFileEditor",
-        "sourcePath": "src/views/app/dev-system/composables/useDevFileEditor.ts",
-        "sourceFile": "src/views/app/dev-system/composables/useDevFileEditor.ts",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/composables/useDevFileEditor",
-        "jsdoc": "@module app:views/app/dev-system/composables/useDevFileEditor\n职责：提供 DevSystem 的 useDevFileEditor 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程；工具文件状态与持久化沿正式 DataView/DataSet 链处理。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/composables/useDevFileEditor。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/composables/useNodeKindFlags.ts": {
-      "file": "files/src/views/app/dev-system/composables/useNodeKindFlags.ts.json",
-      "module": {
-        "name": "app:views/app/dev-system/composables/useNodeKindFlags",
-        "sourcePath": "src/views/app/dev-system/composables/useNodeKindFlags.ts",
-        "sourceFile": "src/views/app/dev-system/composables/useNodeKindFlags.ts",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/composables/useNodeKindFlags",
-        "jsdoc": "@module app:views/app/dev-system/composables/useNodeKindFlags\n职责：从正式五种业务kind计算界面条件。\n边界：只读四组草稿kind，不按URL或树层级猜种类。\nAI用途：按module/page/embedded/service/content选择属性编辑控件。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/definition/ScenarioDefinitionTextEditor.vue": {
-      "file": "files/src/views/app/dev-system/definition/ScenarioDefinitionTextEditor.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/definition/ScenarioDefinitionTextEditor",
-        "sourcePath": "src/views/app/dev-system/definition/ScenarioDefinitionTextEditor.vue",
-        "sourceFile": "src/views/app/dev-system/definition/ScenarioDefinitionTextEditor.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/definition/ScenarioDefinitionTextEditor",
-        "jsdoc": "@module app:views/app/dev-system/definition/ScenarioDefinitionTextEditor\n职责：完整定义的窄文本交互，绑定同一ScenarioDefinitionDocument中的五类正式定义DataView。\n边界：仅保留输入尚未通过校验的编辑缓冲；有效文本从原视图投影，写回、撤销及身份检查归定义文档，不执行IO或保存。\nAI用途：DevSystem复杂配置文本编辑；不是可绑定任意字段的通用标准组件。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/DevDataSetDesigner.vue": {
-      "file": "files/src/views/app/dev-system/DevDataSetDesigner.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/DevDataSetDesigner",
-        "sourcePath": "src/views/app/dev-system/DevDataSetDesigner.vue",
-        "sourceFile": "src/views/app/dev-system/DevDataSetDesigner.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/DevDataSetDesigner",
-        "jsdoc": "@module app:views/app/dev-system/DevDataSetDesigner\n职责：编辑单场景共享视图配置及真实N__pagedata.json历史。\n边界：正式模型定义不在配置文件中；缺文件需显式新建，dirty禁止恢复与快照。\nAI用途：绑定工作区正式定义DataView编辑，DataSet保存；历史来自同一来源适配，恢复也写回原定义视图。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/DevFileEditor.vue": {
-      "file": "files/src/views/app/dev-system/DevFileEditor.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/DevFileEditor",
-        "sourcePath": "src/views/app/dev-system/DevFileEditor.vue",
-        "sourceFile": "src/views/app/dev-system/DevFileEditor.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/DevFileEditor",
-        "jsdoc": "@module app:views/app/dev-system/DevFileEditor\n职责：提供 DevSystem 的 DevFileEditor 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程；工具文件读写、编辑与回执均由绑定的 SPARK DataView/DataSet 承接。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/DevFileEditor。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/DevPreviewTab.vue": {
-      "file": "files/src/views/app/dev-system/DevPreviewTab.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/DevPreviewTab",
-        "sourcePath": "src/views/app/dev-system/DevPreviewTab.vue",
-        "sourceFile": "src/views/app/dev-system/DevPreviewTab.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/DevPreviewTab",
-        "jsdoc": "@module app:views/app/dev-system/DevPreviewTab\n职责：提供 DevSystem 的 DevPreviewTab 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/DevPreviewTab。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/DevSystem.vue": {
-      "file": "files/src/views/app/dev-system/DevSystem.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/DevSystem",
-        "sourcePath": "src/views/app/dev-system/DevSystem.vue",
-        "sourceFile": "src/views/app/dev-system/DevSystem.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/DevSystem",
-        "jsdoc": "@module app:views/app/dev-system/DevSystem\n职责：提供 DevSystem 的 DevSystem 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程；正式节点数据通过 SPARK DataView/DataSet，领域命令保留其目标校验。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/DevSystem。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts": {
-      "file": "files/src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts.json",
-      "module": {
-        "name": "app:views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract",
-        "sourcePath": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
-        "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract",
-        "jsdoc": "app 的 views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract 模块。\n导出 DtsTypeDeclarationModel symbol: NavHostProjectBinding, NavHostProjectCandidateFields（共 2 个 symbol）。",
-        "jsdocSource": "inferred",
-        "symbols": [
-          "NavHostProjectBinding",
-          "NavHostProjectCandidateFields"
-        ]
-      }
-    },
-    "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue": {
-      "file": "files/src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/nav-host-project-picker/NavHostProjectPicker",
-        "sourcePath": "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue",
-        "sourceFile": "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/nav-host-project-picker/NavHostProjectPicker",
-        "jsdoc": "app 的 views/app/dev-system/nav-host-project-picker/NavHostProjectPicker 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
-        "jsdocSource": "inferred",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/node-target-resources.ts": {
-      "file": "files/src/views/app/dev-system/node-target-resources.ts.json",
-      "module": {
-        "name": "app:views/app/dev-system/node-target-resources",
-        "sourcePath": "src/views/app/dev-system/node-target-resources.ts",
-        "sourceFile": "src/views/app/dev-system/node-target-resources.ts",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/node-target-resources",
-        "jsdoc": "@module app:views/app/dev-system/node-target-resources\n职责：在当前 DevSystem 运行 DataSet 中装配导航候选只读视图和新工具命令输入视图。\n边界：候选由本资源从当前已授权导航投影和静态页面注册表派生；命令输入不属于正式蓝图保存目标。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "NodeTargetOptionRow",
-          "NodeTargetTreeOwner",
-          "NodeTargetResourceScope",
-          "NodeTargetResources"
-        ]
-      }
-    },
-    "src/views/app/dev-system/ProjectBlueprintTree.vue": {
-      "file": "files/src/views/app/dev-system/ProjectBlueprintTree.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/ProjectBlueprintTree",
-        "sourcePath": "src/views/app/dev-system/ProjectBlueprintTree.vue",
-        "sourceFile": "src/views/app/dev-system/ProjectBlueprintTree.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/ProjectBlueprintTree",
-        "jsdoc": "@module app:views/app/dev-system/ProjectBlueprintTree\n职责：通过当前项目蓝图 DataView 显示及操作项目导航树。\n边界：RendererTree 直接绑定本次 PAGE_RUNTIME 中的正式树视图；异步事件与删除确认固定本次运行时、项目及行身份。\nAI用途：检查开发系统主树的正式视图绑定、节点选择与相对拖放委派。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/ProjectPlanningDocumentImportDialog.vue": {
-      "file": "files/src/views/app/dev-system/ProjectPlanningDocumentImportDialog.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/ProjectPlanningDocumentImportDialog",
-        "sourcePath": "src/views/app/dev-system/ProjectPlanningDocumentImportDialog.vue",
-        "sourceFile": "src/views/app/dev-system/ProjectPlanningDocumentImportDialog.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/ProjectPlanningDocumentImportDialog",
-        "jsdoc": "@module app:views/app/dev-system/ProjectPlanningDocumentImportDialog\n职责：提供 DevSystem 的项目策划文档导入对话框，围绕 .docx 附件上传、附件引用绑定和 projectPlanning AI 运行状态展示。\n边界：只展示附件元数据与 AI trace；Word 正文不进入前端。\nAI用途：排查需求文档到 projectPlanning 的导入链路时，用本模块定位前端交互入口。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/useDevState.ts": {
-      "file": "files/src/views/app/dev-system/useDevState.ts.json",
-      "module": {
-        "name": "app:views/app/dev-system/useDevState",
-        "sourcePath": "src/views/app/dev-system/useDevState.ts",
-        "sourceFile": "src/views/app/dev-system/useDevState.ts",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/useDevState",
-        "jsdoc": "@module app:views/app/dev-system/useDevState\n职责：提供 DevSystem 的 useDevState 能力，围绕 EditableProjectOption 等公开契约支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevState。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "StatusMessage",
-          "DevContextConfig",
-          "ExternalDataViewSession",
-          "DevState"
-        ]
-      }
-    },
-    "src/views/app/dev-system/useDevSystem.ts": {
-      "file": "files/src/views/app/dev-system/useDevSystem.ts.json",
-      "module": {
-        "name": "app:views/app/dev-system/useDevSystem",
-        "sourcePath": "src/views/app/dev-system/useDevSystem.ts",
-        "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/useDevSystem",
-        "jsdoc": "@module app:views/app/dev-system/useDevSystem\n职责：提供 DevSystem 的 useDevSystem 能力，围绕 DevSystemCtx 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程；正式节点数据通过 SPARK DataView/DataSet，领域命令保留其目标校验。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevSystem。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "DevPreviewRequest",
-          "DevSystemCtx"
-        ]
-      }
-    },
     "src/views/app/Settings.vue": {
       "file": "files/src/views/app/Settings.vue.json",
       "module": {
@@ -16624,7 +16247,20 @@
         "sourceFile": "src/views/app/Settings.vue",
         "packageName": "app",
         "modulePath": "views/app/Settings",
-        "jsdoc": "@module app:views/app/Settings\n职责：显示当前应用名称与版本，切换本机主题模式，查看已注册路由统计并从 lowcode 重载导航。\n边界：主题只写本机偏好；应用与导航数据来自现有运行时，不在本页另存设置。\nAI用途：需要定位主题切换、路由统计或手动重载导航入口时，用本模块定位 views/app/Settings。",
+        "jsdoc": "@module app:views/app/Settings\n职责：显示当前应用名称与版本，切换本机主题模式，查看已注册路由统计并从 lowcode 重载导航（含路由刷新），管理本机页面缓存。\n边界：主题与页面缓存只涉及本机；应用与导航数据来自现有运行时，不在本页另存设置；后端缓存不在本页维护。\nAI用途：需要定位主题切换、路由统计、手动重载导航或本机页面缓存入口时，用本模块定位 views/app/Settings。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/app/settings/local-page-cache-card.vue": {
+      "file": "files/src/views/app/settings/local-page-cache-card.vue.json",
+      "module": {
+        "name": "app:views/app/settings/local-page-cache-card",
+        "sourcePath": "src/views/app/settings/local-page-cache-card.vue",
+        "sourceFile": "src/views/app/settings/local-page-cache-card.vue",
+        "packageName": "app",
+        "modulePath": "views/app/settings/local-page-cache-card",
+        "jsdoc": "@module app:views/app/settings/local-page-cache-card\n职责：在系统设置中查看与清理浏览器 localStorage 里的页面文件缓存（spark_page_ / spark_file_）。\n边界：只处理本机缓存，不触及后端缓存（后端缓存由 AppWorks 缓存管理页经 DataView 维护）；缓存回收仍由 FileLoader 按 lastAccess LRU 执行。\nAI用途：需要定位本机页面缓存的查看、删除或清空入口时，用本模块定位 views/app/settings/local-page-cache-card。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16737,6 +16373,58 @@
         "modulePath": "views/features/application/application-function-management/ui/application-function-page",
         "jsdoc": "app 的 views/features/application/application-function-management/ui/application-function-page 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
         "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane.vue": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane.vue",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane\n职责：编辑正式场景绑定并挂载共享场景视图设计器。\n边界：场景dirty时禁止改绑定；模型定义由后端提供，不写conType。\nAI用途：在数据规划阶段编辑场景共享视图并处理缺文件显式新建。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-data-space/DevDataSetDesigner.vue": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-data-space/DevDataSetDesigner.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-data-space/DevDataSetDesigner",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-data-space/DevDataSetDesigner.vue",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-data-space/DevDataSetDesigner.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-data-space/DevDataSetDesigner",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-data-space/DevDataSetDesigner\n职责：编辑单场景共享视图配置及真实N__pagedata.json历史。\n边界：正式模型定义不在配置文件中；缺文件需显式新建，dirty禁止恢复与快照。\nAI用途：绑定工作区正式定义DataView编辑，DataSet保存；历史来自同一来源适配，恢复也写回原定义视图。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding.vue": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding.vue",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding\n职责：蓝图节点的主数据空间绑定：展示 conid 并从正式数据空间目录选择场景。\n边界：只写 conid 编辑覆盖并通知宿主；保存与回读核验由蓝图页数据空间页签负责。\nAI用途：调整数据空间绑定选择时定位本组件。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-data-space/ScenarioDefinitionTextEditor.vue": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-data-space/ScenarioDefinitionTextEditor.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-data-space/ScenarioDefinitionTextEditor",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-data-space/ScenarioDefinitionTextEditor.vue",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-data-space/ScenarioDefinitionTextEditor.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-data-space/ScenarioDefinitionTextEditor",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-data-space/ScenarioDefinitionTextEditor\n职责：完整定义的窄文本交互，绑定同一ScenarioDefinitionDocument中的五类正式定义DataView。\n边界：仅保留输入尚未通过校验的编辑缓冲；有效文本从原视图投影，写回、撤销及身份检查归定义文档，不执行IO或保存。\nAI用途：蓝图数据空间设计的复杂配置文本编辑；不是可绑定任意字段的通用标准组件。",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
@@ -16869,6 +16557,19 @@
         ]
       }
     },
+    "src/views/features/application/application-function-management/ui/blueprint-planning/ProjectPlanningDocumentImportDialog.vue": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-planning/ProjectPlanningDocumentImportDialog.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-planning/ProjectPlanningDocumentImportDialog",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-planning/ProjectPlanningDocumentImportDialog.vue",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-planning/ProjectPlanningDocumentImportDialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-planning/ProjectPlanningDocumentImportDialog",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-planning/ProjectPlanningDocumentImportDialog\n职责：项目蓝图页的项目策划文档导入对话框，围绕 .docx 附件上传、附件引用绑定和 projectPlanning AI 运行状态展示。\n边界：只展示附件元数据与 AI trace；Word 正文不进入前端。\nAI用途：排查需求文档到 projectPlanning 的导入链路时，用本模块定位前端交互入口。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/application-function-management/ui/blueprint-source-commit-editor.vue": {
       "file": "files/src/views/features/application/application-function-management/ui/blueprint-source-commit-editor.vue.json",
       "module": {
@@ -16879,6 +16580,122 @@
         "modulePath": "views/features/application/application-function-management/ui/blueprint-source-commit-editor",
         "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-source-commit-editor\n职责：“来源提交协议”子对话框：只读查看已有不可变版本，录入新版本草稿（六个协议模型、来源主键/提交引用字段、提交事实字段）。\n边界：已有版本绑定 88A4 Commit_Policy.byBinding / Commit_Field.byPolicy；草稿与事实行是 draftByBinding / draftByPolicy 的待新增行，\n模型与字段候选绑定 7AB 候选视图；平台注册事件来源从模型候选表选择来源模型。校验、保存与回读由宿主流程状态承担。\nAI用途：调整来源提交协议布局时修改本组件，不在此另建查询或保存链。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-state/useDevState",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-state/useDevState",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-state/useDevState\n职责：项目蓝图页的工作区状态：蓝图 DataView owner、节点选择、工具文件 DataView、数据空间设计与页面设计 AI。\n边界：不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路；提交只由页面显式触发。\nAI用途：需要理解蓝图页如何编辑节点、工具文件和场景定义时，用本模块定位。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "StatusMessage",
+          "DevContextConfig",
+          "ExternalDataViewSession",
+          "DevState"
+        ]
+      }
+    },
+    "src/views/features/application/application-function-management/ui/page-design/DeliveryPane.vue": {
+      "file": "files/src/views/features/application/application-function-management/ui/page-design/DeliveryPane.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/page-design/DeliveryPane",
+        "sourcePath": "src/views/features/application/application-function-management/ui/page-design/DeliveryPane.vue",
+        "sourceFile": "src/views/features/application/application-function-management/ui/page-design/DeliveryPane.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/page-design/DeliveryPane",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/page-design/DeliveryPane\n职责：展示页面工具三文件编辑与真实运行实例预览。\n边界：三文件独立追加编号快照，场景pagedata不进入工具发布指针。\nAI用途：编辑rule/script/style并触发父工作台真实交付动作。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-function-management/ui/page-design/DevFileEditor.vue": {
+      "file": "files/src/views/features/application/application-function-management/ui/page-design/DevFileEditor.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/page-design/DevFileEditor",
+        "sourcePath": "src/views/features/application/application-function-management/ui/page-design/DevFileEditor.vue",
+        "sourceFile": "src/views/features/application/application-function-management/ui/page-design/DevFileEditor.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/page-design/DevFileEditor",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/page-design/DevFileEditor\n职责：蓝图页“页面设计”的工具文件编辑器（rule.json / script.js / style.css）与版本历史。\n边界：工具文件读写、编辑与回执均由绑定的 SPARK DataView/DataSet 承接。\nAI用途：需要理解页面设计如何编辑工具文件时，用本模块定位。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-function-management/ui/page-design/DevPreviewTab.vue": {
+      "file": "files/src/views/features/application/application-function-management/ui/page-design/DevPreviewTab.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/page-design/DevPreviewTab",
+        "sourcePath": "src/views/features/application/application-function-management/ui/page-design/DevPreviewTab.vue",
+        "sourceFile": "src/views/features/application/application-function-management/ui/page-design/DevPreviewTab.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/page-design/DevPreviewTab",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/page-design/DevPreviewTab\n职责：蓝图页“页面设计”的工具真实运行实例预览。\n边界：不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解页面设计如何预览工具时，用本模块定位。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts": {
+      "file": "files/src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/page-design/node-target-resources",
+        "sourcePath": "src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts",
+        "sourceFile": "src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/page-design/node-target-resources",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/page-design/node-target-resources\n职责：在当前 蓝图 运行 DataSet 中装配导航候选只读视图和新工具命令输入视图。\n边界：候选由本资源从当前已授权导航投影和静态页面注册表派生；命令输入不属于正式蓝图保存目标。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "NodeTargetOptionRow",
+          "NodeTargetTreeOwner",
+          "NodeTargetResourceScope",
+          "NodeTargetResources"
+        ]
+      }
+    },
+    "src/views/features/application/application-function-management/ui/page-design/page-design-pane.vue": {
+      "file": "files/src/views/features/application/application-function-management/ui/page-design/page-design-pane.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/page-design/page-design-pane",
+        "sourcePath": "src/views/features/application/application-function-management/ui/page-design/page-design-pane.vue",
+        "sourceFile": "src/views/features/application/application-function-management/ui/page-design/page-design-pane.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/page-design/page-design-pane",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/page-design/page-design-pane\n职责：项目蓝图页“页面设计”页签：页面目标（创建并绑定工具）、AI 编辑与工具审批、三文件交付与预览。\n边界：导航目标的选择在“导航配置”页签；本页签只读展示目标，创建工具沿工作区创建 saga，文件经文件 DataView 保存，\n发布经 use-page-design 的交付 saga；不另建草稿或保存通道。\nAI用途：调整页面设计页签布局时定位本组件；动作与 saga 在 use-page-design / node-target-resources。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-function-management/ui/page-design/use-page-design.ts": {
+      "file": "files/src/views/features/application/application-function-management/ui/page-design/use-page-design.ts.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/page-design/use-page-design",
+        "sourcePath": "src/views/features/application/application-function-management/ui/page-design/use-page-design.ts",
+        "sourceFile": "src/views/features/application/application-function-management/ui/page-design/use-page-design.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/page-design/use-page-design",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/page-design/use-page-design\n职责：项目蓝图页“页面设计”页签：AI 编辑提示词、工具预览/打开运行页、三文件交付发布与待定提交核验。\n边界：共享蓝图页的工作区状态；工具文件经文件 DataView 保存，发布指针只经蓝图 owner 的 VersionId 字段写回并回读；\n不自动保存，不替蓝图字段或场景定义提交。\nAI用途：调整页面设计动作或交付发布 saga 时定位本模块。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "DevPreviewRequest"
+        ]
+      }
+    },
+    "src/views/features/application/application-function-management/ui/page-design/useDevFileEditor.ts": {
+      "file": "files/src/views/features/application/application-function-management/ui/page-design/useDevFileEditor.ts.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/page-design/useDevFileEditor",
+        "sourcePath": "src/views/features/application/application-function-management/ui/page-design/useDevFileEditor.ts",
+        "sourceFile": "src/views/features/application/application-function-management/ui/page-design/useDevFileEditor.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/page-design/useDevFileEditor",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/page-design/useDevFileEditor\n职责：页面设计工具文件编辑器的状态组合。\n边界：工具文件状态与持久化沿正式 DataView/DataSet 链处理。\nAI用途：需要理解页面设计如何编辑工具文件时，用本模块定位。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
@@ -18791,19 +18608,6 @@
         "symbols": []
       }
     },
-    "src/views/platform/PlatformApps.vue": {
-      "file": "files/src/views/platform/PlatformApps.vue.json",
-      "module": {
-        "name": "app:views/platform/PlatformApps",
-        "sourcePath": "src/views/platform/PlatformApps.vue",
-        "sourceFile": "src/views/platform/PlatformApps.vue",
-        "packageName": "app",
-        "modulePath": "views/platform/PlatformApps",
-        "jsdoc": "@module app:views/platform/PlatformApps\n职责：通过正式应用目录 DataView 展示应用并编排应用切换。\n边界：目录数据与字段权限由 SPARK DataView 提供；本页不推导租户授权或直接读取旧目录接口。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
     "src/views/platform/PlatformTenantManagement.vue": {
       "file": "files/src/views/platform/PlatformTenantManagement.vue.json",
       "module": {
@@ -20172,34 +19976,6 @@
       "sourcePath": "packages/spark-component/src/page/actions/executor-helpers.ts",
       "file": "files/packages/spark-component/src/page/actions/executor-helpers.ts.json"
     },
-    "BuiltinApplicationDescriptor": {
-      "sourcePath": "src/registries/builtin-application-registry.ts",
-      "file": "files/src/registries/builtin-application-registry.ts.json"
-    },
-    "BuiltinBlueprintNodeResource": {
-      "sourcePath": "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts",
-      "file": "files/src/lowcode/resources/repository/builtin-blueprint-node-resource.ts.json"
-    },
-    "BuiltinBlueprintRecord": {
-      "sourcePath": "src/lowcode/resources/repository/builtin-system-navigation.ts",
-      "file": "files/src/lowcode/resources/repository/builtin-system-navigation.ts.json"
-    },
-    "BuiltinNavigationResource": {
-      "sourcePath": "src/registries/builtin-application-registry.ts",
-      "file": "files/src/registries/builtin-application-registry.ts.json"
-    },
-    "BuiltinScenarioName": {
-      "sourcePath": "src/registries/builtin-application-registry.ts",
-      "file": "files/src/registries/builtin-application-registry.ts.json"
-    },
-    "BuiltinScenarioResource": {
-      "sourcePath": "src/registries/builtin-application-registry.ts",
-      "file": "files/src/registries/builtin-application-registry.ts.json"
-    },
-    "BuiltinSystemNavigation": {
-      "sourcePath": "src/lowcode/resources/repository/builtin-system-navigation.ts",
-      "file": "files/src/lowcode/resources/repository/builtin-system-navigation.ts.json"
-    },
     "BusinessCodeAssignmentResource": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts.json"
@@ -20792,6 +20568,26 @@
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
     },
+    "DataFieldMember": {
+      "sourcePath": "packages/spark-data/src/core/data-field-member.ts",
+      "file": "files/packages/spark-data/src/core/data-field-member.ts.json"
+    },
+    "DataFieldMemberEdit": {
+      "sourcePath": "packages/spark-data/src/core/data-field-member.ts",
+      "file": "files/packages/spark-data/src/core/data-field-member.ts.json"
+    },
+    "DataFieldMemberFormat": {
+      "sourcePath": "packages/spark-data/src/core/data-field-member.ts",
+      "file": "files/packages/spark-data/src/core/data-field-member.ts.json"
+    },
+    "DataFieldMemberPath": {
+      "sourcePath": "packages/spark-data/src/core/data-field-member.ts",
+      "file": "files/packages/spark-data/src/core/data-field-member.ts.json"
+    },
+    "DataFieldMemberRef": {
+      "sourcePath": "packages/spark-data/src/core/data-field-member.ts",
+      "file": "files/packages/spark-data/src/core/data-field-member.ts.json"
+    },
     "DataMember": {
       "sourcePath": "packages/spark-data/src/core/data-view-key.ts",
       "file": "files/packages/spark-data/src/core/data-view-key.ts.json"
@@ -21296,6 +21092,10 @@
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
     },
+    "DataViewEditingMemberWriteInput": {
+      "sourcePath": "packages/spark-component/src/components/fields/context/dataViewEditing.ts",
+      "file": "files/packages/spark-component/src/components/fields/context/dataViewEditing.ts.json"
+    },
     "DataViewEditingSource": {
       "sourcePath": "packages/spark-component/src/components/fields/context/dataViewEditing.ts",
       "file": "files/packages/spark-component/src/components/fields/context/dataViewEditing.ts.json"
@@ -21665,20 +21465,16 @@
       "file": "files/src/composables/useNotifications.ts.json"
     },
     "DevContextConfig": {
-      "sourcePath": "src/views/app/dev-system/useDevState.ts",
-      "file": "files/src/views/app/dev-system/useDevState.ts.json"
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts.json"
     },
     "DevPreviewRequest": {
-      "sourcePath": "src/views/app/dev-system/useDevSystem.ts",
-      "file": "files/src/views/app/dev-system/useDevSystem.ts.json"
+      "sourcePath": "src/views/features/application/application-function-management/ui/page-design/use-page-design.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/page-design/use-page-design.ts.json"
     },
     "DevState": {
-      "sourcePath": "src/views/app/dev-system/useDevState.ts",
-      "file": "files/src/views/app/dev-system/useDevState.ts.json"
-    },
-    "DevSystemCtx": {
-      "sourcePath": "src/views/app/dev-system/useDevSystem.ts",
-      "file": "files/src/views/app/dev-system/useDevSystem.ts.json"
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts.json"
     },
     "DialogFullscreenOptions": {
       "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/FullscreenDialog.props.ts",
@@ -22105,8 +21901,8 @@
       "file": "files/packages/spark-ai/src/agent/native-runtime/native-script-context.ts.json"
     },
     "ExternalDataViewSession": {
-      "sourcePath": "src/views/app/dev-system/useDevState.ts",
-      "file": "files/src/views/app/dev-system/useDevState.ts.json"
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts.json"
     },
     "FeatureFieldOption": {
       "sourcePath": "src/views/features/shared/record/feature-field-spec.ts",
@@ -22179,6 +21975,10 @@
     "FieldKind": {
       "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
       "file": "files/src/lowcode/resources/structured-config/dimension-source/view-support.ts.json"
+    },
+    "FieldMemberRef": {
+      "sourcePath": "packages/spark-component/src/components/fields/context/useFieldPermission.ts",
+      "file": "files/packages/spark-component/src/components/fields/context/useFieldPermission.ts.json"
     },
     "FieldOption": {
       "sourcePath": "packages/spark-component/src/components/fields/options/option-normalization.ts",
@@ -23440,14 +23240,6 @@
       "sourcePath": "packages/spark-app/src/navigation/useColorScheme.ts",
       "file": "files/packages/spark-app/src/navigation/useColorScheme.ts.json"
     },
-    "NavHostProjectBinding": {
-      "sourcePath": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
-      "file": "files/src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts.json"
-    },
-    "NavHostProjectCandidateFields": {
-      "sourcePath": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
-      "file": "files/src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts.json"
-    },
     "NavigateAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
@@ -23525,20 +23317,20 @@
       "file": "files/packages/spark-data/src/types.ts.json"
     },
     "NodeTargetOptionRow": {
-      "sourcePath": "src/views/app/dev-system/node-target-resources.ts",
-      "file": "files/src/views/app/dev-system/node-target-resources.ts.json"
+      "sourcePath": "src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts.json"
     },
     "NodeTargetResources": {
-      "sourcePath": "src/views/app/dev-system/node-target-resources.ts",
-      "file": "files/src/views/app/dev-system/node-target-resources.ts.json"
+      "sourcePath": "src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts.json"
     },
     "NodeTargetResourceScope": {
-      "sourcePath": "src/views/app/dev-system/node-target-resources.ts",
-      "file": "files/src/views/app/dev-system/node-target-resources.ts.json"
+      "sourcePath": "src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts.json"
     },
     "NodeTargetTreeOwner": {
-      "sourcePath": "src/views/app/dev-system/node-target-resources.ts",
-      "file": "files/src/views/app/dev-system/node-target-resources.ts.json"
+      "sourcePath": "src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts.json"
     },
     "NormalizeOptionFields": {
       "sourcePath": "packages/spark-component/src/components/fields/options/option-normalization.ts",
@@ -25096,6 +24888,10 @@
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
     },
+    "SparkFieldMemberProps": {
+      "sourcePath": "packages/spark-component/src/components/shared-types.ts",
+      "file": "files/packages/spark-component/src/components/shared-types.ts.json"
+    },
     "SparkFieldSemanticProps": {
       "sourcePath": "packages/spark-component/src/components/shared-types.ts",
       "file": "files/packages/spark-component/src/components/shared-types.ts.json"
@@ -25405,8 +25201,8 @@
       "file": "files/packages/spark-app/src/app/start.ts.json"
     },
     "StatusMessage": {
-      "sourcePath": "src/views/app/dev-system/useDevState.ts",
-      "file": "files/src/views/app/dev-system/useDevState.ts.json"
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts.json"
     },
     "StreamDisplayEntry": {
       "sourcePath": "packages/spark-component/src/ai/types.ts",
@@ -25463,6 +25259,14 @@
     "SystemPageInstance": {
       "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts",
       "file": "files/packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts.json"
+    },
+    "SystemScenarioName": {
+      "sourcePath": "src/registries/system-scenario-registry.ts",
+      "file": "files/src/registries/system-scenario-registry.ts.json"
+    },
+    "SystemScenarioResource": {
+      "sourcePath": "src/registries/system-scenario-registry.ts",
+      "file": "files/src/registries/system-scenario-registry.ts.json"
     },
     "TableBusinessCategory": {
       "sourcePath": "packages/spark-data/src/types.ts",
@@ -25711,6 +25515,10 @@
     "VisibilityContainerZeroCodeOptions": {
       "sourcePath": "packages/spark-component/src/components/containers/support/visibility-container-zero-code.ts",
       "file": "files/packages/spark-component/src/components/containers/support/visibility-container-zero-code.ts.json"
+    },
+    "VuePageOption": {
+      "sourcePath": "src/registries/vue-page-registry.ts",
+      "file": "files/src/registries/vue-page-registry.ts.json"
     },
     "WireFilterOperator": {
       "sourcePath": "packages/spark-lowcode-api/src/contracts/lowcode-wire-query.ts",

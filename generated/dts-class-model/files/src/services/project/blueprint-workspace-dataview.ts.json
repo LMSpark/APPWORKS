@@ -7,7 +7,7 @@
     "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
     "packageName": "app",
     "modulePath": "services/project/blueprint-workspace-dataview",
-    "jsdoc": "@module app:services/project/blueprint-workspace-dataview\n职责：通过当前项目的蓝图 DataView 统一查询、编辑覆盖、取消和 DataSet 保存，并提供同源树投影。\n边界：动态项目绑定正式 Base_NavigationInfo，仓内 AppWorks 绑定RepositoryBlueprintNode文件视图；不复制业务草稿。\n字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。",
+    "jsdoc": "@module app:services/project/blueprint-workspace-dataview\n职责：通过当前项目的蓝图 DataView 统一查询、编辑覆盖、取消和 DataSet 保存，并提供同源树投影。\n边界：项目蓝图绑定正式 Base_NavigationInfo；不复制业务草稿。\n字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "BlueprintNodeFormData",
@@ -896,7 +896,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T17:20:15.168Z",
+  "generatedAt": "2026-11-12T21:29:12.909Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -1254,7 +1254,7 @@
             },
             {
               "name": "standardComponentBinding",
-              "jsdoc": "Standard component binding for this owner: formal model key, or the exact trusted local-file DataView.",
+              "jsdoc": "Standard component binding for this owner's formal model view.",
               "readable": true,
               "writable": false
             },
@@ -1314,7 +1314,7 @@
           "methods": [
             {
               "name": "rebindScope",
-              "jsdoc": "Rebind the parked owner to a newly acquired same-project DevSystem scope.",
+              "jsdoc": "Rebind the parked owner to a newly acquired same-project 蓝图 scope.",
               "parameters": [
                 {
                   "name": "assertCurrent",

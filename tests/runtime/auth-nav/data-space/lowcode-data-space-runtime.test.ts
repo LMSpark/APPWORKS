@@ -15,7 +15,7 @@ let runtime: typeof import('../../../../src/lowcode/lowcode-runtime')
 import { ScenarioViewConfig } from '../../../../packages/spark-project-model/src/scenario/scenario-view-config'
 import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssemblerInput } from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
 import { LowcodeDataSpaceViewFields } from '../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-fields'
-import {getBuiltinApplicationDescriptor, getBuiltinScenarioResource} from '../../../../src/registries/builtin-application-registry'
+import {getSystemScenarioResource} from '../../../../src/registries/system-scenario-registry'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -375,15 +375,15 @@ describe('host scenario file request wiring', () => {
     expect(transport.request.mock.calls.some(([config])=>config.url === '/api/File/UploadFile')).toBe(false)
   })
 
-  it('routes builtin scenario history through the development host and never remote file APIs', async () => {
-    const applicationId = getBuiltinApplicationDescriptor().id
+  it('routes registered scenario history through the development host and other scenarios through app file storage', async () => {
+    const applicationId = 'APP-1'
     sceneWorkspace(applicationId)
     const gateway = runtime.createLowcodeProjectGateways(applicationId).scenarioViews
-    const programSceneId = getBuiltinScenarioResource('dataSpaceCatalog').scenarioId
+    const programSceneId = getSystemScenarioResource('dataSpaceCatalog').scenarioId
     if (!gateway.writeText || !gateway.listVersions || !gateway.readVersion || !gateway.createVersion) {
       throw new Error('missing scenario write/history gateway')
     }
-    const resource = getBuiltinScenarioResource('dataSpaceCatalog'), baseline = readFileSync(resource.path, 'utf8')
+    const resource = getSystemScenarioResource('dataSpaceCatalog'), baseline = readFileSync(resource.path, 'utf8')
     const host = await stubRepositoryScenarioHost(resource, baseline)
     await expect(gateway.writeText(programSceneId, '{}', baseline)).rejects.toMatchObject({
       name: 'ScenarioViewWriteNotAppliedError', resourceId: resource.resourceId,
@@ -410,7 +410,7 @@ describe('host scenario file request wiring', () => {
   })
 
   it('keeps registered system scenes on their repository source when a dynamic app executes them', async () => {
-    const resource = getBuiltinScenarioResource('dataSpaceCatalog')
+    const resource = getSystemScenarioResource('dataSpaceCatalog')
     sceneWorkspace('DYNAMIC-APP')
     const gateway = runtime.createLowcodeProjectGateways('DYNAMIC-APP').scenarioViews
     if (!gateway.writeText || !gateway.listVersions || !gateway.readVersion || !gateway.createVersion) {
@@ -448,10 +448,10 @@ describe('host scenario file request wiring', () => {
   })
 
   it.each(['switch', 'logout'] as const)('rejects a stale registered-scene gateway before POST after %s', async transition => {
-    const applicationId = getBuiltinApplicationDescriptor().id
+    const applicationId = 'APP-1'
     sceneWorkspace(applicationId)
     const gateway = runtime.createLowcodeProjectGateways(applicationId).scenarioViews
-    const resource = getBuiltinScenarioResource('dataSpaceCatalog')
+    const resource = getSystemScenarioResource('dataSpaceCatalog')
     const text = readFileSync(resource.path, 'utf8')
     const host = await stubRepositoryScenarioHost(resource, text)
     if (!gateway.writeText) throw new Error('missing scenario write gateway')
@@ -465,8 +465,8 @@ describe('host scenario file request wiring', () => {
   })
 
   it('does not create a history snapshot through an old gateway after the same app opens a new request scope', async () => {
-    const applicationId = getBuiltinApplicationDescriptor().id
-    const resource = getBuiltinScenarioResource('dataSpaceCatalog'), text = readFileSync(resource.path, 'utf8')
+    const applicationId = 'APP-1'
+    const resource = getSystemScenarioResource('dataSpaceCatalog'), text = readFileSync(resource.path, 'utf8')
     const host = await stubRepositoryScenarioHost(resource, text)
     const workspace = sceneWorkspace(applicationId)
     await workspace.loadScenarioViews({scenarioId: resource.scenarioId})
@@ -477,29 +477,6 @@ describe('host scenario file request wiring', () => {
     await workspace.loadScenarioViews({scenarioId: resource.scenarioId})
     await expect(workspace.createScenarioVersion({scenarioId: resource.scenarioId})).rejects.toThrow('SCOPE_STALE')
     expect(host.mock.calls.some(([, init]) => init?.method === 'POST')).toBe(false)
-  })
-
-  it('blocks builtin tool-file remote IO per operation without rejecting gateway construction', async () => {
-    const applicationId = getBuiltinApplicationDescriptor().id
-    sceneWorkspace(applicationId)
-    const gateway = runtime.createLowcodeProjectGateways(applicationId)
-    const io = runtime.createPageToolFilesIo(applicationId)
-    expect(io).toBeDefined()
-    expect(gateway).not.toHaveProperty('pageFiles')
-    await expect(io.list(applicationId, 'orders')).rejects.toThrow('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE')
-    await expect(io.read(applicationId, 'orders', 'script.js')).rejects.toThrow('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE')
-    await expect(io.upload({appId: applicationId, pageId: 'orders', fileName: 'script.js', text: 'text'}))
-      .rejects.toThrow('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE')
-    await expect(io.restoreWorkingFile({appId: applicationId, pageId: 'orders', fileName: 'script.js', text: 'text'}))
-      .rejects.toThrow('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE')
-    await expect(io.listVersions({appId: applicationId, customPath: `${applicationId}/orders`, fileName: 'script.js'}))
-      .rejects.toThrow('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE')
-    await expect(io.uploadVersion({appId: applicationId, customPath: `${applicationId}/orders`, fileName: 'script.js', version: 1, text: 'text'}))
-      .rejects.toThrow('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE')
-    await expect(io.readVersion({appId: applicationId, customPath: `${applicationId}/orders`, fileName: 'script.js', version: 1}))
-      .rejects.toThrow('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE')
-    await expect(io.remove(applicationId, 'orders', 'script.js')).rejects.toThrow('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE')
-    expect(transport.request).not.toHaveBeenCalled()
   })
 })
 

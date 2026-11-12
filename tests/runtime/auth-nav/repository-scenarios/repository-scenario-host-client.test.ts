@@ -1,9 +1,9 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {ScenarioViewWriteNotAppliedError} from '@spark-appworks/spark-project-model'
-import {resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {readRepositoryScenarioFromHost, writeRepositoryScenarioToHost} from '@/lowcode/resources/repository/scenarios/host-client'
 
-const resource = resolveBuiltinScenarioResource('8D1AB14DD8277F3E7017CD38F77B09FD')!
+const resource = resolveSystemScenarioResource('8D1AB14DD8277F3E7017CD38F77B09FD')!
 
 describe('repository scenario host response contract', () => {
   it('creates a typed not-applied error only for a matching resource response', async () => {

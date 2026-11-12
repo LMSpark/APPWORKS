@@ -2595,6 +2595,41 @@
         "method.updateEditingValue.return": {
           "$ref": "types.ts.json#/$defs/DataRow"
         },
+        "method.readFieldMember.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "types.ts.json#/$defs/DataRow"
+            },
+            "member": {
+              "$ref": "core/data-field-member.ts.json#/$defs/DataFieldMemberRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFieldMember.return": true,
+        "method.updateEditingMember.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "edit": {
+              "$ref": "core/data-field-member.ts.json#/$defs/DataFieldMemberEdit"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateEditingMember.return": {
+          "$ref": "types.ts.json#/$defs/DataRow"
+        },
         "method.discardEditingRows.params": {
           "type": "object",
           "properties": {
@@ -3253,7 +3288,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T18:52:50.599Z",
+  "generatedAt": "2026-11-12T20:39:06.441Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -7097,6 +7132,73 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataRow",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "readFieldMember",
+              "jsdoc": "读取行内 JSON 源字段的一个成员；源字段为空时成员视为缺失。\n@param row 当前视图行或编辑态行。\n@param member 源字段、成员路径与存储格式。\n@returns 成员值；缺失的对象成员返回 undefined。\n@throws 源字段不是 JSON 容器或路径父级不存在时失败，不吞掉畸形原值。\n@remarks 只读取已返回的源字段值，不判断读取权限；隐藏或脱敏由调用方按源字段的 fieldAccess 处理。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "member",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataFieldMemberRef",
+                    "sourcePath": "packages/spark-data/src/core/data-field-member.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            },
+            {
+              "name": "updateEditingMember",
+              "jsdoc": "将一个 JSON 成员的修改合并回源字段的编辑态，保留源字段其它成员。\n@param id 目标行主键值。\n@param edit 源字段、成员路径、存储格式与新值；value 为 undefined 时移除对象成员。\n@returns 合并后的编辑态行。\n@remarks 合并结果经 updateEditingValue 写入，编辑追踪、取消、字段权限与保存差异均沿源字段；不检查写权限，调用方须先核对源字段 fieldAccess。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "edit",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataFieldMemberEdit",
+                    "sourcePath": "packages/spark-data/src/core/data-field-member.ts"
                   }
                 }
               ],

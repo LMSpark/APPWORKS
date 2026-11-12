@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/page-design/page-design-pane",
+    "sourcePath": "src/views/features/application/application-function-management/ui/page-design/page-design-pane.vue",
+    "sourceFile": "src/views/features/application/application-function-management/ui/page-design/page-design-pane.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/page-design/page-design-pane",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/page-design/page-design-pane\n职责：项目蓝图页“页面设计”页签：页面目标（创建并绑定工具）、AI 编辑与工具审批、三文件交付与预览。\n边界：导航目标的选择在“导航配置”页签；本页签只读展示目标，创建工具沿工作区创建 saga，文件经文件 DataView 保存，\n发布经 use-page-design 的交付 saga；不另建草稿或保存通道。\nAI用途：调整页面设计页签布局时定位本组件；动作与 saga 在 use-page-design / node-target-resources。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T20:00:39.168Z",
+  "models": {}
+}

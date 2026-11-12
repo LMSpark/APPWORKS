@@ -38,7 +38,7 @@
             "minLength": 1
           },
           "scope": {
-            "enum": ["public", "catalog", "app"]
+            "enum": ["public", "platform", "enterprise", "app"]
           },
           "source": {
             "type": "string",
@@ -47,12 +47,24 @@
           "hidden": {
             "type": "boolean"
           },
-          "shellTool": {
-            "type": "boolean"
+          "group": {
+            "type": "string",
+            "minLength": 1
+          },
+          "order": {
+            "type": "integer"
           },
           "dataSpaceId": {
             "type": "string",
-            "minLength": 1
+            "pattern": "^[A-F0-9]{32}$"
+          },
+          "navigationId": {
+            "type": "string",
+            "pattern": "^[A-F0-9]{32}$"
+          },
+          "identityHost": {
+            "type": "string",
+            "pattern": "^/"
           }
         },
         "required": ["path", "title", "scope", "source"]

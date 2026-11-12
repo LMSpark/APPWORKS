@@ -33,6 +33,7 @@ AI用途：需要理解 field text 的实际渲染结构、slot/toolbar/状态�
  * @description 文本输入字段，绑定 string 值。
  */
 import { useBasicFieldState } from '../../composables/state/useBasicFieldState'
+import { fieldMemberFromProps } from '../../../context/useFieldPermission'
 import {computed} from 'vue'
 import { emitFieldValueUpdate, type FieldValueUpdateEmits } from '../../composables/value/useControlledFieldChange'
 import { coerceStringValue } from '../../composables/value/fieldValueCoercion'
@@ -53,6 +54,7 @@ const { permission, fieldCtx, handleControlledChange } = useBasicFieldState<stri
   fieldType: 'r-text',
   fallbackValue: '',
   coerce: coerceStringValue,
+  member: fieldMemberFromProps(props),
   formatDisplay: value => props.displayFormatter ? props.displayFormatter(value)
     : value == null || value === '' ? (props.emptyText ?? '') : String(value),
   emitUpdate: value => emitFieldValueUpdate(emit, value),

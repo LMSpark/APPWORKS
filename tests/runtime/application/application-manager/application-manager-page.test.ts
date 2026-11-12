@@ -8,7 +8,7 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {RequestState} from '@spark-appworks/spark-data'
 import {RendererFilter, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
-import {getBuiltinScenarioResource, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {getSystemScenarioResource, resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
 import {api, APPLICATION_MANAGER_PATH, APPLICATION_MANAGER_SCENARIO, resetApplicationManagerFixture} from './application-manager.fixture'
 import {pagedata} from '../../page/api-provider/api-provider.fixture'
@@ -113,11 +113,11 @@ function currentView(observed: Set<PageRuntime>) {
 
 describe('application manager restored through the formal DataView', () => {
   it('registers confirmed application, status, database relation, database and owner models', () => {
-    const resource = getBuiltinScenarioResource('applicationManager')
+    const resource = getSystemScenarioResource('applicationManager')
     const page = getVuePageEntry(APPLICATION_MANAGER_PATH)
     const configText = readFileSync('config/pages/application/application-manager/pagedata.json', 'utf8')
     const scenario = JSON.parse(configText) as {scenarioId: string; tables: Record<string, {modelBinding: {modelId: string; modelName: string}; views: Record<string, {queryConfig?: {fields?: string[]}}>}>}
-    expect(resolveBuiltinScenarioResource(APPLICATION_MANAGER_SCENARIO)).toEqual(resource)
+    expect(resolveSystemScenarioResource(APPLICATION_MANAGER_SCENARIO)).toEqual(resource)
     expect(resource.path).toBe('config/pages/application/application-manager/pagedata.json')
     expect(page?.source).toBe('src/views/features/application/application-manager/ui/application-manager-page.vue')
     expect(scenario.scenarioId).toBe(APPLICATION_MANAGER_SCENARIO)

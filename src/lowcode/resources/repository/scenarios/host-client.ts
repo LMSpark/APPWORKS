@@ -6,7 +6,7 @@
  */
 import {ScenarioViewVersionNotAppliedError, ScenarioViewWriteNotAppliedError} from '@spark-appworks/spark-project-model'
 import {isNonnegativeSafeInteger, isRepositoryScenarioFailure, isRepositoryScenarioSuccess, REPOSITORY_SCENARIO_ENDPOINT, type RepositoryScenarioHistoryList, type RepositoryScenarioVersionSuccess} from './protocol'
-import type {BuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import type {SystemScenarioResource} from '@/registries/system-scenario-registry'
 
 const REQUEST_TIMEOUT_MS = 30_000
 
@@ -15,7 +15,7 @@ const REQUEST_TIMEOUT_MS = 30_000
  * 每次 GET 都请求新鲜原文并校验资源身份和 SHA-256；不读取模块缓存，也不回退到正式远端来源。
  * 请求及响应体处理最多等待 30 秒；超时直接失败且不重试。
  */
-export async function readRepositoryScenarioFromHost(resource: Pick<BuiltinScenarioResource, 'resourceId' | 'scenarioId'>): Promise<string> {
+export async function readRepositoryScenarioFromHost(resource: Pick<SystemScenarioResource, 'resourceId' | 'scenarioId'>): Promise<string> {
   const query = new URLSearchParams({resourceId: resource.resourceId})
   return withRequestDeadline(async signal => {
     const response = await fetch(`${REPOSITORY_SCENARIO_ENDPOINT}?${query.toString()}`,
@@ -34,7 +34,7 @@ export async function readRepositoryScenarioFromHost(resource: Pick<BuiltinScena
  * POST 携带本次已捕获的 expectedText 作为比较基线；请求最多等待 30 秒且不重试。
  * 只有响应明确声明 not-applied 且 resourceId 精确匹配时才抛出 typed 未应用错误；超时、读回/回执错误均保持未知结果。
  */
-export async function writeRepositoryScenarioToHost(resource: Pick<BuiltinScenarioResource, 'resourceId' | 'scenarioId'>,
+export async function writeRepositoryScenarioToHost(resource: Pick<SystemScenarioResource, 'resourceId' | 'scenarioId'>,
   text: string, expectedText: string): Promise<void> {
   await withRequestDeadline(async signal => {
     const response = await fetch(REPOSITORY_SCENARIO_ENDPOINT, {method: 'POST', cache: 'no-store', credentials: 'same-origin', redirect: 'error',
@@ -57,7 +57,7 @@ export async function writeRepositoryScenarioToHost(resource: Pick<BuiltinScenar
 }
 
 /** 列出仓内开发历史；开发宿主没有历史目录时返回空列表，不创建任何文件。 */
-export async function listRepositoryScenarioVersions(resource: Pick<BuiltinScenarioResource, 'resourceId' | 'scenarioId'>): Promise<RepositoryScenarioHistoryList['versions']> {
+export async function listRepositoryScenarioVersions(resource: Pick<SystemScenarioResource, 'resourceId' | 'scenarioId'>): Promise<RepositoryScenarioHistoryList['versions']> {
   const query = new URLSearchParams({resourceId: resource.resourceId, history: 'list'})
   return withRequestDeadline(async signal => {
     const response = await fetch(`${REPOSITORY_SCENARIO_ENDPOINT}?${query.toString()}`,
@@ -72,7 +72,7 @@ export async function listRepositoryScenarioVersions(resource: Pick<BuiltinScena
 }
 
 /** 读取指定编号的仓内快照原文，不修改活动场景文件。 */
-export async function readRepositoryScenarioVersion(resource: Pick<BuiltinScenarioResource, 'resourceId' | 'scenarioId'>,
+export async function readRepositoryScenarioVersion(resource: Pick<SystemScenarioResource, 'resourceId' | 'scenarioId'>,
   version: number): Promise<string> {
   if (!Number.isSafeInteger(version) || version < 0) throw new Error('REPOSITORY_SCENARIO_VERSION_INVALID: 历史编号无效')
   const query = new URLSearchParams({resourceId: resource.resourceId, version: String(version)})
@@ -92,7 +92,7 @@ export async function readRepositoryScenarioVersion(resource: Pick<BuiltinScenar
 /** 浏览器开发宿主的单次场景快照创建请求，携带已捕获的scope和活动文件基线。 */
 export type CreateRepositoryScenarioVersionCommand = Readonly<{
   /** 资源注册表中的仓内文件身份。 */
-  resource: Pick<BuiltinScenarioResource, 'resourceId' | 'scenarioId'>
+  resource: Pick<SystemScenarioResource, 'resourceId' | 'scenarioId'>
   /** 创建attempt所属的原始请求scope。 */
   scope: string
   /** 调用方按已列出的历史编号预先分配的N。 */

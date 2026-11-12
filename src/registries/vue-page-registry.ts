@@ -1,8 +1,8 @@
 /**
  * @module app:registries/vue-page-registry
- * 职责：提供 src 应用层的 vue page registry 能力，连接运行时上下文、视图组件和服务。
+ * 职责：登记原生 Vue 系统页及其所属层级（公共、平台、企业、应用），派生路由组件与三层菜单元数据。
  * 边界：只服务应用入口和组合层，不修改基础包协议，也不承担服务端职责。
- * AI用途：排查应用启动、运行时上下文或局部 UI 接线时，用本模块确认源码入口。
+ * AI用途：排查系统页归属、菜单分组或页面身份时，用本模块确认登记合同。
  */
 /**
  * Vue system-page registry.
@@ -18,8 +18,8 @@ import PageLoadError from '../components/page-loading/PageLoadError.vue'
 const VUE_PAGES_PROTOCOL = 'spark-appworks.vue-pages'
 const VUE_PAGES_SCHEMA_VERSION = 1
 
-/** Page Scope 的语义模型。 */
-export type PageScope = 'public' | 'catalog' | 'app'
+/** 页面层级：public 登录前；platform 平台管理；enterprise 未进入应用时的企业菜单；app 当前应用的“应用设计”。 */
+export type PageScope = 'public' | 'platform' | 'enterprise' | 'app'
 
 /** Vue Page Config Entry 的语义模型。 */
 type VuePageConfigEntry = Readonly<{
@@ -31,15 +31,22 @@ type VuePageConfigEntry = Readonly<{
   icon?: string
   /** 页面描述；用于导航提示和 AI 理解页面功能。 */
   description?: string
-  /** 页面来源范围；public 用于登录前页面，catalog 用于应用目录，app 用于已选应用中的工具页。 */
+  /** 页面所属层级，决定它出现在哪一层菜单及以何种请求作用域执行。 */
   scope: PageScope
   /** Vue 组件文件路径；必须位于 src/views/ 下且以 .vue 结尾，用于 Vite 动态 import。 */
   source: string
-  /** 是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。 */
+  /** 不生成菜单项；仅作内嵌组件或借用宿主身份的伴随页。 */
   hidden?: boolean
-  /** 是否投影到应用壳层的 SPARK 工具组；业务导航别名应设为 false。 */
-  shellTool?: boolean
+  /** 同层菜单中的分组标题；省略时直接位于该层顶级。 */
+  group?: string
+  /** 同层菜单排序值，越小越靠前；分组按其成员最小值排序。 */
+  order?: number
+  /** 页面消费的正式数据空间 ID，同时作为菜单项的蓝图场景身份。 */
   dataSpaceId?: string
+  /** 菜单项导航身份；省略时与 dataSpaceId 相同。 */
+  navigationId?: string
+  /** 伴随页借用身份的宿主页面路径；伴随页本身必须 hidden。 */
+  identityHost?: string
 }>
 
 type VuePagesConfig = Readonly<{
@@ -55,7 +62,8 @@ type VuePageEntry = Readonly<Omit<VuePageConfigEntry, 'path'> & {
   load: () => Promise<{ default: Component }>
 }>
 
-const PAGE_SCOPE_VALUES: ReadonlySet<string> = new Set(['public', 'catalog', 'app'])
+/** 页面元数据（不含组件引用），供菜单生成消费。 */
+export type VuePageOption = Readonly<Omit<VuePageConfigEntry, 'source' | 'identityHost'> & { source: string }>
 
 const vuePageModules = import.meta.glob<{ default: Component }>('../views/**/*.vue')
 const vuePagesConfig = parseVuePagesConfig(vuePagesDocument)
@@ -141,16 +149,7 @@ export function buildPreAuthNavTree(): RuntimeNavigation {
 /**
  * 组件页面选项列表（纯元数据，不含组件引用）。
  */
-export function getVuePageOptions(): Array<{
-  path: string
-  title: string
-  scope: PageScope
-  source: string
-  icon?: string
-  description?: string
-  shellTool?: boolean
-  dataSpaceId?: string
-}> {
+export function getVuePageOptions(): VuePageOption[] {
   return Object.entries(VUE_PAGE_REGISTRY).map(([path, entry]) => ({
     path,
     title: entry.title,
@@ -158,9 +157,19 @@ export function getVuePageOptions(): Array<{
     source: entry.source,
     ...(entry.icon === undefined ? {} : { icon: entry.icon }),
     ...(entry.description === undefined ? {} : { description: entry.description }),
-    ...(entry.shellTool === undefined ? {} : { shellTool: entry.shellTool }),
-    ...(entry.dataSpaceId === undefined ? {} : {dataSpaceId: entry.dataSpaceId}),
+    ...(entry.hidden === undefined ? {} : { hidden: entry.hidden }),
+    ...(entry.group === undefined ? {} : { group: entry.group }),
+    ...(entry.order === undefined ? {} : { order: entry.order }),
+    ...(entry.dataSpaceId === undefined ? {} : { dataSpaceId: entry.dataSpaceId }),
+    ...(entry.navigationId === undefined ? {} : { navigationId: entry.navigationId }),
   }))
+}
+
+/** 借用宿主导航身份的伴随页，交给动态路由按宿主节点登记。 */
+export function getSystemPageIdentityCompanions(): Array<Readonly<{ path: string; hostPath: string }>> {
+  return Object.entries(VUE_PAGE_REGISTRY).flatMap(([path, entry]) => (
+    entry.identityHost === undefined ? [] : [{ path, hostPath: entry.identityHost }]
+  ))
 }
 
 function createVuePageEntry(page: VuePageConfigEntry): VuePageEntry {
@@ -169,17 +178,8 @@ function createVuePageEntry(page: VuePageConfigEntry): VuePageEntry {
   if (load === undefined) {
     throw new Error(`Vue page source is not importable: ${page.source}`)
   }
-  return {
-    title: page.title,
-    scope: page.scope,
-    source: page.source,
-    load,
-    ...(page.icon === undefined ? {} : { icon: page.icon }),
-    ...(page.description === undefined ? {} : { description: page.description }),
-    ...(page.hidden === undefined ? {} : { hidden: page.hidden }),
-    ...(page.shellTool === undefined ? {} : { shellTool: page.shellTool }),
-    ...(page.dataSpaceId === undefined ? {} : {dataSpaceId: page.dataSpaceId}),
-  }
+  const { path: _path, ...entry } = page
+  return { ...entry, load }
 }
 
 function toVuePageModuleKey(source: string): string {
@@ -205,6 +205,7 @@ export function parseVuePagesConfig(document: unknown): VuePagesConfig {
   }
   const pages = pagesValue.map((page, index) => parseVuePage(page, `config/navigation/vue-pages.json:pages[${String(index)}]`))
   assertUniquePaths(pages)
+  assertNavigationIdentities(pages)
   return {
     ...(schema === undefined ? {} : { $schema: schema }),
     protocol: VUE_PAGES_PROTOCOL,
@@ -223,25 +224,30 @@ function parseVuePage(value: unknown, path: string): VuePageConfigEntry {
   if (!source.startsWith('src/views/') || !source.endsWith('.vue')) {
     throw new Error(`${path}.source must point to a Vue file under src/views/.`)
   }
-  const scope = requiredString(page, 'scope', path)
-  if (!PAGE_SCOPE_VALUES.has(scope)) {
-    throw new Error(`${path}.scope must be one of public, catalog, app.`)
-  }
+  const scope = readPageScope(requiredString(page, 'scope', path), path)
   const hidden = optionalBoolean(page, 'hidden', path)
-  const shellTool = optionalBoolean(page, 'shellTool', path)
+  const group = optionalTrimmedString(page, 'group', path)
+  const order = optionalInteger(page, 'order', path)
   const dataSpaceId = optionalTrimmedString(page, 'dataSpaceId', path)
+  const navigationId = optionalTrimmedString(page, 'navigationId', path)
+  const identityHost = optionalTrimmedString(page, 'identityHost', path)
   const icon = optionalString(page, 'icon', path)
   const description = optionalString(page, 'description', path)
+  if (identityHost !== undefined && hidden !== true) throw new Error(`${path}.identityHost requires hidden: true.`)
+  if (navigationId !== undefined && dataSpaceId === undefined) throw new Error(`${path}.navigationId requires dataSpaceId.`)
   return {
     path: routePath,
     title: requiredString(page, 'title', path),
-    scope: readPageScope(scope, path),
+    scope,
     source,
     ...(icon === undefined ? {} : { icon }),
     ...(description === undefined ? {} : { description }),
     ...(hidden === undefined ? {} : { hidden }),
-    ...(shellTool === undefined ? {} : { shellTool }),
-    ...(dataSpaceId === undefined ? {} : {dataSpaceId}),
+    ...(group === undefined ? {} : { group }),
+    ...(order === undefined ? {} : { order }),
+    ...(dataSpaceId === undefined ? {} : { dataSpaceId }),
+    ...(navigationId === undefined ? {} : { navigationId }),
+    ...(identityHost === undefined ? {} : { identityHost }),
   }
 }
 
@@ -255,6 +261,24 @@ function assertUniquePaths(pages: readonly VuePageConfigEntry[]): void {
   }
 }
 
+function assertNavigationIdentities(pages: readonly VuePageConfigEntry[]): void {
+  const menuIds = new Set<string>()
+  const byPath = new Map(pages.map(page => [page.path, page]))
+  for (const page of pages) {
+    if (page.identityHost !== undefined) {
+      const host = byPath.get(page.identityHost)
+      if (!host || host.hidden === true || host.scope !== page.scope) {
+        throw new Error(`config/navigation/vue-pages.json: "${page.path}" identityHost must be a visible page of the same scope.`)
+      }
+    }
+    if (page.hidden === true || page.scope === 'public') continue
+    const id = page.navigationId ?? page.dataSpaceId
+    if (id === undefined) continue
+    if (menuIds.has(id)) throw new Error(`config/navigation/vue-pages.json: duplicated navigation identity "${id}".`)
+    menuIds.add(id)
+  }
+}
+
 function requireRecord(value: unknown, path: string): Readonly<Record<string, unknown>> {
   if (isPlainRecord(value)) return value
   throw new Error(`${path}: expected an object.`)
@@ -265,8 +289,8 @@ function isPlainRecord(value: unknown): value is Readonly<Record<string, unknown
 }
 
 function readPageScope(value: string, path: string): PageScope {
-  if (value === 'public' || value === 'catalog' || value === 'app') return value
-  throw new Error(`${path}.scope must be one of public, catalog, app.`)
+  if (value === 'public' || value === 'platform' || value === 'enterprise' || value === 'app') return value
+  throw new Error(`${path}.scope must be one of public, platform, enterprise, app.`)
 }
 
 function requiredString(
@@ -306,6 +330,19 @@ function optionalTrimmedString(
     throw new Error(`${path}.${key} must be a non-empty string when provided.`)
   }
   return value.trim()
+}
+
+function optionalInteger(
+  record: Readonly<Record<string, unknown>>,
+  key: string,
+  path: string,
+): number | undefined {
+  const value = record[key]
+  if (value === undefined) return undefined
+  if (typeof value !== 'number' || !Number.isSafeInteger(value)) {
+    throw new Error(`${path}.${key} must be an integer when provided.`)
+  }
+  return value
 }
 
 function optionalBoolean(

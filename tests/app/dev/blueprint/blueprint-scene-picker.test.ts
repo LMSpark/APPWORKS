@@ -5,8 +5,8 @@ import {DataSet, RequestState, resolveDataViewKey} from '@spark-appworks/spark-d
 import {PAGE_RUNTIME, Spark, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import RendererDialog from '@/../packages/spark-component/src/components/containers/layout/overlay/RendererDialog/RendererDialog.vue'
-import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
-import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
+import NodeDataSpaceBinding from '@/views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding.vue'
+import DataPlanningPane from '@/views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane.vue'
 
 const CATALOG_SCENARIO_ID = '90A82E287930A234FEC3E687C94A93EA'
 const BLUEPRINT_SCENARIO_ID = '7AB874097A1E8711A42FD845939A6E05'
@@ -109,7 +109,7 @@ function makeState(options: {refreshError?: Error; deferred?: boolean; hiddenNam
   }
   activeView = view
   const Host=defineComponent({setup(){useSparkComponent({type:'scene-picker-test-host'}).sparkProvide(PAGE_RUNTIME,runtime as unknown as PageRuntime)
-    return()=>h(NodeBasicInfo,{state:state as never,sections:['data-space']})}})
+    return()=>h(NodeDataSpaceBinding,{state:state as never})}})
   wrapper = mount(Host, {
     global: {plugins:[Spark.createPlugin()],stubs: {RendererButton: ButtonStub, RendererDialog: DialogStub, RendererFilter: FilterStub,
       RendererTable: TableStub, FieldSelect: FieldSelectStub, IconPicker: true, ElInput: InputStub,
@@ -195,7 +195,7 @@ describe('development blueprint scene picker', () => {
     expect(view.fieldAccess).toHaveBeenCalledWith(candidate, 'rowid')
     expect(view.fieldAccess).toHaveBeenCalledWith(candidate, 'Name')
     expect(wrapper!.find('[data-testid="scene-dialog"]').exists()).toBe(false)
-    expect(wrapper!.findComponent(NodeBasicInfo).emitted('sceneChosen')).toEqual([['SCENE-NEW']])
+    expect(wrapper!.findComponent(NodeDataSpaceBinding).emitted('sceneChosen')).toEqual([['SCENE-NEW']])
   })
 
   it.each([
@@ -207,7 +207,7 @@ describe('development blueprint scene picker', () => {
     await openPicker()
     await clickCandidate(row)
     expect(state.blueprintDraft.dataSpace.scenarioId).toBe('SCENE-OLD')
-    expect(wrapper!.findComponent(NodeBasicInfo).emitted('sceneChosen')).toBeUndefined()
+    expect(wrapper!.findComponent(NodeDataSpaceBinding).emitted('sceneChosen')).toBeUndefined()
   })
 
   it('rejects unreadable candidates, missing views, and failed catalog reads', async () => {

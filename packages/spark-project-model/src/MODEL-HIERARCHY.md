@@ -75,7 +75,7 @@ UI 通过 `subscribe` 和 `read*Projection()` 消费 ProjectBlueprint，工作�
 
 页面设计 AI 使用 ProjectWorkspace 根，三文件通过 `this.project.openPageDesign(pageId)` 编辑；只有输入明确 scenarioId=T 时才loadScenarioDefinitions取得正式C，按需查询定义DataView并编辑/取消，交付仅提交指定T的定义变更。原文件owner方法不向AI开放。同一工作区和请求代次复用定义DataSet，scope改变或dispose销毁其定义实例，迟到加载拒绝注册。工具文件和场景配置分别返回实际保存结果，不以一次失败宣称全部回滚。
 
-DevSystem完整配置文本由ScenarioDefinitionDocument从五类正式定义DataView投影，文本应用与撤销写回这些视图，预览从同一投影装配独立运行DataSet。完整文档工作区须加载完整定义，普通保存只提交修改。文档的根配置基线与撤销历史不能保存为另一份有效草稿；外部编辑使旧撤销不可用，重新查询或身份改变使文档失效。DataView的listSourceVersions/previewSourceVersion/createSourceVersion按可选来源历史合同执行，快照要求同源视图干净且期间不变；恢复把核对后的历史定义写入DataView再提交。来源适配内部仍复用既有文件存储，不改变工具发布指针。
+蓝图完整配置文本由ScenarioDefinitionDocument从五类正式定义DataView投影，文本应用与撤销写回这些视图，预览从同一投影装配独立运行DataSet。完整文档工作区须加载完整定义，普通保存只提交修改。文档的根配置基线与撤销历史不能保存为另一份有效草稿；外部编辑使旧撤销不可用，重新查询或身份改变使文档失效。DataView的listSourceVersions/previewSourceVersion/createSourceVersion按可选来源历史合同执行，快照要求同源视图干净且期间不变；恢复把核对后的历史定义写入DataView再提交。来源适配内部仍复用既有文件存储，不改变工具发布指针。
 
 `SparkPageRenderer` 接收 PageRuntime 与调用 routeSnapshot；脚本 Render 组件、CSS 和状态仅属本实例，关闭 A 不会释放 B。路由/查询决定调用身份，工具 pageId 不充当运行实例 ID。
 

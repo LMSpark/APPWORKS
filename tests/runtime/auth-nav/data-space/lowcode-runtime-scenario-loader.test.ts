@@ -3,10 +3,7 @@ import {readFileSync} from 'node:fs'
 import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { DataSet, DataViewFilter } from '@spark-appworks/spark-data'
 import { PageRuntime, PageTool, ScenarioViewConfig, ProjectToolResource, ProjectWorkspace } from '@spark-appworks/spark-project-model'
-import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
-import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {BUILTIN_BLUEPRINT_BUSINESS_FIELDS} from '@/lowcode/resources/repository/builtin-system-navigation'
-import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/repository/builtin-blueprint-node-resource'
+import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {cacheScenarioModels} from './cache/cache-scenario.fixture'
 import agentWorkflowConfig from '../../../../config/pages/shared/agent-workflow-files/pagedata.json'
 
@@ -104,7 +101,7 @@ describe('loadLowcodeRuntimeScenario', () => {
   })
 
   it('loads the registered cache scenario through original model bindings and the configured command factory', async () => {
-    const scene=getBuiltinScenarioResource('cacheManagement'),app=getBuiltinApplicationDescriptor()
+    const scene=getSystemScenarioResource('cacheManagement'),app={id:'APP-A'}
     mocks.readRequestScope.mockReturnValue(scope('cache-token',app.id))
     mocks.readText.mockResolvedValue(readFileSync(scene.path,'utf8'))
     mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId:scene.scenarioId,name:'缓存管理'})
@@ -119,50 +116,15 @@ describe('loadLowcodeRuntimeScenario', () => {
     }finally{ds.destroy()}
   })
 
-  it('rejects an undeclared builtin program scene before invoking the dynamic file owner', async () => {
-    await expect(loadLowcodeRuntimeScenario({projectId: getBuiltinApplicationDescriptor().id, scenarioId: 'UNREGISTERED'}))
-      .rejects.toThrow('BUILTIN_SCENARIO_SOURCE_MISSING')
+  it('rejects an unregistered scenario in the catalog scope before reading any source', async () => {
+    await expect(loadLowcodeRuntimeScenario({projectId: 'homepage', scenarioId: 'UNREGISTERED'}))
+      .rejects.toThrow('CATALOG_SCENARIO_SOURCE_MISSING')
     expect(mocks.readText).not.toHaveBeenCalled()
     expect(mocks.request).not.toHaveBeenCalled()
   })
 
-  it('registers the declared builtin blueprint file DataView through the normal scenario loader',async()=>{
-    const application=getBuiltinApplicationDescriptor(),scene=getBuiltinScenarioResource('projectBlueprint')
-    const page=JSON.parse(readFileSync(scene.path,'utf8')) as {tables:Record<string,{resourceType?:string;resourceId?:string;columns?:Array<{name:string;type:string}>;views?:Record<string,unknown>}>}
-    const table=page.tables[BUILTIN_BLUEPRINT_NODE_TABLE_NAME]
-    mocks.readRequestScope.mockReturnValue(scope('builtin-token',application.id))
-    mocks.readText.mockResolvedValue(JSON.stringify({scenarioId:scene.scenarioId,tables:{[BUILTIN_BLUEPRINT_NODE_TABLE_NAME]:table}}))
-    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId:scene.scenarioId,name:'仓内项目蓝图'})
-    mocks.readRelations.mockResolvedValue([])
-    const dataSet=await loadLowcodeRuntimeScenario({projectId:application.id,scenarioId:scene.scenarioId})
-    try{
-      const view=dataSet.getView(BUILTIN_BLUEPRINT_NODE_TABLE_NAME,'default')!
-      expect(view.dataTable?.resourceType).toBe('file')
-      expect(view.dataTable?.resourceId).toBe(BUILTIN_BLUEPRINT_NODE_RESOURCE_ID)
-      expect(view.dataTable?.columns.map(column=>column.name).filter(name=>name!=='_pk').sort())
-        .toEqual([...BUILTIN_BLUEPRINT_BUSINESS_FIELDS].sort())
-      view.queryConfig={...view.queryConfig,allPages:true,maxRows:100}
-      await view.refresh()
-      expect(view.rows).toHaveLength(85)
-      expect(view.rows.find(row=>row['rowid']===application.id)).toMatchObject({name:'DataSchemaManage',conType:'Model',NavigationUrl:null,htmlDesc:null})
-      expect(mocks.readModelBatch).not.toHaveBeenCalled()
-      expect(mocks.request).not.toHaveBeenCalled()
-    }finally{dataSet.destroy()}
-  })
-
-  it('does not fall back to database models when the builtin blueprint file DataView is absent',async()=>{
-    const application=getBuiltinApplicationDescriptor(),scene=getBuiltinScenarioResource('projectBlueprint')
-    mocks.readRequestScope.mockReturnValue(scope('builtin-token',application.id))
-    mocks.readText.mockResolvedValue(JSON.stringify({scenarioId:scene.scenarioId,tables:{}}))
-    await expect(loadLowcodeRuntimeScenario({projectId:application.id,scenarioId:scene.scenarioId}))
-      .rejects.toThrow('BUILTIN_BLUEPRINT_SOURCE_MISSING')
-    expect(mocks.readSpaceDefinition).not.toHaveBeenCalled()
-    expect(mocks.readModelBatch).not.toHaveBeenCalled()
-    expect(mocks.request).not.toHaveBeenCalled()
-  })
-
-  it('assembles the full shared 7AB scenario for a dynamic app without reading builtin blueprint rows',async()=>{
-    const scene=getBuiltinScenarioResource('projectBlueprint')
+  it('assembles the full shared 7AB scenario for a dynamic app',async()=>{
+    const scene=getSystemScenarioResource('projectBlueprint')
     type OptionSource={tableName:string;valueField?:string;labelField?:string;fill?:Record<string,string>}
     const scenario=JSON.parse(readFileSync(scene.path,'utf8')) as {tables:Record<string,{modelBinding?:{modelId:string;modelName:string}
       columns?:Array<{name:string;computeExpression?:string;optionsView?:OptionSource}>
@@ -207,7 +169,6 @@ describe('loadLowcodeRuntimeScenario', () => {
     const dataSet=await loadLowcodeRuntimeScenario({projectId:'APP-A',scenarioId:scene.scenarioId})
     try{
       expect(dataSet.getTable('Base_NavigationInfo')?.modelBinding?.modelName).toBe('Base_NavigationInfo')
-      expect(dataSet.getTable(BUILTIN_BLUEPRINT_NODE_TABLE_NAME)?.resourceId).toBe(BUILTIN_BLUEPRINT_NODE_RESOURCE_ID)
       const toolFile=dataSet.getView('ProjectToolFile','default')
       expect(toolFile?.dataTable?.resourceId).toBe('project:tool-file')
       expect(()=>toolFile?.bindQueryExecutor({executeQuery:async view=>({rows:[],total:0,assertIdentity:()=>undefined,

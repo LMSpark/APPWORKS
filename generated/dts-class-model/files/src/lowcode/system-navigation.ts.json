@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/system-navigation",
+    "sourcePath": "src/lowcode/system-navigation.ts",
+    "sourceFile": "src/lowcode/system-navigation.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/system-navigation",
+    "jsdoc": "@module app:lowcode/system-navigation\n职责：由 Vue 系统页登记生成平台级、企业级菜单及每个应用末尾的“应用设计”分组。\n边界：只投影登记的页面身份与分组，不读取后端菜单授权；页面数据权限仍由各页查询结果决定。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T20:51:13.278Z",
+  "models": {}
+}

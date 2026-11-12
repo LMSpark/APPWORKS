@@ -13,7 +13,8 @@
       "DataViewEditingEventName",
       "DataViewEditingEvents",
       "DataViewEditingSource",
-      "DataViewEditingWriteInput"
+      "DataViewEditingWriteInput",
+      "DataViewEditingMemberWriteInput"
     ]
   },
   "$defs": {
@@ -189,9 +190,43 @@
         "value"
       ],
       "additionalProperties": false
+    },
+    "DataViewEditingMemberWriteInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewEditingMemberWriteInput",
+      "properties": {
+        "source": true,
+        "row": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataRow"
+        },
+        "field": {
+          "type": "string"
+        },
+        "value": true,
+        "path": {
+          "$ref": "../../../../../spark-data/src/core/data-field-member.ts.json#/$defs/DataFieldMemberPath"
+        },
+        "format": {
+          "$ref": "../../../../../spark-data/src/core/data-field-member.ts.json#/$defs/DataFieldMemberFormat"
+        }
+      },
+      "required": [
+        "source",
+        "row",
+        "field",
+        "value",
+        "path",
+        "format"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T22:53:49.858Z",
+  "generatedAt": "2026-11-12T20:40:46.218Z",
   "models": {
     "DataViewEditingEventName": {
       "name": "DataViewEditingEventName",
@@ -500,6 +535,42 @@
             {
               "name": "value",
               "jsdoc": "要写入的字段值。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewEditingMemberWriteInput": {
+      "name": "DataViewEditingMemberWriteInput",
+      "jsdoc": "JSON 成员写入的输入；成员合并、取消与保存差异沿源字段由 DataView 承接。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataViewEditingWriteInput & Readonly<{\n    /** 源字段内成员路径。 */\n    path: DataFieldMemberPath;\n    /** 源字段存储格式。 */\n    format: DataFieldMemberFormat;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataViewEditingWriteInput",
+            "targetName": "DataViewEditingWriteInput"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** 源字段内成员路径。 */\n    path: DataFieldMemberPath;\n    /** 源字段存储格式。 */\n    format: DataFieldMemberFormat;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "path",
+              "jsdoc": "源字段内成员路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "format",
+              "jsdoc": "源字段存储格式。",
               "readable": true,
               "writable": false
             }

@@ -4,7 +4,7 @@
  * 边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。
  * AI用途：需要定位 components/fields/context/dataViewEditing 的声明、导出和使用边界时，从本模块开始。
  */
-import type { DataRow } from '@spark-appworks/spark-data'
+import { DataView, type DataFieldMemberFormat, type DataFieldMemberPath, type DataRow } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 
 /** Data View Editing Event Name 的语义模型。 */
@@ -71,5 +71,22 @@ export function writeDataViewEditingValue(input: DataViewEditingWriteInput): boo
   const rowId = source.getPkKey(row)
   if (rowId === undefined) return false
   source.updateEditingValue(rowId, field, value)
+  return true
+}
+
+/** JSON 成员写入的输入；成员合并、取消与保存差异沿源字段由 DataView 承接。 */
+export type DataViewEditingMemberWriteInput = DataViewEditingWriteInput & Readonly<{
+  /** 源字段内成员路径。 */
+  path: DataFieldMemberPath
+  /** 源字段存储格式。 */
+  format: DataFieldMemberFormat
+}>
+
+export function writeDataViewEditingMember(input: DataViewEditingMemberWriteInput): boolean {
+  const { source, row, field, path, format, value } = input
+  if (!row || !(source instanceof DataView)) return false
+  const rowId = source.getPkKey(row)
+  if (rowId === undefined) return false
+  source.updateEditingMember(rowId, {field, path, format, value})
   return true
 }

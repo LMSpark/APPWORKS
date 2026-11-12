@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/blueprint-data-space/DevDataSetDesigner",
+    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-data-space/DevDataSetDesigner.vue",
+    "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-data-space/DevDataSetDesigner.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/blueprint-data-space/DevDataSetDesigner",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-data-space/DevDataSetDesigner\n职责：编辑单场景共享视图配置及真实N__pagedata.json历史。\n边界：正式模型定义不在配置文件中；缺文件需显式新建，dirty禁止恢复与快照。\nAI用途：绑定工作区正式定义DataView编辑，DataSet保存；历史来自同一来源适配，恢复也写回原定义视图。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T19:59:06.318Z",
+  "models": {}
+}

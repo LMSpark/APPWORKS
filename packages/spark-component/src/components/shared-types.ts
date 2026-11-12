@@ -130,6 +130,20 @@ export type SparkDataDisplayProps<TValue = unknown> = {
   field?: string}
 
 /**
+ * JSON 源字段成员绑定。
+ *
+ * 字段值取自 dataField/field 所指源字段内的一个 JSON 成员；写入经 DataView.updateEditingMember 合并回源字段并保留其它成员。
+ * 读权限、写权限、编辑追踪、取消与保存差异均以源字段为准；源字段为空时视为空对象，非对象/数组或畸形 JSON 显示诊断并禁止编辑。
+ * 仅适用于 currentRow/value 的字段成员，不适用于记录选择。
+ */
+export type SparkFieldMemberProps = {
+  /** 源字段内成员路径；字符串为对象键，数字为已存在数组项下标。对象叶可缺失，中间层必须已存在。 */
+  valuePath?: Array<string | number>
+  /** 源字段存储格式：text 为 JSON 文本（默认），native 为原生对象。 */
+  valueFormat?: 'text' | 'native'
+}
+
+/**
  * 字段语义层（无根）。
  *
  * 只描述 field 组件自己的值/标签/占位等编辑语义，

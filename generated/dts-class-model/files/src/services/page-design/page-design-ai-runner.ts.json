@@ -217,7 +217,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.724Z",
+  "generatedAt": "2026-11-12T21:29:12.912Z",
   "models": {
     "PageDesignAiRunOptions": {
       "name": "PageDesignAiRunOptions",
@@ -267,7 +267,7 @@
     },
     "PageDesignAiRunEvents": {
       "name": "PageDesignAiRunEvents",
-      "jsdoc": "DevSystem 侧 channel：仅转发 tool call 状态，不承载 stream/delta/reasoning（见 trace / spark-ai）。",
+      "jsdoc": "蓝图 侧 channel：仅转发 tool call 状态，不承载 stream/delta/reasoning（见 trace / spark-ai）。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** on Tool Call 事件回调。 */\n    onToolCall?: (record: AiAgentToolCallRecord) => void;\n}",
@@ -299,7 +299,7 @@
       "jsdoc": "Page Design Ai Run Command 的命令参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "PageDesignAiRunOptions & {\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** 宿主固定本次工作区与owner lease；不暴露为用户需求输入。 */\n    assertCurrent?: () => void;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 只有宿主显式启用后才在 inline run 结束时交付；DevSystem 默认手动保存。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n    /** DevSystem当前 PageTool 文件 DataView 保存入口；autoSave时必需。 */\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}",
+        "declarationTypeText": "PageDesignAiRunOptions & {\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** 宿主固定本次工作区与owner lease；不暴露为用户需求输入。 */\n    assertCurrent?: () => void;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 只有宿主显式启用后才在 inline run 结束时交付；蓝图 默认手动保存。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n    /** 蓝图当前 PageTool 文件 DataView 保存入口；autoSave时必需。 */\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -308,7 +308,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** 宿主固定本次工作区与owner lease；不暴露为用户需求输入。 */\n    assertCurrent?: () => void;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 只有宿主显式启用后才在 inline run 结束时交付；DevSystem 默认手动保存。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n    /** DevSystem当前 PageTool 文件 DataView 保存入口；autoSave时必需。 */\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}"
+            "typeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** 宿主固定本次工作区与owner lease；不暴露为用户需求输入。 */\n    assertCurrent?: () => void;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 只有宿主显式启用后才在 inline run 结束时交付；蓝图 默认手动保存。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n    /** 蓝图当前 PageTool 文件 DataView 保存入口；autoSave时必需。 */\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}"
           }
         ],
         "members": {
@@ -363,7 +363,7 @@
             },
             {
               "name": "saveDirtyFilesAfterRun",
-              "jsdoc": "只有宿主显式启用后才在 inline run 结束时交付；DevSystem 默认手动保存。",
+              "jsdoc": "只有宿主显式启用后才在 inline run 结束时交付；蓝图 默认手动保存。",
               "readable": true,
               "writable": false
             },
@@ -386,7 +386,7 @@
             },
             {
               "name": "savePageFile",
-              "jsdoc": "DevSystem当前 PageTool 文件 DataView 保存入口；autoSave时必需。",
+              "jsdoc": "蓝图当前 PageTool 文件 DataView 保存入口；autoSave时必需。",
               "parameters": [
                 {
                   "name": "pageId",

@@ -7,7 +7,7 @@
     "sourceFile": "src/services/project-planning/project-planning-inline-delivery.ts",
     "packageName": "app",
     "modulePath": "services/project-planning/project-planning-inline-delivery",
-    "jsdoc": "@module app:services/project-planning-inline-delivery\n职责：向活跃 projectPlanning runner 报告本轮 Base_NavigationInfo DataView 提交结果。\n边界：只核对 captured DevSystem workspace 的蓝图 DataView 回执，不创建第二保存入口。\nAI用途：理解 projectPlanning inline runner 的提交结果和仍待保存状态。",
+    "jsdoc": "@module app:services/project-planning-inline-delivery\n职责：向活跃 projectPlanning runner 报告本轮 Base_NavigationInfo DataView 提交结果。\n边界：只核对 captured 蓝图 workspace 的蓝图 DataView 回执，不创建第二保存入口。\nAI用途：理解 projectPlanning inline runner 的提交结果和仍待保存状态。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ProjectPlanningDeliveryContext"
@@ -54,18 +54,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.734Z",
+  "generatedAt": "2026-11-12T21:29:12.901Z",
   "models": {
     "ProjectPlanningDeliveryContext": {
       "name": "ProjectPlanningDeliveryContext",
       "jsdoc": "projectPlanning inline run 落盘时携带的 editor 与蓝图保存策略。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 本轮 captured ProjectWorkspace，持有当前项目蓝图和配置页模型。 */\n    editor: ProjectWorkspace;\n    /** Agent Run 成功结束后是否自动保存蓝图变更；false 时仅标记 dirty 不落盘。 */\n    saveBlueprintAfterRun: boolean;\n    /** True only after a live DataView command returned its accepted receipt and readback. */\n    dataViewBlueprintSaved?: boolean;\n    /** True when the original DataView command still needs explicit Save All recovery. */\n    dataViewBlueprintPending?: boolean;\n    /** A later plan mutation was attempted after this run had already issued its single DataView command. */\n    dataViewBlueprintRepeatRejected?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 本轮 captured ProjectWorkspace，持有当前项目蓝图和配置页模型。 */\n    editor: ProjectWorkspace;\n    /** Agent Run 成功结束后是否自动保存蓝图变更；false 时仅标记 dirty 不落盘。 */\n    saveBlueprintAfterRun: boolean;\n    /** True only after a live DataView command returned its accepted receipt and readback. */\n    dataViewBlueprintSaved?: boolean;\n    /** True when the original DataView command still needs explicit 核验待定提交 recovery. */\n    dataViewBlueprintPending?: boolean;\n    /** A later plan mutation was attempted after this run had already issued its single DataView command. */\n    dataViewBlueprintRepeatRejected?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 本轮 captured ProjectWorkspace，持有当前项目蓝图和配置页模型。 */\n    editor: ProjectWorkspace;\n    /** Agent Run 成功结束后是否自动保存蓝图变更；false 时仅标记 dirty 不落盘。 */\n    saveBlueprintAfterRun: boolean;\n    /** True only after a live DataView command returned its accepted receipt and readback. */\n    dataViewBlueprintSaved?: boolean;\n    /** True when the original DataView command still needs explicit Save All recovery. */\n    dataViewBlueprintPending?: boolean;\n    /** A later plan mutation was attempted after this run had already issued its single DataView command. */\n    dataViewBlueprintRepeatRejected?: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 本轮 captured ProjectWorkspace，持有当前项目蓝图和配置页模型。 */\n    editor: ProjectWorkspace;\n    /** Agent Run 成功结束后是否自动保存蓝图变更；false 时仅标记 dirty 不落盘。 */\n    saveBlueprintAfterRun: boolean;\n    /** True only after a live DataView command returned its accepted receipt and readback. */\n    dataViewBlueprintSaved?: boolean;\n    /** True when the original DataView command still needs explicit 核验待定提交 recovery. */\n    dataViewBlueprintPending?: boolean;\n    /** A later plan mutation was attempted after this run had already issued its single DataView command. */\n    dataViewBlueprintRepeatRejected?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -91,7 +91,7 @@
             },
             {
               "name": "dataViewBlueprintPending",
-              "jsdoc": "True when the original DataView command still needs explicit Save All recovery.",
+              "jsdoc": "True when the original DataView command still needs explicit 核验待定提交 recovery.",
               "readable": true,
               "writable": false
             },

@@ -1,7 +1,7 @@
 /**
  * @module app:services/project-planning-inline-delivery
  * 职责：向活跃 projectPlanning runner 报告本轮 Base_NavigationInfo DataView 提交结果。
- * 边界：只核对 captured DevSystem workspace 的蓝图 DataView 回执，不创建第二保存入口。
+ * 边界：只核对 captured 蓝图 workspace 的蓝图 DataView 回执，不创建第二保存入口。
  * AI用途：理解 projectPlanning inline runner 的提交结果和仍待保存状态。
  */
 import type { ProjectWorkspace } from '@spark-appworks/spark-project-model'
@@ -17,7 +17,7 @@ export type ProjectPlanningDeliveryContext = Readonly<{
   saveBlueprintAfterRun: boolean
   /** True only after a live DataView command returned its accepted receipt and readback. */
   dataViewBlueprintSaved?: boolean
-  /** True when the original DataView command still needs explicit Save All recovery. */
+  /** True when the original DataView command still needs explicit 核验待定提交 recovery. */
   dataViewBlueprintPending?: boolean
   /** A later plan mutation was attempted after this run had already issued its single DataView command. */
   dataViewBlueprintRepeatRejected?: boolean
@@ -46,7 +46,7 @@ function createProjectPlanningDeliveryPort(
           mode: options.mode,
           status: 'failed',
           artifacts: [createBlueprintArtifact('dirty')],
-          message: '项目策划 DataView 命令仍待核验；原命令身份已保留，请沿工作台 Save All 完成回读。',
+          message: '项目策划 DataView 命令仍待核验；原命令身份已保留，请沿蓝图核验待定提交 完成回读。',
         })
       }
       if (context.dataViewBlueprintRepeatRejected === true) {

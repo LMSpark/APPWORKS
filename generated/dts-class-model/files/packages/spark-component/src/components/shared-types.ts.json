@@ -14,6 +14,7 @@
       "SparkNodeProps",
       "SparkTitleContentProps",
       "SparkDataDisplayProps",
+      "SparkFieldMemberProps",
       "SparkFieldSemanticProps",
       "SparkPrimaryActionTextProps",
       "SparkReadonlyActionTextProps",
@@ -131,6 +132,33 @@
         },
         "field": {
           "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkFieldMemberProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkFieldMemberProps",
+      "properties": {
+        "valuePath": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "valueFormat": {
+          "enum": [
+            "text",
+            "native"
+          ]
         }
       },
       "additionalProperties": false
@@ -2591,7 +2619,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-11T17:59:59.679Z",
+  "generatedAt": "2026-11-12T20:41:23.080Z",
   "models": {
     "ValueRef": {
       "name": "ValueRef",
@@ -2706,6 +2734,30 @@
             {
               "name": "field",
               "jsdoc": "数据字段绑定键。\n常见语义是从当前上下文数据中读取 `currentRow[field]`，\n用于详情展示、只读文本渲染或行内展示等场景。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkFieldMemberProps": {
+      "name": "SparkFieldMemberProps",
+      "jsdoc": "JSON 源字段成员绑定。\n字段值取自 dataField/field 所指源字段内的一个 JSON 成员；写入经 DataView.updateEditingMember 合并回源字段并保留其它成员。\n读权限、写权限、编辑追踪、取消与保存差异均以源字段为准；源字段为空时视为空对象，非对象/数组或畸形 JSON 显示诊断并禁止编辑。\n仅适用于 currentRow/value 的字段成员，不适用于记录选择。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 源字段内成员路径；字符串为对象键，数字为已存在数组项下标。对象叶可缺失，中间层必须已存在。 */\n    valuePath?: Array<string | number>;\n    /** 源字段存储格式：text 为 JSON 文本（默认），native 为原生对象。 */\n    valueFormat?: 'text' | 'native';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "valuePath",
+              "jsdoc": "源字段内成员路径；字符串为对象键，数字为已存在数组项下标。对象叶可缺失，中间层必须已存在。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueFormat",
+              "jsdoc": "源字段存储格式：text 为 JSON 文本（默认），native 为原生对象。",
               "readable": true,
               "writable": false
             }

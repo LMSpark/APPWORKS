@@ -5,11 +5,11 @@ import ElementPlus from 'element-plus'
 import {SparkData, buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DATA_ROW, DATA_SOURCE, useSparkComponent, useSparkConsume} from '@spark-appworks/spark-component'
-import type {DevState} from '@/views/app/dev-system/useDevState'
-import DevFileEditor from '@/views/app/dev-system/DevFileEditor.vue'
+import type {DevState} from '@/views/features/application/application-function-management/ui/blueprint-state/useDevState'
+import DevFileEditor from '@/views/features/application/application-function-management/ui/page-design/DevFileEditor.vue'
 
 vi.mock('@/services/project-model-artifacts', () => ({createRuleJsonSchema: () => ({}), createRuleTreePolicy: () => ({})}))
-vi.mock('@/views/app/dev-system/composables/useDevFileEditor', async () => {
+vi.mock('@/views/features/application/application-function-management/ui/page-design/useDevFileEditor', async () => {
   const {computed, ref} = await import('vue')
   return {useDevFileEditor: () => ({
     isDirty: ref(false), isUnconfirmed: ref(false), isReady: ref(true),

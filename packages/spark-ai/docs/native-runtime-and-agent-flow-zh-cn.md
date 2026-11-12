@@ -146,7 +146,7 @@ manifest.json + files/**/*.json
 ## pageDesign 端到端
 
 ```text
-DevSystem
+蓝图
   -> runPageDesignAiSession()
   -> appAiAgent.run('page-design', input)
   -> pageDesign registration

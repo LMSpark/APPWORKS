@@ -68,7 +68,7 @@ describe('formal ProjectToolFile DataView',()=>{
     }finally{dataSet.destroy();workspace.dispose()}
   })
 
-  it('keeps declared ProjectToolFile views update-only while DevSystem named views own create and delete',async()=>{
+  it('keeps declared ProjectToolFile views update-only while 蓝图 named views own create and delete',async()=>{
     const files=new Map([['APP/PAGE/script.js','baseline']]),io={list:async()=>[],read:async(appId:string,pageId:string,fileName:string)=>files.get(`${appId}/${pageId}/${fileName}`)??null,
       upload:async(input:{appId:string;pageId:string;fileName:string;text:string})=>{files.set(`${input.appId}/${input.pageId}/${input.fileName}`,input.text)},
       remove:async()=>{},listVersions:async()=>[],uploadVersion:async()=>{},readVersion:async()=>null} as unknown as ReturnType<typeof createPageToolFilesIo>

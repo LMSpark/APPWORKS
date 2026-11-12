@@ -136,7 +136,7 @@
             alert-type="info"
           />
           <DisplayAlert v-if="dimensionSourceReason" :description="dimensionSourceReason" alert-type="info" />
-          <NodeBasicInfo :state="state" :sections="['data-space']" @scene-chosen="bindDataSpace" />
+          <NodeDataSpaceBinding :state="state" @scene-chosen="bindDataSpace" />
           <DisplayAlert v-if="bindingSaving" description="正在保存数据空间绑定…" alert-type="info" />
         </template>
         <template v-else-if="isSelectedNodeReady && activeTab === 'prototype'">
@@ -300,8 +300,8 @@ import { computed } from 'vue'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import type { DataRow } from '@spark-appworks/spark-data'
 import { useApplicationFunctionPage } from './use-application-function-page'
-import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
-import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
+import NodeDataSpaceBinding from './blueprint-data-space/NodeDataSpaceBinding.vue'
+import DataPlanningPane from './blueprint-data-space/DataPlanningPane.vue'
 import BlueprintDimensionSource from './blueprint-dimension-source.vue'
 import BlueprintNavigationConfig from './blueprint-navigation/blueprint-navigation-config.vue'
 import BlueprintNavHostDialog from './blueprint-navigation/blueprint-nav-host-dialog.vue'

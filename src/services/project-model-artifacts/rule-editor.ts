@@ -5,7 +5,7 @@
  * AI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。
  */
 /**
- * DevSystem 规则编辑器制品：规则树策略与规则 JSON Schema。
+ * 蓝图 规则编辑器制品：规则树策略与规则 JSON Schema。
  * 属于应用层，不属于 spark-project-model 领域包。
  */
 

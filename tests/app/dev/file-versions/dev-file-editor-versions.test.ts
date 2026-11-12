@@ -1,12 +1,12 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { computed, defineComponent, ref, shallowRef } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import DevFileEditor from '@/views/app/dev-system/DevFileEditor.vue'
+import DevFileEditor from '@/views/features/application/application-function-management/ui/page-design/DevFileEditor.vue'
 import {LOWCODE_FILE_RESOURCE_REGISTRY} from '@/lowcode/resources/repository/file-resource-registry'
 
 const fixture = vi.hoisted(() => ({ save: vi.fn(), refresh: vi.fn(), sparkProvide: vi.fn(), sparkRemove: vi.fn(), buttonMountIds: [] as number[], text: 'saved file contents' }))
 vi.mock('@/services/project-model-artifacts', () => ({ createRuleJsonSchema: () => ({}), createRuleTreePolicy: () => ({}) }))
-vi.mock('@/views/app/dev-system/composables/useDevFileEditor', () => ({
+vi.mock('@/views/features/application/application-function-management/ui/page-design/useDevFileEditor', () => ({
   useDevFileEditor: (state: { dirty: ReturnType<typeof ref<boolean>> }) => ({
     isDirty: state.dirty, isUnconfirmed: ref(false), isReady: ref(true), text: computed(() => (state as typeof state & {restoredText?: ReturnType<typeof ref<string>>}).restoredText?.value ?? fixture.text),
     isFileDirty: () => state.dirty.value, save: fixture.save, refresh: fixture.refresh,

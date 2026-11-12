@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {RequestState, type DataSet} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {createSourceFixture, SOURCE_SCENE as SCENE} from './fixture'
 const owners: PageRuntime[] = []
 afterEach(() => owners.splice(0).forEach(owner => owner.dispose()))
@@ -12,7 +12,7 @@ async function choose(dataSet: DataSet, table: string, id: string) {
 }
 describe('reference table source native scene', () => {
   it('registers the original source scene without adding a navigation identity', () => {
-    expect(getBuiltinScenarioResource('businessTableSelector')).toMatchObject({scenarioId: SCENE, path: 'config/pages/shared/business-table-selector/pagedata.json'})
+    expect(getSystemScenarioResource('businessTableSelector')).toMatchObject({scenarioId: SCENE, path: 'config/pages/shared/business-table-selector/pagedata.json'})
   })
   it('loads only app candidates initially and follows application then actual database conid into tables', async () => {
     const f = await sourceFixture(), apps = f.dataSet.getView('Base_AppSystemList')!, databases = f.dataSet.getView('Base_AppAndSource_Relation')!, tables = f.dataSet.getView('_Base_TblList')!

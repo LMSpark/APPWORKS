@@ -148,6 +148,9 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
               <el-dropdown-item divided command="home">
                 <el-icon><HomeFilled /></el-icon>应用工场主页
               </el-dropdown-item>
+              <el-dropdown-item command="platform">
+                <el-icon><Monitor /></el-icon>平台管理
+              </el-dropdown-item>
             </template>
             <el-dropdown-item divided command="logout">
               <el-icon><SwitchButton /></el-icon>退出登录
@@ -163,7 +166,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import {
   Fold, Expand, Search, FullScreen, Bell, Sunny, Moon,
-  User, Setting, SwitchButton, ArrowDown, HomeFilled,
+  User, Setting, SwitchButton, ArrowDown, HomeFilled, Monitor,
 } from '@element-plus/icons-vue'
 import { useNotifications } from '@/composables/useNotifications'
 import type { RuntimeNavigationItem } from '@spark-appworks/spark-app'

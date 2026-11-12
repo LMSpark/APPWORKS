@@ -14,7 +14,7 @@ import { collectSourceFiles, forEachParsedSource, isCliEntrypoint, lineFor, prin
 export const PAGE_THIN_BASELINE_FILE = 'tools/page-thin-baseline.json'
 const ROOTS = ['src/views/features', 'src/lowcode']
 const RULES = [
-  { id: 'command-status', pattern: /'(?:idle|previewing|saving|unknown|readback)'\s*\|/gu, message: '命令状态机（应由 spark-data 公共能力承接）' },
+  { id: 'command-status', pattern: /'(?:idle|previewing|saving|unknown|readback)'\s*\|(?!\|)/gu, message: '命令状态机（应由 spark-data 公共能力承接）' },
   { id: 'static-copy', pattern: /resourceType\s*=\s*['"]static-data['"]/gu, message: '页面自建 static-data 表（须证明不是正式数据副本）' },
   { id: 'hand-passed-ids', pattern: /\s:[a-z-]+-ids=/gu, message: '手传 ID 列表 props（应绑定 DataView）', vueOnly: true },
 ]

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/page-design/DeliveryPane",
+    "sourcePath": "src/views/features/application/application-function-management/ui/page-design/DeliveryPane.vue",
+    "sourceFile": "src/views/features/application/application-function-management/ui/page-design/DeliveryPane.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/page-design/DeliveryPane",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/page-design/DeliveryPane\n职责：展示页面工具三文件编辑与真实运行实例预览。\n边界：三文件独立追加编号快照，场景pagedata不进入工具发布指针。\nAI用途：编辑rule/script/style并触发父工作台真实交付动作。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T20:56:17.442Z",
+  "models": {}
+}

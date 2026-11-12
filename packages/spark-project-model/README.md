@@ -25,7 +25,7 @@ src/
 | 层 | 创建 |
 |---|---|
 | spark-app 运行态 | `PageTool` + `new PageRuntime({ tool, scenarioIds, loadScenario, ... })` |
-| DevSystem / AI | `new ProjectWorkspace` 或 APP `getAppProjectWorkspace(scope)` |
+| 蓝图 / AI | `new ProjectWorkspace` 或 APP `getAppProjectWorkspace(scope)` |
 | 纯内存 | `new ProjectBlueprint({ projectId })` |
 
 存储真源：lowcode 蓝图记录、工具三文件（rule.json / script.js / style.css）与独立场景视图文件（SysForm/<scenarioId>/pagedata.json）。

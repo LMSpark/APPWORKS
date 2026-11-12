@@ -6,7 +6,7 @@
  */
 import type { SparkFieldSemanticProps, SparkNodeProps } from '../../../../shared-types.js'
 import { useFieldPermission } from '../../../context/useFieldPermission'
-import type { FieldPermissionProps } from '../../../context/useFieldPermission'
+import type { FieldMemberRef, FieldPermissionProps } from '../../../context/useFieldPermission'
 import type { FieldComposableProps } from '../../../context/field-composable-props'
 import { useFieldControlState } from './useFieldControlState'
 
@@ -42,7 +42,9 @@ formatDisplay?: (value: unknown) => string
     /** coerce 回调。 */
 coerce: (rawValue: unknown) => TValue
   /** Explicit conversion at the field write boundary; editing and permissions remain with the same DataView. */
-  toSourceValue?: (value: TValue) => unknown}
+  toSourceValue?: (value: TValue) => unknown
+  /** 绑定源字段内 JSON 成员；仅由声明 valuePath 成员语义的组件传入。 */
+  member?: () => FieldMemberRef | undefined}
 
 export function useBasicFieldState<TValue>(options: UseBasicFieldStateOptions<TValue>) {
   const permission = useFieldPermission<TValue>({
@@ -50,6 +52,7 @@ export function useBasicFieldState<TValue>(options: UseBasicFieldStateOptions<TV
     type: options.fieldType,
     fallbackValue: options.fallbackValue,
     coerce: options.coerce,
+    ...(options.member !== undefined ? {member: options.member} : {}),
     ...(options.toSourceValue !== undefined ? {toSourceValue: options.toSourceValue} : {}),
     ...(options.formatDisplay !== undefined ? { formatDisplay: options.formatDisplay } : {}),
   })

@@ -21,7 +21,7 @@
       "properties": {
         "resource": {
           "type": "object",
-          "title": "Pick<BuiltinScenarioResource, 'resourceId' | 'scenarioId'>"
+          "title": "Pick<SystemScenarioResource, 'resourceId' | 'scenarioId'>"
         },
         "scope": {
           "type": "string"
@@ -80,18 +80,18 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.785Z",
+  "generatedAt": "2026-11-12T20:47:08.117Z",
   "models": {
     "CreateRepositoryScenarioVersionCommand": {
       "name": "CreateRepositoryScenarioVersionCommand",
       "jsdoc": "浏览器开发宿主的单次场景快照创建请求，携带已捕获的scope和活动文件基线。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 资源注册表中的仓内文件身份。 */\n    resource: Pick<BuiltinScenarioResource, 'resourceId' | 'scenarioId'>;\n    /** 创建attempt所属的原始请求scope。 */\n    scope: string;\n    /** 调用方按已列出的历史编号预先分配的N。 */\n    version: number;\n    /** 精确快照原文。 */\n    text: string;\n    /** 上传前核对的活动文件原文。 */\n    expectedText: string;\n    /** 请求发送前同步持久化原attempt身份。 */\n    onAttempt: (attempt: Readonly<{\n        scenarioId: string;\n        resourceId: string;\n        scope: string;\n        version: number;\n        fileName: string;\n        text: string;\n    }>) => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 资源注册表中的仓内文件身份。 */\n    resource: Pick<SystemScenarioResource, 'resourceId' | 'scenarioId'>;\n    /** 创建attempt所属的原始请求scope。 */\n    scope: string;\n    /** 调用方按已列出的历史编号预先分配的N。 */\n    version: number;\n    /** 精确快照原文。 */\n    text: string;\n    /** 上传前核对的活动文件原文。 */\n    expectedText: string;\n    /** 请求发送前同步持久化原attempt身份。 */\n    onAttempt: (attempt: Readonly<{\n        scenarioId: string;\n        resourceId: string;\n        scope: string;\n        version: number;\n        fileName: string;\n        text: string;\n    }>) => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 资源注册表中的仓内文件身份。 */\n    resource: Pick<BuiltinScenarioResource, 'resourceId' | 'scenarioId'>;\n    /** 创建attempt所属的原始请求scope。 */\n    scope: string;\n    /** 调用方按已列出的历史编号预先分配的N。 */\n    version: number;\n    /** 精确快照原文。 */\n    text: string;\n    /** 上传前核对的活动文件原文。 */\n    expectedText: string;\n    /** 请求发送前同步持久化原attempt身份。 */\n    onAttempt: (attempt: Readonly<{\n        scenarioId: string;\n        resourceId: string;\n        scope: string;\n        version: number;\n        fileName: string;\n        text: string;\n    }>) => void;\n}>",
+            "typeText": "Readonly<{\n    /** 资源注册表中的仓内文件身份。 */\n    resource: Pick<SystemScenarioResource, 'resourceId' | 'scenarioId'>;\n    /** 创建attempt所属的原始请求scope。 */\n    scope: string;\n    /** 调用方按已列出的历史编号预先分配的N。 */\n    version: number;\n    /** 精确快照原文。 */\n    text: string;\n    /** 上传前核对的活动文件原文。 */\n    expectedText: string;\n    /** 请求发送前同步持久化原attempt身份。 */\n    onAttempt: (attempt: Readonly<{\n        scenarioId: string;\n        resourceId: string;\n        scope: string;\n        version: number;\n        fileName: string;\n        text: string;\n    }>) => void;\n}>",
             "targetName": "Readonly"
           }
         ],

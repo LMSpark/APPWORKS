@@ -1,12 +1,12 @@
-# pageDesign × DevSystem 消费方
+# pageDesign × 蓝图 消费方
 
-本文描述当前 DevSystem inline runner 如何把页面工具编辑接入正式 `ProjectToolFile` DataView；Agent 内核见 [`native-runtime-and-agent-flow-zh-cn.md`](native-runtime-and-agent-flow-zh-cn.md)。不存在 headless Agent Run editor/provider。
+本文描述当前 蓝图 inline runner 如何把页面工具编辑接入正式 `ProjectToolFile` DataView；Agent 内核见 [`native-runtime-and-agent-flow-zh-cn.md`](native-runtime-and-agent-flow-zh-cn.md)。不存在 headless Agent Run editor/provider。
 
 ## 数据流
 
 ```mermaid
 sequenceDiagram
-  participant UI as DevSystem / useDevState
+  participant UI as 蓝图 / useDevState
   participant Runner as page-design-ai-runner
   participant Host as appAiAgent
   participant Guard as page-design-operation-guard
@@ -20,7 +20,7 @@ sequenceDiagram
   Guard->>Page: verify request + owner lease, invoke tool edit
   Page->>View: updateEditingValue(text)
   Note over Page,View: PageTool content is a DataView projection, not a second draft
-  UI->>Set: Save All → saveChanges(dirty file views)
+  UI->>Set: 核验待定提交 → saveChanges(dirty file views)
   Set-->>UI: FileResource receipt and exact readback
 ```
 
@@ -28,14 +28,14 @@ sequenceDiagram
 
 ## File editing contract
 
-The tool consists of `rule.json`, `script.js`, and `style.css`. `pagedata.json` is shared scenario DataSet configuration, not a fourth page tool file. DevSystem binds each file to its formal `ProjectToolFile` DataView before exposing the editor to AI.
+The tool consists of `rule.json`, `script.js`, and `style.css`. `pagedata.json` is shared scenario DataSet configuration, not a fourth page tool file. 蓝图 binds each file to its formal `ProjectToolFile` DataView before exposing the editor to AI.
 
 - `PageTool.getFileText()` reads the bound row or editing overlay and checks the row's `fieldAccess(text).read` result.
 - `setFileText()` checks field read/write access and the DataView edit action, then synchronously calls `updateEditingValue`. Invalid rule JSON is rejected before the row changes.
 - `editNodeTree()` edits an isolated tree snapshot, verifies the source text and run scope after the callback, and writes only a semantic change to the same DataView.
 - An unbound PageTool is a read-only projection. It has no local file draft, save baseline, or undo owner.
-- Save All submits dirty ProjectToolFile views through `DataSet.saveChanges`. Unknown attempts stay on their original DataView and are verified without replaying the upload.
-- If a user or AI edits again while a save is in flight, that newer overlay remains pending for the next Save All.
+- 核验待定提交 submits dirty ProjectToolFile views through `DataSet.saveChanges`. Unknown attempts stay on their original DataView and are verified without replaying the upload.
+- If a user or AI edits again while a save is in flight, that newer overlay remains pending for the next 核验待定提交.
 
 DataSet saves each file source independently; cross-source or multi-file atomic transactions are not promised. A receipt confirms only the captured file change and its readback.
 
@@ -54,5 +54,5 @@ The UI approval bridge is `createAiToolApprovalBridge()`. Approval controls whet
 | `src/services/page-design/page-design-operation-guard.ts` | Enforces operation domains and the captured run guard |
 | `src/services/page-design/page-design-gates.ts` | Holds request-scoped page/run context and operation policy |
 | `src/services/project/page-tool-file-dataview.ts` | Binds ProjectToolFile to the FileResource adapter |
-| `src/views/app/dev-system/useDevState.ts` | Loads views, captures scope, and coordinates Save All |
+| `src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts` | Loads views, captures scope, and coordinates 核验待定提交 |
 | `packages/spark-app/src/ai/tool-approval-bridge.ts` | UI approval Promise bridge |

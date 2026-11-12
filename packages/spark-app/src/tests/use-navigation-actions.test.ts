@@ -59,7 +59,7 @@ describe('useNavigation system-action handling', () => {
       routes: [
         { path: '/dev', component: { template: '<div />' } },
         { path: '/dbms', component: { template: '<div />' } },
-        { path: '/cache-manager', component: { template: '<div />' } },
+        { path: '/workflow-designs', component: { template: '<div />' } },
         { path: '/settings', component: { template: '<div />' } },
         { path: '/page-manager', component: { template: '<div />' } },
       ],
@@ -79,7 +79,7 @@ describe('useNavigation system-action handling', () => {
           children: [
             { id: 'dev', itemKind: 'system-page', title: '开发工作台', path: '/dev' },
             { id: 'dbms', itemKind: 'system-page', title: '数据库管理', path: '/dbms' },
-            { id: 'cache', itemKind: 'system-page', title: '缓存管理', path: '/cache-manager' },
+            { id: 'workflow', itemKind: 'system-page', title: '工作流设计', path: '/workflow-designs' },
             {
               id: 'system-config',
               itemKind: 'module',
@@ -113,7 +113,7 @@ describe('useNavigation system-action handling', () => {
     expect(nav.regionItems.value.sidebar.map((node) => node.title)).toEqual([
       '开发工作台',
       '数据库管理',
-      '缓存管理',
+      '工作流设计',
       '系统配置',
     ])
   })

@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {RendererFilter, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
-import {getBuiltinScenarioResource, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {getSystemScenarioResource, resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {api, ORGANIZATION_PATH, ORGANIZATION_SCENARIO, resetOrganizationFixture} from './organization.fixture'
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
@@ -81,8 +81,8 @@ function currentView(observed: Set<PageRuntime>) {
 
 describe('reference organization page through SPARK data', () => {
   it('registers the official scenario and displays the first ten rows without hiding missing IDs', async () => {
-    const resource = getBuiltinScenarioResource('organizationStructure')
-    expect(resolveBuiltinScenarioResource(ORGANIZATION_SCENARIO)).toEqual(resource)
+    const resource = getSystemScenarioResource('organizationStructure')
+    expect(resolveSystemScenarioResource(ORGANIZATION_SCENARIO)).toEqual(resource)
     const {wrapper, observed} = await open()
     const table = wrapper.getComponent(RendererTable)
     expect(wrapper.text()).toContain('当前租户')

@@ -1,8 +1,8 @@
 <!--
 @module app:views/app/Settings
-职责：显示当前应用名称与版本，切换本机主题模式，查看已注册路由统计并从 lowcode 重载导航。
-边界：主题只写本机偏好；应用与导航数据来自现有运行时，不在本页另存设置。
-AI用途：需要定位主题切换、路由统计或手动重载导航入口时，用本模块定位 views/app/Settings。
+职责：显示当前应用名称与版本，切换本机主题模式，查看已注册路由统计并从 lowcode 重载导航（含路由刷新），管理本机页面缓存。
+边界：主题与页面缓存只涉及本机；应用与导航数据来自现有运行时，不在本页另存设置；后端缓存不在本页维护。
+AI用途：需要定位主题切换、路由统计、手动重载导航或本机页面缓存入口时，用本模块定位 views/app/Settings。
 -->
 <template>
   <div class="settings-page">
@@ -56,6 +56,7 @@ AI用途：需要定位主题切换、路由统计或手动重载导航入口时
           </el-card>
         </el-col>
       </el-row>
+      <LocalPageCacheCard />
     </div>
   </div>
 </template>
@@ -73,6 +74,7 @@ import { getVuePageOptions, hasVuePage } from '@/registries/vue-page-registry'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 import packageMetadata from '../../../package.json'
+import LocalPageCacheCard from './settings/local-page-cache-card.vue'
 
 const router = useRouter()
 const theme = useTheme()

@@ -25,6 +25,7 @@ AI用途：需要理解 field switch 的实际渲染结构、slot/toolbar/状态
 import { computed } from 'vue'
 import { useSparkPageComponent } from '../../../../internal'
 import { useBasicFieldState } from '../../composables/state/useBasicFieldState'
+import { fieldMemberFromProps } from '../../../context/useFieldPermission'
 import { emitFieldValueUpdate, type FieldValueUpdateEmits } from '../../composables/value/useControlledFieldChange'
 import { coerceNullableBooleanValue } from '../../composables/value/fieldValueCoercion'
 import { useSwitchNullValue } from '../../composables/value/useSwitchNullValue'
@@ -51,6 +52,7 @@ const { permission, fieldCtx, handleControlledChange } = useBasicFieldState<bool
   fallbackValue: false,
   formatDisplay: formatSwitchValue,
   coerce: coerceNullableBooleanValue,
+  member: fieldMemberFromProps(props),
   emitUpdate: value => emitFieldValueUpdate(emit, value),
 })
 

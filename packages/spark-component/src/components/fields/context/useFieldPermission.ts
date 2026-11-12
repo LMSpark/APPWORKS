@@ -6,17 +6,18 @@
  */
 import { computed, getCurrentInstance } from 'vue'
 import { useFormDisabled } from 'element-plus'
-import { DataView, FieldVisibility } from '@spark-appworks/spark-data'
+import { DataFieldMember, DataView, FieldVisibility } from '@spark-appworks/spark-data'
+import type { DataFieldMemberFormat, DataFieldMemberPath } from '@spark-appworks/spark-data'
 import type { DataColumn } from '@spark-appworks/spark-data'
 import type { DataRow } from '@spark-appworks/spark-data'
 import { PAGE_SERVICE } from '../../internal'
 import { usePermission } from '../../../permission/index.js'
-import type { SparkFieldSemanticProps } from '../../shared-types.js'
+import type { SparkFieldMemberProps, SparkFieldSemanticProps } from '../../shared-types.js'
 import { useSparkConsume } from '../../internal'
 import { columnToFormRules } from '../columnFormRules'
 import type { FormItemRule } from '../columnFormRules'
 import { useActiveFieldRow } from './row/useActiveFieldRow'
-import { writeDataViewEditingValue } from './dataViewEditing'
+import { writeDataViewEditingMember, writeDataViewEditingValue } from './dataViewEditing'
 import type { FieldComposableProps } from './field-composable-props'
 import { resolveReadableDisplayFallback } from './field-display-fallback'
 
@@ -52,7 +53,19 @@ formatDisplay?: (value: unknown) => string
    */
   coerce: (rawValue: unknown) => TValue
   /** 控件值写入数据字段前的显式格式转换，仍经过当前字段权限。 */
-  toSourceValue?: (value: TValue) => unknown}
+  toSourceValue?: (value: TValue) => unknown
+  /** 绑定源字段内的 JSON 成员；读写只换算该成员，权限、编辑追踪与保存仍以源字段为准。 */
+  member?: () => FieldMemberRef | undefined}
+
+/** 源字段内 JSON 成员的定位。 */
+export type FieldMemberRef = Readonly<{path: DataFieldMemberPath; format: DataFieldMemberFormat}>
+
+type FieldMemberPropsSource = Readonly<{[K in keyof SparkFieldMemberProps]?: SparkFieldMemberProps[K] | undefined}>
+
+/** 由声明 SparkFieldMemberProps 的组件属性得到成员定位；未配置 valuePath 时返回 undefined。 */
+export function fieldMemberFromProps(props: FieldMemberPropsSource): () => FieldMemberRef | undefined {
+  return () => props.valuePath?.length ? {path: props.valuePath, format: props.valueFormat ?? 'text'} : undefined
+}
 
 export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TValue>) {
   const { props, fallbackValue, formatDisplay } = options
@@ -104,17 +117,32 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
   const memberError = computed(() => hasExplicitModelValue.value && props.modelValue !== undefined
     || hasExplicitValue.value && props.value !== undefined ? null : binding.memberError.value)
   // 配置诊断独立于字段值呈现；不将停算字段提升为可读/可写，也不显示数字控件的默认0。
-  const bindingError = computed(() => binding.fieldMember.value ? memberError.value?.message : undefined)
+  const jsonMember = computed(() => {
+    const member = options.member?.()
+    return member && member.path.length > 0 ? member : undefined
+  })
+  function readJsonMember(raw: unknown): unknown {
+    const member = jsonMember.value
+    return member ? DataFieldMember.read(raw, member) : raw
+  }
+  const jsonMemberError = computed(() => {
+    binding.revision.value
+    const row = currentRow.value
+    if (!jsonMember.value || row === null || !fieldName.value || !(fieldName.value in row)) return undefined
+    try {readJsonMember(row[fieldName.value]); return undefined}
+    catch (error) {return error instanceof Error ? error.message : String(error)}
+  })
+  const bindingError = computed(() => binding.fieldMember.value ? memberError.value?.message ?? jsonMemberError.value : undefined)
 
   const sourceFieldValue = computed<TValue>(() => {
     binding.revision.value
     if (hasExplicitModelValue.value && props.modelValue !== undefined) return props.modelValue
     if (hasExplicitValue.value && props.value !== undefined) return props.value
-    if (memberError.value) return fallbackValue
+    if (memberError.value || jsonMemberError.value) return fallbackValue
     if (!binding.fieldMember.value) return options.coerce(binding.memberValue.value)
     const row = currentRow.value
     if (row !== null && fieldName.value && fieldName.value in row) {
-      return options.coerce(row[fieldName.value])
+      return options.coerce(readJsonMember(row[fieldName.value]))
     }
     return fallbackValue
   })
@@ -137,7 +165,7 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
 
   const isCurrentFieldEditable = computed(() => {
     // 表单交互锁定只能收紧字段写入，不能替代或扩大本次查询的数据权限。
-    return binding.fieldMember.value && props.readonly !== true && !formDisabled.value && (currentFieldState.value?.editable ?? false)
+    return binding.fieldMember.value && !jsonMemberError.value && props.readonly !== true && !formDisabled.value && (currentFieldState.value?.editable ?? false)
   })
 
   const shouldSuppressReadableValueWhenWritable = computed(() => {
@@ -188,7 +216,9 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
   function getRowRawValue(row: DataRow): unknown {
     if (!fieldName.value) return fallbackValue
     const resolved = perm.subtreeFieldPolicy === 'unrestricted' ? row : binding.resolveEditingRow(row)
-    return resolved?.[fieldName.value]
+    if (!jsonMember.value) return resolved?.[fieldName.value]
+    try {return readJsonMember(resolved?.[fieldName.value])}
+    catch {return undefined}
   }
 
   function getRowRawStringValue(row: DataRow): string {
@@ -225,9 +255,24 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     row[field] = value
   }
 
+  function writeJsonMember(member: FieldMemberRef, value: unknown): void {
+    const row = currentRow.value, field = fieldName.value
+    if (!row || !field) return
+    if (perm.subtreeFieldPolicy !== 'unrestricted') {
+      if (!writeDataViewEditingMember({source: dataSource.value, row, field, path: member.path, format: member.format, value})) {
+        throw new Error('FIELD_MEMBER_WRITE: JSON 成员只能写入带主键的原生 DataView 行')
+      }
+      return
+    }
+    row[field] = DataFieldMember.merge(row[field], {path: member.path, format: member.format, value})
+  }
+
   function syncValue(value: TValue): void {
     if (!isCurrentFieldEditable.value) return
-    writeField(fieldName.value, options.toSourceValue ? options.toSourceValue(value) : value)
+    const sourceValue = options.toSourceValue ? options.toSourceValue(value) : value
+    const member = jsonMember.value
+    if (member) writeJsonMember(member, sourceValue)
+    else writeField(fieldName.value, sourceValue)
   }
 
   function captureWriteGuard(): () => boolean {

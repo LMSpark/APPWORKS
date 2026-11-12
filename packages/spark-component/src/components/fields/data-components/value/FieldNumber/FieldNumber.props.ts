@@ -5,10 +5,10 @@
  * AI用途：生成或修订页面配置时，用本模块判断 field number 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
  */
 import type {DataRow} from '@spark-appworks/spark-data'
-import type { SparkNodeProps, SparkRangeNumericFieldProps } from '../../../../shared-types'
+import type { SparkFieldMemberProps, SparkNodeProps, SparkRangeNumericFieldProps } from '../../../../shared-types'
 
-/** RNumber Props 的属性契约。 */
-export type RNumberProps = SparkNodeProps & SparkRangeNumericFieldProps<number | [number | undefined, number | undefined]> & {
+/** RNumber Props 的属性契约；valuePath 时编辑源字段内的数值成员，区间筛选不适用。 */
+export type RNumberProps = SparkNodeProps & SparkRangeNumericFieldProps<number | [number | undefined, number | undefined]> & SparkFieldMemberProps & {
   /** 增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。 */
   step?: number
   /** 增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。 */

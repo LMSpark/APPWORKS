@@ -11,7 +11,7 @@ import {AiDataEntryHost} from '@/lowcode/resources/shared/ai-data-entry-host'
 import {lowcodeApi, lowcodeHttp} from '../../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../../data-space/lowcode-data-space-assembler'
 import {loadLowcodeRuntimeScenario} from '../../../data-space/lowcode-data-space-runtime'
-import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
 import catalogViewsSource from '../../../../../config/pages/data-platform/data-dictionary/catalog-views.json?raw'
 
 const CATALOG_SCENARIO_TOKEN = '__SCENARIO__'
@@ -64,7 +64,7 @@ function catalogScenarioText(input: CatalogScenarioTextInput): string {
 /** 组合根负责scope，页面和专题对象不接触请求凭据。 */
 export class LowcodeDictionary {
   /** 设置与条目已有正式空间的身份，来自已核对的场景配置。 */
-  static readonly editorScenarioId = getBuiltinScenarioResource('dataDictionary').scenarioId
+  static readonly editorScenarioId = getSystemScenarioResource('dataDictionary').scenarioId
 
   /** 为精确字典条目视图装配最窄领域适配；正式轮次与租户Agent由通用应用Host负责。 */
   static createAiDataEntryHost(dataSet: DataSet, workspace: DictionaryWorkspace): AiDataEntryHost {

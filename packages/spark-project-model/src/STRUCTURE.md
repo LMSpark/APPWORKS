@@ -23,7 +23,7 @@ io/         蓝图/引用 gateway、PageContentLoader
 | 层 | 创建及职责 |
 |---|---|
 | spark-app 运行态 | 每次调用创建 `PageRuntime`，注入工具装载、明确场景装配和路由快照 |
-| DevSystem / AI | `new ProjectWorkspace`，使用 `project` 编辑蓝图和工具，独立编辑场景配置 |
+| 蓝图 / AI | `new ProjectWorkspace`，使用 `project` 编辑蓝图和工具，独立编辑场景配置 |
 | 纯内存 | `new ProjectBlueprint({ projectId })` |
 
 存储分别为正式动态蓝图记录、工具三文件和场景视图配置。动态应用的文件仍位于 `SysForm/<scenarioId>/pagedata.json`；AppWorks系统程序的四个登记场景由仓内`config/pages/**/pagedata.json`提供，并经资源DataView读取。运行 DataSet 不落入工具定义。

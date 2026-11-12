@@ -10,8 +10,7 @@ import { lowcodeApi, lowcodeDesignFileUpload, readLowcodePrincipal } from '@/low
 import { AiDataEntryHost } from '@/lowcode/resources/shared/ai-data-entry-host'
 import { hasDimensionLedgerRecords } from '@/lowcode/resources/structured-config/dimension-source/ledger-guard'
 import type { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
-import { BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID, BLUEPRINT_DIMENSION_LEDGER_SCENARIO_ID, BLUEPRINT_NODE_STATUS_SCENARIO_ID, useDevState } from '@/views/app/dev-system/useDevState'
-import { resolveNavHostProjectBinding, resolveProjectCandidate } from '@/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract'
+import { BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID, BLUEPRINT_DIMENSION_LEDGER_SCENARIO_ID, BLUEPRINT_NODE_STATUS_SCENARIO_ID, useDevState } from './blueprint-state/useDevState'
 import { blueprintEditingFields as editingFields } from './application-function-page-contract'
 import { useApplicationFunctionAi } from './use-application-function-ai'
 import { useApplicationFunctionDataSpace } from './use-application-function-data-space'
@@ -668,19 +667,18 @@ export function useApplicationFunctionPage() {
     targetReady.value = false
     loading.value = true
     error.value = ''
-    const relationSession = new NativePageRuntimeSession()
-    const candidateSession = new NativePageRuntimeSession()
-    const dispose = () => {relationSession.dispose(); candidateSession.dispose()}
-    releasePreflight = dispose
+    const catalogSession = new NativePageRuntimeSession()
+    releasePreflight = () => catalogSession.dispose()
     try {
       const execution = readLowcodeExecutionProject()
+      const projectId = execution.projectId
       const navigationId = readQueryString(route.meta['nodeId'], 'navigationId')
       const query = route.query
       const assertCurrent = () => {
         execution.assertCurrent()
         if (revision !== loadRevision || route.query !== query
           || route.meta['systemPageIdentityState'] !== 'resolved' || route.meta['nodeId'] !== navigationId
-          || route.params['projectId'] !== execution.projectId) throw new Error('蓝图入口目标查询或正式导航身份已失效')
+          || route.params['projectId'] !== projectId) throw new Error('蓝图入口目标查询或正式导航身份已失效')
       }
       assertCurrent()
       const marker = query[SYSTEM_PAGE_NAVIGATION_ID_QUERY]
@@ -688,44 +686,25 @@ export function useApplicationFunctionPage() {
       const nodeId = query['nodeId'] === undefined ? '' : readQueryString(query['nodeId'], 'nodeId')
       readTab(route.query['blueprintTab'])
       assertNoPendingChanges()
-      const loadScenario = (scenarioId: string) => {
-        assertCurrent()
-        return loadLowcodeRuntimeScenario({projectId: execution.projectId, scenarioId})
-      }
-      const relationRuntime = relationSession.acquire({pageId: navigationId,
-        scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY], targetId: navigationId, loadScenario})
-      await relationRuntime.load()
+      const catalogRuntime = catalogSession.acquire({pageId: navigationId,
+        scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY], targetId: projectId,
+        loadScenario: (scenarioId: string) => {
+          assertCurrent()
+          return loadLowcodeRuntimeScenario({projectId, scenarioId})
+        }})
+      await catalogRuntime.load()
       assertCurrent()
-      const relations = requireView(relationRuntime, LOWCODE_APPLICATION_CATALOG_FORM_KEY, 'Base_Navigation_DataRelation')
-      relations.queryConfig = {...relations.queryConfig, allPages: true}
-      relations.filterExpression = DataViewFilter.condition({field: 'prowid', operator: 'eq', value: navigationId}).toJSON()
-      await relations.refresh()
-      assertCurrent()
-      if (relations.loadingError) throw relations.loadingError
-      if (relations.total !== relations.rows.length) throw new Error('蓝图导航宿主关系读取不完整')
-      const binding = resolveNavHostProjectBinding(relations, navigationId)
-      const projectId = readQueryString(query[binding.valueParameter], binding.valueParameter)
-      const candidates = candidateSession.acquire({pageId: navigationId,
-        scenarioIds: [binding.scenarioId], targetId: projectId, loadScenario})
-      await candidates.load()
-      assertCurrent()
-      const candidateView = requireView(candidates, binding.scenarioId, binding.modelName)
-      candidateView.queryConfig = {...candidateView.queryConfig, allPages: true}
-      candidateView.filterExpression = DataViewFilter.condition({field: binding.valueField, operator: 'eq', value: projectId}).toJSON()
-      await candidateView.refresh()
-      assertCurrent()
-      if (candidateView.loadingError) throw candidateView.loadingError
-      const candidate = candidateView.rows[0]
-      if (candidateView.total !== 1 || candidateView.rows.length !== 1 || !candidate
-        || resolveProjectCandidate(candidateView, candidate, binding) !== projectId) throw new Error('蓝图目标未通过正式宿主候选精确核验')
-      const applications = requireView(relationRuntime, LOWCODE_APPLICATION_CATALOG_FORM_KEY, 'Base_AppSystemList')
+      const applications = requireView(catalogRuntime, LOWCODE_APPLICATION_CATALOG_FORM_KEY, 'Base_AppSystemList')
       applications.filterExpression = DataViewFilter.condition({field: 'rowid', operator: 'eq', value: projectId}).toJSON()
       await applications.refresh()
       assertCurrent()
       if (applications.loadingError) throw applications.loadingError
       const application = applications.rows[0]
+      if (application && applications.fieldAccess(application, 'rowid').read !== 'visible') {
+        throw new Error('当前租户正式应用目录的应用标识不可读')
+      }
       if (applications.total !== 1 || applications.rows.length !== 1 || !application
-        || resolveProjectCandidate(applications, application, {valueField: 'rowid', labelField: 'AppName'}) !== projectId) {
+        || readText(application, 'rowid') !== projectId) {
         throw new Error('当前租户正式应用目录未确认蓝图目标')
       }
       applicationLabel.value = readText(application, 'AppName')
@@ -780,7 +759,7 @@ export function useApplicationFunctionPage() {
     } catch (cause) {
       if (revision === loadRevision) error.value = String(cause)
     } finally {
-      dispose()
+      catalogSession.dispose()
       if (revision === loadRevision) loading.value = false
     }
   }

@@ -27,115 +27,191 @@
       "source": "src/views/platform/About.vue"
     },
     {
-      "path": "/settings",
-      "title": "设置",
-      "icon": "Setting",
-      "scope": "catalog",
-      "source": "src/views/app/Settings.vue"
-    },
-    {
-      "path": "/cache-manager",
-      "title": "缓存管理",
-      "icon": "Coin",
-      "scope": "app",
-      "source": "src/views/app/CacheManager.vue"
-    },
-    {
-      "path": "/features/system/cache-management/ui/cache-management-page",
-      "title": "缓存管理",
-      "icon": "Coin",
-      "scope": "app",
-      "source": "src/views/features/system/cache-management/ui/cache-management-page.vue",
-      "description": "AppWorks 系统导航登记的原生缓存管理页面",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page",
-      "title": "维度设计",
-      "icon": "Grid",
-      "scope": "app",
-      "source": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
-      "description": "AppWorks 系统导航登记的原生维度中心页面",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/system/bug-manage/ui/bug-manage-page",
-      "title": "BUG管理",
-      "icon": "Warning",
-      "scope": "app",
-      "source": "src/views/features/system/bug-manage/ui/bug-manage-page.vue",
-      "description": "AppWorks 系统导航登记的原生BUG管理页面",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/system/data-recovery/ui/data-recovery-page",
-      "title": "数据恢复",
-      "icon": "RefreshLeft",
-      "scope": "app",
-      "source": "src/views/features/system/data-recovery/ui/data-recovery-page.vue",
-      "description": "AppWorks 系统导航登记的原生数据恢复页面",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/system/flow-monitor/ui/flow-monitor-page",
-      "title": "流程监控",
-      "icon": "Monitor",
-      "scope": "app",
-      "source": "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue",
-      "description": "AppWorks 系统导航登记的原生流程监控页面",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/integration/report/ui/report-management-page",
-      "title": "业务报表管理",
-      "icon": "Document",
-      "scope": "app",
-      "source": "src/views/features/integration/report/ui/report-management-page.vue",
-      "description": "AppWorks 系统导航登记的原生业务报表管理页面",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/application/application-context/ui/application-database-relations-page",
-      "title": "关联数据库",
-      "icon": "Coin",
-      "scope": "app",
-      "source": "src/views/features/application/application-context/ui/application-database-relations-page.vue",
-      "description": "AppWorks 系统导航登记的原生应用关联数据库页面",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/application/data-menu/ui/data-menu-page",
-      "title": "导航宿主管理",
-      "icon": "Menu",
-      "scope": "app",
-      "source": "src/views/features/application/data-menu/ui/data-menu-page.vue",
-      "description": "AppWorks 系统导航登记的原生导航宿主管理页面",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
       "path": "/app-list",
       "title": "应用列表",
       "icon": "Grid",
-      "scope": "catalog",
-      "source": "src/views/app/AppList.vue"
+      "scope": "enterprise",
+      "source": "src/views/app/AppList.vue",
+      "order": 1
+    },
+    {
+      "path": "/features/data-platform/database-management/ui/service-management-page",
+      "title": "服务器管理",
+      "icon": "DataBase",
+      "scope": "enterprise",
+      "source": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
+      "description": "数据库服务器管理",
+      "group": "数据库管理",
+      "order": 11,
+      "dataSpaceId": "78C58A7FE34F2987267A1E8AF10B2990"
+    },
+    {
+      "path": "/DataBaseManage/DataBaseManage/index",
+      "title": "数据库管理",
+      "icon": "DataBase",
+      "scope": "enterprise",
+      "source": "src/views/DataBaseManage/DataBaseManage/index.vue",
+      "description": "数据库目录管理",
+      "group": "数据库管理",
+      "order": 12,
+      "dataSpaceId": "62DB03B06A489600FFF86F3640D5C0E7"
+    },
+    {
+      "path": "/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+      "title": "表和视图管理",
+      "icon": "Grid",
+      "scope": "enterprise",
+      "source": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+      "description": "数据库表和视图管理",
+      "group": "数据库管理",
+      "order": 13,
+      "dataSpaceId": "A8FB2B2B161125A16FD15ED9581CD15B"
+    },
+    {
+      "path": "/features/integration/api-management/ui/api-management-page",
+      "title": "外部服务管理",
+      "scope": "enterprise",
+      "source": "src/views/features/integration/api-management/ui/api-management-page.vue",
+      "description": "外部服务商目录与独立基础定义维护",
+      "order": 20,
+      "dataSpaceId": "8CBB62EBC873A38DB9E6EEF177AFC731"
+    },
+    {
+      "path": "/features/data-platform/semi-structured/json-data/ui/json-data-page",
+      "title": "JSON 数据",
+      "icon": "Document",
+      "scope": "enterprise",
+      "source": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
+      "description": "JSON 目录与树内容",
+      "group": "半结构化数据",
+      "order": 31,
+      "dataSpaceId": "FFDEF2AED3E19A38C0FCDDC748CF939B"
+    },
+    {
+      "path": "/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page",
+      "title": "Excel 导入",
+      "icon": "Document",
+      "scope": "enterprise",
+      "source": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
+      "description": "Excel 导入方案目录",
+      "group": "半结构化数据",
+      "order": 32,
+      "dataSpaceId": "36B01771C627B9BF5CD493DC75B996A1"
+    },
+    {
+      "path": "/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page",
+      "title": "Excel 导入设计",
+      "scope": "enterprise",
+      "source": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
+      "description": "Sheet 布局与转换规则",
+      "hidden": true
+    },
+    {
+      "path": "/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page",
+      "title": "PDF 识别",
+      "icon": "Document",
+      "scope": "enterprise",
+      "source": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
+      "description": "PDF 规则目录",
+      "group": "半结构化数据",
+      "order": 33,
+      "dataSpaceId": "A2D63AB2AAEF156E7727094A23AEA433"
+    },
+    {
+      "path": "/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page",
+      "title": "PDF 规则设计",
+      "scope": "enterprise",
+      "source": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue",
+      "description": "PDF 规则 JSON",
+      "hidden": true,
+      "identityHost": "/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page"
+    },
+    {
+      "path": "/FileDataManager/FileManager/index",
+      "title": "文件管理",
+      "icon": "Folder",
+      "scope": "enterprise",
+      "source": "src/views/FileDataManager/FileManager/index.vue",
+      "description": "文件数据管理",
+      "group": "文件数据管理",
+      "order": 41,
+      "dataSpaceId": "23F469CC96AC4B73BA5AE593C0002BD4",
+      "navigationId": "EDF7DE3E5723E127F98B2A119BE81BF9"
     },
     {
       "path": "/features/application/application-manager/ui/application-manager-page",
       "title": "应用系统列表",
       "icon": "Grid",
-      "scope": "app",
+      "scope": "enterprise",
       "source": "src/views/features/application/application-manager/ui/application-manager-page.vue",
-      "description": "AppWorks 系统应用管理只读目录",
-      "hidden": true,
-      "shellTool": false
+      "description": "本企业应用系统目录与默认应用",
+      "group": "应用系统管理",
+      "order": 51,
+      "dataSpaceId": "0C70F74793F9E858B71E0DBDEC784D57"
+    },
+    {
+      "path": "/features/organization/organization-structure/ui/organization-structure-page",
+      "title": "机构管理",
+      "icon": "OfficeBuilding",
+      "scope": "enterprise",
+      "source": "src/views/features/organization/organization-structure/ui/organization-structure-page.vue",
+      "description": "当前租户正式机构投影",
+      "group": "人力资源管理",
+      "order": 61,
+      "dataSpaceId": "4138A7C47ECB96EA85CA61A8A8B7191F"
+    },
+    {
+      "path": "/features/organization/job-management/ui/job-management-page",
+      "title": "岗位管理",
+      "icon": "User",
+      "scope": "enterprise",
+      "source": "src/views/features/organization/job-management/ui/job-management-page.vue",
+      "description": "当前租户正式岗位投影",
+      "group": "人力资源管理",
+      "order": 62,
+      "dataSpaceId": "0A835EB88AAC2BDFBDE344477C6827BB"
+    },
+    {
+      "path": "/features/organization/user-management/ui/user-management-page",
+      "title": "人员管理",
+      "icon": "User",
+      "scope": "enterprise",
+      "source": "src/views/features/organization/user-management/ui/user-management-page.vue",
+      "description": "当前租户正式人员任职投影",
+      "group": "人力资源管理",
+      "order": 63,
+      "dataSpaceId": "4138A7C47ECB96EA85CA61A8A8B7191F",
+      "navigationId": "1B7FD70E326717B8E4B611D0431FFCBA"
+    },
+    {
+      "path": "/features/system/cache-management/ui/cache-management-page",
+      "title": "缓存管理",
+      "icon": "Coin",
+      "scope": "enterprise",
+      "source": "src/views/features/system/cache-management/ui/cache-management-page.vue",
+      "description": "原生缓存管理页面",
+      "group": "系统支持管理",
+      "order": 71,
+      "dataSpaceId": "348D1C50B204C779AABBE2489C5E2FDF"
+    },
+    {
+      "path": "/features/system/flow-monitor/ui/flow-monitor-page",
+      "title": "流程监控",
+      "icon": "Monitor",
+      "scope": "enterprise",
+      "source": "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue",
+      "description": "原生流程监控页面",
+      "group": "系统支持管理",
+      "order": 72,
+      "dataSpaceId": "E328FBBF518141973C575D612CD75151"
+    },
+    {
+      "path": "/settings",
+      "title": "设置",
+      "icon": "Setting",
+      "scope": "enterprise",
+      "source": "src/views/app/Settings.vue",
+      "order": 90
     },
     {
       "path": "/features/application/application-function-management/ui/application-function-page",
@@ -143,158 +219,27 @@
       "icon": "Grid",
       "scope": "app",
       "source": "src/views/features/application/application-function-management/ui/application-function-page.vue",
-      "description": "按应用和蓝图节点身份编辑项目蓝图",
-      "hidden": true,
-      "shellTool": false
+      "description": "编辑当前应用的项目蓝图",
+      "order": 1,
+      "dataSpaceId": "7AB874097A1E8711A42FD845939A6E05"
     },
     {
-      "path": "/features/organization/organization-structure/ui/organization-structure-page",
-      "title": "机构管理",
-      "icon": "OfficeBuilding",
-      "scope": "app",
-      "source": "src/views/features/organization/organization-structure/ui/organization-structure-page.vue",
-      "description": "当前租户正式机构投影",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/organization/job-management/ui/job-management-page",
-      "title": "岗位管理",
-      "icon": "User",
-      "scope": "app",
-      "source": "src/views/features/organization/job-management/ui/job-management-page.vue",
-      "description": "当前租户正式岗位投影",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/organization/user-management/ui/user-management-page",
-      "title": "人员管理",
-      "icon": "User",
-      "scope": "app",
-      "source": "src/views/features/organization/user-management/ui/user-management-page.vue",
-      "description": "当前租户正式人员任职投影",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/tenants",
-      "title": "租户管理",
-      "icon": "OfficeBuilding",
-      "scope": "catalog",
-      "source": "src/views/platform/PlatformTenantManagement.vue",
-      "description": "平台租户管理工作台"
-    },
-    {
-      "path": "/apps",
-      "title": "平台应用管理",
-      "icon": "Grid",
-      "scope": "catalog",
-      "source": "src/views/platform/PlatformApps.vue",
-      "description": "跨租户项目入口"
-    },
-    {
-      "path": "/workflow-designs",
-      "title": "工作流设计",
-      "icon": "Share",
-      "scope": "app",
-      "source": "src/views/app/WorkflowDesigns.vue",
-      "description": "Dify-like Agent workflow 设计稿编辑页"
-    },
-    {
-      "path": "/dev",
-      "title": "开发工作台",
-      "icon": "Tools",
-      "scope": "app",
-      "source": "src/views/app/dev-system/DevSystem.vue"
-    },
-    {
-      "path": "/features/data-platform/database-management/ui/service-management-page",
-      "title": "服务器管理",
-      "icon": "DataBase",
-      "scope": "app",
-      "source": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
-      "description": "AppWorks 系统导航登记的原生数据库服务器管理页面",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/FileDataManager/FileManager/index",
-      "title": "文件管理",
-      "icon": "Folder",
-      "scope": "app",
-      "source": "src/views/FileDataManager/FileManager/index.vue",
-      "description": "AppWorks 系统导航登记的原生文件管理页面",
-      "dataSpaceId": "23F469CC96AC4B73BA5AE593C0002BD4",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/DataBaseManage/DataBaseManage/index",
-      "title": "数据库管理",
-      "icon": "DataBase",
-      "scope": "app",
-      "source": "src/views/DataBaseManage/DataBaseManage/index.vue",
-      "description": "AppWorks 系统导航登记的原生数据库管理页面",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
-      "title": "表和视图管理",
+      "path": "/features/data-platform/data-set-management/ui/data-set-list-page",
+      "title": "数据空间管理",
       "icon": "Grid",
       "scope": "app",
-      "source": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
-      "description": "AppWorks 系统导航登记的原生表和视图管理页面",
-      "hidden": true,
-      "shellTool": false
+      "source": "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue",
+      "description": "当前应用的数据空间目录",
+      "order": 2,
+      "dataSpaceId": "90A82E287930A234FEC3E687C94A93EA"
     },
     {
       "path": "/features/data-platform/data-set-management/design/ui/data-set-design-page",
       "title": "数据空间设计",
-      "icon": "Grid",
       "scope": "app",
       "source": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
-      "description": "保留原生业务文件路径的数据空间设计入口",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/data-platform/data-set-management/ui/data-set-list-page",
-      "title": "数据空间目录",
-      "icon": "Grid",
-      "scope": "app",
-      "source": "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue",
-      "description": "正式数据空间目录只读列表",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/integration/api-management/ui/api-management-page",
-      "title": "外部服务管理",
-      "scope": "app",
-      "source": "src/views/features/integration/api-management/ui/api-management-page.vue",
-      "description": "外部服务商目录与独立基础定义维护",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
-      "title": "数据字典",
-      "scope": "app",
-      "source": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
-      "description": "字典方案设计目录，配置与业务数据分别维护",
-      "hidden": true,
-      "shellTool": false
-    },
-    {
-      "path": "/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page",
-      "title": "字典数据维护",
-      "scope": "app",
-      "source": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
-      "description": "按dictionaryId消费已保存的设计，仅维护业务数据",
-      "hidden": true,
-      "shellTool": false
+      "description": "数据空间目录内的设计对话框",
+      "hidden": true
     },
     {
       "path": "/features/data-platform/structured-config/data-code/ui/data-code-list-page",
@@ -302,8 +247,9 @@
       "scope": "app",
       "source": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
       "description": "编码方案目录",
-      "hidden": true,
-      "shellTool": false
+      "group": "结构化配置",
+      "order": 11,
+      "dataSpaceId": "A133D679691178F192D7E9DA06829506"
     },
     {
       "path": "/features/data-platform/structured-config/data-code/ui/data-code-editor-page",
@@ -311,8 +257,25 @@
       "scope": "app",
       "source": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
       "description": "编码规则与辅助对话框",
-      "hidden": true,
-      "shellTool": false
+      "hidden": true
+    },
+    {
+      "path": "/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+      "title": "数据字典",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "description": "字典方案设计目录，配置与业务数据分别维护",
+      "group": "结构化配置",
+      "order": 12,
+      "dataSpaceId": "EDB0E34486FFB903E896E5C281230961"
+    },
+    {
+      "path": "/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page",
+      "title": "字典数据维护",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
+      "description": "按dictionaryId消费已保存的设计，仅维护业务数据",
+      "hidden": true
     },
     {
       "path": "/features/data-platform/structured-config/logic-view/ui/logic-view-list-page",
@@ -320,8 +283,9 @@
       "scope": "app",
       "source": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
       "description": "逻辑视图目录",
-      "hidden": true,
-      "shellTool": false
+      "group": "结构化配置",
+      "order": 13,
+      "dataSpaceId": "EB720370EF06A5A656838F87E0716D6B"
     },
     {
       "path": "/features/data-platform/structured-config/logic-view/ui/logic-view-design-page",
@@ -330,7 +294,7 @@
       "source": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
       "description": "ViewData 设计 JSON",
       "hidden": true,
-      "shellTool": false
+      "identityHost": "/features/data-platform/structured-config/logic-view/ui/logic-view-list-page"
     },
     {
       "path": "/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page",
@@ -338,8 +302,9 @@
       "scope": "app",
       "source": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
       "description": "数据工作流目录",
-      "hidden": true,
-      "shellTool": false
+      "group": "结构化配置",
+      "order": 14,
+      "dataSpaceId": "5E9676B1E38860B023921F48FB4370DE"
     },
     {
       "path": "/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page",
@@ -347,53 +312,79 @@
       "scope": "app",
       "source": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "description": "节点与连线设计",
-      "hidden": true,
-      "shellTool": false
+      "hidden": true
     },
     {
-      "path": "/features/data-platform/semi-structured/json-data/ui/json-data-page",
-      "title": "JSON 数据",
+      "path": "/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page",
+      "title": "维度设计",
+      "icon": "Grid",
       "scope": "app",
-      "source": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
-      "description": "JSON 目录与树内容",
-      "hidden": true,
-      "shellTool": false
+      "source": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
+      "description": "原生维度中心页面",
+      "group": "结构化配置",
+      "order": 15,
+      "dataSpaceId": "88A4D51B01702C3856F4632E234BF34B"
     },
     {
-      "path": "/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page",
-      "title": "Excel 导入",
+      "path": "/features/application/application-context/ui/application-database-relations-page",
+      "title": "关联数据库",
+      "icon": "Coin",
       "scope": "app",
-      "source": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
-      "description": "Excel 导入方案目录",
-      "hidden": true,
-      "shellTool": false
+      "source": "src/views/features/application/application-context/ui/application-database-relations-page.vue",
+      "description": "当前应用关联的数据库",
+      "order": 21,
+      "dataSpaceId": "93DF05182084B1F0E8DA7283E83BBE0C"
     },
     {
-      "path": "/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page",
-      "title": "Excel 导入设计",
+      "path": "/features/integration/report/ui/report-management-page",
+      "title": "业务报表管理",
+      "icon": "Document",
       "scope": "app",
-      "source": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
-      "description": "Sheet 布局与转换规则",
-      "hidden": true,
-      "shellTool": false
+      "source": "src/views/features/integration/report/ui/report-management-page.vue",
+      "description": "原生业务报表管理页面",
+      "order": 30,
+      "dataSpaceId": "FB291E325272007AEED8921C28B93CFD"
     },
     {
-      "path": "/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page",
-      "title": "PDF 识别",
+      "path": "/features/application/data-menu/ui/data-menu-page",
+      "title": "导航宿主管理",
+      "icon": "Menu",
       "scope": "app",
-      "source": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
-      "description": "PDF 规则目录",
-      "hidden": true,
-      "shellTool": false
+      "source": "src/views/features/application/data-menu/ui/data-menu-page.vue",
+      "description": "原生导航宿主管理页面",
+      "order": 40,
+      "dataSpaceId": "2CA968B3513084BA2537BB0C85AE945E"
     },
     {
-      "path": "/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page",
-      "title": "PDF 规则设计",
+      "path": "/features/system/bug-manage/ui/bug-manage-page",
+      "title": "BUG管理",
+      "icon": "Warning",
       "scope": "app",
-      "source": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue",
-      "description": "PDF 规则 JSON",
-      "hidden": true,
-      "shellTool": false
+      "source": "src/views/features/system/bug-manage/ui/bug-manage-page.vue",
+      "description": "原生BUG管理页面",
+      "group": "系统支持",
+      "order": 51,
+      "dataSpaceId": "5B54AEBD5BD1BBC72710D4022589A404"
+    },
+    {
+      "path": "/features/system/data-recovery/ui/data-recovery-page",
+      "title": "数据恢复",
+      "icon": "RefreshLeft",
+      "scope": "app",
+      "source": "src/views/features/system/data-recovery/ui/data-recovery-page.vue",
+      "description": "原生数据恢复页面",
+      "group": "系统支持",
+      "order": 52,
+      "dataSpaceId": "70D5D8FACCC201A822F64B16A441BE8F"
+    },
+    {
+      "path": "/workflow-designs",
+      "title": "工作流设计",
+      "icon": "Share",
+      "scope": "app",
+      "source": "src/views/app/WorkflowDesigns.vue",
+      "description": "Dify-like Agent workflow 设计稿编辑页",
+      "order": 60
     }
   ]
 }

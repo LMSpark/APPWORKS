@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spark-appworks.local/schemas/system-scenarios.schema.json",
+  "title": "SPARK AppWorks System Scenario Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {"type": "string"},
+    "protocol": {"const": "spark-appworks.system-scenarios"},
+    "schemaVersion": {"const": 1},
+    "scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {"type": "string", "pattern": "^[a-z][A-Za-z0-9]*$"},
+          "scenarioId": {"type": "string", "pattern": "^[A-F0-9]{32}$"},
+          "resourceId": {"type": "string", "pattern": "^repository:scenario-view:[A-F0-9]{32}$"},
+          "path": {"type": "string", "pattern": "^config/pages/.+/pagedata\\.json$"}
+        },
+        "required": ["name", "scenarioId", "resourceId", "path"]
+      }
+    }
+  },
+  "required": ["protocol", "schemaVersion", "scenarios"]
+}

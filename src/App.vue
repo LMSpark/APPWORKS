@@ -163,7 +163,8 @@ import { onPageConfigChange, type FileChangeEvent } from '@/services/sse-events'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import type { ProjectSwitchService } from '@/services/project/project-shell'
 import { loadProjectUiSettings, saveProjectUiSettings } from '@/services/project/project-settings'
-import { APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath, buildApplicationRootPath, parseApplicationPathScope, stripApplicationPath } from '@/services/application-scope'
+import { APPLICATION_CATALOG_PROJECT_ID, PLATFORM_PATH_PREFIX, buildApplicationPath, buildApplicationRootPath, parseApplicationPathScope, stripApplicationPath } from '@/services/application-scope'
+import { lowcodePlatformNavigation } from '@/lowcode/system-navigation'
 import { getPublicPaths } from '@/registries/vue-page-registry'
 import { ElMessage } from 'element-plus'
 
@@ -188,7 +189,6 @@ const route = useRoute()
 const router = useRouter()
 const isLoginPage = computed(() => route.path === '/login' || route.path === '/')
 const publicPaths = getPublicPaths()
-const PLATFORM_PATH_PREFIX = '/platform'
 const currentUsername = computed(() => {
   const principal = readLowcodePrincipal()
   return principal?.displayName ?? principal?.username ?? '管理员'
@@ -460,6 +460,20 @@ navigationActionRegistry.register('home', async () => {
     } else {
       await router.push('/')
     }
+  } catch (error: unknown) {
+    ElMessage.error(error instanceof Error ? error.message : String(error))
+  }
+})
+navigationActionRegistry.register('platform', async () => {
+  try {
+    const principal = readLowcodePrincipal()
+    if (principal && principal.applicationId !== null) {
+      const receipt = await projectSwitchService.switchAndReload(APPLICATION_CATALOG_PROJECT_ID)
+      receipt.assertCurrent()
+    }
+    const homePath = lowcodePlatformNavigation().homePath
+    if (homePath === undefined) throw new Error('平台工作台没有登记页面')
+    await router.push(`${PLATFORM_PATH_PREFIX}${homePath}`)
   } catch (error: unknown) {
     ElMessage.error(error instanceof Error ? error.message : String(error))
   }

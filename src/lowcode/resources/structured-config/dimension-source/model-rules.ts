@@ -7,7 +7,7 @@
  * AI用途：所有装配该场景的页面经场景装配统一获得本约束，编辑器不再自行重复。
  */
 import type {DataSet, DataTableQuerySaveRuleGroup} from '@spark-appworks/spark-data'
-import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {dimensionSourceContract} from './source-contracts'
 
 const text = (value: unknown): string => value === undefined || value === null ? '' : String(value).trim()
@@ -58,7 +58,7 @@ const RULES: Readonly<Record<string, DataTableQuerySaveRuleGroup>> = {
 }
 
 export function registerDimensionSourceModelRules(dataSet: DataSet): void {
-  if (dataSet.scenarioId !== getBuiltinScenarioResource('dimensionDesign').scenarioId) return
+  if (dataSet.scenarioId !== getSystemScenarioResource('dimensionDesign').scenarioId) return
   for (const [modelName, rule] of Object.entries(RULES)) {
     const matches = Object.values(dataSet.tables).filter(table => table.modelBinding?.modelName === modelName)
     if (matches.length > 1) throw new Error(`DIMENSION_SOURCE_MODEL_IDENTITY: ${modelName} 正式模型不唯一`)

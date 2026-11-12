@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {readRepositoryScenarioText} from '@/lowcode/resources/repository/scenarios/resource'
 
 const applicationId = 'D99A1DCE9894698799101EFD70F8FC76'
@@ -19,7 +19,7 @@ const scenarioIds = [
 
 describe('repository-backed system scenario resources', () => {
   it.each(scenarioIds)('reads %s through the repository file DataView', async scenarioId => {
-    const resource = resolveBuiltinScenarioResource(scenarioId)
+    const resource = resolveSystemScenarioResource(scenarioId)
     expect(resource).not.toBeNull()
     const text = readFileSync(resource!.path, 'utf8')
     await stubHostResponses([{resourceId: resource!.resourceId, scenarioId, text}])
@@ -28,7 +28,7 @@ describe('repository-backed system scenario resources', () => {
   })
 
   it('fetches fresh host text for each repository DataView query', async () => {
-    const resource = resolveBuiltinScenarioResource(scenarioIds[0]!)!
+    const resource = resolveSystemScenarioResource(scenarioIds[0]!)!
     const first = `{"scenarioId":"${resource.scenarioId}","revision":"one"}`
     const second = `{"scenarioId":"${resource.scenarioId}","revision":"two"}`
     const fetchMock = await stubHostResponses([
@@ -46,8 +46,8 @@ describe('repository-backed system scenario resources', () => {
   })
 
   it('keeps dynamic and formal target spaces separate from declared program scenarios', () => {
-    expect(resolveBuiltinScenarioResource(scenarioIds[0]!)).not.toBeNull()
-    expect(resolveBuiltinScenarioResource('UNREGISTERED')).toBeNull()
+    expect(resolveSystemScenarioResource(scenarioIds[0]!)).not.toBeNull()
+    expect(resolveSystemScenarioResource('UNREGISTERED')).toBeNull()
   })
 })
 

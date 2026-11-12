@@ -14,7 +14,7 @@ import {DimensionSourceBindingEditor, type DimensionSourceBindingEditorInput, ty
 import {DimensionSourceCommitPolicyEditor} from '@/lowcode/resources/structured-config/dimension-source/commit-policy-editor'
 import {DimensionSourceEventEditor} from '@/lowcode/resources/structured-config/dimension-source/event-editor'
 import {viewKey, type DimensionSourceTarget, type Id} from '@/lowcode/resources/structured-config/dimension-source/view-support'
-import {BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID} from '@/views/app/dev-system/useDevState'
+import {BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID} from './blueprint-state/useDevState'
 import type {FeatureFieldOption, FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import type {BlueprintTreeContext} from './use-application-function-page'
 

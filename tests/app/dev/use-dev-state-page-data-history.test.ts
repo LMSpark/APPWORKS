@@ -1,11 +1,11 @@
 import { shallowMount, mount, flushPromises } from '@vue/test-utils'
 import { computed, defineComponent, h, ref, toRaw, watch, type Component } from 'vue'
 import ElementPlus from 'element-plus'
-import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
-import DevDataSetDesigner from '@/views/app/dev-system/DevDataSetDesigner.vue'
-import DevPreviewTab from '@/views/app/dev-system/DevPreviewTab.vue'
-import DevFileEditor from '@/views/app/dev-system/DevFileEditor.vue'
-import {useDevFileEditor} from '@/views/app/dev-system/composables/useDevFileEditor'
+import DataPlanningPane from '@/views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane.vue'
+import DevDataSetDesigner from '@/views/features/application/application-function-management/ui/blueprint-data-space/DevDataSetDesigner.vue'
+import DevPreviewTab from '@/views/features/application/application-function-management/ui/page-design/DevPreviewTab.vue'
+import DevFileEditor from '@/views/features/application/application-function-management/ui/page-design/DevFileEditor.vue'
+import {useDevFileEditor} from '@/views/features/application/application-function-management/ui/page-design/useDevFileEditor'
 import ScenarioHistoryPanel from '@/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {DataSet, type DataRow, type DataView, type DataViewSourceHistoryStatus} from '@spark-appworks/spark-data'
@@ -328,9 +328,9 @@ describe('tool and shared scenario editing owners',()=>{
   const source=state.scenarioDefinitionDocument.value!.dataSet.getView('DataViewDefinition')!
   let attempt:DataViewSourceHistoryStatus={state:'unknown',version:3,fileName:'3__pagedata.json',message:'receipt lost'}
   vi.spyOn(source,'getSourceHistoryStatus').mockImplementation(()=>attempt)
-  expect(state.hasPendingDevSystemWrite()).toBe(true)
+  expect(state.hasPendingBlueprintWrite()).toBe(true)
   attempt={state:'confirmed',version:3,fileName:'3__pagedata.json',message:'verified'}
-  expect(state.hasPendingDevSystemWrite()).toBe(false)
+  expect(state.hasPendingBlueprintWrite()).toBe(false)
  })
  it('previews and stages through the shared panel, then saves only on its explicit save action', async()=>{
   const dataSet=DataSet.fromJson({scenarioId:'scene',tables:{History:{resourceType:'file',resourceId:'history',

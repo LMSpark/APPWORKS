@@ -2,8 +2,10 @@
  * @module app:lowcode/data-space/lowcode-data-space-runtime
  * 职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用身份由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。
  */
-import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
-import { createLowcodeProjectGateways, lowcodeApi, lowcodeDesignFileUpload, lowcodeHttp } from '../lowcode-runtime'
+import { DATA_SPACE_DESIGN_FORM_KEY, type DataSpaceApi } from '@spark-appworks/spark-lowcode-api'
+import { createLowcodeProjectGateways, lowcodeApi, lowcodeCatalogDataSpace, lowcodeDesignFileUpload, lowcodeHttp } from '../lowcode-runtime'
+import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
+import { readRepositoryScenarioText } from '../resources/repository/scenarios/resource'
 import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssembly } from './lowcode-data-space-assembler'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { ProjectWorkspace, ScenarioDefinitionRecords, ScenarioDefinitionResource, ScenarioViewConfig, DataSpaceReferenceLayoutResource, ProjectToolResource, type ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
@@ -13,8 +15,7 @@ import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from './lowcode-model-relation-adapter'
 import {createLowcodeFileResourceExecutors} from '../resources/repository/file-resource-registry'
 import {createPageToolFileResourceExecutor} from '@/services/project/page-tool-file-dataview'
-import {getBuiltinScenarioResource, isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from '../resources/repository/builtin-blueprint-node-resource'
+import {resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {registerApiModelRules,type ApiModelRuleHost} from '../resources/integration/api-management/model-rules'
 import {createCacheScenarioBindings} from '../resources/system/cache-management/runtime-bindings'
 import {registerNavigationHostModelRules} from '../resources/system/navigation-host/model-rules'
@@ -46,7 +47,16 @@ export type LoadScenarioDataSetInput = Readonly<{
  assertCurrent?: () => void
  /** 本次原页面宿主，仅供明确跨空间引用校验按需访问；不会在装配时读取。 */
  getPage?: ApiModelRuleHost['getPage']
+ /** 请求作用域对应的数据空间入口；省略时为当前选中应用。 */
+ dataSpace?: DataSpaceApi
 }>
+
+/** 执行项目对应的请求作用域：应用目录（企业级、平台级）只带登录身份，其它为当前选中应用。 */
+function executionScopeOf(projectId: string): Readonly<{dataSpace: DataSpaceApi; readScope: () => ReturnType<typeof lowcodeApi.readRequestScope>}> {
+ return projectId === APPLICATION_CATALOG_PROJECT_ID
+  ? {dataSpace: lowcodeCatalogDataSpace, readScope: () => lowcodeApi.readAuthenticatedRequestScope()}
+  : {dataSpace: lowcodeApi.dataSpace, readScope: () => lowcodeApi.readRequestScope()}
+}
 
 type DefinitionBindingsInput = Readonly<{
   projectId: string
@@ -62,6 +72,7 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
  const scenarioId = input.scenarioId.trim()
  if (!scenarioId || input.config.scenarioId !== scenarioId) throw new Error('场景视图配置身份不一致')
  const designScenarioId = input.designScenarioId ?? DATA_SPACE_DESIGN_FORM_KEY
+ const dataSpace = input.dataSpace ?? lowcodeApi.dataSpace
  input.assertCurrent?.()
  const formalInput = {designScenarioId, dataSpaceId: scenarioId, ...(input.assertCurrent ? {assertCurrent: input.assertCurrent} : {})}
  let config = input.config
@@ -73,13 +84,13 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
    throw new Error(`SCENARIO_PROJECTION_BINDING: ${tableName} 缺少显式只读投影工厂`)
   }
  }
- let inherited: Awaited<ReturnType<typeof lowcodeApi.dataSpace.design.readRelations>> | undefined
+ let inherited: Awaited<ReturnType<DataSpaceApi['design']['readRelations']>> | undefined
  if (input.modelScope !== undefined) {
   const configuredTables = config.toJSON()['tables']
   if (!isRecord(configuredTables) || !Object.hasOwn(configuredTables, input.modelScope)) throw new Error(`场景模型表不存在: ${input.modelScope}`)
   if (config.usesNativeResourceRelations) config = config.selectModelScope(input.modelScope)
   else {
-   inherited = await lowcodeApi.dataSpace.design.readRelations(formalInput, input.metadataDataSet)
+   inherited = await dataSpace.design.readRelations(formalInput, input.metadataDataSet)
    input.assertCurrent?.()
    const bindings = new Map<string, {id: string; name: string}>()
    for (const [key, table] of Object.entries(configuredTables)) {
@@ -112,12 +123,12 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
   names.add(table['modelBinding']['modelName'])
  }
  const [space, models, relations] = await Promise.all([
-  lowcodeApi.dataSpace.design.readSpaceDefinition(formalInput, input.metadataDataSet),
-  names.size ? lowcodeApi.dataSpace.design.readModelBatch({...formalInput, metaNames: [...names]}, input.metadataDataSet) : Promise.resolve([]),
-  config.usesNativeResourceRelations ? Promise.resolve([]) : inherited !== undefined ? Promise.resolve(inherited) : lowcodeApi.dataSpace.design.readRelations(formalInput, input.metadataDataSet),
+  dataSpace.design.readSpaceDefinition(formalInput, input.metadataDataSet),
+  names.size ? dataSpace.design.readModelBatch({...formalInput, metaNames: [...names]}, input.metadataDataSet) : Promise.resolve([]),
+  config.usesNativeResourceRelations ? Promise.resolve([]) : inherited !== undefined ? Promise.resolve(inherited) : dataSpace.design.readRelations(formalInput, input.metadataDataSet),
  ])
  input.assertCurrent?.()
- const result=new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models, relations,
+ const result=new LowcodeDataSpaceAssembler(dataSpace.runtime, lowcodeHttp).assemble({config, space, models, relations,
   ...(input.fileExecutors ? {fileExecutors: input.fileExecutors} : {}),
   ...(input.projectionBindings ? {projectionBindings: input.projectionBindings} : {}),
   ...(input.commandBindings?{commandBindings:input.commandBindings}:{}),
@@ -158,17 +169,18 @@ export type AssembleLowcodeRuntimeScenarioInput = Readonly<{
 export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRuntimeScenarioInput): Promise<DataSet> {
  const {projectId, scenarioId, config, assertCurrent} = input
  if (config.scenarioId !== scenarioId) throw new Error('场景视图配置身份不一致')
- if (isBuiltinApplication(projectId) && !resolveBuiltinScenarioResource(scenarioId)) {
-  throw new Error(`BUILTIN_SCENARIO_SOURCE_MISSING: ${scenarioId} 不是已登记的系统程序场景`)
+ if (projectId === APPLICATION_CATALOG_PROJECT_ID && !resolveSystemScenarioResource(scenarioId)) {
+  throw new Error(`CATALOG_SCENARIO_SOURCE_MISSING: ${scenarioId} 不是已登记的系统场景，目录作用域不能装配`)
  }
  assertCurrent()
+ const {dataSpace, readScope} = executionScopeOf(projectId)
  const agentCreation = createAgentWorkflowCreationBindings({config,applicationId:projectId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,assertCurrent})
  const agentPublication = createAgentWorkflowPublicationBindings({config,applicationId:projectId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,assertCurrent})
- const cacheBindings = createCacheScenarioBindings({config,runtime:lowcodeApi.dataSpace.runtime,assertCurrent})
- const workflowBindings = createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent})
- const excelBindings = createExcelCatalogBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent})
+ const cacheBindings = createCacheScenarioBindings({config,runtime:dataSpace.runtime,assertCurrent})
+ const workflowBindings = createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope,assertCurrent})
+ const excelBindings = createExcelCatalogBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const recoveryBindings = createDataRecoveryScenarioBindings({config,assertCurrent})
- const result = await loadScenarioDataSet({scenarioId, config, assertCurrent,
+ const result = await loadScenarioDataSet({scenarioId, config, assertCurrent, dataSpace,
   ...agentCreation,
   ...agentPublication,
   ...cacheBindings,
@@ -201,9 +213,7 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
 /** PageRuntime 场景装配入口：身份变化或模型关系装配不完整即失败并销毁；诊断修复仍走设计会话。 */
 export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: string; scenarioId: string; getPage?:ApiModelRuleHost['getPage'] }>): Promise<DataSet> {
  const { projectId, scenarioId } = command
- if (isBuiltinApplication(projectId) && !resolveBuiltinScenarioResource(scenarioId)) {
-  throw new Error(`BUILTIN_SCENARIO_SOURCE_MISSING: ${scenarioId} 不是已登记的系统程序场景`)
- }
+ if (projectId === APPLICATION_CATALOG_PROJECT_ID) return loadCatalogRuntimeScenario(command)
  const execution = readLowcodeExecutionProject()
  if (execution.projectId !== projectId) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景请求所属应用已失效')
  const assertCurrent = execution.assertCurrent
@@ -211,6 +221,25 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: 
  const text = await createLowcodeProjectGateways(projectId).scenarioViews.readText(scenarioId)
  assertCurrent()
  if (text === null) throw new Error(`SCENARIO_VIEW_FILE_MISSING: 场景 ${scenarioId} 尚未建立视图配置`)
+ return assembleLowcodeRuntimeScenario({projectId, scenarioId, config: new ScenarioViewConfig(scenarioId, text), assertCurrent,
+  ...(command.getPage?{getPage:command.getPage}:{})})
+}
+
+/** 目录作用域（未进入应用）只装配已登记的系统场景；登录身份变化或选中应用即失效。 */
+async function loadCatalogRuntimeScenario(command: Readonly<{ projectId: string; scenarioId: string; getPage?:ApiModelRuleHost['getPage'] }>): Promise<DataSet> {
+ const {projectId, scenarioId} = command
+ const resource = resolveSystemScenarioResource(scenarioId)
+ if (!resource) throw new Error(`CATALOG_SCENARIO_SOURCE_MISSING: ${scenarioId} 不是已登记的系统场景，目录作用域不能装配`)
+ const token = lowcodeApi.readAuthenticatedRequestScope().token
+ const assertCurrent = (): void => {
+  let current: string
+  try {current = lowcodeApi.readAuthenticatedRequestScope().token}
+  catch {throw new Error('SPARK_EXECUTION_SCOPE_STALE: 目录作用域登录会话已失效')}
+  if (current !== token || lowcodeApi.application.get() !== null) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 目录作用域登录会话或应用选择已变化')
+ }
+ assertCurrent()
+ const text = await readRepositoryScenarioText(resource, assertCurrent)
+ assertCurrent()
  return assembleLowcodeRuntimeScenario({projectId, scenarioId, config: new ScenarioViewConfig(scenarioId, text), assertCurrent,
   ...(command.getPage?{getPage:command.getPage}:{})})
 }
@@ -228,23 +257,12 @@ function definitionBindings(input: DefinitionBindingsInput): Pick<LoadScenarioDa
  const catalog = isRecord(tables) ? tables['ProjectToolCatalog'] : undefined
  const hasCatalog = isRecord(catalog) && catalog['resourceType'] === ProjectToolResource.catalogResource.resourceType && catalog['resourceId'] === ProjectToolResource.catalogResource.resourceId
  const projectionBindings: Record<string,NonNullable<LoadScenarioDataSetInput['projectionBindings']>[string]> = {}
- const builtinBlueprintTable = isRecord(tables) ? tables[BUILTIN_BLUEPRINT_NODE_TABLE_NAME] : undefined
- const declaresBuiltinBlueprint = isRecord(builtinBlueprintTable) && builtinBlueprintTable['resourceType'] === 'file'
-  && builtinBlueprintTable['resourceId'] === BUILTIN_BLUEPRINT_NODE_RESOURCE_ID
- const builtinBlueprintScenario = scenarioId === getBuiltinScenarioResource('projectBlueprint').scenarioId
- if (isBuiltinApplication(projectId) && builtinBlueprintScenario && !declaresBuiltinBlueprint) {
-  throw new Error('BUILTIN_BLUEPRINT_SOURCE_MISSING: 7AB 蓝图场景未声明仓内蓝图节点 DataView')
- }
- const builtinBlueprintOwner = isBuiltinApplication(projectId) && builtinBlueprintScenario
  const registeredFileExecutors = createLowcodeFileResourceExecutors({applicationId: projectId, api: lowcodeApi.design, fileUpload: lowcodeDesignFileUpload, assertCurrent})
  const logicViewDesign = isRecord(tables) ? tables[LOGIC_VIEW_DESIGN_VIEW] : undefined
  if (isRecord(logicViewDesign) && logicViewDesign['resourceType'] === 'file' && logicViewDesign['resourceId'] === LOGIC_VIEW_DESIGN_RESOURCE_ID) {
   registeredFileExecutors[LOGIC_VIEW_DESIGN_VIEW] = createLogicViewDesignExecutor({scenarioId, http: lowcodeHttp, guard: assertCurrent,
-   readScope: () => lowcodeApi.readRequestScope()})
+   readScope: executionScopeOf(projectId).readScope})
  }
- if (declaresBuiltinBlueprint) registeredFileExecutors[BUILTIN_BLUEPRINT_NODE_TABLE_NAME] = builtinBlueprintOwner
-  ? new BuiltinBlueprintNodeResource({applicationId: projectId, scenarioId, assertCurrent}).executor
-  : {executeQuery: () => Promise.reject(new Error('BUILTIN_BLUEPRINT_IDENTITY: 当前应用不能读取 AppWorks 仓内蓝图节点'))}
  if (!declared.length && !hasReference && !hasToolFile && !hasCatalog) return {fileExecutors: registeredFileExecutors}
  const workspace = owner ?? new ProjectWorkspace({projectId, ...createLowcodeProjectGateways(projectId)})
  const executor = ScenarioDefinitionResource.forQueries({workspace, metadataScenarioId: scenarioId, assertCurrent,

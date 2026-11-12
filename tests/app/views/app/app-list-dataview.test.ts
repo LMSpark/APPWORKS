@@ -33,9 +33,6 @@ vi.mock('@spark-appworks/spark-project-model', () => ({
     dispose() { this.destroyed = true; state.disposed++ }
   },
 }))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
-  loadLowcodeRuntimeScenario: vi.fn(async () => ({scenarioId: '0C70F74793F9E858B71E0DBDEC784D57'})),
-}))
 vi.mock('@/lowcode/lowcode-application-catalog', () => ({
   loadLowcodeApplicationCatalog: state.applicationCatalogLoad,
   getFormalModelView: (dataSet: {getView: () => unknown}) => dataSet.getView(),
@@ -97,11 +94,9 @@ const RendererPageHeaderStub = defineComponent({
 const mounted: Array<{unmount: () => void}> = []
 afterEach(() => { mounted.splice(0).forEach(item => item.unmount()); state.allPages = true; state.distinct = true; state.projectId = 'APP'; state.loadedScenarioIds = []; state.rows = [{rowid: 'APP-1', AppName: 'alpha', AppDesc: 'Alpha', IsSys: 0}]; vi.clearAllMocks() })
 
-async function mountAt(path: string, blueprintScenarioId?: string) {
+async function mountAt(path: string) {
   const router = createRouter({history: createMemoryHistory(), routes: [
     {path: '/app-list', component: AppList},
-    {path: '/application-manager', component: AppList, meta: blueprintScenarioId ? {blueprintScenarioId} : {}},
-    {path: '/application-manager-next', component: AppList, meta: {blueprintScenarioId: 'SCENE-NEXT'}},
     {path: '/target', component: EmptyPage},
   ]})
   await router.push(path)
@@ -112,14 +107,6 @@ async function mountAt(path: string, blueprintScenarioId?: string) {
 }
 
 describe('AppList DataView routing', () => {
-  it('loads the formal application-manager scenario through its own DataView', async () => {
-    state.distinct = undefined
-    const {wrapper} = await mountAt('/application-manager', '0C70F74793F9E858B71E0DBDEC784D57')
-    expect(state.dataViewLoad).toHaveBeenCalledOnce()
-    expect(wrapper.get('[data-testid="scenario-list"]').attributes('data-view-key')).toBe('0C70F74793F9E858B71E0DBDEC784D57@Base_AppSystemList@default')
-    expect(wrapper.text()).toContain('Alpha')
-  })
-
   it('loads the default catalog through its formal DataView without requiring an app selection', async () => {
     state.projectId = ''
     state.rows = [{rowid: 'APP-1', AppName: 'alpha', AppDesc: 'Alpha'}]
@@ -154,43 +141,16 @@ describe('AppList DataView routing', () => {
 
   it('fails closed when the formal view does not request the full directory', async () => {
     state.allPages = false
-    const {wrapper} = await mountAt('/application-manager', '0C70F74793F9E858B71E0DBDEC784D57')
+    const {wrapper} = await mountAt('/app-list')
     expect(state.dataViewLoad).not.toHaveBeenCalled()
-    expect(state.applicationCatalogLoad).not.toHaveBeenCalled()
     expect(wrapper.get('[role="alert"]').text()).toContain('allPages')
   })
 
-  it('ignores a late read after the route switches to another scenario', async () => {
-    let finishOld: (value: {success: boolean}) => void = () => undefined
-    state.dataViewLoad.mockImplementationOnce(() => new Promise(resolve => { finishOld = resolve }))
-    const {wrapper, router} = await mountAt('/application-manager', '0C70F74793F9E858B71E0DBDEC784D57')
-    await flushPromises()
-    expect(state.dataViewLoad).toHaveBeenCalledOnce()
-    state.rows = [{rowid: 'APP-2', AppName: 'beta', AppDesc: 'Beta', IsSys: 0}]
-    await router.push('/application-manager-next')
-    await flushPromises()
-    expect(wrapper.get('[data-testid="scenario-list"]').attributes('data-view-key')).toBe('SCENE-NEXT@Base_AppSystemList@default')
-    expect(wrapper.text()).toContain('Beta')
-    finishOld({success: true})
-    await flushPromises()
-    expect(wrapper.text()).toContain('Beta')
-    expect(wrapper.text()).not.toContain('Alpha')
-  })
-
-  it('clears rows immediately on scenario switch and does not restore them on query failure', async () => {
-    let failNext: (reason: Error) => void = () => undefined
-    state.dataViewLoad.mockImplementationOnce(async () => ({success: true}))
-      .mockImplementationOnce(() => new Promise((_, reject) => { failNext = reject }))
-    const {wrapper, router} = await mountAt('/application-manager', '0C70F74793F9E858B71E0DBDEC784D57')
-    await flushPromises()
-    expect(wrapper.text()).toContain('Alpha')
-    await router.push('/application-manager-next')
-    await flushPromises()
-    expect(wrapper.text()).not.toContain('Alpha')
-    failNext(new Error('new scenario query failed'))
-    await flushPromises()
-    expect(wrapper.text()).not.toContain('Alpha')
-    expect(wrapper.get('[role="alert"]').text()).toContain('new scenario query failed')
+  it('shows the query failure instead of an empty directory', async () => {
+    state.dataViewLoad.mockImplementationOnce(async () => { throw new Error('catalog query failed') })
+    const {wrapper} = await mountAt('/app-list')
+    expect(wrapper.find('[data-testid="scenario-list"]').exists()).toBe(false)
+    expect(wrapper.get('[role="alert"]').text()).toContain('catalog query failed')
   })
 })
 

@@ -31,7 +31,7 @@ flowchart LR
   Scene --> DS["DataSet / DataView<br/>每次调用独立装配"]
 ```
 
-- **动态应用项目蓝图**的正式节点种类为 `module/page/embedded/service/content`，唯一种类表是 `spark-utils` 的 `PROJECT_BLUEPRINT_NODE_KINDS`。后端 `conType` 中 `Model/Navitem` 对应 `module/page`；未知值保留为草稿 `unknown`，不能通过正式策划完成校验。**动态运行菜单**只是蓝图经候选筛选与后台授权后的输出。AppWorks builtin 程序蓝图在仓内 `config/navigation/appworks-system.json` 保存85条完整记录及26个发布节点身份选择；运行菜单由这份来源投影，并由同一后台授权响应按节点身份过滤。本地定义不包含授权规则，当前蓝图编辑消费只读。
+- **动态应用项目蓝图**的正式节点种类为 `module/page/embedded/service/content`，唯一种类表是 `spark-utils` 的 `PROJECT_BLUEPRINT_NODE_KINDS`。后端 `conType` 中 `Model/Navitem` 对应 `module/page`；未知值保留为草稿 `unknown`，不能通过正式策划完成校验。**动态运行菜单**只是蓝图经候选筛选与后台授权后的输出。本仓系统页（平台级、企业级及每个应用末尾的“应用设计”分组）由 `config/navigation/vue-pages.json` 登记并经 `src/lowcode/system-navigation.ts` 投影，不再存在仓内 AppWorks 应用或其程序蓝图；系统场景按 `config/pages/system-scenarios.json` 登记读取仓内 pagedata。本地定义不包含授权规则。
 - 候选筛选：后端字段 `IsShowAtNav` 为 1 时，wire 层把记录标为 `runtimeNavigationCandidate`；宿主只保留"候选且授权树中存在同一 id"的节点。
 - `PageTool` 仅持有 `rule.json`、`script.js`、`style.css` 三个工具文件。四个已登记系统程序场景的 `pagedata.json` 位于仓内 `config/pages/`，由 `applications/appworks.json` 按 scenario 身份固定映射；普通动态应用消费共享 7AB 时也读取这份声明，但其动态业务模型继续由正式 DataView/权限装配。其他动态业务场景继续从各自正式 lowcode 来源读取。运行数据依据对应场景配置、正式模型和权限装配，工具不持有业务数据。
 

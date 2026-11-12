@@ -5,7 +5,7 @@
  * AI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。
  */
 /**
- * DevSystem 设计器制品：rule / pagedata 编辑器的 schema 与投影。
+ * 蓝图 设计器制品：rule / pagedata 编辑器的 schema 与投影。
  * 消费 spark-project-model 的领域类型，但不反向进入该包。
  */
 

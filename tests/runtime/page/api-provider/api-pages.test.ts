@@ -301,7 +301,7 @@ describe('external API pages assembled through the standard scenario entry', () 
   })
   it('keeps the original business path', () => {
     const path = '/features/integration/api-management/ui/api-management-page'
-    expect(getVuePageEntry(path)).toMatchObject({source: `src/views${path}.vue`, scope: 'app', shellTool: false})
+    expect(getVuePageEntry(path)).toMatchObject({source: `src/views${path}.vue`, scope: 'enterprise'})
   })
 
   it('lists providers and creates one through the create view with page events only', async () => {

@@ -2,7 +2,7 @@ import {readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {vi} from 'vitest'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
-import {resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 
 const priorSession = lowcodeApi.session.get()
 const priorApplication = lowcodeApi.application.get()
@@ -28,7 +28,7 @@ export function installRepositoryScenarioTestFetch(): void {
       return originalFetch(input, init)
     }
     const resourceId = url.searchParams.get('resourceId') ?? ''
-    const resource = resolveBuiltinScenarioResource(resourceId.replace('repository:scenario-view:', ''))
+    const resource = resolveSystemScenarioResource(resourceId.replace('repository:scenario-view:', ''))
     if (!resource || resource.resourceId !== resourceId) return new Response(null, {status: 404})
     const text = readFileSync(resolve(process.cwd(), resource.path), 'utf8')
     const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))

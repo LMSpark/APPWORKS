@@ -10,7 +10,8 @@
     "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/useFieldPermission\n职责：维护 @spark-appworks/spark-component 中 components/fields/context/useFieldPermission 的字段权限投影。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/fields/context/useFieldPermission 的声明、导出和使用边界时，从本模块开始。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "FieldPermissionProps"
+      "FieldPermissionProps",
+      "FieldMemberRef"
     ]
   },
   "$defs": {
@@ -130,11 +131,64 @@
           },
           "additionalProperties": false
         },
-        "method.toSourceValue.return": true
+        "method.toSourceValue.return": true,
+        "method.member.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.member.return": {
+          "$ref": "#/$defs/FieldMemberRef"
+        }
       }
+    },
+    "FieldMemberRef": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldMemberRef",
+      "properties": {
+        "path": {
+          "$ref": "../../../../../spark-data/src/core/data-field-member.ts.json#/$defs/DataFieldMemberPath"
+        },
+        "format": {
+          "$ref": "../../../../../spark-data/src/core/data-field-member.ts.json#/$defs/DataFieldMemberFormat"
+        }
+      },
+      "required": [
+        "path",
+        "format"
+      ],
+      "additionalProperties": false
+    },
+    "FieldMemberPropsSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldMemberPropsSource",
+      "properties": {
+        "valuePath": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "valueFormat": {
+          "enum": [
+            "text",
+            "native"
+          ]
+        }
+      },
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-07T17:19:21.528Z",
+  "generatedAt": "2026-11-12T20:55:37.300Z",
   "models": {
     "FieldPermissionProps": {
       "name": "FieldPermissionProps",
@@ -182,7 +236,7 @@
       "jsdoc": "Use Field Permission Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 选项字段共享的值绑定上下文。 */\n    binding?: ReturnType<typeof useActiveFieldRow>;\n    /** 组件属性集合。 */\n    props: FieldPermissionProps<TValue>;\n    /** 类型标识。 */\n    type: string;\n    /** fallback Value 字段。 */\n    fallbackValue: TValue;\n    /** format Display 回调。 */\n    formatDisplay?: (value: unknown) => string;\n    /**\n     * 运行时类型校正函数。\n     *\n     * `sourceFieldValue` 从行数据中读取的原始值类型不可控（DataSet 行数据是 `unknown`），\n     * 此函数在赋给 `fieldValue` 之前统一做类型校正，避免非预期类型（如 boolean false）\n     * 流入 el-input / el-input-number 等的 :model-value，从而消除 Vue runtime prop 警告。\n     *\n     * 注意：仅对来自行数据的值应用；`props.modelValue` 显式传入时直接使用（调用方负责类型正确性）。\n     */\n    coerce: (rawValue: unknown) => TValue;\n    /** 控件值写入数据字段前的显式格式转换，仍经过当前字段权限。 */\n    toSourceValue?: (value: TValue) => unknown;\n}",
+        "declarationTypeText": "{\n    /** 选项字段共享的值绑定上下文。 */\n    binding?: ReturnType<typeof useActiveFieldRow>;\n    /** 组件属性集合。 */\n    props: FieldPermissionProps<TValue>;\n    /** 类型标识。 */\n    type: string;\n    /** fallback Value 字段。 */\n    fallbackValue: TValue;\n    /** format Display 回调。 */\n    formatDisplay?: (value: unknown) => string;\n    /**\n     * 运行时类型校正函数。\n     *\n     * `sourceFieldValue` 从行数据中读取的原始值类型不可控（DataSet 行数据是 `unknown`），\n     * 此函数在赋给 `fieldValue` 之前统一做类型校正，避免非预期类型（如 boolean false）\n     * 流入 el-input / el-input-number 等的 :model-value，从而消除 Vue runtime prop 警告。\n     *\n     * 注意：仅对来自行数据的值应用；`props.modelValue` 显式传入时直接使用（调用方负责类型正确性）。\n     */\n    coerce: (rawValue: unknown) => TValue;\n    /** 控件值写入数据字段前的显式格式转换，仍经过当前字段权限。 */\n    toSourceValue?: (value: TValue) => unknown;\n    /** 绑定源字段内的 JSON 成员；读写只换算该成员，权限、编辑追踪与保存仍以源字段为准。 */\n    member?: () => FieldMemberRef | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -263,9 +317,67 @@
                 "type": "intrinsic",
                 "name": "unknown"
               }
+            },
+            {
+              "name": "member",
+              "jsdoc": "绑定源字段内的 JSON 成员；读写只换算该成员，权限、编辑追踪与保存仍以源字段为准。",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "FieldMemberRef",
+                  "sourcePath": "packages/spark-component/src/components/fields/context/useFieldPermission.ts"
+                }
+              }
             }
           ]
         }
+      }
+    },
+    "FieldMemberRef": {
+      "name": "FieldMemberRef",
+      "jsdoc": "源字段内 JSON 成员的定位。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    path: DataFieldMemberPath;\n    format: DataFieldMemberFormat;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    path: DataFieldMemberPath;\n    format: DataFieldMemberFormat;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "format",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FieldMemberPropsSource": {
+      "name": "FieldMemberPropsSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    [K in keyof SparkFieldMemberProps]?: SparkFieldMemberProps[K] | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    [K in keyof SparkFieldMemberProps]?: SparkFieldMemberProps[K] | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
       }
     }
   }

@@ -6,11 +6,10 @@
 import type {LowcodeApplication} from '@spark-appworks/spark-lowcode-api'
 import {DataViewFilter, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {DataSpaceApi} from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDataSpaceAssembler} from './data-space/lowcode-data-space-assembler'
 import {LowcodeModelRelationAdapter} from './data-space/lowcode-model-relation-adapter'
-import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {lowcodeApi, lowcodeHttp} from './lowcode-runtime'
+import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
+import {lowcodeApi, lowcodeCatalogDataSpace, lowcodeHttp} from './lowcode-runtime'
 import {readRepositoryScenarioText} from './resources/repository/scenarios/resource'
 
 const APPLICATION_CATALOG_SCENARIO = 'projectBlueprint'
@@ -35,14 +34,14 @@ function captureAuthenticatedScope(assertCallerCurrent: () => void): () => void 
   return assertCurrent
 }
 
-/** Load a model's declared view from the builtin catalog scenario through the shared assembler. */
+/** Load a model's declared view from a system catalog scenario through the shared assembler. */
 async function loadCatalogDataSet(modelName: string, scenarioName: 'dataSpaceCatalog' | 'projectBlueprint', assertCallerCurrent: () => void): Promise<DataSet> {
   const assertCurrent = captureAuthenticatedScope(assertCallerCurrent)
-  const resource = getBuiltinScenarioResource(scenarioName)
+  const resource = getSystemScenarioResource(scenarioName)
   const text = await readRepositoryScenarioText(resource, assertCurrent)
   const sourceConfig = new ScenarioViewConfig(resource.scenarioId, text)
-  const api = new DataSpaceApi({http: lowcodeHttp, readScope: () => lowcodeApi.readAuthenticatedRequestScope()})
-  const input = {designScenarioId: getBuiltinScenarioResource('dataSpaceDesign').scenarioId,
+  const api = lowcodeCatalogDataSpace
+  const input = {designScenarioId: getSystemScenarioResource('dataSpaceDesign').scenarioId,
     dataSpaceId: resource.scenarioId, assertCurrent}
   try {
     const relations = await api.design.readRelations(input)

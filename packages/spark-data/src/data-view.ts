@@ -45,6 +45,7 @@ import type { CrudService } from './strategies/crud/crud-service'
 import type { DataValidator } from './validation/validation'
 import { Logger, toErrorMessage, toError, isRecord } from '@spark-appworks/spark-utils'
 import { createEventEmitter } from './core/event-emitter'
+import { DataFieldMember, type DataFieldMemberEdit, type DataFieldMemberRef } from './core/data-field-member'
 import { isDataRow } from './core/data-row-guards'
 import { assertNoSeparator } from './core/utils'
 import { CrudDelegate } from './strategies/crud/crud-delegate'
@@ -2805,6 +2806,37 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     }
     this.emitEditingChanged(event)
     return editingRow
+  }
+
+  /**
+   * 读取行内 JSON 源字段的一个成员；源字段为空时成员视为缺失。
+   *
+   * @param row 当前视图行或编辑态行。
+   * @param member 源字段、成员路径与存储格式。
+   * @returns 成员值；缺失的对象成员返回 undefined。
+   * @throws 源字段不是 JSON 容器或路径父级不存在时失败，不吞掉畸形原值。
+   * @remarks 只读取已返回的源字段值，不判断读取权限；隐藏或脱敏由调用方按源字段的 fieldAccess 处理。
+   */
+  readFieldMember(row: Readonly<DataRow>, member: DataFieldMemberRef): unknown {
+    return DataFieldMember.read(row[member.field], member)
+  }
+
+  /**
+   * 将一个 JSON 成员的修改合并回源字段的编辑态，保留源字段其它成员。
+   *
+   * @param id 目标行主键值。
+   * @param edit 源字段、成员路径、存储格式与新值；value 为 undefined 时移除对象成员。
+   * @returns 合并后的编辑态行。
+   * @remarks 合并结果经 updateEditingValue 写入，编辑追踪、取消、字段权限与保存差异均沿源字段；不检查写权限，调用方须先核对源字段 fieldAccess。
+   */
+  updateEditingMember(id: string | number, edit: DataFieldMemberEdit): DataRow {
+    this.assertResultWritable()
+    const sourceRow = this.getRowById(id)
+    if (!sourceRow) throw new Error(`updateEditingMember: 行不存在 [${this.tableName}@${this.viewId}] id=${String(id)}`)
+    const current = (this.getEditingRow(id) ?? sourceRow)[edit.field]
+    const original = (this._editingOriginalRows.get(id) ?? sourceRow)[edit.field]
+    const next = DataFieldMember.merge(current, edit)
+    return this.updateEditingValue(id, edit.field, DataFieldMember.equivalent(next, original, edit.format) ? original : next)
   }
 
   /**

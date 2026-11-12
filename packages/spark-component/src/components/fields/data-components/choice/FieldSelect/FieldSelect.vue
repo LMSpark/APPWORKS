@@ -52,6 +52,7 @@ import {computed} from 'vue'
 import {useFormDisabled} from 'element-plus'
 import {DataMember, type DataRow} from '@spark-appworks/spark-data'
 import { useOptionFieldState } from '../../composables/state/useOptionFieldState'
+import { fieldMemberFromProps } from '../../../context/useFieldPermission'
 import { emitFieldValueUpdate, useControlledFieldChange, type FieldValueUpdateEmits } from '../../composables/value/useControlledFieldChange'
 import { coercePrimitiveOptionValue } from '../../composables/value/fieldValueCoercion'
 import FieldContextRenderer from '../../../non-data-components/FieldContextRenderer.vue'
@@ -78,6 +79,7 @@ const {
   fieldType: 'r-select',
   fallbackValue: '',
   coerce: coercePrimitiveOptionValue,
+  member: fieldMemberFromProps(props),
   emitUpdate: value => emitFieldValueUpdate(emit, value),
 })
 const {options} = permission

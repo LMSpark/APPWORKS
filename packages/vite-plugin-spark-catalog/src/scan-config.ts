@@ -36,8 +36,8 @@ export const COMPONENT_EXCLUDE_PATTERNS = [
   '**/*.test.vue',
   '**/*.spec.vue',
   '**/__tests__/**',
-  // dev-system 是设计器内部工具，不参与运行时自动注册扫描。
-  '**/src/views/app/dev-system/**/*.vue',
+  // 项目蓝图的设计器内部组件不参与运行时自动注册扫描。
+  '**/src/views/features/application/application-function-management/ui/{blueprint-data-space,blueprint-planning,blueprint-state,page-design}/**/*.vue',
   // 迁移页按参考仓路径保留 index.vue 入口，由 vue-page-registry 按路径懒加载，不作为同名组件注册。
   '**/src/views/**/index.vue',
 ] as const

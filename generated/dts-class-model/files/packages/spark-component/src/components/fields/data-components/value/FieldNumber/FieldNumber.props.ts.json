@@ -57,11 +57,11 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T11:06:06.257Z",
+  "generatedAt": "2026-11-12T20:41:26.846Z",
   "models": {
     "RNumberProps": {
       "name": "RNumberProps",
-      "jsdoc": "RNumber Props 的属性契约。",
+      "jsdoc": "RNumber Props 的属性契约；valuePath 时编辑源字段内的数值成员，区间筛选不适用。",
       "declarationKind": "typeAlias",
       "component": {
         "name": "FieldNumber",
@@ -71,7 +71,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkRangeNumericFieldProps<number | [number | undefined, number | undefined]> & {\n    /** 增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。 */\n    step?: number;\n    /** 增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。 */\n    controlsPosition?: '' | 'right';\n    /** 数值展示与写回时使用的小数精度。 */\n    precision?: number;\n    /** 表格中直接显示逐行数字输入，默认false；优先于editOnDblclick，绑定原DataView单元格，不移动当前行。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkRangeNumericFieldProps<number | [number | undefined, number | undefined]> & SparkFieldMemberProps & {\n    /** 增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。 */\n    step?: number;\n    /** 增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。 */\n    controlsPosition?: '' | 'right';\n    /** 数值展示与写回时使用的小数精度。 */\n    precision?: number;\n    /** 表格中直接显示逐行数字输入，默认false；优先于editOnDblclick，绑定原DataView单元格，不移动当前行。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -82,6 +82,11 @@
             "kind": "intersection",
             "typeText": "SparkRangeNumericFieldProps<number | [number | undefined, number | undefined]>",
             "targetName": "SparkRangeNumericFieldProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkFieldMemberProps",
+            "targetName": "SparkFieldMemberProps"
           },
           {
             "kind": "intersection",

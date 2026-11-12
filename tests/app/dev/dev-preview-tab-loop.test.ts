@@ -3,7 +3,7 @@ import {resolve} from 'node:path'
 import { mount, flushPromises } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import DevPreviewTab from '@/views/app/dev-system/DevPreviewTab.vue'
+import DevPreviewTab from '@/views/features/application/application-function-management/ui/page-design/DevPreviewTab.vue'
 import { createDevStateWithConfigPages, isolateAppProjectWorkspaceForTest } from './dev-state-test-fixture'
 import { DataSet, type DataRow } from '@spark-appworks/spark-data'
 import { PageRuntime } from '@spark-appworks/spark-project-model'
@@ -86,7 +86,7 @@ function restoreLowcodeContext(){
 
 describe('DevPreviewTab live refresh', () => {
   it('hosts the preview runtime through the shared native session', () => {
-    const source = readFileSync(resolve(process.cwd(), 'src/views/app/dev-system/DevPreviewTab.vue'), 'utf8')
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/application/application-function-management/ui/page-design/DevPreviewTab.vue'), 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')
     expect(source).toContain('previewSession.isCurrent(runtime)')
     expect(source).not.toContain('new PageRuntime')

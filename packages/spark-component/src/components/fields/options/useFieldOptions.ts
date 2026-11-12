@@ -13,7 +13,7 @@ import { isRecord } from '@spark-appworks/spark-utils'
 import { useFieldCascadeOptions } from './useFieldCascadeOptions'
 import {useActiveFieldRow} from '../context/row/useActiveFieldRow'
 import { useFieldPermission } from '../context/useFieldPermission'
-import type { FieldPermissionProps } from '../context/useFieldPermission'
+import type { FieldMemberRef, FieldPermissionProps } from '../context/useFieldPermission'
 import type { FieldComposableProps } from '../context/field-composable-props'
 import { buildOptionSourceFromView } from './option-source.js'
 import { useDataViewEventBridge } from '../../containers/runtime/useDataViewEventBridge'
@@ -95,7 +95,9 @@ fallbackValue: TValue
     /** coerce 回调。 */
 coerce: (rawValue: unknown) => TValue
     /** format Display 回调。 */
-formatDisplay?: (value: unknown, helpers: UseFieldOptionsReturn) => string}
+formatDisplay?: (value: unknown, helpers: UseFieldOptionsReturn) => string
+  /** 绑定源字段内 JSON 成员；记录选择模式不适用。 */
+  member?: () => FieldMemberRef | undefined}
 
 const NUMERIC_COLUMN_TYPES = new Set(['number', 'int', 'integer', 'tinyint', 'smallint', 'bigint', 'decimal', 'float', 'double'])
 
@@ -425,6 +427,7 @@ export function useOptionField<TValue>(options: UseOptionFieldOptions<TValue>) {
     coerce: value => options.coerce(optionHelpers.toControlValue(value,
       Array.isArray(options.fallbackValue) || options.props.multiple === true)),
     toSourceValue: optionHelpers.toSourceValue,
+    ...(options.member !== undefined ? {member: options.member} : {}),
     formatDisplay: (value: unknown) => options.formatDisplay
       ? options.formatDisplay(value, optionHelpers)
       : optionHelpers.formatOptionValue(value),

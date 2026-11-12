@@ -10,6 +10,7 @@ import { useFieldControlState } from './useFieldControlState'
 import { useOptionField } from '../../../options/useFieldOptions'
 import type { useFieldOptions } from '../../../options/useFieldOptions'
 import type { FieldComposableProps } from '../../../context/field-composable-props'
+import type { FieldMemberRef } from '../../../context/useFieldPermission'
 
 /** 选项类字段组件共享的受控值和选项 props。 */
 export type OptionFieldStateProps<TValue> = FieldComposableProps<Omit<SparkOptionFieldProps<TValue>, 'modelValue' | 'value' | 'options'>> & {
@@ -35,6 +36,8 @@ type UseOptionFieldStateOptions<TValue> = {
   coerce: (rawValue: unknown) => TValue
   /** 自定义当前值展示文本。 */
   formatDisplay?: (value: unknown, helpers: ReturnType<typeof useFieldOptions>) => string
+  /** 绑定源字段内 JSON 成员；仅由声明 valuePath 成员语义的组件传入。 */
+  member?: () => FieldMemberRef | undefined
 }
 
 export function useOptionFieldState<TValue>(options: UseOptionFieldStateOptions<TValue>) {
@@ -43,6 +46,7 @@ export function useOptionFieldState<TValue>(options: UseOptionFieldStateOptions<
     type: options.fieldType,
     fallbackValue: options.fallbackValue,
     coerce: options.coerce,
+    ...(options.member !== undefined ? {member: options.member} : {}),
     ...(options.formatDisplay !== undefined ? { formatDisplay: options.formatDisplay } : {}),
   })
 

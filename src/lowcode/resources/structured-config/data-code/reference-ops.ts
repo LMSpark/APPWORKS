@@ -5,13 +5,13 @@
  * AI用途：引用表选择弹窗确认时复用，保持来源身份、字段读取与目标写入责任清晰。
  */
 import {buildDataViewKey, RequestState, resolveDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
 export type CodeTableSelection = Readonly<{TableRowid: string; TableName: string; TextFieldName: string; ValueFieldName: string; description: string}>
 export type CodeStoredReference = Readonly<{tableId: string; tableName: string; textField: string; valueField: string}>
 type CodeStoredReferenceRestore = Readonly<{dataSet: DataSet; reference: CodeStoredReference; kind: 'class' | 'business'; check: () => void}>
 type SelectedSource = Readonly<{view: DataView; row: DataRow; projected: DataRow}>
 function sourceView(dataSet: DataSet, model: string, viewId = 'default'): DataView {
-  const scenarioId = getBuiltinScenarioResource('businessTableSelector').scenarioId
+  const scenarioId = getSystemScenarioResource('businessTableSelector').scenarioId
   if (dataSet.scenarioId !== scenarioId || dataSet.destroyed) throw new Error('引用来源空间身份不匹配')
   const view = resolveDataViewKey(buildDataViewKey(model, viewId, scenarioId), dataSet)
   if (view?.primaryKey !== 'rowid' || view.dataTable?.modelBinding?.modelName !== model) throw new Error('引用来源视图缺失或身份不匹配')
@@ -38,7 +38,7 @@ function visible(source: SelectedSource, field: string, optional = false): strin
 /** 读取当前编辑覆盖，不将未保存的显示字段或来源应用当作已存引用。 */
 export function readCodeStoredReference(view: DataView, kind: 'class' | 'business'): CodeStoredReference | undefined {
   const model = kind === 'business' ? 'Base_CodeDesign' : 'Base_CodeClassTable', row = view.currentRow
-  if (view.dataSet?.scenarioId !== getBuiltinScenarioResource('dataCodeEditor').scenarioId || view.dataTable?.modelBinding?.modelName !== model || !row) {
+  if (view.dataSet?.scenarioId !== getSystemScenarioResource('dataCodeEditor').scenarioId || view.dataTable?.modelBinding?.modelName !== model || !row) {
     throw new Error('编码引用目标不存在或身份不匹配')
   }
   const id = view.getPkKey(row)
@@ -145,7 +145,7 @@ export function applyCodeBusinessTable(view: DataView, designId: string | number
 }
 function applyCodeMapping(view: DataView, target: {id: string | number; modelName: string}, mapping: Readonly<Record<string, string>>): void {
   const row = view.currentRow
-  if (view.dataSet?.scenarioId !== getBuiltinScenarioResource('dataCodeEditor').scenarioId || view.dataTable?.modelBinding?.modelName !== target.modelName
+  if (view.dataSet?.scenarioId !== getSystemScenarioResource('dataCodeEditor').scenarioId || view.dataTable?.modelBinding?.modelName !== target.modelName
     || !row || view.getPkKey(row) !== target.id || view.hasUnconfirmedSave || view.mutating) throw new Error('编码映射目标已改变或保存未确认')
   const fields = Object.keys(mapping)
   for (const field of fields) {

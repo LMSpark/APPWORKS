@@ -5,11 +5,10 @@ import { defineComponent, effectScope, h, nextTick, watchEffect } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import { FieldSelect, FieldText, PAGE_RUNTIME, RendererButton, Spark, useSparkComponent } from '@spark-appworks/spark-component'
-import NodeTargetConfig from '@/views/app/dev-system/components/NodeTargetConfig.vue'
 import {getVuePageOptions} from '@/registries/vue-page-registry'
 import { DataSet, DataViewSaveNotAppliedError, type DataRow } from '@spark-appworks/spark-data'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
-import { useDevState } from '@/views/app/dev-system/useDevState'
+import { useDevState } from '@/views/features/application/application-function-management/ui/blueprint-state/useDevState'
 import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import {
   createDevStateWithConfigPages,
@@ -26,8 +25,6 @@ import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shel
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import {guardPageDesignEditor} from '@/services/page-design/page-design-operation-guard'
 import {readPageDesignRunContext} from '@/services/page-design/page-design-gates'
-import { getBuiltinScenarioResource } from '@/registries/builtin-application-registry'
-import { BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource } from '@/lowcode/resources/repository/builtin-blueprint-node-resource'
 import applicationPageData from '../../../config/pages/application/project-blueprint/pagedata.json'
 
 const httpFns = vi.hoisted(() => ({
@@ -53,11 +50,6 @@ const navTreeState = vi.hoisted(() => ({
 const blueprintRuntime = vi.hoisted(() => ({load:vi.fn()}))
 const blueprintRuntimeTrees = new Map<string,ProjectBlueprintTreeData>()
 const DATA_SPACE_CATALOG_SCENARIO_ID='90A82E287930A234FEC3E687C94A93EA'
-const builtinBlueprintRecords=JSON.parse(readFileSync('notes/evidence/workbench-tool-mapping-20261029/builtin-blueprint-business-records.json','utf8')) as {
-  applicationId:string
-  businessFields:string[]
-  rows:Array<Record<string,unknown>>
-}
 function createDataSpaceCatalogRuntimeDataSet(){
   return DataSet.fromJson({scenarioId:DATA_SPACE_CATALOG_SCENARIO_ID,tables:{Base_DataSet:{
     modelBinding:{modelId:`${DATA_SPACE_CATALOG_SCENARIO_ID}catalog`,modelName:'Base_DataSet'},
@@ -221,12 +213,7 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
     modelBinding:{modelId:`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}p000`,modelName:'Base_NavigationInfo'},
     columns:fields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid',...(access.requiredFields?.includes(name)?{required:true}:{})})),views:{default:{autoLoad:false}},
   }}
-  const builtinScenarioId=getBuiltinScenarioResource('projectBlueprint').scenarioId
-  if(projectId===builtinBlueprintRecords.applicationId)tables[BUILTIN_BLUEPRINT_NODE_TABLE_NAME]={
-    resourceType:'file',resourceId:BUILTIN_BLUEPRINT_NODE_RESOURCE_ID,
-    columns:builtinBlueprintRecords.businessFields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid'})),views:{default:{autoLoad:false}},
-  }
-  const dataSet=DataSet.fromJson({scenarioId:projectId===builtinBlueprintRecords.applicationId?builtinScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,tables})
+  const dataSet=DataSet.fromJson({scenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,tables})
   let allPagesRequested=false
   let queryCount=0
   const hiddenFields=new Set(access.hiddenFields??[]),readonlyFields=new Set(access.readonlyFields??[])
@@ -305,10 +292,6 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
     },
     save,hasUnconfirmedSave:()=>unknownReceipt,
   })
-  if(projectId===builtinBlueprintRecords.applicationId){
-    const repositoryView=dataSet.getView(BUILTIN_BLUEPRINT_NODE_TABLE_NAME)!
-    new BuiltinBlueprintNodeResource({applicationId:projectId,scenarioId:builtinScenarioId,assertCurrent:()=>undefined}).bind(repositoryView)
-  }
   return {dataSet,readAllPages:()=>allPagesRequested,readQueryCount:()=>queryCount,save}
 }
 
@@ -385,7 +368,7 @@ function isErrorLike(value: unknown): value is { status?: unknown; response?: { 
 
 describe('DevState 页面文件闭环', () => {
   it('hosts the blueprint workspace through the shared native session', () => {
-    const source = readFileSync(resolve(process.cwd(), 'src/views/app/dev-system/useDevState.ts'), 'utf8')
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts'), 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')
     expect(source).toContain('runtimeSession.isCurrent(runtime)')
     expect(source).not.toContain('new PageRuntime')
@@ -512,35 +495,7 @@ describe('DevState 页面文件闭环', () => {
     } finally { scope.stop() }
   })
 
-  it('builtin Dev 主树使用完整仓内记录且不查询冲突的 Base_NavigationInfo 数据库树',async()=>{
-    const applicationId=builtinBlueprintRecords.applicationId
-    const conflict=blueprintRoot([{...node('DB-CONFLICT','数据库冲突节点','cfg:db-conflict',applicationId)}],applicationId)
-    conflict.nodeId=applicationId
-    conflict.parentNodeId='000000'
-    conflict.capability.name='数据库冲突根'
-    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
-    try{
-      await state.openEditingProject({projectId:applicationId},{force:true})
-      const fixture=createBlueprintRuntimeDataSet(applicationId,conflict)
-      blueprintRuntime.load.mockImplementation(async ({scenarioId}:{scenarioId:string})=>
-        scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID?createDataSpaceCatalogRuntimeDataSet()
-          :scenarioId===LowcodeDictionary.editorScenarioId?createDictionaryRuntimeDataSet():fixture.dataSet)
-      const owner=await state.loadBlueprintWorkspaceDataView()
-      const tree=await owner.loadProjectTree()
-      const nodes:ProjectBlueprintTreeNodeData[]=[]
-      const collect=(item:ProjectBlueprintTreeNodeData):void=>{nodes.push(item);item.children?.forEach(collect)}
-      collect(tree)
-      expect.soft(fixture.readQueryCount()).toBe(0)
-      expect.soft(nodes).toHaveLength(builtinBlueprintRecords.rows.length)
-      expect.soft(new Set(nodes.map(item=>item.nodeId))).toEqual(new Set(builtinBlueprintRecords.rows.map(row=>String(row['rowid']))))
-      expect.soft(owner.view.rows.find(row=>row['rowid']===applicationId)).toMatchObject({
-        rowid:applicationId,SysId:applicationId,name:builtinBlueprintRecords.rows.find(row=>row['rowid']===applicationId)?.['name'],
-        conType:builtinBlueprintRecords.rows.find(row=>row['rowid']===applicationId)?.['conType'],
-      })
-    }finally{ownerScope.stop()}
-  })
-
-  it('完整7AB场景含仓内节点声明时动态Dev仍沿正式Base_NavigationInfo查询保存',async()=>{
+  it('完整7AB场景沿正式Base_NavigationInfo查询保存',async()=>{
     const fixture=createDynamicBlueprintDataSetFromFullScenario()
     const owner=new BlueprintWorkspaceDataView(fixture.dataSet,'APP-A',()=>undefined)
     try{
@@ -553,7 +508,6 @@ describe('DevState 页面文件闭环', () => {
       await owner.save()
       expect(fixture.save).toHaveBeenCalledOnce()
       expect(owner.value('memo')).toBe('dynamic owner saved')
-      expect(fixture.dataSet.getTable(BUILTIN_BLUEPRINT_NODE_TABLE_NAME)?.resourceId).toBe(BUILTIN_BLUEPRINT_NODE_RESOURCE_ID)
     }finally{owner.dispose();fixture.dataSet.destroy()}
   })
 
@@ -953,7 +907,7 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
-  it('批次已受理但正式回读失败时仍阻止 DevSystem 项目切换',async()=>{
+  it('批次已受理但正式回读失败时仍阻止 蓝图 项目切换',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
@@ -972,7 +926,7 @@ describe('DevState 页面文件闭环', () => {
       expect(fixture.save).toHaveBeenCalledTimes(1)
       expect(owner.hasUnconfirmedSave).toBe(false)
       expect(owner.hasPendingBlueprintCommand).toBe(true)
-      expect(state.hasPendingDevSystemWrite()).toBe(true)
+      expect(state.hasPendingBlueprintWrite()).toBe(true)
       expect(await state.openEditingProject({projectId:'APP-B'},{force:true})).toBe(false)
       expect(state.blueprintWorkspaceDataView.value?.projectId).toBe('APP-A')
     }finally{ownerScope.stop()}
@@ -1120,7 +1074,7 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
-  it('工作台 Save All 在同一 owner 内恢复未知子行命令并清除专属待处理状态',async()=>{
+  it('蓝图核验待定提交 在同一 owner 内恢复未知子行命令并清除专属待处理状态',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true)
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
@@ -1150,7 +1104,7 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
-  it('子行回执核验为全未应用后 Save All 保留原ID并安全重试同一批',async()=>{
+  it('子行回执核验为全未应用后 核验待定提交 保留原ID并安全重试同一批',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true,false,0,false)
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
@@ -1176,7 +1130,7 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
-  it('子行待核验父身份不可读或不匹配时 Save All 拒绝并保留原命令',async()=>{
+  it('子行待核验父身份不可读或不匹配时 核验待定提交 拒绝并保留原命令',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true)
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
@@ -1275,166 +1229,6 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
-  it('target UI binds candidate choices to the current runtime DataView without changing the navigation query',async()=>{
-    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([
-      node('CHILD-A','Child','','APP-A'),node('EXISTING','Existing tool','cfg:existing-tool','APP-A'),
-      node('EXISTING-ALIAS','Second entry','cfg:existing-tool','APP-A'),
-    ],'APP-A'))
-    mockBlueprintScenarioFixture(fixture.dataSet)
-    const scope=effectScope(),state=scope.run(()=>useDevState())!
-    await state.openEditingProject({projectId:'APP-A'},{force:true})
-    await state.selectNode(state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!)
-    pageFiles.files.set('unmounted/rule.json','[]')
-    const runtime=state.blueprintPageRuntime.value!
-    const Host=defineComponent({setup(){useSparkComponent({type:'target-test-host'}).sparkProvide(PAGE_RUNTIME,runtime);return()=>h(NodeTargetConfig,{state})}})
-    const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry:Spark.createRegistry()})]}})
-    try {
-      await flushPromises()
-      const target=wrapper.findAllComponents(FieldSelect).find(field=>field.props('dataField')==='NavigationUrl')!
-      const key=target.props('optionDataViewKey')
-      expect(key).toEqual(expect.any(String))
-      expect(key).toContain(`${fixture.dataSet.scenarioId}@`)
-      const options=runtime.resolveView(key!)
-      if(!options)throw new Error('target options view must belong to the current runtime')
-      expect(options.dataSet).toBe(fixture.dataSet)
-      expect(options.rows).toEqual(expect.arrayContaining([expect.objectContaining({value:'cfg:existing-tool',label:'工具 · Existing tool'})]))
-      expect(options.rows.filter(row=>row['value']==='cfg:existing-tool')).toHaveLength(1)
-      expect(options.rows.some(row=>row['value']==='cfg:unmounted')).toBe(false)
-      expect(options.rows).toEqual(expect.arrayContaining(getVuePageOptions().map(page=>expect.objectContaining({value:page.path,label:`页面 · ${page.title}`}))))
-      expect(options.fieldAccess(options.rows[0]!,'label').write).toBe('denied')
-      const owner=state.blueprintWorkspaceDataView.value!
-      const queryCount=fixture.readQueryCount(),row=owner.view.currentRow,query={...owner.view.queryContext}
-      await target.get('input').setValue('Existing')
-      await flushPromises()
-      expect(owner.value('NavigationUrl')).toBe('')
-      expect(owner.view.currentRow).toBe(row)
-      expect(owner.view.queryContext).toEqual(query)
-      expect(fixture.readQueryCount()).toBe(queryCount)
-      expect(owner.dirty).toBe(false)
-      expect(fixture.save).not.toHaveBeenCalled()
-      owner.view.updateEditingValue('EXISTING','FunName','Renamed tool')
-      await flushPromises()
-      expect(options.rows.find(candidate=>candidate['value']==='cfg:existing-tool')?.['label']).toBe('工具 · Renamed tool')
-      owner.view.discardPendingChanges(['EXISTING'])
-      await flushPromises()
-      expect(options.rows.find(candidate=>candidate['value']==='cfg:existing-tool')?.['label']).toBe('工具 · Existing tool')
-      const choice=target.findAllComponents({name:'ElOption'}).find(option=>option.props('value')==='cfg:existing-tool')!
-      await choice.trigger('click')
-      await flushPromises()
-      expect(owner.value('NavigationUrl')).toBe('cfg:existing-tool')
-      expect(owner.view.getEditingPatch('CHILD-A')).toMatchObject({NavigationUrl:'cfg:existing-tool'})
-      expect(state.activePageId.value).toBe('existing-tool')
-      owner.cancel()
-      expect(owner.value('NavigationUrl')).toBe('')
-      expect(fixture.save).not.toHaveBeenCalled()
-      httpFns.scopeToken='expired-target-scope'
-      try {expect(()=>options.fieldAccess(options.rows[0]!,'label')).toThrow()}
-      finally {httpFns.scopeToken='fixture-token'}
-      wrapper.unmount()
-      expect(options.destroyed).toBe(true)
-      expect(owner.view.destroyed).toBe(false)
-    } finally {if(wrapper.exists())wrapper.unmount();scope.stop()}
-  })
-
-  it('target UI creates and binds a new tool from a separate DataView input then reads persisted files and node',async()=>{
-    const fixture=createBlueprintRuntimeDataSet('APP-A')
-    mockBlueprintScenarioFixture(fixture.dataSet)
-    const scope=effectScope(),state=scope.run(()=>useDevState())!
-    await state.openEditingProject({projectId:'APP-A'},{force:true})
-    await state.selectNode(state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!)
-    const runtime=state.blueprintPageRuntime.value!
-    const Host=defineComponent({setup(){useSparkComponent({type:'target-create-test-host'}).sparkProvide(PAGE_RUNTIME,runtime);return()=>h(NodeTargetConfig,{state})}})
-    const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry:Spark.createRegistry()})]}})
-    try {
-      await flushPromises()
-      const input=wrapper.findAllComponents(FieldText).find(field=>field.props('dataField')==='newToolId')
-      expect(input,'new tool ID needs an independent bound command input').toBeDefined()
-      await input!.get('input').setValue('ui-created-tool')
-      await flushPromises()
-      const owner=state.blueprintWorkspaceDataView.value!
-      expect(owner.value('NavigationUrl')).toBe('')
-      expect(owner.dirty).toBe(false)
-      const button=wrapper.findAll('button').find(candidate=>candidate.text()==='创建并绑定工具')!
-      expect(button.attributes('disabled')).toBeUndefined()
-      await button.trigger('click')
-      await flushPromises()
-      expect(pageFiles.upload,state.statusMessages.value.map(message=>message.text).join('\n')).toHaveBeenCalledTimes(3)
-      expect(owner.value('NavigationUrl')).toBe('cfg:ui-created-tool')
-      expect(owner.dirty).toBe(false)
-      const target=wrapper.findAllComponents(FieldSelect).find(field=>field.props('dataField')==='NavigationUrl')!
-      expect(runtime.resolveView(target.props('optionDataViewKey')!)?.rows).toEqual(expect.arrayContaining([expect.objectContaining({value:'cfg:ui-created-tool'})]))
-      await owner.loadProjectTree()
-      await owner.load('CHILD-A')
-      expect(owner.value('NavigationUrl')).toBe('cfg:ui-created-tool')
-      for(const fileName of ['rule.json','script.js','style.css'] as const){
-        const view=await state.loadPageToolFileDataView({pageId:'ui-created-tool',fileName})
-        expect(view.currentRow?.['text']).toBe(pageFiles.files.get(`ui-created-tool/${fileName}`))
-      }
-      expect(fixture.save.mock.calls.every(([request])=>request.changes.every(change=>change.identity.metaName==='Base_NavigationInfo'))).toBe(true)
-    } finally {wrapper.unmount();scope.stop()}
-  })
-
-  it('target UI invalidates old node callbacks and command inputs while preserving the formal navigation view',async()=>{
-    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([
-      node('CHILD-A','Child A','','APP-A'),node('CHILD-B','Child B','','APP-A'),
-    ],'APP-A'))
-    mockBlueprintScenarioFixture(fixture.dataSet)
-    const scope=effectScope(),state=scope.run(()=>useDevState())!
-    await state.openEditingProject({projectId:'APP-A'},{force:true})
-    await state.selectNode(state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!)
-    const runtime=state.blueprintPageRuntime.value!
-    const Host=defineComponent({setup(){useSparkComponent({type:'target-switch-test-host'}).sparkProvide(PAGE_RUNTIME,runtime);return()=>h(NodeTargetConfig,{state})}})
-    const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry:Spark.createRegistry()})]}})
-    try {
-      await flushPromises()
-      const oldSelect=wrapper.findAllComponents(FieldSelect).find(field=>field.props('dataField')==='NavigationUrl')!
-      const oldOptions=runtime.resolveView(oldSelect.props('optionDataViewKey')!)
-      if(!oldOptions)throw new Error('target options view must exist before switching nodes')
-      const oldChange=oldSelect.vm.$.vnode.props?.['onUpdate:modelValue'] as (value:string)=>void
-      const input=wrapper.findAllComponents(FieldText).find(field=>field.props('dataField')==='newToolId')!
-      await input.get('input').setValue('old-node-tool')
-      await flushPromises()
-      const oldCreate=wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='创建并绑定工具')!.vm.$.vnode.props?.['onClick'] as ()=>Promise<void>
-      state.externalDataViewRevision.value++
-      await flushPromises()
-      expect((input.get('input').element as HTMLInputElement).value).toBe('old-node-tool')
-      await state.selectNode(state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-B')!)
-      await flushPromises()
-      expect(oldOptions.destroyed).toBe(true)
-      const newInput=wrapper.findAllComponents(FieldText).find(field=>field.props('dataField')==='newToolId')!
-      expect((newInput.get('input').element as HTMLInputElement).value).toBe('')
-      oldChange('cfg:old-node-tool')
-      await oldCreate()
-      await flushPromises()
-      expect(pageFiles.upload).not.toHaveBeenCalled()
-      expect(state.activePageId.value).not.toBe('old-node-tool')
-      expect(state.blueprintWorkspaceDataView.value!.value('NavigationUrl')).toBe('')
-      expect(state.blueprintWorkspaceDataView.value!.view.destroyed).toBe(false)
-      expect(fixture.save).not.toHaveBeenCalled()
-    } finally {wrapper.unmount();scope.stop()}
-  })
-
-  it.each(['hidden','readonly'] as const)('target UI preserves %s target permissions when creating tools',async mode=>{
-    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,mode==='hidden'?{hiddenFields:['NavigationUrl']}:{readonlyFields:['NavigationUrl']})
-    mockBlueprintScenarioFixture(fixture.dataSet)
-    const scope=effectScope(),state=scope.run(()=>useDevState())!
-    await state.openEditingProject({projectId:'APP-A'},{force:true})
-    await state.selectNode(state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!)
-    const runtime=state.blueprintPageRuntime.value!
-    const Host=defineComponent({setup(){useSparkComponent({type:'target-permission-test-host'}).sparkProvide(PAGE_RUNTIME,runtime);return()=>h(NodeTargetConfig,{state})}})
-    const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry:Spark.createRegistry()})]}})
-    try {
-      await flushPromises()
-      const create=wrapper.findAll('button').find(button=>button.text()==='创建并绑定工具')
-      if(create)expect(create.attributes('disabled')).toBeDefined()
-      const field=wrapper.findAllComponents(FieldSelect).find(candidate=>candidate.props('dataField')==='NavigationUrl')
-      if(mode==='hidden')expect(field).toBeUndefined()
-      else expect(field!.props('readonly')).toBe(true)
-      expect(pageFiles.upload).not.toHaveBeenCalled()
-      expect(fixture.save).not.toHaveBeenCalled()
-    } finally {wrapper.unmount();scope.stop()}
-  })
-
   it('创建并绑定工具只写页面文件 owner 与节点 DataView，不调用 ProjectWorkspace 蓝图 writer',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A')
     mockBlueprintScenarioFixture(fixture.dataSet)
@@ -1524,7 +1318,7 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
-  it('文件创建回执未知时 Save All 核验原 DataView attempt 后继续创建并保存蓝图绑定',async()=>{
+  it('文件创建回执未知时 核验待定提交 核验原 DataView attempt 后继续创建并保存蓝图绑定',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A')
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
@@ -2017,7 +1811,7 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
-  it('挂载蓝图删除回执未知后 Save All 核验原节点并接续目录文件删除',async()=>{
+  it('挂载蓝图删除回执未知后 核验待定提交 核验原节点并接续目录文件删除',async()=>{
     const mounted=node('MOUNTED-UNKNOWN','未知回执挂载页','cfg:unknown-page','APP-A')
     const root=blueprintRoot([mounted],'APP-A'),fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true},true)
     mockBlueprintScenarioFixture(fixture.dataSet)
@@ -2156,7 +1950,7 @@ describe('DevState 页面文件闭环', () => {
     await expect(first.restorePageToolVersion(input)).rejects.toThrow('UI target switched')
     expect(first.readPageToolFileDataViewText('demo','script.js')).toBe('restored text')
     expect(pageFiles.files.get('demo/script.js')).toBe('restored text')
-    expect(first.hasPendingDevSystemWrite()).toBe(false)
+    expect(first.hasPendingBlueprintWrite()).toBe(false)
     firstScope.stop()
     expect(runtime.destroyed).toBe(true)
 
@@ -2170,7 +1964,7 @@ describe('DevState 页面文件闭环', () => {
       await second.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
       expect(second.readPageToolFileDataViewText('demo','script.js')).toBe('restored text')
       expect(pageFiles.files.get('demo/script.js')).toBe('restored text')
-      expect(second.hasPendingDevSystemWrite()).toBe(false)
+      expect(second.hasPendingBlueprintWrite()).toBe(false)
     }finally{secondScope.stop()}
   })
 
@@ -2273,7 +2067,7 @@ describe('DevState 页面文件闭环', () => {
     }finally{scope.stop()}
   })
 
-  it('Save All independently submits a node DataView draft and the changed file DataView only',async()=>{
+  it('核验待定提交 independently submits a node DataView draft and the changed file DataView only',async()=>{
     const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
     const fixture=createBlueprintRuntimeDataSet('APP-A',root)
     mockBlueprintScenarioFixture(fixture.dataSet)
@@ -2329,7 +2123,7 @@ describe('DevState 页面文件闭环', () => {
     }finally{scope.stop()}
   })
 
-  it('每次 AI setFileText 都先进入正式文件 DataView，并由 Save All 提交后重开读回',async()=>{
+  it('每次 AI setFileText 都先进入正式文件 DataView，并由 核验待定提交 提交后重开读回',async()=>{
     const pageNode=node('demo-node','Demo','cfg:demo','APP-A','AI planning')
     pageNode.source={implGate:'open',upstreamContractsSatisfied:true}
     const root=blueprintRoot([pageNode],'APP-A')
@@ -2397,7 +2191,7 @@ describe('DevState 页面文件闭环', () => {
     }
   })
 
-  it('AI 文件上传已接受但回读未知时，Save All 重试核验原 DataView attempt 且不重复上传',async()=>{
+  it('AI 文件上传已接受但回读未知时，核验待定提交 重试核验原 DataView attempt 且不重复上传',async()=>{
     const pageNode=node('demo-node','Demo','cfg:demo','APP-A','AI planning')
     pageNode.source={implGate:'open',upstreamContractsSatisfied:true}
     const root=blueprintRoot([pageNode],'APP-A')

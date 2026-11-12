@@ -12,7 +12,7 @@
 | Agent Workflow Designer | [`business-factory-workflow-zh-cn.md`](business-factory-workflow-zh-cn.md) |
 | 传输与会话 | [`transport-and-session-zh-cn.md`](transport-and-session-zh-cn.md) |
 | native runtime / tool loop 速查 | [`native-runtime-and-agent-flow-zh-cn.md`](native-runtime-and-agent-flow-zh-cn.md) |
-| pageDesign × DevSystem | [`pagedesign-devsystem-zh-cn.md`](pagedesign-devsystem-zh-cn.md) |
+| pageDesign × 蓝图 | [`pagedesign-devsystem-zh-cn.md`](pagedesign-devsystem-zh-cn.md) |
 
 ## 平台数据流
 

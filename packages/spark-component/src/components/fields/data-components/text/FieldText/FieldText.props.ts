@@ -4,11 +4,11 @@
  * 边界：只描述 field-level/data-field 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。
  * AI用途：生成或修订页面配置时，用本模块判断 field text 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
  */
-import type { SparkFieldSemanticProps, SparkNodeProps } from '../../../../shared-types'
+import type { SparkFieldMemberProps, SparkFieldSemanticProps, SparkNodeProps } from '../../../../shared-types'
 import type {DataRow, DataViewFilterOperator} from '@spark-appworks/spark-data'
 
-/** RText Props 的属性契约。 */
-export type RTextProps = SparkNodeProps & SparkFieldSemanticProps<string> & {
+/** RText Props 的属性契约；valuePath 时编辑源字段内的文本成员。 */
+export type RTextProps = SparkNodeProps & SparkFieldSemanticProps<string> & SparkFieldMemberProps & {
   /** 常用文本筛选在生成条件前去除首尾空白；默认保留原输入。 */
   filterTrim?: boolean
   /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */

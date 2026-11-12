@@ -4,7 +4,7 @@ import {tmpdir} from 'node:os'
 import path from 'node:path'
 import {createServer as createViteServer, normalizePath, type HotUpdateOptions, type Plugin, type ViteDevServer} from 'vite'
 import {afterEach, describe, expect, it} from 'vitest'
-import {getBuiltinApplicationDescriptor, getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {repositoryScenarioPlugin} from '../../../../tools/vite-plugin-repository-scenarios'
 
 const resource = {scenarioId: 'SCENE-1', resourceId: 'repository:scenario-view:SCENE-1', path: 'config/pages/scene/pagedata.json'}
@@ -153,7 +153,7 @@ describe('repository scenario Vite middleware', () => {
     const root = await mkdtemp(path.join(process.cwd(), '.repository-scenario-hmr-'))
     roots.push(root)
     const resources = (['dataSpaceDesign', 'dataSpaceCatalog', 'dataDictionary', 'projectBlueprint'] as const)
-      .map(name => getBuiltinScenarioResource(name))
+      .map(name => getSystemScenarioResource(name))
     const plugin = repositoryScenarioPlugin({root, resources})
     const importerPath = path.join(root, 'src', 'glob-fixture.ts')
     await mkdir(path.dirname(importerPath), {recursive: true})
@@ -166,7 +166,7 @@ describe('repository scenario Vite middleware', () => {
       await mkdir(path.dirname(file), {recursive: true})
       await writeFile(file, JSON.stringify({scenarioId: resource.scenarioId}))
     }
-    const navigationPath = path.join(root, getBuiltinApplicationDescriptor().navigation.path)
+    const navigationPath = path.join(root, 'config/navigation/vue-pages.json')
     await mkdir(path.dirname(navigationPath), {recursive: true})
     await writeFile(navigationPath, '[]')
     const server = await createViteServer({configFile: false, root, plugins: [plugin], logLevel: 'silent', server: {watch: null}})
@@ -222,7 +222,7 @@ describe('repository scenario Vite middleware', () => {
       expect(await invoke(repositoryHook, {...hookOptions, file: otherDirectory})).toBeUndefined()
     }
 
-    const navigationAbsolutePath = path.resolve(root, getBuiltinApplicationDescriptor().navigation.path)
+    const navigationAbsolutePath = path.resolve(root, 'config/navigation/vue-pages.json')
     const otherSourcePath = path.resolve(root, 'src/lowcode/lowcode-runtime.ts')
     const unchangedOptions = {type: 'update' as const, timestamp: 1, modules: [], read: () => '', server}
     expect(await invoke(repositoryHook, {...unchangedOptions, file: navigationAbsolutePath})).toBeUndefined()

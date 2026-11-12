@@ -33,12 +33,12 @@ vi.mock('@/views/features/application/application-function-management/ui/use-app
 })
 const fixtureState = vi.hoisted(() => ({current: undefined as unknown, execution: 'EXECUTION', createChild: 'disabled' as 'enabled' | 'disabled',
   patchRows: undefined as undefined | ((rows: DataRow[]) => void), dimension: undefined as undefined | (() => Promise<DataSet>),
-  catalogModels: [] as DataRow[], catalogFields: [] as DataRow[], ledgerRows: [] as DataRow[]}))
+  catalogModels: [] as DataRow[], catalogFields: [] as DataRow[], ledgerRows: [] as DataRow[], applications: undefined as DataRow[] | undefined}))
 const aiRunner = vi.hoisted(() => ({run: vi.fn<(message: string, signal?: AbortSignal) => Promise<string>>()}))
 vi.mock('@/lowcode/resources/shared/ai-data-entry-host', () => ({AiDataEntryHost: class {
   createDraftRunner() {return aiRunner}
 }}))
-vi.mock('@/views/app/dev-system/useDevState', () => ({useDevState: () => fixtureState.current,
+vi.mock('@/views/features/application/application-function-management/ui/blueprint-state/useDevState', () => ({useDevState: () => fixtureState.current,
   BLUEPRINT_NODE_STATUS_SCENARIO_ID: 'FB291E325272007AEED8921C28B93CFD',
   BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID: '0C70F74793F9E858B71E0DBDEC784D57',
   BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID: '88A4D51B01702C3856F4632E234BF34B',
@@ -49,11 +49,11 @@ vi.mock('@spark-appworks/spark-app', async importOriginal => {
 })
 // 共享的 dev-system 数据空间选择器与内容设计器另有专测；此处以替身复现其合同：暂存 conid 覆盖后发出 sceneChosen。
 const sceneChoice = vi.hoisted(() => ({next: ''}))
-vi.mock('@/views/app/dev-system/components/NodeBasicInfo.vue', async () => {
+vi.mock('@/views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding.vue', async () => {
   const {defineComponent: define, h: render} = await import('vue')
   return {default: define({
-    name: 'NodeBasicInfo',
-    props: {state: {type: Object, required: true}, sections: {type: Array, default: undefined}},
+    name: 'NodeDataSpaceBinding',
+    props: {state: {type: Object, required: true}},
     emits: ['sceneChosen'],
     setup(props, {emit}) {
       return () => render('button', {class: 'node-basic-info-stub', onClick: () => {
@@ -65,7 +65,7 @@ vi.mock('@/views/app/dev-system/components/NodeBasicInfo.vue', async () => {
     },
   })}
 })
-vi.mock('@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue', async () => {
+vi.mock('@/views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane.vue', async () => {
   const {defineComponent: define, h: render} = await import('vue')
   return {default: define({name: 'DataPlanningPane', props: {state: {type: Object, required: true}, fieldAccess: {type: Object, required: true}},
     setup: () => () => render('div', {class: 'data-planning-pane-stub'})})}
@@ -83,7 +83,7 @@ vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
 const CATALOG = LOWCODE_APPLICATION_CATALOG_FORM_KEY
 const DIMENSION = '88A4D51B01702C3856F4632E234BF34B'
 const LEDGER = '07D264520034366B1DA25CEE5358E502'
-const TARGET = 'APP-TARGET'
+const TARGET = 'EXECUTION'
 const NAVIGATION = 'BLUEPRINT-PAGE'
 const HOST_FIELDS = ['rowid', 'prowid', 'dataSetId', 'DataName', 'ValParamName', 'TextParamName', 'selectValParam', 'selectTextParam', 'selectPid']
 const NODE_FIELDS = ['rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'FunName', 'funCode', 'conType', 'NavigationUrl', 'memo', 'status',
@@ -97,7 +97,7 @@ afterEach(() => {
   disposals.splice(0).forEach(dispose => dispose())
   datasets.splice(0).forEach(dataSet => {if (!dataSet.destroyed) dataSet.destroy()})
 })
-beforeEach(() => {fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; fixtureState.patchRows = undefined; fixtureState.dimension = undefined; fixtureState.catalogModels = []; fixtureState.catalogFields = []; fixtureState.ledgerRows = []; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
+beforeEach(() => {fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; fixtureState.patchRows = undefined; fixtureState.dimension = undefined; fixtureState.catalogModels = []; fixtureState.catalogFields = []; fixtureState.ledgerRows = []; fixtureState.applications = undefined; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
 
 function matches(row: DataRow, filter: unknown, context: Readonly<Record<string, unknown>> = {}): boolean {
   if (!isDataRow(filter)) return true
@@ -317,12 +317,8 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
   let loadCount = 0
   vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => {
     const dataSet = catalogDataSet()
-    bindRows(dataSet.getView('Base_Navigation_DataRelation')!, [{
-      rowid: 'HOST-RELATION', prowid: NAVIGATION, dataSetId: CATALOG, DataName: 'Base_AppSystemList',
-      ValParamName: 'sysid', TextParamName: 'sysname', selectValParam: 'rowid', selectTextParam: 'AppName', selectPid: '',
-    }])
-    bindRows(dataSet.getView('Base_AppSystemList')!, [{rowid: TARGET, AppName: 'Designed application'}], {hidden})
-    if (++loadCount === 2 && candidateLoaded) await candidateLoaded(dataSet)
+    bindRows(dataSet.getView('Base_AppSystemList')!, fixtureState.applications ?? [{rowid: TARGET, AppName: 'Designed application'}], {hidden})
+    if (++loadCount === 1 && candidateLoaded) await candidateLoaded(dataSet)
     return dataSet
   })
   capturedPage = undefined
@@ -331,7 +327,7 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
     meta: {systemPageIdentityState: 'resolved', nodeId: NAVIGATION},
   }]})
   const path = '/apps/EXECUTION/features/application/application-function-management/ui/application-function-page'
-  await router.push({path, query: {__sparkNavigationId: NAVIGATION, sysid: TARGET, ...query}})
+  await router.push({path, query: {__sparkNavigationId: NAVIGATION, ...query}})
   await router.isReady()
   const wrapper = mount(defineComponent({render: () => h(RouterView)}), {global: {
     plugins: [router, ElementPlus],
@@ -342,13 +338,19 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
 }
 
 describe('application function page entry', () => {
-  it('resolves a configured host target separately from the execution application without requiring a node', async () => {
+  it('designs the execution application confirmed by the formal catalog without requiring a node', async () => {
     const {page, state} = await setup()
     expect(page.error.value).toBe('')
     expect(state.openEditingProject).toHaveBeenCalledWith({projectId: TARGET})
     expect(page.treeContext.value?.projectId).toBe(TARGET)
     expect(page.selectedNodeId.value).toBe('')
-    expect(vi.mocked(loadLowcodeRuntimeScenario).mock.calls.every(([command]) => command.projectId === 'EXECUTION')).toBe(true)
+    expect(vi.mocked(loadLowcodeRuntimeScenario).mock.calls.every(([command]) => command.projectId === TARGET)).toBe(true)
+  })
+
+  it('ignores a legacy sysid query instead of designing another application', async () => {
+    const {page, state} = await setup({sysid: 'ANOTHER-APP'})
+    expect(page.error.value).toBe('')
+    expect(state.openEditingProject).toHaveBeenCalledWith({projectId: TARGET})
   })
 
   it('uses the resolved formal navigation identity when an unambiguous route has no marker', async () => {
@@ -496,17 +498,18 @@ describe('application function page entry', () => {
   })
 
   it.each([
-    {sysid: '', projectId: TARGET},
-    {sysid: [TARGET, 'ANOTHER']},
-    {sysid: 'NOT-A-CANDIDATE'},
-  ])('does not substitute route or unconfigured query identities for invalid targets: %j', async query => {
-    const {page, state} = await setup(query)
-    expect(page.error.value).not.toBe('')
+    {name: 'missing', rows: []},
+    {name: 'another application', rows: [{rowid: 'ANOTHER-APP', AppName: 'Other'}]},
+    {name: 'ambiguous', rows: [{rowid: TARGET, AppName: 'A'}, {rowid: TARGET, AppName: 'B'}]},
+  ])('refuses to design when the catalog does not confirm exactly the execution application: $name', async ({rows}) => {
+    fixtureState.applications = rows
+    const {page, state} = await setup()
+    expect(page.error.value).toContain('未确认蓝图目标')
     expect(state.openEditingProject).not.toHaveBeenCalled()
     expect(page.treeContext.value).toBeUndefined()
   })
 
-  it('refuses a host candidate whose application identity cannot be read', async () => {
+  it('refuses a catalog application whose identity cannot be read', async () => {
     const {page, state} = await setup({}, ['rowid'])
     expect(page.error.value).toContain('不可读')
     expect(state.openEditingProject).not.toHaveBeenCalled()

@@ -11,7 +11,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       v-if="scenarioView && !runtimeError"
       :data-view-key="scenarioDataViewKey"
       title="返回"
-      content="应用管理"
+      content="应用列表"
       @back="router.go(-1)"
     />
 
@@ -39,17 +39,16 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 /**
  * @description 应用列表页面，以卡片网格展示已创建的项目/应用及入口；不作为 SparkNode 组件配置生成。
  */
-import { ref, shallowRef, onMounted, computed, inject, onBeforeUnmount, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, shallowRef, onMounted, computed, inject, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
-import { buildApplicationPath, parseApplicationPathScope, APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
+import { buildApplicationPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { getNavHomePath, NativePageRuntimeSession } from '@spark-appworks/spark-app'
 import { PAGE_RUNTIME, RendererList, RendererPageHeader, useSparkComponent } from '@spark-appworks/spark-component'
 import type { DataRow, DataView, SparkNode } from '@spark-appworks/spark-data'
-import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
-import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {getFormalModelView, loadLowcodeApplicationCatalog} from '@/lowcode/lowcode-application-catalog'
 
 type ProjectItem = {
@@ -59,7 +58,6 @@ type ProjectItem = {
 }
 
 const router = useRouter()
-const route = useRoute()
 const projectSwitch = inject(PROJECT_SWITCH_KEY)
 const { sparkProvide, sparkRemove } = useSparkComponent({ type: 'app-list' })
 const runtimeError = ref('')
@@ -72,10 +70,9 @@ let active = true
 let generation = 0
 let unsubscribe: (() => void) | undefined
 
-const blueprintScenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : '')
-const scenarioId = computed(() => blueprintScenarioId.value || getBuiltinScenarioResource('projectBlueprint').scenarioId)
-const scenarioViewId = computed(() => blueprintScenarioId.value ? 'default' : 'catalogApps')
-const scenarioDataViewKey = computed(() => `${scenarioId.value}@Base_AppSystemList@${scenarioViewId.value}`)
+const scenarioId = getSystemScenarioResource('projectBlueprint').scenarioId
+const scenarioViewId = 'catalogApps'
+const scenarioDataViewKey = computed(() => `${scenarioId}@Base_AppSystemList@${scenarioViewId}`)
 
 function projectFromRow(row: DataRow): ProjectItem {
   const view = scenarioView.value
@@ -123,29 +120,20 @@ const scenarioRowChildren = computed<SparkNode[]>(() => {
 
 const currentProjectId = computed(() => lowcodeApi.application.get()?.application.id ?? APPLICATION_CATALOG_PROJECT_ID)
 
-async function loadProjects() {
-  return loadScenarioProjects(scenarioId.value)
-}
-
-async function loadScenarioProjects(scenarioId: string): Promise<void> {
+async function loadProjects(): Promise<void> {
   const own = ++generation
   runtimeError.value = ''
   scenarioView.value = null
   unsubscribe?.(); unsubscribe = undefined
   session.dispose()
-  const isBlueprintScenario = Boolean(blueprintScenarioId.value)
-  const projectId = parseApplicationPathScope(route.path)?.projectId ?? ''
-  if (isBlueprintScenario && !projectId) { runtimeError.value = '应用目录页面缺少正式应用身份'; return }
   try {
-    const current = session.acquire({pageId: 'application-manager-page', scenarioIds: [scenarioId], targetId: scenarioId,
-      loadScenario: id => isBlueprintScenario
-        ? loadLowcodeRuntimeScenario({projectId, scenarioId: id})
-        : loadLowcodeApplicationCatalog()})
+    const current = session.acquire({pageId: 'app-list', scenarioIds: [scenarioId], targetId: scenarioId,
+      loadScenario: () => loadLowcodeApplicationCatalog()})
     await current.load()
     if (!active || own !== generation || !session.isCurrent(current)) return
     const loaded = current.getDataSet(scenarioId)
-    const view = loaded ? getFormalModelView(loaded, 'Base_AppSystemList', scenarioViewId.value) : undefined
-    if (!loaded || !view) throw new Error('应用目录场景缺少 Base_AppSystemList@default')
+    const view = loaded ? getFormalModelView(loaded, 'Base_AppSystemList', scenarioViewId) : undefined
+    if (!loaded || !view) throw new Error(`应用目录场景缺少 Base_AppSystemList@${scenarioViewId}`)
     if (view.queryConfig.allPages !== true) throw new Error('应用目录 DataView 必须配置 queryConfig.allPages=true，避免静默只显示第一页')
     const update = () => {
       if (!active || own !== generation) return
@@ -208,11 +196,6 @@ async function handleSwitch(project: ProjectItem) {
 onMounted(async () => {
   await loadProjects()
 })
-watch(() => route.meta['blueprintScenarioId'], () => {
-  generation++; unsubscribe?.(); unsubscribe = undefined; session.dispose(); scenarioView.value = null
-  runtimeError.value = ''
-  void loadProjects()
-}, {flush: 'sync'})
 onBeforeUnmount(() => { active = false; generation++; unsubscribe?.(); session.dispose() })
 </script>
 

@@ -255,7 +255,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-09T14:47:11.426Z",
+  "generatedAt": "2026-11-12T20:47:08.118Z",
   "models": {
     "RequestScope": {
       "name": "RequestScope",

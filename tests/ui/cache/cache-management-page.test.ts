@@ -1,5 +1,5 @@
 import {afterEach,expect,it,vi} from 'vitest'
-import {readFileSync} from 'node:fs'
+import {existsSync,readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {mount,flushPromises,config} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
@@ -132,13 +132,11 @@ it('preserves an open command across route changes and explicitly continues to t
  expect(mocks.load).toHaveBeenLastCalledWith({projectId:'OTHER',scenarioId:'348D1C50B204C779AABBE2489C5E2FDF'})
  expect(destroy).toHaveBeenCalledTimes(1);expect(next.ds.destroyed).toBe(false);expect(f.submit).not.toHaveBeenCalled()
 })
-it('routes the original cache URL to its business page while preserving the separate browser-cache utility',()=>{
+it('routes the original cache URL to its business page and keeps no separate cache tool',()=>{
  const source:unknown=JSON.parse(readFileSync('config/navigation/vue-pages.json','utf8'))
  if(!isRecord(source)||!Array.isArray(source['pages']))throw Error('Missing page registry')
  const pages=source['pages'].filter(isRecord)
  expect(pages.find(page=>page['path']==='/features/system/cache-management/ui/cache-management-page')?.['source']).toBe('src/views/features/system/cache-management/ui/cache-management-page.vue')
- expect(pages.find(page=>page['path']==='/cache-manager')?.['source']).toBe('src/views/app/CacheManager.vue')
- const utility=readFileSync(resolve(process.cwd(),'src/views/app/CacheManager.vue'),'utf8')
- expect(utility).not.toContain('lowcodeApi')
- expect(utility).not.toContain('getCacheStats')
+ expect(pages.find(page=>page['path']==='/cache-manager')).toBeUndefined()
+ expect(existsSync(resolve(process.cwd(),'src/views/app/CacheManager.vue'))).toBe(false)
 })

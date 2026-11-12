@@ -61,6 +61,7 @@ AI用途：需要理解 field number 的实际渲染结构、slot/toolbar/状态
  * @notes filterMode - 'range' 启用范围过滤模式
  */
 import { useBasicFieldState } from '../../composables/state/useBasicFieldState'
+import { fieldMemberFromProps } from '../../../context/useFieldPermission'
 import { emitFieldValueUpdate, type FieldValueUpdateEmits } from '../../composables/value/useControlledFieldChange'
 import { coerceNumberRangeValue } from '../../composables/value/fieldValueCoercion'
 import { useRangeFilterMode } from '../../composables/value/useRangeFilterMode'
@@ -93,6 +94,7 @@ const { permission, fieldCtx } = useBasicFieldState<number | [number | undefined
   fallbackValue: 0,
   formatDisplay: formatNumberValue,
   coerce: coerceNumberRangeValue,
+  member: fieldMemberFromProps(props),
   emitUpdate: value => emitFieldValueUpdate(emit, value),
 })
 

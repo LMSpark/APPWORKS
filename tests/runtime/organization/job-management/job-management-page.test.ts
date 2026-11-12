@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus, {ElSelect} from 'element-plus'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {RendererFilter, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
-import {getBuiltinScenarioResource, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {getSystemScenarioResource, resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {api, JOB_PATH, JOB_SCENARIO, resetJobFixture} from './job-management.fixture'
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
@@ -94,8 +94,8 @@ async function openDepartmentOptions(wrapper: VueWrapper) {
 
 describe('reference job page through SPARK data', () => {
   it('registers the official scenario and renders read-only job fields and data-view options', async () => {
-    const resource = getBuiltinScenarioResource('jobManagement')
-    expect(resolveBuiltinScenarioResource(JOB_SCENARIO)).toEqual(resource)
+    const resource = getSystemScenarioResource('jobManagement')
+    expect(resolveSystemScenarioResource(JOB_SCENARIO)).toEqual(resource)
     const {wrapper, observed} = await open()
     const table = wrapper.getComponent(RendererTable), {jobs, departments} = currentViews(observed)
     expect(wrapper.text()).toContain('当前租户')

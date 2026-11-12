@@ -108,11 +108,14 @@
             <h2>数据空间</h2>
             <RendererButton label="查询影响范围" :disabled="!canQueryImpact" :loading="impactLoading" @click="openImpact" />
             <RendererButton label="内容设计" :disabled="!canOpenDesign" @click="openDesign" />
+            <RendererButton label="维度来源设计" :disabled="!canOpenDimensionSource" :title="dimensionSourceReason"
+              @click="openDimensionSource" />
           </div>
           <DisplayAlert
             description="每个蓝图节点只绑定一个主数据空间；选择后若当前节点没有其他未保存修改会立即保存并回读核验，改绑前请先查询影响范围。"
             alert-type="info"
           />
+          <DisplayAlert v-if="dimensionSourceReason" :description="dimensionSourceReason" alert-type="info" />
           <NodeBasicInfo :state="state" :sections="['data-space']" @scene-chosen="bindDataSpace" />
           <DisplayAlert v-if="bindingSaving" description="正在保存数据空间绑定…" alert-type="info" />
         </template>
@@ -260,6 +263,8 @@
       <DataPlanningPane :state="state" :field-access="state.blueprintNodeFieldAccess('conid')" />
     </RendererDialog>
 
+    <ApplicationFunctionDimensionSourceDialog v-if="dimensionSourceOpen" :source="dimensionSource" />
+
     <RendererDialog v-if="deletingVersion" :model-value="true" title="删除确认" width="420px" @update:model-value="cancelDeleteVersion">
       <DisplayAlert :description="`确定要删除版本“${deletingVersion.versionName}”吗？`" alert-type="warning" />
       <template #footer>
@@ -277,6 +282,7 @@ import type { DataRow } from '@spark-appworks/spark-data'
 import { useApplicationFunctionPage } from './use-application-function-page'
 import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
+import ApplicationFunctionDimensionSourceDialog from './application-function-dimension-source-dialog.vue'
 
 const {DisplayAlert, DisplayEmpty, FieldHtmlEditor, FieldSelect, FieldText, FieldTextarea, RendererButton, RendererDialog, RendererForm, RendererList, RendererTable, RendererTree} = SparkComponent
 
@@ -328,12 +334,14 @@ const {
   ai,
   prototype,
   dataSpace,
+  dimensionSource,
 } = useApplicationFunctionPage()
 
 const {
   bindingSaving, canQueryImpact, canOpenDesign, impactOpen, impactLoading, impactError, impactTitle, impactViewKey, impactColumns,
   designOpen, bindDataSpace, openImpact, closeImpact, openDesign, closeDesign,
 } = dataSpace
+const {canOpen: canOpenDimensionSource, disabledReason: dimensionSourceReason, open: dimensionSourceOpen, openEditor: openDimensionSource} = dimensionSource
 
 const {
   treeAiOpen, treeAiRequirement, treeAiPreview, treeAiCreated, treeAiConfirming, formAiPreview, formAiPreviewItems, aiGenerating,

@@ -79,6 +79,36 @@
           "queryConfig": {
             "allPages": true
           }
+        },
+        "byNode": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {
+                "field": "source_application_id",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "applicationId"
+                }
+              },
+              {
+                "field": "source_node_id",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "nodeId"
+                }
+              }
+            ]
+          },
+          "queryConfig": {
+            "allPages": true
+          }
         }
       }
     },
@@ -148,6 +178,29 @@
               "required_flag",
               "version_no"
             ]
+          }
+        },
+        "editByBinding": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "binding_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bindingId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true
           }
         },
         "byDefinition": {

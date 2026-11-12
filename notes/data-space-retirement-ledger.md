@@ -9579,3 +9579,20 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
   - 正式导航发布与应用管理“项目管理”开放。
   - 认证实服烟测；批次2未核实项保持不变。
   - 完整 `apps/appworks` 其余业务域逐功能验收。
+## 蓝图批次3b-1（维度来源：数据模型绑定与字段映射）— 断点
+
+完成并验证：
+- 88A4 作为蓝图 PageRuntime 延迟场景（useDevState，经 readRepositoryScenarioText + assembleLowcodeRuntimeScenario 装配，assertDeferred 范围校验）。
+- pagedata 新增视图 Bil_Dimension_Source_Binding.byNode、Bil_Dimension_Source_Mapping.editByBinding（既有视图未改）。
+- 公共层 owner `src/lowcode/resources/structured-config/dimension-source/binding-editor.ts`（DimensionSourceBindingEditor）：按参考 normalizeBinding/normalizeMapping、#validateFormalSource、#assertTargetDefinitions、load(0/1/>1)、save+读回一致性校验；未知回执不换 id 重试、不允许丢弃。
+- 页面：数据空间页签“维度来源设计”入口（仅已保存主数据空间可用），RendererDialog + RendererTable + FeatureRecordFields；模型/来源字段经 static-data DataView，目标维度经 Bil_Dimension_Definition DataView；切换节点/上下文/数据空间丢弃迟到结果并关闭；取消不写入。
+- ClassModel：RDialogProps、RTableProps（showCellControl/cellReadonly/actions）、FieldSelect（optionDataViewKey/optionValueField/optionLabelField(s)/filterable）、RSwitchProps、RNumber、RFormProps。
+- 验证：typecheck 0；vitest 31 文件 548/548；eslint 改动文件 0；generate:class-model-surface 无新增 missing-jsdoc；verify:pages-config/page-thin/class-model(49/49) ok；generate:lowcode-contracts + verify exit 0；git diff --check 干净。
+
+未完成（下次从此续）：
+1. 3b-1 隔离浏览器烟测未执行（仅单元/入口测试覆盖）；实服 88A4 映射表是否含 source_field_id/target_definition_id 未经已认证只读查询确认。
+2. 绑定未映射字段：account_field_id/name、target_member_id/code、projection_role（仅当正式视图输出时写）、source_contract_id。
+3. 平台事件来源类型 + 来源合同注册（公共层，参考 runtime-api sourceContracts）。
+4. 来源集合 Bil_Dimension_Source_Collection、Commit_Policy、Commit_Field：模型身份按参考为 {scenarioId, metaName} 运行时正式解析；拟按 dictionary/resource.ts 先例经 readModelBatch 运行时装配 pagedata，或经已认证只读会话取得正式 ID 后写入 pagedata（禁止编造）。
+5. 数据模型事件编辑器（Rule_Template/事件）、来源提交协议草稿与正式回读（source-commit-save/projection-currentness）、维度台账查询（公共层+测试）。
+6. 批次4、批次5（权限两个入口）、导航发布、已认证实服烟测、批次2 未验证项。

@@ -10,6 +10,8 @@ import {FieldText, sanitizeRichTextHtml} from '@spark-appworks/spark-component'
 import {BLUEPRINT_AI_REJECTED} from '@/views/features/application/application-function-management/ui/application-function-page-contract'
 import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
+import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {createDimensionRuntime} from '../../../../runtime/application/dimension/dimension.fixture'
 import {useApplicationFunctionPage} from '@/views/features/application/application-function-management/ui/use-application-function-page'
 import ApplicationFunctionPage from '@/views/features/application/application-function-management/ui/application-function-page.vue'
 
@@ -26,14 +28,15 @@ vi.mock('@/views/features/application/application-function-management/ui/use-app
   }}
 })
 const fixtureState = vi.hoisted(() => ({current: undefined as unknown, execution: 'EXECUTION', createChild: 'disabled' as 'enabled' | 'disabled',
-  patchRows: undefined as undefined | ((rows: DataRow[]) => void)}))
+  patchRows: undefined as undefined | ((rows: DataRow[]) => void), dimension: undefined as undefined | (() => Promise<DataSet>)}))
 const aiRunner = vi.hoisted(() => ({run: vi.fn<(message: string, signal?: AbortSignal) => Promise<string>>()}))
 vi.mock('@/lowcode/resources/shared/ai-data-entry-host', () => ({AiDataEntryHost: class {
   createDraftRunner() {return aiRunner}
 }}))
 vi.mock('@/views/app/dev-system/useDevState', () => ({useDevState: () => fixtureState.current,
   BLUEPRINT_NODE_STATUS_SCENARIO_ID: 'FB291E325272007AEED8921C28B93CFD',
-  BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID: '0C70F74793F9E858B71E0DBDEC784D57'}))
+  BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID: '0C70F74793F9E858B71E0DBDEC784D57',
+  BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID: '88A4D51B01702C3856F4632E234BF34B'}))
 vi.mock('@spark-appworks/spark-app', async importOriginal => {
   const actual = await importOriginal<typeof import('@spark-appworks/spark-app')>()
   return {...actual, useSystemPageDirtySource: vi.fn()}
@@ -72,6 +75,7 @@ vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
 }))
 
 const CATALOG = LOWCODE_APPLICATION_CATALOG_FORM_KEY
+const DIMENSION = '88A4D51B01702C3856F4632E234BF34B'
 const TARGET = 'APP-TARGET'
 const NAVIGATION = 'BLUEPRINT-PAGE'
 const HOST_FIELDS = ['rowid', 'prowid', 'dataSetId', 'DataName', 'ValParamName', 'TextParamName', 'selectValParam', 'selectTextParam', 'selectPid']
@@ -86,7 +90,7 @@ afterEach(() => {
   disposals.splice(0).forEach(dispose => dispose())
   datasets.splice(0).forEach(dataSet => {if (!dataSet.destroyed) dataSet.destroy()})
 })
-beforeEach(() => {fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; fixtureState.patchRows = undefined; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
+beforeEach(() => {fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; fixtureState.patchRows = undefined; fixtureState.dimension = undefined; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
 
 function matches(row: DataRow, filter: unknown): boolean {
   if (!isDataRow(filter)) return true
@@ -194,9 +198,13 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
     if (fixtureState.execution !== 'EXECUTION') throw new Error('owner执行应用已切换')
   })
   const statusScenario = 'FB291E325272007AEED8921C28B93CFD', memberScenario = '0C70F74793F9E858B71E0DBDEC784D57'
-  const runtime = new PageRuntime({pageId: NAVIGATION, scenarioIds: [CATALOG, statusScenario, memberScenario],
-    deferredScenarioIds: [statusScenario, memberScenario],
+  const runtime = new PageRuntime({pageId: NAVIGATION, scenarioIds: [CATALOG, statusScenario, memberScenario, DIMENSION],
+    deferredScenarioIds: [statusScenario, memberScenario, DIMENSION],
     loadScenario: async scenarioId => {
+      if (scenarioId === DIMENSION) {
+        if (!fixtureState.dimension) throw new Error('fixture dimension scenario missing')
+        return fixtureState.dimension()
+      }
       if (scenarioId === statusScenario) return optionDataSet(statusScenario, [
         {model: '功能导航状态字典', fields: ['rowid', 'val', 'txt'], rows: [{rowid: 'S0', val: '0', txt: '规划'}, {rowid: 'S1', val: '1', txt: '开发'}]},
         {model: 'Base_UserInfo', fields: ['rowid', 'UserName'], rows: [
@@ -777,5 +785,124 @@ describe('application function page data space', () => {
     expect(page.dataSpace.impactOpen.value).toBe(false)
     expect(page.dataSpace.impactError.value).toBe('')
     expect(page.dataSpace.impactLoading.value).toBe(false)
+  })
+})
+
+describe('application function page dimension source design', () => {
+  type FormalModel = Awaited<ReturnType<typeof lowcodeApi.dataSpace.design.readModels>>[number]
+  const formalField = (id: string, canonicalName: string): FormalModel['fields'][number] => ({id, modelId: 'MODEL', name: canonicalName,
+    canonicalName, primaryKey: false, description: canonicalName, type: 'string', output: true, computed: false, order: 0, orderType: '', raw: {}})
+  const formalModel: FormalModel = {id: 'MODEL', name: '费用单', metaName: 'Expense', sourceType: 'table', sourceId: 'DB', sourceName: 'Expense',
+    primaryKey: 'rowid', businessMain: false, raw: {}, fields: [formalField('F-AMOUNT', 'amount')]}
+
+  async function dimension() {
+    const f = await createDimensionRuntime('R1', true, false)
+    disposals.push(() => f.runtime.dispose())
+    f.http.records['Bil_Dimension_Source_Mapping'] = []
+    f.http.records['Bil_Dimension_Definition'] = [{id: 'D1', definition_code: 'cost', definition_name: '成本', status: true}]
+    fixtureState.dimension = async () => f.dataSet
+    return f
+  }
+  async function bound() {
+    fixtureState.patchRows = rows => {rows[1]!['conid'] = 'SPACE-A'}
+    const ctx = await setup({nodeId: 'NODE-2', blueprintTab: 'dataSpace'})
+    await flushPromises()
+    return ctx
+  }
+  function button(wrapper: Awaited<ReturnType<typeof setup>>['wrapper']) {
+    const found = wrapper.findAll('button').find(candidate => candidate.text() === '维度来源设计')
+    if (!found) throw new Error('维度来源设计按钮缺失')
+    return found
+  }
+
+  it('disables the entry with a visible reason until the node has a saved data space', async () => {
+    const {page, wrapper} = await setup({nodeId: 'NODE-1', blueprintTab: 'dataSpace'})
+    expect(page.dimensionSource.canOpen.value).toBe(false)
+    expect(page.dimensionSource.disabledReason.value).toBe('当前节点未绑定主数据空间，不能进行维度来源设计')
+    expect(button(wrapper).attributes('disabled')).toBeDefined()
+    expect(wrapper.text()).toContain('当前节点未绑定主数据空间')
+    const {page: pending, view, state} = await bound()
+    view.updateEditingValue('NODE-2', 'conid', 'SPACE-B')
+    state.notifyExternalDataViewChanged()
+    expect(pending.dimensionSource.disabledReason.value).toBe('数据空间绑定尚未保存回读，不能进行维度来源设计')
+  })
+
+  it('loads the deferred dimension scenario on open and lists the saved space models', async () => {
+    const f = await dimension()
+    const readModels = vi.spyOn(lowcodeApi.dataSpace.design, 'readModels').mockResolvedValue([formalModel])
+    const {page, state, wrapper} = await bound()
+    expect(state.blueprintPageRuntime.value.getDataSet(DIMENSION)).toBeUndefined()
+    expect(button(wrapper).attributes('disabled')).toBeUndefined()
+    await page.dimensionSource.openEditor()
+    expect(page.dimensionSource.dialogError.value).toBe('')
+    expect(readModels).toHaveBeenCalledWith(expect.objectContaining({dataSpaceId: 'SPACE-A'}))
+    const models = state.blueprintPageRuntime.value.resolveView(page.dimensionSource.modelViewKey.value)
+    expect(models?.rows.map(row => row['id'])).toEqual(['MODEL'])
+    expect(models?.dataSet).toBe(f.dataSet)
+    readModels.mockRestore()
+  })
+
+  it('drops a late model result when the selected node changes', async () => {
+    await dimension()
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const readModels = vi.spyOn(lowcodeApi.dataSpace.design, 'readModels').mockImplementation(async () => {await gate; return [formalModel]})
+    const {page} = await bound()
+    const pending = page.dimensionSource.openEditor()
+    expect(page.dimensionSource.open.value).toBe(true)
+    page.onNodeClick({rowid: 'NODE-1'})
+    await flushPromises()
+    expect(page.dimensionSource.open.value).toBe(false)
+    release()
+    await pending
+    expect(page.dimensionSource.open.value).toBe(false)
+    expect(page.dimensionSource.dialogError.value).toBe('')
+    expect(page.dimensionSource.modelViewKey.value).toBe('')
+    readModels.mockRestore()
+  })
+
+  it('cancels a drafted binding without writing anything', async () => {
+    const f = await dimension()
+    const readModels = vi.spyOn(lowcodeApi.dataSpace.design, 'readModels').mockResolvedValue([formalModel])
+    const {page, state} = await bound()
+    await page.dimensionSource.openEditor()
+    await page.dimensionSource.selectModel({id: 'MODEL'})
+    expect(page.dimensionSource.dialogError.value).toBe('')
+    const binding = state.blueprintPageRuntime.value.resolveView(page.dimensionSource.bindingViewKey.value)!
+    binding.updateEditingValue(page.dimensionSource.bindingId.value!, 'binding_code', 'draft')
+    await page.dimensionSource.addMapping()
+    page.dimensionSource.close()
+    expect(page.dimensionSource.open.value).toBe(false)
+    expect(binding.rows.filter(row => row['binding_code'] === 'draft')).toEqual([])
+    expect(f.http.saves).toEqual([])
+    readModels.mockRestore()
+  })
+
+  it('saves the binding and mappings once and reports the verified readback', async () => {
+    const f = await dimension()
+    const readModels = vi.spyOn(lowcodeApi.dataSpace.design, 'readModels').mockResolvedValue([formalModel])
+    const {page, state} = await bound()
+    await page.dimensionSource.openEditor()
+    await page.dimensionSource.selectModel({id: 'MODEL'})
+    const runtime = state.blueprintPageRuntime.value
+    const binding = runtime.resolveView(page.dimensionSource.bindingViewKey.value)!
+    const id = page.dimensionSource.bindingId.value!
+    for (const [key, value] of Object.entries({binding_code: 'expense-source', event_code: 'expense', status: '1'})) {
+      binding.updateEditingValue(id, key, value)
+    }
+    await page.dimensionSource.addMapping()
+    const mapping = runtime.resolveView(page.dimensionSource.mappingViewKey.value)!
+    const mappingId = mapping.rows.map(row => mapping.getPkKey(row)).at(-1)!
+    mapping.updateEditingValue(mappingId, 'source_field_id', 'F-AMOUNT')
+    mapping.updateEditingValue(mappingId, 'target_definition_id', 'D1')
+    await page.dimensionSource.save()
+    expect(page.dimensionSource.dialogError.value).toBe('')
+    expect(page.notice.value).toBe('维度来源绑定已保存并回读确认')
+    expect(page.dimensionSource.open.value).toBe(false)
+    expect(f.http.records['Bil_Dimension_Source_Binding']).toEqual([expect.objectContaining({id, source_application_id: TARGET,
+      source_node_id: 'NODE-2', source_model_id: 'MODEL', binding_code: 'expense-source'})])
+    expect(f.http.records['Bil_Dimension_Source_Mapping']).toEqual([expect.objectContaining({binding_id: id, source_field_id: 'F-AMOUNT',
+      source_field_name: 'amount', target_definition_id: 'D1', target_definition_code: 'cost'})])
+    readModels.mockRestore()
   })
 })

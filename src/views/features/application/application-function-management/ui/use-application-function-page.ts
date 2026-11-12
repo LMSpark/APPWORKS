@@ -14,6 +14,7 @@ import { resolveNavHostProjectBinding, resolveProjectCandidate } from '@/views/a
 import { blueprintEditingFields as editingFields } from './application-function-page-contract'
 import { useApplicationFunctionAi } from './use-application-function-ai'
 import { useApplicationFunctionDataSpace } from './use-application-function-data-space'
+import { useApplicationFunctionDimensionSource } from './use-application-function-dimension-source'
 import { useApplicationFunctionPrototype } from './use-application-function-prototype'
 
 type BlueprintTab = 'basic' | 'dataSpace' | 'prototype'
@@ -345,6 +346,18 @@ export function useApplicationFunctionPage() {
     notice,
   })
   onScopeDispose(() => dataSpace.dispose())
+
+  const dimensionSource = useApplicationFunctionDimensionSource({
+    context: () => treeContext.value,
+    isLive,
+    selectedNodeId,
+    persistedDataSpaceId: state.persistedDataSpaceId,
+    bindingPending: state.sceneBindingPending,
+    readModels: request => lowcodeApi.dataSpace.design.readModels(request),
+    error,
+    notice,
+  })
+  onScopeDispose(() => dimensionSource.dispose())
 
   /** 图片上传进行中时禁止切换节点或页签，避免上传结果插入到其他节点。 */
   function uploadsBlockSwitch(): boolean {
@@ -842,5 +855,6 @@ export function useApplicationFunctionPage() {
     ai,
     prototype,
     dataSpace,
+    dimensionSource,
   }
 }

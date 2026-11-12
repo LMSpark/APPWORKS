@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1148,
+  "scannedFileCount": 1151,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14935,6 +14935,23 @@
         ]
       }
     },
+    "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts": {
+      "file": "files/src/lowcode/resources/structured-config/dimension-source/binding-editor.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/dimension-source/binding-editor",
+        "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/dimension-source/binding-editor",
+        "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/binding-editor\n职责：蓝图节点“维度来源设计”的数据模型来源绑定与字段→维度映射编辑 owner：装载唯一绑定、草稿、正式校验、单次保存与回读核验。\n边界：只处理 source_kind=data-model；绑定/映射/维度定义均经 88A4 场景 DataView 读写，正式模型经数据空间设计 API 读取，\n模型与字段候选只作为 static-data 选项视图呈现，不作为正式数据副本保存。平台事件、来源集合、提交协议不在本模块。\nAI用途：修改维度来源绑定校验或保存核验时在此调整，页面组合式函数只负责门禁、代次与对话框状态。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DimensionSourceBindingTarget",
+          "DimensionSourceBindingEditorInput",
+          "DimensionSourceBindingEditor"
+        ]
+      }
+    },
     "src/lowcode/resources/structured-config/logic-view/design-ops.ts": {
       "file": "files/src/lowcode/resources/structured-config/logic-view/design-ops.ts.json",
       "module": {
@@ -16568,6 +16585,19 @@
         "symbols": []
       }
     },
+    "src/views/features/application/application-function-management/ui/application-function-dimension-source-dialog.vue": {
+      "file": "files/src/views/features/application/application-function-management/ui/application-function-dimension-source-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/application-function-dimension-source-dialog",
+        "sourcePath": "src/views/features/application/application-function-management/ui/application-function-dimension-source-dialog.vue",
+        "sourceFile": "src/views/features/application/application-function-management/ui/application-function-dimension-source-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/application-function-dimension-source-dialog",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/application-function-dimension-source-dialog\n职责：蓝图节点“维度来源设计”对话框：选择正式来源模型、编辑来源绑定与字段维度映射。\n边界：全部字段与选择绑定 88A4 维度设计空间的 DataView；装载、校验、保存与回读由宿主传入的流程状态承担。\nAI用途：调整维度来源设计布局时修改本组件，不在此另建查询或保存链。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/application-function-management/ui/application-function-page-contract.ts": {
       "file": "files/src/views/features/application/application-function-management/ui/application-function-page-contract.ts.json",
       "module": {
@@ -16623,6 +16653,21 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ApplicationFunctionDataSpaceInput"
+        ]
+      }
+    },
+    "src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts": {
+      "file": "files/src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/use-application-function-dimension-source",
+        "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts",
+        "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/use-application-function-dimension-source",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/use-application-function-dimension-source\n职责：项目蓝图页“维度来源设计”入口：已保存主数据空间门禁、按需装配 88A4 维度设计空间、对话框状态与代次丢弃。\n边界：绑定/映射的装载、校验、保存与回读由 DimensionSourceBindingEditor 承担；本模块只组合标准组件所需的视图键与列配置，\n切换节点、上下文或主数据空间时关闭对话框并丢弃迟到结果与本次草稿。\nAI用途：调整入口门禁或对话框交互时修改本模块，不在页面另建查询或保存链。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ApplicationFunctionDimensionSourceInput"
         ]
       }
     },
@@ -19579,6 +19624,10 @@
       "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-data-space.ts",
       "file": "files/src/views/features/application/application-function-management/ui/use-application-function-data-space.ts.json"
     },
+    "ApplicationFunctionDimensionSourceInput": {
+      "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/use-application-function-dimension-source.ts.json"
+    },
     "ApplicationFunctionPrototypeInput": {
       "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
       "file": "files/src/views/features/application/application-function-management/ui/use-application-function-prototype.ts.json"
@@ -21346,6 +21395,18 @@
     "DimensionRuleDeletion": {
       "sourcePath": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion.ts",
       "file": "files/src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion.ts.json"
+    },
+    "DimensionSourceBindingEditor": {
+      "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+      "file": "files/src/lowcode/resources/structured-config/dimension-source/binding-editor.ts.json"
+    },
+    "DimensionSourceBindingEditorInput": {
+      "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+      "file": "files/src/lowcode/resources/structured-config/dimension-source/binding-editor.ts.json"
+    },
+    "DimensionSourceBindingTarget": {
+      "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+      "file": "files/src/lowcode/resources/structured-config/dimension-source/binding-editor.ts.json"
     },
     "DirtyTrackingDelegate": {
       "sourcePath": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts",

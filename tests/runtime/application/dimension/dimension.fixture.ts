@@ -32,7 +32,11 @@ export async function createDimensionRuntime(ruleId = 'R1', anchorMetadata = tru
   }))
   const bindingFields = fields['Bil_Dimension_Source_Binding']
   if (!bindingFields) throw new Error('维度来源模型缺失')
-  if (anchorMetadata) bindingFields.push('source_model_id', 'effective_from', 'effective_to')
+  if (anchorMetadata) {
+    bindingFields.push('source_model_id', 'effective_from', 'effective_to')
+    const mappingFields = fields['Bil_Dimension_Source_Mapping']
+    mappingFields?.push(...['source_field_id', 'target_definition_id'].filter(name => !mappingFields.includes(name)))
+  }
   const models = buildFormalModels(fields).map(model => {
     const binding = source[model.name]!.modelBinding
     const pk = ['Bil_Dimension_Source_Binding', 'Bil_Dimension_Source_Mapping', 'Bil_Dimension_Definition'].includes(model.name) ? 'id' : 'rowid'

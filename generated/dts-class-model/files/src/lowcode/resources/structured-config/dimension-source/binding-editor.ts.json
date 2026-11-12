@@ -1,0 +1,662 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/dimension-source/binding-editor",
+    "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/dimension-source/binding-editor",
+    "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/binding-editor\n职责：蓝图节点“维度来源设计”的数据模型来源绑定与字段→维度映射编辑 owner：装载唯一绑定、草稿、正式校验、单次保存与回读核验。\n边界：只处理 source_kind=data-model；绑定/映射/维度定义均经 88A4 场景 DataView 读写，正式模型经数据空间设计 API 读取，\n模型与字段候选只作为 static-data 选项视图呈现，不作为正式数据副本保存。平台事件、来源集合、提交协议不在本模块。\nAI用途：修改维度来源绑定校验或保存核验时在此调整，页面组合式函数只负责门禁、代次与对话框状态。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DimensionSourceBindingTarget",
+      "DimensionSourceBindingEditorInput",
+      "DimensionSourceBindingEditor"
+    ]
+  },
+  "$defs": {
+    "Id": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Id",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "FormalModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalModel",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "type": "string"
+        },
+        "businessMain": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalField"
+          }
+        },
+        "raw": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRow"
+        },
+        "sourceInputBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts.json#/$defs/DataSpaceSourceInputBinding"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "metaName",
+        "name",
+        "sourceName",
+        "sourceId",
+        "sourceType",
+        "primaryKey",
+        "businessMain",
+        "fields",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "DimensionSourceBindingTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionSourceBindingTarget",
+      "properties": {
+        "applicationId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "DimensionSourceBindingEditorInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionSourceBindingEditorInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "target": {
+          "$ref": "#/$defs/DimensionSourceBindingTarget"
+        },
+        "readModels": {
+          "type": "object",
+          "title": "(input: DataSpaceFormalScenarioReadInput) => Promise<readonly Readonly<{ id: string; metaName: string; name: string; sourceName: string; ... 6 more ...; sourceInputBindings?: readonly DataSpaceSourceInputBinding[]; }>[]>"
+        }
+      },
+      "required": [
+        "dataSet",
+        "target",
+        "readModels"
+      ],
+      "additionalProperties": false
+    },
+    "DimensionSourceBindingEditor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionSourceBindingEditor",
+      "properties": {
+        "binding": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "mapping": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "definition": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "modelOptions": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "fieldOptions": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "model": {
+          "$ref": "#/$defs/FormalModel"
+        },
+        "bindingId": {
+          "$ref": "#/$defs/Id"
+        },
+        "unknown": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DimensionSourceBindingEditorInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.viewKey.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.viewKey.return": {
+          "type": "string"
+        },
+        "method.bindingFormFields.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.bindingFormFields.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.mappingIds.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.mappingIds.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "method.hasDraft.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasDraft.return": {
+          "type": "boolean"
+        },
+        "method.loadModels.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadModels.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.selectModel.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectModel.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.addMapping.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.addMapping.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.removeMapping.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/Id"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeMapping.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.validate.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.validate.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": true,
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-12T08:26:01.092Z",
+  "models": {
+    "Id": {
+      "name": "Id",
+      "jsdoc": "DataView 行主键身份（GUID 文本或数值）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "string | number",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "string"
+          },
+          {
+            "kind": "union",
+            "typeText": "number"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FormalModel": {
+      "name": "FormalModel",
+      "jsdoc": "数据空间设计 API 返回的正式模型（含字段）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<DataSpaceDesignApi['readModels']>>[number]",
+        "members": {}
+      }
+    },
+    "DimensionSourceBindingTarget": {
+      "name": "DimensionSourceBindingTarget",
+      "jsdoc": "维度来源编辑的正式目标：蓝图应用、节点与该节点已保存回读的主数据空间；assertCurrent 拒绝迟到结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 蓝图所属应用 ID，写入 source_application_id。 */\n    applicationId: string;\n    /** 蓝图节点稳定 ID，写入 source_node_id。 */\n    nodeId: string;\n    /** 节点已保存的主数据空间（conid）；来源模型必须属于该空间。 */\n    dataSpaceId: string;\n    /** 编辑目标仍为当前节点与上下文；失效时抛错。 */\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 蓝图所属应用 ID，写入 source_application_id。 */\n    applicationId: string;\n    /** 蓝图节点稳定 ID，写入 source_node_id。 */\n    nodeId: string;\n    /** 节点已保存的主数据空间（conid）；来源模型必须属于该空间。 */\n    dataSpaceId: string;\n    /** 编辑目标仍为当前节点与上下文；失效时抛错。 */\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "applicationId",
+              "jsdoc": "蓝图所属应用 ID，写入 source_application_id。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "蓝图节点稳定 ID，写入 source_node_id。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "jsdoc": "节点已保存的主数据空间（conid）；来源模型必须属于该空间。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "编辑目标仍为当前节点与上下文；失效时抛错。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DimensionSourceBindingEditorInput": {
+      "name": "DimensionSourceBindingEditorInput",
+      "jsdoc": "编辑器装配输入：已装配的 88A4 DataSet、正式目标及正式模型读取入口。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 维度设计场景（88A4）运行 DataSet。 */\n    dataSet: DataSet;\n    /** 本次编辑的正式目标。 */\n    target: DimensionSourceBindingTarget;\n    /** 读取数据空间正式模型（含字段）。 */\n    readModels: DataSpaceDesignApi['readModels'];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 维度设计场景（88A4）运行 DataSet。 */\n    dataSet: DataSet;\n    /** 本次编辑的正式目标。 */\n    target: DimensionSourceBindingTarget;\n    /** 读取数据空间正式模型（含字段）。 */\n    readModels: DataSpaceDesignApi['readModels'];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "维度设计场景（88A4）运行 DataSet。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "jsdoc": "本次编辑的正式目标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readModels",
+              "jsdoc": "读取数据空间正式模型（含字段）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DimensionSourceBindingEditor": {
+      "name": "DimensionSourceBindingEditor",
+      "jsdoc": "蓝图节点数据模型来源绑定编辑器；一次实例只服务一个节点目标，关闭时须 dispose。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "解析 88A4 的绑定、映射、维度定义视图并建立模型/字段 static-data 选项视图；视图或正式字段缺失时抛错。",
+          "signatureText": "constructor(input: DimensionSourceBindingEditorInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "DimensionSourceBindingEditorInput",
+                "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "binding",
+              "jsdoc": "节点来源绑定 DataView（byNode）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mapping",
+              "jsdoc": "当前绑定的字段映射 DataView（editByBinding）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "definition",
+              "jsdoc": "维度定义候选 DataView（default）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelOptions",
+              "jsdoc": "正式模型候选 static-data DataView。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldOptions",
+              "jsdoc": "当前根模型正式输出字段候选 static-data DataView。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "model",
+              "jsdoc": "已选根模型；未选择时为 undefined。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "bindingId",
+              "jsdoc": "当前编辑的来源绑定行 ID；未选择模型时为 undefined。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unknown",
+              "jsdoc": "存在保存结果未知的提交时为 true；此时只能重试核验原提交，不能修改、丢弃或新建。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "viewKey",
+              "jsdoc": "视图在所属 PageRuntime 中的完整绑定键。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "bindingFormFields",
+              "jsdoc": "绑定视图实际输出的可编辑表单字段。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "readonly string[]"
+              }
+            },
+            {
+              "name": "mappingIds",
+              "jsdoc": "当前映射行 ID（呈现顺序，不含待删除行）。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "readonly Id[]"
+              }
+            },
+            {
+              "name": "hasDraft",
+              "jsdoc": "本编辑器持有的绑定或映射存在未保存修改。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "loadModels",
+              "jsdoc": "读取节点已保存数据空间的正式模型，并刷新模型候选与维度定义候选。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "selectModel",
+              "jsdoc": "选择根来源模型：唯一已有绑定直接编辑，不存在时新增草稿，多于一个时拒绝。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addMapping",
+              "jsdoc": "为当前绑定新增一条直接字段映射草稿，顺序号接续末尾，映射版本取绑定版本。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "removeMapping",
+              "jsdoc": "删除当前绑定的一条映射（新增草稿直接丢弃，已保存行标记为待删除）。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "reference",
+                    "name": "Id",
+                    "sourcePath": "src/lowcode/resources/structured-config/dimension-source/binding-editor.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "校验后以一次 DataSet 保存提交绑定与映射，并回读核验；无修改返回 false。保存结果未知时重试只核验原提交，不以新身份重提。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "validate",
+              "jsdoc": "端口自参考 normalizeBinding/normalizeMapping、#validateFormalSource、#assertTargetDefinitions 的保存前校验；同时按呈现顺序重排 sort_no。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discard",
+              "jsdoc": "丢弃本编辑器持有的绑定与映射草稿，不写入任何数据；保存结果未知时拒绝。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "释放订阅与临时选项表；不丢弃草稿，调用方须先 discard 或已保存。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

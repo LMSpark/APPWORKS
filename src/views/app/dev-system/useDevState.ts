@@ -38,7 +38,8 @@ import type {DataView, DataSet} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
-import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { assembleLowcodeRuntimeScenario, loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { readRepositoryScenarioText } from '@/lowcode/resources/repository/scenarios/resource'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
@@ -101,7 +102,9 @@ function createLiveTargetProxy<T extends object>(readTarget: () => T): T {
 export const BLUEPRINT_NODE_STATUS_SCENARIO_ID = 'FB291E325272007AEED8921C28B93CFD'
 /** 蓝图节点负责人候选的应用成员关系空间；在蓝图运行实例中声明为按需装配。 */
 export const BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID = '0C70F74793F9E858B71E0DBDEC784D57'
-const BLUEPRINT_OPTION_SCENARIO_IDS: readonly string[] = [BLUEPRINT_NODE_STATUS_SCENARIO_ID, BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID]
+/** 维度来源绑定与映射所在的仓库内置空间；用户应用不持有其配置文件，按需从仓库配置装配。 */
+export const BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID = getBuiltinScenarioResource('dimensionDesign').scenarioId
+const BLUEPRINT_OPTION_SCENARIO_IDS: readonly string[] = [BLUEPRINT_NODE_STATUS_SCENARIO_ID, BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID, BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID]
 
 /** Status Message 的语义模型。 */
 export type StatusMessage = {
@@ -332,7 +335,10 @@ export function useDevState() {
             // 按需空间在首载之后装配：核对同一 owner 的项目、工作区、认证令牌与执行应用，不复用已清空的首载令牌。
             const assertDeferred=()=>{if(projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId)throw new Error('蓝图按需空间装配期间项目或认证作用域已切换')}
             assertDeferred()
-            const dataSet=await loadLowcodeRuntimeScenario({projectId:executionProjectId,scenarioId})
+            const dataSet=scenarioId===BLUEPRINT_DIMENSION_DESIGN_SCENARIO_ID
+              ?await assembleLowcodeRuntimeScenario({projectId:executionProjectId,scenarioId,assertCurrent:assertDeferred,
+                config:new ProjectBlueprintDomain.ScenarioViewConfig(scenarioId,await readRepositoryScenarioText(getBuiltinScenarioResource('dimensionDesign'),assertDeferred))})
+              :await loadLowcodeRuntimeScenario({projectId:executionProjectId,scenarioId})
             try{assertDeferred()}catch(error){dataSet.destroy();throw error}
             return dataSet
           }

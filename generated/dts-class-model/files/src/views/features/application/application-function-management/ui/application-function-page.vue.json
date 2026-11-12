@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/application-function-page",
+    "sourcePath": "src/views/features/application/application-function-management/ui/application-function-page.vue",
+    "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/application-function-page",
+    "jsdoc": "app 的 views/features/application/application-function-management/ui/application-function-page 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T05:33:12.949Z",
+  "models": {}
+}

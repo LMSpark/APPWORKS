@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/use-application-function-page",
+    "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
+    "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/use-application-function-page",
+    "jsdoc": "app 的 views/features/application/application-function-management/ui/use-application-function-page 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {
+    "BlueprintTab": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "BlueprintTab",
+      "enum": [
+        "dataSpace",
+        "basic"
+      ]
+    },
+    "NodeOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NodeOption",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintTreeContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintTreeContext",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "owner": {
+          "$ref": "../../../../../services/project/blueprint-workspace-dataview.ts.json#/$defs/BlueprintWorkspaceDataView"
+        },
+        "runtime": {
+          "$ref": "../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        }
+      },
+      "required": [
+        "key",
+        "projectId",
+        "owner",
+        "runtime"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-12T05:35:21.142Z",
+  "models": {
+    "BlueprintTab": {
+      "name": "BlueprintTab",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'basic' | 'dataSpace'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'basic'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'dataSpace'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "NodeOption": {
+      "name": "NodeOption",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    label: string;\n    value: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    label: string;\n    value: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintTreeContext": {
+      "name": "BlueprintTreeContext",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    key: string;\n    projectId: string;\n    owner: BlueprintWorkspaceDataView;\n    runtime: PageRuntime;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    key: string;\n    projectId: string;\n    owner: BlueprintWorkspaceDataView;\n    runtime: PageRuntime;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "key",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "owner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -425,6 +425,18 @@
         "method.withSavedRowPermissions.return": {
           "$ref": "#/$defs/DataSpaceQueryContext"
         },
+        "method.withAppendedRows.params": {
+          "type": "object",
+          "properties": {
+            "queried": {
+              "$ref": "#/$defs/DataSpaceQueryContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.withAppendedRows.return": {
+          "$ref": "#/$defs/DataSpaceQueryContext"
+        },
         "method.prepareNewRow.params": {
           "type": "object",
           "properties": {
@@ -636,7 +648,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-07T00:03:25.070Z",
+  "generatedAt": "2026-11-12T05:23:19.947Z",
   "models": {
     "DataSpaceActionState": {
       "name": "DataSpaceActionState",
@@ -1153,6 +1165,25 @@
                   },
                   "flags": {
                     "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceQueryContext",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            },
+            {
+              "name": "withAppendedRows",
+              "jsdoc": "同owner同模型的完整增量查询并入本基线：原行及其凭据、待确认新增行权限保持不变，仅追加尚未出现的正式行。\n结果级新增凭据和新增许可沿用本基线；增量行逐行凭据随原快照保留，用于后续修改、删除和子行新增。",
+              "parameters": [
+                {
+                  "name": "queried",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
                   }
                 }
               ],

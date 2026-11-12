@@ -170,6 +170,10 @@
           "type": "object",
           "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => Promise<Readonly<...>>"
         },
+        "appendQueryResult": {
+          "type": "object",
+          "title": "(base: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>, addition: Readonly<...>) =..."
+        },
         "abandonUnconfirmedSave": {
           "type": "object",
           "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => void"

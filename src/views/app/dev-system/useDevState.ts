@@ -97,6 +97,12 @@ function createLiveTargetProxy<T extends object>(readTarget: () => T): T {
 // 类型
 // ═══════════════════════════════════════════════════════════
 
+/** 蓝图节点阶段字典与用户目录所在空间；在蓝图运行实例中声明为按需装配。 */
+export const BLUEPRINT_NODE_STATUS_SCENARIO_ID = 'FB291E325272007AEED8921C28B93CFD'
+/** 蓝图节点负责人候选的应用成员关系空间；在蓝图运行实例中声明为按需装配。 */
+export const BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID = '0C70F74793F9E858B71E0DBDEC784D57'
+const BLUEPRINT_OPTION_SCENARIO_IDS: readonly string[] = [BLUEPRINT_NODE_STATUS_SCENARIO_ID, BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID]
+
 /** Status Message 的语义模型。 */
 export type StatusMessage = {
     /** 展示文本。 */
@@ -320,8 +326,16 @@ export function useDevState() {
     let loadScopeToken=scopeToken
     const loading=(async()=>{
       const runtimeSession=new NativePageRuntimeSession()
-      const runtime=runtimeSession.acquire({pageId:'dev-system-blueprint-workspace',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY,DATA_SPACE_CATALOG_SCENARIO_ID,LowcodeDictionary.editorScenarioId],mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,targetId:projectKey,
+      const runtime=runtimeSession.acquire({pageId:'dev-system-blueprint-workspace',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY,DATA_SPACE_CATALOG_SCENARIO_ID,LowcodeDictionary.editorScenarioId,...BLUEPRINT_OPTION_SCENARIO_IDS],deferredScenarioIds:BLUEPRINT_OPTION_SCENARIO_IDS,mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,targetId:projectKey,
         loadScenario:async scenarioId=>{
+          if(BLUEPRINT_OPTION_SCENARIO_IDS.includes(scenarioId)){
+            // 按需空间在首载之后装配：核对同一 owner 的项目、工作区、认证令牌与执行应用，不复用已清空的首载令牌。
+            const assertDeferred=()=>{if(projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId)throw new Error('蓝图按需空间装配期间项目或认证作用域已切换')}
+            assertDeferred()
+            const dataSet=await loadLowcodeRuntimeScenario({projectId:executionProjectId,scenarioId})
+            try{assertDeferred()}catch(error){dataSet.destroy();throw error}
+            return dataSet
+          }
           const assertCurrent=()=>{if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==loadScopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId)throw new Error('蓝图 DataView 项目或认证作用域已切换')}
           assertCurrent()
           if(scenarioId===LOWCODE_APPLICATION_CATALOG_FORM_KEY)return loadLowcodeRuntimeScenario({projectId:executionProjectId,scenarioId})
@@ -675,6 +689,37 @@ export function useDevState() {
     projectRevision.value=workspace.project.revision
     blueprintTreeUnavailableScope.value=''
     return tree
+  }
+  /** 页面首载：沿同一 DataView owner 只装载根层与下一层预读，后续按父节点增量装载。 */
+  async function loadBlueprintLazyTreeFromDataView():Promise<ProjectBlueprintDomain.ProjectBlueprintTreeData|undefined>{
+    const scope=currentScopeKey(),workspace=currentEditor.value
+    const owner=await loadBlueprintWorkspaceDataView()
+    const tree=await owner.loadProjectTreeLazy()
+    if(currentScopeKey()!==scope||currentEditor.value!==workspace)throw new Error('蓝图 DataView 树结果所属项目已切换')
+    if(blueprintDirty.value)throw new Error('节点基本信息有未保存草稿，不能用 DataView 首载覆盖')
+    if(tree)workspace.ingestBlueprintTree(tree,{selectedNodeId:workspace.project.session.session.selectedNodeId})
+    projectRevision.value=workspace.project.revision
+    blueprintTreeUnavailableScope.value=''
+    externalDataViewRevision.value++
+    return tree
+  }
+  async function runBlueprintTreeLoad(load:(owner:BlueprintWorkspaceDataView)=>Promise<unknown>):Promise<void>{
+    const scope=currentScopeKey(),workspace=currentEditor.value
+    const owner=await loadBlueprintWorkspaceDataView()
+    await load(owner)
+    if(currentScopeKey()!==scope||currentEditor.value!==workspace)throw new Error('蓝图懒加载结果所属项目已切换')
+    if(owner.hasTreeProjection&&owner.view.rows.length>0)refreshBlueprintTreeProjection()
+    externalDataViewRevision.value++
+  }
+  /** 按父节点增量装载直接子行（含下一层预读）。 */
+  async function loadBlueprintChildrenFromDataView(nodeId:string):Promise<void>{
+    await runBlueprintTreeLoad(owner=>owner.loadChildren(nodeId))
+  }
+  /** 按 nodeId 沿父链定位并装载祖先子行；返回自根到目标的身份链。 */
+  async function locateBlueprintNodeFromDataView(nodeId:string):Promise<readonly string[]>{
+    let path:readonly string[]=[]
+    await runBlueprintTreeLoad(async owner=>{path=await owner.locateNode(nodeId)})
+    return path
   }
   function refreshBlueprintTreeProjection(session?: ExternalDataViewSession): void {
     // ingestBlueprintTree marks the ProjectBlueprint draft clean. Never let a
@@ -1855,6 +1900,19 @@ export function useDevState() {
     }
   }
 
+  /** 页面新增根模块/同级/子级：沿原 DataView owner 保存并回读，返回新节点正式身份；失败直接抛出由页面呈现。 */
+  async function addBlueprintModuleNode(parentNodeId:string|null):Promise<string>{
+    const session=await loadBlueprintWorkspaceDataView()
+    const pending=parentNodeId===null?session.hasPendingRootCreate:session.hasPendingChildCreate
+    if(hasExternalDataViewChanges()&&!pending)throw new Error('树行 DataView 有未保存修改，请先保存或取消后再新增节点')
+    const id=parentNodeId===null?await session.addRootModule():await session.addModuleNode(parentNodeId)
+    refreshBlueprintTreeProjection()
+    externalDataViewRevision.value++
+    await syncRuntimeNavigationIfDefaultProject()
+    addStatus('已通过 Base_NavigationInfo DataView 保存新模块','success')
+    return String(id)
+  }
+
   async function addChildNodeById(parentNodeId:string):Promise<void>{
     const owner=await loadBlueprintWorkspaceDataView()
     if(!owner.hasTreeProjection)throw new Error('蓝图 DataView 项目树尚未加载')
@@ -1886,14 +1944,19 @@ export function useDevState() {
   }
 
   function removeNodeFromTree(data: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): void {
-    if (hasExternalDataViewChanges()) {addStatus('树行 DataView 有未保存修改，请先保存或取消后再删除节点', 'warning'); return}
+    void startRemoveNode(data)
+  }
+
+  /** 删除命令的唯一实现；返回是否已正式确认删除，失败已写入状态栏。 */
+  function startRemoveNode(data: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): Promise<boolean> {
+    if (hasExternalDataViewChanges()) {addStatus('树行 DataView 有未保存修改，请先保存或取消后再删除节点', 'warning'); return Promise.resolve(false)}
 
     const pageId = resolvePageNodePageId(data)
     const shouldRemoveMountedPage = pageId.length > 0 && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(data))
-    if(blueprintSaving.value){addStatus('蓝图节点正在保存，请稍后再删除','warning');return}
+    if(blueprintSaving.value){addStatus('蓝图节点正在保存，请稍后再删除','warning');return Promise.resolve(false)}
     let resume:()=>void
     try {resume=prepareExternalContextChange()}
-    catch(error){addStatus(`预览工作尚未处理，不能删除节点：${String(error)}`,'warning');return}
+    catch(error){addStatus(`预览工作尚未处理，不能删除节点：${String(error)}`,'warning');return Promise.resolve(false)}
     blueprintSaving.value=true
     const deletePromise = (async()=>{
       try{
@@ -1912,31 +1975,38 @@ export function useDevState() {
         externalDataViewRevision.value++
       }finally{blueprintSaving.value=false;resume()}
     })()
-    void deletePromise.then(
+    return deletePromise.then(
       () => {
         if (!shouldRemoveMountedPage && selectedNode.value?.nodeId === data.nodeId) {
           project.selectNode(null);clearActivePageContext()
         }
         if(!shouldRemoveMountedPage){void syncRuntimeNavigationIfDefaultProject();addStatus(`已删除 ${data.navigation?.title ?? data.capability.name}`,'info')}
+        return true
       },
       (e: unknown) => {
         const message=String(e)
         addStatus(message.includes('MOUNTED_PAGE_FILE_DELETE_PARTIAL')
           ? `挂载页面删除部分成功：${message.replace('MOUNTED_PAGE_FILE_DELETE_PARTIAL: ','')}`
           : `删除节点失败: ${message}`, 'error')
+        return false
       },
     )
   }
 
   function removeNodeById(nodeId:string):void{
+    void removeNodeByIdAndWait(nodeId)
+  }
+
+  /** 按节点身份删除并等待正式确认；返回 true 表示删除已回读确认。 */
+  function removeNodeByIdAndWait(nodeId:string):Promise<boolean>{
     const owner=blueprintWorkspaceDataView.value
-    if(!owner?.hasTreeProjection){addStatus('蓝图 DataView 项目树尚未加载，不能删除节点','warning');return}
+    if(!owner?.hasTreeProjection){addStatus('蓝图 DataView 项目树尚未加载，不能删除节点','warning');return Promise.resolve(false)}
     try{
       const projection=owner.treeProjection()
       const node=projection.nodeId===nodeId?projection:findNodeById(projection.children,nodeId)
        if(node?.projectId!==owner.projectId)throw new Error('蓝图 DataView 删除行身份不匹配')
-      removeNodeFromTree(node)
-    }catch(error){addStatus(`删除节点失败: ${String(error)}`,'error')}
+      return startRemoveNode(node)
+    }catch(error){addStatus(`删除节点失败: ${String(error)}`,'error');return Promise.resolve(false)}
   }
 
   async function moveNodeInTree(data: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): Promise<void> {
@@ -2035,6 +2105,9 @@ export function useDevState() {
     moveBlueprintNodeInDataView,
     moveBlueprintNodeRelative,
     loadBlueprintTreeFromDataView,
+    loadBlueprintLazyTreeFromDataView,
+    loadBlueprintChildrenFromDataView,
+    locateBlueprintNodeFromDataView,
     refreshBlueprintTreeProjection,
     blueprintWorkspaceDataView,
     blueprintPageRuntime,
@@ -2073,10 +2146,12 @@ export function useDevState() {
     addRootNode,
     addChildNode,
     addChildNodeById,
+    addBlueprintModuleNode,
     listReferenceProjects,
     listReferenceProjectPages,
     removeNodeFromTree,
     removeNodeById,
+    removeNodeByIdAndWait,
     moveNodeInTree,
     openProjectPlanningDocumentImportDialog,
     closeProjectPlanningDocumentImportDialog,

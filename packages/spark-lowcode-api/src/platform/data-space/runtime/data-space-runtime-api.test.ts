@@ -2153,3 +2153,85 @@ describe('formal tree child-add credentials', () => {
     expect(http.saveRequests).toHaveLength(1)
   })
 })
+
+describe('DataView incremental append through the original runtime owner', () => {
+  const ROW_2 = {rowid: 'ROW-2', salary: 200, lingma_sys_key: 'ROW-2-KEY', lingma_sys_params: {e: ['salary']}}
+  const addition = (items: unknown[], count = items.length) => ({primaryKeyField: 'rowid', data: {Count: count, Items: items}})
+  const selector = () => DataViewFilter.condition({field: 'rowid', operator: 'in', value: ['ROW-1', 'ROW-2']}).toJSON()
+
+  it('appends only new rows with their own permissions, keeps drafts and saves both rows with their credentials', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      await view.loadFromServer()
+      view.updateEditingValue('ROW-1', 'salary', 150)
+      http.queryResults = [addition([{rowid: 'ROW-1', salary: 999, lingma_sys_key: 'DUP-KEY', lingma_sys_params: {e: ['salary']}}, ROW_2])]
+      const appended = await view.appendQueryRows({filter: selector()})
+      expect(appended.map(row => row['rowid'])).toEqual(['ROW-2'])
+      expect(view.rows.map(row => row['rowid'])).toEqual(['ROW-1', 'ROW-2'])
+      expect(view.total).toBe(2)
+      expect(JSON.stringify(http.queryRequests[1]?.data)).toContain('ROW-2')
+      expect(view.getEditingPatch('ROW-1')).toEqual({salary: 150})
+      expect(findRow(view, 'ROW-1')?.['salary']).toBe(100)
+      const row2 = findRow(view, 'ROW-2')
+      if (!row2) throw new Error('appended row missing')
+      expect(view.fieldAccess(row2, 'salary').write).toBe('allowed')
+      expect(view.filterExpression).toBeUndefined()
+      view.discardEditingRows()
+      await view.editRowById('ROW-1', {salary: 150})
+      await view.editRowById('ROW-2', {salary: 210})
+      http.saveResult = {maplistedit: [{physical: [{rowid: 'ROW-1', salary: 150}, {rowid: 'ROW-2', salary: 210}]}]}
+      const result = await view.saveChanges()
+      expect(result).toMatchObject({success: true})
+      const saved = JSON.stringify(http.saveRequests[0]?.data)
+      expect(saved).toContain('ROW-KEY')
+      expect(saved).toContain('ROW-2-KEY')
+      expect(saved).not.toContain('DUP-KEY')
+    } finally {ds.destroy()}
+  })
+
+  it('rejects incomplete additions and pending create drafts without changing the loaded rows', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      await view.loadFromServer()
+      http.queryResults = [addition([ROW_2], 3)]
+      await expect(view.appendQueryRows({filter: selector()})).rejects.toThrow(/DATA_VIEW_APPEND_INCOMPLETE|缺页/)
+      expect(view.rows.map(row => row['rowid'])).toEqual(['ROW-1'])
+      await view.addRowWithIdentity({field: 'rowid', value: 'NEW'}, {salary: 1})
+      await expect(view.appendQueryRows({filter: selector()})).rejects.toThrow('DATA_VIEW_APPEND_STATE')
+      expect(http.queryRequests).toHaveLength(2)
+    } finally {ds.destroy()}
+  })
+
+  it('discards an addition whose original query identity changed while it was in flight', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      await view.loadFromServer()
+      let release!: () => void, started!: () => void
+      const readStarted = new Promise<void>(resolve => {started = resolve})
+      http.queryStarted = started
+      http.queryGate = new Promise<void>(resolve => {release = resolve})
+      http.queryResults = [addition([ROW_2])]
+      const append = view.appendQueryRows({filter: selector()})
+      await readStarted
+      view.queryContext = {otherTarget: true}
+      release()
+      await expect(append).rejects.toThrow('DATA_VIEW_APPEND_STALE')
+      expect(view.rows.map(row => row['rowid'])).toEqual(['ROW-1'])
+    } finally {ds.destroy()}
+  })
+
+  it('refuses to merge contexts from another owner and keeps the base context unchanged', async () => {
+    const http = new DataSpaceFixtureHttpClient(), api = activeApi(http)
+    const identity = {scenarioId: 'SCENE', metaName: 'Orders'}
+    const base = await api.dataSpace.runtime.query(identity)
+    http.queryResults = [addition([ROW_2])]
+    const foreign = await activeApi(http).dataSpace.runtime.query(identity)
+    expect(() => api.dataSpace.runtime.appendQueryResult(base, foreign)).toThrow('SPARK_APPEND_OWNER')
+    http.queryResults = [addition([ROW_2])]
+    const own = await api.dataSpace.runtime.query(identity)
+    const merged = api.dataSpace.runtime.appendQueryResult(base, own)
+    expect(merged.total).toBe(2)
+    expect(merged.buildSaveRequest({changed: [{rowid: 'ROW-2', salary: 201}]})[0]?.CrudModel.Changed[0]?.['lingma_sys_key']).toBe('ROW-2-KEY')
+    expect(base.total).toBe(1)
+  })
+})

@@ -7,10 +7,12 @@ import type { PageRuntime } from '@spark-appworks/spark-project-model'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { loadLowcodeRuntimeScenario, readLowcodeExecutionProject } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import type { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
-import { useDevState } from '@/views/app/dev-system/useDevState'
+import { BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID, BLUEPRINT_NODE_STATUS_SCENARIO_ID, useDevState } from '@/views/app/dev-system/useDevState'
 import { resolveNavHostProjectBinding, resolveProjectCandidate } from '@/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract'
 
 type BlueprintTab = 'basic' | 'dataSpace'
+type NodeOption = Readonly<{label: string; value: string}>
+type CreatePosition = 'root' | 'sibling' | 'child'
 type BlueprintTreeContext = Readonly<{
   key: string
   projectId: string
@@ -37,15 +39,85 @@ function readNodeId(row: unknown): string {
   return typeof nodeId === 'string' || typeof nodeId === 'number' ? String(nodeId) : ''
 }
 
-function hasBlueprintNode(node: unknown, nodeId: string): boolean {
-  if (!isDataRow(node)) return false
-  if (node['nodeId'] === nodeId) return true
-  const children = node['children']
-  if (!Array.isArray(children)) return false
-  for (const child of children.filter(isDataRow)) {
-    if (hasBlueprintNode(child, nodeId)) return true
-  }
-  return false
+/** 节点阶段候选视图：功能导航状态字典（val/txt），经蓝图 PageRuntime 按需空间解析，由 FieldSelect.optionDataViewKey 消费。 */
+export const BLUEPRINT_STATUS_OPTION_VIEW_KEY = buildDataViewKey('功能导航状态字典', 'default', BLUEPRINT_NODE_STATUS_SCENARIO_ID)
+/** 节点负责人候选视图：按当前应用成员过滤后的用户目录（rowid/UserName）。 */
+export const BLUEPRINT_PERSON_OPTION_VIEW_KEY = buildDataViewKey('Base_UserInfo', 'default', BLUEPRINT_NODE_STATUS_SCENARIO_ID)
+/** 节点类型与 Base_NavigationInfo.conType 正式取值一致。 */
+export const BLUEPRINT_NODE_TYPE_OPTIONS: readonly NodeOption[] = Object.freeze([
+  {value: 'Model', label: '模块'},
+  {value: 'Navitem', label: '页面'},
+  {value: 'embedded', label: '嵌入内容'},
+  {value: 'service', label: '服务'},
+  {value: 'content', label: '内容'},
+])
+
+function isRootParent(value: unknown): boolean {
+  const parent = String(value ?? '').trim()
+  return parent === '' || parent === '000000' || parent === '0'
+}
+
+function readText(row: DataRow, field: string): string {
+  const value = row[field]
+  return typeof value === 'string' || typeof value === 'number' ? String(value).trim() : ''
+}
+
+function sortedSiblings(view: DataView, parentId: string): DataRow[] {
+  return view.rows.filter(row => isRootParent(parentId) ? isRootParent(row['prowid']) : readText(row, 'prowid') === parentId)
+    .sort((a, b) => Number(a['FunOrderValue'] ?? 0) - Number(b['FunOrderValue'] ?? 0)
+      || readText(a, 'rowid').localeCompare(readText(b, 'rowid')))
+}
+
+/** 当前行仅编辑覆盖（未暂存、无待核验命令）中的字段；存在其他待处理状态时返回 undefined。 */
+function editingFields(owner: BlueprintWorkspaceDataView): readonly string[] | undefined {
+  const row = owner.view.currentRow
+  if (!row) return owner.dirty ? undefined : []
+  const key = owner.view.getPkKey(row)
+  if (key === undefined || owner.hasPendingBlueprintCommand || owner.view.dirtyTracking.hasPendingChanges(key)) return undefined
+  const fields = Object.keys(owner.view.getEditingPatch(key) ?? {})
+  const othersDirty = owner.view.rows.some(candidate => {
+    const id = owner.view.getPkKey(candidate)
+    return candidate !== row && id !== undefined && (owner.view.hasEditingChanges(id) || owner.view.dirtyTracking.hasPendingChanges(id))
+  })
+  return othersDirty ? undefined : fields
+}
+
+async function refreshComplete(view: DataView, label: string, assertCurrent: () => void): Promise<void> {
+  await view.refresh()
+  assertCurrent()
+  if (view.loadingError) throw view.loadingError
+  if (view.total !== view.rows.length) throw new Error(`${label}读取不完整`)
+}
+
+/**
+ * 在蓝图 PageRuntime 中按需装配阶段字典与成员空间，并准备标准选项视图：字典读全量，用户目录按当前应用成员过滤。
+ * @returns 当前应用是否存在负责人候选。
+ */
+async function prepareNodeOptionViews(input: Readonly<{
+  runtime: PageRuntime
+  projectId: string
+  assertCurrent: () => void
+}>): Promise<boolean> {
+  const {runtime, assertCurrent} = input
+  await runtime.ensureScenarioLoaded(BLUEPRINT_NODE_STATUS_SCENARIO_ID)
+  assertCurrent()
+  await runtime.ensureScenarioLoaded(BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID)
+  assertCurrent()
+  const statusView = requireView(runtime, BLUEPRINT_NODE_STATUS_SCENARIO_ID, '功能导航状态字典')
+  statusView.queryConfig = {...statusView.queryConfig, allPages: true}
+  await refreshComplete(statusView, '功能导航状态字典', assertCurrent)
+  const members = requireView(runtime, BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID, 'Base_MainBody_RoleUser')
+  members.queryConfig = {...members.queryConfig, allPages: true}
+  members.filterExpression = DataViewFilter.condition({field: 'EntityPKValue', operator: 'eq', value: input.projectId}).toJSON()
+  await refreshComplete(members, '应用成员关系', assertCurrent)
+  const userIds = [...new Set(members.rows.flatMap(row => readText(row, 'UserIdField').split(','))
+    .map(id => id.trim()).filter(id => id.length > 0))]
+  if (userIds.length === 0) return false
+  const users = requireView(runtime, BLUEPRINT_NODE_STATUS_SCENARIO_ID, 'Base_UserInfo')
+  users.queryConfig = {...users.queryConfig, allPages: true}
+  users.filterExpression = DataViewFilter.condition({field: 'rowid', operator: 'in', value: userIds}).toJSON()
+  await refreshComplete(users, '应用成员用户目录', assertCurrent)
+  return true
 }
 
 function readTab(value: unknown): BlueprintTab {
@@ -74,6 +146,14 @@ export function useApplicationFunctionPage() {
   const deletingTarget = shallowRef<DeleteTarget>()
   const activeTab = ref<BlueprintTab>('basic')
   const requestedNodeId = ref('')
+  const treeGeneration = ref(0)
+  const expandedKeys = ref<string[]>([])
+  const stageSaving = ref(false)
+  const creating = ref(false)
+  /** 已完成选项视图装配的蓝图 PageRuntime 实例；与当前树上下文实例一致时才渲染选项字段（resolveView 非响应式）。 */
+  const optionsRuntimeId = ref('')
+  const peopleAvailable = ref(false)
+  const optionsError = ref('')
   let loadRevision = 0
   let releasePreflight = () => {}
 
@@ -87,10 +167,12 @@ export function useApplicationFunctionPage() {
       || typeof scenarioId !== 'string' || runtime.getDataSet(scenarioId) !== owner.dataSet) return undefined
     const key = owner.standardComponentBinding.dataViewKey
     if (!key || runtime.resolveView(key) !== owner.view) return undefined
-    return { key: `${runtime.instanceId}:${projectId}:${key}`, projectId, owner, runtime }
+    return { key: `${runtime.instanceId}:${projectId}:${key}:${treeGeneration.value}`, projectId, owner, runtime }
   })
 
   const treeDataViewKey = computed(() => treeContext.value?.owner.standardComponentBinding.dataViewKey ?? '')
+  const optionsReady = computed(() =>
+    optionsRuntimeId.value !== '' && treeContext.value?.runtime.instanceId === optionsRuntimeId.value)
   const treeBinding = computed(() => treeDataViewKey.value ? { dataViewKey: treeDataViewKey.value } : {})
   const selectedNodeId = computed(() => state.selectedNode.value?.nodeId === requestedNodeId.value
     ? requestedNodeId.value : '')
@@ -98,14 +180,33 @@ export function useApplicationFunctionPage() {
   const canAddRoot = computed(() => {
     void state.externalDataViewRevision.value
     const owner = treeContext.value?.owner
-    return !!owner && !owner.isBusy && !owner.dirty && !state.blueprintSaving.value
+    return !!owner && !owner.isBusy && !owner.dirty && !state.blueprintSaving.value && !creating.value
       && !owner.hasPendingBlueprintCommand && owner.view.addActionState() === 'enabled'
   })
+  /** 同级/子级新增：当前选中节点（或其父节点）在原 DataView 中允许新增子行。 */
+  const canAddSibling = computed(() => canCreateAt('sibling'))
+  const canAddChild = computed(() => canCreateAt('child'))
   const canSaveChanges = computed(() => {
     void state.externalDataViewRevision.value
     const owner = treeContext.value?.owner
-    return !!owner && !owner.isBusy && !state.blueprintSaving.value && (owner.dirty || owner.hasUnconfirmedSave)
+    return !!owner && !owner.isBusy && !state.blueprintSaving.value && !stageSaving.value && (owner.dirty || owner.hasUnconfirmedSave)
       && !state.hasAnyFileDirty.value && state.editor.dirtyScenarioIds.length === 0
+  })
+  /** 名称单独保存：当前行编辑覆盖只含 FunName。 */
+  const canSaveName = computed(() => {
+    void state.externalDataViewRevision.value
+    const owner = treeContext.value?.owner
+    if (!owner || owner.isBusy || state.blueprintSaving.value || stageSaving.value || !isSelectedNodeReady.value) return false
+    const fields = editingFields(owner)
+    return fields?.length === 1 && fields[0] === 'FunName'
+  })
+  /** 阶段在线保存：其他字段有未保存修改或命令待核验时锁定，避免把它们一并提交。 */
+  const stageLocked = computed(() => {
+    void state.externalDataViewRevision.value
+    const owner = treeContext.value?.owner
+    if (!owner || owner.isBusy || state.blueprintSaving.value || stageSaving.value) return true
+    const fields = editingFields(owner)
+    return fields === undefined || fields.some(field => field !== 'status')
   })
   const canCancelChanges = computed(() => {
     void state.externalDataViewRevision.value
@@ -121,6 +222,82 @@ export function useApplicationFunctionPage() {
 
   function isCurrentContext(key: string): boolean {
     return treeContext.value?.key === key
+  }
+
+  /** 新增位置对应的父节点：root→null；sibling→选中节点的父级（根层同级即根模块）；child→选中节点。 */
+  function createParent(position: CreatePosition, context: BlueprintTreeContext): string | null | undefined {
+    if (position === 'root') return null
+    const nodeId = selectedNodeId.value
+    if (!nodeId) return undefined
+    const row = context.owner.view.rows.find(candidate => readText(candidate, 'rowid') === nodeId && candidate['SysId'] === context.projectId)
+    if (!row) return undefined
+    if (position === 'child') return nodeId
+    return isRootParent(row['prowid']) ? null : readText(row, 'prowid')
+  }
+
+  function canCreateAt(position: CreatePosition): boolean {
+    void state.externalDataViewRevision.value
+    const context = treeContext.value
+    const owner = context?.owner
+    if (!context || !owner || owner.isBusy || owner.dirty || owner.hasPendingBlueprintCommand
+      || state.blueprintSaving.value || creating.value) return false
+    const parent = createParent(position, context)
+    if (parent === undefined) return false
+    if (parent === null) return owner.view.addActionState() === 'enabled'
+    return state.childCreateActionState(parent) === 'enabled'
+  }
+
+  async function createNode(position: CreatePosition, rowParentId?: string): Promise<void> {
+    const context = treeContext.value
+    if (!context || !isCurrentContext(context.key) || creating.value) return
+    if (state.hasAnyDirty.value && !context.owner.hasPendingBlueprintCommand) {
+      error.value = '当前蓝图存在未处理修改，先完成保存或取消后再新增节点'
+      return
+    }
+    const parent = rowParentId ?? createParent(position, context)
+    if (parent === undefined) {
+      error.value = '请先选择当前应用蓝图中的节点'
+      return
+    }
+    creating.value = true
+    try {
+      const nodeId = await state.addBlueprintModuleNode(parent)
+      if (!isCurrentContext(context.key)) return
+      if (parent !== null && !expandedKeys.value.includes(parent)) expandedKeys.value = [...expandedKeys.value, parent]
+      error.value = ''
+      await selectNode(nodeId, context)
+    } catch (cause) {
+      if (isCurrentContext(context.key)) error.value = String(cause)
+    } finally {
+      creating.value = false
+    }
+  }
+
+  function addRootNode(): void { void createNode('root') }
+  function addSiblingNode(): void { void createNode('sibling') }
+  function addChildNode(): void { void createNode('child') }
+
+  /** 展开时按父节点沿原 DataView 增量装载；结果所属树代次变化即丢弃。 */
+  async function loadChildren(nodeId: string, context: BlueprintTreeContext): Promise<void> {
+    if (!context.owner.isLazyTree) return
+    try {
+      await state.loadBlueprintChildrenFromDataView(nodeId)
+    } catch (cause) {
+      if (isCurrentContext(context.key)) error.value = String(cause)
+    }
+  }
+
+  function onNodeExpand(...args: unknown[]): void {
+    const context = treeContext.value
+    const nodeId = readNodeId(args[0])
+    if (!context || !isCurrentContext(context.key) || !nodeId) return
+    if (!expandedKeys.value.includes(nodeId)) expandedKeys.value = [...expandedKeys.value, nodeId]
+    void loadChildren(nodeId, context)
+  }
+
+  function onNodeCollapse(...args: unknown[]): void {
+    const nodeId = readNodeId(args[0])
+    if (nodeId) expandedKeys.value = expandedKeys.value.filter(key => key !== nodeId)
   }
 
   function canMove(row: DataRow | undefined, context: BlueprintTreeContext | undefined): boolean {
@@ -144,7 +321,7 @@ export function useApplicationFunctionPage() {
     if (!context || !isCurrentContext(context.key)) return
     const nodeId = readNodeId(args[0])
     if (!nodeId) return
-    void selectNode(nodeId, context)
+    void selectNode(nodeId, context).then(() => loadChildren(nodeId, context))
   }
 
   async function selectNode(nodeId: string, context: BlueprintTreeContext): Promise<void> {
@@ -185,7 +362,7 @@ export function useApplicationFunctionPage() {
     const context = treeContext.value
     if (!context || !isCurrentContext(context.key) || state.hasAnyDirty.value) return
     const nodeId = readNodeId(args[0])
-    if (nodeId) void state.addChildNodeById(nodeId).catch(cause => { error.value = String(cause) })
+    if (nodeId) void createNode('child', nodeId)
   }
 
   function beginDelete(...args: unknown[]): void {
@@ -232,7 +409,22 @@ export function useApplicationFunctionPage() {
       error.value = '蓝图删除目标已变化或当前 DataView 不允许删除'
       return
     }
-    state.removeNodeById(target.nodeId)
+    const siblings = sortedSiblings(context.owner.view, target.parentNodeId)
+    const index = siblings.findIndex(candidate => readText(candidate, 'rowid') === target.nodeId)
+    const fallback = siblings[index + 1] ?? siblings[index - 1]
+    const fallbackId = fallback ? readText(fallback, 'rowid') : ''
+    const wasSelected = selectedNodeId.value === target.nodeId
+    void state.removeNodeByIdAndWait(target.nodeId).then(async removed => {
+      if (!isCurrentContext(context.key)) return
+      if (!removed) {
+        error.value = state.statusMessages.value[0]?.text ?? '蓝图节点删除未完成'
+        return
+      }
+      if (wasSelected) {
+        requestedNodeId.value = ''
+        if (fallbackId) await selectNode(fallbackId, context)
+      }
+    })
   }
 
   function assertNoPendingChanges(): void {
@@ -313,16 +505,34 @@ export function useApplicationFunctionPage() {
       assertCurrent()
       if (owner.projectId !== projectId) throw new Error('蓝图 DataView 与宿主指定目标不匹配')
       activeTab.value = readTab(route.query['blueprintTab'])
-      if (!owner.hasTreeProjection) await state.loadBlueprintTreeFromDataView()
+      if (!owner.hasTreeProjection) await state.loadBlueprintLazyTreeFromDataView()
       assertCurrent()
+      treeGeneration.value++
+      expandedKeys.value = owner.view.rows.filter(row => isRootParent(row['prowid'])).map(row => readText(row, 'rowid'))
+      const optionRuntime = state.blueprintPageRuntime.value
+      if (!optionRuntime) throw new Error('蓝图 PageRuntime 尚未就绪')
+      optionsError.value = ''
+      void prepareNodeOptionViews({runtime: optionRuntime, projectId, assertCurrent: () => {
+        assertCurrent()
+        if (state.blueprintPageRuntime.value !== optionRuntime || optionRuntime.destroyed) throw new Error('蓝图 PageRuntime 已切换')
+      }}).then(
+        hasPeople => {
+          if (revision !== loadRevision) return
+          peopleAvailable.value = hasPeople
+          optionsRuntimeId.value = optionRuntime.instanceId
+          if (!hasPeople) optionsError.value = '当前应用尚无成员，负责人暂无候选'
+        },
+        cause => { if (revision === loadRevision) optionsError.value = `节点阶段或负责人候选读取失败：${String(cause)}` },
+      )
       if (!nodeId) {
         requestedNodeId.value = state.selectedNode.value?.nodeId ?? ''
         targetReady.value = true
         return
       }
       requestedNodeId.value = nodeId
-      const tree = owner.treeProjection()
-      if (!hasBlueprintNode(tree, nodeId)) throw new Error(`当前应用蓝图中未找到 nodeId=${nodeId}`)
+      const path = await state.locateBlueprintNodeFromDataView(nodeId)
+      assertCurrent()
+      expandedKeys.value = [...new Set([...expandedKeys.value, ...path.slice(0, -1)])]
       if (owner.dirty || owner.hasUnconfirmedSave) {
         if (owner.nodeId !== nodeId || state.selectedNode.value?.nodeId !== nodeId) {
           throw new Error('同项目蓝图 owner 存在未确认修改，仅允许在原 nodeId 下接管，不会自动保存或丢弃')
@@ -350,6 +560,10 @@ export function useApplicationFunctionPage() {
   async function saveBlueprintChanges(): Promise<void> {
     const context = treeContext.value
     if (!context || !isCurrentContext(context.key) || state.blueprintSaving.value) return
+    if (stageSaving.value) {
+      error.value = '节点阶段正在保存，完成后再保存基本信息'
+      return
+    }
     if (state.hasAnyFileDirty.value || state.editor.dirtyScenarioIds.length > 0) {
       error.value = '当前 owner 还包含工具文件或场景定义修改；本页不会替它们提交'
       return
@@ -363,6 +577,48 @@ export function useApplicationFunctionPage() {
     } catch (cause) {
       error.value = String(cause)
     } finally {
+      state.blueprintSaving.value = false
+      state.notifyExternalDataViewChanged()
+    }
+  }
+
+  /** 名称单独保存：当前行编辑覆盖只含 FunName 时沿原 DataView 保存入口提交。 */
+  async function saveNodeName(): Promise<void> {
+    const context = treeContext.value
+    if (!context || !isCurrentContext(context.key) || !canSaveName.value) return
+    await saveBlueprintChanges()
+  }
+
+  /** 阶段在线保存：选择即沿原 DataView 保存 status；失败且无未知回执时回滚到正式值。 */
+  async function onStageChange(): Promise<void> {
+    state.notifyExternalDataViewChanged()
+    const context = treeContext.value
+    if (!context || !isCurrentContext(context.key) || stageSaving.value || state.blueprintSaving.value) return
+    const fields = editingFields(context.owner)
+    if (!fields?.includes('status')) return
+    if (fields.length !== 1) {
+      error.value = '阶段只能单独在线保存；请先保存或取消其他基本信息修改'
+      return
+    }
+    stageSaving.value = true
+    state.blueprintSaving.value = true
+    try {
+      await context.owner.save()
+      if (!isCurrentContext(context.key)) throw new Error('阶段保存期间蓝图项目或运行时身份已变化')
+      state.refreshBlueprintTreeProjection()
+      error.value = ''
+    } catch (cause) {
+      error.value = `阶段保存失败：${String(cause)}`
+      if (!context.owner.hasPendingBlueprintCommand && !context.owner.isBusy) {
+        try {
+          context.owner.cancel()
+          state.refreshBlueprintTreeProjection()
+        } catch (rollback) {
+          error.value = `${error.value}；阶段回滚失败：${String(rollback)}`
+        }
+      }
+    } finally {
+      stageSaving.value = false
       state.blueprintSaving.value = false
       state.notifyExternalDataViewChanged()
     }
@@ -407,19 +663,38 @@ export function useApplicationFunctionPage() {
     selectedNodeId,
     isSelectedNodeReady,
     canAddRoot,
+    canAddSibling,
+    canAddChild,
     canSaveChanges,
+    canSaveName,
+    stageLocked,
+    stageSaving,
     canCancelChanges,
     deletingTarget,
+    expandedKeys,
+    optionsReady,
+    peopleAvailable,
+    statusOptionViewKey: BLUEPRINT_STATUS_OPTION_VIEW_KEY,
+    personOptionViewKey: BLUEPRINT_PERSON_OPTION_VIEW_KEY,
+    optionsError,
+    nodeTypeOptions: BLUEPRINT_NODE_TYPE_OPTIONS,
     isCurrentContext,
     canMove,
     onNodeClick,
+    onNodeExpand,
+    onNodeCollapse,
     onNodeDrop,
+    addRootNode,
+    addSiblingNode,
+    addChildNode,
     addChildFromRow,
     beginDelete,
     cancelDelete,
     confirmDelete,
     selectTab,
     saveBlueprintChanges,
+    saveNodeName,
+    onStageChange,
     cancelBlueprintChanges,
     loadTarget,
   }

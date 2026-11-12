@@ -2674,7 +2674,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-10T14:21:51.286Z"
+      "sourceModifiedAt": "2026-11-12T05:23:19.939Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -2874,7 +2874,7 @@
     "packages/spark-data/src/strategies/crud/local-mutation-delegate.ts": {
       "sourceFile": "packages/spark-data/src/strategies/crud/local-mutation-delegate.ts",
       "shardFile": "files/packages/spark-data/src/strategies/crud/local-mutation-delegate.ts.json",
-      "sourceModifiedAt": "2026-11-06T13:28:55.948Z"
+      "sourceModifiedAt": "2026-11-12T05:23:19.941Z"
     },
     "packages/spark-data/src/strategies/crud/types.ts": {
       "sourceFile": "packages/spark-data/src/strategies/crud/types.ts",
@@ -3134,7 +3134,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
-      "sourceModifiedAt": "2026-11-11T06:36:55.930Z"
+      "sourceModifiedAt": "2026-11-12T05:23:19.946Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
@@ -3189,7 +3189,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts.json",
-      "sourceModifiedAt": "2026-11-07T00:03:25.070Z"
+      "sourceModifiedAt": "2026-11-12T05:23:19.947Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts",
@@ -4774,7 +4774,7 @@
     "src/services/project/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "shardFile": "files/src/services/project/blueprint-workspace-dataview.ts.json",
-      "sourceModifiedAt": "2026-11-11T03:33:59.876Z"
+      "sourceModifiedAt": "2026-11-12T05:25:04.434Z"
     },
     "src/services/project/navigation/project-navigation-guard.ts": {
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
@@ -4924,17 +4924,17 @@
     "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts": {
       "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
       "shardFile": "files/src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.772Z"
+      "sourceModifiedAt": "2026-11-12T04:25:26.036Z"
     },
     "src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts": {
       "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts",
       "shardFile": "files/src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.773Z"
+      "sourceModifiedAt": "2026-11-12T04:12:24.854Z"
     },
     "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue": {
       "sourceFile": "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue",
       "shardFile": "files/src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue.json",
-      "sourceModifiedAt": "2026-11-08T15:44:17.761Z"
+      "sourceModifiedAt": "2026-11-12T04:14:41.325Z"
     },
     "src/views/app/dev-system/node-target-resources.ts": {
       "sourceFile": "src/views/app/dev-system/node-target-resources.ts",
@@ -4954,7 +4954,7 @@
     "src/views/app/dev-system/useDevState.ts": {
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "shardFile": "files/src/views/app/dev-system/useDevState.ts.json",
-      "sourceModifiedAt": "2026-11-10T09:47:56.305Z"
+      "sourceModifiedAt": "2026-11-12T05:31:58.179Z"
     },
     "src/views/app/dev-system/useDevSystem.ts": {
       "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
@@ -4995,6 +4995,16 @@
       "sourceFile": "src/views/features/application/application-context/ui/application-database-relations-page.vue",
       "shardFile": "files/src/views/features/application/application-context/ui/application-database-relations-page.vue.json",
       "sourceModifiedAt": "2026-11-11T08:42:48.546Z"
+    },
+    "src/views/features/application/application-function-management/ui/application-function-page.vue": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page.vue",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/application-function-page.vue.json",
+      "sourceModifiedAt": "2026-11-12T05:33:12.949Z"
+    },
+    "src/views/features/application/application-function-management/ui/use-application-function-page.ts": {
+      "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
+      "shardFile": "files/src/views/features/application/application-function-management/ui/use-application-function-page.ts.json",
+      "sourceModifiedAt": "2026-11-12T05:35:21.142Z"
     },
     "src/views/features/application/application-manager/ui/application-manager-page.vue": {
       "sourceFile": "src/views/features/application/application-manager/ui/application-manager-page.vue",
@@ -5419,7 +5429,7 @@
     "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T17:56:22.560Z"
+      "sourceModifiedAt": "2026-11-11T18:32:17.499Z"
     },
     "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts": {
       "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts",

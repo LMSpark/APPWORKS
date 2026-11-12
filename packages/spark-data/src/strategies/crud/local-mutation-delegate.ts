@@ -92,6 +92,15 @@ constructor(
     this.emitRowsChanged()
   }
 
+  /** 本地一次追加多行（保持既有行对象引用），只对新行求值计算列并发射一次 rowsChanged。 */
+  appendRows(rows: readonly DataRow[], total?: number): void {
+    this.host.rows = [...this.host.rows, ...rows]
+    if (total !== undefined) this.host.total = total
+    this.host.rowIndexMap = undefined
+    this.postMutation?.([...rows])
+    this.emitRowsChanged()
+  }
+
   /**
    * 本地按主键部分更新一行，发射 rowsChanged
    * 同步 currentRow / selectedRows 引用（引用已变，UI 需感知）

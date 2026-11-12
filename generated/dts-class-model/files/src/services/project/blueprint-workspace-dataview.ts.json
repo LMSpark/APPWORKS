@@ -289,6 +289,9 @@
         "isBusy": {
           "type": "boolean"
         },
+        "isLazyTree": {
+          "type": "boolean"
+        },
         "hasPendingRootCreate": {
           "type": "boolean"
         },
@@ -347,6 +350,53 @@
         "method.loadProjectTree.return": {
           "type": "object",
           "title": "Promise<ProjectBlueprintTreeData>"
+        },
+        "method.childrenLoaded.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.childrenLoaded.return": {
+          "type": "boolean"
+        },
+        "method.loadProjectTreeLazy.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadProjectTreeLazy.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintTreeData | undefined>"
+        },
+        "method.loadChildren.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadChildren.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.locateNode.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.locateNode.return": {
+          "type": "object",
+          "title": "Promise<readonly string[]>"
         },
         "method.loadProjectRecords.params": {
           "type": "object",
@@ -452,7 +502,7 @@
         },
         "method.addRootModule.return": {
           "type": "object",
-          "title": "Promise<void>"
+          "title": "Promise<string | number>"
         },
         "method.hasOutput.params": {
           "type": "object",
@@ -571,6 +621,19 @@
           "additionalProperties": false
         },
         "method.addChildNode.return": {
+          "type": "object",
+          "title": "Promise<string | number>"
+        },
+        "method.addModuleNode.params": {
+          "type": "object",
+          "properties": {
+            "parentNodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addModuleNode.return": {
           "type": "object",
           "title": "Promise<string | number>"
         },
@@ -768,7 +831,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-11T03:33:59.876Z",
+  "generatedAt": "2026-11-12T05:25:04.434Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -1130,6 +1193,12 @@
               "writable": false
             },
             {
+              "name": "isLazyTree",
+              "jsdoc": "是否处于按父节点懒加载的项目树模式。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "hasPendingRootCreate",
               "readable": true,
               "writable": false
@@ -1201,6 +1270,87 @@
                   {
                     "type": "reference",
                     "name": "ProjectBlueprintTreeData"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "childrenLoaded",
+              "jsdoc": "懒加载模式下某节点的直接子行是否已由原 DataView 装载；完整树模式恒为 true。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "loadProjectTreeLazy",
+              "jsdoc": "沿同一 DataView owner 只读取根层与根节点的直接子行（下一层预读用于判定可展开），后续按父节点增量装载。\n@returns 当前已装载行的树投影；项目没有可读根节点时返回 undefined。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "ProjectBlueprintTreeData"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadChildren",
+              "jsdoc": "懒加载一个节点的直接子行，并预读这些子行的下一层以判定是否可展开；已装载的父节点不会重复查询。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "locateNode",
+              "jsdoc": "按 nodeId 沿父链定位：缺失的祖先逐级按 rowid 读取，再自顶向下装载各祖先的直接子行。\n@returns 自根到目标的节点身份链。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly string[]"
                   }
                 ]
               }
@@ -1358,15 +1508,24 @@
             },
             {
               "name": "addRootModule",
-              "jsdoc": "Create an unmounted root module through the current formal Base_NavigationInfo query owner.",
+              "jsdoc": "Create an unmounted root module through the current formal Base_NavigationInfo query owner; returns its formal row id.",
               "parameters": [],
               "type": {
                 "type": "reference",
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "intrinsic",
-                    "name": "void"
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
                   }
                 ]
               }
@@ -1620,6 +1779,38 @@
                   },
                   "flags": {
                     "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addModuleNode",
+              "jsdoc": "在已存在父节点下新增一个默认模块节点（同级/子级新增共用），排序值取已装载同级最大值 + 1。\n存在子节点未知回执时只核验原新增，不创建第二条。",
+              "parameters": [
+                {
+                  "name": "parentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
                   }
                 }
               ],

@@ -241,6 +241,50 @@ export class DataSpaceQueryContext {
     return next
   }
 
+  /**
+   * 同owner同模型的完整增量查询并入本基线：原行及其凭据、待确认新增行权限保持不变，仅追加尚未出现的正式行。
+   * 结果级新增凭据和新增许可沿用本基线；增量行逐行凭据随原快照保留，用于后续修改、删除和子行新增。
+   */
+  public withAppendedRows(queried: DataSpaceQueryContext): DataSpaceQueryContext {
+    this.assertCurrent(); queried.assertCurrent(); queried.assertIdentity(this.#identity)
+    const keyField = this.keyField
+    if (!keyField || queried.#scope !== this.#scope || queried.keyField !== keyField || this.#readonlyKind || queried.#readonlyKind
+      || this.#aggregateResult || queried.#aggregateResult || this.#readChild || queried.#readChild
+      || JSON.stringify(queried.#model) !== JSON.stringify(this.#model) || JSON.stringify(queried.#columns) !== JSON.stringify(this.#columns)
+      || (queried.#snapshot.primaryKey !== '' && this.#snapshot.primaryKey !== '' && queried.#snapshot.primaryKey !== this.#snapshot.primaryKey)) {
+      throw new Error('SPARK_APPEND_SCOPE: 增量查询身份、模型或结果类型与原基线不一致')
+    }
+    if (this.#snapshot.total !== this.#snapshot.rows.length || queried.#snapshot.total !== queried.#snapshot.rows.length) {
+      throw new Error('SPARK_APPEND_INCOMPLETE: 增量合并要求原基线与增量结果均为完整集合')
+    }
+    const existing = new Set<string>()
+    for (const row of this.#snapshot.rows) {
+      const key = canonicalKey(this.rowKeyValue(row))
+      if (!key || existing.has(key)) throw new Error('SPARK_APPEND_IDENTITY: 原基线行身份缺失或重复')
+      existing.add(key)
+    }
+    const appended: DataSpaceRow[] = [], seen = new Set<string>()
+    for (const row of queried.#snapshot.rows) {
+      const key = canonicalKey(queried.rowKeyValue(row))
+      if (!key || seen.has(key)) throw new Error('SPARK_APPEND_IDENTITY: 增量结果行身份缺失或重复')
+      seen.add(key)
+      if (!existing.has(key)) appended.push(row)
+    }
+    const snapshot = new DataSpaceQueryTable(this.#identity).applyResult({Result: {
+      data: {Items: [...this.#snapshot.rows, ...appended], Count: this.#snapshot.total + appended.length},
+      primaryKeyField: this.#snapshot.primaryKey, allowAdd: this.#snapshot.allowAdd, lingma_sys_key: this.#snapshot.systemKey,
+    }})
+    const next = new DataSpaceQueryContext({identity: this.#identity,
+      snapshot: Object.freeze({...snapshot, countReported: this.#snapshot.countReported}), scope: this.#scope, readScope: this.#readScope,
+      resultKind: 'entity', ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})})
+    if (this.#model) next.bindFormalModel(this.#model)
+    next.markSavedRowsPending(this.#pendingSavedRowKeys)
+    for (const id of this.#explicitNewRowIds) next.#explicitNewRowIds.add(id)
+    this.assertCurrent(); queried.assertCurrent()
+    return next
+  }
+
   private get keyField(): string { return this.#readonlyKind || this.#aggregateResult ? '' : this.#model?.primaryKey ?? this.#snapshot.primaryKey }
 
   /** 查询结果语义；连接投影与聚合分别标明，均不改变来源模型。 */

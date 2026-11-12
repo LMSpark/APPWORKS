@@ -612,6 +612,18 @@
               "type": "object",
               "title": "() => Promise<import(\"@spark-appworks/spark-project-model\").ProjectBlueprintTreeData>"
             },
+            "loadBlueprintLazyTreeFromDataView": {
+              "type": "object",
+              "title": "() => Promise<import(\"@spark-appworks/spark-project-model\").ProjectBlueprintTreeData | undefined>"
+            },
+            "loadBlueprintChildrenFromDataView": {
+              "type": "object",
+              "title": "(nodeId: string) => Promise<void>"
+            },
+            "locateBlueprintNodeFromDataView": {
+              "type": "object",
+              "title": "(nodeId: string) => Promise<readonly string[]>"
+            },
             "refreshBlueprintTreeProjection": {
               "type": "object",
               "title": "(session?: import(\"./useDevState\").ExternalDataViewSession) => void"
@@ -752,6 +764,10 @@
               "type": "object",
               "title": "(parentNodeId: string) => Promise<void>"
             },
+            "addBlueprintModuleNode": {
+              "type": "object",
+              "title": "(parentNodeId: string | null) => Promise<string>"
+            },
             "listReferenceProjects": {
               "type": "object",
               "title": "() => Promise<import(\"@spark-appworks/spark-project-model\").ProjectSummary[]>"
@@ -767,6 +783,10 @@
             "removeNodeById": {
               "type": "object",
               "title": "(nodeId: string) => void"
+            },
+            "removeNodeByIdAndWait": {
+              "type": "object",
+              "title": "(nodeId: string) => Promise<boolean>"
             },
             "moveNodeInTree": {
               "type": "object",
@@ -847,6 +867,9 @@
             "moveBlueprintNodeInDataView",
             "moveBlueprintNodeRelative",
             "loadBlueprintTreeFromDataView",
+            "loadBlueprintLazyTreeFromDataView",
+            "loadBlueprintChildrenFromDataView",
+            "locateBlueprintNodeFromDataView",
             "refreshBlueprintTreeProjection",
             "blueprintWorkspaceDataView",
             "blueprintPageRuntime",
@@ -882,10 +905,12 @@
             "addRootNode",
             "addChildNode",
             "addChildNodeById",
+            "addBlueprintModuleNode",
             "listReferenceProjects",
             "listReferenceProjectPages",
             "removeNodeFromTree",
             "removeNodeById",
+            "removeNodeByIdAndWait",
             "moveNodeInTree",
             "openProjectPlanningDocumentImportDialog",
             "closeProjectPlanningDocumentImportDialog",

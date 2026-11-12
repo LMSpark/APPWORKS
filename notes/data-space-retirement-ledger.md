@@ -9415,3 +9415,60 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **仍不发布、不缩范围。** 原业务相对路径已落源，registry 保持 `hidden:true/shellTool:false`，正式导航发布列表未改；应用管理“项目管理”尚未开放。当前 owner 仍是全树查询，参考懒加载、同级节点等树细节、其余基本信息字段、AI/原型版本、数据空间与维度来源、导航/桌面/宿主、交付与导出须继续按同一蓝图子方案完成；仓内/动态目标来源及跨应用工具文件边界仍需逐项核实。完整 `apps/appworks` 总体迁移和逐功能验收继续未完成。
 - **原生接入提交检查点。** 已提交并推送 `7b43f5c338cd26d4b7c10022f057afa96fc44243`，独立远端HEAD核验一致；该提交包含隐藏的原生业务页与上述179项验证，不包含正式导航发布或完整页面交付声明。活动子方案和研读锚点继续保留至蓝图整页实施结束。
 - **下一组树加载续查。** 固定参考hook的 `loadProjectBlueprintTreeNodes` 按父节点查询直接子节点，并按渲染代次拒绝旧结果；当前 `BlueprintWorkspaceDataView.queryProjectRows/treeProjection` 仍要求全树，保存回读也会刷新全树。已确认 `DataView.loadTreeChildren` 只经 `TreeManager.fetchChildren` 消费 `api.children` HTTP端点，不会自动变成正式DataSpace查询；下一组须沿同一数据链研究查询结果增量装载及原行权限、草稿、命令范围和未知回执，不使用页面临时行/权限副本伪装懒加载，不增加后端服务。这是已定位的实施差距，不是不能接入的结论。
+
+## 蓝图批次1续做：父节点懒加载、定位、节点增删排序与基本信息
+
+- **公共增量装载链。** 在同一 DataView/DataSpace 查询链上新增增量装载，不另建页面行缓存：
+  - `DataSpaceQueryContext.withAppendedRows` 在原查询身份上合并追加行，保留行主键、字段访问、动作状态与命令范围。
+  - `DataSpaceRuntimeApi.appendQueryResult` 由运行时 API 作为 DataView 执行器直接绑定，即生产接线。
+  - `LocalMutationDelegate.appendRows` 将追加行并入基线，不产生草稿。
+  - `DataView.appendQueryRows({filter})` 以当前查询为基线追加：存在新增/删除草稿时以 `APPEND_STATE` 拒绝；查询身份在途变化时以 `APPEND_STALE` 拒绝；已有编辑覆盖与未知回执语义不变。
+- **owner 懒加载。** `BlueprintWorkspaceDataView` 增加懒加载模式：
+  - `loadProjectTreeLazy` 先取根，再批量取根的子级及孙级。根默认展开，可见子节点需要前瞻一层，否则可展开节点会渲染成叶子。
+  - `loadChildren` 按父节点追加直接子级。
+  - `locateNode` 沿 `prowid` 父链逐级补载。
+  - `childrenLoaded` / `isLazyTree` 供页面判断。
+  - 追加以已加载父集合的身份核对新鲜度，拒绝旧代次结果，对应参考 `loadProjectBlueprintTreeNodes` 的渲染代次拒绝。
+  - 新增节点使用 `addModuleNode(parent)`，`addRootModule` 返回新 id。
+- **工作台与页面。** `useDevState` 增加懒树装载、子级装载、定位、指定父级新增与等待删除。原生页实现以下能力：
+  - 懒加载展开，展开/收起经 `onNodeExpand/onNodeCollapse` 处理，`defaultExpandedKeys` 经 `treeProps` 透传。
+  - `nodeId` 父链定位，并支持 `blueprintTab=dataSpace`。
+  - 根、同级、子级新增；删除后选中回退节点。
+  - 拖动经 `onNodeDrop` 置 `control.cancel` 后由宿主暂存移动，暂存后显示为编辑覆盖。
+  - 基本信息：导航名称经“保存名称”单独保存；阶段在线单独保存，其他基本字段有待存修改时拒绝；能力名称、节点类型、负责人、功能编码、描述显式保存。
+- **候选改为标准选项合同。** 阶段与负责人不再由独立会话构建静态 `options`。蓝图 PageRuntime 将 `FB291E325272007AEED8921C28B93CFD`（阶段字典与用户目录，属报表管理建模）和 `0C70F74793F9E858B71E0DBDEC784D57`（应用成员，属应用管理建模）声明为 `deferredScenarioIds`，页面经 `ensureScenarioLoaded` 按需装配；装配时核对项目、工作区、令牌与执行应用。
+  - 阶段字典查询全量。
+  - 成员关系按 `EntityPKValue=目标应用` 过滤后拆分 `UserIdField`，用户目录按 `rowid in 成员` 过滤。
+  - `FieldSelect` 以 `optionDataViewKey` + `optionValueField/optionLabelField` 消费。
+  - 因 `resolveView` 非响应式，候选视图就绪且与当前 PageRuntime 实例一致后才渲染选择字段，未就绪时显示只读值。
+  - 应用无成员时提示，不提供未过滤用户目录；候选失败只给警告，不阻塞树。
+  - 节点类型 `conType` 是正式固定枚举，按指南保留静态 `options`。
+- **ClassModel 查询与实现、验证对应。**
+  - 组件目录 `componentIndex`：`RTreeProps(r-tree)`、`RSelectProps(r-select)`、`RTextProps`、`RButtonProps`。
+  - `RTreeProps` 概要：`onNodeExpand/onNodeCollapse/onNodeDrop`（`control.cancel` 后由宿主处理）、`treeProps` 透传、`nodeKey/currentKey/expandToKey`。实现采用其中的事件与 `treeProps.defaultExpandedKeys`；入口测试覆盖展开补载与懒拖动暂存。
+  - 沿 `declarationRelations` 查 `SparkCrudDataContainerProps → SparkTableModelProps`：`dataViewKey` 为 `scenarioId@modelName@viewId`，另有 `dataMember/dataField`。树与字段统一绑定 owner 标准 `dataViewKey`。
+  - `RSelectProps → SparkOptionFieldProps → SparkOptionSourceProps` 指南：静态 `options` 仅用于固定枚举，`optionDataViewKey` 从本 PageRuntime 建候选且不回退静态项。据此完成上一条重构；入口测试断言选项视图行及 `FieldSelect.optionDataViewKey`。
+  - PageRuntime 概要：`deferredScenarioIds/ensureScenarioLoaded`。据此声明按需空间，测试夹具 PageRuntime 同样声明按需空间。
+  - 源码改动后两次运行 `pnpm run generate:class-model-surface`。分片已确认含 `DataView.appendQueryRows/appendQueryResult`、`DataSpaceRuntimeApi.appendQueryResult`、`DataSpaceQueryContext.withAppendedRows`、`LocalMutationDelegate.appendRows`、owner 懒加载成员，并已移除页面 `NodeOptionSet`。
+  - 新导出常量不在 ClassModel 投影范围内（只投影类型/类），属于投影口径，不是产物过期或能力缺失。
+  - 生成器同时刷新了与本批无关的既有产物漂移，按官方产物一并提交。
+- **验证。**
+  - `pnpm run typecheck` 通过。
+  - 入口测试 18 项通过，覆盖：懒展开、深定位并切 dataSpace、阶段在线保存与拒绝、根/同级/子级新增位置、懒拖动暂存、按需选项装配、无成员提示。
+  - `tests/app/dev` 与 `tests/app/services/project` 共 26 文件、442 项通过。
+  - lowcode-api 运行时测试 145 项通过，其中新增 4 项追加链测试。
+  - spark-data 1369 项通过。
+  - 改动文件 ESLint 通过；`verify:pages-config`、`verify:page-thin`（保留既有 85 项待审诊断，改动文件无新增）、`verify:class-model`（4 文件 49 项）与 `git diff --check` 通过。
+  - 提交前 `pnpm run verify`（typecheck + lint + verify:rules）通过。其间 AI 代码规则发现页面从组件包平铺具名导入 9 个，已按仓内既有写法改为命名空间导入加解构；保留既有 2 项 AI 模型规范 warning。
+  - 既有失败：lowcode-api `data-space-design-api.test.ts`「unaliased ROWID」用例经 stash 核实在改动前已失败；两项 SSE 用例在高负载下超时，单独运行通过。
+- **已知注意。**
+  - `refreshView` 与懒追加未串行化，保存回读与并发展开交错时依赖追加的身份核对拒绝旧结果。
+  - 懒加载中父节点未载入的孤儿行在投影中显示为根。
+  - 阶段字典/用户目录与成员关系跨用报表管理、应用管理两个场景，需在认证实服核实执行应用下的可读性。
+- **仍开放（不缩范围）。**
+  - 批次2：AI 与需求原型版本。
+  - 批次3–4：数据空间与维度来源、导航/桌面/宿主、交付与导出。
+  - 批次5：两个权限入口。
+  - 正式导航发布与应用管理“项目管理”开放。
+  - 认证实服与浏览器烟测。
+  - 完整 `apps/appworks` 其余业务域逐功能验收。

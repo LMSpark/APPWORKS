@@ -100,6 +100,22 @@
           "additionalProperties": false
         },
         "method.appendRow.return": true,
+        "method.appendRows.params": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../../types.ts.json#/$defs/DataRow"
+              }
+            },
+            "total": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendRows.return": true,
         "method.updateRowById.params": {
           "type": "object",
           "properties": {
@@ -161,7 +177,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-06T13:28:55.948Z",
+  "generatedAt": "2026-11-12T05:23:19.941Z",
   "models": {
     "EmitRowsChangedFn": {
       "name": "EmitRowsChangedFn",
@@ -296,6 +312,33 @@
                     "type": "reference",
                     "name": "DataRow",
                     "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendRows",
+              "jsdoc": "本地一次追加多行（保持既有行对象引用），只对新行求值计算列并发射一次 rowsChanged。",
+              "parameters": [
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataRow[]"
+                  }
+                },
+                {
+                  "name": "total",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

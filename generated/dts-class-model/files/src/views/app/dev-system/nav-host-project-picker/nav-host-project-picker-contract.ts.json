@@ -32,6 +32,12 @@
         "labelField": {
           "type": "string"
         },
+        "valueParameter": {
+          "type": "string"
+        },
+        "textParameter": {
+          "type": "string"
+        },
         "parentField": {
           "type": "string"
         }
@@ -40,7 +46,8 @@
         "scenarioId",
         "modelName",
         "valueField",
-        "labelField"
+        "labelField",
+        "valueParameter"
       ],
       "additionalProperties": false
     },
@@ -66,18 +73,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.772Z",
+  "generatedAt": "2026-11-12T04:25:26.036Z",
   "models": {
     "NavHostProjectBinding": {
       "name": "NavHostProjectBinding",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    modelName: string;\n    valueField: string;\n    labelField: string;\n    parentField?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    modelName: string;\n    valueField: string;\n    labelField: string;\n    valueParameter: string;\n    textParameter?: string;\n    parentField?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    scenarioId: string;\n    modelName: string;\n    valueField: string;\n    labelField: string;\n    parentField?: string;\n}>",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    modelName: string;\n    valueField: string;\n    labelField: string;\n    valueParameter: string;\n    textParameter?: string;\n    parentField?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -100,6 +107,16 @@
             },
             {
               "name": "labelField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueParameter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textParameter",
               "readable": true,
               "writable": false
             },

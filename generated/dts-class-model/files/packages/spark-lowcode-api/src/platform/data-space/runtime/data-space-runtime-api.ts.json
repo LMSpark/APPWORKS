@@ -389,11 +389,26 @@
         "method.refreshSavedRowPermissions.return": {
           "type": "object",
           "title": "Promise<DataSpaceQueryContext>"
+        },
+        "method.appendQueryResult.params": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "$ref": "query/data-space-query-context.ts.json#/$defs/DataSpaceQueryContext"
+            },
+            "addition": {
+              "$ref": "query/data-space-query-context.ts.json#/$defs/DataSpaceQueryContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendQueryResult.return": {
+          "$ref": "query/data-space-query-context.ts.json#/$defs/DataSpaceQueryContext"
         }
       }
     }
   },
-  "generatedAt": "2026-11-11T06:36:55.930Z",
+  "generatedAt": "2026-11-12T05:23:19.946Z",
   "models": {
     "DataSpaceRuntimeApiOptions": {
       "name": "DataSpaceRuntimeApiOptions",
@@ -973,6 +988,33 @@
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
                   }
                 ]
+              }
+            },
+            {
+              "name": "appendQueryResult",
+              "jsdoc": "将同owner的完整增量查询并入原查询基线，供DataView按父节点等选择器增量装载；不提交数据、不消费原基线。\n两个上下文都须是当前scope已登记且无未确认保存的结果；合并结果沿用原基线的查询来源用于后续保存核验。",
+              "parameters": [
+                {
+                  "name": "base",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                },
+                {
+                  "name": "addition",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceQueryContext",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
               }
             }
           ]

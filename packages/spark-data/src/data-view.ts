@@ -293,6 +293,8 @@ type DataViewQueryExecutor = Readonly<{
   acknowledgeSave?(context: DataViewQueryResult): undefined
   /** 仅重读已确认新增行的权限，不重新提交保存。 */
   refreshSavedRowPermissions?(context: DataViewQueryResult): Promise<DataViewQueryResult>
+  /** 将同owner的完整增量查询并入原基线并返回新基线；原行凭据、待确认新增行权限沿用原基线，不提交数据。 */
+  appendQueryResult?(base: DataViewQueryResult, addition: DataViewQueryResult): DataViewQueryResult
   /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */
   abandonUnconfirmedSave?(context: DataViewQueryResult): void
   /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */
@@ -3406,6 +3408,93 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       this.emitRowsChanged()
     } finally {
       this.#refreshingSavedRowPermissions = false
+      this._trackMutating(-1)
+    }
+  }
+
+  /**
+   * 沿原查询owner按显式选择器增量装载完整行集并入当前结果（例如按父节点读取直接子行）。
+   * 选择器只用于本次请求并替代视图过滤；视图持久查询配置和刷新身份不变，refresh仍按原过滤重读。
+   * 已有行对象、编辑覆盖、已暂存修改与选择保持不变；同键行跳过，追加行消费增量查询返回的正式行权限。
+   * 要求已加载的可写实体结果，且无在途操作、未确认提交、待确认新增行权限、待新增/删除草稿、父结果来源、过滤查找或父级联。
+   * @param options.filter 本次增量读取的完整远端过滤树。
+   * @returns 实际追加到视图的新行。
+   */
+  async appendQueryRows(options: Readonly<{filter: DataViewFilterTree}>): Promise<readonly DataRow[]> {
+    this.checkDestroyed()
+    const executor = this.#queryExecutor, base = this.currentQueryResult()
+    const identity = this.refreshIdentity(), requestId = this.currentLoadRequestId
+    const keyField = base?.resultPrimaryKey
+    if (!executor?.appendQueryResult || !base || !keyField || (base.resultKind !== undefined && base.resultKind !== 'entity')
+      || !this.effectivePkFields.includes(keyField)) {
+      throw new Error(`DATA_VIEW_APPEND_UNSUPPORTED: ${this.tableName}@${this.viewId} 当前结果不支持增量装载`)
+    }
+    if (this._isDisposing || this._resultStale || this.requestState !== RequestState.Loaded || this.mutating
+      || this.#refreshingSavedRowPermissions || this.hasUnconfirmedSave || base.hasPendingSavedRowPermissions === true
+      || this.dirtyTrackingDelegate.pendingCreateIds.size > 0 || this.dirtyTrackingDelegate.pendingDeleteIds.size > 0
+      || this.#queryResultRefreshIdentity !== identity) {
+      throw new Error(`DATA_VIEW_APPEND_STATE: ${this.tableName}@${this.viewId} 当前状态不能增量装载`)
+    }
+    if (this.queryConfig.parentResult || this.queryConfig.filterLookups?.length || (this.queryConfig.cacheType && this.queryConfig.cacheType !== 'none')
+      || this.dataSet?.getParentCascades(this.tableName, this.viewId).length) {
+      throw new Error(`DATA_VIEW_APPEND_UNSUPPORTED: ${this.tableName}@${this.viewId} 父来源、过滤查找、结果缓存或级联视图不支持增量装载`)
+    }
+    const filter = this._parseFilter(options.filter).toJSON()
+    this._validateRemoteFilterFields(filter)
+    const params: QueryParams = {...DataViewQuery.capture(this.queryConfig), filter, allPages: true}
+    Object.assign(params, DataViewQuery.capture(params))
+    const request = this.withViewQueryDefaults(this.buildTreeModeParams(params))
+    const assertCurrent = (): void => {
+      this.checkDestroyed()
+      if (this.#queryResult !== base || this.#queryExecutor !== executor || this.refreshIdentity() !== identity
+        || this.currentLoadRequestId !== requestId || this._resultStale || this.hasUnconfirmedSave
+        || this.dirtyTrackingDelegate.pendingCreateIds.size > 0 || this.dirtyTrackingDelegate.pendingDeleteIds.size > 0) {
+        throw new Error(`DATA_VIEW_APPEND_STALE: ${this.tableName}@${this.viewId} 增量装载期间原查询身份已改变`)
+      }
+    }
+    this._trackMutating(1)
+    try {
+      const addition = await executor.executeQuery(this, request)
+      assertCurrent()
+      addition.assertIdentity(this.queryIdentity())
+      if (addition.total !== addition.rows.length) throw new Error('DATA_VIEW_APPEND_INCOMPLETE: 增量查询结果不完整')
+      if (this.validateQueryResult) await this.validateQueryResult(addition)
+      assertCurrent()
+      const merged = executor.appendQueryResult(base, addition)
+      merged.assertIdentity(this.queryIdentity())
+      if (merged.resultPrimaryKey !== keyField) throw new Error('DATA_VIEW_APPEND_IDENTITY: 合并结果主键已改变')
+      const byKey = new Map<string, DataViewQueryRow>()
+      for (const row of merged.rows) {
+        const key = String(merged.rowKey(row) ?? '')
+        if (!key || byKey.has(key)) throw new Error('DATA_VIEW_APPEND_IDENTITY: 合并结果行身份缺失或重复')
+        byKey.set(key, row)
+      }
+      const originals = new WeakMap<DataRow, DataViewQueryRow>(), existing = new Set<string>()
+      for (const row of this.rows) {
+        const id = this.getPkKey(row)
+        if (id !== undefined) existing.add(String(id))
+        const previous = this.#queryOriginalRows.get(row)
+        if (previous === undefined) continue
+        const next = byKey.get(String(base.rowKey(previous) ?? ''))
+        if (!next) throw new Error('DATA_VIEW_APPEND_IDENTITY: 合并结果缺少原查询行')
+        originals.set(row, next)
+      }
+      const appended: DataRow[] = []
+      for (const row of merged.rows.slice(base.rows.length)) {
+        const clone = dataRowFromRecord(structuredClone(row))
+        const id = this.getPkKey(clone)
+        if (id === undefined || existing.has(String(id))) throw new Error('DATA_VIEW_APPEND_IDENTITY: 增量行与当前视图行身份冲突')
+        existing.add(String(id))
+        originals.set(clone, row)
+        appended.push(clone)
+      }
+      this.#queryResult = merged
+      this.#queryOriginalRows = originals
+      this._rebuildColumnMap()
+      this.localMutationDelegate.appendRows(appended, merged.total)
+      this.syncTreeManagerFromRows()
+      return appended
+    } finally {
       this._trackMutating(-1)
     }
   }

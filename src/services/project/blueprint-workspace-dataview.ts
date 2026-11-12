@@ -4,7 +4,7 @@
  * 边界：动态项目绑定正式 Base_NavigationInfo，仓内 AppWorks 绑定RepositoryBlueprintNode文件视图；不复制业务草稿。
  * 字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。
  */
-import {buildDataViewKey, DataViewFilter, RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {buildDataViewKey, DataViewFilter, RequestState, type DataRow, type DataSet, type DataView, type DataViewFilterTree} from '@spark-appworks/spark-data'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY, lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords, validateLowcodeProjectBlueprintRecords, type LowcodeProjectBlueprintRecord} from '@spark-appworks/spark-lowcode-api'
 import type {PageRuntime, ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData} from '@spark-appworks/spark-project-model'
 import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
@@ -20,6 +20,12 @@ export const BLUEPRINT_WORKSPACE_FIELD_NAMES = Object.freeze([
 const MODEL_NAME = 'Base_NavigationInfo'
 const VIEW_NAME = 'default'
 const MAX_BLUEPRINT_ROWS = 50_000
+const MAX_BLUEPRINT_DEPTH = 64
+const LAZY_PARENT_BATCH = 100
+
+function isBlueprintRootParent(value: string): boolean {
+  return value === '' || value === '000000' || value === '0'
+}
 
 /** Permission-filtered form projection; unreadable wire members are absent. */
 type OptionalFormFields<T>={ [Key in keyof T]?: T[Key]|undefined }
@@ -109,6 +115,9 @@ export class BlueprintWorkspaceDataView {
   #revision = 0
   #disposed = false
   #treeQueryLoaded = false
+  /** 懒加载模式下已装载直接子行的父节点；undefined 表示当前 DataView 不是按父节点懒加载的项目树。 */
+  #lazyParents: Set<string> | undefined
+  #lazyFlight: Promise<unknown> = Promise.resolve()
   #loadInFlight: Promise<unknown> | undefined
   #unconfirmedIds: Array<string | number> = []
   #unconfirmedPatches = new Map<string | number, Record<string, unknown>>()
@@ -224,6 +233,7 @@ export class BlueprintWorkspaceDataView {
       this.assertTarget(revision,targetNodeId)
     }
     this.#treeQueryLoaded=false
+    this.#lazyParents=undefined
     this.view.filterExpression = DataViewFilter.group({logic: 'and', filters: [
       DataViewFilter.condition({field: 'SysId', operator: 'eq', value: this.#projectId}).toJSON(),
       DataViewFilter.condition({field: 'rowid', operator: 'eq', value: targetNodeId}).toJSON(),
@@ -257,6 +267,173 @@ export class BlueprintWorkspaceDataView {
     }catch(error){this.#treeQueryLoaded=false;throw error}
   }
 
+  /** 是否处于按父节点懒加载的项目树模式。 */
+  public get isLazyTree(): boolean {return this.#lazyParents!==undefined}
+
+  /** 懒加载模式下某节点的直接子行是否已由原 DataView 装载；完整树模式恒为 true。 */
+  public childrenLoaded(nodeId: string): boolean {
+    return this.#lazyParents===undefined||this.#lazyParents.has(nodeId)
+  }
+
+  /**
+   * 沿同一 DataView owner 只读取根层与根节点的直接子行（下一层预读用于判定可展开），后续按父节点增量装载。
+   * @returns 当前已装载行的树投影；项目没有可读根节点时返回 undefined。
+   */
+  public async loadProjectTreeLazy(): Promise<ProjectBlueprintTreeData | undefined> {
+    this.assertUsable()
+    if (this.isBusy || this.hasUnconfirmedSave) throw new Error('蓝图 DataView 正在保存或回执待核验，不能加载项目树')
+    if (this.dirty) throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
+    for (const field of ['rowid', 'SysId', 'prowid', 'FunOrderValue']) if (!this.hasOutput(field)) throw new Error(`蓝图 DataView 未正式输出树字段 ${field}`)
+    const revision=++this.#revision, selectedNodeId=this.#nodeId
+    return this.runLazy(async()=>{
+      this.#treeQueryLoaded=false
+      const lazy=new Set<string>()
+      this.#lazyParents=lazy
+      try{
+        await this.reloadLazyRows(revision,selectedNodeId)
+        // 根层默认展开：与展开节点同口径装载根的直接子行并预读其下一层，避免可展开子节点显示为叶子。
+        const roots=this.view.rows.map(row=>String(row['rowid']))
+        await this.appendLazyChildren(roots,lazy)
+        const rootSet=new Set(roots)
+        await this.appendLazyChildren(this.view.rows.filter(row=>rootSet.has(String(row['prowid']??'').trim())).map(row=>String(row['rowid'])),lazy)
+        this.#treeQueryLoaded=true
+        this.synchronizeCurrentRow()
+        return this.view.rows.length>0?this.treeProjection():undefined
+      }catch(error){this.#treeQueryLoaded=false;this.#lazyParents=undefined;throw error}
+    })
+  }
+
+  /** 懒加载一个节点的直接子行，并预读这些子行的下一层以判定是否可展开；已装载的父节点不会重复查询。 */
+  public async loadChildren(nodeId: string): Promise<void> {
+    this.assertUsable()
+    const parentId=nodeId.trim()
+    if(!parentId)throw new Error('蓝图 DataView 懒加载父节点身份无效')
+    const lazy=this.#lazyParents
+    if(lazy===undefined)return
+    await this.runLazy(async()=>this.loadChildrenNow(parentId,lazy))
+  }
+
+  /**
+   * 按 nodeId 沿父链定位：缺失的祖先逐级按 rowid 读取，再自顶向下装载各祖先的直接子行。
+   * @returns 自根到目标的节点身份链。
+   */
+  public async locateNode(nodeId: string): Promise<readonly string[]> {
+    this.assertUsable()
+    const targetId=nodeId.trim()
+    if(!targetId)throw new Error('蓝图 DataView 定位节点身份无效')
+    const lazy=this.#lazyParents
+    if(lazy===undefined){
+      if(!this.view.rows.some(row=>row['rowid']===targetId&&row['SysId']===this.#projectId))throw new Error(`当前应用蓝图中未找到 nodeId=${targetId}`)
+      return [targetId]
+    }
+    return this.runLazy(async()=>{
+      const path:string[]=[]
+      const seen=new Set<string>()
+      let cursor=targetId
+      while(!isBlueprintRootParent(cursor)){
+        if(seen.has(cursor))throw new Error(`蓝图节点父级链存在循环：${cursor}`)
+        if(seen.size>=MAX_BLUEPRINT_DEPTH)throw new Error('蓝图节点父级链超过允许深度')
+        seen.add(cursor)
+        let row=this.findProjectRow(cursor)
+        if(!row){
+          await this.appendLazyRows(DataViewFilter.condition({field:'rowid',operator:'eq',value:cursor}).toJSON(),lazy)
+          row=this.findProjectRow(cursor)
+        }
+        if(!row)throw new Error(cursor===targetId?`当前应用蓝图中未找到 nodeId=${targetId}`:`未读取到蓝图父节点：${cursor}`)
+        path.unshift(cursor)
+        cursor=String(row['prowid']??'').trim()
+      }
+      for(const ancestor of path.slice(0,-1))await this.loadChildrenNow(ancestor,lazy)
+      return path
+    })
+  }
+
+  private async loadChildrenNow(parentId:string,lazy:Set<string>):Promise<void>{
+    if(!lazy.has(parentId))await this.appendLazyChildren([parentId],lazy)
+    const children=this.view.rows.filter(row=>String(row['prowid']??'').trim()===parentId).map(row=>String(row['rowid']))
+    await this.appendLazyChildren(children.filter(id=>!lazy.has(id)),lazy)
+  }
+
+  private async runLazy<T>(operation:()=>Promise<T>):Promise<T>{
+    const run=this.#lazyFlight.catch(()=>undefined).then(operation)
+    this.#lazyFlight=run
+    return run
+  }
+
+  private findProjectRow(nodeId:string):DataRow|undefined{
+    return this.view.rows.find(row=>row['rowid']===nodeId&&row['SysId']===this.#projectId)
+  }
+
+  /** 懒加载模式：根层查询替换结果，再把已登记父节点的直接子行一次并入。 */
+  private async reloadLazyRows(revision:number,selectedNodeId:string):Promise<void>{
+    const projectId=this.#projectId
+    this.view.filterExpression=DataViewFilter.group({logic:'and',filters:[
+      DataViewFilter.condition({field:'SysId',operator:'eq',value:projectId}).toJSON(),
+      DataViewFilter.group({logic:'or',filters:[
+        DataViewFilter.condition({field:'prowid',operator:'in',value:['000000','0']}).toJSON(),
+        DataViewFilter.condition({field:'prowid',operator:'is-empty'}).toJSON(),
+      ]}).toJSON(),
+    ]}).toJSON()
+    this.view.queryConfig={...this.view.queryConfig,allPages:true,maxRows:MAX_BLUEPRINT_ROWS}
+    await this.view.refresh();this.assertTarget(revision,selectedNodeId)
+    if(this.view.loadingError)throw this.view.loadingError
+    this.assertLazyRows(this.view.rows)
+    await this.appendLoadedLazyParents()
+  }
+
+  /** 原 DataView 刷新后恢复懒加载已展开的父节点；完整树或单目标模式下只刷新。 */
+  private async refreshView():Promise<void>{
+    await this.view.refresh()
+    if(this.view.loadingError)throw this.view.loadingError
+    if(this.#lazyParents!==undefined){this.assertLazyRows(this.view.rows);await this.appendLoadedLazyParents()}
+  }
+
+  private async appendLoadedLazyParents():Promise<void>{
+    const lazy=this.#lazyParents
+    if(!lazy?.size)return
+    const parents=[...lazy]
+    lazy.clear()
+    await this.appendLazyChildren(parents,lazy)
+  }
+
+  private async appendLazyChildren(parentIds:readonly string[],lazy:Set<string>):Promise<void>{
+    const ids=[...new Set(parentIds.map(id=>id.trim()).filter(id=>id.length>0&&!isBlueprintRootParent(id)))]
+    for(let index=0;index<ids.length;index+=LAZY_PARENT_BATCH){
+      const batch=ids.slice(index,index+LAZY_PARENT_BATCH)
+      await this.appendLazyRows(DataViewFilter.condition({field:'prowid',operator:'in',value:batch}).toJSON(),lazy)
+      for(const id of batch)lazy.add(id)
+    }
+  }
+
+  /** 通过公共 DataView 增量查询并入当前项目的指定行；保持原 owner 行权限、草稿与刷新身份。 */
+  private async appendLazyRows(selector:DataViewFilterTree,lazy:Set<string>):Promise<void>{
+    if(this.#lazyParents!==lazy)throw new Error('蓝图 DataView 懒加载树已失效')
+    const appended=await this.view.appendQueryRows({filter:DataViewFilter.group({logic:'and',filters:[
+      DataViewFilter.condition({field:'SysId',operator:'eq',value:this.#projectId}).toJSON(),selector]}).toJSON()})
+    this.assertUsable()
+    if(this.#lazyParents!==lazy)throw new Error('蓝图 DataView 懒加载树已失效')
+    this.assertLazyRows(appended)
+    this.synchronizeCurrentRow()
+  }
+
+  private assertLazyRows(rows:readonly DataRow[]):void{
+    if(!Number.isSafeInteger(this.view.total)||this.view.total!==this.view.rows.length)throw new Error(`蓝图 DataView 懒加载树总数与行数不一致：total=${this.view.total} rows=${this.view.rows.length}`)
+    for(const row of rows){
+      if(row['SysId']!==this.#projectId||typeof row['rowid']!=='string'||!row['rowid'].trim())throw new Error('蓝图 DataView 返回了跨项目或缺少 rowid 的树行')
+      if(['rowid','SysId','prowid','FunOrderValue'].some(field=>this.view.fieldAccess(row,field).read!=='visible'))throw new Error('蓝图 DataView 不可读取树结构或排序字段')
+    }
+  }
+
+  /** 结构命令所需的树行：完整树模式重读全项目；懒加载模式重读根层与已展开父节点（可附加需展开的父节点）。 */
+  private async readTreeRows(revision:number,selectedNodeId:string,parents:readonly string[]=[]):Promise<DataRow[]>{
+    const lazy=this.#lazyParents
+    if(lazy===undefined)return this.queryProjectRows(revision,selectedNodeId)
+    for(const parent of parents)if(!isBlueprintRootParent(parent))lazy.add(parent)
+    await this.runLazy(async()=>this.reloadLazyRows(revision,selectedNodeId))
+    this.synchronizeCurrentRow()
+    return [...this.view.rows]
+  }
+
   /** Load the same permission-filtered records for consumers that need rows instead of a tree. */
   public async loadProjectRecords(): Promise<readonly LowcodeProjectBlueprintRecord[]> {
     this.assertUsable()
@@ -284,11 +461,12 @@ export class BlueprintWorkspaceDataView {
         if(!recovered.success)throw recovered.error??new Error(recovered.message??'蓝图 DataView 删除保存仍未确认')
       }
       const revision=++this.#revision,selectedNodeId=this.#nodeId
-      const rows=await this.queryProjectRows(revision,selectedNodeId)
+      const rows=await this.readTreeRows(revision,selectedNodeId)
       this.#treeQueryLoaded=true
       if(rows.some(row=>row['rowid']===targetId&&row['SysId']===this.#projectId))throw new Error('蓝图 DataView 删除结果回读后目标仍存在')
       this.#unconfirmedDeleteId=undefined
       this.#unconfirmedDeleteParentId=undefined
+      this.#lazyParents?.delete(targetId)
       if(this.#nodeId===targetId)this.#nodeId=''
       this.synchronizeCurrentRow()
       return this.treeProjection()
@@ -298,7 +476,7 @@ export class BlueprintWorkspaceDataView {
     for(const field of ['prowid','FunOrderValue'])if(!this.hasOutput(field))throw new Error(`蓝图 DataView 未正式输出树字段 ${field}`)
 
     const revision=++this.#revision,selectedNodeId=this.#nodeId
-    const rows=await this.queryProjectRows(revision,selectedNodeId)
+    const rows=await this.readTreeRows(revision,selectedNodeId,[targetId,parentId])
     this.#treeQueryLoaded=true
     this.synchronizeCurrentRow()
     this.treeProjection()
@@ -321,11 +499,12 @@ export class BlueprintWorkspaceDataView {
     if(!saved.success)throw saved.error??new Error(saved.message??'蓝图 DataView 删除保存失败')
 
     const readbackRevision=++this.#revision
-    const confirmedRows=await this.queryProjectRows(readbackRevision,selectedNodeId)
+    const confirmedRows=await this.readTreeRows(readbackRevision,selectedNodeId)
     this.#treeQueryLoaded=true
     if(confirmedRows.some(row=>row['rowid']===targetId&&row['SysId']===this.#projectId))throw new Error('蓝图 DataView 删除保存后目标仍存在')
     this.#unconfirmedDeleteId=undefined
     this.#unconfirmedDeleteParentId=undefined
+    this.#lazyParents?.delete(targetId)
     if(this.#nodeId===targetId)this.#nodeId=''
     this.synchronizeCurrentRow()
     return this.treeProjection()
@@ -339,7 +518,7 @@ export class BlueprintWorkspaceDataView {
     if (!Number.isSafeInteger(index) || index < 0) throw new Error('蓝图节点位置无效')
     for (const field of ['prowid', 'FunOrderValue']) if (!this.hasOutput(field)) throw new Error(`蓝图 DataView 未正式输出树字段 ${field}`)
     const nodeKey=nodeId.trim(), revision=++this.#revision, projectId=this.#projectId, selectedNodeId=this.#nodeId
-    const rows=await this.queryProjectRows(revision,selectedNodeId)
+    const rows=await this.readTreeRows(revision,selectedNodeId,parentId===null||parentId.trim()===`project-blueprint:${projectId}`?[]:[parentId.trim()])
     this.#treeQueryLoaded=true
     this.synchronizeCurrentRow()
     try{this.treeProjection()}catch(error){this.#treeQueryLoaded=false;throw error}
@@ -355,7 +534,7 @@ export class BlueprintWorkspaceDataView {
     const nodeKey=command.nodeId.trim(),targetKey=command.targetNodeId.trim(),projectId=this.#projectId
     if(!nodeKey||!targetKey||nodeKey===targetKey)throw new Error('蓝图节点相对位置命令身份无效')
     const revision=++this.#revision,selectedNodeId=this.#nodeId
-    const rows=await this.queryProjectRows(revision,selectedNodeId)
+    const rows=await this.readTreeRows(revision,selectedNodeId,command.position==='inner'?[targetKey]:[])
     this.#treeQueryLoaded=true
     this.synchronizeCurrentRow()
     try{this.treeProjection()}catch(error){this.#treeQueryLoaded=false;throw error}
@@ -510,18 +689,18 @@ export class BlueprintWorkspaceDataView {
       ||String(wireFields(actual)['FunOrderValue'])!==String(wireFields(node)['FunOrderValue']))throw new Error(`蓝图 DataView 移动批次正式树回读不一致：${id}`)}
   }
 
-  /** Create an unmounted root module through the current formal Base_NavigationInfo query owner. */
-  public async addRootModule(): Promise<void> {
+  /** Create an unmounted root module through the current formal Base_NavigationInfo query owner; returns its formal row id. */
+  public async addRootModule(): Promise<string|number> {
     this.assertWritable()
     if (this.isBusy) throw new Error('蓝图 DataView 正在查询或保存')
     if (this.hasUnconfirmedSave) {
       if (this.#unconfirmedRootId === undefined) throw new Error('蓝图 DataView 存在其他未确认保存')
-      await this.saveIds([this.#unconfirmedRootId])
-      await this.view.refresh()
-      if (this.view.loadingError) throw this.view.loadingError
+      const id=this.#unconfirmedRootId
+      await this.saveIds([id])
+      await this.refreshView()
       this.synchronizeCurrentRow()
       this.treeProjection()
-      return
+      return id
     }
     if (this.#unconfirmedRootId !== undefined) {
       const id=this.#unconfirmedRootId
@@ -532,7 +711,7 @@ export class BlueprintWorkspaceDataView {
       }
       await this.commitRootModule(id,this.#unconfirmedPatches.get(id)??{})
       this.treeProjection()
-      return
+      return id
     }
     if (this.dirty) throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
     if (!this.#treeQueryLoaded) throw new Error('蓝图 DataView 尚未加载项目树，不能新增根模块')
@@ -564,6 +743,7 @@ export class BlueprintWorkspaceDataView {
     if (validation && !validation.valid) throw new Error(validation.errors[0]?.message ?? '蓝图根模块字段校验失败')
 
     await this.commitRootModule(id,input)
+    return id
   }
 
   private async commitRootModule(id:string|number,expected:Record<string,unknown>):Promise<void>{
@@ -572,8 +752,7 @@ export class BlueprintWorkspaceDataView {
     this.#unconfirmedPatches = new Map([[id, {...expected}]])
     const saved = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: [id]}]})
     if (!saved.success) throw saved.error ?? new Error(saved.message ?? '蓝图根模块保存失败')
-    await this.view.refresh()
-    if (this.view.loadingError) throw this.view.loadingError
+    await this.refreshView()
     const confirmed = this.view.rows.find(candidate => this.view.getPkKey(candidate) === id && candidate['SysId'] === this.#projectId)
     if (!confirmed || Object.entries(expected).some(([field, value]) => !sameWireValue(confirmed[field], value))) {
       throw new Error('蓝图根模块保存后未通过 DataView 正式回读')
@@ -936,7 +1115,7 @@ export class BlueprintWorkspaceDataView {
           this.#childReceiptState='accepted'
         }catch(error){if(this.view.hasUnconfirmedSave)this.#childReceiptState='unknown';else if(this.#childReceiptState==='pending')await this.clearPendingChildCreate(id);throw error}
       }
-      await this.view.refresh();if(this.view.loadingError)throw this.view.loadingError
+      this.#lazyParents?.add(parentNodeId);await this.refreshView()
       this.synchronizeCurrentRow()
       const row=this.view.rows.find(item=>this.view.getPkKey(item)===id&&item['SysId']===this.#projectId&&item['prowid']===parentNodeId)
       if(!row||Object.entries(patch).some(([field,value])=>!sameWireValue(row[field],value)))throw new Error('蓝图子节点未知回执核验回读不一致')
@@ -963,7 +1142,7 @@ export class BlueprintWorkspaceDataView {
     catch(error){if(this.view.hasUnconfirmedSave)this.#childReceiptState='unknown';else await this.clearPendingChildCreate(id);throw error}
     if(!saved.success){await this.clearPendingChildCreate(id);throw saved.error??new Error(saved.message??'蓝图子节点保存失败')}
     this.#childReceiptState='accepted'
-    await this.view.refresh();if(this.view.loadingError)throw this.view.loadingError
+    this.#lazyParents?.add(parentNodeId);await this.refreshView()
     this.synchronizeCurrentRow()
     const confirmed=this.view.rows.find(row=>this.view.getPkKey(row)===id&&row['SysId']===this.#projectId&&row['prowid']===parentNodeId)
     if(!confirmed||Object.entries(expected).some(([field,value])=>!sameWireValue(confirmed[field],value)))throw new Error('蓝图子节点保存后未通过 DataView 正式回读')
@@ -976,6 +1155,24 @@ export class BlueprintWorkspaceDataView {
     this.#unconfirmedIds=this.#unconfirmedIds.filter(item=>item!==id)
     this.#unconfirmedPatches.delete(id)
     if(this.#unconfirmedChildId===id){this.#unconfirmedChildId=undefined;this.#childReceiptState=undefined}
+  }
+
+  /**
+   * 在已存在父节点下新增一个默认模块节点（同级/子级新增共用），排序值取已装载同级最大值 + 1。
+   * 存在子节点未知回执时只核验原新增，不创建第二条。
+   */
+  public async addModuleNode(parentNodeId:string):Promise<string|number>{
+    const parentId=parentNodeId.trim()
+    if(!parentId||isBlueprintRootParent(parentId))throw new Error('蓝图 DataView 新增模块父节点身份无效')
+    if(this.hasPendingChildCreate)return this.addChildNode(parentId,{})
+    await this.loadChildren(parentId)
+    const orders=this.view.rows.filter(row=>String(row['prowid']??'').trim()===parentId).map(row=>Number(row['FunOrderValue']??0)).filter(Number.isFinite)
+    const order=orders.length?Math.max(...orders)+1:0
+    return this.addChildNode(parentId,{
+      name:'新模块',FunName:'新模块',memo:'',funCode:'',personCharge:'',status:'',conType:'Model',FunOrderValue:String(order),
+      NavigationImageWxz:'FolderOpened',NavigationUrl:'',MobileUrl:'',NavigationType:'',ChildItemLocation:'Left',NavigationShowType:'',
+      HorizontalAlignment:'',IsShowAtNav:'0',IsShowChildItem:'1',BeginGroup:'0',conid:'',htmlDesc:'',
+    })
   }
 
   /** Read the selected editable node as a permission-filtered compatibility projection. */
@@ -1280,9 +1477,8 @@ export class BlueprintWorkspaceDataView {
         if (!recovered.success) throw recovered.error ?? new Error(recovered.message ?? '蓝图 DataView 未确认保存仍无法核验')
         this.#acceptedReceiptPending=true
       }
-      await this.view.refresh()
+      await this.refreshView()
       this.assertTarget(revision, targetNodeId)
-      if (this.view.loadingError) throw this.view.loadingError
       this.synchronizeCurrentRow()
       const recoveryTargetId=targetNodeId||String(this.#unconfirmedIds[0]??'')
       const recoveredRow = this.view.rows.find(candidate => candidate['rowid'] === recoveryTargetId && candidate['SysId'] === this.#projectId)
@@ -1311,9 +1507,8 @@ export class BlueprintWorkspaceDataView {
     if(result.success||(result.data?.createdCount??0)>0||(result.data?.savedCount??0)>0||(result.data?.deletedCount??0)>0)this.#acceptedReceiptPending=true
     if (!result.success) throw result.error ?? new Error(result.message ?? '蓝图 DataView 保存失败')
     if(expectedSavedCount!==undefined)this.assertBatchSaveCounts(result,0,expectedSavedCount)
-    await this.view.refresh()
+    await this.refreshView()
     this.assertTarget(revision, targetNodeId)
-    if (this.view.loadingError) throw this.view.loadingError
     this.synchronizeCurrentRow()
     const verificationId=targetNodeId||String(changedIds[0])
     const saved = this.view.rows.find(candidate => candidate['rowid'] === verificationId && candidate['SysId'] === this.#projectId)
@@ -1342,6 +1537,7 @@ export class BlueprintWorkspaceDataView {
   /** Read paths accept stored orphan rows; structural writes keep requireParentClosure so they never act on an incomplete tree. */
   private async queryProjectRows(revision:number,selectedNodeId:string,requireParentClosure=true):Promise<DataRow[]> {
     const projectId=this.#projectId
+    this.#lazyParents=undefined
     this.view.filterExpression=DataViewFilter.condition({field:'SysId',operator:'eq',value:projectId}).toJSON()
     this.view.queryConfig={...this.view.queryConfig,allPages:true,maxRows:MAX_BLUEPRINT_ROWS}
     await this.view.refresh();this.assertTarget(revision,selectedNodeId)

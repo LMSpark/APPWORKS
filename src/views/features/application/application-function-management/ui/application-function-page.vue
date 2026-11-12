@@ -26,7 +26,9 @@
     <section v-if="treeContext" class="application-function-page__workspace">
       <aside class="application-function-page__tree">
         <div class="application-function-page__tree-toolbar">
-          <RendererButton label="新增根模块" button-type="primary" :disabled="!canAddRoot" @click="state.addRootNode()" />
+          <RendererButton label="新增根模块" button-type="primary" :disabled="!canAddRoot" @click="addRootNode" />
+          <RendererButton label="新增同级" :disabled="!canAddSibling" @click="addSiblingNode" />
+          <RendererButton label="新增子级" :disabled="!canAddChild" @click="addChildNode" />
         </div>
         <RendererTree
           :key="treeContext.key"
@@ -35,6 +37,8 @@
           :current-key="selectedNodeId"
           :tree-props="treeProps"
           :on-node-click="onNodeClick"
+          :on-node-expand="onNodeExpand"
+          :on-node-collapse="onNodeCollapse"
           :on-node-drop="onNodeDrop"
           class="application-function-page__tree-body"
         >
@@ -67,12 +71,26 @@
         <template v-if="isSelectedNodeReady && activeTab === 'basic'">
           <div class="application-function-page__details-toolbar">
             <h2>基本信息</h2>
+            <RendererButton label="保存名称" :disabled="!canSaveName" @click="saveNodeName" />
           </div>
+          <DisplayAlert v-if="optionsError" :description="optionsError" alert-type="warning" />
           <RendererForm v-bind="treeBinding" context-data-member="currentRow" :auto-columns="false"
             :show-data-view-meta="false" :grid-columns="1" label-width="120px">
             <FieldText v-bind="treeBinding" data-member="currentRow" data-field="rowid" label="节点 ID" :readonly="true" />
+            <FieldText v-bind="treeBinding" data-member="currentRow" data-field="FunName" label="导航名称"
+              @update:model-value="state.notifyExternalDataViewChanged" />
+            <FieldSelect v-if="optionsReady" v-bind="treeBinding" data-member="currentRow" data-field="status" label="阶段"
+              :option-data-view-key="statusOptionViewKey" option-value-field="val" option-label-field="txt"
+              :readonly="stageLocked" @update:model-value="onStageChange" />
+            <FieldText v-else v-bind="treeBinding" data-member="currentRow" data-field="status" label="阶段" :readonly="true" />
             <FieldText v-bind="treeBinding" data-member="currentRow" data-field="name" label="能力名称"
               @update:model-value="state.notifyExternalDataViewChanged" />
+            <FieldSelect v-bind="treeBinding" data-member="currentRow" data-field="conType" label="节点类型"
+              :options="[...nodeTypeOptions]" @update:model-value="state.notifyExternalDataViewChanged" />
+            <FieldSelect v-if="optionsReady && peopleAvailable" v-bind="treeBinding" data-member="currentRow" data-field="personCharge" label="负责人"
+              :option-data-view-key="personOptionViewKey" option-value-field="rowid" option-label-field="UserName"
+              @update:model-value="state.notifyExternalDataViewChanged" />
+            <FieldText v-else v-bind="treeBinding" data-member="currentRow" data-field="personCharge" label="负责人" :readonly="true" />
             <FieldText v-bind="treeBinding" data-member="currentRow" data-field="funCode" label="功能编码"
               @update:model-value="state.notifyExternalDataViewChanged" />
             <FieldTextarea v-bind="treeBinding" data-member="currentRow" data-field="memo" label="功能描述"
@@ -106,9 +124,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { DisplayAlert, DisplayEmpty, FieldText, FieldTextarea, RendererButton, RendererDialog, RendererForm, RendererTree } from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import type { DataRow } from '@spark-appworks/spark-data'
 import { useApplicationFunctionPage } from './use-application-function-page'
+
+const {DisplayAlert, DisplayEmpty, FieldSelect, FieldText, FieldTextarea, RendererButton, RendererDialog, RendererForm, RendererTree} = SparkComponent
 
 const {
   state,
@@ -120,25 +140,43 @@ const {
   selectedNodeId,
   isSelectedNodeReady,
   canAddRoot,
+  canAddSibling,
+  canAddChild,
   canSaveChanges,
+  canSaveName,
+  stageLocked,
   canCancelChanges,
   deletingTarget,
+  expandedKeys,
+  optionsReady,
+  peopleAvailable,
+  statusOptionViewKey,
+  personOptionViewKey,
+  optionsError,
+  nodeTypeOptions,
   canMove,
   onNodeClick,
+  onNodeExpand,
+  onNodeCollapse,
   onNodeDrop,
+  addRootNode,
+  addSiblingNode,
+  addChildNode,
   addChildFromRow,
   beginDelete,
   cancelDelete,
   confirmDelete,
   selectTab,
   saveBlueprintChanges,
+  saveNodeName,
+  onStageChange,
   cancelBlueprintChanges,
 } = useApplicationFunctionPage()
 
 const treeProps = computed(() => {
   const context = treeContext.value
   return {
-    defaultExpandAll: true,
+    defaultExpandedKeys: expandedKeys.value,
     highlightCurrent: true,
     expandOnClickNode: false,
     draggable: true,

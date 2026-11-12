@@ -669,6 +669,23 @@ export class DataSpaceRuntimeApi {
     return this.refreshSavedPermissions({context,identity:origin.identity,scope:this.currentScope()})
   }
 
+  /**
+   * 将同owner的完整增量查询并入原查询基线，供DataView按父节点等选择器增量装载；不提交数据、不消费原基线。
+   * 两个上下文都须是当前scope已登记且无未确认保存的结果；合并结果沿用原基线的查询来源用于后续保存核验。
+   */
+  public appendQueryResult(base: DataSpaceQueryContext, addition: DataSpaceQueryContext): DataSpaceQueryContext {
+    const scope = this.currentScope(), origin = this.#queryOrigins.get(base)
+    const owner = this.#contexts.get(base)
+    if (!origin || owner === undefined || owner !== this.#contexts.get(addition)
+      || owner !== this.resourceKey(scope, origin.identity)) throw new Error('SPARK_APPEND_OWNER: 增量结果或原基线不属于当前运行owner')
+    if (this.#unconfirmed.has(base) || this.#unconfirmed.has(addition)) throw new Error('SPARK_APPEND_UNCONFIRMED: 原基线存在未确认保存，须先核验')
+    base.assertIdentity(origin.identity)
+    const next = base.withAppendedRows(addition)
+    this.assertScope(scope)
+    this.#contexts.set(next, owner); this.#queryOrigins.set(next, origin)
+    return next
+  }
+
   private assertContextOwner(scope: string, change: DataSpaceRuntimeSaveCommand['changes'][number]): void {
     if (this.#contexts.get(change.context) !== this.resourceKey(scope, change.identity)) {
       throw new Error('SPARK_SAVE_CONTEXT_OWNER: 保存基线不属于当前运行 owner 或已被成功提交')

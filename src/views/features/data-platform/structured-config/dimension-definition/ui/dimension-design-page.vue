@@ -23,41 +23,52 @@ AI用途：迁移参考仓 integration/dimension 页面时，核对规则启用�
     </div>
     <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
     <RendererTabs v-if="ready" v-model="tab">
-      <RendererTabPane label="来源锚点" name="binding" :index="0">
+      <RendererTabPane label="来源锚点" name="binding" :index="0" :lazy="true">
         <RendererTable :data-view-key="bindingKey" :children="bindingColumns" :current-page-search="search('binding_code', 'source_model_meta_name', 'event_code')" :highlight-current-row="true"
-          :show-data-view-meta="false" :on-row-click="selectBinding" />
+          :show-data-view-meta="false" />
         <template v-if="selectedBinding">
           <h2>映射明细：{{ selectedBinding }}</h2>
-          <RendererTable :data-view-key="mappingKey" :children="mappingColumns" :show-data-view-meta="false" />
+          <template v-if="detailError(mappingKey)">
+            <p role="alert">{{ detailError(mappingKey) }}</p>
+            <RendererButton label="重试明细" :disabled="busy || !!dialog || !!ruleDialog || !!deletion" @click="retryDetail(mappingKey)" />
+          </template>
+          <RendererTable v-else :data-view-key="mappingKey" :children="mappingColumns" :show-data-view-meta="false" />
         </template>
       </RendererTabPane>
-      <RendererTabPane label="事件合同" name="event" :index="1">
+      <RendererTabPane label="事件合同" name="event" :index="1" :lazy="true">
         <RendererTable :data-view-key="templateKey" :children="templateColumns" :current-page-search="search('template_name', 'event_code')" :highlight-current-row="true"
-          :show-data-view-meta="false" :on-row-click="selectEvent" />
+          :show-data-view-meta="false" />
         <template v-if="selectedEvent">
           <h2>蓝图锚点：{{ selectedEvent }}</h2>
-          <RendererTable :data-view-key="eventBindingKey" :children="bindingColumns" :show-data-view-meta="false" />
+          <template v-if="detailError(eventBindingKey)">
+            <p role="alert">{{ detailError(eventBindingKey) }}</p>
+            <RendererButton label="重试明细" :disabled="busy || !!dialog || !!ruleDialog || !!deletion" @click="retryDetail(eventBindingKey)" />
+          </template>
+          <RendererTable v-else :data-view-key="eventBindingKey" :children="bindingColumns" :show-data-view-meta="false" />
         </template>
       </RendererTabPane>
-      <RendererTabPane label="规则治理" name="rule" :index="2">
+      <RendererTabPane label="规则治理" name="rule" :index="2" :lazy="true">
         <RendererButton label="新增规则" :disabled="busy || !!dialog || !!ruleDialog || !!deletion" @click="addRule" />
         <RendererTable :data-view-key="ruleKey" :children="ruleColumns" :actions="ruleActions" :current-page-search="search('rule_code', 'rule_name', 'event_code')"
           :show-data-view-meta="false" />
       </RendererTabPane>
-      <RendererTabPane label="维度定义" name="definition" :index="3">
+      <RendererTabPane label="维度定义" name="definition" :index="3" :lazy="true">
         <RendererButton label="新增维度" :disabled="busy || !!dialog || !!ruleDialog || !!deletion" @click="add(definitionKey)" />
         <RendererTable :data-view-key="definitionKey" :children="definitionColumns" :actions="childActions(definitionKey)"
           :current-page-search="search('definition_code', 'definition_name')" :show-data-view-meta="false" />
       </RendererTabPane>
-      <RendererTabPane label="已有映射（只读）" name="dictionary" :index="4">
-        <RendererTable :data-view-key="dictTypeKey" :children="dictTypeColumns" :highlight-current-row="true" :show-data-view-meta="false"
-          :on-row-click="selectDictType" />
+      <RendererTabPane label="已有映射（只读）" name="dictionary" :index="4" :lazy="true">
+        <RendererTable :data-view-key="dictTypeKey" :children="dictTypeColumns" :highlight-current-row="true" :show-data-view-meta="false" />
         <template v-if="selectedDictType">
           <h2>字典项：{{ selectedDictType }}</h2>
-          <RendererTable :data-view-key="dictItemKey" :children="dictItemColumns" :show-data-view-meta="false" />
+          <template v-if="detailError(dictItemKey)">
+            <p role="alert">{{ detailError(dictItemKey) }}</p>
+            <RendererButton label="重试明细" :disabled="busy || !!dialog || !!ruleDialog || !!deletion" @click="retryDetail(dictItemKey)" />
+          </template>
+          <RendererTable v-else :data-view-key="dictItemKey" :children="dictItemColumns" :show-data-view-meta="false" />
         </template>
       </RendererTabPane>
-      <RendererTabPane label="业务分类" name="category" :index="5">
+      <RendererTabPane label="业务分类" name="category" :index="5" :lazy="true">
         <RendererButton label="新增分类" :disabled="busy || !!dialog || !!ruleDialog || !!deletion" @click="add(categoryKey)" />
         <RendererTable :data-view-key="categoryKey" :children="categoryColumns" :actions="childActions(categoryKey)"
           :current-page-search="search('biz_category_code', 'biz_category_name')" :show-data-view-meta="false" />
@@ -77,7 +88,7 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate} from 'vue-router'
 import {ElMessageBox} from 'element-plus'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {RequestState, buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererButton, RendererTable, RendererTabs, RendererTabPane, type RToolbarProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
@@ -91,7 +102,6 @@ const scenarioId = '88A4D51B01702C3856F4632E234BF34B'
 const key = (model: string, view = 'default') => buildDataViewKey(`Bil_Dimension_${model}`, view, scenarioId)
 const {viewKey: bindingKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Bil_Dimension_Source_Binding', componentType: 'dimension-design-page', title: '维度中心',
-  optionModels: ['Rule_Template', 'Rule', 'Definition', 'Dict_Type', 'Biz_Category'].map(name => `Bil_Dimension_${name}`),
 })
 const templateKey = key('Rule_Template'), ruleKey = key('Rule'), definitionKey = key('Definition'), dictTypeKey = key('Dict_Type')
 const categoryKey = key('Biz_Category'), mappingKey = key('Source_Mapping', 'byBinding'), eventBindingKey = key('Source_Binding', 'byEvent')
@@ -104,7 +114,10 @@ const tab = ref('binding'), busy = ref(false), message = ref(''), revision = ref
 const dialog = shallowRef<Dialog>()
 const ruleDialog = shallowRef<Readonly<{id: string | number; created: boolean; epoch: number}>>()
 const deletion = shallowRef<DimensionRuleDeletion>()
-const selectedBinding = ref(''), selectedEvent = ref(''), selectedDictType = ref('')
+const workspaceViews: Readonly<Record<string, readonly string[]>> = {
+  binding: [bindingKey], event: [templateKey], rule: [ruleKey, templateKey],
+  definition: [definitionKey], dictionary: [dictTypeKey], category: [categoryKey],
+}
 const search = (...fields: string[]) => ({fields, placeholder: '关键字'})
 let epoch = 0, stop: (() => void) | undefined
 
@@ -129,12 +142,43 @@ function view(viewKey: string): DataView {
 }
 watch(ready, value => {
   stop?.(); stop = undefined
-  if (value) stop = view(bindingKey).dataSet?.onAnyViewChange({rowsChanged: changed, currentRowChanged: changed, cleared: changed})
+  if (value) stop = view(bindingKey).dataSet?.onAnyViewChange({
+    rowsChanged: changed, currentRowChanged: changed, requestStateChanged: changed, cleared: changed,
+  })
 }, {immediate: true})
 onBeforeUnmount(() => stop?.())
 function changed(): void { revision.value++ }
 const failure = (cause: unknown) => cause instanceof Error ? cause.message : String(cause)
 const rows = (viewKey: string): readonly DataRow[] => { void revision.value; return view(viewKey).rows }
+function selectedLabel(viewKey: string, field: string, fallback?: string): string {
+  void revision.value
+  const target = view(viewKey), row = target.currentRow
+  if (!row || target.requestState !== RequestState.Loaded) return ''
+  if (target.fieldAccess(row, field).read !== 'visible') return '（字段不可读）'
+  const value = text(row, field)
+  if (value) return value
+  return fallback && target.fieldAccess(row, fallback).read === 'visible' ? text(row, fallback) || '（未填写）' : '（未填写）'
+}
+const selectedBinding = computed(() => selectedLabel(bindingKey, 'binding_code', 'id'))
+const selectedEvent = computed(() => selectedLabel(templateKey, 'event_code'))
+const selectedDictType = computed(() => selectedLabel(dictTypeKey, 'dict_type_code'))
+function detailError(viewKey: string): string {
+  void revision.value
+  const target = view(viewKey)
+  return target.requestState === RequestState.Failed ? target.loadingError?.message ?? '明细查询失败' : ''
+}
+watch([ready, tab], ([isReady, name]) => {
+  if (!isReady) return
+  const targets = workspaceViews[name], owner = session.runtime
+  if (!targets) { message.value = `未知维度工作区 ${name}`; return }
+  void Promise.all(targets.map(async viewKey => {
+    const target = view(viewKey)
+    if (target.requestState === RequestState.Idle) await target.requestData()
+    if (target.requestState === RequestState.Failed) throw target.loadingError ?? new Error(`工作区视图加载失败 ${viewKey}`)
+  })).catch(cause => {
+    if (ready.value && session.runtime === owner && tab.value === name) message.value = failure(cause)
+  })
+}, {immediate: true})
 
 const col = (field: string, label: string, minWidth = 120): SparkNode =>
   ({type: 'r-text', props: {field, label, readonly: true, minWidth, sortable: false, showOverflowTooltip: true}})
@@ -186,25 +230,21 @@ async function guarded(action: () => Promise<void>): Promise<void> {
   busy.value = true; message.value = ''
   try { await action() } catch (cause) { message.value = failure(cause) } finally { busy.value = false }
 }
-const selectBinding = (row: DataRow) => guarded(async () => {
-  const id = text(row, 'id'); selectedBinding.value = text(row, 'binding_code') || id
-  await load(mappingKey, {bindingId: id})
-})
-const selectEvent = (row: DataRow) => guarded(async () => {
-  selectedEvent.value = text(row, 'event_code')
-  await load(eventBindingKey, {eventCode: selectedEvent.value})
-})
-const selectDictType = (row: DataRow) => guarded(async () => {
-  selectedDictType.value = text(row, 'dict_type_code')
-  await load(dictItemKey, {dictTypeCode: selectedDictType.value})
+const retryDetail = (viewKey: string) => guarded(async () => {
+  const target = view(viewKey)
+  await target.refresh()
+  if (target.loadingError) throw target.loadingError
 })
 async function loadRule(id: string | number): Promise<void> {
   await Promise.all([load(conditionKey, {ruleId: String(id)}), load(resultKey, {ruleId: String(id)})])
 }
 async function refreshAll(): Promise<void> {
   await guarded(async () => {
-    selectedBinding.value = ''; selectedEvent.value = ''; selectedDictType.value = ''
-    for (const viewKey of [bindingKey, templateKey, ruleKey, definitionKey, dictTypeKey, categoryKey]) await load(viewKey, {})
+    const active = workspaceViews[tab.value]
+    if (!active) throw new Error(`未知维度工作区 ${tab.value}`)
+    for (const viewKey of [bindingKey, templateKey, ruleKey, definitionKey, dictTypeKey, categoryKey]) {
+      if (view(viewKey).requestState !== RequestState.Idle || active.includes(viewKey)) await load(viewKey, {})
+    }
   })
 }
 

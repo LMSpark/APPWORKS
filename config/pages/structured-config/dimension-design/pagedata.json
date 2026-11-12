@@ -628,5 +628,42 @@
       }
     }
   },
-  "viewCascades": []
+  "viewCascades": [
+    {
+      "kind": "query",
+      "cascadeId": "dimension-binding-mapping",
+      "parentTable": "Bil_Dimension_Source_Binding",
+      "parentViewId": "default",
+      "childTable": "Bil_Dimension_Source_Mapping",
+      "childViewId": "byBinding",
+      "filterBindings": [],
+      "inputBindings": [
+        {"sourceField": "id", "target": "queryContext.bindingId"}
+      ]
+    },
+    {
+      "kind": "query",
+      "cascadeId": "dimension-event-binding",
+      "parentTable": "Bil_Dimension_Rule_Template",
+      "parentViewId": "default",
+      "childTable": "Bil_Dimension_Source_Binding",
+      "childViewId": "byEvent",
+      "filterBindings": [],
+      "inputBindings": [
+        {"sourceField": "event_code", "target": "queryContext.eventCode"}
+      ]
+    },
+    {
+      "kind": "query",
+      "cascadeId": "dimension-dictionary-items",
+      "parentTable": "Bil_Dimension_Dict_Type",
+      "parentViewId": "default",
+      "childTable": "Bil_Dimension_Dict_Item",
+      "childViewId": "byType",
+      "filterBindings": [],
+      "inputBindings": [
+        {"sourceField": "dict_type_code", "target": "queryContext.dictTypeCode"}
+      ]
+    }
+  ]
 }

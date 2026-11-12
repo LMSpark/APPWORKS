@@ -17,8 +17,9 @@ export const keys = {
 type Table = Readonly<{modelBinding: {modelId: string; modelName: string}
   views: Record<string, {queryConfig?: {fields?: string[]}; filterExpression?: unknown}>}>
 
-export async function createDimensionRuntime(ruleId = 'R1', anchorMetadata = true) {
-  const source = (JSON.parse(pagedata) as {tables: Record<string, Table>}).tables
+export async function createDimensionRuntime(ruleId = 'R1', anchorMetadata = true, preload = true) {
+  const parsed = JSON.parse(pagedata) as {tables: Record<string, Table>; viewCascades: unknown[]}
+  const source = parsed.tables
   const names = Object.keys(source)
   const tables = Object.fromEntries(names.map(name => [name, source[name]]))
   const fields = Object.fromEntries(names.map(name => {
@@ -50,7 +51,7 @@ export async function createDimensionRuntime(ruleId = 'R1', anchorMetadata = tru
     Bil_Dimension_Source_Binding: [],
   }
   const api = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}})})
-  const config = new ScenarioViewConfig(scenario, JSON.stringify({scenarioId: scenario, tables}))
+  const config = new ScenarioViewConfig(scenario, JSON.stringify({scenarioId: scenario, tables, viewCascades: parsed.viewCascades}))
   const dataSet = new LowcodeDataSpaceAssembler(api, http).assemble({
     config, space: {dataSpaceId: scenario, name: 'Dimension'}, models, relations: [],
   }).dataSet
@@ -65,7 +66,7 @@ export async function createDimensionRuntime(ruleId = 'R1', anchorMetadata = tru
   if (!rule || !condition || !result || !events || !bindings || !validationBindings) throw new Error('维度测试视图缺失')
   condition.queryContext = {ruleId}
   result.queryContext = {ruleId}
-  await Promise.all([rule.refresh(), condition.refresh(), result.refresh(), events.refresh(), bindings.refresh()])
+  if (preload) await Promise.all([rule.refresh(), condition.refresh(), result.refresh(), events.refresh(), bindings.refresh()])
   return {http, dataSet, runtime, rule, condition, result, events, bindings, validationBindings}
 }
 

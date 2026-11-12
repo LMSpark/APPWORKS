@@ -107,6 +107,13 @@ describe('Vue page registry', () => {
     expect(getVuePageEntry('/dbms')).toBeUndefined()
     expect(getVuePageEntry('/features/application/application-manager/ui/application-manager-page')?.source)
       .toBe('src/views/features/application/application-manager/ui/application-manager-page.vue')
+    const blueprintPath = '/features/application/application-function-management/ui/application-function-page'
+    expect(getVuePageEntry(blueprintPath)).toMatchObject({
+      source: `src/views${blueprintPath}.vue`,
+      scope: 'app',
+      hidden: true,
+      shellTool: false,
+    })
   })
 
   it('does not load page modules while building the component map', async () => {

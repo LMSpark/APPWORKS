@@ -5,6 +5,8 @@ export type NavHostProjectBinding = Readonly<{
   modelName: string
   valueField: string
   labelField: string
+  valueParameter: string
+  textParameter?: string
   parentField?: string
 }>
 
@@ -28,7 +30,8 @@ export function resolveNavHostProjectBinding(view: DataView, navigationId: strin
   const parentField = String(row['selectPid'] ?? '').trim()
   if (!scenarioId || !modelName || !outputParameter || outputParameter === textParameter || !valueField || !labelField
     || /[@\s]/.test(scenarioId + modelName + valueField + labelField + parentField)) throw new Error('导航宿主项目绑定合同不完整')
-  return {scenarioId, modelName, valueField, labelField, ...(parentField ? {parentField} : {})}
+  return {scenarioId, modelName, valueField, labelField, valueParameter: outputParameter,
+    ...(textParameter ? {textParameter} : {}), ...(parentField ? {parentField} : {})}
 }
 
 export type NavHostProjectCandidateFields = Readonly<{valueField: string; labelField: string; parentField?: string}>

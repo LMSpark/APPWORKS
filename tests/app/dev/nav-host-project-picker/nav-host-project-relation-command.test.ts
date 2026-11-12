@@ -88,6 +88,7 @@ describe('configureNavHostProjectRelation', () => {
       selectValParam: 'rowid', selectTextParam: 'AppName'})
     expect(resolveNavHostProjectBinding(view, 'appworks-tool-dev')).toMatchObject({
       scenarioId: 'DEV-PROJECTS', modelName: 'Base_AppSystemList', valueField: 'rowid', labelField: 'AppName',
+      valueParameter: 'sysid', textParameter: 'sysname',
     })
     expect(view.dirtyTracking.pendingCreateIds.has(String(created['rowid']))).toBe(true)
   })

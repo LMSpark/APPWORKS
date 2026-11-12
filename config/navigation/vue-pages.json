@@ -138,6 +138,16 @@
       "shellTool": false
     },
     {
+      "path": "/features/application/application-function-management/ui/application-function-page",
+      "title": "项目蓝图",
+      "icon": "Grid",
+      "scope": "app",
+      "source": "src/views/features/application/application-function-management/ui/application-function-page.vue",
+      "description": "按应用和蓝图节点身份编辑项目蓝图",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
       "path": "/features/organization/organization-structure/ui/organization-structure-page",
       "title": "机构管理",
       "icon": "OfficeBuilding",

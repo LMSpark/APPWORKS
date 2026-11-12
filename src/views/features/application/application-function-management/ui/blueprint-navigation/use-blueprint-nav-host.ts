@@ -1,16 +1,18 @@
 /**
  * @module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host
  * 职责：导航配置页签的导航宿主关系列表、新增/编辑对话框、删除确认与“数据空间设计”入口。
- * 边界：全部动作经 BlueprintNavHostEditor 在蓝图 DataSet 的 byNode 视图暂存并单独提交；切换节点、上下文或离开页签后旧结果丢弃；
- *   保存或删除结果未知时对话框不能关闭或放弃，只能再次核验原提交。
+ * 边界：直接使用蓝图 DataSet 中 7AB 场景的 byNode 视图；必填、候选成员、资源类型回填与字段级联由场景 pagedata 声明，
+ *   跨字段约束由场景装配注册的模型规则执行；保存与删除只经 DataSet.saveChanges 提交本行，结果未知时再次提交只核验原捕获。
  * AI用途：页面与宿主对话框只消费本组合函数返回的状态与动作。
  */
 import {computed, ref, shallowRef, watch, type Ref} from 'vue'
-import type {DataRow} from '@spark-appworks/spark-data'
-import {BlueprintNavHostEditor} from '@/services/project/blueprint-navigation/blueprint-nav-host-editor'
-import type {Id} from '@/lowcode/resources/structured-config/dimension-source/view-support'
+import {buildDataViewKey, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import type {BlueprintTreeContext} from '../use-application-function-page'
 import {readBlueprintCurrentText} from '../application-function-page-contract'
+
+const HOST_TABLE = 'Base_Navigation_DataRelation'
+const HOST_VIEW = 'byNode'
+type Id = string | number
 
 /** 页面向导航宿主提供的上下文。 */
 export type BlueprintNavHostInput = Readonly<{
@@ -28,7 +30,7 @@ function describe(cause: unknown): string {
 
 /** 导航宿主状态与动作。 */
 export function useBlueprintNavHost(input: BlueprintNavHostInput) {
-  const editor = shallowRef<BlueprintNavHostEditor>()
+  const view = shallowRef<DataView>()
   const loading = ref(false)
   const busy = ref(false)
   const error = ref('')
@@ -39,48 +41,48 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
   const revision = ref(0)
   let generation = 0
 
-  const listKey = computed(() => editor.value ? editor.value.viewKey(editor.value.view) : '')
-  const unknown = computed(() => {void revision.value; return editor.value?.unknown === true})
+  const scenarioId = computed(() => view.value?.dataSet?.scenarioId ?? '')
+  const viewKey = (tableName: string, viewId: string): string => scenarioId.value ? buildDataViewKey(tableName, viewId, scenarioId.value) : ''
+  const listKey = computed(() => viewKey(HOST_TABLE, HOST_VIEW))
+  const dataSetOptionKey = computed(() => viewKey('Base_DataSet', 'navHostDataSets'))
+  const unknown = computed(() => {void revision.value; return view.value?.hasUnconfirmedSave === true})
   const created = computed(() => {
     void revision.value
     const id = editingId.value
-    return id !== undefined && editor.value?.view.dirtyTracking.isPendingCreate(id) === true
+    return id !== undefined && view.value?.dirtyTracking.isPendingCreate(id) === true
   })
+  const canCreate = computed(() => {void revision.value; return view.value?.addActionState() === 'enabled'})
 
-  function releaseEditor(): void {
-    const current = editor.value
-    editor.value = undefined
+  function release(): void {
+    const current = view.value
+    view.value = undefined
     editingId.value = undefined
     deleteId.value = undefined
-    if (!current) return
-    const id = current.view.rows.map(row => current.view.getPkKey(row)).filter(item => item !== undefined)
-    if (!current.unknown && id.length) current.view.discardPendingChanges(id)
-    current.release()
+    if (!current || current.hasUnconfirmedSave) return
+    const ids = current.rows.map(row => current.getPkKey(row)).filter((id): id is Id => id !== undefined)
+    if (ids.length) current.discardPendingChanges(ids)
   }
 
   async function reload(): Promise<void> {
     const current = ++generation
-    releaseEditor()
+    release()
     error.value = ''
     dialogError.value = ''
     designId.value = ''
     const context = input.context(), nodeId = input.selectedNodeId.value
     if (!input.active() || !context || !nodeId) return
-    const assertCurrent = (): void => {
-      if (current !== generation || !input.isLive(context, nodeId)) throw new Error('导航宿主目标已因节点或上下文切换失效')
-    }
     loading.value = true
     try {
-      const hostName = readBlueprintCurrentText(context.owner, 'FunName') || readBlueprintCurrentText(context.owner, 'name')
-      const next = new BlueprintNavHostEditor(context.owner.dataSet, {applicationId: context.projectId, nodeId, hostName, assertCurrent})
-      try {
-        await next.load()
-        assertCurrent()
-      } catch (cause) {
-        next.release()
-        throw cause
-      }
-      editor.value = next
+      const dataSet = context.owner.dataSet
+      const target = dataSet.getView(HOST_TABLE, HOST_VIEW), dataSets = dataSet.getView('Base_DataSet', 'navHostDataSets')
+      if (!target || !dataSets) throw new Error('蓝图运行时缺少导航宿主视图')
+      target.queryContext = {nodeId}
+      dataSets.queryContext = {applicationId: context.projectId}
+      await Promise.all([target.refresh(), dataSets.refresh()])
+      if (current !== generation || !input.isLive(context, nodeId)) return
+      const failure = target.loadingError ?? dataSets.loadingError
+      if (failure) throw failure
+      view.value = target
     } catch (cause) {
       if (current === generation) error.value = `导航宿主不可用：${describe(cause)}`
     } finally {
@@ -91,42 +93,51 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
 
   watch(() => [input.active(), input.context()?.key, input.selectedNodeId.value], () => { void reload() }, {immediate: true})
 
-  async function run(action: (target: BlueprintNavHostEditor) => Promise<void>, onError: Ref<string>): Promise<void> {
-    const target = editor.value
+  async function run(action: (target: DataView) => void | Promise<void>, onError: Ref<string>): Promise<void> {
+    const target = view.value
     if (!target || busy.value) return
     busy.value = true
     onError.value = ''
     try {
       await action(target)
     } catch (cause) {
-      if (editor.value === target) onError.value = describe(cause)
+      if (view.value === target) onError.value = describe(cause)
     } finally {
       busy.value = false
       revision.value++
     }
   }
 
-  function follow(target: BlueprintNavHostEditor, id: Id): void {
-    target.followCascade(id, cause => { if (editor.value === target) dialogError.value = describe(cause) })
+  /** 提交本行并回读；结果未知时保留原捕获，由下一次提交核验。 */
+  async function commit(target: DataView, id: Id): Promise<void> {
+    const dataSet = target.dataSet
+    if (!dataSet) throw new Error('导航宿主视图缺少 DataSet')
+    const result = await dataSet.saveChanges({views: [{tableName: HOST_TABLE, viewId: HOST_VIEW, ids: [id]}]})
+    if (!result.success) throw result.error ?? new Error(result.message ?? '导航宿主提交失败')
+    if (target.hasUnconfirmedSave) throw new Error('导航宿主提交结果未知，请核验')
+    await target.refresh()
+    if (target.loadingError) throw target.loadingError
   }
 
   async function openCreate(): Promise<void> {
     await run(async target => {
-      const id = await target.stageCreate()
+      const context = input.context()
+      const hostName = context ? readBlueprintCurrentText(context.owner, 'FunName') || readBlueprintCurrentText(context.owner, 'name') : ''
+      const values: Record<string, unknown> = {prowid: input.selectedNodeId.value}
+      if (hostName && target.columns.some(column => column.name === 'pName') && target.newRowFieldAccess('pName').write === 'allowed') values['pName'] = hostName
+      const id = target.getPkKey(await target.addRow(values))
+      if (id === undefined || !target.setCurrentRowById(id)) throw new Error('导航宿主新增行未进入当前视图')
       editingId.value = id
-      follow(target, id)
-      await target.loadDataSets()
     }, error)
   }
 
   async function openEdit(row: Readonly<DataRow>): Promise<void> {
-    const id = editor.value?.view.getPkKey(row)
+    const id = view.value?.getPkKey(row)
     if (id === undefined) return
-    await run(async target => {
-      target.beginEdit(id)
+    await run(target => {
+      if (target.editActionState(row) !== 'enabled') throw new Error('当前查询不允许编辑该导航宿主')
+      if (!target.setCurrentRowById(id)) throw new Error('导航宿主行未进入当前视图')
       editingId.value = id
-      await target.loadCandidates(id)
-      follow(target, id)
     }, error)
   }
 
@@ -134,27 +145,19 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
     const id = editingId.value
     if (id === undefined) return
     await run(async target => {
-      const wasCreate = target.view.dirtyTracking.isPendingCreate(id)
-      target.stopCascade()
-      try {
-        await target.save(id)
-      } catch (cause) {
-        if (!target.unknown && editor.value === target) follow(target, id)
-        throw cause
-      }
-      if (editor.value !== target) return
+      const wasCreate = target.dirtyTracking.isPendingCreate(id)
+      await commit(target, id)
+      if (view.value !== target) return
       editingId.value = undefined
       input.notice.value = wasCreate ? '新增导航宿主成功' : '修改导航宿主成功'
     }, dialogError)
   }
 
   function cancelEdit(value = false): void {
-    if (value || busy.value) return
-    const target = editor.value, id = editingId.value
-    if (!target || id === undefined) return
+    const target = view.value, id = editingId.value
+    if (value || busy.value || !target || id === undefined || target.hasUnconfirmedSave) return
     try {
-      target.stopCascade()
-      target.discard(id)
+      if (target.hasEditingChanges(id) || target.dirtyTracking.hasPendingChanges(id)) target.discardPendingChanges([id])
       editingId.value = undefined
       dialogError.value = ''
     } catch (cause) {
@@ -165,7 +168,7 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
   }
 
   function askRemove(row: Readonly<DataRow>): void {
-    const id = editor.value?.view.getPkKey(row)
+    const id = view.value?.getPkKey(row)
     if (id === undefined || busy.value) return
     dialogError.value = ''
     deleteId.value = id
@@ -176,34 +179,42 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
     const id = deleteId.value
     if (id === undefined) return
     await run(async target => {
-      await target.remove(id)
-      if (editor.value !== target) return
+      if (!target.hasUnconfirmedSave && !target.dirtyTracking.pendingDeleteIds.has(id)) {
+        const row = target.rows.find(item => target.getPkKey(item) === id)
+        if (!row || target.deleteActionState(row) !== 'enabled') throw new Error('当前查询不允许删除该导航宿主')
+        await target.removeRow(id)
+      }
+      await commit(target, id)
+      if (view.value !== target) return
       deleteId.value = undefined
       input.notice.value = '删除导航宿主成功'
     }, dialogError)
   }
 
   function cancelRemove(value = false): void {
-    if (value || busy.value || editor.value?.unknown) return
+    const target = view.value, id = deleteId.value
+    if (value || busy.value || target?.hasUnconfirmedSave) return
+    if (target && id !== undefined && target.dirtyTracking.pendingDeleteIds.has(id)) target.discardPendingChanges([id])
     deleteId.value = undefined
     dialogError.value = ''
+    revision.value++
   }
 
   function openDesign(row: Readonly<DataRow>): void {
-    const target = editor.value
-    const id = target ? String(row[target.column('dataSetId')] ?? '').trim() : ''
+    const id = String(row['dataSetId'] ?? '').trim()
     if (id) designId.value = id
     else error.value = '该导航宿主未关联数据空间，不能设计'
   }
 
   function dispose(): void {
     generation++
-    releaseEditor()
+    release()
   }
 
   return {
-    editor,
+    view,
     listKey,
+    dataSetOptionKey,
     loading,
     busy,
     error,
@@ -213,6 +224,7 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
     designId,
     created,
     unknown,
+    canCreate,
     revision,
     openCreate,
     openEdit,

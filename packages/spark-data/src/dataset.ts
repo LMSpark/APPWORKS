@@ -51,6 +51,7 @@ import { ResourceRelationDefinition } from './query/resource-relation-definition
 import { DataViewFieldCascadeDefinition } from './strategies/cascade/field-cascade-definition'
 import { DataViewQueryCascadeInputs } from './strategies/cascade/query-cascade-inputs'
 import { DataViewFieldCascadeRuntime } from './strategies/cascade/field-cascade-runtime'
+import { DataViewOptionFillRuntime } from './strategies/cascade/option-fill-runtime'
 
 /** @internal 从未知值推断列类型 */
 function inferColumnType(v: unknown): ColumnType {
@@ -447,6 +448,7 @@ export class DataSet extends SparkAIModel implements DataSetContract {
   /** @internal DataView 级联索引：childTable:childViewId → source cascades */
   private _parentCascadeIdx = new Map<string, DataViewQueryCascade[]>()
   private _fieldCascadeRuntime: DataViewFieldCascadeRuntime | undefined
+  private _optionFillRuntime: DataViewOptionFillRuntime | undefined
   private _fieldCascadeListeners = new Map<
     (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void, () => void>()
 
@@ -901,10 +903,12 @@ getRequestTemplateParams(): Record<string, unknown> {
     DataViewFieldCascadeDefinition.validateRuntime(fields, this)
     for (const unsubscribe of this._fieldCascadeListeners.values()) unsubscribe()
     this._fieldCascadeRuntime?.destroy()
+    this._optionFillRuntime?.destroy()
     this._buildResourceRelationIndex()
     this._buildViewCascadeIndex()
 
     this._fieldCascadeRuntime = new DataViewFieldCascadeRuntime(this, fields)
+    this._optionFillRuntime = new DataViewOptionFillRuntime(this)
     for (const listener of this._fieldCascadeListeners.keys()) {
       this._fieldCascadeListeners.set(listener, this._fieldCascadeRuntime.onChange(listener))
     }
@@ -930,6 +934,8 @@ getRequestTemplateParams(): Record<string, unknown> {
     for (const unsubscribe of this._fieldCascadeListeners.values()) unsubscribe()
     this._fieldCascadeRuntime?.destroy()
     this._fieldCascadeRuntime = undefined
+    this._optionFillRuntime?.destroy()
+    this._optionFillRuntime = undefined
     this.dataSetName = normalized.dataSetName
     this.schemaVersion = normalized.schemaVersion ?? 2
     this.resourceRelations = undefined
@@ -1436,6 +1442,8 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     this._destroyed = true
     this._fieldCascadeRuntime?.destroy()
     this._fieldCascadeRuntime = undefined
+    this._optionFillRuntime?.destroy()
+    this._optionFillRuntime = undefined
     this._fieldCascadeListeners.clear()
 
     // 1. 清理 DataSet 级别的事件订阅
@@ -1497,6 +1505,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * 来源明确持有未知提交时，本轮仅核验所选视图的原捕获，不应用新编辑或派发其他视图；剩余修改须随后显式保存。
    */
   async saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>> {
+    await this._optionFillRuntime?.settled()
     const requested = this.resolveSaveChangesTargets(options)
     const recovering = requested.some(target => target.view.hasUnconfirmedSave)
     const targets = recovering ? requested.filter(target => target.view.hasUnconfirmedSave) : requested

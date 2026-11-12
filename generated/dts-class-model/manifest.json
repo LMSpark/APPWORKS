@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1168,
+  "scannedFileCount": 1169,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -9863,6 +9863,21 @@
         "jsdocSource": "inferred",
         "symbols": [
           "DataViewFieldCascadeRuntime"
+        ]
+      }
+    },
+    "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts": {
+      "file": "files/packages/spark-data/src/strategies/cascade/option-fill-runtime.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:strategies/cascade/option-fill-runtime",
+        "sourcePath": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts",
+        "sourceFile": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "strategies/cascade/option-fill-runtime",
+        "jsdoc": "@spark-appworks/spark-data 的 strategies/cascade/option-fill-runtime 模块。\n导出 DtsTypeDeclarationModel symbol: DataViewOptionFillRuntime（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "DataViewOptionFillRuntime"
         ]
       }
     },
@@ -21540,6 +21555,10 @@
     "DataViewOptionCatalog": {
       "sourcePath": "packages/spark-data/src/query/data-view-option-catalog.ts",
       "file": "files/packages/spark-data/src/query/data-view-option-catalog.ts.json"
+    },
+    "DataViewOptionFillRuntime": {
+      "sourcePath": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts",
+      "file": "files/packages/spark-data/src/strategies/cascade/option-fill-runtime.ts.json"
     },
     "DataViewParentResult": {
       "sourcePath": "packages/spark-data/src/query/data-view-parent-result.ts",

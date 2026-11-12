@@ -1,5 +1,5 @@
 {
-  "gapCount": 3869,
+  "gapCount": 3872,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -6973,7 +6973,7 @@
       "chainBreak": "DataSet.getFieldCascadeState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/dataset.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/dataset.ts",
-      "declarationLine": 306,
+      "declarationLine": 307,
       "sourceFile": "packages/spark-data/src/dataset.ts",
       "declarationKind": "class"
     },
@@ -6985,7 +6985,7 @@
       "chainBreak": "DataSet.refreshFieldCascade 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/dataset.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/dataset.ts",
-      "declarationLine": 307,
+      "declarationLine": 308,
       "sourceFile": "packages/spark-data/src/dataset.ts",
       "declarationKind": "class"
     },
@@ -6997,7 +6997,7 @@
       "chainBreak": "DataSet.onFieldCascadeChange 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/dataset.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/dataset.ts",
-      "declarationLine": 308,
+      "declarationLine": 309,
       "sourceFile": "packages/spark-data/src/dataset.ts",
       "declarationKind": "class"
     },
@@ -9017,6 +9017,41 @@
       "declarationFile": "packages/spark-data/src/strategies/cascade/field-cascade-runtime.ts",
       "declarationLine": 21,
       "sourceFile": "packages/spark-data/src/strategies/cascade/field-cascade-runtime.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-data:strategies/cascade/option-fill-runtime",
+      "moduleName": "@spark-appworks/spark-data:strategies/cascade/option-fill-runtime",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-data:strategies/cascade/option-fill-runtime 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 packages/spark-data/src/strategies/cascade/option-fill-runtime.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts"
+    },
+    {
+      "kind": "constructor",
+      "className": "DataViewOptionFillRuntime",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DataViewOptionFillRuntime.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 packages/spark-data/src/strategies/cascade/option-fill-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts",
+      "declarationLine": 10,
+      "sourceFile": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "DataViewOptionFillRuntime",
+      "memberName": "destroy",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DataViewOptionFillRuntime.destroy 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-data/src/strategies/cascade/option-fill-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts",
+      "declarationLine": 14,
+      "sourceFile": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts",
       "declarationKind": "class"
     },
     {

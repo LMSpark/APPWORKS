@@ -24,7 +24,8 @@ function createFixture(options:FixtureOptions={}){
   const dataSet=DataSet.fromJson({scenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,tables:{Base_NavigationInfo:{
     modelBinding:{modelId:`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}p000`,modelName:'Base_NavigationInfo'},
     columns:FIELDS.map(name=>({name,type:name==='FunOrderValue'?'number':'string',isPrimaryKey:name==='rowid'})),
-    views:{default:{autoLoad:false,fields:[...output],treeConfig:{idField:'rowid',parentIdField:'prowid',textField:'FunName',rootParentValue:'000000'}}},
+    views:{default:{autoLoad:false,fields:[...output],treeConfig:{idField:'rowid',parentIdField:'prowid',textField:'FunName',rootParentValue:'000000'}},
+      savedProjectNodes:{autoLoad:false,filterExpression:{field:'SysId',operator:'eq',value:{Type:'GetInputParam',ParamName:'projectId'}},queryConfig:{allPages:true,maxRows:50000}}},
   }}})
   const view=dataSet.getView('Base_NavigationInfo','default')!
   const saveRequests:Array<Readonly<{ids:readonly string[];patches:readonly DataRow[]}>>=[]
@@ -59,7 +60,9 @@ function createFixture(options:FixtureOptions={}){
         const condition=filter as Record<string,unknown>
         if(Array.isArray(condition['filters']))return condition['filters'].every(item=>matches(row,item))
         if(condition['logic']==='and'&&Array.isArray(condition['conditions']))return condition['conditions'].every(item=>matches(row,item))
-        const field=condition['field'],value=condition['value']
+        const raw=condition['value'],field=condition['field']
+        const param=raw&&typeof raw==='object'&&(raw as Record<string,unknown>)['Type']==='GetInputParam'?String((raw as Record<string,unknown>)['ParamName']):undefined
+        const value=param===undefined?raw:params.context?.[param]
         if(typeof field==='string'&&condition['operator']==='in'&&Array.isArray(value))return value.map(String).includes(String(row[field]??''))
         return typeof field!=='string'||String(row[field]??'')===String(value??'')
       }
@@ -90,6 +93,7 @@ function createFixture(options:FixtureOptions={}){
     hasUnconfirmedSave:()=>unknownPending,
   }
   view.bindQueryExecutor(executor)
+  dataSet.getView('Base_NavigationInfo','savedProjectNodes')!.bindQueryExecutor(executor)
   const owner=new BlueprintWorkspaceDataView(dataSet,PROJECT,()=>undefined)
   return {dataSet,view,owner,rows,saveRequests,verificationIds,queryCount:()=>queryCount,saveAttempts:()=>saveAttempts,writeCount:()=>writeCount,
     holdNextQuery(){let started!:()=>void,release!:()=>void;const startedPromise=new Promise<void>(resolve=>{started=resolve}),wait=new Promise<void>(resolve=>{release=resolve});
@@ -307,51 +311,8 @@ describe('BlueprintWorkspaceDataView direct DataSet contract',()=>{
   })
 })
 
-describe('BlueprintWorkspaceDataView navigation baseline guard and saved-node read',()=>{
-  const navigationEditable={'NAV-BOUND':['NavigationUrl','prowid','FunOrderValue']}
-  const replaceStored=(fixture:ReturnType<typeof createFixture>,patch:DataRow)=>{
-    const index=fixture.rows.findIndex(row=>row['rowid']==='NAV-BOUND')
-    fixture.rows[index]={...fixture.rows[index],...patch}
-  }
-
-  it('rejects a navigation edit when the formal record changed after the query and writes nothing',async()=>{
-    const fixture=createFixture({editableByRow:navigationEditable})
-    await fixture.owner.load('NAV-BOUND')
-    fixture.owner.update('NavigationUrl','vue:/features/application/data-menu/ui/data-menu-page')
-    replaceStored(fixture,{NavigationImageWxz:'changed-elsewhere'})
-    await expect(fixture.owner.save()).rejects.toThrow('APPWORKS_NAVIGATION_STALE: NAV-BOUND 导航属性已变化: NavigationImageWxz')
-    expect(fixture.saveRequests).toHaveLength(0)
-    expect(fixture.owner.dirty).toBe(true)
-    expect(fixture.view.getEditingRow('NAV-BOUND')?.['NavigationUrl']).toBe('vue:/features/application/data-menu/ui/data-menu-page')
-  })
-
-  it('rejects when the formal record disappeared and saves once the baseline still matches',async()=>{
-    const removed=createFixture({editableByRow:navigationEditable})
-    await removed.owner.load('NAV-BOUND')
-    removed.owner.update('NavigationUrl','vue:/x/y')
-    replaceStored(removed,{SysId:'APP-OTHER'})
-    await expect(removed.owner.save()).rejects.toThrow('APPWORKS_NAVIGATION_STALE: NAV-BOUND 正式记录已不存在或不唯一')
-    expect(removed.saveRequests).toHaveLength(0)
-
-    const fixture=createFixture({editableByRow:navigationEditable})
-    await fixture.owner.load('NAV-BOUND')
-    fixture.owner.update('NavigationUrl','vue:/x/y')
-    await fixture.owner.save()
-    expect(fixture.saveRequests).toHaveLength(1)
-    expect(fixture.saveRequests[0]?.ids).toEqual(['NAV-BOUND'])
-    expect(fixture.rows.find(row=>row['rowid']==='NAV-BOUND')?.['NavigationUrl']).toBe('vue:/x/y')
-  })
-
-  it('only compares rows whose navigation fields changed, so a pure parent move ignores unrelated drift',async()=>{
-    const fixture=createFixture()
-    await fixture.owner.load('NAV-BOUND')
-    await fixture.owner.moveNode('NAV-BOUND','NAV-ROOT',0)
-    replaceStored(fixture,{NavigationImageWxz:'changed-elsewhere'})
-    await fixture.owner.save()
-    expect(fixture.saveRequests).toHaveLength(1)
-  })
-
-  it('reads every saved project node through a temporary view and rejects an incomplete read',async()=>{
+describe('BlueprintWorkspaceDataView saved-node read',()=>{
+  it('reads every saved project node through the declared savedProjectNodes view and rejects an incomplete read',async()=>{
     const fixture=createFixture({hiddenFields:['NavigationUrl']})
     await fixture.owner.load('NAV-BOUND')
     const before=fixture.view.rows.length

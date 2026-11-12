@@ -18,11 +18,10 @@ import { useApplicationFunctionAi } from './use-application-function-ai'
 import { useApplicationFunctionDataSpace } from './use-application-function-data-space'
 import { useApplicationFunctionDimensionSource } from './use-application-function-dimension-source'
 import { useApplicationFunctionPrototype } from './use-application-function-prototype'
-import { blueprintPendingNavigationError, useBlueprintNavigation } from './blueprint-navigation/use-blueprint-navigation'
+import { useBlueprintNavigation } from './blueprint-navigation/use-blueprint-navigation'
 import { useBlueprintDesktop } from './blueprint-navigation/use-blueprint-desktop'
 import { useBlueprintNavHost } from './blueprint-navigation/use-blueprint-nav-host'
 import { BLUEPRINT_VERIFY_FIELDS, verifyBlueprintNodeTree, type BlueprintNodeVerifyResult } from './blueprint-navigation/blueprint-node-verify'
-import { BlueprintDesktopEditor } from '@/services/project/blueprint-navigation/blueprint-desktop-editor'
 import { getVuePageOptions } from '@/registries/vue-page-registry'
 
 type BlueprintTab = 'basic' | 'navAttr' | 'dataSpace' | 'prototype'
@@ -368,7 +367,6 @@ export function useApplicationFunctionPage() {
     selectedNodeId,
     isLive,
     active: navAttrActive,
-    createEditor: () => new BlueprintDesktopEditor(lowcodeApi.dataSpace.design, new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp)),
     notice,
   })
   onScopeDispose(() => desktop.dispose())
@@ -402,9 +400,11 @@ export function useApplicationFunctionPage() {
     verifyResult.value = undefined
     verifyError.value = ''
     try {
+      const pattern = context.owner.view.columns.find(column => column.name === 'NavigationUrl')?.pattern
+      if (!pattern) throw new Error('导航地址列未声明规范')
       const nodes = await context.owner.readSavedProjectNodes(BLUEPRINT_VERIFY_FIELDS, assertCurrent)
       assertCurrent()
-      verifyResult.value = verifyBlueprintNodeTree({rootNodeId: nodeId, nodes,
+      verifyResult.value = verifyBlueprintNodeTree({rootNodeId: nodeId, nodes, targetPattern: new RegExp(pattern),
         deliveryResources: getVuePageOptions().map(page => `vue:${page.path}`)})
     } catch (cause) {
       if (current === verifyGeneration) verifyError.value = `核验失败：${cause instanceof Error ? cause.message : String(cause)}`
@@ -804,11 +804,6 @@ export function useApplicationFunctionPage() {
     }
     if (state.hasAnyFileDirty.value || state.editor.dirtyScenarioIds.length > 0) {
       error.value = '当前 owner 还包含工具文件或场景定义修改；本页不会替它们提交'
-      return false
-    }
-    const navigationError = blueprintPendingNavigationError(context.owner)
-    if (navigationError) {
-      error.value = navigationError
       return false
     }
     state.blueprintSaving.value = true

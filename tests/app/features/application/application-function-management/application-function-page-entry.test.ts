@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {computed, defineComponent, h, ref, shallowRef} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {flushPromises, mount} from '@vue/test-utils'
@@ -11,6 +13,7 @@ import {BLUEPRINT_AI_REJECTED} from '@/views/features/application/application-fu
 import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import {DimensionSourceLedgerGuard} from '@/lowcode/resources/structured-config/dimension-source/ledger-guard'
 import {createDimensionRuntime} from '../../../../runtime/application/dimension/dimension.fixture'
 import {useApplicationFunctionPage} from '@/views/features/application/application-function-management/ui/use-application-function-page'
@@ -94,18 +97,26 @@ afterEach(() => {
 })
 beforeEach(() => {fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; fixtureState.patchRows = undefined; fixtureState.dimension = undefined; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
 
-function matches(row: DataRow, filter: unknown): boolean {
+function matches(row: DataRow, filter: unknown, context: Readonly<Record<string, unknown>> = {}): boolean {
   if (!isDataRow(filter)) return true
   const conditions = filter['conditions'] ?? filter['filters']
   if (Array.isArray(conditions)) return filter['logic'] === 'or'
-    ? conditions.some(condition => matches(row, condition))
-    : conditions.every(condition => matches(row, condition))
+    ? conditions.some(condition => matches(row, condition, context))
+    : conditions.every(condition => matches(row, condition, context))
   if (typeof filter['field'] !== 'string') return true
-  const actual = row[filter['field']], expected = filter['value']
+  const raw = filter['value']
+  const actual = row[filter['field']], expected = isDataRow(raw) && raw['Type'] === 'GetInputParam' ? context[String(raw['ParamName'])] : raw
   if (filter['operator'] === 'in') return Array.isArray(expected) && expected.includes(actual)
   if (filter['operator'] === 'is-empty') return actual === undefined || actual === null || actual === ''
   return actual === expected
 }
+
+type PagedataColumn = Readonly<{name: string; pattern?: string; patternMessage?: string}>
+const blueprintPagedata: {tables: Record<string, {columns?: PagedataColumn[]}>} =
+  JSON.parse(readFileSync(resolve(process.cwd(), 'config/pages/application/project-blueprint/pagedata.json'), 'utf8'))
+const NAVIGATION_URL_RULE = blueprintPagedata.tables['Base_NavigationInfo']?.columns?.find(column => column.name === 'NavigationUrl')
+const DICTIONARY_VIEWS = ['NavigationType', 'NavigationShowType_Content', 'NavChildrenLocation', 'Navigationposition', 'DataCatalogParamType',
+  'Dict_Page_Popup', 'Dict_Desktop_AppType', 'DesktopStyle']
 
 function catalogDataSet() {
   const tables = Object.fromEntries([
@@ -114,10 +125,14 @@ function catalogDataSet() {
     {model: 'Base_NavigationInfo', fields: NODE_FIELDS},
     {model: 'Base_Navigation_Desc_Version', fields: VERSION_FIELDS},
   ].map(({model, fields}) => {
+    const navigation = model === 'Base_NavigationInfo'
     return [model, {modelBinding: {modelId: `${model}-ID`, modelName: model},
-      columns: fields.map(name => ({name, type: name === 'FunOrderValue' ? 'number' : 'string', isPrimaryKey: name === 'rowid'})),
-      views: {default: {autoLoad: false, ...(model === 'Base_NavigationInfo'
-        ? {treeConfig: {idField: 'rowid', parentIdField: 'prowid', textField: 'FunName', rootParentValue: '000000'}} : {})}}}]
+      columns: fields.map(name => ({name, type: name === 'FunOrderValue' ? 'number' : 'string', isPrimaryKey: name === 'rowid',
+        ...(navigation && name === 'NavigationUrl' ? NAVIGATION_URL_RULE : {})})),
+      views: {default: {autoLoad: false, ...(navigation
+        ? {treeConfig: {idField: 'rowid', parentIdField: 'prowid', textField: 'FunName', rootParentValue: '000000'}} : {})},
+      ...(navigation ? {savedProjectNodes: {autoLoad: false, queryConfig: {allPages: true, maxRows: 50000},
+        filterExpression: {field: 'SysId', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'projectId'}}}} : {})}}]
   }))
   const dataSet = DataSet.fromJson({scenarioId: CATALOG, tables})
   datasets.push(dataSet)
@@ -160,7 +175,7 @@ function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: r
         changedFields: changed.map(row => Object.keys(row)), context: result(rows)}
     }))
   view.bindQueryExecutor({queryColumns: target => target.columns,
-    executeQuery: async (_target, params) => result(rows.filter(row => matches(row, params.filter))), save,
+    executeQuery: async (_target, params) => result(rows.filter(row => matches(row, params.filter, params.context ?? {}))), save,
     appendQueryResult: (base, addition) => {
       const keys = new Set(base.rows.map(row => row['rowid']))
       return result([...base.rows, ...addition.rows.filter(row => !keys.has(row['rowid']))].map(row => ({...row})))
@@ -191,6 +206,7 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
   fixtureState.patchRows?.(rows)
   const view = ownerDataSet.getView('Base_NavigationInfo')!
   const save = bindRows(view, rows)
+  bindRows(ownerDataSet.getView('Base_NavigationInfo', 'savedProjectNodes')!, rows)
   const versionRows: DataRow[] = [
     {rowid: 'VER-1', prowid: 'NODE-1', VersionName: 'Tester[2024-01-01 00:00:00] first', desc: '<p>v1<script>x()</script></p>'},
     {rowid: 'VER-OTHER', prowid: 'NODE-2', VersionName: 'other', desc: '<p>other</p>'},
@@ -200,9 +216,19 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
     if (fixtureState.execution !== 'EXECUTION') throw new Error('owner执行应用已切换')
   })
   const statusScenario = 'FB291E325272007AEED8921C28B93CFD', memberScenario = '0C70F74793F9E858B71E0DBDEC784D57'
-  const runtime = new PageRuntime({pageId: NAVIGATION, scenarioIds: [CATALOG, statusScenario, memberScenario, DIMENSION],
+  const runtime = new PageRuntime({pageId: NAVIGATION, scenarioIds: [CATALOG, LowcodeDictionary.editorScenarioId, statusScenario, memberScenario, DIMENSION],
     deferredScenarioIds: [statusScenario, memberScenario, DIMENSION],
     loadScenario: async scenarioId => {
+      if (scenarioId === LowcodeDictionary.editorScenarioId) {
+        const dictionary = DataSet.fromJson({scenarioId, tables: {_Base_DictData: {modelBinding: {modelId: 'DICT-ID', modelName: '_Base_DictData'},
+          columns: ['rowid', 'typeid', 'val', 'txt'].map(name => ({name, type: 'string', isPrimaryKey: name === 'rowid'})),
+          views: Object.fromEntries([['default', {autoLoad: false}], ...DICTIONARY_VIEWS.map(viewId => [viewId, {autoLoad: false, valueField: 'val', labelField: 'txt',
+            filterExpression: {field: 'typeid', operator: 'eq', value: viewId}}])])}}})
+        datasets.push(dictionary)
+        const dictionaryRows: DataRow[] = [{rowid: 'D1', typeid: 'NavigationType', val: '3', txt: '当前窗体'}]
+        for (const viewId of DICTIONARY_VIEWS) bindRows(dictionary.getView('_Base_DictData', viewId)!, dictionaryRows)
+        return dictionary
+      }
       if (scenarioId === DIMENSION) {
         if (!fixtureState.dimension) throw new Error('fixture dimension scenario missing')
         return fixtureState.dimension()
@@ -949,7 +975,7 @@ describe('application function page navigation and delivery', () => {
     await flushPromises()
     expect(page.activeTab.value).toBe('navAttr')
     expect(state.loadNavigationDictionaryOptions).toHaveBeenCalled()
-    expect(page.desktop.unavailable.value).toContain('桌面显示模型 Base_Desktop_System 未能按注册名解析')
+    expect(page.desktop.unavailable.value).toContain('蓝图运行时缺少桌面视图')
     expect(page.navHost.error.value).toContain('导航宿主不可用')
     readModel.mockRestore()
     readSpace.mockRestore()

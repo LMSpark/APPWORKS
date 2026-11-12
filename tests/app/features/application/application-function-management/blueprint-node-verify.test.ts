@@ -1,9 +1,18 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {describe, expect, it} from 'vitest'
 import {
   formatBlueprintNodeVerifyFailure,
   verifyBlueprintNodeTree,
   type BlueprintVerifyNode,
 } from '@/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify'
+
+type PagedataColumn = Readonly<{name: string; pattern?: string}>
+const pagedata: {tables: Record<string, {columns?: PagedataColumn[]}>} =
+  JSON.parse(readFileSync(resolve(process.cwd(), 'config/pages/application/project-blueprint/pagedata.json'), 'utf8'))
+const declared = pagedata.tables['Base_NavigationInfo']?.columns?.find(column => column.name === 'NavigationUrl')?.pattern
+if (!declared) throw new Error('导航地址列未声明规范')
+const targetPattern = new RegExp(declared)
 
 function node(row: Record<string, unknown>, hidden: string[] = []): BlueprintVerifyNode {
   return {row: {name: row['rowid'], conType: 'Model', IsShowAtNav: 0, hasChild: 0, ...row}, hidden}
@@ -13,14 +22,27 @@ function page(rowid: string, prowid: string, NavigationUrl?: string): BlueprintV
   return node({rowid, prowid, conType: 'Navitem', IsShowAtNav: 1, NavigationUrl})
 }
 
-function codes(rootNodeId: string, nodes: BlueprintVerifyNode[], deliveryResources: string[] = []) {
-  return verifyBlueprintNodeTree({rootNodeId, nodes, deliveryResources}).issues.map(issue => issue.code)
+function verify(rootNodeId: string, nodes: BlueprintVerifyNode[], deliveryResources: string[] = []) {
+  return verifyBlueprintNodeTree({rootNodeId, nodes, deliveryResources, targetPattern})
 }
+
+function codes(rootNodeId: string, nodes: BlueprintVerifyNode[], deliveryResources: string[] = []) {
+  return verify(rootNodeId, nodes, deliveryResources).issues.map(issue => issue.code)
+}
+
+describe('导航地址列规范', () => {
+  it('accepts canonical vue:/ resources with query or hash', () => {
+    for (const value of ['vue:/features/a/b-page', 'vue:/features/a?x=1', 'vue:/a#Top']) expect(targetPattern.test(value)).toBe(true)
+  })
+
+  it.each(['/features/a', 'vue:/', 'vue:/Features/a', 'vue:/a\\b', 'vue:/a//b', 'vue:/a/', 'vue:/a/b.vue', 'vue:/a b'])('rejects %j', value => {
+    expect(targetPattern.test(value)).toBe(false)
+  })
+})
 
 describe('verifyBlueprintNodeTree', () => {
   it('passes a module directory without data space or vue address', () => {
-    expect(verifyBlueprintNodeTree({rootNodeId: 'mod', nodes: [node({rowid: 'mod'})], deliveryResources: ['vue:/orders']}))
-      .toMatchObject({ok: true, visitedNodeIds: ['mod'], issues: []})
+    expect(verify('mod', [node({rowid: 'mod'})], ['vue:/orders'])).toMatchObject({ok: true, visitedNodeIds: ['mod'], issues: []})
   })
 
   it('fails a page published to the menu without a vue address', () => {
@@ -32,7 +54,7 @@ describe('verifyBlueprintNodeTree', () => {
   })
 
   it('bubbles a child failure to the current-node verify', () => {
-    const result = verifyBlueprintNodeTree({rootNodeId: 'mod', nodes: [node({rowid: 'mod', hasChild: 1}), page('page', 'mod', 'vue:/orders')], deliveryResources: []})
+    const result = verify('mod', [node({rowid: 'mod', hasChild: 1}), page('page', 'mod', 'vue:/orders')])
     expect(result.visitedNodeIds).toEqual(['mod', 'page'])
     expect(result.issues.map(issue => issue.code)).toEqual(['TARGET_NOT_IN_DELIVERY'])
     expect(formatBlueprintNodeVerifyFailure(result)).toContain('vue:/orders')
@@ -43,8 +65,7 @@ describe('verifyBlueprintNodeTree', () => {
   })
 
   it('allows many nodes to reuse the same delivered vue resource', () => {
-    const result = verifyBlueprintNodeTree({rootNodeId: 'mod', deliveryResources: ['vue:/shared'],
-      nodes: [node({rowid: 'mod', hasChild: 1}), page('a', 'mod', 'vue:/shared'), page('b', 'mod', 'vue:/shared')]})
+    const result = verify('mod', [node({rowid: 'mod', hasChild: 1}), page('a', 'mod', 'vue:/shared'), page('b', 'mod', 'vue:/shared')], ['vue:/shared'])
     expect(result.ok).toBe(true)
     expect(result.visitedNodeIds).toEqual(['mod', 'a', 'b'])
   })

@@ -2,7 +2,7 @@ import {afterEach, describe, expect, it} from 'vitest'
 import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h, reactive, ref} from 'vue'
 import ElementPlus, {ElInput, ElInputNumber, ElSelect, ElRadioGroup} from 'element-plus'
-import type {JsonSchemaObject} from '@spark-appworks/spark-json-document'
+import type {JsonSchemaObject, JsonValue} from '@spark-appworks/spark-json-document'
 import {SparkData} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {Spark, PAGE_RUNTIME, RendererForm, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
@@ -10,7 +10,7 @@ import JsonObjectForm from '../../../../packages/spark-component/src/components/
 import JsonObjectProperties from '../../../../packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonObjectProperties.vue'
 const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = [], original = {...config.global.stubs}
 afterEach(() => {wrappers.splice(0).forEach(w=>w.unmount()); runtimes.splice(0).forEach(r=>r.dispose()); config.global.stubs=original})
-async function fixture(json = '{"arg":"","keep":{"nested":0}}', formSchema?: JsonSchemaObject) {
+async function fixture(json = '{"arg":"","keep":{"nested":0}}', formSchema?: JsonSchemaObject, emptyValue?: JsonValue) {
   registerAllRenderers()
   const ds=SparkData.fromJson({scenarioId:'S',dataSetName:'S',tables:{Inputs:{resourceType:'static-data',columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'json',type:'string'}],views:{default:{commitMode:'staged',rows:[{id:'a',json},{id:'b',json:'{}'}]}}}}})
   const runtime=new PageRuntime({pageId:'properties-test',scenarioIds:['S'],loadScenario:async()=>ds}); await runtime.load(); runtimes.push(runtime)
@@ -18,7 +18,7 @@ async function fixture(json = '{"arg":"","keep":{"nested":0}}', formSchema?: Jso
   const schemaProperties=reactive({arg:{description:'来源参数','x-typeLabel':'varchar'}})
   const schema=ref<JsonSchemaObject>(formSchema??{type:'object',properties:schemaProperties})
   const stubs={...original}; for(const name of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column']) delete stubs[name]; config.global.stubs=stubs
-  const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'properties-test'});sparkProvide(PAGE_RUNTIME,runtime);return()=>h(RendererForm,{dataViewKey:'S@Inputs@default',children:[{type:'r-json',props:{field:'json',mode:formSchema?'form':'properties',readonly:readonly.value,valueLabel:'测试值',schema:schema.value,onEditingChange:(value:boolean)=>{editing.value=value}}}]})}}),{global:{plugins:[ElementPlus,Spark.createPlugin()]}})
+  const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'properties-test'});sparkProvide(PAGE_RUNTIME,runtime);return()=>h(RendererForm,{dataViewKey:'S@Inputs@default',children:[{type:'r-json',props:{field:'json',mode:formSchema?'form':'properties',readonly:readonly.value,valueLabel:'测试值',schema:schema.value,...(emptyValue===undefined?{}:{emptyValue}),onEditingChange:(value:boolean)=>{editing.value=value}}}]})}}),{global:{plugins:[ElementPlus,Spark.createPlugin()]}})
   wrappers.push(wrapper);await flushPromises();return{wrapper,view,readonly,schema,schemaProperties,editing}
 }
 function parameterControl(wrapper: VueWrapper) {
@@ -137,6 +137,23 @@ describe('bound JSON object properties',()=>{
     expect(f.editing.value).toBe(false);expect(f.wrapper.get<HTMLInputElement>(selector).element.value).toBe('old')
   })
 
+  it('edits members of an empty text field from its display-only empty value and writes the merged object on confirm',async()=>{
+    const f=await fixture('',{type:'object',properties:{name:{type:'string'}}},{})
+    const input=f.wrapper.get<HTMLInputElement>('[data-json-member="name"] input')
+    expect(input.element.value).toBe('')
+    expect(f.wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(f.view.hasEditingChanges()).toBe(false)
+    input.element.value='token';await input.trigger('input');await input.trigger('change');await flushPromises()
+    expect(f.view.getEditingRow('a')?.['json']).toBe('{"name":"token"}')
+    f.view.discardEditingRows(['a']);await flushPromises()
+    expect(f.view.getEditingRow('a')?.['json']).toBe('')
+  })
+  it('keeps an empty text field empty without an empty value',async()=>{
+    const f=await fixture('',{type:'object',properties:{name:{type:'string'}}})
+    expect(f.wrapper.find('[data-json-member="name"]').exists()).toBe(false)
+    expect(f.wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(f.view.hasEditingChanges()).toBe(false)
+  })
   it('shows an unset numeric member as empty even when its schema has a minimum',async()=>{
     const f=await fixture('{}',{type:'object',properties:{limit:{type:'integer',minimum:1}}})
     expect((f.wrapper.get('[data-json-member="limit"] input').element as HTMLInputElement).value).toBe('')

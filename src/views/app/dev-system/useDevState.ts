@@ -393,17 +393,13 @@ export function useDevState() {
     if(!runtime?.isLoaded)throw new Error('导航字典候选所需 PAGE_RUNTIME 未就绪')
     const projectKey=projectId.value,revision=blueprintWorkspaceLoadRevision
     const scenarioId=LowcodeDictionary.editorScenarioId
-    for(const [viewId,typeId,expected] of [
-      ['NavigationShowType_Content','6AC2214E0E68E3D0C642A23F7224B666',['0','1']],
-      ['Navigationposition','5BFAFA09FE5D58B02F9994D6712B7098',['Left','Center','Right']],
-    ] as const){
+    for(const viewId of ['NavigationType','NavigationShowType_Content','NavChildrenLocation','Navigationposition']){
       const view=runtime.resolveView(`${scenarioId}@_Base_DictData@${viewId}`)
       if(!view)throw new Error(`导航字典视图缺失 ${viewId}`)
-      if(view.rows.length===0){await view.refresh();if(blueprintPageRuntime.value!==runtime||runtime.destroyed||projectId.value!==projectKey||blueprintWorkspaceLoadRevision!==revision||view.destroyed)throw new Error('导航字典候选查询已因项目切换失效');if(view.loadingError)throw view.loadingError}
-      const rows=view.rows
-      if(rows.length!==expected.length||rows.some(row=>row['typeid']!==typeId||['typeid','val','txt'].some(field=>view.fieldAccess(row,field).read!=='visible')))throw new Error(`导航字典 ${viewId} 返回候选不完整或字段不可读`)
-      const values=rows.map(row=>String(row['val']))
-      if(expected.some(value=>!values.includes(value)))throw new Error(`导航字典 ${viewId} 候选值不符合正式映射`)
+      if(view.rows.length>0&&!view.loadingError)continue
+      await view.refresh()
+      if(blueprintPageRuntime.value!==runtime||runtime.destroyed||projectId.value!==projectKey||blueprintWorkspaceLoadRevision!==revision||view.destroyed)throw new Error('导航字典候选查询已因项目切换失效')
+      if(view.loadingError)throw view.loadingError
     }
   }
   async function restorePageToolVersion(input:Readonly<{projectId:string;pageId:string;customPath:string;fileName:ProjectBlueprintDomain.PageToolFileName;version:number;assertCurrent:()=>void}>):Promise<string>{

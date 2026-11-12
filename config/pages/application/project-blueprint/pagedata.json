@@ -6,7 +6,22 @@
         "modelId": "7AB874097A1E8711A42FD845939A6E05p000",
         "modelName": "Base_NavigationInfo"
       },
+      "columns": [
+        {
+          "name": "NavigationUrl",
+          "trim": "reject",
+          "pattern": "^vue:(?:/[^/A-Z\\\\\\s?#]+)+(?<!\\.vue)(?:[?#].*)?$",
+          "patternMessage": "导航地址必须是正式开发工具生成的 vue:/... 资源：路径小写，不含反斜杠、连续或结尾斜杠，不以 .vue 结尾"
+        }
+      ],
       "views": {
+        "savedProjectNodes": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "filterExpression": {"field": "SysId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "projectId"}},
+          "queryConfig": {"allPages": true, "maxRows": 50000}
+        },
         "default": {
           "autoLoad": false,
           "treeConfig": {
@@ -92,6 +107,19 @@
         "modelId": "6ab982ff-afa3-4d06-99ef-1c500b7587c6",
         "modelName": "Base_Navigation_DataRelation"
       },
+      "columns": [
+        {"name": "prowid", "required": true, "immutable": true},
+        {"name": "title", "required": true, "trim": "reject"},
+        {"name": "dataSetId", "required": true,
+          "optionsView": {"tableName": "Base_DataSet", "viewId": "navHostDataSets", "valueField": "rowid", "labelField": "Name"}},
+        {"name": "dataName", "required": true,
+          "optionsView": {"tableName": "Base_DataModel", "viewId": "navHostResources", "valueField": "MetaName", "labelField": "Name",
+            "context": {"dataSetId": "dataSetId"}, "fill": {"dataType": "Type"}}},
+        {"name": "selectTextParam", "required": true},
+        {"name": "TextParamName", "required": true, "trim": "reject"},
+        {"name": "selectValParam", "required": true},
+        {"name": "ValParamName", "required": true, "trim": "reject"}
+      ],
       "views": {
         "default": {
           "autoLoad": false
@@ -114,25 +142,29 @@
       }
     },
     "Base_DataSet": {
-      "modelBinding": {"modelId": "d8d3f3cb-d395-459a-a748-f4a82c988c45", "modelName": "Base_DataSet"},
+      "modelBinding": {"modelId": "7AB874097A1E8711A42FD845939A6E05p006", "modelName": "Base_DataSet"},
       "views": {"default": {"autoLoad": false}, "navHostDataSets": {
         "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
         "valueField": "rowid", "labelField": "Name",
         "filterExpression": {"field": "sysid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "applicationId"}},
-        "queryConfig": {"allPages": true, "fields": ["rowid", "Name", "description"]}
+        "queryConfig": {"allPages": true, "fields": ["rowid", "Name"]}
       }}
     },
     "Base_DataModel": {
-      "modelBinding": {"modelId": "39178705-5151-47a8-8b7d-e3cfd646eab6", "modelName": "Base_DataModel"},
+      "modelBinding": {"modelId": "039526c0-65f8-482a-9b3d-ceeed1a86e49", "modelName": "Base_DataModel"},
       "views": {"default": {"autoLoad": false}, "navHostResources": {
         "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
         "valueField": "MetaName", "labelField": "Name",
         "filterExpression": {"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "dataSetId"}},
-        "queryConfig": {"allPages": true, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type", "DbName"]}
+        "queryConfig": {"allPages": true, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type"]}
+      }, "navHostResource": {
+        "autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "pageSize": 2,
+        "valueField": "rowid", "labelField": "Name",
+        "queryConfig": {"maxRows": 2, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type"]}
       }}
     },
     "Base_DataModel_Field": {
-      "modelBinding": {"modelId": "47af5185-fb8c-4bb9-8709-a9965ab34a5b", "modelName": "Base_DataModel_Field"},
+      "modelBinding": {"modelId": "4e8929b0-bb04-4015-a476-b4d85674a2d5", "modelName": "Base_DataModel_Field"},
       "views": {"default": {"autoLoad": false}, "navHostFields": {
         "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
         "valueField": "Name", "labelField": "description",
@@ -141,6 +173,14 @@
           {"field": "type", "operator": "eq", "value": "dataModel"}
         ]},
         "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "description", "FieldType", "AsName"]}
+      }}
+    },
+    "Base_Desktop_System": {
+      "modelBinding": {"modelId": "7AB874097A1E8711A42FD845939A6E05p008", "modelName": "Base_Desktop_System"},
+      "views": {"default": {"autoLoad": false}, "byNode": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 2,
+        "filterExpression": {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "nodeId"}},
+        "queryConfig": {"allPages": true, "maxRows": 2}
       }}
     },
     "ProjectToolVersion": {
@@ -417,5 +457,62 @@
       }
     }
   },
-  "viewCascades": []
+  "viewCascades": [
+    {
+      "kind": "query",
+      "cascadeId": "nav-host-selected-resource",
+      "parentTable": "Base_Navigation_DataRelation",
+      "parentViewId": "byNode",
+      "childTable": "Base_DataModel",
+      "childViewId": "navHostResource",
+      "filterBindings": [
+        {"sourceField": "dataSetId", "targetField": "dataSetId"},
+        {"sourceField": "dataName", "targetField": "MetaName"}
+      ]
+    },
+    {
+      "kind": "field",
+      "cascadeId": "nav-host-resource",
+      "tableName": "Base_Navigation_DataRelation",
+      "viewId": "byNode",
+      "targetField": "dataName",
+      "valueFormat": "native",
+      "valuePolicy": {"mode": "retain-valid", "clearValue": ""},
+      "parents": [{"tableName": "Base_Navigation_DataRelation", "viewId": "byNode", "field": "dataSetId", "parameter": "dataSetId"}],
+      "optionsView": {"tableName": "Base_DataModel", "viewId": "navHostResources"}
+    },
+    {
+      "kind": "field",
+      "cascadeId": "nav-host-text-field",
+      "tableName": "Base_Navigation_DataRelation",
+      "viewId": "byNode",
+      "targetField": "selectTextParam",
+      "valueFormat": "native",
+      "valuePolicy": {"mode": "retain-valid", "clearValue": ""},
+      "parents": [{"tableName": "Base_DataModel", "viewId": "navHostResource", "field": "rowid", "parameter": "modelId"}],
+      "optionsView": {"tableName": "Base_DataModel_Field", "viewId": "navHostFields"}
+    },
+    {
+      "kind": "field",
+      "cascadeId": "nav-host-value-field",
+      "tableName": "Base_Navigation_DataRelation",
+      "viewId": "byNode",
+      "targetField": "selectValParam",
+      "valueFormat": "native",
+      "valuePolicy": {"mode": "retain-valid", "clearValue": ""},
+      "parents": [{"tableName": "Base_DataModel", "viewId": "navHostResource", "field": "rowid", "parameter": "modelId"}],
+      "optionsView": {"tableName": "Base_DataModel_Field", "viewId": "navHostFields"}
+    },
+    {
+      "kind": "field",
+      "cascadeId": "nav-host-parent-field",
+      "tableName": "Base_Navigation_DataRelation",
+      "viewId": "byNode",
+      "targetField": "selectPid",
+      "valueFormat": "native",
+      "valuePolicy": {"mode": "retain-valid", "clearValue": ""},
+      "parents": [{"tableName": "Base_DataModel", "viewId": "navHostResource", "field": "rowid", "parameter": "modelId"}],
+      "optionsView": {"tableName": "Base_DataModel_Field", "viewId": "navHostFields"}
+    }
+  ]
 }

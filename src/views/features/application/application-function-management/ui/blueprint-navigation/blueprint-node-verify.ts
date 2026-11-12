@@ -4,7 +4,6 @@
  * 边界：纯函数，只消费完整回读的已保存节点行与交付清单；环、不可读字段、子节点未回读均判失败，不以部分结果通过。
  * AI用途：问题码沿参考 blueprint-node-verify；本仓交付清单为 Vue 页面注册表全部页面（单一 SPA，不比对目标 APP 包身份）。
  */
-import {blueprintNavigationTargetError} from '@/services/project/blueprint-navigation/blueprint-navigation-rules'
 import {blueprintConTypeToAiKind} from '../application-function-page-contract'
 
 export type BlueprintNodeVerifyIssueCode =
@@ -23,7 +22,8 @@ export type BlueprintNodeVerifyIssue = Readonly<{nodeId: string; code: Blueprint
 export type BlueprintNodeVerifyResult = Readonly<{ok: boolean; visitedNodeIds: readonly string[]; issues: readonly BlueprintNodeVerifyIssue[]}>
 /** 一条完整回读的已保存节点行及其不可读字段。 */
 export type BlueprintVerifyNode = Readonly<{row: Readonly<Record<string, unknown>>; hidden: readonly string[]}>
-export type BlueprintNodeVerifyInput = Readonly<{rootNodeId: string; nodes: readonly BlueprintVerifyNode[]; deliveryResources: readonly string[]}>
+/** targetPattern 取自导航地址列在场景中声明的规范，核验与保存使用同一规则。 */
+export type BlueprintNodeVerifyInput = Readonly<{rootNodeId: string; nodes: readonly BlueprintVerifyNode[]; deliveryResources: readonly string[]; targetPattern: RegExp}>
 
 /** 核验需要读取的正式字段。 */
 export const BLUEPRINT_VERIFY_FIELDS = Object.freeze(['rowid', 'prowid', 'name', 'conid', 'conType', 'NavigationUrl', 'IsShowAtNav', 'hasChild'])
@@ -85,7 +85,7 @@ export function verifyBlueprintNodeTree(input: BlueprintNodeVerifyInput): Bluepr
     const pageDuty = blueprintConTypeToAiKind(text(node.row['conType'])) === 'page' && flag(node.row['IsShowAtNav'])
     if (pageDuty && !target) push(nodeId, 'PAGE_TARGET_REQUIRED', `发布到菜单的页面节点未挂接 vue:/...：${nodeId}`)
     else if (target) {
-      if (blueprintNavigationTargetError(target)) push(nodeId, 'TARGET_INVALID', `导航地址不是规范 vue:/...：${nodeId}`)
+      if (!input.targetPattern.test(target)) push(nodeId, 'TARGET_INVALID', `导航地址不是规范 vue:/...：${nodeId}`)
       else {
         const hits = deliveryCounts.get(target) ?? 0
         if (hits === 0) push(nodeId, 'TARGET_NOT_IN_DELIVERY', `目标 APP 当前交付中不存在该 Vue 资源：${target}`)

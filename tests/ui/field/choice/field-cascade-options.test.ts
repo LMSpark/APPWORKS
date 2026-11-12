@@ -118,6 +118,24 @@ describe('direct option DataView failure and recovery',()=>{
       f.query.mockResolvedValueOnce(queryResult('Cities',[{id:77,code:'NEW',name:'新结果'}]));await f.choices.refresh();await flushPromises();complete?.();await flushPromises();expect(f.orders.hasEditingChanges()).toBe(false);expect(f.orders.getEditingRow(1)?.['city']).toBe('01|0')
     }finally{complete?.();wrapper.unmount();f.ds.destroy()}
   })
+
+  it('matches text dictionary codes to a numeric column and writes the numeric value',async()=>{
+    const ds=SparkData.fromJson({scenarioId:'FORM',dataSetName:'FORM',tables:{
+      Nav:{modelBinding:{modelId:'N',modelName:'Nav'},columns:[{name:'id',type:'number',isPrimaryKey:true},{name:'openMode',type:'int'}],views:{default:{autoCurrentFirst:true}}},
+      Dict:{modelBinding:{modelId:'D',modelName:'Dict'},columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'val',type:'string'},{name:'txt',type:'string'}],
+        views:{default:{valueField:'val',labelField:'txt'}}}}})
+    const nav=ds.getView('Nav','default')!,dict=ds.getView('Dict','default')!
+    nav.bindQueryExecutor({executeQuery:async()=>queryResult('Nav',[{id:1,openMode:3}])})
+    dict.bindQueryExecutor({executeQuery:async()=>queryResult('Dict',[{id:'a',val:'3',txt:'当前窗体'},{id:'b',val:'2',txt:'新窗体'}])})
+    await dict.loadFromServer();await nav.loadFromServer()
+    const wrapper=mountFieldInContext({component:FieldSelect,type:'r-select',model:nav.currentRow!,fieldName:'openMode',dataSource:nav,pageDataSet:ds,
+      componentProps:{optionDataViewKey:'FORM@Dict@default'},global:{stubs:{'el-select':Select,'el-option':Option,'el-form-item':FormItem}}})
+    try{
+      await flushPromises();expect(wrapper.get('.select').attributes('data-value')).toBe('"3"')
+      wrapper.getComponent(Select).vm.$emit('update:modelValue','2');await flushPromises()
+      expect(nav.getEditingRow(1)?.['openMode']).toBe(2)
+    }finally{wrapper.unmount();ds.destroy()}
+  })
 })
 
 describe('field components consume native value cascades', () => {

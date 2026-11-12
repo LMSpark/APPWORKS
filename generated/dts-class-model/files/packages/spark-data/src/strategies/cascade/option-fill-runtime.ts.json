@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/cascade/option-fill-runtime",
+    "sourcePath": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts",
+    "sourceFile": "packages/spark-data/src/strategies/cascade/option-fill-runtime.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/cascade/option-fill-runtime",
+    "jsdoc": "@spark-appworks/spark-data 的 strategies/cascade/option-fill-runtime 模块。\n导出 DtsTypeDeclarationModel symbol: DataViewOptionFillRuntime（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataViewOptionFillRuntime"
+    ]
+  },
+  "$defs": {
+    "DataViewOptionFillRuntime": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewOptionFillRuntime",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../dataset.ts.json#/$defs/DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.settled.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.settled.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.destroy.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.destroy.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-12T17:02:26.189Z",
+  "models": {
+    "DataViewOptionFillRuntime": {
+      "name": "DataViewOptionFillRuntime",
+      "jsdoc": "编辑时按列 `optionsView.fill` 回填同行字段：源字段经编辑通道改变后查询其选项来源，唯一匹配时写入各目标字段；\n源字段清空时清空目标。只采纳同一源字段最新一次编辑的结果；查询期间源值或目标值已被改动、目标不可写时不写。\n保存前回填与引用校验仍由 SaveRuleValidator 执行，保存前等待在途回填结束。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(dataSet: DataSet)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet",
+                "sourcePath": "packages/spark-data/src/dataset.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "settled",
+              "jsdoc": "等待全部在途回填（含回填触发的后续回填）结束。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "destroy",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

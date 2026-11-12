@@ -97,8 +97,16 @@ coerce: (rawValue: unknown) => TValue
     /** format Display 回调。 */
 formatDisplay?: (value: unknown, helpers: UseFieldOptionsReturn) => string}
 
+const NUMERIC_COLUMN_TYPES = new Set(['number', 'int', 'integer', 'tinyint', 'smallint', 'bigint', 'decimal', 'float', 'double'])
+
 export function useFieldOptions(props: FieldOptionProps, binding = useActiveFieldRow(props)): UseFieldOptionsReturn {
   const cascade = useFieldCascadeOptions(binding)
+  // 字典等候选常以文本编码存储；数值列的单值按数值匹配候选并写回数值，不改候选来源。
+  const numericBoundColumn = computed(() => {
+    const name = binding.fieldName.value
+    const type = name ? binding.dataSource.value?.columns.find(column => column.name === name)?.type : undefined
+    return typeof type === 'string' && NUMERIC_COLUMN_TYPES.has(type.toLowerCase())
+  })
   const resolvedOptionDataViewKey = computed(() => props.optionDataViewKey)
   const resolvedOptionDataMember = computed(() => props.optionDataMember ?? DataMember.Rows)
   const { sparkConsume } = useSparkConsume()
@@ -311,6 +319,11 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
         return matches[0]?.value??token
       })
     }
+    if (!cascade.definition.value && !multiple && numericBoundColumn.value && typeof value === 'number') {
+      const matches = flatOptions.value.filter(option => typeof option.value === 'string' && option.value.trim() !== '' && Number(option.value) === value)
+      if (matches.length > 1) throw Error('FIELD_OPTION_VALUE: 数值字段的候选编码不唯一')
+      return matches[0]?.value ?? value
+    }
     if (cascade.definition.value?.valueFormat !== 'selection-string') return value
     if (value !== null && value !== undefined && typeof value !== 'string') throw new Error('FIELD_CASCADE_VALUE: 选中字符串格式不匹配')
     const tokens = DataViewSelectionValue.split(value, valueSeparator.value)
@@ -328,6 +341,7 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
           return String(item)
         }),valueSeparator.value)
       }
+      if (numericBoundColumn.value && typeof value === 'string' && value.trim() !== '' && Number.isFinite(Number(value))) return Number(value)
       return value
     }
     if (cascade.definition.value.valueFormat !== 'selection-string') return value

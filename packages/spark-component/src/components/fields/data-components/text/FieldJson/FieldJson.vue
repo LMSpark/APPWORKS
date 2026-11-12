@@ -94,8 +94,13 @@ function toSource(text: string): unknown {
   return props.valueFormat === 'native' ? root : serializeJsonDocument(root)
 }
 const {permission,fieldCtx,handleControlledChange}=useBasicFieldState<string>({props,fieldType:'r-json',fallbackValue:'',coerce:toText,toSourceValue:toSource,emitUpdate:value=>emit('update:modelValue',value)})
-// 原行完全缺少字段时，公共字段链返回空文本；仅显示初始结构，不制造编辑覆盖。
-const editorText=computed(()=>props.valueFormat==='native' && permission.fieldValue.value==='' ? toText(undefined) : permission.fieldValue.value)
+// 原行完全缺少字段或文本为空时，公共字段链返回空文本；仅显示初始结构，不制造编辑覆盖。
+const editorText=computed(()=>{
+  const text=permission.fieldValue.value
+  if(text!=='') return text
+  if(props.valueFormat==='native') return toText(undefined)
+  return props.emptyValue===undefined || props.valuePath?.length ? text : JSON.stringify(props.emptyValue)
+})
 const revision=ref(0), error=ref('')
 const completeInput=ref(false), writing=ref(false), rejectedInput=ref(false)
 const completeMode=computed(()=>props.mode === 'tree' || props.mode === 'text' || props.mode === 'table')

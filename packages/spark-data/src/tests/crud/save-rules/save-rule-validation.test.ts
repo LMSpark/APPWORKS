@@ -140,13 +140,16 @@ describe('declared save rules', () => {
       await view.refresh()
       let release = () => {}
       let entered = () => {}
+      let gating = false
       const started = new Promise<void>(resolve => {entered = resolve})
       const gate = new Promise<void>(resolve => {release = resolve})
       vi.spyOn(dataSet.getView('Apis')!, 'queryOptionRows').mockImplementation(async () => {
-        entered(); await gate
+        if (gating) { entered(); await gate }
         return [{id: 'A1', title: 'Old title'}, {id: 'A2', title: 'New title'}]
       })
       view.updateEditingValue('1', 'source', 'A1')
+      await vi.waitFor(() => expect(view.getEditingRow('1')).toMatchObject({title: 'Old title'}))
+      gating = true
       const saving = dataSet.saveChanges()
       const rejected = expect(saving).rejects.toThrow('DATA_VIEW_SAVE_STALE')
       await started
@@ -157,6 +160,60 @@ describe('declared save rules', () => {
       expect(view.getEditingRow('1')).toMatchObject({source: 'A2', title: 'User edit'})
       expect(save).not.toHaveBeenCalled()
     } finally {dataSet.destroy()}
+  })
+
+  describe('option fill while editing', () => {
+    const fillTables = (): DataSetMetadata['tables'] => ({
+      Params: { tableName: 'Params', modelBinding: model('Params'), columns: [id,
+        {name: 'source', type: 'string', optionsView: {tableName: 'Apis', valueField: 'id', fill: {title: 'title', kind: 'kind'}}},
+        {name: 'title', type: 'string'}, {name: 'kind', type: 'string'}],
+      views: {default: {commitMode: 'staged'}}},
+      Apis: { tableName: 'Apis', modelBinding: model('Apis'), columns: [id, {name: 'title', type: 'string'}, {name: 'kind', type: 'string'}], views: {default: {}}},
+    })
+    const apis = {rows: [{id: 'A1', title: 'One', kind: 'table'}, {id: 'A2', title: 'Two', kind: 'view'}]}
+
+    it('fills matched option fields on edit and clears them when the source is cleared', async () => {
+      const {dataSet} = await open(fillTables(), {Params: {rows: [{id: '1', source: '', title: '', kind: ''}]}, Apis: apis})
+      try {
+        const view = dataSet.getView('Params')!
+        await view.refresh()
+        view.updateEditingValue('1', 'source', 'A2')
+        await vi.waitFor(() => expect(view.getEditingRow('1')).toMatchObject({title: 'Two', kind: 'view'}))
+        view.updateEditingValue('1', 'source', '')
+        await vi.waitFor(() => expect(view.getEditingRow('1')).toMatchObject({title: '', kind: ''}))
+      } finally { dataSet.destroy() }
+    })
+
+    it('keeps only the latest edit and never overwrites a target edited meanwhile', async () => {
+      const {dataSet} = await open(fillTables(), {Params: {rows: [{id: '1', source: '', title: '', kind: ''}]}, Apis: apis})
+      try {
+        const view = dataSet.getView('Params')!
+        await view.refresh()
+        const gates: Array<() => void> = []
+        vi.spyOn(dataSet.getView('Apis')!, 'queryOptionRows').mockImplementation(async () => {
+          await new Promise<void>(resolve => gates.push(resolve))
+          return apis.rows
+        })
+        view.updateEditingValue('1', 'source', 'A1')
+        view.updateEditingValue('1', 'source', 'A2')
+        view.updateEditingValue('1', 'title', 'Manual')
+        await vi.waitFor(() => expect(gates).toHaveLength(2))
+        gates[1]!(); gates[0]!()
+        await vi.waitFor(() => expect(view.getEditingRow('1')).toMatchObject({kind: 'view'}))
+        expect(view.getEditingRow('1')).toMatchObject({source: 'A2', title: 'Manual'})
+      } finally { dataSet.destroy() }
+    })
+
+    it('waits for pending fills before saving', async () => {
+      const {dataSet, save} = await open(fillTables(), {Params: {rows: [{id: '1', source: '', title: '', kind: ''}]}, Apis: apis})
+      try {
+        const view = dataSet.getView('Params')!
+        await view.refresh()
+        view.updateEditingValue('1', 'source', 'A1')
+        await expect(dataSet.saveChanges()).rejects.toThrow('owner reached')
+        expect(save.mock.calls[0]![0].changes[0]!.changes.changed![0]).toMatchObject({source: 'A1', title: 'One', kind: 'table'})
+      } finally { dataSet.destroy() }
+    })
   })
 
   it('rechecks an earlier prepared view when a later view awaits options', async () => {
@@ -171,11 +228,13 @@ describe('declared save rules', () => {
       await first.refresh(); await second.refresh()
       const rows = [{id: 'A1', title: 'Old title'}, {id: 'A2', title: 'New title'}]
       vi.spyOn(dataSet.getView('AOptions')!, 'queryOptionRows').mockResolvedValue(rows)
-      let release = () => {}, entered = () => {}
+      let release = () => {}, entered = () => {}, gating = false
       const started = new Promise<void>(resolve => {entered = resolve})
       const gate = new Promise<void>(resolve => {release = resolve})
-      vi.spyOn(dataSet.getView('BOptions')!, 'queryOptionRows').mockImplementation(async () => {entered(); await gate; return rows})
+      vi.spyOn(dataSet.getView('BOptions')!, 'queryOptionRows').mockImplementation(async () => {if (gating) {entered(); await gate}; return rows})
       first.updateEditingValue('1', 'source', 'A1'); second.updateEditingValue('2', 'source', 'A1')
+      await vi.waitFor(() => expect(second.getEditingRow('2')).toMatchObject({title: 'Old title'}))
+      gating = true
       const rejected = expect(dataSet.saveChanges()).rejects.toThrow('DATA_VIEW_SAVE_STALE')
       await started
       first.updateEditingValue('1', 'source', 'A2')

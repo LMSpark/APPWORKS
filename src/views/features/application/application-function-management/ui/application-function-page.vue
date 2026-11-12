@@ -109,7 +109,7 @@
         <template v-else-if="isSelectedNodeReady && activeTab === 'navAttr'">
           <div class="application-function-page__details-toolbar">
             <h2>导航信息</h2>
-            <RendererButton :label="desktop.exists.value ? '取消桌面显示' : '+桌面'" :disabled="!desktop.record.value || desktop.busy.value"
+            <RendererButton :label="desktop.exists.value ? '取消桌面显示' : '+桌面'" :disabled="!desktop.view.value || desktop.busy.value"
               :loading="desktop.loading.value" @click="desktop.toggle" />
             <RendererButton label="核验当前节点" :disabled="verifying || !!verifyBlockedReason" :title="verifyBlockedReason"
               :loading="verifying" @click="verifyCurrentNode" />
@@ -119,8 +119,7 @@
           <DisplayAlert v-if="verifyError" :description="verifyError" alert-type="error" />
           <DisplayAlert v-if="verifyResult" :alert-type="verifyResult.ok ? 'success' : 'error'"
             :description="verifyResult.ok ? `核验通过：共核验 ${verifyResult.visitedNodeIds.length} 个节点` : formatBlueprintNodeVerifyFailure(verifyResult)" />
-          <BlueprintNavigationConfig :navigation="navigation" :binding="treeBinding" :access="state.blueprintNodeFieldAccess"
-            :changed="state.notifyExternalDataViewChanged" />
+          <BlueprintNavigationConfig :navigation="navigation" :binding="treeBinding" :changed="state.notifyExternalDataViewChanged" />
           <BlueprintNavHostDialog :host="navHost" />
           <BlueprintDesktopDialog :desktop="desktop" />
         </template>

@@ -17,6 +17,7 @@ import {getBuiltinScenarioResource, isBuiltinApplication, resolveBuiltinScenario
 import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from '../resources/repository/builtin-blueprint-node-resource'
 import {registerApiModelRules,type ApiModelRuleHost} from '../resources/integration/api-management/model-rules'
 import {createCacheScenarioBindings} from '../resources/system/cache-management/runtime-bindings'
+import {registerNavigationHostModelRules} from '../resources/system/navigation-host/model-rules'
 import {createDataRecoveryScenarioBindings} from '../resources/system/data-recovery/runtime-bindings'
 import {createWorkflowScenarioBindings} from '../resources/structured-config/workflow-definition/execution/runtime-bindings'
 import {createAgentWorkflowCreationBindings} from '../resources/repository/agent-workflow/creation'
@@ -120,7 +121,11 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
   ...(input.projectionBindings ? {projectionBindings: input.projectionBindings} : {}),
   ...(input.commandBindings?{commandBindings:input.commandBindings}:{}),
   ...(input.modelAdapters?{modelAdapters:input.modelAdapters}:{})})
- try{registerApiModelRules(result.dataSet,{...(input.getPage?{getPage:input.getPage}:{}),...(input.assertCurrent?{assertCurrent:input.assertCurrent}:{})});return result}
+ try{
+  registerApiModelRules(result.dataSet,{...(input.getPage?{getPage:input.getPage}:{}),...(input.assertCurrent?{assertCurrent:input.assertCurrent}:{})})
+  registerNavigationHostModelRules(result.dataSet)
+  return result
+ }
  catch(error){result.dataSet.destroy();throw error}
 }
 

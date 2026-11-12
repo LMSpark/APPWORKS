@@ -13,6 +13,7 @@
       "BlueprintNodeFormData",
       "BlueprintChildNodeCreate",
       "BlueprintChildNodeCreateAtParent",
+      "BlueprintDataSpaceImpact",
       "BlueprintNodeDataBatchItem",
       "BlueprintLeafMoveBatchCommand",
       "BlueprintLeafMoveBatchOptions",
@@ -125,6 +126,28 @@
         "nodeId",
         "fields",
         "parentNodeId"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintDataSpaceImpact": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintDataSpaceImpact",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "navigationTarget": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nodeId",
+        "path",
+        "navigationTarget"
       ],
       "additionalProperties": false
     },
@@ -397,6 +420,19 @@
         "method.locateNode.return": {
           "type": "object",
           "title": "Promise<readonly string[]>"
+        },
+        "method.readDataSpaceImpact.params": {
+          "type": "object",
+          "properties": {
+            "dataSpaceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readDataSpaceImpact.return": {
+          "type": "object",
+          "title": "Promise<readonly BlueprintDataSpaceImpact[]>"
         },
         "method.loadProjectRecords.params": {
           "type": "object",
@@ -840,7 +876,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T06:31:05.757Z",
+  "generatedAt": "2026-11-12T07:35:07.436Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -947,6 +983,43 @@
           "attributes": [
             {
               "name": "parentNodeId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintDataSpaceImpact": {
+      "name": "BlueprintDataSpaceImpact",
+      "jsdoc": "One blueprint node bound to a data space, with its full title path from the root.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Stable blueprint node identity (Base_NavigationInfo.rowid). */\n    nodeId: string;\n    /** Root-to-node titles (navigation title, else capability name, else node id) joined by \" / \". */\n    path: string;\n    /** Visible NavigationUrl of the node; empty when unset or unreadable. */\n    navigationTarget: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Stable blueprint node identity (Base_NavigationInfo.rowid). */\n    nodeId: string;\n    /** Root-to-node titles (navigation title, else capability name, else node id) joined by \" / \". */\n    path: string;\n    /** Visible NavigationUrl of the node; empty when unset or unreadable. */\n    navigationTarget: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "jsdoc": "Stable blueprint node identity (Base_NavigationInfo.rowid).",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "jsdoc": "Root-to-node titles (navigation title, else capability name, else node id) joined by \" / \".",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigationTarget",
+              "jsdoc": "Visible NavigationUrl of the node; empty when unset or unreadable.",
               "readable": true,
               "writable": false
             }
@@ -1360,6 +1433,29 @@
                   {
                     "type": "unknown",
                     "name": "readonly string[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readDataSpaceImpact",
+              "jsdoc": "数据空间影响范围：沿原 DataView 读取当前项目中正式 conid 等于目标的全部节点及其完整父链（懒加载模式增量装载，\n与 locateNode 同口径补齐祖先的直接子行）；conid 不可读即失败，不以缺失字段推断“未绑定”。\n@returns 按功能路径排序的节点身份、功能路径与导航地址。",
+              "parameters": [
+                {
+                  "name": "dataSpaceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly BlueprintDataSpaceImpact[]"
                   }
                 ]
               }

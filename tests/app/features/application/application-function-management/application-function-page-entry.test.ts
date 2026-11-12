@@ -25,7 +25,8 @@ vi.mock('@/views/features/application/application-function-management/ui/use-app
     return capturedPage
   }}
 })
-const fixtureState = vi.hoisted(() => ({current: undefined as unknown, execution: 'EXECUTION', createChild: 'disabled' as 'enabled' | 'disabled'}))
+const fixtureState = vi.hoisted(() => ({current: undefined as unknown, execution: 'EXECUTION', createChild: 'disabled' as 'enabled' | 'disabled',
+  patchRows: undefined as undefined | ((rows: DataRow[]) => void)}))
 const aiRunner = vi.hoisted(() => ({run: vi.fn<(message: string, signal?: AbortSignal) => Promise<string>>()}))
 vi.mock('@/lowcode/resources/shared/ai-data-entry-host', () => ({AiDataEntryHost: class {
   createDraftRunner() {return aiRunner}
@@ -36,6 +37,29 @@ vi.mock('@/views/app/dev-system/useDevState', () => ({useDevState: () => fixture
 vi.mock('@spark-appworks/spark-app', async importOriginal => {
   const actual = await importOriginal<typeof import('@spark-appworks/spark-app')>()
   return {...actual, useSystemPageDirtySource: vi.fn()}
+})
+// 共享的 dev-system 数据空间选择器与内容设计器另有专测；此处以替身复现其合同：暂存 conid 覆盖后发出 sceneChosen。
+const sceneChoice = vi.hoisted(() => ({next: ''}))
+vi.mock('@/views/app/dev-system/components/NodeBasicInfo.vue', async () => {
+  const {defineComponent: define, h: render} = await import('vue')
+  return {default: define({
+    name: 'NodeBasicInfo',
+    props: {state: {type: Object, required: true}, sections: {type: Array, default: undefined}},
+    emits: ['sceneChosen'],
+    setup(props, {emit}) {
+      return () => render('button', {class: 'node-basic-info-stub', onClick: () => {
+        const state = props.state
+        const owner = state['blueprintWorkspaceDataView'].value
+        owner.view.updateEditingValue(owner.nodeId, 'conid', sceneChoice.next)
+        emit('sceneChosen', sceneChoice.next)
+      }}, 'choose')
+    },
+  })}
+})
+vi.mock('@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue', async () => {
+  const {defineComponent: define, h: render} = await import('vue')
+  return {default: define({name: 'DataPlanningPane', props: {state: {type: Object, required: true}, fieldAccess: {type: Object, required: true}},
+    setup: () => () => render('div', {class: 'data-planning-pane-stub'})})}
 })
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
   loadLowcodeRuntimeScenario: vi.fn(),
@@ -62,7 +86,7 @@ afterEach(() => {
   disposals.splice(0).forEach(dispose => dispose())
   datasets.splice(0).forEach(dataSet => {if (!dataSet.destroyed) dataSet.destroy()})
 })
-beforeEach(() => {fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
+beforeEach(() => {fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; fixtureState.patchRows = undefined; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
 
 function matches(row: DataRow, filter: unknown): boolean {
   if (!isDataRow(filter)) return true
@@ -158,6 +182,7 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
     node({rowid: 'NODE-3', SysId: TARGET, prowid: 'NODE-2', FunOrderValue: 0, name: 'Grandchild', FunName: 'Grandchild', conType: 'Model', funCode: 'GRAND', memo: '', NavigationUrl: ''}),
     node({rowid: 'NODE-4', SysId: TARGET, prowid: 'NODE-3', FunOrderValue: 0, name: 'Leaf', FunName: 'Leaf', conType: 'Model', funCode: 'LEAF', memo: '', NavigationUrl: ''}),
   ]
+  fixtureState.patchRows?.(rows)
   const view = ownerDataSet.getView('Base_NavigationInfo')!
   const save = bindRows(view, rows)
   const versionRows: DataRow[] = [
@@ -187,10 +212,25 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
   disposals.push(() => runtime.dispose())
   const selectedNode = ref<{nodeId: string}>()
   const revision = ref(0), editingProject = ref('EXECUTION')
+  // 与 useDevState 同口径：正式值取 DataView 原始行，覆盖与原始值不同即为待保存绑定。
+  const conidOf = (read: (field: string) => unknown): string | undefined => {
+    void revision.value
+    const node = selectedNode.value
+    if (!node || owner.nodeId !== node.nodeId || !owner.row || !owner.canRead('conid')) return undefined
+    const value = read('conid')
+    return typeof value === 'string' ? value.trim() : ''
+  }
   const state = {
     get projectId() {return editingProject.value},
     blueprintWorkspaceDataView: shallowRef(owner), blueprintPageRuntime: shallowRef(runtime),
     selectedNode, externalDataViewRevision: revision,
+    persistedDataSpaceId: computed(() => conidOf(field => owner.row?.[field]) ?? ''),
+    sceneBindingPending: computed(() => {
+      const raw = conidOf(field => owner.row?.[field])
+      const current = conidOf(field => owner.value(field) ?? owner.row?.[field])
+      return raw !== undefined && raw !== current
+    }),
+    blueprintNodeFieldAccess: (field: string) => ({read: owner.canRead(field), write: owner.canWrite(field)}),
     hasAnyDirty: computed(() => {void revision.value; return owner.dirty}),
     hasAnyFileDirty: ref(false), blueprintSaving: ref(false), editor: {dirtyScenarioIds: []}, project: {},
     openEditingProject: vi.fn(async ({projectId}: {projectId: string}) => {editingProject.value = projectId; return true}),
@@ -627,5 +667,115 @@ describe('application function page AI and prototype', () => {
     expect(versionRows.map(row => row['rowid'])).not.toContain('VER-1')
     expect(versionRows.map(row => row['rowid'])).toContain('VER-OTHER')
     expect(page.notice.value).toBe('删除成功')
+  })
+})
+
+describe('application function page data space', () => {
+  async function bound() {
+    fixtureState.patchRows = rows => {
+      rows.push({...rows[3], rowid: 'NODE-5', prowid: 'NODE-4', FunName: '', name: 'Deep cap', NavigationUrl: '/s', conid: 'SPACE-A'})
+      rows[0]!['conid'] = 'SPACE-OTHER'
+      rows[1]!['conid'] = 'SPACE-A'
+      rows[1]!['NavigationUrl'] = '/g'
+    }
+    // 选中 NODE-2 只装载 NODE-1、NODE-2 的子层；NODE-4 及其子 NODE-5 需由影响范围查询按 conid 与父链增量读取。
+    const ctx = await setup({nodeId: 'NODE-2', blueprintTab: 'dataSpace'})
+    await flushPromises()
+    return ctx
+  }
+
+  it('saves a chosen data space alone and verifies the formal readback', async () => {
+    const {page, wrapper, rows, save, state} = await setup({nodeId: 'NODE-1', blueprintTab: 'dataSpace'})
+    expect(page.error.value).toBe('')
+    expect(wrapper.find('.node-basic-info-stub').exists()).toBe(true)
+    sceneChoice.next = 'SPACE-A'
+    await wrapper.get('.node-basic-info-stub').trigger('click')
+    await flushPromises()
+    expect(page.error.value).toBe('')
+    expect(save).toHaveBeenCalledTimes(1)
+    expect(rows[0]?.['conid']).toBe('SPACE-A')
+    expect(state.persistedDataSpaceId.value).toBe('SPACE-A')
+    expect(page.notice.value).toBe('数据空间绑定已保存')
+    expect(page.dataSpace.canOpenDesign.value).toBe(true)
+    page.dataSpace.openDesign()
+    await flushPromises()
+    expect(wrapper.find('.data-planning-pane-stub').exists()).toBe(true)
+  })
+
+  it('keeps the binding staged while other fields are pending and fences impact and design until saved', async () => {
+    const {page, wrapper, view, save, state} = await setup({nodeId: 'NODE-1', blueprintTab: 'dataSpace'})
+    view.updateEditingValue('NODE-1', 'memo', 'draft memo')
+    sceneChoice.next = 'SPACE-B'
+    await wrapper.get('.node-basic-info-stub').trigger('click')
+    await flushPromises()
+    expect(save).not.toHaveBeenCalled()
+    expect(page.notice.value).toContain('已暂存')
+    expect(state.sceneBindingPending.value).toBe(true)
+    expect(page.dataSpace.canOpenDesign.value).toBe(false)
+    expect(page.dataSpace.canQueryImpact.value).toBe(false)
+    page.dataSpace.openDesign()
+    expect(page.error.value).toContain('尚未保存回读')
+  })
+
+  it('reports a readback mismatch instead of claiming the binding was saved', async () => {
+    const {page, wrapper, save, rows} = await setup({nodeId: 'NODE-1', blueprintTab: 'dataSpace'})
+    const actual = save.getMockImplementation()
+    if (!actual) throw new Error('fixture save missing')
+    // 服务端规范化为不同的数据空间：正式回读与所选值不一致，不得报告保存成功。
+    save.mockImplementationOnce(async command => actual({...command, changes: command.changes.map(change => ({...change,
+      changes: {...change.changes, changed: (change.changes.changed ?? []).map(patch => ({...patch, conid: 'SPACE-X'}))}}))}))
+    sceneChoice.next = 'SPACE-A'
+    await wrapper.get('.node-basic-info-stub').trigger('click')
+    await flushPromises()
+    expect(rows[0]?.['conid']).toBe('SPACE-X')
+    expect(page.notice.value).not.toBe('数据空间绑定已保存')
+    expect(page.error.value).toContain('conid 保存后读回不一致')
+  })
+
+  it('lists every node bound to the saved space with its full path through the lazy DataView', async () => {
+    const {page, state, owner, view} = await bound()
+    expect(state.persistedDataSpaceId.value).toBe('SPACE-A')
+    expect(view.rows.some(row => row['rowid'] === 'NODE-4' || row['rowid'] === 'NODE-5')).toBe(false)
+    await page.dataSpace.openImpact()
+    expect(page.error.value).toBe('')
+    expect(page.dataSpace.impactError.value).toBe('')
+    expect(page.dataSpace.impactTitle.value).toBe(`应用 ${TARGET} · 数据空间 SPACE-A`)
+    const impact = state.blueprintPageRuntime.value.resolveView(page.dataSpace.impactViewKey.value)
+    expect(impact?.dataTable?.resourceType).toBe('static-data')
+    expect(impact?.rows.map(row => ({nodeId: row['nodeId'], path: row['path'], navigationTarget: row['navigationTarget']}))).toEqual([
+      {nodeId: 'NODE-2', path: 'Root / Child', navigationTarget: '/g'},
+      {nodeId: 'NODE-5', path: 'Root / Child / Grandchild / Leaf / Deep cap', navigationTarget: '/s'},
+    ])
+    expect(owner.childrenLoaded('NODE-3')).toBe(true)
+    expect(owner.childrenLoaded('NODE-4')).toBe(true)
+    expect(view.rows.filter(row => row['rowid'] === 'NODE-5')).toHaveLength(1)
+  })
+
+  it('fails the impact query when a bound candidate hides conid', async () => {
+    const {page, view} = await bound()
+    const original = view.fieldAccess.bind(view)
+    vi.spyOn(view, 'fieldAccess').mockImplementation((row, field) => row?.['rowid'] === 'NODE-5' && field === 'conid'
+      ? {...original(row, field), read: 'invisible'} : original(row, field))
+    await page.dataSpace.openImpact()
+    expect(page.dataSpace.impactError.value).toContain('conid 不可读')
+  })
+
+  it('drops a late impact result after the selected node changes', async () => {
+    const {page, owner} = await bound()
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const original = owner.readDataSpaceImpact.bind(owner)
+    vi.spyOn(owner, 'readDataSpaceImpact').mockImplementationOnce(async id => {await gate; return original(id)})
+    const pending = page.dataSpace.openImpact()
+    expect(page.dataSpace.impactOpen.value).toBe(true)
+    page.onNodeClick({rowid: 'NODE-1'})
+    await flushPromises()
+    expect(page.selectedNodeId.value).toBe('NODE-1')
+    expect(page.dataSpace.impactOpen.value).toBe(false)
+    release()
+    await pending
+    expect(page.dataSpace.impactOpen.value).toBe(false)
+    expect(page.dataSpace.impactError.value).toBe('')
+    expect(page.dataSpace.impactLoading.value).toBe(false)
   })
 })

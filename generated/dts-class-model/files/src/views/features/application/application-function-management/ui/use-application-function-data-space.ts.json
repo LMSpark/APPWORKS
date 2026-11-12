@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/use-application-function-data-space",
+    "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-data-space.ts",
+    "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-data-space.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/use-application-function-data-space",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/use-application-function-data-space\n职责：项目蓝图页“数据空间”页签：主数据空间绑定/改绑的单独保存与回读核验、数据空间影响范围查询、内容设计入口门禁。\n边界：绑定只写 owner 的 Base_NavigationInfo.conid 编辑覆盖并沿原 DataView 保存；影响范围经同 DataSet 的 static-data\n结果 DataView 查询，由 owner DataView 增量读取绑定节点与完整父链；切换节点、上下文或绑定后旧查询结果丢弃。\nAI用途：修改数据空间页签行为时在此保持“暂存→单独保存→回读核验”与代次校验，不另建蓝图 DataView、不直调接口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ApplicationFunctionDataSpaceInput"
+    ]
+  },
+  "$defs": {
+    "ApplicationFunctionDataSpaceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApplicationFunctionDataSpaceInput",
+      "properties": {
+        "selectedNodeId": {
+          "type": "object",
+          "title": "Ref<string>"
+        },
+        "persistedDataSpaceId": {
+          "type": "object",
+          "title": "Ref<string>"
+        },
+        "bindingPending": {
+          "type": "object",
+          "title": "Ref<boolean>"
+        },
+        "error": {
+          "type": "object",
+          "title": "Ref<string>"
+        },
+        "notice": {
+          "type": "object",
+          "title": "Ref<string>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.context.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.context.return": {
+          "$ref": "use-application-function-page.ts.json#/$defs/BlueprintTreeContext"
+        },
+        "method.isLive.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "use-application-function-page.ts.json#/$defs/BlueprintTreeContext"
+            },
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isLive.return": {
+          "type": "boolean"
+        },
+        "method.saveOwner.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.saveOwner.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.notifyChanged.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.notifyChanged.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-12T07:36:01.799Z",
+  "models": {
+    "ApplicationFunctionDataSpaceInput": {
+      "name": "ApplicationFunctionDataSpaceInput",
+      "jsdoc": "页面向数据空间流程提供的上下文、正式绑定状态与保存入口。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前有效蓝图树上下文；无上下文时返回 undefined。 */\n    context: () => BlueprintTreeContext | undefined;\n    /** 上下文仍是当前树且选中节点仍为 nodeId。 */\n    isLive: (context: BlueprintTreeContext, nodeId: string) => boolean;\n    /** 当前选中的蓝图节点身份。 */\n    selectedNodeId: Readonly<Ref<string>>;\n    /** 当前节点正式回读的 conid（DataView 原始值）；未绑定或不可读为空串。 */\n    persistedDataSpaceId: Readonly<Ref<string>>;\n    /** conid 编辑覆盖尚未保存回读。 */\n    bindingPending: Readonly<Ref<boolean>>;\n    /** 沿 owner 保存全部编辑覆盖；成功返回 true，失败已写入 error。 */\n    saveOwner: () => Promise<boolean>;\n    /** 外部 DataView 覆盖变化后通知页面重新计算编辑状态。 */\n    notifyChanged: () => void;\n    /** 页面错误提示。 */\n    error: Ref<string>;\n    /** 页面成功提示。 */\n    notice: Ref<string>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前有效蓝图树上下文；无上下文时返回 undefined。 */\n    context: () => BlueprintTreeContext | undefined;\n    /** 上下文仍是当前树且选中节点仍为 nodeId。 */\n    isLive: (context: BlueprintTreeContext, nodeId: string) => boolean;\n    /** 当前选中的蓝图节点身份。 */\n    selectedNodeId: Readonly<Ref<string>>;\n    /** 当前节点正式回读的 conid（DataView 原始值）；未绑定或不可读为空串。 */\n    persistedDataSpaceId: Readonly<Ref<string>>;\n    /** conid 编辑覆盖尚未保存回读。 */\n    bindingPending: Readonly<Ref<boolean>>;\n    /** 沿 owner 保存全部编辑覆盖；成功返回 true，失败已写入 error。 */\n    saveOwner: () => Promise<boolean>;\n    /** 外部 DataView 覆盖变化后通知页面重新计算编辑状态。 */\n    notifyChanged: () => void;\n    /** 页面错误提示。 */\n    error: Ref<string>;\n    /** 页面成功提示。 */\n    notice: Ref<string>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "selectedNodeId",
+              "jsdoc": "当前选中的蓝图节点身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "persistedDataSpaceId",
+              "jsdoc": "当前节点正式回读的 conid（DataView 原始值）；未绑定或不可读为空串。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "bindingPending",
+              "jsdoc": "conid 编辑覆盖尚未保存回读。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "jsdoc": "页面错误提示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "notice",
+              "jsdoc": "页面成功提示。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "context",
+              "jsdoc": "当前有效蓝图树上下文；无上下文时返回 undefined。",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "BlueprintTreeContext",
+                  "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-page.ts"
+                }
+              }
+            },
+            {
+              "name": "isLive",
+              "jsdoc": "上下文仍是当前树且选中节点仍为 nodeId。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintTreeContext",
+                    "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-page.ts"
+                  }
+                },
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "saveOwner",
+              "jsdoc": "沿 owner 保存全部编辑覆盖；成功返回 true，失败已写入 error。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "notifyChanged",
+              "jsdoc": "外部 DataView 覆盖变化后通知页面重新计算编辑状态。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

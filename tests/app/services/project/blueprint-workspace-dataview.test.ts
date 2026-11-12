@@ -262,6 +262,33 @@ describe('BlueprintWorkspaceDataView direct DataSet contract',()=>{
     expect(findNode(tree,'NAV-BOUND')?.capability.code).toBe('DATA-SPACE-MANAGE')
   })
 
+  it('reads full-tree data-space impact with title fallback, visible navigation target and path ordering',async()=>{
+    const fixture=createFixture()
+    fixture.rows.find(row=>row['rowid']==='NAV-BOUND-2')!['conid']='DATASET-1'
+    fixture.rows.find(row=>row['rowid']==='NAV-BOUND-2')!['FunName']=''
+    await fixture.owner.loadProjectTree()
+    const impact=await fixture.owner.readDataSpaceImpact(' DATASET-1 ')
+    expect(impact).toEqual([
+      {nodeId:'NAV-BOUND',path:'APP / Group / DataSpace',navigationTarget:'vue:/features/data-platform/data-set-management/ui/data-set-list-page'},
+      {nodeId:'NAV-BOUND-2',path:'APP / Service',navigationTarget:''},
+    ])
+    expect(await fixture.owner.readDataSpaceImpact('NOT-BOUND')).toEqual([])
+    expect(fixture.saveRequests).toHaveLength(0)
+  })
+
+  it('refuses data-space impact when conid is hidden, before the tree loads, or a bound row is an orphan',async()=>{
+    const unloaded=createFixture()
+    await expect(unloaded.owner.readDataSpaceImpact('DATASET-1')).rejects.toThrow('尚未加载项目树')
+    await expect(unloaded.owner.readDataSpaceImpact(' ')).rejects.toThrow('需要正式数据空间身份')
+    const hidden=createFixture({hiddenFields:['conid']})
+    await hidden.owner.loadProjectTree()
+    await expect(hidden.owner.readDataSpaceImpact('DATASET-1')).rejects.toThrow('conid 不可读')
+    const orphan=createFixture({orphan:true})
+    orphan.rows.find(row=>row['rowid']==='NAV-ORPHAN')!['conid']='DATASET-1'
+    await orphan.owner.loadProjectTree()
+    await expect(orphan.owner.readDataSpaceImpact('DATASET-1')).rejects.toThrow('未读取到蓝图父节点：NAV-MISSING')
+  })
+
   it('keeps original move ids fenced through unknown save and rejects a stale project scope',async()=>{
     let current=true
     const fixture=createFixture({unknownFirstSave:true})

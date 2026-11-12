@@ -9530,3 +9530,52 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
   - 正式导航发布与应用管理“项目管理”开放。
   - 认证实服烟测。
   - 完整 `apps/appworks` 其余业务域逐功能验收。
+## 蓝图批次3a：数据空间（绑定/改绑、影响范围、内容设计入口）
+
+- **范围与对照。** 对照参考固定提交 `1147b00ee` 蓝图页“数据空间”页签逐项迁移行为：节点主数据空间绑定/改绑、查询绑定该数据空间的影响范围、进入内容设计。不复制参考 Vue 整页。
+  - 绑定/改绑：复用 dev-system 的 `NodeBasicInfo`（`sections=['data-space']`）目录选择器，新增 `sceneChosen` 事件。若当前节点除 `conid` 外无其他未保存修改，立即经 owner 保存，并按 `persistedDataSpaceId` 正式回读核验（owner 自身也校验“保存后读回不一致”）。若有其他修改，只暂存 `conid` 并提示由显式保存统一提交，不写入。
+  - 影响范围：只按已保存（正式）的 `conid` 启用。owner 新增 `readDataSpaceImpact(dataSpaceId)`：
+    - 懒加载模式在 `runLazy` 内经 `appendLazyRows(conid eq id)` 增量装载绑定节点，再沿 `resolveAncestorPath` 装载父链。
+    - 若存在 `conid` 不可读的行，直接报“数据空间影响范围不完整”，不把权限缺口当成“无影响”。
+    - 路径标题只用可见字段（FunName → name → nodeId）；导航地址只取可见的 `NavigationUrl`。
+    - 结果按路径（zh-CN）再按 nodeId 排序。
+  - 内容设计：以已保存的 `conid` 打开 `DataPlanningPane`，传入 `blueprintNodeFieldAccess('conid')`。未保存或待保存时入口禁用。
+  - 防串数据：上下文、选中节点或正式 `conid` 变化时，作废影响范围请求并关闭弹窗；迟到结果按代次丢弃。
+- **公共/owner 改动（均有测试）。**
+  - `blueprint-workspace-dataview`：`readDataSpaceImpact` 与 `BlueprintDataSpaceImpact` 类型（含 JSDoc）。`locateNode` 的父链循环抽成 `resolveAncestorPath`，完整树模式下缺父即报错，并检测环与深度上限。
+  - 影响范围结果 DataView：在同一 owner DataSet 上以 `ensureDataSetStaticInputTable` 装配唯一命名的 static-data 表，`bindQueryExecutor` 调用 owner 查询，经 `runtime.resolveView(key)` 核验，释放时 `removeTable`；不参与正式保存。
+  - 页面 `RendererTree :current-key` 改为 `selectedNodeId || null`。切换节点期间不再以空主键调用 `setCurrentRowById`，消除烟测捕获的“行不存在”告警（批次1遗留）。
+- **ClassModel 查询 → 实现 → 验证对应。**
+  - `RTableProps`（`dataViewKey/children/showDataViewMeta/showPagination`）+ 先例 `data-recovery-page`/`flow-monitor-page` 的 r-text 列 → 影响范围表 → 入口用例、烟测路径与导航列。
+  - `RTreeProps.currentKey: string | number | null` → 树当前行同步修正 → 烟测“切换节点期间树不以空主键设置当前行”。
+  - `ensureDataSetStaticInputTable` / `DataView.bindQueryExecutor` / `dataSetCommandQueryResultFromLocalRows` → 影响范围结果 DataView → 入口用例（隐藏 conid、迟到结果）。
+  - owner `appendLazyRows`、`loadChildrenNow` → 懒加载增量装载 → owner 用例与烟测“深层节点经懒加载增量装载且无重复”。
+  - `NodeBasicInfo`/`DataPlanningPane` 复用（dev-system 已有专测）→ 选择器与设计器入口 → 场景选择器测试 `sceneChosen` 断言。
+  - 源码改动后已运行 `generate:class-model-surface`；新类型补齐 JSDoc，`semantic-gaps.json` 无新增 `missing-jsdoc`。
+- **验证。**
+  - `pnpm run typecheck` 通过。
+  - 入口测试 34 项通过（新增数据空间 6 项）；`blueprint-workspace-dataview` 18 项通过（新增完整树影响范围 2 项）；`blueprint-scene-picker` 11 项通过。相关目录合计 23 文件 421 项通过。
+  - 8 个改动文件 ESLint 通过。
+  - `generate:lowcode-contracts` 无变化；`pnpm run verify` 通过；`verify:pages-config` ok、`verify:page-thin` ok、`verify:class-model` 通过；`git diff --check` 0 行。
+- **隔离浏览器烟测（无头 Edge + CDP，内存夹具，未写实服数据）。**
+  - 环境同批次2：真实页面、真实 DataSet/PageRuntime/owner/`RendererTable`/`RendererTree`；场景选择器与内容设计器替换为合同替身；拦截全部网络。脚手架位于 `artifacts/smoke-blueprint-batch3/`，完成后已删除（批次2脚手架一并删除）。
+  - 发现：脚手架初版未安装 `Spark.createPlugin()`，导致 `SparkComponentRenderer` 取不到注册表、表格列不渲染。这是脚手架缺口，生产启动由 `start.ts` 安装插件；修正后真实列正常渲染。
+  - 结果 17/17 步通过：
+    - 深链 `blueprintTab=dataSpace`；未绑定时入口禁用；深层节点初始未装载。
+    - 选择后单独保存并回读；影响范围标题、本节点路径、深层完整路径（标题回退能力名）、排除其他空间、懒加载增量无重复。
+    - 内容设计以已保存空间打开；有其他修改时只暂存不写入、待保存期间入口禁用、取消恢复。
+    - 切换节点后弹窗作废；按正式值启用；切换期间树不以空主键设置当前行。
+  - 网络尝试 0 次，控制台错误 0 条，告警 0 条；唯一写入为 `Base_NavigationInfo:+0~1-0`（绑定保存）。
+- **批次3b（维度来源）现状与接入需求（不缩范围）。**
+  - 参考依赖：`DimensionSourceBinding`/`DimensionSourceCommit`/`DimensionDesign`、`data-space-design`、`blueprint-dimension-source`/`-event-editor`/`source-commit-editor` 三个 UI，以及 `packages/data/spark-api/src/dimension` 运行时（`runtime-api`、`source-commit-save`、`projection-currentness`）。
+  - 本仓可直接接入：场景 `88A4D51B01702C3856F4632E234BF34B`（`config/pages/structured-config/dimension-design/pagedata.json`）已声明 Binding、Mapping、Rule_Template、Rule、Rule_Condition、Rule_Result、Definition、Dict_Type、Dict_Item、Biz_Category。下一步在蓝图 PageRuntime 中延迟装载该场景，以标准组件编辑绑定、映射与事件，并经 `lowcodeApi.dataSpace.design.readModel` 做正式校验。
+  - 接入还需补齐：
+    - Collection、Commit_Policy、Commit_Field 的正式模型 ID 与表声明。本仓 `cache/generated/backend-api-contracts/config/docs/evidence` 均无，需从实服元数据或场景同步获取后写入 pagedata。
+    - 来源提交协议的草稿/正式回读：需在本仓 spark-data/lowcode-api 公共层建立与参考 `source-commit-save`、`projection-currentness` 等价的能力，以及来源合同注册表与维度 ledger 查询入口。
+- **仍开放。**
+  - 批次3b：维度来源映射/集合编辑、事件编辑、来源提交协议草稿与正式回读。
+  - 批次4：导航/桌面/宿主、交付与导出。
+  - 批次5：两个权限入口。
+  - 正式导航发布与应用管理“项目管理”开放。
+  - 认证实服烟测；批次2未核实项保持不变。
+  - 完整 `apps/appworks` 其余业务域逐功能验收。

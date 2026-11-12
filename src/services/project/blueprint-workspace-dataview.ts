@@ -51,6 +51,16 @@ export type BlueprintChildNodeCreateAtParent=BlueprintChildNodeCreate&Readonly<{
   parentNodeId:string
 }>
 
+/** One blueprint node bound to a data space, with its full title path from the root. */
+export type BlueprintDataSpaceImpact=Readonly<{
+  /** Stable blueprint node identity (Base_NavigationInfo.rowid). */
+  nodeId:string
+  /** Root-to-node titles (navigation title, else capability name, else node id) joined by " / ". */
+  path:string
+  /** Visible NavigationUrl of the node; empty when unset or unreadable. */
+  navigationTarget:string
+}>
+
 /** Fully preflighted target identity and patch, ready for synchronous overlay staging. */
 export type BlueprintNodeDataBatchItem=Readonly<{nodeId:string;key:string|number;patch:Readonly<Record<string,unknown>>;node:BlueprintNodeFormData}>
 
@@ -329,25 +339,78 @@ export class BlueprintWorkspaceDataView {
       return [targetId]
     }
     return this.runLazy(async()=>{
-      const path:string[]=[]
-      const seen=new Set<string>()
-      let cursor=targetId
-      while(!isBlueprintRootParent(cursor)){
-        if(seen.has(cursor))throw new Error(`蓝图节点父级链存在循环：${cursor}`)
-        if(seen.size>=MAX_BLUEPRINT_DEPTH)throw new Error('蓝图节点父级链超过允许深度')
-        seen.add(cursor)
-        let row=this.findProjectRow(cursor)
-        if(!row){
-          await this.appendLazyRows(DataViewFilter.condition({field:'rowid',operator:'eq',value:cursor}).toJSON(),lazy)
-          row=this.findProjectRow(cursor)
-        }
-        if(!row)throw new Error(cursor===targetId?`当前应用蓝图中未找到 nodeId=${targetId}`:`未读取到蓝图父节点：${cursor}`)
-        path.unshift(cursor)
-        cursor=String(row['prowid']??'').trim()
-      }
+      const path=await this.resolveAncestorPath(targetId,lazy)
       for(const ancestor of path.slice(0,-1))await this.loadChildrenNow(ancestor,lazy)
       return path
     })
+  }
+
+  /**
+   * 数据空间影响范围：沿原 DataView 读取当前项目中正式 conid 等于目标的全部节点及其完整父链（懒加载模式增量装载，
+   * 与 locateNode 同口径补齐祖先的直接子行）；conid 不可读即失败，不以缺失字段推断“未绑定”。
+   * @returns 按功能路径排序的节点身份、功能路径与导航地址。
+   */
+  public async readDataSpaceImpact(dataSpaceId: string): Promise<readonly BlueprintDataSpaceImpact[]> {
+    this.assertUsable()
+    const targetId=dataSpaceId.trim()
+    if(!targetId)throw new Error('查询数据空间影响范围需要正式数据空间身份')
+    if(!this.#treeQueryLoaded)throw new Error('蓝图 DataView 尚未加载项目树')
+    if(!this.hasOutput('conid'))throw new Error('蓝图 DataView 未正式输出 conid，无法判断影响范围')
+    const lazy=this.#lazyParents
+    const collect=async():Promise<readonly BlueprintDataSpaceImpact[]>=>{
+      if(lazy!==undefined)await this.appendLazyRows(DataViewFilter.condition({field:'conid',operator:'eq',value:targetId}).toJSON(),lazy)
+      const bound:string[]=[]
+      for(const row of this.view.rows){
+        if(row['SysId']!==this.#projectId)continue
+        if(this.view.fieldAccess(row,'conid').read!=='visible')throw new Error('数据空间影响范围不完整：存在 conid 不可读或已脱敏的蓝图节点')
+        if(String(row['conid']??'').trim()===targetId)bound.push(String(row['rowid']))
+      }
+      const paths=new Map<string,readonly string[]>()
+      for(const nodeId of bound)paths.set(nodeId,await this.resolveAncestorPath(nodeId,lazy))
+      if(lazy!==undefined){
+        const ancestors=new Set([...paths.values()].flatMap(path=>path.slice(0,-1)))
+        for(const ancestor of ancestors)await this.loadChildrenNow(ancestor,lazy)
+      }
+      return [...paths].map(([nodeId,path])=>Object.freeze({
+        nodeId,
+        path:path.map(id=>this.impactTitle(id)).join(' / '),
+        navigationTarget:this.visibleText(nodeId,'NavigationUrl'),
+      })).sort((left,right)=>left.path.localeCompare(right.path,'zh-CN')||left.nodeId.localeCompare(right.nodeId))
+    }
+    return lazy===undefined?collect():this.runLazy(collect)
+  }
+
+  /** 自根到目标的节点身份链；懒加载模式按 rowid 逐级补读缺失祖先，完整树模式缺失即失败。 */
+  private async resolveAncestorPath(targetId:string,lazy:Set<string>|undefined):Promise<string[]>{
+    const path:string[]=[]
+    const seen=new Set<string>()
+    let cursor=targetId
+    while(!isBlueprintRootParent(cursor)){
+      if(seen.has(cursor))throw new Error(`蓝图节点父级链存在循环：${cursor}`)
+      if(seen.size>=MAX_BLUEPRINT_DEPTH)throw new Error('蓝图节点父级链超过允许深度')
+      seen.add(cursor)
+      let row=this.findProjectRow(cursor)
+      if(!row&&lazy!==undefined){
+        await this.appendLazyRows(DataViewFilter.condition({field:'rowid',operator:'eq',value:cursor}).toJSON(),lazy)
+        row=this.findProjectRow(cursor)
+      }
+      if(!row)throw new Error(cursor===targetId?`当前应用蓝图中未找到 nodeId=${targetId}`:`未读取到蓝图父节点：${cursor}`)
+      path.unshift(cursor)
+      cursor=String(row['prowid']??'').trim()
+    }
+    return path
+  }
+
+  /** 影响范围路径段：导航标题优先，其次能力名称，均不可读时用节点身份。 */
+  private impactTitle(nodeId:string):string{
+    return this.visibleText(nodeId,'FunName')||this.visibleText(nodeId,'name')||nodeId
+  }
+
+  private visibleText(nodeId:string,field:string):string{
+    const row=this.findProjectRow(nodeId)
+    if(!row||!this.hasOutput(field)||this.view.fieldAccess(row,field).read!=='visible')return ''
+    const value=row[field]
+    return typeof value==='string'||typeof value==='number'?String(value).trim():''
   }
 
   private async loadChildrenNow(parentId:string,lazy:Set<string>):Promise<void>{

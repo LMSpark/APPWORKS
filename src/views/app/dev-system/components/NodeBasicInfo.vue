@@ -86,6 +86,8 @@ const blueprintBindingReady = computed(()=>Boolean(blueprintViewKey.value))
 /** Selects blueprint domains for the shared DataView-backed editor; omitted means every section. */
 type Section = 'capability' | 'navigation' | 'navigation-target' | 'data-space' | 'prototype'
 const props = defineProps<{state:DevState;sections?:readonly Section[]}>()
+/** sceneChosen: the conid edit overlay was staged with this formal scenario id; hosts may save it explicitly. */
+const emit = defineEmits<{sceneChosen:[scenarioId:string]}>()
 const includes = (section: Section) => props.sections === undefined ? true : props.sections.includes(section)
 const kindOptions=[
   {value:'Model',label:'模块'},
@@ -191,6 +193,7 @@ function chooseScene():void {
   // The blueprint draft proxy writes only the conid-backed DataView edit overlay.
   props.state.blueprintDraft.dataSpace={scenarioId:rowid,models:[]}
   closeScenePicker()
+  emit('sceneChosen',rowid)
 }
 watch(()=>[props.state.projectId,props.state.selectedNode.value?.nodeId,props.state.blueprintPageRuntime.value?.instanceId],()=>{
   if(catalogOpen.value){pickerRevision++;catalogLoading.value=false;catalogError.value='';catalogOpen.value=false;catalogReady.value=false;catalogView.value=undefined;pickerTarget.value=undefined}

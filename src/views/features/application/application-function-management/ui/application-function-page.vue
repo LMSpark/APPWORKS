@@ -39,7 +39,7 @@
           :key="treeContext.key"
           v-bind="treeBinding"
           node-key="rowid"
-          :current-key="selectedNodeId"
+          :current-key="selectedNodeId || null"
           :tree-props="treeProps"
           :on-node-click="onNodeClick"
           :on-node-expand="onNodeExpand"
@@ -103,11 +103,19 @@
               :autosize="{minRows: 4, maxRows: 12}" @update:model-value="state.notifyExternalDataViewChanged" />
           </RendererForm>
         </template>
-        <DisplayAlert
-          v-else-if="isSelectedNodeReady && activeTab === 'dataSpace'"
-          description="数据空间编辑属于后续迁移批次；本批只保留 blueprintTab 定位，不提供未核实的编辑入口。"
-          alert-type="info"
-        />
+        <template v-else-if="isSelectedNodeReady && activeTab === 'dataSpace'">
+          <div class="application-function-page__details-toolbar">
+            <h2>数据空间</h2>
+            <RendererButton label="查询影响范围" :disabled="!canQueryImpact" :loading="impactLoading" @click="openImpact" />
+            <RendererButton label="内容设计" :disabled="!canOpenDesign" @click="openDesign" />
+          </div>
+          <DisplayAlert
+            description="每个蓝图节点只绑定一个主数据空间；选择后若当前节点没有其他未保存修改会立即保存并回读核验，改绑前请先查询影响范围。"
+            alert-type="info"
+          />
+          <NodeBasicInfo :state="state" :sections="['data-space']" @scene-chosen="bindDataSpace" />
+          <DisplayAlert v-if="bindingSaving" description="正在保存数据空间绑定…" alert-type="info" />
+        </template>
         <template v-else-if="isSelectedNodeReady && activeTab === 'prototype'">
           <div class="application-function-page__details-toolbar">
             <h2>需求原型</h2>
@@ -240,6 +248,18 @@
       </template>
     </RendererDialog>
 
+    <RendererDialog v-if="impactOpen" :model-value="true" title="数据空间影响范围" width="760px" @update:model-value="closeImpact">
+      <DisplayAlert :description="impactTitle" alert-type="info" />
+      <DisplayAlert v-if="impactError" :description="impactError" alert-type="error" />
+      <DisplayAlert v-else-if="impactLoading" description="正在查询绑定该数据空间的蓝图节点…" alert-type="info" />
+      <RendererTable v-if="impactViewKey && !impactError" :data-view-key="impactViewKey" :children="[...impactColumns]"
+        :show-data-view-meta="false" :show-pagination="false" />
+    </RendererDialog>
+
+    <RendererDialog v-if="designOpen" :model-value="true" title="数据空间内容设计" width="92vw" @update:model-value="closeDesign">
+      <DataPlanningPane :state="state" :field-access="state.blueprintNodeFieldAccess('conid')" />
+    </RendererDialog>
+
     <RendererDialog v-if="deletingVersion" :model-value="true" title="删除确认" width="420px" @update:model-value="cancelDeleteVersion">
       <DisplayAlert :description="`确定要删除版本“${deletingVersion.versionName}”吗？`" alert-type="warning" />
       <template #footer>
@@ -255,8 +275,10 @@ import { computed } from 'vue'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import type { DataRow } from '@spark-appworks/spark-data'
 import { useApplicationFunctionPage } from './use-application-function-page'
+import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
+import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
 
-const {DisplayAlert, DisplayEmpty, FieldHtmlEditor, FieldSelect, FieldText, FieldTextarea, RendererButton, RendererDialog, RendererForm, RendererList, RendererTree} = SparkComponent
+const {DisplayAlert, DisplayEmpty, FieldHtmlEditor, FieldSelect, FieldText, FieldTextarea, RendererButton, RendererDialog, RendererForm, RendererList, RendererTable, RendererTree} = SparkComponent
 
 const {
   state,
@@ -305,7 +327,13 @@ const {
   touchInput,
   ai,
   prototype,
+  dataSpace,
 } = useApplicationFunctionPage()
+
+const {
+  bindingSaving, canQueryImpact, canOpenDesign, impactOpen, impactLoading, impactError, impactTitle, impactViewKey, impactColumns,
+  designOpen, bindDataSpace, openImpact, closeImpact, openDesign, closeDesign,
+} = dataSpace
 
 const {
   treeAiOpen, treeAiRequirement, treeAiPreview, treeAiCreated, treeAiConfirming, formAiPreview, formAiPreviewItems, aiGenerating,

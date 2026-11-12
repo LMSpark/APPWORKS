@@ -195,6 +195,7 @@ describe('development blueprint scene picker', () => {
     expect(view.fieldAccess).toHaveBeenCalledWith(candidate, 'rowid')
     expect(view.fieldAccess).toHaveBeenCalledWith(candidate, 'Name')
     expect(wrapper!.find('[data-testid="scene-dialog"]').exists()).toBe(false)
+    expect(wrapper!.findComponent(NodeBasicInfo).emitted('sceneChosen')).toEqual([['SCENE-NEW']])
   })
 
   it.each([
@@ -206,6 +207,7 @@ describe('development blueprint scene picker', () => {
     await openPicker()
     await clickCandidate(row)
     expect(state.blueprintDraft.dataSpace.scenarioId).toBe('SCENE-OLD')
+    expect(wrapper!.findComponent(NodeBasicInfo).emitted('sceneChosen')).toBeUndefined()
   })
 
   it('rejects unreadable candidates, missing views, and failed catalog reads', async () => {

@@ -13,6 +13,7 @@ import { BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID, BLUEPRINT_NODE_STATUS_SCENARI
 import { resolveNavHostProjectBinding, resolveProjectCandidate } from '@/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract'
 import { blueprintEditingFields as editingFields } from './application-function-page-contract'
 import { useApplicationFunctionAi } from './use-application-function-ai'
+import { useApplicationFunctionDataSpace } from './use-application-function-data-space'
 import { useApplicationFunctionPrototype } from './use-application-function-prototype'
 
 type BlueprintTab = 'basic' | 'dataSpace' | 'prototype'
@@ -331,6 +332,19 @@ export function useApplicationFunctionPage() {
     error,
     notice,
   })
+
+  const dataSpace = useApplicationFunctionDataSpace({
+    context: () => treeContext.value,
+    isLive,
+    selectedNodeId,
+    persistedDataSpaceId: state.persistedDataSpaceId,
+    bindingPending: state.sceneBindingPending,
+    saveOwner: () => saveBlueprintChanges(),
+    notifyChanged: () => state.notifyExternalDataViewChanged(),
+    error,
+    notice,
+  })
+  onScopeDispose(() => dataSpace.dispose())
 
   /** 图片上传进行中时禁止切换节点或页签，避免上传结果插入到其他节点。 */
   function uploadsBlockSwitch(): boolean {
@@ -827,5 +841,6 @@ export function useApplicationFunctionPage() {
     touchInput,
     ai,
     prototype,
+    dataSpace,
   }
 }

@@ -131,7 +131,7 @@ type PendingPageBindingCreate={kind:'binding';pageId:string;parentId:string;node
 type PendingChildPageCreate={kind:'child';pageId:string;parentId:string;nodeId:string;projectId:string;childInput:Record<string,unknown>;stage:'files'|'blueprint'|'compensate'|'done'}
 type PendingPageOperation=PendingPageBindingCreate|PendingChildPageCreate
 type PendingMountedPageDelete={pageId:string;customPath:string;nodeId:string;projectId:string;parentNodeId:string;title:string;stage:'blueprint'|'files'}
-type DevSystemOwnerBundle={key:string;workspace:ProjectBlueprintDomain.ProjectWorkspace;scopeFingerprint:string;leaseGeneration:number;runtime:PageRuntime;session:NativePageRuntimeSession;blueprint:BlueprintWorkspaceDataView;assertCurrent:(()=>void)|undefined;
+type DevSystemOwnerBundle={key:string;workspace:ProjectBlueprintDomain.ProjectWorkspace;scopeFingerprint:string;executionProjectId:string;leaseGeneration:number;runtime:PageRuntime;session:NativePageRuntimeSession;blueprint:BlueprintWorkspaceDataView;assertCurrent:(()=>void)|undefined;
   /** 当前持有该 owner 的工作区实例所做的完整租约核验；每次取得租约时设置、释放时清除。长期绑定经此跟随续接的持有者。 */
   holderCheck:(()=>void)|undefined;pendingMountedPageDelete:PendingMountedPageDelete|undefined;pendingPageBindingCreate:PendingPageOperation|undefined}
 /** 文件 DataView 等长期绑定的守卫：跟随 owner 当前持有者，而不是绑定时的工作区实例。 */
@@ -183,7 +183,8 @@ export function useDevState() {
   let unregisterBlueprintWorkspaceSession:(()=>void)|undefined
   const assertOwnerBundleCurrent=(bundle:DevSystemOwnerBundle):void=>{
     if(activeOwnerBundle!==bundle||bundle.leaseGeneration!==ownerLeaseGeneration||bundle.assertCurrent===undefined)throw new Error('DevSystem DataView owner 当前未被同项目工作区持有')
-    if(ownerScopeToken===undefined||lowcodeApi.readRequestScope().token!==ownerScopeToken)throw new Error('DevSystem owner 认证请求作用域已变化')
+    const requestScope=lowcodeApi.readRequestScope()
+    if(ownerScopeToken===undefined||requestScope.token!==ownerScopeToken||requestScope.headers['X-AppId']!==bundle.executionProjectId)throw new Error('DevSystem owner 认证请求作用域已变化')
     bundle.assertCurrent()
   }
   function currentPageFileView(pageId:string,fileName:ProjectBlueprintDomain.PageToolFileName):DataView{
@@ -275,15 +276,18 @@ export function useDevState() {
     const projectKey=projectId.value,workspace=currentEditor.value
     if(blueprintWorkspaceDataView.value?.projectId===projectKey){if(activeOwnerBundle)assertOwnerBundleCurrent(activeOwnerBundle);return blueprintWorkspaceDataView.value}
     const bundleKey=devSystemOwnerKey(activeEditScope.value)
-    const scopeToken=lowcodeApi.readRequestScope().token
+    const requestScope=lowcodeApi.readRequestScope()
+    const scopeToken=requestScope.token
+    const executionProjectId=requestScope.headers['X-AppId']
+    if(!executionProjectId)throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 蓝图场景缺少当前执行应用身份')
     const parked=getDevSystemOwnerBundle(workspace,bundleKey)
     if(parked){
       if(parked.assertCurrent!==undefined)throw new Error('DEV_SYSTEM_OWNER_LEASE_ACTIVE: 同项目 DataView owner 仍由另一 SPA scope 持有')
       const fingerprint=await fingerprintRequestScope(scopeToken)
-      if(parked.scopeFingerprint!==fingerprint)throw new Error('DEV_SYSTEM_OWNER_AUTH_SCOPE: 同项目存在另一认证上下文的待处理 owner；拒绝交叉续接')
-      if(devSystemOwnerBundles.get(workspace)?.get(bundleKey)!==parked||lowcodeApi.readRequestScope().token!==scopeToken)throw new Error('DEV_SYSTEM_OWNER_AUTH_SCOPE: owner 核验期间认证上下文或租约已变化')
+      if(parked.scopeFingerprint!==fingerprint||parked.executionProjectId!==executionProjectId)throw new Error('DEV_SYSTEM_OWNER_AUTH_SCOPE: 同项目存在另一认证上下文的待处理 owner；拒绝交叉续接')
+      if(devSystemOwnerBundles.get(workspace)?.get(bundleKey)!==parked||lowcodeApi.readRequestScope().token!==scopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId)throw new Error('DEV_SYSTEM_OWNER_AUTH_SCOPE: owner 核验期间认证上下文或租约已变化')
       if(parked.blueprint.projectId!==projectKey||parked.runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!==parked.blueprint.dataSet)throw new Error('DEV_SYSTEM_OWNER_IDENTITY: parked owner 不属于当前项目或运行时')
-      const guard=()=>{if(projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken)throw new Error('DevSystem owner lease 已失效')}
+      const guard=()=>{if(projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId)throw new Error('DevSystem owner lease 已失效')}
       parked.leaseGeneration=++devSystemLeaseGeneration
       ownerLeaseGeneration=parked.leaseGeneration
       ownerScopeToken=scopeToken
@@ -318,10 +322,10 @@ export function useDevState() {
       const runtimeSession=new NativePageRuntimeSession()
       const runtime=runtimeSession.acquire({pageId:'dev-system-blueprint-workspace',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY,DATA_SPACE_CATALOG_SCENARIO_ID,LowcodeDictionary.editorScenarioId],mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,targetId:projectKey,
         loadScenario:async scenarioId=>{
-          const assertCurrent=()=>{if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==loadScopeToken)throw new Error('蓝图 DataView 项目或认证作用域已切换')}
+          const assertCurrent=()=>{if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==loadScopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId)throw new Error('蓝图 DataView 项目或认证作用域已切换')}
           assertCurrent()
-          if(scenarioId===LOWCODE_APPLICATION_CATALOG_FORM_KEY)return loadLowcodeRuntimeScenario({projectId:projectKey,scenarioId})
-          if(scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID)return loadLowcodeRuntimeScenario({projectId:projectKey,scenarioId})
+          if(scenarioId===LOWCODE_APPLICATION_CATALOG_FORM_KEY)return loadLowcodeRuntimeScenario({projectId:executionProjectId,scenarioId})
+          if(scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID)return loadLowcodeRuntimeScenario({projectId:executionProjectId,scenarioId})
           if(scenarioId===LowcodeDictionary.editorScenarioId)return (await LowcodeDictionary.loadEditor()).dataSet
           throw new Error(`蓝图运行时未声明场景 ${scenarioId}`)
         }})
@@ -330,14 +334,14 @@ export function useDevState() {
       loadScopeToken=''
       const dataSet=runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)
       if(!dataSet){releaseAttempt();throw new Error('蓝图运行时缺少正式目录DataSet')}
-      if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||!runtimeSession.isCurrent(runtime)){releaseAttempt();throw new Error('蓝图 DataView 项目或认证作用域已切换')}
+      if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId||!runtimeSession.isCurrent(runtime)){releaseAttempt();throw new Error('蓝图 DataView 项目或认证作用域已切换')}
       const scopeFingerprint=await fingerprintRequestScope(scopeToken)
-      if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||!runtimeSession.isCurrent(runtime)){releaseAttempt();throw new Error('蓝图 DataView 项目或认证作用域已切换')}
+      if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId||!runtimeSession.isCurrent(runtime)){releaseAttempt();throw new Error('蓝图 DataView 项目或认证作用域已切换')}
       let session:BlueprintWorkspaceDataView
       try{
         let assertLease:()=>void=()=>{throw new Error('DevSystem DataView owner 尚未取得活动租约')}
         session=new BlueprintWorkspaceDataView(dataSet,projectKey,()=>assertLease())
-        const bundle:DevSystemOwnerBundle={key:bundleKey,workspace,scopeFingerprint,leaseGeneration:++devSystemLeaseGeneration,runtime,session:runtimeSession,blueprint:session,
+        const bundle:DevSystemOwnerBundle={key:bundleKey,workspace,scopeFingerprint,executionProjectId,leaseGeneration:++devSystemLeaseGeneration,runtime,session:runtimeSession,blueprint:session,
           assertCurrent:undefined,holderCheck:undefined,pendingMountedPageDelete:undefined,pendingPageBindingCreate:undefined}
         ownerLeaseGeneration=bundle.leaseGeneration
         ownerScopeToken=scopeToken

@@ -1,6 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {SparkData, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {configureNavHostProjectRelation, type NavHostProjectRelationConfig} from '../../../../src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command'
+import {resolveNavHostProjectBinding} from '@/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract'
 
 const relationFields = ['prowid', 'pName', 'ValParamName', 'TextParamName', 'childrowid', 'title', 'location',
   'dataSetId', 'DataName', 'DbName', 'selectValParam', 'selectTextParam', 'dataType', 'selectPid', 'paramType'] as const
@@ -70,11 +71,25 @@ describe('configureNavHostProjectRelation', () => {
     ['missing model name', {DataName: ' '}],
     ['missing project value field', {selectValParam: ''}],
     ['missing project label field', {selectTextParam: ''}],
-    ['unexpected output parameter', {ValParamName: 'other'}],
+    ['missing output parameter', {ValParamName: ' '}],
+    ['conflicting value and text parameters', {ValParamName: 'sysid', TextParamName: 'sysid'}],
   ])('rejects invalid config (%s) before mutating the view', async (_name, override) => {
     const {view} = await setup()
     await expect(configureNavHostProjectRelation(view, 'CATALOG', config(override))).rejects.toThrow()
     expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+
+  it('preserves configured reference host parameter names when staging the relation', async () => {
+    const {view} = await setup()
+    const created = await configureNavHostProjectRelation(view, 'CATALOG', config({
+      ValParamName: 'sysid', TextParamName: 'sysname', selectValParam: 'rowid', selectTextParam: 'AppName',
+    }))
+    expect(created).toMatchObject({ValParamName: 'sysid', TextParamName: 'sysname',
+      selectValParam: 'rowid', selectTextParam: 'AppName'})
+    expect(resolveNavHostProjectBinding(view, 'appworks-tool-dev')).toMatchObject({
+      scenarioId: 'DEV-PROJECTS', modelName: 'Base_AppSystemList', valueField: 'rowid', labelField: 'AppName',
+    })
+    expect(view.dirtyTracking.pendingCreateIds.has(String(created['rowid']))).toBe(true)
   })
 
   it('preflights actual new-row fieldAccess and leaves no partial row when a field is denied', async () => {

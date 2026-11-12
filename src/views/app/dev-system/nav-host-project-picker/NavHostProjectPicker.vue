@@ -38,7 +38,7 @@ import {buildDataViewKey, DataViewFilter, type SparkNode} from '@spark-appworks/
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DisplayAlert, PAGE_RUNTIME, RendererButton, RendererDialog, RendererTable, RendererTree, useSparkComponent} from '@spark-appworks/spark-component'
 import {NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
-import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
+import {loadLowcodeRuntimeScenario, readLowcodeExecutionProject} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import type {DevState} from '../useDevState'
@@ -56,6 +56,7 @@ const busy = ref(false)
 const selectionRevision = ref(0)
 const pickerOpen = ref(false)
 let runtime: PageRuntime | undefined
+let assertExecutionCurrent: (() => void) | undefined
 let generation = 0
 const navigationId = computed(() => {
   const value = route.query[SYSTEM_PAGE_NAVIGATION_ID_QUERY]
@@ -73,6 +74,7 @@ function dispose(): void {
   fields.value = []
   busy.value = false
   runtime = undefined
+  assertExecutionCurrent = undefined
   runtimeSession.dispose()
 }
 
@@ -102,10 +104,17 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
       error.value = '仓内蓝图尚未接入该资源'
       return
     }
+    const execution = readLowcodeExecutionProject()
+    assertExecutionCurrent = execution.assertCurrent
+    const loadScenario = (scenarioId: string) => {
+      execution.assertCurrent()
+      return loadLowcodeRuntimeScenario({projectId: execution.projectId, scenarioId})
+    }
     const relationRuntime = runtimeSession.acquire({pageId: 'dev-system-nav-host-relation', scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY],
-      targetId: hostId, loadScenario: id => loadLowcodeRuntimeScenario({projectId: currentProject, scenarioId: id})})
+      targetId: hostId, loadScenario})
     await relationRuntime.load()
     if (stale || own !== generation || currentProject !== props.state.projectId || !runtimeSession.isCurrent(relationRuntime)) return
+    execution.assertCurrent()
     const hostView = relationRuntime.resolveView(`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}@Base_Navigation_DataRelation@default`)
     if (!hostView) throw new Error('导航宿主关系 DataView 不存在')
     if (hostView.dataSet?.scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY
@@ -117,6 +126,7 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
     hostView.filterExpression = DataViewFilter.condition({field: 'prowid', operator: 'eq', value: hostId}).toJSON()
     await hostView.refresh()
     if (stale || own !== generation || currentProject !== props.state.projectId) return
+    execution.assertCurrent()
     if (hostView.loadingError) throw hostView.loadingError
     if (hostView.rows.length !== hostView.total) throw new Error('导航宿主关系 DataView 读取不完整')
     if (hostView.total === 0) throw new Error('当前导航未配置项目切换关系')
@@ -126,10 +136,11 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
     if (stale || own !== generation || !runtimeSession.isCurrent(relationRuntime)) return
     runtimeSession.dispose()
     const next = runtimeSession.acquire({pageId: 'dev-system-nav-host-project-picker', scenarioIds: [scenarioId],
-      targetId: `${hostId}:${scenarioId}`, loadScenario: id => loadLowcodeRuntimeScenario({projectId: currentProject, scenarioId: id})})
+      targetId: `${hostId}:${scenarioId}`, loadScenario})
     runtime = next
     await next.load()
     if (stale || own !== generation || !runtimeSession.isCurrent(next)) return
+    execution.assertCurrent()
     const candidateView = next.resolveView(buildDataViewKey(modelName, 'default', scenarioId))
     if (!candidateView) throw new Error('导航项目候选默认 DataView 不存在')
     if (candidateView.dataSet?.scenarioId !== scenarioId
@@ -141,6 +152,7 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
     if (mappedParentField) candidateView.queryConfig = {...candidateView.queryConfig, allPages: true}
     await candidateView.refresh()
     if (stale || own !== generation || !runtimeSession.isCurrent(next)) return
+    execution.assertCurrent()
     if (candidateView.loadingError) throw candidateView.loadingError
     if (mappedParentField && candidateView.rows.length !== candidateView.total) throw new Error('导航项目候选 DataView 读取不完整')
     if (candidateView.rows.length === 0) throw new Error('导航项目候选为空')
@@ -181,6 +193,8 @@ async function openSelected(): Promise<void> {
   if (!selectedView || !selected || busy.value) return
   busy.value = true
   try {
+    if (!assertExecutionCurrent) throw new Error('导航项目候选执行身份未就绪')
+    assertExecutionCurrent()
     const selectedValueField = valueField.value, selectedLabelField = labelField.value
     if (!selectedValueField || !selectedLabelField) return
     let value: string
@@ -204,8 +218,11 @@ async function openSelected(): Promise<void> {
         }
       } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause); return}
     }
+    assertExecutionCurrent()
     try {await props.state.openEditingProject({projectId: value})}
     catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
+  } catch (cause) {
+    if (own === generation) error.value = cause instanceof Error ? cause.message : String(cause)
   } finally {if (own === generation) busy.value = false}
 }
 

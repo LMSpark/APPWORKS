@@ -32,7 +32,7 @@ function validateConfig(config: NavHostProjectRelationConfig): void {
     const value = config[field]
     if (typeof value !== 'string' || value.trim() === '') throw new Error(`导航宿主关系配置缺少 ${field}`)
   }
-  if (config.ValParamName.trim() !== 'projectId') throw new Error('导航宿主项目切换参数必须为 projectId')
+  if (config.ValParamName.trim() === config.TextParamName.trim()) throw new Error('导航宿主值参数与文案参数不能相同')
   for (const field of ['dataSetId', 'DataName', 'selectValParam', 'selectTextParam', 'selectPid'] as const) {
     if (/[@\s]/u.test(config[field].trim())) throw new Error(`导航宿主关系配置 ${field} 格式无效`)
   }

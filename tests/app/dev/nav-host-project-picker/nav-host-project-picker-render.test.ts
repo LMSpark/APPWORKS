@@ -1,12 +1,14 @@
 import {readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {mount, flushPromises} from '@vue/test-utils'
-import {describe, expect, it, vi} from 'vitest'
+import {beforeEach, describe, expect, it, vi} from 'vitest'
 import NavHostProjectPicker from '@/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue'
 import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
+import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 
 const runtimeState = vi.hoisted(() => ({
   token: Symbol('PAGE_RUNTIME'),
+  executionProjectId: 'execution-app',
   runtimes: [] as Array<{scenarioIds: string[]; disposed: boolean}>,
   provided: [] as Array<{key: unknown; value: unknown}>,
   hostView: undefined as any,
@@ -19,13 +21,22 @@ vi.mock('@spark-appworks/spark-app', async () => {
   return {NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY: '__sparkNavigationId'}
 })
 vi.mock('@spark-appworks/spark-lowcode-api', () => ({LOWCODE_APPLICATION_CATALOG_FORM_KEY: 'application-catalog-form'}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: vi.fn()}))
+vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
+  loadLowcodeRuntimeScenario: vi.fn(),
+  readLowcodeExecutionProject: () => {
+    const projectId = runtimeState.executionProjectId
+    return {projectId, assertCurrent: () => {
+      if (runtimeState.executionProjectId !== projectId) throw new Error('执行应用已切换')
+    }}
+  },
+}))
+type PickerRuntimeOptions = {scenarioIds: string[]; loadScenario: (scenarioId: string) => Promise<unknown>}
 vi.mock('@spark-appworks/spark-project-model', () => ({
   PageRuntime: class {
     scenarioIds: string[]
     disposed = false
-    constructor(options: {scenarioIds: string[]}) {this.scenarioIds = options.scenarioIds; runtimeState.runtimes.push(this)}
-    async load() {}
+    constructor(private options: PickerRuntimeOptions) {this.scenarioIds = options.scenarioIds; runtimeState.runtimes.push(this)}
+    async load() {for (const scenarioId of this.scenarioIds) await this.options.loadScenario(scenarioId)}
     resolveView(key: string) {return key.includes('Base_Navigation_DataRelation') ? runtimeState.hostView : runtimeState.projectView}
     dispose() {this.disposed = true}
   },
@@ -106,6 +117,7 @@ function dataView(rows: Record<string, unknown>[], fields: Record<string, unknow
 }
 
 describe('NavHost project picker hierarchy rendering', () => {
+  beforeEach(() => {runtimeState.executionProjectId = 'execution-app'})
   it('hosts relation preflight and project candidates through one native session', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue'), 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')
@@ -151,6 +163,7 @@ describe('NavHost project picker hierarchy rendering', () => {
   })
 
   it('keeps tree candidates complete and validates selected identity through the same view', async () => {
+    vi.mocked(loadLowcodeRuntimeScenario).mockClear()
     runtimeState.runtimes.length = 0
     runtimeState.provided.length = 0
     runtimeState.hostView = dataView([{
@@ -164,6 +177,10 @@ describe('NavHost project picker hierarchy rendering', () => {
     const state = {projectId: 'project-current', openEditingProject: vi.fn().mockResolvedValue(true)}
     const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}})
     await flushPromises()
+    expect(vi.mocked(loadLowcodeRuntimeScenario).mock.calls.map(([command]) => command)).toEqual([
+      {projectId: 'execution-app', scenarioId: 'application-catalog-form'},
+      {projectId: 'execution-app', scenarioId: 'projects'},
+    ])
     const entry = wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '切换项目')
     expect(entry).toBeTruthy()
     await entry!.trigger('click')
@@ -211,6 +228,13 @@ describe('NavHost project picker hierarchy rendering', () => {
     ['query rejected', async (view: any) => {view.queryOptionRows.mockRejectedValue(new Error('query denied'))}],
     ['selection changed during query', async (view: any) => {view.queryOptionRows.mockImplementationOnce(async () => {view.currentRow = {rowid: 'row-other', code: 'Q', name: 'Other'}; return [{rowid: 'row-p', code: 'P', name: 'Parent'}]})}],
     ['old page row expired', async (view: any) => {view.rows = [{rowid: 'row-other', code: 'Q', name: 'Other'}]}],
+    ['execution changed before opening', async () => {runtimeState.executionProjectId = 'other-execution'}],
+    ['execution changed during exact query', async (view: ReturnType<typeof dataView>) => {
+      view.queryOptionRows.mockImplementationOnce(async () => {
+        runtimeState.executionProjectId = 'other-execution'
+        return [{rowid: 'row-p', code: 'P', name: 'Parent'}]
+      })
+    }],
   ])('fails closed when exact selection verification has %s', async (_case, arrange) => {
     runtimeState.runtimes.length = 0
     runtimeState.provided.length = 0

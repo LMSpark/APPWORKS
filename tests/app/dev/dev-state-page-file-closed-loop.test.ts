@@ -38,6 +38,7 @@ const httpFns = vi.hoisted(() => ({
   delete: vi.fn(),
   clearCache: vi.fn(),
   scopeToken: 'fixture-token',
+  executionProjectId: 'APP-A',
   interceptors: {
     request: { use: vi.fn() },
     response: { use: vi.fn() },
@@ -130,7 +131,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeRequestHeaders: () => ({}),
   readLowcodePrincipal: () => null,
   lowcodeApi: {
-    readRequestScope: () => ({token:httpFns.scopeToken,headers:{'X-AppId':'APP-A'}}),
+    readRequestScope: () => ({token:httpFns.scopeToken,headers:{'X-AppId':httpFns.executionProjectId}}),
   },
   createLowcodeProjectGateways: (projectId: string) => {
     const blueprintKey = `project-blueprint:${projectId}`
@@ -397,6 +398,7 @@ describe('DevState 页面文件闭环', () => {
     pageDesignWorkflow.activate.mockReset()
     pageDesignWorkflow.activate.mockImplementation(async options=>options.host)
     httpFns.scopeToken='fixture-token'
+    httpFns.executionProjectId='APP-A'
     pageFiles.files.clear()
     pageFiles.readFailures=0
     pageFiles.legacyReads.length=0
@@ -409,6 +411,81 @@ describe('DevState 页面文件闭环', () => {
     blueprintRuntime.load.mockImplementation(async ({projectId,scenarioId}:{projectId:string;scenarioId:string})=>
       scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID?createDataSpaceCatalogRuntimeDataSet():createBlueprintRuntimeDataSet(projectId,blueprintRuntimeTrees.get(projectId)).dataSet)
     vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:createDictionaryRuntimeDataSet()}))
+  })
+
+  it('在执行应用中装配元数据场景，按被设计应用查询和保存蓝图，不切换执行身份', async () => {
+    const root=blueprintRoot([node('TARGET-NODE','目标节点','','TARGET-APP')],'TARGET-APP')
+    const fixture=createBlueprintRuntimeDataSet('TARGET-APP',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({projectId:'TARGET-APP'})
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      expect(blueprintRuntime.load.mock.calls.map(([command])=>command.projectId)).toEqual(['APP-A','APP-A'])
+      expect(owner.projectId).toBe('TARGET-APP')
+      expect(owner.view.rows.every(row=>row['SysId']==='TARGET-APP')).toBe(true)
+      await owner.load('TARGET-NODE')
+      owner.update('FunName','目标节点已修改')
+      expect(fixture.save).not.toHaveBeenCalled()
+      await owner.save()
+      expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.changed).toEqual([
+        expect.objectContaining({rowid:'TARGET-NODE',FunName:'目标节点已修改'}),
+      ])
+      expect(owner.row?.['FunName']).toBe('目标节点已修改')
+      expect(httpFns.executionProjectId).toBe('APP-A')
+      httpFns.executionProjectId='OTHER-EXECUTION'
+      expect(()=>owner.update('FunName','错误执行应用')).toThrow(/认证请求作用域/)
+      await expect(state.loadBlueprintWorkspaceDataView()).rejects.toThrow(/认证请求作用域/)
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+    } finally {httpFns.executionProjectId='APP-A';scope.stop()}
+  })
+
+  it('相同令牌但执行应用改变时，未完成 owner 不得跨执行应用续接', async () => {
+    const fixture=createBlueprintRuntimeDataSet('TARGET-APP',blueprintRoot([
+      node('TARGET-NODE','目标节点','','TARGET-APP'),
+    ],'TARGET-APP'))
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
+    await first.openEditingProject({projectId:'TARGET-APP'})
+    const owner=await first.loadBlueprintWorkspaceDataView()
+    await owner.load('TARGET-NODE')
+    owner.update('FunName','保留原执行应用的修改')
+    firstScope.stop()
+    httpFns.executionProjectId='OTHER-EXECUTION'
+    const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
+    try {
+      await second.openEditingProject({projectId:'TARGET-APP'})
+      await expect(second.loadBlueprintWorkspaceDataView()).rejects.toThrow(/DEV_SYSTEM_OWNER_AUTH_SCOPE/)
+      expect(fixture.save).not.toHaveBeenCalled()
+      httpFns.executionProjectId='APP-A'
+      const recovered=await second.loadBlueprintWorkspaceDataView()
+      expect(recovered).toBe(owner)
+      expect(recovered.value('FunName')).toBe('保留原执行应用的修改')
+      recovered.cancel()
+    } finally {httpFns.executionProjectId='APP-A';secondScope.stop()}
+  })
+
+  it('场景装配迟到时若执行应用已切换，释放结果且不安装蓝图 owner', async () => {
+    const fixture=createBlueprintRuntimeDataSet('homepage')
+    let release:()=>void=()=>undefined
+    const delayed=new Promise<void>(resolve=>{release=resolve})
+    blueprintRuntime.load.mockImplementation(async ({scenarioId}:{scenarioId:string})=>{
+      if(scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID)return createDataSpaceCatalogRuntimeDataSet()
+      await delayed
+      return fixture.dataSet
+    })
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try {
+      const loading=state.loadBlueprintWorkspaceDataView()
+      await vi.waitFor(()=>expect(blueprintRuntime.load).toHaveBeenCalled())
+      httpFns.executionProjectId='OTHER-EXECUTION'
+      release()
+      await expect(loading).rejects.toThrow(/项目或认证作用域已切换/)
+      expect(state.blueprintWorkspaceDataView.value).toBeUndefined()
+      expect(state.blueprintPageRuntime.value).toBeUndefined()
+      expect(fixture.dataSet.destroyed).toBe(true)
+      expect(fixture.save).not.toHaveBeenCalled()
+    } finally {release();httpFns.executionProjectId='APP-A';scope.stop()}
   })
 
   it('selecting a cfg node binds its page without eager reads through the legacy page-file gateway', async () => {
@@ -2549,6 +2626,7 @@ describe('DevState 页面文件闭环', () => {
     const state = useDevState()
     const root=blueprintRoot([node('alpha-node','Alpha','cfg:alpha'),node('beta-node','Beta','cfg:beta')])
     blueprintRuntimeTrees.set('homepage',root)
+    mockBlueprintScenarioFixture(createBlueprintRuntimeDataSet('homepage',root).dataSet)
     httpMock.get.mockImplementation(async (url: string) => {
       if (url === 'project-blueprint:homepage') {
         return {
@@ -2579,9 +2657,11 @@ describe('DevState 页面文件闭环', () => {
 
   it('初始化页面列表从项目蓝图派生，不请求页面文件清单', async () => {
     const state = useDevState()
-    blueprintRuntimeTrees.set('homepage',blueprintRoot([
+    const root=blueprintRoot([
       node('alpha-node','Alpha','cfg:alpha','homepage','Alpha 页面需求'),node('sys-node','System','/system'),
-    ]))
+    ])
+    blueprintRuntimeTrees.set('homepage',root)
+    mockBlueprintScenarioFixture(createBlueprintRuntimeDataSet('homepage',root).dataSet)
     httpMock.get.mockImplementation(async (url: string) => {
       if (url === 'project-blueprint:homepage') {
         return {

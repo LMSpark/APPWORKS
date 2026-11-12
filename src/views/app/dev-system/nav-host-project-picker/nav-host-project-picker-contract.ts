@@ -22,10 +22,11 @@ export function resolveNavHostProjectBinding(view: DataView, navigationId: strin
   const scenarioId = String(row['dataSetId'] ?? '').trim()
   const modelName = String(row['DataName'] ?? '').trim()
   const outputParameter = String(row['ValParamName'] ?? '').trim()
+  const textParameter = String(row['TextParamName'] ?? '').trim()
   const valueField = String(row['selectValParam'] ?? '').trim()
   const labelField = String(row['selectTextParam'] ?? '').trim()
   const parentField = String(row['selectPid'] ?? '').trim()
-  if (!scenarioId || !modelName || outputParameter !== 'projectId' || !valueField || !labelField
+  if (!scenarioId || !modelName || !outputParameter || outputParameter === textParameter || !valueField || !labelField
     || /[@\s]/.test(scenarioId + modelName + valueField + labelField + parentField)) throw new Error('导航宿主项目绑定合同不完整')
   return {scenarioId, modelName, valueField, labelField, ...(parentField ? {parentField} : {})}
 }

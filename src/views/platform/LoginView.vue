@@ -265,6 +265,8 @@ async function handleLogin() {
     await enterHome()
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : '登录失败'
+    // 登录后路由刷新会使本页系统页身份失效，表单内错误不可见。
+    ElMessage.error(errorMsg.value)
   } finally {
     loading.value = false
   }

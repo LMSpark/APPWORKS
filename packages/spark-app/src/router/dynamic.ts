@@ -892,6 +892,11 @@ constructor(options: DynamicRouterOptions) {
     return this._navTree
   }
 
+  /** 获取已提交的应用导航树；不随当前路由切换到平台导航，供跨工作台的应用归属判断。 */
+  getApplicationNavTree(): RuntimeNavigation | null {
+    return this._appNavTree
+  }
+
   /** 获取已注册路由列表 */
   getRegisteredRoutes(): string[] {
     return Array.from(this.registeredRoutes)

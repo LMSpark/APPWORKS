@@ -325,6 +325,21 @@
             }
           ]
         },
+        "method.getApplicationNavTree.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getApplicationNavTree.return": {
+          "anyOf": [
+            {
+              "$ref": "../navigation/runtime-navigation.ts.json#/$defs/RuntimeNavigation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "method.getRegisteredRoutes.params": {
           "type": "object",
           "properties": {},
@@ -339,7 +354,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-13T03:37:38.419Z",
+  "generatedAt": "2026-11-13T04:34:27.885Z",
   "models": {
     "SystemPageInstanceView": {
       "name": "SystemPageInstanceView",
@@ -764,6 +779,25 @@
             {
               "name": "getNavTree",
               "jsdoc": "获取已加载的导航树（导航模式下可用）",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "RuntimeNavigation",
+                    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getApplicationNavTree",
+              "jsdoc": "获取已提交的应用导航树；不随当前路由切换到平台导航，供跨工作台的应用归属判断。",
               "parameters": [],
               "type": {
                 "type": "union",

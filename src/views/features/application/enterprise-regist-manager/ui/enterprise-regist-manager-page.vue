@@ -56,13 +56,13 @@ const fields: SparkNode[] = [
   {type: 'r-text', props: {field: 'CName', label: '企业中文名', readonly: true, width: 180, sortable: false, showOverflowTooltip: true}},
   {type: 'r-text', props: {field: 'Name', label: '企业英文名', readonly: true, width: 160, sortable: false, showOverflowTooltip: true}},
   {type: 'r-text', props: {field: 'ShortName', label: '企业英文简称', readonly: true, width: 140, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'createtime', label: '申请入驻日期', readonly: true, width: 140, align: 'center', sortable: false,
+  {type: 'r-text', props: {field: 'createtime', label: '申请入驻日期', readonly: true, width: 140, valueAlign: 'center', sortable: false,
     emptyText: '-', displayFormatter: (value: unknown) => String(value ?? '').trim().slice(0, 10) || '-'}},
   {type: 'r-text', props: {field: 'industry_type', label: '行业类型', readonly: true, width: 140, sortable: false, showOverflowTooltip: true}},
   {type: 'r-text', props: {field: 'contact_person', label: '联系人', readonly: true, width: 80, sortable: false, showOverflowTooltip: true}},
   {type: 'r-text', props: {field: 'entInfoUserPhone', label: '联系号码', readonly: true, width: 130, sortable: false, showOverflowTooltip: true}},
   {type: 'r-text', props: {field: 'EntUrl', label: '企业门户地址', readonly: true, width: 160, sortable: false, showOverflowTooltip: true, emptyText: '-'}},
-  {type: 'r-select', props: {field: 'CheckState', label: '审核状态', readonly: true, width: 120, align: 'center', sortable: false,
+  {type: 'r-select', props: {field: 'CheckState', label: '审核状态', readonly: true, width: 120, valueAlign: 'center', sortable: false,
     optionDataViewKey: checkStateKey, optionValueField: 'val', optionLabelField: 'txt'}},
 ]
 const filter: RFilterProps = {
@@ -80,7 +80,7 @@ const canAudit = ({row, dataSource}: {row?: DataRow | null; dataSource?: DataVie
 const action = (label: string, kind: DialogKind, extra: Record<string, unknown> = {}) => ({type: 'r-button', props: {
   dataViewKey: viewKey, label, link: true, ...extra, onClick: (row: DataRow) => openDialog(kind, row),
 }})
-const actions = {wrap: false, gap: 4, children: [
+const actions = {wrap: true, gap: 4, children: [
   action('应用授权', 'auth'),
   action('审核', 'audit', {buttonType: 'warning', onBeforeRender: canAudit}),
   action('密码修改', 'password'),

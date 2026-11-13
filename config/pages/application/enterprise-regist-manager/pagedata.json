@@ -68,12 +68,12 @@
       "views": {
         "default": {
           "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 10,
-          "queryConfig": {"pagination": "paged", "cacheType": "none", "fields": ["rowid", "AppName", "AppDesc", "EntShortName"]}
+          "queryConfig": {"pagination": "paged", "cacheType": "none", "fields": ["rowid", "AppName", "AppDesc"]}
         },
         "enterpriseApplications": {
           "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 500, "valueField": "rowid", "labelField": "AppName",
           "filterExpression": {"field": "EntShortName", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "entShortName"}},
-          "queryConfig": {"allPages": true, "maxRows": 500, "cacheType": "none", "fields": ["rowid", "AppName", "AppDesc", "EntShortName"]}
+          "queryConfig": {"allPages": true, "maxRows": 500, "cacheType": "none", "fields": ["rowid", "AppName", "AppDesc"]}
         }
       }
     },
@@ -95,18 +95,18 @@
     "Base_NavigationInfo": {
       "modelBinding": {"modelId": "2cc30c0e-0c19-4bd4-bf7e-a95b35a9d24f", "modelName": "Base_NavigationInfo"},
       "views": {"default": {
-        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 2000,
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
         "treeConfig": {"idField": "rowid", "parentIdField": "prowid", "textField": "FunName", "rootParentValue": "000000"},
         "filterExpression": {"field": "SysId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "applicationId"}},
         "sortExpression": [{"field": "rowid", "direction": "asc"}],
-        "queryConfig": {"allPages": true, "maxRows": 2000, "cacheType": "none", "fields": ["rowid", "SysId", "prowid", "FunName", "name", "FunOrderValue"]}
+        "queryConfig": {"allPages": true, "maxRows": 2000, "cacheType": "none", "fields": ["rowid", "SysId", "prowid", "FunName"]}
       }}
     },
     "enterprise_module_auth": {
       "modelBinding": {"modelId": "45b6dd3f-58f9-4d45-bc41-901e84c74a18", "modelName": "enterprise_module_auth"},
       "columns": [{"name": "authStatusText", "type": "string", "label": "授权状态", "computeExpression": "String(authorized) === '1' ? '已授权' : '未授权'"}],
       "views": {"default": {
-        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 2000,
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 1000,
         "valueField": "nav_id", "labelField": "authStatusText",
         "filterExpression": {"logic": "and", "filters": [
           {"field": "enterprise_id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "enterpriseId"}},

@@ -12,7 +12,7 @@
     <template v-if="ready">
       <RendererTable :data-view-key="appKey" :children="appFields" :actions="appActions" :auto-columns="false" :stripe="true"
         :highlight-current-row="true" :show-data-view-meta="false" :pagination="{pageSizes: [10]}" />
-      <RendererSection title="模块授权" :bordered="true">
+      <RendererSection title="模块授权" :bordered="true" :grid-columns="1">
         <p v-if="!currentApp" role="status">请选择已授权的应用后进行模块授权。</p>
         <p v-else-if="!currentAuthorized" role="status">请先完成应用授权（生效）后再进行模块授权</p>
         <RendererTable v-else :data-view-key="navigationKey" :children="moduleFields" :actions="moduleActions" :auto-columns="false"
@@ -63,7 +63,7 @@ const events = ['rowsChanged', 'currentRowChanged', 'editingChanged', 'requestSt
 
 type AuthLookup = Readonly<{label: string; optionLabelField: string; unmatchedText: string; width?: number}>
 const lookup = ({width, ...column}: AuthLookup): SparkNode => ({type: 'r-select', props: {
-  ...column, field: 'rowid', readonly: true, align: 'center', sortable: false, optionDataViewKey: authKey, optionValueField: 'app_id',
+  ...column, field: 'rowid', readonly: true, valueAlign: 'center', sortable: false, optionDataViewKey: authKey, optionValueField: 'app_id',
   ...(width === undefined ? {minWidth: 180, showOverflowTooltip: true} : {width}),
 }})
 const appFields: SparkNode[] = [
@@ -73,8 +73,8 @@ const appFields: SparkNode[] = [
   lookup({label: '说明', optionLabelField: 'descriptionText', unmatchedText: '-'}),
 ]
 const moduleFields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'FunName', label: '模块/页面名称', readonly: true, width: 320, sortable: false}},
-  {type: 'r-select', props: {field: 'rowid', label: '授权状态', readonly: true, width: 100, align: 'center', sortable: false,
+  {type: 'r-text', props: {field: 'FunName', label: '模块/页面名称', readonly: true, minWidth: 320, sortable: false}},
+  {type: 'r-select', props: {field: 'rowid', label: '授权状态', readonly: true, width: 100, valueAlign: 'center', sortable: false,
     optionDataViewKey: moduleKey, optionValueField: 'nav_id', optionLabelField: 'authStatusText', unmatchedText: '未授权'}},
 ]
 

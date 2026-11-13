@@ -318,6 +318,7 @@ const contextGuard = computed<AppContextGuardState | null>(() => {
 
   if (scoped === null) {
     if (publicPaths.has(currentPath)) return null
+    if (isPlatformWorkspacePath(currentPath) && authenticated && principal?.applicationId === null) return null
     const projectId = principal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
     const expectedPath = principal
       ? buildApplicationPath({ projectId }, currentPath)

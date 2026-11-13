@@ -66,7 +66,12 @@ function deferred<T>() {
   return { promise, resolve, reject }
 }
 
-async function createGuardRouter() {
+const platformNavigation: RuntimeNavigation = {
+  id: 'platform', title: 'Platform', homePath: '/audit', childPlacement: 'header',
+  items: [{ id: 'audit', title: 'Audit', itemKind: 'system-page', path: '/audit' }],
+}
+
+async function createGuardRouter(withPlatformNavigation = false) {
   const router = createRouter({ history: createMemoryHistory(), routes: [
     { path: '/', component: page },
     { path: '/login', component: page },
@@ -79,7 +84,12 @@ async function createGuardRouter() {
     pageComponent: page,
     applicationPathPrefix: '/apps/:projectId',
     loadNavigation: () => loadNavigation(),
-    componentMap: { '/dashboard': page },
+    componentMap: { '/dashboard': page, '/audit': page },
+    ...(withPlatformNavigation ? {
+      loadPlatformNavigation: () => Promise.resolve(platformNavigation),
+      isPlatformNavigationEnabled: () => testState.loggedIn,
+      platformPathPrefix: '/platform',
+    } : {}),
   })
   await dynamic.registerRoutes()
   setDynamicRouter(dynamic)
@@ -129,15 +139,47 @@ describe('ProjectNavigationGuard', () => {
     expect(router.currentRoute.value.query).toEqual({})
   })
 
-  it('keeps authenticated public utilities and redirects platform or non-tenant paths home', async () => {
+  it('keeps authenticated public utilities and redirects non-tenant paths home', async () => {
     const { router } = await createGuardRouter()
 
     await router.push('/about')
     expect(router.currentRoute.value.path).toBe('/about')
-    await router.push('/platform')
-    expect(router.currentRoute.value.fullPath).toBe('/apps/APP-A/dashboard')
     await router.push('/not-tenant?source=direct#top')
     expect(router.currentRoute.value.fullPath).toBe('/apps/APP-A/dashboard')
+  })
+
+  it('enters the platform workspace from the catalog scope, leaving an active application first', async () => {
+    const { router, dynamic } = await createGuardRouter()
+    const refresh = vi.spyOn(dynamic, 'refreshRoutes')
+
+    await router.push('/platform?tab=audit#list')
+    expect(router.currentRoute.value.fullPath).toBe('/platform?tab=audit#list')
+    expect(vi.mocked(enterLowcodeApplicationCatalog)).toHaveBeenCalledOnce()
+    expect(refresh).toHaveBeenCalledOnce()
+    expect(dynamic.getNavTree()?.projectId).toBe('homepage')
+
+    await router.push('/about')
+    await router.push('/platform')
+    expect(router.currentRoute.value.path).toBe('/platform')
+    expect(vi.mocked(enterLowcodeApplicationCatalog)).toHaveBeenCalledOnce()
+    expect(refresh).toHaveBeenCalledOnce()
+  })
+
+  it('returns from the platform workspace to the catalog by the committed application navigation owner', async () => {
+    testState.principal = { enterpriseName: 'acme', applicationId: null }
+    const { router, dynamic, errors } = await createGuardRouter(true)
+    await router.push('/platform/audit')
+    expect(router.currentRoute.value.path).toBe('/platform/audit')
+    expect(dynamic.getNavTree()?.projectId).toBeUndefined()
+    const refresh = vi.spyOn(dynamic, 'refreshRoutes')
+
+    await router.push('/apps/homepage/dashboard?from=platform')
+
+    expect(router.currentRoute.value.fullPath).toBe('/apps/homepage/dashboard?from=platform')
+    expect(dynamic.getNavTree()?.projectId).toBe('homepage')
+    expect(vi.mocked(enterLowcodeApplicationCatalog)).not.toHaveBeenCalled()
+    expect(refresh).not.toHaveBeenCalled()
+    expect(errors).toEqual([])
   })
 
   it('does not select or refresh when the URL already matches the current application', async () => {

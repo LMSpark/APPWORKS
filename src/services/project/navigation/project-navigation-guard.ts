@@ -1,4 +1,4 @@
-import { getDynamicRouter, getNavHomePath, getNavTree, refreshRoutes } from '@spark-appworks/spark-app'
+import { getDynamicRouter, getNavHomePath, refreshRoutes } from '@spark-appworks/spark-app'
 import type { RouteLocationNormalized, NavigationGuardReturn } from 'vue-router'
 import {
   activateLowcodeApplication,
@@ -45,36 +45,43 @@ export class ProjectNavigationGuard {
       if (!principal || !projectId) return '/login'
       const currentScope = { projectId }
       if (isPublicUtilityPath) return undefined
-      if (isPlatformWorkspacePath(to.path)) return buildApplicationPath(currentScope, getNavHomePath())
+      if (isPlatformWorkspacePath(to.path)) {
+        if (principal.applicationId === null) return undefined
+        return await this.select(to, APPLICATION_CATALOG_PROJECT_ID, controller)
+      }
       if (!to.path.startsWith('/apps/')) return buildApplicationPath(currentScope, getNavHomePath())
 
       const urlScope = parseApplicationPathScope(to.path)
-      if (urlScope) {
-        const dynamic = getDynamicRouter()
-        const navigationProjectId = getNavTree()?.projectId
-        if (urlScope.projectId !== projectId || navigationProjectId !== urlScope.projectId) {
-          if (dynamic === null) throw new Error('当前应用路由缺少动态路由宿主，无法装配目标应用。')
-          dynamic.assertPageRuntimesClean()
-          const receipt = urlScope.projectId === APPLICATION_CATALOG_PROJECT_ID
-            ? enterLowcodeApplicationCatalog()
-            : await activateLowcodeApplication(urlScope.projectId, controller.signal)
-          if (!isCurrent()) return false
-          receipt.assertCurrent()
-          dynamic.resetSystemPageInstances()
-          dynamic.disposePageRuntimes()
-          await refreshRoutes()
-          if (!isCurrent()) return false
-          receipt.assertCurrent()
-          if (dynamic.getNavTree()?.projectId !== urlScope.projectId) {
-            throw new Error(`导航归属不一致：目标应用 ${urlScope.projectId}，当前导航 ${dynamic.getNavTree()?.projectId ?? '未装配'}`)
-          }
-          return { path: to.path, query: to.query, hash: to.hash, replace: true }
-        }
+      if (urlScope && (urlScope.projectId !== projectId || getDynamicRouter()?.getApplicationNavTree()?.projectId !== urlScope.projectId)) {
+        return await this.select(to, urlScope.projectId, controller)
       }
       return undefined
     } catch (error: unknown) {
       if (!isCurrent()) return false
       throw error
     }
+  }
+
+  /** 切换到目标应用或应用目录并重装路由，再以原地址（含 query/hash）重新进入。 */
+  private async select(to: RouteLocationNormalized, projectId: string, controller: AbortController): Promise<NavigationGuardReturn> {
+    const dynamic = getDynamicRouter()
+    if (dynamic === null) throw new Error('当前应用路由缺少动态路由宿主，无法装配目标应用。')
+    dynamic.assertPageRuntimesClean()
+    const isCurrent = (): boolean => !controller.signal.aborted
+    const receipt = projectId === APPLICATION_CATALOG_PROJECT_ID
+      ? enterLowcodeApplicationCatalog()
+      : await activateLowcodeApplication(projectId, controller.signal)
+    if (!isCurrent()) return false
+    receipt.assertCurrent()
+    dynamic.resetSystemPageInstances()
+    dynamic.disposePageRuntimes()
+    await refreshRoutes()
+    if (!isCurrent()) return false
+    receipt.assertCurrent()
+    const committed = dynamic.getApplicationNavTree()?.projectId
+    if (committed !== projectId) {
+      throw new Error(`导航归属不一致：目标应用 ${projectId}，当前导航 ${committed ?? '未装配'}`)
+    }
+    return { path: to.path, query: to.query, hash: to.hash, replace: true }
   }
 }

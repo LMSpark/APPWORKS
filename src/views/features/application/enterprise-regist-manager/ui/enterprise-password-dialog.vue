@@ -8,11 +8,11 @@
     :close-disabled="busy || ownUnconfirmed" @update:model-value="cancel">
     <p v-if="error || hint" role="alert">{{ error || hint }}</p>
     <p v-if="!current" role="status">原企业记录已变化，请关闭并保留原修改。</p>
-    <RendererForm :data-view-key="listKey" :context-row-id="recordId" :auto-columns="false" :show-data-view-meta="false">
+    <RendererForm :data-view-key="listKey" :context-row-id="recordId" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
       <FieldText field="super_admin_pwd" label="新密码" placeholder="请输入新密码" :show-password="true" :readonly="locked" />
     </RendererForm>
     <RendererForm :data-view-key="confirmKey" :data-source="confirmView" context-data-member="currentRow"
-      :auto-columns="false" :show-data-view-meta="false">
+      :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
       <FieldText :data-view-key="confirmKey" data-member="currentRow" data-field="confirmPassword" label="确认密码"
         placeholder="请再次输入新密码" :show-password="true" :readonly="locked" />
     </RendererForm>

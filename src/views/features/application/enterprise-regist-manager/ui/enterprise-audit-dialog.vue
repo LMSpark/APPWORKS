@@ -9,7 +9,7 @@
     <p v-if="error || hint" role="alert">{{ error || hint }}</p>
     <p v-if="!current" role="status">原企业记录已变化，请关闭后刷新列表。</p>
     <p v-if="pendingCommandId" role="alert">企业初始化已提交，后台完成前结果未知；不能重新发送，可稍后核验。</p>
-    <RendererSection title="账号信息" :bordered="true">
+    <RendererSection title="账号信息" :bordered="true" :grid-columns="1">
       <RendererForm :data-view-key="listKey" :context-row-id="recordId" :auto-columns="false" :show-data-view-meta="false" :grid-columns="4">
         <FieldImage field="personUrl" label="账号图标" :readonly="true" />
         <FieldText field="entadminAccount" label="企业账号" :readonly="true" />
@@ -19,7 +19,7 @@
         <FieldText field="createtime" label="创建时间" :readonly="true" />
       </RendererForm>
     </RendererSection>
-    <RendererSection title="企业信息" :bordered="true">
+    <RendererSection title="企业信息" :bordered="true" :grid-columns="1">
       <RendererForm :data-view-key="listKey" :context-row-id="recordId" :auto-columns="false" :show-data-view-meta="false" :grid-columns="4">
         <FieldImage field="EnterpriseIcon" label="企业图标" :readonly="true" />
         <FieldText field="CName" label="企业中文名" :readonly="true" />

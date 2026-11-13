@@ -8,7 +8,7 @@
     :close-disabled="busy || ownUnconfirmed" @update:model-value="cancel">
     <p v-if="error || hint" role="alert">{{ error || hint }}</p>
     <p v-if="!current" role="status">原企业配置已变化，请关闭并保留原修改。</p>
-    <RendererForm :data-view-key="dataViewKey" :context-row-id="recordId" :auto-columns="false" :show-data-view-meta="false" label-width="140px">
+    <RendererForm :data-view-key="dataViewKey" :context-row-id="recordId" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1" label-width="140px">
       <FieldSelect field="loginPolicy" label="登录策略" placeholder="请选择登录策略" :option-data-view-key="policyKey" :clearable="true" :readonly="locked" />
       <FieldSwitch field="ent_config" :value-path="['user_audit']" label="用户注册审核" active-text="需要审核" inactive-text="无需审核" :readonly="locked" />
       <FieldSelect field="ent_config" :value-path="['defaultApplicationId']" label="默认应用" placeholder="未设置时登录后进入应用列表"

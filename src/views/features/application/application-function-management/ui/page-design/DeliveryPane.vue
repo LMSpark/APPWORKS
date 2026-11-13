@@ -23,8 +23,8 @@ AI用途：编辑rule/script/style并触发父工作台真实交付动作。
 import { ref, watch } from 'vue'
 import type { PageToolFileName } from '@spark-appworks/spark-project-model'
 import { RendererButton, RendererTabPane, RendererTabs } from '@spark-appworks/spark-component'
-import DevFileEditor from '../DevFileEditor.vue'
-import DevPreviewTab from '../DevPreviewTab.vue'
+import DevFileEditor from './DevFileEditor.vue'
+import DevPreviewTab from './DevPreviewTab.vue'
 import type { DevState } from '../blueprint-state/useDevState'
 import type { DevPreviewRequest } from './use-page-design'
 const props=defineProps<{ state: DevState; saving: boolean; canPublish: boolean; previewRequest?: DevPreviewRequest; registerPreviewGuard?: (guard: () => boolean) => () => void }>()

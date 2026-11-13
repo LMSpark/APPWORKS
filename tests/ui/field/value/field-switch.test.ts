@@ -185,6 +185,27 @@ describe('FieldSwitch 业务回调模式', () => {
     expect(switchComp.props('disabled')).toBe(true)
   })
 
+  it('未绑定字段的受控开关在行上下文中只发出 update:modelValue，不写视图；readonly 时不发出', async () => {
+    const model = reactive<Record<string, unknown>>({ id: 'controlled-row', enabled: false })
+    const dataSource = await createSwitchDataView(model, [{ name: 'enabled', type: 'boolean', allowDBNull: false }])
+    const update = vi.fn()
+    const wrapper = await mountFieldSwitch(model, 'enabled', { field: undefined, modelValue: false, 'onUpdate:modelValue': update },
+      undefined, dataSource)
+    const switchComp = wrapper.findComponent(ElSwitchStub)
+    expect(switchComp.props('disabled')).toBe(false)
+    switchComp.vm.$emit('update:modelValue', true)
+    await nextTick(); await nextTick()
+    expect(update).toHaveBeenCalledWith(true)
+    expect(dataSource.hasEditingChanges()).toBe(false)
+
+    const blocked = vi.fn()
+    const readonly = await mountFieldSwitch(model, 'enabled', { field: undefined, modelValue: false, readonly: true, 'onUpdate:modelValue': blocked },
+      undefined, dataSource)
+    readonly.findComponent(ElSwitchStub).vm.$emit('update:modelValue', true)
+    await nextTick(); await nextTick()
+    expect(blocked).not.toHaveBeenCalled()
+  })
+
   it('无字段写权限时应保持禁用（默认只读）', async () => {
     const model = reactive<Record<string, unknown>>({
       id: 'readonly-row',

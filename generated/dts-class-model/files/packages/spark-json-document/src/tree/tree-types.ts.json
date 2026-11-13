@@ -229,7 +229,7 @@
           "type": "object",
           "title": "() => MapIterator<JsonTreeNode>"
         },
-        "__@iterator@263584": {
+        "__@iterator@264374": {
           "type": "object",
           "title": "() => MapIterator<[string, JsonTreeNode]>"
         }
@@ -242,7 +242,7 @@
         "entries",
         "keys",
         "values",
-        "__@iterator@263584"
+        "__@iterator@264374"
       ],
       "additionalProperties": false
     },

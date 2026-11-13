@@ -2,145 +2,97 @@
   "scenarioId": "0C70F74793F9E858B71E0DBDEC784D57",
   "tables": {
     "Base_AppSystemList": {
-      "modelBinding": {
-        "modelId": "0C70F74793F9E858B71E0DBDEC784D57p000",
-        "modelName": "Base_AppSystemList"
-      },
+      "modelBinding": {"modelId": "0C70F74793F9E858B71E0DBDEC784D57p000", "modelName": "Base_AppSystemList"},
       "views": {
         "default": {
-          "autoLoad": false,
-          "autoCurrentFirst": true,
-          "autoSelectFirst": false,
-          "selectionDelimiter": "",
-          "page": 1,
-          "pageSize": 10,
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "page": 1, "pageSize": 10,
+          "queryConfig": {"fields": ["rowid", "AppDesc", "AppName", "WebUrl", "DeveloperName", "CreateTime", "AppType"]}
+        },
+        "form": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
+          "page": 1, "pageSize": 10,
+          "scopeFilter": {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "appId"}},
           "queryConfig": {
-            "fields": ["rowid", "AppDesc", "AppName", "WebUrl", "DeveloperName", "CreateTime", "AppType"]
+            "allPages": true,
+            "fields": ["rowid", "AppDesc", "AppName", "WebUrl", "CreateTime", "AppType", "Memo", "IsProjectRelation",
+              "isSass", "isWeChat", "Icon", "WeChatUrl", "WeChartimg", "CreateUser", "EntId", "isdel", "IsSys"]
           }
         }
       }
     },
     "应用系统状态": {
-      "modelBinding": {
-        "modelId": "0C70F74793F9E858B71E0DBDEC784D57p002",
-        "modelName": "应用系统状态"
-      },
+      "modelBinding": {"modelId": "0C70F74793F9E858B71E0DBDEC784D57p002", "modelName": "应用系统状态"},
       "views": {
         "default": {
-          "autoLoad": false,
-          "autoCurrentFirst": false,
-          "autoSelectFirst": false,
-          "selectionDelimiter": "",
-          "page": 1,
-          "pageSize": 100,
-          "valueField": "val",
-          "labelField": "txt",
-          "queryConfig": {
-            "allPages": true,
-            "fields": ["rowid", "val", "txt", "ordIdx"]
-          }
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "page": 1, "pageSize": 100,
+          "valueField": "val", "labelField": "txt",
+          "queryConfig": {"allPages": true, "fields": ["rowid", "val", "txt", "ordIdx"]}
         }
       }
     },
     "Base_AppAndSource_Relation": {
-      "modelBinding": {
-        "modelId": "0C70F74793F9E858B71E0DBDEC784D57p003",
-        "modelName": "Base_AppAndSource_Relation"
-      },
+      "modelBinding": {"modelId": "0C70F74793F9E858B71E0DBDEC784D57p003", "modelName": "Base_AppAndSource_Relation"},
       "views": {
         "default": {
-          "autoLoad": false,
-          "autoCurrentFirst": true,
-          "autoSelectFirst": false,
-          "selectionDelimiter": "",
-          "page": 1,
-          "pageSize": 100,
-          "filterExpression": {
-            "logic": "and",
-            "filters": [
-              {"field": "type", "operator": "eq", "value": "database"},
-              {"field": "isRef", "operator": "eq", "value": 0}
-            ]
-          },
-          "queryConfig": {
-            "allPages": true,
-            "fields": ["rowid", "sysid", "type", "conid", "conName", "isRef"]
-          }
-        }
-      }
-    },
-    "_base_dbInfo": {
-      "modelBinding": {
-        "modelId": "0C70F74793F9E858B71E0DBDEC784D57p004",
-        "modelName": "_base_dbInfo"
-      },
-      "views": {
-        "default": {
-          "autoLoad": false,
-          "autoCurrentFirst": false,
-          "autoSelectFirst": false,
-          "selectionDelimiter": "",
-          "page": 1,
-          "pageSize": 100,
-          "valueField": "Id",
-          "labelField": "Name",
-          "queryConfig": {
-            "allPages": true,
-            "fields": ["Id", "Name"]
-          }
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
+          "page": 1, "pageSize": 100,
+          "scopeFilter": {"logic": "and", "filters": [
+            {"field": "sysid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "appId"}},
+            {"field": "type", "operator": "eq", "value": "database"},
+            {"field": "isRef", "operator": "eq", "value": 0}
+          ]},
+          "queryConfig": {"allPages": true, "fields": ["rowid", "sysid", "type", "conid", "conName", "cnName", "isRef"]}
+        },
+        "cleanup": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
+          "page": 1, "pageSize": 1000,
+          "scopeFilter": {"logic": "and", "filters": [
+            {"field": "sysid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "appId"}},
+            {"field": "type", "operator": "eq", "value": "database"}
+          ]},
+          "queryConfig": {"allPages": true, "fields": ["rowid", "sysid", "type", "conid", "isRef"]}
         }
       }
     },
     "Base_MainBody_RoleUser": {
-      "modelBinding": {
-        "modelId": "0C70F74793F9E858B71E0DBDEC784D57p007",
-        "modelName": "Base_MainBody_RoleUser"
-      },
+      "modelBinding": {"modelId": "0C70F74793F9E858B71E0DBDEC784D57p007", "modelName": "Base_MainBody_RoleUser"},
       "views": {
         "default": {
-          "autoLoad": false,
-          "autoCurrentFirst": false,
-          "autoSelectFirst": false,
-          "selectionDelimiter": "",
-          "page": 1,
-          "pageSize": 100,
-          "queryConfig": {
-            "fields": ["rowid", "EntityPKValue", "UserIdField"]
-          }
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
+          "page": 1, "pageSize": 100,
+          "scopeFilter": {"logic": "and", "filters": [
+            {"field": "EntityPKValue", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "appId"}},
+            {"field": "RoleIdField", "operator": "eq", "value": "C80FF642A38841FF91D2953C4103E917"},
+            {"field": "CategoryID", "operator": "eq", "value": "1"}
+          ]},
+          "queryConfig": {"allPages": true, "fields": ["rowid", "EntityPKValue", "sysId", "UserIdField", "RoleIdField", "CategoryID"]}
+        }
+      }
+    },
+    "Base_NavigationInfo": {
+      "modelBinding": {"modelId": "0C70F74793F9E858B71E0DBDEC784D57p008", "modelName": "Base_NavigationInfo"},
+      "views": {
+        "default": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
+          "page": 1, "pageSize": 10,
+          "scopeFilter": {"logic": "and", "filters": [
+            {"field": "SysId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "appId"}},
+            {"field": "prowid", "operator": "eq", "value": "000000"}
+          ]},
+          "queryConfig": {"allPages": true, "fields": ["rowid", "modid", "prowid", "conid", "conType", "funCode", "FunName", "name", "caption",
+            "memo", "SysId", "NavigationUrl", "MobileUrl", "IsShowAtNav", "NavigationOrderValue", "NavigationShowType", "NavigationType",
+            "FromId", "NavCsrName"]}
+        },
+        "children": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "page": 1, "pageSize": 1,
+          "scopeFilter": {"logic": "and", "filters": [
+            {"field": "SysId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "appId"}},
+            {"field": "prowid", "operator": "ne", "value": "000000"}
+          ]},
+          "queryConfig": {"fields": ["rowid"]}
         }
       }
     }
   },
-  "viewCascades": [
-    {
-      "kind": "query",
-      "cascadeId": "application-manager-default-database-relations",
-      "parentTable": "Base_AppSystemList",
-      "parentViewId": "default",
-      "childTable": "Base_AppAndSource_Relation",
-      "childViewId": "default",
-      "autoLoad": true,
-      "filterBindings": [{"sourceField": "rowid", "targetField": "sysid", "operator": "eq"}]
-    },
-    {
-      "kind": "query",
-      "cascadeId": "application-manager-default-database-name",
-      "parentTable": "Base_AppAndSource_Relation",
-      "parentViewId": "default",
-      "childTable": "_base_dbInfo",
-      "childViewId": "default",
-      "autoLoad": true,
-      "filterBindings": [{"sourceField": "conid", "targetField": "Id", "operator": "eq"}]
-    },
-    {
-      "kind": "query",
-      "cascadeId": "application-manager-owner-relations",
-      "parentTable": "Base_AppSystemList",
-      "parentViewId": "default",
-      "childTable": "Base_MainBody_RoleUser",
-      "childViewId": "default",
-      "autoLoad": true,
-      "filterBindings": [{"sourceField": "rowid", "targetField": "EntityPKValue", "operator": "eq"}]
-    }
-  ]
+  "viewCascades": []
 }

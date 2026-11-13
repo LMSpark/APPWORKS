@@ -4,11 +4,10 @@
 边界：企业、应用名称经同场景选项视图查值显示；审核入口只依据本行 auth_status 写权限与 PENDING 状态，审批由审核弹窗按记录提交。
 -->
 <template>
-  <section class="app-auth-review">
-    <header class="app-auth-review__header">
-      <h1>申请列表</h1>
+  <RendererSection class="app-auth-review" title="申请列表" :bordered="false" :grid-columns="1">
+    <template #header-actions>
       <RendererButton v-if="ready" :data-view-key="viewKey" label="刷新" action="refresh" />
-    </header>
+    </template>
     <p v-if="loading" role="status">正在读取申请列表…</p>
     <p v-if="error" role="alert">{{ error }}</p>
     <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
@@ -17,13 +16,13 @@
       :auto-columns="false" :stripe="true" :show-row-index="true" :highlight-current-row="true"
       :show-data-view-meta="false" :pagination="{pageSizes: [20], showJumper: true}" />
     <EnterpriseAppAuthApplicationAuditDialog v-if="auditId !== undefined" :record-id="auditId" @close="closeAudit" @decided="closeAudit" />
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererTable} from '@spark-appworks/spark-component'
+import {RendererButton, RendererSection, RendererTable} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {APP_AUTH_SCENARIOS, formatRequestedAt, readAppAuthSession} from '../model/enterprise-app-auth-application-model'
 import EnterpriseAppAuthApplicationAuditDialog from './enterprise-app-auth-application-audit-dialog.vue'
@@ -75,7 +74,5 @@ function closeAudit(): void {
 </script>
 
 <style scoped>
-.app-auth-review {display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary)}
-.app-auth-review__header {display: flex; align-items: center; justify-content: space-between; gap: 16px}
-.app-auth-review__header h1 {margin: 0; font-size: 20px}
+.app-auth-review {padding: 24px}
 </style>

@@ -4,17 +4,16 @@
 边界：主场景 47DA 只用于导航身份校验与装配；已发布应用列表经 C06D 应用主表视图，新增申请经 0221 视图完成。
 -->
 <template>
-  <section class="apply-app-auth-page">
-    <header class="apply-app-auth-page__header"><h1>申请应用授权</h1></header>
+  <RendererSection class="apply-app-auth-page" title="申请应用授权" :bordered="false" :grid-columns="1">
     <p v-if="loading" role="status">正在装配申请应用授权…</p>
     <p v-if="error" role="alert">{{ error }}</p>
     <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
     <ApplyAppAuthContent v-if="ready" />
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
-import {RendererButton} from '@spark-appworks/spark-component'
+import {RendererButton, RendererSection} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {APP_AUTH_SCENARIOS, readAppAuthSession} from '../model/enterprise-app-auth-application-model'
 import ApplyAppAuthContent from './apply-app-auth-content.vue'
@@ -26,6 +25,5 @@ const {ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
 </script>
 
 <style scoped>
-.apply-app-auth-page {display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary)}
-.apply-app-auth-page__header h1 {margin: 0; font-size: 20px}
+.apply-app-auth-page {padding: 24px}
 </style>

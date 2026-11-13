@@ -163,8 +163,11 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     return currentFieldState.value?.visibility === FieldVisibility.Hidden
   })
 
+  /** 当前行成员未指定字段且显式 modelValue：纯受控控件，只发出 update:modelValue；无字段名时 writeField 不写视图。 */
+  const isControlledOnly = computed(() => !fieldName.value && binding.fieldMember.value && hasExplicitModelValue.value)
   const isCurrentFieldEditable = computed(() => {
     // 表单交互锁定只能收紧字段写入，不能替代或扩大本次查询的数据权限。
+    if (isControlledOnly.value) return props.readonly !== true && !formDisabled.value
     return binding.fieldMember.value && !jsonMemberError.value && props.readonly !== true && !formDisabled.value && (currentFieldState.value?.editable ?? false)
   })
 

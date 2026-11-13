@@ -186,6 +186,7 @@ export type SparkFieldSemanticProps<TValue = unknown> = {
    * 直接传入的受控字段值。
    *
    * 对应 Vue v-model 标准命名，支持 `v-model="xxx"` 写法。
+   * 未绑定字段时为纯受控控件：除 readonly 或表单禁用外可编辑，变更只发出 `update:modelValue`，不写任何 DataView。
    */
   modelValue?: TValue
   /**

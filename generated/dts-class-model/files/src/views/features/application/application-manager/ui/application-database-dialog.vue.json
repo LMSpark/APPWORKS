@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-manager/ui/application-database-dialog",
+    "sourcePath": "src/views/features/application/application-manager/ui/application-database-dialog.vue",
+    "sourceFile": "src/views/features/application/application-manager/ui/application-database-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-manager/ui/application-database-dialog",
+    "jsdoc": "@module app:views/features/application/application-manager/ui/application-database-dialog\n职责：新增应用时选择默认数据库：按数据库名、服务器、端口、类型、架构、描述筛选的分页列表，行“确定”或选中后底部“确定”。\n边界：候选绑定 93DF 场景 _base_dbInfo@picker 正式视图；只把所选行交回调用方，写入由应用记录编排落到原关联视图。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T18:36:56.109Z",
+  "models": {}
+}

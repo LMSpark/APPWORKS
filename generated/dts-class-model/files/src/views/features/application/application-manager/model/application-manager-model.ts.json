@@ -1,0 +1,380 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-manager/model/application-manager-model",
+    "sourcePath": "src/views/features/application/application-manager/model/application-manager-model.ts",
+    "sourceFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-manager/model/application-manager-model",
+    "jsdoc": "@module app:views/features/application/application-manager/model/application-manager-model\n职责：应用系统的新增、编辑、删除在 0C70 正式 DataView 上的编排：主表、默认数据库关联、负责人关系及导航根。\n边界：值与待提交状态只在原 DataView；新增先确认主表再写依附记录，删除先删依附记录再删主表；分阶段非事务，按阶段如实回报。\n负责人 RoleIdField/CategoryID 来自视图常驻范围（pagedata），只是数据值，不作任何前端权限判断。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ApplicationManagerSaveOutcome",
+      "ApplicationManagerRecord"
+    ]
+  },
+  "$defs": {
+    "ApplicationManagerSaveOutcome": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApplicationManagerSaveOutcome",
+      "properties": {
+        "success": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "mainSaved": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "success",
+        "mainSaved",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "ApplicationManagerRecord": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApplicationManagerRecord",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "appId": {
+          "type": "string"
+        },
+        "created": {
+          "type": "boolean"
+        },
+        "ownerId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "main": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "relation": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "owner": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "root": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "defaultDatabase": {
+          "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+        },
+        "databaseSummary": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.openCreate.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "appType": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.openCreate.return": {
+          "type": "object",
+          "title": "Promise<ApplicationManagerRecord>"
+        },
+        "method.openEdit.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "appId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.openEdit.return": {
+          "type": "object",
+          "title": "Promise<ApplicationManagerRecord>"
+        },
+        "method.chooseDatabase.params": {
+          "type": "object",
+          "properties": {
+            "database": {
+              "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.chooseDatabase.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<ApplicationManagerSaveOutcome>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-13T19:30:29.488Z",
+  "models": {
+    "ApplicationManagerSaveOutcome": {
+      "name": "ApplicationManagerSaveOutcome",
+      "jsdoc": "一次保存的结果；created 时 mainSaved 表示主表已确认、依附记录仍可在同一弹窗再次保存补写。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    success: boolean;\n    mainSaved: boolean;\n    message: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    success: boolean;\n    mainSaved: boolean;\n    message: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "success",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mainSaved",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ApplicationManagerRecord": {
+      "name": "ApplicationManagerRecord",
+      "jsdoc": "一次新增或编辑弹窗的记录编排；值都写在原视图（主表编辑覆盖、依附视图待新增行），本对象只记行身份。\n新增：先定 appId，各视图以 appId 查询建立原查询身份；主表按该身份新增，依附视图新增时由常驻范围给出归属默认值。\n负责人视图当前行指向本记录的负责人行，表单中的负责人字段经该视图当前行读写。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "created",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ownerId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "main",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "owner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "root",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultDatabase",
+              "jsdoc": "默认数据库关联的当前（编辑覆盖）行；编辑时只读展示原关联。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseSummary",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "openCreate",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "appType",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ApplicationManagerRecord",
+                    "sourcePath": "src/views/features/application/application-manager/model/application-manager-model.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openEdit",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "appId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ApplicationManagerRecord",
+                    "sourcePath": "src/views/features/application/application-manager/model/application-manager-model.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "chooseDatabase",
+              "jsdoc": "新增时把所选数据库写入同一待新增关联行（isRef=0、type、sysid 由常驻范围给出）。",
+              "parameters": [
+                {
+                  "name": "database",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ApplicationManagerSaveOutcome",
+                    "sourcePath": "src/views/features/application/application-manager/model/application-manager-model.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "放弃本窗未提交的修改；已确认的主表不回滚，未确认保存原样保留由原保存入口核验。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

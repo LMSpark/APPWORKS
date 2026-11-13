@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-manager/ui/application-manager-form-dialog",
+    "sourcePath": "src/views/features/application/application-manager/ui/application-manager-form-dialog.vue",
+    "sourceFile": "src/views/features/application/application-manager/ui/application-manager-form-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-manager/ui/application-manager-form-dialog",
+    "jsdoc": "@module app:views/features/application/application-manager/ui/application-manager-form-dialog\n职责：新增或编辑应用系统：名称、简称、负责人、站点运行地址、状态、租户门户、项目/SAAS/小程序开关、图标、小程序地址与图片、描述、默认数据库。\n边界：主表字段绑定 Base_AppSystemList@form 固定行，负责人经负责人视图当前行读写，默认数据库写入关联视图待新增行；保存由应用记录分阶段编排。\n租户门户即企业默认应用（ent_config），仅编辑时按其写权限呈现，在应用保存确认后单独保存。小程序图片上传区未获批，只读展示原值。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T19:27:55.234Z",
+  "models": {}
+}

@@ -9745,3 +9745,15 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **导航重复节点。** 应用业务导航已承载同一节点身份的系统页时，“应用设计”分组不再重复挂出（D99 出现两条同名节点）。
 - **验证（2026-11-14）。** 企业应用授权 12 项、渲染器工具栏回归通过；typecheck、lint、`verify:rules` 通过；全量 Vitest 528 文件 9864 项中 3 项满载 15 秒超时，单独复跑 120/120 通过。实服只读烟测：我的申请列表加载无错误（本企业暂无申请）；内嵌申请弹窗列出别家已发布应用 2 条，发布企业、备注与“申请”按钮正常；申请列表加载无错误（暂无待审）。未提交申请、未审批。
 - **仍开放。** 审批通过触发不可逆初始化，实服验收须用户同意并指定企业；申请提交与取消/重新申请的实服写入未做。
+
+## 应用系统列表（0C70）按参考 1:1 迁入标准组件与 SPARK data
+
+用户指出原页“没有走标准组件”后按参考原路径 `features/application/application-manager/ui/` 重做；语义、实服元数据与用户裁决见[研读](research-application-manager.md)。
+
+- **删除的错误实现。** 手写 header/h1 外壳、自加“所选应用关联信息”区（页面 TS 手解析 DataView 状态）与“暂不可用”横幅；新增/编辑/删除/项目管理不再禁用。
+- **页面结构。** `RendererSection` 外壳（新增/导出/刷新），`RendererTable` 列表（简称单元格动作打开编辑、创建时间按日、状态字典）与行按钮；新增/编辑为 `RendererDialog` + `RendererForm`（参考两列、标签在上，24 栅格半行/整行），选择数据库为 93DF `_base_dbInfo@picker` 弹窗，关联数据库弹窗嵌入从 93DF 页抽出的 `application-database-relations-content.vue`。关联数据库页与企业应用授权三页外壳同改 `RendererSection`（偏差：方案原写 `RendererPageHeader`）。
+- **数据链。** 0C70 pagedata 声明主表 default/form(staged)、关系 default/cleanup、负责人 default（`scopeFilter` 常量 RoleIdField/CategoryID 兼作新增默认值，前端不据此判断权限）、导航根 default/children；`viewCascades: []`。`ApplicationManagerRecord` 经 `DataSet.saveChangesInPhases` 编排：新增先主表、后默认数据库关联/负责人/导航根；编辑主表 + 负责人同阶段；删除仅 `AppType='6'`，导航根有子节点拒绝，先删负责人、全部 database 关联与导航根再删主表。主表已确认而伴随表抛错时区分“未确认”（刷新核验）与“明确未写入”（可再次保存补写），不重复写主表。写入值按列类型（含 `tinyint`、大写 `INT`）给数字、布尔或字符串。
+- **租户门户。** 参考字段不存在，按裁决映射企业默认应用 `ent_config.defaultApplicationId`，仅编辑且有写权限时可改，应用保存确认后单独保存。
+- **标准组件扩展。** `FieldText.cellAction/cellActionEnabled`；未绑定字段且显式 `modelValue` 的字段为纯受控控件（只发 `update:modelValue`、不写视图），`JsonTreeEditor` 独立模式随之只在字段模式调用能力链（否则重复发出）；ClassModel 与 lowcode 合同由生成器刷新。
+- **仍开放的缺口。** 导出、报价管理未交付（提示）；小程序图片上传区未获批（`action '#'`，只读原值）；导航根参考字段 BeginGroup/HorizontalAlignment/ChildItemLocation/IsShowChildItem/status 非实服输出未写；分阶段保存非事务；负责人 createuser/createtime 交后端；行按钮按条件隐藏而非禁用；参考 `isSass` 更新缺陷已纠正；实服状态值“0”“web”等不在 `应用系统状态` 字典内，按原值显示（存量数据，未改）。实服新增/编辑/删除写入须用户另行同意。
+- **验证（2026-11-14）。** 应用管理 22 项、应用目录 13 文件 180 项、组件与字段测试通过；typecheck、lint、`verify:rules`、`verify:pages-config` 通过；全量 Vitest 528 文件中 JSON 树修复前 2 项回归已修复复跑通过，另 2 项满载 15 秒超时单独复跑通过。实服只读烟测：列表 68 条分页与全部行按钮；编辑弹窗两列，负责人、状态、开关、图标、描述与默认数据库摘要回显，“选择”在编辑态禁用，取消关闭；关联数据库弹窗 4 条且服务器列齐全；新增弹窗无租户门户，选择数据库弹窗 10 条，均取消未保存。实服列类型已核实（标志列 int/tinyint、isRef INT、导航数字列 int、负责人常量列 varchar）。

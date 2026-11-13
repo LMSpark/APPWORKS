@@ -10,7 +10,7 @@ import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/pl
 
 const originalStubs = config.global.stubs, cleanups: Array<() => void> = []
 afterEach(() => {cleanups.splice(0).reverse().forEach(fn => fn()); config.global.stubs = originalStubs; vi.unstubAllGlobals()})
-async function fixture(onChange?: () => Promise<void>, displayFormatter?: (value: unknown) => string) {
+async function fixture(onChange?: () => Promise<void>, displayFormatter?: (value: unknown) => string, extra: Record<string, unknown> = {}) {
   const stubs = {...config.global.stubs}
   for (const name of ['el-table', 'el-table-column', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[name]
   config.global.stubs = stubs
@@ -37,7 +37,7 @@ async function fixture(onChange?: () => Promise<void>, displayFormatter?: (value
   const Host=defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'text-test'});sparkProvide(PAGE_RUNTIME,runtime)
     return()=>h(RendererTable,{dataViewKey:binding.value,autoColumns:false,showPagination:false,showDataViewMeta:false,
       children:[{type:'r-text',props:{field:'name',label:'名称',showCellControl:direct.value,maxlength:100,readonly:readonly.value,
-        minWidth:180,showOverflowTooltip:overflow.value,cellReadonly:(row:Readonly<Record<string,unknown>>)=>row['id']===locked.value,onChange,displayFormatter}}]})}})
+        minWidth:180,showOverflowTooltip:overflow.value,cellReadonly:(row:Readonly<Record<string,unknown>>)=>row['id']===locked.value,onChange,displayFormatter,...extra}}]})}})
   const wrapper=mount(Host,{attachTo:document.body,global:{plugins:[ElementPlus,Spark.createPlugin({registry})]}})
   cleanups.push(()=>wrapper.unmount());await flushPromises()
   return {wrapper,view:ds.getView('Items')!,other:ds.getView('Items','other')!,binding,readonly,direct,locked,overflow}
@@ -99,6 +99,19 @@ describe('standard text table controls',()=>{
     expect(view.hasEditingChanges()).toBe(false)
     readonly.value=true;await flushPromises();expect(rows[0]!.getComponent(ElInput).props('disabled')).toBe(true)
     direct.value=false;await flushPromises();expect(wrapper.findAllComponents(ElInput)).toHaveLength(0);expect(rows[0]!.text()).toContain('first')
+  })
+  it('renders readable cells as row actions without touching values, pointer, hidden or masked data',async()=>{
+    const action=vi.fn()
+    const {wrapper,view,direct}=await fixture(undefined,undefined,{cellAction:action,cellActionEnabled:(row:Readonly<Record<string,unknown>>)=>row['id']!=='b'})
+    direct.value=false;await flushPromises()
+    const rows=wrapper.findAll('tbody tr')
+    expect(rows.map(row=>row.find('.field-table-action').exists())).toEqual([true,false,true,false,false])
+    expect(rows[1]!.text()).toContain('second')
+    expect(rows[4]!.text()).not.toContain('masked value')
+    await rows[2]!.get('.field-table-action').trigger('click');await flushPromises()
+    expect(action).toHaveBeenCalledTimes(1);expect(action.mock.calls[0]?.[0]?.['id']).toBe('denied')
+    expect(view.currentRow?.['id']).toBe('a');expect(view.hasEditingChanges()).toBe(false)
+    direct.value=true;await flushPromises();expect(wrapper.find('.field-table-action').exists()).toBe(false)
   })
   it.each(['binding','readonly','reload'] as const)('rejects delayed cell writes after %s changes',async kind=>{
     let release!:()=>void;const waiting=new Promise<void>(resolve=>{release=resolve})

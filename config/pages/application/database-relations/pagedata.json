@@ -9,6 +9,10 @@
         "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
         "valueField": "Id", "labelField": "Name",
         "queryConfig": {"allPages": true, "fields": ["Id", "Name", "ServerName", "Port", "Type", "SchemaName", "Remark"]}
+      },
+      "picker": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 10,
+        "queryConfig": {"pagination": "paged", "fields": ["Id", "Name", "ServerName", "Port", "Type", "SchemaName", "Remark"]}
       }}
     },
     "Base_AppAndSource_Relation": {

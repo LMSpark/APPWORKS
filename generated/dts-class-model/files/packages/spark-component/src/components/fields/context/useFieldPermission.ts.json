@@ -188,7 +188,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-12T20:55:37.300Z",
+  "generatedAt": "2026-11-13T19:17:21.902Z",
   "models": {
     "FieldPermissionProps": {
       "name": "FieldPermissionProps",

@@ -91,11 +91,33 @@
         },
         "method.cellReadonly.return": {
           "type": "boolean"
+        },
+        "method.cellAction.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cellAction.return": true,
+        "method.cellActionEnabled.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cellActionEnabled.return": {
+          "type": "boolean"
         }
       }
     }
   },
-  "generatedAt": "2026-11-13T05:19:18.644Z",
+  "generatedAt": "2026-11-13T19:17:21.904Z",
   "models": {
     "RTextProps": {
       "name": "RTextProps",
@@ -109,7 +131,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkFieldSemanticProps<string> & SparkFieldMemberProps & {\n    /** 常用文本筛选在生成条件前去除首尾空白；默认保留原输入。 */\n    filterTrim?: boolean;\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n    /** 表单输入框前缀图标，取 Element Plus 图标组件名（同 RendererButton.icon）；未知名称不显示，只影响呈现。 */\n    prefixIcon?: string;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkFieldSemanticProps<string> & SparkFieldMemberProps & {\n    /** 常用文本筛选在生成条件前去除首尾空白；默认保留原输入。 */\n    filterTrim?: boolean;\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表格只读单元格以链接呈现，点击时以该行调用；隐藏/脱敏单元格不呈现链接。只触发调用方动作，不改变值、行指针或权限；showCellControl时不生效。 */\n    cellAction?: (row: Readonly<DataRow>) => void;\n    /** 收窄cellAction可用的行，返回false时按普通文本呈现；省略时所有可读行均可点击。 */\n    cellActionEnabled?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n    /** 表单输入框前缀图标，取 Element Plus 图标组件名（同 RendererButton.icon）；未知名称不显示，只影响呈现。 */\n    prefixIcon?: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -128,7 +150,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 常用文本筛选在生成条件前去除首尾空白；默认保留原输入。 */\n    filterTrim?: boolean;\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n    /** 表单输入框前缀图标，取 Element Plus 图标组件名（同 RendererButton.icon）；未知名称不显示，只影响呈现。 */\n    prefixIcon?: string;\n}"
+            "typeText": "{\n    /** 常用文本筛选在生成条件前去除首尾空白；默认保留原输入。 */\n    filterTrim?: boolean;\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表格只读单元格以链接呈现，点击时以该行调用；隐藏/脱敏单元格不呈现链接。只触发调用方动作，不改变值、行指针或权限；showCellControl时不生效。 */\n    cellAction?: (row: Readonly<DataRow>) => void;\n    /** 收窄cellAction可用的行，返回false时按普通文本呈现；省略时所有可读行均可点击。 */\n    cellActionEnabled?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n    /** 表单输入框前缀图标，取 Element Plus 图标组件名（同 RendererButton.icon）；未知名称不显示，只影响呈现。 */\n    prefixIcon?: string;\n}"
           }
         ],
         "members": {
@@ -203,6 +225,52 @@
             {
               "name": "cellReadonly",
               "jsdoc": "常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "cellAction",
+              "jsdoc": "表格只读单元格以链接呈现，点击时以该行调用；隐藏/脱敏单元格不呈现链接。只触发调用方动作，不改变值、行指针或权限；showCellControl时不生效。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cellActionEnabled",
+              "jsdoc": "收窄cellAction可用的行，返回false时按普通文本呈现；省略时所有可读行均可点击。",
               "parameters": [
                 {
                   "name": "row",

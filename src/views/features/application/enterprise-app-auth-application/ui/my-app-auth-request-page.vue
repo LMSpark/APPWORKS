@@ -5,14 +5,11 @@
   可用性依据本行 auth_status 写权限及业务状态，不按身份放行。
 -->
 <template>
-  <section class="my-app-auth">
-    <header class="my-app-auth__header">
-      <h1>我的申请</h1>
-      <div class="my-app-auth__actions">
-        <RendererButton v-if="ready" label="申请应用授权" button-type="primary" :disabled="busy" @click="applyOpen = true" />
-        <RendererButton v-if="ready" :data-view-key="viewKey" label="刷新" action="refresh" />
-      </div>
-    </header>
+  <RendererSection class="my-app-auth" title="我的申请" :bordered="false" :grid-columns="1">
+    <template #header-actions>
+      <RendererButton v-if="ready" label="申请应用授权" button-type="primary" :disabled="busy" @click="applyOpen = true" />
+      <RendererButton v-if="ready" :data-view-key="viewKey" label="刷新" action="refresh" />
+    </template>
     <p v-if="loading" role="status">正在读取我的申请…</p>
     <p v-if="error" role="alert">{{ error }}</p>
     <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
@@ -23,14 +20,14 @@
     <RendererDialog v-if="applyOpen" :model-value="true" title="申请应用授权" :width="960" :append-to-body="true" @update:model-value="closeApply">
       <ApplyAppAuthContent :embedded="true" @applied="closeApply" />
     </RendererDialog>
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import {ElMessage} from 'element-plus'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererDialog, RendererTable, type RFilterProps} from '@spark-appworks/spark-component'
+import {RendererButton, RendererDialog, RendererSection, RendererTable, type RFilterProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {APP_AUTH_SCENARIOS, commitAppAuthRecord, confirmAppAuth, formatRequestedAt, readAppAuthSession} from '../model/enterprise-app-auth-application-model'
 import ApplyAppAuthContent from './apply-app-auth-content.vue'
@@ -124,8 +121,5 @@ function closeApply(): void {
 </script>
 
 <style scoped>
-.my-app-auth {display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary)}
-.my-app-auth__header {display: flex; align-items: center; justify-content: space-between; gap: 16px}
-.my-app-auth__header h1 {margin: 0; font-size: 20px}
-.my-app-auth__actions {display: flex; gap: 8px}
+.my-app-auth {padding: 24px}
 </style>

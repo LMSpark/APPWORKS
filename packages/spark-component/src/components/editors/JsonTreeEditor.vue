@@ -839,7 +839,7 @@ function publishModel(model: Sjd.TreeModel): void {
   if (props.rootKind !== 'value' && (Array.isArray(nextValue) || Sjd.isJsonObject(nextValue))) emit('update:documentValue', deepClone(nextValue))
   emit('update:modelValue', nextText)
   // 字段模式：通过能力链回写 DATA_ROW[field]
-  void handleControlledChange(nextText)
+  if (props.field) void handleControlledChange(nextText)
 }
 
 // ── 类型标签 ──────────────────────────────────────────────────

@@ -7,7 +7,9 @@ AI用途：需要理解 field text 的实际渲染结构、slot/toolbar/状态�
 <template>
   <FieldContextRenderer v-bind="fieldCtx" :edit-on-dblclick="props.showCellControl ? false : props.editOnDblclick">
     <template #table-cell="{row, value}">
-      <span v-if="!props.showCellControl || permission.isTableCellMasked(row)" :class="['field-table-value', props.valueClassName]">{{ value }}</span>
+      <el-button v-if="!props.showCellControl && props.cellAction && !permission.isTableCellMasked(row) && props.cellActionEnabled?.(row) !== false"
+        :class="['field-table-action', props.valueClassName]" link type="primary" @click.stop="props.cellAction(row)">{{ value }}</el-button>
+      <span v-else-if="!props.showCellControl || permission.isTableCellMasked(row)" :class="['field-table-value', props.valueClassName]">{{ value }}</span>
       <FieldTableCellScope v-else :source="permission.dataSource.value ?? undefined" :row="row">
         <FieldText v-bind="cellProps" :readonly="props.readonly || props.cellReadonly?.(row) === true"
           @update:model-value="value => emitFieldValueUpdate(emit, value)" />

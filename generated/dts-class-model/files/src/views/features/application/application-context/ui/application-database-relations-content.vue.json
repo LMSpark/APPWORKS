@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-context/ui/application-database-relations-content",
+    "sourcePath": "src/views/features/application/application-context/ui/application-database-relations-content.vue",
+    "sourceFile": "src/views/features/application/application-context/ui/application-database-relations-content.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-context/ui/application-database-relations-content",
+    "jsdoc": "@module app:views/features/application/application-context/ui/application-database-relations-content\n职责：应用关联数据库的业务内容：列出所给应用已关联的数据库，从可选数据库中添加关联，删除非默认关联。\n边界：消费宿主提供的PageRuntime中93DF场景正式DataView；新增与删除经DataSet保存，默认数据库(isRef=0)不可删除。应用身份只来自sysid属性。\nAI用途：关联数据库页与应用管理弹窗复用本组件；迁移时核对sysid来源、候选视图输入参数与关联记录写入字段。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T18:44:17.461Z",
+  "models": {}
+}

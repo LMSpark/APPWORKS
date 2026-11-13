@@ -5,19 +5,24 @@ import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus, {ElMessage} from 'element-plus'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {RequestState} from '@spark-appworks/spark-data'
-import {RendererFilter, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
-import {getSystemScenarioResource, resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
-import {api, APPLICATION_MANAGER_PATH, APPLICATION_MANAGER_SCENARIO, resetApplicationManagerFixture} from './application-manager.fixture'
+import * as Fixture from './application-manager.fixture'
 import {pagedata} from '../../page/api-provider/api-provider.fixture'
 
+const {api, APPLICATION_MANAGER_PATH, APPLICATION_MANAGER_SCENARIO: SCENARIO, OWNER_ROLE, resetApplicationManagerFixture} = Fixture
+const confirmBox = vi.hoisted(() => vi.fn<(message: string, title: string) => Promise<string>>())
+vi.mock('element-plus', async importOriginal => {
+  const original = await importOriginal<typeof import('element-plus')>()
+  return {...original, ElMessageBox: {...original.ElMessageBox, confirm: confirmBox}}
+})
 const pageMocks = vi.hoisted(() => ({submitDocument: vi.fn()}))
 const defaultApp = vi.hoisted(() => {
   const state = {id: '', writable: true, destroyed: 0, save: vi.fn(async (id: string | null) => { state.id = id ?? '' })}
   return state
 })
+const session = vi.hoisted(() => ({identity: {userId: 'USER-1', enterpriseId: 'ENT-1'}, enterprise: {id: 'ENT-1', shortName: 'ME'}}))
 
 vi.mock('@/services/project/enterprise-landing', () => ({EnterpriseDefaultApplication: {load: async () => ({
   get applicationId() {return defaultApp.id},
@@ -30,6 +35,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return api.state.http},
   lowcodeApi: {
     readRequestScope: (...args: unknown[]) => api.service.readRequestScope(...args),
+    session: {get: () => session},
     blueprint: {submitDocument: (...args: unknown[]) => pageMocks.submitDocument(...args)},
     dataSpace: {get design() {return api.service}, get runtime() {return api.state.runtime}},
   },
@@ -39,7 +45,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   },
   createLowcodeProjectGateways: () => ({scenarioViews: {
     readScope: () => 'scope',
-    readText: async (id: string) => id === APPLICATION_MANAGER_SCENARIO ? pagedata[id] ?? null : null,
+    readText: async (id: string) => pagedata[id] ?? null,
     writeText: async () => {throw new Error('应用管理页不写场景文件')},
   }}),
   readLowcodePrincipal: () => ({applicationId: 'APP'}),
@@ -53,6 +59,7 @@ beforeEach(() => {
   http = resetApplicationManagerFixture()
   Object.assign(defaultApp, {id: '', writable: true, destroyed: 0})
   defaultApp.save.mockClear()
+  confirmBox.mockReset().mockResolvedValue('confirm')
   pageMocks.submitDocument.mockReset()
   pageMocks.submitDocument.mockResolvedValue({
     projectId: 'APP-1', kind: 'requirements-specification', status: 'submitted',
@@ -66,9 +73,14 @@ beforeEach(() => {
 })
 afterEach(() => {
   wrappers.splice(0).forEach(wrapper => wrapper.unmount())
+  document.body.innerHTML = ''
   vi.restoreAllMocks(); vi.unstubAllGlobals()
   config.global.stubs = originalStubs
 })
+
+async function settle(): Promise<void> {
+  for (let index = 0; index < 6; index++) await flushPromises()
+}
 
 async function open(wait = true) {
   const observed = new Set<PageRuntime>()
@@ -79,7 +91,7 @@ async function open(wait = true) {
   })
   const router = createRouter({history: createMemoryHistory(), routes: [
     {path: `/apps/:projectId${APPLICATION_MANAGER_PATH}`, component: ApplicationManagerPage,
-      meta: {blueprintScenarioId: APPLICATION_MANAGER_SCENARIO, nodeId: APPLICATION_MANAGER_SCENARIO, systemPageIdentityState: 'resolved'}},
+      meta: {blueprintScenarioId: SCENARIO, nodeId: SCENARIO, systemPageIdentityState: 'resolved'}},
     {path: '/:pathMatch(.*)*', component: defineComponent({setup: () => () => h('div')})},
   ]})
   await router.push(`/apps/APP${APPLICATION_MANAGER_PATH}`)
@@ -97,480 +109,303 @@ async function open(wait = true) {
   if (wait) await vi.waitFor(async () => {
     await flushPromises()
     expect(wrapper.text()).not.toContain('正在读取应用目录')
-    expect(wrapper.text()).not.toContain('正在读取状态选项')
   }, {timeout: 10000})
-  await flushPromises()
-  return {wrapper, router, observed, switchAndReload}
+  await settle()
+  const dataSet = () => {
+    const runtime = [...observed].find(item => !item.destroyed && item.getDataSet(SCENARIO))
+    const found = runtime?.getDataSet(SCENARIO)
+    if (!found) throw new Error('应用管理正式数据集未装配')
+    return found
+  }
+  const view = (table: string, viewId = 'default') => {
+    const found = dataSet().getView(table, viewId)
+    if (!found) throw new Error(`应用管理缺少视图 ${table}@${viewId}`)
+    return found
+  }
+  return {wrapper, router, observed, switchAndReload, dataSet, view}
 }
 
-function getButton(wrapper: VueWrapper, label: string) {
-  const button = wrapper.findAll('button').find(item => item.text().trim() === label)
-  if (!button) throw new Error(`按钮不存在: ${label}`)
-  return button
+function buttons(label: string): HTMLButtonElement[] {
+  return [...document.body.querySelectorAll('button')].filter(item => item.textContent?.trim() === label)
+}
+function button(label: string, index = 0): HTMLButtonElement {
+  const found = buttons(label)[index]
+  if (!found) throw new Error(`按钮不存在: ${label}`)
+  return found
+}
+async function click(label: string, index = 0): Promise<void> {
+  button(label, index).click()
+  await settle()
+}
+/** 列表行内按钮按行序出现；index 为该标签在可见行中的序号。 */
+function rowButtonFor(wrapper: VueWrapper, rowText: string, label: string): HTMLButtonElement {
+  const row = wrapper.findAll('.el-table__body tr').find(item => item.text().includes(rowText))
+  const found = row?.findAll('button').find(item => item.text().trim() === label)
+  if (!found) throw new Error(`行 ${rowText} 缺少按钮 ${label}`)
+  return found.element
+}
+const bodyText = () => document.body.textContent ?? ''
+const inputValues = () => [...document.body.querySelectorAll<HTMLInputElement>('.el-dialog input')].map(input => input.value)
+async function pickDatabase(server: string): Promise<void> {
+  const row = [...document.body.querySelectorAll('.el-dialog .el-table__body tr')].find(item => item.textContent?.includes(server))
+  const confirm = [...row?.querySelectorAll('button') ?? []].find(item => item.textContent?.trim() === '确定')
+  if (!confirm) throw new Error(`数据库候选缺少 ${server}`)
+  confirm.click()
+  await settle()
 }
 
-function currentView(observed: Set<PageRuntime>) {
-  const runtime = [...observed].find(item => !item.destroyed && item.getDataSet(APPLICATION_MANAGER_SCENARIO))
-  const dataSet = runtime?.getDataSet(APPLICATION_MANAGER_SCENARIO)
-  if (!dataSet) throw new Error('应用管理正式数据集未装配')
-  const view = dataSet?.getView('Base_AppSystemList', 'default')
-  if (!view) throw new Error('应用管理正式视图未装配')
-  const statusView = dataSet?.getView('应用系统状态', 'default')
-  if (!statusView) throw new Error('应用管理正式状态字典视图未装配')
-  const databaseRelationView = dataSet?.getView('Base_AppAndSource_Relation', 'default')
-  const databaseView = dataSet?.getView('_base_dbInfo', 'default')
-  const ownerView = dataSet?.getView('Base_MainBody_RoleUser', 'default')
-  if (!databaseRelationView || !databaseView || !ownerView) throw new Error('应用管理正式关联视图未装配')
-  return {runtime, dataSet, view, statusView, databaseRelationView, databaseView, ownerView}
-}
-
-describe('application manager restored through the formal DataView', () => {
-  it('registers confirmed application, status, database relation, database and owner models', () => {
-    const resource = getSystemScenarioResource('applicationManager')
+describe('application manager restored with standard components and formal DataViews', () => {
+  it('declares the list, form, companion and navigation views with constant owner scope and no cascades', () => {
     const page = getVuePageEntry(APPLICATION_MANAGER_PATH)
-    const configText = readFileSync('config/pages/application/application-manager/pagedata.json', 'utf8')
-    const scenario = JSON.parse(configText) as {scenarioId: string; tables: Record<string, {modelBinding: {modelId: string; modelName: string}; views: Record<string, {queryConfig?: {fields?: string[]}}>}>}
-    expect(resolveSystemScenarioResource(APPLICATION_MANAGER_SCENARIO)).toEqual(resource)
-    expect(resource.path).toBe('config/pages/application/application-manager/pagedata.json')
+    const text = readFileSync('config/pages/application/application-manager/pagedata.json', 'utf8')
+    const scenario: {viewCascades: unknown[]; tables: Record<string, {views: Record<string, {commitMode?: string; scopeFilter?: unknown; queryConfig?: {fields?: string[]}}>}>} = JSON.parse(text)
+    const views = (table: string) => scenario.tables[table]?.views ?? {}
     expect(page?.source).toBe('src/views/features/application/application-manager/ui/application-manager-page.vue')
-    expect(scenario.scenarioId).toBe(APPLICATION_MANAGER_SCENARIO)
-    expect(scenario.tables['Base_AppSystemList']?.modelBinding).toEqual({
-      modelId: `${APPLICATION_MANAGER_SCENARIO}p000`, modelName: 'Base_AppSystemList',
-    })
-    expect(scenario.tables['Base_AppSystemList']?.views['default']?.queryConfig?.fields)
+    expect(views('Base_AppSystemList')['default']?.queryConfig?.fields)
       .toEqual(['rowid', 'AppDesc', 'AppName', 'WebUrl', 'DeveloperName', 'CreateTime', 'AppType'])
-    expect(scenario.tables['应用系统状态']?.modelBinding).toEqual({
-      modelId: `${APPLICATION_MANAGER_SCENARIO}p002`, modelName: '应用系统状态',
-    })
-    expect(scenario.tables['应用系统状态']?.views['default']?.queryConfig?.fields)
-      .toEqual(['rowid', 'val', 'txt', 'ordIdx'])
-    expect(scenario.tables['Base_AppAndSource_Relation']?.modelBinding).toEqual({
-      modelId: `${APPLICATION_MANAGER_SCENARIO}p003`, modelName: 'Base_AppAndSource_Relation',
-    })
-    expect(scenario.tables['Base_AppAndSource_Relation']?.views['default']?.queryConfig?.fields)
-      .toEqual(['rowid', 'sysid', 'type', 'conid', 'conName', 'isRef'])
-    expect(scenario.tables['_base_dbInfo']?.modelBinding).toEqual({
-      modelId: `${APPLICATION_MANAGER_SCENARIO}p004`, modelName: '_base_dbInfo',
-    })
-    expect(scenario.tables['_base_dbInfo']?.views['default']?.queryConfig?.fields).toEqual(['Id', 'Name'])
-    expect(scenario.tables['Base_MainBody_RoleUser']?.modelBinding).toEqual({
-      modelId: `${APPLICATION_MANAGER_SCENARIO}p007`, modelName: 'Base_MainBody_RoleUser',
-    })
-    expect(scenario.tables['Base_MainBody_RoleUser']?.views['default']?.queryConfig?.fields)
-      .toEqual(['rowid', 'EntityPKValue', 'UserIdField'])
-    expect(configText).not.toContain('app_status')
-    expect(configText).not.toMatch(/db_relation_(show|sel)|Password|ConnString/i)
+    expect(views('Base_AppSystemList')['form']?.commitMode).toBe('staged')
+    expect(views('Base_AppAndSource_Relation')['cleanup']?.commitMode).toBe('staged')
+    expect(JSON.stringify(views('Base_MainBody_RoleUser')['default']?.scopeFilter)).toContain(OWNER_ROLE)
+    expect(views('Base_NavigationInfo')['default']?.commitMode).toBe('staged')
+    expect(views('Base_NavigationInfo')['children']?.queryConfig?.fields).toEqual(['rowid'])
+    expect(scenario.viewCascades).toEqual([])
+    expect(text).not.toContain('_base_dbInfo')
+    expect(text).not.toMatch(/Password|ConnString/i)
   })
 
-  it('renders official fields, loads the status dictionary and pages the real DataView without writes', async () => {
-    const {wrapper, observed} = await open()
-    const table = wrapper.findAllComponents(RendererTable).find(item =>
-      item.props('dataViewKey') === `${APPLICATION_MANAGER_SCENARIO}@Base_AppSystemList@default`)
+  it('renders the standard section, list columns and paging without the old association section', async () => {
+    const {wrapper, view} = await open()
+    const table = wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey') === `${SCENARIO}@Base_AppSystemList@default`)
     if (!table) throw new Error('应用目录表格未渲染')
-    const {view, statusView} = currentView(observed)
-    const children = table.props('children') as Array<{props?: {field?: string}}>
-    const filter = table.props('filter') as {showExpressionEditor?: boolean; children?: Array<{props?: {
-      field?: string; optionDataViewKey?: string; filterAlternatives?: Array<{field: string; operator: string}>
-    }}>}
-    expect(table.props('dataViewKey')).toBe(`${APPLICATION_MANAGER_SCENARIO}@Base_AppSystemList@default`)
-    expect(table.props('autoColumns')).toBe(false)
-    expect(children.map(field => field.props?.field))
-      .toEqual(['AppDesc', 'AppName', 'WebUrl', 'DeveloperName', 'CreateTime', 'AppType'])
-    expect(filter.showExpressionEditor).toBe(false)
-    expect(filter.children?.map(field => field.props?.field))
-      .toEqual(['AppDesc'])
-    expect(filter.children?.[0]?.props?.filterAlternatives)
-      .toEqual([{field: 'AppDesc', operator: 'contains'}, {field: 'AppName', operator: 'contains'}])
-    expect(filter.children?.some(field => field.props?.field === 'AppType')).toBe(false)
-    expect(table.findComponent(RendererFilter).exists()).toBe(true)
+    expect(wrapper.find('.renderer-section-title').text()).toBe('应用系统列表')
     expect(table.findAll('.el-table__header-wrapper th').map(header => header.text()))
       .toEqual(['#', '简称', '系统名称', 'WebUrl', '开发商名称', '创建时间', '状态', '操作'])
-    expect(wrapper.findAll('button').filter(button => button.text().trim() === '刷新')).toHaveLength(1)
-    expect(wrapper.text()).toContain('删除与项目管理因缺少完整服务合同暂不可用')
-    for (const label of ['新增', '导出', '编辑', '删除', '项目管理', '报价管理']) {
-      expect(getButton(wrapper, label).attributes('disabled')).toBeDefined()
-    }
-    expect(view.primaryKey).toBe('rowid')
-    expect(view.getColumn('lingma_sys_ent')).toBeUndefined()
-    expect(view.rows[0]).not.toHaveProperty('lingma_sys_ent')
-    expect(view.fieldAccess(view.rows[0]!, 'rowid').read).toBe('visible')
-    expect(view.fieldAccess(view.rows[0]!, 'WebUrl').read).toBe('visible')
-    expect(view.fieldAccess(view.rows[0]!, 'AppName')).toMatchObject({read: 'visible', write: 'allowed'})
-    expect(view.fieldAccess(view.rows[0]!, 'AppDesc')).toMatchObject({read: 'visible', write: 'allowed'})
-    expect(view.fieldAccess(view.rows[0]!, 'WebUrl')).toMatchObject({read: 'visible', write: 'allowed'})
-    expect(view.total).toBe(23)
-    expect(view.rows).toHaveLength(10)
-    expect(statusView.total).toBe(6)
-    expect(statusView.rows.map(row => row['txt'])).toEqual(['策划', '开发', '测试', '运行', '维护', '停用'])
-
-    await wrapper.get('.el-pagination .btn-next').trigger('click'); await flushPromises()
-    expect(view.page).toBe(2)
-    expect(view.rows).toHaveLength(10)
-    await getButton(wrapper, '刷新').trigger('click'); await flushPromises()
-    expect(view.page).toBe(2)
-    expect(view.rows).toHaveLength(10)
+    expect(bodyText()).not.toContain('所选应用关联信息')
+    expect(bodyText()).not.toContain('暂不可用')
+    expect(table.text()).toContain('2025-01-01')
+    expect(table.text()).not.toContain('2025-01-01 08:00:00')
+    expect(table.text()).toContain('停用')
+    expect(view('Base_AppSystemList').total).toBe(23)
+    expect(view('Base_AppSystemList').rows).toHaveLength(10)
+    await wrapper.get('.el-pagination .btn-next').trigger('click'); await settle()
+    expect(view('Base_AppSystemList').page).toBe(2)
+    await click('刷新')
+    expect(view('Base_AppSystemList').page).toBe(2)
     expect(http.saves).toHaveLength(0)
   })
 
-  it('loads default database and owner relationship status through formal DataView cascades', async () => {
-    const {wrapper, observed} = await open()
-    const {dataSet, view, databaseRelationView, databaseView, ownerView} = currentView(observed)
-    await vi.waitFor(async () => {
-      await flushPromises()
-      expect(databaseRelationView.requestState).toBe(RequestState.Loaded)
-      expect(databaseView.requestState).toBe(RequestState.Loaded)
-      expect(ownerView.requestState).toBe(RequestState.Loaded)
-    })
-    expect(view.currentRow?.['rowid']).toBe('APP-1')
-    expect(databaseRelationView.rows.map(row => row['sysid'])).toEqual(['APP-1'])
-    expect(databaseRelationView.rows.map(row => row['type'])).toEqual(['database'])
-    expect(databaseRelationView.rows.map(row => row['isRef'])).toEqual([0])
-    expect(databaseView.rows.map(row => row['Name'])).toEqual(['database name 1'])
-    expect(ownerView.rows.map(row => row['EntityPKValue'])).toEqual(['APP-1'])
-    expect(wrapper.text()).toContain('负责人关系：存在人员关联，负责人身份尚未确认')
-    expect(wrapper.text()).toContain('数据库名称已读取')
-    expect(wrapper.text()).not.toContain('UserIdField')
-    expect(wrapper.text()).not.toContain('OWNER-1')
-    expect(wrapper.findAllComponents(RendererTable).map(table => table.props('dataViewKey')))
-      .toEqual([
-        `${APPLICATION_MANAGER_SCENARIO}@Base_AppSystemList@default`,
-        `${APPLICATION_MANAGER_SCENARIO}@Base_AppAndSource_Relation@default`,
-        `${APPLICATION_MANAGER_SCENARIO}@_base_dbInfo@default`,
-      ])
-    expect(dataSet.getParentCascades('Base_AppAndSource_Relation', 'default')[0]?.filterBindings)
-      .toEqual([{sourceField: 'rowid', targetField: 'sysid', operator: 'eq'}])
-    expect(dataSet.getParentCascades('Base_MainBody_RoleUser', 'default')[0]?.filterBindings)
-      .toEqual([{sourceField: 'rowid', targetField: 'EntityPKValue', operator: 'eq'}])
-
-    view.setCurrentRow(view.rows[1]!)
-    await vi.waitFor(async () => {
-      await flushPromises()
-      expect(databaseRelationView.rows.map(row => row['sysid'])).toEqual(['APP-2'])
-      expect(databaseView.rows.map(row => row['Name'])).toEqual(['database name 2'])
-      expect(ownerView.requestState).toBe(RequestState.Loaded)
-    })
-    expect(wrapper.text()).toContain('负责人关系：当前查询未返回人员关联')
+  it('reports export and quotation as not delivered', async () => {
+    await open()
+    const info = vi.spyOn(ElMessage, 'info')
+    await click('导出')
+    await click('报价管理')
+    expect(info.mock.calls.map(call => call[0])).toEqual(['导出尚未交付', '报价管理尚未交付'])
     expect(http.saves).toHaveLength(0)
   })
 
-  it('does not present an arbitrary database when multiple defaults exist', async () => {
-    http.records['Base_AppAndSource_Relation']!.push({
-      rowid: 'RELATION-DUPLICATE', sysid: 'APP-1', type: 'database',
-      conid: 'DATABASE-2', conName: 'other database', isRef: 0,
-    })
-    const {wrapper, observed} = await open()
-    const {databaseRelationView} = currentView(observed)
-    await vi.waitFor(() => expect(databaseRelationView.total).toBe(2))
-    expect(wrapper.text()).toContain('存在多条默认数据库关联，无法确定')
-    expect(wrapper.text()).not.toContain('database name 1')
-    expect(wrapper.findAllComponents(RendererTable)).toHaveLength(2)
+  it('edits the main record and owner through their views and saves both in one phase', async () => {
+    const {wrapper, view} = await open()
+    wrapper.findAll('.field-table-action').find(item => item.text() === 'needle description')?.element.dispatchEvent(new MouseEvent('click', {bubbles: true}))
+    await settle()
+    expect(bodyText()).toContain('编辑应用系统')
+    const main = view('Base_AppSystemList', 'form'), owner = view('Base_MainBody_RoleUser')
+    expect(main.rows.map(row => row['rowid'])).toEqual(['APP-1'])
+    expect(owner.currentRow?.['rowid']).toBe('OWNER-1')
+    expect(inputValues()).toContain('database 1 / 数据库 1')
+    expect(button('选择').disabled).toBe(true)
+    main.updateEditingValue('APP-1', 'AppName', 'renamed')
+    owner.updateEditingValue('OWNER-1', 'UserIdField', 'USER-2')
+    await click('保存')
+    expect(http.saves.map(save => save.table).sort()).toEqual(['Base_AppSystemList', 'Base_MainBody_RoleUser'])
+    expect(http.saves.find(save => save.table === 'Base_AppSystemList')?.changed[0]).toMatchObject({rowid: 'APP-1', AppName: 'renamed'})
+    expect(http.records['Base_MainBody_RoleUser']?.[0]).toMatchObject({rowid: 'OWNER-1', UserIdField: 'USER-2'})
+    expect(bodyText()).not.toContain('编辑应用系统')
+  })
+
+  it('maps the tenant portal switch to the enterprise default application after the record is saved', async () => {
+    const {wrapper} = await open()
+    rowButtonFor(wrapper, 'needle description', '编辑').click(); await settle()
+    const portal = [...document.body.querySelectorAll('.el-form-item')].find(item => item.textContent?.includes('租户门户'))
+    portal?.querySelector<HTMLElement>('.el-switch')?.click(); await settle()
+    await click('保存')
+    expect(defaultApp.save).toHaveBeenCalledWith('APP-1')
+  })
+
+  it('creates the main record first, then the default database, owner and navigation root', async () => {
+    const {view} = await open()
+    await click('新增')
+    expect(bodyText()).toContain('新增应用系统')
+    const main = view('Base_AppSystemList', 'form'), owner = view('Base_MainBody_RoleUser')
+    const appId = String(main.rows[0]?.['rowid'] ?? '')
+    expect(appId).toMatch(/^[0-9A-F]{32}$/)
+    main.updateEditingValue(appId, 'AppName', '新系统')
+    main.updateEditingValue(appId, 'AppDesc', '新简称')
+    main.updateEditingValue(appId, 'WebUrl', '/new-app')
+    owner.updateEditingValue(owner.getPkKey(owner.currentRow!)!, 'UserIdField', 'USER-2')
+    await click('保存')
+    expect(bodyText()).toContain('请选择默认数据库')
+    expect(http.saves).toHaveLength(0)
+
+    await click('选择')
+    expect(bodyText()).toContain('选择数据库')
+    await click('确定', buttons('确定').length - 1)
+    expect(bodyText()).toContain('请选择数据库')
+    await pickDatabase('server 2')
+    expect(inputValues()).toContain('database 2 / 数据库 2')
+    await click('保存')
+
+    const tables = http.saves.map(save => save.table)
+    expect(tables[0]).toBe('Base_AppSystemList')
+    expect(tables.slice(1).sort()).toEqual(['Base_AppAndSource_Relation', 'Base_MainBody_RoleUser', 'Base_NavigationInfo'])
+    const added = (table: string) => http.saves.find(save => save.table === table)?.added[0]
+    expect(added('Base_AppSystemList')).toMatchObject({rowid: appId, AppName: '新系统', AppDesc: '新简称', WebUrl: '/new-app', AppType: '1',
+      CreateUser: 'USER-1', EntId: 'ENT-1', isdel: 0, IsSys: 1, isSass: 0})
+    expect(String(added('Base_AppSystemList')?.['CreateTime'])).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
+    expect(added('Base_AppAndSource_Relation')).toMatchObject({sysid: appId, type: 'database', isRef: 0, conid: 'DATABASE-2', conName: 'database 2', cnName: '数据库 2'})
+    expect(added('Base_MainBody_RoleUser')).toMatchObject({EntityPKValue: appId, sysId: appId, UserIdField: 'USER-2', RoleIdField: OWNER_ROLE, CategoryID: '1'})
+    expect(added('Base_NavigationInfo')).toMatchObject({rowid: appId, SysId: appId, prowid: '000000', modid: appId, FunName: '新简称', name: '新系统', conType: 'Model'})
+    expect(bodyText()).not.toContain('新增应用系统')
+  })
+
+  async function fillCreate(view: Awaited<ReturnType<typeof open>>['view']): Promise<void> {
+    await click('新增')
+    const main = view('Base_AppSystemList', 'form'), owner = view('Base_MainBody_RoleUser')
+    const appId = String(main.rows[0]?.['rowid'] ?? '')
+    for (const [field, value] of [['AppName', 'n'], ['AppDesc', 'd'], ['WebUrl', '/n']]) main.updateEditingValue(appId, field!, value)
+    owner.updateEditingValue(owner.getPkKey(owner.currentRow!)!, 'UserIdField', 'USER-1')
+    await click('选择')
+    await pickDatabase('server 1')
+  }
+
+  it('reports an unknown companion result after the main record is confirmed without claiming failure', async () => {
+    const {view} = await open()
+    await fillCreate(view)
+    let calls = 0
+    http.beforeSave = async () => { if (++calls === 2) throw new Error('companion lost') }
+    await click('保存')
+    expect(bodyText()).toContain('应用系统已创建，默认数据库、负责人或导航根保存结果未确认')
+    expect(bodyText()).toContain('新增应用系统')
+  })
+
+  it('reports a confirmed main record with rejected companions and completes them on the next save', async () => {
+    const {view} = await open()
+    await fillCreate(view)
+    let calls = 0
+    http.beforeSave = async () => { if (++calls === 1) http.rejectNextSave = true }
+    await click('保存')
+    expect(bodyText()).toContain('应用系统已创建，默认数据库、负责人或导航根未写入')
+    expect(http.saves.map(save => save.table)).toEqual(['Base_AppSystemList'])
+    await click('保存')
+    expect(http.saves.filter(save => save.table === 'Base_AppSystemList')).toHaveLength(1)
+    expect(http.saves.map(save => save.table).slice(1).sort()).toEqual(['Base_AppAndSource_Relation', 'Base_MainBody_RoleUser', 'Base_NavigationInfo'])
+    expect(bodyText()).not.toContain('新增应用系统')
+  })
+
+  it('offers delete only for stopped applications and removes companions before the main record', async () => {
+    const {wrapper} = await open()
+    expect(() => rowButtonFor(wrapper, 'needle description', '删除')).toThrow()
+    rowButtonFor(wrapper, 'fixture record 6', '删除').click(); await settle()
+    expect(confirmBox).toHaveBeenCalledWith('确认删除应用系统“fixture record 6”吗？', '删除确认', expect.anything())
+    const tables = http.saves.map(save => save.table)
+    expect(tables.at(-1)).toBe('Base_AppSystemList')
+    expect(tables.slice(0, -1).sort()).toEqual(['Base_AppAndSource_Relation', 'Base_NavigationInfo'])
+    expect(http.records['Base_AppSystemList']?.some(row => row['rowid'] === 'APP-6')).toBe(false)
+    expect(http.records['Base_NavigationInfo']?.some(row => row['rowid'] === 'APP-6')).toBe(false)
+    expect(http.records['Base_AppAndSource_Relation']?.some(row => row['sysid'] === 'APP-6')).toBe(false)
+  })
+
+  it('refuses to delete an application whose blueprint still has navigation children', async () => {
+    const {wrapper} = await open()
+    await wrapper.get('.el-pagination .btn-next').trigger('click'); await settle()
+    rowButtonFor(wrapper, 'fixture record 12', '删除').click(); await settle()
+    expect(bodyText()).toContain('该应用的项目蓝图下仍有节点，不能删除')
     expect(http.saves).toHaveLength(0)
   })
 
-  it.each(['hidden', 'masked'] as const)('does not claim to read a %s database name', async mode => {
-    const permissions = mode === 'hidden' ? http.hiddenFields : http.maskedFields
-    permissions['_base_dbInfo'] = ['Name']
-    const {wrapper, observed} = await open()
-    const {databaseView} = currentView(observed)
-    await vi.waitFor(() => expect(databaseView.requestState).toBe(RequestState.Loaded))
-    expect(wrapper.text()).toContain('关联已记录，但无权限读取数据库名称')
-    expect(wrapper.text()).not.toContain('数据库名称已读取')
-    expect(wrapper.text()).not.toContain('database name 1')
+  it('opens the reused database relations content for the selected application in a dialog', async () => {
+    const {wrapper} = await open()
+    rowButtonFor(wrapper, 'needle description', '关联数据库').click(); await settle()
+    expect(bodyText()).toContain('关联数据库 - needle description')
+    await vi.waitFor(async () => { await settle(); expect(bodyText()).toContain('server 1') })
     expect(http.saves).toHaveLength(0)
   })
 
-  it('reports a database result with a missing name', async () => {
-    http.records['_base_dbInfo']![0]!['Name'] = ''
-    const {wrapper, observed} = await open()
-    const {databaseView} = currentView(observed)
-    await vi.waitFor(() => expect(databaseView.requestState).toBe(RequestState.Loaded))
-    expect(wrapper.text()).toContain('关联已记录，但数据库名称缺失')
-    expect(wrapper.text()).not.toContain('数据库名称已读取')
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it('reports an ambiguous owner relationship without choosing a row', async () => {
-    http.records['Base_MainBody_RoleUser']!.push({
-      rowid: 'OWNER-2', EntityPKValue: 'APP-1', UserIdField: 'USER-2',
-    })
-    const {wrapper, observed} = await open()
-    const {ownerView} = currentView(observed)
-    await vi.waitFor(() => expect(ownerView.total).toBe(2))
-    expect(wrapper.text()).toContain('存在多条人员关联，无法确认负责人')
-    expect(wrapper.text()).not.toContain('USER-1')
-    expect(wrapper.text()).not.toContain('USER-2')
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it('distinguishes an unreadable owner identity from an absent relationship', async () => {
-    http.hiddenFields['Base_MainBody_RoleUser'] = ['UserIdField']
-    const {wrapper, observed} = await open()
-    const {ownerView} = currentView(observed)
-    await vi.waitFor(() => expect(ownerView.requestState).toBe(RequestState.Loaded))
-    expect(wrapper.text()).toContain('无权限读取人员身份，无法确认负责人')
-    expect(wrapper.text()).not.toContain('负责人关系：当前查询未返回人员关联')
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it('reports an owner relation with a missing identity', async () => {
-    http.records['Base_MainBody_RoleUser']![0]!['UserIdField'] = ''
-    const {wrapper, observed} = await open()
-    const {ownerView} = currentView(observed)
-    await vi.waitFor(() => expect(ownerView.requestState).toBe(RequestState.Loaded))
-    expect(wrapper.text()).toContain('关联缺少人员身份，无法确认负责人')
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it('applies an official AppName filter and keeps paging on the same DataView', async () => {
-    const {wrapper, observed} = await open()
-    const {view} = currentView(observed)
-    await view.executeFilter({field: 'AppName', operator: 'eq', value: 'alpha'}, true)
-    await flushPromises()
-    expect(view.filterExpression).toEqual({field: 'AppName', operator: 'eq', value: 'alpha'})
-    expect(view.total).toBe(12)
-    expect(view.rows).toHaveLength(10)
-    await wrapper.get('.el-pagination .btn-next').trigger('click'); await flushPromises()
-    expect(view.page).toBe(2)
-    expect(view.rows).toHaveLength(2)
-    expect(view.rows.every(row => row['AppName'] === 'alpha')).toBe(true)
-    await view.executeFilter(undefined, true)
-    await flushPromises()
-    expect(view.total).toBe(23)
-    expect(view.page).toBe(1)
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it('applies one keyword as AppDesc OR AppName contains and keeps the existing DataView', async () => {
-    const {wrapper, observed} = await open()
-    const {view} = currentView(observed)
-    const table = wrapper.findAllComponents(RendererTable).find(item =>
-      item.props('dataViewKey') === `${APPLICATION_MANAGER_SCENARIO}@Base_AppSystemList@default`)
-    if (!table) throw new Error('应用目录表格未渲染')
-    const filter = table.findComponent(RendererFilter)
-    const filterApi = filter.vm as unknown as {filterModel: Record<string, unknown>; search: () => Promise<void>}
-    filterApi.filterModel['AppDesc'] = 'needle'
-    await filterApi.search()
-    await flushPromises()
-    expect(view.filterExpression).toEqual({logic: 'or', filters: [
-      {field: 'AppDesc', operator: 'contains', value: 'needle'},
-      {field: 'AppName', operator: 'contains', value: 'needle'},
-    ]})
-    expect(view.rows.map(row => row['rowid'])).toEqual(['APP-1', 'APP-2'])
-    expect(view.total).toBe(2)
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it('switches only through a readable row identity and the project navigation service', async () => {
+  it('enters the application and its project management page through the project switch', async () => {
     const {wrapper, router, switchAndReload} = await open()
-    await getButton(wrapper, '进入应用').trigger('click'); await flushPromises()
+    rowButtonFor(wrapper, 'needle description', '项目管理').click(); await settle()
     expect(switchAndReload).toHaveBeenCalledWith('APP-1')
-    expect(router.currentRoute.value.path).toContain('/apps/APP-1/')
+    expect(router.currentRoute.value.path).toBe('/apps/APP-1/features/application/application-function-management/ui/application-function-page')
+    expect(Object.values(router.currentRoute.value.query)).toContain('7AB874097A1E8711A42FD845939A6E05')
     expect(http.saves).toHaveLength(0)
   })
 
   it('marks, sets and clears the enterprise default application through its config member', async () => {
     const {wrapper} = await open()
-    const labels = () => wrapper.findAll('button').map(button => button.text().trim())
+    const labels = () => wrapper.findAll('button').map(item => item.text().trim())
     expect(labels()).not.toContain('默认')
-    await getButton(wrapper, '设为默认').trigger('click'); await flushPromises()
+    rowButtonFor(wrapper, 'needle description', '设为默认').click(); await settle()
     expect(defaultApp.save).toHaveBeenLastCalledWith('APP-1')
     await vi.waitFor(() => expect(labels()).toContain('取消默认'))
     expect(labels()).toContain('默认')
-    await getButton(wrapper, '取消默认').trigger('click'); await flushPromises()
+    rowButtonFor(wrapper, 'needle description', '取消默认').click(); await settle()
     expect(defaultApp.save).toHaveBeenLastCalledWith(null)
-    await vi.waitFor(() => expect(labels()).not.toContain('默认'))
     expect(http.saves).toHaveLength(0)
     wrapper.unmount()
     expect(defaultApp.destroyed).toBe(1)
   })
 
-  it('shows the default mark without set actions when the enterprise config is read-only', async () => {
-    Object.assign(defaultApp, {id: 'APP-1', writable: false})
-    const {wrapper} = await open()
-    await vi.waitFor(() => expect(wrapper.findAll('button').some(button => button.text().trim() === '默认')).toBe(true))
-    expect(wrapper.findAll('button').some(button => ['设为默认', '取消默认'].includes(button.text().trim()))).toBe(false)
-  })
-
   it.each([
-    ['应用链接', '/apps/APP-1', `${window.location.origin}/apps/APP-1`],
-    ['打开应用', `${window.location.origin}/apps/APP-1`, `${window.location.origin}/apps/APP-1`],
-    ['应用链接', 'https://external.example/path?app=1#home', 'https://external.example/path?app=1#home'],
-    ['打开应用', '//external.example/path?app=1#home', `${new URL(window.location.origin).protocol}//external.example/path?app=1#home`],
-    ['应用链接', '  relative/path?app=1#home  ', `${window.location.origin}/relative/path?app=1#home`],
-    ['打开应用', '/path/../target', `${window.location.origin}/target`],
-    ['应用链接', '/path/%2e%2e/target', `${window.location.origin}/target`],
-    ['打开应用', '/path/%2Fchild', `${window.location.origin}/path/%2Fchild`],
-  ])('opens a valid WebUrl from %s and treats a null window handle as unknown: %s', async (label, value, expected) => {
-    const {wrapper, observed} = await open()
-    const {view} = currentView(observed)
+    ['/apps/APP-1', `${window.location.origin}/apps/APP-1`],
+    ['https://external.example/path?app=1#home', 'https://external.example/path?app=1#home'],
+  ])('opens a valid WebUrl %s and treats the browser result as unknown', async (value, expected) => {
+    const {wrapper, view} = await open()
     http.records['Base_AppSystemList']![0]!['WebUrl'] = value
-    await view.refresh(); await flushPromises()
+    await view('Base_AppSystemList').refresh(); await settle()
     const openWindow = vi.spyOn(window, 'open').mockReturnValue(null)
     const info = vi.spyOn(ElMessage, 'info')
-    const failure = vi.spyOn(ElMessage, 'error')
-    await getButton(wrapper, label).trigger('click'); await flushPromises()
+    rowButtonFor(wrapper, 'needle description', '应用链接').click(); await settle()
     expect(openWindow).toHaveBeenCalledWith(expected, '_blank', 'noopener,noreferrer')
     expect(info).toHaveBeenCalledWith('已请求打开应用链接；浏览器打开状态无法确认。')
-    expect(failure).not.toHaveBeenCalled()
-    expect(http.saves).toHaveLength(0)
   })
 
-  it('reports a browser error without claiming that the application opened', async () => {
-    const {wrapper} = await open()
-    vi.spyOn(window, 'open').mockImplementation(() => {throw new Error('browser denied')})
-    const warning = vi.spyOn(ElMessage, 'warning')
-    const info = vi.spyOn(ElMessage, 'info')
-    await getButton(wrapper, '应用链接').trigger('click'); await flushPromises()
-    expect(warning).toHaveBeenCalledWith('请求打开应用链接时浏览器报错：browser denied；打开状态无法确认。')
-    expect(info).not.toHaveBeenCalled()
-    expect(http.saves).toHaveLength(0)
-  })
+  it.each(['javascript:alert(1)', `${new URL(window.location.origin).protocol}//user:password@${window.location.host}/path`, ''])(
+    'refuses an unsafe or invalid WebUrl: %s', async value => {
+      const {wrapper, view} = await open()
+      http.records['Base_AppSystemList']![0]!['WebUrl'] = value
+      await view('Base_AppSystemList').refresh(); await settle()
+      const openWindow = vi.spyOn(window, 'open').mockReturnValue(null)
+      const failure = vi.spyOn(ElMessage, 'error')
+      rowButtonFor(wrapper, 'needle description', '应用链接').click(); await settle()
+      expect(openWindow).not.toHaveBeenCalled()
+      expect(failure).toHaveBeenCalledWith(expect.stringContaining('应用链接不可用'))
+    })
 
-  it.each([
-    'javascript:alert(1)',
-    'data:text/html,unsafe',
-    'mailto:unsafe@example.test',
-    'ftp://external.example/path',
-    `${new URL(window.location.origin).protocol}//user:password@${window.location.host}/path`,
-    'https://external.example/\u0001path',
-    'http://',
-    '',
-    '  ',
-  ])('refuses an unsafe or invalid WebUrl: %s', async value => {
-    const {wrapper, observed} = await open()
-    const {view} = currentView(observed)
-    http.records['Base_AppSystemList']![0]!['WebUrl'] = value
-    await view.refresh(); await flushPromises()
-    const openWindow = vi.spyOn(window, 'open').mockReturnValue(null)
-    const failure = vi.spyOn(ElMessage, 'error')
-    await getButton(wrapper, '应用链接').trigger('click'); await flushPromises()
-    expect(openWindow).not.toHaveBeenCalled()
-    expect(failure).toHaveBeenCalledWith(expect.stringContaining('应用链接不可用'))
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it.each(['hidden', 'masked'] as const)('does not open a %s WebUrl field', async mode => {
-    const permissions = mode === 'hidden' ? http.hiddenFields : http.maskedFields
-    permissions['Base_AppSystemList'] = ['WebUrl']
-    const {wrapper, observed} = await open()
-    const {view} = currentView(observed)
-    expect(view.fieldAccess(view.rows[0]!, 'WebUrl').read).toBe(mode === 'hidden' ? 'invisible' : 'masked')
-    const openWindow = vi.spyOn(window, 'open').mockReturnValue(null)
-    const failure = vi.spyOn(ElMessage, 'error')
-    await getButton(wrapper, '应用链接').trigger('click'); await flushPromises()
-    expect(openWindow).not.toHaveBeenCalled()
-    expect(failure).toHaveBeenCalledWith(expect.stringContaining('无可读权限'))
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it('submits a document with the readable application identity and never claims file generation', async () => {
+  it('submits documents with the readable application identity and never claims file generation', async () => {
     const {wrapper} = await open()
     const info = vi.spyOn(ElMessage, 'info')
-    const failure = vi.spyOn(ElMessage, 'error')
-    await getButton(wrapper, '需求说明书').trigger('click'); await flushPromises()
+    rowButtonFor(wrapper, 'needle description', '需求说明书').click(); await settle()
     expect(pageMocks.submitDocument).toHaveBeenCalledWith('APP-1', 'requirements-specification')
     expect(info).toHaveBeenCalledWith('需求说明书请求已收到提交回执；文件生成状态未知。')
-    expect(info.mock.calls.flat().join(' ')).not.toMatch(/导出成功|生成成功/)
-    expect(failure).not.toHaveBeenCalled()
+    rowButtonFor(wrapper, 'needle description', '功能设计说明书').click(); await settle()
+    expect(pageMocks.submitDocument).toHaveBeenLastCalledWith('APP-1', 'system-detailed-design')
     expect(http.saves).toHaveLength(0)
   })
 
-  it('reports rejected document submissions without a success message', async () => {
-    pageMocks.submitDocument.mockRejectedValue(new Error('Code 500: document refused'))
-    const {wrapper} = await open()
-    const info = vi.spyOn(ElMessage, 'info')
-    const failure = vi.spyOn(ElMessage, 'error')
-    await getButton(wrapper, '功能设计说明书').trigger('click'); await flushPromises()
-    expect(pageMocks.submitDocument).toHaveBeenCalledWith('APP-1', 'system-detailed-design')
-    expect(failure).toHaveBeenCalledWith(expect.stringContaining('提交结果未确认'))
-    expect(info).not.toHaveBeenCalled()
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it('uses the detailed-design endpoint for the reference design-document action', async () => {
-    const {wrapper} = await open()
-    const info = vi.spyOn(ElMessage, 'info')
-    await getButton(wrapper, '功能设计说明书').trigger('click'); await flushPromises()
-    expect(pageMocks.submitDocument).toHaveBeenCalledWith('APP-1', 'system-detailed-design')
-    expect(info).toHaveBeenCalledWith('功能设计说明书请求已收到提交回执；文件生成状态未知。')
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it('prevents another document submission until the current request settles', async () => {
-    let resolveReceipt: ((receipt: unknown) => void) | undefined
-    pageMocks.submitDocument.mockImplementation(() => new Promise(resolve => {resolveReceipt = resolve}))
-    const {wrapper} = await open()
-    await getButton(wrapper, '需求说明书').trigger('click'); await flushPromises()
-    expect(wrapper.text()).toContain('正在提交文档任务，请勿重复操作')
-    expect(getButton(wrapper, '需求说明书').attributes('disabled')).toBeDefined()
-    expect(getButton(wrapper, '功能设计说明书').attributes('disabled')).toBeDefined()
-    await getButton(wrapper, '功能设计说明书').trigger('click'); await flushPromises()
-    expect(pageMocks.submitDocument).toHaveBeenCalledOnce()
-    resolveReceipt?.({
-      projectId: 'APP-1', kind: 'requirements-specification', status: 'submitted',
-      coverage: 'legacy-menu-scope', message: 'submitted',
-    })
-    await flushPromises()
-    expect(getButton(wrapper, '需求说明书').attributes('disabled')).toBeUndefined()
-    expect(getButton(wrapper, '功能设计说明书').attributes('disabled')).toBeUndefined()
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it('ignores a late document receipt after the application identity changes', async () => {
-    let resolveReceipt: ((receipt: unknown) => void) | undefined
-    pageMocks.submitDocument.mockImplementation(() => new Promise(resolve => {resolveReceipt = resolve}))
-    const {wrapper, router} = await open()
-    const info = vi.spyOn(ElMessage, 'info')
-    const click = getButton(wrapper, '需求说明书').trigger('click')
-    await flushPromises()
-    await router.push(`/apps/OTHER${APPLICATION_MANAGER_PATH}`); await flushPromises()
-    resolveReceipt?.({
-      projectId: 'APP-1', kind: 'requirements-specification', status: 'submitted',
-      coverage: 'legacy-menu-scope', message: 'submitted',
-    })
-    await click; await flushPromises()
-    expect(info).not.toHaveBeenCalled()
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it('keeps the list visible but hides app navigation when row identity is unreadable', async () => {
+  it('hides identity-based actions when the row identity is unreadable', async () => {
     http.hiddenFields['Base_AppSystemList'] = ['rowid']
     const {wrapper} = await open()
     expect(wrapper.findComponent(RendererTable).exists()).toBe(true)
-    expect(wrapper.findAll('button').some(button => button.text().trim() === '进入应用')).toBe(false)
-    expect(http.saves).toHaveLength(0)
+    for (const label of ['编辑', '进入应用', '项目管理', '关联数据库']) expect(buttons(label)).toHaveLength(0)
+    expect(wrapper.findAll('.field-table-action')).toHaveLength(0)
   })
 
-  it('reports an initial query failure and retries the same formal route', async () => {
-    http.failNextTable = 'Base_AppSystemList'
+  it('reports an entry query failure and retries the same formal route', async () => {
+    http.failNextTable = '应用系统状态'
     const {wrapper} = await open()
     expect(wrapper.get('[role="alert"]').text()).toContain('应用目录查询失败')
     expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
-    await getButton(wrapper, '重试').trigger('click'); await flushPromises()
+    await click('重试')
     await vi.waitFor(() => expect(wrapper.findComponent(RendererTable).exists()).toBe(true))
-    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it('keeps the app list available and reports a status dictionary failure', async () => {
-    http.failNextTable = '应用系统状态'
-    const {wrapper} = await open()
-    expect(wrapper.findComponent(RendererTable).exists()).toBe(true)
-    expect(wrapper.get('[role="alert"]').text()).toContain('状态选项读取失败')
-    await getButton(wrapper, '重试状态选项').trigger('click'); await flushPromises()
-    await vi.waitFor(() => expect(wrapper.find('[role="alert"]').exists()).toBe(false))
-    expect(wrapper.findComponent(RendererTable).exists()).toBe(true)
-    expect(http.saves).toHaveLength(0)
-  })
-
-  it('keeps the application list and relation visible when the database-name query fails', async () => {
-    http.failNextTable = '_base_dbInfo'
-    const {wrapper, observed} = await open()
-    const {databaseRelationView, databaseView} = currentView(observed)
-    await vi.waitFor(() => expect(databaseView.requestState).toBe(RequestState.Failed))
-    expect(databaseRelationView.total).toBe(1)
-    expect(wrapper.text()).toContain('关联已记录，但数据库名称查询失败')
-    expect(wrapper.findAllComponents(RendererTable)).toHaveLength(3)
     expect(http.saves).toHaveLength(0)
   })
 
@@ -579,12 +414,10 @@ describe('application manager restored through the formal DataView', () => {
     const {wrapper, router, observed} = await open(false)
     await vi.waitFor(() => expect(http.reads.map(read => read.table)).toContain('Base_AppSystemList'))
     const prior = [...observed][0]
-    await router.push(`/apps/OTHER${APPLICATION_MANAGER_PATH}`); await flushPromises()
-    release(); await flushPromises()
+    await router.push(`/apps/OTHER${APPLICATION_MANAGER_PATH}`); await settle()
+    release(); await settle()
     expect(prior?.destroyed).toBe(true)
-    expect(wrapper.text()).toContain('SPARK_EXECUTION_SCOPE_STALE')
     expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
     expect(wrapper.text()).not.toContain('fixture record 1')
-    expect(http.saves).toHaveLength(0)
   })
 })

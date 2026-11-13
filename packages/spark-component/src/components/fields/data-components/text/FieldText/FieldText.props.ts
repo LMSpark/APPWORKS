@@ -21,6 +21,10 @@ export type RTextProps = SparkNodeProps & SparkFieldSemanticProps<string> & Spar
   showCellControl?: boolean
   /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */
   cellReadonly?: (row: Readonly<DataRow>) => boolean
+  /** 表格只读单元格以链接呈现，点击时以该行调用；隐藏/脱敏单元格不呈现链接。只触发调用方动作，不改变值、行指针或权限；showCellControl时不生效。 */
+  cellAction?: (row: Readonly<DataRow>) => void
+  /** 收窄cellAction可用的行，返回false时按普通文本呈现；省略时所有可读行均可点击。 */
+  cellActionEnabled?: (row: Readonly<DataRow>) => boolean
   /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */
   maxlength?: number
   /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */

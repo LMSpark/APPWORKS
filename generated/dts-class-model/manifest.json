@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1172,
+  "scannedFileCount": 1177,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -16418,6 +16418,19 @@
         "symbols": []
       }
     },
+    "src/views/features/application/application-context/ui/application-database-relations-content.vue": {
+      "file": "files/src/views/features/application/application-context/ui/application-database-relations-content.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-context/ui/application-database-relations-content",
+        "sourcePath": "src/views/features/application/application-context/ui/application-database-relations-content.vue",
+        "sourceFile": "src/views/features/application/application-context/ui/application-database-relations-content.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-context/ui/application-database-relations-content",
+        "jsdoc": "@module app:views/features/application/application-context/ui/application-database-relations-content\n职责：应用关联数据库的业务内容：列出所给应用已关联的数据库，从可选数据库中添加关联，删除非默认关联。\n边界：消费宿主提供的PageRuntime中93DF场景正式DataView；新增与删除经DataSet保存，默认数据库(isRef=0)不可删除。应用身份只来自sysid属性。\nAI用途：关联数据库页与应用管理弹窗复用本组件；迁移时核对sysid来源、候选视图输入参数与关联记录写入字段。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/application-context/ui/application-database-relations-page.vue": {
       "file": "files/src/views/features/application/application-context/ui/application-database-relations-page.vue.json",
       "module": {
@@ -16426,7 +16439,7 @@
         "sourceFile": "src/views/features/application/application-context/ui/application-database-relations-page.vue",
         "packageName": "app",
         "modulePath": "views/features/application/application-context/ui/application-database-relations-page",
-        "jsdoc": "@module app:views/features/application/application-context/ui/application-database-relations-page\n职责：恢复应用关联数据库：列出当前应用已关联的数据库，从可选数据库中添加关联，删除非默认关联。\n边界：关联、候选及数据库信息绑定同一PageRuntime的正式DataView；新增与删除经DataSet保存，默认数据库(isRef=0)不可删除。\nAI用途：迁移应用系统数据库关联时，核对sysid来源、候选视图输入参数与关联记录写入字段。",
+        "jsdoc": "@module app:views/features/application/application-context/ui/application-database-relations-page\n职责：关联数据库页外壳：装配93DF场景PageRuntime，确定目标应用身份后承载关联数据库内容。\n边界：业务读写在 application-database-relations-content；本页只解析 sysid（应用管理携带或当前应用自身）并提供运行实例。\nAI用途：导航直达关联数据库时定位本页；应用管理内以弹窗复用同一内容组件。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16857,6 +16870,48 @@
         ]
       }
     },
+    "src/views/features/application/application-manager/model/application-manager-model.ts": {
+      "file": "files/src/views/features/application/application-manager/model/application-manager-model.ts.json",
+      "module": {
+        "name": "app:views/features/application/application-manager/model/application-manager-model",
+        "sourcePath": "src/views/features/application/application-manager/model/application-manager-model.ts",
+        "sourceFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-manager/model/application-manager-model",
+        "jsdoc": "@module app:views/features/application/application-manager/model/application-manager-model\n职责：应用系统的新增、编辑、删除在 0C70 正式 DataView 上的编排：主表、默认数据库关联、负责人关系及导航根。\n边界：值与待提交状态只在原 DataView；新增先确认主表再写依附记录，删除先删依附记录再删主表；分阶段非事务，按阶段如实回报。\n负责人 RoleIdField/CategoryID 来自视图常驻范围（pagedata），只是数据值，不作任何前端权限判断。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ApplicationManagerSaveOutcome",
+          "ApplicationManagerRecord"
+        ]
+      }
+    },
+    "src/views/features/application/application-manager/ui/application-database-dialog.vue": {
+      "file": "files/src/views/features/application/application-manager/ui/application-database-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-manager/ui/application-database-dialog",
+        "sourcePath": "src/views/features/application/application-manager/ui/application-database-dialog.vue",
+        "sourceFile": "src/views/features/application/application-manager/ui/application-database-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-manager/ui/application-database-dialog",
+        "jsdoc": "@module app:views/features/application/application-manager/ui/application-database-dialog\n职责：新增应用时选择默认数据库：按数据库名、服务器、端口、类型、架构、描述筛选的分页列表，行“确定”或选中后底部“确定”。\n边界：候选绑定 93DF 场景 _base_dbInfo@picker 正式视图；只把所选行交回调用方，写入由应用记录编排落到原关联视图。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-manager/ui/application-manager-form-dialog.vue": {
+      "file": "files/src/views/features/application/application-manager/ui/application-manager-form-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-manager/ui/application-manager-form-dialog",
+        "sourcePath": "src/views/features/application/application-manager/ui/application-manager-form-dialog.vue",
+        "sourceFile": "src/views/features/application/application-manager/ui/application-manager-form-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-manager/ui/application-manager-form-dialog",
+        "jsdoc": "@module app:views/features/application/application-manager/ui/application-manager-form-dialog\n职责：新增或编辑应用系统：名称、简称、负责人、站点运行地址、状态、租户门户、项目/SAAS/小程序开关、图标、小程序地址与图片、描述、默认数据库。\n边界：主表字段绑定 Base_AppSystemList@form 固定行，负责人经负责人视图当前行读写，默认数据库写入关联视图待新增行；保存由应用记录分阶段编排。\n租户门户即企业默认应用（ent_config），仅编辑时按其写权限呈现，在应用保存确认后单独保存。小程序图片上传区未获批，只读展示原值。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/application-manager/ui/application-manager-page.vue": {
       "file": "files/src/views/features/application/application-manager/ui/application-manager-page.vue.json",
       "module": {
@@ -16865,7 +16920,20 @@
         "sourceFile": "src/views/features/application/application-manager/ui/application-manager-page.vue",
         "packageName": "app",
         "modulePath": "views/features/application/application-manager/ui/application-manager-page",
-        "jsdoc": "@module app:views/features/application/application-manager/ui/application-manager-page\n职责：展示 0C70 正式应用目录，提供 DataView 筛选、分页、安全的应用导航，以及企业默认应用的标记与设置。\n边界：不猜测未确认字段，不提供新增、编辑、删除、关联或负责人写入；默认应用只写本企业 ent_config 成员，按其字段写权限呈现。\nAI用途：恢复应用管理入口时复用本地正式场景与标准 DataView 组件。",
+        "jsdoc": "@module app:views/features/application/application-manager/ui/application-manager-page\n职责：应用系统列表：0C70 正式应用目录的筛选分页，新增/编辑/删除应用系统，应用链接与进入应用，企业默认应用，项目管理，文档任务及关联数据库。\n边界：列表、表单、负责人、关联与导航根都绑定同一 PageRuntime 的正式 DataView，写入经应用记录编排分阶段保存；默认应用只写本企业 ent_config 成员。\nAI用途：恢复应用管理入口时复用本地正式场景、标准组件与 DataView 绑定；导出与报价管理尚未交付。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/application-manager/ui/application-relation-dialogs.vue": {
+      "file": "files/src/views/features/application/application-manager/ui/application-relation-dialogs.vue.json",
+      "module": {
+        "name": "app:views/features/application/application-manager/ui/application-relation-dialogs",
+        "sourcePath": "src/views/features/application/application-manager/ui/application-relation-dialogs.vue",
+        "sourceFile": "src/views/features/application/application-manager/ui/application-relation-dialogs.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-manager/ui/application-relation-dialogs",
+        "jsdoc": "@module app:views/features/application/application-manager/ui/application-relation-dialogs\n职责：在应用管理页内以弹窗打开所选应用的关联数据库。\n边界：复用 93DF 关联数据库内容组件；运行实例由应用管理页 PageRuntime 的同级场景提供，应用身份只作 sysid 传入。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -19943,6 +20011,14 @@
     "ApplicationFunctionPrototypeInput": {
       "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
       "file": "files/src/views/features/application/application-function-management/ui/use-application-function-prototype.ts.json"
+    },
+    "ApplicationManagerRecord": {
+      "sourcePath": "src/views/features/application/application-manager/model/application-manager-model.ts",
+      "file": "files/src/views/features/application/application-manager/model/application-manager-model.ts.json"
+    },
+    "ApplicationManagerSaveOutcome": {
+      "sourcePath": "src/views/features/application/application-manager/model/application-manager-model.ts",
+      "file": "files/src/views/features/application/application-manager/model/application-manager-model.ts.json"
     },
     "ApplicationPathScope": {
       "sourcePath": "src/services/application-scope.ts",

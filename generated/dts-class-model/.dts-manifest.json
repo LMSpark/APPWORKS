@@ -1809,7 +1809,7 @@
     "packages/spark-component/src/components/editors/JsonTreeEditor.vue": {
       "sourceFile": "packages/spark-component/src/components/editors/JsonTreeEditor.vue",
       "shardFile": "files/packages/spark-component/src/components/editors/JsonTreeEditor.vue.json",
-      "sourceModifiedAt": "2026-11-08T09:00:47.906Z"
+      "sourceModifiedAt": "2026-11-13T19:17:49.341Z"
     },
     "packages/spark-component/src/components/editors/SparkCodeEditor.props.ts": {
       "sourceFile": "packages/spark-component/src/components/editors/SparkCodeEditor.props.ts",
@@ -1899,7 +1899,7 @@
     "packages/spark-component/src/components/fields/context/useFieldPermission.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/useFieldPermission.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/context/useFieldPermission.ts.json",
-      "sourceModifiedAt": "2026-11-12T20:55:37.300Z"
+      "sourceModifiedAt": "2026-11-13T19:17:21.902Z"
     },
     "packages/spark-component/src/components/fields/context/useResolvedFieldContext.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/useResolvedFieldContext.ts",
@@ -2254,12 +2254,12 @@
     "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.props.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.props.ts.json",
-      "sourceModifiedAt": "2026-11-13T05:19:18.644Z"
+      "sourceModifiedAt": "2026-11-13T19:17:21.904Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.vue.json",
-      "sourceModifiedAt": "2026-11-13T05:19:20.253Z"
+      "sourceModifiedAt": "2026-11-13T19:17:21.905Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldTextarea/FieldTextarea.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldTextarea/FieldTextarea.props.ts",
@@ -2414,7 +2414,7 @@
     "packages/spark-component/src/components/shared-types.ts": {
       "sourceFile": "packages/spark-component/src/components/shared-types.ts",
       "shardFile": "files/packages/spark-component/src/components/shared-types.ts.json",
-      "sourceModifiedAt": "2026-11-13T04:23:55.251Z"
+      "sourceModifiedAt": "2026-11-13T19:17:21.907Z"
     },
     "packages/spark-component/src/components/SparkComponentRenderer.vue": {
       "sourceFile": "packages/spark-component/src/components/SparkComponentRenderer.vue",
@@ -4946,10 +4946,15 @@
       "shardFile": "files/src/views/DataBaseManage/DataBaseManage/index.vue.json",
       "sourceModifiedAt": "2026-11-08T17:34:10.177Z"
     },
+    "src/views/features/application/application-context/ui/application-database-relations-content.vue": {
+      "sourceFile": "src/views/features/application/application-context/ui/application-database-relations-content.vue",
+      "shardFile": "files/src/views/features/application/application-context/ui/application-database-relations-content.vue.json",
+      "sourceModifiedAt": "2026-11-13T18:44:17.461Z"
+    },
     "src/views/features/application/application-context/ui/application-database-relations-page.vue": {
       "sourceFile": "src/views/features/application/application-context/ui/application-database-relations-page.vue",
       "shardFile": "files/src/views/features/application/application-context/ui/application-database-relations-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T08:42:48.546Z"
+      "sourceModifiedAt": "2026-11-13T18:37:20.400Z"
     },
     "src/views/features/application/application-function-management/ui/application-function-page-contract.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/application-function-page-contract.ts",
@@ -5101,10 +5106,30 @@
       "shardFile": "files/src/views/features/application/application-function-management/ui/use-application-function-prototype.ts.json",
       "sourceModifiedAt": "2026-11-12T06:56:01.387Z"
     },
+    "src/views/features/application/application-manager/model/application-manager-model.ts": {
+      "sourceFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
+      "shardFile": "files/src/views/features/application/application-manager/model/application-manager-model.ts.json",
+      "sourceModifiedAt": "2026-11-13T19:30:29.488Z"
+    },
+    "src/views/features/application/application-manager/ui/application-database-dialog.vue": {
+      "sourceFile": "src/views/features/application/application-manager/ui/application-database-dialog.vue",
+      "shardFile": "files/src/views/features/application/application-manager/ui/application-database-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-13T18:36:56.109Z"
+    },
+    "src/views/features/application/application-manager/ui/application-manager-form-dialog.vue": {
+      "sourceFile": "src/views/features/application/application-manager/ui/application-manager-form-dialog.vue",
+      "shardFile": "files/src/views/features/application/application-manager/ui/application-manager-form-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-13T19:27:55.234Z"
+    },
     "src/views/features/application/application-manager/ui/application-manager-page.vue": {
       "sourceFile": "src/views/features/application/application-manager/ui/application-manager-page.vue",
       "shardFile": "files/src/views/features/application/application-manager/ui/application-manager-page.vue.json",
-      "sourceModifiedAt": "2026-11-13T03:51:30.952Z"
+      "sourceModifiedAt": "2026-11-13T18:59:41.628Z"
+    },
+    "src/views/features/application/application-manager/ui/application-relation-dialogs.vue": {
+      "sourceFile": "src/views/features/application/application-manager/ui/application-relation-dialogs.vue",
+      "shardFile": "files/src/views/features/application/application-manager/ui/application-relation-dialogs.vue.json",
+      "sourceModifiedAt": "2026-11-13T18:38:56.407Z"
     },
     "src/views/features/application/data-menu/ui/data-menu-dialog.vue": {
       "sourceFile": "src/views/features/application/data-menu/ui/data-menu-dialog.vue",
@@ -5129,7 +5154,7 @@
     "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue": {
       "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
       "shardFile": "files/src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue.json",
-      "sourceModifiedAt": "2026-11-13T18:05:47.618Z"
+      "sourceModifiedAt": "2026-11-13T18:40:00.089Z"
     },
     "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue": {
       "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue",
@@ -5139,12 +5164,12 @@
     "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue": {
       "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue",
       "shardFile": "files/src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue.json",
-      "sourceModifiedAt": "2026-11-13T13:59:42.286Z"
+      "sourceModifiedAt": "2026-11-13T18:40:02.658Z"
     },
     "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue": {
       "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue",
       "shardFile": "files/src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue.json",
-      "sourceModifiedAt": "2026-11-13T18:05:52.551Z"
+      "sourceModifiedAt": "2026-11-13T18:40:05.117Z"
     },
     "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue": {
       "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue",

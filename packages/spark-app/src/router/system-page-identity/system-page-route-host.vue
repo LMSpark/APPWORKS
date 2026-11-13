@@ -11,6 +11,10 @@ const page = computed(() => {
   void resolver.revision.value
   return resolver.resolveComponent(route)
 })
+const switching = computed(() => {
+  void resolver.revision.value
+  return resolver.switching
+})
 </script>
 
 <template>
@@ -18,6 +22,9 @@ const page = computed(() => {
     v-if="page"
     :is="page"
   />
+  <section v-else-if="switching" role="status" class="system-page-identity-switching">
+    <p>正在切换应用…</p>
+  </section>
   <section v-else role="alert" class="system-page-identity-error">
     <h1>无法确定系统页面</h1>
     <p>{{ route.meta['systemPageIdentityError'] || '页面身份尚未验证。' }}</p>
@@ -26,7 +33,8 @@ const page = computed(() => {
 </template>
 
 <style scoped>
-.system-page-identity-error {
+.system-page-identity-error,
+.system-page-identity-switching {
   min-height: 100%;
   display: grid;
   align-content: center;

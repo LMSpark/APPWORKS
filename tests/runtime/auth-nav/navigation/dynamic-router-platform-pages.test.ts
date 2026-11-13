@@ -638,6 +638,34 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     wrapper.unmount()
   })
 
+  it('shows a neutral switching state instead of the identity error while the application scope switches', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [] })
+    const navigation: RuntimeNavigation = { id: 'root', projectId: 'APP', title: 'App', childPlacement: 'header', items: [
+      { id: 'view-one', title: 'View One', itemKind: 'system-page', path: '/shared' },
+    ] }
+    const dynamic = createDynamicRouter({ router, pageComponent: DummyPage,
+      loadNavigation: async () => navigation, applicationPathPrefix: '/apps/:projectId',
+      componentMap: { '/shared': defineComponent({ setup: () => () => h('div', 'business-page') }) } })
+    const App = defineComponent({ setup: () => () => h(RouterView) })
+    await dynamic.registerRoutes()
+    await router.push('/apps/APP/shared')
+    const wrapper = mount(App, { global: { plugins: [router] } })
+    expect(wrapper.text()).toContain('business-page')
+
+    dynamic.resetSystemPageInstances()
+    await nextTick()
+    expect(router.currentRoute.value.meta['systemPageIdentityState']).toBe('error')
+    expect(wrapper.find('[role="status"]').text()).toContain('正在切换应用')
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('business-page')
+
+    await dynamic.refreshRoutes()
+    await nextTick()
+    expect(wrapper.find('[role="status"]').exists()).toBe(false)
+    expect(wrapper.find('[role="alert"]').text()).toContain('原页面身份已失效')
+    wrapper.unmount()
+  })
+
   it('restores the formal route after a failed refresh and drops a manually attached alias', async () => {
     const Login = defineComponent({ name: 'LoginPage', template: '<div />' })
     const Other = defineComponent({ name: 'OtherPage', template: '<div />' })

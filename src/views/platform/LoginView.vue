@@ -174,10 +174,9 @@ async function enter(identity: Readonly<{enterpriseName: string; account: string
     await reloadAndSyncNavigation()
     await enterEnterpriseLanding({router, projectSwitch})
   } catch (cause) {
-    if (!active) return
-    // 登录后路由刷新会使本页系统页身份失效，页内错误可能不可见。
+    // 应用范围切换会卸载本页，失败只能经全局提示呈现，不得因本页已关闭而吞掉。
     ElMessage.error(message(cause))
-    await openLogin(identity)
+    if (active) await openLogin(identity)
   } finally {
     if (active) entering.value = false
   }

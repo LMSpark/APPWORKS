@@ -191,6 +191,9 @@ export class SystemPageIdentityResolver {
 
   get revision(): Readonly<Ref<number>> { return this.#revision }
 
+  /** 应用范围切换中：旧页面已释放、新页面身份尚未提交；随 revision 变化。 */
+  get switching(): boolean { return this.#locked }
+
   getInstance(route: RouteLocationNormalizedLoaded): SystemPageInstance | undefined {
     if (this.#locked || route.meta['systemPageIdentityState'] !== 'resolved') return undefined
     const scope = route.meta['systemPageIdentityScope']

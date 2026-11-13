@@ -4,7 +4,7 @@
 边界：不创建数据实例、不直接调用认证接口；结果未知时不能关闭或重提；明确失败后通知宿主改开新命令行，回执由宿主读取。
 -->
 <template>
-  <RendererDrawer :model-value="true" :data-view-key="dataViewKey" title="注册账号" :close-disabled="busy || ownUnconfirmed" @update:model-value="cancel">
+  <RendererDrawer :model-value="true" :data-view-key="dataViewKey" title="注册账号" :grid-columns="1" :close-disabled="busy || ownUnconfirmed" @update:model-value="cancel">
     <RendererForm :data-view-key="dataViewKey" data-member="currentRow" :context-row-id="recordId" :grid-columns="1" :auto-columns="false"
       :show-data-view-meta="false" :form-props="{labelPosition: 'top'}">
       <FieldText field="enterpriseName" label="企业英文简称" placeholder="企业英文简称" prefix-icon="OfficeBuilding" :readonly="locked" />
@@ -13,9 +13,9 @@
       <FieldSelect field="sex" label="性别" :options="sexOptions" :clearable="false" :readonly="locked" />
       <FieldSelect field="channel" label="验证方式" :options="channelOptions" :clearable="false" :readonly="locked" />
       <FieldText field="contact" label="验证账号" :placeholder="mobile ? '验证手机号' : '验证邮箱'" prefix-icon="Message" :readonly="locked" />
-      <FieldText field="verificationCode" label="验证码" placeholder="验证码" :readonly="locked" />
       <FieldText field="password" label="密码" placeholder="至少 6 位" prefix-icon="Lock" :show-password="true" :readonly="locked" />
       <FieldText field="confirmPassword" label="确认密码" placeholder="再次输入密码" prefix-icon="Lock" :show-password="true" :readonly="locked" />
+      <FieldText field="verificationCode" label="验证码" placeholder="验证码" :readonly="locked" />
     </RendererForm>
     <VerificationCodeButton :data-view-key="codeDataViewKey" :disabled="locked" :request="{enterpriseName: value('enterpriseName'),
       channel: value('channel'), account: value('contact'), scene: 'REGISTER'}" />

@@ -4,7 +4,7 @@
 边界：不创建数据实例、不直接调用认证接口；结果未知时不能关闭或重提；明确失败后通知宿主改开新命令行，回执由宿主读取。
 -->
 <template>
-  <RendererDrawer :model-value="true" :data-view-key="dataViewKey" title="注册租户" :close-disabled="busy || ownUnconfirmed" @update:model-value="cancel">
+  <RendererDrawer :model-value="true" :data-view-key="dataViewKey" title="注册租户" :grid-columns="1" :close-disabled="busy || ownUnconfirmed" @update:model-value="cancel">
     <RendererForm :data-view-key="dataViewKey" data-member="currentRow" :context-row-id="recordId" :grid-columns="1" :auto-columns="false"
       :show-data-view-meta="false" :form-props="{labelPosition: 'top'}">
       <FieldText field="domainKey" label="四级域名标识" placeholder="如 NewApp" prefix-icon="Postcard" :readonly="locked" />

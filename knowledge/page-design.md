@@ -91,3 +91,10 @@
 - **规则**：先收集各工厂返回的 `commandBindings`，再合并映射后交给场景 assembler；不能仅对工厂返回对象做连续展开，因为同名顶层属性会被后一个工厂整个覆盖。
 - **违反后果**：场景虽声明多个命令表，assembler 只收到最后一个工厂的 binding，装配在缺少命令 owner 处失败。
 - **发现来源**：2026-11-10 工作流首发接线发现 `assembleLowcodeRuntimeScenario` 的多个领域 command factory 覆盖问题；由正式场景双命令装配回归验证。
+
+### 已应用编辑的行保存失败后换成新对象
+
+- **场景**：`useDataViewRecordEditing` 以 `mode: 'edit'` 保存一行（默认 `applyEditingRows`），字段已有编辑覆盖，保存被明确拒绝（非结果未知）。
+- **规则**：失败后 DataView 中该 ID 仍待提交，但行对象已被替换。`RendererForm` 的 `contextRowId` 固定行和编辑能力的原行身份都按对象身份核对，会按设计失效：字段隐藏、表单锁定，取消只能 `preserved`。需要允许重提的命令行页面，由组件在明确失败（`error` 非空、`!ownUnconfirmed`、`!current`）时通知宿主；宿主 `discardPendingChanges([id])` 放弃原行，以保留的非凭据输入新开命令行并重挂表单。不要改公共固定行语义去跟随替换对象。
+- **违反后果**：明确失败后表单空白、无法重提；若宿主只关闭不放弃，原待提交命令行滞留在视图中。
+- **发现来源**：2026-11-13 登录页迁入 SPARK data 时登录重试失败；临时测试证实无编辑时身份不变、有 `updateEditingValue` 后失败即换对象。

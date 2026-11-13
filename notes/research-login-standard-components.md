@@ -6,7 +6,7 @@
 - 登录前 DataSet：仓内 `config/pages/platform/login/pagedata.json` 声明命令、静态输入与企业目录只读查询表，新增公开作用域装配入口，只接受这三类表，不读服务端模型定义。
 - 布局分层（用户要求）：不在一个页面堆功能；登录页只承载登录主任务，注册、注册租户等次要流程用标准 `RendererDrawer`/`RendererDialog` 分层打开。
 
-- 其余答复：注册入口各开右侧抽屉；登录回执不含密码与 token、提交后清空密码；注册未知结果只用登录核验、不重发；验证码独立命令 + 60 秒倒计时；企业下拉可搜索可输入、记住上次企业；必填/枚举进列元信息，长度/格式/两次密码进命令资源；扩展 `FieldText` 前缀图标与 `RendererForm` 回车提交；验收含实服注册一个测试用户（用户指定）。方案见 `notes/plan-login-standard-components.md`。
+- 其余答复：注册入口各开右侧抽屉；登录回执不含密码与 token、提交后清空密码；注册未知结果只用登录核验、不重发；验证码独立命令 + 60 秒倒计时；企业下拉可搜索可输入、记住上次企业；必填/枚举进列元信息，长度/格式/两次密码进命令资源；扩展 `FieldText` 前缀图标与 `RendererForm` 回车提交；验收含实服注册一个测试用户（用户指定）。方案已实施并删除，结果与待补项见 [唯一删除记录](data-space-retirement-ledger.md) 入驻管理节。
 
 ## 原实现事实
 - `src/views/platform/LoginView.vue`：登录、注册、注册租户三页签，原 Element Plus 表单，本地 `reactive` 状态与 `FormRules`。

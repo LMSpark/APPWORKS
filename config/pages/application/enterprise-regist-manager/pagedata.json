@@ -1,0 +1,137 @@
+{
+  "scenarioId": "5914FF981A7DF228ED88BBDB71353470",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "Base_Enterprise_Info": {
+      "modelBinding": {"modelId": "fd8f5854-4169-4597-9d8e-80f3bbe54e73", "modelName": "Base_Enterprise_Info"},
+      "views": {
+        "default": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 20,
+          "queryConfig": {"pagination": "paged", "cacheType": "none", "fields": ["rowid", "CName", "Name", "ShortName", "ShortCName", "createtime", "industry_type",
+            "contact_person", "entInfoUserPhone", "EntUrl", "CheckState", "personUrl", "entadminAccount", "entMailbox", "EnterpriseIcon",
+            "entBusReg", "entOrgCer", "domain_name", "entScanBusLicen", "entScanOrgCer"]}
+        },
+        "currentEnterprise": {
+          "autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 2,
+          "filterExpression": {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "enterpriseId"}},
+          "queryConfig": {"maxRows": 2, "cacheType": "none", "fields": ["rowid", "CName", "ShortName", "loginPolicy", "ent_config"]}
+        },
+        "tenantEnterprise": {
+          "autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 2,
+          "filterExpression": {"field": "ShortName", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "entShortName"}},
+          "queryConfig": {"maxRows": 2, "cacheType": "none", "fields": ["rowid", "ShortName", "ent_config"]}
+        },
+        "initializationReadback": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 2,
+          "filterExpression": {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "enterpriseId"}},
+          "queryConfig": {"maxRows": 2, "cacheType": "none", "fields": ["rowid", "CheckState"]}
+        }
+      }
+    },
+    "entCheckState": {
+      "modelBinding": {"modelId": "c02414d8-152f-4ee3-98bb-545016c41835", "modelName": "entCheckState"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt",
+        "sortExpression": [{"field": "ordIdx", "direction": "asc"}],
+        "queryConfig": {"pagination": "none", "cacheType": "none", "fields": ["val", "txt", "ordIdx", "rowid"]}
+      }}
+    },
+    "login_policy": {
+      "modelBinding": {"modelId": "28953af0-6733-4ef0-adce-e0d60441ab16", "modelName": "login_policy"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt",
+        "sortExpression": [{"field": "ordIdx", "direction": "asc"}],
+        "queryConfig": {"pagination": "none", "cacheType": "none", "fields": ["val", "txt", "ordIdx", "rowid"]}
+      }}
+    },
+    "app_auth_status": {
+      "modelBinding": {"modelId": "35bd40dc-94b7-4a0c-964e-20e20f05e3c7", "modelName": "app_auth_status"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt",
+        "sortExpression": [{"field": "ordIdx", "direction": "asc"}],
+        "queryConfig": {"pagination": "none", "cacheType": "none", "fields": ["val", "txt", "ordIdx", "rowid"]}
+      }}
+    },
+    "app_request_type": {
+      "modelBinding": {"modelId": "3eaf7589-a97a-4537-bd01-1d5293725d1e", "modelName": "app_request_type"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt",
+        "sortExpression": [{"field": "ordIdx", "direction": "asc"}],
+        "queryConfig": {"pagination": "none", "cacheType": "none", "fields": ["val", "txt", "ordIdx", "rowid"]}
+      }}
+    },
+    "Base_AppSystemList": {
+      "modelBinding": {"modelId": "30ae79b0-ef89-49bd-9f40-bffb8ccf3335", "modelName": "Base_AppSystemList"},
+      "columns": [{"name": "displayName", "type": "string", "label": "应用名称",
+        "computeExpression": "AppDesc && AppName ? AppDesc + '[' + AppName + ']' : (AppDesc || AppName || '-')"}],
+      "views": {
+        "default": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 10,
+          "queryConfig": {"pagination": "paged", "cacheType": "none", "fields": ["rowid", "AppName", "AppDesc", "EntShortName"]}
+        },
+        "enterpriseApplications": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 500, "valueField": "rowid", "labelField": "AppName",
+          "filterExpression": {"field": "EntShortName", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "entShortName"}},
+          "queryConfig": {"allPages": true, "maxRows": 500, "cacheType": "none", "fields": ["rowid", "AppName", "AppDesc", "EntShortName"]}
+        }
+      }
+    },
+    "enterprise_app_auth": {
+      "modelBinding": {"modelId": "c0a8bedd-0cad-4715-b40e-34ce5ad55c12", "modelName": "enterprise_app_auth"},
+      "columns": [
+        {"name": "authStatusText", "type": "string", "label": "授权状态", "computeExpression": "String(authorized) === '1' ? '已授权' : '未授权'"},
+        {"name": "authorizedAtText", "type": "string", "label": "授权时间", "computeExpression": "authorized_at || '-'"},
+        {"name": "descriptionText", "type": "string", "label": "说明", "computeExpression": "description || '-'"}
+      ],
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 1000,
+        "valueField": "app_id", "labelField": "authStatusText",
+        "filterExpression": {"field": "enterprise_id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "enterpriseId"}},
+        "queryConfig": {"allPages": true, "maxRows": 1000, "cacheType": "none",
+          "fields": ["id", "enterprise_id", "ent_shortname", "app_id", "authorized", "authorized_at", "operator", "description"]}
+      }}
+    },
+    "Base_NavigationInfo": {
+      "modelBinding": {"modelId": "2cc30c0e-0c19-4bd4-bf7e-a95b35a9d24f", "modelName": "Base_NavigationInfo"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 2000,
+        "treeConfig": {"idField": "rowid", "parentIdField": "prowid", "textField": "FunName", "rootParentValue": "000000"},
+        "filterExpression": {"field": "SysId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "applicationId"}},
+        "sortExpression": [{"field": "rowid", "direction": "asc"}],
+        "queryConfig": {"allPages": true, "maxRows": 2000, "cacheType": "none", "fields": ["rowid", "SysId", "prowid", "FunName", "name", "FunOrderValue"]}
+      }}
+    },
+    "enterprise_module_auth": {
+      "modelBinding": {"modelId": "45b6dd3f-58f9-4d45-bc41-901e84c74a18", "modelName": "enterprise_module_auth"},
+      "columns": [{"name": "authStatusText", "type": "string", "label": "授权状态", "computeExpression": "String(authorized) === '1' ? '已授权' : '未授权'"}],
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 2000,
+        "valueField": "nav_id", "labelField": "authStatusText",
+        "filterExpression": {"logic": "and", "filters": [
+          {"field": "enterprise_id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "enterpriseId"}},
+          {"field": "authorized", "operator": "eq", "value": 1}
+        ]},
+        "queryConfig": {"allPages": true, "maxRows": 2000, "cacheType": "none",
+          "fields": ["id", "enterprise_id", "nav_id", "parent_nav_id", "authorized", "authorized_at", "operator", "description"]}
+      }}
+    },
+    "EnterpriseInitializationRequest": {
+      "resourceType": "command", "resourceId": "enterprise:initialization",
+      "columns": [
+        {"name": "commandId", "type": "string", "isPrimaryKey": true},
+        {"name": "enterpriseId", "type": "string"},
+        {"name": "outcome", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    }
+  },
+  "viewCascades": [
+    {
+      "kind": "query", "cascadeId": "enterprise-application-modules",
+      "parentTable": "Base_AppSystemList", "parentViewId": "default",
+      "childTable": "Base_NavigationInfo", "childViewId": "default",
+      "filterBindings": [], "inputBindings": [{"sourceField": "rowid", "target": "queryContext.applicationId"}]
+    }
+  ]
+}

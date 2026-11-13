@@ -103,7 +103,7 @@ export type DynamicRouterOptions = {
   /**
    * 平台工作台导航加载函数。
    *
-   * 返回的节点 path 仍保持相对形态（如 /dashboard、/tenants），
+   * 返回的节点 path 仍保持相对形态（如 /features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page），
    * 注册路由时统一映射到 platformPathPrefix 下（默认 /platform）。
    */
   loadPlatformNavigation?: (() => Promise<RuntimeNavigation>) | undefined

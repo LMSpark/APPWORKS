@@ -126,6 +126,9 @@
         "optionDataField": {
           "type": "string"
         },
+        "unmatchedText": {
+          "type": "string"
+        },
         "valueSeparator": {
           "type": "string"
         },
@@ -352,7 +355,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T20:41:11.232Z",
+  "generatedAt": "2026-11-13T03:25:30.079Z",
   "models": {
     "FieldTransferOption": {
       "name": "FieldTransferOption",
@@ -389,11 +392,11 @@
       "jsdoc": "Field Option Props 的属性契约。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionLabelJoiner' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator' | 'valueMode'>> & {\n    multiple?: boolean | undefined;\n    /** r-select 显式启用的平面选项值修剪。 */\n    optionValueTrim?: boolean;\n}",
+        "declarationTypeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionLabelJoiner' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'unmatchedText' | 'valueSeparator' | 'valueMode'>> & {\n    multiple?: boolean | undefined;\n    /** r-select 显式启用的平面选项值修剪。 */\n    optionValueTrim?: boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionLabelJoiner' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator' | 'valueMode'>>",
+            "typeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionLabelJoiner' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'unmatchedText' | 'valueSeparator' | 'valueMode'>>",
             "targetName": "FieldComposableProps"
           },
           {

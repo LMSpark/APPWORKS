@@ -7,7 +7,7 @@ import systemScenarios from '../../config/pages/system-scenarios.json'
 
 const systemScenarioNames = ['dataSpaceDesign', 'dataSpaceCatalog', 'dataDictionary', 'projectBlueprint', 'cacheManagement',
   'logicViewCatalog', 'apiProvider', 'apiConfig', 'apiInterface', 'dataCodeCatalog', 'dataCodeEditor', 'workflowCatalog', 'excelImportCatalog', 'pdfInspectCatalog',
-  'excelImportEditor', 'workflowEditor', 'jsonDataCatalog', 'businessTableSelector', 'agentWorkflowFiles', 'organizationStructure', 'jobManagement', 'applicationManager',
+  'excelImportEditor', 'workflowEditor', 'jsonDataCatalog', 'businessTableSelector', 'agentWorkflowFiles', 'organizationStructure', 'jobManagement', 'applicationManager', 'enterpriseRegistration',
   'bugManage', 'dataRecovery', 'flowMonitor', 'databaseRelations', 'dataMenu', 'dimensionDesign', 'dimensionLedger', 'fileManager', 'reportManagement'] as const
 export type SystemScenarioName = typeof systemScenarioNames[number]
 export type SystemScenarioResource = Readonly<{name: SystemScenarioName; scenarioId: string; resourceId: string; path: string}>

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1153,
+  "scannedFileCount": 1158,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -11214,12 +11214,10 @@
         "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
         "packageName": "@spark-appworks/spark-lowcode-api",
         "modulePath": "platform/lowcode-enterprise",
-        "jsdoc": "企业目录与企业详情归一化：GetBaseData / 会话 entinfo 的 wire 字段映射。\n企业 wire 键多为 PascalCase（ShortName、CName、ent_config 等）；目录按 ShortName 去重。",
+        "jsdoc": "企业目录归一化：GetBaseData 的 wire 字段映射。\n企业 wire 键多为 PascalCase（ShortName、ShortCName 等）；目录按 ShortName 去重。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
-          "LowcodeEnterpriseCatalogItem",
-          "LowcodeEnterprisePolicy",
-          "LowcodeEnterpriseInfo"
+          "LowcodeEnterpriseCatalogItem"
         ]
       }
     },
@@ -11692,6 +11690,21 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DataRecoveryPageReadAdapter"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/system/enterprise-initialization-resource.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/system/enterprise-initialization-resource.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/system/enterprise-initialization-resource",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/enterprise-initialization-resource.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/system/enterprise-initialization-resource.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/system/enterprise-initialization-resource",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/system/enterprise-initialization-resource\n职责：入驻审核通过作为原命令DataView的单次服务命令，适配企业初始化提交并经同DataSet回读视图确认结果。\n边界：服务只受理异步初始化任务，受理不等于完成；回读CheckState=1前保持未知，不重发、不放弃后重提、不直接写企业行。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "EnterpriseInitializationResource"
         ]
       }
     },
@@ -15715,6 +15728,19 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/system/enterprise-registration/runtime-bindings.ts": {
+      "file": "files/src/lowcode/resources/system/enterprise-registration/runtime-bindings.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/enterprise-registration/runtime-bindings",
+        "sourcePath": "src/lowcode/resources/system/enterprise-registration/runtime-bindings.ts",
+        "sourceFile": "src/lowcode/resources/system/enterprise-registration/runtime-bindings.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/enterprise-registration/runtime-bindings",
+        "jsdoc": "@module app:lowcode/resources/system/enterprise-registration/runtime-bindings\n职责：为入驻管理正式场景的首次装配绑定企业初始化命令，列表与回读视图取自同一DataSet。\n边界：只核本次配置与正式模型身份，不创建表、查询、草稿或页面owner。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/lowcode/resources/system/navigation-host/model-rules.ts": {
       "file": "files/src/lowcode/resources/system/navigation-host/model-rules.ts.json",
       "module": {
@@ -16809,6 +16835,71 @@
         "packageName": "app",
         "modulePath": "views/features/application/data-menu/ui/data-menu-page",
         "jsdoc": "@module app:views/features/application/data-menu/ui/data-menu-page\n职责：恢复导航宿主管理：按名称查询宿主，新增、编辑、删除，并进入所关联数据空间的设计。\n边界：列表、候选与编辑绑定同一PageRuntime的正式DataView；删除经DataSet单ID保存。数据空间授权配置随数据权限专题暂缓。\nAI用途：迁移导航宿主时核对宿主记录写入字段、空间→资源→字段候选级联与设计入口。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue": {
+      "file": "files/src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog",
+        "sourcePath": "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue",
+        "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog",
+        "jsdoc": "@module app:views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog\n职责：按企业维护应用授权与已授权应用的模块授权：应用列表为主表，授权状态/时间/说明按 app_id 从授权记录视图查值显示。\n边界：授权、撤销经 enterprise_app_auth 视图新增/修改并只提交本次记录；模块授权新增、取消删除 enterprise_module_auth 记录。\n模块树随所选应用经数据空间查询级联加载；页面不合并数组，不按身份放行，操作可用性只消费原查询权限。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue": {
+      "file": "files/src/views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog",
+        "sourcePath": "src/views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue",
+        "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog",
+        "jsdoc": "@module app:views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog\n职责：只读展示入驻申请的账号与企业信息；待审核企业可审核通过（企业初始化命令）或不通过（审核状态改为未通过）。\n边界：通过只经原命令视图提交并以回读确认，未知结果保留核验、不重发；不通过经原列表DataView的记录编辑保存。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog.vue": {
+      "file": "files/src/views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog",
+        "sourcePath": "src/views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog.vue",
+        "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog",
+        "jsdoc": "@module app:views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog\n职责：维护企业登录策略与 ent_config 中的注册审核、密码规则、默认密码、验证码位数、默认应用及 Login Token。\n边界：各项经标准字段的 valuePath 写回本企业配置行的 ent_config 成员，保留未编辑成员；由公共记录编辑保存，不整串覆盖。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/enterprise-regist-manager/ui/enterprise-password-dialog.vue": {
+      "file": "files/src/views/features/application/enterprise-regist-manager/ui/enterprise-password-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/application/enterprise-regist-manager/ui/enterprise-password-dialog",
+        "sourcePath": "src/views/features/application/enterprise-regist-manager/ui/enterprise-password-dialog.vue",
+        "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-password-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/enterprise-regist-manager/ui/enterprise-password-dialog",
+        "jsdoc": "@module app:views/features/application/enterprise-regist-manager/ui/enterprise-password-dialog\n职责：为入驻企业修改超级管理员密码（不少于6位，二次确认）。\n边界：新密码写入原列表DataView本行的super_admin_pwd并由公共记录编辑保存；列表不读取原密码，确认值只在本页输入表中，不提交。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue": {
+      "file": "files/src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue.json",
+      "module": {
+        "name": "app:views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page",
+        "sourcePath": "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue",
+        "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page",
+        "jsdoc": "@module app:views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page\n职责：平台级入驻管理：按 5914 正式场景筛选企业，提供应用授权、审核、超管密码与企业配置入口。\n边界：读写均经同一PageRuntime的DataView与命令视图；审核按钮只依据本行CheckState写权限，不按身份放行。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -18604,32 +18695,6 @@
         "packageName": "app",
         "modulePath": "views/platform/LoginView",
         "jsdoc": "@module app:views/platform/LoginView\n职责：提供主应用 LoginView 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/platform/LoginView。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/platform/PlatformTenantManagement.vue": {
-      "file": "files/src/views/platform/PlatformTenantManagement.vue.json",
-      "module": {
-        "name": "app:views/platform/PlatformTenantManagement",
-        "sourcePath": "src/views/platform/PlatformTenantManagement.vue",
-        "sourceFile": "src/views/platform/PlatformTenantManagement.vue",
-        "packageName": "app",
-        "modulePath": "views/platform/PlatformTenantManagement",
-        "jsdoc": "@module app:views/platform/PlatformTenantManagement\n职责：提供主应用 PlatformTenantManagement 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/platform/PlatformTenantManagement。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/platform/TenantConfigPanel.vue": {
-      "file": "files/src/views/platform/TenantConfigPanel.vue.json",
-      "module": {
-        "name": "app:views/platform/TenantConfigPanel",
-        "sourcePath": "src/views/platform/TenantConfigPanel.vue",
-        "sourceFile": "src/views/platform/TenantConfigPanel.vue",
-        "packageName": "app",
-        "modulePath": "views/platform/TenantConfigPanel",
-        "jsdoc": "@module app:views/platform/TenantConfigPanel\n职责：提供主应用 TenantConfigPanel 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/platform/TenantConfigPanel。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -21724,6 +21789,10 @@
       "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
     },
+    "EnterpriseInitializationResource": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/enterprise-initialization-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/system/enterprise-initialization-resource.ts.json"
+    },
     "EnumDeclarationModel": {
       "sourcePath": "packages/spark-ai/src/class-model/class-model/types.ts",
       "file": "files/packages/spark-ai/src/class-model/class-model/types.ts.json"
@@ -22805,14 +22874,6 @@
       "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
     },
     "LowcodeEnterpriseCatalogItem": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts.json"
-    },
-    "LowcodeEnterpriseInfo": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts.json"
-    },
-    "LowcodeEnterprisePolicy": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts.json"
     },

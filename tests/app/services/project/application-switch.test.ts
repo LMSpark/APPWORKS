@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, inject, type Component } from 'vue'
+import { defineComponent, h, inject } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -10,7 +10,6 @@ import { PROJECT_SWITCH_KEY, type ProjectSwitchService } from '@/services/projec
 import { activateLowcodeApplication } from '@/lowcode/lowcode-runtime'
 import App from '@/App.vue'
 import AppList from '@/views/app/AppList.vue'
-import PlatformTenantManagement from '@/views/platform/PlatformTenantManagement.vue'
 import AppTabBar from '@/layout/AppTabBar.vue'
 
 type LowcodeState = { applicationId: string | null; ownerIntent: number }
@@ -41,7 +40,6 @@ vi.mock('@/lowcode/lowcode-runtime', () => {
       session: { get: () => ({ enterprise: { shortName: 'acme' }, identity: { account: 'admin' } }) },
       platform: {
         logout: vi.fn(async () => undefined),
-        getEnterpriseInfo: vi.fn(async () => ({ domainKey: 'acme', chineseName: 'Acme', administratorAccount: 'admin', checkState: 1 })),
       },
     },
     lowcodeEnterpriseDisplayName: () => 'Acme',
@@ -97,17 +95,6 @@ const AppHeaderProbe = defineComponent({
   },
 })
 const page = defineComponent({ setup: () => () => h('div', 'route page') })
-const platformConsumerCases: Array<[string, Component]> = [
-  ['PlatformTenantManagement', PlatformTenantManagement],
-]
-const TableColumnProbe = defineComponent({
-  setup(_, { slots }) {
-    return () => h('div', slots['default']?.({ row: {
-      projectId: 'APP-A', name: 'App A', projectType: 'application', tenantId: 'acme', defaultProjectId: 'homepage',
-      status: 'ACTIVE', tenantName: 'Acme', tenantCode: 'ACME', adminUserName: 'admin',
-    } }))
-  },
-})
 const RendererListProbe = defineComponent({
   props: {children: {type: Array, default: () => []}},
   setup(props) {
@@ -128,24 +115,6 @@ const RendererListProbe = defineComponent({
     }
   },
 })
-
-async function mountPlatformConsumer(component: Component, stale = false) {
-  const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:pathMatch(.*)*', component: page }] })
-  await router.push('/platform')
-  let current = true
-  const receipt = { assertCurrent: vi.fn(() => { if (!current) throw new Error('selection was superseded') }) }
-  const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => {
-    if (stale) queueMicrotask(() => { current = false })
-    return receipt
-  }) }
-  const wrapper = mount(component, { global: {
-    plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service },
-    stubs: { 'el-table-column': TableColumnProbe, TenantConfigPanel: true },
-  } })
-  mountedWrappers.push(wrapper)
-  await flushPromises()
-  return { router, receipt, service, wrapper }
-}
 
 async function mountRealApp() {
   const router = createRouter({ history: createMemoryHistory(), routes: [] })
@@ -456,38 +425,6 @@ describe('App project selection owner', () => {
     expect(success).not.toHaveBeenCalled()
     expect(error).toHaveBeenCalledWith('应用页面导航未完成')
     expect(router.currentRoute.value.path).toBe('/apps/homepage/app-list')
-  })
-
-  it.each(platformConsumerCases)('%s checks the real switch receipt before navigating', async (_name, component) => {
-    const { router, receipt, service, wrapper } = await mountPlatformConsumer(component)
-    const push = vi.spyOn(router, 'push')
-    const error = vi.spyOn(ElMessage, 'error')
-    const enter = wrapper.findAll('button').find((button) => button.text().includes('进入'))
-    if (!enter) throw new Error('platform page did not render the tenant/application entry button')
-
-    await enter.trigger('click')
-    await flushPromises()
-
-    expect(service.switchAndReload).toHaveBeenCalledOnce()
-    expect(receipt.assertCurrent).toHaveBeenCalledOnce()
-    expect(push).toHaveBeenCalledOnce()
-    expect(error).not.toHaveBeenCalled()
-  })
-
-  it.each(platformConsumerCases)('%s rejects stale receipt delivery from the real entry event', async (_name, component) => {
-    const { router, service, wrapper } = await mountPlatformConsumer(component, true)
-    const push = vi.spyOn(router, 'push')
-    const error = vi.spyOn(ElMessage, 'error')
-    const enter = wrapper.findAll('button').find((button) => button.text().includes('进入'))
-    if (!enter) throw new Error('platform page did not render the tenant/application entry button')
-
-    await enter.trigger('click')
-    await flushPromises()
-
-    expect(service.switchAndReload).toHaveBeenCalledOnce()
-    expect(push).not.toHaveBeenCalled()
-    expect(error).toHaveBeenCalled()
-    expect(router.currentRoute.value.path).toBe('/platform')
   })
 
   it('checks the receipt in the real AppTabBar before switching owners', async () => {

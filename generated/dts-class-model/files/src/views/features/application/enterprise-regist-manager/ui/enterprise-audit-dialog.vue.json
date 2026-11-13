@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog",
+    "sourcePath": "src/views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue",
+    "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog",
+    "jsdoc": "@module app:views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog\n职责：只读展示入驻申请的账号与企业信息；待审核企业可审核通过（企业初始化命令）或不通过（审核状态改为未通过）。\n边界：通过只经原命令视图提交并以回读确认，未知结果保留核验、不重发；不通过经原列表DataView的记录编辑保存。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T03:38:43.229Z",
+  "models": {}
+}

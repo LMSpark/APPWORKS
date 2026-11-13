@@ -538,6 +538,8 @@ export type SparkOptionFieldProps<TValue = unknown, TOption = unknown> = SparkFi
     optionDataMember?: DataMember | `${DataMember}`
     /** 选项来源成员内部字段或路径。 */
     optionDataField?: string
+    /** 只读展示时值不在已就绪选项中显示的文本；选项未就绪时显示空白。只影响展示，不写回字段或textStorageField，省略时显示原值。 */
+    unmatchedText?: string
     /**
      * 值分隔符。
      *

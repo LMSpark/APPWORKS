@@ -265,6 +265,9 @@
         "optionDataField": {
           "type": "string"
         },
+        "unmatchedText": {
+          "type": "string"
+        },
         "valueSeparator": {
           "type": "string"
         },

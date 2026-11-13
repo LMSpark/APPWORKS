@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog",
+    "sourcePath": "src/views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog.vue",
+    "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog",
+    "jsdoc": "@module app:views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog\n职责：维护企业登录策略与 ent_config 中的注册审核、密码规则、默认密码、验证码位数、默认应用及 Login Token。\n边界：各项经标准字段的 valuePath 写回本企业配置行的 ent_config 成员，保留未编辑成员；由公共记录编辑保存，不整串覆盖。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T21:48:52.244Z",
+  "models": {}
+}

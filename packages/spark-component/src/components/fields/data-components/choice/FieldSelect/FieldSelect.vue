@@ -128,7 +128,7 @@ const {handleControlledChange: changeSelection} = useControlledFieldChange<strin
   },
 })
 // 标题从当前选项源派生，不依赖关闭后已释放或候选变化前的ElOption缓存。
-const selectedLabel = computed(() => options.value.find(option => option.value === fieldValue.value)?.label ?? String(fieldValue.value))
+const selectedLabel = computed(() => options.value.find(option => option.value === fieldValue.value)?.label ?? props.unmatchedText ?? String(fieldValue.value))
 
 async function handleChange(value: string | number, isCurrentControl: () => boolean = () => true): Promise<void> {
   if (!isCurrentFieldEditable.value) return

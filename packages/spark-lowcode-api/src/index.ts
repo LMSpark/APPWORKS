@@ -125,11 +125,7 @@ export type { CodeInitializationTarget } from './platform/resources/structured-c
 export type { LogicViewDesignPayload } from './platform/resources/structured-config/logic-view/design-client.js'
 export type { OrderType, WireFilterOperator, GroupFunType } from './contracts/lowcode-wire-query.js'
 export type { LowcodeApplication } from './platform/lowcode-application.js'
-export type {
-  LowcodeEnterpriseCatalogItem,
-  LowcodeEnterpriseInfo,
-  LowcodeEnterprisePolicy,
-} from './platform/lowcode-enterprise.js'
+export type { LowcodeEnterpriseCatalogItem } from './platform/lowcode-enterprise.js'
 export type {
   LowcodeApplicationContext,
   LowcodeApplicationStoreOptions,
@@ -157,4 +153,5 @@ export {WorkflowExecutionResource} from './platform/resources/structured-config/
 export {CachePageReadAdapter} from './platform/resources/system/cache-page-read-adapter'
 export {DataRecoveryPageReadAdapter} from './platform/resources/system/data-recovery-page-read-adapter'
 export {CacheDeleteCommandResource} from './platform/resources/system/cache-delete-command-resource'
+export {EnterpriseInitializationResource} from './platform/resources/system/enterprise-initialization-resource'
 export type {WorkflowExecutionGraph} from './platform/resources/structured-config/workflow/workflow-execution-resource'

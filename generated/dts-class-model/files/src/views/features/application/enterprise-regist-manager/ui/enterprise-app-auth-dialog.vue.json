@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog",
+    "sourcePath": "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue",
+    "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog",
+    "jsdoc": "@module app:views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog\n职责：按企业维护应用授权与已授权应用的模块授权：应用列表为主表，授权状态/时间/说明按 app_id 从授权记录视图查值显示。\n边界：授权、撤销经 enterprise_app_auth 视图新增/修改并只提交本次记录；模块授权新增、取消删除 enterprise_module_auth 记录。\n模块树随所选应用经数据空间查询级联加载；页面不合并数组，不按身份放行，操作可用性只消费原查询权限。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T03:36:05.704Z",
+  "models": {}
+}

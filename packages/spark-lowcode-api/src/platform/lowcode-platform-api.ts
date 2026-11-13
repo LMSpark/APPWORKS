@@ -12,9 +12,7 @@ import type { LowcodeApplicationStore } from './lowcode-application-store.js'
 import {
   enterpriseCatalogQuery,
   normalizeEnterpriseCatalog,
-  normalizeEnterpriseInfo,
   type LowcodeEnterpriseCatalogItem,
-  type LowcodeEnterpriseInfo,
 } from './lowcode-enterprise.js'
 import type { LowcodeSessionStore } from './lowcode-session-store.js'
 import type { SendCodeType, SendCodeScene } from '../contracts/lowcode-send-code.js'
@@ -293,13 +291,6 @@ export class LowcodePlatformApi {
       authenticated: false,
     })
     return normalizeEnterpriseCatalog(result)
-  }
-
-  /** 从当前会话 entinfo.raw 归一化企业详情；无会话时 401。 */
-  public getEnterpriseInfo(): Promise<LowcodeEnterpriseInfo> {
-    const session = this.session.get()
-    if (session === null) throw new LowcodeApiError(401, '没有可读取的 lowcode 企业会话')
-    return Promise.resolve(normalizeEnterpriseInfo(session.enterprise.raw))
   }
 
   /** 发送注册/企业注册验证码；公开接口，账号与企业名会先 trim。 */

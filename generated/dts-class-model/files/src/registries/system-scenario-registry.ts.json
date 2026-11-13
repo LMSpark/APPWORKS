@@ -41,6 +41,7 @@
         "organizationStructure",
         "jobManagement",
         "applicationManager",
+        "enterpriseRegistration",
         "bugManage",
         "dataRecovery",
         "flowMonitor",
@@ -79,7 +80,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-12T20:46:54.869Z",
+  "generatedAt": "2026-11-12T21:45:05.410Z",
   "models": {
     "SystemScenarioName": {
       "name": "SystemScenarioName",

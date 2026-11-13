@@ -48,6 +48,7 @@ type FieldOptionProps = FieldComposableProps<Pick<
   | 'optionDataViewKey'
   | 'optionDataMember'
   | 'optionDataField'
+  | 'unmatchedText'
   | 'valueSeparator'
   | 'valueMode'
 >> & {
@@ -364,7 +365,10 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
   function formatOptionValue(value: unknown): string {
     const values = normalizeOptionValues(value)
     if (values.length === 0) return ''
-    return values.map(findOptionLabel).join(' / ')
+    const unmatched = props.unmatchedText
+    if (unmatched === undefined) return values.map(findOptionLabel).join(' / ')
+    if (!optionsReady.value) return ''
+    return values.map(item => flatOptions.value.find(option => String(option.value) === String(item))?.label ?? unmatched).join(' / ')
   }
 
   function formatCascaderValue(value: unknown): string {

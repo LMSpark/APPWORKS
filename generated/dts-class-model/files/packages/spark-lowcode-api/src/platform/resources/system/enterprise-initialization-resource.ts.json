@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/system/enterprise-initialization-resource",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/enterprise-initialization-resource.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/system/enterprise-initialization-resource.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/system/enterprise-initialization-resource",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/system/enterprise-initialization-resource\n职责：入驻审核通过作为原命令DataView的单次服务命令，适配企业初始化提交并经同DataSet回读视图确认结果。\n边界：服务只受理异步初始化任务，受理不等于完成；回读CheckState=1前保持未知，不重发、不放弃后重提、不直接写企业行。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "EnterpriseInitializationResource"
+    ]
+  },
+  "$defs": {
+    "EnterpriseInitializationOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EnterpriseInitializationOptions",
+      "properties": {
+        "list": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "readback": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "http": {
+          "$ref": "../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string"
+            },
+            "headers": {
+              "type": "object",
+              "title": "Record<string, string>"
+            }
+          },
+          "required": [
+            "token",
+            "headers"
+          ],
+          "additionalProperties": false
+        },
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "EnterpriseInitializationResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EnterpriseInitializationResource",
+      "properties": {
+        "resourceId": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/EnterpriseInitializationOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.return": {
+          "$ref": "../../../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-12T21:43:51.880Z",
+  "models": {
+    "EnterpriseInitializationOptions": {
+      "name": "EnterpriseInitializationOptions",
+      "jsdoc": "list为审核列表视图，readback为按enterpriseId输入参数过滤的同模型回读视图，二者与命令视图须属同一DataSet。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    list: DataView;\n    readback: DataView;\n    http: HttpClientBase;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    list: DataView;\n    readback: DataView;\n    http: HttpClientBase;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "list",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readback",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "EnterpriseInitializationResource": {
+      "name": "EnterpriseInitializationResource",
+      "jsdoc": "命令行ID只标识本次本地捕获，不作为后端幂等键或初始化任务ID。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: EnterpriseInitializationOptions)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "EnterpriseInitializationOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/enterprise-initialization-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "binding",
+              "jsdoc": "绑定pagedata已装配的命令视图；未知结果不提供放弃能力，避免二次初始化。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindCommandSubmitOptions"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

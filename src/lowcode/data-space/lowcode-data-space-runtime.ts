@@ -21,6 +21,7 @@ import {createCacheScenarioBindings} from '../resources/system/cache-management/
 import {registerNavigationHostModelRules} from '../resources/system/navigation-host/model-rules'
 import {registerDimensionSourceModelRules} from '../resources/structured-config/dimension-source/model-rules'
 import {createDataRecoveryScenarioBindings} from '../resources/system/data-recovery/runtime-bindings'
+import {createEnterpriseRegistrationBindings} from '../resources/system/enterprise-registration/runtime-bindings'
 import {createWorkflowScenarioBindings} from '../resources/structured-config/workflow-definition/execution/runtime-bindings'
 import {createAgentWorkflowCreationBindings} from '../resources/repository/agent-workflow/creation'
 import {createAgentWorkflowPublicationBindings} from '../resources/repository/agent-workflow/publication'
@@ -180,6 +181,7 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
  const workflowBindings = createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const excelBindings = createExcelCatalogBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const recoveryBindings = createDataRecoveryScenarioBindings({config,assertCurrent})
+ const enterpriseBindings = createEnterpriseRegistrationBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const result = await loadScenarioDataSet({scenarioId, config, assertCurrent, dataSpace,
   ...agentCreation,
   ...agentPublication,
@@ -196,6 +198,7 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
    ...cacheBindings.commandBindings,
    ...workflowBindings.commandBindings,
    ...excelBindings.commandBindings,
+   ...enterpriseBindings.commandBindings,
   },
   ...(input.getPage?{getPage:input.getPage}:{}),
   ...definitionBindings({projectId, scenarioId, config, assertCurrent,

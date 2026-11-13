@@ -7,7 +7,7 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 223,
+  "consumerCount": 225,
   "directUnmatchedCount": 127,
   "consumers": [
     {
@@ -787,79 +787,79 @@
     {
       "expression": "/api/LoginAuthority/refresh",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1084,
+      "sourceLine": 1002,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/UserLogoutByEnt",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1127,
+      "sourceLine": 1045,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/refresh",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1216,
+      "sourceLine": 1134,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/content/text",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1223,
+      "sourceLine": 1141,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/register",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1275,
+      "sourceLine": 1193,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/Ent/AddEnterprise",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1310,
+      "sourceLine": 1228,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/UserLoginByEnt",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 261,
+      "sourceLine": 259,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetBaseData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 290,
+      "sourceLine": 288,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/message/code/send/public",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 308,
+      "sourceLine": 299,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/register",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 323,
+      "sourceLine": 314,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/Ent/AddEnterprise",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 347,
+      "sourceLine": 338,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/refresh",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 382,
+      "sourceLine": 373,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/UserLogoutByEnt",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 411,
+      "sourceLine": 402,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -1064,6 +1064,18 @@
       "expression": "/api/Workflow/runWorkflowTest",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
       "sourceLine": 86,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/Enterprise/initEnt",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/system/enterprise-initialization-resource.ts",
+      "sourceLine": 91,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/Enterprise/initEnt",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/system/tests/enterprise-initialization.test.ts",
+      "sourceLine": 11,
       "scope": "publishable-lowcode-api"
     },
     {

@@ -150,6 +150,16 @@
       "dataSpaceId": "0C70F74793F9E858B71E0DBDEC784D57"
     },
     {
+      "path": "/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page",
+      "title": "入驻管理",
+      "icon": "OfficeBuilding",
+      "scope": "platform",
+      "source": "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue",
+      "description": "企业入驻审核、超管密码、企业配置与应用授权",
+      "order": 1,
+      "dataSpaceId": "5914FF981A7DF228ED88BBDB71353470"
+    },
+    {
       "path": "/features/organization/organization-structure/ui/organization-structure-page",
       "title": "机构管理",
       "icon": "OfficeBuilding",

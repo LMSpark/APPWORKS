@@ -16,11 +16,13 @@ const OptionProbe = defineComponent({
   props: {
     optionDataViewKey: { type: String, required: true },
     sampleValue: { type: [String, Array], default: undefined },
+    unmatchedText: { type: String, default: undefined },
   },
   setup(props) {
     const { options, formatOptionValue } = useFieldOptions({
       optionDataViewKey: props.optionDataViewKey,
       optionDataMember: DataMember.Rows,
+      ...(props.unmatchedText === undefined ? {} : {unmatchedText: props.unmatchedText}),
     })
 
     return () => {
@@ -36,7 +38,7 @@ const OptionProbe = defineComponent({
   },
 })
 
-function mountOptionProbe(dataSet: ReturnType<typeof SparkData.createDataSet>, sampleValue: unknown) {
+function mountOptionProbe(dataSet: ReturnType<typeof SparkData.createDataSet>, sampleValue: unknown, unmatchedText?: string) {
   const { registry, rootContext } = Spark.createSystem()
   const normalizedSampleValue = Array.isArray(sampleValue)
     ? sampleValue.map(item => String(item))
@@ -53,6 +55,7 @@ function mountOptionProbe(dataSet: ReturnType<typeof SparkData.createDataSet>, s
       return () => h(OptionProbe, {
         optionDataViewKey: 'Dict@default',
         ...(normalizedSampleValue !== undefined ? { sampleValue: normalizedSampleValue } : {}),
+        ...(unmatchedText !== undefined ? { unmatchedText } : {}),
       })
     },
   })
@@ -251,5 +254,19 @@ describe('选项字段应继承 DataView facets', () => {
     expect(probe.attributes('data-first-label')).toBe('单值选项')
     expect(probe.attributes('data-first-value')).toBe('AB')
     expect(probe.attributes('data-formatted')).toBe('单值选项')
+  })
+
+  it('shows unmatchedText only for values missing from the ready options', async () => {
+    const ds = SparkData.createDataSet({dataSetName: 'Options', tables: {
+      Dict: {tableName: 'Dict', resourceType: 'static-data', columns: [{name: 'code', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'}],
+        views: {default: {valueField: 'code', labelField: 'name', rows: [{code: 'A', name: '已授权'}]}}},
+    }})
+    const plain = mountOptionProbe(ds, ['A', 'Z']), lookup = mountOptionProbe(ds, ['A', 'Z'], '未授权')
+    try {
+      expect(plain.get('.option-probe').attributes('data-formatted')).toBe('已授权 / Z')
+      expect(lookup.get('.option-probe').attributes('data-formatted')).toBe('已授权 / 未授权')
+      ds.getView('Dict')!.replaceRows([]); await flushPromises()
+      expect(lookup.get('.option-probe').attributes('data-formatted')).toBe('未授权 / 未授权')
+    } finally {plain.unmount(); lookup.unmount(); ds.destroy()}
   })
 })

@@ -474,15 +474,6 @@
           "type": "object",
           "title": "Promise<readonly LowcodeEnterpriseCatalogItem[]>"
         },
-        "method.getEnterpriseInfo.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.getEnterpriseInfo.return": {
-          "type": "object",
-          "title": "Promise<LowcodeEnterpriseInfo>"
-        },
         "method.sendVerificationCode.params": {
           "type": "object",
           "properties": {
@@ -587,7 +578,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-08T18:16:22.144Z",
+  "generatedAt": "2026-11-13T03:37:29.042Z",
   "models": {
     "LowcodeLoginCredentials": {
       "name": "LowcodeLoginCredentials",
@@ -1258,22 +1249,6 @@
                   {
                     "type": "unknown",
                     "name": "readonly LowcodeEnterpriseCatalogItem[]"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "getEnterpriseInfo",
-              "jsdoc": "从当前会话 entinfo.raw 归一化企业详情；无会话时 401。",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "LowcodeEnterpriseInfo",
-                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts"
                   }
                 ]
               }

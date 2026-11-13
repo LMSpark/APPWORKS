@@ -57,6 +57,7 @@ import { isRecord } from '@spark-appworks/spark-utils'
 import { useActionButtonRuntime } from './useActionButtonRuntime'
 import {useContainerDataSource} from '../../../data-views/view-data-source'
 import {ROW_ITEM_CONTEXT} from '../../../support/scope/row-item-context'
+import {resolveDataViewRow} from '../../../support/scope/row-mirror-sync'
 
 type ClickHandler = {
   (...args: unknown[]): unknown}
@@ -93,16 +94,20 @@ function resolveActionView(): DataView | null {
   return dataState.resolvedView.value
 }
 
+// DATA_ROW 镜像换回所属视图原行；无主键视图的行与字段授权只认原行身份。
+function resolveScopedDataRow(dataSource: DataView | null): DataRow | null {
+  const dataRow = dataSource === sparkConsume(DATA_SOURCE) ? sparkConsume(DATA_ROW) : null
+  return dataRow === null ? null : resolveDataViewRow(dataSource, dataRow) ?? dataRow
+}
+
 // 优先 DATA_ROW；退化到 DATA_SOURCE.currentRow（覆盖行内按钮与工具栏按钮）
 function resolveScopedRow(): DataRow | undefined {
-  const dataSource = resolveActionView()
-  const dataRow = dataSource === sparkConsume(DATA_SOURCE) ? sparkConsume(DATA_ROW) : null
-  return (dataRow ?? dataState.currentRow.value) ?? undefined
+  return (resolveScopedDataRow(resolveActionView()) ?? dataState.currentRow.value) ?? undefined
 }
 
 function resolvePermissionScopeRows(): DataRow[] {
   const dataSource = resolveActionView()
-  const dataRow = dataSource === sparkConsume(DATA_SOURCE) ? sparkConsume(DATA_ROW) : null
+  const dataRow = resolveScopedDataRow(dataSource)
   if (dataRow !== null) {
     return [dataRow]
   }

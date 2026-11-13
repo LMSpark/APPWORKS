@@ -46,6 +46,7 @@ import { type SparkNode, getSparkNodeChildren, nodeInputProp, nodeId } from '@sp
 import { mergeNodeBeforeRenderProps, resolveNodeBeforeRender } from '../../../../support/beforeRender'
 import type { RToolbarProps } from './RendererToolbar.types'
 import { useLayoutDataContext } from '../../../runtime/layout-data-context'
+import { resolveDataViewRow } from '../../../support/scope/row-mirror-sync'
 import { useDataViewEventBridge } from '../../../runtime/useDataViewEventBridge'
 
 // ============================================================================
@@ -84,7 +85,8 @@ function resolveToolbarActionNode(node: SparkNode): SparkNode {
   void toolbarReactiveVersion.value
 
   const dataSource = resolvedView.value
-  const row = contextRow.value ?? undefined
+  // 行镜像换回所属视图原行；无主键视图只凭原行身份判定字段读取。
+  const row = resolveDataViewRow(dataSource, contextRow.value) ?? contextRow.value ?? undefined
 
   const beforeRender = resolveNodeBeforeRender(node, {
     row,

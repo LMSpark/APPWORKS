@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import { SYSTEM_PAGE_NAVIGATION_ID_QUERY, type RuntimeNavigation } from '@spark-appworks/spark-app'
+import { SYSTEM_PAGE_NAVIGATION_ID_QUERY, type RuntimeNavigation, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import { createDynamicRouter } from '../../../../packages/spark-app/src/router/dynamic'
 import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/nav-access'
 
@@ -968,6 +968,32 @@ describe('lowcode project navigation projection', () => {
     expect(design?.children?.flatMap(child => child.children ?? [child]).map(leaf => leaf.path).sort())
       .toEqual(appPages.map(page => page.path).sort())
     expect(design?.children?.some(child => child.path === '/dev')).toBe(false)
+  })
+
+  it('omits design pages whose node identity the business navigation already carries', () => {
+    const logicView = VuePageRegistry.getVuePageOptions().find(page => page.path.endsWith('/logic-view/ui/logic-view-list-page'))
+    if (!logicView?.dataSpaceId) throw new Error('expected the logic view catalog to carry its navigation identity')
+    const target = `vue:${logicView.path.slice(1)}`
+    const projection = assembleLowcodeRuntimeNavigation({
+      applicationName: '元数据管理', projectId: 'PROJECT-1', navigationRootId: 'ROOT-1',
+      records: [
+        record({nodeId: 'module-1', name: 'Structured', title: '结构化配置', kind: 'module', order: 0}),
+        record({nodeId: logicView.dataSpaceId, parentNodeId: 'module-1', name: 'LogicView', title: '逻辑视图', kind: 'page', target,
+          scenarioId: logicView.dataSpaceId, order: 1}),
+      ],
+      authorization: {items: [{id: 'module-1', target: '', targetKind: 'empty', formKey: null, children: [
+        {id: logicView.dataSpaceId, target, targetKind: 'vue', formKey: logicView.dataSpaceId, children: []},
+      ]}], contexts: []},
+    })
+    const ids: string[] = []
+    const walk = (items: readonly RuntimeNavigationItem[]): void => {
+      for (const item of items) {ids.push(item.id); walk(item.children ?? [])}
+    }
+    walk(projection.items)
+    expect(ids.filter(id => id === logicView.dataSpaceId)).toHaveLength(1)
+    expect(new Set(ids).size).toBe(ids.length)
+    const design = projection.items.at(-1)
+    expect(design?.children?.flatMap(child => child.children ?? [child]).some(leaf => leaf.path === logicView.path)).toBe(false)
   })
 
   it('keeps the cfg tool target separate from the scenario call parameter', () => {

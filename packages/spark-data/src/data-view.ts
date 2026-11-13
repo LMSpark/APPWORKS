@@ -482,7 +482,7 @@ export class DataView implements DataSource {
     this._computedDelegate.invalidateCache()
     this._computedDelegate.syncFromConfig()
     if (this.rows.length > 0) this.recomputeColumns()
-    if (this._shouldApplyStaticLocalFilter() && this.filterExpression !== undefined && this.rows.length > 0) {
+    if (this._shouldApplyStaticLocalFilter() && (this.filterExpression !== undefined || this.scopeFilter !== undefined) && this.rows.length > 0) {
       this._syncStaticLocalFilterRows()
     }
     this.emitConfigChanged()
@@ -1260,6 +1260,10 @@ loadingError: Error | null = null
   get supportsQueryFiltering(): boolean { return this.queryConfig.parentResult === undefined }
 
   private appliedFilter: DataViewFilter | undefined
+  private appliedScopeFilter: DataViewFilter | undefined
+
+  /** 视图常驻范围，只经视图配置设定；查询及本地过滤与当前过滤 AND 合并，setFilter 不能替换或放宽。 */
+  get scopeFilter(): DataViewFilterTree | undefined { return this.appliedScopeFilter?.toJSON() }
 
   /** SPARK 公开过滤树；所有入口解析为私有不可变快照，修改前保护未保存数据。 */
   get filterExpression(): DataViewFilterTree | undefined { return this.appliedFilter?.toJSON() }
@@ -1372,8 +1376,10 @@ sortExpression?: SortExpression
     return DataViewFilter.group({ logic: 'and', filters: [cascadeFilter, userFilter] }).toJSON()
   }
 
-  private _filteredLocalRows(filter: DataViewFilter | undefined, context = this.queryContext): DataRow[] {
+  private _filteredLocalRows(input: DataViewFilter | undefined, context = this.queryContext): DataRow[] {
     const sourceRows = this._getStaticLocalFilterSourceRows()
+    const scope = this.appliedScopeFilter
+    const filter = scope && input ? DataViewFilter.group({ logic: 'and', filters: [scope.toJSON(), input.toJSON()] }) : input ?? scope
     if (filter === undefined) return sourceRows
     const local = new DataViewFilterLocal(filter.bindInputParams(context))
     local.validateFields(this._getAvailableLocalFilterFields())
@@ -2196,6 +2202,7 @@ protected logger = Logger('DataView')
       const loadParams = this.buildTreeModeParams({...DataViewQuery.capture(this.queryConfig), ...params})
       Object.assign(loadParams, DataViewQuery.capture(loadParams))
       this.withViewQueryDefaults(loadParams)
+      this.withScopeFilter(loadParams)
       const resultRefreshIdentity = this.refreshIdentity()
       if (this.queryConfig.cacheType && this.queryConfig.cacheType !== 'none' && !this.#queryExecutor?.invalidateQueryCache) {
         throw new Error('DATA_VIEW_QUERY_CACHE_UNSUPPORTED: 当前数据资源未接入结果缓存')
@@ -2487,7 +2494,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   private refreshIdentity(): string {
     const {autoQuery: _autoQuery, ...queryConfig} = this.queryConfig
     return JSON.stringify([this.#queryExecutor ? this.queryIdentity() : [this.dataSet?.scenarioId, this.tableName],
-      this.viewId, this.queryContext, queryConfig, this.filterExpression, this.sortExpression, this.page, this.pageSize])
+      this.viewId, this.queryContext, queryConfig, this.scopeFilter, this.filterExpression, this.sortExpression, this.page, this.pageSize])
   }
 
   private readonly clearRefreshRequest = (): void => {
@@ -3488,7 +3495,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     this._validateRemoteFilterFields(filter)
     const params: QueryParams = {...DataViewQuery.capture(this.queryConfig), filter, allPages: true}
     Object.assign(params, DataViewQuery.capture(params))
-    const request = this.withViewQueryDefaults(this.buildTreeModeParams(params))
+    const request = this.withScopeFilter(this.withViewQueryDefaults(this.buildTreeModeParams(params)))
     const assertCurrent = (): void => {
       this.checkDestroyed()
       if (this.#queryResult !== base || this.#queryExecutor !== executor || this.refreshIdentity() !== identity
@@ -4005,9 +4012,9 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     return () => assertUnchanged(prepared)
   }
 
-  /** 视图范围唯一确定的非主键字段值：自身过滤与查询级联中 AND 连接的 eq（或单值 in）条件；GetInputParam 取本视图 queryContext。 */
+  /** 视图范围唯一确定的非主键字段值：常驻范围、自身过滤与查询级联中 AND 连接的 eq（或单值 in）条件；GetInputParam 取本视图 queryContext。 */
   private queryOwnershipDefaults(): Record<string, unknown> {
-    const filters: DataViewFilterTree[] = this.filterExpression === undefined ? [] : [this.filterExpression]
+    const filters = [this.scopeFilter, this.filterExpression].filter(filter => filter !== undefined)
     const ds = this.dataSet
     for (const rel of ds?.getParentCascades(this.tableName, this.viewId) ?? []) {
       let resolved: DataViewFilterTree | undefined | null
@@ -4487,6 +4494,13 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
     return params
   }
 
+  /** 发出请求前合并一次常驻范围；调用方可已显式给出过滤，范围仍不能被替换。 */
+  private withScopeFilter(params: QueryParams): QueryParams {
+    const filter = this._mergeRemoteFilters(this.scopeFilter, params.filter)
+    if (filter !== undefined) params.filter = filter
+    return params
+  }
+
   private _buildRemoteViewConfig(): ViewMetadata {
     const config: ViewMetadata = {
       tableName: this.tableName,
@@ -4494,6 +4508,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
       page: this.page,
       pageSize: this.pageSize,
     }
+    if (this.scopeFilter !== undefined) config.scopeFilter = this.scopeFilter
     if (this.filterExpression !== undefined) config.filterExpression = this.filterExpression
     if (this.sortExpression !== undefined) config.sortExpression = this.sortExpression
     if (this.treeConfig !== undefined) {
@@ -4719,6 +4734,11 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
     if (vc.onRequestComplete !== undefined) this.onRequestComplete = vc.onRequestComplete
     if (vc.queryConfig !== undefined) this.queryConfig = vc.queryConfig
     if (vc.queryContext !== undefined) this.queryContext = { ...vc.queryContext }
+    if (vc.scopeFilter !== undefined) {
+      const scope = this._parseFilter(vc.scopeFilter)
+      if (!this._shouldApplySynchronousLocalFilter()) this._validateRemoteFilterFields(scope.toJSON())
+      this.appliedScopeFilter = scope
+    }
     if (vc.filterExpression !== undefined) {
       this.filterExpression = vc.filterExpression
     }
@@ -4747,7 +4767,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
     if (vc.page !== undefined) this.page = vc.page
     if (vc.pageSize !== undefined) this.pageSize = vc.pageSize
     this._rebuildColumnMap()
-    if (vc.filterExpression !== undefined && this._shouldApplyStaticLocalFilter()) {
+    if ((vc.filterExpression !== undefined || vc.scopeFilter !== undefined) && this._shouldApplyStaticLocalFilter()) {
       this._syncStaticLocalFilterRows()
     }
     this.emitConfigChanged()
@@ -4808,6 +4828,7 @@ toJson(): ViewMetadata {
       pageSize: this.pageSize,
       rows: serializedRows,
     }
+    if (this.scopeFilter !== undefined) result.scopeFilter = this.scopeFilter
     if (this.filterExpression !== undefined) result.filterExpression = this.filterExpression
     if (this.sortExpression !== undefined) result.sortExpression = this.sortExpression
     // 布尔必须显式写出：省略 false 会在重新加载后回到默认 true

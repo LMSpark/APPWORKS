@@ -38,6 +38,13 @@
         },
         "showCellControl": {
           "type": "boolean"
+        },
+        "valueTagTypes": {
+          "type": "object",
+          "title": "Record<string, TagType>"
+        },
+        "cellTitleField": {
+          "type": "string"
         }
       },
       "additionalProperties": false,
@@ -57,7 +64,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-13T04:24:20.028Z",
+  "generatedAt": "2026-11-13T13:51:22.430Z",
   "models": {
     "RSelectProps": {
       "name": "RSelectProps",
@@ -71,7 +78,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkOptionFieldProps<string | number> & SparkFieldMemberProps & {\n    /** 直接绑定平面选项视图时修剪文本选项值并排除空白；默认false。须显式声明optionValueField，只用于字段值，不能用于记录选择或级联；原视图不变，修剪后值冲突会禁用选择并提示。 */\n    optionValueTrim?: boolean;\n    /** 允许可搜索的普通文本字段输入候选外的非空字符串，默认false。仅写原字段，不新增或选择选项记录；记录选择及tabs不开放。远端选项须完成本次查询，禁用同值候选不能借输入放行；数据列和领域保存约束仍生效。 */\n    allowCreate?: boolean;\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkOptionFieldProps<string | number> & SparkFieldMemberProps & {\n    /** 直接绑定平面选项视图时修剪文本选项值并排除空白；默认false。须显式声明optionValueField，只用于字段值，不能用于记录选择或级联；原视图不变，修剪后值冲突会禁用选择并提示。 */\n    optionValueTrim?: boolean;\n    /** 允许可搜索的普通文本字段输入候选外的非空字符串，默认false。仅写原字段，不新增或选择选项记录；记录选择及tabs不开放。远端选项须完成本次查询，禁用同值候选不能借输入放行；数据列和领域保存约束仍生效。 */\n    allowCreate?: boolean;\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表格只读单元格按原字段值显示为标签，键为字段原值，未列出的非空值用info；空值、脱敏及showCellControl单元格不显示标签。只影响呈现。 */\n    valueTagTypes?: Readonly<Record<string, TagType>>;\n    /** 表格只读单元格悬浮显示同行另一字段的值；该字段须由绑定DataView判定为visible，否则不显示。只影响呈现。 */\n    cellTitleField?: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -90,7 +97,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 直接绑定平面选项视图时修剪文本选项值并排除空白；默认false。须显式声明optionValueField，只用于字段值，不能用于记录选择或级联；原视图不变，修剪后值冲突会禁用选择并提示。 */\n    optionValueTrim?: boolean;\n    /** 允许可搜索的普通文本字段输入候选外的非空字符串，默认false。仅写原字段，不新增或选择选项记录；记录选择及tabs不开放。远端选项须完成本次查询，禁用同值候选不能借输入放行；数据列和领域保存约束仍生效。 */\n    allowCreate?: boolean;\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}"
+            "typeText": "{\n    /** 直接绑定平面选项视图时修剪文本选项值并排除空白；默认false。须显式声明optionValueField，只用于字段值，不能用于记录选择或级联；原视图不变，修剪后值冲突会禁用选择并提示。 */\n    optionValueTrim?: boolean;\n    /** 允许可搜索的普通文本字段输入候选外的非空字符串，默认false。仅写原字段，不新增或选择选项记录；记录选择及tabs不开放。远端选项须完成本次查询，禁用同值候选不能借输入放行；数据列和领域保存约束仍生效。 */\n    allowCreate?: boolean;\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表格只读单元格按原字段值显示为标签，键为字段原值，未列出的非空值用info；空值、脱敏及showCellControl单元格不显示标签。只影响呈现。 */\n    valueTagTypes?: Readonly<Record<string, TagType>>;\n    /** 表格只读单元格悬浮显示同行另一字段的值；该字段须由绑定DataView判定为visible，否则不显示。只影响呈现。 */\n    cellTitleField?: string;\n}"
           }
         ],
         "members": {
@@ -116,6 +123,18 @@
             {
               "name": "showCellControl",
               "jsdoc": "表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueTagTypes",
+              "jsdoc": "表格只读单元格按原字段值显示为标签，键为字段原值，未列出的非空值用info；空值、脱敏及showCellControl单元格不显示标签。只影响呈现。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellTitleField",
+              "jsdoc": "表格只读单元格悬浮显示同行另一字段的值；该字段须由绑定DataView判定为visible，否则不显示。只影响呈现。",
               "readable": true,
               "writable": false
             }

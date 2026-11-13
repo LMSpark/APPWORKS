@@ -1,5 +1,5 @@
 {
-  "gapCount": 3810,
+  "gapCount": 3816,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -4687,7 +4687,7 @@
       "chainBreak": "SystemPageIdentityResolver.getInstance 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 35,
+      "declarationLine": 37,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -4699,7 +4699,7 @@
       "chainBreak": "SystemPageIdentityResolver.getInstanceById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 36,
+      "declarationLine": 38,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -4711,7 +4711,7 @@
       "chainBreak": "SystemPageIdentityResolver.closeInstance 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 37,
+      "declarationLine": 39,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -4723,7 +4723,7 @@
       "chainBreak": "SystemPageIdentityResolver.resetInstances 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 40,
+      "declarationLine": 42,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -4735,7 +4735,7 @@
       "chainBreak": "SystemPageIdentityResolver.createOwner 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 41,
+      "declarationLine": 43,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -4747,7 +4747,7 @@
       "chainBreak": "SystemPageIdentityResolver.hostRouteName 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 42,
+      "declarationLine": 44,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -4759,7 +4759,7 @@
       "chainBreak": "SystemPageIdentityResolver.hostRouteMeta 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 43,
+      "declarationLine": 45,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -4771,7 +4771,7 @@
       "chainBreak": "SystemPageIdentityResolver.resolveComponent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 44,
+      "declarationLine": 46,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -9538,7 +9538,7 @@
       "chainBreak": "DataResourceRelationFieldMapping.parentResourceField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 733,
+      "declarationLine": 738,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9550,7 +9550,7 @@
       "chainBreak": "DataResourceRelationFieldMapping.childResourceField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 734,
+      "declarationLine": 739,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9561,7 +9561,7 @@
       "chainBreak": "DataResourceRelation 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 736,
+      "declarationLine": 741,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -9573,7 +9573,7 @@
       "chainBreak": "DataResourceRelationInput.filterExpression 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 756,
+      "declarationLine": 761,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9585,7 +9585,7 @@
       "chainBreak": "DataResourceRelationInput.childField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 757,
+      "declarationLine": 762,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9597,7 +9597,7 @@
       "chainBreak": "DataResourceRelationInput.parentField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 758,
+      "declarationLine": 763,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9609,7 +9609,7 @@
       "chainBreak": "DataResourceRelationInput.fieldMappings 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 759,
+      "declarationLine": 764,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9621,7 +9621,7 @@
       "chainBreak": "DataResourceRelationInput.condition 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 760,
+      "declarationLine": 765,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9633,7 +9633,7 @@
       "chainBreak": "DataViewQueryCascade.kind 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 808,
+      "declarationLine": 813,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9644,7 +9644,7 @@
       "chainBreak": "DataViewFieldCascade 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 833,
+      "declarationLine": 838,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -9656,7 +9656,7 @@
       "chainBreak": "DataViewFieldCascade.kind 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 834,
+      "declarationLine": 839,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9668,7 +9668,7 @@
       "chainBreak": "DataViewFieldCascade.cascadeId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 835,
+      "declarationLine": 840,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9680,7 +9680,7 @@
       "chainBreak": "DataViewFieldCascade.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 836,
+      "declarationLine": 841,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9692,7 +9692,7 @@
       "chainBreak": "DataViewFieldCascade.viewId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 837,
+      "declarationLine": 842,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9704,7 +9704,7 @@
       "chainBreak": "DataViewFieldCascade.targetField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 838,
+      "declarationLine": 843,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9716,7 +9716,7 @@
       "chainBreak": "DataViewFieldCascade.valuePolicy 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 854,
+      "declarationLine": 859,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9727,7 +9727,7 @@
       "chainBreak": "DataViewFieldCascadeAddress 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 863,
+      "declarationLine": 868,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -9739,7 +9739,7 @@
       "chainBreak": "DataViewFieldCascadeAddress.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 864,
+      "declarationLine": 869,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9751,7 +9751,7 @@
       "chainBreak": "DataViewFieldCascadeAddress.viewId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 865,
+      "declarationLine": 870,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9763,7 +9763,7 @@
       "chainBreak": "DataViewFieldCascadeAddress.field 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 866,
+      "declarationLine": 871,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9774,7 +9774,7 @@
       "chainBreak": "DataViewFieldCascadeState 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 868,
+      "declarationLine": 873,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -9786,7 +9786,7 @@
       "chainBreak": "DataViewFieldCascadeState.status 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 869,
+      "declarationLine": 874,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9798,7 +9798,7 @@
       "chainBreak": "DataViewFieldCascadeState.options 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 870,
+      "declarationLine": 875,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9810,7 +9810,7 @@
       "chainBreak": "DataViewFieldCascadeState.valueStatus 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 871,
+      "declarationLine": 876,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9822,7 +9822,7 @@
       "chainBreak": "DataViewFieldCascadeState.error 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 872,
+      "declarationLine": 877,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9834,7 +9834,7 @@
       "chainBreak": "DataSetContract.getFieldCascadeState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1208,
+      "declarationLine": 1213,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9846,7 +9846,7 @@
       "chainBreak": "DataSetContract.refreshFieldCascade 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1209,
+      "declarationLine": 1214,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9858,7 +9858,7 @@
       "chainBreak": "DataSetContract.onFieldCascadeChange 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1210,
+      "declarationLine": 1215,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -9870,7 +9870,7 @@
       "chainBreak": "DataSetDiscardAndReloadOptions.views 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1347,
+      "declarationLine": 1352,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -43575,6 +43575,72 @@
       "declarationFile": "src/views/features/application/data-menu/ui/data-menu-dialog.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/application/data-menu/ui/data-menu-dialog.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model",
+      "moduleName": "app:views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model.ts"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content",
+      "moduleName": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page",
+      "moduleName": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog",
+      "moduleName": "app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page",
+      "moduleName": "app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page",
+      "moduleName": "app:views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue"
     },
     {
       "kind": "module",

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model",
+    "sourcePath": "src/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model.ts",
+    "sourceFile": "src/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model",
+    "jsdoc": "@module app:views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model\n职责：企业应用授权三页共用的正式场景身份、会话参数、申请时间呈现及单条记录提交。\n边界：只读取当前会话的企业简称与用户ID作为查询参数和操作人，不判断身份放行；提交只经所属DataSet按记录ID保存。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T13:58:53.887Z",
+  "models": {}
+}

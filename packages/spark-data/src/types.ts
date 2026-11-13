@@ -703,6 +703,11 @@ export type ViewMetadata = {
   rows?: DataRow[]
   /** 过滤表达式 */
   filterExpression?: DataViewFilterTree
+  /**
+   * 视图常驻范围，只由视图配置设定；每次查询及本地过滤都与级联约束、当前过滤按 AND 合并。
+   * setFilter、筛选区和完整表达式编辑只改 filterExpression，不能替换或放宽本范围；GetInputParam 取本视图 queryContext。
+   */
+  scopeFilter?: DataViewFilterTree
   /** 排序表达式 */
   sortExpression?: SortExpression
   /** 请求成功后自动将 currentRow 设为第一行 */

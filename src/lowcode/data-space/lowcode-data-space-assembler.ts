@@ -42,13 +42,14 @@ function validateRemoteReferences(view: Record<string, unknown>, localNames: Rea
  }
  const sort = view['sortExpression']
  if (Array.isArray(sort)) for (const entry of sort) check(record(entry, `${path}.sortExpression`)['field'], 'sortExpression')
- const filter = view['filterExpression']
- if (filter !== undefined) {
+ for (const key of ['scopeFilter', 'filterExpression']) {
+  const filter = view[key]
+  if (filter === undefined) continue
   const walk = (node: Record<string, unknown>): void => {
-   if (Array.isArray(node['filters'])) node['filters'].forEach(child => walk(record(child, `${path}.filterExpression`)))
-   else check(node['field'], 'filterExpression')
+   if (Array.isArray(node['filters'])) node['filters'].forEach(child => walk(record(child, `${path}.${key}`)))
+   else check(node['field'], key)
   }
-  walk(record(filter, `${path}.filterExpression`))
+  walk(record(filter, `${path}.${key}`))
  }
  const tree = view['treeConfig']
  if (tree !== undefined) for (const key of ['idField', 'parentIdField']) {

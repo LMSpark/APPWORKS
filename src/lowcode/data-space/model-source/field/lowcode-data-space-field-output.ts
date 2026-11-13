@@ -242,7 +242,7 @@ export class LowcodeDataSpaceFieldOutput {
         if (isRecord(view['aggregates'])) for (const [key, item] of Object.entries(view['aggregates'])) {
           if (isRecord(item)) reference(item['field'] ?? key, tableName, {path: `${path}.aggregates.${key}.field`})
         }
-        filter(view['filterExpression'], {child: tableName, parent: tableName, path: `${path}.filterExpression`})
+        for (const key of ['scopeFilter', 'filterExpression']) filter(view[key], {child: tableName, parent: tableName, path: `${path}.${key}`})
       }
     }
     if (removed && config) {

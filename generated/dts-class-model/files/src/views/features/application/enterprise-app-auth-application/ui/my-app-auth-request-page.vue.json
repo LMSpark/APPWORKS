@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page",
+    "sourcePath": "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue",
+    "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page",
+    "jsdoc": "@module app:views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page\n职责：本企业发起的应用授权申请（47DA 场景常驻范围：REQUEST 且申请企业为本企业），支持状态筛选、内嵌申请、取消与重新申请。\n边界：应用名称经同一运行实例内 C06D 应用主表、来源企业经 0221 企业表的选项视图查值显示；取消/重新申请只改本行 auth_status 与 operator 并按记录提交，\n可用性依据本行 auth_status 写权限及业务状态，不按身份放行。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T18:05:52.551Z",
+  "models": {}
+}

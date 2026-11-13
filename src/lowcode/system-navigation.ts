@@ -74,9 +74,26 @@ export function lowcodePlatformNavigation(): RuntimeNavigation {
   }
 }
 
-/** 在应用业务导航末尾追加“应用设计”分组，设计目标即当前应用。 */
+function collectNavigationIds(items: readonly RuntimeNavigationItem[], ids: Set<string>): Set<string> {
+  for (const item of items) {
+    ids.add(item.id)
+    if (item.children) collectNavigationIds(item.children, ids)
+  }
+  return ids
+}
+
+function withoutNavigationIds(items: readonly RuntimeNavigationItem[], ids: ReadonlySet<string>): RuntimeNavigationItem[] {
+  return items.flatMap(item => {
+    if (ids.has(item.id)) return []
+    if (!item.children) return [item]
+    const children = withoutNavigationIds(item.children, ids)
+    return children.length === 0 ? [] : [{...item, children}]
+  })
+}
+
+/** 在应用业务导航末尾追加“应用设计”分组，设计目标即当前应用；业务导航已承载同一节点身份的系统页不再重复挂出。 */
 export function withApplicationDesign(businessItems: readonly RuntimeNavigationItem[]): RuntimeNavigationItem[] {
-  const children = buildSystemPageItems('app')
+  const children = withoutNavigationIds(buildSystemPageItems('app'), collectNavigationIds(businessItems, new Set()))
   return children.length === 0 ? [...businessItems]
     : [...businessItems, {id: APPLICATION_DESIGN_GROUP_ID, title: '应用设计', itemKind: 'module', children}]
 }

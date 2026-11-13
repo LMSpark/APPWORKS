@@ -1361,6 +1361,9 @@
         "supportsQueryFiltering": {
           "type": "boolean"
         },
+        "scopeFilter": {
+          "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+        },
         "filterExpression": {
           "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
         },
@@ -3288,7 +3291,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T20:39:06.441Z",
+  "generatedAt": "2026-11-13T13:49:35.973Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -5158,6 +5161,12 @@
             {
               "name": "supportsQueryFiltering",
               "jsdoc": "当前视图是否可独立设置查询过滤；与行写权限及只读结果类型无关。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeFilter",
+              "jsdoc": "视图常驻范围，只经视图配置设定；查询及本地过滤与当前过滤 AND 合并，setFilter 不能替换或放宽。",
               "readable": true,
               "writable": false
             },

@@ -7,7 +7,10 @@ AI用途：需要理解 field select 的实际渲染结构、slot/toolbar/状态
 <template>
   <FieldContextRenderer v-bind="fieldCtx" :edit-on-dblclick="props.showCellControl ? false : props.editOnDblclick">
     <template #table-cell="{row, value}">
-      <span v-if="!props.showCellControl || permission.isTableCellMasked(row)" :class="['field-table-value', props.valueClassName]">{{ value }}</span>
+      <template v-if="!props.showCellControl || permission.isTableCellMasked(row)">
+        <el-tag v-if="cellTagType(row)" :type="cellTagType(row)" :title="cellTitle(row)" disable-transitions>{{ value }}</el-tag>
+        <span v-else :class="['field-table-value', props.valueClassName]" :title="cellTitle(row)">{{ value }}</span>
+      </template>
       <FieldTableCellScope v-else :source="permission.dataSource.value ?? undefined" :row="row">
         <FieldSelect v-bind="cellProps" :readonly="props.readonly || props.cellReadonly?.(row) === true"
           @update:model-value="value => emitFieldValueUpdate(emit, value)" />
@@ -58,6 +61,7 @@ import { coercePrimitiveOptionValue } from '../../composables/value/fieldValueCo
 import FieldContextRenderer from '../../../non-data-components/FieldContextRenderer.vue'
 import FieldTableCellScope from '../../../non-data-components/FieldTableCellScope.vue'
 import type { RSelectProps } from './FieldSelect.props'
+import type { TagType } from '../../../../display/data-components/value/DisplayTag/DisplayTag.props'
 
 const props = withDefaults(defineProps<RSelectProps>(), {
   type: 'r-select',
@@ -127,6 +131,17 @@ const {handleControlledChange: changeSelection} = useControlledFieldChange<strin
     if (row && options.value.some(option => option.value === value && !option.disabled)) select(row)
   },
 })
+function cellTagType(row: DataRow): TagType | undefined {
+  const types = props.valueTagTypes, raw = row[permission.fieldName.value]
+  if (!types || permission.isTableCellMasked(row) || raw === undefined || raw === null || raw === '') return undefined
+  return types[String(raw)] ?? 'info'
+}
+function cellTitle(row: DataRow): string | undefined {
+  const field = props.cellTitleField, view = permission.dataSource.value
+  if (!field || !view || view.fieldAccess(row, field).read !== 'visible') return undefined
+  const value = row[field]
+  return typeof value === 'string' || typeof value === 'number' ? String(value) : undefined
+}
 // 标题从当前选项源派生，不依赖关闭后已释放或候选变化前的ElOption缓存。
 const selectedLabel = computed(() => options.value.find(option => option.value === fieldValue.value)?.label ?? props.unmatchedText ?? String(fieldValue.value))
 

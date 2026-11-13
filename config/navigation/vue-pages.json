@@ -150,6 +150,37 @@
       "dataSpaceId": "0C70F74793F9E858B71E0DBDEC784D57"
     },
     {
+      "path": "/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page",
+      "title": "我的申请",
+      "icon": "Document",
+      "scope": "enterprise",
+      "source": "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue",
+      "description": "本企业向其他企业申请的应用授权及其状态",
+      "group": "应用系统管理",
+      "order": 52,
+      "dataSpaceId": "47DA54EA853C8780976D43CF2369B096"
+    },
+    {
+      "path": "/features/application/enterprise-app-auth-application/ui/apply-app-auth-page",
+      "title": "申请应用授权",
+      "scope": "enterprise",
+      "source": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
+      "description": "向其他企业已发布的应用提交授权申请",
+      "hidden": true,
+      "identityHost": "/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page"
+    },
+    {
+      "path": "/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page",
+      "title": "申请列表",
+      "icon": "Finished",
+      "scope": "enterprise",
+      "source": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue",
+      "description": "其他企业对本企业发布应用的待审批授权申请",
+      "group": "应用系统管理",
+      "order": 53,
+      "dataSpaceId": "C06D41607B6258106F35A0A319B71804"
+    },
+    {
       "path": "/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page",
       "title": "入驻管理",
       "icon": "OfficeBuilding",

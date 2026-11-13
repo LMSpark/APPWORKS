@@ -5,6 +5,7 @@
  * AI用途：生成或修订页面配置时，用本模块判断 field select 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
  */
 import type { SparkFieldMemberProps, SparkNodeProps, SparkOptionFieldProps } from '../../../../shared-types'
+import type { TagType } from '../../../../display/data-components/value/DisplayTag/DisplayTag.props'
 import type {DataRow} from '@spark-appworks/spark-data'
 
 /**
@@ -26,4 +27,8 @@ export type RSelectProps = SparkNodeProps & SparkOptionFieldProps<string | numbe
   showCellControl?: boolean
   /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */
   cellReadonly?: (row: Readonly<DataRow>) => boolean
+  /** 表格只读单元格按原字段值显示为标签，键为字段原值，未列出的非空值用info；空值、脱敏及showCellControl单元格不显示标签。只影响呈现。 */
+  valueTagTypes?: Readonly<Record<string, TagType>>
+  /** 表格只读单元格悬浮显示同行另一字段的值；该字段须由绑定DataView判定为visible，否则不显示。只影响呈现。 */
+  cellTitleField?: string
 }

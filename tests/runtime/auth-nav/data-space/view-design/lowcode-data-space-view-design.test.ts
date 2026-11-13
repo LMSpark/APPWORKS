@@ -170,7 +170,7 @@ describe('native view definitions through the designer DataSet', () => {
       queryContext: {parentIds: [1, 2], active: false}, page: 2, pageSize: 25,
       queryConfig: {outputType: 'SelfRefData', tree: {keyField: 'id', parentField: 'label', nodeId: 'root', mode: 'child' as const}, allPages: false, maxRows: 100},
       autoCurrentFirst: false, autoSelectFirst: false, autoLoad: false,
-      filterExpression: {field: 'id', operator: 'eq' as const, value: '1'}, sortExpression: [{field: 'label', direction: 'asc' as const}],
+      filterExpression: {field: 'id', operator: 'eq' as const, value: '1'}, scopeFilter: {field: 'label', operator: 'ne' as const, value: 'x'}, sortExpression: [{field: 'label', direction: 'asc' as const}],
       treeConfig: {idField: 'id', textField: 'label', treeMode: 'flat' as const},
       aggregates: {recordCount: {type: 'count' as const, field: 'id'}}, selectionDelimiter: '|', commitMode: 'staged' as const,
       allowDelete: false, lockCurrentWhilePending: true,

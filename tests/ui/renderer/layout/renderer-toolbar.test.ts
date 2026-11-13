@@ -104,6 +104,59 @@ describe('container toolbar contract through the real renderer', () => {
       expect(fixture.wrapper.get('.renderer-toolbar-lane--end').attributes('style')).toContain('gap: 17px')
     } finally {fixture.dispose()}
   })
+
+  it('hands keyless row actions the original query row so field reads stay authorized', async () => {
+    const stubs = {...config.global.stubs}
+    delete stubs['SparkComponentRenderer']; delete stubs['spark-component-renderer']
+    delete stubs['el-table']; delete stubs['el-table-column']
+    config.global.stubs = stubs
+    vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
+    const ds = SparkData.createDataSet({scenarioId: 'SCENE', dataSetName: 'Keyless', tables: {Picks: {
+      tableName: 'Picks', resourceType: 'static-data', resourceId: 'picks',
+      columns: [{name: 'code', type: 'string'}, {name: 'secret', type: 'string'}], views: {default: {}},
+    }}})
+    const view = ds.getView('Picks', 'default')!
+    view.primaryKey = ''
+    const queryRows = [{code: 'P1', secret: 'S1'}, {code: 'P2', secret: 'S2'}]
+    const initialResult = {
+      rows: queryRows, total: queryRows.length, assertIdentity: () => undefined, rowKey: () => undefined,
+      fieldAccess: () => ({read: 'invisible' as const, write: 'denied' as const, component: 'hidden' as const,
+        required: false, writeMode: 'readonly' as const}),
+      readFieldAccess: (_row: Record<string, unknown>, field: string) => field === 'code' ? 'visible' as const : 'invisible' as const,
+      addActionState: () => 'enabled' as const, editActionState: () => 'enabled' as const, deleteActionState: () => 'enabled' as const,
+      createChildActionState: () => 'enabled' as const, viewActionState: () => 'enabled' as const,
+    }
+    view.bindQueryExecutor({executeQuery: async () => initialResult},
+      {resource: {resourceType: 'static-data', resourceId: 'picks'}, initialResult})
+    const runtime = new PageRuntime({pageId: 'keyless-actions', scenarioIds: ['SCENE'], loadScenario: async () => ds})
+    await runtime.load()
+    const registry = Spark.createRegistry()
+    registry.register({type: 'r-toolbar', component: RendererToolbar})
+    registry.register({type: 'r-button', component: RendererButton})
+    const before = vi.fn((context: BeforeRenderContext) => {
+      const row = context.row
+      const source = context.dataSource
+      if (!row || !source) return {visible: false}
+      const readable = source.fieldAccess(row, 'code').read === 'visible' && source.fieldAccess(row, 'secret').read === 'invisible'
+      return readable ? {label: `pick:${String(row['code'])}`} : {visible: false}
+    })
+    const Host = defineComponent({setup() {
+      useSparkComponent({type: 'keyless-actions-host'}).sparkProvide(PAGE_RUNTIME, runtime)
+      return () => h(RendererTable, {dataViewKey: 'SCENE@Picks@default', autoColumns: false, showDataViewMeta: false,
+        showPagination: false, actions: {children: [{type: 'r-button', props: {onBeforeRender: before}}]}})
+    }})
+    const wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark.createPlugin({registry})],
+      components: {'el-table': ElTable, 'el-table-column': ElTableColumn},
+      stubs: {'el-table': ElTable, 'el-table-column': ElTableColumn}}})
+    try {
+      await flushPromises()
+      expect(view.rows.length).toBe(2)
+      expect(wrapper.text()).toContain('pick:P1')
+      expect(wrapper.text()).toContain('pick:P2')
+      expect(before.mock.calls.every(([context]) => context.row !== null && context.row !== undefined
+        && view.rows.includes(context.row))).toBe(true)
+    } finally {wrapper.unmount(); runtime.dispose(); ds.destroy()}
+  })
 })
 
 describe('RendererTree editing projection', () => {

@@ -1,7 +1,7 @@
 /**
  * @module app:views/features/shared/runtime/use-feature-page-runtime
- * 职责：按导航身份装配单数据空间功能页的正式运行实例并加载主视图。
- * 边界：校验导航身份并释放过期实例，不承载页面字段或业务数据副本。
+ * 职责：按导航身份装配功能页的正式运行实例并加载主视图；可在同一实例内一并装配伙伴数据空间。
+ * 边界：校验导航身份并释放过期实例，不承载页面字段或业务数据副本；主场景始终是 scenarioId。
  * AI用途：原生功能页以一个主模型视图为入口时复用；navigationId 允许页面以独立导航身份消费其他空间。
  */
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
@@ -26,6 +26,12 @@ type FeaturePageRuntimeOptions = Readonly<{
   title: string
   /** 与主视图同批读取 default 视图的选项模型；任一失败即入口失败，不使用旧候选。 */
   optionModels?: readonly string[]
+  /** 同一运行实例一并装配的其他正式数据空间，组件以完整视图键消费；不改变主场景。 */
+  peerScenarioIds?: readonly string[]
+  /** 与主视图同批读取的完整视图键（可属伙伴空间）；任一失败即入口失败。 */
+  optionViews?: readonly string[]
+  /** 主视图及各选项视图首次查询前写入的查询参数；每次装配时取值，抛错即入口失败。 */
+  queryContext?: () => Readonly<Record<string, string>>
 }>
 
 /** 在路由的执行作用域（应用或目录）内加载主视图，切换或卸载时撤销原实例。 */
@@ -33,6 +39,7 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
   const {scenarioId, modelName, componentType, title} = options
   const navigationId = options.navigationId ?? scenarioId
   const viewKey = buildDataViewKey(modelName, 'default', scenarioId)
+  const peers = options.peerScenarioIds ?? []
   const route = useRoute()
   const {sparkProvide, sparkRemove} = useSparkComponent({type: componentType})
   const session = new NativePageRuntimeSession({
@@ -59,22 +66,33 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
       if (!projectId || scenario !== scenarioId || nodeId !== navigationId || state !== 'resolved') {
         throw new Error(`${title}入口缺少正式导航身份或数据空间绑定`)
       }
+      if (peers.some(peer => !peer || peer === scenarioId) || new Set(peers).size !== peers.length) {
+        throw new Error(`${title}伙伴数据空间身份无效或重复`)
+      }
+      const context = options.queryContext?.()
       current = session.acquire({
         pageId: nodeId,
-        scenarioIds: [scenarioId],
+        scenarioIds: [scenarioId, ...peers],
+        ...(peers.length > 0 ? {mainScenarioId: scenarioId} : {}),
         targetId: `${projectId}:${nodeId}`,
         loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id}),
       })
       await current.load()
       if (!isCurrent(current, own)) return
-      const view = current.getDataSet(scenarioId)?.getView(modelName, 'default')
-      if (!view) throw new Error(`${title}缺少正式${modelName}视图`)
       const dataSet = current.getDataSet(scenarioId)
+      const view = dataSet?.getView(modelName, 'default')
+      if (!view) throw new Error(`${title}缺少正式${modelName}视图`)
+      const runtime = current
       const views = [view, ...(options.optionModels ?? []).map(name => {
         const option = dataSet?.getView(name, 'default')
         if (!option) throw new Error(`${title}缺少正式${name}选项视图`)
         return option
+      }), ...(options.optionViews ?? []).map(key => {
+        const option = runtime.resolveView(key)
+        if (!option) throw new Error(`${title}缺少正式选项视图 ${key}`)
+        return option
       })]
+      if (context) for (const item of views) item.queryContext = {...item.queryContext, ...context}
       await Promise.all(views.map(item => item.refresh()))
       const failed = views.find(item => item.loadingError)
       if (failed?.loadingError) throw failed.loadingError

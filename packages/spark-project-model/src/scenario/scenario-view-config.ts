@@ -86,7 +86,7 @@ type SelectTablesInput = Readonly<{
 export class ScenarioViewConfig {
   static readonly #viewProperties = Object.freeze<Record<keyof Omit<SparkData.ViewMetadata, 'tableName' | 'viewId' | 'rows'>, true>>({
     onRequestComplete: true,
-    fieldProjection: true, queryContext: true, queryConfig: true, filterExpression: true, sortExpression: true,
+    fieldProjection: true, queryContext: true, queryConfig: true, scopeFilter: true, filterExpression: true, sortExpression: true,
     autoCurrentFirst: true, autoSelectFirst: true, page: true, pageSize: true, treeConfig: true,
     valueField: true, labelField: true, selectionDelimiter: true, autoLoad: true, commitMode: true, aggregates: true,
     allowDelete: true, lockCurrentWhilePending: true, fieldOptions: true,
@@ -189,7 +189,7 @@ export class ScenarioViewConfig {
         for (const [viewId, inputView] of Object.entries(views)) {
           const view = record(inputView, `${tableName}@${viewId}`), query = record(view['queryConfig'], `${tableName}@${viewId}.queryConfig`)
           if (view['autoLoad'] !== false || view['commitMode'] !== 'staged' || query['pagination'] !== 'none'
-            || Object.keys(query).some(key => key !== 'pagination') || ['filterExpression', 'sortExpression', 'treeConfig'].some(key => Object.hasOwn(view, key))) throw new Error(`${tableName}@${viewId} 命令只接受显式暂存、禁止自动加载且无分页的本地参数/回执视图`)
+            || Object.keys(query).some(key => key !== 'pagination') || ['scopeFilter', 'filterExpression', 'sortExpression', 'treeConfig'].some(key => Object.hasOwn(view, key))) throw new Error(`${tableName}@${viewId} 命令只接受显式暂存、禁止自动加载且无分页的本地参数/回执视图`)
         }
       }
     }
@@ -246,6 +246,7 @@ export class ScenarioViewConfig {
       if (owner === tableName) continue
       for (const [id, inputView] of Object.entries(record(record(input, owner)['views'], `${owner}.views`))) {
         const view = record(inputView, `${owner}@${id}`), path = `tables.${owner}.views.${id}`
+        filter(view['scopeFilter'], `${path}.scopeFilter`)
         filter(view['filterExpression'], `${path}.filterExpression`)
         for (const dependency of this.queryModelDependencies(view['queryConfig'])) {
           if (!(dependency.formalModelOnly && isNonModelResource(target))
@@ -792,9 +793,10 @@ export class ScenarioViewConfig {
       && !(Array.isArray(view['valueField']) && view['valueField'].every(item => typeof item === 'string'))) throw new Error(`${path}.valueField 无效`)
     if ('queryContext' in view) record(view['queryContext'], `${path}.queryContext`)
     if ('queryConfig' in view) SparkData.DataViewQuery.parse(view['queryConfig'], `${path}.queryConfig`)
-    if ('filterExpression' in view) {
-      const parsed = SparkData.DataViewFilter.parse(view['filterExpression'])
-      if (!parsed.ok) throw new Error(`${path}.filterExpression: ${parsed.issues.map(issue => issue.message).join('; ')}`)
+    for (const key of ['scopeFilter', 'filterExpression']) {
+      if (!(key in view)) continue
+      const parsed = SparkData.DataViewFilter.parse(view[key])
+      if (!parsed.ok) throw new Error(`${path}.${key}: ${parsed.issues.map(issue => issue.message).join('; ')}`)
     }
     if ('sortExpression' in view) {
       if (!Array.isArray(view['sortExpression'])) throw new Error(`${path}.sortExpression 必须是数组`)

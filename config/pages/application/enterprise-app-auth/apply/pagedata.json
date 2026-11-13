@@ -1,0 +1,22 @@
+{
+  "scenarioId": "02215DFBCA2079FBC076CEF7D91FBF6E",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "enterprise_app_auth": {
+      "modelBinding": {"modelId": "44a9432c-2fc5-4e1a-9a62-7d528696c4e2", "modelName": "enterprise_app_auth"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
+        "scopeFilter": {"field": "id", "operator": "is-null"},
+        "queryConfig": {"pagination": "none", "cacheType": "none", "fields": ["id", "app_id", "review_comment", "operator"]}
+      }}
+    },
+    "Base_Enterprise_Info": {
+      "modelBinding": {"modelId": "33bfe08a-6dc0-4a7c-b320-e07bb64c4c82", "modelName": "Base_Enterprise_Info"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "ShortName", "labelField": "CName",
+        "queryConfig": {"allPages": true, "maxRows": 1000, "cacheType": "none", "fields": ["rowid", "ShortName", "CName"]}
+      }}
+    }
+  }
+}

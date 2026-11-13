@@ -94,7 +94,7 @@ export class LowcodeDataSpaceArrayConfiguration {
           projection['resourceField']=after.name;projection['viewField']=after.canonicalName;projection['primaryKey']=after.primaryKey
           if(after.primaryKey)projection['output']=true
         }
-        if(names.size&&Object.hasOwn(view,'filterExpression'))view['filterExpression']=filter(view['filterExpression'],tableName,tableName)
+        if(names.size)for(const key of ['scopeFilter','filterExpression'])if(Object.hasOwn(view,key))view[key]=filter(view[key],tableName,tableName)
       }
     }
     if(names.size&&Array.isArray(data['resourceRelations']))for(const relation of data['resourceRelations'])if(isRecord(relation)&&Object.hasOwn(relation,'filterExpression'))relation['filterExpression']=filter(relation['filterExpression'],relation['childTable'],relation['parentTable'])

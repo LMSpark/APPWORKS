@@ -40,18 +40,19 @@ async function fixture(onChange?: () => Promise<void>) {
   await runtime.load(); cleanups.push(() => runtime.dispose())
   const registry = Spark.createRegistry(); registry.register({type: 'r-select', component: FieldSelect})
   const binding = shallowRef('S@Items@default'), readonly = shallowRef(false), locked = shallowRef(''), showControl = shallowRef(true), doubleClick = shallowRef(false)
+  const extra = shallowRef<Record<string, unknown>>({})
   const Host = defineComponent({setup() {
     const {sparkProvide} = useSparkComponent({type: 'select-test'})
     sparkProvide(PAGE_RUNTIME, runtime); sparkProvide(DATA_ROW, {id: 'OUTER', rule: 'one'})
     return () => h(RendererTable, {dataViewKey: binding.value, autoColumns: false, showPagination: false, showDataViewMeta: false,
       children: [{type: 'r-select', props: {dataViewKey: binding.value, field: 'rule', label: '规则', showCellControl: showControl.value,
         editOnDblclick: doubleClick.value, optionDataViewKey: 'S@Rules@default', readonly: readonly.value,
-        cellReadonly: (row: Readonly<Record<string, unknown>>) => row['id'] === locked.value, onChange}}]})
+        cellReadonly: (row: Readonly<Record<string, unknown>>) => row['id'] === locked.value, onChange, ...extra.value}}]})
   }})
   const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin({registry})],
     components: {'el-table': ElTable, 'el-table-column': ElTableColumn}, stubs: {'el-table': ElTable, 'el-table-column': ElTableColumn}}})
   cleanups.push(() => wrapper.unmount()); await flushPromises()
-  return {wrapper, view: ds.getView('Items')!, other: ds.getView('Items', 'other')!, binding, readonly, locked, showControl, doubleClick}
+  return {wrapper, view: ds.getView('Items')!, other: ds.getView('Items', 'other')!, binding, readonly, locked, showControl, doubleClick, extra}
 }
 
 describe('standard select table cells', () => {
@@ -107,5 +108,25 @@ describe('standard select table cells', () => {
     expect(wrapper.findAllComponents(ElSelect)).toHaveLength(1)
     showControl.value = true; await flushPromises()
     expect(wrapper.findAllComponents(ElSelect)).toHaveLength(3)
+  })
+
+  it('shows readonly cells as value-typed tags with a permitted same-row title, never for masked values', async () => {
+    const {wrapper, showControl, extra} = await fixture()
+    showControl.value = false
+    extra.value = {valueTagTypes: {one: 'success'}, cellTitleField: 'id'}
+    await flushPromises()
+    const rows = wrapper.findAll('tbody tr')
+    const tag = (index: number) => rows[index]!.find('.el-tag-global-stub')
+    expect(tag(0).attributes('type')).toBe('success')
+    expect(tag(0).text()).toBe('规则一')
+    expect(tag(0).attributes('title')).toBe('a')
+    expect(tag(1).attributes('type')).toBe('info')
+    expect(tag(4).exists()).toBe(false)
+    expect(rows[4]!.text()).not.toContain('规则一')
+    extra.value = {cellTitleField: 'rule'}
+    await flushPromises()
+    expect(rows[0]!.find('.el-tag-global-stub').exists()).toBe(false)
+    expect(rows[0]!.find('.field-table-value').attributes('title')).toBe('one')
+    expect(rows[4]!.find('.field-table-value').attributes('title')).toBeUndefined()
   })
 })

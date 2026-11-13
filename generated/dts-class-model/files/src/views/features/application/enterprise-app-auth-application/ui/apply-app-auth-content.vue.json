@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content",
+    "sourcePath": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue",
+    "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content",
+    "jsdoc": "@module app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content\n职责：列出其他企业已发布的应用（C06D 应用主表常驻范围：已发布且排除本企业发布），按行发起应用授权申请。\n边界：列表、关键字筛选与分页均由绑定DataView承接；申请在 0221 的 enterprise_app_auth 视图新增一行并只提交该行，取消或明确失败撤销新增。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T18:05:46.320Z",
+  "models": {}
+}

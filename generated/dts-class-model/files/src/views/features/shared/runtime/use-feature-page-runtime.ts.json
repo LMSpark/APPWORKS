@@ -7,7 +7,7 @@
     "sourceFile": "src/views/features/shared/runtime/use-feature-page-runtime.ts",
     "packageName": "app",
     "modulePath": "views/features/shared/runtime/use-feature-page-runtime",
-    "jsdoc": "@module app:views/features/shared/runtime/use-feature-page-runtime\n职责：按导航身份装配单数据空间功能页的正式运行实例并加载主视图。\n边界：校验导航身份并释放过期实例，不承载页面字段或业务数据副本。\nAI用途：原生功能页以一个主模型视图为入口时复用；navigationId 允许页面以独立导航身份消费其他空间。",
+    "jsdoc": "@module app:views/features/shared/runtime/use-feature-page-runtime\n职责：按导航身份装配功能页的正式运行实例并加载主视图；可在同一实例内一并装配伙伴数据空间。\n边界：校验导航身份并释放过期实例，不承载页面字段或业务数据副本；主场景始终是 scenarioId。\nAI用途：原生功能页以一个主模型视图为入口时复用；navigationId 允许页面以独立导航身份消费其他空间。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
@@ -37,29 +37,46 @@
           "items": {
             "type": "string"
           }
+        },
+        "peerScenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "optionViews": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
-      "required": [
-        "scenarioId",
-        "modelName",
-        "componentType",
-        "title"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.queryContext.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.queryContext.return": {
+          "type": "object",
+          "title": "Record<string, string>"
+        }
+      }
     }
   },
-  "generatedAt": "2026-11-12T20:53:11.433Z",
+  "generatedAt": "2026-11-13T13:55:42.983Z",
   "models": {
     "FeaturePageRuntimeOptions": {
       "name": "FeaturePageRuntimeOptions",
       "jsdoc": "一个原生功能页的正式数据身份及组件上下文。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 本页消费的正式数据空间身份。 */\n    scenarioId: string;\n    /** 页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。 */\n    navigationId?: string;\n    /** 主视图所属的正式模型名称，而非物理来源别名。 */\n    modelName: string;\n    /** 本页能力树节点类型，不作为数据身份。 */\n    componentType: string;\n    /** 用于入口及主视图诊断的页面名称。 */\n    title: string;\n    /** 与主视图同批读取 default 视图的选项模型；任一失败即入口失败，不使用旧候选。 */\n    optionModels?: readonly string[];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 本页消费的正式数据空间身份。 */\n    scenarioId: string;\n    /** 页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。 */\n    navigationId?: string;\n    /** 主视图所属的正式模型名称，而非物理来源别名。 */\n    modelName: string;\n    /** 本页能力树节点类型，不作为数据身份。 */\n    componentType: string;\n    /** 用于入口及主视图诊断的页面名称。 */\n    title: string;\n    /** 与主视图同批读取 default 视图的选项模型；任一失败即入口失败，不使用旧候选。 */\n    optionModels?: readonly string[];\n    /** 同一运行实例一并装配的其他正式数据空间，组件以完整视图键消费；不改变主场景。 */\n    peerScenarioIds?: readonly string[];\n    /** 与主视图同批读取的完整视图键（可属伙伴空间）；任一失败即入口失败。 */\n    optionViews?: readonly string[];\n    /** 主视图及各选项视图首次查询前写入的查询参数；每次装配时取值，抛错即入口失败。 */\n    queryContext?: () => Readonly<Record<string, string>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 本页消费的正式数据空间身份。 */\n    scenarioId: string;\n    /** 页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。 */\n    navigationId?: string;\n    /** 主视图所属的正式模型名称，而非物理来源别名。 */\n    modelName: string;\n    /** 本页能力树节点类型，不作为数据身份。 */\n    componentType: string;\n    /** 用于入口及主视图诊断的页面名称。 */\n    title: string;\n    /** 与主视图同批读取 default 视图的选项模型；任一失败即入口失败，不使用旧候选。 */\n    optionModels?: readonly string[];\n}>",
+            "typeText": "Readonly<{\n    /** 本页消费的正式数据空间身份。 */\n    scenarioId: string;\n    /** 页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。 */\n    navigationId?: string;\n    /** 主视图所属的正式模型名称，而非物理来源别名。 */\n    modelName: string;\n    /** 本页能力树节点类型，不作为数据身份。 */\n    componentType: string;\n    /** 用于入口及主视图诊断的页面名称。 */\n    title: string;\n    /** 与主视图同批读取 default 视图的选项模型；任一失败即入口失败，不使用旧候选。 */\n    optionModels?: readonly string[];\n    /** 同一运行实例一并装配的其他正式数据空间，组件以完整视图键消费；不改变主场景。 */\n    peerScenarioIds?: readonly string[];\n    /** 与主视图同批读取的完整视图键（可属伙伴空间）；任一失败即入口失败。 */\n    optionViews?: readonly string[];\n    /** 主视图及各选项视图首次查询前写入的查询参数；每次装配时取值，抛错即入口失败。 */\n    queryContext?: () => Readonly<Record<string, string>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -100,6 +117,45 @@
               "jsdoc": "与主视图同批读取 default 视图的选项模型；任一失败即入口失败，不使用旧候选。",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "peerScenarioIds",
+              "jsdoc": "同一运行实例一并装配的其他正式数据空间，组件以完整视图键消费；不改变主场景。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionViews",
+              "jsdoc": "与主视图同批读取的完整视图键（可属伙伴空间）；任一失败即入口失败。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "queryContext",
+              "jsdoc": "主视图及各选项视图首次查询前写入的查询参数；每次装配时取值，抛错即入口失败。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                ]
+              }
             }
           ]
         }

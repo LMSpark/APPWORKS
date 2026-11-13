@@ -157,7 +157,7 @@ export class LowcodeDataSpaceInputParameterReferences {
         }
       } catch {this.#issues.push(`Base_DataModel_Field(${row['rowid']}): 来源取值配置无法解析`)}
     }
-    for (const row of views) this.filter(row['filterExpression'], 'filterExpression', (name, path) => {
+    for (const row of views) for (const key of ['scopeFilter', 'filterExpression']) this.filter(row[key], key, (name, path) => {
       append({kind: 'view-filter', modelId: String(row['dataModelId']), recordId: JSON.stringify([row['tableName'], row['viewId']]),
         path, parameterName: name}, [row])
     })

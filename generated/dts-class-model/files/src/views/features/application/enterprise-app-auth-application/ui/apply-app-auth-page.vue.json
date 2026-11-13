@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page",
+    "sourcePath": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
+    "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page",
+    "jsdoc": "@module app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page\n职责：申请应用授权的独立路由；借“我的申请”导航身份，在同一运行实例装配 0221 与 C06D 场景后承载申请内容。\n边界：主场景 47DA 只用于导航身份校验与装配；已发布应用列表经 C06D 应用主表视图，新增申请经 0221 视图完成。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T18:05:47.618Z",
+  "models": {}
+}

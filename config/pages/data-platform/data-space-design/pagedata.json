@@ -65,6 +65,7 @@
         {"name": "queryContext", "type": "json"},
         {"name": "queryConfig", "type": "json"},
         {"name": "filterExpression", "type": "json"},
+        {"name": "scopeFilter", "type": "json"},
         {"name": "sortExpression", "type": "json"},
         {"name": "autoCurrentFirst", "type": "boolean"},
         {"name": "autoSelectFirst", "type": "boolean"},

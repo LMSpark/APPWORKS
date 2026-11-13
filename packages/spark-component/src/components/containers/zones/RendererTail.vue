@@ -25,6 +25,7 @@ import { getSparkNodeChildren, nodeId, nodeInputProp, type SparkNode } from '@sp
 import { useLayoutDataContext } from '../runtime/layout-data-context'
 import { mergeNodeBeforeRenderProps, resolveNodeBeforeRender } from '../../support/beforeRender'
 import { useDataViewEventBridge } from '../runtime/useDataViewEventBridge'
+import { resolveDataViewRow } from '../support/scope/row-mirror-sync'
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'r-tail',
@@ -41,9 +42,10 @@ useDataViewEventBridge({
 
 function resolveActionNode(node: SparkNode): SparkNode {
   void reactiveVersion.value
+  const actionRow = resolveDataViewRow(resolvedView.value, row.value) ?? row.value ?? undefined
   const result = resolveNodeBeforeRender(node, {
-    row: row.value ?? undefined,
-    data: row.value ?? undefined,
+    row: actionRow,
+    data: actionRow,
     dataSource: resolvedView.value,
     host: {type: 'r-toolbar'},
   })

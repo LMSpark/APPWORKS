@@ -43,6 +43,9 @@
         "jobManagement",
         "applicationManager",
         "enterpriseRegistration",
+        "myAppAuthRequests",
+        "applyAppAuth",
+        "appAuthReview",
         "bugManage",
         "dataRecovery",
         "flowMonitor",
@@ -89,6 +92,9 @@
             "jobManagement",
             "applicationManager",
             "enterpriseRegistration",
+            "myAppAuthRequests",
+            "applyAppAuth",
+            "appAuthReview",
             "bugManage",
             "dataRecovery",
             "flowMonitor",
@@ -120,7 +126,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-13T05:43:29.595Z",
+  "generatedAt": "2026-11-13T15:33:16.614Z",
   "models": {
     "SystemScenarioName": {
       "name": "SystemScenarioName",

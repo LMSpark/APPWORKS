@@ -97,6 +97,7 @@ import { consumeSparkCapability, createSparkCapabilityContext, isRecord, sparkPr
 import { SPARK_REGISTRY_KEY } from '../core/system/keys.js'
 import { DATA_ROW, DATA_SOURCE, PAGE_COMPONENT_REGISTRY } from '../core/capability-keys.js'
 import { sparkBindContextOwner, sparkResolveParentContext, sparkUnbindContextOwner, type SparkRuntimeOwner } from '../core/capability-context.js'
+import { resolveDataViewRow } from './containers/support/scope/row-mirror-sync.js'
 import type { BeforeRenderContext } from './support/beforeRender.js'
 import { mergeNodeBeforeRenderProps, resolveNodeBeforeRender } from './support/beforeRender.js'
 import { resolvePlaceholderProps } from '../core/useSparkComponent.js'
@@ -398,7 +399,9 @@ function resolveScopedRow({ rawProps, parentContext }: ScopedRuntimeInput): Data
  */
 function buildBeforeRenderContext({ rawProps, parentContext }: ScopedRuntimeInput): ResolvedBeforeRenderContext {
   const dataSource = resolveScopedDataSource({ rawProps, parentContext })
-  const row = resolveScopedRow({ rawProps, parentContext })
+  const scopedRow = resolveScopedRow({ rawProps, parentContext })
+  // 行镜像换回所属视图原行；无主键视图只凭原行身份判定字段读取。
+  const row = resolveDataViewRow(dataSource, scopedRow) ?? scopedRow
 
   return {
     row,

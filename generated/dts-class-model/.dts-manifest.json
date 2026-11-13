@@ -644,12 +644,12 @@
     "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts": {
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "shardFile": "files/packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.375Z"
+      "sourceModifiedAt": "2026-11-13T09:21:43.129Z"
     },
     "packages/spark-app/src/router/system-page-identity/system-page-route-host.vue": {
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-route-host.vue",
       "shardFile": "files/packages/spark-app/src/router/system-page-identity/system-page-route-host.vue.json",
-      "sourceModifiedAt": "2026-10-07T07:13:00.216Z"
+      "sourceModifiedAt": "2026-11-13T09:21:44.733Z"
     },
     "packages/spark-app/src/shell/page-ui/AppPageUiHost.vue": {
       "sourceFile": "packages/spark-app/src/shell/page-ui/AppPageUiHost.vue",
@@ -1094,7 +1094,7 @@
     "packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.vue.json",
-      "sourceModifiedAt": "2026-11-07T02:07:59.866Z"
+      "sourceModifiedAt": "2026-11-13T16:40:28.520Z"
     },
     "packages/spark-component/src/components/containers/layout/action/RendererButton/useActionButtonRuntime.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/action/RendererButton/useActionButtonRuntime.ts",
@@ -1109,7 +1109,7 @@
     "packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.415Z"
+      "sourceModifiedAt": "2026-11-13T16:43:19.050Z"
     },
     "packages/spark-component/src/components/containers/layout/index.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/index.ts",
@@ -1574,7 +1574,7 @@
     "packages/spark-component/src/components/containers/zones/RendererTail.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/zones/RendererTail.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/zones/RendererTail.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.464Z"
+      "sourceModifiedAt": "2026-11-13T16:41:24.798Z"
     },
     "packages/spark-component/src/components/create-passthrough.ts": {
       "sourceFile": "packages/spark-component/src/components/create-passthrough.ts",
@@ -1974,12 +1974,12 @@
     "packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.props.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.props.ts.json",
-      "sourceModifiedAt": "2026-11-13T04:24:20.028Z"
+      "sourceModifiedAt": "2026-11-13T13:51:22.430Z"
     },
     "packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.vue.json",
-      "sourceModifiedAt": "2026-11-13T04:24:44.038Z"
+      "sourceModifiedAt": "2026-11-13T13:51:25.082Z"
     },
     "packages/spark-component/src/components/fields/data-components/composables/state/useBasicFieldState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useBasicFieldState.ts",
@@ -2419,7 +2419,7 @@
     "packages/spark-component/src/components/SparkComponentRenderer.vue": {
       "sourceFile": "packages/spark-component/src/components/SparkComponentRenderer.vue",
       "shardFile": "files/packages/spark-component/src/components/SparkComponentRenderer.vue.json",
-      "sourceModifiedAt": "2026-10-08T00:00:25.277Z"
+      "sourceModifiedAt": "2026-11-13T16:40:15.140Z"
     },
     "packages/spark-component/src/components/support/beforeRender.ts": {
       "sourceFile": "packages/spark-component/src/components/support/beforeRender.ts",
@@ -2684,7 +2684,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-12T20:39:06.441Z"
+      "sourceModifiedAt": "2026-11-13T13:49:35.973Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -2919,7 +2919,7 @@
     "packages/spark-data/src/types.ts": {
       "sourceFile": "packages/spark-data/src/types.ts",
       "shardFile": "files/packages/spark-data/src/types.ts.json",
-      "sourceModifiedAt": "2026-11-12T18:52:50.614Z"
+      "sourceModifiedAt": "2026-11-13T13:49:25.510Z"
     },
     "packages/spark-data/src/validation/column-validation.ts": {
       "sourceFile": "packages/spark-data/src/validation/column-validation.ts",
@@ -3149,7 +3149,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
-      "sourceModifiedAt": "2026-11-12T05:23:19.946Z"
+      "sourceModifiedAt": "2026-11-13T13:49:41.583Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
@@ -3574,7 +3574,7 @@
     "packages/spark-project-model/src/scenario/scenario-view-config.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
       "shardFile": "files/packages/spark-project-model/src/scenario/scenario-view-config.ts.json",
-      "sourceModifiedAt": "2026-11-12T18:52:50.619Z"
+      "sourceModifiedAt": "2026-11-13T13:50:15.432Z"
     },
     "packages/spark-project-model/src/scenario/scenario-view-data.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-data.ts",
@@ -3804,7 +3804,7 @@
     "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references.ts": {
       "sourceFile": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references.ts",
       "shardFile": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references.ts.json",
-      "sourceModifiedAt": "2026-10-11T16:08:04.408Z"
+      "sourceModifiedAt": "2026-11-13T15:30:10.818Z"
     },
     "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts": {
       "sourceFile": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
@@ -3814,7 +3814,7 @@
     "src/lowcode/data-space/lowcode-data-space-assembler.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-assembler.ts.json",
-      "sourceModifiedAt": "2026-11-08T02:45:40.614Z"
+      "sourceModifiedAt": "2026-11-13T15:30:08.719Z"
     },
     "src/lowcode/data-space/lowcode-data-space-catalog.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
@@ -3854,7 +3854,7 @@
     "src/lowcode/data-space/model-source/array/lowcode-data-space-array-configuration.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-configuration.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-configuration.ts.json",
-      "sourceModifiedAt": "2026-10-20T05:21:58.278Z"
+      "sourceModifiedAt": "2026-11-13T15:30:09.837Z"
     },
     "src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts",
@@ -3889,7 +3889,7 @@
     "src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts.json",
-      "sourceModifiedAt": "2026-10-30T20:12:39.408Z"
+      "sourceModifiedAt": "2026-11-13T15:30:09.245Z"
     },
     "src/lowcode/data-space/model-source/field/lowcode-data-space-field-value.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-value.ts",
@@ -4754,7 +4754,7 @@
     "src/lowcode/system-navigation.ts": {
       "sourceFile": "src/lowcode/system-navigation.ts",
       "shardFile": "files/src/lowcode/system-navigation.ts.json",
-      "sourceModifiedAt": "2026-11-12T20:51:13.278Z"
+      "sourceModifiedAt": "2026-11-13T16:34:01.142Z"
     },
     "src/main.ts": {
       "sourceFile": "src/main.ts",
@@ -4764,7 +4764,7 @@
     "src/registries/system-scenario-registry.ts": {
       "sourceFile": "src/registries/system-scenario-registry.ts",
       "shardFile": "files/src/registries/system-scenario-registry.ts.json",
-      "sourceModifiedAt": "2026-11-13T05:43:29.595Z"
+      "sourceModifiedAt": "2026-11-13T15:33:16.614Z"
     },
     "src/registries/vue-page-registry.ts": {
       "sourceFile": "src/registries/vue-page-registry.ts",
@@ -5044,7 +5044,7 @@
     "src/views/features/application/application-function-management/ui/page-design/DeliveryPane.vue": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/DeliveryPane.vue",
       "shardFile": "files/src/views/features/application/application-function-management/ui/page-design/DeliveryPane.vue.json",
-      "sourceModifiedAt": "2026-11-12T20:56:17.442Z"
+      "sourceModifiedAt": "2026-11-13T07:40:00.902Z"
     },
     "src/views/features/application/application-function-management/ui/page-design/DevFileEditor.vue": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/DevFileEditor.vue",
@@ -5115,6 +5115,36 @@
       "sourceFile": "src/views/features/application/data-menu/ui/data-menu-page.vue",
       "shardFile": "files/src/views/features/application/data-menu/ui/data-menu-page.vue.json",
       "sourceModifiedAt": "2026-11-11T09:02:10.044Z"
+    },
+    "src/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model.ts": {
+      "sourceFile": "src/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model.ts",
+      "shardFile": "files/src/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model.ts.json",
+      "sourceModifiedAt": "2026-11-13T13:58:53.887Z"
+    },
+    "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue": {
+      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue",
+      "shardFile": "files/src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue.json",
+      "sourceModifiedAt": "2026-11-13T18:05:46.320Z"
+    },
+    "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue": {
+      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
+      "shardFile": "files/src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue.json",
+      "sourceModifiedAt": "2026-11-13T18:05:47.618Z"
+    },
+    "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue": {
+      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue",
+      "shardFile": "files/src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-13T15:35:53.103Z"
+    },
+    "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue": {
+      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue",
+      "shardFile": "files/src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue.json",
+      "sourceModifiedAt": "2026-11-13T13:59:42.286Z"
+    },
+    "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue": {
+      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue",
+      "shardFile": "files/src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue.json",
+      "sourceModifiedAt": "2026-11-13T18:05:52.551Z"
     },
     "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue": {
       "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue",
@@ -5329,7 +5359,7 @@
     "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue.json",
-      "sourceModifiedAt": "2026-11-04T05:18:41.012Z"
+      "sourceModifiedAt": "2026-11-13T15:30:02.645Z"
     },
     "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.props.ts",
@@ -5759,7 +5789,7 @@
     "src/views/features/shared/runtime/use-feature-page-runtime.ts": {
       "sourceFile": "src/views/features/shared/runtime/use-feature-page-runtime.ts",
       "shardFile": "files/src/views/features/shared/runtime/use-feature-page-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-12T20:53:11.433Z"
+      "sourceModifiedAt": "2026-11-13T13:55:42.983Z"
     },
     "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue": {
       "sourceFile": "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue",
@@ -5829,7 +5859,7 @@
     "src/views/platform/LoginView.vue": {
       "sourceFile": "src/views/platform/LoginView.vue",
       "shardFile": "files/src/views/platform/LoginView.vue.json",
-      "sourceModifiedAt": "2026-11-13T05:36:47.091Z"
+      "sourceModifiedAt": "2026-11-13T09:21:46.486Z"
     }
   }
 }

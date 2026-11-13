@@ -457,8 +457,10 @@ export class DataSpaceRuntimeApi {
         }
         plan = {mode: upstream.mode, root: children[0]}
       } else {
+        const filters = [view.scopeFilter, view.filterExpression].filter(filter => filter !== undefined)
+        const filter: SparkData.DataViewFilterTree | undefined = filters.length > 1 ? {logic: 'and', filters} : filters[0]
         const prepared = this.prepareQuery(view, {...params,
-          ...(view.filterExpression === undefined ? {} : {filter: view.filterExpression}),
+          ...(filter === undefined ? {} : {filter}),
           ...(view.sortExpression === undefined ? {} : {sort: SparkData.DataViewQuery.serializeSort(view.sortExpression)})},
           {bindInputParams: false})
         prepared.projection?.assertCurrent()

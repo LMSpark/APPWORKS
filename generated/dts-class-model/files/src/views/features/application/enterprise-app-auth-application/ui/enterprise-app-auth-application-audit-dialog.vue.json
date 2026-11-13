@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog",
+    "sourcePath": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue",
+    "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog",
+    "jsdoc": "@module app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog\n职责：审核一条待审批的应用授权申请：只读展示申请信息，填写拒绝原因，通过写 INITIALIZING、不通过写 REJECTED。\n边界：申请信息绑定列表视图的同一记录；审批只在 audit 视图（常驻范围为本记录）编辑 auth_status、operator 与可选的 review_comment，\n按记录提交。通过会触发后端授权初始化，不可撤回；取消撤销本地编辑。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T15:35:53.103Z",
+  "models": {}
+}

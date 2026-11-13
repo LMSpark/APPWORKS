@@ -562,7 +562,7 @@ const requestSections = computed(() => {
   ]
 })
 function label(name: string): string {
-  const labels: Record<string, string> = {fieldProjection: '字段投影', queryContext: '查询参数', queryConfig: '查询模式与范围', filterExpression: '过滤条件',
+  const labels: Record<string, string> = {fieldProjection: '字段投影', queryContext: '查询参数', queryConfig: '查询模式与范围', filterExpression: '过滤条件', scopeFilter: '常驻范围',
     sortExpression: '排序', autoCurrentFirst: '自动定位首行', autoSelectFirst: '自动选中首行', page: '初始页码', pageSize: '每页条数',
     treeConfig: '树配置', valueField: '取值字段', labelField: '显示字段', selectionDelimiter: '选中值分隔符', autoLoad: '自动加载',
     commitMode: '提交方式'}

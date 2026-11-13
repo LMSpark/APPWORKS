@@ -133,3 +133,78 @@ describe('DataView SPARK public filter', () => {
     expect(() => DataView.fromJson({ filterExpression }, 'Orders', 'default')).toThrow()
   })
 })
+
+describe('DataView resident scope filter', () => {
+  const scoped = () => {
+    const view = staticView()
+    view.configure({ scopeFilter: { field: 'qty', operator: 'eq', value: 2 } })
+    return view
+  }
+  type Params = Parameters<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>[1]
+  const remote = () => {
+    const ds = SparkData.createDataSet({ dataSetName: 'RemoteScope', scenarioId: 'SCENE', tables: {
+      Auth: { tableName: 'Auth', modelBinding: { modelId: 'AUTH', modelName: 'Auth' }, columns: [
+        { name: 'id', type: 'string', isPrimaryKey: true }, { name: 'ent', type: 'string' }, { name: 'status', type: 'string' },
+      ], views: { default: {
+        queryContext: { ent: 'E1' },
+        scopeFilter: { field: 'ent', operator: 'eq', value: { Type: 'GetInputParam', ParamName: 'ent' } },
+      } } },
+    } })
+    const view = ds.getView('Auth')!
+    const requests: Params[] = []
+    view.bindQueryExecutor({ executeQuery: async (_view, params) => {
+      requests.push(structuredClone(params))
+      return { rows: [], total: 0, rowKey: row => row['id'], assertIdentity: () => undefined, prepareNewRow: row => ({ ...row, id: 'NEW' }),
+        fieldAccess: () => ({ read: 'visible', write: 'allowed', required: false, component: 'editable', writeMode: 'editable' }),
+        readFieldAccess: () => 'visible', addActionState: () => 'enabled', editActionState: () => 'enabled',
+        deleteActionState: () => 'enabled', createChildActionState: () => 'hidden', viewActionState: () => 'hidden' }
+    } })
+    return { ds, view, requests }
+  }
+
+  it('narrows local rows and cannot be replaced or widened by setFilter', async () => {
+    const view = scoped()
+    expect(view.rows.map(row => row['id'])).toEqual([1, 2])
+    await view.setFilter({ field: 'price', operator: 'gte', value: 15 })
+    expect(view.rows.map(row => row['id'])).toEqual([2])
+    await view.setFilter(undefined)
+    expect(view.rows.map(row => row['id'])).toEqual([1, 2])
+    expect(view.filterExpression).toBeUndefined()
+    expect(view.scopeFilter).toEqual({ field: 'qty', operator: 'eq', value: 2 })
+  })
+
+  it('ANDs the scope into every remote request, including after the user filter is cleared', async () => {
+    const { ds, view, requests } = remote()
+    try {
+      await view.refresh()
+      expect(requests[0]?.filter).toEqual({ field: 'ent', operator: 'eq', value: { Type: 'GetInputParam', ParamName: 'ent' } })
+      await view.setFilter({ field: 'status', operator: 'eq', value: 'PENDING' })
+      expect(requests.at(-1)?.filter).toEqual({ logic: 'and', filters: [
+        { field: 'ent', operator: 'eq', value: { Type: 'GetInputParam', ParamName: 'ent' } },
+        { field: 'status', operator: 'eq', value: 'PENDING' },
+      ] })
+      await view.setFilter(undefined)
+      expect(requests.at(-1)?.filter).toEqual({ field: 'ent', operator: 'eq', value: { Type: 'GetInputParam', ParamName: 'ent' } })
+    } finally {
+      ds.destroy()
+    }
+  })
+
+  it('supplies scope-determined values to new rows and survives serialization', async () => {
+    const { ds, view } = remote()
+    try {
+      await view.refresh()
+      const row = await view.addRow({ status: 'PENDING' })
+      expect(row['ent']).toBe('E1')
+      const copy = DataView.fromJson(view.toJson(), 'Auth', 'default')
+      expect(copy.scopeFilter).toEqual(view.scopeFilter)
+      expect(copy.filterExpression).toBeUndefined()
+    } finally {
+      ds.destroy()
+    }
+  })
+
+  it('rejects an incomplete scope configuration', () => {
+    expect(() => DataView.fromJson({ scopeFilter: { field: 'id', operator: 'eq' } }, 'Orders', 'default')).toThrow()
+  })
+})

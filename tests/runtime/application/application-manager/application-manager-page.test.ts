@@ -14,6 +14,17 @@ import {api, APPLICATION_MANAGER_PATH, APPLICATION_MANAGER_SCENARIO, resetApplic
 import {pagedata} from '../../page/api-provider/api-provider.fixture'
 
 const pageMocks = vi.hoisted(() => ({submitDocument: vi.fn()}))
+const defaultApp = vi.hoisted(() => {
+  const state = {id: '', writable: true, destroyed: 0, save: vi.fn(async (id: string | null) => { state.id = id ?? '' })}
+  return state
+})
+
+vi.mock('@/services/project/enterprise-landing', () => ({EnterpriseDefaultApplication: {load: async () => ({
+  get applicationId() {return defaultApp.id},
+  get writable() {return defaultApp.writable},
+  save: (id: string | null) => defaultApp.save(id),
+  destroy: () => { defaultApp.destroyed++ },
+})}}))
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return api.state.http},
@@ -40,6 +51,8 @@ const originalStubs = {...config.global.stubs}
 let http: ReturnType<typeof resetApplicationManagerFixture>
 beforeEach(() => {
   http = resetApplicationManagerFixture()
+  Object.assign(defaultApp, {id: '', writable: true, destroyed: 0})
+  defaultApp.save.mockClear()
   pageMocks.submitDocument.mockReset()
   pageMocks.submitDocument.mockResolvedValue({
     projectId: 'APP-1', kind: 'requirements-specification', status: 'submitted',
@@ -353,6 +366,29 @@ describe('application manager restored through the formal DataView', () => {
     expect(switchAndReload).toHaveBeenCalledWith('APP-1')
     expect(router.currentRoute.value.path).toContain('/apps/APP-1/')
     expect(http.saves).toHaveLength(0)
+  })
+
+  it('marks, sets and clears the enterprise default application through its config member', async () => {
+    const {wrapper} = await open()
+    const labels = () => wrapper.findAll('button').map(button => button.text().trim())
+    expect(labels()).not.toContain('默认')
+    await getButton(wrapper, '设为默认').trigger('click'); await flushPromises()
+    expect(defaultApp.save).toHaveBeenLastCalledWith('APP-1')
+    await vi.waitFor(() => expect(labels()).toContain('取消默认'))
+    expect(labels()).toContain('默认')
+    await getButton(wrapper, '取消默认').trigger('click'); await flushPromises()
+    expect(defaultApp.save).toHaveBeenLastCalledWith(null)
+    await vi.waitFor(() => expect(labels()).not.toContain('默认'))
+    expect(http.saves).toHaveLength(0)
+    wrapper.unmount()
+    expect(defaultApp.destroyed).toBe(1)
+  })
+
+  it('shows the default mark without set actions when the enterprise config is read-only', async () => {
+    Object.assign(defaultApp, {id: 'APP-1', writable: false})
+    const {wrapper} = await open()
+    await vi.waitFor(() => expect(wrapper.findAll('button').some(button => button.text().trim() === '默认')).toBe(true))
+    expect(wrapper.findAll('button').some(button => ['设为默认', '取消默认'].includes(button.text().trim()))).toBe(false)
   })
 
   it.each([

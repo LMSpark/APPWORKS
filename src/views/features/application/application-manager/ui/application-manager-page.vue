@@ -1,7 +1,7 @@
 <!--
 @module app:views/features/application/application-manager/ui/application-manager-page
-职责：展示 0C70 正式应用目录，提供 DataView 筛选、分页和安全的应用导航。
-边界：不猜测未确认字段，不提供新增、编辑、删除、关联或负责人写入。
+职责：展示 0C70 正式应用目录，提供 DataView 筛选、分页、安全的应用导航，以及企业默认应用的标记与设置。
+边界：不猜测未确认字段，不提供新增、编辑、删除、关联或负责人写入；默认应用只写本企业 ent_config 成员，按其字段写权限呈现。
 AI用途：恢复应用管理入口时复用本地正式场景与标准 DataView 组件。
 -->
 <template>
@@ -24,6 +24,7 @@ AI用途：恢复应用管理入口时复用本地正式场景与标准 DataView
     <p v-if="statusLoading" role="status">正在读取状态选项…</p>
     <p v-if="documentSubmitting" role="status">正在提交文档任务，请勿重复操作…</p>
     <p v-if="statusError" role="alert">{{ statusError }}</p>
+    <p v-if="defaultError" role="alert">{{ defaultError }}</p>
     <RendererButton v-if="statusError && !statusLoading && ready" label="重试状态选项" @click="loadStatusOptions" />
     <RendererTable v-if="ready" :data-view-key="viewKey" :children="fields" :filter="filter"
       :actions="actions" :auto-columns="false" :stripe="true" :show-row-index="true" :highlight-current-row="true"
@@ -45,7 +46,7 @@ AI用途：恢复应用管理入口时复用本地正式场景与标准 DataView
 </template>
 
 <script setup lang="ts">
-import {computed, inject, onBeforeUnmount, ref, watch} from 'vue'
+import {computed, inject, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
 import {getNavHomePath, SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
@@ -54,6 +55,7 @@ import {RendererButton, RendererTable, type RFilterProps} from '@spark-appworks/
 import {lowcodeApi, readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
 import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
+import {EnterpriseDefaultApplication} from '@/services/project/enterprise-landing'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
 const scenarioId = '0C70F74793F9E858B71E0DBDEC784D57'
@@ -85,6 +87,11 @@ const ownerView = computed(() => dataSet.value?.getView('Base_MainBody_RoleUser'
 const statusLoading = ref(false)
 const statusError = ref('')
 const documentSubmitting = ref(false)
+const defaultApplication = shallowRef<EnterpriseDefaultApplication | null>(null)
+const defaultApplicationId = ref('')
+const defaultWritable = ref(false)
+const defaultSaving = ref(false)
+const defaultError = ref('')
 const databaseRelationFields: SparkNode[] = [
   {type: 'r-text', props: {field: 'conName', label: '关联数据库', readonly: true, minWidth: 240, sortable: false, showOverflowTooltip: true}},
 ]
@@ -170,7 +177,10 @@ const filter: RFilterProps = {
       filterAlternatives: [{field: 'AppDesc', operator: 'contains'}, {field: 'AppName', operator: 'contains'}]}},
   ],
 }
-const actions = computed(() => ({wrap: true, gap: 4, children: [
+const actions = computed(() => {
+  void defaultApplicationId.value
+  void defaultWritable.value
+  return {wrap: true, gap: 4, children: [
   {type: 'r-button', props: {dataViewKey: viewKey, label: '编辑', link: true, disabled: true}},
   {type: 'r-button', props: {dataViewKey: viewKey, label: '删除', link: true, disabled: true}},
   {type: 'r-button', props: {
@@ -192,6 +202,34 @@ const actions = computed(() => ({wrap: true, gap: 4, children: [
     onBeforeRender: ({row, dataSource}: {row?: DataRow | null; dataSource?: DataView | null}) =>
       Boolean(row && dataSource && canOpenApplication(row, dataSource)),
     onClick: (row: DataRow) => openApplication(row),
+  }},
+  {type: 'r-button', props: {
+    dataViewKey: viewKey,
+    label: '默认',
+    link: true,
+    buttonType: 'success',
+    disabled: true,
+    onBeforeRender: ({row, dataSource}: {row?: DataRow | null; dataSource?: DataView | null}) =>
+      Boolean(row && dataSource && isDefaultApplication(row, dataSource)),
+  }},
+  {type: 'r-button', props: {
+    dataViewKey: viewKey,
+    label: '设为默认',
+    link: true,
+    disabled: defaultSaving.value,
+    onBeforeRender: ({row, dataSource}: {row?: DataRow | null; dataSource?: DataView | null}) =>
+      Boolean(row && dataSource && defaultWritable.value && canOpenApplication(row, dataSource) && !isDefaultApplication(row, dataSource)),
+    onClick: (row: DataRow) => saveDefaultApplication(row),
+  }},
+  {type: 'r-button', props: {
+    dataViewKey: viewKey,
+    label: '取消默认',
+    link: true,
+    buttonType: 'danger',
+    disabled: defaultSaving.value,
+    onBeforeRender: ({row, dataSource}: {row?: DataRow | null; dataSource?: DataView | null}) =>
+      Boolean(row && dataSource && defaultWritable.value && isDefaultApplication(row, dataSource)),
+    onClick: () => saveDefaultApplication(null),
   }},
   {type: 'r-button', props: {dataViewKey: viewKey, label: '项目管理', link: true, disabled: true}},
   {type: 'r-button', props: {
@@ -221,7 +259,8 @@ const actions = computed(() => ({wrap: true, gap: 4, children: [
       Boolean(row && dataSource && canOpenApplication(row, dataSource)),
     onClick: (row: DataRow) => openDatabaseRelations(row),
   }},
-] }))
+]}
+})
 let statusGeneration = 0
 let documentGeneration = 0
 let stopWatchingAssociations: (() => void) | undefined
@@ -243,6 +282,52 @@ async function loadStatusOptions(): Promise<void> {
     }
   } finally {
     if (own === statusGeneration && session.isCurrent(current)) statusLoading.value = false
+  }
+}
+
+function isDefaultApplication(row: DataRow, dataView: DataView): boolean {
+  return Boolean(defaultApplicationId.value && canOpenApplication(row, dataView) && String(row['rowid']).trim() === defaultApplicationId.value)
+}
+
+let defaultGeneration = 0
+function releaseDefaultApplication(): void {
+  defaultGeneration++
+  defaultApplication.value?.destroy()
+  defaultApplication.value = null
+  defaultApplicationId.value = ''
+  defaultWritable.value = false
+  defaultSaving.value = false
+  defaultError.value = ''
+}
+async function loadDefaultApplication(): Promise<void> {
+  releaseDefaultApplication()
+  const own = defaultGeneration
+  try {
+    const config = await EnterpriseDefaultApplication.load(() => {
+      if (own !== defaultGeneration) throw new Error('应用目录已切换')
+    })
+    if (own !== defaultGeneration) {config.destroy(); return}
+    defaultApplication.value = config
+    defaultApplicationId.value = config.applicationId
+    defaultWritable.value = config.writable
+  } catch (cause) {
+    if (own === defaultGeneration) defaultError.value = `企业默认应用读取失败：${cause instanceof Error ? cause.message : String(cause)}`
+  }
+}
+async function saveDefaultApplication(row: DataRow | null): Promise<void> {
+  const config = defaultApplication.value, dataView = pageView.value
+  if (!config || defaultSaving.value) return
+  defaultError.value = ''
+  defaultSaving.value = true
+  try {
+    if (row && (!dataView || !canOpenApplication(row, dataView))) throw new Error('应用目录缺少可读的应用身份')
+    await config.save(row ? String(row['rowid']).trim() : null)
+    defaultApplicationId.value = config.applicationId
+    ElMessage.success(row ? '已设为企业默认应用' : '已取消企业默认应用')
+  } catch (cause) {
+    defaultError.value = `默认应用保存未确认：${cause instanceof Error ? cause.message : String(cause)}`
+  } finally {
+    if (defaultApplication.value === config) defaultSaving.value = false
   }
 }
 
@@ -372,11 +457,15 @@ watch(ready, value => {
       })
     }
     void loadStatusOptions()
+    void loadDefaultApplication()
+  } else {
+    releaseDefaultApplication()
   }
 }, {flush: 'sync'})
 onBeforeUnmount(() => {
   statusGeneration++
   documentGeneration++
+  releaseDefaultApplication()
   stopWatchingAssociations?.()
 })
 </script>

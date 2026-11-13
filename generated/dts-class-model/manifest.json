@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1158,
+  "scannedFileCount": 1159,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -16127,6 +16127,21 @@
         ]
       }
     },
+    "src/services/project/enterprise-landing.ts": {
+      "file": "files/src/services/project/enterprise-landing.ts.json",
+      "module": {
+        "name": "app:services/project/enterprise-landing",
+        "sourcePath": "src/services/project/enterprise-landing.ts",
+        "sourceFile": "src/services/project/enterprise-landing.ts",
+        "packageName": "app",
+        "modulePath": "services/project/enterprise-landing",
+        "jsdoc": "@module app:services/project/enterprise-landing\n职责：按本企业 ent_config.defaultApplicationId 解析登录落点，并为应用目录提供设为/取消默认应用。\n边界：企业配置经入驻场景 tenantEnterprise 视图的 JSON 成员读写，只提交本企业行的 ent_config；\n默认应用须在当前可见应用目录中才进入；未设置、不可见或读取失败均提示后进入应用列表，不静默。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "EnterpriseDefaultApplication"
+        ]
+      }
+    },
     "src/services/project/navigation/project-navigation-guard.ts": {
       "file": "files/src/services/project/navigation/project-navigation-guard.ts.json",
       "module": {
@@ -16808,7 +16823,7 @@
         "sourceFile": "src/views/features/application/application-manager/ui/application-manager-page.vue",
         "packageName": "app",
         "modulePath": "views/features/application/application-manager/ui/application-manager-page",
-        "jsdoc": "@module app:views/features/application/application-manager/ui/application-manager-page\n职责：展示 0C70 正式应用目录，提供 DataView 筛选、分页和安全的应用导航。\n边界：不猜测未确认字段，不提供新增、编辑、删除、关联或负责人写入。\nAI用途：恢复应用管理入口时复用本地正式场景与标准 DataView 组件。",
+        "jsdoc": "@module app:views/features/application/application-manager/ui/application-manager-page\n职责：展示 0C70 正式应用目录，提供 DataView 筛选、分页、安全的应用导航，以及企业默认应用的标记与设置。\n边界：不猜测未确认字段，不提供新增、编辑、删除、关联或负责人写入；默认应用只写本企业 ent_config 成员，按其字段写权限呈现。\nAI用途：恢复应用管理入口时复用本地正式场景与标准 DataView 组件。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -21788,6 +21803,10 @@
     "EnsureDataSetResourceViewInput": {
       "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
+    },
+    "EnterpriseDefaultApplication": {
+      "sourcePath": "src/services/project/enterprise-landing.ts",
+      "file": "files/src/services/project/enterprise-landing.ts.json"
     },
     "EnterpriseInitializationResource": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/enterprise-initialization-resource.ts",

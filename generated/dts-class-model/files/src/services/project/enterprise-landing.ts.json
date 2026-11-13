@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project/enterprise-landing",
+    "sourcePath": "src/services/project/enterprise-landing.ts",
+    "sourceFile": "src/services/project/enterprise-landing.ts",
+    "packageName": "app",
+    "modulePath": "services/project/enterprise-landing",
+    "jsdoc": "@module app:services/project/enterprise-landing\n职责：按本企业 ent_config.defaultApplicationId 解析登录落点，并为应用目录提供设为/取消默认应用。\n边界：企业配置经入驻场景 tenantEnterprise 视图的 JSON 成员读写，只提交本企业行的 ent_config；\n默认应用须在当前可见应用目录中才进入；未设置、不可见或读取失败均提示后进入应用列表，不静默。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "EnterpriseDefaultApplication"
+    ]
+  },
+  "$defs": {
+    "EnterpriseDefaultApplication": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EnterpriseDefaultApplication",
+      "properties": {
+        "applicationId": {
+          "type": "string"
+        },
+        "writable": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.load.params": {
+          "type": "object",
+          "properties": {
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<EnterpriseDefaultApplication>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "applicationId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.destroy.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.destroy.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-13T03:54:16.694Z",
+  "models": {
+    "EnterpriseDefaultApplication": {
+      "name": "EnterpriseDefaultApplication",
+      "jsdoc": "本企业默认应用配置；持有目录作用域 DataSet，使用后须 destroy。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "applicationId",
+              "jsdoc": "已保存的默认应用 ID；未设置时为空串。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "writable",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "load",
+              "parameters": [
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "EnterpriseDefaultApplication",
+                    "sourcePath": "src/services/project/enterprise-landing.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "设置或清除默认应用：只提交本行 ent_config，保存后回读核对；失败且非未知结果时撤销本地编辑。",
+              "parameters": [
+                {
+                  "name": "applicationId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "destroy",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

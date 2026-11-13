@@ -191,11 +191,11 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 /**
  * @description 多租户登录页面，提供用户名/密码认证和租户选择入口；属于平台路由页，不允许作为 SparkNode 组件配置生成。
  */
-import { onMounted, reactive, ref } from 'vue'
+import { inject, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
-import { reloadAndSyncNavigation } from '@/services/project/project-shell'
-import { buildApplicationPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
+import { PROJECT_SWITCH_KEY, reloadAndSyncNavigation } from '@/services/project/project-shell'
+import { enterEnterpriseLanding } from '@/services/project/enterprise-landing'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { OfficeBuilding, User, Lock, Edit, Message, Postcard } from '@element-plus/icons-vue'
@@ -240,8 +240,9 @@ function goHome() {
   void router.replace('/')
 }
 
-function getUserHomePath(): string {
-  return buildApplicationPath({ projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list')
+const projectSwitch = inject(PROJECT_SWITCH_KEY, null)
+function enterHome(): Promise<void> {
+  return enterEnterpriseLanding({ router, projectSwitch })
 }
 
 // ── 登录表单 ────────────────────────────────────────────────────────────────
@@ -261,7 +262,7 @@ async function handleLogin() {
   try {
     await lowcodeApi.platform.login(loginForm)
     await reloadAndSyncNavigation()
-    await router.replace(getUserHomePath())
+    await enterHome()
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : '登录失败'
   } finally {
@@ -333,7 +334,7 @@ async function handleRegister() {
       password: regForm.password,
     })
     await reloadAndSyncNavigation()
-    await router.replace(getUserHomePath())
+    await enterHome()
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : '注册失败'
   } finally {
@@ -408,7 +409,7 @@ async function handleRegisterTenant() {
       password: tenantForm.administratorPassword,
     })
     await reloadAndSyncNavigation()
-    await router.replace(getUserHomePath())
+    await enterHome()
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : '租户注册失败'
   } finally {

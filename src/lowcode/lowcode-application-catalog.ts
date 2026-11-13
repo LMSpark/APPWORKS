@@ -35,7 +35,7 @@ function captureAuthenticatedScope(assertCallerCurrent: () => void): () => void 
 }
 
 /** Load a model's declared view from a system catalog scenario through the shared assembler. */
-async function loadCatalogDataSet(modelName: string, scenarioName: 'dataSpaceCatalog' | 'projectBlueprint', assertCallerCurrent: () => void): Promise<DataSet> {
+async function loadCatalogDataSet(modelName: string, scenarioName: 'dataSpaceCatalog' | 'projectBlueprint' | 'enterpriseRegistration', assertCallerCurrent: () => void): Promise<DataSet> {
   const assertCurrent = captureAuthenticatedScope(assertCallerCurrent)
   const resource = getSystemScenarioResource(scenarioName)
   const text = await readRepositoryScenarioText(resource, assertCurrent)
@@ -134,6 +134,11 @@ export async function readLowcodeNavigationRootId(
 /** DataSet owner used by the app directory pages; its view configuration comes from repository pagedata. */
 export async function loadLowcodeApplicationCatalog(assertCallerCurrent: () => void = () => undefined): Promise<DataSet> {
   return loadCatalogDataSet(APPLICATION_MODEL, APPLICATION_CATALOG_SCENARIO, assertCallerCurrent)
+}
+
+/** 目录作用域装配入驻场景的企业模型视图；企业配置读写不依赖当前应用。调用方负责释放。 */
+export async function loadLowcodeEnterpriseCatalog(assertCallerCurrent: () => void): Promise<DataSet> {
+  return loadCatalogDataSet('Base_Enterprise_Info', 'enterpriseRegistration', assertCallerCurrent)
 }
 
 export function getFormalModelView(dataSet: DataSet, modelName: string, viewId: string): DataView {

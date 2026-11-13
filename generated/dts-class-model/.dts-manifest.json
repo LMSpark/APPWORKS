@@ -4039,7 +4039,7 @@
     "src/lowcode/lowcode-application-catalog.ts": {
       "sourceFile": "src/lowcode/lowcode-application-catalog.ts",
       "shardFile": "files/src/lowcode/lowcode-application-catalog.ts.json",
-      "sourceModifiedAt": "2026-11-12T20:51:58.858Z"
+      "sourceModifiedAt": "2026-11-13T03:50:41.693Z"
     },
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
@@ -4851,6 +4851,11 @@
       "shardFile": "files/src/services/project/blueprint-workspace-dataview.ts.json",
       "sourceModifiedAt": "2026-11-12T21:29:12.909Z"
     },
+    "src/services/project/enterprise-landing.ts": {
+      "sourceFile": "src/services/project/enterprise-landing.ts",
+      "shardFile": "files/src/services/project/enterprise-landing.ts.json",
+      "sourceModifiedAt": "2026-11-13T03:54:16.694Z"
+    },
     "src/services/project/navigation/project-navigation-guard.ts": {
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
       "shardFile": "files/src/services/project/navigation/project-navigation-guard.ts.json",
@@ -5084,7 +5089,7 @@
     "src/views/features/application/application-manager/ui/application-manager-page.vue": {
       "sourceFile": "src/views/features/application/application-manager/ui/application-manager-page.vue",
       "shardFile": "files/src/views/features/application/application-manager/ui/application-manager-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T09:04:43.266Z"
+      "sourceModifiedAt": "2026-11-13T03:51:30.952Z"
     },
     "src/views/features/application/data-menu/ui/data-menu-dialog.vue": {
       "sourceFile": "src/views/features/application/data-menu/ui/data-menu-dialog.vue",
@@ -5099,7 +5104,7 @@
     "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue": {
       "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue",
       "shardFile": "files/src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-13T03:36:05.704Z"
+      "sourceModifiedAt": "2026-11-13T03:46:51.468Z"
     },
     "src/views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue": {
       "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue",
@@ -5789,7 +5794,7 @@
     "src/views/platform/LoginView.vue": {
       "sourceFile": "src/views/platform/LoginView.vue",
       "shardFile": "files/src/views/platform/LoginView.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.798Z"
+      "sourceModifiedAt": "2026-11-13T03:51:14.343Z"
     }
   }
 }

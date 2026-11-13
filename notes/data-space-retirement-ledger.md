@@ -9713,3 +9713,14 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
   - 平台合同的目标维度定义由用户手选，经 `byCode` 按编码核对，不自动配对。
   - `ValueFun` 仅含空白时无法由列规则表达，保存命令判定。
   - 蓝图页未在正式导航发布，未在实服打开新对话框或写入；批次5权限两个入口、批次2 未验证项继续开放。
+
+## 入驻管理（平台级唯一页）与企业默认应用
+
+用户决定：平台级只有入驻管理；按参考页 1:1 恢复并替换伪造的 `/tenants`；企业默认应用存 `Base_Enterprise_Info.ent_config.defaultApplicationId`，经 SPARK data JSON 成员读写。应用授权按 `app-auth-display = option-lookup`：应用列表为主表，授权三列用标准选项字段查授权记录视图，页面不合并数组，缺口在组件层补。语义与缺口见[研读](research-tenant-enterprise-management.md)。
+
+- **删除的错误实现。** `PlatformTenantManagement.vue`（会话伪造单行、写入全抛错、默认项目写死）、`TenantConfigPanel.vue`、`/tenants` 路由、`lowcodeApi.platform.getEnterpriseInfo` 及其测试与类型导出。
+- **公共能力。** 标准选项字段新增 `unmatchedText`：只读展示时值不在已就绪选项中显示该文本，选项未就绪显示空白，不写回字段或 `textStorageField`；ClassModel 由生成器刷新。目录作用域新增入驻场景装载 `loadLowcodeEnterpriseCatalog`。
+- **入驻管理。** 场景 pagedata 声明企业、授权、导航、模块授权模型视图，计算列给出状态标签，导航树 `rootParentValue` 静态根，模块授权按应用查询级联。审核通过经数据层命令资源适配 `initEnt`，重读 CheckState=1 才确认，否则“初始化中/未知”，不重发；不通过写 CheckState=2；密码与企业配置为本行字段与 JSON 成员编辑。
+- **应用与模块授权。** 授权/撤销为授权表视图新增或修改并按 id 提交；撤销说明在同一编辑内录入，取消即丢弃。模块授权仅对已授权应用开放，新增或删除模块授权记录。参考页展开行因 `RendererTable` 无展开行改为主从布局（偏差，已告知）。
+- **默认应用。** 应用系统列表显示“默认”标记，按 `ent_config` 字段写权限提供“设为默认/取消默认”，`updateEditingMember` 后按 id `saveChanges` 并回读核对；明确失败丢弃本地编辑，未知结果保留。登录三处落点改用 `enterEnterpriseLanding`：默认应用须在当前可见应用目录中才经项目切换进入首页，未设置、不可见、读取或切换失败均提示后进入应用列表。
+- **仍开放的缺口。** 授权操作人未写（无当前用户值函数）；`authorized_at` 由后端或保持空；七态状态机与申请类型无实服字段；`view_auth_ent_app` 不可用未绑定；`initEnt` 无正式命令模型；会话企业投影不保留 `ent_config` 扩展键；默认应用限当前可见应用。实服写入烟测（审核、密码、配置、授权、默认应用）须用户同意并指定企业，审核通过不可逆。

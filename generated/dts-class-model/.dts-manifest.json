@@ -1254,7 +1254,7 @@
     "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.vue.json",
-      "sourceModifiedAt": "2026-11-13T05:30:32.289Z"
+      "sourceModifiedAt": "2026-11-13T07:03:27.604Z"
     },
     "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/zero-code.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/zero-code.ts",
@@ -4764,7 +4764,7 @@
     "src/registries/system-scenario-registry.ts": {
       "sourceFile": "src/registries/system-scenario-registry.ts",
       "shardFile": "files/src/registries/system-scenario-registry.ts.json",
-      "sourceModifiedAt": "2026-11-13T05:25:41.335Z"
+      "sourceModifiedAt": "2026-11-13T05:43:29.595Z"
     },
     "src/registries/vue-page-registry.ts": {
       "sourceFile": "src/registries/vue-page-registry.ts",
@@ -5814,12 +5814,12 @@
     "src/views/platform/login/tenant-registration-drawer.vue": {
       "sourceFile": "src/views/platform/login/tenant-registration-drawer.vue",
       "shardFile": "files/src/views/platform/login/tenant-registration-drawer.vue.json",
-      "sourceModifiedAt": "2026-11-13T05:36:37.120Z"
+      "sourceModifiedAt": "2026-11-13T07:03:27.604Z"
     },
     "src/views/platform/login/user-registration-drawer.vue": {
       "sourceFile": "src/views/platform/login/user-registration-drawer.vue",
       "shardFile": "files/src/views/platform/login/user-registration-drawer.vue.json",
-      "sourceModifiedAt": "2026-11-13T05:36:30.339Z"
+      "sourceModifiedAt": "2026-11-13T07:03:27.604Z"
     },
     "src/views/platform/login/verification-code-button.vue": {
       "sourceFile": "src/views/platform/login/verification-code-button.vue",

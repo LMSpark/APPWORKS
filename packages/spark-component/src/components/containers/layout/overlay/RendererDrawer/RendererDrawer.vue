@@ -35,7 +35,9 @@ AI用途：需要理解 renderer drawer 的实际渲染结构、slot/toolbar/状
         >
           <SparkComponentRenderer :config="child" />
         </div>
-        <slot v-bind="getDefaultScope()" />
+        <div v-if="$slots['default']" style="grid-column: 1 / -1; min-width: 0; width: 100%">
+          <slot v-bind="getDefaultScope()" />
+        </div>
     </div>
 
     <template v-if="showFooter" #footer>

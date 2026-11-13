@@ -120,7 +120,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-13T05:25:41.335Z",
+  "generatedAt": "2026-11-13T05:43:29.595Z",
   "models": {
     "SystemScenarioName": {
       "name": "SystemScenarioName",

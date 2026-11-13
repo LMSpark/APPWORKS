@@ -218,6 +218,18 @@ describe('RendererDialog, RendererDrawer and RendererSteps integration', () => {
       expect(drawer.props('modelValue')).toBe(false)
     } finally {wrapper.unmount()}
   })
+  it('spans the drawer default slot across the whole body grid like the dialog', () => {
+    const wrapper = mount(RendererDrawer, {
+      props: {modelValue: true},
+      slots: {default: () => h('form', {class: 'slot-form'})},
+      global: {stubs: {'el-drawer': ElDrawerStub}},
+    })
+    try {
+      const cell = wrapper.get('.slot-form').element.parentElement
+      expect(cell?.style.gridColumn).toBe('1 / -1')
+      expect(cell?.parentElement?.classList.contains('renderer-drawer-body')).toBe(true)
+    } finally {wrapper.unmount()}
+  })
   it('should keep drawer visibility in sync when API opens without external prop writeback', () => {
     const visibleValue = ref(false)
     const commitVisibleValue = vi.fn((value: boolean) => {

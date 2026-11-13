@@ -854,12 +854,12 @@
     "packages/spark-component/src/components/containers/data-views/RendererForm/RendererForm.props.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererForm/RendererForm.props.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererForm/RendererForm.props.ts.json",
-      "sourceModifiedAt": "2026-11-05T14:25:59.945Z"
+      "sourceModifiedAt": "2026-11-13T05:19:32.985Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererForm/RendererForm.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererForm/RendererForm.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererForm/RendererForm.vue.json",
-      "sourceModifiedAt": "2026-11-07T17:06:56.541Z"
+      "sourceModifiedAt": "2026-11-13T05:19:32.303Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererForm/types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererForm/types.ts",
@@ -1249,12 +1249,12 @@
     "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.props.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.props.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.props.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.422Z"
+      "sourceModifiedAt": "2026-11-13T05:30:30.691Z"
     },
     "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.426Z"
+      "sourceModifiedAt": "2026-11-13T05:30:32.289Z"
     },
     "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/zero-code.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/zero-code.ts",
@@ -2254,12 +2254,12 @@
     "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.props.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.props.ts.json",
-      "sourceModifiedAt": "2026-11-12T20:41:26.008Z"
+      "sourceModifiedAt": "2026-11-13T05:19:18.644Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.vue.json",
-      "sourceModifiedAt": "2026-11-12T20:41:33.198Z"
+      "sourceModifiedAt": "2026-11-13T05:19:20.253Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldTextarea/FieldTextarea.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldTextarea/FieldTextarea.props.ts",
@@ -3104,7 +3104,7 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-13T03:37:28.574Z"
+      "sourceModifiedAt": "2026-11-13T05:23:15.983Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3330,6 +3330,11 @@
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json",
       "sourceModifiedAt": "2026-10-06T20:57:27.510Z"
+    },
+    "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts.json",
+      "sourceModifiedAt": "2026-11-13T05:31:29.350Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts",
@@ -3840,6 +3845,11 @@
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-model-relation-adapter.ts.json",
       "sourceModifiedAt": "2026-10-25T07:25:48.271Z"
+    },
+    "src/lowcode/data-space/lowcode-public-scenario.ts": {
+      "sourceFile": "src/lowcode/data-space/lowcode-public-scenario.ts",
+      "shardFile": "files/src/lowcode/data-space/lowcode-public-scenario.ts.json",
+      "sourceModifiedAt": "2026-11-13T05:26:23.045Z"
     },
     "src/lowcode/data-space/model-source/array/lowcode-data-space-array-configuration.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-configuration.ts",
@@ -4736,6 +4746,11 @@
       "shardFile": "files/src/lowcode/resources/system/navigation-host/model-rules.ts.json",
       "sourceModifiedAt": "2026-11-12T17:17:21.390Z"
     },
+    "src/lowcode/resources/system/platform-auth/runtime-bindings.ts": {
+      "sourceFile": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+      "shardFile": "files/src/lowcode/resources/system/platform-auth/runtime-bindings.ts.json",
+      "sourceModifiedAt": "2026-11-13T05:26:19.488Z"
+    },
     "src/lowcode/system-navigation.ts": {
       "sourceFile": "src/lowcode/system-navigation.ts",
       "shardFile": "files/src/lowcode/system-navigation.ts.json",
@@ -4749,7 +4764,7 @@
     "src/registries/system-scenario-registry.ts": {
       "sourceFile": "src/registries/system-scenario-registry.ts",
       "shardFile": "files/src/registries/system-scenario-registry.ts.json",
-      "sourceModifiedAt": "2026-11-12T21:45:05.410Z"
+      "sourceModifiedAt": "2026-11-13T05:25:41.335Z"
     },
     "src/registries/vue-page-registry.ts": {
       "sourceFile": "src/registries/vue-page-registry.ts",
@@ -5791,10 +5806,30 @@
       "shardFile": "files/src/views/platform/HomePage.vue.json",
       "sourceModifiedAt": "2026-06-19T02:46:51.037Z"
     },
+    "src/views/platform/login/login-form.vue": {
+      "sourceFile": "src/views/platform/login/login-form.vue",
+      "shardFile": "files/src/views/platform/login/login-form.vue.json",
+      "sourceModifiedAt": "2026-11-13T05:36:24.630Z"
+    },
+    "src/views/platform/login/tenant-registration-drawer.vue": {
+      "sourceFile": "src/views/platform/login/tenant-registration-drawer.vue",
+      "shardFile": "files/src/views/platform/login/tenant-registration-drawer.vue.json",
+      "sourceModifiedAt": "2026-11-13T05:36:37.120Z"
+    },
+    "src/views/platform/login/user-registration-drawer.vue": {
+      "sourceFile": "src/views/platform/login/user-registration-drawer.vue",
+      "shardFile": "files/src/views/platform/login/user-registration-drawer.vue.json",
+      "sourceModifiedAt": "2026-11-13T05:36:30.339Z"
+    },
+    "src/views/platform/login/verification-code-button.vue": {
+      "sourceFile": "src/views/platform/login/verification-code-button.vue",
+      "shardFile": "files/src/views/platform/login/verification-code-button.vue.json",
+      "sourceModifiedAt": "2026-11-13T05:28:51.541Z"
+    },
     "src/views/platform/LoginView.vue": {
       "sourceFile": "src/views/platform/LoginView.vue",
       "shardFile": "files/src/views/platform/LoginView.vue.json",
-      "sourceModifiedAt": "2026-11-13T04:44:01.289Z"
+      "sourceModifiedAt": "2026-11-13T05:36:47.091Z"
     }
   }
 }

@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/lowcode-public-scenario",
+    "sourcePath": "src/lowcode/data-space/lowcode-public-scenario.ts",
+    "sourceFile": "src/lowcode/data-space/lowcode-public-scenario.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/lowcode-public-scenario",
+    "jsdoc": "@module app:lowcode/data-space/lowcode-public-scenario\n职责：登录前公开场景的装配入口：经仓内文件 DataView 读取已登记的公开 pagedata，以同一装配器装配独立 DataSet。\n边界：只接受命令表与无模型只读投影表，不读取服务端空间、模型或关系，也不进入应用/目录作用域；页面释放后 assertCurrent 阻止迟到写回。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "LoadPublicScenarioInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LoadPublicScenarioInput",
+      "properties": {
+        "name": {
+          "$ref": "../../registries/system-scenario-registry.ts.json#/$defs/PublicScenarioName"
+        },
+        "scenarioId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-13T05:26:23.045Z",
+  "models": {
+    "LoadPublicScenarioInput": {
+      "name": "LoadPublicScenarioInput",
+      "jsdoc": "name 定位公开场景登记；scenarioId 是 PageRuntime 本次请求的场景身份，二者须一致。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: PublicScenarioName;\n    scenarioId: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: PublicScenarioName;\n    scenarioId: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

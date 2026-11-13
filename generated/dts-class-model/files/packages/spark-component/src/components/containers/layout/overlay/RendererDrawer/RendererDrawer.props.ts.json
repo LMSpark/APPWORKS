@@ -116,6 +116,12 @@
             true
           ]
         },
+        "closeDisabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "bodyClass": {
           "type": "string"
         }
@@ -123,7 +129,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.422Z",
+  "generatedAt": "2026-11-13T05:30:30.691Z",
   "models": {
     "RDrawerProps": {
       "name": "RDrawerProps",
@@ -137,7 +143,7 @@
         "directory": "containers/layout"
       },
       "typeAlias": {
-        "declarationTypeText": "LayoutDataContextProps & SparkVisibilityContainerProps & SparkGridLayoutProps & {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 抽屉标题 */\n    title?: string;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}",
+        "declarationTypeText": "LayoutDataContextProps & SparkVisibilityContainerProps & SparkGridLayoutProps & {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 抽屉标题 */\n    title?: string;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭抽屉，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放抽屉。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -156,7 +162,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 抽屉标题 */\n    title?: string;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}"
+            "typeText": "{\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 抽屉标题 */\n    title?: string;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭抽屉，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放抽屉。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}"
           }
         ],
         "members": {
@@ -182,6 +188,12 @@
             {
               "name": "modelValue",
               "jsdoc": "控制显隐",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "closeDisabled",
+              "jsdoc": "禁止用户和组件API关闭抽屉，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放抽屉。用于草稿/在途操作保护，不代表数据权限。",
               "readable": true,
               "writable": false
             },

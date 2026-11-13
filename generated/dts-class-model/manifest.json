@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1159,
+  "scannedFileCount": 1166,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -11444,6 +11444,21 @@
         ]
       }
     },
+    "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/auth/platform-auth-resource",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/auth/platform-auth-resource",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/auth/platform-auth-resource\n职责：登录前的企业目录只读投影，以及登录、注册账号、注册租户、发送验证码四个服务命令；供公开场景同一DataSet的命令视图提交。\n边界：会话仍由平台门面保存；回执不含密码与令牌；注册结果未知时只经同账号登录核验，不重发注册，也不提供放弃重提。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "PlatformAuthResource"
+        ]
+      }
+    },
     "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts": {
       "file": "files/packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts.json",
       "module": {
@@ -13026,6 +13041,19 @@
         "symbols": [
           "LowcodeModelRelationAdapter"
         ]
+      }
+    },
+    "src/lowcode/data-space/lowcode-public-scenario.ts": {
+      "file": "files/src/lowcode/data-space/lowcode-public-scenario.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/lowcode-public-scenario",
+        "sourcePath": "src/lowcode/data-space/lowcode-public-scenario.ts",
+        "sourceFile": "src/lowcode/data-space/lowcode-public-scenario.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/lowcode-public-scenario",
+        "jsdoc": "@module app:lowcode/data-space/lowcode-public-scenario\n职责：登录前公开场景的装配入口：经仓内文件 DataView 读取已登记的公开 pagedata，以同一装配器装配独立 DataSet。\n边界：只接受命令表与无模型只读投影表，不读取服务端空间、模型或关系，也不进入应用/目录作用域；页面释放后 assertCurrent 阻止迟到写回。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
       }
     },
     "src/lowcode/data-space/model-source/array/lowcode-data-space-array-configuration.ts": {
@@ -15754,6 +15782,19 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/system/platform-auth/runtime-bindings.ts": {
+      "file": "files/src/lowcode/resources/system/platform-auth/runtime-bindings.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/platform-auth/runtime-bindings",
+        "sourcePath": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+        "sourceFile": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/platform-auth/runtime-bindings",
+        "jsdoc": "@module app:lowcode/resources/system/platform-auth/runtime-bindings\n职责：为登录公开场景绑定企业目录投影与登录、注册、注册租户、发送验证码命令。\n边界：只核本次配置的表键与资源身份，执行全部交给 PlatformAuthResource；不创建表、草稿或页面 owner。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/lowcode/system-navigation.ts": {
       "file": "files/src/lowcode/system-navigation.ts.json",
       "module": {
@@ -15788,10 +15829,11 @@
         "sourceFile": "src/registries/system-scenario-registry.ts",
         "packageName": "app",
         "modulePath": "registries/system-scenario-registry",
-        "jsdoc": "@module app:registries/system-scenario-registry\n职责：登记 AppWorks 系统页使用的仓内场景资源（pagedata），供任一应用及目录作用域按场景身份解析。\n边界：只登记资源身份与路径，不携带应用身份、不复制场景正文；场景正文经 SPARK data 仓内文件 DataView 读取。",
+        "jsdoc": "@module app:registries/system-scenario-registry\n职责：登记 AppWorks 系统页使用的仓内场景资源（pagedata），供任一应用及目录作用域按场景身份解析；另登记登录前公开场景。\n边界：只登记资源身份与路径，不携带应用身份、不复制场景正文；场景正文经 SPARK data 仓内文件 DataView 读取。\n公开场景（scope: public）不参与应用/目录作用域解析，只经公开装配入口取用。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "SystemScenarioName",
+          "PublicScenarioName",
           "SystemScenarioResource"
         ]
       }
@@ -18701,6 +18743,58 @@
         "symbols": []
       }
     },
+    "src/views/platform/login/login-form.vue": {
+      "file": "files/src/views/platform/login/login-form.vue.json",
+      "module": {
+        "name": "app:views/platform/login/login-form",
+        "sourcePath": "src/views/platform/login/login-form.vue",
+        "sourceFile": "src/views/platform/login/login-form.vue",
+        "packageName": "app",
+        "modulePath": "views/platform/login/login-form",
+        "jsdoc": "@module app:views/platform/login/login-form\n职责：标准组件编辑登录命令行；回车或“登录”经公共单记录生命周期保存该行。\n边界：不创建数据实例、不直接调用认证接口；明确失败后原编辑身份失效，通知宿主改开新命令行，保存成功后由宿主读取回执。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/platform/login/tenant-registration-drawer.vue": {
+      "file": "files/src/views/platform/login/tenant-registration-drawer.vue.json",
+      "module": {
+        "name": "app:views/platform/login/tenant-registration-drawer",
+        "sourcePath": "src/views/platform/login/tenant-registration-drawer.vue",
+        "sourceFile": "src/views/platform/login/tenant-registration-drawer.vue",
+        "packageName": "app",
+        "modulePath": "views/platform/login/tenant-registration-drawer",
+        "jsdoc": "@module app:views/platform/login/tenant-registration-drawer\n职责：右侧抽屉内以标准组件编辑注册租户命令行；保存、取消与结果未知时的管理员登录核验复用公共单记录生命周期。\n边界：不创建数据实例、不直接调用认证接口；结果未知时不能关闭或重提；明确失败后通知宿主改开新命令行，回执由宿主读取。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/platform/login/user-registration-drawer.vue": {
+      "file": "files/src/views/platform/login/user-registration-drawer.vue.json",
+      "module": {
+        "name": "app:views/platform/login/user-registration-drawer",
+        "sourcePath": "src/views/platform/login/user-registration-drawer.vue",
+        "sourceFile": "src/views/platform/login/user-registration-drawer.vue",
+        "packageName": "app",
+        "modulePath": "views/platform/login/user-registration-drawer",
+        "jsdoc": "@module app:views/platform/login/user-registration-drawer\n职责：右侧抽屉内以标准组件编辑注册账号命令行；保存、取消与结果未知时的登录核验复用公共单记录生命周期。\n边界：不创建数据实例、不直接调用认证接口；结果未知时不能关闭或重提；明确失败后通知宿主改开新命令行，回执由宿主读取。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/platform/login/verification-code-button.vue": {
+      "file": "files/src/views/platform/login/verification-code-button.vue.json",
+      "module": {
+        "name": "app:views/platform/login/verification-code-button",
+        "sourcePath": "src/views/platform/login/verification-code-button.vue",
+        "sourceFile": "src/views/platform/login/verification-code-button.vue",
+        "packageName": "app",
+        "modulePath": "views/platform/login/verification-code-button",
+        "jsdoc": "@module app:views/platform/login/verification-code-button\n职责：在注册抽屉内经发送验证码命令视图提交一次发送请求；成功后 60 秒倒计时禁用，明确失败可立即重发。\n边界：每次发送新增一行命令并只保存该行；失败的待提交行随即放弃，不复制或保留注册输入。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/platform/LoginView.vue": {
       "file": "files/src/views/platform/LoginView.vue.json",
       "module": {
@@ -18709,7 +18803,7 @@
         "sourceFile": "src/views/platform/LoginView.vue",
         "packageName": "app",
         "modulePath": "views/platform/LoginView",
-        "jsdoc": "@module app:views/platform/LoginView\n职责：提供主应用 LoginView 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/platform/LoginView。",
+        "jsdoc": "@module app:views/platform/LoginView\n职责：登录页宿主：装配登录公开场景的独立运行实例并提供给子组件；登录卡片只承载登录，注册账号与注册租户分层到右侧抽屉。\n边界：认证经公开场景的命令视图提交，本页只新增命令行、读取回执并进入企业落点；不直接调用认证接口，不保存凭据。\nAI用途：需要理解未登录时如何经 SPARK data 命令视图登录、注册时，用本模块定位宿主编排。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -23784,6 +23878,10 @@
       "sourcePath": "packages/spark-component/src/page/actions/executor-helpers.ts",
       "file": "files/packages/spark-component/src/page/actions/executor-helpers.ts.json"
     },
+    "PlatformAuthResource": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts.json"
+    },
     "PluginConfigItem": {
       "sourcePath": "packages/spark-app/src/shell/plugins/registry.ts",
       "file": "files/packages/spark-app/src/shell/plugins/registry.ts.json"
@@ -24079,6 +24177,10 @@
     "ProjectWorkspaceScope": {
       "sourcePath": "src/services/project/project-shell.ts",
       "file": "files/src/services/project/project-shell.ts.json"
+    },
+    "PublicScenarioName": {
+      "sourcePath": "src/registries/system-scenario-registry.ts",
+      "file": "files/src/registries/system-scenario-registry.ts.json"
     },
     "QueryParams": {
       "sourcePath": "packages/spark-data/src/types.ts",

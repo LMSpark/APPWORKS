@@ -3,14 +3,11 @@ import {defineComponent, h} from 'vue'
 import {flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import AppList from '@/views/app/AppList.vue'
-import LoginView from '@/views/platform/LoginView.vue'
 
 const state = vi.hoisted(() => ({
   rows: [{rowid: 'APP-1', AppName: 'alpha', AppDesc: 'Alpha', IsSys: 0}] as Array<{rowid: string; AppName: string; AppDesc: string; IsSys?: number}>,
   dataViewLoad: vi.fn(async () => ({success: true})),
   applicationCatalogLoad: vi.fn(async () => ({scenarioId: '7AB874097A1E8711A42FD845939A6E05'})),
-  listEnterprises: vi.fn(async () => [{id: 'E1', name: '领码科技', shortName: 'Lingma'}]),
-  login: vi.fn(async () => ({enterprise: {shortName: 'Lingma'}})),
   disposed: 0,
   allPages: true,
   distinct: true as boolean | undefined,
@@ -38,7 +35,7 @@ vi.mock('@/lowcode/lowcode-application-catalog', () => ({
   getFormalModelView: (dataSet: {getView: () => unknown}) => dataSet.getView(),
 }))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
-  lowcodeApi: {application: {get: () => ({application: {id: 'APP'}})}, platform: {listEnterprises: state.listEnterprises, login: state.login}},
+  lowcodeApi: {application: {get: () => ({application: {id: 'APP'}})}},
   readLowcodePrincipal: () => ({enterpriseName: 'acme'}),
 }))
 vi.mock('@/services/application-scope', () => ({
@@ -151,87 +148,5 @@ describe('AppList DataView routing', () => {
     const {wrapper} = await mountAt('/app-list')
     expect(wrapper.find('[data-testid="scenario-list"]').exists()).toBe(false)
     expect(wrapper.get('[role="alert"]').text()).toContain('catalog query failed')
-  })
-})
-
-describe('LoginView enterprise selection', () => {
-  it('submits the catalog shortName when the preferred display label matches one enterprise', async () => {
-    const router = createRouter({history: createMemoryHistory(), routes: [{path: '/', component: EmptyPage}]})
-    const formStub = defineComponent({
-      setup(_, {slots, expose}) {
-        expose({validate: async () => true})
-        return () => h('form', slots['default']?.())
-      },
-    })
-    const buttonStub = defineComponent({
-      setup(_, {slots, attrs}) {
-        return () => h('button', attrs, slots['default']?.())
-      },
-    })
-    const wrapper = mount(LoginView, {global: {plugins: [router], stubs: {
-      'el-form': formStub,
-      'el-form-item': defineComponent({setup: (_, {slots}) => () => h('div', slots['default']?.())}),
-      'el-select': true, 'el-option': true,
-      'el-input': true, 'el-button': buttonStub,
-      'el-tabs': defineComponent({setup: (_, {slots}) => () => h('div', slots['default']?.())}),
-      'el-tab-pane': defineComponent({setup: (_, {slots}) => () => h('div', slots['default']?.())}),
-      'el-icon': true,
-    }}})
-    mounted.push(wrapper)
-    await flushPromises()
-    await wrapper.get('.login-btn').trigger('click')
-    await flushPromises()
-    expect(state.login).toHaveBeenCalledWith(expect.objectContaining({enterpriseName: 'Lingma'}))
-  })
-
-  it('leaves enterprise empty when the display label is ambiguous', async () => {
-    state.listEnterprises.mockResolvedValueOnce([
-      {id: 'E1', name: '领码科技', shortName: 'Lingma'},
-      {id: 'E2', name: '领码科技', shortName: 'Lingma-2'},
-    ])
-    const router = createRouter({history: createMemoryHistory(), routes: [{path: '/', component: EmptyPage}]})
-    const formStub = defineComponent({setup(_, {slots, expose}) { expose({validate: async () => true}); return () => h('form', slots['default']?.()) }})
-    const buttonStub = defineComponent({setup(_, {slots, attrs}) { return () => h('button', attrs, slots['default']?.()) }})
-    const wrapper = mount(LoginView, {global: {plugins: [router], stubs: {
-      'el-form': formStub,
-      'el-form-item': defineComponent({setup: (_, {slots}) => () => h('div', slots['default']?.())}),
-      'el-select': true, 'el-option': true, 'el-input': true, 'el-button': buttonStub,
-      'el-tabs': defineComponent({setup: (_, {slots}) => () => h('div', slots['default']?.())}),
-      'el-tab-pane': defineComponent({setup: (_, {slots}) => () => h('div', slots['default']?.())}),
-      'el-icon': true,
-    }}})
-    mounted.push(wrapper)
-    await flushPromises()
-    await wrapper.get('.login-btn').trigger('click')
-    await flushPromises()
-    expect(state.login).toHaveBeenCalledWith(expect.objectContaining({enterpriseName: ''}))
-  })
-
-  it('preserves an enterprise entered while the catalog request is pending', async () => {
-    let resolveCatalog: (items: Array<{id: string; name: string; shortName: string}>) => void = () => undefined
-    state.listEnterprises.mockImplementationOnce(() => new Promise(resolve => { resolveCatalog = resolve }))
-    const router = createRouter({history: createMemoryHistory(), routes: [{path: '/', component: EmptyPage}]})
-    const formStub = defineComponent({setup(_, {slots, expose}) { expose({validate: async () => true}); return () => h('form', slots['default']?.()) }})
-    const buttonStub = defineComponent({setup(_, {slots, attrs}) { return () => h('button', attrs, slots['default']?.()) }})
-    const selectStub = defineComponent({
-      props: {modelValue: {type: String, default: ''}},
-      emits: ['update:modelValue'],
-      setup(props, {emit}) { return () => h('input', {value: props.modelValue, onInput: (event: Event) => emit('update:modelValue', (event.target as HTMLInputElement).value)}) },
-    })
-    const wrapper = mount(LoginView, {global: {plugins: [router], stubs: {
-      'el-form': formStub,
-      'el-form-item': defineComponent({setup: (_, {slots}) => () => h('div', slots['default']?.())}),
-      'el-select': selectStub, 'el-option': true, 'el-input': true, 'el-button': buttonStub,
-      'el-tabs': defineComponent({setup: (_, {slots}) => () => h('div', slots['default']?.())}),
-      'el-tab-pane': defineComponent({setup: (_, {slots}) => () => h('div', slots['default']?.())}),
-      'el-icon': true,
-    }}})
-    mounted.push(wrapper)
-    await wrapper.get('[aria-label="企业"]').setValue('manual-tenant')
-    resolveCatalog([{id: 'E1', name: '领码科技', shortName: 'Lingma'}])
-    await flushPromises()
-    await wrapper.get('.login-btn').trigger('click')
-    await flushPromises()
-    expect(state.login).toHaveBeenCalledWith(expect.objectContaining({enterpriseName: 'manual-tenant'}))
   })
 })

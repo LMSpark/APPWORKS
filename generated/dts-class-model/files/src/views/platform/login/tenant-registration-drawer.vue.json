@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/platform/login/tenant-registration-drawer",
+    "sourcePath": "src/views/platform/login/tenant-registration-drawer.vue",
+    "sourceFile": "src/views/platform/login/tenant-registration-drawer.vue",
+    "packageName": "app",
+    "modulePath": "views/platform/login/tenant-registration-drawer",
+    "jsdoc": "@module app:views/platform/login/tenant-registration-drawer\n职责：右侧抽屉内以标准组件编辑注册租户命令行；保存、取消与结果未知时的管理员登录核验复用公共单记录生命周期。\n边界：不创建数据实例、不直接调用认证接口；结果未知时不能关闭或重提；明确失败后通知宿主改开新命令行，回执由宿主读取。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T05:36:37.120Z",
+  "models": {}
+}

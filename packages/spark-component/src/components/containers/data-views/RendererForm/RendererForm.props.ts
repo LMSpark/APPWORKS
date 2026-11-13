@@ -34,5 +34,5 @@ export type RFormProps = SparkNodeProps & SparkCrudDataContainerProps & SparkGri
     autoColumns?: boolean
     /** 表单标签宽度 */
     labelWidth?: string
-    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。 */
+    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。单行文本回车另发出组件 submit 事件，由监听方决定是否提交。 */
     formProps?: Record<string, unknown>}

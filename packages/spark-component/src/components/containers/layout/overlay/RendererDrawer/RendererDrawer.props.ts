@@ -22,5 +22,7 @@ export type RDrawerProps = LayoutDataContextProps & SparkVisibilityContainerProp
     title?: string
     /** 控制显隐 */
     modelValue?: boolean
+    /** 禁止用户和组件API关闭抽屉，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放抽屉。用于草稿/在途操作保护，不代表数据权限。 */
+    closeDisabled?: boolean
     /** 内容区 CSS 类名 */
     bodyClass?: string}

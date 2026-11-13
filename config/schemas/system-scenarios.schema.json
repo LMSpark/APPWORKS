@@ -18,7 +18,8 @@
           "name": {"type": "string", "pattern": "^[a-z][A-Za-z0-9]*$"},
           "scenarioId": {"type": "string", "pattern": "^[A-F0-9]{32}$"},
           "resourceId": {"type": "string", "pattern": "^repository:scenario-view:[A-F0-9]{32}$"},
-          "path": {"type": "string", "pattern": "^config/pages/.+/pagedata\\.json$"}
+          "path": {"type": "string", "pattern": "^config/pages/.+/pagedata\\.json$"},
+          "scope": {"const": "public", "description": "登录前公开场景：不进入应用或目录作用域，只能由公开装配入口装配"}
         },
         "required": ["name", "scenarioId", "resourceId", "path"]
       }

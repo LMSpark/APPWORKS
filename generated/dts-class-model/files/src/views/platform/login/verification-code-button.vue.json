@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/platform/login/verification-code-button",
+    "sourcePath": "src/views/platform/login/verification-code-button.vue",
+    "sourceFile": "src/views/platform/login/verification-code-button.vue",
+    "packageName": "app",
+    "modulePath": "views/platform/login/verification-code-button",
+    "jsdoc": "@module app:views/platform/login/verification-code-button\n职责：在注册抽屉内经发送验证码命令视图提交一次发送请求；成功后 60 秒倒计时禁用，明确失败可立即重发。\n边界：每次发送新增一行命令并只保存该行；失败的待提交行随即放弃，不复制或保留注册输入。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T05:28:51.541Z",
+  "models": {}
+}

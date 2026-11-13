@@ -22,6 +22,7 @@ AI用途：需要理解 field text 的实际渲染结构、slot/toolbar/状态�
         :maxlength="maxlength"
         :type="showPassword ? 'password' : 'text'"
         :show-password="showPassword"
+        :prefix-icon="resolvedPrefixIcon ?? undefined"
         @update:model-value="handleChange"
       />
     </template>
@@ -34,7 +35,8 @@ AI用途：需要理解 field text 的实际渲染结构、slot/toolbar/状态�
  */
 import { useBasicFieldState } from '../../composables/state/useBasicFieldState'
 import { fieldMemberFromProps } from '../../../context/useFieldPermission'
-import {computed} from 'vue'
+import {computed, markRaw, type Component} from 'vue'
+import * as ElIcons from '@element-plus/icons-vue'
 import { emitFieldValueUpdate, type FieldValueUpdateEmits } from '../../composables/value/useControlledFieldChange'
 import { coerceStringValue } from '../../composables/value/fieldValueCoercion'
 import FieldContextRenderer from '../../../non-data-components/FieldContextRenderer.vue'
@@ -61,6 +63,13 @@ const { permission, fieldCtx, handleControlledChange } = useBasicFieldState<stri
 })
 
 const { fieldValue, isCurrentFieldEditable } = permission
+
+const resolvedPrefixIcon = computed((): Component | null => {
+  const name = props.prefixIcon
+  if (!name) return null
+  const entry = Object.entries(ElIcons).find(([key]) => key === name)
+  return entry ? markRaw(entry[1]) : null
+})
 
 async function handleChange(value: string): Promise<void> {
   await handleControlledChange(value)

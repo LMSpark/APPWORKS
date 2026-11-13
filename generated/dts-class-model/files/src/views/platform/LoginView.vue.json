@@ -7,11 +7,11 @@
     "sourceFile": "src/views/platform/LoginView.vue",
     "packageName": "app",
     "modulePath": "views/platform/LoginView",
-    "jsdoc": "@module app:views/platform/LoginView\n职责：提供主应用 LoginView 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/platform/LoginView。",
+    "jsdoc": "@module app:views/platform/LoginView\n职责：登录页宿主：装配登录公开场景的独立运行实例并提供给子组件；登录卡片只承载登录，注册账号与注册租户分层到右侧抽屉。\n边界：认证经公开场景的命令视图提交，本页只新增命令行、读取回执并进入企业落点；不直接调用认证接口，不保存凭据。\nAI用途：需要理解未登录时如何经 SPARK data 命令视图登录、注册时，用本模块定位宿主编排。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-13T04:44:01.289Z",
+  "generatedAt": "2026-11-13T05:36:47.091Z",
   "models": {}
 }

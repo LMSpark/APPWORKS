@@ -1,423 +1,242 @@
 <!--
 @module app:views/platform/LoginView
-职责：提供主应用 LoginView 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。
-边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。
-AI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/platform/LoginView。
+职责：登录页宿主：装配登录公开场景的独立运行实例并提供给子组件；登录卡片只承载登录，注册账号与注册租户分层到右侧抽屉。
+边界：认证经公开场景的命令视图提交，本页只新增命令行、读取回执并进入企业落点；不直接调用认证接口，不保存凭据。
+AI用途：需要理解未登录时如何经 SPARK data 命令视图登录、注册时，用本模块定位宿主编排。
 -->
 <template>
   <div class="login-page">
     <div class="login-card">
       <h1 class="login-title">SPARK 应用工场</h1>
       <p class="login-subtitle">配置驱动，快速配系统</p>
-
-      <el-tabs v-model="activeTab" class="login-tabs">
-        <!-- ── 登录 ── -->
-        <el-tab-pane label="登录" name="login">
-          <el-form
-            ref="loginFormRef"
-            :model="loginForm"
-            :rules="loginRules"
-            label-width="0"
-            @submit.prevent="handleLogin"
-          >
-            <el-form-item prop="enterpriseName">
-              <el-select
-                v-model="loginForm.enterpriseName"
-                aria-label="企业"
-                :loading="enterpriseLoading"
-                filterable
-                allow-create
-                default-first-option
-                placeholder="选择或输入企业"
-                style="width: 100%"
-              >
-                <el-option
-                  v-for="enterprise in enterprises"
-                  :key="enterprise.id"
-                  :label="enterprise.name"
-                  :value="enterprise.shortName"
-                />
-              </el-select>
-            </el-form-item>
-            <el-form-item prop="account">
-              <el-input v-model="loginForm.account" placeholder="登录账号">
-                <template #prefix><el-icon><User /></el-icon></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="password">
-              <el-input v-model="loginForm.password" type="password" show-password placeholder="密码" @keyup.enter="handleLogin">
-                <template #prefix><el-icon><Lock /></el-icon></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item>
-              <div class="btn-group">
-                <el-button type="primary" class="login-btn" :loading="loading" @click="handleLogin">登 录</el-button>
-                <el-button class="cancel-btn" @click="goHome">取 消</el-button>
-              </div>
-            </el-form-item>
-          </el-form>
-        </el-tab-pane>
-
-        <!-- ── 注册用户 ── -->
-        <el-tab-pane label="注册" name="register">
-          <el-form
-            ref="regFormRef"
-            :model="regForm"
-            :rules="regRules"
-            label-width="0"
-            @submit.prevent="handleRegister"
-          >
-            <el-form-item prop="enterpriseName">
-              <el-input v-model="regForm.enterpriseName" placeholder="企业英文简称">
-                <template #prefix><el-icon><OfficeBuilding /></el-icon></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="account">
-              <el-input v-model="regForm.account" placeholder="登录账号">
-                <template #prefix><el-icon><User /></el-icon></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="displayName">
-              <el-input v-model="regForm.displayName" placeholder="显示名称（选填）">
-                <template #prefix><el-icon><Edit /></el-icon></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="sex">
-              <el-select v-model="regForm.sex" style="width: 100%" placeholder="性别">
-                <el-option label="女" value="F" />
-                <el-option label="男" value="M" />
-              </el-select>
-            </el-form-item>
-            <el-form-item prop="channel">
-              <el-select v-model="regForm.channel" style="width: 100%" placeholder="验证方式">
-                <el-option label="邮箱" value="EMAIL" />
-                <el-option label="手机号" value="MOBILE" />
-              </el-select>
-            </el-form-item>
-            <el-form-item prop="contact">
-              <el-input v-model="regForm.contact" :placeholder="regForm.channel === 'EMAIL' ? '验证邮箱' : '验证手机号'">
-                <template #prefix><el-icon><Message /></el-icon></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="verificationCode">
-              <el-input v-model="regForm.verificationCode" placeholder="验证码">
-                <template #append><el-button @click="sendUserCode">发送验证码</el-button></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="password">
-              <el-input v-model="regForm.password" type="password" show-password placeholder="密码">
-                <template #prefix><el-icon><Lock /></el-icon></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="confirmPassword">
-              <el-input v-model="regForm.confirmPassword" type="password" show-password placeholder="确认密码" @keyup.enter="handleRegister">
-                <template #prefix><el-icon><Lock /></el-icon></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item>
-              <div class="btn-group">
-                <el-button type="primary" class="login-btn" :loading="loading" @click="handleRegister">注 册</el-button>
-                <el-button class="cancel-btn" @click="goHome">取 消</el-button>
-              </div>
-            </el-form-item>
-          </el-form>
-        </el-tab-pane>
-
-        <!-- ── 注册租户 ── -->
-        <el-tab-pane label="注册租户" name="register-tenant">
-          <el-form
-            ref="tenantFormRef"
-            :model="tenantForm"
-            :rules="tenantRules"
-            label-width="0"
-            @submit.prevent="handleRegisterTenant"
-          >
-            <el-form-item prop="domainKey">
-              <el-input v-model="tenantForm.domainKey" placeholder="四级域名标识（如 NewApp）">
-                <template #prefix><el-icon><Postcard /></el-icon></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="englishName">
-              <el-input v-model="tenantForm.englishName" placeholder="企业英文名称">
-                <template #prefix><el-icon><OfficeBuilding /></el-icon></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="chineseName">
-              <el-input v-model="tenantForm.chineseName" placeholder="企业中文名称" />
-            </el-form-item>
-            <el-form-item prop="chineseShortName">
-              <el-input v-model="tenantForm.chineseShortName" placeholder="企业中文简称" />
-            </el-form-item>
-            <el-form-item prop="administratorAccount">
-              <el-input v-model="tenantForm.administratorAccount" placeholder="管理员账号">
-                <template #prefix><el-icon><User /></el-icon></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="administratorPassword">
-              <el-input v-model="tenantForm.administratorPassword" type="password" show-password placeholder="管理员密码">
-                <template #prefix><el-icon><Lock /></el-icon></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="channel">
-              <el-select v-model="tenantForm.channel" style="width: 100%" placeholder="验证方式">
-                <el-option label="邮箱" value="EMAIL" />
-                <el-option label="手机号" value="MOBILE" />
-              </el-select>
-            </el-form-item>
-            <el-form-item prop="verificationAccount">
-              <el-input v-model="tenantForm.verificationAccount" :placeholder="tenantForm.channel === 'EMAIL' ? '管理员邮箱' : '管理员手机号'" />
-            </el-form-item>
-            <el-form-item prop="verificationCode">
-              <el-input v-model="tenantForm.verificationCode" placeholder="验证码" @keyup.enter="handleRegisterTenant">
-                <template #append><el-button @click="sendEnterpriseCode">发送验证码</el-button></template>
-              </el-input>
-            </el-form-item>
-            <el-form-item>
-              <div class="btn-group">
-                <el-button type="primary" class="login-btn" :loading="loading" @click="handleRegisterTenant">注册租户</el-button>
-                <el-button class="cancel-btn" @click="goHome">取 消</el-button>
-              </div>
-            </el-form-item>
-          </el-form>
-        </el-tab-pane>
-      </el-tabs>
-
-      <div v-if="errorMsg" class="login-error">{{ errorMsg }}</div>
+      <p v-if="loadError" class="login-error" role="alert">{{ loadError }}</p>
+      <p v-else-if="!ready" class="login-status" role="status">正在准备登录…</p>
+      <template v-else>
+        <p v-if="catalogError" class="login-status" role="status">企业目录暂不可用（{{ catalogError }}），请直接输入企业英文简称。</p>
+        <LoginForm v-if="loginId !== undefined" :key="loginId" :data-view-key="keys.login" :record-id="loginId" :rejection="loginRejection"
+          v-bind="catalogError ? {} : {catalogKey: keys.catalog}" :disabled="entering" @finish="finishLogin" @rejected="rejectLogin" @leave="goHome" />
+        <div class="login-links">
+          <RendererButton label="注册账号" :link="true" button-type="primary" :disabled="entering || userId !== undefined" @click="openUserRegistration" />
+          <RendererButton label="注册租户" :link="true" button-type="primary" :disabled="entering || tenantId !== undefined" @click="openTenantRegistration" />
+        </div>
+      </template>
     </div>
+    <UserRegistrationDrawer v-if="userId !== undefined" :key="userId" :data-view-key="keys.user" :record-id="userId" :rejection="userRejection"
+      :code-data-view-key="keys.code" @finish="result => finishRegistration('user', result)" @rejected="rejectUserRegistration" />
+    <TenantRegistrationDrawer v-if="tenantId !== undefined" :key="tenantId" :data-view-key="keys.tenant" :record-id="tenantId" :rejection="tenantRejection"
+      :code-data-view-key="keys.code" @finish="result => finishRegistration('tenant', result)" @rejected="rejectTenantRegistration" />
   </div>
 </template>
 
 <script setup lang="ts">
-/**
- * @description 多租户登录页面，提供用户名/密码认证和租户选择入口；属于平台路由页，不允许作为 SparkNode 组件配置生成。
- */
-import { inject, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { lowcodeApi } from '@/lowcode/lowcode-runtime'
-import { PROJECT_SWITCH_KEY, reloadAndSyncNavigation } from '@/services/project/project-shell'
-import { enterEnterpriseLanding } from '@/services/project/enterprise-landing'
-import type { FormInstance, FormRules } from 'element-plus'
-import { ElMessage } from 'element-plus'
-import { OfficeBuilding, User, Lock, Edit, Message, Postcard } from '@element-plus/icons-vue'
-import type {
-  LowcodeEnterpriseCatalogItem,
-  LowcodeEnterpriseRegistration,
-  LowcodeUserRegistration,
-} from '@spark-appworks/spark-lowcode-api'
+import {inject, onBeforeUnmount, onMounted, ref} from 'vue'
+import {useRouter} from 'vue-router'
+import {ElMessage} from 'element-plus'
+import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
+import {buildDataViewKey, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {PAGE_RUNTIME, RendererButton, useSparkComponent, type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
+import {getPublicScenarioResource} from '@/registries/system-scenario-registry'
+import {loadLowcodePublicScenario} from '@/lowcode/data-space/lowcode-public-scenario'
+import {PROJECT_SWITCH_KEY, reloadAndSyncNavigation} from '@/services/project/project-shell'
+import {enterEnterpriseLanding} from '@/services/project/enterprise-landing'
+import LoginForm from './login/login-form.vue'
+import UserRegistrationDrawer from './login/user-registration-drawer.vue'
+import TenantRegistrationDrawer from './login/tenant-registration-drawer.vue'
+
+/** 本浏览器记住的上次登录企业英文简称；非凭据。 */
+const ENTERPRISE_KEY = 'spark_login_enterprise'
+/** 首页经此键请求打开注册抽屉（register / register-tenant），读取后即清除。 */
+const LOGIN_TAB_KEY = 'spark_login_tab'
+const scenarioId = getPublicScenarioResource('platformLogin').scenarioId
+const tables = {catalog: 'EnterpriseCatalog', login: 'LoginRequest', user: 'UserRegistrationRequest',
+  tenant: 'EnterpriseRegistrationRequest', code: 'VerificationCodeRequest'} as const
+const keys = {catalog: buildDataViewKey(tables.catalog, 'default', scenarioId), login: buildDataViewKey(tables.login, 'default', scenarioId),
+  user: buildDataViewKey(tables.user, 'default', scenarioId), tenant: buildDataViewKey(tables.tenant, 'default', scenarioId),
+  code: buildDataViewKey(tables.code, 'default', scenarioId)}
 
 const router = useRouter()
-const savedTab = sessionStorage.getItem('spark_login_tab')
-const activeTab = ref(savedTab ?? 'login')
-if (savedTab) sessionStorage.removeItem('spark_login_tab')
-const loading = ref(false)
-const errorMsg = ref('')
-const enterpriseLoading = ref(false)
-const enterprises = ref<readonly LowcodeEnterpriseCatalogItem[]>([])
-const preferredEnterpriseDisplayName = '领码科技'
-const loginForm = reactive({ enterpriseName: '', account: '', password: '' })
+const projectSwitch = inject(PROJECT_SWITCH_KEY, null)
+const requestedTab = sessionStorage.getItem(LOGIN_TAB_KEY)
+if (requestedTab) sessionStorage.removeItem(LOGIN_TAB_KEY)
+const {sparkProvide, sparkRemove} = useSparkComponent({type: 'platform-login-page'})
+const session = new NativePageRuntimeSession({provide: () => undefined, remove: () => sparkRemove(PAGE_RUNTIME)})
+const ready = ref(false), loadError = ref(''), catalogError = ref(''), entering = ref(false)
+const loginId = ref<string | number>(), userId = ref<string | number>(), tenantId = ref<string | number>()
+const loginRejection = ref(''), userRejection = ref(''), tenantRejection = ref('')
+let active = true
 
-async function loadEnterprises(): Promise<void> {
-  enterpriseLoading.value = true
+function assertCurrent(): void {
+  if (!active) throw new Error('PLATFORM_LOGIN_STALE: 登录页已关闭')
+}
+
+function message(cause: unknown): string {
+  return cause instanceof Error ? cause.message : String(cause)
+}
+
+function view(table: string): DataView {
+  const found = session.runtime?.getDataSet(scenarioId)?.getView(table, 'default')
+  if (!found) throw new Error(`登录场景缺少 ${table} 视图`)
+  return found
+}
+
+function receipt(table: string, id: string | number | undefined): Readonly<DataRow> | undefined {
+  if (id === undefined) return undefined
+  const target = view(table)
+  return target.rows.find(row => target.getPkKey(row) === id)
+}
+
+function text(row: Readonly<DataRow> | undefined, field: string): string {
+  const value = row?.[field]
+  return typeof value === 'string' ? value : ''
+}
+
+async function addCommand(table: string, initial: DataRow): Promise<string | number> {
+  const target = view(table)
+  const row = await target.addRow(initial)
+  assertCurrent()
+  const id = target.getPkKey(row)
+  if (id === undefined) throw new Error(`${table} 命令未生成记录身份`)
+  target.setCurrentRow(row)
+  return id
+}
+
+/** 明确失败后原编辑身份已失效：放弃原待提交命令行，以保留的非凭据输入开新行；密码类字段须重新输入。 */
+async function reopenCommand(table: string, id: string | number, kept: readonly string[]): Promise<string | number> {
+  const target = view(table)
+  const stale = receipt(table, id)
+  const initial: DataRow = {}
+  for (const field of kept) initial[field] = text(stale, field)
+  target.discardPendingChanges([id])
+  return addCommand(table, initial)
+}
+
+async function openLogin(initial: Readonly<{enterpriseName: string; account: string}>): Promise<void> {
+  loginRejection.value = ''
+  loginId.value = await addCommand(tables.login, {...initial, password: ''})
+}
+
+async function rejectLogin(reason: string): Promise<void> {
+  const id = loginId.value
+  if (!active || id === undefined) return
   try {
-    enterprises.value = await lowcodeApi.platform.listEnterprises()
-    if (!loginForm.enterpriseName) {
-      const preferredEnterprises = enterprises.value.filter(enterprise => enterprise.name === preferredEnterpriseDisplayName)
-      if (preferredEnterprises.length === 1) {
-        const preferredEnterprise = preferredEnterprises[0]
-        if (preferredEnterprise) loginForm.enterpriseName = preferredEnterprise.shortName
-      }
-    }
-  } catch (error) {
-    ElMessage.warning(error instanceof Error ? error.message : '企业列表加载失败')
-  } finally {
-    enterpriseLoading.value = false
+    loginId.value = await reopenCommand(tables.login, id, ['enterpriseName', 'account'])
+    loginRejection.value = reason
+  } catch (cause) {if (active) ElMessage.error(message(cause))}
+}
+
+async function rejectUserRegistration(reason: string): Promise<void> {
+  const id = userId.value
+  if (!active || id === undefined) return
+  try {
+    userId.value = await reopenCommand(tables.user, id, ['enterpriseName', 'account', 'displayName', 'sex', 'channel', 'contact', 'verificationCode'])
+    userRejection.value = reason
+  } catch (cause) {if (active) ElMessage.error(message(cause))}
+}
+
+async function rejectTenantRegistration(reason: string): Promise<void> {
+  const id = tenantId.value
+  if (!active || id === undefined) return
+  try {
+    tenantId.value = await reopenCommand(tables.tenant, id,
+      ['domainKey', 'englishName', 'chineseName', 'chineseShortName', 'administratorAccount', 'channel', 'verificationAccount', 'verificationCode'])
+    tenantRejection.value = reason
+  } catch (cause) {if (active) ElMessage.error(message(cause))}
+}
+
+async function load(): Promise<void> {
+  try {
+    const current = session.acquire({pageId: 'platform-login', scenarioIds: [scenarioId],
+      loadScenario: id => loadLowcodePublicScenario({name: 'platformLogin', scenarioId: id, assertCurrent})})
+    await current.load()
+    assertCurrent()
+    await Promise.all([tables.login, tables.user, tables.tenant, tables.code].map(name => view(name).refresh()))
+    assertCurrent()
+    const catalog = view(tables.catalog)
+    try {
+      await catalog.refresh()
+      if (catalog.loadingError) throw catalog.loadingError
+    } catch (cause) {catalogError.value = message(cause)}
+    assertCurrent()
+    sparkProvide(PAGE_RUNTIME, current)
+    await openLogin({enterpriseName: localStorage.getItem(ENTERPRISE_KEY) ?? '', account: ''})
+    ready.value = true
+    if (requestedTab === 'register') await openUserRegistration()
+    else if (requestedTab === 'register-tenant') await openTenantRegistration()
+  } catch (cause) {
+    if (active) loadError.value = message(cause)
   }
 }
 
-onMounted(loadEnterprises)
+async function enter(identity: Readonly<{enterpriseName: string; account: string}>): Promise<void> {
+  entering.value = true
+  try {
+    localStorage.setItem(ENTERPRISE_KEY, identity.enterpriseName)
+    await reloadAndSyncNavigation()
+    await enterEnterpriseLanding({router, projectSwitch})
+  } catch (cause) {
+    if (!active) return
+    // 登录后路由刷新会使本页系统页身份失效，页内错误可能不可见。
+    ElMessage.error(message(cause))
+    await openLogin(identity)
+  } finally {
+    if (active) entering.value = false
+  }
+}
 
-function goHome() {
+async function finishLogin(result: DataViewRecordEditingFinish): Promise<void> {
+  if (!active || result !== 'saved') return
+  const row = receipt(tables.login, loginId.value)
+  const identity = {enterpriseName: text(row, 'enterpriseName'), account: text(row, 'account')}
+  if (text(row, 'outcome') !== 'signed-in' || !identity.enterpriseName) {
+    ElMessage.error('登录已返回，但回执不可读；请重新登录')
+    await openLogin(identity)
+    return
+  }
+  await enter(identity)
+}
+
+async function openUserRegistration(): Promise<void> {
+  if (userId.value !== undefined || entering.value) return
+  try {
+    userRejection.value = ''
+    userId.value = await addCommand(tables.user, {enterpriseName: localStorage.getItem(ENTERPRISE_KEY) ?? '', account: '', displayName: '',
+      sex: 'F', channel: 'EMAIL', contact: '', verificationCode: '', password: '', confirmPassword: ''})
+  } catch (cause) {if (active) ElMessage.error(message(cause))}
+}
+
+async function openTenantRegistration(): Promise<void> {
+  if (tenantId.value !== undefined || entering.value) return
+  try {
+    tenantRejection.value = ''
+    tenantId.value = await addCommand(tables.tenant, {domainKey: '', englishName: '', chineseName: '', chineseShortName: '',
+      administratorAccount: 'admin', administratorPassword: '', channel: 'MOBILE', verificationAccount: '', verificationCode: ''})
+  } catch (cause) {if (active) ElMessage.error(message(cause))}
+}
+
+async function finishRegistration(kind: 'user' | 'tenant', result: DataViewRecordEditingFinish): Promise<void> {
+  const id = kind === 'user' ? userId.value : tenantId.value
+  if (kind === 'user') userId.value = undefined
+  else tenantId.value = undefined
+  if (!active || result !== 'saved') return
+  const row = receipt(kind === 'user' ? tables.user : tables.tenant, id)
+  const identity = kind === 'user'
+    ? {enterpriseName: text(row, 'enterpriseName'), account: text(row, 'account')}
+    : {enterpriseName: text(row, 'domainKey'), account: text(row, 'administratorAccount')}
+  const outcome = text(row, 'outcome')
+  if (outcome === 'signed-in') {await enter(identity); return}
+  if (outcome === 'registered') {
+    ElMessage.success({message: `注册成功，暂未能自动登录：${text(row, 'message')}`, duration: 8000})
+    return
+  }
+  ElMessage.error('注册已返回，但回执不可读；请稍后直接登录确认')
+}
+
+function goHome(): void {
   void router.replace('/')
 }
 
-const projectSwitch = inject(PROJECT_SWITCH_KEY, null)
-function enterHome(): Promise<void> {
-  return enterEnterpriseLanding({ router, projectSwitch })
-}
-
-// ── 登录表单 ────────────────────────────────────────────────────────────────
-
-const loginFormRef = ref<FormInstance>()
-const loginRules: FormRules = {
-  enterpriseName: [{ required: true, message: '请选择或输入企业', trigger: 'change' }],
-  account: [{ required: true, message: '请输入登录账号', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-}
-
-async function handleLogin() {
-  const valid = await loginFormRef.value?.validate().catch(() => false)
-  if (!valid) return
-  loading.value = true
-  errorMsg.value = ''
-  try {
-    await lowcodeApi.platform.login(loginForm)
-    await reloadAndSyncNavigation()
-    await enterHome()
-  } catch (e) {
-    errorMsg.value = e instanceof Error ? e.message : '登录失败'
-    // 登录后路由刷新会使本页系统页身份失效，表单内错误不可见。
-    ElMessage.error(errorMsg.value)
-  } finally {
-    loading.value = false
-  }
-}
-
-// ── 注册表单 ────────────────────────────────────────────────────────────────
-
-type UserRegistrationForm = Pick<
-  LowcodeUserRegistration,
-  'enterpriseName' | 'account' | 'displayName' | 'password' | 'sex' | 'channel' | 'verificationCode'
-> & {
-  confirmPassword: string
-  contact: string
-}
-
-const regForm = reactive<UserRegistrationForm>({
-  enterpriseName: '',
-  account: '',
-  password: '',
-  confirmPassword: '',
-  displayName: '',
-  sex: 'F',
-  channel: 'EMAIL',
-  contact: '',
-  verificationCode: '',
-})
-const regFormRef = ref<FormInstance>()
-const regRules: FormRules = {
-  enterpriseName: [{ required: true, message: '请输入企业英文简称', trigger: 'blur' }],
-  account: [{ required: true, message: '请输入登录账号', trigger: 'blur' }],
-  displayName: [{ required: true, message: '请输入用户名称', trigger: 'blur' }],
-  contact: [{ required: true, message: '请输入验证账号', trigger: 'blur' }],
-  verificationCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }, { min: 6, message: '密码至少 6 位', trigger: 'blur' }],
-  confirmPassword: [
-    { required: true, message: '请确认密码', trigger: 'blur' },
-    {
-      validator: (_rule: unknown, value: string, callback: (err?: Error) => void) => {
-        if (value !== regForm.password) callback(new Error('两次密码不一致'))
-        else callback()
-      },
-      trigger: 'blur',
-    },
-  ],
-}
-
-async function handleRegister() {
-  const valid = await regFormRef.value?.validate().catch(() => false)
-  if (!valid) return
-  loading.value = true
-  errorMsg.value = ''
-  try {
-    await lowcodeApi.platform.registerUser({
-      enterpriseName: regForm.enterpriseName,
-      account: regForm.account,
-      displayName: regForm.displayName,
-      password: regForm.password,
-      sex: regForm.sex,
-      channel: regForm.channel,
-      phone: regForm.channel === 'MOBILE' ? regForm.contact : '',
-      email: regForm.channel === 'EMAIL' ? regForm.contact : '',
-      verificationCode: regForm.verificationCode,
-    })
-    await lowcodeApi.platform.login({
-      enterpriseName: regForm.enterpriseName,
-      account: regForm.account,
-      password: regForm.password,
-    })
-    await reloadAndSyncNavigation()
-    await enterHome()
-  } catch (e) {
-    errorMsg.value = e instanceof Error ? e.message : '注册失败'
-  } finally {
-    loading.value = false
-  }
-}
-
-// ── 注册租户表单 ────────────────────────────────────────────────────────────
-
-async function sendUserCode(): Promise<void> {
-  await lowcodeApi.platform.sendVerificationCode({
-    enterpriseName: regForm.enterpriseName,
-    channel: regForm.channel,
-    account: regForm.contact,
-    scene: 'REGISTER',
-  })
-  ElMessage.success('验证码已发送')
-}
-
-type EnterpriseRegistrationForm = Omit<LowcodeEnterpriseRegistration, 'phone' | 'email'>
-
-const tenantForm = reactive<EnterpriseRegistrationForm>({
-  domainKey: '',
-  englishName: '',
-  chineseName: '',
-  chineseShortName: '',
-  administratorAccount: 'admin',
-  administratorPassword: '',
-  channel: 'MOBILE',
-  verificationAccount: '',
-  verificationCode: '',
-})
-const tenantFormRef = ref<FormInstance>()
-const tenantRules: FormRules = {
-  domainKey: [
-    { required: true, message: '请输入四级域名标识', trigger: 'blur' },
-    { pattern: /^[a-zA-Z][a-zA-Z0-9_-]{2,31}$/, message: '以字母开头，3-32 个字母/数字/_/-', trigger: 'blur' },
-  ],
-  englishName: [{ required: true, message: '请输入企业英文名称', trigger: 'blur' }],
-  chineseName: [{ required: true, message: '请输入企业中文名称', trigger: 'blur' }],
-  chineseShortName: [{ required: true, message: '请输入企业中文简称', trigger: 'blur' }],
-  administratorAccount: [{ required: true, message: '请输入管理员账号', trigger: 'blur' }],
-  administratorPassword: [{ required: true, message: '请输入管理员密码', trigger: 'blur' }, { min: 6, message: '密码至少 6 位', trigger: 'blur' }],
-  verificationAccount: [{ required: true, message: '请输入验证账号', trigger: 'blur' }],
-  verificationCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
-}
-
-async function sendEnterpriseCode(): Promise<void> {
-  await lowcodeApi.platform.sendVerificationCode({
-    enterpriseName: tenantForm.domainKey,
-    channel: tenantForm.channel,
-    account: tenantForm.verificationAccount,
-    scene: 'REGISTER_ENT',
-  })
-  ElMessage.success('验证码已发送')
-}
-
-async function handleRegisterTenant() {
-  const valid = await tenantFormRef.value?.validate().catch(() => false)
-  if (!valid) return
-  loading.value = true
-  errorMsg.value = ''
-  try {
-    await lowcodeApi.platform.registerEnterprise({
-      ...tenantForm,
-      phone: tenantForm.channel === 'MOBILE' ? tenantForm.verificationAccount : '',
-      email: tenantForm.channel === 'EMAIL' ? tenantForm.verificationAccount : '',
-    })
-    await lowcodeApi.platform.login({
-      enterpriseName: tenantForm.domainKey,
-      account: tenantForm.administratorAccount,
-      password: tenantForm.administratorPassword,
-    })
-    await reloadAndSyncNavigation()
-    await enterHome()
-  } catch (e) {
-    errorMsg.value = e instanceof Error ? e.message : '租户注册失败'
-  } finally {
-    loading.value = false
-  }
-}
+onMounted(load)
+onBeforeUnmount(() => {active = false; session.dispose()})
 </script>
 
 <style scoped>
@@ -452,29 +271,16 @@ async function handleRegisterTenant() {
   margin: 0 0 24px;
 }
 
-.login-tabs :deep(.el-tabs__header) {
-  margin-bottom: 20px;
+.login-status {
+  margin: 0 0 12px;
+  color: #909399;
+  font-size: 13px;
 }
 
-.login-btn {
-  width: 100%;
-  height: 42px;
-  font-size: 16px;
-}
-
-.btn-group {
+.login-links {
   display: flex;
-  gap: 12px;
-  width: 100%;
-}
-
-.btn-group .login-btn {
-  flex: 1;
-}
-
-.cancel-btn {
-  height: 42px;
-  font-size: 16px;
+  justify-content: space-between;
+  margin-top: 16px;
 }
 
 .login-error {
@@ -488,12 +294,6 @@ async function handleRegisterTenant() {
   text-align: center;
 }
 
-.input-icon {
-  font-size: 14px;
-  line-height: 1;
-}
-
-/* 暗黑模式 */
 html.dark .login-page {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
 }

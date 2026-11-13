@@ -154,4 +154,5 @@ export {CachePageReadAdapter} from './platform/resources/system/cache-page-read-
 export {DataRecoveryPageReadAdapter} from './platform/resources/system/data-recovery-page-read-adapter'
 export {CacheDeleteCommandResource} from './platform/resources/system/cache-delete-command-resource'
 export {EnterpriseInitializationResource} from './platform/resources/system/enterprise-initialization-resource'
+export {PlatformAuthResource} from './platform/resources/auth/platform-auth-resource'
 export type {WorkflowExecutionGraph} from './platform/resources/structured-config/workflow/workflow-execution-resource'

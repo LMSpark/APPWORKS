@@ -101,6 +101,7 @@ const ElDialogStub = defineComponent({
 const ElDrawerStub = defineComponent({
   props: {
     modelValue: Boolean,
+    beforeClose: Function,
   },
   setup(props, { slots }) {
     return () => h('div', { class: 'el-drawer-stub', 'data-visible': String(props.modelValue) }, [
@@ -191,6 +192,30 @@ describe('RendererDialog, RendererDrawer and RendererSteps integration', () => {
       expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([false])
       await wrapper.setProps({modelValue: false, closeDisabled: true})
       expect(dialog.props('modelValue')).toBe(false)
+    } finally {wrapper.unmount()}
+  })
+  it('guards drawer native and slot closes like the dialog and permits explicit parent disposal', async () => {
+    let slotClose: (() => void) | undefined
+    const wrapper = mount(RendererDrawer, {
+      props: {modelValue: true, closeDisabled: true},
+      slots: {default: ({close}: {close: () => void}) => {slotClose = close; return h('span', '注册中')}},
+      global: {stubs: {'el-drawer': ElDrawerStub}},
+    })
+    try {
+      const drawer = wrapper.findComponent(ElDrawerStub)
+      const done = vi.fn()
+      drawer.props('beforeClose')?.(done)
+      slotClose?.(); await flushPromises()
+      expect(done).not.toHaveBeenCalled()
+      expect(drawer.props('modelValue')).toBe(true)
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+      await wrapper.setProps({closeDisabled: false})
+      drawer.props('beforeClose')?.(done)
+      expect(done).toHaveBeenCalledOnce()
+      slotClose?.(); await flushPromises()
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([false])
+      await wrapper.setProps({modelValue: false, closeDisabled: true})
+      expect(drawer.props('modelValue')).toBe(false)
     } finally {wrapper.unmount()}
   })
   it('should keep drawer visibility in sync when API opens without external prop writeback', () => {

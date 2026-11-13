@@ -32,7 +32,7 @@ AI用途：需要理解 renderer form 的实际渲染结构、slot/toolbar/状�
       :show-selection-summary="props.showSelectionSummary !== false"
     />
 
-    <el-form ref="nativeFormRef" class="renderer-form-main" :model="formModel" :label-width="labelWidth" v-bind="formPropsValue" @submit.prevent>
+    <el-form ref="nativeFormRef" class="renderer-form-main" :model="formModel" :label-width="labelWidth" v-bind="formPropsValue" @submit.prevent @keydown.enter="handleEnter">
         <div class="renderer-form-grid" :style="gridStyle">
           <div
             v-for="(child, index) in gridChildren"
@@ -86,6 +86,16 @@ const props = withDefaults(defineProps<RFormProps>(), {
 })
 
 const formPropsValue = computed<Record<string, unknown>>(() => ({ ...(props.formProps ?? {}) }))
+
+/** 单行文本输入中回车（非输入法组合、非下拉选择输入）时发出，不提交数据；提交由监听方经 DataView 执行。 */
+const emit = defineEmits<{ submit: [] }>()
+
+function handleEnter(event: KeyboardEvent): void {
+  const target = event.target
+  if (event.isComposing || !(target instanceof HTMLInputElement) || target.closest('.el-select') !== null) return
+  if (['button', 'checkbox', 'radio', 'submit', 'reset', 'file'].includes(target.type)) return
+  emit('submit')
+}
 
 const {toolbarConfig, toolbarPositionValue, toolbarClassValue} = useContainerToolbar({toolbarNode: () => props.toolbar})
 

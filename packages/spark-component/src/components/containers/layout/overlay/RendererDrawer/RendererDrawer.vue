@@ -7,6 +7,7 @@ AI用途：需要理解 renderer drawer 的实际渲染结构、slot/toolbar/状
 <template>
   <el-drawer
     :model-value="visibleValue"
+    :before-close="beforeClose"
     @update:model-value="handleModelUpdate"
     @open="handleOpen"
     @close="handleClose"
@@ -116,7 +117,16 @@ const hasHeader = computed(() => resolvedTitle.value.length > 0 || hasHeaderActi
 const showFooter = computed(() => footerActionConfigs.value.length > 0 || slots['footer'] !== undefined)
 
 function closeDrawer(): void {
-  commitVisibleValue(false)
+  commitAllowedVisibility(false)
+}
+
+function commitAllowedVisibility(value: boolean): void {
+  if (!value && props.closeDisabled === true) return
+  commitVisibleValue(value)
+}
+
+function beforeClose(done: () => void): void {
+  if (props.closeDisabled !== true) done()
 }
 
 function hasExplicitModelValue(): boolean {
@@ -147,7 +157,7 @@ const {
   handleClosed: () => void
 } = createVisibilityContainerZeroCode({
   visibleValue,
-  commitVisibleValue,
+  commitVisibleValue: commitAllowedVisibility,
   onOpen: props.onOpen,
   onClose: props.onClose,
   onOpened: props.onOpened,

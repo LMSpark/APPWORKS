@@ -24,14 +24,22 @@ async function fixture(pinned=false,empty=false){
   sourceRow=()=>resolveReactiveRow(mirror);fieldRow=()=>context?.row(view)
   return()=>null
  }})
- const click=vi.fn(),Host=defineComponent({setup(){
+ const click=vi.fn(),submit=vi.fn(),Host=defineComponent({setup(){
   const {sparkProvide}=useSparkComponent({type:'form-probe'})
   sparkProvide(PAGE_RUNTIME,runtime);sparkProvide(PAGE_RUNTIME_SERVICES,{logger:{debug:vi.fn(),info:vi.fn(),warn:vi.fn(),error:vi.fn()}})
-  return()=>h(RendererForm,{dataViewKey:'SCENE@Rows@default',autoColumns:false,showDataViewMeta:false,...(pinned?{contextRowId:'A'}:{})},()=>[h(FieldText,{field:'name',label:'Name'}),h(Probe),h(RendererButton,{label:'Accept',onClick:click})])
+  return()=>h(RendererForm,{dataViewKey:'SCENE@Rows@default',autoColumns:false,showDataViewMeta:false,onSubmit:submit,...(pinned?{contextRowId:'A'}:{})},()=>[h(FieldText,{field:'name',label:'Name',prefixIcon:'User'}),h(Probe),h(RendererButton,{label:'Accept',onClick:click})])
  }})
  const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin()]}});cleanups.push(()=>runtime.dispose(),()=>wrapper.unmount());await flushPromises()
- return{wrapper,view,click,sourceRow:()=>sourceRow(),fieldRow:()=>fieldRow()}
+ return{wrapper,view,click,submit,sourceRow:()=>sourceRow(),fieldRow:()=>fieldRow()}
 }
+it('emits submit for Enter in a text input but not while composing or on buttons, and shows the prefix icon',async()=>{
+ const f=await fixture(),input=f.wrapper.get('input')
+ expect(f.wrapper.find('.el-input__prefix .el-icon').exists()).toBe(true)
+ await input.trigger('keydown',{key:'Enter'});expect(f.submit).toHaveBeenCalledTimes(1)
+ await input.trigger('keydown',{key:'Enter',isComposing:true});expect(f.submit).toHaveBeenCalledTimes(1)
+ await f.wrapper.get('button').trigger('keydown',{key:'Enter'});expect(f.submit).toHaveBeenCalledTimes(1)
+ expect(f.view.hasEditingChanges()).toBe(false)
+})
 it.each([false,true])('keeps edited display values and native field identity while ordinary commands receive events, pinned=%s',async pinned=>{
  const f=await fixture(pinned),original=f.view.rows[0]!
  f.view.updateEditingValue('A','name','draft');await flushPromises()

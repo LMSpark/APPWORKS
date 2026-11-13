@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/system/platform-auth/runtime-bindings",
+    "sourcePath": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+    "sourceFile": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/system/platform-auth/runtime-bindings",
+    "jsdoc": "@module app:lowcode/resources/system/platform-auth/runtime-bindings\n职责：为登录公开场景绑定企业目录投影与登录、注册、注册租户、发送验证码命令。\n边界：只核本次配置的表键与资源身份，执行全部交给 PlatformAuthResource；不创建表、草稿或页面 owner。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "config": {
+          "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
+        "resource": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts.json#/$defs/PlatformAuthResource"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-13T05:26:19.488Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    resource: PlatformAuthResource;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    resource: PlatformAuthResource;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resource",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

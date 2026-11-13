@@ -1,5 +1,5 @@
 {
-  "gapCount": 3785,
+  "gapCount": 3810,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -16976,6 +16976,136 @@
     },
     {
       "kind": "module",
+      "className": "@spark-appworks/spark-lowcode-api:platform/resources/auth/platform-auth-resource",
+      "moduleName": "@spark-appworks/spark-lowcode-api:platform/resources/auth/platform-auth-resource",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-lowcode-api:platform/resources/auth/platform-auth-resource 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts"
+    },
+    {
+      "kind": "method",
+      "className": "PlatformAuthApi",
+      "memberName": "login",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PlatformAuthApi.login 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationLine": 11,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "PlatformAuthApi",
+      "memberName": "listEnterprises",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PlatformAuthApi.listEnterprises 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationLine": 12,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "PlatformAuthApi",
+      "memberName": "registerUser",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PlatformAuthApi.registerUser 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationLine": 13,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "PlatformAuthApi",
+      "memberName": "registerEnterprise",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PlatformAuthApi.registerEnterprise 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationLine": 14,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "PlatformAuthApi",
+      "memberName": "sendVerificationCode",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PlatformAuthApi.sendVerificationCode 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationLine": 15,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "PlatformAuthResourceInput",
+      "memberName": "platform",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PlatformAuthResourceInput.platform 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationLine": 19,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "PlatformAuthResourceInput",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PlatformAuthResourceInput.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationLine": 20,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "PlatformAuthResource",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PlatformAuthResource 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationLine": 22,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "PlatformAuthResource",
+      "memberName": "resources",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PlatformAuthResource.resources 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationLine": 25,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "constructor",
+      "className": "PlatformAuthResource",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PlatformAuthResource.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationLine": 32,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "module",
       "className": "@spark-appworks/spark-lowcode-api:platform/resources/shared/http-record-guards",
       "moduleName": "@spark-appworks/spark-lowcode-api:platform/resources/shared/http-record-guards",
       "reason": "weak-module-jsdoc",
@@ -23974,6 +24104,53 @@
       "declarationFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
       "declarationLine": 7,
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/data-space/lowcode-public-scenario",
+      "moduleName": "app:lowcode/data-space/lowcode-public-scenario",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/data-space/lowcode-public-scenario 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/data-space/lowcode-public-scenario.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/lowcode-public-scenario.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/data-space/lowcode-public-scenario.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "LoadPublicScenarioInput",
+      "memberName": "name",
+      "reason": "missing-jsdoc",
+      "chainBreak": "LoadPublicScenarioInput.name 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/lowcode-public-scenario.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/lowcode-public-scenario.ts",
+      "declarationLine": 5,
+      "sourceFile": "src/lowcode/data-space/lowcode-public-scenario.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "LoadPublicScenarioInput",
+      "memberName": "scenarioId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "LoadPublicScenarioInput.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/lowcode-public-scenario.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/lowcode-public-scenario.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/lowcode/data-space/lowcode-public-scenario.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "LoadPublicScenarioInput",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "LoadPublicScenarioInput.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/lowcode-public-scenario.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/lowcode-public-scenario.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/lowcode/data-space/lowcode-public-scenario.ts",
       "declarationKind": "typeAlias"
     },
     {
@@ -39520,6 +39697,64 @@
     },
     {
       "kind": "module",
+      "className": "app:lowcode/resources/system/platform-auth/runtime-bindings",
+      "moduleName": "app:lowcode/resources/system/platform-auth/runtime-bindings",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/system/platform-auth/runtime-bindings 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/system/platform-auth/runtime-bindings.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Input",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/platform-auth/runtime-bindings.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+      "declarationLine": 9,
+      "sourceFile": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "config",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.config 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/platform-auth/runtime-bindings.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "resource",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.resource 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/platform-auth/runtime-bindings.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "Input",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/platform-auth/runtime-bindings.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+      "declarationLine": 12,
+      "sourceFile": "src/lowcode/resources/system/platform-auth/runtime-bindings.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
       "className": "app:lowcode/system-navigation",
       "moduleName": "app:lowcode/system-navigation",
       "reason": "weak-module-jsdoc",
@@ -39547,7 +39782,18 @@
       "chainBreak": "SystemScenarioName 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/registries/system-scenario-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/system-scenario-registry.ts",
-      "declarationLine": 2,
+      "declarationLine": 3,
+      "sourceFile": "src/registries/system-scenario-registry.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "PublicScenarioName",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PublicScenarioName 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/registries/system-scenario-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/registries/system-scenario-registry.ts",
+      "declarationLine": 4,
       "sourceFile": "src/registries/system-scenario-registry.ts",
       "declarationKind": "typeAlias"
     },
@@ -39558,7 +39804,7 @@
       "chainBreak": "SystemScenarioResource 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/registries/system-scenario-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/system-scenario-registry.ts",
-      "declarationLine": 3,
+      "declarationLine": 5,
       "sourceFile": "src/registries/system-scenario-registry.ts",
       "declarationKind": "typeAlias"
     },
@@ -39570,7 +39816,7 @@
       "chainBreak": "SystemScenarioResource.name 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/system-scenario-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/system-scenario-registry.ts",
-      "declarationLine": 4,
+      "declarationLine": 6,
       "sourceFile": "src/registries/system-scenario-registry.ts",
       "declarationKind": "interface"
     },
@@ -39582,7 +39828,7 @@
       "chainBreak": "SystemScenarioResource.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/system-scenario-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/system-scenario-registry.ts",
-      "declarationLine": 5,
+      "declarationLine": 7,
       "sourceFile": "src/registries/system-scenario-registry.ts",
       "declarationKind": "interface"
     },
@@ -39594,7 +39840,7 @@
       "chainBreak": "SystemScenarioResource.resourceId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/system-scenario-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/system-scenario-registry.ts",
-      "declarationLine": 6,
+      "declarationLine": 8,
       "sourceFile": "src/registries/system-scenario-registry.ts",
       "declarationKind": "interface"
     },
@@ -39606,7 +39852,7 @@
       "chainBreak": "SystemScenarioResource.path 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/system-scenario-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/system-scenario-registry.ts",
-      "declarationLine": 7,
+      "declarationLine": 9,
       "sourceFile": "src/registries/system-scenario-registry.ts",
       "declarationKind": "interface"
     },
@@ -44784,6 +45030,50 @@
       "declarationFile": "src/views/features/system/cache-management/ui/cache-management-page.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/system/cache-management/ui/cache-management-page.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/platform/login/login-form",
+      "moduleName": "app:views/platform/login/login-form",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/platform/login/login-form 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/platform/login/login-form.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/platform/login/login-form.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/platform/login/login-form.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/platform/login/tenant-registration-drawer",
+      "moduleName": "app:views/platform/login/tenant-registration-drawer",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/platform/login/tenant-registration-drawer 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/platform/login/tenant-registration-drawer.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/platform/login/tenant-registration-drawer.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/platform/login/tenant-registration-drawer.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/platform/login/user-registration-drawer",
+      "moduleName": "app:views/platform/login/user-registration-drawer",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/platform/login/user-registration-drawer 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/platform/login/user-registration-drawer.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/platform/login/user-registration-drawer.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/platform/login/user-registration-drawer.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/platform/login/verification-code-button",
+      "moduleName": "app:views/platform/login/verification-code-button",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/platform/login/verification-code-button 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/platform/login/verification-code-button.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/platform/login/verification-code-button.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/platform/login/verification-code-button.vue"
     }
   ]
 }

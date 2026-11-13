@@ -27,4 +27,6 @@ export type RTextProps = SparkNodeProps & SparkFieldSemanticProps<string> & Spar
   emptyText?: string
   /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */
   showPassword?: boolean
+  /** 表单输入框前缀图标，取 Element Plus 图标组件名（同 RendererButton.icon）；未知名称不显示，只影响呈现。 */
+  prefixIcon?: string
 }

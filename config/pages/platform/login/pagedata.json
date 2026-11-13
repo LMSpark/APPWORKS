@@ -1,0 +1,77 @@
+{
+  "scenarioId": "2D0B0B82A1AE41099F252E40747286AE",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "EnterpriseCatalog": {
+      "resourceType": "logical-view", "resourceId": "platform:enterprise-catalog",
+      "columns": [
+        {"name": "id", "label": "企业ID", "type": "string", "required": true, "isPrimaryKey": true},
+        {"name": "name", "label": "企业名称", "type": "string"},
+        {"name": "shortName", "label": "英文简称", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "queryConfig": {"allPages": true, "maxRows": 5000}}}
+    },
+    "LoginRequest": {
+      "resourceType": "command", "resourceId": "platform:login",
+      "columns": [
+        {"name": "commandId", "type": "string", "isPrimaryKey": true},
+        {"name": "enterpriseName", "label": "企业", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "account", "label": "登录账号", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "password", "label": "密码", "type": "string", "required": true},
+        {"name": "outcome", "label": "结果", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    },
+    "UserRegistrationRequest": {
+      "resourceType": "command", "resourceId": "platform:user-registration",
+      "columns": [
+        {"name": "commandId", "type": "string", "isPrimaryKey": true},
+        {"name": "enterpriseName", "label": "企业英文简称", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "account", "label": "登录账号", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "displayName", "label": "显示名称", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "sex", "label": "性别", "type": "string", "required": true},
+        {"name": "channel", "label": "验证方式", "type": "string", "required": true},
+        {"name": "contact", "label": "验证账号", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "verificationCode", "label": "验证码", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "password", "label": "密码", "type": "string", "required": true, "minLength": 6},
+        {"name": "confirmPassword", "label": "确认密码", "type": "string", "required": true},
+        {"name": "outcome", "label": "结果", "type": "string"},
+        {"name": "message", "label": "说明", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    },
+    "EnterpriseRegistrationRequest": {
+      "resourceType": "command", "resourceId": "platform:enterprise-registration",
+      "columns": [
+        {"name": "commandId", "type": "string", "isPrimaryKey": true},
+        {"name": "domainKey", "label": "四级域名标识", "type": "string", "required": true, "trim": "normalize",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{2,31}$", "patternMessage": "以字母开头，3-32 位字母、数字、下划线或中划线"},
+        {"name": "englishName", "label": "企业英文名称", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "chineseName", "label": "企业中文名称", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "chineseShortName", "label": "企业中文简称", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "administratorAccount", "label": "管理员账号", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "administratorPassword", "label": "管理员密码", "type": "string", "required": true, "minLength": 6},
+        {"name": "channel", "label": "验证方式", "type": "string", "required": true},
+        {"name": "verificationAccount", "label": "验证账号", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "verificationCode", "label": "验证码", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "outcome", "label": "结果", "type": "string"},
+        {"name": "message", "label": "说明", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    },
+    "VerificationCodeRequest": {
+      "resourceType": "command", "resourceId": "platform:verification-code",
+      "columns": [
+        {"name": "commandId", "type": "string", "isPrimaryKey": true},
+        {"name": "enterpriseName", "label": "企业英文简称", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "channel", "label": "验证方式", "type": "string", "required": true},
+        {"name": "account", "label": "验证账号", "type": "string", "required": true, "trim": "normalize"},
+        {"name": "scene", "label": "场景", "type": "string", "required": true},
+        {"name": "outcome", "label": "结果", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    }
+  },
+  "viewCascades": []
+}

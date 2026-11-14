@@ -26,7 +26,8 @@ import {useRouter} from 'vue-router'
 import {getNavHomePath, SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererButton, RendererSection, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
-import {lowcodeApi, readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
+import {readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
+import {submitBlueprintDocument} from '@/lowcode/resources/application/project-blueprint-document'
 import {buildApplicationPath} from '@/services/application-scope'
 import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
 import {EnterpriseDefaultApplication} from '@/services/project/enterprise-landing'
@@ -282,7 +283,7 @@ async function submitApplicationDocument(row: DataRow, kind: 'requirements-speci
     const projectId = readApplicationId(row, pageView())
     if (!projectId) throw new Error('应用目录缺少可读的项目身份')
     if (!readLowcodePrincipal()) throw new Error('未登录，无法提交文档任务')
-    const receipt = await lowcodeApi.blueprint.submitDocument(projectId, kind)
+    const receipt = await submitBlueprintDocument(projectId, kind)
     if (generation !== documentGeneration || !session.isCurrent(current)) return
     if (receipt.status !== 'submitted' || receipt.coverage !== 'legacy-menu-scope') throw new Error('文档提交回执格式未知')
     pageService.showMessage(`${label}请求已收到提交回执；文件生成状态未知。`, 'info')

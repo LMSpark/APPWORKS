@@ -9773,7 +9773,7 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 - **共性差距 A：手写外壳。** 除应用系统列表、关联数据库、企业应用授权三页已用 `RendererSection` 外，其余页面均为手写 `<header><h1>` 加逐页重复的 `<p role="status|alert">` 与“重试”按钮（`error && !loading && !ready`）；页内分区用 `<h2>`。参考为 `ListPageShell`/面板卡片（头部标题 + 头部操作区 + 主体），对应本仓 `RendererSection` 标题、header-actions 与主体。`RendererSection` 现无状态区，约 30 页重复同一状态模式，属真实公共缺口：补 `status`/`error`/`retryable`/`retryText`/`retry` 事件，页面不再手写。
 - **共性差距 B：标题文案未对齐参考。** JSON 数据（参考“JSON 文件数据管理”）、数据编码（“编码列表”）、数据字典（“字典列表”）、逻辑视图（“逻辑视图列表”）、数据工作流（“工作流列表”）、外部服务（“外部服务管理”）、数据库管理旧页（“数据库列表”）；页面自加的说明副标题参考不存在，随外壳一并去除。
-- **共性差距 C：页面直调。** 仅 `use-application-function-page.ts`（`lowcodeApi.dataSpace.design`、`blueprint.submitDocument`）与应用系统列表（`blueprint.submitDocument`，文档任务命令，已登记）；其余 `readRequestScope()` 为作用域守卫，不属直调。
+- **共性差距 C：页面直调。** ~~`use-application-function-page.ts`（`lowcodeApi.dataSpace.design.readModels`、`blueprint.submitDocument`）与应用系统列表 `blueprint.submitDocument`~~ **已下沉**（2026-11-14）至 `src/lowcode/resources/application/project-blueprint-document.ts`、`src/lowcode/resources/data-space/design/read-formal-models.ts`；业务 Vue 不再直调 `lowcodeApi.dataSpace.design` / `blueprint`。`readRequestScope()` 等作用域守卫仍可在页面/状态层使用，不属直调。
 - **共性差距 D：page-thin 基线。** 页面层：`data-set-design-page.vue`（hand-passed-ids 4、static-copy 1）、`DataSpaceModelFields.vue`（hand-passed-ids 1）及设计器 11 个文件的 static-copy；`src/lowcode/data-space/*` 会话的 command-status 属数据层责任方，仅核归属。
 - **共性差距 E：底层控件。** `el-*` 仅剩 `FileManager/index.vue`（`el-dialog`、`el-upload`）。
 
@@ -9857,4 +9857,5 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
   - **data-menu-page。** 换 `RendererSection` 页头增删改 + `DisplayAlert` 提示 + 表格 `border`；动作权限绑定 `data-view-key`/`perm-action`。
   - **enterprise-regist-manager-page。** 换 `RendererSection`、页头刷新、`DisplayAlert` 承载 `openError`、`consumeRequiredPageService`、表格 `border`。
   - **AppWorks 烟测（D99 `D99A1DCE9894698799101EFD70F8FC76`）。** 导航宿主管理、入驻管理直链开页正常：页头新增/刷新、表格与行内「设计/授权/审核」等按钮可见，无 Config Page Target Error。
-  - **未做。** `application-function-page` 去直调（`lowcodeApi.dataSpace.design.readModels`、`blueprint.submitDocument`）与外壳统一；该项须先核定数据层命令/资源承接再改页面。
+  - **页面直调下沉。** `project-blueprint-document`、`read-formal-models` 资源承接文档提交与设计态模型读取；蓝图工作台与应用系统列表改消费资源；共性差距 C 上述两项已核销。
+  - **未做。** `application-function-page` 整页 `RendererSection` 外壳统一（工作区布局复杂，单独排期）；批 4 其余页面级 reg 无新增直调。

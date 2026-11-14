@@ -13,6 +13,7 @@ import {BLUEPRINT_AI_REJECTED} from '@/views/features/application/application-fu
 import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import * as BlueprintDocument from '@/lowcode/resources/application/project-blueprint-document'
 import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import {catalogField, createDimensionRuntime} from '../../../../runtime/application/dimension/dimension.fixture'
 import {useApplicationFunctionPage} from '@/views/features/application/application-function-management/ui/use-application-function-page'
@@ -1031,7 +1032,7 @@ describe('application function page navigation and delivery', () => {
   })
 
   it('reports the export receipt without claiming the document was generated', async () => {
-    const submit = vi.spyOn(lowcodeApi.blueprint, 'submitDocument')
+    const submit = vi.spyOn(BlueprintDocument, 'submitBlueprintDocument')
       .mockResolvedValue({projectId: TARGET, kind: 'requirements-specification', status: 'submitted', coverage: 'legacy-menu-scope',
         message: '任务提交请求已确认；文档生成状态未知'})
     const {page} = await setup({nodeId: 'NODE-1'})

@@ -7,6 +7,8 @@ import type { PageRuntime } from '@spark-appworks/spark-project-model'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, RichTextImageUploadResource, type AiTurnDraftRunner } from '@spark-appworks/spark-lowcode-api'
 import { loadLowcodeRuntimeScenario, readLowcodeExecutionProject } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { lowcodeApi, lowcodeDesignFileUpload, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
+import { submitBlueprintDocument } from '@/lowcode/resources/application/project-blueprint-document'
+import { readDataSpaceDesignModels } from '@/lowcode/resources/data-space/design/read-formal-models'
 import { AiDataEntryHost } from '@/lowcode/resources/shared/ai-data-entry-host'
 import { hasDimensionLedgerRecords } from '@/lowcode/resources/structured-config/dimension-source/ledger-guard'
 import type { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
@@ -419,7 +421,7 @@ export function useApplicationFunctionPage() {
     exporting.value = true
     error.value = ''
     try {
-      await lowcodeApi.blueprint.submitDocument(context.projectId, 'requirements-specification')
+      await submitBlueprintDocument(context.projectId, 'requirements-specification')
       if (!isCurrentContext(context.key)) return
       notice.value = '需求说明书请求已收到提交回执；文件生成状态未知。'
     } catch (cause) {
@@ -435,7 +437,7 @@ export function useApplicationFunctionPage() {
     selectedNodeId,
     persistedDataSpaceId: state.persistedDataSpaceId,
     bindingPending: state.sceneBindingPending,
-    readModels: request => lowcodeApi.dataSpace.design.readModels(request),
+    readModels: readDataSpaceDesignModels,
     hasLedgerRecords: async (context, bindingId, assertCurrent) => {
       const ledger = await context.runtime.ensureScenarioLoaded(BLUEPRINT_DIMENSION_LEDGER_SCENARIO_ID)
       assertCurrent()

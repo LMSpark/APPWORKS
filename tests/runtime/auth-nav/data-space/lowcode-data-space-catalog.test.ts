@@ -20,6 +20,7 @@ vi.mock('@/lowcode/data-space/lowcode-data-space-design',()=>({openLowcodeDataSp
 vi.mock('@spark-appworks/spark-app',async importOriginal=>({...await importOriginal<Record<string,unknown>>(),useSystemPageDirtySource:()=>undefined}))
 import {LowcodeDataSpaceCatalog} from '@/lowcode/data-space/lowcode-data-space-catalog'
 import CatalogPage from '@/views/features/data-platform/data-set-management/ui/data-set-list-page.vue'
+import {withTestPageService} from '../../../support/helpers/page-service-host'
 const disposals:Array<()=>void>=[],originalStubs=config.global.stubs
 const models={Base_DataSet:['rowid','Name','Type','description','sysid','createuser','createtime'],
   Base_DataModel:['rowid','dataSetId'],
@@ -119,7 +120,7 @@ async function page(scenarioId='SCENE') {
   const registry=Spark.createRegistry()
   for(const [type,component] of [['r-text',FieldText],['r-select',FieldSelect],['r-button',RendererButton],['r-filter',RendererFilter],['r-toolbar',RendererToolbar]] as const)registry.register({type,component})
   registry.register({type:'r-field-scope',component:RendererFieldScope})
-  const wrapper=mount(CatalogPage,{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin({registry})]}})
+  const wrapper=mount(withTestPageService(CatalogPage,router),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin({registry})]}})
   disposals.push(()=>wrapper.unmount());await flushPromises();return {router,wrapper}
 }
 beforeEach(()=>{
@@ -469,7 +470,7 @@ describe('catalog page entry',()=>{
     expect(design).toBeDefined();expect(design!.attributes('disabled')).toBeUndefined()
     const before=router.currentRoute.value.fullPath
     await design!.trigger('click');await flushPromises();expect(router.currentRoute.value.fullPath).toBe(before)
-    expect((wrapper.vm as any).$?.setupState?.designId).toBe('TARGET')
+    expect((wrapper.findComponent(CatalogPage).vm as any).$?.setupState?.designId).toBe('TARGET')
     expect(openDesign).not.toHaveBeenCalled()
   })
   it('does not open a second designer session and still closes the dialog',async()=>{
@@ -478,7 +479,7 @@ describe('catalog page entry',()=>{
     const {wrapper}=await page(),rows=wrapper.findAll('tbody tr')
     const design=rows[0]!.findAll('button').find(item=>item.text()==='设计')!
     await design.trigger('click');await flushPromises()
-    const state=()=>(wrapper.vm as any).$?.setupState
+    const state=()=>(wrapper.findComponent(CatalogPage).vm as any).$?.setupState
     expect(state().designId).toBe('TARGET')
     const opened=openDesign.mock.calls.length
     const again=rows[1]!.findAll('button').find(item=>item.text()==='设计')!
@@ -497,7 +498,7 @@ describe('catalog page entry',()=>{
       ?[defaults['Base_DataSet']![0]!,{...defaults['Base_DataSet']![0],rowid:'SECOND',Name:'Second'}]:defaults[view.tableName]??[]))
     const {wrapper,router}=await page(),rows=wrapper.findAll('tbody tr');await rows[0]!.trigger('click');await flushPromises()
     await rows[1]!.findAll('button').find(item=>item.text()==='设计')!.trigger('click');await flushPromises()
-    expect((wrapper.vm as any).$?.setupState?.designId).toBe('SECOND')
+    expect((wrapper.findComponent(CatalogPage).vm as any).$?.setupState?.designId).toBe('SECOND')
     expect(openDesign).not.toHaveBeenCalled();expect(router.currentRoute.value.path).toContain('/data-set-list-page')
     void router
   })
@@ -577,15 +578,15 @@ describe('catalog page entry',()=>{
     const before=router.currentRoute.value.fullPath
     await wrapper.get('tbody tr').trigger('click');await flushPromises();await button(wrapper,'设计').trigger('click');await flushPromises()
     expect(router.currentRoute.value.fullPath).toBe(before)
-    expect((wrapper.vm as any).$?.setupState?.designId).toBe('TARGET')
+    expect((wrapper.findComponent(CatalogPage).vm as any).$?.setupState?.designId).toBe('TARGET')
     expect(document.body.textContent).not.toContain('UNTRUSTED')
   })
   it('retains standard OR/application filters across paging and resets them',async()=>{
     const {wrapper}=await page();await wrapper.get('input[placeholder="请输入名称/id"]').setValue(' FIND ');await flushPromises()
     wrapper.findAllComponents(FieldSelect).find(item=>item.props('field')==='sysid')!.getComponent(ElSelect).vm.$emit('update:modelValue','APP');await flushPromises()
     await button(wrapper,'查询').trigger('click');await flushPromises()
-    expect(last().filter).toEqual({logic:'and',filters:[{logic:'or',filters:[{field:'Name',operator:'contains',value:'FIND'},
-      {field:'rowid',operator:'eq',value:'FIND'}]},{field:'sysid',operator:'eq',value:'APP'}]})
+    expect(last().filter).toEqual({logic:'and',filters:[{field:'sysid',operator:'eq',value:'APP'},{logic:'or',filters:[{field:'Name',operator:'contains',value:'FIND'},
+      {field:'rowid',operator:'eq',value:'FIND'}]}]})
     await wrapper.get('.btn-next').trigger('click');await flushPromises();expect(last().page).toBe(2);expect(last().filter).toBeDefined()
     await button(wrapper,'重置').trigger('click');await button(wrapper,'查询').trigger('click');await flushPromises();expect(last().filter).toBeUndefined()
   })

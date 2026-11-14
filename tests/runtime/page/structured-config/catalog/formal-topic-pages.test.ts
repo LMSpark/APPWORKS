@@ -16,6 +16,7 @@ import Excel from '@/views/features/data-platform/semi-structured/excel-import/u
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
 import Pdf from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue'
 import {WORKFLOW, EXCEL, PDF, topicModels, topicTexts} from './formal-topic.fixture'
+import {withTestPageService} from '../../../../support/helpers/page-service-host'
 import type {HttpResponse,RequestConfig} from '@spark-appworks/spark-utils'
 vi.mock('@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue', () => ({default: {name:'ExcelEditorStub',props:['schemeRowid'],template:'<div data-excel-editor>{{schemeRowid}}</div>'}}))
 vi.mock('@spark-appworks/spark-app', async () => {
@@ -108,7 +109,7 @@ describe('formal topic catalog pages', () => {
   })
   it.each(['cancel','save','unknown-code','conflict-end','read-failure-end'] as const)('creates an Excel scheme through the standard pinned form with %s',async outcome=>{
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Excel,meta:{blueprintScenarioId:EXCEL}},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push('/catalog');await router.isReady()
-    const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper);await vi.waitFor(()=>expect(wrapper.text()).toContain('订单导入'))
+    const wrapper=mount(withTestPageService(RouterView,router),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper);await vi.waitFor(()=>expect(wrapper.text()).toContain('订单导入'))
     const click=async(label:string)=>{const button=wrapper.findAll('button').find(item=>item.text()===label);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
     await click('新增方案');const form=wrapper.getComponent(RendererForm),id=form.props('contextRowId');expect(id).toBeTruthy();expect(id).not.toBe('E1')
     const name=form.findAllComponents(FieldText).find(field=>field.props('field')==='solutionName')!;await name.get('input').setValue('新增目录方案');await flushPromises()
@@ -125,7 +126,7 @@ describe('formal topic catalog pages', () => {
     state.http.records['Base_Import_solution']!.push({rowid:'E2',coding:'KEEP2',solutionName:'另一个方案',description:'keep',dataSetId:'S1'})
     state.http.records['Base_Import_solution']![0]!['templatePath']='keep-template.xlsx'
     const loading=vi.spyOn(LowcodeExcelImport,'loadCatalog'),router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Excel,meta:{blueprintScenarioId:EXCEL}},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push('/catalog');await router.isReady()
-    const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper);await vi.waitFor(()=>expect(wrapper.text()).toContain('订单导入'));const loaded=loading.mock.results[0];loading.mockRestore();if(loaded?.type!=='return')throw Error('Catalog load missing');const ds=await loaded.value
+    const wrapper=mount(withTestPageService(RouterView,router),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper);await vi.waitFor(()=>expect(wrapper.text()).toContain('订单导入'));const loaded=loading.mock.results[0];loading.mockRestore();if(loaded?.type!=='return')throw Error('Catalog load missing');const ds=await loaded.value
     const row=wrapper.getComponent(RendererTable).findAll('tbody tr')[0]!;const edit=row.findAll('button').find(button=>button.text()==='编辑');expect(edit,'row edit action').toBeDefined();await edit!.trigger('click');await flushPromises()
     const form=wrapper.getComponent(RendererForm);expect(form.props('contextRowId')).toBe('E1');ds.getView('Base_Import_solution')!.setCurrentRowById('E2');await flushPromises()
     const name=form.findAllComponents(FieldText).find(field=>field.props('field')==='solutionName')!;await name.get('input').setValue('  修改后的方案  ');await flushPromises();await router.push('/other');expect(router.currentRoute.value.path).toBe('/catalog')
@@ -140,7 +141,7 @@ describe('formal topic catalog pages', () => {
     state.http.records['Base_TblField']=[{rowid:'F1',tblid:'T1',enname:'Count',cnname:'数量',DataType:'INT'},{rowid:'OTHER',tblid:'T2',enname:'HiddenOther',cnname:'其他表',DataType:'VARCHAR'}]
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})
     await router.push('/catalog');await router.isReady()
-    const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+    const wrapper=mount(withTestPageService(RouterView,router),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
     await vi.waitFor(()=>expect(wrapper.text()).toContain('入库流程'))
     const click=async(label:string)=>{const b=wrapper.findAllComponents(RendererButton).find(b=>b.props('label')===label)!;b.vm.$emit('click');await flushPromises()}
     await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises();await click('编辑定义')
@@ -168,7 +169,7 @@ describe('formal topic catalog pages', () => {
     Object.assign(state.http.records['Base_WorkflowDefinition']![0]!,{version:'1',activeType:'table',timeExp:'original-expression',tblid:'KEEP_TABLE',filter:'keep-filter',tableOperate:'add,edit'})
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})
     await router.push('/catalog');await router.isReady()
-    const wrapper=mount(Workflow,{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+    const wrapper=mount(withTestPageService(Workflow,router),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
     await vi.waitFor(()=>expect(wrapper.text()).toContain('入库流程'))
     const click=async(label:string)=>{const b=wrapper.findAllComponents(RendererButton).find(b=>b.props('label')===label)!;expect(b.props('disabled')).not.toBe(true);b.vm.$emit('click');await flushPromises()}
     await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises();await click('编辑定义')
@@ -200,7 +201,7 @@ describe('formal topic catalog pages', () => {
     state.http.records['_Base_TblList']=[{rowid:'T1',dbid:'D1',tblname:'Orders',tbldesc:'订单'},{rowid:'T2',dbid:'D2',tblname:'Other',tbldesc:'其他'}]
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})
     await router.push('/catalog');await router.isReady()
-    const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+    const wrapper=mount(withTestPageService(RouterView,router),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
     await vi.waitFor(()=>expect(wrapper.getComponent(RendererTable).text()).toContain('入库流程'))
     const click=async(label:string)=>{const b=wrapper.findAllComponents(RendererButton).find(b=>b.props('label')===label)!;expect(b,label).toBeDefined();expect(b.props('disabled')).not.toBe(true);b.vm.$emit('click');await flushPromises()}
     await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises();await click('触发表…')
@@ -236,7 +237,7 @@ describe('formal topic catalog pages', () => {
     state.http.records['Base_WorkflowDefinition']!.push({rowid:'W2',name:'另一个流程',workflow_key:'KEEP',status:'1',version:'1'})
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}},{path:'/other',component:{template:'<div>other</div>'}}]})
     await router.push('/catalog');await router.isReady()
-    const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+    const wrapper=mount(withTestPageService(RouterView,router),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
     await vi.waitFor(()=>expect(wrapper.text()).toContain('入库流程'))
     const click=async(label:string)=>{const button=wrapper.findAllComponents(RendererButton).find(button=>button.props('label')===label);expect(button,label).toBeDefined();expect(button!.props('disabled')).not.toBe(true);button!.vm.$emit('click');await flushPromises()}
     await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises();await click('编辑定义')
@@ -281,7 +282,7 @@ describe('formal topic catalog pages', () => {
   it('does not open a nonexistent workflow or allocate a random identity for unsupported creation',async()=>{
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})
     await router.push('/catalog');await router.isReady()
-    const wrapper=mount(Workflow,{global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+    const wrapper=mount(withTestPageService(Workflow,router),{global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
     await vi.waitFor(()=>expect(wrapper.text()).toContain('入库流程'))
     await wrapper.findAll('button').find(button=>button.text()==='新增工作流')!.trigger('click');await flushPromises()
     expect(wrapper.findComponent({name:'WorkflowEditorStub'}).exists()).toBe(false)
@@ -291,7 +292,7 @@ describe('formal topic catalog pages', () => {
   it.each(['dirty','busy','unknown'])('guards the workflow dialog while %s and permits only a safe explicit discard',async kind=>{
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})
     await router.push('/catalog');await router.isReady()
-    const wrapper=mount(Workflow,{global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+    const wrapper=mount(withTestPageService(Workflow,router),{global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
     await vi.waitFor(()=>expect(wrapper.text()).toContain('入库流程'))
     await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises()
     await wrapper.findAll('button').find(button=>button.text()==='打开设计')!.trigger('click');await flushPromises()
@@ -315,7 +316,7 @@ describe('formal topic catalog pages', () => {
     const router = createRouter({history: createMemoryHistory(), routes: [{path: '/catalog', component: page, meta: {blueprintScenarioId: scenarioId}}]})
     await router.push('/catalog'); await router.isReady()
     const push = vi.spyOn(router, 'push')
-    const wrapper = mount(page, {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}}); wrappers.push(wrapper)
+    const wrapper = mount(withTestPageService(page, router), {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}}); wrappers.push(wrapper)
     await vi.waitFor(() => expect(wrapper.text()).toContain(title))
     if (scenarioId === EXCEL) await vi.waitFor(() => expect(wrapper.text()).toContain('订单空间'))
     if (scenarioId === WORKFLOW) await vi.waitFor(() => expect(wrapper.text()).toContain('已启用'))

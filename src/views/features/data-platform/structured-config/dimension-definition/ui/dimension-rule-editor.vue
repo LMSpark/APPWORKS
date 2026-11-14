@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef} from 'vue'
 import {DataSetSavePreflightError, DataViewSaveNotAppliedError, type DataRow, type DataView} from '@spark-appworks/spark-data'
-import {PAGE_SERVICE, PAGE_RUNTIME, RendererButton, RendererDialog, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererButton, RendererDialog, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import FeatureRecordFields from '@/views/features/shared/record/feature-record-fields.vue'
 import {missingFeatureField, type FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import {RESULT_SPECS, conditionSpecs, enabled, ruleSpecs, text, validateResult} from './dimension-field-spec'

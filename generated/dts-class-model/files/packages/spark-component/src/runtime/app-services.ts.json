@@ -779,7 +779,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-10T10:47:41.174Z",
+  "generatedAt": "2026-11-14T10:07:43.003Z",
   "models": {
     "PageMessageType": {
       "name": "PageMessageType",
@@ -1249,7 +1249,7 @@
       "jsdoc": "页面服务：消息提示、对话框、文件操作、实体选择、导航等。\n所有方法由宿主（如 Vue Router、Element Plus 等）实现，\n页面通过 ScriptContext 调用。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 写入剪贴板文本；仅在宿主确认写入成功后完成。 */\n    copyText(text: string): Promise<void>;\n    /** 显示提示消息 */\n    showMessage(message: string, type?: PageMessageType): void;\n    /** 显示确认对话框，返回用户操作结果 */\n    showConfirm(message: string, title?: string, options?: {\n        confirmText?: string;\n        cancelText?: string;\n        type?: PageMessageType;\n    }): Promise<boolean>;\n    /** 显示输入弹窗 */\n    showPrompt(message: string, title?: string, options?: {\n        placeholder?: string;\n        defaultValue?: string;\n    }): Promise<string | null>;\n    /** 显示提示框（无取消操作） */\n    showAlert(message: string, title?: string, options?: {\n        type?: PageMessageType;\n    }): Promise<void>;\n    /** 显示自定义对话框 */\n    showDialog(options: PageDialogOptions): Promise<PageDialogResult>;\n    /** 打开实体选择器 */\n    selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorOption[]>;\n    /** 打开文件浏览对话框 */\n    browseFiles(options?: PageBrowseFilesOptions): Promise<PageSelectedFile[]>;\n    /**\n     * 通过宿主文件传输能力上传文件。默认实现要求每个成功项返回非空 URL，传输失败或回执缺失时以 PageUploadError 拒绝并保留已确认/未确认文件；宿主覆盖可返回正式的非 URL 引用。\n     * 字段组件随后仍通过原 DataView 字段写入该引用，上传服务本身不提交 DataSet。\n     */\n    uploadFiles(options: PageUploadFilesOptions): Promise<PageUploadedFile[]>;\n    /** 显示 / 隐藏全局 Loading */\n    showLoading(show: boolean, text?: string): void;\n    /** 路由跳转；参数为标量或标量数组，复杂对象须先显式序列化。 */\n    navigate(path: string, params?: Record<string, unknown>): void;\n}",
+        "declarationTypeText": "{\n    /** 写入剪贴板文本；仅在宿主确认写入成功后完成。 */\n    copyText(text: string): Promise<void>;\n    /** 显示提示消息 */\n    showMessage(message: string, type?: PageMessageType): void;\n    /** 显示确认对话框，返回用户操作结果；用户取消或关闭为 false，对话框自身异常向调用方抛出。 */\n    showConfirm(message: string, title?: string, options?: {\n        confirmText?: string;\n        cancelText?: string;\n        type?: PageMessageType;\n    }): Promise<boolean>;\n    /** 显示输入弹窗；用户取消或关闭为 null，对话框自身异常向调用方抛出。 */\n    showPrompt(message: string, title?: string, options?: {\n        placeholder?: string;\n        defaultValue?: string;\n    }): Promise<string | null>;\n    /** 显示提示框（无取消操作）；用户关闭正常完成，对话框自身异常向调用方抛出。 */\n    showAlert(message: string, title?: string, options?: {\n        type?: PageMessageType;\n    }): Promise<void>;\n    /** 显示自定义对话框 */\n    showDialog(options: PageDialogOptions): Promise<PageDialogResult>;\n    /** 打开实体选择器 */\n    selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorOption[]>;\n    /** 打开文件浏览对话框 */\n    browseFiles(options?: PageBrowseFilesOptions): Promise<PageSelectedFile[]>;\n    /**\n     * 通过宿主文件传输能力上传文件。默认实现要求每个成功项返回非空 URL，传输失败或回执缺失时以 PageUploadError 拒绝并保留已确认/未确认文件；宿主覆盖可返回正式的非 URL 引用。\n     * 字段组件随后仍通过原 DataView 字段写入该引用，上传服务本身不提交 DataSet。\n     */\n    uploadFiles(options: PageUploadFilesOptions): Promise<PageUploadedFile[]>;\n    /** 显示 / 隐藏全局 Loading */\n    showLoading(show: boolean, text?: string): void;\n    /** 路由跳转；参数为标量或标量数组，复杂对象须先显式序列化。 */\n    navigate(path: string, params?: Record<string, unknown>): void;\n}",
         "members": {
           "methods": [
             {
@@ -1305,7 +1305,7 @@
             },
             {
               "name": "showConfirm",
-              "jsdoc": "显示确认对话框，返回用户操作结果",
+              "jsdoc": "显示确认对话框，返回用户操作结果；用户取消或关闭为 false，对话框自身异常向调用方抛出。",
               "parameters": [
                 {
                   "name": "message",
@@ -1348,7 +1348,7 @@
             },
             {
               "name": "showPrompt",
-              "jsdoc": "显示输入弹窗",
+              "jsdoc": "显示输入弹窗；用户取消或关闭为 null，对话框自身异常向调用方抛出。",
               "parameters": [
                 {
                   "name": "message",
@@ -1400,7 +1400,7 @@
             },
             {
               "name": "showAlert",
-              "jsdoc": "显示提示框（无取消操作）",
+              "jsdoc": "显示提示框（无取消操作）；用户关闭正常完成，对话框自身异常向调用方抛出。",
               "parameters": [
                 {
                   "name": "message",

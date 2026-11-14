@@ -20,7 +20,7 @@ import type {DataRow, SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {runFeatureTableAction} from '@/views/features/shared/table/feature-table-actions'
 import {INTERFACE_KEYS, invokeApi, outputFieldsOf, type InterfaceWorkspace} from './interface-list-workspace'
-const {PAGE_RUNTIME, PAGE_SERVICE, useSparkComponent, RendererForm, RendererButton, RendererTable, DisplayAlert, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, useSparkComponent, RendererForm, RendererButton, RendererTable, DisplayAlert, consumeRequiredPageService} = SparkComponent
 const props = defineProps<{workspace: InterfaceWorkspace; pendingCreate: boolean}>()
 const emit = defineEmits<{bind: [row: DataRow]}>()
 const {sparkConsume} = useSparkComponent({type: 'interface-output-panel'})

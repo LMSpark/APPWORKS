@@ -42,7 +42,7 @@ import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appwork
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
-const {PAGE_RUNTIME,PAGE_SERVICE,RendererSection,RendererTable,RendererForm,RendererDialog,RendererButton,FieldJson,FieldText,DisplayAlert,useSparkComponent,consumeRequiredPageService}=SparkComponent
+const {PAGE_RUNTIME,RendererSection,RendererTable,RendererForm,RendererDialog,RendererButton,FieldJson,FieldText,DisplayAlert,useSparkComponent,consumeRequiredPageService}=SparkComponent
 const route=useRoute(),{sparkProvide,sparkRemove,sparkConsume}=useSparkComponent({type:'json-data-page'})
 const session=new NativePageRuntimeSession({
   provide:()=>undefined,

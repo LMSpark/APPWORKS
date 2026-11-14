@@ -25,7 +25,7 @@ AI用途：迁移参考仓 FileDataManager/FileManager 时，核对文件区、�
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import type {DataRow, DataView, SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_SERVICE, RendererButton, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {RendererButton, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
 const {sparkConsume} = useSparkComponent({type: 'file-manager-page'})

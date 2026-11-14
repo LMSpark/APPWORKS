@@ -221,11 +221,11 @@ export type PageServiceCapability = {
   copyText(text: string): Promise<void>
   /** 显示提示消息 */
   showMessage(message: string, type?: PageMessageType): void
-  /** 显示确认对话框，返回用户操作结果 */
+  /** 显示确认对话框，返回用户操作结果；用户取消或关闭为 false，对话框自身异常向调用方抛出。 */
   showConfirm(message: string, title?: string, options?: { confirmText?: string; cancelText?: string; type?: PageMessageType }): Promise<boolean>
-  /** 显示输入弹窗 */
+  /** 显示输入弹窗；用户取消或关闭为 null，对话框自身异常向调用方抛出。 */
   showPrompt(message: string, title?: string, options?: { placeholder?: string; defaultValue?: string }): Promise<string | null>
-  /** 显示提示框（无取消操作） */
+  /** 显示提示框（无取消操作）；用户关闭正常完成，对话框自身异常向调用方抛出。 */
   showAlert(message: string, title?: string, options?: { type?: PageMessageType }): Promise<void>
   /** 显示自定义对话框 */
   showDialog(options: PageDialogOptions): Promise<PageDialogResult>

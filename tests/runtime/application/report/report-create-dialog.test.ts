@@ -3,9 +3,10 @@ import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h, ref} from 'vue'
 import ElementPlus, {ElMessageBox} from 'element-plus'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererButton, RendererDialog, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, PAGE_SERVICE, RendererButton, RendererDialog, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import ReportCreateDialog from '@/views/features/integration/report/ui/report-create-dialog.vue'
 import {createReportRuntime} from './report.fixture'
+import {createTestPageService} from '../../../support/helpers/page-service-host'
 
 const scenario = 'REPORT'
 const infoKey = `${scenario}@Base_ReportInfo@default`
@@ -42,6 +43,7 @@ async function open() {
   const Host = defineComponent({setup() {
     const {sparkProvide} = useSparkComponent({type: 'report-create-test'})
     sparkProvide(PAGE_RUNTIME, runtime)
+    sparkProvide(PAGE_SERVICE, createTestPageService())
     return () => h(ReportCreateDialog, {infoKey, reportKey, appKey, infoId: boundInfoId.value, reportId: 'V', onClose: closed})
   }})
   const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin()]}})

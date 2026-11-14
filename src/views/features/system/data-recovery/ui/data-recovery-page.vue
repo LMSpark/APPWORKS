@@ -50,7 +50,7 @@ import * as Components from '@spark-appworks/spark-component'
 import type {RToolbarProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
-const {PAGE_SERVICE, RendererSection, RendererForm, RendererTable, RendererTabs, RendererTabPane, FieldSelect, useSparkComponent, consumeRequiredPageService} = Components
+const {RendererSection, RendererForm, RendererTable, RendererTabs, RendererTabPane, FieldSelect, consumeRequiredPageService} = Components
 const scenarioId = '70D5D8FACCC201A822F64B16A441BE8F'
 const {sparkConsume} = Components.useSparkComponent({type: 'data-recovery-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'data-recovery-page')

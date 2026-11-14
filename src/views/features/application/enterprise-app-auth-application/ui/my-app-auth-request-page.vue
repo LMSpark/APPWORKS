@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_SERVICE, RendererButton, RendererDialog, RendererSection, RendererTable, useSparkComponent, type RFilterProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {RendererButton, RendererDialog, RendererSection, RendererTable, useSparkComponent, type RFilterProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {APP_AUTH_SCENARIOS, commitAppAuthRecord, confirmAppAuth, formatRequestedAt, readAppAuthSession} from '../model/enterprise-app-auth-application-model'
 import ApplyAppAuthContent from './apply-app-auth-content.vue'

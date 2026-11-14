@@ -29,10 +29,10 @@ import { PageUploadError } from '../../runtime/app-services.js'
 import { pageLogger } from './pageLogger'
 import { stringifyPageRouteQuery } from './page-route-query'
 
-/** 内部实现：ElMessageBox.confirm() 取消时抛出 'cancel' 字符串或 { action: 'cancel' }，用于区分真正的异常。这是 PageServiceCapability 内部实现细节，script.js 不能直接访问 ElMessageBox（已从沙箱移除）。 */
+/** 内部实现：ElMessageBox 取消或关闭时抛出 'cancel'/'close' 字符串或 { action }，属于用户操作结果；其余异常须抛给调用方，不能当成取消。script.js 不能直接访问 ElMessageBox（已从沙箱移除）。 */
 function isElCancelAction(e: unknown): boolean {
-  if (e === 'cancel') return true
-  return isRecord(e) && e['action'] === 'cancel'
+  if (e === 'cancel' || e === 'close') return true
+  return isRecord(e) && (e['action'] === 'cancel' || e['action'] === 'close')
 }
 
 /** 可选的外部 UI 服务注入（测试或宿主覆盖用） */
@@ -264,10 +264,9 @@ export function buildPageService(
         })
         return true
       } catch (e) {
-        if (!isElCancelAction(e)) {
-          pageLogger.warn('showConfirm 异常', { error: e })
-        }
-        return false
+        if (isElCancelAction(e)) return false
+        pageLogger.warn('showConfirm 异常', { error: e })
+        throw e
       }
     },
 
@@ -293,10 +292,9 @@ export function buildPageService(
           ? result['value']
           : null
       } catch (e) {
-        if (!isElCancelAction(e)) {
-          pageLogger.warn('showPrompt 异常', { error: e })
-        }
-        return null
+        if (isElCancelAction(e)) return null
+        pageLogger.warn('showPrompt 异常', { error: e })
+        throw e
       }
     },
 
@@ -316,9 +314,9 @@ export function buildPageService(
           type: alertType,
         })
       } catch (e) {
-        if (!isElCancelAction(e)) {
-          pageLogger.warn('showAlert 异常', { error: e })
-        }
+        if (isElCancelAction(e)) return
+        pageLogger.warn('showAlert 异常', { error: e })
+        throw e
       }
     },
 

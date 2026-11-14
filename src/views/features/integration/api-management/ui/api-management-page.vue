@@ -31,7 +31,7 @@ AI用途：恢复外部服务入口时复用标准外壳、通用记录对话框
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {DisplayAlert, PAGE_SERVICE, RendererButton, RendererSection, RendererTable, useSparkComponent, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {DisplayAlert, RendererButton, RendererSection, RendererTable, useSparkComponent, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'

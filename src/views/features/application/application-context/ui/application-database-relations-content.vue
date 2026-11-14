@@ -21,7 +21,7 @@ AI用途：关联数据库页与应用管理弹窗复用本组件；迁移时核
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_SERVICE, PAGE_RUNTIME, RendererButton, RendererDialog, RendererTable, useSparkComponent, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererButton, RendererDialog, RendererTable, useSparkComponent, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 
 const props = defineProps<{sysid: string}>()
 const scenarioId = '93DF05182084B1F0E8DA7283E83BBE0C'

@@ -20,7 +20,7 @@ type Input = Readonly<{
   assertCurrent: () => void
 }>
 
-type Attempt = Readonly<{row: DataRow; customPath: string; steps: readonly ('definition' | 'design')[]}>
+type Attempt = Readonly<{row: DataRow; customPath: string; steps: ReadonlyArray<'definition' | 'design'>}>
 
 function uncertain(cause: unknown): Error {
   return Object.assign(new Error(`AGENT_WORKFLOW_DELETION_UNKNOWN: 删除结果尚未确认（${cause instanceof Error ? cause.message : String(cause)}）`, {cause}),
@@ -84,7 +84,7 @@ function commandOptions(view: DataView, input: Input): BindCommandSubmitOptions 
       const original: DataRow = {commandId, workflowId: row['workflowId']}
       await assertListed(workflowId)
       const attempt: Attempt = {row: original, customPath: `${folder}/${workflowId}`, steps: []}
-      const steps: Attempt['steps'][number][] = []
+      const steps: Array<Attempt['steps'][number]> = []
       for (const fileName of ['definition.json', 'design.json'] as const) {
         guard()
         try {

@@ -73,7 +73,7 @@ import {parseApplicationPathScope} from '@/services/application-scope'
 type RFilterProps = SparkComponent.RFilterProps
 type RToolbarProps = SparkComponent.RToolbarProps
 const DATA_SET_TYPE_LABELS: Readonly<Record<string, string>> = {datasource: '数据源', workflow: '工作流', form: '表单'}
-const {PAGE_RUNTIME, PAGE_SERVICE, RendererSection, RendererTable, RendererButton, RendererDialog, RendererForm, FieldText, FieldTextarea, FieldSelect,
+const {PAGE_RUNTIME, RendererSection, RendererTable, RendererButton, RendererDialog, RendererForm, FieldText, FieldTextarea, FieldSelect,
   DisplayAlert, DisplayEmpty, useSparkComponent, consumeRequiredPageService} = SparkComponent
 const {sparkConsume} = SparkComponent.useSparkComponent({type: 'data-set-list-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'data-set-list-page')

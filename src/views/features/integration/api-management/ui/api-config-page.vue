@@ -55,7 +55,7 @@ import {featureTableToolbar, runFeatureTableAction, type FeatureTableAction} fro
 import type {ApiConfigPageProps} from './api-config-page.props'
 
 type RToolbarProps = SparkComponent.RToolbarProps
-const {PAGE_RUNTIME, PAGE_SERVICE, DisplayAlert, RendererTable, RendererForm, RendererDialog, RendererButton, RendererSection, RendererTabs, RendererTabPane, useSparkComponent, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, DisplayAlert, RendererTable, RendererForm, RendererDialog, RendererButton, RendererSection, RendererTabs, RendererTabPane, useSparkComponent, consumeRequiredPageService} = SparkComponent
 
 const scenarioId = '446B5D94A71587E9BD4D325A4DF5F6F8'
 const props = defineProps<ApiConfigPageProps>()

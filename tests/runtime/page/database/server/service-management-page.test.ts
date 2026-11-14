@@ -7,6 +7,8 @@ import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/te
 import ElementPlus from 'element-plus'
 import {registerAllRenderers, RendererFilter, RendererTable, Spark} from '@spark-appworks/spark-component'
 import {createMemoryHistory, createRouter} from 'vue-router'
+import {defineComponent, h} from 'vue'
+import {provideTestPageService} from '../../../../support/helpers/page-service-host'
 import ServiceManagementPage from '@/views/features/data-platform/database-management/ui/service-management-page.vue'
 import {LowcodeDatabaseServer} from '@/lowcode/resources/database/server/resource'
 import {DATABASE_SERVER_REGISTER_COLUMNS, DATABASE_SERVER_TYPE_OPTIONS} from '@/lowcode/resources/database/server/catalog-metadata'
@@ -56,7 +58,11 @@ async function open(scenarioId: string): Promise<VueWrapper> {
   })
   await router.push('/')
   await router.isReady()
-  const wrapper = mount(ServiceManagementPage, {
+  const host = defineComponent({setup: () => {
+    provideTestPageService(router)
+    return () => h(ServiceManagementPage)
+  }})
+  const wrapper = mount(host, {
     attachTo: document.body,
     global: {plugins: [router, ElementPlus, Spark.createPlugin()]},
   })

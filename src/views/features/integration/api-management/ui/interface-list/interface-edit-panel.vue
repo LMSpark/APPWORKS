@@ -48,7 +48,7 @@ import {INTERFACE_KEYS, interfaceViewKey, type InterfaceWorkspace} from './inter
 import InterfaceJsonImportDialog from './interface-json-import-dialog.vue'
 type RToolbarProps = SparkComponent.RToolbarProps
 type JsonRow = Readonly<Record<string, unknown>>
-const {PAGE_RUNTIME, PAGE_SERVICE, useSparkComponent, RendererForm, RendererSection, RendererButton, RendererTabs, RendererTabPane, RendererTable, DisplayAlert, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, useSparkComponent, RendererForm, RendererSection, RendererButton, RendererTabs, RendererTabPane, RendererTable, DisplayAlert, consumeRequiredPageService} = SparkComponent
 const props = defineProps<{workspace: InterfaceWorkspace; pendingCreate: boolean}>()
 const {sparkConsume} = useSparkComponent({type: 'interface-edit-panel'})
 const pageService = consumeRequiredPageService(sparkConsume, 'interface-edit-panel')

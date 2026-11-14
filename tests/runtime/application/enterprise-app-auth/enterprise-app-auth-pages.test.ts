@@ -6,6 +6,7 @@ import ElementPlus from 'element-plus'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {api, APPLY, BASE, MY, pagedataText, resetEnterpriseAppAuthFixture, REVIEW, session} from './enterprise-app-auth.fixture'
+import {provideTestPageService} from '../../../support/helpers/page-service-host'
 
 const confirmBox = vi.hoisted(() => vi.fn<(message: string, title: string) => Promise<string>>())
 vi.mock('element-plus', async importOriginal => {
@@ -68,7 +69,10 @@ async function open(component: Component, scenario: string) {
   ]})
   await router.push(`/apps/APP${BASE}/page`)
   await router.isReady()
-  const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {
+  const wrapper = mount(defineComponent({setup: () => {
+    provideTestPageService(router)
+    return () => h(RouterView)
+  }}), {
     attachTo: document.body, global: {stubs: {transition: false}, plugins: [router, ElementPlus, Spark.createPlugin()]},
   })
   wrappers.push(wrapper)

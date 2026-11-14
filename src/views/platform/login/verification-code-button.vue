@@ -8,7 +8,7 @@
 </template>
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref} from 'vue'
-import {PAGE_SERVICE, PAGE_RUNTIME, RendererButton, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererButton, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 
 /** request 为本次发送的企业、验证方式、验证账号与场景；dataViewKey 为发送验证码命令视图。 */
 const props = defineProps<{dataViewKey: string; request: Readonly<{enterpriseName: string; channel: string; account: string; scene: string}>; disabled?: boolean}>()

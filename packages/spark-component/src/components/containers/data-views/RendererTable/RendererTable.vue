@@ -529,19 +529,25 @@ function toElementPlusSortOrder(direction: string | undefined): ElementPlusTable
   return null
 }
 
-/** 将 el-table 表头排序呈现同步为 DataView 当前 sortExpression；拒绝排序后回退 UI。 */
+type NativeTableSort = Readonly<{prop: string; order: ElementPlusTableSortOrder}>
+
+function viewNativeSort(view: DataView): NativeTableSort | null {
+  const entry = view.sortExpression?.[0]
+  const prop = typeof entry?.field === 'string' ? entry.field : ''
+  const order = toElementPlusSortOrder(entry?.direction)
+  return prop && order ? {prop, order} : null
+}
+
+/**
+ * 将 el-table 表头排序呈现同步为 DataView 当前 sortExpression；拒绝排序后回退 UI。
+ * 不可排序时只清除：此时列非 custom，el-table.sort() 会就地重排查询结果并颠倒同值行的服务端顺序。
+ */
 async function restoreNativeTableSort(): Promise<void> {
   await nextTick()
   const view = dataState.resolvedView.value, table = nativeTableRef.value
   if (!view || !table) return
-  const entry = view.sortExpression?.[0]
-  const prop = typeof entry?.field === 'string' ? entry.field : ''
-  const order = toElementPlusSortOrder(entry?.direction)
-  if (!prop || !order) {
-    table.clearSort?.()
-    return
-  }
-  if (typeof table.sort === 'function') table.sort(prop, order)
+  const sort = tableQuerySorting.value ? viewNativeSort(view) : null
+  if (sort && typeof table.sort === 'function') table.sort(sort.prop, sort.order)
   else table.clearSort?.()
 }
 
@@ -549,6 +555,9 @@ async function restoreNativeTableSort(): Promise<void> {
 async function handleSortChange({ prop, order }: { prop: string | null, order: ElementPlusTableSortOrder | null }) {
   const view = dataState.resolvedView.value
   if (!view?.supportsQuerySorting) return
+  // el-table.sort() 回放视图排序时同样触发 sort-change；与视图一致即无变化，否则会与回退互相触发形成微任务死循环。
+  const current = viewNativeSort(view)
+  if (prop && order ? current?.prop === prop && current.order === order : current === null) return
   if (dataState.resultReplacementBlocked.value) {
     await restoreNativeTableSort()
     return

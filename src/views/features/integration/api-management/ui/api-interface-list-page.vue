@@ -46,7 +46,7 @@ import InterfaceInvokePanel from './interface-list/interface-invoke-panel.vue'
 import InterfaceOutputPanel from './interface-list/interface-output-panel.vue'
 import ParameterBindingDialog from './public-parameter-binding/api-public-parameter-binding-dialog.vue'
 type RToolbarProps = SparkComponent.RToolbarProps
-const {PAGE_RUNTIME, PAGE_SERVICE, useSparkComponent, RendererSection, RendererDialog, RendererList, RendererButton, RendererTabs, RendererTabPane, DisplayEmpty, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, RendererList, RendererButton, RendererTabs, RendererTabPane, DisplayEmpty, consumeRequiredPageService} = SparkComponent
 const writable = ['Base_DataServiceInterface', '_Base_ParamList', 'Base_InterfaceApi_Headers', 'Base_TblField'] as const
 const props = defineProps<ApiInterfaceListPageProps>()
 const emit = defineEmits<{close: []}>()

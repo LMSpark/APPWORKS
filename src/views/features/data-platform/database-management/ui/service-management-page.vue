@@ -71,7 +71,7 @@ import {
 
 type RFilterProps = SparkComponent.RFilterProps
 type RToolbarProps = SparkComponent.RToolbarProps
-const {PAGE_RUNTIME, PAGE_SERVICE, RendererSection, RendererTable, RendererButton, RendererDialog, RendererForm, DisplayAlert, useSparkComponent, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, RendererSection, RendererTable, RendererButton, RendererDialog, RendererForm, DisplayAlert, useSparkComponent, consumeRequiredPageService} = SparkComponent
 const {sparkProvide, sparkRemove, sparkConsume} = useSparkComponent({type: 'service-management-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'service-management-page')
 

@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_SERVICE, RendererButton, RendererDialog, RendererForm, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {RendererButton, RendererDialog, RendererForm, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import type {EnterpriseDefaultApplication} from '@/services/project/enterprise-landing'
 import {APPLICATION_MANAGER_SCENARIO, PERSON_SCENARIO, type ApplicationManagerRecord} from '../model/application-manager-model'
 import ApplicationDatabaseDialog from './application-database-dialog.vue'

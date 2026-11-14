@@ -3,6 +3,7 @@
  * 职责：为测试宿主装配 PAGE_SERVICE，与 App.vue 一样经 buildPageService 构建。
  * 边界：消息与确认仍走 Element Plus，既有 ElMessage/ElMessageBox 观察点继续有效；不替代页面自身的数据链。
  */
+import {defineComponent, h, type Component} from 'vue'
 import {createMemoryHistory, createRouter, type Router} from 'vue-router'
 import {PAGE_SERVICE, buildPageService, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
 
@@ -16,4 +17,12 @@ export function provideTestPageService(router?: Router): PageServiceCapability {
   const service = createTestPageService(router)
   useSparkComponent({type: 'test-page-service-host'}).sparkProvide(PAGE_SERVICE, service)
   return service
+}
+
+/** 以提供 PAGE_SERVICE 的宿主包裹被测组件（页面或 RouterView），替代直接挂载页面。 */
+export function withTestPageService(component: Component, router?: Router): Component {
+  return defineComponent({setup: () => {
+    provideTestPageService(router)
+    return () => h(component)
+  }})
 }

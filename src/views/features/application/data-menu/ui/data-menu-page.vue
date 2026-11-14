@@ -31,7 +31,7 @@ AI用途：迁移导航宿主时核对宿主记录写入字段、空间→资源
 import {computed, defineAsyncComponent, onBeforeUnmount, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_SERVICE, RendererButton, RendererDialog, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {RendererButton, RendererDialog, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import DataMenuDialog from './data-menu-dialog.vue'

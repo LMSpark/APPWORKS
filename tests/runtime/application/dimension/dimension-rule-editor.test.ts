@@ -3,7 +3,8 @@ import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h, ref} from 'vue'
 import ElementPlus from 'element-plus'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {FieldSelect, FieldText, PAGE_RUNTIME, RendererButton, RendererDialog, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {FieldSelect, FieldText, PAGE_RUNTIME, PAGE_SERVICE, RendererButton, RendererDialog, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {createTestPageService} from '../../../support/helpers/page-service-host'
 import DimensionRuleEditor from '@/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue'
 import {createDimensionRuntime, keys, seedDimensionRule} from './dimension.fixture'
 
@@ -33,6 +34,7 @@ async function open(existing = false, anchorMetadata = true) {
   const Host = defineComponent({setup() {
     const {sparkProvide} = useSparkComponent({type: 'dimension-rule-test'})
     sparkProvide(PAGE_RUNTIME, f.runtime)
+    sparkProvide(PAGE_SERVICE, createTestPageService())
     return () => h(DimensionRuleEditor, {ruleKey: keys.rule, conditionKey: keys.condition, resultKey: keys.result,
       eventKey: keys.event, bindingKey: keys.validationBinding, ruleId: boundId.value, created: !existing, onClose: closed})
   }})

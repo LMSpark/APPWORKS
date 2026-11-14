@@ -8,6 +8,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {RendererButton, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createDimensionRuntime, keys, scenario, seedDimensionRule} from './dimension.fixture'
+import {provideTestPageService} from '../../../support/helpers/page-service-host'
 
 const state: {runtime: PageRuntime | undefined} = vi.hoisted(() => ({runtime: undefined}))
 vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => {
@@ -64,7 +65,10 @@ async function open(options: OpenOptions = {}) {
     ]}), componentMap: {'/dimension': DimensionDesignPage, '/clean': clean}})
   await dynamic.registerRoutes()
   await router.push('/dimension')
-  const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {
+  const wrapper = mount(defineComponent({setup: () => {
+    provideTestPageService(router)
+    return () => h(RouterView)
+  }}), {
     attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]},
   })
   wrappers.push(wrapper)
@@ -140,7 +144,7 @@ describe('维度规则页面入口与生命周期', () => {
     action.props['onClick'](row)
     await flushPromises()
     const confirm = Array.from(document.querySelectorAll<HTMLButtonElement>('.el-message-box__btns button')).reverse()
-      .find(button => button.textContent?.trim() === 'OK')
+      .find(button => button.textContent?.trim() === '确定')
     if (!confirm) throw new Error('删除确认按钮缺失')
     confirm.click()
     await flushPromises()

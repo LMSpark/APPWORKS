@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1186,
+  "scannedFileCount": 1188,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14319,6 +14319,19 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/repository/agent-workflow/deletion.ts": {
+      "file": "files/src/lowcode/resources/repository/agent-workflow/deletion.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/agent-workflow/deletion",
+        "sourcePath": "src/lowcode/resources/repository/agent-workflow/deletion.ts",
+        "sourceFile": "src/lowcode/resources/repository/agent-workflow/deletion.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/agent-workflow/deletion",
+        "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/deletion\n职责：整工作流资产删除命令——先列目录、再删 definition.json、再删 design.json，逐步回列确认。\n边界：无目录删除 API；未知删除结果保留原命令核验，不自动重放。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/lowcode/resources/repository/agent-workflow/publication.ts": {
       "file": "files/src/lowcode/resources/repository/agent-workflow/publication.ts.json",
       "module": {
@@ -16456,6 +16469,19 @@
         "packageName": "app",
         "modulePath": "views/app/workflow-designs/workflow-create-dialog",
         "jsdoc": "@module app:views/app/workflow-designs/workflow-create-dialog\n职责：标准组件编辑原首稿创建命令行，保存、取消和未知核验复用公共单记录生命周期。\n边界：不创建数据实例，不复制输入，不查询或写文件；确认后由宿主刷新与打开。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/app/workflow-designs/workflow-delete-dialog.vue": {
+      "file": "files/src/views/app/workflow-designs/workflow-delete-dialog.vue.json",
+      "module": {
+        "name": "app:views/app/workflow-designs/workflow-delete-dialog",
+        "sourcePath": "src/views/app/workflow-designs/workflow-delete-dialog.vue",
+        "sourceFile": "src/views/app/workflow-designs/workflow-delete-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/app/workflow-designs/workflow-delete-dialog",
+        "jsdoc": "@module app:views/app/workflow-designs/workflow-delete-dialog\n职责：标准组件编辑整工作流删除命令行，保存、取消和未知核验复用公共单记录生命周期。\n边界：不直接删除文件；确认后由宿主刷新目录并释放设计视图。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

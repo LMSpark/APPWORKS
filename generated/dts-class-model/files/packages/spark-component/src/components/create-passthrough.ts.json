@@ -26,7 +26,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T11:22:51.226Z",
+  "generatedAt": "2026-11-14T08:19:18.475Z",
   "models": {
     "PassthroughOptions": {
       "name": "PassthroughOptions",

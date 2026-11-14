@@ -9038,6 +9038,13 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 全量复跑（修复后，`--testTimeout=60000`）：515 文件中 513 通过，9680/9684 项；剩余 4 项为 `data-space-chain` 3 项与 `data-space-design-page` 1 项，均为测试内显式超时在全量并发负载下触发，两文件单独运行 404/404 通过，登记为负载超时、非产品断链。下一断点：SaveView、工作流整删、带点 ID 的线上验证待隔离目标与有效登录态；其余按唯一台账选下一项 S4 独立闭环。
 
+### 2026-11-14 S4 Agent 工作流整目录删除命令（CW 续）
+
+- 在正式场景 `01000B6C7F84B4F1A85C91C4FC28E875` 增加 `AgentWorkflowDeletion` 命令表（`agent-workflow-deletion`）：先列 `workflow-designs` 目录确认目标存在，按 definition → design 顺序 `removeFile`，回列确认目录项消失；未知结果保留原命令核验、不重放。
+- 运行时：`lowcode-data-space-runtime.ts` 合并 `createAgentWorkflowDeletionBindings` 与既有创建/首发命令绑定。
+- 页面：`WorkflowDesigns.vue` 增加「删除工作流」入口与 `workflow-delete-dialog.vue`（标准 `useDataViewRecordEditing`）。
+- 测试：`agent-workflow-deletion.test.ts` 3 项；既有 creation 24 项、UI 31 项仍通过。`verify:rules` exit 0。实服整删仍待隔离目标；空目录幽灵项合同未核销。S4 未冻结。
+
 ### 2026-11-10 RendererCollapse 父级布局数据上下文（CW）
 
 - `RendererCollapse.props.ts` 复用 `LayoutDataContextProps` 并声明完整 `dataViewKey`、成员/字段上下文及省略继承；`RendererCollapse.vue` 复用 `useLayoutDataContext(props)`，保留 `registerApi`，并用 `scopeKey` 重建主面板子树。item 显式 `dataViewKey` 仍由既有绑定优先级覆盖父级。
@@ -9822,3 +9829,13 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
   - **验证。** typecheck、改动范围 lint、`verify:rules` 通过。API 与报表 6 个文件共 112 项通过，覆盖新建与必填、地址同步与请求体清空、删除拒绝与无下级删除、命令调用、重设输出与已绑定拒绝、名称字段隐藏和脱敏。ClassModel 与 lowcode 合同已用生成器刷新。
   - **实服只读烟测（提供商“通义千问”）。** 接口列表打开，2 个接口；选中后标题、表单、参数类型单选与四个子页签正常，输入参数表渲染。“调用输出”只看到结果过滤和“调用”按钮，没有按。“输出内容”2 行，四列正确，“重新设置输出”没有按。“设置公共参数”对话框打开后用“关闭参数选择”关闭，再关闭接口列表。没有写入，也没有调用外部接口；唯一提示是外部服务管理页原有的修改人未解析。
   - **仍有差距。** 真实调用与重设输出须用户另行同意后在实服验证；存量接口的参数类型为空，打开后需选择才能保存。
+- **宿主外壳标准化（2026-11-14，用户裁决“现在做”“宿主状态用本地 DataView”）。**
+  - **标准组件补齐。** 新增 `RendererMenu`（`r-menu`）：纵向折叠、横向溢出、子菜单、分组、图标、徽标、禁用、分隔线；激活与 `aria-current` 由宿主判定；子菜单标题可选中；横向只在影响宽度的内容变化时重新测量（激活态变化不重测，避免 jsdom 下全部收进“更多”）。`DisplayIcon` 承接原 NavIcon 的旧图标别名与文本兜底；`RendererDropdown` 补 `onCommand` 与默认插槽触发区；`RendererButton`、`RendererPopover`、`RendererTooltip`、`DisplayBadge` 补插槽兜底。ClassModel 与 API.md 已同步。
+  - **宿主改造。** 侧栏、顶部导航、头部工具与用户菜单、主题抽屉、项目上下文选择器、页签栏、面包屑、平台首页、加载失败页、上下文守卫与“刷新配置”按钮改用标准组件。宿主开关与选择器绑定本地 static-data DataSet（`HostLocalRuntime`，`staged`、不持久化），用 `RendererForm` 包裹 `FieldSwitch`/`FieldSelect`，用户编辑经 `onFieldEdit` 同步回宿主状态；宿主写回时屏蔽事件，避免回环。删除 `AppSidebarNode`、`NavIcon`、`IconPicker`。`ModuleContextBadge` 改用 `DisplayTag` 后保留，因为它有页面配置消费者（`r-module-context-badge`）。
+  - **仍有差距。**
+    - `RendererMenu` 与 `RendererDropdown` 的菜单项来自 props，没有接 DataView，因为导航树来自宿主导航服务，不是数据空间资源。
+    - `ErrorFallback` 保留原生实现，因为它在应用启动失败后由独立 `createApp` 挂载，框架尚未就绪。
+    - 主题抽屉中的风格、主题色、导航配色和导航模式卡片是自绘的视觉选择器，没有对应的标准组件。
+  - **验证。** typecheck、改动范围 lint 通过；`verify:rules` 中 ai-codegen 只剩另一会话的 `Settings.vue`、`WorkflowDesigns.vue` 具名导入超限，其余均通过。菜单/下拉、顶部导航、侧栏、宿主本地状态、头部、图标、应用切换、开发编辑器等定向测试通过。
+  - **只读烟测（已核实，应用工场主页）。** 顶部导航激活“应用列表”、图标与设置入口正常；页签图标正常；用户菜单五项及分隔线正常；“系统设置”打开主题抽屉，三个开关按标准开关渲染，状态正确，关闭后无残留。没有写入。
+  - **提交后复核（系统设置页）。** 宿主改动随 `09e081263` 合入后，`verify:ai-codegen` 与系统设置页 2 项测试仍失败，复查得到两个公共组件缺口：`RendererCard` 无默认插槽，`createPassthrough`（`RendererRow`/`RendererCol` 等）在没有配置子节点时丢弃模板插槽，导致系统设置页主体整块空白。两处都改为“没有配置子节点时渲染插槽”，配置子节点仍优先，已补回归测试。系统设置页的应用名称、版本、主题模式改为绑定本地 DataView（主题选项也来自本地选项视图），主题变化经 `onFieldEdit` 回写宿主主题；本机页面缓存改用 `RendererTable` 绑定本地 DataView，行内“删除”走表格行动作；路由统计 `DisplayTag` 改用 `content`/`tagType`（原写法既不显示数量也不着色）。本地装配失败经页面服务提示，不再静默。`WorkflowDesigns.vue` 只改为命名空间导入；其中 ClassModel 根类输入和“新增节点”对话框仍是未绑定 DataView 的 `v-model` 字段，登记为差距，本轮不在范围内。验证：生成、typecheck、改动文件 lint、`verify:rules` 通过；`tests/ui` 与 `tests/app` 107 个文件 1426 项通过。

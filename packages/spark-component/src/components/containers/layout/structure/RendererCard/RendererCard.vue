@@ -24,6 +24,7 @@ AI用途：需要理解 renderer card 的实际渲染结构、slot/toolbar/状�
         :key="nodeId(child) ?? `r-card-child-${index}`"
         :config="child"
       />
+      <slot v-if="!resolvedChildren.length" />
     </div>
   </el-card>
 </template>

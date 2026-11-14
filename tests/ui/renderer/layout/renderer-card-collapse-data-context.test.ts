@@ -4,7 +4,7 @@ import {defineComponent, h, reactive} from 'vue'
 import ElementPlus from 'element-plus'
 import {SparkData} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererCard, RendererCollapseItem, RendererSteps, Spark, SparkComponentRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererCard, RendererCol, RendererCollapseItem, RendererRow, RendererSteps, Spark, SparkComponentRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 
 const cleanup: Array<() => void> = []
 beforeAll(() => registerAllRenderers())
@@ -100,5 +100,23 @@ describe('layout containers provide the standard DataView context', () => {
     expect(other.getEditingPatch('C')).toEqual({name: 'draft C'})
     expect(requestDefault).not.toHaveBeenCalled()
     expect(requestOther).not.toHaveBeenCalled()
+  })
+})
+
+describe('layout containers render template slots without config children', () => {
+  it('card body and row/col passthroughs render slot content; config children take precedence', async () => {
+    const Host = defineComponent({setup() {
+      return () => h('div', [
+        h(RendererRow, null, {default: () => [h(RendererCol, {span: 12}, {default: () => [
+          h(RendererCard, {header: '插槽卡片'}, {default: () => [h('span', {class: 'slot-body'}, '卡片插槽内容')]}),
+        ]})]}),
+        h(RendererCard, {header: '配置卡片', children: [{type: 'r-tag', props: {content: '配置子节点'}}]}, {default: () => [h('span', {class: 'ignored-slot'}, '被忽略')]}),
+      ])
+    }})
+    const wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {SparkComponentRenderer: false, 'spark-component-renderer': false}}})
+    cleanup.push(() => wrapper.unmount()); await flushPromises()
+    expect(wrapper.get('.el-row .el-col .slot-body').text()).toBe('卡片插槽内容')
+    expect(wrapper.text()).toContain('配置子节点')
+    expect(wrapper.find('.ignored-slot').exists()).toBe(false)
   })
 })

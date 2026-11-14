@@ -6,40 +6,40 @@ AI用途：需要定位主题切换、路由统计、手动重载导航或本机
 -->
 <template>
   <div class="settings-page">
-    <RendererPageHeader content="系统设置" @back="router.go(-1)" />
+    <SparkComponent.RendererPageHeader content="系统设置" @back="router.go(-1)" />
 
     <div class="settings-content">
-      <RendererRow :gutter="24">
-        <RendererCol :span="16">
-          <RendererCard header="应用">
-            <RendererForm :grid-columns="1" label-width="120px" :show-data-view-meta="false">
-              <FieldText :model-value="appName" label="应用名称" readonly />
-              <FieldText :model-value="packageMetadata.version" label="应用版本" readonly />
-              <FieldRadio v-model="themeMode" label="主题模式" :options="[...themeOptions]" />
-            </RendererForm>
-          </RendererCard>
-        </RendererCol>
+      <SparkComponent.RendererRow :gutter="24">
+        <SparkComponent.RendererCol :span="16">
+          <SparkComponent.RendererCard header="应用">
+            <SparkComponent.RendererForm v-if="local" :data-view-key="local.key(SETTINGS_TABLE)" :grid-columns="1" label-width="120px" :show-data-view-meta="false">
+              <SparkComponent.FieldText field="appName" label="应用名称" readonly />
+              <SparkComponent.FieldText field="version" label="应用版本" readonly />
+              <SparkComponent.FieldRadio field="themeMode" label="主题模式" :option-data-view-key="local.key(THEME_TABLE)" option-value-field="id" option-label-field="title" />
+            </SparkComponent.RendererForm>
+          </SparkComponent.RendererCard>
+        </SparkComponent.RendererCol>
 
-        <RendererCol :span="8">
-          <RendererCard header="路由" class="status-card">
+        <SparkComponent.RendererCol :span="8">
+          <SparkComponent.RendererCard header="路由" class="status-card">
             <div class="status-list">
               <div class="status-item">
                 <span class="status-label">已注册路由</span>
-                <DisplayTag type="info">{{ routeCount }} 个</DisplayTag>
+                <SparkComponent.DisplayTag :content="`${routeCount} 个`" tag-type="info" />
               </div>
               <div class="status-item">
                 <span class="status-label">配置页面</span>
-                <DisplayTag type="info">{{ configPageCount }} 个</DisplayTag>
+                <SparkComponent.DisplayTag :content="`${configPageCount} 个`" tag-type="info" />
               </div>
               <div class="status-item">
                 <span class="status-label">Vue 组件页面</span>
-                <DisplayTag type="success">{{ vuePageCount }} 个</DisplayTag>
+                <SparkComponent.DisplayTag :content="`${vuePageCount} 个`" tag-type="success" />
               </div>
             </div>
-            <RendererButton label="重载导航" button-type="warning" size="small" class="reload-button" @click="reloadNavigation" />
-          </RendererCard>
-        </RendererCol>
-      </RendererRow>
+            <SparkComponent.RendererButton label="重载导航" button-type="warning" size="small" class="reload-button" @click="reloadNavigation" />
+          </SparkComponent.RendererCard>
+        </SparkComponent.RendererCol>
+      </SparkComponent.RendererRow>
       <LocalPageCacheCard />
     </div>
   </div>
@@ -49,44 +49,31 @@ AI用途：需要定位主题切换、路由统计、手动重载导航或本机
 /**
  * @description 系统设置页；属于应用路由页，不允许作为 SparkNode 组件配置生成。
  */
-import { ref, onMounted, watch } from 'vue'
+import { ref, onBeforeUnmount, onMounted, shallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { getNavTree, useTheme } from '@spark-appworks/spark-app'
-import {DisplayTag,
-  FieldRadio,
-  FieldText,
-  isThemeMode,
-  PAGE_SERVICE,
-  RendererButton,
-  RendererCard,
-  RendererCol,
-  RendererForm,
-  RendererPageHeader,
-  RendererRow,
-  consumeRequiredPageService,
-  useSparkComponent,
-  type ThemeMode,
-} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import { getVuePageOptions, hasVuePage } from '@/registries/vue-page-registry'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
+import { HostLocalRuntime } from '@/layout/host-local-runtime'
 import packageMetadata from '../../../package.json'
 import LocalPageCacheCard from './settings/local-page-cache-card.vue'
 
 const router = useRouter()
-const {sparkConsume} = useSparkComponent({type: 'app-settings'})
+const {sparkConsume, sparkProvide, sparkRemove} = SparkComponent.useSparkComponent({type: 'app-settings'})
 
-const pageService = consumeRequiredPageService(sparkConsume, 'app-settings')
+const pageService = SparkComponent.consumeRequiredPageService(sparkConsume, 'app-settings')
 const theme = useTheme()
 
-const themeOptions = [
-  { value: 'light', label: '浅色主题' },
-  { value: 'dark', label: '深色主题' },
-  { value: 'auto', label: '跟随系统' },
-] as const
+const SETTINGS_TABLE = 'HostAppSettings'
+const THEME_TABLE = 'HostThemeModeOptions'
+const SETTINGS_ROW = 'settings'
+const DEFAULT_APP_NAME = 'SPARK 应用工场'
 
-const appName = ref('SPARK 应用工场')
-const themeMode = ref<ThemeMode>(theme?.mode ?? 'light')
+const local = shallowRef<HostLocalRuntime>()
+let unsubscribe: (() => void) | undefined
+let active = true
 const routeCount = ref(0)
 const configPageCount = ref(0)
 const vuePageCount = ref(0)
@@ -101,8 +88,12 @@ function countConfigPages(): number {
   return visit(root.items)
 }
 
+function appName(): string {
+  return lowcodeApi.application.get()?.application.name ?? DEFAULT_APP_NAME
+}
+
 function syncRuntimeFacts(): void {
-  appName.value = lowcodeApi.application.get()?.application.name ?? 'SPARK 应用工场'
+  local.value?.write(SETTINGS_TABLE, SETTINGS_ROW, { appName: appName() })
   routeCount.value = router.getRoutes().length
   configPageCount.value = countConfigPages()
   vuePageCount.value = getVuePageOptions().length
@@ -118,10 +109,34 @@ async function reloadNavigation(): Promise<void> {
   }
 }
 
+void HostLocalRuntime.create({ scenarioId: 'host-app-settings', tables: {
+  [SETTINGS_TABLE]: {
+    columns: ['id', 'appName', 'version', 'themeMode'].map(name => ({ name, type: 'string' as const })),
+    rows: [{ id: SETTINGS_ROW, appName: appName(), version: packageMetadata.version, themeMode: theme?.mode ?? 'light' }],
+  },
+  [THEME_TABLE]: {
+    columns: [{ name: 'id', type: 'string' }, { name: 'title', type: 'string' }],
+    rows: [{ id: 'light', title: '浅色主题' }, { id: 'dark', title: '深色主题' }, { id: 'auto', title: '跟随系统' }],
+  },
+} }).then(created => {
+  if (!active) { created.dispose(); return }
+  sparkProvide(SparkComponent.PAGE_RUNTIME, created.runtime)
+  unsubscribe = created.onFieldEdit(SETTINGS_TABLE, (field, value) => {
+    if (field === 'themeMode' && theme && SparkComponent.isThemeMode(value)) theme.setMode(value)
+  })
+  local.value = created
+  syncRuntimeFacts()
+}).catch((error: unknown) => {
+  pageService.showMessage(`系统设置装配失败：${error instanceof Error ? error.message : String(error)}`, 'error')
+})
+
 onMounted(syncRuntimeFacts)
 
-watch(themeMode, (mode) => {
-  if (theme && isThemeMode(mode)) theme.setMode(mode)
+onBeforeUnmount(() => {
+  active = false
+  unsubscribe?.()
+  sparkRemove(SparkComponent.PAGE_RUNTIME)
+  local.value?.dispose()
 })
 </script>
 

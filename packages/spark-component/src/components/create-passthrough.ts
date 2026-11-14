@@ -55,7 +55,7 @@ export function createPassthrough(
       type: { type: String, default: type },
       children: { type: Array, default: undefined },
     },
-    setup(props, { attrs }) {
+    setup(props, { attrs, slots }) {
       const rawChildren = readSparkNodeChildren(props.children, `${type}.children`)
       const sparkNodeInput: SparkNodeInput = {
         type: props.type,
@@ -83,7 +83,7 @@ export function createPassthrough(
 
         const children = resolvedChildren.value
         if (children.length === 0) {
-          return h(resolveComponent(elTag), finalAttrs)
+          return h(resolveComponent(elTag), finalAttrs, slots)
         }
 
         const childVNodes = children.map((child, i) =>

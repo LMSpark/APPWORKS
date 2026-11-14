@@ -1,6 +1,6 @@
 /**
  * @module app:layout/host-local-runtime
- * 职责：为宿主界面状态（主题开关、项目上下文选择）装配本地 static-data DataSet 与 PageRuntime，供标准 Field 组件按 dataViewKey 绑定。
+ * 职责：为宿主界面状态（主题开关、项目上下文选择、系统设置与本机缓存列表）装配本地 static-data DataSet 与 PageRuntime，供标准组件按 dataViewKey 绑定。
  * 边界：不持久化、不访问后端、不授予任何业务数据权限；字段编辑经 onFieldEdit 回传宿主状态，宿主状态变化经 write 写回当前行。
  */
 import {SparkData, buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'

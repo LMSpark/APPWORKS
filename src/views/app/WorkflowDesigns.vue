@@ -152,8 +152,7 @@ import {onBeforeRouteLeave} from 'vue-router'
 import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {PAGE_SERVICE, DisplayEmpty, FieldJson, FieldSelect, FieldText, FieldTextarea, PAGE_RUNTIME, RendererDialog, RendererDrawer, RendererForm, RendererGraph, RendererTable, useSparkComponent, RendererButton, consumeRequiredPageService} from '@spark-appworks/spark-component'
-import type * as SparkComponentTypes from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {createAgentWorkflowFileDataViewOwner, type AgentWorkflowDesignViews, type AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
 import WorkflowCreateDialog from './workflow-designs/workflow-create-dialog.vue'
 import {AGENT_WORKFLOW_CREATE_TABLE} from '@/lowcode/resources/repository/agent-workflow/creation'
@@ -164,8 +163,11 @@ import {classModelDocText, createClassModelKnowledgeProvider, readClassModelOpti
 import {WORKFLOW_NODE_HANDLES, workflowChildGraphPath, workflowEdgeNodeKeys, workflowLineRow, workflowNodeCorner, workflowNodePositions,
   workflowNodeRow} from './workflow-designs/workflow-design-graph'
 
+const {DisplayEmpty, FieldJson, FieldSelect, FieldText, FieldTextarea, PAGE_RUNTIME, RendererDialog, RendererDrawer, RendererForm, RendererGraph,
+  RendererTable, RendererButton, useSparkComponent, consumeRequiredPageService} = SparkComponent
+
 type GraphRole = 'main' | 'child'
-type GraphEvent<K extends 'onSelect' | 'onNodeMove' | 'onArrange' | 'onConnect' | 'onEdgePathChange'> = Parameters<NonNullable<SparkComponentTypes.RGraphProps[K]>>[0]
+type GraphEvent<K extends 'onSelect' | 'onNodeMove' | 'onArrange' | 'onConnect' | 'onEdgePathChange'> = Parameters<NonNullable<SparkComponent.RGraphProps[K]>>[0]
 type GraphSelection = GraphEvent<'onSelect'>
 type GraphNodeMove = GraphEvent<'onNodeMove'>
 type GraphArrange = GraphEvent<'onArrange'>
@@ -282,7 +284,7 @@ const selectedRow = computed(() => {
 })
 const selectedChildPath = computed(() => selected.value?.kind === 'node' ? workflowChildGraphPath(selectedRow.value) : '')
 
-function graphProps(role: GraphRole): SparkComponentTypes.RGraphProps {
+function graphProps(role: GraphRole): SparkComponent.RGraphProps {
   revision.value
   const {nodes, lines} = graphViews(role)
   const nodeRows = shownRows(nodes), locked = busy.value
@@ -342,7 +344,7 @@ function openDrawer(target: 'workflow' | 'node' | 'line'): void {
   drawerOpen.value = true
 }
 
-function listToolbar(view: DataView, keyField: string, label: string): SparkComponentTypes.RToolbarProps {
+function listToolbar(view: DataView, keyField: string, label: string): SparkComponent.RToolbarProps {
   revision.value
   const row = view.currentRow, key = row ? view.getPkKey(row) : undefined
   return {children: [

@@ -1,9 +1,9 @@
 import {describe, expect, it, vi} from 'vitest'
-import {defineComponent, h, inject, provide, type Component} from 'vue'
+import {defineComponent, h, type Component} from 'vue'
 import {flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
-import ElementPlus from 'element-plus'
-import {PAGE_SERVICE, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
+import ElementPlus, {ElButton, ElTable, ElTableColumn} from 'element-plus'
+import {PAGE_SERVICE, Spark, registerAllRenderers, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
 import Settings from '@/views/app/Settings.vue'
 
 const pageService: PageServiceCapability = {
@@ -35,18 +35,25 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
 }))
 vi.mock('@/services/project/project-shell', () => ({reloadAndSyncNavigation: state.reload}))
 
+/** 本地 DataView 装配为异步，多轮 flush 后表单与表格才挂载。 */
+async function settle(): Promise<void> {
+  for (let i = 0; i < 3; i++) await flushPromises()
+}
+
 describe('Settings page', () => {
   it('shows runtime facts, applies theme and reloads navigation without fake settings', async () => {
     const router = createRouter({history: createMemoryHistory(), routes: [{path: '/', component: defineComponent({setup: () => () => h('div')})}]})
     await router.push('/')
     const wrapper = mount(SettingsHost, {global: {plugins: [router, ElementPlus]}})
-    await flushPromises()
+    await settle()
 
+    expect(vi.mocked(pageService.showMessage).mock.calls).toEqual([])
     expect((wrapper.find('input').element as HTMLInputElement).value).toBe('Alpha')
     expect(wrapper.text()).toContain('1 个')
     expect(wrapper.text()).not.toMatch(/保存设置|导出配置|日志级别|热重载|新建配置页面|最近操作/)
 
     await wrapper.find('input[value="dark"]').setValue(true)
+    await settle()
     expect(state.theme.setMode).toHaveBeenCalledWith('dark')
 
     await wrapper.findAll('button').find(button => button.text() === '重载导航')!.trigger('click')
@@ -61,23 +68,11 @@ describe('Settings page', () => {
     localStorage.setItem('other_key', 'keep')
     const router = createRouter({history: createMemoryHistory(), routes: [{path: '/', component: defineComponent({setup: () => () => h('div')})}]})
     await router.push('/')
-    const TableRow = defineComponent({
-      props: {row: {type: Object, required: true}},
-      setup(props, {slots}) { provide('cache-row', props.row); return () => h('tr', slots['default']?.()) },
-    })
-    const TableStub = defineComponent({
-      props: {data: {type: Array, default: () => []}},
-      setup(props, {slots}) { return () => h('table', (props.data as Array<Record<string, unknown>>).map(row => h(TableRow, {row}, {default: () => slots['default']?.()}))) },
-    })
-    const ColumnStub = defineComponent({
-      props: {prop: {type: String, default: ''}},
-      setup(props, {slots}) {
-        const row = inject<Record<string, unknown>>('cache-row', {})
-        return () => h('td', slots['default'] ? slots['default']({row}) : String(row[props.prop] ?? ''))
-      },
-    })
-    const wrapper = mount(SettingsHost, {global: {plugins: [router, ElementPlus], stubs: {'el-table': TableStub, 'el-table-column': ColumnStub}}})
-    await flushPromises()
+    registerAllRenderers()
+    vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
+    const wrapper = mount(SettingsHost, {global: {plugins: [router, ElementPlus, Spark.createPlugin()], stubs: {'el-table': ElTable,
+      'el-table-column': ElTableColumn, 'el-button': ElButton, SparkComponentRenderer: false, 'spark-component-renderer': false}}})
+    await settle()
 
     expect(wrapper.text()).toContain('本机页面缓存')
     expect(wrapper.text()).toContain('共 2 条缓存')
@@ -86,11 +81,13 @@ describe('Settings page', () => {
 
     const alphaRow = wrapper.findAll('tr').find(row => row.text().includes('spark_page_alpha'))!
     await alphaRow.findAll('button').find(button => button.text() === '删除')!.trigger('click')
-    await flushPromises()
+    await settle()
     expect(localStorage.getItem('spark_page_alpha')).toBeNull()
     expect(localStorage.getItem('spark_file_beta')).toBe('not-json')
     expect(localStorage.getItem('other_key')).toBe('keep')
     expect(wrapper.text()).toContain('共 1 条缓存')
+    expect(wrapper.text()).not.toContain('spark_page_alpha')
+    expect(wrapper.text()).toContain('spark_file_beta')
     localStorage.clear()
   })
 })

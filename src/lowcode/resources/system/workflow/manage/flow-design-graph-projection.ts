@@ -62,11 +62,17 @@ function readPointsList(edge: Readonly<Record<string, unknown>>): readonly {x: n
   return points.length >= 2 ? points : undefined
 }
 
+export type FlowDesignLayoutOverride = Readonly<{
+  nodePositions?: Readonly<Record<string, {x: number; y: number}>>
+  edgePaths?: Readonly<Record<string, readonly {x: number; y: number}[]>>
+}>
+
 export type FlowDesignGraphLayoutInput = Readonly<{
   modelView: DataView
   nodeView: DataView
   edgeView: DataView
   designJsonOverride?: string
+  layoutOverride?: FlowDesignLayoutOverride
 }>
 
 /** 将 DesignJson 与当前节点/连线行投影为 RendererGraph 布局参数。 */
@@ -94,5 +100,46 @@ export function buildFlowDesignGraphLayout(input: FlowDesignGraphLayoutInput): F
     nodePositions[id] = {x: 120 + (index % 4) * 220, y: 80 + Math.floor(index / 4) * 140}
   })
 
+  const sessionPositions = input.layoutOverride?.nodePositions
+  if (sessionPositions) {
+    for (const [id, point] of Object.entries(sessionPositions)) {
+      if (id && point && Number.isFinite(point.x) && Number.isFinite(point.y)) nodePositions[id] = {x: point.x, y: point.y}
+    }
+  }
+  const sessionPaths = input.layoutOverride?.edgePaths
+  if (sessionPaths) {
+    for (const [id, points] of Object.entries(sessionPaths)) {
+      if (id && points?.length) edgePaths[id] = points
+    }
+  }
+
   return {nodePositions, edgePaths}
+}
+
+/** 将当前布局与节点/边行序列化为 DesignJson 文本（保存用）。 */
+export function serializeFlowDesignGraphJson(input: FlowDesignGraphLayoutInput): string {
+  const layout = buildFlowDesignGraphLayout(input)
+  const nodes = input.nodeView.rows
+    .filter(row => row && typeof row === 'object')
+    .map(row => {
+      const id = normalizeText(row['rowid'] ?? row['ROWID'])
+      if (!id) return null
+      const position = layout.nodePositions[id] ?? {x: 0, y: 0}
+      return {id, type: 'rect', x: position.x, y: position.y, properties: {title: normalizeText(row['TITLE'])}}
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item))
+  const edges = input.edgeView.rows
+    .filter(row => row && typeof row === 'object')
+    .map(row => {
+      const id = normalizeText(row['rowid'] ?? row['ROWID'])
+      const sourceNodeId = normalizeText(row['PARENTID'])
+      const targetNodeId = normalizeText(row['CHILDID'])
+      if (!id || !sourceNodeId || !targetNodeId) return null
+      const points = layout.edgePaths[id]
+      const edge: Record<string, unknown> = {id, type: 'polyline', sourceNodeId, targetNodeId}
+      if (points && points.length >= 2) edge['pointsList'] = points.map(point => ({x: point.x, y: point.y}))
+      return edge
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item))
+  return JSON.stringify({nodes, edges})
 }

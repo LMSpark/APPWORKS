@@ -5,13 +5,23 @@ import {defineComponent, h} from 'vue'
 import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {FLOW_DESIGN_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
-import {withTestPageService} from '../../../../support/helpers/page-service-host'
+import {withTestPageService} from '../../../../../support/helpers/page-service-host'
 
 vi.mock('@/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue', () => ({
-  default: {name: 'FlowDesignNodePanel', props: ['viewKey', 'highlightId'], template: '<div data-testid="flow-node">流程节点</div>'},
+  default: defineComponent({
+    name: 'FlowDesignNodePanel',
+    props: {viewKey: String, highlightId: [String, Number, null]},
+    emits: ['selectGraphId'],
+    template: '<button data-testid="pick-node" type="button" @click="$emit(\'selectGraphId\', \'N-42\')">流程节点</button>',
+  }),
 }))
 vi.mock('@/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue', () => ({
-  default: {name: 'FlowDesignEdgePanel', props: ['viewKey', 'highlightId'], template: '<div data-testid="flow-edge">流程连线</div>'},
+  default: defineComponent({
+    name: 'FlowDesignEdgePanel',
+    props: {viewKey: String, highlightId: [String, Number, null]},
+    emits: ['selectGraphId'],
+    template: '<button data-testid="pick-edge" type="button" @click="$emit(\'selectGraphId\', \'E-7\')">流程连线</button>',
+  }),
 }))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeApi: {design: {readTextFile: vi.fn(async () => '')}},
@@ -92,10 +102,19 @@ describe('flow design page mount', () => {
   it('renders target title, read-only graph, and node/edge sections', async () => {
     const wrapper = await mountDesign()
     expect(wrapper.text()).toContain('设计目标：审批样例')
-    expect(wrapper.text()).toContain('RendererGraph')
     expect(wrapper.find('[data-testid="flow-graph"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('流程节点')
     expect(wrapper.text()).toContain('流程连线')
+  })
+
+  it('updates node highlight when table emits selectGraphId', async () => {
+    const wrapper = await mountDesign()
+    await wrapper.find('[data-testid="pick-node"]').trigger('click')
+    await flushPromises()
+    const nodePanel = wrapper.findComponent({name: 'FlowDesignNodePanel'})
+    expect(nodePanel.props('highlightId')).toBe('N-42')
+    const edgePanel = wrapper.findComponent({name: 'FlowDesignEdgePanel'})
+    expect(edgePanel.props('highlightId')).toBeNull()
   })
 
   it('surfaces error when parent runtime is missing', async () => {

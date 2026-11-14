@@ -36,6 +36,7 @@ describe('prepareFlowDesignViews', () => {
       WFM_FLOW_MODLE: model,
       WFM_FLOW_NODE: node,
       WFM_NODE_REALATION: edge,
+      Base_NavigationInfo: createView([]),
     })
     const result = await prepareFlowDesignViews(runtime, 'flow-key-1')
     expect(result.modelTitle).toBe('请假流程')

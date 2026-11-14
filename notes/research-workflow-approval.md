@@ -24,9 +24,13 @@
 
 ## 差距（待账本）
 
-- 参考 `FlowDesign.ts` / `FlowRunPage.ts` / `FlowRunDetail.ts` / `FlowAppendUser.ts` 体积大且依赖 `@spark-template/spark-api` 运行时；本批以 DataView 列表 + 占位面板交付，专用命令与运行图未接回。
-- 流程设计图编辑（SchemaGraph）、运行办理全套动作、工作台待办查询未验收。
-- `flow-model-list` 的 modelId 需与正式库对齐；当前 pagedata 仅声明 modelName，依赖装配时后端绑定。
+- 参考体量仍大于本仓；**核心闭环已接**：设计布局拖拽 + `syncFlowDesignTables` 全量删增、`flow-run-page` FlowBack、加签共用 `flow-http`。下批：ForceBack、工作台待办、画布上新建/删节点类型。
+- 设计保存：EJ2.json + DesignJson + 节点/边表同步 + `saveChanges`；**未**接回 `saveFlowAndFormRelation` 与节点权限扩展表。
+- **`flow-model-list` / `flow-design` modelId：** 仍仅 `modelName`；2026-11-15 实服回读阻塞见 `notes/evidence/workflow-g0-model-ids-attempt-20261115.json`（脚本 `tools/workflow/read-workflow-model-ids.mjs` 已就绪）。
 - **仓内场景登记：** 运行/监控/详情共用 `E328FBBF518141973C575D612CD75151` 时，`system-scenarios.json` 只登记 `flowMonitor` → `config/pages/system/flow-monitor/pagedata.json`；不得对同一 `scenarioId` 重复登记（2026-11-14 烟测已删 `flowRunDetail` 重复项）。
-- **设计对话框：** 列表页 `peerScenarioIds` 装配 `6E462…`；`FlowDesignPage` 经 `prepareFlowDesignViews` 消费父 `PAGE_RUNTIME`，按 `FLOWID` 刷新节点/连线；**G1 首包采用 `RendererGraph` 只读预览**，布局由 `flow-design-graph-projection` 投影；**G2 切片** `readFlowDesignDataJsonText` 优先读 `SysForm/{flowId}EJ2.json`（`lowcodeApi.design.readTextFile`），空/404 回退模型 `DesignJson` 字段；**G3 切片** 图 `@select` → 节点/连线表 `setCurrentRowById` 高亮；保存、`resolveFlowDesignFileContext`（导航 folderName）仍待接回。
+- **设计对话框：** 布局可拖 + `layoutOverride` 保存；**G2** `saveFlowDesignInfo` + `syncFlowDesignTables`；**G3** 图↔表双向高亮。
+- **办理页：** 业务页签、`Submit`、**FlowBack**（`BackNodeList` 等字段解析）、退回发起人、流程图/加签对话框。
+- **运行详情 G4：** `flow-run-detail-page` 在 `E328…` 场景 + `peerScenarioIds` 设计场景上，`prepareFlowRunDetailPage` 刷新 `WFOBJ_FLOW_RELATIONLINE_STEP`/`WFOBJ_FLOW_Waiting` 并投影只读运行图（节点 completed/waiting 徽标）；节点/连线 `@select` 打开步骤钻取弹窗（不含强退）。
 - **modelId：** `WFM_*` pagedata 仍仅 `modelName`，须实服只读回读后写入（R1 未阻断列表只读装配）。
+- **G5 FlowAppendUser：** `flow-append-user/` lowcode 客户端（`GetExeUsers`/`FlowAddReceiveUser`/`FlowRevoke`）+ 步骤 DataView 筛选列表；`flow-append-user.vue` 接回列表/加人/撤回（无 PersonPicker，allowChange=1 时可选 `userDirectoryViewKey` 绑定 `Base_UserInfo`）。
+- **D99 烟测（P1）：** 门禁自动化已通过；手工矩阵：① 设计拖拽保存重开 ② 办理 FlowBack/发起人/加签 ③ G0 modelId 写回后列表装配 —— 需登录 D99；G0 阻塞见 `notes/evidence/workflow-g0-model-ids-attempt-20261115.json`（`apply-workflow-model-ids.mjs` 已就绪）。

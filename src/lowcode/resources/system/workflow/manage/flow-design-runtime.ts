@@ -7,6 +7,7 @@ import {buildDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {assertFlowDesignTarget, FLOW_DESIGN_SCENARIO_ID} from './flow-design-client'
 import {readFlowDesignDataJsonText} from './flow-design-data-json'
+import {resolveFlowDesignFileContext} from './flow-design-file-context'
 import {buildFlowDesignGraphLayout, type FlowDesignGraphLayout} from './flow-design-graph-projection'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 
@@ -59,10 +60,19 @@ export async function prepareFlowDesignViews(
   const nodeView = requireView(dataSet.getView('WFM_FLOW_NODE', 'default'), 'WFM_FLOW_NODE')
   const edgeView = requireView(dataSet.getView('WFM_NODE_REALATION', 'default'), 'WFM_NODE_REALATION')
   const modelRow = modelView.rows[0]
+  const modelRecord = modelRow && typeof modelRow === 'object' ? modelRow : undefined
+  const fileContext = await resolveFlowDesignFileContext({
+    runtime,
+    flowModelId: targetId,
+    ...(modelRecord ? {modelRow: modelRecord} : {}),
+    ...(options.assertCurrent ? {assertCurrent: options.assertCurrent} : {}),
+  })
+  options.assertCurrent?.()
   const designJson = await readFlowDesignDataJsonText({
     flowId: targetId,
-    ...(modelRow && typeof modelRow === 'object' ? {modelRow} : {}),
+    ...(modelRecord ? {modelRow: modelRecord} : {}),
     api: lowcodeApi.design,
+    customPath: fileContext.customPath,
     ...(options.assertCurrent ? {assertCurrent: options.assertCurrent} : {}),
   })
   options.assertCurrent?.()

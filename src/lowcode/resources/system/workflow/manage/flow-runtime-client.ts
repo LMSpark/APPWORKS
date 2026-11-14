@@ -5,6 +5,8 @@
  */
 import {isRecord} from '@spark-appworks/spark-utils'
 
+export const FLOW_MONITOR_SCENARIO_ID = 'E328FBBF518141973C575D612CD75151'
+
 export type FlowRuntimeRouteQuery = Readonly<{
   wfid?: string
   flowid?: string

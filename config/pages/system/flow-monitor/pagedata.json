@@ -10,7 +10,56 @@
       "views": {"default": {
         "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false,
         "page": 1, "pageSize": 15,
-        "queryConfig": {"fields": ["rowid", "WFMID", "TITLE", "AppDesc", "CrtUserID", "CrtTime", "UserNameList", "status"]}
+        "queryContext": {"rowid": ""},
+        "queryConfig": {"fields": ["rowid", "WFMID", "TITLE", "AppDesc", "CrtUserID", "CrtTime", "UserNameList", "status", "BusTblObjID"]}
+      }}
+    },
+    "WFOBJ_FLOW": {
+      "modelBinding": {"modelName": "WFOBJ_FLOW"},
+      "views": {"default": {
+        "autoLoad": false,
+        "autoCurrentFirst": false,
+        "autoSelectFirst": false,
+        "pageSize": 1,
+        "queryContext": {"rowid": "", "wfid": ""},
+        "filterExpression": {
+          "field": "rowid",
+          "operator": "eq",
+          "value": {"Type": "GetInputParam", "ParamName": "rowid"}
+        },
+        "queryConfig": {"fields": ["rowid", "WFMID", "TITLE", "BusTblObjID", "status"]}
+      }}
+    },
+    "WFM_WORKFORM": {
+      "modelBinding": {"modelName": "WFM_WORKFORM"},
+      "views": {"default": {
+        "autoLoad": false,
+        "autoCurrentFirst": false,
+        "autoSelectFirst": false,
+        "pageSize": 50,
+        "queryContext": {"FlowID": "", "WFMID": ""},
+        "filterExpression": {
+          "field": "FlowID",
+          "operator": "eq",
+          "value": {"Type": "GetInputParam", "ParamName": "FlowID"}
+        },
+        "queryConfig": {"allPages": true, "fields": ["rowid", "FORMID", "FormName", "URL", "MobileUrl", "BusField", "TitleField", "FlowID"]}
+      }}
+    },
+    "WFOBJ_FLOW_FORM": {
+      "modelBinding": {"modelName": "WFOBJ_FLOW_FORM"},
+      "views": {"default": {
+        "autoLoad": false,
+        "autoCurrentFirst": false,
+        "autoSelectFirst": false,
+        "pageSize": 20,
+        "queryContext": {"WFOBJID": "", "wfid": ""},
+        "filterExpression": {
+          "field": "WFOBJID",
+          "operator": "eq",
+          "value": {"Type": "GetInputParam", "ParamName": "WFOBJID"}
+        },
+        "queryConfig": {"allPages": true, "fields": ["rowid", "WFOBJID", "FORMID", "FormPath", "FormParams", "FormName"]}
       }}
     },
     "Dict_state": {
@@ -19,6 +68,46 @@
         "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 100,
         "valueField": "val", "labelField": "txt",
         "queryConfig": {"allPages": true, "fields": ["rowid", "val", "txt", "ordIdx"]}
+      }}
+    },
+    "WFOBJ_FLOW_RELATIONLINE_STEP": {
+      "modelBinding": {"modelName": "WFOBJ_FLOW_RELATIONLINE_STEP"},
+      "views": {"default": {
+        "autoLoad": false,
+        "autoCurrentFirst": false,
+        "autoSelectFirst": false,
+        "pageSize": 500,
+        "queryContext": {"WFOBJID": ""},
+        "filterExpression": {
+          "logic": "and",
+          "conditions": [
+            {"field": "WFOBJID", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "WFOBJID"}},
+            {"field": "STEPTYPE", "operator": "ne", "value": 12}
+          ]
+        },
+        "queryConfig": {
+          "allPages": true,
+          "fields": [
+            "rowid", "WFOBJID", "description", "ReceiveUserName", "STARTTIME", "ProcessingTime",
+            "STATUS", "StepState", "STEPTYPE", "SendNodeModelId", "ReceiveNodeModelId", "LastStepID"
+          ]
+        }
+      }}
+    },
+    "WFOBJ_FLOW_Waiting": {
+      "modelBinding": {"modelName": "WFOBJ_FLOW_Waiting"},
+      "views": {"default": {
+        "autoLoad": false,
+        "autoCurrentFirst": false,
+        "autoSelectFirst": false,
+        "pageSize": 200,
+        "queryContext": {"wfid": ""},
+        "filterExpression": {
+          "field": "wfid",
+          "operator": "eq",
+          "value": {"Type": "GetInputParam", "ParamName": "wfid"}
+        },
+        "queryConfig": {"allPages": true, "fields": ["rowid", "wfid", "StepID", "NodeID", "NodeName", "UserName"]}
       }}
     },
     "Base_UserInfo": {

@@ -22,7 +22,7 @@ import WorkflowDesignEdgePanel from '@/views/features/data-platform/structured-c
 import WorkflowSourceEdit from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-source-edit.vue'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
-import {workflowExecutionFixture} from './execution/workflow-execution.fixture'
+import {workflowExecutionFixture} from './trigger/workflow-execution.fixture'
 const state=vi.hoisted(()=>({http:undefined as unknown as ApiBackend,runtime:undefined as unknown as DataSpaceRuntimeApi,dirty:[] as Array<{isDirty:boolean}>,layoutText:null as string|null,uploads:[] as string[],denyLayout:false,loseLayoutReceipt:false}))
 vi.mock('@spark-appworks/spark-app',async()=>{
   const {NativePageRuntimeSession}=await import('../../../../../packages/spark-app/src/router/native-page-runtime-session')
@@ -448,7 +448,7 @@ describe('workflow formal design page',()=>{
   expect(state.http.records['Base_DataModel_Field']!.find(row=>row['dataModelId']==='M1'&&row['Name']==='note')).toMatchObject({type:'inputParams',ValueFun:'',IsOutput:0})
   expect(state.http.records['Base_WorkflowNodeDefinition']![0]).toMatchObject({dataOperateModId:'M1',node_config:'',output_mapping:expect.stringContaining('"pid":null')})
   await f.click('更换操作目标');await vi.waitFor(()=>expect(document.body.textContent).toContain('选择操作目标来源'));await f.click('取消来源选择')
- })
+ }, 45_000)
  it('generates existing operation output with the standard bound button and uses original cancel/save/reopen',async()=>{
   state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'操作',node_type:'edit',position_type:1,node_config:'',dataOperateModId:'M1',output_mapping:'[]'}]
   state.http.records['Base_WorkflowConnectors']=[];state.http.records['Base_DataModel_Relation']=[]

@@ -1,4 +1,4 @@
-状态：implementing
+状态：superseded（2026-11-15，由 `workflow-round-convergence` 覆盖：完整办理页 + G0/G2/G3 同批收敛；本计划「办理写入单列授权」不再执行。）
 
 ## 任务目标
 

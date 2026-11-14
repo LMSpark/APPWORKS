@@ -14,6 +14,16 @@
     "WFM_NODE_REALATION": {
       "modelBinding": {"modelName": "WFM_NODE_REALATION"},
       "views": {"default": {"autoLoad": false, "pageSize": 50, "queryConfig": {"fields": ["rowid", "FLOWID", "PARENTID", "CHILDID"]}}}
+    },
+    "Base_NavigationInfo": {
+      "modelBinding": {"modelName": "Base_NavigationInfo"},
+      "views": {"default": {
+        "autoLoad": false,
+        "autoCurrentFirst": false,
+        "autoSelectFirst": false,
+        "pageSize": 1,
+        "queryConfig": {"fields": ["rowid", "folderName", "FOLDERNAME", "Title"]}
+      }}
     }
   },
   "viewCascades": []

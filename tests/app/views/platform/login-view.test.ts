@@ -6,7 +6,7 @@ import {defineComponent, h} from 'vue'
 import {readFileSync} from 'node:fs'
 import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery} from '@spark-appworks/spark-data'
 import {LowcodeApiError, PlatformAuthResource} from '@spark-appworks/spark-lowcode-api'
-import {FieldSelect, FieldText, RendererButton, RendererDrawer, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldSelect, FieldText, PAGE_SERVICE, RendererButton, RendererDrawer, Spark, registerAllRenderers, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
 import LoginView from '@/views/platform/LoginView.vue'
 
 const state = vi.hoisted(() => ({
@@ -53,7 +53,27 @@ afterEach(() => {
 
 async function open() {
   const router = createRouter({history: createMemoryHistory(), routes: [{path: '/', component: defineComponent({setup: () => () => h('div')})}]})
-  const wrapper = mount(LoginView, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin(), router]}})
+  const pageService: PageServiceCapability = {
+    copyText: async () => {},
+    showMessage: () => {},
+    showConfirm: async () => true,
+    showPrompt: async () => null,
+    showAlert: async () => {},
+    showDialog: async () => 'cancel',
+    selectEntities: async () => [],
+    browseFiles: async () => [],
+    uploadFiles: async () => { throw new Error('login fixture must not upload') },
+    showLoading: () => {},
+    navigate: () => {},
+  }
+  const Host = defineComponent({
+    setup() {
+      const {sparkProvide} = useSparkComponent({type: 'login-view-test-host'})
+      sparkProvide(PAGE_SERVICE, pageService)
+      return () => h(LoginView)
+    },
+  })
+  const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin(), router]}})
   wrappers.push(wrapper)
   await flushPromises()
   const input = (placeholder: string, scope: ParentNode = document.body) => {

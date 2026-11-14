@@ -389,6 +389,7 @@ export type {
 | `r-link` | RendererLink | el-link 文字链接 |
 | `r-page-header` | RendererPageHeader | el-page-header 页头 |
 | `r-dropdown` | RendererDropdown | el-dropdown 下拉菜单 |
+| `r-menu` | RendererMenu | el-menu 导航菜单（纵向折叠/横向溢出、子菜单、分组、徽标，items + onSelect） |
 | `r-tooltip` | RendererTooltip | el-tooltip 文字提示 |
 | `r-popover` | RendererPopover | el-popover 气泡弹出框 |
 | `r-popconfirm` | RendererPopconfirm | el-popconfirm 气泡确认框 |

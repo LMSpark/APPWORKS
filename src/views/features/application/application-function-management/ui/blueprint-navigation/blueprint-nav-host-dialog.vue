@@ -79,7 +79,7 @@ const paramSchema: JsonSchemaObject = {type: 'object', properties: {
 }}
 
 const column = (field: string, label: string): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, minWidth: 130, sortable: false, showOverflowTooltip: true}})
+  ({type: 'r-text', props: {field, label, readonly: true, minWidth: 130, showOverflowTooltip: true}})
 const columns: SparkNode[] = [
   column('pName', '导航宿主'), column('dataName', '数据名称'), column('dataType', '资源类型'),
   column('ValParamName', '值参数名称'), column('TextParamName', '文本参数名称'),

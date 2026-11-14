@@ -2,21 +2,27 @@
 @module app:views/features/data-platform/semi-structured/json-data/ui/json-data-page
 -->
 <template>
- <section class="json-data-page">
-  <header><h1>JSON 数据</h1><p>管理JSON文档</p></header>
-  <p v-if="loading" role="status">正在读取目录…</p>
-  <p v-if="error" role="alert">{{ error }}</p>
-  <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
-  <RendererDialog v-if="document" :model-value="true" title="JSON 内容编辑" :data-view-key="contentKey" :width="1100" :close-disabled="busy || hasPending" :destroy-on-close="true" @update:model-value="closeDocument">
-   <p v-if="documentLoading" role="status">正在读取内容…</p>
-   <p v-if="documentError" role="alert">{{ documentError }}</p>
-   <p v-if="unconfirmed" role="status">保存结果尚未确认，请通过原保存入口核验。</p>
-   <p v-if="creating && creationFileCommitted && !unconfirmed" role="status">文件已确认，目录尚未确认，请继续保存或核验。</p>
-   <RendererForm v-if="creating" :key="creating" :context-row-id="creating" :data-view-key="catalogKey" :auto-columns="false" :show-data-view-meta="false">
-    <FieldText :data-view-key="catalogKey" field="name" label="名称" :readonly="busy || catalogUnconfirmed" />
-    <FieldText :data-view-key="catalogKey" field="description" label="描述" :readonly="busy || catalogUnconfirmed" />
+ <RendererSection class="json-data-page" title="JSON 文件数据管理" :bordered="false" :grid-columns="1" :grid-gap="16"
+  :status="loading ? '正在读取目录…' : ''" :error="document ? '' : error">
+  <template v-if="ready" #header-actions>
+   <RendererButton label="新增" button-type="primary" icon="Plus" :disabled="addBlocked" @click="createDocument()" />
+   <RendererButton :label="catalogUnconfirmed ? '核验目录保存结果' : '保存'" icon="Check" :disabled="busy || !!document || !catalogPending" @click="saveCatalog" />
+   <RendererButton label="取消" icon="Close" :disabled="busy || !!document || catalogUnconfirmed || !catalogPending" @click="cancelCatalog" />
+   <RendererButton label="导入JSON" icon="Upload" :disabled="addBlocked || !pageService?.browseFiles" @click="importDocument" />
+  </template>
+  <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :actions="rowActions" :highlight-current-row="true" :on-row-click="choose"
+   :stripe="true" :border="true" :show-row-index="true" :show-data-view-meta="false" :action-column="{label: '操作', width: 180, fixed: true}" />
+  <RendererDialog v-if="document" :model-value="true" title="JSON 编辑" :data-view-key="contentKey" :width="1180" :close-disabled="busy || hasPending" :destroy-on-close="true" @update:model-value="closeDocument">
+   <DisplayAlert v-if="documentLoading" alert-type="info" :closable="false" title="正在读取内容…" />
+   <DisplayAlert v-if="error" alert-type="error" :closable="false" :title="error" />
+   <DisplayAlert v-if="documentError" alert-type="error" :closable="false" :title="documentError" />
+   <DisplayAlert v-if="unconfirmed" alert-type="warning" :closable="false" title="保存结果尚未确认，请通过原保存入口核验。" />
+   <DisplayAlert v-if="creating && creationFileCommitted && !unconfirmed" alert-type="warning" :closable="false" title="文件已确认，目录尚未确认，请继续保存或核验。" />
+   <RendererForm v-if="creating" :key="creating" :context-row-id="creating" :data-view-key="catalogKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="2">
+    <FieldText :data-view-key="catalogKey" field="name" label="名称" placeholder="请输入文件名称" :maxlength="200" :readonly="busy || catalogUnconfirmed" />
+    <FieldText :data-view-key="catalogKey" field="description" label="摘要" placeholder="请输入摘要" :maxlength="500" :readonly="busy || catalogUnconfirmed" />
    </RendererForm>
-   <RendererForm v-if="documentReady" :key="`${contentKey}:${contentSession}`" v-bind="contentRowBinding" :data-view-key="contentKey" :auto-columns="false" :show-data-view-meta="false">
+   <RendererForm v-if="documentReady" :key="`${contentKey}:${contentSession}`" v-bind="contentRowBinding" :data-view-key="contentKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
     <FieldJson :data-view-key="contentKey" field="content" label="JSON 内容" mode="tree" :readonly="busy || unconfirmed || creationFileCommitted" :on-editing-change="value => inputPending=value" />
    </RendererForm>
    <template #footer>
@@ -26,23 +32,23 @@
     <RendererButton label="关闭" :disabled="busy || hasPending" @click="closeDocument(false)" />
    </template>
   </RendererDialog>
- </section>
+ </RendererSection>
 </template>
 <script setup lang="ts">
-import {computed,onBeforeUnmount,ref,shallowRef,watch} from 'vue'
+import {computed,onBeforeUnmount,ref,shallowRef,toRaw,watch} from 'vue'
 import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
 import {buildDataViewKey,RequestState,type DataRow,type DataSet,type DataView,type SparkNode} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
-const {PAGE_RUNTIME,PAGE_SERVICE,RendererTable,RendererForm,RendererDialog,RendererButton,FieldJson,FieldText,useSparkComponent}=SparkComponent
+const {PAGE_RUNTIME,PAGE_SERVICE,RendererSection,RendererTable,RendererForm,RendererDialog,RendererButton,FieldJson,FieldText,DisplayAlert,useSparkComponent,consumeRequiredPageService}=SparkComponent
 const route=useRoute(),{sparkProvide,sparkRemove,sparkConsume}=useSparkComponent({type:'json-data-page'})
 const session=new NativePageRuntimeSession({
   provide:()=>undefined,
   remove:()=>sparkRemove(PAGE_RUNTIME),
 })
-const pageService=sparkConsume(PAGE_SERVICE)
+const pageService=consumeRequiredPageService(sparkConsume,'json-data-page')
 const scenarioId=computed(()=>typeof route.meta['blueprintScenarioId']==='string'?route.meta['blueprintScenarioId']:'')
 const catalogKey=computed(()=>buildDataViewKey(LowcodeJsonData.catalogMetaName,'default',scenarioId.value))
 const dataSet=shallowRef<DataSet>(),catalog=shallowRef<DataView>(),document=shallowRef<DataView>(),opening=ref(false),openingDocument=ref(false),ready=ref(false),acting=ref(false),inputPending=ref(false),error=ref(''),revision=ref(0)
@@ -67,24 +73,28 @@ const hasPending=computed(()=>{revision.value;const view=document.value;return c
 useSystemPageDirtySource({get isDirty(){return busy.value||hasPending.value}})
 onBeforeRouteLeave(()=>!hasPending.value&&!busy.value)
 onBeforeRouteUpdate(()=>!hasPending.value&&!busy.value)
+const cellLocked=computed(()=>busy.value||!!document.value||catalogUnconfirmed.value)
 const fields=computed<SparkNode[]>(()=>[
- {type:'r-text',props:{field:'name',label:'名称',showCellControl:true,readonly:busy.value||!!document.value||catalogUnconfirmed.value,width:220}},
- {type:'r-text',props:{field:'description',label:'描述',showCellControl:true,readonly:busy.value||!!document.value||catalogUnconfirmed.value,width:300}},
- {type:'r-select',props:{field:'createuser',label:'创建人',readonly:true,optionDataViewKey:buildDataViewKey('Base_UserInfo','default',scenarioId.value)}},
- {type:'r-text',props:{field:'createtime',label:'创建时间',readonly:true}},
+ {type:'r-text',props:{field:'name',label:'名称',placeholder:'请输入文件名称',maxlength:200,showCellControl:true,readonly:cellLocked.value,minWidth:220,showOverflowTooltip:true}},
+ {type:'r-text',props:{field:'description',label:'摘要',placeholder:'请输入摘要',maxlength:500,showCellControl:true,readonly:cellLocked.value,minWidth:260,showOverflowTooltip:true}},
+ {type:'r-text',props:{field:'path',label:'文件地址',readonly:true,minWidth:280,showOverflowTooltip:true}},
+ {type:'r-select',props:{field:'createuser',label:'创建人',readonly:true,width:140,optionDataViewKey:buildDataViewKey('Base_UserInfo','default',scenarioId.value)}},
+ {type:'r-text',props:{field:'createtime',label:'创建时间',readonly:true,width:140}},
 ])
-const toolbar=computed<SparkComponent.RToolbarProps>(()=>({children:[
- {type:'r-button',props:{label:'新增',disabled:busy.value||hasPending.value||!!document.value||catalog.value?.addActionState()!=='enabled',onClick:()=>createDocument()}},
- {type:'r-button',props:{label:'导入JSON',disabled:busy.value||hasPending.value||!!document.value||catalog.value?.addActionState()!=='enabled'||!pageService?.browseFiles,onClick:importDocument}},
- {type:'r-button',props:{label:catalogUnconfirmed.value?'核验目录保存结果':'保存目录',disabled:busy.value||!!document.value||!catalogPending.value,onClick:saveCatalog}},
- {type:'r-button',props:{label:'取消目录修改',disabled:busy.value||!!document.value||catalogUnconfirmed.value||!catalogPending.value,onClick:cancelCatalog}},
- {type:'r-button',props:{label:'内容编辑',disabled:!selected.value||busy.value||hasPending.value,onClick:openContent}},
- {type:'r-button',props:{label:'刷新',disabled:busy.value||hasPending.value,onClick:refreshCatalog}},
+const addBlocked=computed(()=>busy.value||hasPending.value||!!document.value||catalog.value?.addActionState()!=='enabled')
+const rowActions=computed<SparkComponent.RToolbarProps>(()=>({children:[
+ {type:'r-button',props:{label:'编辑文件',link:true,buttonType:'primary',disabled:busy.value||hasPending.value,onClick:(row:unknown)=>editFile(row)}},
 ]}))
+/** 行内“编辑文件”先按原目录选中该行，新增草稿须先保存目录再编辑文件内容。 */
+function editFile(row:unknown):void{
+ const view=catalog.value,original=view?.rows.find(item=>item===toRaw(row))
+ if(!view||!original||busy.value||hasPending.value)return
+ view.setSelectedRows([original]);void openContent()
+}
 async function saveCatalog():Promise<void>{
  if(busy.value||document.value||!dataSet.value||!catalog.value)return
  const current=dataSet.value,own=generation;acting.value=true;error.value=''
- try{const result=await current.saveChanges({views:[{tableName:LowcodeJsonData.catalogMetaName,viewId:'default'}]});if(!result.success)throw new Error(result.message??'目录保存未完整确认')}
+ try{const result=await current.saveChanges({views:[{tableName:LowcodeJsonData.catalogMetaName,viewId:'default'}]});if(!result.success)throw new Error(result.message??'目录保存未完整确认');pageService.showMessage('保存成功', 'success')}
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }
@@ -143,6 +153,7 @@ async function saveContent():Promise<void>{
   if(!active||own!==documentGeneration||dataSet.value!==current)throw new Error('JSON创建所属页面实例已变化')
   contentSession.value++
   if(creatingId){const saved=await current.saveChanges({views:[{tableName:LowcodeJsonData.catalogMetaName,viewId:'default',ids:[creatingId]}]});if(!saved.success)throw new Error(saved.message??'目录保存未完整确认');if(active&&own===documentGeneration)creating.value=''}
+  pageService.showMessage(creatingId?'保存成功':'文件保存成功', 'success')
  }
  catch(cause){if(active&&own===documentGeneration)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===documentGeneration){acting.value=false;revision.value++}}
@@ -168,6 +179,5 @@ watch(scenarioId,async id=>{
 onBeforeUnmount(()=>{active=false;generation++;documentGeneration++;off?.();session.dispose()})
 </script>
 <style scoped>
-.json-data-page{display:grid;gap:16px;padding:24px}
-.json-data-page h1{margin:0;font-size:1.25rem}
+.json-data-page{padding:8px}
 </style>

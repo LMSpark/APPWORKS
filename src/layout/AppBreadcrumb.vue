@@ -7,7 +7,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 <template>
   <nav class="app-breadcrumb">
     <div class="app-breadcrumb__crumbs">
-      <span class="app-breadcrumb__home" @click="goHome"><NavIcon name="HomeFilled" /></span>
+      <span class="app-breadcrumb__home" @click="goHome"><DisplayIcon icon="HomeFilled" /></span>
       <template v-for="(item, index) in crumbs" :key="item.id ?? item.path">
         <span class="app-breadcrumb__separator">/</span>
         <span
@@ -15,7 +15,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
           :class="{ 'app-breadcrumb__item--active': index === crumbs.length - 1 }"
           @click="index < crumbs.length - 1 && onCrumbClick(item)"
         >
-          <span v-if="item.icon" class="app-breadcrumb__item-icon"><NavIcon :name="item.icon" /></span>
+          <span v-if="item.icon" class="app-breadcrumb__item-icon"><DisplayIcon :icon="item.icon" /></span>
           {{ item.title }}
         </span>
       </template>
@@ -30,7 +30,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getNavHomePath, useNav, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
-import NavIcon from '@/components/NavIcon.vue'
+import {DisplayIcon} from '@spark-appworks/spark-component'
 
 type BreadcrumbItem = {
   id?: string

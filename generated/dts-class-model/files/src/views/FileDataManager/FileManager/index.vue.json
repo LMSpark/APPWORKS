@@ -7,11 +7,11 @@
     "sourceFile": "src/views/FileDataManager/FileManager/index.vue",
     "packageName": "app",
     "modulePath": "views/FileDataManager/FileManager/index",
-    "jsdoc": "@module app:views/FileDataManager/FileManager/index\n职责：恢复文件管理：按文件名称查询 filedata 文件区、拖拽上传单个文件、确认后删除文件。\n边界：列表、上传与删除都经同一PageRuntime的FileDataCatalog视图提交；上传核原字节、删除回列确认，失败后丢弃本地草稿并按实际目录重读。\nAI用途：迁移参考仓 FileDataManager/FileManager 时，核对文件区、导航身份(dataSpaceId)与保存回执。",
+    "jsdoc": "@module app:views/FileDataManager/FileManager/index\n职责：恢复文件管理：按文件名称查询 filedata 文件区、选择本地文件上传、确认后删除文件。\n边界：列表、上传与删除都经同一PageRuntime的FileDataCatalog视图提交；上传核原字节、删除回列确认，失败后丢弃本地草稿并按实际目录重读。\nAI用途：迁移参考仓 FileDataManager/FileManager 时，核对文件区、导航身份(dataSpaceId)与保存回执。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-14T05:10:22.290Z",
+  "generatedAt": "2026-11-14T07:15:52.487Z",
   "models": {}
 }

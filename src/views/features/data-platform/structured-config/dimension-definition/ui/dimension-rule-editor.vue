@@ -41,9 +41,8 @@
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef} from 'vue'
-import {ElMessageBox} from 'element-plus'
 import {DataSetSavePreflightError, DataViewSaveNotAppliedError, type DataRow, type DataView} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME, RendererButton, RendererDialog, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_SERVICE, PAGE_RUNTIME, RendererButton, RendererDialog, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import FeatureRecordFields from '@/views/features/shared/record/feature-record-fields.vue'
 import {missingFeatureField, type FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import {RESULT_SPECS, conditionSpecs, enabled, ruleSpecs, text, validateResult} from './dimension-field-spec'
@@ -58,6 +57,8 @@ type RuleEditorProps = Readonly<{ruleKey: string; conditionKey: string; resultKe
 const props = defineProps<RuleEditorProps>()
 const emit = defineEmits<{close: [message?: string]}>()
 const {sparkConsume} = useSparkComponent({type: 'dimension-rule-editor'})
+const pageService = consumeRequiredPageService(sparkConsume, 'dimension-rule-editor')
+
 const runtime = sparkConsume(PAGE_RUNTIME)
 function view(key: string): DataView {
   const found = runtime?.resolveView(key)
@@ -359,7 +360,7 @@ function cancel(): void {
 }
 async function confirmDiscard(message: string): Promise<boolean> {
   try {
-    await ElMessageBox.confirm(message, '核对规则结果', {type: 'warning', confirmButtonText: '继续', cancelButtonText: '返回'})
+    if (!await pageService.showConfirm(message, '核对规则结果', {type: 'warning', confirmText: '继续', cancelText: '返回'})) return false
     return true
   } catch (cause) {
     if (cause === 'cancel' || cause === 'close') return false

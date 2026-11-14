@@ -30,9 +30,8 @@ AI用途：恢复外部服务入口时复用标准外壳、通用记录对话框
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
-import {ElMessage, ElMessageBox} from 'element-plus'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {DisplayAlert, RendererButton, RendererSection, RendererTable, type RToolbarProps} from '@spark-appworks/spark-component'
+import {DisplayAlert, PAGE_SERVICE, RendererButton, RendererSection, RendererTable, useSparkComponent, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
@@ -51,6 +50,8 @@ const childRecords = [
   {modelName: 'Base_InterfaceProvider_Account', label: '认证账号'},
 ] as const
 const userViewKey = buildDataViewKey('Base_UserInfo', 'default', scenarioId)
+const {sparkConsume} = useSparkComponent({type: 'api-management-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'api-management-page')
 const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId,
   modelName,
@@ -88,7 +89,7 @@ const unresolvedModifier = computed(() => {
     && row['updateuser'] !== undefined && row['updateuser'] !== null && row['updateuser'] !== '' && !ids.has(row['updateuser']))
 })
 const column = (field: string, label: string, props: Record<string, unknown>): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, sortable: false, showOverflowTooltip: true, ...props}})
+  ({type: 'r-text', props: {field, label, readonly: true, showOverflowTooltip: true, ...props}})
 const columns: SparkNode[] = [
   column('Name', '服务提供商名称', {minWidth: 220}),
   column('BaseURL', 'API 基础 URL', {minWidth: 320}),
@@ -163,8 +164,7 @@ async function closeAi(saved: boolean): Promise<void> {
 
 async function removeProvider(row: DataRow): Promise<void> {
   if (blocked.value) return
-  const confirmed = await ElMessageBox.confirm(`确定要删除服务提供商“${text(row, 'Name')}”吗？`, '删除确认', {type: 'warning'})
-    .then(() => true, () => false)
+  const confirmed = await pageService.showConfirm(`确定要删除服务提供商“${text(row, 'Name')}”吗？`, '删除确认', {type: 'warning'})
   if (!confirmed) return
   busy.value = true; message.value = ''
   const view = list(), id = view.getPkKey(row)
@@ -188,7 +188,7 @@ async function removeProvider(row: DataRow): Promise<void> {
       if (!view.hasUnconfirmedSave) view.discardPendingChanges([id])
       throw new Error(result.error?.message ?? '删除结果未确认，请刷新核验')
     }
-    ElMessage.success('删除成功')
+    pageService.showMessage('删除成功', 'success')
     await refreshList()
   } catch (cause) { message.value = `删除服务提供商失败：${failure(cause)}` } finally { busy.value = false }
 }

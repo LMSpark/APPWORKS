@@ -25,6 +25,8 @@ export type NativeTableLike = {
   setCurrentRow?: (row: DataRow | null) => void
   /** 清除已失效的 UI 排序呈现；不写入 DataView 查询。 */
   clearSort?: () => void
+  /** 将 UI 排序呈现同步回 DataView 当前排序；不写入 DataView 查询。 */
+  sort?: (prop: string, order: string) => void
   /** 重新计算表格列宽和布局。 */
   doLayout?: () => void
 }

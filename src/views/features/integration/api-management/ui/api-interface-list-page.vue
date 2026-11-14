@@ -33,7 +33,6 @@
 <script setup lang="ts">
 import {computed, ref, watch, onBeforeUnmount} from 'vue'
 import {useRoute} from 'vue-router'
-import {ElMessage, ElMessageBox} from 'element-plus'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import type {DataSet, DataRow, DataView, DataViewEditingFieldChangeEvent, SparkNode} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
@@ -47,12 +46,13 @@ import InterfaceInvokePanel from './interface-list/interface-invoke-panel.vue'
 import InterfaceOutputPanel from './interface-list/interface-output-panel.vue'
 import ParameterBindingDialog from './public-parameter-binding/api-public-parameter-binding-dialog.vue'
 type RToolbarProps = SparkComponent.RToolbarProps
-const {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, RendererList, RendererButton, RendererTabs, RendererTabPane, DisplayEmpty} = SparkComponent
+const {PAGE_RUNTIME, PAGE_SERVICE, useSparkComponent, RendererSection, RendererDialog, RendererList, RendererButton, RendererTabs, RendererTabPane, DisplayEmpty, consumeRequiredPageService} = SparkComponent
 const writable = ['Base_DataServiceInterface', '_Base_ParamList', 'Base_InterfaceApi_Headers', 'Base_TblField'] as const
 const props = defineProps<ApiInterfaceListPageProps>()
 const emit = defineEmits<{close: []}>()
 const route = useRoute()
-const {sparkProvide, sparkRemove} = useSparkComponent({type: 'api-interface-list-page'})
+const {sparkProvide, sparkRemove, sparkConsume} = useSparkComponent({type: 'api-interface-list-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'api-interface-list-page')
 const session = new NativePageRuntimeSession({
   provide: () => undefined,
   remove: () => sparkRemove(PAGE_RUNTIME),
@@ -130,7 +130,7 @@ async function removeApi(): Promise<void> {
     if (error.value) return
     if (blocked) {error.value = blocked; return}
   }
-  const confirmed = await ElMessageBox.confirm(`确定要删除接口“${name}”吗？`, '删除确认', {type: 'warning'}).then(() => true, () => false)
+  const confirmed = await pageService.showConfirm(`确定要删除接口“${name}”吗？`, '删除确认', {type: 'warning'})
   if (!confirmed || interfaces.currentRow !== row) return
   await act(async () => {
     const created = interfaces.dirtyTracking.isPendingCreate(id)
@@ -138,16 +138,16 @@ async function removeApi(): Promise<void> {
     if (created) return
     const result = await dataSet?.saveChanges({views: [{tableName: interfaces.tableName, viewId: interfaces.viewId, ids: [id]}]})
     if (!result?.success) throw new Error(result?.error?.message ?? result?.message ?? '删除结果未确认，请重读核验')
-    ElMessage.success('删除成功')
+    pageService.showMessage('删除成功', 'success')
   })
 }
 function saveApi(): Promise<void> {
   return act(async () => {
     const interfaces = requireView('Base_DataServiceInterface'), id = selectedId.value
-    if (id !== undefined && !String(interfaces.getEditingRow(id)?.['RequestType'] ?? '')) {ElMessage.warning('请选择参数类型'); return}
+    if (id !== undefined && !String(interfaces.getEditingRow(id)?.['RequestType'] ?? '')) {pageService.showMessage('请选择参数类型', 'warning'); return}
     const result = await dataSet?.saveChanges({views: [{tableName: interfaces.tableName, viewId: interfaces.viewId}]})
     if (!result?.success) throw new Error(result?.error?.message ?? result?.message ?? '接口保存结果未确认，请重读核验')
-    ElMessage.success('保存成功')
+    pageService.showMessage('保存成功', 'success')
   })
 }
 /** 原页联动：请求地址变化同步路径参数；参数类型在Body/FormData间切换时清空不兼容的请求体。均写当前行编辑覆盖。 */
@@ -202,7 +202,7 @@ async function reload(): Promise<void> {
 async function close(): Promise<void> {
   if (busy.value || bindingWindow.value) return
   if (dirty.value || unconfirmed.value) {
-    const confirmed = await ElMessageBox.confirm('存在未保存的修改，关闭将放弃这些修改。', '关闭确认', {type: 'warning'}).then(() => true, () => false)
+    const confirmed = await pageService.showConfirm('存在未保存的修改，关闭将放弃这些修改。', '关闭确认', {type: 'warning'})
     if (!confirmed || busy.value) return
     if (unconfirmed.value) {error.value = '保存结果尚未确认，请先重读核验'; return}
     for (const item of views.value) item.discardPendingChanges()

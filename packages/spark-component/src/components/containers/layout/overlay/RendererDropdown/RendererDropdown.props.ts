@@ -34,4 +34,6 @@ export type RDropdownProps = SparkNodeProps & SparkFloatingLayerProps & {
     /** 是否使用分裂按钮 */
     splitButton?: boolean
     /** 菜单最大高度 */
-    maxHeight?: number | string}
+    maxHeight?: number | string
+    /** 点击菜单项回调；参数为菜单项 command */
+    onCommand?: (command: string) => void}

@@ -8,9 +8,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
   <div class="app-header">
     <!-- 左侧：折叠按钮 + 标题 -->
     <div class="app-header__left">
-      <button v-if="collapsible" class="header-btn" @click="$emit('toggle-collapse')" title="切换侧栏">
-        <el-icon :size="18"><Expand v-if="collapsed" /><Fold v-else /></el-icon>
-      </button>
+      <SparkComponent.RendererButton v-if="collapsible" class="header-btn" text :icon="collapsed ? 'Expand' : 'Fold'" title="切换侧栏" @click="$emit('toggle-collapse')" />
       <span class="app-header__title">{{ title }}</span>
     </div>
 
@@ -24,34 +22,30 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       <!-- 自定义操作槽位 -->
       <slot name="actions" />
 
-      <el-tooltip
+      <SparkComponent.RendererTooltip
         v-for="item in genericToolbarItems"
         :key="item.id"
         :content="item.title"
         placement="bottom"
         :show-after="300"
       >
-        <button class="header-btn" :disabled="item.disabled" @click="$emit('user-command', toolbarCommand(item))">
-          <NavIcon :name="item.icon" />
-        </button>
-      </el-tooltip>
+        <SparkComponent.RendererButton class="header-btn" text :disabled="item.disabled === true" @click="$emit('user-command', toolbarCommand(item))">
+          <SparkComponent.DisplayIcon v-if="item.icon" :icon="item.icon" />
+        </SparkComponent.RendererButton>
+      </SparkComponent.RendererTooltip>
 
       <!-- 搜索 -->
-      <el-tooltip v-if="hasAction('search')" content="搜索" placement="bottom" :show-after="300">
-        <button class="header-btn" @click="$emit('user-command', 'search')">
-          <el-icon :size="18"><Search /></el-icon>
-        </button>
-      </el-tooltip>
+      <SparkComponent.RendererTooltip v-if="hasAction('search')" content="搜索" placement="bottom" :show-after="300">
+        <SparkComponent.RendererButton class="header-btn" text icon="Search" @click="$emit('user-command', 'search')" />
+      </SparkComponent.RendererTooltip>
 
       <!-- 全屏 -->
-      <el-tooltip v-if="hasAction('fullscreen')" :content="isFullscreen ? '退出全屏' : '全屏'" placement="bottom" :show-after="300">
-        <button class="header-btn" @click="$emit('user-command', 'fullscreen')">
-          <el-icon :size="18"><FullScreen /></el-icon>
-        </button>
-      </el-tooltip>
+      <SparkComponent.RendererTooltip v-if="hasAction('fullscreen')" :content="isFullscreen ? '退出全屏' : '全屏'" placement="bottom" :show-after="300">
+        <SparkComponent.RendererButton class="header-btn" text icon="FullScreen" @click="$emit('user-command', 'fullscreen')" />
+      </SparkComponent.RendererTooltip>
 
       <!-- 通知 -->
-      <el-popover
+      <SparkComponent.RendererPopover
         v-if="hasAction('notifications')"
         placement="bottom-end"
         :width="360"
@@ -60,34 +54,31 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
         popper-class="notification-popover"
       >
         <template #reference>
-          <button class="header-btn">
-            <el-badge :value="unreadCount" :hidden="!unreadCount" :max="99">
-              <el-icon :size="18"><Bell /></el-icon>
-            </el-badge>
-          </button>
+          <SparkComponent.RendererButton class="header-btn" text title="通知">
+            <SparkComponent.DisplayBadge :badge-value="unreadCount" :hidden-badge="!unreadCount" :max="99">
+              <SparkComponent.DisplayIcon icon="Bell" :icon-size="18" />
+            </SparkComponent.DisplayBadge>
+          </SparkComponent.RendererButton>
         </template>
         <div class="notification-panel">
           <div class="notification-panel__header">
             <span class="notification-panel__title">通知</span>
             <div class="notification-panel__actions">
-              <button v-if="desktopPermission === 'default'" class="notification-panel__action" @click="enableDesktopNotifications">开启桌面提醒</button>
-              <span v-else-if="desktopPermission === 'denied'" class="notification-panel__action" title="请在浏览器网站设置中允许通知">桌面提醒已被浏览器禁止</span>
-              <button v-if="unreadCount > 0" class="notification-panel__action" @click="markAllRead">全部已读</button>
-              <button v-if="notifications.length > 0" class="notification-panel__action" @click="clearAll">清空</button>
+              <SparkComponent.RendererButton v-if="desktopPermission === 'default'" link button-type="primary" label="开启桌面提醒" @click="enableDesktopNotifications" />
+              <span v-else-if="desktopPermission === 'denied'" class="notification-panel__hint" title="请在浏览器网站设置中允许通知">桌面提醒已被浏览器禁止</span>
+              <SparkComponent.RendererButton v-if="unreadCount > 0" link button-type="primary" label="全部已读" @click="markAllRead" />
+              <SparkComponent.RendererButton v-if="notifications.length > 0" link button-type="primary" label="清空" @click="clearAll" />
             </div>
           </div>
           <div v-if="syncError" class="notification-panel__error">
             <span>{{ syncError }}</span>
-            <button v-if="offlineStatus === 'failed'" class="notification-panel__action" @click="retryOfflineMessages">重试</button>
+            <SparkComponent.RendererButton v-if="offlineStatus === 'failed'" link button-type="primary" label="重试" @click="retryOfflineMessages" />
           </div>
           <div class="notification-panel__body">
             <div v-if="notifications.length === 0 && offlineStatus === 'loading'" class="notification-panel__empty">
               <p>正在加载离线消息…</p>
             </div>
-            <div v-else-if="notifications.length === 0" class="notification-panel__empty">
-              <el-icon :size="40" style="color: var(--el-text-color-placeholder)"><Bell /></el-icon>
-              <p>暂无通知</p>
-            </div>
+            <SparkComponent.DisplayEmpty v-else-if="notifications.length === 0" description="暂无通知" :image-size="60" />
             <div
               v-for="item in notifications"
               :key="item.id"
@@ -101,76 +92,38 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
                 <div class="notification-item__message">{{ item.message }}</div>
                 <div class="notification-item__time">{{ formatTime(item.time) }}</div>
               </div>
-              <button class="notification-item__close" @click.stop="removeItem(item.id)">&times;</button>
+              <SparkComponent.RendererButton class="notification-item__close" link icon="Close" title="移除" @click.stop="removeItem(item.id)" />
             </div>
           </div>
         </div>
-      </el-popover>
+      </SparkComponent.RendererPopover>
 
       <!-- 主题切换 -->
-      <el-tooltip v-if="hasAction('theme-toggle')" :content="isDark ? '浅色模式' : '深色模式'" placement="bottom" :show-after="300">
-        <button class="header-btn" @click="$emit('user-command', 'theme-toggle')">
-          <el-icon :size="18"><Sunny v-if="isDark" /><Moon v-else /></el-icon>
-        </button>
-      </el-tooltip>
+      <SparkComponent.RendererTooltip v-if="hasAction('theme-toggle')" :content="isDark ? '浅色模式' : '深色模式'" placement="bottom" :show-after="300">
+        <SparkComponent.RendererButton class="header-btn" text :icon="isDark ? 'Sunny' : 'Moon'" @click="$emit('user-command', 'theme-toggle')" />
+      </SparkComponent.RendererTooltip>
 
       <!-- 分隔线 -->
-      <el-divider direction="vertical" class="header-divider" />
+      <SparkComponent.RendererDivider direction="vertical" class="header-divider" />
 
       <!-- 用户下拉 -->
-      <el-dropdown trigger="click" @command="handleUserCommand">
+      <SparkComponent.RendererDropdown trigger="click" :items="userMenu" @command="handleUserCommand">
         <div class="header-user">
-          <el-avatar :size="28" :src="avatar || undefined">
-            {{ avatarText }}
-          </el-avatar>
+          <SparkComponent.DisplayAvatar v-if="avatar" :avatar-size="28" :src="avatar" />
+          <SparkComponent.DisplayAvatar v-else :avatar-size="28" :text="avatarText" />
           <span class="header-user__name">{{ username }}</span>
-          <el-icon :size="12"><ArrowDown /></el-icon>
+          <SparkComponent.DisplayIcon icon="ArrowDown" :icon-size="12" />
         </div>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <template v-if="safeUserMenuItems.length">
-              <template v-for="(item, idx) in safeUserMenuItems" :key="item.id">
-                <el-dropdown-item
-                  :command="item.path ?? item.redirect ?? item.id"
-                  :divided="idx > 0 && safeUserMenuItems[idx - 1]?.dividerAfter === true"
-                >
-                  <span v-if="item.icon" style="margin-right: 4px"><NavIcon :name="item.icon" /></span>{{ item.title }}
-                </el-dropdown-item>
-              </template>
-            </template>
-            <template v-else>
-              <el-dropdown-item command="profile">
-                <el-icon><User /></el-icon>个人中心
-              </el-dropdown-item>
-              <el-dropdown-item command="settings">
-                <el-icon><Setting /></el-icon>系统设置
-              </el-dropdown-item>
-              <el-dropdown-item divided command="home">
-                <el-icon><HomeFilled /></el-icon>应用工场主页
-              </el-dropdown-item>
-              <el-dropdown-item command="platform">
-                <el-icon><Monitor /></el-icon>平台管理
-              </el-dropdown-item>
-            </template>
-            <el-dropdown-item divided command="logout">
-              <el-icon><SwitchButton /></el-icon>退出登录
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
+      </SparkComponent.RendererDropdown>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
-import {
-  Fold, Expand, Search, FullScreen, Bell, Sunny, Moon,
-  User, Setting, SwitchButton, ArrowDown, HomeFilled, Monitor,
-} from '@element-plus/icons-vue'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import { useNotifications } from '@/composables/useNotifications'
 import type { RuntimeNavigationItem } from '@spark-appworks/spark-app'
-import NavIcon from '@/components/NavIcon.vue'
 
 const props = withDefaults(defineProps<{
   title?: string
@@ -253,9 +206,26 @@ function onFullscreenChange() {
 onMounted(() => document.addEventListener('fullscreenchange', onFullscreenChange))
 onBeforeUnmount(() => document.removeEventListener('fullscreenchange', onFullscreenChange))
 
-/* 用户菜单命令 */
-function handleUserCommand(command: string | number | object) {
-  emit('user-command', String(command))
+/* 用户菜单：导航配置驱动，未配置时使用内置项；退出登录始终在末尾 */
+const DEFAULT_USER_MENU: readonly SparkComponent.DropdownItem[] = [
+  { label: '个人中心', command: 'profile', icon: 'User' },
+  { label: '系统设置', command: 'settings', icon: 'Setting' },
+  { label: '应用工场主页', command: 'home', icon: 'HomeFilled', divided: true },
+  { label: '平台管理', command: 'platform', icon: 'Monitor' },
+]
+const userMenu = computed<SparkComponent.DropdownItem[]>(() => {
+  const items = safeUserMenuItems.value
+  const configured = items.map((item, idx) => ({
+    label: item.title,
+    command: String(item.path ?? item.redirect ?? item.id),
+    ...(item.icon ? { icon: item.icon } : {}),
+    divided: idx > 0 && items[idx - 1]?.dividerAfter === true,
+  }))
+  return [...(configured.length ? configured : DEFAULT_USER_MENU), { label: '退出登录', command: 'logout', icon: 'SwitchButton', divided: true }]
+})
+
+function handleUserCommand(command: string) {
+  emit('user-command', command)
 }
 </script>
 
@@ -300,25 +270,24 @@ function handleUserCommand(command: string | number | object) {
 }
 
 /* 通用操作按钮 */
-.header-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.header-btn.el-button {
   width: 32px;
   height: 32px;
-  background: transparent;
-  border: none;
+  margin: 0;
+  padding: 0;
   border-radius: 6px;
   color: inherit;
-  cursor: pointer;
+  font-size: 18px;
   transition: background 0.2s;
 }
 
-.header-btn:hover {
+.header-btn.el-button:hover,
+.header-btn.el-button:focus-visible {
   background: rgba(255, 255, 255, 0.12);
+  color: inherit;
 }
 
-.header-btn:active {
+.header-btn.el-button:active {
   background: rgba(255, 255, 255, 0.18);
 }
 
@@ -392,18 +361,15 @@ function handleUserCommand(command: string | number | object) {
   gap: 8px;
 }
 
-.notification-panel__action {
-  background: none;
-  border: none;
-  color: var(--el-color-primary);
+.notification-panel__actions :deep(.el-button) {
+  margin: 0;
   font-size: 12px;
-  cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 4px;
 }
 
-.notification-panel__action:hover {
-  background: var(--el-fill-color-light);
+.notification-panel__hint {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  padding: 2px 4px;
 }
 
 .notification-panel__body {
@@ -484,14 +450,11 @@ function handleUserCommand(command: string | number | object) {
   margin-top: 4px;
 }
 
-.notification-item__close {
-  background: none;
-  border: none;
-  color: var(--el-text-color-placeholder);
-  font-size: 16px;
-  cursor: pointer;
+.notification-item__close.el-button {
+  margin: 0;
   padding: 0 4px;
-  line-height: 1;
+  color: var(--el-text-color-placeholder);
+  font-size: 14px;
   flex-shrink: 0;
   visibility: hidden;
 }

@@ -31,7 +31,7 @@ async function open(){
  const router=createRouter({history:createMemoryHistory(),routes:[{path:'/json',component:JsonPage,meta:{blueprintScenarioId:SCENE}},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push('/json');await router.isReady()
  const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'json-page-test-host'});const service:PageServiceCapability={copyText:async()=>{},showMessage:()=>{},showConfirm:async()=>true,showPrompt:async()=>null,showAlert:async()=>{},showDialog:async()=> 'cancel',selectEntities:async()=>[],browseFiles:async options=>{state.browseCalls.push(options??{});return state.picked},uploadFiles:async()=>{throw new Error('Direct host upload is forbidden in this JSON flow')},showLoading:()=>{},navigate:()=>{}};sparkProvide(PAGE_SERVICE,service);return()=>h(RouterView)}}),{attachTo:document.body,global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}});wrappers.push(wrapper);await flushPromises()
  const click=async(label:string)=>{const button=wrapper.findAll('button').find(b=>b.text()===label&&b.attributes('disabled')===undefined);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
- const choose=async(index=0)=>{await vi.waitFor(()=>expect(wrapper.findComponent(RendererTable).exists()).toBe(true));await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.trigger('click');await flushPromises();await click('内容编辑')}
+ const choose=async(index=0)=>{await vi.waitFor(()=>expect(wrapper.findComponent(RendererTable).exists()).toBe(true));await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.trigger('click');await flushPromises();await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.findAll('button').find(b=>b.text()==='编辑文件')!.trigger('click');await flushPromises()}
  const edit=async(value:string)=>{wrapper.getComponent(FieldJson).getComponent(JsonTreeEditor).vm.$emit('update:modelValue',value);await flushPromises()}
  return {wrapper,router,click,choose,edit}
 }
@@ -87,8 +87,8 @@ describe('JSON document page on the formal DataSet',()=>{
 it('edits metadata through standard table fields, cancels and saves only the catalog view',async()=>{
  const f=await open();const input=()=>f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON'||item.element.value==='改名')
  expect(input(),'metadata name editor').toBeDefined();await input()!.setValue('改名');await flushPromises()
- await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/json');await f.click('取消目录修改');expect(input()?.element.value).toBe('样例JSON');expect(state.http.saves).toEqual([])
- await input()!.setValue('改名');await flushPromises();await f.click('保存目录');expect(state.http.saves).toHaveLength(1);expect(state.http.records['Base_JsonData']?.[0]?.['name']).toBe('改名');expect(state.uploads).toEqual([]);expect(state.reads).toEqual([])
+ await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/json');await f.click('取消');expect(input()?.element.value).toBe('样例JSON');expect(state.http.saves).toEqual([])
+ await input()!.setValue('改名');await flushPromises();await f.click('保存');expect(state.http.saves).toHaveLength(1);expect(state.http.records['Base_JsonData']?.[0]?.['name']).toBe('改名');expect(state.uploads).toEqual([]);expect(state.reads).toEqual([])
 })
 
 it('keeps catalog edits out of an open content operation',async()=>{
@@ -96,8 +96,8 @@ it('keeps catalog edits out of an open content operation',async()=>{
  await f.edit('{"contentOnly":true}');await f.click('保存内容');expect(state.http.saves).toEqual([]);expect(state.http.records['Base_JsonData']?.[0]?.['name']).toBe('样例JSON')
 })
 it('verifies an unknown catalog save without replaying the database write or touching a file',async()=>{
- const f=await open();const input=f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON');expect(input).toBeDefined();await input!.setValue('改名');await flushPromises();state.http.failAfterWrite=true;await f.click('保存目录');expect(state.http.saves).toHaveLength(1)
- const cancel=f.wrapper.findAll('button').find(b=>b.text()==='取消目录修改');expect(cancel?.attributes('disabled')).toBeDefined();await f.click('核验目录保存结果');expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false);expect(state.uploads).toEqual([])
+ const f=await open();const input=f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON');expect(input).toBeDefined();await input!.setValue('改名');await flushPromises();state.http.failAfterWrite=true;await f.click('保存');expect(state.http.saves).toHaveLength(1)
+ const cancel=f.wrapper.findAll('button').find(b=>b.text()==='取消');expect(cancel?.attributes('disabled')).toBeDefined();await f.click('核验目录保存结果');expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false);expect(state.uploads).toEqual([])
 })
 
 async function setNewName(wrapper:VueWrapper,name:string){const field=wrapper.findAllComponents(FieldText).find(item=>item.props('field')==='name'&&item.props('dataViewKey')===`${SCENE}@Base_JsonData@default`);expect(field,'new catalog name field').toBeDefined();await field!.get('input').setValue(name);await flushPromises()}
@@ -133,7 +133,7 @@ it('does not create a file when the catalog has no usable source name',async()=>
  const f=await open();await f.click('新增');await f.click('创建JSON');expect(state.uploads).toEqual([]);expect(state.http.saves).toEqual([]);expect(f.wrapper.text()).toContain('不能为空')
 })
 it('rejects whitespace-only names through the native catalog column rule',async()=>{
- const f=await open();const input=f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON');expect(input).toBeDefined();await input!.setValue('   ');await flushPromises();await f.click('保存目录');expect(state.http.saves).toEqual([]);expect(f.wrapper.text()).toContain('不能为空')
+ const f=await open();const input=f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON');expect(input).toBeDefined();await input!.setValue('   ');await flushPromises();await f.click('保存');expect(state.http.saves).toEqual([]);expect(f.wrapper.text()).toContain('不能为空')
 })
 
 function pickJson(name:string,text:string,read?:()=>Promise<string>){const file=new File([text],name,{type:'application/json'});Object.defineProperty(file,'text',{value:read??(async()=>text)});state.picked=[{name:file.name,size:file.size,type:file.type,lastModified:file.lastModified,file}]}

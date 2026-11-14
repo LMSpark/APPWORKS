@@ -8,12 +8,13 @@
 </template>
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref} from 'vue'
-import {ElMessage} from 'element-plus'
-import {PAGE_RUNTIME, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_SERVICE, PAGE_RUNTIME, RendererButton, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 
 /** request 为本次发送的企业、验证方式、验证账号与场景；dataViewKey 为发送验证码命令视图。 */
 const props = defineProps<{dataViewKey: string; request: Readonly<{enterpriseName: string; channel: string; account: string; scene: string}>; disabled?: boolean}>()
 const {sparkConsume} = useSparkComponent({type: 'verification-code-button'})
+const pageService = consumeRequiredPageService(sparkConsume, 'verification-code-button')
+
 const sending = ref(false), remaining = ref(0)
 let timer: ReturnType<typeof setInterval> | undefined, active = true
 const label = computed(() => remaining.value > 0 ? `${remaining.value} 秒后重发` : '发送验证码')
@@ -29,7 +30,7 @@ async function send(): Promise<void> {
     const result = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
     if (!result.success) throw result.error ?? new Error('验证码发送未确认')
     if (!active) return
-    ElMessage.success('验证码已发送')
+    pageService.showMessage('验证码已发送', 'success')
     remaining.value = 60
     timer = setInterval(() => {
       remaining.value -= 1
@@ -37,7 +38,7 @@ async function send(): Promise<void> {
     }, 1000)
   } catch (cause) {
     if (id !== undefined && !view.destroyed && view.dirtyTracking.isPendingCreate(id)) view.discardPendingChanges([id])
-    if (active) ElMessage.error(cause instanceof Error ? cause.message : String(cause))
+    if (active) pageService.showMessage(cause instanceof Error ? cause.message : String(cause), 'error')
   } finally {
     if (active) sending.value = false
   }

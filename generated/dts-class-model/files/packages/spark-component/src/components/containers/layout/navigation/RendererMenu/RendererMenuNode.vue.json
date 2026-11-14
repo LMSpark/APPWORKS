@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/navigation/RendererMenu/RendererMenuNode",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenuNode.vue",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenuNode.vue",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/navigation/RendererMenu/RendererMenuNode",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/navigation/RendererMenu/RendererMenuNode\n职责：递归渲染 RendererMenu 的单个菜单项、子菜单或分组。\n边界：只负责呈现与把选择回传给 RendererMenu；不判定激活或导航。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [],
+    "componentName": "RendererMenuNode",
+    "componentType": "r-menu-node",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-14T07:10:57.406Z",
+  "models": {}
+}

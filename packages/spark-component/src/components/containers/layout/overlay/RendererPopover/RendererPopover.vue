@@ -21,11 +21,14 @@ AI用途：需要理解 renderer popover 的实际渲染结构、slot/toolbar/�
     :popper-class="popperClass"
   >
     <template #reference>
-      <SparkComponentRenderer
-        v-for="(child, index) in referenceChildren"
-        :key="nodeId(child) ?? `r-popover-ref-${index}`"
-        :config="child"
-      />
+      <template v-if="referenceChildren.length">
+        <SparkComponentRenderer
+          v-for="(child, index) in referenceChildren"
+          :key="nodeId(child) ?? `r-popover-ref-${index}`"
+          :config="child"
+        />
+      </template>
+      <slot v-else name="reference" />
     </template>
     <template v-if="contentChildren.length" #default>
       <SparkComponentRenderer
@@ -34,12 +37,15 @@ AI用途：需要理解 renderer popover 的实际渲染结构、slot/toolbar/�
         :config="child"
       />
     </template>
+    <template v-else-if="$slots['default']" #default>
+      <slot />
+    </template>
   </el-popover>
 </template>
 
 <script setup lang="ts">
 /**
- * @description 弹出提示容器，支持多种触发方式和位置。
+ * @description 弹出提示容器，支持多种触发方式和位置；触发元素与弹层内容可用 children/contentChildren 或 reference/默认插槽。
  */
 import { computed } from 'vue'
 import { SparkComponentRenderer, useSparkPageComponent } from '../../../../internal'

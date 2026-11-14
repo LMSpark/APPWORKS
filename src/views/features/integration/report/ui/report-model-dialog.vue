@@ -6,8 +6,8 @@
 <template>
   <RendererDialog :model-value="true" :data-view-key="pickerKey" title="选择模型" :width="760" :append-to-body="true" :close-disabled="busy"
     @update:model-value="close">
-    <p v-if="message" role="alert">{{ message }}</p>
-    <p v-if="selectedName" role="status">已选择：{{ selectedName }}</p>
+    <DisplayAlert v-if="message" alert-type="error" :closable="false" :title="message" />
+    <DisplayAlert v-if="selectedName" alert-type="success" :closable="false" :title="`已选择：${selectedName}`" />
     <RendererTable v-if="ready" :data-view-key="pickerKey" :children="columns" :filter="filter" :highlight-current-row="true"
       :show-data-view-meta="false" :on-row-click="choose" :pagination="{pageSizes: [10, 20, 50], showJumper: true}" />
     <template #footer>
@@ -23,7 +23,7 @@ import type {DataRow, DataView, SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import {formatDay, textOf} from './report-format'
 import {commitReportChanges, reportPendingReason} from './report-save'
-const {PAGE_RUNTIME, RendererDialog, RendererTable, RendererButton, useSparkComponent} = Components
+const {PAGE_RUNTIME, RendererDialog, RendererTable, RendererButton, DisplayAlert, useSparkComponent} = Components
 type RFilterProps = Components.RFilterProps
 const props = defineProps<{infoKey: string; reportKey: string; pickerKey: string; infoId: string | number}>()
 const emit = defineEmits<{close: []}>()
@@ -47,8 +47,8 @@ onMounted(async () => {
 })
 
 const columns: SparkNode[] = [
-  {type: 'r-text', props: {field: 'Name', label: '名称', readonly: true, minWidth: 260, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'createtime', label: '创建时间', readonly: true, minWidth: 120, sortable: false, displayFormatter: formatDay}},
+  {type: 'r-text', props: {field: 'Name', label: '名称', readonly: true, minWidth: 260, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'createtime', label: '创建时间', readonly: true, minWidth: 120, displayFormatter: formatDay}},
 ]
 const filter: RFilterProps = {
   autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,

@@ -16,15 +16,15 @@
 </template>
 <script setup lang="ts">
 import {computed} from 'vue'
-import {ElMessage} from 'element-plus'
 import type {DataRow, SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {runFeatureTableAction} from '@/views/features/shared/table/feature-table-actions'
 import {INTERFACE_KEYS, invokeApi, outputFieldsOf, type InterfaceWorkspace} from './interface-list-workspace'
-const {PAGE_RUNTIME, useSparkComponent, RendererForm, RendererButton, RendererTable, DisplayAlert} = SparkComponent
+const {PAGE_RUNTIME, PAGE_SERVICE, useSparkComponent, RendererForm, RendererButton, RendererTable, DisplayAlert, consumeRequiredPageService} = SparkComponent
 const props = defineProps<{workspace: InterfaceWorkspace; pendingCreate: boolean}>()
 const emit = defineEmits<{bind: [row: DataRow]}>()
 const {sparkConsume} = useSparkComponent({type: 'interface-output-panel'})
+const pageService = consumeRequiredPageService(sparkConsume, 'interface-output-panel')
 const runtime = sparkConsume(PAGE_RUNTIME)
 const resolve = (key: string) => {
   const view = runtime?.resolveView(key)
@@ -46,7 +46,7 @@ const pending = computed(() => {
 const actions = computed<SparkComponent.RToolbarProps>(() => ({children: [{type: 'r-button', props: {label: '设置公共参数', buttonType: 'primary', link: true,
   disabled: props.workspace.locked || pending.value, onClick: (row: DataRow) => emit('bind', row)}}]}))
 function save(): Promise<void> {
-  return props.workspace.run(() => runFeatureTableAction(resolve(INTERFACE_KEYS.outputs), 'save'))
+  return props.workspace.run(() => runFeatureTableAction(resolve(INTERFACE_KEYS.outputs), 'save', pageService))
 }
 function resetOutputs(): Promise<void> {
   return props.workspace.run(async () => {
@@ -74,7 +74,7 @@ function resetOutputs(): Promise<void> {
       if (id !== undefined) await outputs.removeRow(id)
     }
     for (const field of fields) if (!names.has(field.enname)) await outputs.addRow({tblname: 'api_output_info', enname: field.enname, DataType: field.DataType, IsPKey: 0, Memo: ''})
-    ElMessage.success('输出内容已重置，保存后生效')
+    pageService.showMessage('输出内容已重置，保存后生效', 'success')
   })
 }
 </script>

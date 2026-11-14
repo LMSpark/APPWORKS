@@ -45,14 +45,15 @@ AI用途：迁移系统运维数据恢复时，核对级联输入、data_id取�
 
 <script setup lang="ts">
 import {computed, nextTick, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
-import {ElMessageBox} from 'element-plus'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import type {RToolbarProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
-const {RendererSection, RendererForm, RendererTable, RendererTabs, RendererTabPane, FieldSelect} = Components
+const {PAGE_SERVICE, RendererSection, RendererForm, RendererTable, RendererTabs, RendererTabPane, FieldSelect, useSparkComponent, consumeRequiredPageService} = Components
 const scenarioId = '70D5D8FACCC201A822F64B16A441BE8F'
+const {sparkConsume} = Components.useSparkComponent({type: 'data-recovery-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'data-recovery-page')
 const {session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Base_AppSystemList', componentType: 'data-recovery-page', title: '数据恢复',
 })
@@ -61,7 +62,7 @@ const appKey = key('Base_AppSystemList'), dbKey = key('Base_AppAndSource_Relatio
 const fieldKey = key('Base_TblField'), deletedKey = key('获取软删除的数据'), allKey = key('获取表数据')
 const recoveredKey = key('Base_TableData_Recovery')
 const text = (field: string, label: string, minWidth = 140): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, minWidth, sortable: false, showOverflowTooltip: true}})
+  ({type: 'r-text', props: {field, label, readonly: true, minWidth, showOverflowTooltip: true}})
 const tableFields: SparkNode[] = [text('tbldesc', '表描述', 120), text('tblname', '表名', 120)]
 const recoveredFields: SparkNode[] = [text('sys_id', '应用系统ID'), text('db_id', '数据库ID'), text('data_id', '表数据ID'),
   text('recovery_date', '恢复操作日期', 160), text('table_id', '表名称'), text('recovery_userid', '恢复操作人')]
@@ -69,7 +70,11 @@ const tab = ref<string | number>('deleted')
 const table = shallowRef<{rowid: string; label: string}>()
 const columns = shallowRef<readonly {name: string; label: string}[]>([])
 const columnsEpoch = ref(0), busy = ref(false), message = ref(''), notice = ref('')
-const dataFields = computed(() => columns.value.map(column => text(column.name, column.label)))
+/** 软删除读取适配器拒绝排序，表数据列为运行时生成、不在视图输出合同内，二者均不提供表头排序。 */
+const dataFields = computed(() => columns.value.map(column => {
+  const node = text(column.name, column.label)
+  return {...node, props: {...node.props, sortable: false}}
+}))
 const view = (dataViewKey: string): DataView => {
   const found = session.runtime?.resolveView(dataViewKey)
   if (!found) throw new Error(`数据恢复缺少正式视图 ${dataViewKey}`)
@@ -137,7 +142,7 @@ const recoveredActions = computed<RToolbarProps>(() => ({children: [{type: 'r-bu
 }}]}))
 
 async function confirm(text: string): Promise<boolean> {
-  return ElMessageBox.confirm(text, '提示', {type: 'warning'}).then(() => true, () => false)
+  return pageService.showConfirm(text, '提示', {type: 'warning'})
 }
 /** 一次恢复记录提交：目标视图、记录主键、失败后丢弃本地变更的方式及成功提示。 */
 type RecoveryCommit = Readonly<{target: DataView; id: string | number; discard: () => void; done: string}>

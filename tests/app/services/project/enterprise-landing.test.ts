@@ -52,11 +52,8 @@ const dataSet = vi.hoisted(() => ({
   destroy: vi.fn(() => { state.destroyed++ }),
 }))
 
-vi.mock('element-plus', () => ({
-  ElMessage: {
-    info: (message: string) => state.messages.push(`info:${message}`),
-    warning: (message: string) => state.messages.push(`warning:${message}`),
-  },
+const ui = vi.hoisted(() => ({
+  showMessage: (message: string, type: 'info' | 'warning' = 'info') => state.messages.push(`${type}:${message}`),
 }))
 vi.mock('@spark-appworks/spark-app', () => ({getNavHomePath: () => '/home'}))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
@@ -77,7 +74,7 @@ function switchProbe() {
 }
 
 async function land(router = routerProbe(), projectSwitch = switchProbe()) {
-  await enterEnterpriseLanding({router, projectSwitch})
+  await enterEnterpriseLanding({router, projectSwitch, ui})
   return {router, projectSwitch}
 }
 

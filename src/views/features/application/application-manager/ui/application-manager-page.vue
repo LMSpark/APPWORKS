@@ -23,10 +23,9 @@ AI用途：恢复应用管理入口时复用本地正式场景、标准组件与
 <script setup lang="ts">
 import {computed, inject, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRouter} from 'vue-router'
-import {ElMessage, ElMessageBox} from 'element-plus'
 import {getNavHomePath, SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererSection, RendererTable, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import {PAGE_SERVICE, RendererButton, RendererSection, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {lowcodeApi, readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
 import {buildApplicationPath} from '@/services/application-scope'
 import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
@@ -38,6 +37,8 @@ import ApplicationRelationDialogs from './application-relation-dialogs.vue'
 
 const {APPLICATION_MANAGER_SCENARIO: scenarioId, ApplicationManagerRecord, readApplicationId, readText} = Model
 const modelName = 'Base_AppSystemList'
+const {sparkConsume} = useSparkComponent({type: 'application-manager-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'application-manager-page')
 const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId,
   modelName,
@@ -69,7 +70,7 @@ const pageView = () => {
   return found
 }
 const failure = (cause: unknown) => cause instanceof Error ? cause.message : String(cause)
-const notDelivered = (label: string) => () => ElMessage.info(`${label}尚未交付`)
+const notDelivered = (label: string) => () => pageService.showMessage(`${label}尚未交付`, 'info')
 
 const header = computed(() => ({children: [
   {type: 'r-button', props: {label: '新增', buttonType: 'primary', disabled: !ready.value || busy.value, onClick: openCreate}},
@@ -77,7 +78,7 @@ const header = computed(() => ({children: [
   ...(ready.value ? [{type: 'r-button', props: {dataViewKey: viewKey, label: '刷新', action: 'refresh'}}] : []),
 ]}))
 const column = (field: string, label: string, props: Record<string, unknown>): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, sortable: false, showOverflowTooltip: true, ...props}})
+  ({type: 'r-text', props: {field, label, readonly: true, showOverflowTooltip: true, ...props}})
 const fields: SparkNode[] = [
   column('AppDesc', '简称', {minWidth: 200, cellAction: (row: Readonly<DataRow>) => void openEdit(row),
     cellActionEnabled: (row: Readonly<DataRow>) => canEdit(row)}),
@@ -85,7 +86,7 @@ const fields: SparkNode[] = [
   column('WebUrl', 'WebUrl', {minWidth: 200}),
   column('DeveloperName', '开发商名称', {minWidth: 160}),
   column('CreateTime', '创建时间', {minWidth: 120, displayFormatter: (value: unknown) => String(value ?? '').slice(0, 10)}),
-  {type: 'r-select', props: {field: 'AppType', label: '状态', readonly: true, minWidth: 120, sortable: false,
+  {type: 'r-select', props: {field: 'AppType', label: '状态', readonly: true, minWidth: 120,
     optionDataViewKey: statusViewKey, optionValueField: 'val', optionLabelField: 'txt'}},
 ]
 const filter: RFilterProps = {
@@ -172,18 +173,18 @@ async function afterSaved(): Promise<void> {
 async function removeApplication(row: DataRow): Promise<void> {
   if (busy.value) return
   const title = readText(row, 'AppDesc') || readText(row, 'AppName') || readText(row, 'rowid')
-  const confirmed = await ElMessageBox.confirm(`确认删除应用系统“${title}”吗？`, '删除确认', {type: 'warning'}).then(() => true, () => false)
+  const confirmed = await pageService.showConfirm(`确认删除应用系统“${title}”吗？`, '删除确认', {type: 'warning'})
   if (!confirmed) return
   busy.value = true; message.value = ''
   try {
-    ElMessage.success(await Model.deleteApplication(dataSet(), row))
+    pageService.showMessage(await Model.deleteApplication(dataSet(), row), 'success')
     await pageView().refresh()
   } catch (cause) { message.value = `删除应用系统失败：${failure(cause)}` } finally { busy.value = false }
 }
 
 function openRelations(row: DataRow): void {
   const id = readApplicationId(row, pageView())
-  if (!id) { ElMessage.error('关联数据库缺少可读的应用身份'); return }
+  if (!id) { pageService.showMessage('关联数据库缺少可读的应用身份', 'error'); return }
   relationTarget.value = {id, title: readText(row, 'AppDesc') || readText(row, 'AppName')}
 }
 
@@ -221,7 +222,7 @@ async function saveDefaultApplication(row: DataRow | null): Promise<void> {
     if (row && !id) throw new Error('应用目录缺少可读的应用身份')
     await config.save(row ? id : null)
     defaultApplicationId.value = config.applicationId
-    ElMessage.success(row ? '已设为企业默认应用' : '已取消企业默认应用')
+    pageService.showMessage(row ? '已设为企业默认应用' : '已取消企业默认应用', 'success')
   } catch (cause) {
     message.value = `默认应用保存未确认：${failure(cause)}`
   } finally {
@@ -242,12 +243,12 @@ async function enterApplication(row: DataRow, target: ApplicationTarget): Promis
   if (failed) throw new Error('应用页面导航未完成')
 }
 async function openApplication(row: DataRow): Promise<void> {
-  try { await enterApplication(row, {path: getNavHomePath()}) } catch (cause) { ElMessage.error(`进入应用失败：${failure(cause)}`) }
+  try { await enterApplication(row, {path: getNavHomePath()}) } catch (cause) { pageService.showMessage(`进入应用失败：${failure(cause)}`, 'error') }
 }
 async function openProjectManagement(row: DataRow): Promise<void> {
   try {
     await enterApplication(row, {path: PROJECT_MANAGEMENT_PATH, query: {[SYSTEM_PAGE_NAVIGATION_ID_QUERY]: PROJECT_MANAGEMENT_NODE_ID}})
-  } catch (cause) { ElMessage.error(`进入项目管理失败：${failure(cause)}`) }
+  } catch (cause) { pageService.showMessage(`进入项目管理失败：${failure(cause)}`, 'error') }
 }
 
 function openApplicationLink(row: DataRow): void {
@@ -255,21 +256,21 @@ function openApplicationLink(row: DataRow): void {
   try {
     url = Model.resolveApplicationWebUrl(row, pageView())
   } catch (cause) {
-    ElMessage.error(`应用链接不可用：${failure(cause)}`)
+    pageService.showMessage(`应用链接不可用：${failure(cause)}`, 'error')
     return
   }
   try {
     window.open(url, '_blank', 'noopener,noreferrer')
-    ElMessage.info('已请求打开应用链接；浏览器打开状态无法确认。')
+    pageService.showMessage('已请求打开应用链接；浏览器打开状态无法确认。', 'info')
   } catch (cause) {
-    ElMessage.warning(`请求打开应用链接时浏览器报错：${failure(cause)}；打开状态无法确认。`)
+    pageService.showMessage(`请求打开应用链接时浏览器报错：${failure(cause)}；打开状态无法确认。`, 'warning')
   }
 }
 
 let documentGeneration = 0
 async function submitApplicationDocument(row: DataRow, kind: 'requirements-specification' | 'system-detailed-design'): Promise<void> {
   if (documentSubmitting.value) {
-    ElMessage.warning('文档任务正在提交，请勿重复操作。')
+    pageService.showMessage('文档任务正在提交，请勿重复操作。', 'warning')
     return
   }
   const current = session.runtime
@@ -284,10 +285,10 @@ async function submitApplicationDocument(row: DataRow, kind: 'requirements-speci
     const receipt = await lowcodeApi.blueprint.submitDocument(projectId, kind)
     if (generation !== documentGeneration || !session.isCurrent(current)) return
     if (receipt.status !== 'submitted' || receipt.coverage !== 'legacy-menu-scope') throw new Error('文档提交回执格式未知')
-    ElMessage.info(`${label}请求已收到提交回执；文件生成状态未知。`)
+    pageService.showMessage(`${label}请求已收到提交回执；文件生成状态未知。`, 'info')
   } catch (cause) {
     if (generation !== documentGeneration || (current && !session.isCurrent(current))) return
-    ElMessage.error(`${label}提交结果未确认：${failure(cause)}`)
+    pageService.showMessage(`${label}提交结果未确认：${failure(cause)}`, 'error')
   } finally {
     if (generation === documentGeneration) documentSubmitting.value = false
   }

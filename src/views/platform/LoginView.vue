@@ -31,10 +31,9 @@ AI用途：需要理解未登录时如何经 SPARK data 命令视图登录、注
 <script setup lang="ts">
 import {inject, onBeforeUnmount, onMounted, ref} from 'vue'
 import {useRouter} from 'vue-router'
-import {ElMessage} from 'element-plus'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataView} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME, RendererButton, useSparkComponent, type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
+import {PAGE_SERVICE, PAGE_RUNTIME, RendererButton, useSparkComponent, type DataViewRecordEditingFinish, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {getPublicScenarioResource} from '@/registries/system-scenario-registry'
 import {loadLowcodePublicScenario} from '@/lowcode/data-space/lowcode-public-scenario'
 import {PROJECT_SWITCH_KEY, reloadAndSyncNavigation} from '@/services/project/project-shell'
@@ -58,7 +57,9 @@ const router = useRouter()
 const projectSwitch = inject(PROJECT_SWITCH_KEY, null)
 const requestedTab = sessionStorage.getItem(LOGIN_TAB_KEY)
 if (requestedTab) sessionStorage.removeItem(LOGIN_TAB_KEY)
-const {sparkProvide, sparkRemove} = useSparkComponent({type: 'platform-login-page'})
+const {sparkProvide, sparkRemove, sparkConsume} = useSparkComponent({type: 'platform-login-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'platform-login-page')
+
 const session = new NativePageRuntimeSession({provide: () => undefined, remove: () => sparkRemove(PAGE_RUNTIME)})
 const ready = ref(false), loadError = ref(''), catalogError = ref(''), entering = ref(false)
 const loginId = ref<string | number>(), userId = ref<string | number>(), tenantId = ref<string | number>()
@@ -121,7 +122,7 @@ async function rejectLogin(reason: string): Promise<void> {
   try {
     loginId.value = await reopenCommand(tables.login, id, ['enterpriseName', 'account'])
     loginRejection.value = reason
-  } catch (cause) {if (active) ElMessage.error(message(cause))}
+  } catch (cause) {if (active) pageService.showMessage(message(cause), 'error')}
 }
 
 async function rejectUserRegistration(reason: string): Promise<void> {
@@ -130,7 +131,7 @@ async function rejectUserRegistration(reason: string): Promise<void> {
   try {
     userId.value = await reopenCommand(tables.user, id, ['enterpriseName', 'account', 'displayName', 'sex', 'channel', 'contact', 'verificationCode'])
     userRejection.value = reason
-  } catch (cause) {if (active) ElMessage.error(message(cause))}
+  } catch (cause) {if (active) pageService.showMessage(message(cause), 'error')}
 }
 
 async function rejectTenantRegistration(reason: string): Promise<void> {
@@ -140,7 +141,7 @@ async function rejectTenantRegistration(reason: string): Promise<void> {
     tenantId.value = await reopenCommand(tables.tenant, id,
       ['domainKey', 'englishName', 'chineseName', 'chineseShortName', 'administratorAccount', 'channel', 'verificationAccount', 'verificationCode'])
     tenantRejection.value = reason
-  } catch (cause) {if (active) ElMessage.error(message(cause))}
+  } catch (cause) {if (active) pageService.showMessage(message(cause), 'error')}
 }
 
 async function load(): Promise<void> {
@@ -172,10 +173,10 @@ async function enter(identity: Readonly<{enterpriseName: string; account: string
   try {
     localStorage.setItem(ENTERPRISE_KEY, identity.enterpriseName)
     await reloadAndSyncNavigation()
-    await enterEnterpriseLanding({router, projectSwitch})
+    await enterEnterpriseLanding({router, projectSwitch, ui: pageService})
   } catch (cause) {
     // 应用范围切换会卸载本页，失败只能经全局提示呈现，不得因本页已关闭而吞掉。
-    ElMessage.error(message(cause))
+    pageService.showMessage(message(cause), 'error')
     if (active) await openLogin(identity)
   } finally {
     if (active) entering.value = false
@@ -187,7 +188,7 @@ async function finishLogin(result: DataViewRecordEditingFinish): Promise<void> {
   const row = receipt(tables.login, loginId.value)
   const identity = {enterpriseName: text(row, 'enterpriseName'), account: text(row, 'account')}
   if (text(row, 'outcome') !== 'signed-in' || !identity.enterpriseName) {
-    ElMessage.error('登录已返回，但回执不可读；请重新登录')
+    pageService.showMessage('登录已返回，但回执不可读；请重新登录', 'error')
     await openLogin(identity)
     return
   }
@@ -200,7 +201,7 @@ async function openUserRegistration(): Promise<void> {
     userRejection.value = ''
     userId.value = await addCommand(tables.user, {enterpriseName: localStorage.getItem(ENTERPRISE_KEY) ?? '', account: '', displayName: '',
       sex: 'F', channel: 'EMAIL', contact: '', verificationCode: '', password: '', confirmPassword: ''})
-  } catch (cause) {if (active) ElMessage.error(message(cause))}
+  } catch (cause) {if (active) pageService.showMessage(message(cause), 'error')}
 }
 
 async function openTenantRegistration(): Promise<void> {
@@ -209,7 +210,7 @@ async function openTenantRegistration(): Promise<void> {
     tenantRejection.value = ''
     tenantId.value = await addCommand(tables.tenant, {domainKey: '', englishName: '', chineseName: '', chineseShortName: '',
       administratorAccount: 'admin', administratorPassword: '', channel: 'MOBILE', verificationAccount: '', verificationCode: ''})
-  } catch (cause) {if (active) ElMessage.error(message(cause))}
+  } catch (cause) {if (active) pageService.showMessage(message(cause), 'error')}
 }
 
 async function finishRegistration(kind: 'user' | 'tenant', result: DataViewRecordEditingFinish): Promise<void> {
@@ -224,10 +225,10 @@ async function finishRegistration(kind: 'user' | 'tenant', result: DataViewRecor
   const outcome = text(row, 'outcome')
   if (outcome === 'signed-in') {await enter(identity); return}
   if (outcome === 'registered') {
-    ElMessage.success({message: `注册成功，暂未能自动登录：${text(row, 'message')}`, duration: 8000})
+    pageService.showMessage(`注册成功，暂未能自动登录：${text(row, 'message')}`, 'success')
     return
   }
-  ElMessage.error('注册已返回，但回执不可读；请稍后直接登录确认')
+  pageService.showMessage('注册已返回，但回执不可读；请稍后直接登录确认', 'error')
 }
 
 function goHome(): void {

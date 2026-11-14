@@ -20,13 +20,6 @@
       "hidden": true
     },
     {
-      "path": "/about",
-      "title": "关于",
-      "icon": "InfoFilled",
-      "scope": "public",
-      "source": "src/views/platform/About.vue"
-    },
-    {
       "path": "/app-list",
       "title": "应用列表",
       "icon": "Grid",

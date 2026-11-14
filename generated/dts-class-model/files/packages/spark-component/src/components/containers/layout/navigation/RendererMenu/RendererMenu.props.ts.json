@@ -1,0 +1,382 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/navigation/RendererMenu/RendererMenu.props",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/navigation/RendererMenu/RendererMenu.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/navigation/RendererMenu/RendererMenu.props\n职责：定义 RendererMenu（r-menu）的配置属性契约，描述导航菜单项树、方向、折叠、激活与选择事件。\n边界：只描述菜单呈现与选择回调；菜单项由调用方给出，激活与当前页由调用方判定，组件不创建导航数据或路由。\nAI用途：生成侧栏/顶部导航配置时，用本模块判断 r-menu 允许的 props 与菜单项字段。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "MenuItem",
+      "RMenuProps"
+    ],
+    "componentName": "RendererMenu",
+    "componentType": "r-menu",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {
+    "MenuItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "MenuItem",
+      "properties": {
+        "index": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "badge": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "active": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "current": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "dividerAfter": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "group": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "titleSelectable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MenuItem"
+          }
+        }
+      },
+      "required": [
+        "index",
+        "label"
+      ],
+      "additionalProperties": false
+    },
+    "RMenuProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RMenuProps",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MenuItem"
+          }
+        },
+        "mode": {
+          "enum": [
+            "vertical",
+            "horizontal"
+          ]
+        },
+        "collapse": {
+          "type": "boolean"
+        },
+        "activeIndex": {
+          "type": "string"
+        },
+        "ellipsis": {
+          "type": "boolean"
+        },
+        "menuTrigger": {
+          "enum": [
+            "hover",
+            "click"
+          ]
+        },
+        "showTimeout": {
+          "type": "number"
+        },
+        "hideTimeout": {
+          "type": "number"
+        },
+        "popperClass": {
+          "type": "string"
+        },
+        "backgroundColor": {
+          "type": "string"
+        },
+        "textColor": {
+          "type": "string"
+        },
+        "activeTextColor": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onSelect.params": {
+          "type": "object",
+          "properties": {
+            "index": {
+              "type": "string"
+            },
+            "item": {
+              "$ref": "#/$defs/MenuItem"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onSelect.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-14T07:10:50.322Z",
+  "models": {
+    "MenuItem": {
+      "name": "MenuItem",
+      "jsdoc": "菜单项：index 在整棵菜单内唯一；children 非空时为子菜单，group 为 true 时按带标题分组平铺。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererMenu",
+        "type": "r-menu",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 菜单项唯一标识，select 事件回传此值 */\n    index: string;\n    /** 菜单项文本 */\n    label: string;\n    /** 图标名称，按 DisplayIcon 规则解析 */\n    icon?: string;\n    /** 徽标文本或数字；空值不显示 */\n    badge?: string | number;\n    /** 是否禁用 */\n    disabled?: boolean;\n    /** 调用方判定的激活高亮（可与 activeIndex 不同，例如父级目录随子页面高亮） */\n    active?: boolean;\n    /** 是否为当前页面，用于 aria-current=\"page\" */\n    current?: boolean;\n    /** 之后显示分隔 */\n    dividerAfter?: boolean;\n    /** children 按带标题分组平铺，而不是折叠子菜单 */\n    group?: boolean;\n    /** 子菜单标题点击时也触发 select（标题本身对应可导航目标） */\n    titleSelectable?: boolean;\n    /** 子菜单或分组的子项 */\n    children?: MenuItem[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "index",
+              "jsdoc": "菜单项唯一标识，select 事件回传此值",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "label",
+              "jsdoc": "菜单项文本",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "icon",
+              "jsdoc": "图标名称，按 DisplayIcon 规则解析",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "badge",
+              "jsdoc": "徽标文本或数字；空值不显示",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "是否禁用",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "active",
+              "jsdoc": "调用方判定的激活高亮（可与 activeIndex 不同，例如父级目录随子页面高亮）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "current",
+              "jsdoc": "是否为当前页面，用于 aria-current=\"page\"",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dividerAfter",
+              "jsdoc": "之后显示分隔",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "group",
+              "jsdoc": "children 按带标题分组平铺，而不是折叠子菜单",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleSelectable",
+              "jsdoc": "子菜单标题点击时也触发 select（标题本身对应可导航目标）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "jsdoc": "子菜单或分组的子项",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RMenuProps": {
+      "name": "RMenuProps",
+      "jsdoc": "RMenu Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererMenu",
+        "type": "r-menu",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 菜单项树 */\n    items?: MenuItem[];\n    /** 方向；默认 vertical */\n    mode?: 'vertical' | 'horizontal';\n    /** 纵向折叠：顶层只显示图标 */\n    collapse?: boolean;\n    /** 当前激活菜单项 index */\n    activeIndex?: string;\n    /** 横向空间不足时把溢出项收进“更多”子菜单；默认 true */\n    ellipsis?: boolean;\n    /** 子菜单展开方式 */\n    menuTrigger?: 'hover' | 'click';\n    /** 子菜单展开延迟（毫秒） */\n    showTimeout?: number;\n    /** 子菜单收起延迟（毫秒） */\n    hideTimeout?: number;\n    /** 弹出子菜单的 popper 类名 */\n    popperClass?: string;\n    /** 背景色 */\n    backgroundColor?: string;\n    /** 文字颜色 */\n    textColor?: string;\n    /** 激活项文字颜色 */\n    activeTextColor?: string;\n    /** 选择菜单项回调；参数为菜单项 index 与菜单项 */\n    onSelect?: (index: string, item: MenuItem) => void;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 菜单项树 */\n    items?: MenuItem[];\n    /** 方向；默认 vertical */\n    mode?: 'vertical' | 'horizontal';\n    /** 纵向折叠：顶层只显示图标 */\n    collapse?: boolean;\n    /** 当前激活菜单项 index */\n    activeIndex?: string;\n    /** 横向空间不足时把溢出项收进“更多”子菜单；默认 true */\n    ellipsis?: boolean;\n    /** 子菜单展开方式 */\n    menuTrigger?: 'hover' | 'click';\n    /** 子菜单展开延迟（毫秒） */\n    showTimeout?: number;\n    /** 子菜单收起延迟（毫秒） */\n    hideTimeout?: number;\n    /** 弹出子菜单的 popper 类名 */\n    popperClass?: string;\n    /** 背景色 */\n    backgroundColor?: string;\n    /** 文字颜色 */\n    textColor?: string;\n    /** 激活项文字颜色 */\n    activeTextColor?: string;\n    /** 选择菜单项回调；参数为菜单项 index 与菜单项 */\n    onSelect?: (index: string, item: MenuItem) => void;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "items",
+              "jsdoc": "菜单项树",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "jsdoc": "方向；默认 vertical",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "collapse",
+              "jsdoc": "纵向折叠：顶层只显示图标",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "activeIndex",
+              "jsdoc": "当前激活菜单项 index",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ellipsis",
+              "jsdoc": "横向空间不足时把溢出项收进“更多”子菜单；默认 true",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "menuTrigger",
+              "jsdoc": "子菜单展开方式",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showTimeout",
+              "jsdoc": "子菜单展开延迟（毫秒）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hideTimeout",
+              "jsdoc": "子菜单收起延迟（毫秒）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "popperClass",
+              "jsdoc": "弹出子菜单的 popper 类名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "backgroundColor",
+              "jsdoc": "背景色",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textColor",
+              "jsdoc": "文字颜色",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "activeTextColor",
+              "jsdoc": "激活项文字颜色",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onSelect",
+              "jsdoc": "选择菜单项回调；参数为菜单项 index 与菜单项",
+              "parameters": [
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "item",
+                  "type": {
+                    "type": "reference",
+                    "name": "MenuItem",
+                    "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

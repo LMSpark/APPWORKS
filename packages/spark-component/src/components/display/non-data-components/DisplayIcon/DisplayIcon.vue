@@ -5,19 +5,21 @@
 AI用途：需要理解 display icon 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <el-icon v-if="isVisible" :size="iconSize" :color="color">
-    <component :is="resolvedIconComponent" v-if="resolvedIconComponent" />
+  <el-icon v-if="isVisible && resolvedIconComponent" :size="iconSize" :color="color">
+    <component :is="resolvedIconComponent" />
   </el-icon>
+  <span v-else-if="isVisible && resolved.text" class="display-icon-text" :style="textStyle">{{ resolved.text }}</span>
 </template>
 
 <script setup lang="ts">
 /**
- * @description 图标展示组件，解析图标名称渲染为 Element Plus 图标组件，支持尺寸和颜色配置。
+ * @description 图标展示组件，解析图标名称（含历史导航类名别名）渲染为 Element Plus 图标组件，支持尺寸、颜色与 fallback。
  */
 import { computed, markRaw, type Component } from 'vue'
 import * as ElIcons from '@element-plus/icons-vue'
 import { useSparkPageComponent } from '../../../internal'
 import type { RDisplayIconProps } from './DisplayIcon.props'
+import { resolveDisplayIconName } from './display-icon-name'
 
 const props = withDefaults(defineProps<RDisplayIconProps>(), {
   type: 'display-icon',
@@ -25,10 +27,25 @@ const props = withDefaults(defineProps<RDisplayIconProps>(), {
 
 const { isVisible } = useSparkPageComponent(props)
 
+const resolved = computed(() => resolveDisplayIconName(props.icon, props.fallback))
+
 const resolvedIconComponent = computed((): Component | null => {
-  if (!props.icon) return null
-  const entry = Object.entries(ElIcons).find(([key]) => key === props.icon)
+  const name = resolved.value.icon
+  if (!name) return null
+  const entry = Object.entries(ElIcons).find(([key]) => key === name)
   return entry ? markRaw(entry[1]) : null
+})
+
+const textStyle = computed(() => {
+  const size = props.iconSize
+  return size === undefined ? undefined : { fontSize: typeof size === 'number' ? `${size}px` : size }
 })
 </script>
 
+<style scoped>
+.display-icon-text {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+</style>

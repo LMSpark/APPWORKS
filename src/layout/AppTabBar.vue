@@ -15,7 +15,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
         @click="perform(() => switchTo(tab.id))"
         @contextmenu.prevent="onContextMenu($event, tab)"
       >
-        <span class="app-tab-bar__tab-icon" v-if="tab.icon"><NavIcon :name="tab.icon" /></span>
+        <span class="app-tab-bar__tab-icon" v-if="tab.icon"><DisplayIcon :icon="tab.icon" /></span>
         <span class="app-tab-bar__tab-title">{{ tab.title }}</span>
         <span
           v-if="tab.closable"
@@ -49,13 +49,15 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 import { inject, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTabPages } from '@spark-appworks/spark-app'
-import { ElMessage } from 'element-plus'
 import type { TabPage } from '@spark-appworks/spark-app'
-import NavIcon from '@/components/NavIcon.vue'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import { parseApplicationPathScope } from '@/services/application-scope'
+import {consumeRequiredPageService, DisplayIcon, useSparkComponent} from '@spark-appworks/spark-component'
 
 const router = useRouter()
+const {sparkConsume} = useSparkComponent({type: 'app-tab-bar'})
+
+const pageService = consumeRequiredPageService(sparkConsume, 'app-tab-bar')
 const route = useRoute()
 const projectSwitchService = inject(PROJECT_SWITCH_KEY, null)
 
@@ -85,7 +87,7 @@ const { tabs, activeTab, closeTab, closeOthers, closeAll, switchTo } = useTabPag
 })
 
 function perform(action: () => Promise<void>): void {
-  void action().catch(error => ElMessage.error(error instanceof Error ? error.message : String(error)))
+  void action().catch(error => pageService.showMessage(error instanceof Error ? error.message : String(error), 'error'))
 }
 
 /* ── 右键菜单 ── */

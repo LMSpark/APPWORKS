@@ -53,7 +53,7 @@ import {selectExcelTemplate,cancelExcelTemplate,saveExcelTemplate,readExcelTempl
 import ExcelEditor from './excel-import-editor-page.vue'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 
-const {PAGE_RUNTIME,PAGE_SERVICE,RendererTable,RendererDialog,RendererForm,RendererButton,useSparkComponent}=SparkComponent
+const {PAGE_RUNTIME,PAGE_SERVICE,RendererTable,RendererDialog,RendererForm,RendererButton,useSparkComponent,consumeRequiredPageService}=SparkComponent
 const route = useRoute()
 const designTarget = ref('')
 const designPage = ref<{hasPending: boolean; busy: boolean; unconfirmed: boolean; discardChanges: () => boolean}>()
@@ -63,7 +63,7 @@ const session = new NativePageRuntimeSession({
   provide: () => undefined,
   remove: () => sparkRemove(PAGE_RUNTIME),
 })
-const pageService=sparkConsume(PAGE_SERVICE)
+const pageService=consumeRequiredPageService(sparkConsume,'excel-import-list-page')
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 const editingId=ref<string|number>(),acting=ref(false)
 const creation=computed(()=>{revision.value;const ds=view.value?.dataSet;return ds?readExcelSchemeCreation(ds):undefined})

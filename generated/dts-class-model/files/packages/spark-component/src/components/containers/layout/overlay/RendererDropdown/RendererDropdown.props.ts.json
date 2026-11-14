@@ -57,48 +57,6 @@
       "type": "object",
       "title": "RDropdownProps",
       "properties": {
-        "type": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "children": {
-          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
-        },
-        "permissionDeniedMode": {
-          "enum": [
-            "disable",
-            "hide"
-          ]
-        },
-        "placement": {
-          "type": "string"
-        },
-        "effect": {
-          "enum": [
-            "light",
-            "dark"
-          ]
-        },
-        "offset": {
-          "type": "number"
-        },
-        "showAfter": {
-          "type": "number"
-        },
-        "hideAfter": {
-          "type": "number"
-        },
-        "showArrow": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "popperClass": {
-          "type": "string"
-        },
         "items": {
           "type": "array",
           "items": {
@@ -107,16 +65,13 @@
         },
         "trigger": {
           "enum": [
+            "hover",
             "click",
-            "contextmenu",
-            "hover"
+            "contextmenu"
           ]
         },
         "hideOnClick": {
-          "enum": [
-            false,
-            true
-          ]
+          "type": "boolean"
         },
         "showTimeout": {
           "type": "number"
@@ -125,26 +80,35 @@
           "type": "number"
         },
         "splitButton": {
-          "enum": [
-            false,
-            true
-          ]
+          "type": "boolean"
         },
         "maxHeight": {
           "anyOf": [
             {
-              "type": "string"
+              "type": "number"
             },
             {
-              "type": "number"
+              "type": "string"
             }
           ]
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.onCommand.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onCommand.return": true
+      }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.126Z",
+  "generatedAt": "2026-11-14T07:12:10.898Z",
   "models": {
     "DropdownItem": {
       "name": "DropdownItem",
@@ -207,7 +171,7 @@
         "directory": "containers/layout"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkFloatingLayerProps & {\n    /** 菜单项列表 */\n    items?: DropdownItem[];\n    /** 触发方式 */\n    trigger?: 'hover' | 'click' | 'contextmenu';\n    /** 点击菜单项后是否自动收起 */\n    hideOnClick?: boolean;\n    /** 展开延迟（毫秒） */\n    showTimeout?: number;\n    /** 收起延迟（毫秒） */\n    hideTimeout?: number;\n    /** 是否使用分裂按钮 */\n    splitButton?: boolean;\n    /** 菜单最大高度 */\n    maxHeight?: number | string;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkFloatingLayerProps & {\n    /** 菜单项列表 */\n    items?: DropdownItem[];\n    /** 触发方式 */\n    trigger?: 'hover' | 'click' | 'contextmenu';\n    /** 点击菜单项后是否自动收起 */\n    hideOnClick?: boolean;\n    /** 展开延迟（毫秒） */\n    showTimeout?: number;\n    /** 收起延迟（毫秒） */\n    hideTimeout?: number;\n    /** 是否使用分裂按钮 */\n    splitButton?: boolean;\n    /** 菜单最大高度 */\n    maxHeight?: number | string;\n    /** 点击菜单项回调；参数为菜单项 command */\n    onCommand?: (command: string) => void;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -221,7 +185,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 菜单项列表 */\n    items?: DropdownItem[];\n    /** 触发方式 */\n    trigger?: 'hover' | 'click' | 'contextmenu';\n    /** 点击菜单项后是否自动收起 */\n    hideOnClick?: boolean;\n    /** 展开延迟（毫秒） */\n    showTimeout?: number;\n    /** 收起延迟（毫秒） */\n    hideTimeout?: number;\n    /** 是否使用分裂按钮 */\n    splitButton?: boolean;\n    /** 菜单最大高度 */\n    maxHeight?: number | string;\n}"
+            "typeText": "{\n    /** 菜单项列表 */\n    items?: DropdownItem[];\n    /** 触发方式 */\n    trigger?: 'hover' | 'click' | 'contextmenu';\n    /** 点击菜单项后是否自动收起 */\n    hideOnClick?: boolean;\n    /** 展开延迟（毫秒） */\n    showTimeout?: number;\n    /** 收起延迟（毫秒） */\n    hideTimeout?: number;\n    /** 是否使用分裂按钮 */\n    splitButton?: boolean;\n    /** 菜单最大高度 */\n    maxHeight?: number | string;\n    /** 点击菜单项回调；参数为菜单项 command */\n    onCommand?: (command: string) => void;\n}"
           }
         ],
         "members": {
@@ -267,6 +231,25 @@
               "jsdoc": "菜单最大高度",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onCommand",
+              "jsdoc": "点击菜单项回调；参数为菜单项 command",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

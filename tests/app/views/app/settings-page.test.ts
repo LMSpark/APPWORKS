@@ -1,9 +1,21 @@
 import {describe, expect, it, vi} from 'vitest'
-import {defineComponent, h, inject, provide} from 'vue'
+import {defineComponent, h, inject, provide, type Component} from 'vue'
 import {flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
+import {PAGE_SERVICE, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
 import Settings from '@/views/app/Settings.vue'
+
+const pageService: PageServiceCapability = {
+  copyText: async () => {}, showMessage: vi.fn(), showConfirm: async () => true, showPrompt: async () => null,
+  showAlert: async () => {}, showDialog: async () => 'cancel', selectEntities: async () => [], browseFiles: async () => [],
+  uploadFiles: async () => { throw new Error('settings fixture must not upload') }, showLoading: () => {}, navigate: () => {},
+}
+
+const SettingsHost: Component = defineComponent({setup() {
+  useSparkComponent({type: 'settings-test-host'}).sparkProvide(PAGE_SERVICE, pageService)
+  return () => h(Settings)
+}})
 
 const state = vi.hoisted(() => ({
   theme: {mode: 'light', setMode: vi.fn()},
@@ -27,7 +39,7 @@ describe('Settings page', () => {
   it('shows runtime facts, applies theme and reloads navigation without fake settings', async () => {
     const router = createRouter({history: createMemoryHistory(), routes: [{path: '/', component: defineComponent({setup: () => () => h('div')})}]})
     await router.push('/')
-    const wrapper = mount(Settings, {global: {plugins: [router, ElementPlus]}})
+    const wrapper = mount(SettingsHost, {global: {plugins: [router, ElementPlus]}})
     await flushPromises()
 
     expect((wrapper.find('input').element as HTMLInputElement).value).toBe('Alpha')
@@ -64,7 +76,7 @@ describe('Settings page', () => {
         return () => h('td', slots['default'] ? slots['default']({row}) : String(row[props.prop] ?? ''))
       },
     })
-    const wrapper = mount(Settings, {global: {plugins: [router, ElementPlus], stubs: {'el-table': TableStub, 'el-table-column': ColumnStub}}})
+    const wrapper = mount(SettingsHost, {global: {plugins: [router, ElementPlus], stubs: {'el-table': TableStub, 'el-table-column': ColumnStub}}})
     await flushPromises()
 
     expect(wrapper.text()).toContain('本机页面缓存')

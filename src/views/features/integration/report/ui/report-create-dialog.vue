@@ -28,14 +28,15 @@
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef} from 'vue'
-import {ElMessageBox} from 'element-plus'
 import {DataViewSaveNotAppliedError, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import {isOn, syncAppName, textOf} from './report-format'
-const {PAGE_RUNTIME, RendererDialog, RendererForm, RendererButton, FieldText, FieldTextarea, FieldSelect, FieldCheckbox, DisplayAlert, useSparkComponent} = Components
+const {PAGE_RUNTIME, RendererDialog, RendererForm, RendererButton, FieldText, FieldTextarea, FieldSelect, FieldCheckbox, DisplayAlert, useSparkComponent, consumeRequiredPageService} = Components
 const props = defineProps<{infoKey: string; reportKey: string; appKey: string; infoId: string | number; reportId: string | number}>()
 const emit = defineEmits<{close: [reason?: 'abandoned']}>()
 const {sparkConsume} = useSparkComponent({type: 'report-create-dialog'})
+const pageService = consumeRequiredPageService(sparkConsume, 'report-create-dialog')
+
 const busy = ref(false), abandonInterrupted = ref(false), hint = ref(''), revision = ref(0), failure = shallowRef<Error>()
 const confirmed = shallowRef<ReadonlySet<DataView>>(new Set())
 const runtime = sparkConsume(PAGE_RUNTIME)
@@ -110,10 +111,10 @@ async function abandon(): Promise<void> {
   busy.value = true
   try {
     try {
-      await ElMessageBox.confirm(
+      if (!await pageService.showConfirm(
         '本次新增可能已部分或全部生效。放弃核验不会撤销服务端记录，将丢弃本窗本地新增草稿；返回后请按报表及版本ID核对实际结果。',
-        '放弃原提交核验', {type: 'warning', confirmButtonText: '放弃核验', cancelButtonText: '继续核验'},
-      )
+        '放弃原提交核验', {type: 'warning', confirmText: '放弃核验', cancelText: '继续核验'},
+      )) return
     } catch (cause) {
       if (cause === 'cancel' || cause === 'close') return
       throw cause

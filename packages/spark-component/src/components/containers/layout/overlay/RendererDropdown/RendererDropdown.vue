@@ -17,13 +17,17 @@ AI用途：需要理解 renderer dropdown 的实际渲染结构、slot/toolbar/�
     :split-button="splitButton"
     :popper-class="popperClass"
     :max-height="maxHeight"
+    @command="handleCommand"
   >
     <template #default>
-      <SparkComponentRenderer
-        v-for="(child, index) in triggerChildren"
-        :key="nodeId(child) ?? `r-dropdown-trigger-${index}`"
-        :config="child"
-      />
+      <template v-if="triggerChildren.length">
+        <SparkComponentRenderer
+          v-for="(child, index) in triggerChildren"
+          :key="nodeId(child) ?? `r-dropdown-trigger-${index}`"
+          :config="child"
+        />
+      </template>
+      <slot v-else />
     </template>
     <template #dropdown>
       <el-dropdown-menu>
@@ -33,8 +37,8 @@ AI用途：需要理解 renderer dropdown 的实际渲染结构、slot/toolbar/�
           :command="item.command"
           :disabled="item.disabled"
           :divided="item.divided"
-          :icon="item.icon"
         >
+          <DisplayIcon v-if="item.icon" :icon="item.icon" class="r-dropdown__icon" />
           {{ item.label }}
         </el-dropdown-item>
       </el-dropdown-menu>
@@ -44,10 +48,11 @@ AI用途：需要理解 renderer dropdown 的实际渲染结构、slot/toolbar/�
 
 <script setup lang="ts">
 /**
- * @description 下拉菜单容器，支持分裂按钮模式和命令事件。
+ * @description 下拉菜单容器，支持分裂按钮模式和命令事件；触发区可用 children 或默认插槽。
  */
 import { computed } from 'vue'
 import { SparkComponentRenderer, useSparkPageComponent } from '../../../../internal'
+import DisplayIcon from '../../../../display/non-data-components/DisplayIcon/DisplayIcon.vue'
 import type { RDropdownProps } from './RendererDropdown.props'
 import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
@@ -64,5 +69,14 @@ const { isVisible, isDisabled } = useSparkPageComponent(props)
 
 const triggerChildren = computed(() => getSparkNodeChildren(props.children))
 const items = computed(() => props.items ?? [])
+
+function handleCommand(command: unknown): void {
+  if (typeof command === 'string') props.onCommand?.(command)
+}
 </script>
 
+<style scoped>
+.r-dropdown__icon {
+  margin-right: 6px;
+}
+</style>

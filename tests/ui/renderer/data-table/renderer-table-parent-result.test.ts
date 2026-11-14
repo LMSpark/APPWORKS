@@ -81,6 +81,27 @@ it('preserves explicit manual mode when the same filter view switches to parentR
   expect(view.supportsQueryFiltering).toBe(false)
 })
 
+it('disables header sorting while the bound view blocks result replacement', async () => {
+  const {wrapper, binding, ds} = await fixture([{type: 'r-text', props: {field: 'name', sortable: true}}])
+  binding.value = 'S@Child@ordinary'
+  await flushPromises()
+  expect(wrapper.findAll('th.is-sortable').length).toBeGreaterThan(0)
+  const view = ds.getView('Child', 'ordinary')!
+  const setSort = vi.spyOn(view, 'setSort')
+  const pending = vi.spyOn(view.dirtyTracking, 'hasPendingChanges').mockReturnValue(true)
+  view.events.emit('editingChanged')
+  await flushPromises()
+  wrapper.getComponent(ElTable).vm.$emit('sort-change', {prop: 'name', order: 'ascending'})
+  await flushPromises()
+  expect(setSort).not.toHaveBeenCalled()
+  pending.mockRestore()
+  view.events.emit('editingChanged')
+  await flushPromises()
+  wrapper.getComponent(ElTable).vm.$emit('sort-change', {prop: 'name', order: 'ascending'})
+  await flushPromises()
+  expect(setSort).toHaveBeenCalledWith([{field: 'name', direction: 'asc'}])
+})
+
 it('reacts to same-view query configuration and preserves explicit sortable false', async () => {
   const {wrapper, ds} = await fixture([{type: 'r-text', props: {field: 'name', sortable: false}}])
   const child = ds.getView('Child')!

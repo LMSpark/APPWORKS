@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, inject } from 'vue'
+import { defineComponent, h, inject, type Component } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
-import { createMemoryHistory, createRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { createMemoryHistory, createRouter, type Router } from 'vue-router'
+import { PAGE_SERVICE, useSparkComponent, type PageServiceCapability } from '@spark-appworks/spark-component'
 import { createDynamicRouter } from '../../../../packages/spark-app/src/router/dynamic'
 import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/nav-access'
 import { NAVIGATION_ACTION_REGISTRY_KEY, type NavigationActionRegistry } from '../../../../packages/spark-app/src/navigation/action-registry'
@@ -80,11 +80,13 @@ vi.mock('@/registries/vue-page-registry', () => ({ getPublicPaths: () => new Set
 const mountedWrappers: Array<{ exists: () => boolean; unmount: () => void }> = []
 let mountedProjectSwitch: ProjectSwitchService | null = null
 let mountedNavigationActions: NavigationActionRegistry | null = null
+let mountedPageService: PageServiceCapability | null = null
 
 const AppLayoutProbe = defineComponent({
   setup(_, { slots }) {
     mountedProjectSwitch = inject(PROJECT_SWITCH_KEY, null)
     mountedNavigationActions = inject(NAVIGATION_ACTION_REGISTRY_KEY, null)
+    mountedPageService = useSparkComponent({ type: 'app-layout-probe' }).sparkConsume(PAGE_SERVICE)
     return () => h('main', [slots['header']?.(), slots['default']?.()])
   },
 })
@@ -115,6 +117,47 @@ const RendererListProbe = defineComponent({
     }
   },
 })
+
+type PageServiceHostMount = Readonly<{
+  router: Router
+  provide: Record<symbol, unknown>
+  stubs: Record<string, boolean | Component>
+}>
+
+function mountWithPageService(component: Component, options: PageServiceHostMount) {
+  const showMessage = vi.fn()
+  const service: PageServiceCapability = {
+    copyText: async () => {},
+    showMessage,
+    showConfirm: async () => true,
+    showPrompt: async () => null,
+    showAlert: async () => {},
+    showDialog: async () => 'cancel',
+    selectEntities: async () => [],
+    browseFiles: async () => [],
+    uploadFiles: async () => { throw new Error('application switch fixture must not upload') },
+    showLoading: () => {},
+    navigate: () => {},
+  }
+  const Host = defineComponent({
+    setup() {
+      useSparkComponent({ type: 'application-switch-test-host' }).sparkProvide(PAGE_SERVICE, service)
+      return () => h(component)
+    },
+  })
+  const wrapper = mount(Host, { global: { plugins: [options.router], provide: options.provide, stubs: options.stubs } })
+  mountedWrappers.push(wrapper)
+  return { wrapper, showMessage }
+}
+
+function appPageMessages() {
+  if (!mountedPageService) throw new Error('App did not provide PAGE_SERVICE')
+  return vi.spyOn(mountedPageService, 'showMessage')
+}
+
+function messagesOf(spy: { mock: { calls: unknown[][] } }, type: string) {
+  return spy.mock.calls.filter(call => call[1] === type).map(call => call[0])
+}
 
 async function mountRealApp() {
   const router = createRouter({ history: createMemoryHistory(), routes: [] })
@@ -147,6 +190,7 @@ afterEach(() => {
   }
   mountedProjectSwitch = null
   mountedNavigationActions = null
+  mountedPageService = null
   lowcodeState.applicationId = 'old'
   lowcodeState.ownerIntent = 0
   vi.mocked(activateLowcodeApplication).mockReset().mockImplementation(async (applicationId) => {
@@ -296,13 +340,13 @@ describe('App project selection owner', () => {
       return receipt
     }
     const push = vi.spyOn(router, 'push')
-    const error = vi.spyOn(ElMessage, 'error')
+    const messages = appPageMessages()
 
     await actions.execute('home', { source: 'app-shell' })
     await flushPromises()
 
     expect(push).not.toHaveBeenCalled()
-    expect(error).toHaveBeenCalled()
+    expect(messagesOf(messages, 'error')).not.toHaveLength(0)
   })
 
   it('does not let the real App cross-app consumer push after its switch receipt becomes stale', async () => {
@@ -316,13 +360,13 @@ describe('App project selection owner', () => {
       return receipt
     }
     const push = vi.spyOn(router, 'push')
-    const error = vi.spyOn(ElMessage, 'error')
+    const messages = appPageMessages()
 
     await wrapper.get('button').trigger('click')
     await flushPromises()
 
     expect(push).not.toHaveBeenCalled()
-    expect(error).toHaveBeenCalled()
+    expect(messagesOf(messages, 'error')).not.toHaveLength(0)
   })
 
   it.each(['home', 'cross-app'] as const)('navigates once through the real App %s consumer when its owner stays current', async (target) => {
@@ -330,14 +374,14 @@ describe('App project selection owner', () => {
     const actions = mountedNavigationActions
     if (!actions) throw new Error('App did not provide navigation actions')
     const push = vi.spyOn(router, 'push')
-    const error = vi.spyOn(ElMessage, 'error')
+    const messages = appPageMessages()
 
     if (target === 'home') await actions.execute('home', { source: 'app-shell' })
     else await wrapper.get('button').trigger('click')
     await flushPromises()
 
     expect(push).toHaveBeenCalledOnce()
-    expect(error).not.toHaveBeenCalled()
+    expect(messagesOf(messages, 'error')).toEqual([])
     expect(router.currentRoute.value.path).toBe(target === 'home'
       ? '/apps/homepage/app-list'
       : '/apps/APP-A/reports')
@@ -355,12 +399,10 @@ describe('App project selection owner', () => {
       order.push('push')
       return await originalPush(location)
     })
-    const success = vi.spyOn(ElMessage, 'success')
-    const wrapper = mount(AppList, { global: {
-      plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service },
-      stubs: { NavIcon: true, RendererList: RendererListProbe, RendererPageHeader: true },
-    } })
-    mountedWrappers.push(wrapper)
+    const { wrapper, showMessage } = mountWithPageService(AppList, {
+      router, provide: { [PROJECT_SWITCH_KEY]: service },
+      stubs: { DisplayIcon: true, RendererList: RendererListProbe, RendererPageHeader: true },
+    })
     await flushPromises()
 
     const enter = wrapper.findAll('button').find((button) => button.text().includes('进入应用'))
@@ -371,7 +413,7 @@ describe('App project selection owner', () => {
     expect(receipt.assertCurrent).toHaveBeenCalledTimes(2)
     expect(push).toHaveBeenCalledOnce()
     expect(order).toEqual(['switch', 'push'])
-    expect(success).toHaveBeenCalledOnce()
+    expect(messagesOf(showMessage, 'success')).toHaveLength(1)
   })
 
   it('does not toast or navigate when the real AppList receipt goes stale before caller continuation', async () => {
@@ -383,14 +425,11 @@ describe('App project selection owner', () => {
       queueMicrotask(() => { current = false })
       return receipt
     }) }
-    const wrapper = mount(AppList, { global: {
-      plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true, RendererList: RendererListProbe, RendererPageHeader: true },
-    } })
-    mountedWrappers.push(wrapper)
+    const { wrapper, showMessage } = mountWithPageService(AppList, {
+      router, provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { DisplayIcon: true, RendererList: RendererListProbe, RendererPageHeader: true },
+    })
     await flushPromises()
     const push = vi.spyOn(router, 'push')
-    const success = vi.spyOn(ElMessage, 'success')
-    const error = vi.spyOn(ElMessage, 'error')
     const enter = wrapper.findAll('button').find((button) => button.text().includes('进入应用'))
     if (!enter) throw new Error('AppList did not render the application entry button')
 
@@ -398,8 +437,8 @@ describe('App project selection owner', () => {
     await flushPromises()
 
     expect(push).not.toHaveBeenCalled()
-    expect(success).not.toHaveBeenCalled()
-    expect(error).toHaveBeenCalledWith('selection was superseded')
+    expect(messagesOf(showMessage, 'success')).toEqual([])
+    expect(messagesOf(showMessage, 'error')).toEqual(['selection was superseded'])
   })
 
   it('does not show AppList success when the actual Router cancels navigation', async () => {
@@ -408,13 +447,10 @@ describe('App project selection owner', () => {
     const receipt = { assertCurrent: vi.fn() }
     const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => receipt) }
     const cancel = router.beforeEach(() => false)
-    const wrapper = mount(AppList, { global: {
-      plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true, RendererList: RendererListProbe, RendererPageHeader: true },
-    } })
-    mountedWrappers.push(wrapper)
+    const { wrapper, showMessage } = mountWithPageService(AppList, {
+      router, provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { DisplayIcon: true, RendererList: RendererListProbe, RendererPageHeader: true },
+    })
     await flushPromises()
-    const success = vi.spyOn(ElMessage, 'success')
-    const error = vi.spyOn(ElMessage, 'error')
     const enter = wrapper.findAll('button').find((button) => button.text().includes('进入应用'))
     if (!enter) throw new Error('AppList did not render the application entry button')
 
@@ -422,8 +458,8 @@ describe('App project selection owner', () => {
     await flushPromises()
 
     cancel()
-    expect(success).not.toHaveBeenCalled()
-    expect(error).toHaveBeenCalledWith('应用页面导航未完成')
+    expect(messagesOf(showMessage, 'success')).toEqual([])
+    expect(messagesOf(showMessage, 'error')).toEqual(['应用页面导航未完成'])
     expect(router.currentRoute.value.path).toBe('/apps/homepage/app-list')
   })
 
@@ -439,14 +475,12 @@ describe('App project selection owner', () => {
     await router.push('/apps/APP-A/dashboard')
     const receipt = { assertCurrent: vi.fn() }
     const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => receipt) }
-    const tabWrapper = mount(AppTabBar, { global: {
-      plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true },
-    } })
-    mountedWrappers.push(tabWrapper)
+    const { wrapper: tabWrapper, showMessage } = mountWithPageService(AppTabBar, {
+      router, provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { DisplayIcon: true },
+    })
     await router.push('/apps/APP-B/dashboard')
     await flushPromises()
     const push = vi.spyOn(router, 'push')
-    const error = vi.spyOn(ElMessage, 'error')
     const target = tabWrapper.findAll('.app-tab-bar__tab').find((tab) => tab.text().includes('Page A'))
     if (!target) throw new Error('AppTabBar did not retain the other owner tab')
 
@@ -457,7 +491,7 @@ describe('App project selection owner', () => {
     expect(receipt.assertCurrent).toHaveBeenCalledOnce()
     expect(push).toHaveBeenCalledOnce()
     expect(router.currentRoute.value.path).toBe('/apps/APP-A/dashboard')
-    expect(error).not.toHaveBeenCalled()
+    expect(messagesOf(showMessage, 'error')).toEqual([])
   })
 
   it('keeps the active route and both tabs when a real AppTabBar selection goes stale', async () => {
@@ -476,14 +510,12 @@ describe('App project selection owner', () => {
       queueMicrotask(() => { current = false })
       return receipt
     }) }
-    const wrapper = mount(AppTabBar, { global: {
-      plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true },
-    } })
-    mountedWrappers.push(wrapper)
+    const { wrapper, showMessage } = mountWithPageService(AppTabBar, {
+      router, provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { DisplayIcon: true },
+    })
     await router.push('/apps/APP-B/dashboard')
     await flushPromises()
     const push = vi.spyOn(router, 'push')
-    const error = vi.spyOn(ElMessage, 'error')
     const target = wrapper.findAll('.app-tab-bar__tab').find((tab) => tab.text().includes('Page A'))
     if (!target) throw new Error('AppTabBar did not retain the other owner tab')
 
@@ -494,6 +526,6 @@ describe('App project selection owner', () => {
     expect(router.currentRoute.value.params['projectId']).toBe('APP-B')
     expect(wrapper.findAll('.app-tab-bar__tab').some((tab) => tab.text().includes('Page A'))).toBe(true)
     expect(wrapper.findAll('.app-tab-bar__tab').some((tab) => tab.text().includes('Current Page'))).toBe(true)
-    expect(error).toHaveBeenCalledWith('selection was superseded')
+    expect(messagesOf(showMessage, 'error')).toEqual(['selection was superseded'])
   })
 })

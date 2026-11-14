@@ -20,18 +20,21 @@ AI用途：需要理解 renderer tooltip 的实际渲染结构、slot/toolbar/�
     :raw-content="rawContent"
   >
     <template #default>
-      <SparkComponentRenderer
-        v-for="(child, index) in resolvedChildren"
-        :key="nodeId(child) ?? `r-tooltip-child-${index}`"
-        :config="child"
-      />
+      <template v-if="resolvedChildren.length">
+        <SparkComponentRenderer
+          v-for="(child, index) in resolvedChildren"
+          :key="nodeId(child) ?? `r-tooltip-child-${index}`"
+          :config="child"
+        />
+      </template>
+      <slot v-else />
     </template>
   </el-tooltip>
 </template>
 
 <script setup lang="ts">
 /**
- * @description 文字提示组件，支持位置和延迟配置。
+ * @description 文字提示组件，支持位置和延迟配置；触发元素可用 children 或默认插槽。
  */
 import { computed } from 'vue'
 import { SparkComponentRenderer, useSparkPageComponent } from '../../../../internal'

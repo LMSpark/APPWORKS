@@ -636,7 +636,7 @@ describe('tool and shared scenario editing owners',()=>{
   httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':url.endsWith('/script.js')?'owner duplicate':''}))
   const state=createDevStateWithConfigPages()
   const fileViewLoad=vi.spyOn(state,'loadPageToolFileDataView')
-  const wrapper=shallowMount(DevFileEditor,{props:{state},global:{stubs:{RendererForm:true,FieldJson:true,FieldCodeEditor:true,RendererButton:true,RendererTabs:true,RendererTabPane:true,DisplayEmpty:true,DisplayAlert:true,NavIcon:true}}})
+  const wrapper=shallowMount(DevFileEditor,{props:{state},global:{stubs:{RendererForm:true,FieldJson:true,FieldCodeEditor:true,RendererButton:true,RendererTabs:true,RendererTabPane:true,DisplayEmpty:true,DisplayAlert:true,DisplayIcon:true}}})
   try{
    await flushPromises()
    expect(Reflect.has(state.editor,'ensureActivePageFilesLoaded')).toBe(false)

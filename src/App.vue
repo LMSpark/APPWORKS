@@ -75,22 +75,18 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             <span v-if="contextGuard.expectedPath">建议路径：{{ contextGuard.expectedPath }}</span>
           </div>
           <div class="app-context-guard__actions">
-            <button type="button" class="app-context-guard__primary" @click="handleContextGuardPrimary">
-              {{ contextGuard.primaryActionLabel }}
-            </button>
-            <button
+            <RendererButton class="app-context-guard__primary" :label="contextGuard.primaryActionLabel" @click="handleContextGuardPrimary" />
+            <RendererButton
               v-if="contextGuard.expectedPath"
-              type="button"
               class="app-context-guard__secondary"
+              label="跳转到作用域路径"
               @click="jumpToExpectedContext"
-            >
-              跳转到作用域路径
-            </button>
+            />
           </div>
         </div>
         <div v-if="configPending && !contextGuard" role="status">
           页面配置已更新。
-          <button type="button" :disabled="configRefreshing" @click="reloadCurrentConfiguration">刷新配置</button>
+          <RendererButton label="刷新配置" button-size="small" :disabled="configRefreshing" :loading="configRefreshing" @click="reloadCurrentConfiguration" />
           <span v-if="configRefreshError">{{ configRefreshError }}</span>
         </div>
         <keep-alive :include="runtimeNames">
@@ -132,6 +128,7 @@ import type { LowcodeApplicationSelectionReceipt } from '@spark-appworks/spark-l
 import { PAGE_RUNTIME_SERVICES, PAGE_SERVICE, buildPageService } from '@spark-appworks/spark-component'
 import {
   MODULE_CONTEXT,
+  RendererButton,
   useSparkComponent,
   type ModuleContextCapability,
 } from '@spark-appworks/spark-component'
@@ -166,7 +163,6 @@ import { loadProjectUiSettings, saveProjectUiSettings } from '@/services/project
 import { APPLICATION_CATALOG_PROJECT_ID, PLATFORM_PATH_PREFIX, buildApplicationPath, buildApplicationRootPath, parseApplicationPathScope, stripApplicationPath } from '@/services/application-scope'
 import { lowcodePlatformNavigation } from '@/lowcode/system-navigation'
 import { getPublicPaths } from '@/registries/vue-page-registry'
-import { ElMessage } from 'element-plus'
 
 const {
   AppPageUiHost,
@@ -187,6 +183,7 @@ const { sparkProvide } = useSparkComponent({ type: 'app-shell' })
 
 const route = useRoute()
 const router = useRouter()
+const pageService = buildPageService(router, { pageService: appPageUiService })
 const isLoginPage = computed(() => route.path === '/login' || route.path === '/')
 const publicPaths = getPublicPaths()
 const currentUsername = computed(() => {
@@ -462,7 +459,7 @@ navigationActionRegistry.register('home', async () => {
       await router.push('/')
     }
   } catch (error: unknown) {
-    ElMessage.error(error instanceof Error ? error.message : String(error))
+    pageService.showMessage(error instanceof Error ? error.message : String(error), 'error')
   }
 })
 navigationActionRegistry.register('platform', async () => {
@@ -476,7 +473,7 @@ navigationActionRegistry.register('platform', async () => {
     if (homePath === undefined) throw new Error('平台工作台没有登记页面')
     await router.push(`${PLATFORM_PATH_PREFIX}${homePath}`)
   } catch (error: unknown) {
-    ElMessage.error(error instanceof Error ? error.message : String(error))
+    pageService.showMessage(error instanceof Error ? error.message : String(error), 'error')
   }
 })
 navigationActionRegistry.register('logout', () => {
@@ -513,7 +510,7 @@ const nav = useNavigation(_navRoot, {
   actionRegistry: navigationActionRegistry,
 })
 sparkProvide(PAGE_RUNTIME_SERVICES, { pageService: appPageUiService })
-sparkProvide(PAGE_SERVICE, buildPageService(router, { pageService: appPageUiService }))
+sparkProvide(PAGE_SERVICE, pageService)
 const pageModuleContext = computed<ContextSnapshot | null>(() => {
   const state = nav.moduleContext.value
   if (!state) return null
@@ -743,7 +740,7 @@ async function handleCrossAppNavigate(projectIdOrFullPath: string, pathArg?: str
     receipt.assertCurrent()
     await router.push(buildApplicationPath({ projectId: targetProjectId }, targetPath))
   } catch (error: unknown) {
-    ElMessage.error(error instanceof Error ? error.message : String(error))
+    pageService.showMessage(error instanceof Error ? error.message : String(error), 'error')
   }
 }
 
@@ -813,33 +810,34 @@ async function handleCrossAppNavigate(projectIdOrFullPath: string, pathArg?: str
   margin-top: 20px;
 }
 
-.app-context-guard__primary,
-.app-context-guard__secondary {
+.app-context-guard__primary.el-button,
+.app-context-guard__secondary.el-button {
   min-height: 38px;
+  margin: 0;
   padding: 0 16px;
   border-radius: 12px;
-  cursor: pointer;
   transition: all 0.18s ease;
 }
 
-.app-context-guard__primary {
+.app-context-guard__primary.el-button {
   border: 1px solid #bc7a1e;
   background: #bc7a1e;
   color: #fff;
 }
 
-.app-context-guard__primary:hover {
+.app-context-guard__primary.el-button:hover {
   background: #a66b1a;
   border-color: #a66b1a;
+  color: #fff;
 }
 
-.app-context-guard__secondary {
+.app-context-guard__secondary.el-button {
   border: 1px solid #d5b489;
   background: #fff;
   color: #8a5617;
 }
 
-.app-context-guard__secondary:hover {
+.app-context-guard__secondary.el-button:hover {
   background: #fff7eb;
   border-color: #bc7a1e;
 }

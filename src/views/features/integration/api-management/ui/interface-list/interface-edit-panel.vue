@@ -41,7 +41,6 @@
 </template>
 <script setup lang="ts">
 import {computed, ref} from 'vue'
-import {ElMessage} from 'element-plus'
 import type {SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {featureTableToolbar, runFeatureTableAction, type FeatureTableAction} from '@/views/features/shared/table/feature-table-actions'
@@ -49,9 +48,10 @@ import {INTERFACE_KEYS, interfaceViewKey, type InterfaceWorkspace} from './inter
 import InterfaceJsonImportDialog from './interface-json-import-dialog.vue'
 type RToolbarProps = SparkComponent.RToolbarProps
 type JsonRow = Readonly<Record<string, unknown>>
-const {PAGE_RUNTIME, useSparkComponent, RendererForm, RendererSection, RendererButton, RendererTabs, RendererTabPane, RendererTable, DisplayAlert} = SparkComponent
+const {PAGE_RUNTIME, PAGE_SERVICE, useSparkComponent, RendererForm, RendererSection, RendererButton, RendererTabs, RendererTabPane, RendererTable, DisplayAlert, consumeRequiredPageService} = SparkComponent
 const props = defineProps<{workspace: InterfaceWorkspace; pendingCreate: boolean}>()
 const {sparkConsume} = useSparkComponent({type: 'interface-edit-panel'})
+const pageService = consumeRequiredPageService(sparkConsume, 'interface-edit-panel')
 const runtime = sparkConsume(PAGE_RUNTIME)
 const resolve = (key: string) => {
   const view = runtime?.resolveView(key)
@@ -118,7 +118,7 @@ const parameterColumns: SparkNode[] = [
 function tableToolbar(key: string, order: readonly FeatureTableAction[]): RToolbarProps {
   props.workspace.revision
   return featureTableToolbar({view: resolve(key), order, locked: props.workspace.locked, addBlocked: props.pendingCreate, run: action => props.workspace.run(async () => {
-    await runFeatureTableAction(resolve(key), action)
+    await runFeatureTableAction(resolve(key), action, pageService)
     if (action === 'save' && key === INTERFACE_KEYS.parameters) await resolve(INTERFACE_KEYS.references).refresh()
   })})
 }
@@ -126,8 +126,8 @@ const headerToolbar = computed(() => tableToolbar(INTERFACE_KEYS.headers, ['add'
 const parameterToolbar = computed(() => tableToolbar(INTERFACE_KEYS.parameters, ['add', 'remove', 'cancel', 'save']))
 function openImport(): void {
   const tab = requestTab.value
-  if (tab !== 'json' && tab !== 'form') {ElMessage.warning('当前页签暂不支持导入JSON'); return}
-  if (requestType.value !== (tab === 'json' ? 'Body' : 'FormData')) {ElMessage.warning(`请先将参数类型选择为 ${tab === 'json' ? 'Body/Json' : 'Body/FormData'}`); return}
+  if (tab !== 'json' && tab !== 'form') {pageService.showMessage('当前页签暂不支持导入JSON', 'warning'); return}
+  if (requestType.value !== (tab === 'json' ? 'Body' : 'FormData')) {pageService.showMessage(`请先将参数类型选择为 ${tab === 'json' ? 'Body/Json' : 'Body/FormData'}`, 'warning'); return}
   importing.value = {target: tab, epoch: ++importEpoch}
 }
 </script>

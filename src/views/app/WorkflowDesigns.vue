@@ -9,7 +9,7 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
     <aside class="workflow-designs__directory">
       <header class="workflow-designs__directory-header">
         <strong v-if="!leftCollapsed">工作流设计稿</strong>
-        <el-button size="small" :title="leftCollapsed ? '展开目录' : '收起目录'" @click="toggleLeft">{{ leftCollapsed ? '›' : '‹' }}</el-button>
+        <RendererButton size="small" :title="leftCollapsed ? '展开目录' : '收起目录'" :label="leftCollapsed ? '›' : '‹'" @click="toggleLeft" />
       </header>
       <RendererTable v-if="owner && !leftCollapsed" :data-view-key="directoryKey" :children="directoryFields" :show-pagination="false"
         :show-data-view-meta="false" :highlight-current-row="true" :on-row-click="chooseWorkflow" />
@@ -19,7 +19,7 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
       <p v-if="loadError" role="alert">{{ loadError }}</p>
       <p v-if="publicationUnconfirmed" role="status">首次发布结果尚未确认，请再次点击“核验首次发布”；不会重复上传。</p>
       <p v-else-if="unconfirmed" role="status">保存结果尚未确认，请再次点击保存核验；不会重复写入。</p>
-      <el-empty v-if="!workflowId" :description="owner ? '选择左侧工作流设计稿' : '正在装配工作流文件空间…'" />
+      <DisplayEmpty v-if="!workflowId" :description="owner ? '选择左侧工作流设计稿' : '正在装配工作流文件空间…'" />
       <template v-else-if="design">
         <section class="workflow-graph-panel" :style="childPath ? {flexBasis: `${splitRatio}%`} : undefined">
           <header class="workflow-graph-panel__title">Main Graph · {{ workflowId }}</header>
@@ -30,7 +30,7 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
           <section class="workflow-graph-panel">
             <header class="workflow-graph-panel__title">
               <span>Child Graph · {{ childPath }}</span>
-              <el-button size="small" :disabled="busy" @click="openChild('')">关闭子图</el-button>
+              <RendererButton size="small" label="关闭子图" :disabled="busy" @click="openChild('')" />
             </header>
             <RendererGraph class="workflow-graph" v-bind="graphProps('child')" />
           </section>
@@ -42,38 +42,38 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
       <section>
         <h3>工作流</h3>
         <RendererButton v-if="owner" v-bind="creationView ? {dataViewKey: viewKey(creationView)} : {}" label="新建工作流" :disabled="busy || !owner || creationId !== undefined" @click="openCreation" />
-        <el-button :disabled="busy || !owner" @click="refreshDirectory">刷新目录</el-button>
-        <el-button :disabled="!design || busy" @click="openDrawer('workflow')">流程属性</el-button>
-        <el-button :disabled="!design || busy" @click="copyJson">复制已保存 JSON</el-button>
-        <el-button :disabled="!design || busy" @click="mainGraph?.arrange()">自动排版</el-button>
-        <el-button :disabled="!design || busy || publicationUnconfirmed" @click="openDefinition">Definition</el-button>
-        <el-button type="primary" :disabled="!design || busy || publicationUnconfirmed || !hasPending" :loading="saving" @click="save">{{ unconfirmed ? '核验保存结果' : '保存' }}</el-button>
-        <el-button :disabled="!design || busy || unconfirmed || !hasPending" @click="cancel">取消修改</el-button>
-        <el-button type="success" :disabled="!design || busy" :loading="publishing" @click="publish">{{ publicationUnconfirmed ? '核验首次发布' : '发布 Definition' }}</el-button>
+        <RendererButton label="刷新目录" :disabled="busy || !owner" @click="refreshDirectory" />
+        <RendererButton label="流程属性" :disabled="!design || busy" @click="openDrawer('workflow')" />
+        <RendererButton label="复制已保存 JSON" :disabled="!design || busy" @click="copyJson" />
+        <RendererButton label="自动排版" :disabled="!design || busy" @click="mainGraph?.arrange()" />
+        <RendererButton label="Definition" :disabled="!design || busy || publicationUnconfirmed" @click="openDefinition" />
+        <RendererButton button-type="primary" :label="unconfirmed ? '核验保存结果' : '保存'" :disabled="!design || busy || publicationUnconfirmed || !hasPending" :loading="saving" @click="save" />
+        <RendererButton label="取消修改" :disabled="!design || busy || unconfirmed || !hasPending" @click="cancel" />
+        <RendererButton button-type="success" :label="publicationUnconfirmed ? '核验首次发布' : '发布 Definition'" :disabled="!design || busy" :loading="publishing" @click="publish" />
       </section>
       <section v-if="design">
         <h3>节点</h3>
-        <el-button :disabled="busy || !canAddNode(activeGraph)" @click="openNodeCreate">新增节点</el-button>
-        <el-button :disabled="busy || selected?.kind !== 'node'" @click="openDrawer('node')">节点属性</el-button>
-        <el-button :disabled="busy || !selectedChildPath" @click="openChild(selectedChildPath)">打开子图</el-button>
-        <el-button type="danger" :disabled="busy || selected?.kind !== 'node'" @click="removeNode">删除节点</el-button>
+        <RendererButton label="新增节点" :disabled="busy || !canAddNode(activeGraph)" @click="openNodeCreate" />
+        <RendererButton label="节点属性" :disabled="busy || selected?.kind !== 'node'" @click="openDrawer('node')" />
+        <RendererButton label="打开子图" :disabled="busy || !selectedChildPath" @click="openChild(selectedChildPath)" />
+        <RendererButton label="删除节点" button-type="danger" :disabled="busy || selected?.kind !== 'node'" @click="removeNode" />
       </section>
       <section v-if="design">
         <h3>连线</h3>
-        <el-button :disabled="busy || selected?.kind !== 'edge'" @click="openDrawer('line')">连线属性</el-button>
-        <el-button :disabled="busy || selected?.kind !== 'edge'" @click="clearControlPoints">清空控制点</el-button>
-        <el-button type="danger" :disabled="busy || selected?.kind !== 'edge'" @click="removeLine">删除连线</el-button>
+        <RendererButton label="连线属性" :disabled="busy || selected?.kind !== 'edge'" @click="openDrawer('line')" />
+        <RendererButton label="清空控制点" :disabled="busy || selected?.kind !== 'edge'" @click="clearControlPoints" />
+        <RendererButton label="删除连线" button-type="danger" :disabled="busy || selected?.kind !== 'edge'" @click="removeLine" />
       </section>
       <section v-if="design">
         <h3>ClassModel</h3>
-        <el-input v-model="classModelRoot" size="small" placeholder="Root Class" />
-        <el-button size="small" :loading="classModelLoading" @click="queryClassModel">查询</el-button>
+        <FieldText v-model="classModelRoot" label="Root Class" placeholder="Root Class" />
+        <RendererButton size="small" label="查询" :loading="classModelLoading" @click="queryClassModel" />
         <p v-if="classModelError" role="alert">{{ classModelError }}</p>
-        <el-button v-for="option in classModelOptions" :key="option.kind" size="small" text @click="classModelActive = option">{{ option.kind }}</el-button>
+        <RendererButton v-for="option in classModelOptions" :key="option.kind" size="small" :label="option.kind" :link="true" @click="classModelActive = option" />
       </section>
     </aside>
 
-    <el-drawer v-model="drawerOpen" class="workflow-properties-drawer" direction="rtl" size="40vw" :title="drawerTitle">
+    <RendererDrawer v-model="drawerOpen" class="workflow-properties-drawer" direction="rtl" size="40vw" :title="drawerTitle">
       <template v-if="design && drawerTarget === 'workflow'">
         <RendererForm :data-view-key="viewKey(design.workflow)" :children="workflowFields" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false" />
         <h4>变量</h4>
@@ -89,9 +89,9 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
         :children="nodeFields" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false" />
       <RendererForm v-else-if="design && drawerTarget === 'line' && selected" :data-view-key="viewKey(graphViews(selected.graph).lines)"
         :children="lineFields" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false" />
-    </el-drawer>
+    </RendererDrawer>
 
-    <el-drawer :model-value="classModelActive !== null" class="class-model-drawer" direction="rtl" size="33vw" title="ClassModel 知识"
+    <RendererDrawer :model-value="classModelActive !== null" class="class-model-drawer" direction="rtl" size="33vw" title="ClassModel 知识"
       @update:model-value="classModelActive = null">
       <div v-if="classModelActive" class="class-model-doc-panel">
         <h4>{{ classModelActive.kind }}</h4>
@@ -115,51 +115,44 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
           </section>
         </details>
       </div>
-    </el-drawer>
+    </RendererDrawer>
 
     <WorkflowCreateDialog v-if="creationId !== undefined && creationView" :key="creationId" :data-view-key="viewKey(creationView)"
       :record-id="creationId" @finish="finishCreation" />
 
-    <el-dialog v-if="design && nodeCreateOpen" v-model="nodeCreateOpen" title="新增节点" width="520px">
-      <el-form label-position="top">
-        <el-form-item label="目标图"><el-input :model-value="graphViews(activeGraph).nodes.queryContext['graphPath']" disabled /></el-form-item>
-        <el-form-item label="节点类型">
-          <el-select v-model="nodeCreate.nodeKind" @change="resetNodeCreateDefaults">
-            <el-option value="node" label="Business Node" />
-            <el-option value="start" label="Start" />
-            <el-option value="output" label="Output" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="节点 ID"><el-input v-model="nodeCreate.id" /></el-form-item>
-        <el-form-item label="标题"><el-input v-model="nodeCreate.title" /></el-form-item>
-        <el-form-item label="描述"><el-input v-model="nodeCreate.desc" type="textarea" :rows="2" /></el-form-item>
-      </el-form>
+    <RendererDialog v-if="design && nodeCreateOpen" v-model="nodeCreateOpen" title="新增节点" :width="520">
+      <RendererForm :grid-columns="1" :auto-columns="false" :show-data-view-meta="false" :form-props="{labelPosition: 'top'}">
+        <FieldText :model-value="String(graphViews(activeGraph).nodes.queryContext['graphPath'] ?? '')" label="目标图" readonly />
+        <FieldSelect v-model="nodeCreate.nodeKind" label="节点类型" :options="[...nodeKindOptions]" @update:model-value="resetNodeCreateDefaults" />
+        <FieldText v-model="nodeCreate.id" label="节点 ID" />
+        <FieldText v-model="nodeCreate.title" label="标题" />
+        <FieldTextarea v-model="nodeCreate.desc" label="描述" :autosize="{minRows: 2, maxRows: 4}" />
+      </RendererForm>
       <template #footer>
-        <el-button @click="nodeCreateOpen = false">取消</el-button>
-        <el-button type="primary" @click="createNode">创建节点</el-button>
+        <RendererButton label="取消" @click="nodeCreateOpen = false" />
+        <RendererButton label="创建节点" button-type="primary" @click="createNode" />
       </template>
-    </el-dialog>
+    </RendererDialog>
 
-    <el-dialog v-if="definitionOpen && owner" :model-value="true" title="Agent Workflow Definition" width="760px" :before-close="closeDefinition">
+    <RendererDialog v-if="definitionOpen && owner" :model-value="true" title="Agent Workflow Definition" :width="760" :before-close="closeDefinition">
       <RendererForm :data-view-key="definitionKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
         <FieldJson class="definition-json-input" field="content" label="definition.json" mode="text" value-format="text" height="460px" />
       </RendererForm>
       <template #footer>
-        <el-button @click="closeDefinition()">关闭</el-button>
-        <el-button type="primary" :loading="savingDefinition" :disabled="!definitionPending" @click="saveDefinition">保存 Definition</el-button>
+        <RendererButton label="关闭" @click="closeDefinition()" />
+        <RendererButton label="保存 Definition" button-type="primary" :loading="savingDefinition" :disabled="!definitionPending" @click="saveDefinition" />
       </template>
-    </el-dialog>
+    </RendererDialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, ref, shallowRef} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
-import {ElMessage, ElMessageBox} from 'element-plus'
 import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {FieldJson, PAGE_RUNTIME, RendererForm, RendererGraph, RendererTable, useSparkComponent, RendererButton} from '@spark-appworks/spark-component'
+import {PAGE_SERVICE, DisplayEmpty, FieldJson, FieldSelect, FieldText, FieldTextarea, PAGE_RUNTIME, RendererDialog, RendererDrawer, RendererForm, RendererGraph, RendererTable, useSparkComponent, RendererButton, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import type * as SparkComponentTypes from '@spark-appworks/spark-component'
 import {createAgentWorkflowFileDataViewOwner, type AgentWorkflowDesignViews, type AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
 import WorkflowCreateDialog from './workflow-designs/workflow-create-dialog.vue'
@@ -180,6 +173,11 @@ type GraphConnection = GraphEvent<'onConnect'>
 type Selected = Readonly<{graph: GraphRole; kind: 'node' | 'edge'; id: string | number}>
 type PublishFirstDefinitionInput = Readonly<{owner: AgentWorkflowFileDataViewOwner; workflowId: string; designContent: string; definitionContent: string}>
 
+const nodeKindOptions = [
+  {value: 'node', label: 'Business Node'},
+  {value: 'start', label: 'Start'},
+  {value: 'output', label: 'Output'},
+] as const
 const LEFT_COLLAPSED_KEY = 'spark.workflow-design.left-collapsed'
 const SPLIT_KEY_PREFIX = 'spark.workflow-design.graph-split.'
 const json = (field: string, label: string): SparkNode => ({type: 'r-json', props: {field, label, mode: 'text', valueFormat: 'native', height: 160}})
@@ -204,7 +202,10 @@ const lineFields: SparkNode[] = [text('id', '连线 ID', true), text('fromNodeId
   {type: 'r-select', props: {field: 'lineType', label: '线型', options: [{value: 'orthogonal', label: '正交折线'}, {value: 'straight', label: '直线折线'}, {value: 'bezier', label: '平滑曲线'}]}},
   json('controlPoints', '控制点'), json('from', '起点其它配置'), json('to', '终点其它配置'), json('data', '其它数据'), json('extra', '其它配置')]
 
-const {sparkProvide, sparkRemove} = useSparkComponent({type: 'workflow-designs-page'})
+const {sparkProvide, sparkRemove, sparkConsume} = useSparkComponent({type: 'workflow-designs-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'workflow-designs-page')
+if (!pageService) throw new Error('PAGE_SERVICE_MISSING: WorkflowDesigns 缺少页面服务能力')
+
 const owner = shallowRef<AgentWorkflowFileDataViewOwner>()
 const revision = ref(0)
 const creationId = ref<string | number>()
@@ -313,7 +314,7 @@ function arrange(role: GraphRole, event: GraphArrange): void {
   const {nodes} = graphViews(role)
   if (event.nodes.some(node => {const row = nodes.rows.find(item => nodes.getPkKey(item) === node.id); return !row || !writable(nodes, row, ['x', 'y'])})) {
     event.control.cancel = true
-    ElMessage.error('存在不可修改位置的节点，不能自动排版')
+    pageService.showMessage('存在不可修改位置的节点，不能自动排版', 'error')
     return
   }
   for (const node of event.nodes) moveNode(role, {...node, edges: []})
@@ -329,7 +330,7 @@ async function connect(role: GraphRole, event: GraphConnection): Promise<void> {
       existingIds: shownRows(lines).flatMap(line => typeof line['id'] === 'string' ? [line['id']] : [])}))
     const key = lines.getPkKey(row)
     if (key !== undefined) selected.value = {graph: role, kind: 'edge', id: key}
-  } catch (error) {ElMessage.error(`新增连线失败: ${message(error)}`)}
+  } catch (error) {pageService.showMessage(`新增连线失败: ${message(error)}`, 'error')}
 }
 
 function openDrawer(target: 'workflow' | 'node' | 'line'): void {
@@ -353,12 +354,13 @@ function listToolbar(view: DataView, keyField: string, label: string): SparkComp
 
 async function addListRow(view: DataView, keyField: string, label: string): Promise<void> {
   try {
-    const {value} = await ElMessageBox.prompt(`输入${label}的 ${keyField}`, `新增${label}`, {confirmButtonText: '新增', cancelButtonText: '取消'})
-    const id = String(value ?? '').trim()
+    const value = await pageService.showPrompt(`输入${label}的 ${keyField}`, `新增${label}`)
+    if (value === null) return
+    const id = String(value).trim()
     if (!id) return
-    if (shownRows(view).some(row => row[keyField] === id)) {ElMessage.error(`${label} ${id} 已存在`); return}
+    if (shownRows(view).some(row => row[keyField] === id)) {pageService.showMessage(`${label} ${id} 已存在`, 'error'); return}
     view.setCurrentRow(await view.addRow({[keyField]: id}))
-  } catch (error) {if (error !== 'cancel' && error !== 'close') ElMessage.error(`新增${label}失败: ${message(error)}`)}
+  } catch (error) {pageService.showMessage(`新增${label}失败: ${message(error)}`, 'error')}
 }
 
 function openNodeCreate(): void {
@@ -376,13 +378,13 @@ function resetNodeCreateDefaults(): void {
 async function createNode(): Promise<void> {
   const {nodes} = graphViews(activeGraph.value), rows = shownRows(nodes)
   const id = nodeCreate.value.id.trim()
-  if (!id || rows.some(row => row['id'] === id)) {ElMessage.error(`节点 ID 为空或已存在: ${id}`); return}
+  if (!id || rows.some(row => row['id'] === id)) {pageService.showMessage(`节点 ID 为空或已存在: ${id}`, 'error'); return}
   try {
     const row = await nodes.addRow(workflowNodeRow({...nodeCreate.value, id, index: rows.length}))
     const key = nodes.getPkKey(row)
     if (key !== undefined) selected.value = {graph: activeGraph.value, kind: 'node', id: key}
     nodeCreateOpen.value = false
-  } catch (error) {ElMessage.error(`新增节点失败: ${message(error)}`)}
+  } catch (error) {pageService.showMessage(`新增节点失败: ${message(error)}`, 'error')}
 }
 
 async function removeRows(view: DataView, keys: ReadonlyArray<string | number>): Promise<void> {
@@ -397,12 +399,10 @@ async function removeNode(): Promise<void> {
   if (target?.kind !== 'node' || !row) return
   const {nodes, lines} = graphViews(target.graph), type = row['dataType']
   if ((type === 'start' || type === 'output') && shownRows(nodes).filter(item => item['dataType'] === type).length <= 1) {
-    ElMessage.warning('至少保留一个 start 和 output 节点')
+    pageService.showMessage('至少保留一个 start 和 output 节点', 'warning')
     return
   }
-  try {
-    await ElMessageBox.confirm(`确定删除节点 ${String(row['title'] ?? row['id'])}？相关连线也会被删除。`, '删除节点', {type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消'})
-  } catch {return}
+  if (!await pageService.showConfirm(`确定删除节点 ${String(row['title'] ?? row['id'])}？相关连线也会被删除。`, '删除节点', {type: 'warning', confirmText: '删除', cancelText: '取消'})) return
   acting.value = true
   try {
     const nested = `${String(row['graphPath'])}.${String(row['id'])}.`
@@ -411,13 +411,13 @@ async function removeNode(): Promise<void> {
     await removeRows(lines, incident.flatMap(line => {const key = lines.getPkKey(line); return key === undefined ? [] : [key]}))
     await removeRows(nodes, [target.id])
     selected.value = null
-  } catch (error) {ElMessage.error(`删除节点失败: ${message(error)}`)} finally {acting.value = false}
+  } catch (error) {pageService.showMessage(`删除节点失败: ${message(error)}`, 'error')} finally {acting.value = false}
 }
 
 async function removeLine(): Promise<void> {
   const target = selected.value
   if (target?.kind !== 'edge') return
-  try {await removeRows(graphViews(target.graph).lines, [target.id]); selected.value = null} catch (error) {ElMessage.error(`删除连线失败: ${message(error)}`)}
+  try {await removeRows(graphViews(target.graph).lines, [target.id]); selected.value = null} catch (error) {pageService.showMessage(`删除连线失败: ${message(error)}`, 'error')}
 }
 
 function clearControlPoints(): void {
@@ -428,7 +428,7 @@ function clearControlPoints(): void {
 async function openChild(path: string): Promise<void> {
   const views = design.value
   if (!views || !owner.value) return
-  if ([views.childNodes, views.childLines].some(pendingIn)) {ElMessage.error('子图有未保存的修改，请先保存或取消'); return}
+  if ([views.childNodes, views.childLines].some(pendingIn)) {pageService.showMessage('子图有未保存的修改，请先保存或取消', 'error'); return}
   acting.value = true
   try {
     await owner.value.loadChildGraph(path)
@@ -436,7 +436,7 @@ async function openChild(path: string): Promise<void> {
     if (selected.value?.graph === 'child') selected.value = null
     activeGraph.value = path ? 'child' : 'main'
     splitRatio.value = Number(localStorage.getItem(SPLIT_KEY_PREFIX + workflowId.value)) || 55
-  } catch (error) {ElMessage.error(`打开子图失败: ${message(error)}`)} finally {acting.value = false}
+  } catch (error) {pageService.showMessage(`打开子图失败: ${message(error)}`, 'error')} finally {acting.value = false}
 }
 
 function startSplit(event: PointerEvent): void {
@@ -462,16 +462,14 @@ function editableViews(): DataView[] {return [...designViews.value, ...(owner.va
 
 async function confirmDiscard(): Promise<boolean> {
   const inFlight = (view: DataView) => view.mutating || view.requestState === RequestState.Preparing || view.requestState === RequestState.Loading
-  if (editableViews().some(inFlight)) {ElMessage.error('查询或提交进行中，请等待结果'); return false}
+  if (editableViews().some(inFlight)) {pageService.showMessage('查询或提交进行中，请等待结果', 'error'); return false}
   const current = owner.value, targetId = workflowId.value, command = creationView.value, commandId = creationId.value
   const commandRows = command ? [...command.rows] : []
   const publication = publicationView.value, publicationRows = publication ? [...publication.rows] : []
   const pendingViews = editableViews().filter(pendingIn)
   if (pendingViews.length === 0) return true
-  if (pendingViews.some(view => view.hasUnconfirmedSave)) {ElMessage.error('保存结果尚未确认，请先核验保存'); return false}
-  try {
-    await ElMessageBox.confirm('当前工作流设计有未保存更改，是否丢弃？', '丢弃修改', {type: 'warning', confirmButtonText: '丢弃', cancelButtonText: '取消'})
-  } catch {return false}
+  if (pendingViews.some(view => view.hasUnconfirmedSave)) {pageService.showMessage('保存结果尚未确认，请先核验保存', 'error'); return false}
+  if (!await pageService.showConfirm('当前工作流设计有未保存更改，是否丢弃？', '丢弃修改', {type: 'warning', confirmText: '丢弃', cancelText: '取消'})) return false
   if (!active || owner.value !== current || workflowId.value !== targetId || creationView.value !== command || creationId.value !== commandId
     || publicationView.value !== publication
     || command && (command.rows.length !== commandRows.length || command.rows.some((row, index) => row !== commandRows[index]))
@@ -479,7 +477,7 @@ async function confirmDiscard(): Promise<boolean> {
     || pendingViews.some(view => view.destroyed || inFlight(view))
     || editableViews().filter(pendingIn)
       .some(view => inFlight(view) || view.hasUnconfirmedSave || !pendingViews.includes(view))) {
-    ElMessage.error('原工作流已变化或保存结果尚未确认，请先处理原提交')
+    pageService.showMessage('原工作流已变化或保存结果尚未确认，请先处理原提交', 'error')
     return false
   }
   for (const view of pendingViews) view.discardPendingChanges()
@@ -527,7 +525,7 @@ async function openCreation(): Promise<void> {
     if (!('commandId' in row) || typeof row['commandId'] !== 'string') throw new Error('创建命令未返回原记录身份')
     view.setCurrentRow(row)
     creationId.value = row['commandId']
-  } catch (error) {if (active) ElMessage.error(`打开新建失败: ${message(error)}`)}
+  } catch (error) {if (active) pageService.showMessage(`打开新建失败: ${message(error)}`, 'error')}
   finally {acting.value = false}
 }
 
@@ -539,7 +537,7 @@ async function finishCreation(result: 'saved' | 'cancelled' | 'preserved'): Prom
   const row = view.rows.find(item => view.getPkKey(item) === id)
   if (!row || view.fieldAccess(row, 'workflowId').read !== 'visible' || view.fieldAccess(row, 'status').read !== 'visible'
     || row['status'] !== 'created' || typeof row['workflowId'] !== 'string') {
-    ElMessage.error('首稿创建已返回，但原创建回执不可读；请保留原命令核查')
+    pageService.showMessage('首稿创建已返回，但原创建回执不可读；请保留原命令核查', 'error')
     return
   }
   const target = row['workflowId']
@@ -548,37 +546,37 @@ async function finishCreation(result: 'saved' | 'cancelled' | 'preserved'): Prom
       || row['workflowId'] !== target || row['status'] !== 'created'
       || ['workflowId', 'status'].some(field => view.fieldAccess(row, field).read !== 'visible')) throw new Error('原创建回执已变化或不可读')
   }
-  ElMessage.success('工作流首稿已创建')
+  pageService.showMessage('工作流首稿已创建', 'success')
   acting.value = true
   try {
     await current.refreshDirectory()
     if (!active || owner.value !== current) return
     assertReceipt()
   } catch (error) {
-    if (active) ElMessage.error(`首稿已创建，但目录刷新失败: ${message(error)}`)
+    if (active) pageService.showMessage(`首稿已创建，但目录刷新失败: ${message(error)}`, 'error')
     return
   } finally {acting.value = false}
   if (active && owner.value === current) await chooseWorkflow(row)
 }
 
 async function refreshDirectory(): Promise<void> {
-  try {await owner.value?.refreshDirectory()} catch (error) {ElMessage.error(`刷新目录失败: ${message(error)}`)}
+  try {await owner.value?.refreshDirectory()} catch (error) {pageService.showMessage(`刷新目录失败: ${message(error)}`, 'error')}
 }
 
 async function save(): Promise<boolean> {
   const current = owner.value
   if (!current || !design.value) return false
-  if (publicationUnconfirmed.value) {ElMessage.error('首次发布结果尚未确认，请先核验原命令'); return false}
+  if (publicationUnconfirmed.value) {pageService.showMessage('首次发布结果尚未确认，请先核验原命令', 'error'); return false}
   saving.value = true
   try {
     const views = designViews.value.filter(pendingIn).map(view => ({tableName: view.tableName, viewId: view.viewId}))
     const result = await current.dataSet.saveChanges({views})
     if (!result.success || designViews.value.some(pendingIn)) throw result.error ?? new Error(result.message ?? 'design.json 保存回执未确认')
-    ElMessage.success('设计稿已保存')
+    pageService.showMessage('设计稿已保存', 'success')
     void refreshDirectory()
     return true
   } catch (error) {
-    ElMessage.error(`保存失败: ${message(error)}`)
+    pageService.showMessage(`保存失败: ${message(error)}`, 'error')
     return false
   } finally {saving.value = false; revision.value++}
 }
@@ -594,8 +592,8 @@ async function copyJson(): Promise<void> {
   if (!current) return
   try {
     await navigator.clipboard.writeText(await current.readDocument(workflowId.value, 'design.json'))
-    ElMessage.success('已保存的 design.json 已复制')
-  } catch (error) {ElMessage.error(`复制失败: ${message(error)}`)}
+    pageService.showMessage('已保存的 design.json 已复制', 'success')
+  } catch (error) {pageService.showMessage(`复制失败: ${message(error)}`, 'error')}
 }
 
 async function loadDefinitionRow(): Promise<{view: DataView; id: string | number}> {
@@ -669,7 +667,7 @@ async function publishFirstDefinition(input: PublishFirstDefinitionInput): Promi
 }
 
 async function openDefinition(): Promise<void> {
-  try {await loadDefinitionRow(); definitionOpen.value = true} catch (error) {ElMessage.error(`打开 Definition 失败: ${message(error)}`)}
+  try {await loadDefinitionRow(); definitionOpen.value = true} catch (error) {pageService.showMessage(`打开 Definition 失败: ${message(error)}`, 'error')}
 }
 
 async function saveDefinitionView(view: DataView, id: string | number): Promise<void> {
@@ -683,28 +681,26 @@ async function saveDefinition(): Promise<void> {
   const view = owner.value?.definitionView, row = view?.currentRow, id = row ? view?.getPkKey(row) : undefined
   if (!view || id === undefined) return
   savingDefinition.value = true
-  try {await saveDefinitionView(view, id); ElMessage.success('definition.json 已保存')} catch (error) {
-    ElMessage.error(`保存 Definition 失败: ${message(error)}`)
+  try {await saveDefinitionView(view, id); pageService.showMessage('definition.json 已保存', 'success')} catch (error) {
+    pageService.showMessage(`保存 Definition 失败: ${message(error)}`, 'error')
   } finally {savingDefinition.value = false; revision.value++}
 }
 
 async function closeDefinition(done?: () => void): Promise<void> {
   const current = owner.value, targetId = workflowId.value, view = current?.definitionView
   if (view && definitionPending.value) {
-    if (view.hasUnconfirmedSave) {ElMessage.error('definition.json 保存结果尚未确认'); return}
+    if (view.hasUnconfirmedSave) {pageService.showMessage('definition.json 保存结果尚未确认', 'error'); return}
     const row = view.currentRow
     let assertRow: () => void
     try {
       if (!row) throw new Error('原Definition行已失效')
       assertRow = view.captureReadRow(row, ['workflowId', 'fileName', 'content'])
-    } catch (error) {ElMessage.error(`关闭 Definition 失败: ${message(error)}`); return}
-    try {
-      await ElMessageBox.confirm('definition.json 有未保存更改，是否丢弃？', '关闭 Definition', {type: 'warning', confirmButtonText: '丢弃', cancelButtonText: '取消'})
-    } catch {return}
+    } catch (error) {pageService.showMessage(`关闭 Definition 失败: ${message(error)}`, 'error'); return}
+    if (!await pageService.showConfirm('definition.json 有未保存更改，是否丢弃？', '关闭 Definition', {type: 'warning', confirmText: '丢弃', cancelText: '取消'})) return
     if (owner.value !== current || workflowId.value !== targetId || view.destroyed || view.hasUnconfirmedSave || view.currentRow !== row) {
-      ElMessage.error('原Definition已变化或保存结果尚未确认，请先处理原提交'); return
+      pageService.showMessage('原Definition已变化或保存结果尚未确认，请先处理原提交', 'error'); return
     }
-    try {assertRow()} catch (error) {ElMessage.error(`关闭 Definition 失败: ${message(error)}`); return}
+    try {assertRow()} catch (error) {pageService.showMessage(`关闭 Definition 失败: ${message(error)}`, 'error'); return}
     view.discardPendingChanges()
   }
   definitionOpen.value = false
@@ -717,16 +713,16 @@ async function publish(): Promise<void> {
   const publication = publicationView.value
   if (publication?.hasUnconfirmedSave) {
     const row = publication.currentRow, id = row ? publication.getPkKey(row) : undefined
-    if (id === undefined) {ElMessage.error('首次发布未知结果缺少原命令行'); return}
+    if (id === undefined) {pageService.showMessage('首次发布未知结果缺少原命令行', 'error'); return}
     publishing.value = true
-    try {await savePublicationCommand(publication, id); ElMessage.success('definition.json 首次发布已确认')}
-    catch (error) {ElMessage.error(`首次发布结果仍未确认: ${message(error)}`)}
+    try {await savePublicationCommand(publication, id); pageService.showMessage('definition.json 首次发布已确认', 'success')}
+    catch (error) {pageService.showMessage(`首次发布结果仍未确认: ${message(error)}`, 'error')}
     finally {publishing.value = false; revision.value++}
     return
   }
-  if (publication && pendingIn(publication)) {ElMessage.error('首次发布命令有未处理修改，请先处理原命令'); return}
+  if (publication && pendingIn(publication)) {pageService.showMessage('首次发布命令有未处理修改，请先处理原命令', 'error'); return}
   if (pendingIn(current.definitionView)) {
-    ElMessage.error('发布失败: definition.json 有未保存或待核验的修改，请先在 Definition 中处理原行')
+    pageService.showMessage('发布失败: definition.json 有未保存或待核验的修改，请先在 Definition 中处理原行', 'error')
     return
   }
   if (hasPending.value && !await save()) return
@@ -752,15 +748,15 @@ async function publish(): Promise<void> {
     const definitionContent = formatJson(definition)
     if (!existing) {
       await publishFirstDefinition({owner: current, workflowId: targetId, designContent: source, definitionContent})
-      ElMessage.success('definition.json 已首次发布')
+      pageService.showMessage('definition.json 已首次发布', 'success')
       return
     }
     const {view, id} = existing
     view.updateEditingValue(id, 'content', definitionContent)
     await saveDefinitionView(view, id)
-    ElMessage.success('definition.json 已发布')
+    pageService.showMessage('definition.json 已发布', 'success')
   } catch (error) {
-    ElMessage.error(`发布失败: ${message(error)}`)
+    pageService.showMessage(`发布失败: ${message(error)}`, 'error')
   } finally {publishing.value = false; revision.value++}
 }
 
@@ -778,8 +774,8 @@ onMounted(async () => {
   try {
     const created = await createAgentWorkflowFileDataViewOwner()
     if (!active) {created.dispose(); return}
-    owner.value = created
     sparkProvide(PAGE_RUNTIME, created.runtime)
+    owner.value = created
     const changed = () => {revision.value++}
     stopChanges = created.dataSet.onAnyViewChange({rowsChanged: changed, currentRowChanged: changed, editingChanged: changed,
       requestStateChanged: changed, mutatingChanged: changed})

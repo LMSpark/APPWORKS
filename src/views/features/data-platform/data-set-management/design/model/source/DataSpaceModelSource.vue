@@ -27,8 +27,8 @@ AI用途：模型新增/来源替换入口，共用查询、取消、脏状态�
       <RendererTable :key="results.viewId + results.tableName" :data-view-key="controls.key(results)" data-member="rows"
         :auto-columns="false" :show-data-view-meta="false" :show-pagination="true" :max-height="460"
         :pagination="{pageSizes: [10, 20, 50], showJumper: false}" highlight-current-row aria-label="来源候选">
-        <FieldText :field="controls.specification.name" :label="type === 'table' ? '表名' : '名称'" :min-width="260" :sortable="false" :header="searchHeader('keyword', '来源名称')" />
-        <FieldText v-if="controls.specification.description" :field="controls.specification.description" label="描述" empty-text="-" :min-width="260" :sortable="false" :header="searchHeader('description', '来源说明')" />
+        <FieldText :field="controls.specification.name" :label="type === 'table' ? '表名' : '名称'" :min-width="260" :header="searchHeader('keyword', '来源名称')" />
+        <FieldText v-if="controls.specification.description" :field="controls.specification.description" label="描述" empty-text="-" :min-width="260" :header="searchHeader('description', '来源说明')" />
         <FieldText v-else label="描述" empty-text="-" :min-width="260" :sortable="false" />
         <FieldText v-if="controls.specification.databaseName" field="databaseDisplay" label="数据库名称 / 稳定 ID" :min-width="260" :sortable="false" :header="searchHeader('databaseName', '数据库名称')" />
       </RendererTable>

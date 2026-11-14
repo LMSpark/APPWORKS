@@ -37,13 +37,14 @@
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
-import {ElMessage, ElMessageBox} from 'element-plus'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
-const {PAGE_RUNTIME, RendererDialog, RendererSection, RendererTable, RendererForm, RendererButton, FieldTextarea, useSparkComponent} = Components
+const {PAGE_RUNTIME, RendererDialog, RendererSection, RendererTable, RendererForm, RendererButton, FieldTextarea, useSparkComponent, consumeRequiredPageService} = Components
 const props = defineProps<{scenarioId: string; recordId: string; shortName: string; title: string}>()
 const emit = defineEmits<{close: []}>()
 const {sparkConsume} = useSparkComponent({type: 'enterprise-app-auth-dialog'})
+const pageService = consumeRequiredPageService(sparkConsume, 'enterprise-app-auth-dialog')
+
 const appKey = buildDataViewKey('Base_AppSystemList', 'default', props.scenarioId)
 const authKey = buildDataViewKey('enterprise_app_auth', 'default', props.scenarioId)
 const navigationKey = buildDataViewKey('Base_NavigationInfo', 'default', props.scenarioId)
@@ -179,7 +180,7 @@ onBeforeUnmount(() => {
 
 async function confirmed(message: string, title: string): Promise<boolean> {
   try {
-    await ElMessageBox.confirm(message, title, {type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消'})
+    if (!await pageService.showConfirm(message, title, {type: 'warning', confirmText: '确定', cancelText: '取消'})) return false
     return true
   } catch {
     return false
@@ -189,7 +190,7 @@ async function commit(view: DataView, id: string, success: string): Promise<bool
   if (!view.dataSet) throw new Error('授权视图未接入数据空间')
   try {
     await view.dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
-    ElMessage.success(success)
+    pageService.showMessage(success, 'success')
     await view.refresh()
     return true
   } catch (cause) {

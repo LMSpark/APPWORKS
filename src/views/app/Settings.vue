@@ -6,56 +6,40 @@ AI用途：需要定位主题切换、路由统计、手动重载导航或本机
 -->
 <template>
   <div class="settings-page">
-    <el-page-header content="系统设置" @back="$router.go(-1)">
-      <template #icon>
-        <span style="font-size: 20px">⚙️</span>
-      </template>
-    </el-page-header>
+    <RendererPageHeader content="系统设置" @back="router.go(-1)" />
 
     <div class="settings-content">
-      <el-row :gutter="24">
-        <el-col :span="16">
-          <el-card header="应用">
-            <el-form label-width="120px" size="default">
-              <el-form-item label="应用名称">
-                <el-input :model-value="appName" disabled />
-              </el-form-item>
-              <el-form-item label="应用版本">
-                <el-input :model-value="packageMetadata.version" disabled />
-              </el-form-item>
-              <el-form-item label="主题模式">
-                <el-radio-group v-model="themeMode">
-                  <el-radio value="light">浅色主题</el-radio>
-                  <el-radio value="dark">深色主题</el-radio>
-                  <el-radio value="auto">跟随系统</el-radio>
-                </el-radio-group>
-              </el-form-item>
-            </el-form>
-          </el-card>
-        </el-col>
+      <RendererRow :gutter="24">
+        <RendererCol :span="16">
+          <RendererCard header="应用">
+            <RendererForm :grid-columns="1" label-width="120px" :show-data-view-meta="false">
+              <FieldText :model-value="appName" label="应用名称" readonly />
+              <FieldText :model-value="packageMetadata.version" label="应用版本" readonly />
+              <FieldRadio v-model="themeMode" label="主题模式" :options="[...themeOptions]" />
+            </RendererForm>
+          </RendererCard>
+        </RendererCol>
 
-        <el-col :span="8">
-          <el-card header="路由" class="status-card">
+        <RendererCol :span="8">
+          <RendererCard header="路由" class="status-card">
             <div class="status-list">
               <div class="status-item">
                 <span class="status-label">已注册路由</span>
-                <el-tag type="info">{{ routeCount }} 个</el-tag>
+                <DisplayTag type="info">{{ routeCount }} 个</DisplayTag>
               </div>
               <div class="status-item">
                 <span class="status-label">配置页面</span>
-                <el-tag type="info">{{ configPageCount }} 个</el-tag>
+                <DisplayTag type="info">{{ configPageCount }} 个</DisplayTag>
               </div>
               <div class="status-item">
                 <span class="status-label">Vue 组件页面</span>
-                <el-tag type="success">{{ vuePageCount }} 个</el-tag>
+                <DisplayTag type="success">{{ vuePageCount }} 个</DisplayTag>
               </div>
             </div>
-            <el-button type="warning" size="small" style="width: 100%; margin-top: 12px" @click="reloadNavigation">
-              重载导航
-            </el-button>
-          </el-card>
-        </el-col>
-      </el-row>
+            <RendererButton label="重载导航" button-type="warning" size="small" class="reload-button" @click="reloadNavigation" />
+          </RendererCard>
+        </RendererCol>
+      </RendererRow>
       <LocalPageCacheCard />
     </div>
   </div>
@@ -67,9 +51,22 @@ AI用途：需要定位主题切换、路由统计、手动重载导航或本机
  */
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
 import { getNavTree, useTheme } from '@spark-appworks/spark-app'
-import { isThemeMode, type ThemeMode } from '@spark-appworks/spark-component'
+import {DisplayTag,
+  FieldRadio,
+  FieldText,
+  isThemeMode,
+  PAGE_SERVICE,
+  RendererButton,
+  RendererCard,
+  RendererCol,
+  RendererForm,
+  RendererPageHeader,
+  RendererRow,
+  consumeRequiredPageService,
+  useSparkComponent,
+  type ThemeMode,
+} from '@spark-appworks/spark-component'
 import { getVuePageOptions, hasVuePage } from '@/registries/vue-page-registry'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
@@ -77,7 +74,16 @@ import packageMetadata from '../../../package.json'
 import LocalPageCacheCard from './settings/local-page-cache-card.vue'
 
 const router = useRouter()
+const {sparkConsume} = useSparkComponent({type: 'app-settings'})
+
+const pageService = consumeRequiredPageService(sparkConsume, 'app-settings')
 const theme = useTheme()
+
+const themeOptions = [
+  { value: 'light', label: '浅色主题' },
+  { value: 'dark', label: '深色主题' },
+  { value: 'auto', label: '跟随系统' },
+] as const
 
 const appName = ref('SPARK 应用工场')
 const themeMode = ref<ThemeMode>(theme?.mode ?? 'light')
@@ -106,9 +112,9 @@ async function reloadNavigation(): Promise<void> {
   try {
     await reloadAndSyncNavigation()
     syncRuntimeFacts()
-    ElMessage.success('已从 lowcode 重新读取导航')
+    pageService.showMessage('已从 lowcode 重新读取导航', 'success')
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : String(error))
+    pageService.showMessage(error instanceof Error ? error.message : String(error), 'error')
   }
 }
 
@@ -121,7 +127,9 @@ watch(themeMode, (mode) => {
 
 <style scoped>
 .settings-page {
-  padding: 24px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .settings-content {
@@ -129,7 +137,7 @@ watch(themeMode, (mode) => {
 }
 
 .status-card {
-  height: fit-content;
+  height: 100%;
 }
 
 .status-list {
@@ -142,11 +150,14 @@ watch(themeMode, (mode) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
 }
 
 .status-label {
-  font-size: 14px;
-  color: #606266;
+  color: var(--el-text-color-regular);
+}
+
+.reload-button {
+  width: 100%;
+  margin-top: 12px;
 }
 </style>

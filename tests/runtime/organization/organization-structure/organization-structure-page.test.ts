@@ -90,7 +90,7 @@ describe('reference organization page through SPARK data', () => {
     expect(table.props('dataViewKey')).toBe(`${ORGANIZATION_SCENARIO}@Base_DepartInfo@default`)
     expect(table.findAll('.el-table__header-wrapper th').map(header => header.text()))
       .toEqual(['#', '机构名称', '机构 ID', '上级机构 ID', '机构层级', '层级路径'])
-    expect(table.findAll('th.is-sortable')).toHaveLength(0)
+    expect(table.findAll('th.is-sortable').map(header => header.text())).toEqual(['机构名称', '机构 ID', '上级机构 ID', '机构层级', '层级路径'])
     const rows = table.findAll('.el-table__body-wrapper tbody tr')
     expect(rows).toHaveLength(10)
     expect(rows[0]?.find('td').text()).toBe('1')

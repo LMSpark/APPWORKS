@@ -29,10 +29,9 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
 <script setup lang="ts">
 import {computed, ref, shallowRef} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate} from 'vue-router'
-import {ElMessage, ElMessageBox} from 'element-plus'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererSection, RendererTable, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import {PAGE_SERVICE, RendererButton, RendererSection, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
@@ -44,6 +43,8 @@ import {commitReportChanges, reportPendingReason, UNCONFIRMED_HINT, verifyReport
 
 const scenarioId = 'FB291E325272007AEED8921C28B93CFD'
 const key = (model: string, view = 'default') => buildDataViewKey(model, view, scenarioId)
+const {sparkConsume} = useSparkComponent({type: 'report-management-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'report-management-page')
 const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Base_ReportInfo', componentType: 'report-management-page', title: '业务报表管理',
   optionModels: ['Base_Report', 'Base_AppSystemList', 'Base_UserInfo', 'Base_DataSet', '功能导航状态字典'],
@@ -93,24 +94,26 @@ function assertSettled(): void {
 const verify = () => guarded(async () => {
   const views = reportViews()
   try {
-    ElMessage.success(await verifyReportSaves(views))
+    pageService.showMessage(await verifyReportSaves(views), 'success')
   } finally {
     if (!views.some(item => item.hasUnconfirmedSave)) await Promise.all([view(viewKey).refresh(), view(reportKey).refresh()])
   }
 })
 
-type ReportColumn = Readonly<{field: string; label: string; width?: number; minWidth?: number; optionDataViewKey?: string}>
-const column = ({field, label, width, minWidth, optionDataViewKey}: ReportColumn): SparkNode =>
-  ({type: optionDataViewKey ? 'r-select' : 'r-text', props: {field, label, readonly: true, sortable: false, showOverflowTooltip: true,
-    ...(width ? {width, align: 'center'} : {minWidth}), ...(optionDataViewKey ? {optionDataViewKey} : {})}})
+/** sortable=false 用于存不透明记录 ID、按标签显示的列：服务端按 ID 排序与所见名称次序无关。 */
+type ReportColumn = Readonly<{field: string; label: string; width?: number; minWidth?: number; optionDataViewKey?: string; sortable?: false}>
+const column = ({field, label, width, minWidth, optionDataViewKey, sortable}: ReportColumn): SparkNode =>
+  ({type: optionDataViewKey ? 'r-select' : 'r-text', props: {field, label, readonly: true, showOverflowTooltip: true,
+    ...(width ? {width, align: 'center'} : {minWidth}), ...(optionDataViewKey ? {optionDataViewKey} : {}),
+    ...(sortable === false ? {sortable} : {})}})
 const columns: SparkNode[] = [
   column({field: 'RptName', label: '报表名称', minWidth: 180}),
-  column({field: 'modid', label: '应用系统', minWidth: 180, optionDataViewKey: appKey}),
+  column({field: 'modid', label: '应用系统', minWidth: 180, optionDataViewKey: appKey, sortable: false}),
   column({field: 'RptDesc', label: '报表描述', minWidth: 220}),
-  {type: 'r-text', props: {field: 'CreateTime', label: '创建时间', readonly: true, width: 130, align: 'center', sortable: false, displayFormatter: formatDay}},
+  {type: 'r-text', props: {field: 'CreateTime', label: '创建时间', readonly: true, width: 130, align: 'center', displayFormatter: formatDay}},
   {type: 'r-select', props: {field: 'createuser', label: '创建人', readonly: true, width: 120, sortable: false, optionDataViewKey: userKey}},
-  column({field: 'version_id', label: '启用版本名称', width: 140, optionDataViewKey: reportKey}),
-  column({field: 'version_dataid', label: '当前版本模型', minWidth: 180, optionDataViewKey: dataSetKey}),
+  column({field: 'version_id', label: '启用版本名称', width: 140, optionDataViewKey: reportKey, sortable: false}),
+  column({field: 'version_dataid', label: '当前版本模型', minWidth: 180, optionDataViewKey: dataSetKey, sortable: false}),
   column({field: 'useStatus', label: '使用状态', width: 120, optionDataViewKey: statusKey}),
 ]
 const filter: RFilterProps = {
@@ -185,12 +188,7 @@ async function closeDialog(reason?: 'abandoned'): Promise<void> {
 const remove = (row: DataRow) => guarded(async () => {
   const info = view(viewKey), id = idOf(info, row)
   assertSettled()
-  try {
-    await ElMessageBox.confirm(`确定删除报表"${textOf(row, 'RptName') || String(id)}"及其全部版本吗？`, '删除确认', {type: 'warning'})
-  } catch (cause) {
-    if (cause === 'cancel' || cause === 'close') return
-    throw cause
-  }
+  if (!await pageService.showConfirm(`确定删除报表"${textOf(row, 'RptName') || String(id)}"及其全部版本吗？`, '删除确认', {type: 'warning'})) return
   assertSettled()
   const versions = view(versionsKey)
   versions.queryContext = {reportId: String(id)}
@@ -208,7 +206,7 @@ const remove = (row: DataRow) => guarded(async () => {
       await Promise.all([info.refresh(), view(reportKey).refresh()])
     }
   }
-  ElMessage.success('删除成功')
+  pageService.showMessage('删除成功', 'success')
 })
 </script>
 

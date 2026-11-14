@@ -148,7 +148,7 @@ describe('native DataView catalog',()=>{
     const fixture=writable();fixture.rows.push({rowid:'OTHER',Name:'Other directory item',Type:'datasource',sysid:'APP',createuser:'USER',createtime:'2026-01-02'})
     const {wrapper}=await page();await wrapper.get('tbody tr').trigger('click');await flushPromises()
     await button(wrapper,'删除').trigger('click');await flushPromises()
-    expect(wrapper.text()).toContain('仅删除空间记录')
+    expect(wrapper.text()).toContain('确认删除“Directory item”吗')
     const deleteButtons=wrapper.findAll('button').filter(item=>item.text()==='删除')
     await deleteButtons.at(-1)!.trigger('click');await flushPromises()
     expect(calls('Base_DataModel').map(([view])=>view.viewId)).toContain('catalogDeleteCheck')
@@ -158,7 +158,7 @@ describe('native DataView catalog',()=>{
   it('cancels catalog deletion without staging or submitting a DataView change',async()=>{
     const fixture=writable(),{wrapper}=await page();await wrapper.get('tbody tr').trigger('click');await flushPromises()
     await button(wrapper,'删除').trigger('click');await flushPromises()
-    expect(wrapper.text()).toContain('确认删除数据空间“Directory item”吗')
+    expect(wrapper.text()).toContain('确认删除“Directory item”吗')
     await button(wrapper,'取消').trigger('click');await flushPromises()
     expect(fixture.writes).toBe(0)
     expect(fixture.rows.map(row=>row['rowid'])).toEqual(['TARGET'])
@@ -187,7 +187,7 @@ describe('native DataView catalog',()=>{
     if(!view)throw new Error('catalog DataView was not assembled')
     await wrapper.get('tbody tr').trigger('click');await flushPromises()
     await button(wrapper,'删除').trigger('click');await flushPromises()
-    expect(wrapper.text()).toContain('确认删除数据空间“Directory item”吗')
+    expect(wrapper.text()).toContain('确认删除“Directory item”吗')
     const other=view.rows.find(row=>row['rowid']==='OTHER')
     if(!other)throw new Error('second catalog row was not queried')
     view.setSelectedRows([other])
@@ -519,7 +519,7 @@ describe('catalog page entry',()=>{
     form.getComponent(FieldSelect).getComponent(ElSelect).vm.$emit('update:modelValue','APP');await flushPromises()
     await button(wrapper,'确定').trigger('click');await flushPromises()
     expect(server.save).toHaveBeenCalledTimes(1);expect(wrapper.findComponent(RendererForm).exists()).toBe(false)
-    expect(wrapper.text()).toContain('From form');expect(wrapper.text()).toContain('数据空间已保存')
+    expect(wrapper.text()).toContain('From form');expect(document.body.textContent).toContain('新增成功')
   })
   it('blocks resubmission after an unknown write and offers a read-only reconciliation action',async()=>{
     const server=writable(),{wrapper}=await page();await wrapper.get('tbody tr').trigger('click');await flushPromises()
@@ -544,7 +544,7 @@ describe('catalog page entry',()=>{
     const session={loadMetadataViews:vi.fn(),readApiInfo:vi.fn(async()=>'formal API information'),dispose:vi.fn()};openDesign.mockResolvedValue(session)
     const {wrapper}=await page();await wrapper.get('tbody tr').trigger('click');await flushPromises()
     await button(wrapper,'复制API').trigger('click');await flushPromises()
-    expect(writeText).toHaveBeenCalledWith('formal API information');expect(session.dispose).toHaveBeenCalledOnce();expect(wrapper.text()).toContain('已复制')
+    expect(writeText).toHaveBeenCalledWith('formal API information');expect(session.dispose).toHaveBeenCalledOnce();expect(document.body.textContent).toContain('API信息已复制到剪贴板')
   })
   it('opens the original catalog row in a standard bound edit form and cancels without saving',async()=>{
     writable()
@@ -581,7 +581,7 @@ describe('catalog page entry',()=>{
     expect(document.body.textContent).not.toContain('UNTRUSTED')
   })
   it('retains standard OR/application filters across paging and resets them',async()=>{
-    const {wrapper}=await page();await wrapper.get('input[placeholder="搜索名称或 ID"]').setValue(' FIND ');await flushPromises()
+    const {wrapper}=await page();await wrapper.get('input[placeholder="请输入名称/id"]').setValue(' FIND ');await flushPromises()
     wrapper.findAllComponents(FieldSelect).find(item=>item.props('field')==='sysid')!.getComponent(ElSelect).vm.$emit('update:modelValue','APP');await flushPromises()
     await button(wrapper,'查询').trigger('click');await flushPromises()
     expect(last().filter).toEqual({logic:'and',filters:[{logic:'or',filters:[{field:'Name',operator:'contains',value:'FIND'},
@@ -594,7 +594,7 @@ describe('catalog page entry',()=>{
       {rowid:'ROW',Name:'VISIBLE',description:'SECRET',sysid:'HIDDEN-APP',createuser:'UNKNOWN',lingma_sys_params:{m:['description'],h:['sysid']}},
       {rowid:'SECRET-ID',Name:'NO-DESIGN',createuser:'HIDDEN-USER',lingma_sys_params:{h:['rowid','createuser']}},
     ]:[]))
-    const {wrapper}=await page();expect(wrapper.text()).toContain('未解析用户');expect(wrapper.text()).toContain('有 1 位创建人当前无法解析')
+    const {wrapper}=await page();expect(wrapper.text()).toContain('未解析用户');expect(wrapper.text()).toContain('部分历史创建人不在当前用户资源中（1 位）')
     expect(wrapper.html()).not.toMatch(/SECRET-ID|HIDDEN-APP|HIDDEN-USER|UNKNOWN|SECRET/)
     const hidden=wrapper.findAll('tbody tr')[1]!;await hidden.trigger('click');await flushPromises()
     expect(hidden.findAll('button').find(item=>item.text()==='设计')!.attributes('disabled')).toBeDefined()

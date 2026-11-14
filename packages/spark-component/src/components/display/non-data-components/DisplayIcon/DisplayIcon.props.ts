@@ -8,8 +8,10 @@ import type { SparkNodeProps } from '../../../shared-types'
 
 /** RDisplay Icon Props 的属性契约。 */
 export type RDisplayIconProps = SparkNodeProps & {
-  /** 图标名称（由项目图标注册表解析） */
+  /** 图标名称：Element Plus 图标名或历史导航图标类名；非标识符名称（如 emoji）按文本显示。 */
     icon?: string
+    /** 图标名无法解析时使用的 Element Plus 图标名。 */
+    fallback?: string
     /** 图标大小 */
     iconSize?: number | string
     /** 图标颜色 */

@@ -86,10 +86,9 @@ AI用途：迁移参考仓 integration/dimension 页面时，核对规则启用�
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate} from 'vue-router'
-import {ElMessageBox} from 'element-plus'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {RequestState, buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererTable, RendererTabs, RendererTabPane, type RToolbarProps} from '@spark-appworks/spark-component'
+import {PAGE_SERVICE, RendererButton, RendererTable, RendererTabs, RendererTabPane, useSparkComponent, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
@@ -100,6 +99,8 @@ import {CATEGORY_SPECS, DEFINITION_SPECS, FLAG_DISPLAY, YES_NO_DISPLAY, text} fr
 
 const scenarioId = '88A4D51B01702C3856F4632E234BF34B'
 const key = (model: string, view = 'default') => buildDataViewKey(`Bil_Dimension_${model}`, view, scenarioId)
+const {sparkConsume} = useSparkComponent({type: 'dimension-design-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'dimension-design-page')
 const {viewKey: bindingKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Bil_Dimension_Source_Binding', componentType: 'dimension-design-page', title: '维度中心',
 })
@@ -181,7 +182,7 @@ watch([ready, tab], ([isReady, name]) => {
 }, {immediate: true})
 
 const col = (field: string, label: string, minWidth = 120): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, minWidth, sortable: false, showOverflowTooltip: true}})
+  ({type: 'r-text', props: {field, label, readonly: true, minWidth, showOverflowTooltip: true}})
 const status: SparkNode = {type: 'r-select', props: {field: 'status', label: '状态', readonly: true, minWidth: 80, options: [...FLAG_DISPLAY]}}
 const flag = (field: string, label: string): SparkNode =>
   ({type: 'r-select', props: {field, label, readonly: true, minWidth: 70, options: [...YES_NO_DISPLAY]}})
@@ -315,7 +316,7 @@ function closeRuleDialog(result?: string): void {
 
 async function confirmDelete(label: string): Promise<boolean> {
   try {
-    await ElMessageBox.confirm(`确定删除"${label}"吗？`, '删除确认', {type: 'warning'})
+    if (!await pageService.showConfirm(`确定删除"${label}"吗？`, '删除确认', {type: 'warning'})) return false
     return true
   } catch (cause) {
     if (cause === 'cancel' || cause === 'close') return false
@@ -384,7 +385,7 @@ const continueDelete = () => guarded(async () => {
 })
 async function confirmRecovery(message: string): Promise<boolean> {
   try {
-    await ElMessageBox.confirm(message, '核对规则删除', {type: 'warning', confirmButtonText: '继续', cancelButtonText: '返回'})
+    if (!await pageService.showConfirm(message, '核对规则删除', {type: 'warning', confirmText: '继续', cancelText: '返回'})) return false
     return true
   } catch (cause) {
     if (cause === 'cancel' || cause === 'close') return false

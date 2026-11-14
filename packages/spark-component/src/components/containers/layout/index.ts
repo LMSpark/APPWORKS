@@ -31,6 +31,7 @@ export { default as RendererPopconfirm } from './overlay/RendererPopconfirm/Rend
 export { default as RendererTour } from './overlay/RendererTour/RendererTour.vue'
 export { default as RendererAnchor } from './navigation/RendererAnchor/RendererAnchor.vue'
 export { default as RendererAnchorLink } from './navigation/RendererAnchor/RendererAnchorLink.vue'
+export { default as RendererMenu } from './navigation/RendererMenu/RendererMenu.vue'
 
 // ── Props 类型 ──
 export type { RTabsProps, TabsClickEvent } from './navigation/RendererTabs/index.js'
@@ -53,6 +54,7 @@ export type { RPopconfirmProps } from './overlay/RendererPopconfirm/RendererPopc
 export type { RTourProps, TourStep } from './overlay/RendererTour/RendererTour.props'
 export type { RAnchorProps } from './navigation/RendererAnchor/RendererAnchor.props'
 export type { RAnchorLinkProps } from './navigation/RendererAnchor/RendererAnchorLink.props'
+export type { RMenuProps, MenuItem } from './navigation/RendererMenu/RendererMenu.props'
 
 // ── Passthrough（工厂生成，替代独立 .vue 文件）──
 import { createPassthrough } from '../../create-passthrough.js'

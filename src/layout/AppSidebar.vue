@@ -1,7 +1,7 @@
 <!--
 @module app:layout/AppSidebar
-职责：提供主应用 AppSidebar 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。
-边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。
+职责：用标准 RendererMenu 呈现应用壳已授权的 RuntimeNavigationItem 侧栏，并通过唯一 useNav 上下文处理选择与激活。
+边界：不创建导航数据、权限判定或路由；只把导航树映射为菜单项。
 AI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/AppSidebar。
 -->
 <template>
@@ -11,24 +11,17 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       <span v-else class="app-sidebar__logo-icon">S</span>
     </div>
 
-    <!-- 导航模型驱动 -->
-    <el-menu
-      v-if="safeItems.length"
-      :default-active="activeIndex"
-      :background-color="'transparent'"
+    <RendererMenu
+      v-if="menuItems.length"
+      class="app-sidebar__menu"
+      :items="menuItems"
+      :active-index="activeIndex"
+      :collapse="collapsed"
+      background-color="transparent"
       text-color="var(--spark-sidebar-text)"
       active-text-color="var(--el-color-primary)"
-      :collapse="collapsed"
-    >
-      <AppSidebarNode
-        v-for="item in safeItems"
-        :key="item.id"
-        :item="item"
-        :collapsed="collapsed"
-        :show-text="!collapsed"
-      />
-    </el-menu>
-
+      @select="onSelect"
+    />
   </div>
 </template>
 
@@ -36,7 +29,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useNav, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
-import AppSidebarNode from './AppSidebarNode.vue'
+import { RendererMenu, type MenuItem } from '@spark-appworks/spark-component'
 
 const props = withDefaults(defineProps<{
   title?: string
@@ -61,8 +54,64 @@ const activeIndex = computed(() => {
   return activeNode !== undefined ? menuIndex(activeNode) : route.path
 })
 
+const nodesByIndex = computed(() => {
+  const nodes = new Map<string, RuntimeNavigationItem>()
+  const visit = (items: readonly RuntimeNavigationItem[]) => items.forEach(item => {
+    nodes.set(menuNodeIndex(item), item)
+    visit(visibleChildren(item))
+  })
+  visit(safeItems.value)
+  return nodes
+})
+
+const menuItems = computed<MenuItem[]>(() => safeItems.value.map(toMenuItem))
+
+function toMenuItem(item: RuntimeNavigationItem): MenuItem {
+  const children = visibleChildren(item)
+  const base = { index: menuNodeIndex(item), label: item.title, ...(item.icon ? { icon: item.icon } : {}) }
+  if (shouldRenderAsSubMenu(item)) return { ...base, children: children.map(toMenuItem) }
+  if (isDirectoryNode(item) && children.length > 0) return { ...base, group: true, children: children.map(toMenuItem) }
+  return {
+    ...base,
+    ...(item.disabled ? { disabled: true } : {}),
+    ...(isActive(item) ? { active: true } : {}),
+    ...(item.dividerAfter ? { dividerAfter: true } : {}),
+  }
+}
+
+/** 子菜单与分组用节点 id，叶子用路径，与 activeIndex 一致。 */
+function menuNodeIndex(item: RuntimeNavigationItem): string {
+  return isDirectoryNode(item) && visibleChildren(item).length > 0 ? item.id : menuIndex(item)
+}
+
 function menuIndex(item: RuntimeNavigationItem): string {
   return item.path ?? item.id
+}
+
+function shouldRenderAsSubMenu(item: RuntimeNavigationItem): boolean {
+  const children = visibleChildren(item)
+  if (children.length === 0) return false
+  if (!isDirectoryNode(item)) return false
+  const placement = item.childPlacement
+  if (placement === 'parent' || placement === 'flat') return true
+  return children.some((child) => isDirectoryNode(child) && visibleChildren(child).length > 0)
+}
+
+function isDirectoryNode(item: RuntimeNavigationItem): boolean {
+  return item.itemKind === 'module' || item.itemKind === 'system-directory'
+}
+
+function visibleChildren(item: RuntimeNavigationItem): RuntimeNavigationItem[] {
+  return (item.children ?? []).filter((child) => !child.hidden)
+}
+
+function isActive(item: RuntimeNavigationItem): boolean {
+  return nav?.isNodeActive(item) ?? menuIndex(item) === route.path
+}
+
+function onSelect(index: string) {
+  const node = nodesByIndex.value.get(index)
+  if (node) nav?.navigateTo(node)
 }
 </script>
 
@@ -96,36 +145,15 @@ function menuIndex(item: RuntimeNavigationItem): string {
   color: var(--el-color-primary);
 }
 
-.app-sidebar__menu-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  width: 100%;
-}
-
-.app-sidebar__menu-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.app-sidebar__menu-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 /* 透明背景让侧栏 CSS 变量生效 */
-.app-sidebar :deep(.el-menu) {
+.app-sidebar__menu.el-menu {
   border-right: none;
   padding: 0;
   background: transparent;
 }
 
-.app-sidebar :deep(.el-menu-item),
-.app-sidebar :deep(.el-sub-menu__title) {
+.app-sidebar__menu :deep(.el-menu-item),
+.app-sidebar__menu :deep(.el-sub-menu__title) {
   position: relative;
   height: 40px;
   line-height: 40px;
@@ -134,27 +162,27 @@ function menuIndex(item: RuntimeNavigationItem): string {
   padding-right: 12px !important;
 }
 
-.app-sidebar :deep(.el-menu--collapse > .el-menu-item),
-.app-sidebar :deep(.el-menu--collapse > .el-sub-menu > .el-sub-menu__title) {
+.app-sidebar__menu.el-menu--collapse > :deep(.el-menu-item),
+.app-sidebar__menu.el-menu--collapse > :deep(.el-sub-menu > .el-sub-menu__title) {
   padding-left: 12px !important;
 }
 
-.app-sidebar :deep(.el-menu-item:hover),
-.app-sidebar :deep(.el-sub-menu__title:hover) {
+.app-sidebar__menu :deep(.el-menu-item:hover),
+.app-sidebar__menu :deep(.el-sub-menu__title:hover) {
   background: color-mix(in srgb, var(--spark-sidebar-text) 10%, transparent);
 }
 
-.app-sidebar :deep(.el-menu-item.is-active),
-.app-sidebar :deep(.el-sub-menu .el-menu-item.is-active),
-.app-sidebar :deep(.el-menu-item.app-sidebar__menu-item--active) {
+.app-sidebar__menu :deep(.el-menu-item.is-active),
+.app-sidebar__menu :deep(.el-sub-menu .el-menu-item.is-active),
+.app-sidebar__menu :deep(.el-menu-item.r-menu__item--active) {
   color: var(--el-color-primary);
   background: color-mix(in srgb, var(--el-color-primary) 12%, transparent);
   font-weight: 600;
 }
 
-.app-sidebar :deep(.el-menu-item.is-active::before),
-.app-sidebar :deep(.el-sub-menu .el-menu-item.is-active::before),
-.app-sidebar :deep(.el-menu-item.app-sidebar__menu-item--active::before) {
+.app-sidebar__menu :deep(.el-menu-item.is-active::before),
+.app-sidebar__menu :deep(.el-sub-menu .el-menu-item.is-active::before),
+.app-sidebar__menu :deep(.el-menu-item.r-menu__item--active::before) {
   position: absolute;
   left: 0;
   top: 11px;
@@ -165,24 +193,13 @@ function menuIndex(item: RuntimeNavigationItem): string {
   content: '';
 }
 
-.app-sidebar :deep(.el-menu--collapse .app-sidebar__menu-label) {
-  justify-content: center;
-}
-
-.app-sidebar :deep(.el-menu-item-group__title) {
+.app-sidebar__menu :deep(.el-menu-item-group__title) {
   color: color-mix(in srgb, var(--spark-sidebar-text) 75%, transparent);
   font-size: 12px;
   font-weight: 600;
 }
 
-.app-sidebar__node-divider {
-  display: block;
-  height: 1px;
-  margin: 8px 12px;
-  padding: 0;
-  list-style: none;
-  border: 0;
+.app-sidebar__menu :deep(.r-menu__separator) {
   background: color-mix(in srgb, var(--spark-sidebar-text) 18%, transparent);
-  pointer-events: none;
 }
 </style>

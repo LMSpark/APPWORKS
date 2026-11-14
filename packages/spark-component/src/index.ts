@@ -134,6 +134,7 @@ export {
   SparkPageRenderer,
 } from './page/index.js'
 export { buildPageService } from './page/services/buildPageService.js'
+export {consumeRequiredPageService} from './page/services/consumeRequiredPageService.js'
 // 组件层公共导出（容器 / 字段 / 展示 / 支持组件）
 export {
   DisplayAlert,
@@ -225,6 +226,7 @@ export {
   RendererLink,
   RendererList,
   RendererMain,
+  RendererMenu,
   RendererPageHeader,
   RendererPopconfirm,
   RendererPopover,
@@ -295,6 +297,8 @@ export type {
   RIconProps,
   RImageProps,
   RLinkProps,
+  MenuItem,
+  RMenuProps,
   RMentionProps,
   RMultiSelectProps,
   RNumberProps,

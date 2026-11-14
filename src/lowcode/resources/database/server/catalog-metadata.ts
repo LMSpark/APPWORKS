@@ -31,22 +31,39 @@ export const DATABASE_SERVER_REGISTER_COLUMNS: DataColumn[] = [
   {name: 'description', type: 'string', label: '描述'},
 ]
 
-/** 注册表单标准字段子组件；系统生成的 rowid 不录入，密码输入遮盖。 */
+const SERVER_FIELD_PLACEHOLDERS: Readonly<Record<string, string>> = {
+  Type: '请选择类型', ServerName: '请输入服务器名称', ip_address: '请输入服务器IP地址', Port: '请输入服务器端口',
+  UserName: '请输入服务器账号', Password: '请输入服务器密码', description: '请输入描述',
+}
+type ServerFormSlot = Readonly<{name: string; colSpan: number}>
+function serverFormField({name, colSpan}: ServerFormSlot): SparkNode {
+  const column = DATABASE_SERVER_REGISTER_COLUMNS.find(item => item.name === name)
+  const base = {field: name, label: column?.label ?? name, colSpan, placeholder: SERVER_FIELD_PLACEHOLDERS[name]}
+  if (column?.enumOptions) return {type: 'r-select', props: {...base, options: [...column.enumOptions]}}
+  if (name === 'description') return {type: 'r-textarea', props: {...base, autosize: {minRows: 3}}}
+  return {type: 'r-text', props: {...base, ...(name === 'Password' ? {showPassword: true} : {})}}
+}
+
+/** 注册表单（12 栏网格，按参考两列排布）；系统生成的 rowid 不录入，密码输入遮盖。 */
 export const DATABASE_SERVER_REGISTER_FORM_FIELDS: SparkNode[] = DATABASE_SERVER_REGISTER_COLUMNS
   .filter(column => !column.isPrimaryKey)
-  .map(column => column.enumOptions
-    ? {type: 'r-select', props: {field: column.name, label: column.label ?? column.name, colSpan: 6, options: [...column.enumOptions]}}
-    : {type: 'r-text', props: {field: column.name, label: column.label ?? column.name, colSpan: 6, ...(column.name === 'Password' ? {showPassword: true} : {})}})
+  .map(column => serverFormField({name: column.name, colSpan: column.name === 'description' ? 12 : 6}))
+
+/** 编辑表单按参考排布：类型整行，IP 与名称并排，账号半行，描述整行；不含端口与密码。 */
+export const DATABASE_SERVER_EDIT_FORM_FIELDS: SparkNode[] = [
+  {name: 'Type', colSpan: 12}, {name: 'ip_address', colSpan: 6}, {name: 'ServerName', colSpan: 6},
+  {name: 'UserName', colSpan: 6}, {name: 'description', colSpan: 12},
+].map(serverFormField)
 
 /** 参考页列表列：不展示账号、密码等敏感或未列字段。 */
 export const DATABASE_SERVER_LIST_FIELDS: SparkNode[] = [
-  {type: 'r-text', props: {field: 'ServerName', label: '服务器名称'}},
-  {type: 'r-text', props: {field: 'ip_address', label: '服务器IP地址'}},
-  {type: 'r-text', props: {field: 'Port', label: '端口'}},
-  {type: 'r-select', props: {field: 'Type', label: '类型', options: [...DATABASE_SERVER_TYPE_OPTIONS]}},
-  {type: 'r-text', props: {field: 'createuser', label: '创建人'}},
-  {type: 'r-text', props: {field: 'createtime', label: '创建时间'}},
-  {type: 'r-text', props: {field: 'description', label: '描述'}},
+  {type: 'r-text', props: {field: 'ServerName', label: '服务器名称', minWidth: 220, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'ip_address', label: '服务器IP地址', minWidth: 180, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'Port', label: '端口', width: 100}},
+  {type: 'r-select', props: {field: 'Type', label: '类型', width: 150, options: [...DATABASE_SERVER_TYPE_OPTIONS]}},
+  {type: 'r-text', props: {field: 'createuser', label: '创建人', width: 140, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'createtime', label: '创建时间', width: 160}},
+  {type: 'r-text', props: {field: 'description', label: '描述', minWidth: 220, showOverflowTooltip: true}},
 ]
 
 /** 运行 DataSet 上覆盖 Type 列为枚举下拉（ScenarioViewConfig.columns 不允许改 type）。 */

@@ -5,7 +5,7 @@
 AI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/ThemeConfigurator。
 -->
 <template>
-  <el-drawer
+  <RendererDrawer
     :model-value="modelValue"
     title="主题配置"
     direction="rtl"
@@ -25,14 +25,14 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             :class="{ 'theme-card--active': currentTheme === opt.value }"
             @click="setThemeMode(opt.value)"
           >
-            <NavIcon :name="opt.icon" :size="22" />
+            <DisplayIcon :icon="opt.icon" :icon-size="22" />
             <span class="theme-card__label">{{ opt.label }}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <el-divider />
+    <RendererDivider />
 
     <!-- 全局风格 -->
     <div class="config-section">
@@ -57,7 +57,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             </span>
             <span class="style-preset-card__meta">
               <span class="style-preset-card__name">
-                <NavIcon :name="preset.icon" :size="13" />
+                <DisplayIcon :icon="preset.icon" :icon-size="13" />
                 {{ preset.name }}
               </span>
               <span class="style-preset-card__desc">{{ preset.description }}</span>
@@ -68,7 +68,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       </div>
     </div>
 
-    <el-divider />
+    <RendererDivider />
 
     <!-- 主题色 -->
     <div class="config-section">
@@ -90,7 +90,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       </div>
     </div>
 
-    <el-divider />
+    <RendererDivider />
 
     <!-- 导航配色 -->
     <div class="config-section">
@@ -117,7 +117,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       </div>
     </div>
 
-    <el-divider />
+    <RendererDivider />
 
     <!-- 布局方向 -->
     <div class="config-section">
@@ -156,49 +156,47 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       </div>
     </div>
 
-    <el-divider />
+    <RendererDivider />
 
     <!-- 页签模式 -->
     <div class="config-section">
       <div class="config-section__title">页签模式</div>
       <div class="config-section__content">
-        <div class="config-row">
-          <span class="config-row__label">多页签模式</span>
-          <el-switch :model-value="mode === 'multi'" @change="$emit('update:mode', $event ? 'multi' : 'single')" />
-        </div>
+        <RendererForm v-if="settingsKey" :data-view-key="settingsKey" class="config-form" label-width="96px" :grid-columns="1">
+          <FieldSwitch field="multiTab" label="多页签模式" />
+        </RendererForm>
         <div class="config-hint">{{ mode === 'multi' ? '标签栏切换页面，支持 keep-alive' : '面包屑导航，单页浏览' }}</div>
       </div>
     </div>
 
-    <el-divider />
+    <RendererDivider />
 
     <!-- 界面设置 -->
     <div class="config-section">
       <div class="config-section__title">界面设置</div>
       <div class="config-section__content">
-        <div class="config-row">
-          <span class="config-row__label">侧栏折叠</span>
-          <el-switch :model-value="collapsed" @change="$emit('update:collapsed', $event)" />
-        </div>
-        <div class="config-row">
-          <span class="config-row__label">显示页脚</span>
-          <el-switch :model-value="showFooter" @change="$emit('update:showFooter', $event)" />
-        </div>
+        <RendererForm v-if="settingsKey" :data-view-key="settingsKey" class="config-form" label-width="96px" :grid-columns="1">
+          <FieldSwitch field="collapsed" label="侧栏折叠" />
+          <FieldSwitch field="showFooter" label="显示页脚" />
+        </RendererForm>
       </div>
     </div>
-  </el-drawer>
+  </RendererDrawer>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, shallowRef, watch } from 'vue'
 import { useTheme } from '@spark-appworks/spark-app'
-import type { ThemeMode } from '@spark-appworks/spark-component'
+import {
+  DisplayIcon, FieldSwitch, PAGE_RUNTIME, RendererDivider, RendererDrawer, RendererForm, useSparkComponent,
+  type ThemeMode,
+} from '@spark-appworks/spark-component'
 import type { PageMode } from '@spark-appworks/spark-app'
 import { useColorScheme, PRIMARY_PRESETS, NAV_PRESETS, STYLE_PRESETS } from '@spark-appworks/spark-app'
 import type { StylePreset } from '@spark-appworks/spark-app'
-import NavIcon from '@/components/NavIcon.vue'
+import { HostLocalRuntime } from './host-local-runtime'
 
-defineProps<{
+const props = defineProps<{
   modelValue: boolean
   headerFirst: boolean
   collapsed: boolean
@@ -206,13 +204,52 @@ defineProps<{
   mode: PageMode
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   'update:modelValue': [value: boolean]
   'update:headerFirst': [value: boolean]
   'update:collapsed': [value: boolean]
   'update:showFooter': [value: boolean]
   'update:mode': [value: PageMode]
 }>()
+
+/* 界面开关经本地设置视图绑定标准 FieldSwitch；视图只镜像宿主状态，不持久化 */
+const SETTINGS_TABLE = 'HostLayoutSettings'
+const SETTINGS_ROW = 'layout'
+const { sparkProvide, sparkRemove } = useSparkComponent({ type: 'theme-configurator' })
+const settings = shallowRef<HostLocalRuntime>()
+const settingsKey = computed(() => settings.value?.key(SETTINGS_TABLE))
+let unsubscribe: (() => void) | undefined
+let active = true
+
+function settingsValues() {
+  return { multiTab: props.mode === 'multi', collapsed: props.collapsed, showFooter: props.showFooter }
+}
+
+void HostLocalRuntime.create({ scenarioId: 'host-layout-settings', tables: { [SETTINGS_TABLE]: {
+  columns: [{ name: 'id', type: 'string' }, { name: 'multiTab', type: 'boolean' }, { name: 'collapsed', type: 'boolean' },
+    { name: 'showFooter', type: 'boolean' }],
+  rows: [{ id: SETTINGS_ROW, ...settingsValues() }],
+} } }).then(local => {
+  if (!active) { local.dispose(); return }
+  local.write(SETTINGS_TABLE, SETTINGS_ROW, settingsValues())
+  sparkProvide(PAGE_RUNTIME, local.runtime)
+  unsubscribe = local.onFieldEdit(SETTINGS_TABLE, (field, value) => {
+    const on = value === true
+    if (field === 'multiTab') emit('update:mode', on ? 'multi' : 'single')
+    else if (field === 'collapsed') emit('update:collapsed', on)
+    else if (field === 'showFooter') emit('update:showFooter', on)
+  })
+  settings.value = local
+})
+
+watch(settingsValues, values => settings.value?.write(SETTINGS_TABLE, SETTINGS_ROW, values))
+
+onBeforeUnmount(() => {
+  active = false
+  unsubscribe?.()
+  sparkRemove(PAGE_RUNTIME)
+  settings.value?.dispose()
+})
 
 const theme = useTheme()
 const currentTheme = computed(() => theme?.mode ?? 'light')
@@ -503,16 +540,8 @@ function stylePresetCardStyle(preset: StylePreset): Record<string, string> {
 }
 
 /* 设置行 */
-.config-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-}
-
-.config-row__label {
-  font-size: 13px;
-  color: var(--spark-text-regular);
+.config-form :deep(.el-form-item) {
+  margin-bottom: 4px;
 }
 
 .config-hint {

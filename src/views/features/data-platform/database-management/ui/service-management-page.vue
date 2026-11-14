@@ -4,46 +4,45 @@
 注册表单绑定 DatabaseServerRegister 写命令视图（/Db/registerServer），编辑表单绑定目录视图。
 -->
 <template>
-  <section class="database-server-page">
-    <header><h1>服务器管理</h1><p>注册并维护数据库服务器连接信息。</p></header>
-    <p v-if="loading" role="status">正在读取服务器目录…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <p v-if="message" role="status">{{ message }}</p>
+  <RendererSection class="database-server-page" title="服务器管理" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取服务器目录…' : ''" :error="error || listError || (!editing && !deleteOpen ? actionError : '')">
+    <template v-if="ready" #header-actions>
+      <RendererButton label="注册" button-type="primary" icon="Plus" :disabled="busy || !!editing || !view || !databaseServerCanCreate(view, edit)"
+        @click="beginCreate" />
+    </template>
     <template v-if="ready">
-      <p v-if="listError" role="alert">{{ listError }}</p>
       <div :inert="busy || !!editing">
-        <RendererTable :data-view-key="catalogKey" :toolbar="toolbar" :filter="listFilter"
-          :children="DATABASE_SERVER_LIST_FIELDS"
-          :stripe="true" :on-row-click="choose" :highlight-current-row="true" :show-data-view-meta="false" />
+        <RendererTable :data-view-key="catalogKey" :filter="listFilter" :actions="rowActions"
+          :children="DATABASE_SERVER_LIST_FIELDS" :stripe="true" :border="true" :show-row-index="true"
+          :on-row-click="choose" :highlight-current-row="true" :show-data-view-meta="false" :action-column="{label: '操作', width: 260, fixed: true}" />
       </div>
       <RendererDialog v-if="editing" :model-value="true"
-        :title="editing.mode === 'add' ? '注册服务器' : '编辑服务器'" :width="560" :close-disabled="busy" @update:model-value="cancelEdit">
-        <p v-if="actionError" role="alert">{{ actionError }}</p>
-        <p v-if="editing.unconfirmed" role="status">保存结果尚未确认。核验只确认原提交结果，不会再次写入。</p>
-        <p v-else-if="editing.readbackFailed" role="status">已保存，但目录尚未重新读取成功，请重新读取。</p>
-        <RendererForm :key="editing.mode" :data-view-key="editing.mode === 'add' ? registerKey : catalogKey" context-data-member="currentRow" :auto-columns="true"
-          :children="editing.mode === 'add' ? DATABASE_SERVER_REGISTER_FORM_FIELDS : []"
-          :show-data-view-meta="false" :grid-columns="1"
+        :title="editing.mode === 'add' ? '注册服务器' : '编辑服务器'" :width="860" :close-disabled="busy" @update:model-value="cancelEdit">
+        <DisplayAlert v-if="actionError" alert-type="error" :closable="false" :title="actionError" />
+        <DisplayAlert v-if="editing.unconfirmed" alert-type="warning" :closable="false" title="保存结果尚未确认。核验只确认原提交结果，不会再次写入。" />
+        <DisplayAlert v-else-if="editing.readbackFailed" alert-type="warning" :closable="false" title="已保存，但目录尚未重新读取成功，请重新读取。" />
+        <RendererForm :key="editing.mode" :data-view-key="editing.mode === 'add' ? registerKey : catalogKey" context-data-member="currentRow" :auto-columns="false"
+          :children="editing.mode === 'add' ? DATABASE_SERVER_REGISTER_FORM_FIELDS : DATABASE_SERVER_EDIT_FORM_FIELDS"
+          :show-data-view-meta="false" :grid-columns="12" label-width="120px"
           :form-props="{disabled: busy || editing.unconfirmed || editing.readbackFailed}" />
         <template #footer>
-          <RendererButton v-if="!editing.unconfirmed && editing.mode === 'add'" label="测试连接" :disabled="busy" @click="testConnection" />
+          <RendererButton v-if="!editing.unconfirmed && editing.mode === 'add'" label="测试连接" button-type="primary" :plain="true" :disabled="busy" @click="testConnection" />
           <RendererButton v-if="!editing.unconfirmed" label="取消" :disabled="busy" @click="cancelEdit" />
-          <RendererButton v-if="!editing.unconfirmed && !editing.readbackFailed" label="确定" :disabled="busy" @click="saveEdit" />
+          <RendererButton v-if="!editing.unconfirmed && !editing.readbackFailed" label="确定" button-type="primary" :disabled="busy" @click="saveEdit" />
           <RendererButton v-if="editing.unconfirmed" label="核验保存结果" :disabled="busy" @click="saveEdit" />
           <RendererButton v-if="editing.readbackFailed" label="重新读取" :disabled="busy" @click="saveEdit" />
         </template>
       </RendererDialog>
       <RendererDialog v-if="deleteOpen" :model-value="true" title="删除确认" :width="420" :close-disabled="busy" @update:model-value="deleteOpen = false">
-        <p>确认删除服务器“{{ deleteName }}”吗？</p>
-        <p v-if="actionError" role="alert">{{ actionError }}</p>
+        <DisplayAlert alert-type="warning" :closable="false" :show-icon="true" :title="`确定要删除服务器“${deleteName}”吗？`" />
+        <DisplayAlert v-if="actionError" alert-type="error" :closable="false" :title="actionError" />
         <template #footer>
           <RendererButton label="取消" :disabled="busy" @click="deleteOpen = false" />
-          <RendererButton label="删除" :disabled="busy" @click="confirmDelete" />
+          <RendererButton label="删除" button-type="danger" :disabled="busy" @click="confirmDelete" />
         </template>
       </RendererDialog>
-      <p v-if="actionError && !editing && !deleteOpen" role="alert">{{ actionError }}</p>
     </template>
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
@@ -51,17 +50,16 @@ import {computed, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
-import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm,
-  useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeDatabaseServer, DATABASE_SERVER_MODEL, DATABASE_SERVER_REGISTER_TABLE} from '@/lowcode/resources/database/server/resource'
-import {DATABASE_SERVER_FILTER_TYPE_OPTIONS, DATABASE_SERVER_LIST_FIELDS, DATABASE_SERVER_REGISTER_FORM_FIELDS} from '@/lowcode/resources/database/server/catalog-metadata'
+import {DATABASE_SERVER_EDIT_FORM_FIELDS, DATABASE_SERVER_FILTER_TYPE_OPTIONS, DATABASE_SERVER_LIST_FIELDS,
+  DATABASE_SERVER_REGISTER_FORM_FIELDS} from '@/lowcode/resources/database/server/catalog-metadata'
 import {
   databaseServerBeginCreate,
   databaseServerBeginEdit,
   databaseServerCancelEdit,
   databaseServerCanCreate,
   databaseServerCanDelete,
-  databaseServerCanEdit,
   databaseServerDeleteSelected,
   databaseServerEditing,
   databaseServerSaveEdit,
@@ -71,9 +69,14 @@ import {
   type DatabaseServerEditState,
 } from '@/lowcode/resources/database/server/view-ops'
 
+type RFilterProps = SparkComponent.RFilterProps
+type RToolbarProps = SparkComponent.RToolbarProps
+const {PAGE_RUNTIME, PAGE_SERVICE, RendererSection, RendererTable, RendererButton, RendererDialog, RendererForm, DisplayAlert, useSparkComponent, consumeRequiredPageService} = SparkComponent
+const {sparkProvide, sparkRemove, sparkConsume} = useSparkComponent({type: 'service-management-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'service-management-page')
+
 const route = useRoute()
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : '')
-const {sparkProvide, sparkRemove} = useSparkComponent({type: 'service-management-page'})
 const session = new NativePageRuntimeSession({
   provide: current => sparkProvide(PAGE_RUNTIME, current),
   remove: () => sparkRemove(PAGE_RUNTIME),
@@ -82,7 +85,7 @@ const dataSet = shallowRef<DataSet>()
 const view = shallowRef<DataView>()
 const edit = shallowRef<DatabaseServerEditState>()
 const ready = ref(false), loading = ref(false), error = ref(''), revision = ref(0)
-const busy = ref(false), actionError = ref(''), message = ref(''), deleteOpen = ref(false), deleteName = ref('')
+const busy = ref(false), actionError = ref(''), deleteOpen = ref(false), deleteName = ref('')
 let unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0
 const catalogScenarioId = computed(() => dataSet.value?.scenarioId ?? scenarioId.value)
 const catalogKey = computed(() => buildDataViewKey(DATABASE_SERVER_MODEL, 'default', catalogScenarioId.value))
@@ -92,23 +95,29 @@ const listFilter = computed<RFilterProps>(() => ({
   collapsible: true,
   defaultCollapsed: true,
   children: [
-    {type: 'r-text', props: {field: 'ServerName', label: '服务器名称'}},
-    {type: 'r-text', props: {field: 'ip_address', label: '服务器IP地址'}},
-    {type: 'r-select', props: {field: 'Type', label: '类型', options: [...DATABASE_SERVER_FILTER_TYPE_OPTIONS]}},
+    {type: 'r-text', props: {field: 'ServerName', label: '服务器名称', placeholder: '请输入服务器名称', clearable: true}},
+    {type: 'r-text', props: {field: 'ip_address', label: '服务器IP地址', placeholder: '请输入服务器IP地址', clearable: true}},
+    {type: 'r-select', props: {field: 'Type', label: '类型', placeholder: '请选择类型', clearable: true, options: [...DATABASE_SERVER_FILTER_TYPE_OPTIONS]}},
   ],
 }))
 const listError = computed(() => {revision.value; return view.value?.loadingError?.message ?? ''})
 const editing = computed(() => {revision.value; const v = view.value; return v ? databaseServerEditing(v, edit.value) : undefined})
-const toolbar = computed<RToolbarProps>(() => {
+const rowActions = computed<RToolbarProps>(() => {
   revision.value
-  const v = view.value
+  const blocked = busy.value || !!editing.value || !view.value
   return {children: [
-    {type: 'r-button', props: {label: '注册服务器', disabled: busy.value || !!editing.value || !v || !databaseServerCanCreate(v, edit.value), onClick: beginCreate}},
-    {type: 'r-button', props: {label: '编辑', disabled: busy.value || !v || !databaseServerCanEdit(v, edit.value), onClick: beginEdit}},
-    {type: 'r-button', props: {label: '删除', disabled: busy.value || !v || !databaseServerCanDelete(v, edit.value), onClick: openDelete}},
-    {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
+    {type: 'r-button', props: {label: '编辑', link: true, buttonType: 'primary', disabled: blocked, onClick: (row: unknown) => onRow(row, beginEdit)}},
+    {type: 'r-button', props: {label: '删除', link: true, buttonType: 'danger', disabled: blocked, onClick: (row: unknown) => onRow(row, openDelete)}},
   ]}
 })
+/** 行操作作用于该行：先按原查询选中，再沿原选中行的编辑/删除守卫执行。 */
+function onRow(row: unknown, run: () => unknown): void {
+  const v = view.value
+  const original = v?.rows.find(item => item === toRaw(row))
+  if (!v || !original || busy.value || editing.value) return
+  v.setSelectedRows([original])
+  void run()
+}
 function choose(row: DataRow): void {
   if (busy.value || editing.value) return
   const v = view.value
@@ -121,8 +130,8 @@ async function act(operation: () => void | Promise<void>, success = ''): Promise
   if (!ds || !v || busy.value) return
   const action = ++actionGeneration
   const current = () => dataSet.value === ds && view.value === v && action === actionGeneration
-  busy.value = true; actionError.value = ''; message.value = ''
-  try {await operation(); if (current()) message.value = success}
+  busy.value = true; actionError.value = ''
+  try {await operation(); if (current() && success) pageService.showMessage(success, 'success')}
   catch (cause) {if (current()) actionError.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (current()) {busy.value = false; revision.value++}}
 }
@@ -156,7 +165,7 @@ async function saveEdit(): Promise<void> {
     const current = edit.value
     if (!ds || !v || !current) return
     edit.value = await databaseServerSaveEdit(ds, v, current) ?? undefined
-  }, edit.value?.mode === 'add' ? '服务器已注册' : '服务器已保存')
+  }, edit.value?.mode === 'add' ? '服务器注册成功' : '服务器编辑成功')
 }
 async function testConnection(): Promise<void> {
   await act(async () => {
@@ -164,8 +173,8 @@ async function testConnection(): Promise<void> {
     const current = edit.value
     if (!ds || !current || current.mode !== 'add') return
     const ok = await databaseServerTestConnection(ds, current)
-    if (!ok) throw new Error('连接失败')
-  }, '连接成功')
+    if (!ok) throw new Error('测试连接失败')
+  }, '测试连接成功')
 }
 function openDelete(): void {
   const v = view.value
@@ -182,12 +191,12 @@ async function confirmDelete(): Promise<void> {
     if (!ds || !v) return
     await databaseServerDeleteSelected(ds, v)
     edit.value = undefined
-  }, '服务器已删除')
+  }, '删除成功')
   if (!actionError.value) deleteOpen.value = false
 }
 function release(): void {
   actionGeneration++
-  busy.value = false; actionError.value = ''; message.value = ''
+  busy.value = false; actionError.value = ''
   unsubscribe?.(); unsubscribe = undefined
   session.dispose()
   edit.value = undefined; view.value = undefined
@@ -217,8 +226,5 @@ onBeforeUnmount(() => {active = false; generation++; release()})
 </script>
 
 <style scoped>
-.database-server-page { display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
-h1 { margin: 0; font-size: 20px; }
-header p { color: var(--el-text-color-secondary); }
-[role="alert"] { color: var(--el-color-danger); }
+.database-server-page {padding: 8px}
 </style>

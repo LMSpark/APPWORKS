@@ -30,15 +30,16 @@ AI用途：迁移导航宿主时核对宿主记录写入字段、空间→资源
 <script setup lang="ts">
 import {computed, defineAsyncComponent, onBeforeUnmount, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
-import {ElMessageBox} from 'element-plus'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererDialog, RendererTable, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import {PAGE_SERVICE, RendererButton, RendererDialog, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import DataMenuDialog from './data-menu-dialog.vue'
 
 const DataSetDesign = defineAsyncComponent(() => import('@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'))
 const scenarioId = '2CA968B3513084BA2537BB0C85AE945E'
+const {sparkConsume} = useSparkComponent({type: 'data-menu-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'data-menu-page')
 const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Base_DataMenu', componentType: 'data-menu-page', title: '导航宿主管理',
 })
@@ -62,9 +63,11 @@ const text = (row: Readonly<DataRow> | null | undefined, field: string) => {
   return typeof raw === 'string' || typeof raw === 'number' ? String(raw).trim() : ''
 }
 const failure = (cause: unknown) => cause instanceof Error ? cause.message : String(cause)
-type ColumnSpec = Readonly<{field: string; label: string; minWidth?: number; displayFormatter?: (value: unknown) => string}>
-const column = ({field, label, minWidth = 130, displayFormatter}: ColumnSpec): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, minWidth, sortable: false, showOverflowTooltip: true, displayFormatter}})
+/** sortable=false 用于存空间 ID、按名称显示的列：服务端按 ID 排序与所见名称次序无关。 */
+type ColumnSpec = Readonly<{field: string; label: string; minWidth?: number; displayFormatter?: (value: unknown) => string; sortable?: false}>
+const column = ({field, label, minWidth = 130, displayFormatter, sortable}: ColumnSpec): SparkNode =>
+  ({type: 'r-text', props: {field, label, readonly: true, minWidth, showOverflowTooltip: true, displayFormatter,
+    ...(sortable === false ? {sortable} : {})}})
 /** 宿主只保存空间身份；名称取自当前应用的数据空间视图，查不到时显示原身份。 */
 const dataSetName = (value: unknown) => {
   revision.value
@@ -75,7 +78,7 @@ const createTime = (value: unknown) => String(value ?? '').trim().replace('T', '
 const fields: SparkNode[] = [
   column({field: 'Name', label: '宿主名称', minWidth: 160}), column({field: 'Desc', label: '用途描述', minWidth: 180}),
   column({field: 'DataType', label: '宿主类型', minWidth: 100}),
-  column({field: 'dataSetId', label: '数据空间', minWidth: 160, displayFormatter: dataSetName}),
+  column({field: 'dataSetId', label: '数据空间', minWidth: 160, displayFormatter: dataSetName, sortable: false}),
   column({field: 'ValueField', label: '值字段'}), column({field: 'TextField', label: '文字字段'}),
   column({field: 'createtime', label: '创建时间', minWidth: 170, displayFormatter: createTime}),
 ]
@@ -152,7 +155,7 @@ async function remove(): Promise<void> {
   const target = view(viewKey), row = target.currentRow
   const id = row ? target.getPkKey(row) : undefined
   if (busy.value || !row || id === undefined || target.deleteActionState(row) !== 'enabled') return
-  const confirmed = await ElMessageBox.confirm(`确定删除导航宿主"${text(row, 'Name')}"吗？`, '删除确认', {type: 'warning'})
+  const confirmed = await pageService.showConfirm(`确定删除导航宿主"${text(row, 'Name')}"吗？`, '删除确认', {type: 'warning'})
     .then(() => true, () => false)
   if (!confirmed) return
   busy.value = true; message.value = ''

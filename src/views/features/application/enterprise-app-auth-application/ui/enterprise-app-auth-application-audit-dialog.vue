@@ -26,15 +26,16 @@
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
-import {ElMessage} from 'element-plus'
 import {buildDataViewKey, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import {APP_AUTH_SCENARIOS, commitAppAuthRecord, formatRequestedAt, readAppAuthSession} from '../model/enterprise-app-auth-application-model'
-const {PAGE_RUNTIME, RendererButton, RendererDialog, RendererForm, FieldTextarea, useSparkComponent} = Components
+const {PAGE_RUNTIME, RendererButton, RendererDialog, RendererForm, FieldTextarea, useSparkComponent, consumeRequiredPageService} = Components
 
 const props = defineProps<{recordId: string | number}>()
 const emit = defineEmits<{close: [], decided: []}>()
 const {sparkConsume} = useSparkComponent({type: 'enterprise-app-auth-application-audit-dialog'})
+const pageService = consumeRequiredPageService(sparkConsume, 'enterprise-app-auth-application-audit-dialog')
+
 const scenarioId = APP_AUTH_SCENARIOS.review
 const listKey = buildDataViewKey('enterprise_app_auth', 'default', scenarioId)
 const auditKey = buildDataViewKey('enterprise_app_auth', 'audit', scenarioId)
@@ -105,7 +106,7 @@ async function decide(status: 'INITIALIZING' | 'REJECTED'): Promise<void> {
     audit.updateEditingValue(props.recordId, 'auth_status', status)
     audit.updateEditingValue(props.recordId, 'operator', userId)
     await commitAppAuthRecord(audit, props.recordId)
-    ElMessage.success(status === 'INITIALIZING' ? '已批准，正在初始化…' : '已拒绝申请')
+    pageService.showMessage(status === 'INITIALIZING' ? '已批准，正在初始化…' : '已拒绝申请', 'success')
     emit('decided')
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : String(cause)

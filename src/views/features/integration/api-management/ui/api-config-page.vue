@@ -48,7 +48,6 @@ AI用途：每个页签只保存本页签视图，不夹带其它页签草稿；
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, reactive, ref} from 'vue'
-import {ElMessageBox} from 'element-plus'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
@@ -56,12 +55,13 @@ import {featureTableToolbar, runFeatureTableAction, type FeatureTableAction} fro
 import type {ApiConfigPageProps} from './api-config-page.props'
 
 type RToolbarProps = SparkComponent.RToolbarProps
-const {PAGE_RUNTIME, DisplayAlert, RendererTable, RendererForm, RendererDialog, RendererButton, RendererSection, RendererTabs, RendererTabPane, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, PAGE_SERVICE, DisplayAlert, RendererTable, RendererForm, RendererDialog, RendererButton, RendererSection, RendererTabs, RendererTabPane, useSparkComponent, consumeRequiredPageService} = SparkComponent
 
 const scenarioId = '446B5D94A71587E9BD4D325A4DF5F6F8'
 const props = defineProps<ApiConfigPageProps>()
 const emit = defineEmits<{close: []; interfaces: []}>()
 const {sparkConsume} = useSparkComponent({type: 'api-config-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'api-config-page')
 const key = (table: string, viewId = 'default') => buildDataViewKey(table, viewId, scenarioId)
 const authKey = key('Base_InterfaceProvider', 'authentication'), headerKey = key('Base_InterfaceProvider_Headers')
 const parameterKey = key('Base_Interface_PublicParam'), referencesKey = key('Base_Interface_PublicParam', 'references')
@@ -154,7 +154,7 @@ async function act(action: () => Promise<unknown>): Promise<void> {
 }
 function run(viewKey: string, action: FeatureTableAction): Promise<void> {
   return act(async () => {
-    await runFeatureTableAction(view(viewKey), action)
+    await runFeatureTableAction(view(viewKey), action, pageService)
     if (action === 'save' && viewKey === parameterKey && loaded.has('headers')) await view(referencesKey).refresh()
   })
 }
@@ -170,7 +170,7 @@ function reload(): Promise<void> {
 async function close(): Promise<void> {
   if (busy.value || unconfirmed.value) return
   if (dirty.value) {
-    const confirmed = await ElMessageBox.confirm('存在未保存的修改，关闭将放弃这些修改。', '关闭确认', {type: 'warning'}).then(() => true, () => false)
+    const confirmed = await pageService.showConfirm('存在未保存的修改，关闭将放弃这些修改。', '关闭确认', {type: 'warning'})
     if (!confirmed || busy.value || unconfirmed.value) return
     for (const item of views.value) item.discardPendingChanges()
   }

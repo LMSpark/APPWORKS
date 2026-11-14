@@ -66,6 +66,19 @@
           "additionalProperties": false
         },
         "method.clearSort.return": true,
+        "method.sort.params": {
+          "type": "object",
+          "properties": {
+            "prop": {
+              "type": "string"
+            },
+            "order": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.sort.return": true,
         "method.doLayout.params": {
           "type": "object",
           "properties": {},
@@ -109,7 +122,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-03T20:33:39.483Z",
+  "generatedAt": "2026-11-14T06:12:01.986Z",
   "models": {
     "NativeTableLike": {
       "name": "NativeTableLike",
@@ -123,7 +136,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 清空 UI 层多选状态。 */\n    clearSelection?: () => void;\n    /** 设置指定行在 UI 层的选中状态。 */\n    toggleRowSelection?: (row: DataRow, selected?: boolean) => void;\n    /** 设置 UI 层当前行；传 null 清空当前行。 */\n    setCurrentRow?: (row: DataRow | null) => void;\n    /** 清除已失效的 UI 排序呈现；不写入 DataView 查询。 */\n    clearSort?: () => void;\n    /** 重新计算表格列宽和布局。 */\n    doLayout?: () => void;\n}",
+        "declarationTypeText": "{\n    /** 清空 UI 层多选状态。 */\n    clearSelection?: () => void;\n    /** 设置指定行在 UI 层的选中状态。 */\n    toggleRowSelection?: (row: DataRow, selected?: boolean) => void;\n    /** 设置 UI 层当前行；传 null 清空当前行。 */\n    setCurrentRow?: (row: DataRow | null) => void;\n    /** 清除已失效的 UI 排序呈现；不写入 DataView 查询。 */\n    clearSort?: () => void;\n    /** 将 UI 排序呈现同步回 DataView 当前排序；不写入 DataView 查询。 */\n    sort?: (prop: string, order: string) => void;\n    /** 重新计算表格列宽和布局。 */\n    doLayout?: () => void;\n}",
         "members": {
           "methods": [
             {
@@ -192,6 +205,30 @@
               "name": "clearSort",
               "jsdoc": "清除已失效的 UI 排序呈现；不写入 DataView 查询。",
               "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "sort",
+              "jsdoc": "将 UI 排序呈现同步回 DataView 当前排序；不写入 DataView 查询。",
+              "parameters": [
+                {
+                  "name": "prop",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "order",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
               "type": {
                 "type": "intrinsic",
                 "name": "void"

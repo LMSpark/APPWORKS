@@ -7,11 +7,11 @@
     "sourceFile": "src/layout/NavHeaderBar.vue",
     "packageName": "app",
     "modulePath": "layout/NavHeaderBar",
-    "jsdoc": "@module app:layout/NavHeaderBar\n职责：用 Element Plus 横向菜单呈现应用壳已授权的 RuntimeNavigationItem，并通过唯一 useNav 上下文处理选择。\n边界：不创建导航数据、权限判定或路由；菜单溢出只改变现有 items 的呈现位置，活动身份仍由 useNav 提供。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/NavHeaderBar。",
+    "jsdoc": "@module app:layout/NavHeaderBar\n职责：用标准 RendererMenu 横向菜单呈现应用壳已授权的 RuntimeNavigationItem，并通过唯一 useNav 上下文处理选择。\n边界：不创建导航数据、权限判定或路由；菜单溢出只改变现有 items 的呈现位置，活动身份仍由 useNav 提供。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/NavHeaderBar。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-10T08:32:58.907Z",
+  "generatedAt": "2026-11-14T07:17:15.952Z",
   "models": {}
 }

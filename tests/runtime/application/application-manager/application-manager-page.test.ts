@@ -5,7 +5,7 @@ import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus, {ElMessage} from 'element-plus'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {PAGE_SERVICE, RendererTable, Spark, registerAllRenderers, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
 import * as Fixture from './application-manager.fixture'
@@ -13,6 +13,7 @@ import {pagedata} from '../../page/api-provider/api-provider.fixture'
 
 const {api, APPLICATION_MANAGER_PATH, APPLICATION_MANAGER_SCENARIO: SCENARIO, OWNER_ROLE, resetApplicationManagerFixture} = Fixture
 const confirmBox = vi.hoisted(() => vi.fn<(message: string, title: string) => Promise<string>>())
+const pageUi = vi.hoisted(() => ({showMessage: vi.fn<(message: string, type?: string) => void>()}))
 vi.mock('element-plus', async importOriginal => {
   const original = await importOriginal<typeof import('element-plus')>()
   return {...original, ElMessageBox: {...original.ElMessageBox, confirm: confirmBox}}
@@ -61,6 +62,7 @@ beforeEach(() => {
   defaultApp.save.mockClear()
   confirmBox.mockReset().mockResolvedValue('confirm')
   pageMocks.submitDocument.mockReset()
+  pageUi.showMessage.mockClear()
   pageMocks.submitDocument.mockResolvedValue({
     projectId: 'APP-1', kind: 'requirements-specification', status: 'submitted',
     coverage: 'legacy-menu-scope', message: '提交回执格式未知；文档生成状态未知',
@@ -97,7 +99,26 @@ async function open(wait = true) {
   await router.push(`/apps/APP${APPLICATION_MANAGER_PATH}`)
   await router.isReady()
   const switchAndReload = vi.fn(async () => ({assertCurrent: vi.fn()}))
-  const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {
+  const pageService: PageServiceCapability = {
+    copyText: async () => {},
+    showMessage: (message, type = 'info') => { pageUi.showMessage(message, type); ElMessage({message, type}) },
+    showConfirm: async (message, title) => confirmBox(message, title ?? '确认').then(() => true, () => false),
+    showPrompt: async () => null,
+    showAlert: async () => {},
+    showDialog: async () => 'cancel',
+    selectEntities: async () => [],
+    browseFiles: async () => [],
+    uploadFiles: async () => { throw new Error('应用管理页测试不模拟上传') },
+    showLoading: () => {},
+    navigate: () => {},
+  }
+  const wrapper = mount(defineComponent({
+    setup() {
+      const {sparkProvide} = useSparkComponent({type: 'application-manager-page-test'})
+      sparkProvide(PAGE_SERVICE, pageService)
+      return () => h(RouterView)
+    },
+  }), {
     attachTo: document.body,
     global: {
       stubs: {transition: false},
@@ -196,10 +217,9 @@ describe('application manager restored with standard components and formal DataV
 
   it('reports export and quotation as not delivered', async () => {
     await open()
-    const info = vi.spyOn(ElMessage, 'info')
     await click('导出')
     await click('报价管理')
-    expect(info.mock.calls.map(call => call[0])).toEqual(['导出尚未交付', '报价管理尚未交付'])
+    expect(pageUi.showMessage.mock.calls).toEqual([['导出尚未交付', 'info'], ['报价管理尚未交付', 'info']])
     expect(http.saves).toHaveLength(0)
   })
 
@@ -305,7 +325,7 @@ describe('application manager restored with standard components and formal DataV
     const {wrapper} = await open()
     expect(() => rowButtonFor(wrapper, 'needle description', '删除')).toThrow()
     rowButtonFor(wrapper, 'fixture record 6', '删除').click(); await settle()
-    expect(confirmBox).toHaveBeenCalledWith('确认删除应用系统“fixture record 6”吗？', '删除确认', expect.anything())
+    expect(confirmBox).toHaveBeenCalledWith('确认删除应用系统“fixture record 6”吗？', '删除确认')
     const tables = http.saves.map(save => save.table)
     expect(tables.at(-1)).toBe('Base_AppSystemList')
     expect(tables.slice(0, -1).sort()).toEqual(['Base_AppAndSource_Relation', 'Base_NavigationInfo'])
@@ -362,10 +382,9 @@ describe('application manager restored with standard components and formal DataV
     http.records['Base_AppSystemList']![0]!['WebUrl'] = value
     await view('Base_AppSystemList').refresh(); await settle()
     const openWindow = vi.spyOn(window, 'open').mockReturnValue(null)
-    const info = vi.spyOn(ElMessage, 'info')
     rowButtonFor(wrapper, 'needle description', '应用链接').click(); await settle()
     expect(openWindow).toHaveBeenCalledWith(expected, '_blank', 'noopener,noreferrer')
-    expect(info).toHaveBeenCalledWith('已请求打开应用链接；浏览器打开状态无法确认。')
+    expect(pageUi.showMessage).toHaveBeenCalledWith('已请求打开应用链接；浏览器打开状态无法确认。', 'info')
   })
 
   it.each(['javascript:alert(1)', `${new URL(window.location.origin).protocol}//user:password@${window.location.host}/path`, ''])(
@@ -374,18 +393,16 @@ describe('application manager restored with standard components and formal DataV
       http.records['Base_AppSystemList']![0]!['WebUrl'] = value
       await view('Base_AppSystemList').refresh(); await settle()
       const openWindow = vi.spyOn(window, 'open').mockReturnValue(null)
-      const failure = vi.spyOn(ElMessage, 'error')
       rowButtonFor(wrapper, 'needle description', '应用链接').click(); await settle()
       expect(openWindow).not.toHaveBeenCalled()
-      expect(failure).toHaveBeenCalledWith(expect.stringContaining('应用链接不可用'))
+      expect(pageUi.showMessage).toHaveBeenCalledWith(expect.stringContaining('应用链接不可用'), 'error')
     })
 
   it('submits documents with the readable application identity and never claims file generation', async () => {
     const {wrapper} = await open()
-    const info = vi.spyOn(ElMessage, 'info')
     rowButtonFor(wrapper, 'needle description', '需求说明书').click(); await settle()
     expect(pageMocks.submitDocument).toHaveBeenCalledWith('APP-1', 'requirements-specification')
-    expect(info).toHaveBeenCalledWith('需求说明书请求已收到提交回执；文件生成状态未知。')
+    expect(pageUi.showMessage).toHaveBeenCalledWith('需求说明书请求已收到提交回执；文件生成状态未知。', 'info')
     rowButtonFor(wrapper, 'needle description', '功能设计说明书').click(); await settle()
     expect(pageMocks.submitDocument).toHaveBeenLastCalledWith('APP-1', 'system-detailed-design')
     expect(http.saves).toHaveLength(0)

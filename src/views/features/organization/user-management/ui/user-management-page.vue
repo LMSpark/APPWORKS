@@ -31,10 +31,10 @@ const {viewKey, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime
   optionViews: [departmentViewKey],
 })
 const fields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'UserName', label: '人员姓名', readonly: true, minWidth: 180, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'UserID', label: '人员 ID', readonly: true, minWidth: 200, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'DepName', label: '所属机构', readonly: true, minWidth: 220, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'JobName', label: '岗位', readonly: true, minWidth: 180, sortable: false, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'UserName', label: '人员姓名', readonly: true, minWidth: 180, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'UserID', label: '人员 ID', readonly: true, minWidth: 200, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'DepName', label: '所属机构', readonly: true, minWidth: 220, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'JobName', label: '岗位', readonly: true, minWidth: 180, showOverflowTooltip: true}},
 ]
 const filter: RFilterProps = {
   autoQuery: false,

@@ -23,7 +23,7 @@ vi.mock('@spark-appworks/spark-component', async () => {
     useSparkComponent: () => ({sparkProvide: fixture.sparkProvide, sparkRemove: fixture.sparkRemove}),
     RendererButton: button, RendererForm: form,
     RendererTabs: defineComponent({name: 'RendererTabs', props: {dataViewKey: String, dataMember: String}, setup(_, {slots}) {return () => h('div', slots['default']?.())}}),
-    RendererTabPane: passive('RendererTabPane'),
+    RendererTabPane: passive('RendererTabPane'), DisplayIcon: passive('DisplayIcon'),
     FieldCodeEditor: fieldCodeEditor, FieldJson: passive('FieldJson'), FieldTextarea: passive('FieldTextarea'),
     DisplayAlert: defineComponent({name: 'DisplayAlert', props: {description: String}, setup(props) {return () => h('p', props.description)}}),
     DisplayEmpty: defineComponent({name: 'DisplayEmpty', props: {description: String}, setup(props) {return () => h('p', props.description)}}),
@@ -86,7 +86,7 @@ function setup(hasFormalVersionBinding = true, activeFile: 'script.js' | 'style.
     props: { state, activeFile, showTabs },
     global: { directives: { loading: () => {} }, stubs: {
       ElButton: Button, ElTooltip: Slot, ElButtonGroup: Slot, ElInput: true, ElEmpty: true,
-      ElTag: true, NavIcon: true, SparkCodeEditor: true, JsonTreeEditor: true, DevDataSetDesigner: true,
+      ElTag: true, DisplayIcon: true, SparkCodeEditor: true, JsonTreeEditor: true, DevDataSetDesigner: true,
     } },
   })
   const click = async (label: string) => {

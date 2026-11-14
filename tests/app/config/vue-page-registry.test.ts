@@ -118,12 +118,13 @@ describe('Vue page registry', () => {
 
     expect(homePage?.source).toBe('src/views/platform/HomePage.vue')
     expect(typeof homePage?.load).toBe('function')
-    expect(hasVuePage('/about')).toBe(true)
+    expect(hasVuePage('/login')).toBe(true)
+    expect(hasVuePage('/about')).toBe(false)
     expect(hasVuePage('/missing')).toBe(false)
     expect(publicPaths.has('/login')).toBe(true)
     expect(publicPaths.has('/dashboard')).toBe(false)
     expect(navTree.homePath).toBe('/')
-    expect(navTree.items.some(node => node.path === '/about')).toBe(true)
+    expect(navTree.items.find(node => node.path === '/login')).toMatchObject({hidden: true})
     expect(options.some(option => option.path === '/dev')).toBe(false)
     expect(options.some(option => option.path === '/tenants')).toBe(false)
     expect(options.some(option => option.path === '/workflow-designs' && option.source === 'src/views/app/WorkflowDesigns.vue')).toBe(true)
@@ -159,14 +160,14 @@ describe('Vue page registry', () => {
   })
 
   it('loads only the mounted page and keeps the application manager source separate', async () => {
-    const aboutEntry = getVuePageEntry('/about')
-    if (aboutEntry === undefined) throw new Error('Expected the about page registry entry')
-    const aboutSource = getVuePageOptions().filter(option => option.source === aboutEntry.source)
-    const aboutLoads = aboutSource.map(({ path }) => {
+    const loginEntry = getVuePageEntry('/login')
+    if (loginEntry === undefined) throw new Error('Expected the login page registry entry')
+    const loginSource = getVuePageOptions().filter(option => option.source === loginEntry.source)
+    const loginLoads = loginSource.map(({ path }) => {
       const sourceEntry = getVuePageEntry(path)
       if (sourceEntry === undefined) throw new Error(`Expected source entry for ${path}`)
       return vi.spyOn(sourceEntry, 'load').mockResolvedValue({
-        default: defineComponent({ render: () => h('span', 'about loaded') }),
+        default: defineComponent({ render: () => h('span', 'login loaded') }),
       })
     })
     const applicationListSource = 'src/views/app/AppList.vue'
@@ -198,13 +199,13 @@ describe('Vue page registry', () => {
     })
 
     const componentMap = await buildComponentMap()
-    expect(aboutLoads.every(load => load.mock.calls.length === 0)).toBe(true)
-    const about = mount(defineComponent({ render: () => h(componentMap['/about']!) }))
+    expect(loginLoads.every(load => load.mock.calls.length === 0)).toBe(true)
+    const login = mount(defineComponent({ render: () => h(componentMap['/login']!) }))
     await flushPromises()
-    expect(aboutLoads.reduce((total, load) => total + load.mock.calls.length, 0)).toBe(1)
+    expect(loginLoads.reduce((total, load) => total + load.mock.calls.length, 0)).toBe(1)
     expect(applicationListLoads).toBe(0)
     expect(managerLoads).toBe(0)
-    expect(about.text()).toBe('about loaded')
+    expect(login.text()).toBe('login loaded')
 
     const catalog = mount(defineComponent({ render: () => h(componentMap[applicationLists[0]!.path]!) }))
     await flushPromises()
@@ -215,20 +216,20 @@ describe('Vue page registry', () => {
     await flushPromises()
     expect(managerLoads).toBe(1)
     expect(manager.text()).toBe('application manager loaded')
-    about.unmount()
+    login.unmount()
     catalog.unmount()
     manager.unmount()
   })
 
   it('uses a synchronous route host and renders the page through Vue Router', async () => {
-    const entry = getVuePageEntry('/about')
-    if (entry === undefined) throw new Error('Expected the about page registry entry')
+    const entry = getVuePageEntry('/login')
+    if (entry === undefined) throw new Error('Expected the login page registry entry')
     const sourcePaths = getVuePageOptions().filter(option => option.source === entry.source)
     for (const { path } of sourcePaths) {
       const sourceEntry = getVuePageEntry(path)
       if (sourceEntry === undefined) throw new Error(`Expected source entry for ${path}`)
       vi.spyOn(sourceEntry, 'load').mockResolvedValue({
-        default: defineComponent({ render: () => h('main', 'router about page') }),
+        default: defineComponent({ render: () => h('main', 'router login page') }),
       })
     }
     const componentMap = await buildComponentMap()
@@ -236,25 +237,25 @@ describe('Vue page registry', () => {
       history: createMemoryHistory(),
       routes: [
         { path: '/', component: defineComponent({ render: () => h('main', 'home') }) },
-        { path: '/about', component: componentMap['/about']! },
+        { path: '/login', component: componentMap['/login']! },
       ],
     })
     const warn = vi.spyOn(console, 'warn')
     const wrapper = mount(defineComponent({ render: () => h(RouterView) }), {
       global: { plugins: [router] },
     })
-    await router.push('/about')
+    await router.push('/login')
     await router.isReady()
     await flushPromises()
 
-    expect(wrapper.text()).toContain('router about page')
+    expect(wrapper.text()).toContain('router login page')
     expect(warn.mock.calls.flat().join(' ')).not.toContain('defineAsyncComponent')
     wrapper.unmount()
   })
 
   it('shows a page load error and reloads the current page on request', async () => {
-    const entry = getVuePageEntry('/about')
-    if (entry === undefined) throw new Error('Expected the about page registry entry')
+    const entry = getVuePageEntry('/login')
+    if (entry === undefined) throw new Error('Expected the login page registry entry')
     const sourcePaths = getVuePageOptions().filter(option => option.source === entry.source)
     for (const { path } of sourcePaths) {
       const sourceEntry = getVuePageEntry(path)
@@ -266,7 +267,7 @@ describe('Vue page registry', () => {
 
     const componentMap = await buildComponentMap()
     const errors: unknown[] = []
-    const wrapper = mount(defineComponent({ render: () => h(componentMap['/about']!) }), {
+    const wrapper = mount(defineComponent({ render: () => h(componentMap['/login']!) }), {
       global: { config: { errorHandler: error => errors.push(error) } },
     })
     await flushPromises()

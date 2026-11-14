@@ -30,7 +30,7 @@ AI用途：排查需求文档到 projectPlanning 的导入链路时，用本模�
           @change="dialogActions.handleFileChange"
         />
         <div class="project-planning-import__upload-content">
-          <NavIcon name="Upload" :size="24" />
+          <DisplayIcon icon="Upload" :icon-size="24" />
           <p class="project-planning-import__upload-text">
             将 .docx 文件拖拽到此处，或
             <RendererButton v-bind="bindingProps" label="点击选择文件" button-type="primary" link @click="dialogActions.openFilePicker" />
@@ -43,7 +43,7 @@ AI用途：排查需求文档到 projectPlanning 的导入链路时，用本模�
         v-if="state.projectPlanningDocumentFileName.value || state.projectPlanningAttachmentRef.value"
         class="project-planning-import__file-info"
       >
-        <NavIcon name="Document" :size="14" />
+        <DisplayIcon icon="Document" :icon-size="14" />
         <span class="project-planning-import__filename">
           {{ state.projectPlanningDocumentFileName.value || '已绑定项目策划附件' }}
         </span>
@@ -88,8 +88,7 @@ AI用途：排查需求文档到 projectPlanning 的导入链路时，用本模�
 
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch } from 'vue'
-import {DisplayAlert,DisplayTag,RendererButton,RendererDialog} from '@spark-appworks/spark-component'
-import NavIcon from '@/components/NavIcon.vue'
+import {DisplayAlert,DisplayIcon,DisplayTag,RendererButton,RendererDialog} from '@spark-appworks/spark-component'
 import type { DevState } from '../blueprint-state/useDevState'
 import type { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import type { PageRuntime } from '@spark-appworks/spark-project-model'

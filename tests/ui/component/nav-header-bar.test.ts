@@ -51,7 +51,7 @@ function title(wrapper: VueWrapper, text: string) {
 }
 
 function bodyItem(text: string) {
-  const found = [...document.body.querySelectorAll('.nav-header-bar__dropdown-item, .el-menu-item')]
+  const found = [...document.body.querySelectorAll('.r-menu__item--nested, .el-menu-item')]
     .find(node => node.textContent?.trim() === text)
   if (!found) throw new Error(`导航弹层标题未渲染: ${text}`)
   return found
@@ -115,7 +115,7 @@ describe('NavHeaderBar Element Plus responsive menu behavior', () => {
     expect(document.body.textContent).not.toContain('隐藏子项')
     expect(document.body.textContent).not.toContain('禁用子项')
     const visibleChildNode = bodyItem('可见子项')
-    expect(visibleChildNode.classList.contains('nav-header-bar__item--divider-after')).toBe(true)
+    expect(visibleChildNode.classList.contains('r-menu__item--divider-after')).toBe(true)
     visibleChildNode.dispatchEvent(new MouseEvent('click', {bubbles: true}))
     await flushPromises()
     expect(navigateTo).toHaveBeenCalledTimes(1)
@@ -129,10 +129,10 @@ describe('NavHeaderBar Element Plus responsive menu behavior', () => {
     activeItems.value = [first]
     const wrapper = mountNav([first, second], nav)
 
-    expect(wrapper.find('.nav-header-bar__item--active').text()).toContain('第一页')
+    expect(wrapper.find('.r-menu__item--active').text()).toContain('第一页')
     await title(wrapper, '第一页').trigger('click')
     const activeTitles = () => {
-      return wrapper.findAll('.nav-header-bar__item--active').map(node => node.text().trim())
+      return wrapper.findAll('.r-menu__item--active').map(node => node.text().trim())
     }
     expect(activeTitles()).toContain('第一页')
     expect(wrapper.find('.el-menu-item[aria-current="page"]').text()).toContain('第一页')
@@ -172,7 +172,7 @@ describe('NavHeaderBar Element Plus responsive menu behavior', () => {
     const overflowedItem = [...document.body.querySelectorAll('.el-menu-item')]
       .find(node => node.textContent?.trim() === '外部服务管理')
     expect(overflowedItem).toBeDefined()
-    expect(overflowedItem?.classList.contains('nav-header-bar__item--divider-after')).toBe(true)
+    expect(overflowedItem?.classList.contains('r-menu__item--divider-after')).toBe(true)
     if (!(overflowedItem instanceof HTMLElement)) throw new Error('溢出项不是可渲染的菜单节点')
     overflowedItem?.dispatchEvent(new MouseEvent('click', {bubbles: true}))
     await flushPromises()
@@ -181,10 +181,10 @@ describe('NavHeaderBar Element Plus responsive menu behavior', () => {
     expect(activeItems.value).toEqual([first])
     expect(overflowedItem.classList.contains('is-active')).toBe(true)
     expect(overflowedItem?.getAttribute('aria-current')).toBeNull()
-    expect(overflowedItem?.classList.contains('nav-header-bar__item--active')).toBe(false)
+    expect(overflowedItem?.classList.contains('r-menu__item--active')).toBe(false)
     activeItems.value = [overflowed]
     await flushPromises()
-    expect(overflowedItem.classList.contains('nav-header-bar__item--active')).toBe(true)
+    expect(overflowedItem.classList.contains('r-menu__item--active')).toBe(true)
     expect(overflowedItem.getAttribute('aria-current')).toBe('page')
   })
 
@@ -195,12 +195,12 @@ describe('NavHeaderBar Element Plus responsive menu behavior', () => {
     activeItems.value = [parent, child]
     const wrapper = mountNav([parent], nav)
 
-    const parentMenuItem = wrapper.find('.el-sub-menu.nav-header-bar__item--active')
+    const parentMenuItem = wrapper.find('.el-sub-menu.r-menu__item--active')
     const parentTitle = wrapper.find('.el-sub-menu__title')
     expect(parentMenuItem.exists()).toBe(true)
     expect(parentTitle.exists()).toBe(true)
-    expect(parentMenuItem.classes()).toContain('nav-header-bar__item--active')
-    expect(parentTitle.classes()).not.toContain('nav-header-bar__item--active')
+    expect(parentMenuItem.classes()).toContain('r-menu__item--active')
+    expect(parentTitle.classes()).not.toContain('r-menu__item--active')
     expect(parentTitle.attributes('aria-current')).toBeUndefined()
     await parentTitle.trigger('mouseenter')
     await waitForMenuPopper()

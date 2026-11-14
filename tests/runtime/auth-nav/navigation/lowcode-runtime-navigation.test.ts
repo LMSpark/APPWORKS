@@ -2,13 +2,11 @@ import type { LowcodeProjectBlueprintRecord } from '@spark-appworks/spark-lowcod
 import { readFileSync } from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
-import { mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { SYSTEM_PAGE_NAVIGATION_ID_QUERY, type RuntimeNavigation, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import { createDynamicRouter } from '../../../../packages/spark-app/src/router/dynamic'
 import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/nav-access'
 
-import NavIcon from '@/components/NavIcon.vue'
 import { ProjectNavigationGuard } from '@/services/project/navigation/project-navigation-guard'
 import { APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath } from '@/services/application-scope'
 import { DataSet, type DataRow } from '@spark-appworks/spark-data'
@@ -846,28 +844,6 @@ describe('lowcode project navigation projection', () => {
     expect(authorization).not.toHaveBeenCalled()
     expect(lowcodeEnterpriseNavigation().projectId).toBe(APPLICATION_CATALOG_PROJECT_ID)
     expect(lowcodeApi.application.get()).toBeNull()
-  })
-
-  it('renders lowcode legacy icon classes as icons instead of raw class text', () => {
-    const wrapper = mount(NavIcon, {
-      props: { name: 'e-icons layui-icon layui-icon-app' },
-      global: { stubs: { 'el-icon': { template: '<i><slot /></i>' } } },
-    })
-
-    expect(wrapper.text()).not.toContain('layui-icon')
-    expect(wrapper.find('svg').exists()).toBe(true)
-  })
-
-  it('normalizes application icon aliases instead of rendering icon names as text', () => {
-    for (const name of ['DataBase', 'FolderOpen']) {
-      const wrapper = mount(NavIcon, {
-        props: { name },
-        global: { stubs: { 'el-icon': { template: '<i><slot /></i>' } } },
-      })
-
-      expect(wrapper.text()).not.toContain(name)
-      expect(wrapper.find('svg').exists()).toBe(true)
-    }
   })
 
   it('uses the Chinese enterprise short name as the AppWorks display label', () => {

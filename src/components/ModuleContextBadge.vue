@@ -6,13 +6,14 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 -->
 <template>
   <div class="module-context-badge">
-    <el-tag size="small" type="info">{{ displayText }}</el-tag>
+    <DisplayTag :content="displayText" size="small" tag-type="info" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from 'vue'
 import {
+  DisplayTag,
   useSparkComponent,
   MODULE_CONTEXT,
 } from '@spark-appworks/spark-component'

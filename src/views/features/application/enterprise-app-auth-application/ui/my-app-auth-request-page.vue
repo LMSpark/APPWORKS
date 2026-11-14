@@ -25,13 +25,14 @@
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
-import {ElMessage} from 'element-plus'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererDialog, RendererSection, RendererTable, type RFilterProps} from '@spark-appworks/spark-component'
+import {PAGE_SERVICE, RendererButton, RendererDialog, RendererSection, RendererTable, useSparkComponent, type RFilterProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {APP_AUTH_SCENARIOS, commitAppAuthRecord, confirmAppAuth, formatRequestedAt, readAppAuthSession} from '../model/enterprise-app-auth-application-model'
 import ApplyAppAuthContent from './apply-app-auth-content.vue'
 
+const {sparkConsume} = useSparkComponent({type: 'my-app-auth-request-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'my-app-auth-request-page')
 const scenarioId = APP_AUTH_SCENARIOS.myRequests
 const modelName = 'enterprise_app_auth'
 const appNamesKey = buildDataViewKey('Base_AppSystemList', 'default', APP_AUTH_SCENARIOS.review)
@@ -50,12 +51,12 @@ const dictionary = (key: string) => ({optionDataViewKey: key, optionValueField: 
 const fields: SparkNode[] = [
   {type: 'r-select', props: {field: 'app_id', label: '申请应用', readonly: true, minWidth: 220, sortable: false, showOverflowTooltip: true,
     optionDataViewKey: appNamesKey, optionValueField: 'rowid', optionLabelField: 'displayName', unmatchedText: '-', cellTitleField: 'app_id'}},
-  {type: 'r-select', props: {field: 'source_ent', label: '来源企业', readonly: true, width: 160, sortable: false, showOverflowTooltip: true,
+  {type: 'r-select', props: {field: 'source_ent', label: '来源企业', readonly: true, width: 160, showOverflowTooltip: true,
     optionDataViewKey: enterpriseKey, optionValueField: 'ShortName', optionLabelField: 'CName'}},
-  {type: 'r-select', props: {field: 'request_type', label: '发起方式', readonly: true, width: 110, valueAlign: 'center', sortable: false, ...dictionary(requestTypeKey)}},
-  {type: 'r-select', props: {field: 'auth_status', label: '状态', readonly: true, width: 120, valueAlign: 'center', sortable: false, ...dictionary(statusKey),
+  {type: 'r-select', props: {field: 'request_type', label: '发起方式', readonly: true, width: 110, valueAlign: 'center', ...dictionary(requestTypeKey)}},
+  {type: 'r-select', props: {field: 'auth_status', label: '状态', readonly: true, width: 120, valueAlign: 'center', ...dictionary(statusKey),
     valueTagTypes: {ACTIVE: 'success', PENDING: 'warning', FAILED: 'danger', REJECTED: 'danger'}}},
-  {type: 'r-text', props: {field: 'requested_at', label: '申请时间', readonly: true, width: 160, valueAlign: 'center', sortable: false,
+  {type: 'r-text', props: {field: 'requested_at', label: '申请时间', readonly: true, width: 160, valueAlign: 'center',
     emptyText: '-', displayFormatter: formatRequestedAt}},
   {type: 'r-text', props: {field: 'noteText', label: '说明/失败原因', readonly: true, minWidth: 180, sortable: false, showOverflowTooltip: true}},
 ]
@@ -99,14 +100,14 @@ async function operate(row: DataRow, operation: Operation): Promise<void> {
   actionError.value = ''
   const id = view.getPkKey(row)
   if (id === undefined || id === '') {actionError.value = '缺少申请记录'; return}
-  if (!await confirmAppAuth(`确定要${operation.verb.replace('{name}', appLabel(view, row))}吗？`, operation.title)) return
+  if (!await confirmAppAuth(`确定要${operation.verb.replace('{name}', appLabel(view, row))}吗？`, operation.title, pageService)) return
   busy.value = true
   try {
     const {userId} = readAppAuthSession()
     view.updateEditingValue(id, 'auth_status', operation.to)
     view.updateEditingValue(id, 'operator', userId)
     await commitAppAuthRecord(view, id)
-    ElMessage.success(operation.success)
+    pageService.showMessage(operation.success, 'success')
     await view.refresh()
   } catch (cause) {
     actionError.value = cause instanceof Error ? cause.message : String(cause)

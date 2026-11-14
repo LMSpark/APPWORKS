@@ -51,13 +51,14 @@
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
-import {ElMessage, ElMessageBox} from 'element-plus'
 import * as Components from '@spark-appworks/spark-component'
 import type {DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
-const {PAGE_RUNTIME, RendererDialog, RendererSection, RendererForm, RendererButton, FieldText, FieldImage, useSparkComponent, useDataViewRecordEditing} = Components
+const {PAGE_RUNTIME, RendererDialog, RendererSection, RendererForm, RendererButton, FieldText, FieldImage, useSparkComponent, useDataViewRecordEditing, consumeRequiredPageService} = Components
 const props = defineProps<{listKey: string; commandKey: string; recordId: string; title: string}>()
 const emit = defineEmits<{close: [result: DataViewRecordEditingFinish]}>()
 const {sparkConsume} = useSparkComponent({type: 'enterprise-audit-dialog'})
+const pageService = consumeRequiredPageService(sparkConsume, 'enterprise-audit-dialog')
+
 const runtime = () => sparkConsume(PAGE_RUNTIME)
 const {view, originalRow, busy, current, error, ownUnconfirmed, foreignRecovery, recoveryEnded, save, cancel} = useDataViewRecordEditing({
   mode: 'edit', runtime, dataViewKey: () => props.listKey, recordId: () => props.recordId, editableFields: ['CheckState'],
@@ -79,7 +80,7 @@ function close(): void {
 }
 async function confirmed(message: string, title: string): Promise<boolean> {
   try {
-    await ElMessageBox.confirm(message, title, {type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消'})
+    if (!await pageService.showConfirm(message, title, {type: 'warning', confirmText: '确定', cancelText: '取消'})) return false
     return true
   } catch {
     return false
@@ -99,7 +100,7 @@ async function approve(): Promise<void> {
     if (added === undefined) throw new Error('企业初始化命令缺少原生身份')
     id = String(added)
     await submitCommand(id)
-    ElMessage.success('企业初始化已完成，审核状态为已入驻')
+    pageService.showMessage('企业初始化已完成，审核状态为已入驻', 'success')
     await view.refresh()
     cancel()
   } catch (cause) {
@@ -117,7 +118,7 @@ async function verifyApproval(): Promise<void> {
   approving.value = true
   try {
     await submitCommand(id)
-    ElMessage.success('企业初始化已完成，审核状态为已入驻')
+    pageService.showMessage('企业初始化已完成，审核状态为已入驻', 'success')
     await view.refresh()
     cancel()
   } catch (cause) {

@@ -42,6 +42,9 @@
         "icon": {
           "type": "string"
         },
+        "fallback": {
+          "type": "string"
+        },
         "iconSize": {
           "anyOf": [
             {
@@ -59,7 +62,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.153Z",
+  "generatedAt": "2026-11-14T07:10:06.859Z",
   "models": {
     "RDisplayIconProps": {
       "name": "RDisplayIconProps",
@@ -73,7 +76,7 @@
         "directory": "display/non-data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & {\n    /** 图标名称（由项目图标注册表解析） */\n    icon?: string;\n    /** 图标大小 */\n    iconSize?: number | string;\n    /** 图标颜色 */\n    color?: string;\n}",
+        "declarationTypeText": "SparkNodeProps & {\n    /** 图标名称：Element Plus 图标名或历史导航图标类名；非标识符名称（如 emoji）按文本显示。 */\n    icon?: string;\n    /** 图标名无法解析时使用的 Element Plus 图标名。 */\n    fallback?: string;\n    /** 图标大小 */\n    iconSize?: number | string;\n    /** 图标颜色 */\n    color?: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -82,14 +85,20 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 图标名称（由项目图标注册表解析） */\n    icon?: string;\n    /** 图标大小 */\n    iconSize?: number | string;\n    /** 图标颜色 */\n    color?: string;\n}"
+            "typeText": "{\n    /** 图标名称：Element Plus 图标名或历史导航图标类名；非标识符名称（如 emoji）按文本显示。 */\n    icon?: string;\n    /** 图标名无法解析时使用的 Element Plus 图标名。 */\n    fallback?: string;\n    /** 图标大小 */\n    iconSize?: number | string;\n    /** 图标颜色 */\n    color?: string;\n}"
           }
         ],
         "members": {
           "attributes": [
             {
               "name": "icon",
-              "jsdoc": "图标名称（由项目图标注册表解析）",
+              "jsdoc": "图标名称：Element Plus 图标名或历史导航图标类名；非标识符名称（如 emoji）按文本显示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fallback",
+              "jsdoc": "图标名无法解析时使用的 Element Plus 图标名。",
               "readable": true,
               "writable": false
             },

@@ -70,13 +70,13 @@ const ElMenuItemGroupStub = defineComponent({
   },
 })
 
-const NavIconStub = defineComponent({
-  name: 'NavIcon',
+const DisplayIconStub = defineComponent({
+  name: 'DisplayIcon',
   props: {
-    name: String,
+    icon: String,
   },
   setup(props) {
-    return () => h('span', { class: 'nav-icon-stub', 'data-icon': props.name })
+    return () => h('span', { class: 'display-icon-stub', 'data-icon': props.icon })
   },
 })
 
@@ -125,7 +125,7 @@ describe('AppSidebar navigation rendering', () => {
           ElMenuItem: ElMenuItemStub,
           ElSubMenu: ElSubMenuStub,
           ElMenuItemGroup: ElMenuItemGroupStub,
-          NavIcon: NavIconStub,
+          DisplayIcon: DisplayIconStub,
         },
       },
     })
@@ -190,14 +190,14 @@ describe('AppSidebar navigation rendering', () => {
           ElMenuItem: ElMenuItemStub,
           ElSubMenu: ElSubMenuStub,
           ElMenuItemGroup: ElMenuItemGroupStub,
-          NavIcon: NavIconStub,
+          DisplayIcon: DisplayIconStub,
         },
       },
     })
 
     expect(wrapper.find('.el-menu').attributes('data-default-active')).toBe('/dev')
-    expect(wrapper.findAll('.app-sidebar__node-divider')).toHaveLength(1)
-    expect(wrapper.find('.app-sidebar__menu-item--active').text()).toContain('开发工作台')
+    expect(wrapper.findAll('.r-menu__separator')).toHaveLength(1)
+    expect(wrapper.find('.r-menu__item--active').text()).toContain('开发工作台')
   })
 
   it('renders sidebar directory nodes with nested directory children as submenus', async () => {
@@ -259,7 +259,7 @@ describe('AppSidebar navigation rendering', () => {
           ElMenuItem: ElMenuItemStub,
           ElSubMenu: ElSubMenuStub,
           ElMenuItemGroup: ElMenuItemGroupStub,
-          NavIcon: NavIconStub,
+          DisplayIcon: DisplayIconStub,
         },
       },
     })

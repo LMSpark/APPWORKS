@@ -41,12 +41,11 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
  */
 import { ref, shallowRef, onMounted, computed, inject, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import { buildApplicationPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { getNavHomePath, NativePageRuntimeSession } from '@spark-appworks/spark-app'
-import { PAGE_RUNTIME, RendererList, RendererPageHeader, useSparkComponent } from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, PAGE_SERVICE, RendererList, RendererPageHeader, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import type { DataRow, DataView, SparkNode } from '@spark-appworks/spark-data'
 import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {getFormalModelView, loadLowcodeApplicationCatalog} from '@/lowcode/lowcode-application-catalog'
@@ -59,7 +58,8 @@ type ProjectItem = {
 
 const router = useRouter()
 const projectSwitch = inject(PROJECT_SWITCH_KEY)
-const { sparkProvide, sparkRemove } = useSparkComponent({ type: 'app-list' })
+const { sparkProvide, sparkRemove, sparkConsume } = useSparkComponent({ type: 'app-list' })
+const pageService = consumeRequiredPageService(sparkConsume, 'app-list')
 const runtimeError = ref('')
 const scenarioView = shallowRef<DataView | null>(null)
 const session = new NativePageRuntimeSession({
@@ -187,9 +187,9 @@ async function handleSwitch(project: ProjectItem) {
     const failure = await router.push(buildApplicationPath({ projectId: project.projectId }, getNavHomePath()))
     receipt.assertCurrent()
     if (failure) throw new Error('应用页面导航未完成')
-    ElMessage.success(`已切换到「${project.name}」`)
+    pageService.showMessage(`已切换到「${project.name}」`, 'success')
   } catch (error: unknown) {
-    ElMessage.error(error instanceof Error ? error.message : '切换应用失败')
+    pageService.showMessage(error instanceof Error ? error.message : '切换应用失败', 'error')
   }
 }
 

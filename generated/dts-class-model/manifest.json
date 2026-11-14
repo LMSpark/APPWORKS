@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1184,
+  "scannedFileCount": 1186,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -3863,6 +3863,63 @@
         "componentDirectory": "containers/layout"
       }
     },
+    "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts": {
+      "file": "files/packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/containers/layout/navigation/RendererMenu/RendererMenu.props",
+        "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts",
+        "sourceFile": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/containers/layout/navigation/RendererMenu/RendererMenu.props",
+        "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/navigation/RendererMenu/RendererMenu.props\n职责：定义 RendererMenu（r-menu）的配置属性契约，描述导航菜单项树、方向、折叠、激活与选择事件。\n边界：只描述菜单呈现与选择回调；菜单项由调用方给出，激活与当前页由调用方判定，组件不创建导航数据或路由。\nAI用途：生成侧栏/顶部导航配置时，用本模块判断 r-menu 允许的 props 与菜单项字段。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "MenuItem",
+          "RMenuProps"
+        ],
+        "componentName": "RendererMenu",
+        "componentType": "r-menu",
+        "componentLevel": "container",
+        "componentLayer": "layout-container",
+        "componentDirectory": "containers/layout"
+      }
+    },
+    "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.vue": {
+      "file": "files/packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.vue.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/containers/layout/navigation/RendererMenu/RendererMenu",
+        "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.vue",
+        "sourceFile": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.vue",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/containers/layout/navigation/RendererMenu/RendererMenu",
+        "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/navigation/RendererMenu/RendererMenu\n职责：实现 RendererMenu（r-menu）的 Vue 渲染入口，按菜单项树呈现纵向/横向导航菜单并回传选择。\n边界：菜单项、激活与当前页由调用方给出；组件不创建导航数据、不判定权限、不跳转路由。\nAI用途：需要理解 r-menu 的渲染结构、类名或选择事件时，优先查看本模块。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [],
+        "componentName": "RendererMenu",
+        "componentType": "r-menu",
+        "componentLevel": "container",
+        "componentLayer": "layout-container",
+        "componentDirectory": "containers/layout"
+      }
+    },
+    "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenuNode.vue": {
+      "file": "files/packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenuNode.vue.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/containers/layout/navigation/RendererMenu/RendererMenuNode",
+        "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenuNode.vue",
+        "sourceFile": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenuNode.vue",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/containers/layout/navigation/RendererMenu/RendererMenuNode",
+        "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/navigation/RendererMenu/RendererMenuNode\n职责：递归渲染 RendererMenu 的单个菜单项、子菜单或分组。\n边界：只负责呈现与把选择回传给 RendererMenu；不判定激活或导航。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [],
+        "componentName": "RendererMenuNode",
+        "componentType": "r-menu-node",
+        "componentLevel": "container",
+        "componentLayer": "layout-container",
+        "componentDirectory": "containers/layout"
+      }
+    },
     "packages/spark-component/src/components/containers/layout/navigation/RendererSteps/index.ts": {
       "file": "files/packages/spark-component/src/components/containers/layout/navigation/RendererSteps/index.ts.json",
       "module": {
@@ -5751,6 +5808,26 @@
         "componentLevel": "display",
         "componentLayer": "data-display",
         "componentDirectory": "display/data-components"
+      }
+    },
+    "packages/spark-component/src/components/display/non-data-components/DisplayIcon/display-icon-name.ts": {
+      "file": "files/packages/spark-component/src/components/display/non-data-components/DisplayIcon/display-icon-name.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/display/non-data-components/DisplayIcon/display-icon-name",
+        "sourcePath": "packages/spark-component/src/components/display/non-data-components/DisplayIcon/display-icon-name.ts",
+        "sourceFile": "packages/spark-component/src/components/display/non-data-components/DisplayIcon/display-icon-name.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/display/non-data-components/DisplayIcon/display-icon-name",
+        "jsdoc": "@module @spark-appworks/spark-component:components/display/non-data-components/DisplayIcon/display-icon-name\n职责：把配置或导航记录中的图标名解析为 Element Plus 图标名，承接历史导航数据中的旧图标类名。\n边界：只做名称解析，不渲染、不注册图标。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "DisplayIconName"
+        ],
+        "componentName": "DisplayIcon",
+        "componentType": "display-icon",
+        "componentLevel": "display",
+        "componentLayer": "static-display",
+        "componentDirectory": "display/non-data-components"
       }
     },
     "packages/spark-component/src/components/display/non-data-components/DisplayIcon/DisplayIcon.props.ts": {
@@ -8979,6 +9056,19 @@
         "symbols": [
           "PageServiceOverrides"
         ]
+      }
+    },
+    "packages/spark-component/src/page/services/consumeRequiredPageService.ts": {
+      "file": "files/packages/spark-component/src/page/services/consumeRequiredPageService.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:page/services/consumeRequiredPageService",
+        "sourcePath": "packages/spark-component/src/page/services/consumeRequiredPageService.ts",
+        "sourceFile": "packages/spark-component/src/page/services/consumeRequiredPageService.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "page/services/consumeRequiredPageService",
+        "jsdoc": "@spark-appworks/spark-component 的 page/services/consumeRequiredPageService 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
       }
     },
     "packages/spark-component/src/page/services/page-route-query.ts": {
@@ -12695,19 +12785,6 @@
         "symbols": []
       }
     },
-    "src/components/IconPicker.vue": {
-      "file": "files/src/components/IconPicker.vue.json",
-      "module": {
-        "name": "app:components/IconPicker",
-        "sourcePath": "src/components/IconPicker.vue",
-        "sourceFile": "src/components/IconPicker.vue",
-        "packageName": "app",
-        "modulePath": "components/IconPicker",
-        "jsdoc": "@module app:components/IconPicker\n职责：提供主应用 IconPicker 能力，围绕 Props 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 components/IconPicker。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
     "src/components/ModuleContextBadge.vue": {
       "file": "files/src/components/ModuleContextBadge.vue.json",
       "module": {
@@ -12717,19 +12794,6 @@
         "packageName": "app",
         "modulePath": "components/ModuleContextBadge",
         "jsdoc": "@module app:components/ModuleContextBadge\n职责：提供主应用 ModuleContextBadge 能力，围绕 Props 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 components/ModuleContextBadge。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/components/NavIcon.vue": {
-      "file": "files/src/components/NavIcon.vue.json",
-      "module": {
-        "name": "app:components/NavIcon",
-        "sourcePath": "src/components/NavIcon.vue",
-        "sourceFile": "src/components/NavIcon.vue",
-        "packageName": "app",
-        "modulePath": "components/NavIcon",
-        "jsdoc": "@module app:components/NavIcon\n职责：提供主应用 NavIcon 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 components/NavIcon。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -12850,20 +12914,7 @@
         "sourceFile": "src/layout/AppSidebar.vue",
         "packageName": "app",
         "modulePath": "layout/AppSidebar",
-        "jsdoc": "@module app:layout/AppSidebar\n职责：提供主应用 AppSidebar 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/AppSidebar。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/layout/AppSidebarNode.vue": {
-      "file": "files/src/layout/AppSidebarNode.vue.json",
-      "module": {
-        "name": "app:layout/AppSidebarNode",
-        "sourcePath": "src/layout/AppSidebarNode.vue",
-        "sourceFile": "src/layout/AppSidebarNode.vue",
-        "packageName": "app",
-        "modulePath": "layout/AppSidebarNode",
-        "jsdoc": "@module app:layout/AppSidebarNode\n职责：提供主应用 AppSidebarNode 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/AppSidebarNode。",
+        "jsdoc": "@module app:layout/AppSidebar\n职责：用标准 RendererMenu 呈现应用壳已授权的 RuntimeNavigationItem 侧栏，并通过唯一 useNav 上下文处理选择与激活。\n边界：不创建导航数据、权限判定或路由；只把导航树映射为菜单项。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/AppSidebar。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -12881,6 +12932,25 @@
         "symbols": []
       }
     },
+    "src/layout/host-local-runtime.ts": {
+      "file": "files/src/layout/host-local-runtime.ts.json",
+      "module": {
+        "name": "app:layout/host-local-runtime",
+        "sourcePath": "src/layout/host-local-runtime.ts",
+        "sourceFile": "src/layout/host-local-runtime.ts",
+        "packageName": "app",
+        "modulePath": "layout/host-local-runtime",
+        "jsdoc": "@module app:layout/host-local-runtime\n职责：为宿主界面状态（主题开关、项目上下文选择）装配本地 static-data DataSet 与 PageRuntime，供标准 Field 组件按 dataViewKey 绑定。\n边界：不持久化、不访问后端、不授予任何业务数据权限；字段编辑经 onFieldEdit 回传宿主状态，宿主状态变化经 write 写回当前行。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "HostLocalColumn",
+          "HostLocalTable",
+          "HostLocalRuntimeInput",
+          "HostLocalFieldEdit",
+          "HostLocalRuntime"
+        ]
+      }
+    },
     "src/layout/NavContextSelector.vue": {
       "file": "files/src/layout/NavContextSelector.vue.json",
       "module": {
@@ -12889,7 +12959,7 @@
         "sourceFile": "src/layout/NavContextSelector.vue",
         "packageName": "app",
         "modulePath": "layout/NavContextSelector",
-        "jsdoc": "@module app:layout/NavContextSelector\n职责：提供主应用 NavContextSelector 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/NavContextSelector。",
+        "jsdoc": "@module app:layout/NavContextSelector\n职责：在应用头部呈现导航上下文（项目）选择，选择结果写回唯一 useNav 上下文。\n边界：选项与当前值镜像 RuntimeNavigationContextState，经本地 DataView 绑定标准 FieldSelect；不持久化、不创建导航数据。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/NavContextSelector。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -12902,7 +12972,7 @@
         "sourceFile": "src/layout/NavHeaderBar.vue",
         "packageName": "app",
         "modulePath": "layout/NavHeaderBar",
-        "jsdoc": "@module app:layout/NavHeaderBar\n职责：用 Element Plus 横向菜单呈现应用壳已授权的 RuntimeNavigationItem，并通过唯一 useNav 上下文处理选择。\n边界：不创建导航数据、权限判定或路由；菜单溢出只改变现有 items 的呈现位置，活动身份仍由 useNav 提供。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/NavHeaderBar。",
+        "jsdoc": "@module app:layout/NavHeaderBar\n职责：用标准 RendererMenu 横向菜单呈现应用壳已授权的 RuntimeNavigationItem，并通过唯一 useNav 上下文处理选择。\n边界：不创建导航数据、权限判定或路由；菜单溢出只改变现有 items 的呈现位置，活动身份仍由 useNav 提供。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/NavHeaderBar。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -17002,7 +17072,7 @@
         "packageName": "app",
         "modulePath": "views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model",
         "jsdoc": "@module app:views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model\n职责：企业应用授权三页共用的正式场景身份、会话参数、申请时间呈现及单条记录提交。\n边界：只读取当前会话的企业简称与用户ID作为查询参数和操作人，不判断身份放行；提交只经所属DataSet按记录ID保存。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
@@ -18866,7 +18936,7 @@
         "packageName": "app",
         "modulePath": "views/features/shared/table/feature-table-actions",
         "jsdoc": "@module app:views/features/shared/table/feature-table-actions\n职责：行内编辑表格的“新增/删除/保存/取消”标准工具栏及其DataView动作。\n边界：只调用原DataView及所属DataSet的新增、删除、提交与放弃能力；权限、规则和回执核验仍由SPARK data承接。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": [
           "FeatureTableAction",
           "FeatureTableToolbarInput"
@@ -18959,20 +19029,7 @@
         "sourceFile": "src/views/FileDataManager/FileManager/index.vue",
         "packageName": "app",
         "modulePath": "views/FileDataManager/FileManager/index",
-        "jsdoc": "@module app:views/FileDataManager/FileManager/index\n职责：恢复文件管理：按文件名称查询 filedata 文件区、拖拽上传单个文件、确认后删除文件。\n边界：列表、上传与删除都经同一PageRuntime的FileDataCatalog视图提交；上传核原字节、删除回列确认，失败后丢弃本地草稿并按实际目录重读。\nAI用途：迁移参考仓 FileDataManager/FileManager 时，核对文件区、导航身份(dataSpaceId)与保存回执。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/platform/About.vue": {
-      "file": "files/src/views/platform/About.vue.json",
-      "module": {
-        "name": "app:views/platform/About",
-        "sourcePath": "src/views/platform/About.vue",
-        "sourceFile": "src/views/platform/About.vue",
-        "packageName": "app",
-        "modulePath": "views/platform/About",
-        "jsdoc": "@module app:views/platform/About\n职责：提供主应用 About 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/platform/About。",
+        "jsdoc": "@module app:views/FileDataManager/FileManager/index\n职责：恢复文件管理：按文件名称查询 filedata 文件区、选择本地文件上传、确认后删除文件。\n边界：列表、上传与删除都经同一PageRuntime的FileDataCatalog视图提交；上传核原字节、删除回列确认，失败后丢弃本地草稿并按实际目录重读。\nAI用途：迁移参考仓 FileDataManager/FileManager 时，核对文件区、导航身份(dataSpaceId)与保存回执。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -21985,6 +22042,10 @@
       "sourcePath": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts",
       "file": "files/packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts.json"
     },
+    "DisplayIconName": {
+      "sourcePath": "packages/spark-component/src/components/display/non-data-components/DisplayIcon/display-icon-name.ts",
+      "file": "files/packages/spark-component/src/components/display/non-data-components/DisplayIcon/display-icon-name.ts.json"
+    },
     "Draft2020AuditIssue": {
       "sourcePath": "packages/spark-json-document/src/schema/schema-draft2020-audit.ts",
       "file": "files/packages/spark-json-document/src/schema/schema-draft2020-audit.ts.json"
@@ -22688,6 +22749,26 @@
     "GroupFunType": {
       "sourcePath": "packages/spark-lowcode-api/src/contracts/lowcode-wire-query.ts",
       "file": "files/packages/spark-lowcode-api/src/contracts/lowcode-wire-query.ts.json"
+    },
+    "HostLocalColumn": {
+      "sourcePath": "src/layout/host-local-runtime.ts",
+      "file": "files/src/layout/host-local-runtime.ts.json"
+    },
+    "HostLocalFieldEdit": {
+      "sourcePath": "src/layout/host-local-runtime.ts",
+      "file": "files/src/layout/host-local-runtime.ts.json"
+    },
+    "HostLocalRuntime": {
+      "sourcePath": "src/layout/host-local-runtime.ts",
+      "file": "files/src/layout/host-local-runtime.ts.json"
+    },
+    "HostLocalRuntimeInput": {
+      "sourcePath": "src/layout/host-local-runtime.ts",
+      "file": "files/src/layout/host-local-runtime.ts.json"
+    },
+    "HostLocalTable": {
+      "sourcePath": "src/layout/host-local-runtime.ts",
+      "file": "files/src/layout/host-local-runtime.ts.json"
     },
     "HttpClientBase": {
       "sourcePath": "packages/spark-utils/src/http/HttpClientBase.ts",
@@ -23464,6 +23545,10 @@
     "LowcodeWorkflowDefinition": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/resource.ts.json"
+    },
+    "MenuItem": {
+      "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts",
+      "file": "files/packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts.json"
     },
     "MessageRowAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
@@ -24856,6 +24941,10 @@
     "RMentionProps": {
       "sourcePath": "packages/spark-component/src/components/fields/data-components/text/FieldMention/FieldMention.props.ts",
       "file": "files/packages/spark-component/src/components/fields/data-components/text/FieldMention/FieldMention.props.ts.json"
+    },
+    "RMenuProps": {
+      "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts",
+      "file": "files/packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts.json"
     },
     "RMultiSelectProps": {
       "sourcePath": "packages/spark-component/src/components/fields/data-components/choice/FieldMultiSelect/FieldMultiSelect.props.ts",
@@ -26555,6 +26644,18 @@
           "directory": "containers/layout"
         }
       },
+      "DisplayIconName": {
+        "className": "DisplayIconName",
+        "sourcePath": "packages/spark-component/src/components/display/non-data-components/DisplayIcon/display-icon-name.ts",
+        "file": "files/packages/spark-component/src/components/display/non-data-components/DisplayIcon/display-icon-name.ts.json",
+        "component": {
+          "name": "DisplayIcon",
+          "type": "display-icon",
+          "level": "display",
+          "layer": "static-display",
+          "directory": "display/non-data-components"
+        }
+      },
       "DropdownItem": {
         "className": "DropdownItem",
         "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererDropdown/RendererDropdown.props.ts",
@@ -26940,6 +27041,18 @@
           "level": "field-level",
           "layer": "data-field",
           "directory": "fields/data-components"
+        }
+      },
+      "MenuItem": {
+        "className": "MenuItem",
+        "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts",
+        "file": "files/packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts.json",
+        "component": {
+          "name": "RendererMenu",
+          "type": "r-menu",
+          "level": "container",
+          "layer": "layout-container",
+          "directory": "containers/layout"
         }
       },
       "MultiValue": {
@@ -27770,6 +27883,18 @@
           "directory": "fields/data-components"
         }
       },
+      "RMenuProps": {
+        "className": "RMenuProps",
+        "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts",
+        "file": "files/packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.props.ts.json",
+        "component": {
+          "name": "RendererMenu",
+          "type": "r-menu",
+          "level": "container",
+          "layer": "layout-container",
+          "directory": "containers/layout"
+        }
+      },
       "RMultiSelectProps": {
         "className": "RMultiSelectProps",
         "sourcePath": "packages/spark-component/src/components/fields/data-components/choice/FieldMultiSelect/FieldMultiSelect.props.ts",
@@ -28555,6 +28680,7 @@
         "REmptyProps"
       ],
       "DisplayIcon": [
+        "DisplayIconName",
         "RDisplayIconProps"
       ],
       "DisplayImage": [
@@ -28790,6 +28916,10 @@
         "RendererListApi",
         "RListProps"
       ],
+      "RendererMenu": [
+        "MenuItem",
+        "RMenuProps"
+      ],
       "RendererPageHeader": [
         "RPageHeaderProps"
       ],
@@ -28898,6 +29028,7 @@
         "RDisplayCountdownProps"
       ],
       "display-icon": [
+        "DisplayIconName",
         "RDisplayIconProps"
       ],
       "display-image": [
@@ -29065,6 +29196,10 @@
         "RMentionOption",
         "RMentionProps"
       ],
+      "r-menu": [
+        "MenuItem",
+        "RMenuProps"
+      ],
       "r-multi-select": [
         "MultiValue",
         "RMultiSelectProps"
@@ -29221,6 +29356,7 @@
         "FullscreenDialogProps",
         "InlineAlign",
         "InlineJustify",
+        "MenuItem",
         "RAnchorLinkProps",
         "RAnchorProps",
         "RButtonProps",
@@ -29240,6 +29376,7 @@
         "RFooterProps",
         "RHeaderProps",
         "RLinkProps",
+        "RMenuProps",
         "RPageHeaderProps",
         "RPopconfirmProps",
         "RPopoverProps",
@@ -29257,6 +29394,7 @@
         "UnifiedValueBridgeOptions"
       ],
       "display": [
+        "DisplayIconName",
         "RAlertProps",
         "RAvatarProps",
         "RBadgeProps",
@@ -29526,6 +29664,7 @@
         "FullscreenDialogProps",
         "InlineAlign",
         "InlineJustify",
+        "MenuItem",
         "RAnchorLinkProps",
         "RAnchorProps",
         "RButtonProps",
@@ -29540,6 +29679,7 @@
         "RendererStepsApi",
         "RendererTabsApi",
         "RLinkProps",
+        "RMenuProps",
         "RPageHeaderProps",
         "RPopconfirmProps",
         "RPopoverProps",
@@ -29556,6 +29696,7 @@
         "UnifiedValueBridgeOptions"
       ],
       "static-display": [
+        "DisplayIconName",
         "RAlertProps",
         "RBreadcrumbItemProps",
         "RBreadcrumbProps",
@@ -29650,6 +29791,7 @@
         "FullscreenDialogProps",
         "InlineAlign",
         "InlineJustify",
+        "MenuItem",
         "RAnchorLinkProps",
         "RAnchorProps",
         "RButtonProps",
@@ -29664,6 +29806,7 @@
         "RendererStepsApi",
         "RendererTabsApi",
         "RLinkProps",
+        "RMenuProps",
         "RPageHeaderProps",
         "RPopconfirmProps",
         "RPopoverProps",
@@ -29699,6 +29842,7 @@
         "TagType"
       ],
       "display/non-data-components": [
+        "DisplayIconName",
         "RAlertProps",
         "RBreadcrumbItemProps",
         "RBreadcrumbProps",

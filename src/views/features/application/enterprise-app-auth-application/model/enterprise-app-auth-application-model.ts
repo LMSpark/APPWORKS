@@ -3,7 +3,7 @@
  * 职责：企业应用授权三页共用的正式场景身份、会话参数、申请时间呈现及单条记录提交。
  * 边界：只读取当前会话的企业简称与用户ID作为查询参数和操作人，不判断身份放行；提交只经所属DataSet按记录ID保存。
  */
-import {ElMessageBox} from 'element-plus'
+import type {PageServiceCapability} from '@spark-appworks/spark-component'
 import type {DataView} from '@spark-appworks/spark-data'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 
@@ -27,13 +27,12 @@ export function formatRequestedAt(value: unknown): string {
   return text ? text.slice(0, 19) : '-'
 }
 
-export async function confirmAppAuth(message: string, title: string): Promise<boolean> {
-  try {
-    await ElMessageBox.confirm(message, title, {type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消'})
-    return true
-  } catch {
-    return false
-  }
+export async function confirmAppAuth(
+  message: string,
+  title: string,
+  ui: Pick<PageServiceCapability, 'showConfirm'>,
+): Promise<boolean> {
+  return ui.showConfirm(message, title, {type: 'warning'})
 }
 
 /**

@@ -36,20 +36,20 @@ const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePa
   queryContext: () => ({entShortName: readAppAuthSession().entShortName}),
 })
 const auditId = ref<string | number>(), openError = ref('')
-const lookup = {readonly: true, sortable: false, showOverflowTooltip: true, unmatchedText: '-'}
+const lookup = {readonly: true, showOverflowTooltip: true, unmatchedText: '-'}
 const fields: SparkNode[] = [
-  {type: 'r-select', props: {...lookup, field: 'enterprise_id', label: '申请企业', width: 200, cellTitleField: 'ent_shortname',
+  {type: 'r-select', props: {...lookup, sortable: false, field: 'enterprise_id', label: '申请企业', width: 200, cellTitleField: 'ent_shortname',
     optionDataViewKey: buildDataViewKey('Base_Enterprise_Info', 'default', scenarioId), optionValueField: 'rowid', optionLabelField: 'CName'}},
-  {type: 'r-select', props: {...lookup, field: 'app_id', label: '申请应用', minWidth: 200, cellTitleField: 'app_id',
+  {type: 'r-select', props: {...lookup, sortable: false, field: 'app_id', label: '申请应用', minWidth: 200, cellTitleField: 'app_id',
     optionDataViewKey: buildDataViewKey('Base_AppSystemList', 'default', scenarioId), optionValueField: 'rowid', optionLabelField: 'displayName'}},
   {type: 'r-select', props: {...lookup, field: 'source_ent', label: '来源企业', width: 180, cellTitleField: 'source_ent',
     optionDataViewKey: byShortNameKey, optionValueField: 'ShortName', optionLabelField: 'CName'}},
-  {type: 'r-text', props: {field: 'requested_at', label: '申请时间', readonly: true, width: 160, valueAlign: 'center', sortable: false,
+  {type: 'r-text', props: {field: 'requested_at', label: '申请时间', readonly: true, width: 160, valueAlign: 'center',
     emptyText: '-', displayFormatter: formatRequestedAt}},
-  {type: 'r-select', props: {field: 'auth_status', label: '状态', readonly: true, width: 110, valueAlign: 'center', sortable: false,
+  {type: 'r-select', props: {field: 'auth_status', label: '状态', readonly: true, width: 110, valueAlign: 'center',
     optionDataViewKey: buildDataViewKey('app_auth_status', 'default', scenarioId), optionValueField: 'val', optionLabelField: 'txt',
     valueTagTypes: {PENDING: 'warning'}}},
-  {type: 'r-text', props: {field: 'review_comment', label: '申请说明', readonly: true, minWidth: 200, sortable: false, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'review_comment', label: '申请说明', readonly: true, minWidth: 200, showOverflowTooltip: true}},
 ]
 const listView = computed(() => ready.value ? session.runtime?.getDataSet(scenarioId)?.getView(modelName, 'default') : undefined)
 const canAudit = ({row, dataSource}: {row?: DataRow | null; dataSource?: DataView | null}) => {

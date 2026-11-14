@@ -4,8 +4,9 @@
 
 ## 当前内容特征
 
-- 应用壳层组件：错误兜底、图标选择器、导航图标。
-- 运行时上下文展示：如 `ModuleContextBadge.vue`。
+- 应用壳层组件：错误兜底、页面加载态。
+- 运行时上下文展示：如 `ModuleContextBadge.vue`（低代码页可用的 `r-module-context-badge`）。
+- 图标统一使用标准组件 `DisplayIcon`，不在应用层另建图标组件。
 
 ## 放置原则
 

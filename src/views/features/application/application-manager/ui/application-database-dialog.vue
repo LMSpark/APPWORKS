@@ -26,7 +26,7 @@ const pickerKey = buildDataViewKey('_base_dbInfo', 'picker', DATABASE_RELATIONS_
 const {sparkConsume} = useSparkComponent({type: 'application-database-dialog'})
 const message = ref('')
 const column = (field: string, label: string, minWidth = 120): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, minWidth, sortable: false, showOverflowTooltip: true}})
+  ({type: 'r-text', props: {field, label, readonly: true, minWidth, showOverflowTooltip: true}})
 const fields: SparkNode[] = [column('Name', '数据库名', 180), column('ServerName', '服务器名称', 180), column('Port', '端口', 100),
   column('Type', '类型', 100), column('SchemaName', '架构名称', 120), column('Remark', '描述', 220)]
 const filter: RFilterProps = {

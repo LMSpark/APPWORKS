@@ -1,0 +1,495 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:layout/host-local-runtime",
+    "sourcePath": "src/layout/host-local-runtime.ts",
+    "sourceFile": "src/layout/host-local-runtime.ts",
+    "packageName": "app",
+    "modulePath": "layout/host-local-runtime",
+    "jsdoc": "@module app:layout/host-local-runtime\n职责：为宿主界面状态（主题开关、项目上下文选择）装配本地 static-data DataSet 与 PageRuntime，供标准 Field 组件按 dataViewKey 绑定。\n边界：不持久化、不访问后端、不授予任何业务数据权限；字段编辑经 onFieldEdit 回传宿主状态，宿主状态变化经 write 写回当前行。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "HostLocalColumn",
+      "HostLocalTable",
+      "HostLocalRuntimeInput",
+      "HostLocalFieldEdit",
+      "HostLocalRuntime"
+    ]
+  },
+  "$defs": {
+    "HostLocalColumn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "HostLocalColumn",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "string",
+            "boolean"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "HostLocalTable": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "HostLocalTable",
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/HostLocalColumn"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        }
+      },
+      "required": [
+        "columns",
+        "rows"
+      ],
+      "additionalProperties": false
+    },
+    "HostLocalRuntimeInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "HostLocalRuntimeInput",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "tables": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "$ref": "#/$defs/HostLocalTable"
+          }
+        }
+      },
+      "required": [
+        "scenarioId",
+        "tables"
+      ],
+      "additionalProperties": false
+    },
+    "HostLocalRuntime": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "HostLocalRuntime",
+      "properties": {
+        "runtime": {
+          "$ref": "../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.create.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/HostLocalRuntimeInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.create.return": {
+          "type": "object",
+          "title": "Promise<HostLocalRuntime>"
+        },
+        "method.key.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.key.return": {
+          "type": "string"
+        },
+        "method.view.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.view.return": {
+          "$ref": "../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "method.write.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "values": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.write.return": true,
+        "method.replaceRows.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceRows.return": true,
+        "method.onFieldEdit.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "handler": {
+              "type": "object",
+              "title": "HostLocalFieldEdit"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onFieldEdit.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-14T07:27:34.091Z",
+  "models": {
+    "HostLocalColumn": {
+      "name": "HostLocalColumn",
+      "jsdoc": "本地列；首列为主键。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    type: 'string' | 'boolean';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    type: 'string' | 'boolean';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "HostLocalTable": {
+      "name": "HostLocalTable",
+      "jsdoc": "本地表：列定义与初始行。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    columns: readonly HostLocalColumn[];\n    rows: DataRow[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    columns: readonly HostLocalColumn[];\n    rows: DataRow[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "HostLocalRuntimeInput": {
+      "name": "HostLocalRuntimeInput",
+      "jsdoc": "scenarioId 只标识本次宿主本地空间，不对应正式数据空间。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    tables: Readonly<Record<string, HostLocalTable>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    tables: Readonly<Record<string, HostLocalTable>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tables",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "HostLocalFieldEdit": {
+      "name": "HostLocalFieldEdit",
+      "jsdoc": "字段编辑回调：field 为字段名，value 为编辑后的值。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(field: string, value: unknown) => void",
+        "members": {}
+      }
+    },
+    "HostLocalRuntime": {
+      "name": "HostLocalRuntime",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "create",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "HostLocalRuntimeInput",
+                    "sourcePath": "src/layout/host-local-runtime.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "HostLocalRuntime",
+                    "sourcePath": "src/layout/host-local-runtime.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "key",
+              "jsdoc": "本地表默认视图的完整绑定键。",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "view",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataView"
+              }
+            },
+            {
+              "name": "write",
+              "jsdoc": "宿主值写回当前编辑行；写回期间不触发 onFieldEdit，避免把宿主自身的变化再回传给宿主。",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "values",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "replaceRows",
+              "jsdoc": "整批替换选项行（选项视图无编辑）。",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onFieldEdit",
+              "jsdoc": "订阅本地表的用户字段编辑；值未变化或来自 write 的事件不回传。",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "handler",
+                  "type": {
+                    "type": "reference",
+                    "name": "HostLocalFieldEdit",
+                    "sourcePath": "src/layout/host-local-runtime.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

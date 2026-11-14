@@ -2,11 +2,13 @@
   <section class="page-load-error" role="alert">
     <h2>页面加载失败</h2>
     <p>{{ error?.message || '未知错误' }}</p>
-    <button type="button" @click="reload">重新加载</button>
+    <RendererButton label="重新加载" button-type="primary" plain @click="reload" />
   </section>
 </template>
 
 <script setup lang="ts">
+import { RendererButton } from '@spark-appworks/spark-component'
+
 defineProps<{ error: Error }>()
 
 function reload(): void {
@@ -26,14 +28,5 @@ function reload(): void {
 .page-load-error h2,
 .page-load-error p {
   margin: 0;
-}
-
-.page-load-error button {
-  border: 1px solid var(--el-color-primary, #409eff);
-  border-radius: 4px;
-  padding: 0.5rem 0.875rem;
-  color: var(--el-color-primary, #409eff);
-  background: var(--el-bg-color, #fff);
-  cursor: pointer;
 }
 </style>

@@ -6,8 +6,8 @@
 <template>
   <RendererDialog :model-value="true" :data-view-key="versionKey" title="报表设计" :width="900" :append-to-body="true" :close-disabled="busy"
     @update:model-value="close">
-    <p v-if="loading" role="status">正在读取版本…</p>
-    <p v-if="message" role="alert">{{ message }}</p>
+    <DisplayAlert v-if="loading" alert-type="info" :closable="false" title="正在读取版本…" />
+    <DisplayAlert v-if="message" alert-type="error" :closable="false" :title="message" />
     <RendererButton v-if="ready" label="新增" button-type="primary" :disabled="busy || !!editor" @click="add" />
     <RendererTable v-if="ready" :data-view-key="versionKey" :children="columns" :actions="actions" :stripe="true" :show-row-index="true"
       :show-data-view-meta="false" />
@@ -24,7 +24,7 @@ import FeatureRecordDialog from '@/views/features/shared/record/feature-record-d
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import {formatDay, isOn, textOf} from './report-format'
 import {commitReportChanges, reportPendingReason} from './report-save'
-const {PAGE_RUNTIME, RendererDialog, RendererTable, RendererButton, useSparkComponent} = Components
+const {PAGE_RUNTIME, RendererDialog, RendererTable, RendererButton, DisplayAlert, useSparkComponent} = Components
 type RToolbarProps = Components.RToolbarProps
 const props = defineProps<{infoKey: string; infoId: string | number; scenarioId: string}>()
 const emit = defineEmits<{close: []}>()
@@ -65,13 +65,13 @@ onMounted(() => void guarded(async () => {
 }))
 
 const col = (field: string, label: string, minWidth = 140): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, minWidth, sortable: false, showOverflowTooltip: true}})
+  ({type: 'r-text', props: {field, label, readonly: true, minWidth, showOverflowTooltip: true}})
 const columns: SparkNode[] = [
   col('Version', '版本', 120),
   {type: 'r-select', props: {field: 'DataFormID', label: '模型', readonly: true, minWidth: 180, sortable: false, optionDataViewKey: dataSetKey}},
   {type: 'r-select', props: {field: 'createuser', label: '创建人', readonly: true, minWidth: 110, sortable: false, optionDataViewKey: creatorKey}},
-  {type: 'r-text', props: {field: 'createtime', label: '创建时间', readonly: true, minWidth: 120, sortable: false, displayFormatter: formatDay}},
-  {type: 'r-select', props: {field: 'State', label: '状态', readonly: true, minWidth: 80, sortable: false,
+  {type: 'r-text', props: {field: 'createtime', label: '创建时间', readonly: true, minWidth: 120, displayFormatter: formatDay}},
+  {type: 'r-select', props: {field: 'State', label: '状态', readonly: true, minWidth: 80,
     options: [{value: 1, label: '启用'}, {value: 0, label: '未启用'}, {value: '1', label: '启用'}, {value: '0', label: '未启用'}]}},
 ]
 const specs: readonly FeatureFieldSpec[] = [{field: 'Version', label: '版本名称', required: true}]

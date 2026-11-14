@@ -73,7 +73,7 @@ describe('DevFileEditor runtime DataView binding', () => {
     } as unknown as DevState
     const wrapper = mount(DevFileEditor, {props: {state, activeFile: 'script.js', showTabs: true}, global: {
       plugins: [ElementPlus], directives: {loading: () => {}},
-      stubs: {FieldCodeEditor: true, NavIcon: true},
+      stubs: {FieldCodeEditor: true, DisplayIcon: true},
     }})
 
     const first = await createRuntime('first runtime text')
@@ -130,7 +130,7 @@ describe('DevFileEditor runtime DataView binding', () => {
       sparkProvide(DATA_ROW, first.nodeView.rows[0]!)
       return () => h(DevFileEditor, {state, activeFile: 'script.js', showTabs: true})
     }})
-    const wrapper = mount(Host, {global: {plugins: [ElementPlus], stubs: {FieldCodeEditor: true, NavIcon: true}}})
+    const wrapper = mount(Host, {global: {plugins: [ElementPlus], stubs: {FieldCodeEditor: true, DisplayIcon: true}}})
     try {
       state.blueprintPageRuntime.value = first.runtime
       state.blueprintWorkspaceDataView.value={dataSet:first.dataSet} as never
@@ -170,7 +170,7 @@ describe('DevFileEditor runtime DataView binding', () => {
     }})
     const wrapper = mount(DevFileEditor, {props: {state, activeFile: 'script.js', showTabs: true}, global: {
       plugins: [ElementPlus], directives: {loading: () => {}},
-      stubs: {FieldCodeEditor: FieldProbe, NavIcon: true},
+      stubs: {FieldCodeEditor: FieldProbe, DisplayIcon: true},
     }})
     try {
       state.blueprintPageRuntime.value = first.runtime
@@ -221,7 +221,7 @@ describe('DevFileEditor runtime DataView binding', () => {
     }})
     const wrapper = mount(DevFileEditor, {props: {state, activeFile: 'script.js', showTabs: true}, global: {
       plugins: [ElementPlus], directives: {loading: () => {}},
-      stubs: {FieldCodeEditor: FieldProbe, NavIcon: true},
+      stubs: {FieldCodeEditor: FieldProbe, DisplayIcon: true},
     }})
     try {
       await flushPromises()

@@ -103,7 +103,7 @@ describe('reference job page through SPARK data', () => {
     expect(table.findAll('.el-table__header-wrapper th').map(header => header.text()))
       .toEqual(['#', '岗位名称', '岗位编码', '所属机构', '机构 ID', '职级'])
     expect(table.findAll('.el-table__body-wrapper tbody tr')).toHaveLength(10)
-    expect(table.findAll('th.is-sortable')).toHaveLength(0)
+    expect(table.findAll('th.is-sortable').map(header => header.text())).toEqual(['岗位名称', '岗位编码', '所属机构', '机构 ID', '职级'])
     expect(jobs.total).toBe(23)
     expect(departments.rows).toHaveLength(2)
     expect((await openDepartmentOptions(wrapper)).map(option => option.text())).toEqual(['机构甲', 'D2'])

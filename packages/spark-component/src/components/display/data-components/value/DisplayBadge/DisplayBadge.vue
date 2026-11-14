@@ -18,11 +18,14 @@ AI用途：需要理解 display badge 的实际渲染结构、slot/toolbar/状�
     :badge-style="badgeStyle"
     :badge-class="badgeClass"
   >
-    <SparkComponentRenderer
-      v-for="(child, index) in resolvedChildren"
-      :key="nodeId(child) ?? `r-badge-child-${index}`"
-      :config="child"
-    />
+    <template v-if="resolvedChildren.length">
+      <SparkComponentRenderer
+        v-for="(child, index) in resolvedChildren"
+        :key="nodeId(child) ?? `r-badge-child-${index}`"
+        :config="child"
+      />
+    </template>
+    <slot v-else />
   </el-badge>
 </template>
 

@@ -8,13 +8,13 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import ElementPlus, {ElSelect} from 'element-plus'
 import VXETable from 'vxe-table'
-import {Spark, registerAllRenderers, RendererForm, RendererButton, RendererTable, FieldSelect} from '@spark-appworks/spark-component'
+import {Spark, registerAllRenderers, RendererForm, RendererButton, RendererTable, FieldSelect, PAGE_SERVICE, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createApiService, seed, NAV, API, CONFIG, META, pagedata} from './api-provider.fixture'
 
 const api = vi.hoisted(() => ({current: undefined as unknown as ReturnType<typeof import('./api-provider.fixture')['createApiService']>}))
-const confirmBox = vi.hoisted(() => vi.fn<(message: string, title: string) => Promise<string>>())
+const confirmBox = vi.hoisted(() => vi.fn<(message: string, title: string, _options?: unknown) => Promise<string>>())
 vi.mock('element-plus', async importOriginal => {
   const original = await importOriginal<typeof import('element-plus')>()
   return {...original, ElMessageBox: {...original.ElMessageBox, confirm: confirmBox}}
@@ -53,7 +53,26 @@ async function mountAt(component: Component, props: Record<string, unknown> = {}
     loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header', items: [
       {id: NAV, title: '外部服务管理', path: '/providers', itemKind: 'system-page', blueprintScenarioId: NAV}]})})
   await dynamic.registerRoutes(); await router.push('/apps/APP/providers'); await router.isReady()
-  const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body, global: {plugins: [router, ElementPlus, VXETable, Spark.createPlugin()]}})
+  const wrapper = mount(defineComponent({
+    setup() {
+      const {sparkProvide} = useSparkComponent({type: 'api-page-test-host'})
+      const service: PageServiceCapability = {
+        copyText: async () => {},
+        showMessage: () => {},
+        showConfirm: async (message, title, options) => confirmBox(message, title ?? '确认', options).then(() => true, () => false),
+        showPrompt: async () => null,
+        showAlert: async () => {},
+        showDialog: async () => 'cancel',
+        selectEntities: async () => [],
+        browseFiles: async () => [],
+        uploadFiles: async () => { throw new Error('API provider page fixture must not upload files') },
+        showLoading: () => {},
+        navigate: () => {},
+      }
+      sparkProvide(PAGE_SERVICE, service)
+      return () => h(RouterView)
+    },
+  }), {attachTo: document.body, global: {plugins: [router, ElementPlus, VXETable, Spark.createPlugin()]}})
   wrappers.push(wrapper)
   await vi.waitFor(async () => {await flushPromises(); expect(wrapper.text()).not.toContain('正在读取')})
   await flushPromises()

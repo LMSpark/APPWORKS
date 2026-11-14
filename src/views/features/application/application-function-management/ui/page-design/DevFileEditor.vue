@@ -9,7 +9,7 @@ AI用途：需要理解页面设计如何编辑工具文件时，用本模块定
     <template v-if="state.activePageId.value">
       <div class="file-header">
         <div class="file-header__meta">
-          <span class="file-page-id"><NavIcon name="Tickets" :size="14" /> {{ state.activePageId.value }}</span>
+          <span class="file-page-id"><SparkComponent.DisplayIcon icon="Tickets" :icon-size="14" /> {{ state.activePageId.value }}</span>
         </div>
         <div class="file-header__actions">
           <template v-if="fileViewKey">
@@ -99,7 +99,6 @@ import { useDevFileEditor } from './useDevFileEditor'
 import type { DevState } from '../blueprint-state/useDevState'
 import type { DataRow } from '@spark-appworks/spark-data'
 import type { PageToolFileName } from '@spark-appworks/spark-project-model'
-import NavIcon from '@/components/NavIcon.vue'
 
 const rulePolicy = createRuleTreePolicy()
 const RULE_JSON_SCHEMA = createRuleJsonSchema()

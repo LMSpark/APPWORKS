@@ -2,7 +2,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
-import {FieldJson, FieldText, RendererGraph, RendererTable, Spark, registerAllRenderers, type GraphSelection} from '@spark-appworks/spark-component'
+import {FieldJson, FieldText, PAGE_SERVICE, RendererGraph, RendererTable, Spark, registerAllRenderers, useSparkComponent, type GraphSelection, type PageServiceCapability} from '@spark-appworks/spark-component'
 import WorkflowDesigns from '@/views/app/WorkflowDesigns.vue'
 import type {AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
 import {agentWorkflowOwnerInput} from '../../runtime/auth-nav/workflow/agent-workflow-design-fixture'
@@ -97,7 +97,31 @@ async function mountPage() {
   delete stubs['SparkComponentRenderer']; delete stubs['spark-component-renderer']
   const original = config.global.stubs; config.global.stubs = stubs
   restore.push(() => {config.global.stubs = original})
-  const wrapper = mount(WorkflowDesigns, {global: {plugins: [Spark.createPlugin(), ElementPlus], stubs: {ElDrawer: DrawerStub, ElDialog: DialogStub}}})
+  const pageService: PageServiceCapability = {
+    copyText: async () => {},
+    showMessage: (message, type = 'info') => { mocks.message[type](message) },
+    showConfirm: async () => mocks.messageBox.confirm().then(() => true, () => false),
+    showPrompt: async () => {
+      const result = await mocks.messageBox.prompt()
+      if (result && typeof result === 'object' && 'value' in result && typeof result.value === 'string') return result.value
+      return null
+    },
+    showAlert: async () => {},
+    showDialog: async () => 'cancel',
+    selectEntities: async () => [],
+    browseFiles: async () => [],
+    uploadFiles: async () => { throw new Error('workflow-designs fixture must not upload') },
+    showLoading: () => {},
+    navigate: () => {},
+  }
+  const Host = defineComponent({
+    setup() {
+      const {sparkProvide} = useSparkComponent({type: 'workflow-designs-test-host'})
+      sparkProvide(PAGE_SERVICE, pageService)
+      return () => h(WorkflowDesigns)
+    },
+  })
+  const wrapper = mount(Host, {global: {plugins: [Spark.createPlugin(), ElementPlus], stubs: {RendererDrawer: DrawerStub, RendererDialog: DialogStub, ElDrawer: DrawerStub, ElDialog: DialogStub}}})
   mounted.push(wrapper)
   for (let i = 0; i < 5; i++) await flushPromises()
   return wrapper

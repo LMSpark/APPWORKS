@@ -5,46 +5,55 @@
 AI用途：需要定位本机页面缓存的查看、删除或清空入口时，用本模块定位 views/app/settings/local-page-cache-card。
 -->
 <template>
-  <el-card header="本机页面缓存" class="local-page-cache-card">
+  <RendererCard header="本机页面缓存" class="local-page-cache-card">
     <div class="cache-toolbar">
-      <el-button size="small" @click="loadEntries">刷新</el-button>
-      <el-button size="small" type="danger" :disabled="entries.length === 0" @click="clearAll">清除全部</el-button>
+      <RendererButton size="small" label="刷新" @click="loadEntries" />
+      <RendererButton size="small" label="清除全部" button-type="danger" :disabled="entries.length === 0" @click="clearAll" />
       <span class="cache-stats">共 {{ entries.length }} 条缓存，约 {{ totalSizeKB }} KB</span>
     </div>
-    <el-table :data="entries" stripe border size="small" max-height="420" style="width: 100%">
-      <el-table-column prop="key" label="缓存键" min-width="280" show-overflow-tooltip sortable :sort-method="compareKey" />
-      <el-table-column prop="sizeKB" label="大小 (KB)" width="100" align="right" sortable :sort-method="compareSize" :formatter="formatSize" />
-      <el-table-column prop="expirationLevel" label="过期级别" width="100" align="center" sortable>
-        <template #default="{ row }">
-          <el-tag :type="expirationTagType(row.expirationLevel)" size="small">L{{ row.expirationLevel }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="sourceTimestampMs" label="文件时间" width="170" sortable :sort-method="compareSourceTimestamp">
-        <template #default="{ row }"><span :title="row.sourceTimestamp">{{ row.sourceTimestampStr }}</span></template>
-      </el-table-column>
-      <el-table-column prop="lastAccess" label="最后访问" width="170" sortable :sort-method="compareLastAccess">
-        <template #default="{ row }">{{ row.lastAccessStr }}</template>
-      </el-table-column>
-      <el-table-column label="操作" width="80" align="center">
-        <template #default="{ row }">
-          <el-button type="danger" size="small" link @click="removeEntry(row.key)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-descriptions :column="5" border size="small" class="cache-levels">
-      <el-descriptions-item label="L0">永不过期</el-descriptions-item>
-      <el-descriptions-item label="L1">3 天</el-descriptions-item>
-      <el-descriptions-item label="L2">7 天</el-descriptions-item>
-      <el-descriptions-item label="L3">15 天（默认）</el-descriptions-item>
-      <el-descriptions-item label="L4">30 天</el-descriptions-item>
-    </el-descriptions>
-  </el-card>
+    <table class="cache-table">
+      <thead>
+        <tr>
+          <th>缓存键</th>
+          <th>大小 (KB)</th>
+          <th>过期级别</th>
+          <th>文件时间</th>
+          <th>最后访问</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="row in entries" :key="row.key">
+          <td class="cache-key" :title="row.key">{{ row.key }}</td>
+          <td class="cache-num">{{ row.sizeKB.toFixed(1) }}</td>
+          <td class="cache-num">
+            <DisplayTag :type="expirationTagType(row.expirationLevel)">L{{ row.expirationLevel }}</DisplayTag>
+          </td>
+          <td :title="row.sourceTimestamp">{{ row.sourceTimestampStr }}</td>
+          <td>{{ row.lastAccessStr }}</td>
+          <td>
+            <RendererButton label="删除" button-type="danger" size="small" :link="true" @click="removeEntry(row.key)" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ul class="cache-levels">
+      <li><strong>L0</strong> 永不过期</li>
+      <li><strong>L1</strong> 3 天</li>
+      <li><strong>L2</strong> 7 天</li>
+      <li><strong>L3</strong> 15 天（默认）</li>
+      <li><strong>L4</strong> 30 天</li>
+    </ul>
+  </RendererCard>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import {DisplayTag, PAGE_SERVICE, RendererButton, RendererCard, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import { isRecord } from '@spark-appworks/spark-utils'
+
+const {sparkConsume} = useSparkComponent({type: 'local-page-cache-card'})
+const pageService = consumeRequiredPageService(sparkConsume, 'local-page-cache-card')
 
 type LocalPageCacheRow = {
   key: string
@@ -64,10 +73,11 @@ const totalSizeKB = computed(() => entries.value.reduce((sum, entry) => sum + en
 function compareKey(a: LocalPageCacheRow, b: LocalPageCacheRow): number {
   return a.key.localeCompare(b.key, undefined, { numeric: true })
 }
-function formatSize(row: LocalPageCacheRow): string { return row.sizeKB.toFixed(1) }
-function compareSize(a: LocalPageCacheRow, b: LocalPageCacheRow): number { return a.sizeKB - b.sizeKB }
-function compareSourceTimestamp(a: LocalPageCacheRow, b: LocalPageCacheRow): number { return a.sourceTimestampMs - b.sourceTimestampMs }
-function compareLastAccess(a: LocalPageCacheRow, b: LocalPageCacheRow): number { return a.lastAccess - b.lastAccess }
+
+function expirationTagType(level: number): 'success' | 'warning' | 'danger' | 'info' {
+  if (level === 0) return 'danger'
+  return level <= 2 ? 'warning' : 'info'
+}
 
 function formatTime(ts: number): string {
   return ts ? new Date(ts).toLocaleString('zh-CN') : '—'
@@ -85,11 +95,6 @@ function normalizeSourceTimestamp(value: unknown): { raw: string; time: number; 
   return Number.isFinite(parsed) ? { raw, time: parsed, text: formatTime(parsed) } : { raw, time: 0, text: raw }
 }
 
-function expirationTagType(level: number): 'success' | 'warning' | 'danger' | 'info' {
-  if (level === 0) return 'danger'
-  return level <= 2 ? 'warning' : 'info'
-}
-
 function loadEntries(): void {
   const rows: LocalPageCacheRow[] = []
   for (let i = 0; i < localStorage.length; i++) {
@@ -99,7 +104,6 @@ function loadEntries(): void {
     if (!raw) continue
     let lastAccess = 0
     let expirationLevel = 3
-    // 缓存“新旧”看 sourceTimestamp（后端文件 mtime/版本戳）；cachedAt 只是本地重建时间，不代表文件更新。
     let sourceTimestamp = normalizeSourceTimestamp(undefined)
     try {
       const parsed: unknown = JSON.parse(raw)
@@ -129,22 +133,18 @@ function loadEntries(): void {
 function removeEntry(key: string): void {
   localStorage.removeItem(key)
   entries.value = entries.value.filter(entry => entry.key !== key)
-  ElMessage.success(`已删除: ${key}`)
+  pageService.showMessage(`已删除: ${key}`, 'success')
 }
 
 async function clearAll(): Promise<void> {
-  try {
-    await ElMessageBox.confirm(
-      `确定清除全部 ${entries.value.length} 条本机页面缓存？页面配置将从服务器重新加载。`,
-      '清除本机页面缓存',
-      { type: 'warning', confirmButtonText: '清除', cancelButtonText: '取消' },
-    )
-  } catch {
-    return
-  }
+  if (!await pageService.showConfirm(
+    `确定清除全部 ${entries.value.length} 条本机页面缓存？页面配置将从服务器重新加载。`,
+    '清除本机页面缓存',
+    { type: 'warning', confirmText: '清除', cancelText: '取消' },
+  )) return
   const keys = entries.value.map(entry => entry.key)
   keys.forEach(key => localStorage.removeItem(key))
-  ElMessage.success(`已清除 ${keys.length} 条缓存`)
+  pageService.showMessage(`已清除 ${keys.length} 条缓存`, 'success')
   loadEntries()
 }
 
@@ -169,7 +169,41 @@ onMounted(loadEntries)
   color: var(--el-text-color-secondary);
 }
 
+.cache-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.cache-table th,
+.cache-table td {
+  border: 1px solid var(--el-border-color-lighter);
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.cache-table thead th {
+  background: var(--el-fill-color-light);
+}
+
+.cache-key {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cache-num {
+  text-align: right;
+}
+
 .cache-levels {
-  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
 }
 </style>

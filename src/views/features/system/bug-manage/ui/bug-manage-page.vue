@@ -34,11 +34,11 @@ const userKey = buildDataViewKey('Base_UserInfo', 'default', scenarioId)
 const editing = ref<{id: string | number; epoch: number}>()
 let epoch = 0
 const text = (field: string, label: string, minWidth = 140): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, minWidth, sortable: false, showOverflowTooltip: true}})
+  ({type: 'r-text', props: {field, label, readonly: true, minWidth, showOverflowTooltip: true}})
 const option = (field: string, label: string, optionDataViewKey: string): SparkNode =>
-  ({type: 'r-select', props: {field, label, readonly: true, minWidth: 120, sortable: false, optionDataViewKey}})
+  ({type: 'r-select', props: {field, label, readonly: true, minWidth: 120, optionDataViewKey}})
 const fields: SparkNode[] = [
-  option('SystemID', '系统名称', systemKey), text('Title', 'BUG简述', 220), text('FormPath', '表单路径', 200),
+  {type: 'r-select', props: {field: 'SystemID', label: '系统名称', readonly: true, minWidth: 120, sortable: false, optionDataViewKey: systemKey}}, text('Title', 'BUG简述', 220), text('FormPath', '表单路径', 200),
   option('FkType', '反馈类型', typeKey), text('checkName', '核查人', 100), text('CompleteUserName', '完成人', 100),
   option('State', '状态', stateKey), text('CreateTime', '创建时间', 170), text('CreateUserName', '创建人', 100),
 ]

@@ -121,7 +121,7 @@ describe('DevPreviewTab live refresh', () => {
           ElIcon: true,
           ElSwitch: SwitchStub,
           Loading: true,
-          NavIcon: true,
+          DisplayIcon: true,
           SparkPageRenderer: RendererStub,
         },
       },
@@ -157,7 +157,7 @@ describe('DevPreviewTab live refresh', () => {
     const fileViewLoad = vi.spyOn(state, 'loadPageToolFileDataView')
     const wrapper = mount(DevPreviewTab, {
       props: { state, refreshToken: 0 },
-      global: { stubs: { ElAlert: true, ElButton: ButtonStub, ElEmpty: true, ElIcon: true, ElSwitch: SwitchStub, Loading: true, NavIcon: true, SparkPageRenderer: RendererStub } },
+      global: { stubs: { ElAlert: true, ElButton: ButtonStub, ElEmpty: true, ElIcon: true, ElSwitch: SwitchStub, Loading: true, DisplayIcon: true, SparkPageRenderer: RendererStub } },
     })
     await flushPromises()
     expect(Reflect.has(state.editor, 'ensureActivePageFilesLoaded')).toBe(false)
@@ -176,7 +176,7 @@ describe('DevPreviewTab live refresh', () => {
     const {state}=await createPreviewState()
     const wrapper=mount(DevPreviewTab,{
       props:{state,refreshToken:0},
-      global:{stubs:{ElAlert:true,ElButton:ButtonStub,ElEmpty:true,ElIcon:true,ElSwitch:SwitchStub,Loading:true,NavIcon:true,SparkPageRenderer:RendererStub}},
+      global:{stubs:{ElAlert:true,ElButton:ButtonStub,ElEmpty:true,ElIcon:true,ElSwitch:SwitchStub,Loading:true,DisplayIcon:true,SparkPageRenderer:RendererStub}},
     })
     try{
       await flushPromises()
@@ -202,7 +202,7 @@ describe('DevPreviewTab live refresh', () => {
     }
     const wrapper=mount(DevPreviewTab,{
       props:{state,refreshToken:0,registerPreviewGuard},
-      global:{stubs:{ElAlert:true,ElButton:ButtonStub,ElEmpty:true,ElIcon:true,ElSwitch:SwitchStub,Loading:true,NavIcon:true,SparkPageRenderer:RendererStub}},
+      global:{stubs:{ElAlert:true,ElButton:ButtonStub,ElEmpty:true,ElIcon:true,ElSwitch:SwitchStub,Loading:true,DisplayIcon:true,SparkPageRenderer:RendererStub}},
     })
     try{
       await flushPromises()
@@ -253,7 +253,7 @@ describe('DevPreviewTab live refresh', () => {
     vi.spyOn(owner,'load').mockRejectedValueOnce(new Error('target unavailable'))
     const wrapper=mount(DevPreviewTab,{
       props:{state,refreshToken:0},
-      global:{stubs:{ElAlert:true,ElButton:ButtonStub,ElEmpty:true,ElIcon:true,ElSwitch:SwitchStub,Loading:true,NavIcon:true,SparkPageRenderer:RendererStub}},
+      global:{stubs:{ElAlert:true,ElButton:ButtonStub,ElEmpty:true,ElIcon:true,ElSwitch:SwitchStub,Loading:true,DisplayIcon:true,SparkPageRenderer:RendererStub}},
     })
     try{
       await flushPromises()
@@ -281,7 +281,7 @@ describe('DevPreviewTab live refresh', () => {
     if(!selected)throw new Error('selected node missing')
     const wrapper=mount(DevPreviewTab,{
       props:{state,refreshToken:0},
-      global:{stubs:{ElAlert:true,ElButton:ButtonStub,ElEmpty:true,ElIcon:true,ElSwitch:SwitchStub,Loading:true,NavIcon:true,SparkPageRenderer:RendererStub}},
+      global:{stubs:{ElAlert:true,ElButton:ButtonStub,ElEmpty:true,ElIcon:true,ElSwitch:SwitchStub,Loading:true,DisplayIcon:true,SparkPageRenderer:RendererStub}},
     })
     try{
       await flushPromises()

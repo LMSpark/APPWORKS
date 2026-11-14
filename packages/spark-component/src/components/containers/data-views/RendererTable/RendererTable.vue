@@ -312,7 +312,15 @@ const tableColumnResizable = computed(() => {
 })
 
 provide(TABLE_COLUMN_RESIZABLE_KEY, tableColumnResizable)
-provide(TABLE_COLUMN_SORTING_KEY, dataState.supportsQuerySorting)
+/** 与 DisplayPagination 对齐：有未保存修改、在途请求或查询错误时不提供表头排序。 */
+const tableQuerySorting = computed(() => {
+  if (!dataState.supportsQuerySorting.value) return false
+  if (dataState.resultReplacementBlocked.value || dataState.mutating.value) return false
+  const state = dataState.requestState.value
+  if (state === RequestState.Preparing || state === RequestState.Loading) return false
+  return dataState.loadingError.value === null
+})
+provide(TABLE_COLUMN_SORTING_KEY, tableQuerySorting)
 
 function rowFragmentResizable(node: SparkNode): boolean {
   return rowFragmentBooleanProp(node, 'resizable') ?? tableColumnResizable.value
@@ -426,10 +434,10 @@ const {
 
 registerApi(tableApi)
 
-watch([dataState.resolvedView, dataState.supportsQuerySorting], async ([view, sorting]) => {
+watch([dataState.resolvedView, tableQuerySorting], async ([view, sorting]) => {
   if (sorting) return
   await nextTick()
-  if (view === dataState.resolvedView.value && !view?.supportsQuerySorting) nativeTableRef.value?.clearSort?.()
+  if (view === dataState.resolvedView.value && !sorting) await restoreNativeTableSort()
 }, {immediate: true})
 
 watch(
@@ -515,16 +523,42 @@ async function handleSelectionChange(selection: DataRow[]) {
   } else await dispatch('selection-change', selected)
 }
 
+function toElementPlusSortOrder(direction: string | undefined): ElementPlusTableSortOrder | null {
+  if (direction === 'asc') return 'ascending'
+  if (direction === 'desc') return 'descending'
+  return null
+}
+
+/** 将 el-table 表头排序呈现同步为 DataView 当前 sortExpression；拒绝排序后回退 UI。 */
+async function restoreNativeTableSort(): Promise<void> {
+  await nextTick()
+  const view = dataState.resolvedView.value, table = nativeTableRef.value
+  if (!view || !table) return
+  const entry = view.sortExpression?.[0]
+  const prop = typeof entry?.field === 'string' ? entry.field : ''
+  const order = toElementPlusSortOrder(entry?.direction)
+  if (!prop || !order) {
+    table.clearSort?.()
+    return
+  }
+  if (typeof table.sort === 'function') table.sort(prop, order)
+  else table.clearSort?.()
+}
+
 /** 处理排序变化（服务端排序）；Element Plus order → SortDirection */
 async function handleSortChange({ prop, order }: { prop: string | null, order: ElementPlusTableSortOrder | null }) {
-  if (!dataState.resolvedView.value?.supportsQuerySorting) return
-  if (!prop || !order) {
-    await dataState.resolvedView.value.setSort(undefined)
-  } else {
-    await dataState.resolvedView.value.setSort([{
-      field: prop,
-      direction: toSortDirection(order),
-    }])
+  const view = dataState.resolvedView.value
+  if (!view?.supportsQuerySorting) return
+  if (dataState.resultReplacementBlocked.value) {
+    await restoreNativeTableSort()
+    return
+  }
+  try {
+    if (!prop || !order) await view.setSort(undefined)
+    else await view.setSort([{field: prop, direction: toSortDirection(order)}])
+  } catch (error) {
+    await restoreNativeTableSort()
+    logger.error('RendererTable: setSort() 失败', error)
   }
 }
 

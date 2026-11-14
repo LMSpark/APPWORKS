@@ -42,18 +42,19 @@
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
-import {ElMessage} from 'element-plus'
 import * as Components from '@spark-appworks/spark-component'
 import type {DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
 const {PAGE_RUNTIME, RendererDialog, RendererForm, RendererButton, RendererDivider, FieldText, FieldNumber, FieldSwitch, FieldSelect, FieldJson,
-  useSparkComponent, useDataViewRecordEditing} = Components
+  useSparkComponent, useDataViewRecordEditing, consumeRequiredPageService} = Components
 const props = defineProps<{dataViewKey: string; policyKey: string; applicationKey: string; recordId: string; title: string}>()
 const emit = defineEmits<{close: [result: DataViewRecordEditingFinish]}>()
 const {sparkConsume} = useSparkComponent({type: 'enterprise-config-dialog'})
+const pageService = consumeRequiredPageService(sparkConsume, 'enterprise-config-dialog')
+
 const {view, row, busy, current, locked, error, ownUnconfirmed, foreignRecovery, recoveryEnded, hasStaged, save, cancel} = useDataViewRecordEditing({
   mode: 'edit', runtime: () => sparkConsume(PAGE_RUNTIME), dataViewKey: () => props.dataViewKey, recordId: () => props.recordId,
   editableFields: ['loginPolicy', 'ent_config'], onFinish: result => {
-    if (result === 'saved') ElMessage.success('配置保存成功')
+    if (result === 'saved') pageService.showMessage('配置保存成功', 'success')
     emit('close', result)
   },
 })

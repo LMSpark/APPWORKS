@@ -9,7 +9,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
     <header class="hero">
       <nav class="hero-nav">
         <router-link to="/" class="hero-logo" aria-label="SPARK AppWorks">
-          <span class="hero-logo__mark"><NavIcon name="Lightning" :size="18" /></span>
+          <span class="hero-logo__mark"><DisplayIcon icon="Lightning" :icon-size="18" /></span>
           <span>SPARK AppWorks</span>
         </router-link>
         <div class="hero-nav__links" aria-label="首页导航">
@@ -48,7 +48,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
               <span v-for="signal in intentSignals" :key="signal">{{ signal }}</span>
             </div>
             <div class="center-node">
-              <NavIcon name="Lightning" :size="30" />
+              <DisplayIcon icon="Lightning" :icon-size="30" />
               <strong>AI 中枢</strong>
               <span>理解意图 · 调度系统 · 写回业务</span>
             </div>
@@ -110,7 +110,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
           <div class="map-axis map-axis--horizontal"></div>
           <div class="map-axis map-axis--vertical"></div>
           <div class="map-core">
-            <NavIcon name="Connection" :size="28" />
+            <DisplayIcon icon="Connection" :icon-size="28" />
             <strong>SPARK AI Center</strong>
             <span>业务意图进入企业系统的统一入口</span>
           </div>
@@ -120,7 +120,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             class="map-node"
             :class="`map-node--${capability.position}`"
           >
-            <NavIcon :name="capability.icon" :size="20" />
+            <DisplayIcon :icon="capability.icon" :icon-size="20" />
             <h3>{{ capability.title }}</h3>
             <p>{{ capability.description }}</p>
           </article>
@@ -154,7 +154,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
         </div>
         <div class="scenario-grid">
           <article v-for="scenario in executiveScenarios" :key="scenario.title" class="scenario-card">
-            <NavIcon :name="scenario.icon" :size="24" />
+            <DisplayIcon :icon="scenario.icon" :icon-size="24" />
             <h3>{{ scenario.title }}</h3>
             <p>{{ scenario.description }}</p>
           </article>
@@ -186,7 +186,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 /**
  * @description 平台首页，展示 SPARK 企业 AI 中枢定位；属于平台路由页，不允许作为 SparkNode 组件配置生成。
  */
-import NavIcon from '@/components/NavIcon.vue'
+import {DisplayIcon} from '@spark-appworks/spark-component'
 
 const year = new Date().getFullYear()
 

@@ -35,12 +35,13 @@ function formatMinute(value: unknown): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 const text = (field: string, label: string, minWidth = 140): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, minWidth, sortable: false, showOverflowTooltip: true}})
+  ({type: 'r-text', props: {field, label, readonly: true, minWidth, showOverflowTooltip: true}})
 const fields: SparkNode[] = [
-  text('AppDesc', '应用名称', 160), text('TITLE', '流程标题', 240), text('handleInfo', '办理信息', 200),
+  text('AppDesc', '应用名称', 160), text('TITLE', '流程标题', 240),
+  {type: 'r-text', props: {field: 'handleInfo', label: '办理信息', readonly: true, minWidth: 200, sortable: false, showOverflowTooltip: true}},
   {type: 'r-select', props: {field: 'CrtUserID', label: '创建人', readonly: true, minWidth: 120, sortable: false,
     optionDataViewKey: userKey}},
-  {type: 'r-text', props: {field: 'CrtTime', label: '创建时间', readonly: true, minWidth: 160, sortable: false,
+  {type: 'r-text', props: {field: 'CrtTime', label: '创建时间', readonly: true, minWidth: 160,
     displayFormatter: formatMinute}},
 ]
 const filter: RFilterProps = {

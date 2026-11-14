@@ -30,11 +30,11 @@ const {viewKey, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime
 })
 const departmentViewKey = buildDataViewKey('Base_DepartInfo', 'default', scenarioId)
 const fields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'JobName', label: '岗位名称', readonly: true, minWidth: 220, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'JobCode', label: '岗位编码', readonly: true, minWidth: 160, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'DepName', label: '所属机构', readonly: true, minWidth: 220, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'Depid', label: '机构 ID', readonly: true, minWidth: 180, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'DepLevel', label: '职级', readonly: true, minWidth: 140, sortable: false, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'JobName', label: '岗位名称', readonly: true, minWidth: 220, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'JobCode', label: '岗位编码', readonly: true, minWidth: 160, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'DepName', label: '所属机构', readonly: true, minWidth: 220, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'Depid', label: '机构 ID', readonly: true, minWidth: 180, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'DepLevel', label: '职级', readonly: true, minWidth: 140, showOverflowTooltip: true}},
 ]
 const filter: RFilterProps = {
   autoQuery: false,

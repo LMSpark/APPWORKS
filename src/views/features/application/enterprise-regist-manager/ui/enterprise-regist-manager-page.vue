@@ -53,16 +53,16 @@ const openError = ref('')
 const titles: Readonly<Record<DialogKind, string>> = {auth: '应用授权', audit: '企业审核', password: '密码修改', config: '企业配置'}
 
 const fields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'CName', label: '企业中文名', readonly: true, width: 180, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'Name', label: '企业英文名', readonly: true, width: 160, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'ShortName', label: '企业英文简称', readonly: true, width: 140, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'createtime', label: '申请入驻日期', readonly: true, width: 140, valueAlign: 'center', sortable: false,
+  {type: 'r-text', props: {field: 'CName', label: '企业中文名', readonly: true, width: 180, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'Name', label: '企业英文名', readonly: true, width: 160, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'ShortName', label: '企业英文简称', readonly: true, width: 140, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'createtime', label: '申请入驻日期', readonly: true, width: 140, valueAlign: 'center',
     emptyText: '-', displayFormatter: (value: unknown) => String(value ?? '').trim().slice(0, 10) || '-'}},
-  {type: 'r-text', props: {field: 'industry_type', label: '行业类型', readonly: true, width: 140, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'contact_person', label: '联系人', readonly: true, width: 80, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'entInfoUserPhone', label: '联系号码', readonly: true, width: 130, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'EntUrl', label: '企业门户地址', readonly: true, width: 160, sortable: false, showOverflowTooltip: true, emptyText: '-'}},
-  {type: 'r-select', props: {field: 'CheckState', label: '审核状态', readonly: true, width: 120, valueAlign: 'center', sortable: false,
+  {type: 'r-text', props: {field: 'industry_type', label: '行业类型', readonly: true, width: 140, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'contact_person', label: '联系人', readonly: true, width: 80, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'entInfoUserPhone', label: '联系号码', readonly: true, width: 130, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'EntUrl', label: '企业门户地址', readonly: true, width: 160, showOverflowTooltip: true, emptyText: '-'}},
+  {type: 'r-select', props: {field: 'CheckState', label: '审核状态', readonly: true, width: 120, valueAlign: 'center',
     optionDataViewKey: checkStateKey, optionValueField: 'val', optionLabelField: 'txt'}},
 ]
 const filter: RFilterProps = {

@@ -28,11 +28,11 @@ const {viewKey, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime
   scenarioId, modelName: 'Base_DepartInfo', componentType: 'organization-structure-page', title: '机构管理',
 })
 const fields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'DepName', label: '机构名称', readonly: true, minWidth: 220, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'DepID', label: '机构 ID', readonly: true, minWidth: 180, sortable: false, showOverflowTooltip: true, emptyText: '未提供'}},
-  {type: 'r-text', props: {field: 'Prowid', label: '上级机构 ID', readonly: true, minWidth: 180, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'DepLevel', label: '机构层级', readonly: true, minWidth: 140, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'CSR', label: '层级路径', readonly: true, minWidth: 260, sortable: false, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'DepName', label: '机构名称', readonly: true, minWidth: 220, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'DepID', label: '机构 ID', readonly: true, minWidth: 180, showOverflowTooltip: true, emptyText: '未提供'}},
+  {type: 'r-text', props: {field: 'Prowid', label: '上级机构 ID', readonly: true, minWidth: 180, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'DepLevel', label: '机构层级', readonly: true, minWidth: 140, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'CSR', label: '层级路径', readonly: true, minWidth: 260, showOverflowTooltip: true}},
 ]
 const filter: RFilterProps = {
   autoQuery: false,

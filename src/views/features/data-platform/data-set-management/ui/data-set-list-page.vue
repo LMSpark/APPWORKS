@@ -1,29 +1,32 @@
 <template>
-  <section class="data-space-catalog">
-    <header><h1>数据空间管理</h1><p>选择数据空间，进入设计。</p></header>
-    <p v-if="loading" role="status">正在读取数据空间目录…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <p v-if="message" role="status">{{ message }}</p>
+  <RendererSection class="data-space-catalog" title="数据空间管理" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取数据空间目录…' : ''" :error="error || listError || (!editing && !bindingsOpen && !deleteOpen ? actionError : '')">
+    <template v-if="ready" #header-actions>
+      <RendererButton label="新增" button-type="primary" icon="Plus" :disabled="busy || !owner?.canCreate()" @click="beginCreate" />
+      <RendererButton label="编辑" icon="Edit" :disabled="busy || !owner?.canEdit()" @click="beginEdit" />
+      <RendererButton label="删除" button-type="danger" icon="Delete" :disabled="busy || !owner?.canDelete()" @click="openDelete" />
+    </template>
     <template v-if="ready">
-      <p v-if="listError" role="alert">{{ listError }}</p>
-      <p v-if="appsError" role="alert">{{ appsError }} <RendererButton label="重试应用选项" @click="retryApps" /></p>
-      <p v-if="unresolved" role="status">有 {{ unresolved }} 位创建人当前无法解析</p>
+      <DisplayAlert v-if="appsError" alert-type="error" :closable="false" :show-icon="true" :title="appsError" />
+      <RendererButton v-if="appsError" label="重试应用选项" @click="retryApps" />
+      <DisplayAlert v-if="unresolved" alert-type="warning" :closable="false" :show-icon="true"
+        :title="`部分历史创建人不在当前用户资源中（${unresolved} 位）`" />
       <div :inert="busy || !!editing || bindingsOpen || deleteOpen || !!designId">
-        <RendererTable :data-view-key="catalogKey" :children="fields" :filter="filter" :toolbar="toolbar" :actions="actions" :stripe="true"
-          :on-row-click="choose" :highlight-current-row="true" />
+        <RendererTable :data-view-key="catalogKey" :children="fields" :filter="filter" :actions="actions" :stripe="true" :border="true"
+          :on-row-click="choose" :highlight-current-row="true" :show-data-view-meta="false" :action-column="{label: '操作', width: 260, fixed: true}" />
       </div>
       <RendererDialog v-if="editing" :model-value="true" :data-view-key="catalogKey"
         :title="editing.mode === 'add' ? '新增数据空间' : '编辑数据空间'" :width="520" :close-disabled="true">
-        <p v-if="actionError" role="alert">{{ actionError }}</p>
-        <p v-if="editing.unconfirmed" role="status">保存结果尚未确认。核验只确认原提交结果，不会再次写入。</p>
-        <p v-else-if="editing.readbackFailed" role="status">已保存，但目录尚未重新读取成功，请重新读取。</p>
-        <RendererForm :data-view-key="catalogKey" context-data-member="currentRow" :auto-columns="false"
+        <DisplayAlert v-if="actionError" alert-type="error" :closable="false" :title="actionError" />
+        <DisplayAlert v-if="editing.unconfirmed" alert-type="warning" :closable="false" title="保存结果尚未确认。核验只确认原提交结果，不会再次写入。" />
+        <DisplayAlert v-else-if="editing.readbackFailed" alert-type="warning" :closable="false" title="已保存，但目录尚未重新读取成功，请重新读取。" />
+        <RendererForm :data-view-key="catalogKey" context-data-member="currentRow" :auto-columns="false" label-width="80px"
           :show-data-view-meta="false" :grid-columns="1" :form-props="{disabled: busy || editing.unconfirmed || editing.readbackFailed}">
-          <FieldSelect v-if="editing.mode === 'add'" field="sysid" label="所属应用" :option-data-view-key="appsKey"
+          <FieldSelect field="sysid" label="应用系统" placeholder="请选择所属应用" :option-data-view-key="appsKey" :filterable="true"
             option-value-field="rowid" option-label-field="AppDesc" :option-label-fields="['AppDesc', 'AppName']"
-            :disabled="owner?.apps.requestState !== RequestState.Loaded" />
-          <FieldText field="Name" label="名称" :maxlength="100" />
-          <FieldTextarea field="description" label="描述" :maxlength="500" />
+            :readonly="editing.mode !== 'add'" :disabled="owner?.apps.requestState !== RequestState.Loaded" />
+          <FieldText field="Name" label="名称" placeholder="请输入名称" :maxlength="100" />
+          <FieldTextarea field="description" label="描述" placeholder="请输入描述" :maxlength="500" :autosize="{minRows: 4}" :show-word-limit="true" />
         </RendererForm>
         <template #footer>
           <RendererButton v-if="!editing.unconfirmed" label="取消" :disabled="busy" @click="cancelEdit" />
@@ -33,26 +36,29 @@
         </template>
       </RendererDialog>
       <RendererDialog v-if="deleteOpen" :model-value="true" title="删除确认" :width="420" :close-disabled="busy" @update:model-value="closeDelete">
-        <p>确认删除数据空间“{{ deleteName }}”吗？仅删除空间记录；空间下仍有模型时不能删除。</p>
-        <p v-if="actionError" role="alert">{{ actionError }}</p>
+        <DisplayAlert alert-type="warning" :closable="false" :show-icon="true" :title="`确认删除“${deleteName}”吗？`" />
+        <DisplayAlert v-if="actionError" alert-type="error" :closable="false" :title="actionError" />
         <template #footer>
           <RendererButton label="取消" :disabled="busy" @click="closeDelete" />
-          <RendererButton label="删除" :disabled="busy" @click="confirmDelete" />
+          <RendererButton label="删除" button-type="danger" :disabled="busy" @click="confirmDelete" />
         </template>
       </RendererDialog>
       <RendererDialog v-if="designId" :model-value="true" title="数据集设计" width="92vw" top="4vh" :append-to-body="true"
         :destroy-on-close="true" :close-disabled="designPending" @update:model-value="closeDesign">
         <DataSetDesign ref="designPage" :target-id="designId" />
       </RendererDialog>
-      <RendererDialog v-if="bindingsOpen" :model-value="true" title="数据空间绑定查询" :width="800" :close-disabled="true">
-        <p v-if="busy" role="status">正在查询绑定…</p>
-        <p v-if="actionError" role="alert">{{ actionError }}</p>
-        <RendererTable v-if="bindingsReady && bindingsKey" :data-view-key="bindingsKey" :children="bindingFields" />
-        <RendererButton label="关闭" @click="closeBindings" />
+      <RendererDialog v-if="bindingsOpen" :model-value="true" title="数据空间影响范围" :width="820" :close-disabled="true">
+        <DisplayAlert v-if="busy" alert-type="info" :closable="false" title="正在查询绑定…" />
+        <DisplayAlert v-if="actionError" alert-type="error" :closable="false" :title="actionError" />
+        <DisplayEmpty v-else-if="bindingsReady && bindingsEmpty" description="当前应用暂无蓝图节点绑定" />
+        <RendererTable v-else-if="bindingsReady && bindingsKey" :data-view-key="bindingsKey" :children="bindingFields" :border="true"
+          :show-data-view-meta="false" />
+        <template #footer>
+          <RendererButton label="关闭" @click="closeBindings" />
+        </template>
       </RendererDialog>
-      <p v-if="actionError && !editing && !bindingsOpen" role="alert">{{ actionError }}</p>
     </template>
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
@@ -67,7 +73,10 @@ import {parseApplicationPathScope} from '@/services/application-scope'
 type RFilterProps = SparkComponent.RFilterProps
 type RToolbarProps = SparkComponent.RToolbarProps
 const DATA_SET_TYPE_LABELS: Readonly<Record<string, string>> = {datasource: '数据源', workflow: '工作流', form: '表单'}
-const {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm, FieldText, FieldTextarea, FieldSelect, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, PAGE_SERVICE, RendererSection, RendererTable, RendererButton, RendererDialog, RendererForm, FieldText, FieldTextarea, FieldSelect,
+  DisplayAlert, DisplayEmpty, useSparkComponent, consumeRequiredPageService} = SparkComponent
+const {sparkConsume} = SparkComponent.useSparkComponent({type: 'data-set-list-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'data-set-list-page')
 
 const DataSetDesign = defineAsyncComponent(() => import('../design/ui/data-set-design-page.vue'))
 const route = useRoute()
@@ -82,7 +91,7 @@ const session = new NativePageRuntimeSession({
   remove: () => sparkRemove(PAGE_RUNTIME),
 })
 const owner = shallowRef<LowcodeDataSpaceCatalog>(), ready = ref(false), loading = ref(false), error = ref(''), revision = ref(0)
-const busy = ref(false), actionError = ref(''), message = ref(''), bindingsOpen = ref(false), bindingsReady = ref(false)
+const busy = ref(false), actionError = ref(''), bindingsOpen = ref(false), bindingsReady = ref(false)
 let unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const projectId = computed(() => parseApplicationPathScope(route.path)?.projectId ?? '')
@@ -95,20 +104,13 @@ const unresolved = computed(() => {revision.value; return owner.value?.unresolve
 const editing = computed(() => {revision.value; return owner.value?.editing})
 const bindingsKey = computed(() => {revision.value; const view = owner.value?.bindings
   return view ? buildDataViewKey('Base_NavigationInfo', view.viewId, scenarioId.value) : ''})
+const bindingsEmpty = computed(() => {revision.value; return owner.value?.bindings?.rows.length === 0})
 const bindingFields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'rowid', label: '功能路径', readonly: true,
+  {type: 'r-text', props: {field: 'rowid', label: '功能路径', readonly: true, minWidth: 220,
     displayFormatter: (value: unknown) => owner.value?.bindingPath(value) ?? ''}},
-  {type: 'r-text', props: {field: 'NavigationUrl', label: '页面路径', readonly: true}},
+  {type: 'r-text', props: {field: 'rowid', label: '蓝图节点 ID', readonly: true, minWidth: 240, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'NavigationUrl', label: '导航地址', readonly: true, minWidth: 220, showOverflowTooltip: true}},
 ]
-const toolbar = computed<RToolbarProps>(() => {
-  revision.value
-  return {children: [
-    {type: 'r-button', props: {label: '新增', disabled: busy.value || !owner.value?.canCreate(), onClick: beginCreate}},
-    {type: 'r-button', props: {label: '编辑', disabled: busy.value || !owner.value?.canEdit(), onClick: beginEdit}},
-    {type: 'r-button', props: {label: '删除', disabled: busy.value || !owner.value?.canDelete(), onClick: openDelete}},
-    {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
-  ]}
-})
 const actions = computed<RToolbarProps>(() => {
   revision.value
   return {children: [{label: '设计', run: design}, {label: '复制API', run: copyApi}, {label: '查询绑定', run: queryBindings}]
@@ -127,26 +129,26 @@ const actions = computed<RToolbarProps>(() => {
 const fields = computed<SparkNode[]>(() => {
   revision.value
   return [
-    {type: 'r-text', props: {field: 'sysid', label: '应用系统', width: 200, readonly: true,
+    {type: 'r-text', props: {field: 'sysid', label: '应用系统', minWidth: 200, readonly: true, showOverflowTooltip: true,
       displayFormatter: (value: unknown) => owner.value?.applicationLabel(value) ?? ''}},
-    {type: 'r-text', props: {field: 'Name', label: '名称', width: 220, readonly: true}},
+    {type: 'r-text', props: {field: 'Name', label: '名称', minWidth: 220, readonly: true, showOverflowTooltip: true}},
     {type: 'r-text', props: {field: 'Type', label: '类型', width: 120, readonly: true,
       displayFormatter: (value: unknown) => typeof value === 'string'
         ? DATA_SET_TYPE_LABELS[value] ?? value : ''}},
-    {type: 'r-text', props: {field: 'description', label: '描述', width: 320, readonly: true}},
-    {type: 'r-text', props: {field: 'createuser', label: '创建人', width: 140, readonly: true,
+    {type: 'r-text', props: {field: 'description', label: '描述', minWidth: 320, readonly: true, showOverflowTooltip: true}},
+    {type: 'r-text', props: {field: 'createuser', label: '创建人', width: 140, readonly: true, showOverflowTooltip: true,
       displayFormatter: (value: unknown) => owner.value?.creatorLabel(value) ?? ''}},
-    {type: 'r-text', props: {field: 'createtime', label: '创建时间', width: 190, readonly: true}},
+    {type: 'r-text', props: {field: 'createtime', label: '创建时间', width: 180, readonly: true}},
   ]
 })
 const filter = computed<RFilterProps>(() => {
   revision.value
   return {autoQuery: false, autoFitMinWidth: '240px', children: [
-    {type: 'r-text', props: {field: 'Name', label: '名称或 ID', placeholder: '搜索名称或 ID',
-      filterAlternatives: [{field: 'Name', operator: 'contains'}, {field: 'rowid', operator: 'eq'}]}},
-    {type: 'r-select', props: {field: 'sysid', label: '所属应用', placeholder: '全部应用', clearable: true,
+    {type: 'r-select', props: {field: 'sysid', label: '应用系统', placeholder: '请选择应用系统', clearable: true, filterable: true,
       optionDataViewKey: appsKey.value, optionValueField: 'rowid', optionLabelField: 'AppDesc', optionLabelFields: ['AppDesc', 'AppName'],
       disabled: owner.value?.apps.requestState !== RequestState.Loaded}},
+    {type: 'r-text', props: {field: 'Name', label: '名称', placeholder: '请输入名称/id', clearable: true,
+      filterAlternatives: [{field: 'Name', operator: 'contains'}, {field: 'rowid', operator: 'eq'}]}},
   ]}
 })
 function choose(row: DataRow): void {
@@ -160,15 +162,15 @@ async function act(operation: (catalog: LowcodeDataSpaceCatalog) => void | Promi
   if (!catalog || busy.value) return
   const action = ++actionGeneration
   const current = () => owner.value === catalog && action === actionGeneration
-  busy.value = true; actionError.value = ''; message.value = ''
-  try {await operation(catalog); if (current()) message.value = success}
+  busy.value = true; actionError.value = ''
+  try {await operation(catalog); if (current() && success) pageService.showMessage(success, 'success')}
   catch (cause) {if (current()) actionError.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (current()) {busy.value = false; revision.value++}}
 }
 async function beginCreate(): Promise<void> {await act(catalog => catalog.beginCreate())}
 async function beginEdit(): Promise<void> {await act(catalog => catalog.beginEdit())}
 async function cancelEdit(): Promise<void> {await act(catalog => catalog.cancelEdit())}
-async function saveEdit(): Promise<void> {await act(catalog => catalog.saveEdit(), '数据空间已保存')}
+async function saveEdit(): Promise<void> {await act(catalog => catalog.saveEdit(), editing.value?.mode === 'add' ? '新增成功' : '编辑成功')}
 function openDelete(): void {
   const catalog = owner.value
   if (!catalog?.canDelete()) return
@@ -185,7 +187,7 @@ function closeDelete(): void {
 async function confirmDelete(): Promise<void> {
   const target = deleteTarget.value
   if (!target) {actionError.value = '删除目标已变化'; return}
-  await act(catalog => catalog.deleteSelected(target), '数据空间已删除')
+  await act(catalog => catalog.deleteSelected(target), '删除成功')
   if (!actionError.value) closeDelete()
 }
 async function copyApi(): Promise<void> {
@@ -194,7 +196,7 @@ async function copyApi(): Promise<void> {
     if (owner.value !== catalog) return
     if (!navigator.clipboard?.writeText) throw new Error('当前环境不支持剪贴板写入')
     await navigator.clipboard.writeText(content)
-  }, 'API 调用资料已复制')
+  }, 'API信息已复制到剪贴板')
 }
 async function queryBindings(): Promise<void> {
   bindingsOpen.value = true; bindingsReady.value = false
@@ -217,7 +219,7 @@ function closeDesign(): void {
 async function retryApps(): Promise<void> {await owner.value?.apps.refresh()}
 function release(): void {
   actionGeneration++
-  bindingsOpen.value = false; bindingsReady.value = false; busy.value = false; actionError.value = ''; message.value = ''
+  bindingsOpen.value = false; bindingsReady.value = false; busy.value = false; actionError.value = ''
   unsubscribe?.(); unsubscribe = undefined
   session.dispose()
   owner.value?.dispose(); owner.value = undefined
@@ -251,8 +253,5 @@ onBeforeUnmount(() => {active = false; generation++; release()})
 </script>
 
 <style scoped>
-.data-space-catalog { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
-h1 { margin: 0; font-size: 20px; }
-header p { color: var(--el-text-color-secondary); }
-[role="alert"] { color: var(--el-color-danger); }
+.data-space-catalog {padding: 8px}
 </style>

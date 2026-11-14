@@ -8,13 +8,28 @@
     "packageName": "app",
     "modulePath": "views/features/shared/table/feature-table-actions",
     "jsdoc": "@module app:views/features/shared/table/feature-table-actions\n职责：行内编辑表格的“新增/删除/保存/取消”标准工具栏及其DataView动作。\n边界：只调用原DataView及所属DataSet的新增、删除、提交与放弃能力；权限、规则和回执核验仍由SPARK data承接。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "FeatureTableAction",
       "FeatureTableToolbarInput"
     ]
   },
   "$defs": {
+    "FeatureTableUi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FeatureTableUi",
+      "properties": {
+        "showMessage": {
+          "type": "object",
+          "title": "(message: string, type?: PageMessageType) => void"
+        }
+      },
+      "required": [
+        "showMessage"
+      ],
+      "additionalProperties": false
+    },
     "FeatureTableAction": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "FeatureTableAction",
@@ -61,8 +76,24 @@
       }
     }
   },
-  "generatedAt": "2026-11-14T04:51:19.002Z",
+  "generatedAt": "2026-11-14T06:53:24.358Z",
   "models": {
+    "FeatureTableUi": {
+      "name": "FeatureTableUi",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<PageServiceCapability, 'showMessage'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<PageServiceCapability, 'showMessage'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {}
+      }
+    },
     "FeatureTableAction": {
       "name": "FeatureTableAction",
       "jsdoc": "",

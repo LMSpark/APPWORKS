@@ -2,6 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {defineComponent, h} from 'vue'
 import {flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
+import {PAGE_SERVICE, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
 import AppList from '@/views/app/AppList.vue'
 
 const state = vi.hoisted(() => ({
@@ -97,7 +98,16 @@ async function mountAt(path: string) {
     {path: '/target', component: EmptyPage},
   ]})
   await router.push(path)
-  const wrapper = mount(AppList, {global: {plugins: [router], stubs: {RendererList: RendererListStub, RendererPageHeader: RendererPageHeaderStub}}})
+  const pageService: PageServiceCapability = {
+    copyText: async () => {}, showMessage: vi.fn(), showConfirm: async () => true, showPrompt: async () => null,
+    showAlert: async () => {}, showDialog: async () => 'cancel', selectEntities: async () => [], browseFiles: async () => [],
+    uploadFiles: async () => { throw new Error('app list fixture must not upload') }, showLoading: () => {}, navigate: () => {},
+  }
+  const Host = defineComponent({setup() {
+    useSparkComponent({type: 'app-list-test-host'}).sparkProvide(PAGE_SERVICE, pageService)
+    return () => h(AppList)
+  }})
+  const wrapper = mount(Host, {global: {plugins: [router], stubs: {RendererList: RendererListStub, RendererPageHeader: RendererPageHeaderStub}}})
   mounted.push(wrapper)
   await flushPromises()
   return {wrapper, router}

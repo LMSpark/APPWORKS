@@ -20,15 +20,16 @@ AI用途：关联数据库页与应用管理弹窗复用本组件；迁移时核
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue'
-import {ElMessageBox} from 'element-plus'
 import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME, RendererButton, RendererDialog, RendererTable, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
+import {PAGE_SERVICE, PAGE_RUNTIME, RendererButton, RendererDialog, RendererTable, useSparkComponent, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 
 const props = defineProps<{sysid: string}>()
 const scenarioId = '93DF05182084B1F0E8DA7283E83BBE0C'
 const key = (model: string) => buildDataViewKey(model, 'default', scenarioId)
 const databaseKey = key('_base_dbInfo'), relationKey = key('Base_AppAndSource_Relation'), candidateKey = key('db_relation_sel')
 const {sparkConsume} = useSparkComponent({type: 'application-database-relations-content'})
+const pageService = consumeRequiredPageService(sparkConsume, 'application-database-relations-content')
+
 const busy = ref(false), choosing = ref(false), message = ref(''), revision = ref(0)
 const view = (dataViewKey: string): DataView => {
   const found = sparkConsume(PAGE_RUNTIME)?.resolveView(dataViewKey)
@@ -50,8 +51,8 @@ const fromDatabase = (field: string, label: string, minWidth = 120): SparkNode =
   displayFormatter: (conid: unknown) => text(database(conid), field)}})
 const relationFields: SparkNode[] = [
   {type: 'r-checkbox', props: {field: 'isRef', label: '是否引用', readonly: true, width: 90, trueValue: 1, falseValue: 0}},
-  {type: 'r-text', props: {field: 'conName', label: '数据库名', readonly: true, minWidth: 160, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'cnName', label: '数据库中文名', readonly: true, minWidth: 180, sortable: false, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'conName', label: '数据库名', readonly: true, minWidth: 160, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'cnName', label: '数据库中文名', readonly: true, minWidth: 180, showOverflowTooltip: true}},
   fromDatabase('ServerName', '服务器地址', 180), fromDatabase('Port', '端口', 100), fromDatabase('Type', '类型', 100),
   fromDatabase('SchemaName', '架构名称', 120), fromDatabase('Remark', '备注', 200),
 ]
@@ -144,7 +145,7 @@ async function remove(): Promise<void> {
   if (busy.value || !row || id === undefined) return
   if (Number(row['isRef']) === 0) { message.value = '默认数据库不可删除'; return }
   if (relations.deleteActionState(row) !== 'enabled') { message.value = '当前无删除该关联的权限'; return }
-  const confirmed = await ElMessageBox.confirm(`确定要删除数据库关联"${text(row, 'conName')}"吗？`, '删除确认', {type: 'warning'})
+  const confirmed = await pageService.showConfirm(`确定要删除数据库关联"${text(row, 'conName')}"吗？`, '删除确认', {type: 'warning'})
     .then(() => true, () => false)
   if (!confirmed) return
   busy.value = true; message.value = ''

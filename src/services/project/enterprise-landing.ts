@@ -5,7 +5,7 @@
  *   默认应用须在当前可见应用目录中才进入；未设置、不可见或读取失败均提示后进入应用列表，不静默。
  */
 import type {Router} from 'vue-router'
-import {ElMessage} from 'element-plus'
+import type {PageServiceCapability} from '@spark-appworks/spark-component'
 import {getNavHomePath} from '@spark-appworks/spark-app'
 import type {DataRow, DataSet, DataView} from '@spark-appworks/spark-data'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
@@ -105,7 +105,11 @@ async function resolveEnterpriseLanding(assertCurrent: () => void): Promise<Ente
 }
 
 /** 登录后的统一落点：进入企业默认应用首页，否则提示原因并进入应用列表。 */
-export async function enterEnterpriseLanding(input: Readonly<{router: Pick<Router, 'replace'>; projectSwitch?: ProjectSwitchService | null}>): Promise<void> {
+export async function enterEnterpriseLanding(input: Readonly<{
+  router: Pick<Router, 'replace'>
+  projectSwitch?: ProjectSwitchService | null
+  ui: Pick<PageServiceCapability, 'showMessage'>
+}>): Promise<void> {
   const landing = await resolveEnterpriseLanding(() => undefined)
   if ('applicationId' in landing) {
     try {
@@ -115,14 +119,14 @@ export async function enterEnterpriseLanding(input: Readonly<{router: Pick<Route
       const failure = await input.router.replace(buildApplicationPath({projectId: landing.applicationId}, getNavHomePath()))
       receipt.assertCurrent()
       if (!failure) return
-      ElMessage.warning('企业默认应用导航未完成，已进入应用列表')
+      input.ui.showMessage('企业默认应用导航未完成，已进入应用列表', 'warning')
     } catch (error) {
-      ElMessage.warning(`企业默认应用进入失败：${error instanceof Error ? error.message : String(error)}，已进入应用列表`)
+      input.ui.showMessage(`企业默认应用进入失败：${error instanceof Error ? error.message : String(error)}，已进入应用列表`, 'warning')
     }
   } else if (landing.level === 'info') {
-    ElMessage.info(landing.message)
+    input.ui.showMessage(landing.message, 'info')
   } else {
-    ElMessage.warning(landing.message)
+    input.ui.showMessage(landing.message, 'warning')
   }
   await input.router.replace(buildApplicationPath({projectId: APPLICATION_CATALOG_PROJECT_ID}, '/app-list'))
 }

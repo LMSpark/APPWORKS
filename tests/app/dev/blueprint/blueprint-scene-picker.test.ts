@@ -112,7 +112,7 @@ function makeState(options: {refreshError?: Error; deferred?: boolean; hiddenNam
     return()=>h(NodeDataSpaceBinding,{state:state as never})}})
   wrapper = mount(Host, {
     global: {plugins:[Spark.createPlugin()],stubs: {RendererButton: ButtonStub, RendererDialog: DialogStub, RendererFilter: FilterStub,
-      RendererTable: TableStub, FieldSelect: FieldSelectStub, IconPicker: true, ElInput: InputStub,
+      RendererTable: TableStub, FieldSelect: FieldSelectStub, ElInput: InputStub,
       ElAlert: AlertStub, ElDivider: true, ElFormItem: FormItemStub}},
   })
   return {state, view, runtime, selectedNode, changes, completeRefresh: () => completeRefresh?.()}

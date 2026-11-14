@@ -26,18 +26,19 @@
 
 <script setup lang="ts">
 import {onBeforeUnmount, ref} from 'vue'
-import {ElMessage} from 'element-plus'
 import {buildDataViewKey, ensureDataSetStaticInputTable} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import type {DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
-const {PAGE_RUNTIME, RendererDialog, RendererForm, RendererButton, FieldText, useSparkComponent, useDataViewRecordEditing} = Components
+const {PAGE_RUNTIME, RendererDialog, RendererForm, RendererButton, FieldText, useSparkComponent, useDataViewRecordEditing, consumeRequiredPageService} = Components
 const props = defineProps<{listKey: string; recordId: string; title: string}>()
 const emit = defineEmits<{close: [result: DataViewRecordEditingFinish]}>()
 const {sparkConsume} = useSparkComponent({type: 'enterprise-password-dialog'})
+const pageService = consumeRequiredPageService(sparkConsume, 'enterprise-password-dialog')
+
 const {view, dataSet, row, busy, current, locked, error, ownUnconfirmed, foreignRecovery, recoveryEnded, hasStaged, save, cancel} = useDataViewRecordEditing({
   mode: 'edit', runtime: () => sparkConsume(PAGE_RUNTIME), dataViewKey: () => props.listKey, recordId: () => props.recordId,
   editableFields: ['super_admin_pwd'], onFinish: result => {
-    if (result === 'saved') ElMessage.success('密码修改成功')
+    if (result === 'saved') pageService.showMessage('密码修改成功', 'success')
     emit('close', result)
   },
 })

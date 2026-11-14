@@ -20,13 +20,14 @@
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
-import {ElMessage} from 'element-plus'
 import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererDialog, RendererForm} from '@spark-appworks/spark-component'
+import {PAGE_SERVICE, RendererButton, RendererDialog, RendererForm, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import type {EnterpriseDefaultApplication} from '@/services/project/enterprise-landing'
 import {APPLICATION_MANAGER_SCENARIO, PERSON_SCENARIO, type ApplicationManagerRecord} from '../model/application-manager-model'
 import ApplicationDatabaseDialog from './application-database-dialog.vue'
 
+const {sparkConsume} = useSparkComponent({type: 'application-manager-form-dialog'})
+const pageService = consumeRequiredPageService(sparkConsume, 'application-manager-form-dialog')
 const props = defineProps<{record: ApplicationManagerRecord; portal: EnterpriseDefaultApplication | null}>()
 const emit = defineEmits<{close: []; saved: []}>()
 const mainKey = buildDataViewKey('Base_AppSystemList', 'form', APPLICATION_MANAGER_SCENARIO)
@@ -104,7 +105,7 @@ async function submit(): Promise<void> {
         return
       }
     }
-    ElMessage.success(outcome.message)
+    pageService.showMessage(outcome.message, 'success')
     emit('saved')
     emit('close')
   } finally { busy.value = false; revision.value++ }

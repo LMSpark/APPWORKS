@@ -29,11 +29,10 @@
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
-import {ElMessage} from 'element-plus'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import {APP_AUTH_SCENARIOS, commitAppAuthRecord, readAppAuthSession} from '../model/enterprise-app-auth-application-model'
-const {PAGE_RUNTIME, RendererButton, RendererDialog, RendererForm, RendererTable, FieldTextarea, useSparkComponent} = Components
+const {PAGE_RUNTIME, RendererButton, RendererDialog, RendererForm, RendererTable, FieldTextarea, useSparkComponent, consumeRequiredPageService} = Components
 
 const props = defineProps<{
   /** 嵌入“我的申请”对话框时缩小高度；提交成功只通知宿主，由宿主刷新。 */
@@ -41,6 +40,8 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{applied: []}>()
 const {sparkConsume} = useSparkComponent({type: 'apply-app-auth-content'})
+const pageService = consumeRequiredPageService(sparkConsume, 'apply-app-auth-content')
+
 const publishedKey = buildDataViewKey('Base_AppSystemList', 'published', APP_AUTH_SCENARIOS.review)
 const authKey = buildDataViewKey('enterprise_app_auth', 'default', APP_AUTH_SCENARIOS.apply)
 
@@ -61,8 +62,8 @@ const unconfirmed = computed(() => {
 
 const fields: SparkNode[] = [
   {type: 'r-text', props: {field: 'displayName', label: '应用名称', readonly: true, minWidth: 240, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'publisher_ent', label: '发布企业', readonly: true, width: 140, sortable: false, showOverflowTooltip: true, emptyText: '-'}},
-  {type: 'r-text', props: {field: 'Memo', label: '备注', readonly: true, minWidth: 160, sortable: false, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'publisher_ent', label: '发布企业', readonly: true, width: 140, showOverflowTooltip: true, emptyText: '-'}},
+  {type: 'r-text', props: {field: 'Memo', label: '备注', readonly: true, minWidth: 160, showOverflowTooltip: true}},
 ]
 const filter: Components.RFilterProps = {
   autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,
@@ -142,7 +143,7 @@ async function submitApply(): Promise<void> {
   busy.value = true; applyError.value = ''
   try {
     await commitAppAuthRecord(auths, id)
-    ElMessage.success('已提交申请，等待审批')
+    pageService.showMessage('已提交申请，等待审批', 'success')
     applyId.value = undefined
     await auths.refresh()
     emit('applied')

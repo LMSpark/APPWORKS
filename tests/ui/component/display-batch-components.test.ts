@@ -160,6 +160,24 @@ describe('DisplayIcon (display-icon)', () => {
 
     expect(wrapper.find('.el-icon-stub').exists()).toBe(false)
   })
+
+  it('resolves legacy navigation icon classes and aliases instead of rendering raw names', () => {
+    for (const icon of ['e-icons layui-icon layui-icon-app', 'DataBase', 'FolderOpen', 'e-unknown-class']) {
+      const wrapper = mountDisplayComponent(DisplayIcon, { type: 'display-icon', icon }, { 'el-icon': ElIconStub })
+      expect(wrapper.find('.el-icon-stub').exists()).toBe(true)
+      expect(wrapper.text()).not.toContain(icon)
+    }
+  })
+
+  it('renders non-identifier names as text and drops unknown identifiers', () => {
+    const emoji = mountDisplayComponent(DisplayIcon, { type: 'display-icon', icon: '📊', iconSize: 18 }, { 'el-icon': ElIconStub })
+    expect(emoji.find('.display-icon-text').text()).toBe('📊')
+    expect(emoji.find('.display-icon-text').attributes('style')).toContain('font-size: 18px')
+    const unknown = mountDisplayComponent(DisplayIcon, { type: 'display-icon', icon: 'NotAnIcon' }, { 'el-icon': ElIconStub })
+    expect(unknown.html()).not.toContain('NotAnIcon')
+    const fallback = mountDisplayComponent(DisplayIcon, { type: 'display-icon', icon: 'NotAnIcon', fallback: 'Document' }, { 'el-icon': ElIconStub })
+    expect(fallback.find('.el-icon-stub').exists()).toBe(true)
+  })
 })
 
 describe('DisplayCalendar (display-calendar)', () => {

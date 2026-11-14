@@ -5,16 +5,24 @@
 AI用途：迁移导航宿主时核对宿主记录写入字段、空间→资源→字段候选级联与设计入口。
 -->
 <template>
-  <section class="data-menu-page">
-    <header class="data-menu-page__header"><h1>导航宿主管理</h1></header>
-    <p v-if="loading" role="status">正在读取导航宿主…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
+  <RendererSection class="data-menu-page" title="导航宿主管理" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取导航宿主…' : ''" :error="error">
+    <template v-if="error && !loading && !ready" #header-actions>
+      <RendererButton label="重试" @click="loadCurrentRoute" />
+    </template>
+    <template v-if="ready" #header-actions>
+      <RendererButton label="新增" button-type="primary" icon="Plus" :data-view-key="viewKey" perm-action="create"
+        :disabled="headerDisabled || !catalogView || catalogView.addActionState() !== 'enabled'" @click="create" />
+      <RendererButton label="编辑" icon="Edit" :data-view-key="viewKey" perm-action="edit"
+        :disabled="headerDisabled || !current || !catalogView || catalogView.editActionState(current) !== 'enabled'" @click="edit" />
+      <RendererButton label="删除" button-type="danger" icon="Delete" :data-view-key="viewKey" perm-action="delete"
+        :disabled="headerDisabled || !current || !catalogView || catalogView.deleteActionState(current) !== 'enabled'" @click="remove" />
+    </template>
     <template v-if="ready">
-      <p v-if="message" role="alert">{{ message }}</p>
+      <DisplayAlert v-if="message" alert-type="warning" :closable="false" :show-icon="true" :title="message" />
       <div :inert="busy || !!editing || !!designId">
-        <RendererTable :data-view-key="viewKey" :children="fields" :filter="filter" :toolbar="toolbar" :actions="actions"
-          :stripe="true" :show-row-index="true" :highlight-current-row="true" :show-data-view-meta="false"
+        <RendererTable :data-view-key="viewKey" :children="fields" :filter="filter" :actions="actions"
+          :stripe="true" :border="true" :show-row-index="true" :highlight-current-row="true" :show-data-view-meta="false"
           :pagination="{pageSizes: [10, 20, 50, 100], showJumper: true}" />
       </div>
       <DataMenuDialog v-if="editing" :key="editing.epoch" :data-view-key="viewKey" :record-id="editing.id" :created="editing.created"
@@ -24,14 +32,14 @@ AI用途：迁移导航宿主时核对宿主记录写入字段、空间→资源
         <DataSetDesign ref="designPage" :target-id="designId" />
       </RendererDialog>
     </template>
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
 import {computed, defineAsyncComponent, onBeforeUnmount, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererDialog, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {DisplayAlert, RendererButton, RendererDialog, RendererSection, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import DataMenuDialog from './data-menu-dialog.vue'
@@ -86,18 +94,9 @@ const filter: RFilterProps = {
   autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,
   children: [{type: 'r-text', props: {field: 'Name', label: '宿主名称', placeholder: '请输入宿主名称', filterTrim: true}}],
 }
-const current = computed(() => {revision.value; return ready.value ? view(viewKey).currentRow : null})
-const toolbar = computed<RToolbarProps>(() => {
-  revision.value
-  const target = ready.value ? view(viewKey) : undefined, row = current.value
-  return {children: [
-    {type: 'r-button', props: {label: '新增', buttonType: 'primary', onClick: create,
-      disabled: busy.value || !target || target.addActionState() !== 'enabled'}},
-    {type: 'r-button', props: {label: '编辑', onClick: edit, disabled: busy.value || !target || !row || target.editActionState(row) !== 'enabled'}},
-    {type: 'r-button', props: {label: '删除', buttonType: 'danger', onClick: remove,
-      disabled: busy.value || !target || !row || target.deleteActionState(row) !== 'enabled'}},
-  ]}
-})
+const catalogView = computed(() => {revision.value; return ready.value ? view(viewKey) : undefined})
+const current = computed(() => catalogView.value?.currentRow ?? null)
+const headerDisabled = computed(() => busy.value || !!editing.value || !!designId.value)
 const actions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
   label: '设计', link: true, buttonType: 'primary', disabled: busy.value,
   onClick: (row: DataRow) => {
@@ -174,6 +173,5 @@ async function remove(): Promise<void> {
 </script>
 
 <style scoped>
-.data-menu-page {display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary)}
-.data-menu-page__header h1 {margin: 0; font-size: 20px}
+.data-menu-page {padding: 8px}
 </style>

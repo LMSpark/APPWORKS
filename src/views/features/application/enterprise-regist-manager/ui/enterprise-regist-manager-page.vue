@@ -4,18 +4,20 @@
 边界：读写均经同一PageRuntime的DataView与命令视图；审核按钮只依据本行CheckState写权限，不按身份放行。
 -->
 <template>
-  <section class="enterprise-regist">
-    <header class="enterprise-regist__header">
-      <h1>企业审核</h1>
-      <RendererButton v-if="ready" :data-view-key="viewKey" label="刷新" action="refresh" />
-    </header>
-    <p v-if="loading" role="status">正在读取入驻企业…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
-    <p v-if="openError" role="alert">{{ openError }}</p>
-    <RendererTable v-if="ready" :data-view-key="viewKey" :children="fields" :filter="filter" :actions="actions"
-      :auto-columns="false" :stripe="true" :show-row-index="true" :highlight-current-row="true"
-      :show-data-view-meta="false" :pagination="{pageSizes: [20], showJumper: true}" />
+  <RendererSection class="enterprise-regist" title="企业审核" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取入驻企业…' : ''" :error="error">
+    <template v-if="error && !loading && !ready" #header-actions>
+      <RendererButton label="重试" @click="loadCurrentRoute" />
+    </template>
+    <template v-if="ready" #header-actions>
+      <RendererButton :data-view-key="viewKey" label="刷新" icon="Refresh" action="refresh" />
+    </template>
+    <template v-if="ready">
+      <DisplayAlert v-if="openError" alert-type="error" :closable="false" :show-icon="true" :title="openError" />
+      <RendererTable :data-view-key="viewKey" :children="fields" :filter="filter" :actions="actions"
+        :auto-columns="false" :stripe="true" :border="true" :show-row-index="true" :highlight-current-row="true"
+        :show-data-view-meta="false" :pagination="{pageSizes: [20], showJumper: true}" />
+    </template>
     <EnterpriseAppAuthDialog v-if="dialog?.kind === 'auth'" :scenario-id="scenarioId" :record-id="dialog.recordId"
       :short-name="dialog.shortName" :title="dialog.title" @close="closeDialog" />
     <EnterpriseAuditDialog v-if="dialog?.kind === 'audit'" :list-key="viewKey" :command-key="commandKey" :record-id="dialog.recordId"
@@ -24,13 +26,16 @@
       :title="dialog.title" @close="closeDialog" />
     <EnterpriseConfigDialog v-if="dialog?.kind === 'config'" :data-view-key="configKey" :policy-key="policyKey"
       :application-key="applicationKey" :record-id="dialog.recordId" :title="dialog.title" @close="closeDialog" />
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
 import {computed, ref, shallowRef} from 'vue'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererTable, type RFilterProps} from '@spark-appworks/spark-component'
+import {DisplayAlert, RendererButton, RendererSection, RendererTable, useSparkComponent, consumeRequiredPageService, type RFilterProps} from '@spark-appworks/spark-component'
+
+const {sparkConsume} = useSparkComponent({type: 'enterprise-regist-manager-page'})
+consumeRequiredPageService(sparkConsume, 'enterprise-regist-manager-page')
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import EnterpriseAppAuthDialog from './enterprise-app-auth-dialog.vue'
 import EnterpriseAuditDialog from './enterprise-audit-dialog.vue'
@@ -138,7 +143,5 @@ function closeDialog(): void {
 </script>
 
 <style scoped>
-.enterprise-regist {display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary)}
-.enterprise-regist__header {display: flex; align-items: center; justify-content: space-between; gap: 16px}
-.enterprise-regist__header h1 {margin: 0; font-size: 20px}
+.enterprise-regist {padding: 8px}
 </style>

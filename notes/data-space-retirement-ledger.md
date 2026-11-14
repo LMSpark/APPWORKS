@@ -9851,4 +9851,10 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
   - **范围。** 数据编码、逻辑视图、PDF 巡检、数据字典目录页按数据空间/JSON 目录样板：`RendererSection` 页头动作、`DisplayAlert` 状态提示、`consumeRequiredPageService`、表格 `border`；数据链与编辑弹窗语义未改。
   - **字典专项。** 页头「新增字典」绑定目录 `data-view-key` 与 `perm-action="create"`，恢复 `allowAdd` 权限禁用；目录测试改查页头按钮与 `DisplayAlert` 文案，禁用态断言改用 `element.hasAttribute('disabled')`。
   - **测试。** `dictionary-catalog` 50 项、`data-code-list`、`logic-view-list`、`formal-topic-pages`、`dictionary-workflow` 定向 vitest 全绿；typecheck、lint、`verify:rules` 通过。
-  - **未做。** 未登录实服烟测字典/编码/逻辑视图/PDF 目录开页与主要按钮；`excel-import-list` 等上轮已过关壳层未在本轮再统一。
+  - **未做。** `excel-import-list` 等上轮已过关壳层未在本轮再统一。
+  - **实服烟测（2026-11-14，鉴权纠正）。** 用户确认：**「数据资产管理」`00BE6ED455CD4BD7B785C61A12A1E67D` 为旧项目**；**AppWorks 主线应用为「元数据管理」`D99A1DCE9894698799101EFD70F8FC76`**（`WebUrl=/apps/appworks`、`config/navigation/appworks-system.json`）。下列结果均在旧应用 `00BE6ED…` 蓝图直链下取得，**仅作 UI 加载与批 3 外壳粗验，不能替代 AppWorks 正式导航验收**：数据空间「新增→取消」未冻页；编码/字典/逻辑视图页头与表格可用。PDF 直链重定向至 `ServerManagerment.html`（Config Page Target Error）。**后续烟测默认在 D99 AppWorks 应用内复跑**，不把 `00BE6ED` 与 D99 混为同一合同。
+- **批 4 应用目录外壳（进行中，2026-11-14）。**
+  - **data-menu-page。** 换 `RendererSection` 页头增删改 + `DisplayAlert` 提示 + 表格 `border`；动作权限绑定 `data-view-key`/`perm-action`。
+  - **enterprise-regist-manager-page。** 换 `RendererSection`、页头刷新、`DisplayAlert` 承载 `openError`、`consumeRequiredPageService`、表格 `border`。
+  - **AppWorks 烟测（D99 `D99A1DCE9894698799101EFD70F8FC76`）。** 导航宿主管理、入驻管理直链开页正常：页头新增/刷新、表格与行内「设计/授权/审核」等按钮可见，无 Config Page Target Error。
+  - **未做。** `application-function-page` 去直调（`lowcodeApi.dataSpace.design.readModels`、`blueprint.submitDocument`）与外壳统一；该项须先核定数据层命令/资源承接再改页面。

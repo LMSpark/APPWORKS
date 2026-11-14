@@ -145,12 +145,27 @@
         },
         "collapseIconText": {
           "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string"
+        },
+        "retryable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "retryText": {
+          "type": "string"
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-13T19:11:13.791Z",
+  "generatedAt": "2026-11-14T03:10:28.050Z",
   "models": {
     "RSectionProps": {
       "name": "RSectionProps",
@@ -164,7 +179,7 @@
         "directory": "containers/layout"
       },
       "typeAlias": {
-        "declarationTypeText": "LayoutDataContextProps & SparkGridLayoutProps & {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 分区标题 */\n    title?: string;\n    /** 分区描述 */\n    description?: string;\n    /** 是否可折叠 */\n    collapsible?: boolean;\n    /** 默认折叠 */\n    defaultCollapsed?: boolean;\n    /** 首次展开时才挂载内容，之后折叠保留组件与编辑状态；默认关闭。 */\n    lazy?: boolean;\n    /** 显示边框 */\n    bordered?: boolean;\n    /** 使用卡片样式 */\n    useCard?: boolean;\n    /** 卡片阴影模式 */\n    cardShadow?: 'always' | 'hover' | 'never';\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n    /** 展开文案 */\n    expandText?: string;\n    /** 收起文案 */\n    collapseText?: string;\n    /** 显示切换图标 */\n    showToggleIcon?: boolean;\n    /** 展开图标文案 */\n    expandIconText?: string;\n    /** 收起图标文案 */\n    collapseIconText?: string;\n}",
+        "declarationTypeText": "LayoutDataContextProps & SparkGridLayoutProps & {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 分区标题 */\n    title?: string;\n    /** 分区描述 */\n    description?: string;\n    /** 是否可折叠 */\n    collapsible?: boolean;\n    /** 默认折叠 */\n    defaultCollapsed?: boolean;\n    /** 首次展开时才挂载内容，之后折叠保留组件与编辑状态；默认关闭。 */\n    lazy?: boolean;\n    /** 显示边框 */\n    bordered?: boolean;\n    /** 使用卡片样式 */\n    useCard?: boolean;\n    /** 卡片阴影模式 */\n    cardShadow?: 'always' | 'hover' | 'never';\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n    /** 展开文案 */\n    expandText?: string;\n    /** 收起文案 */\n    collapseText?: string;\n    /** 显示切换图标 */\n    showToggleIcon?: boolean;\n    /** 展开图标文案 */\n    expandIconText?: string;\n    /** 收起图标文案 */\n    collapseIconText?: string;\n    /** 分区状态提示（如读取中、待核验），非空时在头部下方以 role=\"status\" 显示 */\n    status?: string;\n    /** 分区错误提示，非空时在头部下方以 role=\"alert\" 显示 */\n    error?: string;\n    /** 有错误提示时是否提供重试按钮；点击发出 retry 事件，由宿主决定重新执行的动作 */\n    retryable?: boolean;\n    /** 重试按钮文案 */\n    retryText?: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -178,7 +193,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 分区标题 */\n    title?: string;\n    /** 分区描述 */\n    description?: string;\n    /** 是否可折叠 */\n    collapsible?: boolean;\n    /** 默认折叠 */\n    defaultCollapsed?: boolean;\n    /** 首次展开时才挂载内容，之后折叠保留组件与编辑状态；默认关闭。 */\n    lazy?: boolean;\n    /** 显示边框 */\n    bordered?: boolean;\n    /** 使用卡片样式 */\n    useCard?: boolean;\n    /** 卡片阴影模式 */\n    cardShadow?: 'always' | 'hover' | 'never';\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n    /** 展开文案 */\n    expandText?: string;\n    /** 收起文案 */\n    collapseText?: string;\n    /** 显示切换图标 */\n    showToggleIcon?: boolean;\n    /** 展开图标文案 */\n    expandIconText?: string;\n    /** 收起图标文案 */\n    collapseIconText?: string;\n}"
+            "typeText": "{\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 分区标题 */\n    title?: string;\n    /** 分区描述 */\n    description?: string;\n    /** 是否可折叠 */\n    collapsible?: boolean;\n    /** 默认折叠 */\n    defaultCollapsed?: boolean;\n    /** 首次展开时才挂载内容，之后折叠保留组件与编辑状态；默认关闭。 */\n    lazy?: boolean;\n    /** 显示边框 */\n    bordered?: boolean;\n    /** 使用卡片样式 */\n    useCard?: boolean;\n    /** 卡片阴影模式 */\n    cardShadow?: 'always' | 'hover' | 'never';\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n    /** 展开文案 */\n    expandText?: string;\n    /** 收起文案 */\n    collapseText?: string;\n    /** 显示切换图标 */\n    showToggleIcon?: boolean;\n    /** 展开图标文案 */\n    expandIconText?: string;\n    /** 收起图标文案 */\n    collapseIconText?: string;\n    /** 分区状态提示（如读取中、待核验），非空时在头部下方以 role=\"status\" 显示 */\n    status?: string;\n    /** 分区错误提示，非空时在头部下方以 role=\"alert\" 显示 */\n    error?: string;\n    /** 有错误提示时是否提供重试按钮；点击发出 retry 事件，由宿主决定重新执行的动作 */\n    retryable?: boolean;\n    /** 重试按钮文案 */\n    retryText?: string;\n}"
           }
         ],
         "members": {
@@ -270,6 +285,30 @@
             {
               "name": "collapseIconText",
               "jsdoc": "收起图标文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "jsdoc": "分区状态提示（如读取中、待核验），非空时在头部下方以 role=\"status\" 显示",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "jsdoc": "分区错误提示，非空时在头部下方以 role=\"alert\" 显示",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "retryable",
+              "jsdoc": "有错误提示时是否提供重试按钮；点击发出 retry 事件，由宿主决定重新执行的动作",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "retryText",
+              "jsdoc": "重试按钮文案",
               "readable": true,
               "writable": false
             }

@@ -5,30 +5,24 @@
 AI用途：迁移系统运维数据恢复时，核对级联输入、data_id取值与恢复记录的权限及保存回执。
 -->
 <template>
-  <section class="recovery-page">
-    <header class="recovery-page__header"><h1>数据恢复</h1></header>
-    <p v-if="loading" role="status">正在读取应用系统…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
+  <RendererSection class="recovery-page" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取应用系统…' : ''" :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
     <div v-if="ready" class="recovery-page__body">
-      <aside class="recovery-page__side">
-        <h2>数据表选择</h2>
-        <RendererForm :data-view-key="appKey" :auto-columns="false" :show-data-view-meta="false">
+      <RendererSection class="recovery-page__side" title="数据表选择" :grid-columns="1" :grid-gap="12">
+        <RendererForm :data-view-key="appKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
           <FieldSelect data-member="value" :option-data-view-key="appKey" :option-label-fields="['AppDesc', 'AppName']"
             label="应用系统" placeholder="请选择应用系统" :filterable="true" :clearable="true" :disabled="busy" />
         </RendererForm>
-        <RendererForm :data-view-key="dbKey" :auto-columns="false" :show-data-view-meta="false">
+        <RendererForm :data-view-key="dbKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
           <FieldSelect data-member="value" :option-data-view-key="dbKey" :option-label-fields="['conName']"
             label="数据库" placeholder="请选择数据库" :filterable="true" :clearable="true" :disabled="busy" />
         </RendererForm>
         <RendererTable :data-view-key="tableKey" :children="tableFields" :show-data-view-meta="false"
           :pagination="{pageSizes: [15, 30, 50]}" />
-      </aside>
-      <main class="recovery-page__main">
-        <p v-if="!table" class="recovery-page__empty">请先选择应用系统和数据库，再选择数据表</p>
-        <template v-else>
-          <h2>{{ table.label }}</h2>
-          <p v-if="message" role="alert">{{ message }}</p>
+      </RendererSection>
+      <RendererSection class="recovery-page__main" :title="table?.label ?? '数据'" :grid-columns="1"
+        :status="table ? notice : '请先选择应用系统和数据库，再选择数据表'" :error="message">
+        <template v-if="table">
           <RendererTabs v-model="tab" @tab-change="loadAll">
             <RendererTabPane label="待恢复数据" name="deleted" :index="0">
               <RendererTable :key="`deleted-${columnsEpoch}`" :data-view-key="deletedKey" :children="dataFields" :actions="deletedActions"
@@ -44,9 +38,9 @@ AI用途：迁移系统运维数据恢复时，核对级联输入、data_id取�
             </RendererTabPane>
           </RendererTabs>
         </template>
-      </main>
+      </RendererSection>
     </div>
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
@@ -57,7 +51,7 @@ import * as Components from '@spark-appworks/spark-component'
 import type {RToolbarProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
-const {RendererButton, RendererForm, RendererTable, RendererTabs, RendererTabPane, FieldSelect} = Components
+const {RendererSection, RendererForm, RendererTable, RendererTabs, RendererTabPane, FieldSelect} = Components
 const scenarioId = '70D5D8FACCC201A822F64B16A441BE8F'
 const {session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Base_AppSystemList', componentType: 'data-recovery-page', title: '数据恢复',
@@ -74,7 +68,7 @@ const recoveredFields: SparkNode[] = [text('sys_id', '应用系统ID'), text('db
 const tab = ref<string | number>('deleted')
 const table = shallowRef<{rowid: string; label: string}>()
 const columns = shallowRef<readonly {name: string; label: string}[]>([])
-const columnsEpoch = ref(0), busy = ref(false), message = ref('')
+const columnsEpoch = ref(0), busy = ref(false), message = ref(''), notice = ref('')
 const dataFields = computed(() => columns.value.map(column => text(column.name, column.label)))
 const view = (dataViewKey: string): DataView => {
   const found = session.runtime?.resolveView(dataViewKey)
@@ -96,7 +90,7 @@ function syncTable(): void {
   const row = view(tableKey).currentRow, rowid = value(row, 'rowid')
   const previous = table.value?.rowid, desc = value(row, 'tbldesc'), name = value(row, 'tblname')
   table.value = rowid ? {rowid, label: desc ? `${desc}[${name}]` : name} : undefined
-  if (rowid !== previous) { message.value = ''; void nextTick(loadAll) }
+  if (rowid !== previous) { message.value = ''; notice.value = ''; void nextTick(loadAll) }
 }
 function syncColumns(): void {
   columns.value = view(fieldKey).rows.map(row => ({name: value(row, 'enname'), label: value(row, 'cnname') || value(row, 'enname')}))
@@ -154,7 +148,7 @@ async function commit({target, id, discard, done}: RecoveryCommit): Promise<void
     if (!target.hasUnconfirmedSave) discard()
     throw new Error(result.error?.message ?? '保存未确认，请刷新核验')
   }
-  message.value = done
+  notice.value = done
   await Promise.all([view(deletedKey).refresh(), target.refresh()])
 }
 
@@ -164,7 +158,7 @@ async function recover(row: DataRow): Promise<void> {
   if (blocker) { message.value = `无法恢复：${blocker}`; return }
   if (!await confirm('确认恢复该条数据吗？')) return
   const db = view(dbKey).currentRow, app = view(appKey).currentRow, target = recoveredView()
-  busy.value = true; message.value = ''
+  busy.value = true; message.value = ''; notice.value = ''
   try {
     if (!value(db, 'conid') || !value(app, 'rowid')) throw new Error('恢复缺少当前应用系统或数据库')
     const created = await target.addRow({data_id: dataId(row), table_id: current.rowid, db_id: value(db, 'conid'), sys_id: value(app, 'rowid')})
@@ -180,7 +174,7 @@ async function undo(row: DataRow): Promise<void> {
   const blocker = undoBlocker(row)
   if (blocker) { message.value = `无法撤销恢复：${blocker}`; return }
   if (!await confirm('撤销恢复后，原数据将重新进入回收站。确认继续吗？')) return
-  busy.value = true; message.value = ''
+  busy.value = true; message.value = ''; notice.value = ''
   try {
     target.updateEditingValue(id, 'status', 1)
     await commit({target, id, discard: () => target.discardEditingRows([id]), done: '撤销恢复成功'})
@@ -189,10 +183,6 @@ async function undo(row: DataRow): Promise<void> {
 </script>
 
 <style scoped>
-.recovery-page {display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary)}
-.recovery-page__header h1 {margin: 0; font-size: 20px}
+.recovery-page {padding: 8px}
 .recovery-page__body {display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); gap: 16px; align-items: start}
-.recovery-page__side, .recovery-page__main {display: grid; gap: 12px; padding: 16px; border: 1px solid var(--el-border-color-light); border-radius: 8px}
-.recovery-page h2 {margin: 0; font-size: 16px}
-.recovery-page__empty {color: var(--el-text-color-secondary)}
 </style>

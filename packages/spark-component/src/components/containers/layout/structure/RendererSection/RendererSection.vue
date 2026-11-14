@@ -31,6 +31,12 @@ AI用途：需要理解 renderer section 的实际渲染结构、slot/toolbar/�
       </div>
     </template>
 
+    <div v-if="status || error" class="renderer-section-state">
+      <p v-if="status" role="status" class="renderer-section-status">{{ status }}</p>
+      <el-alert v-if="error" type="error" :title="error" :closable="false" show-icon class="renderer-section-error">
+        <el-button v-if="retryable" size="small" @click="emit('retry')">{{ retryText }}</el-button>
+      </el-alert>
+    </div>
     <div v-if="renderBody" v-show="!collapsed" :class="['renderer-section-body', bodyClass]" :style="gridStyle">
       <div
         v-for="(child, index) in gridChildren"
@@ -68,6 +74,12 @@ AI用途：需要理解 renderer section 的实际渲染结构、slot/toolbar/�
       </div>
     </div>
 
+    <div v-if="status || error" class="renderer-section-state">
+      <p v-if="status" role="status" class="renderer-section-status">{{ status }}</p>
+      <el-alert v-if="error" type="error" :title="error" :closable="false" show-icon class="renderer-section-error">
+        <el-button v-if="retryable" size="small" @click="emit('retry')">{{ retryText }}</el-button>
+      </el-alert>
+    </div>
     <div v-if="renderBody" v-show="!collapsed" :class="['renderer-section-body', bodyClass]" :style="gridStyle">
       <div
         v-for="(child, index) in gridChildren"
@@ -118,7 +130,12 @@ const props = withDefaults(defineProps<RSectionProps>(), {
   gridColumns: 24,
   gridGap: 0,
   gridAutoRows: 'minmax(32px, auto)',
+  status: '',
+  error: '',
+  retryable: false,
+  retryText: '重试',
 })
+const emit = defineEmits<{ retry: [] }>()
 const slots = useSlots()
 const { registerApi, scopeKey, aggregateError } = useLayoutDataContext(props)
 
@@ -242,6 +259,23 @@ function getDefaultScope() {
 
 .renderer-section-body {
   padding: 16px;
+}
+
+.renderer-section-state {
+  display: grid;
+  gap: 4px;
+  padding: 8px 16px 0;
+}
+
+.renderer-section-status {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--el-text-color-secondary);
+}
+
+.renderer-section-error :deep(.el-alert__description) {
+  margin-top: 6px;
 }
 
 .renderer-section-grid-item {

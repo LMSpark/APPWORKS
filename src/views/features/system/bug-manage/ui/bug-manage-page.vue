@@ -5,26 +5,20 @@
 AI用途：迁移系统运维BUG管理时，核对导航身份、选项视图及处理人姓名同步。
 -->
 <template>
-  <section class="bug-page">
-    <header class="bug-page__header">
-      <h1>BUG管理</h1>
-      <RendererButton v-if="ready" :data-view-key="viewKey" label="刷新" action="refresh" :disabled="!!editing" />
-    </header>
-    <p v-if="loading" role="status">正在读取BUG列表…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
+  <RendererSection class="bug-page" title="BUG管理" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取BUG列表…' : ''" :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
     <RendererTable v-if="ready" :data-view-key="viewKey" :children="fields" :filter="filter" :actions="actions"
       :stripe="true" :show-row-index="true" :show-data-view-meta="false"
       :pagination="{pageSizes: [15, 30, 50, 100], showJumper: true}" />
     <BugDetailDialog v-if="ready && editing" :key="editing.epoch" :data-view-key="viewKey" :record-id="editing.id"
       :system-key="systemKey" :type-key="typeKey" :state-key="stateKey" :user-key="userKey" @close="editing = undefined" />
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererTable, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import {RendererSection, RendererTable, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import BugDetailDialog from './bug-detail-dialog.vue'
 
@@ -65,7 +59,5 @@ function openDetail(row: DataRow): void {
 </script>
 
 <style scoped>
-.bug-page {display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary)}
-.bug-page__header {display: flex; align-items: center; justify-content: space-between; gap: 16px}
-.bug-page__header h1 {margin: 0; font-size: 20px}
+.bug-page {padding: 8px}
 </style>

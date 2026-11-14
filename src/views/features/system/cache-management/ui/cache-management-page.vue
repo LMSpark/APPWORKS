@@ -4,29 +4,28 @@
 边界：绑定同一PageRuntime的正式DataView；来源分页和命令提交由数据层适配，不引入原CacheManager或页面草稿。
 -->
 <template>
- <p v-if="loading" role="status">正在读取缓存类型…</p>
- <p v-if="error" role="alert">{{ error }}</p>
- <p v-if="needsSwitch" role="status">当前仍显示原导航的缓存工作区，请先处理原删除命令。</p>
- <RendererButton v-if="needsSwitch" label="切换到当前导航" :disabled="busy || pending || !!session" @click="loadCurrentRoute" />
- <div v-if="ready" class="cache-manager-page">
-  <section class="cache-manager-page__sidebar panel-card">
-   <header><h2>缓存类型</h2></header>
-   <RendererTable :data-view-key="categoryKey" :children="categoryFields" :show-pagination="false" :show-data-view-meta="false" :highlight-current-row="true" />
-  </section>
-  <section class="cache-manager-page__content panel-card">
-   <header><h2>缓存信息</h2></header>
-   <RendererTable :data-view-key="listKey" :children="listFields" :actions="actions" :show-data-view-meta="false"
-    :current-page-search="{fields:['cacheKey'],placeholder:'搜索当前页缓存键'}" :pagination="{pageSizes:[20,50,100],showJumper:false}" />
-  </section>
-  <CacheDeleteConfirmation v-if="session" :key="session.epoch" :data-view-key="commandKey" :record-id="session.id" @close="finish" />
- </div>
+ <RendererSection class="cache-manager" :bordered="false" :grid-columns="1" :grid-gap="12"
+  :status="loading ? '正在读取缓存类型…' : needsSwitch ? '当前仍显示原导航的缓存工作区，请先处理原删除命令。' : ''"
+  :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
+  <RendererButton v-if="needsSwitch" label="切换到当前导航" :disabled="busy || pending || !!session" @click="loadCurrentRoute" />
+  <div v-if="ready" class="cache-manager-page">
+   <RendererSection class="cache-manager-page__sidebar" title="缓存类型" :grid-columns="1">
+    <RendererTable :data-view-key="categoryKey" :children="categoryFields" :show-pagination="false" :show-data-view-meta="false" :highlight-current-row="true" />
+   </RendererSection>
+   <RendererSection class="cache-manager-page__content" title="缓存信息" :grid-columns="1">
+    <RendererTable :data-view-key="listKey" :children="listFields" :actions="actions" :show-data-view-meta="false"
+     :current-page-search="{fields:['cacheKey'],placeholder:'搜索当前页缓存键'}" :pagination="{pageSizes:[20,50,100],showJumper:false}" />
+   </RendererSection>
+   <CacheDeleteConfirmation v-if="session" :key="session.epoch" :data-view-key="commandKey" :record-id="session.id" @close="finish" />
+  </div>
+ </RendererSection>
 </template>
 <script setup lang="ts">
 import {computed,onBeforeUnmount,ref,watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey,type DataSet,type DataRow,type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME,RendererTable,RendererButton,useSparkComponent,type RToolbarProps,type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME,RendererSection,RendererTable,RendererButton,useSparkComponent,type RToolbarProps,type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import CacheDeleteConfirmation from './cache-delete-confirmation.vue'
@@ -98,10 +97,8 @@ watch(target,loadCurrentRoute,{immediate:true})
 onBeforeUnmount(()=>{active=false;generation++;stop?.();runtimeSession.dispose()})
 </script>
 <style scoped>
-.cache-manager-page{display:flex;gap:16px;height:100%;min-height:0;padding:16px}
-.panel-card{display:flex;flex-direction:column;min-height:0;border:1px solid var(--el-border-color);border-radius:10px;overflow:hidden;background:var(--el-bg-color)}
-.panel-card header{padding:14px 18px;border-bottom:1px solid var(--el-border-color)}
-.panel-card h2{margin:0;font-size:18px}
+.cache-manager{padding:8px}
+.cache-manager-page{display:flex;gap:16px;min-height:0}
 .cache-manager-page__sidebar{width:300px;flex:none}
 .cache-manager-page__content{flex:1;min-width:0}
 @media(max-width:1200px){.cache-manager-page{flex-direction:column}.cache-manager-page__sidebar{width:100%}}

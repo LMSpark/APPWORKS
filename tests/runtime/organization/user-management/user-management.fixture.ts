@@ -15,8 +15,8 @@ class UserBackend extends ApiBackend {
   protected override async executeRequest(request: RequestConfig): Promise<HttpResponse<unknown>> {
     const response = await super.executeRequest(request)
     if (request.url !== '/api/DataOperation/GetData') return response
-    const last = this.reads[this.reads.length - 1]
-    if (last?.table === this.failNextTable) {
+    const own = this.reads.find(read => read.data === request.data)
+    if (own?.table === this.failNextTable) {
       this.failNextTable = ''
       return {...response, data: {Code: 500, Message: '目录查询失败', Result: null}}
     }

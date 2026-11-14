@@ -141,7 +141,7 @@ describe('reference organization page through SPARK data', () => {
     expect(view.page).toBe(2)
     http.failNextRead = true
     await getButton(wrapper, '刷新').trigger('click'); await flushPromises()
-    expect(wrapper.find('[role="alert"]').text()).toContain('机构查询失败')
+    expect(wrapper.text()).toContain('机构查询失败')
     expect(view.loadingError).not.toBeNull()
     expect(view.page).toBe(2)
     await getButton(wrapper, '刷新').trigger('click'); await flushPromises()
@@ -202,11 +202,11 @@ describe('reference organization page through SPARK data', () => {
   it('offers retry after an initial query failure', async () => {
     http.failNextRead = true
     const {wrapper} = await open()
-    expect(wrapper.get('[role="alert"]').text()).toContain('机构查询失败')
+    expect(wrapper.get('.renderer-section-error').text()).toContain('机构查询失败')
     expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
     await getButton(wrapper, '重试').trigger('click'); await flushPromises()
     await vi.waitFor(() => expect(wrapper.findComponent(RendererTable).exists()).toBe(true))
-    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(wrapper.find('.renderer-section-error').exists()).toBe(false)
     expect(wrapper.getComponent(RendererTable).findAll('.el-table__body-wrapper tbody tr')).toHaveLength(10)
     expect(http.reads).toHaveLength(2)
   })

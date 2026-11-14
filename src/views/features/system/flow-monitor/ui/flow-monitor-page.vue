@@ -5,23 +5,17 @@
 AI用途：迁移系统运维流程监控时，核对状态字典、创建人映射与查询条件。
 -->
 <template>
-  <section class="flow-monitor-page">
-    <header class="flow-monitor-page__header">
-      <h1>流程监控</h1>
-      <RendererButton v-if="ready" :data-view-key="viewKey" label="刷新" action="refresh" />
-    </header>
-    <p v-if="loading" role="status">正在读取流程列表…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
+  <RendererSection class="flow-monitor-page" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取流程列表…' : ''" :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
     <RendererTable v-if="ready" :data-view-key="viewKey" :children="fields" :filter="filter"
       :stripe="true" :show-row-index="true" :show-data-view-meta="false"
       :pagination="{pageSizes: [10, 15, 20, 50], showJumper: true}" />
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
 import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererTable, type RFilterProps} from '@spark-appworks/spark-component'
+import {RendererSection, RendererTable, type RFilterProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
 const scenarioId = 'E328FBBF518141973C575D612CD75151'
@@ -61,7 +55,5 @@ const filter: RFilterProps = {
 </script>
 
 <style scoped>
-.flow-monitor-page {display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary)}
-.flow-monitor-page__header {display: flex; align-items: center; justify-content: space-between; gap: 16px}
-.flow-monitor-page__header h1 {margin: 0; font-size: 20px}
+.flow-monitor-page {padding: 8px}
 </style>

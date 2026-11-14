@@ -39,4 +39,12 @@ export type RSectionProps = LayoutDataContextProps & SparkGridLayoutProps & {
     /** 展开图标文案 */
     expandIconText?: string
     /** 收起图标文案 */
-    collapseIconText?: string}
+    collapseIconText?: string
+    /** 分区状态提示（如读取中、待核验），非空时在头部下方以 role="status" 显示 */
+    status?: string
+    /** 分区错误提示，非空时在头部下方以 role="alert" 显示 */
+    error?: string
+    /** 有错误提示时是否提供重试按钮；点击发出 retry 事件，由宿主决定重新执行的动作 */
+    retryable?: boolean
+    /** 重试按钮文案 */
+    retryText?: string}

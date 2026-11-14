@@ -497,6 +497,29 @@ describe('RendererList and RendererSection container integration', () => {
     expect(wrapper.find('.biz-section-body').attributes('data-collapsed')).toBe('false')
   })
 
+  it('shows section status and error, and emits retry only when retryable', async () => {
+    const wrapper = mount(RendererSection, {
+      props: {title: '列表', status: '正在读取…'},
+      global: {plugins: [ElementPlus], stubs: {SparkComponentRenderer: SparkActionStub, 'el-card': ElCardStub}},
+    })
+    expect(wrapper.find('[role="status"]').text()).toBe('正在读取…')
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+
+    await wrapper.setProps({status: '', error: '读取失败'})
+    expect(wrapper.find('[role="status"]').exists()).toBe(false)
+    expect(wrapper.find('[role="alert"]').text()).toBe('读取失败')
+    expect(wrapper.find('[role="alert"] button').exists()).toBe(false)
+
+    await wrapper.setProps({retryable: true, retryText: '重新读取'})
+    const retry = wrapper.find('[role="alert"] button')
+    expect(retry.text()).toBe('重新读取')
+    await retry.trigger('click')
+    expect(wrapper.emitted('retry')).toHaveLength(1)
+
+    await wrapper.setProps({error: ''})
+    expect(wrapper.find('.renderer-section-state').exists()).toBe(false)
+  })
+
   it('should keep section body on CSS Grid and honor child spans', () => {
     const wrapper = mount(RendererSection, {
       props: {

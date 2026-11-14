@@ -212,26 +212,26 @@ describe('reference job page through SPARK data', () => {
     expect(http.reads.map(read => read.table)).toEqual(['Base_JobInfo', 'Base_DepartInfo', 'Base_DepartInfo'])
   })
 
-  it('reports an option query failure without hiding jobs and retries the same option view', async () => {
+  it('fails the entry on an option query failure and retries jobs with options in the same batch', async () => {
     http.failNextTable = 'Base_DepartInfo'
-    const {wrapper, observed} = await open()
-    expect(wrapper.text()).toContain('机构选项读取失败')
-    expect(wrapper.findComponent(RendererTable).exists()).toBe(true)
-    expect(currentViews(observed).departments.loadingError).not.toBeNull()
-    await getButton(wrapper, '重试机构选项').trigger('click'); await flushPromises()
-    await vi.waitFor(() => expect(wrapper.text()).not.toContain('机构选项读取失败'))
+    const {wrapper} = await open()
+    expect(wrapper.get('.renderer-section-error').text()).toContain('目录查询失败')
+    expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
+    await getButton(wrapper, '重试').trigger('click'); await flushPromises()
+    await vi.waitFor(() => expect(wrapper.findComponent(RendererTable).exists()).toBe(true))
+    expect(wrapper.find('.renderer-section-error').exists()).toBe(false)
     expect((await openDepartmentOptions(wrapper)).map(option => option.text())).toEqual(['机构甲', 'D2'])
-    expect(http.reads.map(read => read.table)).toEqual(['Base_JobInfo', 'Base_DepartInfo', 'Base_DepartInfo'])
+    expect(http.reads.map(read => read.table)).toEqual(['Base_JobInfo', 'Base_DepartInfo', 'Base_JobInfo', 'Base_DepartInfo'])
   })
 
   it('offers retry after an initial job query failure', async () => {
     http.failNextTable = 'Base_JobInfo'
     const {wrapper} = await open()
-    expect(wrapper.get('[role="alert"]').text()).toContain('目录查询失败')
+    expect(wrapper.get('.renderer-section-error').text()).toContain('目录查询失败')
     expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
     await getButton(wrapper, '重试').trigger('click'); await flushPromises()
     await vi.waitFor(() => expect(wrapper.findComponent(RendererTable).exists()).toBe(true))
-    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(wrapper.find('.renderer-section-error').exists()).toBe(false)
   })
 
   it('reports and retries a failed job refresh without dropping the current page', async () => {
@@ -239,7 +239,7 @@ describe('reference job page through SPARK data', () => {
     await wrapper.get('.el-pagination .btn-next').trigger('click'); await flushPromises()
     http.failNextTable = 'Base_JobInfo'
     await getButton(wrapper, '刷新').trigger('click'); await flushPromises()
-    expect(wrapper.get('[role="alert"]').text()).toContain('目录查询失败')
+    expect(wrapper.text()).toContain('目录查询失败')
     expect(jobs.page).toBe(2)
     await getButton(wrapper, '刷新').trigger('click'); await flushPromises()
     expect(jobs.loadingError).toBeNull()
@@ -259,7 +259,6 @@ describe('reference job page through SPARK data', () => {
     expect(prior?.destroyed).toBe(true)
     expect(wrapper.text()).toContain('SPARK_EXECUTION_SCOPE_STALE')
     expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
-    expect(wrapper.text()).not.toContain('机构选项读取失败')
     expect(http.saves).toHaveLength(0)
   })
 })

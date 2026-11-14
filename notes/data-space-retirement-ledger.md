@@ -9757,3 +9757,30 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **标准组件扩展。** `FieldText.cellAction/cellActionEnabled`；未绑定字段且显式 `modelValue` 的字段为纯受控控件（只发 `update:modelValue`、不写视图），`JsonTreeEditor` 独立模式随之只在字段模式调用能力链（否则重复发出）；ClassModel 与 lowcode 合同由生成器刷新。
 - **仍开放的缺口。** 导出、报价管理未交付（提示）；小程序图片上传区未获批（`action '#'`，只读原值）；导航根参考字段 BeginGroup/HorizontalAlignment/ChildItemLocation/IsShowChildItem/status 非实服输出未写；分阶段保存非事务；负责人 createuser/createtime 交后端；行按钮按条件隐藏而非禁用；参考 `isSass` 更新缺陷已纠正；实服状态值“0”“web”等不在 `应用系统状态` 字典内，按原值显示（存量数据，未改）。实服新增/编辑/删除写入须用户另行同意。
 - **验证（2026-11-14）。** 应用管理 22 项、应用目录 13 文件 180 项、组件与字段测试通过；typecheck、lint、`verify:rules`、`verify:pages-config` 通过；全量 Vitest 528 文件中 JSON 树修复前 2 项回归已修复复跑通过，另 2 项满载 15 秒超时单独复跑通过。实服只读烟测：列表 68 条分页与全部行按钮；编辑弹窗两列，负责人、状态、开关、图标、描述与默认数据库摘要回显，“选择”在编辑态禁用，取消关闭；关联数据库弹窗 4 条且服务器列齐全；新增弹窗无租户门户，选择数据库弹窗 10 条，均取消未保存。实服列类型已核实（标志列 int/tinyint、isRef INT、导航数字列 int、负责人常量列 varchar）。
+
+## 现有页审计与返工（2026-11-14，方案“现有页审计与审批流程迁移”）
+
+范围：`src/views/features` 现有 37 页、`FileDataManager/FileManager`、`DataBaseManage/DataBaseManage`；随后迁入参考 `features/workflow/**` 审批流程 8 个 Vue。排除角色类治理页与参考 `views/schema|appworks|system`；本轮不含报表设计/查看器、data-set-auth、脱敏规则、用户应用授权。
+
+**审计矩阵（五项标准：标准外壳与入口 / DataView-DataSet 数据链 / 可被替代的页面 TS / 参考 1:1 布局与文案 / ClassModel 同步）。**
+
+- **共性差距 A：手写外壳。** 除应用系统列表、关联数据库、企业应用授权三页已用 `RendererSection` 外，其余页面均为手写 `<header><h1>` 加逐页重复的 `<p role="status|alert">` 与“重试”按钮（`error && !loading && !ready`）；页内分区用 `<h2>`。参考为 `ListPageShell`/面板卡片（头部标题 + 头部操作区 + 主体），对应本仓 `RendererSection` 标题、header-actions 与主体。`RendererSection` 现无状态区，约 30 页重复同一状态模式，属真实公共缺口：补 `status`/`error`/`retryable`/`retryText`/`retry` 事件，页面不再手写。
+- **共性差距 B：标题文案未对齐参考。** JSON 数据（参考“JSON 文件数据管理”）、数据编码（“编码列表”）、数据字典（“字典列表”）、逻辑视图（“逻辑视图列表”）、数据工作流（“工作流列表”）、外部服务（“外部服务管理”）、数据库管理旧页（“数据库列表”）；页面自加的说明副标题参考不存在，随外壳一并去除。
+- **共性差距 C：页面直调。** 仅 `use-application-function-page.ts`（`lowcodeApi.dataSpace.design`、`blueprint.submitDocument`）与应用系统列表（`blueprint.submitDocument`，文档任务命令，已登记）；其余 `readRequestScope()` 为作用域守卫，不属直调。
+- **共性差距 D：page-thin 基线。** 页面层：`data-set-design-page.vue`（hand-passed-ids 4、static-copy 1）、`DataSpaceModelFields.vue`（hand-passed-ids 1）及设计器 11 个文件的 static-copy；`src/lowcode/data-space/*` 会话的 command-status 属数据层责任方，仅核归属。
+- **共性差距 E：底层控件。** `el-*` 仅剩 `FileManager/index.vue`（`el-dialog`、`el-upload`）。
+
+| 批 | 页面 | 外壳/状态 | 其他差距 |
+| --- | --- | --- | --- |
+| 1 系统运维 | BUG管理、缓存管理、数据恢复、流程监控 | A | 缓存/数据恢复分区 `<h2>`；流程监控详情断链待审批流程运行详情迁入 |
+| 1 组织 | 机构管理、岗位管理、人员管理 | A | 岗位/人员“机构选项”二级状态 |
+| 2 集成 | 外部服务管理、接口配置、接口列表、业务报表管理 | A（接口两页无标题外壳） | B（外部服务管理） |
+| 3 数据平台 | 数据空间管理、服务器管理、表和视图、Excel 导入列表/编辑、JSON 数据、PDF 规则列表/编辑、编码列表/编辑、字典列表/字典数据、逻辑视图列表/设计、工作流列表/设计 | A | B（JSON、编码、字典、逻辑视图、工作流）；表和视图分区 `<h2>` |
+| 4 应用 | 导航宿主管理、项目蓝图、企业审核 | A | C（项目蓝图）；项目蓝图分区 `<h2>` |
+| 5 设计 | 数据空间设计、维度中心 | A | D；维度明细分区 `<h2>` |
+| 6 旧页 | 文件管理、数据库管理 | A | E（文件管理）；B（数据库管理） |
+
+数据链：各页读取/编辑/保存均经 `useFeaturePageRuntime` 与 DataView/DataSet（前序各页台账已核），本轮不改数据合同；仅项目蓝图的直调与设计器 page-thin 项为数据链差距。ClassModel：`RendererSection` 扩展后经生成器刷新。
+
+- **标准组件：`RendererSection` 状态区（2026-11-14）。** 新增 `status`（`role="status"` 提示）、`error`（与参考一致的 `el-alert` 错误样式）、`retryable`/`retryText` 与 `retry` 事件，位于头部下方、主体上方；页面不再手写 `<p role>` 与“重试”按钮。组件测试覆盖状态、错误、重试事件与清空；ClassModel 与 lowcode 合同经生成器刷新。
+- **批 1：系统运维 4 页 + 组织 3 页（2026-11-14）。** BUG管理、流程监控（参考无页标题与刷新按钮，删除自加刷新）、机构/岗位/人员管理（参考头部“当前租户”标签与刷新，改用 `DisplayTag`；范围说明改用 `DisplayAlert`）统一 `RendererSection` 外壳；缓存管理、数据恢复按参考左右面板改为两个带标题 `RendererSection`，数据恢复成功提示与失败提示分别交给面板 status/error。岗位、人员页删除手写机构选项读取与“重试机构选项”，改由 `useFeaturePageRuntime` 的 `optionModels`/`optionViews` 同批装配（公共合同：任一失败即入口失败、重试主视图与选项一并重读）；测试按新语义改写，岗位/人员夹具按本次请求自身的表判定失败（原按最后一次读取判定，在并行读取下失效）。烟测断链：数据恢复左栏两个插槽式 `RendererForm` 未设 `grid-columns`，字段只占 24 列网格中的 1 列（既有缺陷）；按仓内插槽式表单约定补 `:grid-columns="1"`。验证：组织/缓存/组件 49 项、typecheck、lint、`verify:rules` 通过。实服只读烟测：缓存管理两面板（8/3 条）、流程监控筛选与分页（255 条）、机构 9 条（标签、提示、刷新）、岗位 7 条、人员 10 条（机构选项 9 项）、BUG管理 15 条、数据恢复两面板与应用系统选项，均无错误。BUG管理、数据恢复与流程监控无页面测试（既有缺口）。“数据资产管理”应用业务导航中的“BUG管理”节点指向旧地址且无工具目标，属该应用导航配置缺口，原生页经“应用设计”分组正常进入。

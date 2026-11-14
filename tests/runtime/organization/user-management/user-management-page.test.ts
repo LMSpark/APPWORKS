@@ -137,25 +137,25 @@ describe('reference user page through the organization data space', () => {
 
   it('rejects a route whose navigation identity is the consumed data space', async () => {
     const {wrapper, observed} = await open({nodeId: ORGANIZATION_SCENARIO})
-    expect(wrapper.get('[role="alert"]').text()).toContain('人员管理入口缺少正式导航身份')
+    expect(wrapper.get('.renderer-section-error').text()).toContain('人员管理入口缺少正式导航身份')
     expect(observed.size).toBe(0)
     expect(http.reads).toHaveLength(0)
   })
 
-  it('reports an option query failure without hiding users and retries the same option view', async () => {
+  it('fails the entry on an option query failure and retries users with options in the same batch', async () => {
     http.failNextTable = 'Base_DepartInfo'
     const {wrapper} = await open()
-    expect(wrapper.text()).toContain('机构选项读取失败')
-    expect(wrapper.findComponent(RendererTable).exists()).toBe(true)
-    await getButton(wrapper, '重试机构选项').trigger('click'); await flushPromises()
-    await vi.waitFor(() => expect(wrapper.text()).not.toContain('机构选项读取失败'))
+    expect(wrapper.get('.renderer-section-error').text()).toContain('目录查询失败')
+    expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
+    await getButton(wrapper, '重试').trigger('click'); await flushPromises()
+    await vi.waitFor(() => expect(wrapper.findComponent(RendererTable).exists()).toBe(true))
     expect((await openDepartmentOptions(wrapper)).map(option => option.text())).toEqual(['机构甲', '机构乙'])
   })
 
   it('offers retry after an initial user query failure', async () => {
     http.failNextTable = 'View_UserDJAndDepCSR'
     const {wrapper} = await open()
-    expect(wrapper.get('[role="alert"]').text()).toContain('目录查询失败')
+    expect(wrapper.get('.renderer-section-error').text()).toContain('目录查询失败')
     expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
     await getButton(wrapper, '重试').trigger('click'); await flushPromises()
     await vi.waitFor(() => expect(wrapper.findComponent(RendererTable).exists()).toBe(true))
@@ -172,7 +172,6 @@ describe('reference user page through the organization data space', () => {
     release(); await flushPromises()
     expect(prior?.destroyed).toBe(true)
     expect(wrapper.text()).toContain('SPARK_EXECUTION_SCOPE_STALE')
-    expect(wrapper.text()).not.toContain('机构选项读取失败')
     expect(http.saves).toHaveLength(0)
   })
 })

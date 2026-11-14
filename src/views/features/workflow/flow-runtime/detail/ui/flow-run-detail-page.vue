@@ -9,8 +9,8 @@
     <DisplayAlert v-if="ready" alert-type="info" :closable="false" :show-icon="true"
       :title="`实例 ${routeQuery.wfid} · 模型 ${routeQuery.flowid}`" />
     <RendererTable v-if="ready" :data-view-key="viewKey" :children="columns" :stripe="true" :show-data-view-meta="false" />
-    <DisplayAlert alert-type="warning" :closable="false" :show-icon="true"
-      title="运行图、步骤钻取与退回操作仍待 FlowRunDetail 专用合同接回；当前仅验证导航身份与列表读回。" />
+    <DisplayAlert alert-type="info" :closable="false" :show-icon="true"
+      title="运行实例摘要已读回；运行轨迹图与步骤钻取待 G4 接回（只读图将复用 DesignJson/RendererGraph 投影链）。" />
   </RendererSection>
 </template>
 

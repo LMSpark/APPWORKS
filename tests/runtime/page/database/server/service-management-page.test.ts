@@ -245,6 +245,7 @@ describe('service-management-page', () => {
     const body = new DOMWrapper(document.body)
     const dialog = body.findAll('.el-dialog').at(-1)!
     expect(dialog.text()).toContain('编辑服务器')
+    for (const label of ['类型', '服务器名称', '服务器IP地址', '端口', '账号', '描述']) expect(dialog.text()).toContain(label)
     const setByLabel = async (label: string, value: string) => {
       const item = dialog.findAll('.el-form-item').find(row => row.text().includes(label))
       expect(item).toBeTruthy()

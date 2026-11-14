@@ -9871,3 +9871,42 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
   - **流程监控断链。** `flow-monitor-page` 行内「运行详情」→ `flow-run-detail-page?wfid&flowid`。
   - **仍有差距。** 参考 `FlowDesign`/`FlowRunPage`/`FlowRunDetail` 全量图编辑与办理命令未 1:1 接回；设计/办理/详情页含占位提示；`pagedata` 中 `WFM_FLOW_MODLE` 缺实服 `modelId` 时须后端对齐；工作台待办为壳层。
 - **门禁。** `tools/directory-limits-baseline.json` 登记既有 `src/lowcode/resources` 九子目录超限，本轮未做资源根重组。
+- **D99 烟测（批 5–6 + 审批骨架，2026-11-14）。**
+  - **环境。** 分支 `codex/spark-data-s1-command-safety`；`http://localhost:5273` HTTP 200；烟测应用 `D99A1DCE9894698799101EFD70F8FC76`；只读、未写库。
+  - **自动化门禁。** `pnpm run typecheck`、`pnpm run verify:rules` 通过；定向 vitest：`dimension-design-page`（10）、`directory-page`（32）、`flow-runtime-route`（2）共 44 项通过。
+  - **烟测中发现并核销的 P0。** `system-scenarios.json` 中 `flowMonitor` 与 `flowRunDetail` 重复登记同一 `scenarioId`（`E328…`），导致 `SYSTEM_SCENARIO_CONFIG_INVALID`、维度等 runtime 测试无法装配；已删除 `flowRunDetail` 条目及 `systemScenarioNames` 中的同名项，运行/详情页继续消费同一场景 ID，仓内场景正文以 `config/pages/system/flow-monitor/pagedata.json` 为准；**未登记的** `config/pages/workflow/flow-run-detail/pagedata.json` 草案已删除。
+  - **矩阵（自动化 + 静态核对）。**
+
+    | 项 | 结果 | 级别 |
+    | --- | --- | --- |
+    | 维度中心 | vitest 挂载：Tab/刷新/`RendererSection` 合同 | 通过 |
+    | 数据空间设计入口 | 源码无四处 `field-ids`；`verify:page-thin` 已绿（全仓 rules） | 通过（未开 D99 设计对话框） |
+    | 文件管理 | 源码 `RendererSection` + 刷新 | 通过（无专用 vitest） |
+    | 数据库列表 | vitest 标题「数据库列表」+ 双区逻辑 | 通过 |
+    | 流程模型列表 | `vue-pages` + `flowModelList` 场景登记 | P1 待 D99 列表查询实服回读 |
+    | 流程设计入口 | 场景 `6E462C4A…` 登记 + 占位页 | P1 待 D99 打开设计 |
+    | 流程监控→运行详情 | 源码 `运行详情` → `flow-run-detail-page?wfid&flowid` | 通过（静态）；P1 待 D99 跳转 |
+    | 办理/移动/待办壳 | 路由解析 vitest + 占位 Alert | P1 |
+    | `flow-append-user` | 未注册 `vue-pages` | 预期差距（非本轮） |
+
+  - **D99 浏览器只读。** Cursor IDE Browser / CDP 访问带 `__sparkNavigationId` 的 D99 URL 时 `#app` 未挂载（`body` 空），无法在本次会话完成实机导航烟测；**Go 以自动化门禁 + 上表 P1 不升格为 P0**；建议你本机已登录 D99 后按蓝图逐项补验并注明控制台关键字。
+  - **进入新一轮。** 无剩余 P0；`notes/plan-workflow-round2-deepening.md` 已审核通过（implementing）。
+- **审批深化 R2 切片（2026-11-14，用户通过）。**
+  - **设计对话框。** `flow-model-list-page` 增加 `peerScenarioIds: [6E462…]`；`prepareFlowDesignViews` 按 `FLOWID` 刷新 `WFM_FLOW_MODLE`/`WFM_FLOW_NODE`/`WFM_NODE_REALATION`；设计页改消费父 `PAGE_RUNTIME`（不再误用列表导航身份装配设计场景）。
+  - **清理。** 删除未登记草案 `config/pages/workflow/flow-run-detail/pagedata.json`。
+  - **测试。** `tests/runtime/page/structured-config/workflow/flow-design-runtime.test.ts`、`flow-model-list-contract.test.ts`。
+  - **仍有差距。** SchemaGraph、节点属性编辑、办理命令、`modelId` 实服对齐、FlowAppendUser。
+- **Round2 收工（2026-11-14）。**
+  - **R5。** 新增 `flow-design-page-mount.test.ts`（父 `PAGE_RUNTIME` + 设计目标/SchemaGraph 占位/缺父实例报错）。
+  - **R1。** 本环境未走授权实服模型回读 → **`WFM_*` modelId 记 deferred**（pagedata 仍 `modelName` 绑定）。
+  - **门禁。** `typecheck`、`verify:rules`、workflow 相关 vitest **50** 项（含 mount）+ 维度/数据库回归通过。
+- **D99 烟测 Round2 验收（2026-11-14）。**
+  - **自动化/静态。** 流程模型列表合同（`peerScenarioIds`）、设计页 mount（目标标题/SchemaGraph 占位/缺父实例）、监控→详情路由合同、批 5 维度 + 批 6 数据库 vitest：**Go，无 P0**。
+  - **实机浏览器。** 已启动 Edge 直达流程模型列表 URL；会话内未获得可读的 SPARK 页面截图（前台被其他窗口遮挡），**审批三项 D99 手工结论仍为 P1 待补**（列表数据、设计对话框节点/连线、监控跳转）。
+  - **Round2 计划。** 烟测无 P0 → `notes/plan-workflow-round2-deepening.md` 标 **superseded**；后续见 `notes/plan-workflow-round3-graph-runtime.md`。
+- **Round3 切片 G1–G3（2026-11-15，implementing）。**
+  - **图载体。** 设计对话框接 `RendererGraph` 只读（`disabled`），`DesignJson` → `flow-design-graph-projection` → `nodePositions`/`edgePaths`。
+  - **配置。** `flow-design/pagedata` 模型查询补 `DesignJson`/`DESIGNJSON` 字段。
+  - **测试。** `flow-design-graph-projection.test.ts`；runtime/mount 测试同步 `graphLayout`。
+  - **运行详情。** 文案对齐 G4 待接；实例列表读回不变。
+  - **仍有差距。** 平台文件回退读取、图编辑保存、节点属性面板、办理命令、modelId 实服对齐、FlowAppendUser。

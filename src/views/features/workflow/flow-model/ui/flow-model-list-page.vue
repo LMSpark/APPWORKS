@@ -41,7 +41,7 @@ import type {RFilterProps, RToolbarProps} from '@spark-appworks/spark-component'
 
 const {DisplayAlert, FieldSelect, FieldText, FieldTextarea, RendererButton, RendererDialog, RendererForm, RendererSection, RendererTable,
   consumeRequiredPageService, useSparkComponent} = SparkComponent
-import {WorkflowFlowModelManager} from '@/lowcode/resources/system/workflow/manage'
+import {FLOW_DESIGN_SCENARIO_ID, WorkflowFlowModelManager} from '@/lowcode/resources/system/workflow/manage'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
 const FlowDesignPage = defineAsyncComponent(() => import('../design/ui/flow-design-page.vue'))
@@ -52,6 +52,7 @@ const pageService = consumeRequiredPageService(sparkConsume, 'flow-model-list-pa
 const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, navigationId: scenarioId, modelName, componentType: 'flow-model-list-page', title: '流程模型列表',
   optionModels: ['Base_AppSystemList', 'Base_UserInfo'],
+  peerScenarioIds: [FLOW_DESIGN_SCENARIO_ID],
 })
 const appKey = buildDataViewKey('Base_AppSystemList', 'default', scenarioId)
 const userKey = buildDataViewKey('Base_UserInfo', 'default', scenarioId)

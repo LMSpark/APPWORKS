@@ -49,9 +49,10 @@ export const DATABASE_SERVER_REGISTER_FORM_FIELDS: SparkNode[] = DATABASE_SERVER
   .filter(column => !column.isPrimaryKey)
   .map(column => serverFormField({name: column.name, colSpan: column.name === 'description' ? 12 : 6}))
 
-/** 编辑表单按参考排布：类型整行，IP 与名称并排，账号半行，描述整行；不含端口与密码。 */
+/** 编辑表单与注册表单同网格排布；目录查询不返回密码，故不含密码输入（参考 update 不写 Password）。 */
 export const DATABASE_SERVER_EDIT_FORM_FIELDS: SparkNode[] = [
-  {name: 'Type', colSpan: 12}, {name: 'ip_address', colSpan: 6}, {name: 'ServerName', colSpan: 6},
+  {name: 'Type', colSpan: 6}, {name: 'ServerName', colSpan: 6},
+  {name: 'ip_address', colSpan: 6}, {name: 'Port', colSpan: 6},
   {name: 'UserName', colSpan: 6}, {name: 'description', colSpan: 12},
 ].map(serverFormField)
 

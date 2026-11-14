@@ -11,7 +11,8 @@ import {
   DATABASE_SERVER_REGISTER_TABLE,
 } from './resource'
 
-const editFields = ['Type', 'ServerName', 'ip_address', 'Port', 'description'] as const
+const editFields = ['Type', 'ServerName', 'ip_address', 'Port', 'UserName', 'description'] as const
+const editSaveIgnoredFields = new Set<string>(['Password'])
 const registerRequired = [['Type', '请选择类型'], ['ServerName', '请输入服务器名称'], ['ip_address', '请输入服务器IP地址'], ['UserName', '请输入服务器账号']] as const
 
 /** target：注册时为命令视图，编辑时为目录视图。 */
@@ -197,7 +198,9 @@ export async function databaseServerSaveEdit(dataSet: DataSet, view: DataView, e
   const value = view.getEditingRow(edit.id)
   if (!value) throw new Error('服务器编辑记录已失效')
   const allowedSet = new Set<string>(editFields)
-  if (Object.keys(patch).some(field => !allowedSet.has(field))) throw new Error('服务器保存包含不允许修改的字段')
+  if (Object.keys(patch).some(field => !allowedSet.has(field) && !editSaveIgnoredFields.has(field))) {
+    throw new Error('服务器保存包含不允许修改的字段')
+  }
   if (view.editActionState(target) !== 'enabled') throw new Error('服务器保存权限已变化')
   for (const field of editFields) {
     if (!view.getColumn(field) || !Object.hasOwn(patch, field)) continue
@@ -205,7 +208,9 @@ export async function databaseServerSaveEdit(dataSet: DataSet, view: DataView, e
     const input = value[field]
     if (typeof input !== 'string' && typeof input !== 'number') throw new Error(`字段 ${field} 必须是文本或数字`)
     const text = scalar(input)
-    if ((field === 'ServerName' || field === 'ip_address') && !text) throw new Error(field === 'ServerName' ? '请输入服务器名称' : '请输入服务器IP地址')
+    if ((field === 'ServerName' || field === 'ip_address' || field === 'UserName') && !text) {
+      throw new Error(field === 'ServerName' ? '请输入服务器名称' : field === 'UserName' ? '请输入服务器账号' : '请输入服务器IP地址')
+    }
     if (field === 'Type' && !text) throw new Error('请选择类型')
     if (field === 'Port' && !text) throw new Error('请输入端口')
     if (text !== scalar(input)) view.updateEditingValue(edit.id, field, text)

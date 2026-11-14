@@ -5,15 +5,15 @@
   "tables": {
     "WFM_FLOW_MODLE": {
       "modelBinding": {"modelName": "WFM_FLOW_MODLE"},
-      "views": {"default": {"autoLoad": false, "queryConfig": {"fields": ["rowid", "TITLE", "MEMO", "sysid"]}}}
+      "views": {"default": {"autoLoad": false, "queryConfig": {"fields": ["rowid", "TITLE", "MEMO", "sysid", "DesignJson", "DESIGNJSON"]}}}
     },
     "WFM_FLOW_NODE": {
       "modelBinding": {"modelName": "WFM_FLOW_NODE"},
-      "views": {"default": {"autoLoad": false, "queryConfig": {"fields": ["rowid", "FLOWID", "TITLE", "NODETYPE"]}}}
+      "views": {"default": {"autoLoad": false, "pageSize": 50, "queryConfig": {"fields": ["rowid", "FLOWID", "TITLE", "NODETYPE", "MEMO"]}}}
     },
     "WFM_NODE_REALATION": {
       "modelBinding": {"modelName": "WFM_NODE_REALATION"},
-      "views": {"default": {"autoLoad": false, "queryConfig": {"fields": ["rowid", "FLOWID", "PARENTID", "CHILDID"]}}}
+      "views": {"default": {"autoLoad": false, "pageSize": 50, "queryConfig": {"fields": ["rowid", "FLOWID", "PARENTID", "CHILDID"]}}}
     }
   },
   "viewCascades": []

@@ -1,0 +1,113 @@
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
+import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import ElementPlus from 'element-plus'
+import {defineComponent, h} from 'vue'
+import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import type {PageRuntime} from '@spark-appworks/spark-project-model'
+import {FLOW_DESIGN_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
+import {withTestPageService} from '../../../../support/helpers/page-service-host'
+
+vi.mock('@/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue', () => ({
+  default: {name: 'FlowDesignNodePanel', props: ['viewKey', 'highlightId'], template: '<div data-testid="flow-node">流程节点</div>'},
+}))
+vi.mock('@/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue', () => ({
+  default: {name: 'FlowDesignEdgePanel', props: ['viewKey', 'highlightId'], template: '<div data-testid="flow-edge">流程连线</div>'},
+}))
+vi.mock('@/lowcode/lowcode-runtime', () => ({
+  lowcodeApi: {design: {readTextFile: vi.fn(async () => '')}},
+}))
+vi.mock('@spark-appworks/spark-component', async importOriginal => {
+  const actual = await importOriginal<typeof import('@spark-appworks/spark-component')>()
+  return {
+    ...actual,
+    RendererGraph: {name: 'RendererGraph', template: '<div data-testid="flow-graph">流程图</div>'},
+  }
+})
+
+const {default: FlowDesignPage} = await import('@/views/features/workflow/flow-model/design/ui/flow-design-page.vue')
+
+type MockView = {
+  destroyed: boolean
+  queryContext: Record<string, string>
+  loadingError: Error | null
+  refresh: ReturnType<typeof vi.fn>
+  rows: Array<Record<string, unknown>>
+}
+
+function createView(rows: MockView['rows']): MockView {
+  return {destroyed: false, queryContext: {}, loadingError: null, refresh: vi.fn(async () => undefined), rows}
+}
+
+function createDesignRuntime(): PageRuntime {
+  const tables: Record<string, MockView> = {
+    WFM_FLOW_MODLE: createView([{TITLE: '审批样例', DesignJson: ''}]),
+    WFM_FLOW_NODE: createView([{TITLE: '开始', NODETYPE: '8'}]),
+    WFM_NODE_REALATION: createView([]),
+  }
+  return {
+    instanceId: 'flow-design-mount-runtime',
+    getDataSet: (scenarioId: string) => scenarioId === FLOW_DESIGN_SCENARIO_ID
+      ? {getView: (name: string) => tables[name]}
+      : undefined,
+    resolveView: () => null,
+    dispose: () => undefined,
+    materialize: () => undefined,
+  } as unknown as PageRuntime
+}
+
+const Host = defineComponent({
+  props: {flowModelId: {type: String, required: true}},
+  setup(props) {
+    const {sparkProvide} = useSparkComponent({type: 'flow-design-mount-host'})
+    sparkProvide(PAGE_RUNTIME, createDesignRuntime())
+    return () => h(FlowDesignPage, {flowModelId: props.flowModelId})
+  },
+})
+
+const wrappers: VueWrapper[] = []
+
+beforeEach(() => {
+  registerAllRenderers()
+  vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
+})
+afterEach(() => {
+  wrappers.splice(0).forEach(item => item.unmount())
+  vi.unstubAllGlobals()
+})
+
+async function mountDesign(flowModelId = 'FM-1'): Promise<VueWrapper> {
+  const wrapper = mount(defineComponent({
+    setup: () => () => h(withTestPageService(Host), {flowModelId}),
+  }), {
+    attachTo: document.body,
+    global: {plugins: [ElementPlus, Spark.createPlugin()]},
+  })
+  wrappers.push(wrapper)
+  await flushPromises()
+  await flushPromises()
+  return wrapper
+}
+
+describe('flow design page mount', () => {
+  it('renders target title, read-only graph, and node/edge sections', async () => {
+    const wrapper = await mountDesign()
+    expect(wrapper.text()).toContain('设计目标：审批样例')
+    expect(wrapper.text()).toContain('RendererGraph')
+    expect(wrapper.find('[data-testid="flow-graph"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('流程节点')
+    expect(wrapper.text()).toContain('流程连线')
+  })
+
+  it('surfaces error when parent runtime is missing', async () => {
+    const wrapper = mount(defineComponent({
+      setup: () => () => h(withTestPageService(FlowDesignPage), {flowModelId: 'FM-2'}),
+    }), {
+      attachTo: document.body,
+      global: {plugins: [ElementPlus, Spark.createPlugin()]},
+    })
+    wrappers.push(wrapper)
+    await flushPromises()
+    await flushPromises()
+    expect(wrapper.text()).toContain('缺少父页运行实例')
+  })
+})

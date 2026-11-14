@@ -1,4 +1,6 @@
-状态：implementing
+状态：superseded
+
+> 2026-11-14：批 5–6 外壳与审批骨架阶段验收完成；D99 烟测与 P0（重复场景登记）见 `notes/data-space-retirement-ledger.md` 末段。深化交付见 `notes/plan-workflow-round2-deepening.md`。
 
 ## 任务目标
 

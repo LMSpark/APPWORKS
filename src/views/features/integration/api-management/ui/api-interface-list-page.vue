@@ -7,7 +7,7 @@ AI用途：原页面结构与输入语义保留，不查询凭据、不维护调
 <template>
   <p v-if="loading">正在读取接口方案…</p>
   <p v-if="error && !ready" role="alert">{{ error }}</p>
-  <RendererDialog v-if="ready" :data-view-key="mainKey" :model-value="true" title="接口方案设计" width="min(1400px, 96vw)" :close-disabled="busy || dirty || outputSession" @update:model-value="close">
+  <RendererDialog v-if="ready" :data-view-key="mainKey" :model-value="true" :title="`${providerName || '当前提供商'} - 接口列表`" :width="1480" :close-disabled="busy || dirty || outputSession" @update:model-value="close">
     <p v-if="error" role="alert">{{ error }}</p>
     <p v-if="openedProvider !== providerId" role="status">当前仍在处理服务商 {{ openedProvider }} 的原方案。</p>
     <RendererButton v-if="openedProvider !== providerId" label="切换到所选服务商" :disabled="busy || dirty || unconfirmed || outputSession" @click="loadProvider(providerId)" />

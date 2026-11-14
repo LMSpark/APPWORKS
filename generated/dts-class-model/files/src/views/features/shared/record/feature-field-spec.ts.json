@@ -82,6 +82,9 @@
         "labelJoiner": {
           "type": "string"
         },
+        "placeholder": {
+          "type": "string"
+        },
         "required": {
           "type": "boolean"
         },
@@ -130,7 +133,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-11T17:56:22.216Z",
+  "generatedAt": "2026-11-14T03:59:12.396Z",
   "models": {
     "FeatureFieldOption": {
       "name": "FeatureFieldOption",
@@ -166,11 +169,11 @@
       "jsdoc": "when 返回 false 时隐藏；requiredWhen 和 readonlyWhen 按当前行判断，optionKey 指向同一PageRuntime的选项DataView。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    field: string;\n    label: string;\n    kind?: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'switch';\n    options?: readonly FeatureFieldOption[];\n    optionKey?: string;\n    labelFields?: string[];\n    labelJoiner?: string;\n    required?: boolean;\n    requiredWhen?: (row: Readonly<DataRow>) => boolean;\n    readonly?: boolean;\n    readonlyWhen?: (row: Readonly<DataRow>) => boolean;\n    when?: (row: Readonly<DataRow>) => boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    field: string;\n    label: string;\n    kind?: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'switch';\n    options?: readonly FeatureFieldOption[];\n    optionKey?: string;\n    labelFields?: string[];\n    labelJoiner?: string;\n    placeholder?: string;\n    required?: boolean;\n    requiredWhen?: (row: Readonly<DataRow>) => boolean;\n    readonly?: boolean;\n    readonlyWhen?: (row: Readonly<DataRow>) => boolean;\n    when?: (row: Readonly<DataRow>) => boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    field: string;\n    label: string;\n    kind?: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'switch';\n    options?: readonly FeatureFieldOption[];\n    optionKey?: string;\n    labelFields?: string[];\n    labelJoiner?: string;\n    required?: boolean;\n    requiredWhen?: (row: Readonly<DataRow>) => boolean;\n    readonly?: boolean;\n    readonlyWhen?: (row: Readonly<DataRow>) => boolean;\n    when?: (row: Readonly<DataRow>) => boolean;\n}>",
+            "typeText": "Readonly<{\n    field: string;\n    label: string;\n    kind?: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'switch';\n    options?: readonly FeatureFieldOption[];\n    optionKey?: string;\n    labelFields?: string[];\n    labelJoiner?: string;\n    placeholder?: string;\n    required?: boolean;\n    requiredWhen?: (row: Readonly<DataRow>) => boolean;\n    readonly?: boolean;\n    readonlyWhen?: (row: Readonly<DataRow>) => boolean;\n    when?: (row: Readonly<DataRow>) => boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -208,6 +211,11 @@
             },
             {
               "name": "labelJoiner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
               "readable": true,
               "writable": false
             },

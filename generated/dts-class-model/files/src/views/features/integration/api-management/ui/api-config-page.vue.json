@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
     "packageName": "app",
     "modulePath": "views/features/integration/api-management/ui/api-config-page",
-    "jsdoc": "@module app:views/features/integration/api-management/ui/api-config-page\n职责：恢复原基础配置入口下的公共参数、公共头部与令牌前缀方案设计。\n边界：经标准场景入口装配，providerId作为场景输入；规则、归属默认值、删除许可和保存均由SPARK data承接，页面只转发事件。\nAI用途：三个独立提交域分别保存与取消，完整键定位正式配置空间。",
+    "jsdoc": "@module app:views/features/integration/api-management/ui/api-config-page\n职责：服务提供商“配置信息设置”：JWT设置、请求头部信息、公共参数、认证账号四个独立提交域。\n边界：消费外部服务管理页同一PageRuntime中的请求配置空间；providerId写入各视图查询参数，归属默认值、规则、删除许可和保存均由SPARK data承接。\nAI用途：每个页签只保存本页签视图，不夹带其它页签草稿；未知回执须重读核验，不自动重放。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-08T15:13:11.373Z",
+  "generatedAt": "2026-11-14T04:17:15.738Z",
   "models": {}
 }

@@ -13,7 +13,7 @@ AI用途：需要理解 renderer section 的实际渲染结构、slot/toolbar/�
           <div v-if="title" class="renderer-section-title">{{ title }}</div>
           <div v-if="description" class="renderer-section-description">{{ description }}</div>
         </div>
-        <div v-if="hasHeaderRight" :class="['renderer-section-actions', headerActionsClassValue]" @click.stop>
+        <div v-if="hasHeaderRight()" :class="['renderer-section-actions', headerActionsClassValue]" @click.stop>
           <RendererHeader v-bind="props.header" :children="headerActionConfigs">
             <slot name="header-actions" v-bind="getHeaderScope()" />
           </RendererHeader>
@@ -57,7 +57,7 @@ AI用途：需要理解 renderer section 的实际渲染结构、slot/toolbar/�
         <div v-if="title" class="renderer-section-title">{{ title }}</div>
         <div v-if="description" class="renderer-section-description">{{ description }}</div>
       </div>
-      <div v-if="hasHeaderRight" :class="['renderer-section-actions', headerActionsClassValue]" @click.stop>
+      <div v-if="hasHeaderRight()" :class="['renderer-section-actions', headerActionsClassValue]" @click.stop>
         <RendererHeader v-bind="props.header" :children="headerActionConfigs">
           <slot name="header-actions" v-bind="getHeaderScope()" />
         </RendererHeader>
@@ -159,7 +159,8 @@ watch(() => !props.lazy || !collapsed.value, visible => {
   if (visible) renderBody.value = true
 }, {immediate: true})
 const hasHeader = computed(() => Boolean(props.title || props.description))
-const hasHeaderRight = computed(() => headerActionConfigs.value.length > 0 || slots['header-actions'] !== undefined || props.collapsible)
+/** 插槽不是响应式来源，条件插槽须在每次渲染时判断。 */
+const hasHeaderRight = () => headerActionConfigs.value.length > 0 || slots['header-actions'] !== undefined || props.collapsible
 
 // ── r-section 包装 API ───────────────────────────────────────────────────
 

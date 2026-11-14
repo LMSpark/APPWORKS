@@ -1,156 +1,247 @@
 <!--
 @module app:views/features/integration/api-management/ui/api-config-page
-职责：恢复原基础配置入口下的公共参数、公共头部与令牌前缀方案设计。
-边界：经标准场景入口装配，providerId作为场景输入；规则、归属默认值、删除许可和保存均由SPARK data承接，页面只转发事件。
-AI用途：三个独立提交域分别保存与取消，完整键定位正式配置空间。
+职责：服务提供商“配置信息设置”：JWT设置、请求头部信息、公共参数、认证账号四个独立提交域。
+边界：消费外部服务管理页同一PageRuntime中的请求配置空间；providerId写入各视图查询参数，归属默认值、规则、删除许可和保存均由SPARK data承接。
+AI用途：每个页签只保存本页签视图，不夹带其它页签草稿；未知回执须重读核验，不自动重放。
 -->
 <template>
-  <p v-if="error && !ready" role="alert">{{ error }}</p>
-  <p v-if="loading">正在读取服务商请求方案…</p>
-  <RendererButton v-if="!ready && !loading" label="关闭配置" @click="emit('close')" />
-  <RendererDialog v-if="ready" :data-view-key="parameterKey" :model-value="true" :close-disabled="busy || dirty" title="服务商请求方案设计" width="min(980px, 94vw)" @update:model-value="close">
-    <p v-if="error" role="alert">{{ error }}</p>
-    <RendererTabs v-model="tab" :data-view-key="parameterKey">
-    <RendererTabPane name="parameters" label="公共参数" :index="0">
-    <p>公共参数通过已配置接口取得结果字段，供请求规则引用。选择列表中的参数编辑；接口改变后需核对输出字段。</p>
-    <RendererTable :data-view-key="parameterKey" :children="listFields" :toolbar="toolbar" :on-row-click="(row: DataRow) => choose('Base_Interface_PublicParam', row)" />
-    <p v-if="invalidReference" role="alert">当前接口或输出字段引用失效，已保留原值，请选择有效引用后保存。</p>
-    <RendererForm v-if="current('Base_Interface_PublicParam')" :data-view-key="parameterKey" :children="editorFields" grid-min-width="380px" label-width="100px" :show-data-view-meta="false" />
-    <p v-else>选择一个公共参数，或新增方案定义。</p>
-    <RendererButton :data-view-key="parameterKey" label="保存公共参数方案" button-type="primary" :disabled="busy || unconfirmed" @click="save('Base_Interface_PublicParam', 'default')" />
-    </RendererTabPane>
-    <RendererTabPane name="headers" label="公共请求头" :index="1" :lazy="true" :data-view-key="headerKey">
-      <p>所有接口、认证接口等使用范围来自正式字典。值函数只定义取值规则，保存配置不会调用接口。</p>
-      <RendererTable :data-view-key="headerKey" :children="headerListFields" :toolbar="headerToolbar" :on-row-click="(row: DataRow) => choose('Base_InterfaceProvider_Headers', row)" />
-      <RendererForm v-if="current('Base_InterfaceProvider_Headers')" :data-view-key="headerKey" :children="headerFields" grid-min-width="380px" label-width="100px" :show-data-view-meta="false" />
-      <RendererButton :data-view-key="headerKey" label="保存公共请求头" button-type="primary" :disabled="busy || unconfirmed" @click="save('Base_InterfaceProvider_Headers', 'default')" />
-      <RendererForm :data-view-key="prefixKey" :children="prefixFields" :grid-columns="1" label-width="100px" :show-data-view-meta="false" />
-      <p>前缀直接拼接到令牌；例如 Bearer 后的空格会原样保存。</p>
-      <RendererButton :data-view-key="prefixKey" label="保存令牌前缀" :disabled="busy || unconfirmed" @click="save('Base_InterfaceProvider', 'authentication')" />
-    </RendererTabPane>
-    </RendererTabs>
-    <RendererButton :data-view-key="parameterKey" :label="unconfirmed ? '重读核验（放弃本地修改）' : '放弃修改并重读'" :disabled="busy" @click="reload" />
-    <RendererButton :data-view-key="parameterKey" label="放弃修改并关闭" :disabled="busy || unconfirmed" @click="cancel" />
+  <RendererDialog :model-value="true" :data-view-key="authKey" :width="1180" :close-disabled="busy || unconfirmed"
+    @update:model-value="close">
+    <RendererSection class="api-config-page" title="配置信息设置" :bordered="false" :grid-columns="1" :grid-gap="12"
+      :status="loading ? '正在读取服务提供商配置…' : ''" :error="error" :retryable="!loading && !ready" @retry="loadTab('jwt')">
+      <template #header-actions>
+        <RendererButton label="接口列表" button-type="primary" :disabled="busy" @click="emit('interfaces')" />
+        <RendererButton :data-view-key="authKey" label="保存" button-type="primary" perm-action="edit"
+          :disabled="!ready || busy || unconfirmed" @click="save(authKey)" />
+      </template>
+      <RendererTabs v-if="ready" v-model="tab" :data-view-key="authKey" @update:model-value="loadTab">
+        <RendererTabPane name="jwt" label="JWT设置" :index="0">
+          <RendererForm :data-view-key="authKey" :children="baseFields" :grid-columns="2" label-width="130px" :show-data-view-meta="false" />
+          <RendererSection title="认证设置" :bordered="true" :grid-columns="1">
+            <RendererForm :data-view-key="authKey" :children="authFields" :grid-columns="2" label-width="130px" :show-data-view-meta="false" />
+          </RendererSection>
+          <RendererSection title="令牌过期刷新" :bordered="true" :grid-columns="1">
+            <RendererForm :data-view-key="authKey" :children="refreshFields" :grid-columns="2" label-width="130px" :show-data-view-meta="false" />
+          </RendererSection>
+          <DisplayAlert v-if="invalid(authKey, 'loginApiName')" alert-type="warning" :closable="false" :show-icon="true"
+            title="认证接口引用失效，已保留原值，请重新选择后保存。" />
+        </RendererTabPane>
+        <RendererTabPane name="headers" label="请求头部信息" :index="1" :lazy="true">
+          <RendererTable v-if="loaded.has('headers')" :data-view-key="headerKey" :children="headerColumns" :toolbar="toolbar(headerKey, ['add', 'remove', 'save', 'cancel'])"
+            :auto-columns="false" :stripe="true" :border="true" :show-data-view-meta="false" />
+        </RendererTabPane>
+        <RendererTabPane name="publicParams" label="公共参数" :index="2" :lazy="true">
+          <RendererTable v-if="loaded.has('publicParams')" :data-view-key="parameterKey" :children="parameterColumns" :toolbar="toolbar(parameterKey, ['save', 'add', 'remove'])"
+            :auto-columns="false" :stripe="true" :border="true" :show-data-view-meta="false" />
+          <DisplayAlert v-if="invalid(parameterKey, 'interfaceId') || invalid(parameterKey, 'outputfield')" alert-type="warning" :closable="false" :show-icon="true"
+            title="当前公共参数的接口或输出字段引用失效，已保留原值，请选择有效引用后保存。" />
+        </RendererTabPane>
+        <RendererTabPane name="accounts" label="认证账号" :index="3" :lazy="true">
+          <RendererTable v-if="loaded.has('accounts')" :data-view-key="accountKey" :children="accountColumns" :toolbar="toolbar(accountKey, ['add', 'remove', 'save', 'cancel'])"
+            :auto-columns="false" :stripe="true" :border="true" :show-data-view-meta="false" />
+        </RendererTabPane>
+      </RendererTabs>
+      <RendererButton v-if="unconfirmed" label="重读核验（放弃本地修改）" :disabled="busy" @click="reload" />
+    </RendererSection>
   </RendererDialog>
 </template>
 
 <script setup lang="ts">
-import {computed, onBeforeUnmount, ref, watch} from 'vue'
-import {useRoute} from 'vue-router'
-import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {computed, onBeforeUnmount, reactive, ref} from 'vue'
+import {ElMessage, ElMessageBox} from 'element-plus'
+import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
-import {parseApplicationPathScope} from '@/services/application-scope'
 import type {ApiConfigPageProps} from './api-config-page.props'
 
 type RToolbarProps = SparkComponent.RToolbarProps
-const {PAGE_RUNTIME, RendererTable, RendererForm, RendererDialog, RendererButton, RendererTabs, RendererTabPane, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, DisplayAlert, RendererTable, RendererForm, RendererDialog, RendererButton, RendererSection, RendererTabs, RendererTabPane, useSparkComponent} = SparkComponent
 
 const scenarioId = '446B5D94A71587E9BD4D325A4DF5F6F8'
-const writable = [['Base_Interface_PublicParam', 'default'], ['Base_InterfaceProvider_Headers', 'default'], ['Base_InterfaceProvider', 'authentication']] as const
 const props = defineProps<ApiConfigPageProps>()
-const emit = defineEmits<{close: []}>()
-const route = useRoute()
-const {sparkProvide, sparkRemove} = useSparkComponent({type: 'api-config-page'})
-const session = new NativePageRuntimeSession({
-  provide: () => undefined,
-  remove: () => sparkRemove(PAGE_RUNTIME),
-})
-const ready = ref(false), loading = ref(true), busy = ref(false), error = ref(''), revision = ref(0), tab = ref<string | number>('parameters')
-let dataSet: DataSet | undefined, generation = 0, active = true
-let unsubscribe: (() => void) | undefined, unsubscribeCascade: (() => void) | undefined
+const emit = defineEmits<{close: []; interfaces: []}>()
+const {sparkConsume} = useSparkComponent({type: 'api-config-page'})
 const key = (table: string, viewId = 'default') => buildDataViewKey(table, viewId, scenarioId)
-const parameterKey = key('Base_Interface_PublicParam'), headerKey = key('Base_InterfaceProvider_Headers'), prefixKey = key('Base_InterfaceProvider', 'authentication')
-const view = (table: string, viewId = 'default'): DataView | undefined => {revision.value; return dataSet?.getView(table, viewId)}
-const current = (table: string) => view(table)?.currentRow ?? null
-const views = computed(() => writable.flatMap(([table, viewId]) => view(table, viewId) ?? []))
+const authKey = key('Base_InterfaceProvider', 'authentication'), headerKey = key('Base_InterfaceProvider_Headers')
+const parameterKey = key('Base_Interface_PublicParam'), referencesKey = key('Base_Interface_PublicParam', 'references')
+const accountKey = key('Base_InterfaceProvider_Account'), headerTypeKey = key('接口公共头部信息使用类型')
+const interfaceKey = key('Base_DataServiceInterface'), loginFieldKey = key('Base_TblField', 'jwt')
+type TabName = 'jwt' | 'headers' | 'publicParams' | 'accounts'
+/** 各页签首次打开时读取的视图；接口与输出字段候选由字段级联按当前值读取。 */
+const tabViews: Readonly<Record<TabName, readonly string[]>> = {
+  jwt: [authKey],
+  headers: [headerKey, headerTypeKey, referencesKey],
+  publicParams: [parameterKey],
+  accounts: [accountKey],
+}
+const writable = [authKey, headerKey, parameterKey, accountKey] as const
+const ready = ref(false), loading = ref(false), busy = ref(false), error = ref(''), revision = ref(0), tab = ref<string | number>('jwt')
+const loaded = reactive(new Set<TabName>())
+let dataSet: DataSet | undefined, active = true, unsubscribe: (() => void) | undefined, unsubscribeCascade: (() => void) | undefined
+const runtime = sparkConsume(PAGE_RUNTIME)
+const failure = (cause: unknown) => cause instanceof Error ? cause.message : String(cause)
+const changed = () => {revision.value++}
+const view = (viewKey: string): DataView => {
+  const found = runtime?.resolveView(viewKey)
+  if (!found) throw new Error(`配置信息设置缺少视图 ${viewKey}`)
+  return found
+}
+const views = computed(() => {revision.value; return ready.value ? writable.map(view) : []})
 const dirty = computed(() => views.value.some(item => item.hasEditingChanges() || item.dirtyTracking.hasPendingChanges()))
 const unconfirmed = computed(() => views.value.some(item => item.hasUnconfirmedSave))
-const invalidReference = computed(() => {revision.value; return !!current('Base_Interface_PublicParam') && ['interfaceId', 'outputfield'].some(field =>
-  !!current('Base_Interface_PublicParam')?.[field]
-  && dataSet?.getFieldCascadeState({tableName: 'Base_Interface_PublicParam', viewId: 'default', field}).valueStatus === 'invalid')})
-const listFields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'paramName', label: '参数名称'}},
-  {type: 'r-text', props: {field: 'desc', label: '参数描述'}},
-  {type: 'r-text', props: {field: 'outputfield', label: '输出字段'}},
+useSystemPageDirtySource({get isDirty() {return busy.value || dirty.value || unconfirmed.value}})
+
+function invalid(viewKey: string, field: string): boolean {
+  revision.value
+  if (!ready.value || !dataSet) return false
+  const target = view(viewKey), row = target.currentRow
+  return !!row?.[field] && dataSet.getFieldCascadeState({tableName: target.tableName, viewId: target.viewId, field}).valueStatus === 'invalid'
+}
+const field = (type: string, props: Record<string, unknown>): SparkNode => ({type, props})
+const baseFields: SparkNode[] = [
+  field('r-text', {field: 'Name', label: '提供商名称', readonly: true}),
+  field('r-text', {field: 'BaseURL', label: 'API 基础 URL', readonly: true}),
 ]
-const editorFields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'paramName', label: '参数名称'}},
-  {type: 'r-text', props: {field: 'desc', label: '参数描述'}},
-  {type: 'r-select', props: {field: 'interfaceId', label: '取值接口', filterable: true, optionDataViewKey: key('Base_DataServiceInterface')}},
-  {type: 'r-select', props: {field: 'outputfield', label: '输出字段', filterable: true, optionDataViewKey: key('Base_TblField')}},
+const responseField = (name: string, label: string) => field('r-select', {field: name, label, clearable: true, filterable: true, optionDataViewKey: loginFieldKey})
+const authFields: SparkNode[] = [
+  field('r-select', {field: 'loginApiName', label: '认证接口', clearable: true, filterable: true, optionDataViewKey: interfaceKey}),
+  field('r-text', {field: 'TokenPrefix', label: '令牌前缀'}),
+  responseField('TokenField', '从响应中提取的令牌字段名'),
+  responseField('refreshTokenField', '刷新令牌提取'),
+  responseField('expireTimeField', '过期时间提取'),
+  responseField('expireRefreshTokenField', '刷新令牌过期时间字段'),
 ]
-const headerTypeKey = key('接口公共头部信息使用类型')
-const headerListFields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'paramName', label: '头部名称'}},
-  {type: 'r-value-function', props: {field: 'paramValue', label: '值函数'}},
-  {type: 'r-select', props: {field: 'type', label: '使用范围', optionDataViewKey: headerTypeKey}},
+const refreshFields: SparkNode[] = [
+  field('r-text', {field: 'tokenHeaderField', label: 'Header提取令牌属性'}),
+  field('r-text', {field: 'refreshTokenHeaderField', label: 'Header提取刷新令牌属性'}),
+  field('r-text', {field: 'expireTimeHeaderField', label: 'Header提取过期时间属性'}),
 ]
-const headerFields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'paramName', label: '头部名称'}},
-  {type: 'r-select', props: {field: 'type', label: '使用范围', optionDataViewKey: headerTypeKey}},
-  {type: 'r-value-function', props: {field: 'paramValue', label: '值函数',
-    publicParameterDataViewKey: key('Base_Interface_PublicParam', 'references'), functionContext: {capabilities: ['huoshan']}}},
+const cell = (type: string, props: Record<string, unknown>) => field(type, {showCellControl: true, sortable: false, ...props})
+const headerColumns: SparkNode[] = [
+  cell('r-text', {field: 'paramName', label: '参数名称', minWidth: 240}),
+  field('r-value-function', {field: 'paramValue', label: '值函数', minWidth: 280, publicParameterDataViewKey: referencesKey, functionContext: {capabilities: ['huoshan']}}),
+  cell('r-select', {field: 'type', label: '使用场景', minWidth: 220, clearable: true, optionDataViewKey: headerTypeKey}),
 ]
-const prefixFields: SparkNode[] = [{type: 'r-text', props: {field: 'TokenPrefix', label: '令牌前缀'}}]
-const toolbar = computed<RToolbarProps>(() => ({children: [
-  {type: 'r-button', props: {label: '新增公共参数', permAction: 'create', disabled: busy.value || unconfirmed.value
-    || view('Base_Interface_PublicParam')?.addActionState() !== 'enabled', onClick: () => add('Base_Interface_PublicParam')}},
-]}))
-const headerToolbar = computed<RToolbarProps>(() => {
-  const headers = view('Base_InterfaceProvider_Headers'), row = current('Base_InterfaceProvider_Headers')
-  return {children: [
-    {type: 'r-button', props: {label: '新增公共头部', permAction: 'create', disabled: busy.value || unconfirmed.value
-      || headers?.addActionState() !== 'enabled', onClick: () => add('Base_InterfaceProvider_Headers')}},
-    {type: 'r-button', props: {label: '移除当前头部', disabled: busy.value || unconfirmed.value || !row || !headers
-      || !headers.dirtyTracking.isPendingCreate(headers.getPkKey(row)!) && headers.deleteActionState(row) !== 'enabled', onClick: removeHeader}},
-  ]}
-})
-useSystemPageDirtySource({get isDirty() {return loading.value || busy.value || dirty.value || unconfirmed.value}})
-function changed(): void {revision.value++}
-function choose(table: string, row: DataRow): void {if (!busy.value) view(table)?.setCurrentRow(row)}
+/** 输出字段候选随当前行接口查询，非当前行不编辑，避免以他行接口的候选改写。 */
+const notCurrent = (row: Readonly<DataRow>) => {
+  const parameters = view(parameterKey), current = parameters.currentRow
+  return !current || parameters.getPkKey(current) !== parameters.getPkKey(row)
+}
+const parameterColumns: SparkNode[] = [
+  cell('r-text', {field: 'paramName', label: '参数名称', minWidth: 180}),
+  cell('r-text', {field: 'desc', label: '参数描述', minWidth: 180}),
+  cell('r-select', {field: 'outputfield', label: '输出字段', minWidth: 180, filterable: true, optionDataViewKey: key('Base_TblField'), cellReadonly: notCurrent}),
+  cell('r-select', {field: 'interfaceId', label: '接口名称', minWidth: 180, filterable: true, optionDataViewKey: interfaceKey}),
+  field('r-text', {field: 'accessPath', label: '接口路径', minWidth: 220, readonly: true, sortable: false, showOverflowTooltip: true}),
+]
+const accountColumns: SparkNode[] = [
+  cell('r-text', {field: 'UserName', label: '用户名', minWidth: 220}),
+  cell('r-text', {field: 'Password', label: '密码', minWidth: 240, showPassword: true}),
+  cell('r-text', {field: 'description', label: '备注', minWidth: 240}),
+]
+
+type TabAction = 'add' | 'remove' | 'save' | 'cancel'
+function toolbar(viewKey: string, order: readonly TabAction[]): RToolbarProps {
+  revision.value
+  const target = view(viewKey), row = target.currentRow, id = row ? target.getPkKey(row) : undefined
+  const locked = busy.value || target.hasUnconfirmedSave
+  const pending = target.hasEditingChanges() || target.dirtyTracking.hasPendingChanges()
+  const removable = !!row && id !== undefined && (target.dirtyTracking.isPendingCreate(id) || target.deleteActionState(row) === 'enabled')
+  const buttons: Readonly<Record<TabAction, SparkNode>> = {
+    add: {type: 'r-button', props: {label: '新增', buttonType: 'primary', permAction: 'create', disabled: locked, onClick: () => add(viewKey)}},
+    remove: {type: 'r-button', props: {label: '删除', buttonType: 'primary', disabled: locked || !removable, onClick: () => remove(viewKey)}},
+    save: {type: 'r-button', props: {label: '保存', buttonType: 'primary', disabled: locked || !pending, onClick: () => save(viewKey)}},
+    cancel: {type: 'r-button', props: {label: '取消', disabled: locked || !pending, onClick: () => cancel(viewKey)}},
+  }
+  return {gap: 10, children: order.map(action => buttons[action])}
+}
+
 async function act(action: () => Promise<unknown>): Promise<void> {
   if (busy.value) return
   busy.value = true; error.value = ''
-  try {await action()} catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
+  try {await action()} catch (cause) {error.value = failure(cause)}
   finally {busy.value = false; changed()}
 }
-async function add(table: string): Promise<void> {const target = view(table); if (target) await act(async () => target.setCurrentRow(await target.addRow({})))}
-async function removeHeader(): Promise<void> {
-  const headers = view('Base_InterfaceProvider_Headers'), row = current('Base_InterfaceProvider_Headers')
-  if (headers && row) await act(() => headers.removeRow(headers.getPkKey(row)!))
+function add(viewKey: string): Promise<void> {
+  return act(async () => {const target = view(viewKey); target.setCurrentRow(await target.addRow({}))})
 }
-async function save(tableName: string, viewId: string): Promise<void> {
-  const target = dataSet
-  if (target) await act(async () => {
-    const result = await target.saveChanges({views: [{tableName, viewId}]})
-    if (!result.success) throw new Error(result.message ?? '方案保存未完整确认')
-    if (tableName === 'Base_Interface_PublicParam') await target.getView(tableName, 'references')?.refresh()
+function remove(viewKey: string): Promise<void> {
+  return act(async () => {
+    const target = view(viewKey), row = target.currentRow, id = row ? target.getPkKey(row) : undefined
+    if (!row || id === undefined) {ElMessage.warning('请先选择一条记录'); return}
+    await target.removeRow(id)
   })
 }
-async function reload(): Promise<void> {const target = dataSet; if (target) await act(() => target.discardAndReload({views: writable.map(([tableName, viewId]) => ({tableName, viewId}))}))}
-function close(): void {if (!busy.value && !dirty.value && !unconfirmed.value) emit('close')}
-function cancel(): void {if (!busy.value && !unconfirmed.value) {for (const item of views.value) item.discardPendingChanges(); emit('close')}}
-watch(() => props.providerId, async providerId => {
-  const own = ++generation
-  ready.value = false; loading.value = true; busy.value = false; error.value = ''; tab.value = 'parameters'
-  unsubscribe?.(); unsubscribeCascade?.(); dataSet = undefined; session.dispose()
+function save(viewKey: string): Promise<void> {
+  return act(async () => {
+    const target = view(viewKey)
+    if (!target.hasEditingChanges() && !target.dirtyTracking.hasPendingChanges()) {ElMessage.info('当前页签没有可保存的变更'); return}
+    const result = await dataSet?.saveChanges({views: [{tableName: target.tableName, viewId: target.viewId}]})
+    if (!result) throw new Error('配置信息设置缺少所属数据空间')
+    if (!result.success) throw new Error(result.error?.message ?? result.message ?? '保存结果未确认，请重读核验')
+    ElMessage.success('保存成功')
+    if (viewKey === parameterKey && loaded.has('headers')) await view(referencesKey).refresh()
+  })
+}
+function cancel(viewKey: string): void {
+  const target = view(viewKey)
+  if (busy.value || target.hasUnconfirmedSave) return
+  target.discardPendingChanges()
+  changed()
+}
+function reload(): Promise<void> {
+  return act(async () => {
+    const targets = views.value.filter(item => item.hasUnconfirmedSave || item.hasEditingChanges() || item.dirtyTracking.hasPendingChanges())
+    await dataSet?.discardAndReload({views: targets.map(item => ({tableName: item.tableName, viewId: item.viewId}))})
+  })
+}
+async function close(): Promise<void> {
+  if (busy.value || unconfirmed.value) return
+  if (dirty.value) {
+    const confirmed = await ElMessageBox.confirm('存在未保存的修改，关闭将放弃这些修改。', '关闭确认', {type: 'warning'}).then(() => true, () => false)
+    if (!confirmed || busy.value || unconfirmed.value) return
+    for (const item of views.value) item.discardPendingChanges()
+  }
+  emit('close')
+}
+function isTab(value: string | number): value is TabName {
+  return value === 'jwt' || value === 'headers' || value === 'publicParams' || value === 'accounts'
+}
+async function loadTab(name: string | number): Promise<void> {
+  if (!isTab(name) || loaded.has(name) || !active) return
+  if (name === 'jwt') loading.value = true
+  error.value = ''
   try {
-    const projectId = parseApplicationPathScope(route.path)?.projectId ?? ''
-    const current = session.acquire({pageId: 'api-config-page', scenarioIds: [scenarioId,DATA_SPACE_DESIGN_FORM_KEY], deferredScenarioIds:[DATA_SPACE_DESIGN_FORM_KEY], targetId: providerId, scenarioInputs: {[scenarioId]: {providerId}},
-      loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id,getPage:()=>current})})
-    await current.load()
-    if (!active || own !== generation || !session.isCurrent(current)) return
-    dataSet = current.getDataSet(scenarioId)!
-    unsubscribe = dataSet.onAnyViewChange({rowsChanged: changed, currentRowChanged: changed, editingChanged: changed,
-      editingFieldChanged: changed, editingDiscarded: changed, requestStateChanged: changed})
-    unsubscribeCascade = dataSet.onFieldCascadeChange(changed)
-    dataSet.triggerAutoLoad()
-    if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); ready.value = true; changed()}
-  } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
-  finally {if (active && own === generation) loading.value = false}
-}, {immediate: true})
-onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); unsubscribeCascade?.(); session.dispose()})
+    if (!runtime) throw new Error('配置信息设置缺少外部服务管理的运行实例')
+    dataSet ??= runtime.getDataSet(scenarioId)
+    if (!dataSet) throw new Error('配置信息设置缺少请求配置数据空间')
+    if (!unsubscribe) {
+      unsubscribe = dataSet.onAnyViewChange({rowsChanged: changed, currentRowChanged: changed, editingChanged: changed,
+        editingFieldChanged: changed, editingDiscarded: changed, requestStateChanged: changed})
+      unsubscribeCascade = dataSet.onFieldCascadeChange(changed)
+    }
+    const targets = tabViews[name].map(view)
+    for (const target of targets) {
+      if (target.hasEditingChanges() || target.dirtyTracking.hasPendingChanges() || target.hasUnconfirmedSave) target.discardPendingChanges()
+      if ('providerId' in target.queryContext) target.queryContext = {...target.queryContext, providerId: props.providerId}
+    }
+    await Promise.all(targets.map(target => target.refresh()))
+    const failed = targets.find(target => target.loadingError)
+    if (failed?.loadingError) throw failed.loadingError
+    if (!active) return
+    loaded.add(name)
+    if (name === 'jwt') ready.value = true
+  } catch (cause) {
+    if (active) error.value = failure(cause)
+  } finally {
+    if (name === 'jwt') loading.value = false
+    changed()
+  }
+}
+void loadTab('jwt')
+onBeforeUnmount(() => {active = false; unsubscribe?.(); unsubscribeCascade?.()})
 </script>
+
+<style scoped>
+.api-config-page {min-height: 560px}
+</style>

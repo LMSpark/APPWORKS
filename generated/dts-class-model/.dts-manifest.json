@@ -939,12 +939,12 @@
     "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.props.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.props.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.props.ts.json",
-      "sourceModifiedAt": "2026-11-10T14:44:14.649Z"
+      "sourceModifiedAt": "2026-11-14T04:00:01.214Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue.json",
-      "sourceModifiedAt": "2026-11-10T14:21:51.350Z"
+      "sourceModifiedAt": "2026-11-14T04:00:02.335Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts",
@@ -1234,7 +1234,7 @@
     "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/RendererDialog.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/RendererDialog.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/layout/overlay/RendererDialog/RendererDialog.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.418Z"
+      "sourceModifiedAt": "2026-11-14T04:06:56.176Z"
     },
     "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/zero-code.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/zero-code.ts",
@@ -1254,7 +1254,7 @@
     "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.vue.json",
-      "sourceModifiedAt": "2026-11-13T07:03:27.604Z"
+      "sourceModifiedAt": "2026-11-14T04:06:57.416Z"
     },
     "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/zero-code.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/zero-code.ts",
@@ -1389,7 +1389,7 @@
     "packages/spark-component/src/components/containers/layout/structure/RendererSection/RendererSection.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/structure/RendererSection/RendererSection.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/layout/structure/RendererSection/RendererSection.vue.json",
-      "sourceModifiedAt": "2026-11-14T03:10:37.462Z"
+      "sourceModifiedAt": "2026-11-14T04:06:49.602Z"
     },
     "packages/spark-component/src/components/containers/layout/structure/RendererSection/types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/structure/RendererSection/types.ts",
@@ -5714,22 +5714,22 @@
     "src/views/features/integration/api-management/ui/api-config-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-config-page.vue.json",
-      "sourceModifiedAt": "2026-11-08T15:13:11.373Z"
+      "sourceModifiedAt": "2026-11-14T04:17:15.738Z"
     },
     "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-interface-list-page.props.ts.json",
-      "sourceModifiedAt": "2026-10-10T19:15:07.475Z"
+      "sourceModifiedAt": "2026-11-14T04:03:24.481Z"
     },
     "src/views/features/integration/api-management/ui/api-interface-list-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-interface-list-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-interface-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-08T15:15:46.905Z"
+      "sourceModifiedAt": "2026-11-14T04:05:00.758Z"
     },
     "src/views/features/integration/api-management/ui/api-management-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-management-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-management-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T07:44:13.850Z"
+      "sourceModifiedAt": "2026-11-14T04:05:08.499Z"
     },
     "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue",
@@ -5764,7 +5764,7 @@
     "src/views/features/integration/report/ui/report-management-page.vue": {
       "sourceFile": "src/views/features/integration/report/ui/report-management-page.vue",
       "shardFile": "files/src/views/features/integration/report/ui/report-management-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T16:35:29.850Z"
+      "sourceModifiedAt": "2026-11-14T04:11:34.882Z"
     },
     "src/views/features/integration/report/ui/report-model-dialog.vue": {
       "sourceFile": "src/views/features/integration/report/ui/report-model-dialog.vue",
@@ -5784,22 +5784,27 @@
     "src/views/features/organization/job-management/ui/job-management-page.vue": {
       "sourceFile": "src/views/features/organization/job-management/ui/job-management-page.vue",
       "shardFile": "files/src/views/features/organization/job-management/ui/job-management-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T06:05:25.049Z"
+      "sourceModifiedAt": "2026-11-14T03:13:25.941Z"
     },
     "src/views/features/organization/organization-structure/ui/organization-structure-page.vue": {
       "sourceFile": "src/views/features/organization/organization-structure/ui/organization-structure-page.vue",
       "shardFile": "files/src/views/features/organization/organization-structure/ui/organization-structure-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T06:05:25.049Z"
+      "sourceModifiedAt": "2026-11-14T03:13:11.775Z"
     },
     "src/views/features/organization/user-management/ui/user-management-page.vue": {
       "sourceFile": "src/views/features/organization/user-management/ui/user-management-page.vue",
       "shardFile": "files/src/views/features/organization/user-management/ui/user-management-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T06:05:25.054Z"
+      "sourceModifiedAt": "2026-11-14T03:13:32.313Z"
+    },
+    "src/views/features/shared/ai/ai-data-entry-dialog.vue": {
+      "sourceFile": "src/views/features/shared/ai/ai-data-entry-dialog.vue",
+      "shardFile": "files/src/views/features/shared/ai/ai-data-entry-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-14T03:59:34.418Z"
     },
     "src/views/features/shared/record/feature-field-spec.ts": {
       "sourceFile": "src/views/features/shared/record/feature-field-spec.ts",
       "shardFile": "files/src/views/features/shared/record/feature-field-spec.ts.json",
-      "sourceModifiedAt": "2026-11-11T17:56:22.216Z"
+      "sourceModifiedAt": "2026-11-14T03:59:12.396Z"
     },
     "src/views/features/shared/record/feature-record-dialog.vue": {
       "sourceFile": "src/views/features/shared/record/feature-record-dialog.vue",
@@ -5809,7 +5814,7 @@
     "src/views/features/shared/record/feature-record-fields.vue": {
       "sourceFile": "src/views/features/shared/record/feature-record-fields.vue",
       "shardFile": "files/src/views/features/shared/record/feature-record-fields.vue.json",
-      "sourceModifiedAt": "2026-11-11T18:05:56.435Z"
+      "sourceModifiedAt": "2026-11-14T04:14:49.710Z"
     },
     "src/views/features/shared/runtime/use-feature-page-runtime.ts": {
       "sourceFile": "src/views/features/shared/runtime/use-feature-page-runtime.ts",
@@ -5824,7 +5829,7 @@
     "src/views/features/system/bug-manage/ui/bug-manage-page.vue": {
       "sourceFile": "src/views/features/system/bug-manage/ui/bug-manage-page.vue",
       "shardFile": "files/src/views/features/system/bug-manage/ui/bug-manage-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T06:07:48.537Z"
+      "sourceModifiedAt": "2026-11-14T03:12:56.369Z"
     },
     "src/views/features/system/cache-management/ui/cache-delete-confirmation.vue": {
       "sourceFile": "src/views/features/system/cache-management/ui/cache-delete-confirmation.vue",
@@ -5834,17 +5839,17 @@
     "src/views/features/system/cache-management/ui/cache-management-page.vue": {
       "sourceFile": "src/views/features/system/cache-management/ui/cache-management-page.vue",
       "shardFile": "files/src/views/features/system/cache-management/ui/cache-management-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T00:38:29.825Z"
+      "sourceModifiedAt": "2026-11-14T03:13:39.759Z"
     },
     "src/views/features/system/data-recovery/ui/data-recovery-page.vue": {
       "sourceFile": "src/views/features/system/data-recovery/ui/data-recovery-page.vue",
       "shardFile": "files/src/views/features/system/data-recovery/ui/data-recovery-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T07:00:17.936Z"
+      "sourceModifiedAt": "2026-11-14T03:25:55.688Z"
     },
     "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue": {
       "sourceFile": "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue",
       "shardFile": "files/src/views/features/system/flow-monitor/ui/flow-monitor-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T07:28:31.460Z"
+      "sourceModifiedAt": "2026-11-14T03:13:04.679Z"
     },
     "src/views/FileDataManager/FileManager/index.vue": {
       "sourceFile": "src/views/FileDataManager/FileManager/index.vue",

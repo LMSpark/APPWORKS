@@ -21,6 +21,9 @@
       "properties": {
         "providerId": {
           "type": "string"
+        },
+        "providerName": {
+          "type": "string"
         }
       },
       "required": [
@@ -29,7 +32,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-10T19:15:07.475Z",
+  "generatedAt": "2026-11-14T04:03:24.481Z",
   "models": {
     "ApiInterfaceListPageProps": {
       "name": "ApiInterfaceListPageProps",
@@ -39,7 +42,7 @@
         "name": "api-interface-list-page"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 正式服务商主键。 */\n    providerId: string;\n}",
+        "declarationTypeText": "{\n    /** 正式服务商主键。 */\n    providerId: string;\n    /** 服务商名称，仅用于窗口标题；身份仍以providerId为准。 */\n    providerName?: string;\n}",
         "members": {
           "attributes": [
             {
@@ -47,6 +50,12 @@
               "jsdoc": "正式服务商主键。",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "providerName",
+              "jsdoc": "服务商名称，仅用于窗口标题；身份仍以providerId为准。",
+              "readable": true,
+              "writable": false
             }
           ]
         }

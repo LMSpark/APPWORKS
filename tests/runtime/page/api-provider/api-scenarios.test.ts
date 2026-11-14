@@ -44,9 +44,11 @@ describe('registered external-service scenarios', () => {
     const projectId = 'APP-OTHER'
     api.current.service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': projectId}})
     const dataSet = await open(scenarioId, scenarioId === NAV ? undefined : 'P1', projectId)
-    const tableName = scenarioId === API ? 'Base_DataServiceInterface' : 'Base_InterfaceProvider'
+    const entry = scenarioId === API ? dataSet.getView('Base_DataServiceInterface')
+      : dataSet.getView('Base_InterfaceProvider', scenarioId === CONFIG ? 'authentication' : 'default')
+    if (scenarioId === NAV) await entry?.refresh()
     expect(dataSet.scenarioId).toBe(scenarioId)
-    expect(dataSet.getView(tableName)?.rows.length).toBeGreaterThan(0)
+    expect(entry?.rows.length).toBeGreaterThan(0)
     for (const table of Object.values(dataSet.tables)) for (const view of table.viewList) {
       expect(view.loadingError).toBeFalsy()
     }
@@ -54,31 +56,22 @@ describe('registered external-service scenarios', () => {
 })
 
 describe('provider catalog scenario', () => {
-  it('loads the catalog, follows the selection into definition and edits only the selected provider', async () => {
+  it('loads the paged catalog only on request and edits or creates providers through the same staged view', async () => {
     const ds = await open(NAV)
-    const catalog = ds.getView('Base_InterfaceProvider')!, definition = ds.getView('Base_InterfaceProvider', 'definition')!
+    const catalog = ds.getView('Base_InterfaceProvider')!
+    expect(catalog.rows).toEqual([])
+    expect(http().reads.some(read => read.table === 'Base_InterfaceProvider')).toBe(false)
+    await catalog.refresh()
     expect(catalog.rows.map(row => row['rowid'])).toEqual(['P1', 'P2'])
-    expect(definition.rows).toEqual([])
-    catalog.setSelectedRows([byId(catalog, 'P2')!])
-    await vi.waitFor(() => expect(definition.rows.map(row => row['rowid'])).toEqual(['P2']))
-    expect(definition.currentRow?.['rowid']).toBe('P2')
-    definition.updateEditingValue('P2', 'Name', '  服务丙  ')
-    expect((await ds.saveChanges({views: views('Base_InterfaceProvider', 'definition')})).success).toBe(true)
+    catalog.updateEditingValue('P2', 'Name', '  服务丙  ')
+    expect((await ds.saveChanges({views: views('Base_InterfaceProvider')})).success).toBe(true)
     expect(http().records['Base_InterfaceProvider']!.find(row => row['rowid'] === 'P2')?.['Name']).toBe('服务丙')
-    expect(definition.deleteActionState(byId(definition, 'P2'))).toBe('disabled')
-  })
-
-  it('creates a provider from the empty create result and rejects blank required fields', async () => {
-    const ds = await open(NAV)
-    const create = ds.getView('Base_InterfaceProvider', 'create')!
-    await create.discardAndReload()
-    expect(create.rows).toEqual([])
-    const row = await create.addRow({})
-    const id = create.getPkKey(row)!
+    const row = await catalog.addRow({})
+    const id = catalog.getPkKey(row)!
     expect(id).not.toBe('')
-    await expect(ds.saveChanges({views: views('Base_InterfaceProvider', 'create')})).rejects.toThrow('DATA_VIEW_SAVE_VALIDATION')
-    create.updateEditingValue(id, 'Name', '新服务'); create.updateEditingValue(id, 'BaseURL', 'https://new.test')
-    expect((await ds.saveChanges({views: views('Base_InterfaceProvider', 'create')})).success).toBe(true)
+    await expect(ds.saveChanges({views: views('Base_InterfaceProvider')})).rejects.toThrow('DATA_VIEW_SAVE_VALIDATION')
+    catalog.updateEditingValue(id, 'Name', '新服务'); catalog.updateEditingValue(id, 'BaseURL', 'https://new.test')
+    expect((await ds.saveChanges({views: views('Base_InterfaceProvider')})).success).toBe(true)
     expect(http().records['Base_InterfaceProvider']!.some(item => item['Name'] === '新服务' && item['rowid'] === id)).toBe(true)
   })
 })

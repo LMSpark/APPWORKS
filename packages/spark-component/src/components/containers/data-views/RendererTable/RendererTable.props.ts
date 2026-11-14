@@ -82,4 +82,13 @@ export type RTableProps = SparkNodeProps & SparkInteractiveDataContainerProps & 
      * 行动作复用 RToolbarProps，以 children 编排标准动作子组件。
      * 提示词模板：默认动作 message-row / delete-row。
      */
-    actions?: RToolbarProps}
+    actions?: RToolbarProps
+    /** 行动作列呈现；只影响列标题、宽度与横向滚动时是否固定在 actions.position 一侧，不改变动作绑定与权限。 */
+    actionColumn?: {
+      /** 列标题，默认“操作”。 */
+      label?: string
+      /** 列宽；数值为像素，默认220。 */
+      width?: number | string
+      /** 是否固定在所在一侧，默认false。 */
+      fixed?: boolean
+    }}

@@ -5,21 +5,16 @@
 AI用途：迁移参考仓 integration/report 页面时，核对报表头与版本双表写入、启用版本切换及模型绑定。
 -->
 <template>
-  <section class="report-page">
-    <header class="report-page__header">
-      <h1>业务报表管理</h1>
-      <div v-if="ready" class="report-page__actions">
-        <RendererButton label="新增" button-type="primary" :disabled="busy || !!dialog || unconfirmed" @click="create" />
-        <RendererButton :data-view-key="viewKey" label="刷新" action="refresh" :disabled="busy || !!dialog || unconfirmed" />
-      </div>
-    </header>
-    <p v-if="loading" role="status">正在读取报表列表…</p>
-    <p v-if="error || message" role="alert">{{ error || message }}</p>
-    <RendererButton v-if="ready && unconfirmed" label="核验原保存结果" button-type="warning" :disabled="busy" @click="verify" />
-    <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
+  <RendererSection class="report-page" title="报表列表" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取报表列表…' : ''" :error="error || message" :retryable="!loading && !ready" @retry="loadCurrentRoute">
+    <template v-if="ready" #header-actions>
+      <RendererButton v-if="unconfirmed" label="核验原保存结果" button-type="warning" :disabled="busy" @click="verify" />
+      <RendererButton :data-view-key="viewKey" label="新增" button-type="primary" icon="Plus" perm-action="create"
+        :disabled="busy || !!dialog || unconfirmed" @click="create" />
+    </template>
     <RendererTable v-if="ready" :data-view-key="viewKey" :children="columns" :filter="filter" :actions="actions"
-      :stripe="true" :show-row-index="true" :show-data-view-meta="false"
-      :pagination="{pageSizes: [10, 20, 50], showJumper: true}" />
+      :auto-columns="false" :stripe="true" :border="true" :show-data-view-meta="false"
+      :action-column="{label: '操作', width: 420, fixed: true}" :pagination="{pageSizes: [10, 20, 50, 100], showJumper: true}" />
     <ReportCreateDialog v-if="ready && dialog?.kind === 'create' && dialog.reportId !== undefined" :key="dialog.epoch" :info-key="viewKey"
       :report-key="reportKey" :app-key="appKey" :info-id="dialog.infoId" :report-id="dialog.reportId" @close="closeDialog" />
     <FeatureRecordDialog v-if="ready && dialog?.kind === 'edit'" :key="dialog.epoch" :data-view-key="viewKey" :record-id="dialog.infoId"
@@ -28,16 +23,16 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
       :scenario-id="scenarioId" @close="closeDialog" />
     <ReportModelDialog v-if="ready && dialog?.kind === 'model'" :key="dialog.epoch" :info-key="viewKey" :report-key="reportKey"
       :picker-key="pickerKey" :info-id="dialog.infoId" @close="closeDialog" />
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
 import {computed, ref, shallowRef} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate} from 'vue-router'
-import {ElMessageBox} from 'element-plus'
+import {ElMessage, ElMessageBox} from 'element-plus'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererTable, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import {RendererButton, RendererSection, RendererTable, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
@@ -98,39 +93,43 @@ function assertSettled(): void {
 const verify = () => guarded(async () => {
   const views = reportViews()
   try {
-    message.value = await verifyReportSaves(views)
+    ElMessage.success(await verifyReportSaves(views))
   } finally {
     if (!views.some(item => item.hasUnconfirmedSave)) await Promise.all([view(viewKey).refresh(), view(reportKey).refresh()])
   }
 })
 
-const col = (field: string, label: string, minWidth = 140): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, minWidth, sortable: false, showOverflowTooltip: true}})
-type LookupColumn = Readonly<{field: string; label: string; optionDataViewKey: string; minWidth?: number}>
-const lookup = ({field, label, optionDataViewKey, minWidth = 140}: LookupColumn): SparkNode =>
-  ({type: 'r-select', props: {field, label, readonly: true, minWidth, sortable: false, optionDataViewKey}})
+type ReportColumn = Readonly<{field: string; label: string; width?: number; minWidth?: number; optionDataViewKey?: string}>
+const column = ({field, label, width, minWidth, optionDataViewKey}: ReportColumn): SparkNode =>
+  ({type: optionDataViewKey ? 'r-select' : 'r-text', props: {field, label, readonly: true, sortable: false, showOverflowTooltip: true,
+    ...(width ? {width, align: 'center'} : {minWidth}), ...(optionDataViewKey ? {optionDataViewKey} : {})}})
 const columns: SparkNode[] = [
-  col('RptName', '报表名称', 180), lookup({field: 'modid', label: '应用系统', optionDataViewKey: appKey}), col('RptDesc', '报表描述', 200),
-  {type: 'r-text', props: {field: 'CreateTime', label: '创建时间', readonly: true, minWidth: 120, sortable: false, displayFormatter: formatDay}},
-  lookup({field: 'createuser', label: '创建人', optionDataViewKey: userKey, minWidth: 110}),
-  lookup({field: 'version_id', label: '启用版本名称', optionDataViewKey: reportKey, minWidth: 120}),
-  lookup({field: 'version_dataid', label: '当前版本模型', optionDataViewKey: dataSetKey, minWidth: 180}),
-  lookup({field: 'useStatus', label: '使用状态', optionDataViewKey: statusKey, minWidth: 90}),
+  column({field: 'RptName', label: '报表名称', minWidth: 180}),
+  column({field: 'modid', label: '应用系统', minWidth: 180, optionDataViewKey: appKey}),
+  column({field: 'RptDesc', label: '报表描述', minWidth: 220}),
+  {type: 'r-text', props: {field: 'CreateTime', label: '创建时间', readonly: true, width: 130, align: 'center', sortable: false, displayFormatter: formatDay}},
+  {type: 'r-select', props: {field: 'createuser', label: '创建人', readonly: true, width: 120, sortable: false, optionDataViewKey: userKey}},
+  column({field: 'version_id', label: '启用版本名称', width: 140, optionDataViewKey: reportKey}),
+  column({field: 'version_dataid', label: '当前版本模型', minWidth: 180, optionDataViewKey: dataSetKey}),
+  column({field: 'useStatus', label: '使用状态', width: 120, optionDataViewKey: statusKey}),
 ]
 const filter: RFilterProps = {
   autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,
   children: [
-    {type: 'r-text', props: {field: 'RptName', label: '报表名称', placeholder: '报表名称', filterTrim: true}},
-    {type: 'r-text', props: {field: 'RptDesc', label: '报表描述', placeholder: '报表描述', filterTrim: true}},
-    {type: 'r-select', props: {field: 'useStatus', label: '使用状态', placeholder: '使用状态', clearable: true, optionDataViewKey: statusKey}},
-    {type: 'r-select', props: {field: 'modid', label: '应用系统', placeholder: '应用系统', clearable: true, filterable: true, optionDataViewKey: appKey}},
+    {type: 'r-select', props: {field: 'modid', label: '应用系统', placeholder: '请选择应用系统', clearable: true, filterable: true, optionDataViewKey: appKey}},
+    {type: 'r-text', props: {field: 'RptName', label: '报表名称', placeholder: '请输入报表名称', clearable: true, filterTrim: true}},
+    {type: 'r-text', props: {field: 'RptDesc', label: '报表描述', placeholder: '请输入报表描述', clearable: true, filterTrim: true}},
+    {type: 'r-select', props: {field: 'useStatus', label: '使用状态', placeholder: '请选择状态', clearable: true, optionDataViewKey: statusKey}},
   ],
 }
 const actions = computed<RToolbarProps>(() => {
   const disabled = busy.value || !!dialog.value || unconfirmed.value
-  const button = (label: string, run: (row: DataRow) => void): SparkNode => ({type: 'r-button', props: {label, disabled, onClick: run}})
-  return {children: [button('编辑', row => open('edit', row)), button('删除', row => void remove(row)),
-    button('历史版本', row => open('version', row)), button('模型', row => open('model', row))]}
+  type RowAction = Readonly<{label: string; run: (row: DataRow) => void; danger?: boolean; permAction?: 'edit' | 'delete'}>
+  const button = ({label, run, danger, permAction}: RowAction): SparkNode => ({type: 'r-button', props: {dataViewKey: viewKey, label, link: true,
+    buttonType: danger ? 'danger' : 'primary', disabled, onClick: run, ...(permAction ? {permAction} : {})}})
+  return {gap: 4, children: [button({label: '编辑', run: row => open('edit', row), permAction: 'edit'}),
+    button({label: '删除', run: row => void remove(row), danger: true, permAction: 'delete'}),
+    button({label: '历史版本', run: row => open('version', row)}), button({label: '模型', run: row => open('model', row)})]}
 })
 const editSpecs: readonly FeatureFieldSpec[] = [
   {field: 'RptName', label: '报表名称', required: true},
@@ -209,13 +208,10 @@ const remove = (row: DataRow) => guarded(async () => {
       await Promise.all([info.refresh(), view(reportKey).refresh()])
     }
   }
-  message.value = '删除成功'
+  ElMessage.success('删除成功')
 })
 </script>
 
 <style scoped>
-.report-page {display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary)}
-.report-page__header {display: flex; align-items: center; justify-content: space-between; gap: 16px}
-.report-page__header h1 {margin: 0; font-size: 20px}
-.report-page__actions {display: flex; gap: 8px}
+.report-page {padding: 8px}
 </style>

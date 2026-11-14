@@ -20,9 +20,12 @@
       ],
       "views": {
         "default": {
-          "autoLoad": true,
+          "autoLoad": false,
           "autoCurrentFirst": false,
           "autoSelectFirst": false,
+          "commitMode": "staged",
+          "page": 1,
+          "pageSize": 10,
           "queryConfig": {
             "fields": [
               "rowid",
@@ -30,46 +33,6 @@
               "BaseURL",
               "updateuser",
               "updatetime"
-            ]
-          }
-        },
-        "definition": {
-          "autoLoad": true,
-          "autoCurrentFirst": true,
-          "autoSelectFirst": false,
-          "commitMode": "staged",
-          "allowDelete": false,
-          "queryConfig": {
-            "fields": [
-              "rowid",
-              "Name",
-              "BaseURL"
-            ],
-            "allPages": true
-          }
-        },
-        "create": {
-          "autoLoad": false,
-          "autoCurrentFirst": false,
-          "autoSelectFirst": false,
-          "commitMode": "staged",
-          "allowDelete": false,
-          "queryConfig": {
-            "fields": [
-              "rowid",
-              "Name",
-              "BaseURL"
-            ],
-            "allPages": true
-          },
-          "filterExpression": {
-            "logic": "and",
-            "filters": [
-              {
-                "field": "rowid",
-                "operator": "eq",
-                "value": ""
-              }
             ]
           }
         }
@@ -82,7 +45,7 @@
       },
       "views": {
         "default": {
-          "autoLoad": true,
+          "autoLoad": false,
           "autoCurrentFirst": false,
           "autoSelectFirst": false,
           "valueField": "rowid",
@@ -99,21 +62,5 @@
       }
     }
   },
-  "viewCascades": [
-    {
-      "kind": "query",
-      "cascadeId": "provider-definition",
-      "parentTable": "Base_InterfaceProvider",
-      "parentViewId": "default",
-      "childTable": "Base_InterfaceProvider",
-      "childViewId": "definition",
-      "autoLoad": true,
-      "filterBindings": [
-        {
-          "targetField": "rowid",
-          "operator": "in"
-        }
-      ]
-    }
-  ]
+  "viewCascades": []
 }

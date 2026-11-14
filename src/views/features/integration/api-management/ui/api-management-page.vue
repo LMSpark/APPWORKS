@@ -1,133 +1,199 @@
 <!--
 @module app:views/features/integration/api-management/ui/api-management-page
-职责：外部服务商目录与基础定义维护，保留原导航和业务路径。
-边界：经标准场景入口装配；标准组件绑定DataView，校验、权限、保存及重读均由SPARK data承接，页面只转发事件。
-AI用途：目录选择经查询级联驱动definition视图，新建使用空结果的create视图。
+职责：外部服务管理：服务提供商目录的新建、编辑、删除、AI添加，并进入接口列表与基础配置。
+边界：目录、记录编辑与删除都绑定同一PageRuntime的正式DataView；删除前经请求配置空间的children视图核对下属记录，有则拒绝。
+AI用途：恢复外部服务入口时复用标准外壳、通用记录对话框和AI添加对话框，不手写请求或第二份草稿。
 -->
 <template>
-  <p v-if="error" role="alert">{{ error }}</p>
-  <p v-if="loading">正在读取外部服务目录…</p>
-  <p v-if="ready && unresolvedModifier" role="status">部分修改人在当前可读用户目录中未解析，保留原始标识。</p>
-  <RendererTable v-if="ready" :data-view-key="key('default')" :children="catalogFields" :toolbar="toolbar" :filter="{}" :on-row-click="choose" />
-  <RendererDialog v-if="ready && editing" :data-view-key="key(editing)" :model-value="true" :close-disabled="busy || dirty" title="服务商基础信息设计" width="min(700px, 94vw)" @update:model-value="close">
-    <p v-if="editorError" role="alert">{{ editorError }}</p>
-    <RendererForm :data-view-key="key(editing)" :children="definitionFields" label-width="120px" grid-min-width="460px" :show-data-view-meta="false" />
-    <RendererButton :data-view-key="key(editing)" label="保存基础信息" button-type="primary" :disabled="busy || unconfirmed" @click="save" />
-    <RendererButton :data-view-key="key(editing)" :label="unconfirmed ? '重读核验（放弃本地修改）' : '放弃修改并重读'" :disabled="busy" @click="reload" />
-    <RendererButton :data-view-key="key(editing)" label="放弃修改并关闭" :disabled="busy || unconfirmed" @click="cancel" />
-  </RendererDialog>
-  <ApiConfigPage v-if="configProviderId" :provider-id="configProviderId" @close="configProviderId = ''" />
-  <ApiInterfaceListPage v-if="interfaceProviderId" :provider-id="interfaceProviderId" @close="interfaceProviderId = ''" />
+  <RendererSection class="api-manage-page" title="外部服务管理" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取外部服务目录…' : ''" :error="error || message" :retryable="!loading && !ready" @retry="loadCurrentRoute">
+    <template v-if="ready" #header-actions>
+      <RendererButton label="AI添加" icon="ChatDotRound" :disabled="blocked" @click="openAi" />
+      <RendererButton :data-view-key="viewKey" label="新建" button-type="primary" icon="Plus" perm-action="create"
+        :disabled="blocked" @click="openCreate" />
+    </template>
+    <DisplayAlert v-if="ready && unresolvedModifier" alert-type="warning" :closable="false" :show-icon="true"
+      title="部分修改人在当前可读用户目录中未解析，保留原始标识。" />
+    <RendererTable v-if="ready" :data-view-key="viewKey" :children="columns" :actions="actions" :auto-columns="false"
+      :stripe="true" :border="true" :show-data-view-meta="false" :action-column="{label: '提供商操作', width: 280, fixed: true}"
+      :pagination="{pageSizes: [10, 20, 50, 100], showJumper: true}" />
+    <FeatureRecordDialog v-if="ready && dialog?.kind === 'record'" :key="dialog.epoch" :data-view-key="viewKey" :record-id="dialog.id"
+      :created="dialog.created" :title="dialog.created ? '新增外部服务提供商' : '编辑外部服务提供商'" :specs="specs" :width="640"
+      @close="closeRecord" />
+    <AiDataEntryDialog v-if="ready && dialog?.kind === 'ai'" :key="dialog.epoch" :data-view-key="viewKey" @close="closeAi" />
+    <ApiConfigPage v-if="ready && dialog?.kind === 'config'" :key="dialog.epoch" :provider-id="dialog.id"
+      @close="dialog = null" @interfaces="openConfigInterfaces" />
+    <ApiInterfaceListPage v-if="ready && interfaces" :key="interfaces.epoch" :provider-id="interfaces.id"
+      :provider-name="interfaces.name" @close="interfaces = null" />
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
-import {computed, onBeforeUnmount, ref, watch} from 'vue'
-import {useRoute} from 'vue-router'
-import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME, RendererTable, RendererForm, RendererDialog, RendererButton, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
-import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
-import {parseApplicationPathScope} from '@/services/application-scope'
+import {computed, ref} from 'vue'
+import {ElMessage, ElMessageBox} from 'element-plus'
+import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {DisplayAlert, RendererButton, RendererSection, RendererTable, type RToolbarProps} from '@spark-appworks/spark-component'
+import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
+import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
+import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
+import AiDataEntryDialog from '@/views/features/shared/ai/ai-data-entry-dialog.vue'
 import ApiConfigPage from './api-config-page.vue'
 import ApiInterfaceListPage from './api-interface-list-page.vue'
 
-type EditView = 'definition' | 'create'
-const route = useRoute()
-const {sparkProvide, sparkRemove} = useSparkComponent({type: 'api-management-page'})
-const session = new NativePageRuntimeSession({
-  provide: () => undefined,
-  remove: () => sparkRemove(PAGE_RUNTIME),
+const scenarioId = '8CBB62EBC873A38DB9E6EEF177AFC731'
+const configScenarioId = '446B5D94A71587E9BD4D325A4DF5F6F8'
+const modelName = 'Base_InterfaceProvider'
+/** 删除服务提供商前须为空的下属记录：请求配置空间中按服务商归属过滤的children视图。 */
+const childRecords = [
+  {modelName: 'Base_DataServiceInterface', label: '接口'},
+  {modelName: 'Base_InterfaceProvider_Headers', label: '请求头'},
+  {modelName: 'Base_Interface_PublicParam', label: '公共参数'},
+  {modelName: 'Base_InterfaceProvider_Account', label: '认证账号'},
+] as const
+const userViewKey = buildDataViewKey('Base_UserInfo', 'default', scenarioId)
+const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
+  scenarioId,
+  modelName,
+  componentType: 'api-management-page',
+  title: '外部服务管理',
+  optionModels: ['Base_UserInfo'],
+  peerScenarioIds: [configScenarioId],
 })
-const ready = ref(false), loading = ref(true), error = ref(''), editorError = ref(''), busy = ref(false), revision = ref(0)
-const editing = ref<EditView | ''>('')
-const configProviderId = ref(''), interfaceProviderId = ref('')
-let dataSet: DataSet | undefined, unsubscribe: (() => void) | undefined, active = true, generation = 0
-const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
-const projectId = computed(() => parseApplicationPathScope(route.path)?.projectId ?? '')
-const key = (viewId: string, table = 'Base_InterfaceProvider') => buildDataViewKey(table, viewId, scenarioId.value)
-const view = (viewId: string): DataView | undefined => {revision.value; return dataSet?.getView('Base_InterfaceProvider', viewId)}
-const editView = computed(() => editing.value ? view(editing.value) : undefined)
-const dirty = computed(() => {const current = editView.value; return !!current && (current.hasEditingChanges() || current.dirtyTracking.hasPendingChanges())})
-const unconfirmed = computed(() => editView.value?.hasUnconfirmedSave === true)
-const selected = computed(() => {const values = view('default')?.getSelectedValues() ?? []; return values.length === 1 && typeof values[0] === 'string' ? values[0] : ''})
+
+type ProviderDialog = Readonly<{kind: 'record'; id: string | number; created: boolean; epoch: number}>
+  | Readonly<{kind: 'config'; id: string; name: string; epoch: number}>
+  | Readonly<{kind: 'ai'; epoch: number}>
+type InterfaceDialog = Readonly<{id: string; name: string; epoch: number}>
+const dialog = ref<ProviderDialog | null>(null)
+const interfaces = ref<InterfaceDialog | null>(null)
+const busy = ref(false), message = ref(''), revision = ref(0)
+let epoch = 0
+const blocked = computed(() => busy.value || dialog.value !== null || interfaces.value !== null)
+const failure = (cause: unknown) => cause instanceof Error ? cause.message : String(cause)
+const resolve = (key: string): DataView => {
+  const view = ready.value ? session.runtime?.resolveView(key) : undefined
+  if (!view) throw new Error(`外部服务管理缺少视图 ${key}`)
+  return view
+}
+const list = () => resolve(viewKey)
+const text = (row: Readonly<DataRow>, field: string) => typeof row[field] === 'string' ? row[field] : ''
+
 const unresolvedModifier = computed(() => {
   revision.value
-  const users = dataSet?.getView('Base_UserInfo', 'default'), providers = view('default')
-  if (!users || !providers) return false
+  if (!ready.value) return false
+  const users = resolve(userViewKey), providers = list()
   const ids = new Set(users.rows.filter(row => users.fieldAccess(row, 'rowid').read === 'visible'
     && users.fieldAccess(row, 'UserName').read === 'visible').map(row => row['rowid']))
   return providers.rows.some(row => providers.fieldAccess(row, 'updateuser').read === 'visible'
     && row['updateuser'] !== undefined && row['updateuser'] !== null && row['updateuser'] !== '' && !ids.has(row['updateuser']))
 })
-const catalogFields = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'Name', label: '服务提供商名称', width: 220}},
-  {type: 'r-text', props: {field: 'BaseURL', label: 'API 基础 URL', width: 320}},
-  {type: 'r-select', props: {field: 'updateuser', label: '修改人', width: 160, optionDataViewKey: key('default', 'Base_UserInfo')}},
-  {type: 'r-text', props: {field: 'updatetime', label: '修改时间', width: 180}},
-])
-const definitionFields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'Name', label: '服务提供商名称'}},
-  {type: 'r-text', props: {field: 'BaseURL', label: 'API 基础 URL'}},
+const column = (field: string, label: string, props: Record<string, unknown>): SparkNode =>
+  ({type: 'r-text', props: {field, label, readonly: true, sortable: false, showOverflowTooltip: true, ...props}})
+const columns: SparkNode[] = [
+  column('Name', '服务提供商名称', {minWidth: 220}),
+  column('BaseURL', 'API 基础 URL', {minWidth: 320}),
+  {type: 'r-select', props: {field: 'updateuser', label: '修改人', width: 160, readonly: true, sortable: false, optionDataViewKey: userViewKey}},
+  column('updatetime', '修改时间', {width: 140, displayFormatter: (value: unknown) => String(value ?? '').slice(0, 10)}),
 ]
-const toolbar = computed<RToolbarProps>(() => {
-  const blocked = !!configProviderId.value || !!interfaceProviderId.value || !!editing.value || busy.value
-  return {wrap: true, children: [
-    {type: 'r-button', props: {label: '新增服务商', permAction: 'create', disabled: blocked, onClick: () => open('create')}},
-    {type: 'r-button', props: {label: '编辑基础信息', disabled: blocked || !selected.value, onClick: () => open('definition')}},
-    {type: 'r-button', props: {label: '请求方案设计', disabled: blocked || !selected.value, onClick: () => {configProviderId.value = selected.value}}},
-    {type: 'r-button', props: {label: '接口方案设计', disabled: blocked || !selected.value, onClick: () => {interfaceProviderId.value = selected.value}}},
-    {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
-  ]}
-})
-useSystemPageDirtySource({get isDirty() {return busy.value || dirty.value || unconfirmed.value}})
-function choose(row: DataRow): void {view('default')?.setSelectedRows([row])}
-async function act(action: () => Promise<unknown>): Promise<boolean> {
-  if (busy.value) return false
-  busy.value = true; editorError.value = ''
-  try {await action(); return true}
-  catch (cause) {editorError.value = cause instanceof Error ? cause.message : String(cause); return false}
-  finally {busy.value = false; revision.value++}
-}
-async function open(target: EditView): Promise<void> {
-  editing.value = target
-  if (target === 'create') await act(async () => {
-    const create = view('create')!
-    await create.discardAndReload()
-    create.setCurrentRow(await create.addRow({}))
-  })
-}
-async function save(): Promise<void> {
-  const target = editing.value
-  if (!target || !dataSet) return
-  const current = dataSet
-  await act(async () => {
-    const result = await current.saveChanges({views: [{tableName: 'Base_InterfaceProvider', viewId: target}]})
-    if (!result.success) throw new Error(result.message ?? '服务商保存未完整确认')
-  })
-}
-async function reload(): Promise<void> {const target = editing.value; if (target && dataSet) {const current = dataSet; await act(() => current.discardAndReload({views: [{tableName: 'Base_InterfaceProvider', viewId: target}]}))}}
-// 目录刷新会重置选中并清空definition级联结果，因此只在对话框关闭后刷新。
-function finish(): void {editing.value = ''; void view('default')?.requestRefresh()}
-function close(): void {if (!busy.value && !dirty.value && !unconfirmed.value) finish()}
-function cancel(): void {if (!busy.value && !unconfirmed.value) {editView.value?.discardPendingChanges(); revision.value++; finish()}}
-watch([scenarioId, projectId], async ([scenario, project]) => {
-  const own = ++generation
-  ready.value = false; loading.value = true; error.value = ''; editing.value = ''; busy.value = false
-  configProviderId.value = ''; interfaceProviderId.value = ''
-  unsubscribe?.(); dataSet = undefined; session.dispose()
+const specs: readonly FeatureFieldSpec[] = [
+  {field: 'Name', label: '提供商名称', placeholder: '请输入提供商名称', required: true},
+  {field: 'BaseURL', label: 'API 基础 URL', placeholder: '请输入 API 基础 URL', required: true},
+]
+type RowRenderContext = Readonly<{row?: DataRow | null; dataSource?: DataView | null}>
+type RowGuard = (row: DataRow, view: DataView) => boolean
+type RowButtonOptions = Readonly<{visible?: RowGuard; buttonType?: string; permAction?: 'edit' | 'delete'}>
+const rowButton = (label: string, onClick: (row: DataRow) => unknown, options: RowButtonOptions = {}): SparkNode =>
+  ({type: 'r-button', props: {dataViewKey: viewKey, label, link: true, buttonType: options.buttonType ?? 'primary', disabled: blocked.value, onClick,
+    ...(options.permAction ? {permAction: options.permAction} : {}),
+    ...(options.visible ? {onBeforeRender: ({row, dataSource}: RowRenderContext) =>
+      Boolean(row && dataSource && options.visible?.(row, dataSource))} : {})}})
+const actions = computed<RToolbarProps>(() => ({gap: 4, children: [
+  rowButton('编辑', openEdit, {visible: (row, view) => view.editActionState(row) === 'enabled'}),
+  rowButton('删除', removeProvider, {buttonType: 'danger', visible: (row, view) => view.deleteActionState(row) === 'enabled'}),
+  rowButton('接口列表', row => openInterfaces(String(list().getPkKey(row) ?? ''), text(row, 'Name'))),
+  rowButton('基础配置', openConfig, {permAction: 'edit'}),
+]}))
+
+async function openCreate(): Promise<void> {
+  if (blocked.value) return
+  busy.value = true; message.value = ''
   try {
-    const current = session.acquire({pageId: 'api-management-page', scenarioIds: [scenario], targetId: `${project}:${scenario}`,
-      loadScenario: id => loadLowcodeRuntimeScenario({projectId: project, scenarioId: id})})
-    await current.load()
-    if (!active || own !== generation || !session.isCurrent(current)) return
-    dataSet = current.getDataSet(scenario)!
-    unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: changed, currentRowChanged: changed, rowsChanged: changed, editingChanged: changed,
-      editingFieldChanged: changed, editingDiscarded: changed, requestStateChanged: changed})
-    dataSet.triggerAutoLoad()
-    if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); ready.value = true}
-  } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
-  finally {if (active && own === generation) loading.value = false}
-}, {immediate: true})
-function changed(): void {revision.value++}
-onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
+    const view = list()
+    if (view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave) throw new Error('目录仍有未处理的修改，请刷新后再新建')
+    const id = view.getPkKey(await view.addRow({}))
+    if (id === undefined) throw new Error('新增服务提供商缺少原生身份')
+    dialog.value = {kind: 'record', id, created: true, epoch: ++epoch}
+  } catch (cause) { message.value = `新增服务提供商失败：${failure(cause)}` } finally { busy.value = false }
+}
+function openEdit(row: DataRow): void {
+  const id = list().getPkKey(row)
+  if (id === undefined) { message.value = '服务提供商缺少可读的身份'; return }
+  dialog.value = {kind: 'record', id, created: false, epoch: ++epoch}
+}
+function openConfig(row: DataRow): void {
+  const id = list().getPkKey(row)
+  if (id === undefined) { message.value = '服务提供商缺少可读的身份'; return }
+  dialog.value = {kind: 'config', id: String(id), name: text(row, 'Name'), epoch: ++epoch}
+}
+function openInterfaces(id: string, name: string): void {
+  if (!id) { message.value = '服务提供商缺少可读的身份'; return }
+  interfaces.value = {id, name, epoch: ++epoch}
+}
+function openConfigInterfaces(): void {
+  const current = dialog.value
+  if (current?.kind === 'config') openInterfaces(current.id, current.name)
+}
+function openAi(): void {
+  if (!blocked.value) dialog.value = {kind: 'ai', epoch: ++epoch}
+}
+async function refreshList(): Promise<void> {
+  const view = list()
+  if (view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave) return
+  await view.refresh()
+  revision.value++
+}
+async function closeRecord(): Promise<void> {
+  dialog.value = null
+  try { await refreshList() } catch (cause) { message.value = `刷新外部服务目录失败：${failure(cause)}` }
+}
+async function closeAi(saved: boolean): Promise<void> {
+  dialog.value = null
+  if (saved) await closeRecord()
+}
+
+async function removeProvider(row: DataRow): Promise<void> {
+  if (blocked.value) return
+  const confirmed = await ElMessageBox.confirm(`确定要删除服务提供商“${text(row, 'Name')}”吗？`, '删除确认', {type: 'warning'})
+    .then(() => true, () => false)
+  if (!confirmed) return
+  busy.value = true; message.value = ''
+  const view = list(), id = view.getPkKey(row)
+  try {
+    if (id === undefined) throw new Error('服务提供商缺少可读的身份')
+    if (view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave) throw new Error('目录仍有未处理的修改，请刷新后再删除')
+    const children = childRecords.map(child => ({label: child.label, view: resolve(buildDataViewKey(child.modelName, 'children', configScenarioId))}))
+    await Promise.all(children.map(child => {
+      child.view.queryContext = {...child.view.queryContext, providerId: String(id)}
+      return child.view.refresh()
+    }))
+    const failed = children.find(child => child.view.loadingError)
+    if (failed?.view.loadingError) throw failed.view.loadingError
+    const occupied = children.filter(child => child.view.rows.length > 0 || child.view.total > 0).map(child => child.label)
+    if (occupied.length > 0) throw new Error(`该服务提供商下仍有${occupied.join('、')}，不能删除`)
+    if (view.deleteActionState(row) !== 'enabled') throw new Error('当前无删除该服务提供商的权限')
+    await view.removeRow(id)
+    const result = await view.dataSet?.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
+    if (!result) throw new Error('外部服务目录缺少所属数据空间')
+    if (!result.success) {
+      if (!view.hasUnconfirmedSave) view.discardPendingChanges([id])
+      throw new Error(result.error?.message ?? '删除结果未确认，请刷新核验')
+    }
+    ElMessage.success('删除成功')
+    await refreshList()
+  } catch (cause) { message.value = `删除服务提供商失败：${failure(cause)}` } finally { busy.value = false }
+}
 </script>
+
+<style scoped>
+.api-manage-page {padding: 8px}
+</style>

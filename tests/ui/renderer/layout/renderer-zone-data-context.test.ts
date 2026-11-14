@@ -189,3 +189,19 @@ describe('standard zones retain their original DataView', () => {
     expect(actionParent.style.display).toBe('grid')
   })
 })
+
+describe('standard containers render zone slots provided after mount', () => {
+  const late: Array<[string, Component, string]> = [['section', RendererSection, 'header-actions'],
+    ['dialog header', RendererDialog, 'header-actions'], ['dialog footer', RendererDialog, 'footer'],
+    ['drawer header', RendererDrawer, 'header-actions'], ['drawer footer', RendererDrawer, 'footer']]
+  it.each(late)('%s shows a conditional slot once the page becomes ready', async (_name, component, slot) => {
+    const state = reactive({ready: false})
+    const Host = defineComponent({setup: () => () => h(component, {title: '编辑', modelValue: true}, {
+      default: () => h('span', '正文'), ...(state.ready ? {[slot]: () => h('output', {class: 'late-zone'}, '后到')} : {})})})
+    const wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {teleport: true}}})
+    cleanup.push(() => wrapper.unmount()); await flushPromises()
+    expect(wrapper.find('.late-zone').exists()).toBe(false)
+    state.ready = true; await flushPromises()
+    expect(wrapper.find('.late-zone').text()).toBe('后到')
+  })
+})

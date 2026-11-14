@@ -16,6 +16,7 @@ export type FeatureFieldSpec = Readonly<{
   optionKey?: string
   labelFields?: string[]
   labelJoiner?: string
+  placeholder?: string
   required?: boolean
   requiredWhen?: (row: Readonly<DataRow>) => boolean
   readonly?: boolean

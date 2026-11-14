@@ -7,4 +7,6 @@
 export type ApiInterfaceListPageProps = {
   /** 正式服务商主键。 */
   providerId: string
+  /** 服务商名称，仅用于窗口标题；身份仍以providerId为准。 */
+  providerName?: string
 }

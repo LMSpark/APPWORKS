@@ -1,5 +1,5 @@
 {
-  "gapCount": 3836,
+  "gapCount": 3837,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -45221,12 +45221,24 @@
     {
       "kind": "attribute",
       "className": "FeatureFieldSpec",
+      "memberName": "placeholder",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FeatureFieldSpec.placeholder 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/shared/record/feature-field-spec.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/shared/record/feature-field-spec.ts",
+      "declarationLine": 20,
+      "sourceFile": "src/views/features/shared/record/feature-field-spec.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "FeatureFieldSpec",
       "memberName": "required",
       "reason": "missing-jsdoc",
       "chainBreak": "FeatureFieldSpec.required 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/shared/record/feature-field-spec.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/shared/record/feature-field-spec.ts",
-      "declarationLine": 20,
+      "declarationLine": 21,
       "sourceFile": "src/views/features/shared/record/feature-field-spec.ts",
       "declarationKind": "interface"
     },
@@ -45238,7 +45250,7 @@
       "chainBreak": "FeatureFieldSpec.requiredWhen 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/shared/record/feature-field-spec.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/shared/record/feature-field-spec.ts",
-      "declarationLine": 21,
+      "declarationLine": 22,
       "sourceFile": "src/views/features/shared/record/feature-field-spec.ts",
       "declarationKind": "typeAlias"
     },
@@ -45250,7 +45262,7 @@
       "chainBreak": "FeatureFieldSpec.readonly 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/shared/record/feature-field-spec.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/shared/record/feature-field-spec.ts",
-      "declarationLine": 22,
+      "declarationLine": 23,
       "sourceFile": "src/views/features/shared/record/feature-field-spec.ts",
       "declarationKind": "interface"
     },
@@ -45262,7 +45274,7 @@
       "chainBreak": "FeatureFieldSpec.readonlyWhen 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/shared/record/feature-field-spec.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/shared/record/feature-field-spec.ts",
-      "declarationLine": 23,
+      "declarationLine": 24,
       "sourceFile": "src/views/features/shared/record/feature-field-spec.ts",
       "declarationKind": "typeAlias"
     },
@@ -45274,7 +45286,7 @@
       "chainBreak": "FeatureFieldSpec.when 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/shared/record/feature-field-spec.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/shared/record/feature-field-spec.ts",
-      "declarationLine": 24,
+      "declarationLine": 25,
       "sourceFile": "src/views/features/shared/record/feature-field-spec.ts",
       "declarationKind": "typeAlias"
     },

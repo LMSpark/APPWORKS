@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1177,
+  "scannedFileCount": 1178,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -18500,7 +18500,7 @@
         "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
         "packageName": "app",
         "modulePath": "views/features/integration/api-management/ui/api-config-page",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/api-config-page\n职责：恢复原基础配置入口下的公共参数、公共头部与令牌前缀方案设计。\n边界：经标准场景入口装配，providerId作为场景输入；规则、归属默认值、删除许可和保存均由SPARK data承接，页面只转发事件。\nAI用途：三个独立提交域分别保存与取消，完整键定位正式配置空间。",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/api-config-page\n职责：服务提供商“配置信息设置”：JWT设置、请求头部信息、公共参数、认证账号四个独立提交域。\n边界：消费外部服务管理页同一PageRuntime中的请求配置空间；providerId写入各视图查询参数，归属默认值、规则、删除许可和保存均由SPARK data承接。\nAI用途：每个页签只保存本页签视图，不夹带其它页签草稿；未知回执须重读核验，不自动重放。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -18541,7 +18541,7 @@
         "sourceFile": "src/views/features/integration/api-management/ui/api-management-page.vue",
         "packageName": "app",
         "modulePath": "views/features/integration/api-management/ui/api-management-page",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/api-management-page\n职责：外部服务商目录与基础定义维护，保留原导航和业务路径。\n边界：经标准场景入口装配；标准组件绑定DataView，校验、权限、保存及重读均由SPARK data承接，页面只转发事件。\nAI用途：目录选择经查询级联驱动definition视图，新建使用空结果的create视图。",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/api-management-page\n职责：外部服务管理：服务提供商目录的新建、编辑、删除、AI添加，并进入接口列表与基础配置。\n边界：目录、记录编辑与删除都绑定同一PageRuntime的正式DataView；删除前经请求配置空间的children视图核对下属记录，有则拒绝。\nAI用途：恢复外部服务入口时复用标准外壳、通用记录对话框和AI添加对话框，不手写请求或第二份草稿。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -18686,7 +18686,7 @@
         "sourceFile": "src/views/features/organization/job-management/ui/job-management-page.vue",
         "packageName": "app",
         "modulePath": "views/features/organization/job-management/ui/job-management-page",
-        "jsdoc": "@module app:views/features/organization/job-management/ui/job-management-page\n职责：展示当前租户岗位目录并提供查询、重置、刷新和分页。\n边界：岗位及机构选项均读取正式 DataView，不提供岗位编辑或跨租户切换。\nAI用途：恢复岗位目录时，核对正式导航身份与机构选项绑定。",
+        "jsdoc": "@module app:views/features/organization/job-management/ui/job-management-page\n职责：展示当前租户岗位目录并提供查询、重置、刷新和分页。\n边界：岗位及机构选项均读取正式 DataView，选项与主视图同批装配；不提供岗位编辑或跨租户切换。\nAI用途：恢复岗位目录时，核对正式导航身份与机构选项绑定。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -18712,7 +18712,20 @@
         "sourceFile": "src/views/features/organization/user-management/ui/user-management-page.vue",
         "packageName": "app",
         "modulePath": "views/features/organization/user-management/ui/user-management-page",
-        "jsdoc": "@module app:views/features/organization/user-management/ui/user-management-page\n职责：展示当前租户人员任职目录并提供姓名、机构查询、重置、刷新和分页。\n边界：人员及机构选项均读取机构空间正式 DataView，不提供人员编辑或跨租户切换。\nAI用途：恢复人员目录时，核对导航身份与所消费机构空间的绑定。",
+        "jsdoc": "@module app:views/features/organization/user-management/ui/user-management-page\n职责：展示当前租户人员任职目录并提供姓名、机构查询、重置、刷新和分页。\n边界：人员及机构选项均读取机构空间正式 DataView，选项与主视图同批装配；不提供人员编辑或跨租户切换。\nAI用途：恢复人员目录时，核对导航身份与所消费机构空间的绑定。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/shared/ai/ai-data-entry-dialog.vue": {
+      "file": "files/src/views/features/shared/ai/ai-data-entry-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/shared/ai/ai-data-entry-dialog",
+        "sourcePath": "src/views/features/shared/ai/ai-data-entry-dialog.vue",
+        "sourceFile": "src/views/features/shared/ai/ai-data-entry-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/shared/ai/ai-data-entry-dialog",
+        "jsdoc": "@module app:views/features/shared/ai/ai-data-entry-dialog\n职责：以对话框承载标准AI批量新增组件；确认后的候选暂存在目标DataView，由本对话框经同一DataSet提交。\n边界：目标是当前PageRuntime可解析的完整视图键；AI会话owner依附目标DataSet，不另建草稿或提交通道。\nAI用途：功能页“AI添加”入口复用；可生成的字段由正式模型字段的AI操作设置与目标视图权限决定。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

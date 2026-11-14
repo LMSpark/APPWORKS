@@ -64,8 +64,9 @@ AI用途：需要理解 renderer table 的实际渲染结构、slot/toolbar/状�
         <!-- 行操作列（左） -->
         <el-table-column
           v-if="hasLeftActions"
-          label="操作"
-          :width="220"
+          :label="props.actionColumn?.label ?? '操作'"
+          :width="props.actionColumn?.width ?? 220"
+          :fixed="props.actionColumn?.fixed ? 'left' : undefined"
           :resizable="tableColumnResizable"
           header-align="center"
         >
@@ -108,8 +109,9 @@ AI用途：需要理解 renderer table 的实际渲染结构、slot/toolbar/状�
         <!-- 行操作列（右，默认） -->
         <el-table-column
           v-if="hasRightActions"
-          label="操作"
-          :width="220"
+          :label="props.actionColumn?.label ?? '操作'"
+          :width="props.actionColumn?.width ?? 220"
+          :fixed="props.actionColumn?.fixed ? 'right' : undefined"
           :resizable="tableColumnResizable"
           header-align="center"
         >

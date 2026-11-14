@@ -8,7 +8,7 @@
       },
       "views": {
         "default": {
-          "autoLoad": true,
+          "autoLoad": false,
           "autoCurrentFirst": true,
           "autoSelectFirst": false,
           "queryContext": {
@@ -48,7 +48,17 @@
           "queryConfig": {
             "fields": [
               "rowid",
-              "TokenPrefix"
+              "Name",
+              "BaseURL",
+              "loginApiName",
+              "TokenPrefix",
+              "TokenField",
+              "refreshTokenField",
+              "expireTimeField",
+              "expireRefreshTokenField",
+              "tokenHeaderField",
+              "refreshTokenHeaderField",
+              "expireTimeHeaderField"
             ],
             "allPages": true
           },
@@ -116,6 +126,8 @@
           "autoCurrentFirst": false,
           "autoSelectFirst": false,
           "commitMode": "staged",
+          "page": 1,
+          "pageSize": 10,
           "queryContext": {
             "providerId": ""
           },
@@ -126,8 +138,7 @@
               "paramName",
               "paramValue",
               "type"
-            ],
-            "allPages": true
+            ]
           },
           "filterExpression": {
             "logic": "and",
@@ -140,6 +151,26 @@
                   "ParamName": "providerId"
                 }
               }
+            ]
+          }
+        },
+        "children": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "page": 1,
+          "pageSize": 1,
+          "scopeFilter": {
+            "field": "proId",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "providerId"
+            }
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid"
             ]
           }
         }
@@ -195,6 +226,8 @@
           "autoSelectFirst": false,
           "commitMode": "staged",
           "allowDelete": false,
+          "page": 1,
+          "pageSize": 10,
           "queryContext": {
             "providerId": ""
           },
@@ -208,8 +241,7 @@
               "outputfield",
               "interfaceName",
               "accessPath"
-            ],
-            "allPages": true
+            ]
           },
           "filterExpression": {
             "logic": "and",
@@ -254,6 +286,26 @@
                   "ParamName": "providerId"
                 }
               }
+            ]
+          }
+        },
+        "children": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "page": 1,
+          "pageSize": 1,
+          "scopeFilter": {
+            "field": "providerId",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "providerId"
+            }
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid"
             ]
           }
         }
@@ -319,6 +371,93 @@
               }
             ]
           }
+        },
+        "children": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "page": 1,
+          "pageSize": 1,
+          "scopeFilter": {
+            "field": "ProviderID",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "providerId"
+            }
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid"
+            ]
+          }
+        }
+      }
+    },
+    "Base_InterfaceProvider_Account": {
+      "modelBinding": {
+        "modelId": "446B5D94A71587E9BD4D325A4DF5F6F8p003",
+        "modelName": "Base_InterfaceProvider_Account"
+      },
+      "columns": [
+        {
+          "name": "ProviderID",
+          "immutable": true
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": true,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "page": 1,
+          "pageSize": 10,
+          "queryContext": {
+            "providerId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "ProviderID",
+              "UserName",
+              "Password",
+              "description"
+            ]
+          },
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {
+                "field": "ProviderID",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "providerId"
+                }
+              }
+            ]
+          }
+        },
+        "children": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "page": 1,
+          "pageSize": 1,
+          "scopeFilter": {
+            "field": "ProviderID",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "providerId"
+            }
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid"
+            ]
+          }
         }
       }
     },
@@ -359,6 +498,38 @@
               }
             ]
           }
+        },
+        "jwt": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "valueField": "enname",
+          "labelField": "cnname",
+          "queryContext": {
+            "loginApiId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblid",
+              "enname",
+              "cnname"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {
+                "field": "tblid",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "loginApiId"
+                }
+              }
+            ]
+          }
         }
       }
     }
@@ -377,7 +548,7 @@
       "parents": [
         {
           "tableName": "Base_InterfaceProvider",
-          "viewId": "default",
+          "viewId": "authentication",
           "field": "rowid",
           "parameter": "providerId"
         }
@@ -408,6 +579,125 @@
       "optionsView": {
         "tableName": "Base_TblField",
         "viewId": "default"
+      }
+    },
+    {
+      "kind": "field",
+      "cascadeId": "jwt-login-api",
+      "tableName": "Base_InterfaceProvider",
+      "viewId": "authentication",
+      "targetField": "loginApiName",
+      "valueFormat": "native",
+      "valuePolicy": {
+        "mode": "retain"
+      },
+      "parents": [
+        {
+          "tableName": "Base_InterfaceProvider",
+          "viewId": "authentication",
+          "field": "rowid",
+          "parameter": "providerId"
+        }
+      ],
+      "optionsView": {
+        "tableName": "Base_DataServiceInterface",
+        "viewId": "default"
+      }
+    },
+    {
+      "kind": "field",
+      "cascadeId": "jwt-token-field",
+      "tableName": "Base_InterfaceProvider",
+      "viewId": "authentication",
+      "targetField": "TokenField",
+      "valueFormat": "native",
+      "valuePolicy": {
+        "mode": "clear",
+        "clearValue": ""
+      },
+      "parents": [
+        {
+          "tableName": "Base_InterfaceProvider",
+          "viewId": "authentication",
+          "field": "loginApiName",
+          "parameter": "loginApiId"
+        }
+      ],
+      "optionsView": {
+        "tableName": "Base_TblField",
+        "viewId": "jwt"
+      }
+    },
+    {
+      "kind": "field",
+      "cascadeId": "jwt-refresh-token-field",
+      "tableName": "Base_InterfaceProvider",
+      "viewId": "authentication",
+      "targetField": "refreshTokenField",
+      "valueFormat": "native",
+      "valuePolicy": {
+        "mode": "clear",
+        "clearValue": ""
+      },
+      "parents": [
+        {
+          "tableName": "Base_InterfaceProvider",
+          "viewId": "authentication",
+          "field": "loginApiName",
+          "parameter": "loginApiId"
+        }
+      ],
+      "optionsView": {
+        "tableName": "Base_TblField",
+        "viewId": "jwt"
+      }
+    },
+    {
+      "kind": "field",
+      "cascadeId": "jwt-expire-time-field",
+      "tableName": "Base_InterfaceProvider",
+      "viewId": "authentication",
+      "targetField": "expireTimeField",
+      "valueFormat": "native",
+      "valuePolicy": {
+        "mode": "clear",
+        "clearValue": ""
+      },
+      "parents": [
+        {
+          "tableName": "Base_InterfaceProvider",
+          "viewId": "authentication",
+          "field": "loginApiName",
+          "parameter": "loginApiId"
+        }
+      ],
+      "optionsView": {
+        "tableName": "Base_TblField",
+        "viewId": "jwt"
+      }
+    },
+    {
+      "kind": "field",
+      "cascadeId": "jwt-expire-refresh-token-field",
+      "tableName": "Base_InterfaceProvider",
+      "viewId": "authentication",
+      "targetField": "expireRefreshTokenField",
+      "valueFormat": "native",
+      "valuePolicy": {
+        "mode": "clear",
+        "clearValue": ""
+      },
+      "parents": [
+        {
+          "tableName": "Base_InterfaceProvider",
+          "viewId": "authentication",
+          "field": "loginApiName",
+          "parameter": "loginApiId"
+        }
+      ],
+      "optionsView": {
+        "tableName": "Base_TblField",
+        "viewId": "jwt"
       }
     }
   ]

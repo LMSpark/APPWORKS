@@ -14,6 +14,11 @@ import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dyn
 import {createApiService, seed, NAV, API, CONFIG, META, pagedata} from './api-provider.fixture'
 
 const api = vi.hoisted(() => ({current: undefined as unknown as ReturnType<typeof import('./api-provider.fixture')['createApiService']>}))
+const confirmBox = vi.hoisted(() => vi.fn<(message: string, title: string) => Promise<string>>())
+vi.mock('element-plus', async importOriginal => {
+  const original = await importOriginal<typeof import('element-plus')>()
+  return {...original, ElMessageBox: {...original.ElMessageBox, confirm: confirmBox}}
+})
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return api.current.state.http},
   lowcodeApi: {readRequestScope: (...args: unknown[]) => api.current.service.readRequestScope(...args),
@@ -26,7 +31,6 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
     writeText: async () => {throw new Error('pages must not write scenario files')}}}),
 }))
 const {default: ManagementPage} = await import('@/views/features/integration/api-management/ui/api-management-page.vue')
-const {default: ConfigPage} = await import('@/views/features/integration/api-management/ui/api-config-page.vue')
 const {default: InterfacePage} = await import('@/views/features/integration/api-management/ui/api-interface-list-page.vue')
 
 api.current = createApiService()
@@ -47,7 +51,7 @@ async function mountAt(component: Component, props: Record<string, unknown> = {}
   const router = createRouter({history: createMemoryHistory(), routes: []})
   const dynamic = createDynamicRouter({router, pageComponent: page, componentMap: {'/providers': page}, applicationPathPrefix: '/apps/:projectId',
     loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header', items: [
-      {id: 'providers', title: '外部服务管理', path: '/providers', itemKind: 'system-page', blueprintScenarioId: NAV}]})})
+      {id: NAV, title: '外部服务管理', path: '/providers', itemKind: 'system-page', blueprintScenarioId: NAV}]})})
   await dynamic.registerRoutes(); await router.push('/apps/APP/providers'); await router.isReady()
   const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body, global: {plugins: [router, ElementPlus, VXETable, Spark.createPlugin()]}})
   wrappers.push(wrapper)
@@ -84,19 +88,17 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(source).toContain('scenarioInputs: {[scenarioId]: {providerId}}')
     expect(source).not.toContain('new PageRuntime')
   })
-  it('hosts the API config runtime through the shared native session', () => {
+  it('configures providers inside the catalog runtime instead of a second session', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/views/features/integration/api-management/ui/api-config-page.vue'), 'utf8')
-    expect(source).toContain('new NativePageRuntimeSession')
-    expect(source).toContain('session.isCurrent(current)')
-    expect(source).toContain('deferredScenarioIds:[DATA_SPACE_DESIGN_FORM_KEY]')
-    expect(source).toContain('scenarioInputs: {[scenarioId]: {providerId}}')
+    expect(source).toContain('sparkConsume(PAGE_RUNTIME)')
+    expect(source).not.toContain('NativePageRuntimeSession')
     expect(source).not.toContain('new PageRuntime')
   })
-  it('hosts the external API catalog runtime through the shared native session', () => {
+  it('assembles the external API catalog through the shared feature runtime with the config space as peer', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/views/features/integration/api-management/ui/api-management-page.vue'), 'utf8')
-    expect(source).toContain('new NativePageRuntimeSession')
-    expect(source).toContain('session.isCurrent(current)')
-    expect(source).toContain('loadLowcodeRuntimeScenario({projectId: project, scenarioId: id})')
+    expect(source).toContain('useFeaturePageRuntime({')
+    expect(source).toContain('peerScenarioIds: [configScenarioId]')
+    expect(source).not.toContain('NativePageRuntimeSession')
     expect(source).not.toContain('new PageRuntime')
   })
   it('cancels cross-interface parameter rebinding without writing or changing the original row',async()=>{
@@ -286,7 +288,7 @@ describe('external API pages assembled through the standard scenario entry', () 
     parent.setCurrentRowById('I1');parent.setSelectedRows([parent.currentRow!])
     await vi.waitFor(()=>expect(reopened.getView('Base_TblField')!.rows[0]?.['cnname']).toBe('saved title'))
   })
-  it.each([{component:InterfacePage,scenario:API},{component:ConfigPage,scenario:CONFIG}])('provides its original deferred metadata host for $scenario',async({component,scenario})=>{
+  it.each([{component:InterfacePage,scenario:API}])('provides its original deferred metadata host for $scenario',async({component,scenario})=>{
     const observed=new Set<PageRuntime>(),original=PageRuntime.prototype.load
     vi.spyOn(PageRuntime.prototype,'load').mockImplementation(function(this:PageRuntime){observed.add(this);return original.call(this)})
     await mountAt(component,{providerId:'P1'})
@@ -304,30 +306,81 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(getVuePageEntry(path)).toMatchObject({source: `src/views${path}.vue`, scope: 'enterprise'})
   })
 
-  it('lists providers and creates one through the create view with page events only', async () => {
+  it('lists providers with the reference columns and creates one through the shared record dialog', async () => {
     const wrapper = await mountAt(ManagementPage)
-    expect(wrapper.text()).toContain('服务甲')
-    expect(wrapper.text()).toContain('服务乙')
-    await button(wrapper, '新增服务商')!.trigger('click')
-    await vi.waitFor(async () => {await flushPromises(); expect(wrapper.findComponent(RendererForm).exists()).toBe(true)})
-    const inputs = wrapper.findComponent(RendererForm).findAll('input')
+    for (const text of ['外部服务管理', '服务提供商名称', 'API 基础 URL', '修改人', '修改时间', '提供商操作', '服务甲', '服务乙', '修改人甲']) expect(wrapper.text()).toContain(text)
+    await button(wrapper, '新建')!.trigger('click')
+    await vi.waitFor(async () => {await flushPromises(); expect(document.body.textContent).toContain('新增外部服务提供商')})
+    const form = wrapper.findAllComponents(RendererForm).at(-1)!
+    const inputs = form.findAll('input')
     await inputs[0]!.setValue('新服务'); await inputs[1]!.setValue('https://new.test')
-    await button(wrapper, '保存基础信息')!.trigger('click')
+    wrapper.findAllComponents(RendererButton).find(item => item.props('label') === '确定')!.vm.$emit('click')
     await vi.waitFor(async () => {await flushPromises(); expect(records('Base_InterfaceProvider').some(row => row['Name'] === '新服务')).toBe(true)})
     expect(api.current.state.http.saves.at(-1)).toMatchObject({table: 'Base_InterfaceProvider', changed: [], deleted: []})
   })
 
-  it('opens the request settings for one provider and saves the prefix verbatim', async () => {
-    const wrapper = await mountAt(ConfigPage, {providerId: 'P1'})
-    expect(wrapper.text()).toContain('access_token')
-    expect(wrapper.text()).not.toContain('other')
-    await wrapper.findAll('.el-tabs__item').find(item => item.text() === '公共请求头')!.trigger('click')
-    await vi.waitFor(async () => {await flushPromises(); expect(wrapper.text()).toContain('令牌前缀')})
-    const prefix = wrapper.findAllComponents(RendererForm).find(form => form.text().includes('令牌前缀'))
-    expect(prefix).toBeDefined()
-    await prefix!.get('input').setValue(' Token ')
-    await button(wrapper, '保存令牌前缀')!.trigger('click')
-    await vi.waitFor(async () => {await flushPromises(); expect(records('Base_InterfaceProvider')[0]!['TokenPrefix']).toBe(' Token ')})
+  it('refuses to delete a provider that still owns interfaces or request settings', async () => {
+    confirmBox.mockReset().mockResolvedValue('confirm')
+    const wrapper = await mountAt(ManagementPage)
+    await wrapper.findAll('button').filter(item => item.text() === '删除')[0]!.trigger('click')
+    await vi.waitFor(async () => {await flushPromises(); expect(wrapper.text()).toContain('该服务提供商下仍有接口、请求头、公共参数、认证账号，不能删除')})
+    expect(api.current.state.http.saves).toHaveLength(0)
+    expect(records('Base_InterfaceProvider').map(row => row['rowid'])).toEqual(['P1', 'P2'])
+  })
+
+  it('deletes a provider without child records by its original identity only', async () => {
+    records('Base_InterfaceProvider').push({rowid: 'P3', Name: '服务丙', BaseURL: 'https://c.test'})
+    confirmBox.mockReset().mockResolvedValue('confirm')
+    const wrapper = await mountAt(ManagementPage)
+    expect(wrapper.text()).toContain('服务丙')
+    await wrapper.findAll('button').filter(item => item.text() === '删除')[2]!.trigger('click')
+    await vi.waitFor(async () => {await flushPromises(); expect(records('Base_InterfaceProvider').map(row => row['rowid'])).toEqual(['P1', 'P2'])})
+    expect(api.current.state.http.saves).toEqual([{table: 'Base_InterfaceProvider', added: [], changed: [], deleted: [expect.objectContaining({rowid: 'P3'})]}])
+  })
+
+  it('opens the provider configuration in four tabs and saves the JWT settings verbatim', async () => {
+    const observed = new Set<PageRuntime>(), original = PageRuntime.prototype.load
+    vi.spyOn(PageRuntime.prototype, 'load').mockImplementation(function (this: PageRuntime) {observed.add(this); return original.call(this)})
+    const wrapper = await mountAt(ManagementPage)
+    await wrapper.findAll('button').filter(item => item.text() === '基础配置')[0]!.trigger('click')
+    await vi.waitFor(async () => {await flushPromises(); expect(document.body.textContent).toContain('配置信息设置')})
+    for (const text of ['JWT设置', '请求头部信息', '公共参数', '认证账号', '认证设置', '令牌过期刷新', '认证接口', '从响应中提取的令牌字段名', 'Header提取令牌属性'])
+      expect(document.body.textContent).toContain(text)
+    const ds = [...observed].find(page => page.getDataSet(CONFIG))!.getDataSet(CONFIG)!
+    const auth = ds.getView('Base_InterfaceProvider', 'authentication')!
+    expect(auth.rows.map(row => row['rowid'])).toEqual(['P1'])
+    expect(api.current.state.http.reads.some(read => read.table === 'Base_InterfaceProvider_Headers')).toBe(false)
+    auth.updateEditingValue('P1', 'loginApiName', 'I1')
+    await vi.waitFor(() => expect(ds.getFieldCascadeState({tableName: 'Base_InterfaceProvider', viewId: 'authentication', field: 'TokenField'})
+      .options.map(row => row['enname'])).toEqual(['token']))
+    auth.updateEditingValue('P1', 'TokenPrefix', ' Token ')
+    await button(wrapper, '保存')!.trigger('click')
+    await vi.waitFor(async () => {await flushPromises(); expect(records('Base_InterfaceProvider')[0]).toMatchObject({TokenPrefix: ' Token ', loginApiName: 'I1'})})
+    expect(api.current.state.http.saves).toHaveLength(1)
+  })
+
+  it('loads each configuration tab on demand and adds an account owned by the provider', async () => {
+    const observed = new Set<PageRuntime>(), original = PageRuntime.prototype.load
+    vi.spyOn(PageRuntime.prototype, 'load').mockImplementation(function (this: PageRuntime) {observed.add(this); return original.call(this)})
+    const wrapper = await mountAt(ManagementPage)
+    await wrapper.findAll('button').filter(item => item.text() === '基础配置')[0]!.trigger('click')
+    await vi.waitFor(async () => {await flushPromises(); expect(document.body.textContent).toContain('配置信息设置')})
+    const tabItem = (label: string) => wrapper.findAll('.el-tabs__item').find(item => item.text() === label)!
+    await tabItem('请求头部信息').trigger('click')
+    await vi.waitFor(async () => {await flushPromises(); expect(wrapper.findAllComponents(RendererTable).some(table => table.text().includes('使用场景'))).toBe(true)})
+    const ds = [...observed].find(page => page.getDataSet(CONFIG))!.getDataSet(CONFIG)!
+    expect(ds.getView('Base_InterfaceProvider_Headers')!.rows.map(row => row['rowid'])).toEqual(['H1'])
+    await tabItem('认证账号').trigger('click')
+    const accounts = ds.getView('Base_InterfaceProvider_Account')!
+    await vi.waitFor(async () => {await flushPromises(); expect(accounts.rows.map(row => row['rowid'])).toEqual(['C1'])})
+    await wrapper.findAll('button').filter(item => item.text() === '新增').at(-1)!.trigger('click')
+    await flushPromises()
+    const created = accounts.rows.find(row => accounts.dirtyTracking.isPendingCreate(accounts.getPkKey(row)!))!
+    expect(created['ProviderID']).toBe('P1')
+    accounts.updateEditingValue(accounts.getPkKey(created)!, 'UserName', 'second')
+    await wrapper.findAll('button').filter(item => item.text() === '保存').at(-1)!.trigger('click')
+    await vi.waitFor(() => expect(api.current.state.http.saves).toHaveLength(1))
+    expect(api.current.state.http.saves[0]).toMatchObject({table: 'Base_InterfaceProvider_Account', added: [expect.objectContaining({ProviderID: 'P1', UserName: 'second'})]})
   })
 
   it('opens the interface scheme for one provider with no child definition loaded before a selection', async () => {

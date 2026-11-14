@@ -2,14 +2,14 @@
   <RendererForm :data-view-key="dataViewKey" :context-row-id="recordId" :auto-columns="false"
     :show-data-view-meta="false" :grid-columns="columns">
     <template v-for="spec in visible" :key="spec.field">
-      <FieldTextarea v-if="spec.kind === 'textarea'" :field="spec.field" :label="spec.label" :readonly="fieldReadonly(spec)" />
+      <FieldTextarea v-if="spec.kind === 'textarea'" :field="spec.field" :label="spec.label" v-bind="placeholderOf(spec)" :readonly="fieldReadonly(spec)" />
       <FieldSwitch v-else-if="spec.kind === 'switch'" :field="spec.field" :label="spec.label" :readonly="fieldReadonly(spec)" />
       <FieldNumber v-else-if="spec.kind === 'number'" :field="spec.field" :label="spec.label" :readonly="fieldReadonly(spec)" />
       <FieldSelect v-else-if="spec.kind === 'select'" :field="spec.field" :label="spec.label" v-bind="selectSource(spec)"
         :filterable="true" :clearable="!fieldRequired(spec)" :readonly="fieldReadonly(spec)" />
       <FieldRadio v-else-if="spec.kind === 'radio'" :field="spec.field" :label="spec.label" v-bind="selectSource(spec)"
         :readonly="fieldReadonly(spec)" />
-      <FieldText v-else :field="spec.field" :label="spec.label" :readonly="fieldReadonly(spec)" />
+      <FieldText v-else :field="spec.field" :label="spec.label" v-bind="placeholderOf(spec)" :readonly="fieldReadonly(spec)" />
     </template>
   </RendererForm>
 </template>
@@ -29,6 +29,9 @@ function fieldReadonly(spec: FeatureFieldSpec): boolean {
 }
 function fieldRequired(spec: FeatureFieldSpec): boolean {
   return spec.required === true && (!spec.requiredWhen || (!!props.row && spec.requiredWhen(props.row)))
+}
+function placeholderOf(spec: FeatureFieldSpec): Record<string, string> {
+  return spec.placeholder === undefined ? {} : {placeholder: spec.placeholder}
 }
 function selectSource(spec: FeatureFieldSpec): Record<string, unknown> {
   if (spec.labelJoiner !== undefined && (!spec.optionKey || !spec.labelFields)) {

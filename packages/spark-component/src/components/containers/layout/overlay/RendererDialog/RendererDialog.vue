@@ -24,10 +24,10 @@ AI用途：需要理解 renderer dialog 的实际渲染结构、slot/toolbar/状
     @opened="handleOpened"
     @closed="handleClosed"
   >
-    <template v-if="hasHeader" #header>
+    <template v-if="hasHeader()" #header>
       <div :class="['renderer-dialog-header', headerClassValue]">
         <div class="renderer-dialog-title">{{ resolvedTitle }}</div>
-        <div v-if="hasHeaderActions" :key="scopeKey" :class="['renderer-dialog-header-actions', headerActionsClassValue]">
+        <div v-if="hasHeaderActions()" :key="scopeKey" :class="['renderer-dialog-header-actions', headerActionsClassValue]">
           <RendererHeader v-bind="props.header" :children="headerActionConfigs">
             <slot name="header-actions" v-bind="getHeaderScope()" />
           </RendererHeader>
@@ -50,7 +50,7 @@ AI用途：需要理解 renderer dialog 的实际渲染结构、slot/toolbar/状
         </div>
     </div>
 
-    <template v-if="showFooter" #footer>
+    <template v-if="showFooter()" #footer>
       <div :key="scopeKey" :class="['renderer-dialog-footer', footerClassValue]">
         <RendererFooter v-bind="props.footer" :children="footerActionConfigs">
           <slot name="footer" v-bind="getFooterScope()" />
@@ -130,9 +130,10 @@ const {
   emitValue: value => emit('update:modelValue', value),
 })
 const scopedVisibleValue = computed(() => (hasExplicitModelValue() ? props.modelValue : props.value) ?? visibleValue.value)
-const hasHeaderActions = computed(() => headerActionConfigs.value.length > 0 || slots['header-actions'] !== undefined)
-const hasHeader = computed(() => resolvedTitle.value.length > 0 || hasHeaderActions.value)
-const showFooter = computed(() => footerActionConfigs.value.length > 0 || slots['footer'] !== undefined)
+/** 插槽不是响应式来源，条件插槽须在每次渲染时判断。 */
+const hasHeaderActions = () => headerActionConfigs.value.length > 0 || slots['header-actions'] !== undefined
+const hasHeader = () => resolvedTitle.value.length > 0 || hasHeaderActions()
+const showFooter = () => footerActionConfigs.value.length > 0 || slots['footer'] !== undefined
 
 function closeDialog(): void {
   commitAllowedVisibility(false)

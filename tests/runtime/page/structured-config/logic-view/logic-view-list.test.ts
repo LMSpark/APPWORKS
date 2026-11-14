@@ -13,6 +13,7 @@ import LogicViewList from '@/views/features/data-platform/structured-config/logi
 import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/dynamic'
+import {withTestPageService} from '../../../../support/helpers/page-service-host'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 
@@ -55,7 +56,7 @@ async function openList() {
       {id: 'lv', title: '逻辑视图', path: '/lv', itemKind: 'system-page', blueprintScenarioId: LowcodeLogicView.navigationScenarioId},
     ]})}).registerRoutes()
   await router.push('/lv'); await router.isReady()
-  const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body,
+  const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(RouterView, router))}), {attachTo: document.body,
     global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
   await flushPromises()
   return {wrapper, router}

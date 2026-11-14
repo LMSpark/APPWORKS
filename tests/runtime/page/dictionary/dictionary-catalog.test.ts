@@ -21,6 +21,7 @@ import {buildOptionSourceFromView} from '../../../../packages/spark-component/sr
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import {defineComponent, h} from 'vue'
+import {withTestPageService} from '../../../support/helpers/page-service-host'
 import {RouterView} from 'vue-router'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
@@ -153,7 +154,7 @@ async function openCatalog(routePath = '/catalog') {
   })
   await dynamic.registerRoutes()
   await router.push(routePath); await router.isReady()
-  const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
+  const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(RouterView, router))}), {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
   wrappers.push(wrapper)
   await flushPromises()
   return {wrapper, router, dynamic}
@@ -256,12 +257,10 @@ describe('dictionary catalog formal view assembly', () => {
     const {wrapper} = await openCatalog()
     expect(wrapper.text()).toContain('数据字典')
     const table = wrapper.findComponent(RendererTable)
-    const toolbar = table.get('.renderer-toolbar')
-    expect(toolbar.text()).toContain('新增字典')
-    expect(toolbar.text()).toContain('方案设计')
-    expect(toolbar.text()).toContain('打开数据维护')
-    expect(toolbar.findAll('button').find(button => button.text() === '新增字典')!.attributes('disabled')).toBeUndefined()
-    const design = () => toolbar.findAll('button').find(button => button.text() === '方案设计')!
+    const headerButtons = () => wrapper.findAll('button').filter(button => ['新增字典', '方案设计', '打开数据维护', '刷新'].some(label => button.text() === label))
+    expect(headerButtons().map(button => button.text())).toEqual(expect.arrayContaining(['新增字典', '方案设计', '打开数据维护', '刷新']))
+    expect(wrapper.findAll('button').find(button => button.text() === '新增字典')!.element.hasAttribute('disabled')).toBe(false)
+    const design = () => wrapper.findAll('button').find(button => button.text() === '方案设计')!
     expect(design().attributes('disabled')).toBeDefined()
     await table.get('.el-table__body .el-table__row').trigger('click'); await flushPromises()
     expect(design().attributes('disabled')).toBeUndefined()
@@ -543,7 +542,7 @@ describe('dictionary catalog formal view assembly', () => {
     await wrapper.findAll('button').find(button => button.text() === '刷新')!.trigger('click'); await flushPromises()
     expect(http.requests.length).toBe(beforeRefresh + 1)
     expect(table.find('.el-table__body').text()).toContain('OLD-ID')
-    expect(wrapper.find('[role="status"]').text()).toContain('创建人')
+    expect(wrapper.text()).toContain('创建人')
   })
 
   it('opens design dialog for selected dictionary from toolbar', async () => {

@@ -9847,3 +9847,8 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
   - **lint 恢复。** 清除 `09e081263` 留下的 23 处未使用 `PAGE_SERVICE`/`useSparkComponent` 解构，以及 `db1eb60ef` 删除命令中两处数组类型写法。
   - **验证。** 生成、typecheck、lint、`verify:rules` 通过。`tests/runtime` 分三段全部通过（108 + 135 个文件；`data-space-chain` 在并发负载下超时两项，单独运行 26 项通过）；`tests/ui`、`tests/app`、`tests/page`、`packages/spark-component` 及 `tests/runtime/page` 根目录 145 个文件 1813 项通过。
   - **未做。** 浏览器未登录，排序修正未做实服烟测，待登录后在数据空间目录打开新增并取消复核。
+- **批 3 数据平台目录外壳标准化（2026-11-14）。**
+  - **范围。** 数据编码、逻辑视图、PDF 巡检、数据字典目录页按数据空间/JSON 目录样板：`RendererSection` 页头动作、`DisplayAlert` 状态提示、`consumeRequiredPageService`、表格 `border`；数据链与编辑弹窗语义未改。
+  - **字典专项。** 页头「新增字典」绑定目录 `data-view-key` 与 `perm-action="create"`，恢复 `allowAdd` 权限禁用；目录测试改查页头按钮与 `DisplayAlert` 文案，禁用态断言改用 `element.hasAttribute('disabled')`。
+  - **测试。** `dictionary-catalog` 50 项、`data-code-list`、`logic-view-list`、`formal-topic-pages`、`dictionary-workflow` 定向 vitest 全绿；typecheck、lint、`verify:rules` 通过。
+  - **未做。** 未登录实服烟测字典/编码/逻辑视图/PDF 目录开页与主要按钮；`excel-import-list` 等上轮已过关壳层未在本轮再统一。

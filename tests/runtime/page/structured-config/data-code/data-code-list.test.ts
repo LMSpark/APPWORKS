@@ -9,6 +9,7 @@ import ElementPlus, {ElSelect} from 'element-plus'
 import {Spark, registerAllRenderers, RendererForm, RendererTable, RendererDialog, FieldSelect, FieldText} from '@spark-appworks/spark-component'
 import {RequestState, type DataSet} from '@spark-appworks/spark-data'
 import {defineComponent, h} from 'vue'
+import {withTestPageService} from '../../../../support/helpers/page-service-host'
 import DataCodeList from '@/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/dynamic'
@@ -70,7 +71,7 @@ async function openList(select = true) {
       {id: 'code', title: '编码', path: '/code', itemKind: 'system-page', blueprintScenarioId: LowcodeDataCode.navigationScenarioId},
     ]})}).registerRoutes()
   await router.push('/code'); await router.isReady()
-  const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body,
+  const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(RouterView, router))}), {attachTo: document.body,
     global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
   await flushPromises()
   const ds = await load.mock.results[0]!.value as DataSet

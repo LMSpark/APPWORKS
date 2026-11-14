@@ -5,18 +5,21 @@
 AI用途：恢复专题目录时复用正式数据空间和标准组件，分别组织设计和用户数据流程。
 -->
 <template>
-  <section class="dictionary-catalog-page">
-    <header>
-      <h1>数据字典</h1>
-      <p>字典方案设计目录，配置与业务数据分别维护。</p>
-    </header>
-    <p v-if="loading" role="status">正在读取字典目录…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
+  <RendererSection class="dictionary-catalog-page" title="数据字典" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取字典目录…' : ''" :error="error">
+    <template v-if="ready" #header-actions>
+      <RendererButton label="新增字典" button-type="primary" icon="Plus" :data-view-key="catalogKey" perm-action="create"
+        :disabled="loading || workspaceDirty" @click="createDictionary" />
+      <RendererButton label="方案设计" icon="Edit" :disabled="!selected || loading || workspaceDirty" @click="openSelected" />
+      <RendererButton label="打开数据维护" icon="List" :disabled="!selected || loading || workspaceDirty" @click="openData" />
+      <RendererButton label="刷新" icon="Refresh" :disabled="loading || workspaceDirty" @click="refresh" />
+    </template>
     <template v-if="ready">
-      <p v-if="hasUnresolvedCreator" role="status">部分创建人在当前可读用户目录中未解析，保留原始标识。</p>
+      <DisplayAlert v-if="hasUnresolvedCreator" alert-type="warning" :closable="false" :show-icon="true"
+        title="部分创建人在当前可读用户目录中未解析，保留原始标识。" />
       <div :inert="workspaceDirty">
-        <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :filter="filter"
-          :stripe="true" :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
+        <RendererTable :data-view-key="catalogKey" :children="fields" :filter="filter" :stripe="true" :border="true"
+          :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
       </div>
     </template>
     <RendererDialog :model-value="!!editingId && workspaceKind === 'design'" title="字典方案设计" width="min(1100px, 94vw)"
@@ -30,7 +33,7 @@ AI用途：恢复专题目录时复用正式数据空间和标准组件，分别
     </RendererDialog>
     <DictionaryData ref="dataWorkspace" v-bind="workspaceKind === 'data' ? {dictionaryId: editingId} : {}"
       :open="!!editingId && workspaceKind === 'data'" @pending="editorPending = $event" @close="close" />
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
@@ -38,13 +41,16 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataView, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
+import type {RFilterProps} from '@spark-appworks/spark-component'
 import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import DictionarySetting from './dictionary-setting.vue'
 import DictionaryData from './dictionary-data-page.vue'
 
+const {PAGE_RUNTIME, RendererSection, RendererTable, RendererButton, RendererDialog, DisplayAlert, useSparkComponent, consumeRequiredPageService} = SparkComponent
 const route = useRoute()
-const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-dictionary-list-page'})
+const {sparkProvide, sparkRemove, sparkConsume} = useSparkComponent({type: 'data-dictionary-list-page'})
+consumeRequiredPageService(sparkConsume, 'data-dictionary-list-page')
 const session = new NativePageRuntimeSession({
   provide: current => sparkProvide(PAGE_RUNTIME, current),
   remove: () => sparkRemove(PAGE_RUNTIME),
@@ -63,12 +69,6 @@ const selected = computed(() => {
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey('_Base_DictType', 'default', scenarioId.value))
 const applicationsKey = computed(() => buildDataViewKey('Base_AppSystemList', 'default', scenarioId.value))
-const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
-  {type: 'r-button', props: {label: '新增字典', permAction: 'create', disabled: loading.value || workspaceDirty.value, onClick: createDictionary}},
-  {type: 'r-button', props: {label: '方案设计', disabled: !selected.value || loading.value || workspaceDirty.value, onClick: openSelected}},
-  {type: 'r-button', props: {label: '打开数据维护', disabled: !selected.value || loading.value || workspaceDirty.value, onClick: openData}},
-  {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
-]}))
 const hasUnresolvedCreator = computed(() => {
   revision.value
   const catalog = view.value
@@ -159,9 +159,5 @@ onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.di
 </script>
 
 <style scoped>
-.dictionary-catalog-page { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
-.dictionary-catalog-page > * { min-width: 0; }
-.dictionary-catalog-page header { display: grid; gap: 4px; }
-.dictionary-catalog-page h1 { margin: 0; font-size: 1.25rem; font-weight: 600; }
-.dictionary-catalog-page header p { margin: 0; color: var(--el-text-color-secondary); }
+.dictionary-catalog-page {padding: 8px}
 </style>

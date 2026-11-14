@@ -2,15 +2,15 @@
 @module app:views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page
 -->
 <template>
-  <section class="structured-catalog-page">
-    <header><h1>PDF 识别规则</h1><p>规则目录；设计在编辑器中维护。</p></header>
-    <p v-if="loading" role="status">正在读取规则目录…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <template v-if="ready">
-      <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :stripe="true"
-        :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
+  <RendererSection class="pdf-inspect-catalog" title="PDF 识别规则" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取规则目录…' : ''" :error="error">
+    <template v-if="ready" #header-actions>
+      <RendererButton label="打开设计" icon="Setting" :disabled="loading || !selected" @click="openEditor" />
+      <RendererButton label="刷新" icon="Refresh" :disabled="loading" @click="refreshCatalog" />
     </template>
-  </section>
+    <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :stripe="true" :border="true"
+      :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
@@ -18,13 +18,15 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
-import {PAGE_RUNTIME, RendererTable, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
 import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 
+const {PAGE_RUNTIME, RendererSection, RendererTable, RendererButton, useSparkComponent, consumeRequiredPageService} = SparkComponent
 const route = useRoute()
 const router = useRouter()
-const {sparkProvide, sparkRemove} = useSparkComponent({type: 'pdf-inspect-list-page'})
+const {sparkProvide, sparkRemove, sparkConsume} = useSparkComponent({type: 'pdf-inspect-list-page'})
+consumeRequiredPageService(sparkConsume, 'pdf-inspect-list-page')
 const session = new NativePageRuntimeSession({
   provide: () => undefined,
   remove: () => sparkRemove(PAGE_RUNTIME),
@@ -40,16 +42,17 @@ const selected = computed(() => {
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodePdfInspect.catalogMetaName, 'default', scenarioId.value))
 const editorPath = '/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page'
-const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
-  {type: 'r-button', props: {label: '打开设计', disabled: !selected.value || loading.value, onClick: openEditor}},
-  {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
-]}))
 const fields = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'name', label: '规则名称', width: 240}},
-  {type: 'r-text', props: {field: 'description', label: '描述', width: 300}},
+  {type: 'r-text', props: {field: 'name', label: '规则名称', minWidth: 240, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'description', label: '描述', minWidth: 300, showOverflowTooltip: true}},
   {type: 'r-text', props: {field: 'enabled', label: '启用状态', width: 120}},
 ])
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
+async function refreshCatalog(): Promise<void> {
+  if (loading.value || !view.value) return
+  try {await view.value.refresh()}
+  catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
+}
 async function openEditor(): Promise<void> {
   if (!selected.value) return
   const scope = parseApplicationPathScope(route.path)
@@ -80,5 +83,5 @@ onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.di
 </script>
 
 <style scoped>
-.structured-catalog-page { display: grid; gap: 16px; padding: 24px; }
+.pdf-inspect-catalog {padding: 8px}
 </style>

@@ -2,34 +2,47 @@
 @module app:views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page
 -->
 <template>
-  <section class="structured-catalog-page">
-    <header><h1>逻辑视图</h1><p>先保存视图目录，再打开设计。</p></header>
-    <p v-if="loading" role="status">正在读取逻辑视图目录…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :filter="filter"
-      :stripe="true" :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
-    <RendererDialog v-if="ready && editing" :data-view-key="catalogKey" :model-value="true" :title="editing.create ? '新增逻辑视图' : '编辑逻辑视图'"
-      width="min(700px, 94vw)" :close-disabled="busy || pending || unconfirmed" @update:model-value="closeEditor">
-      <p v-if="!editing.create">现有视图暂不支持重命名，可修改描述。</p>
-      <RendererForm :data-view-key="catalogKey" :children="editorFields" :grid-columns="1" label-width="110px" :show-data-view-meta="false" />
-      <RendererButton :data-view-key="catalogKey" :label="unconfirmed ? '核验目录保存结果' : '保存目录'" :disabled="busy" @click="saveCatalog" />
-      <RendererButton :data-view-key="catalogKey" label="取消" :disabled="busy || unconfirmed" @click="cancelEditor" />
-    </RendererDialog>
-  </section>
+  <RendererSection class="logic-view-catalog" title="逻辑视图" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取逻辑视图目录…' : ''" :error="error">
+    <template v-if="ready" #header-actions>
+      <RendererButton label="新增视图" button-type="primary" icon="Plus" :disabled="listLocked" @click="createView" />
+      <RendererButton label="编辑视图" icon="Edit" :disabled="listLocked || !selected" @click="editCatalog" />
+      <RendererButton label="打开设计" icon="Setting" :disabled="listLocked || !selected" @click="openDesign" />
+      <RendererButton label="刷新" icon="Refresh" :disabled="listLocked" @click="refreshCatalog" />
+    </template>
+    <template v-if="ready">
+      <div :inert="!!editing">
+        <RendererTable :data-view-key="catalogKey" :children="fields" :filter="filter" :stripe="true" :border="true"
+          :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
+      </div>
+      <RendererDialog v-if="editing" :data-view-key="catalogKey" :model-value="true" :title="editing.create ? '新增逻辑视图' : '编辑逻辑视图'"
+        width="min(700px, 94vw)" :close-disabled="busy || pending || unconfirmed" @update:model-value="closeEditor">
+        <DisplayAlert v-if="!editing.create" alert-type="info" :closable="false" title="现有视图暂不支持重命名，可修改描述。" />
+        <RendererForm :data-view-key="catalogKey" :children="editorFields" :grid-columns="1" label-width="110px" :show-data-view-meta="false" />
+        <template #footer>
+          <RendererButton :data-view-key="catalogKey" :label="unconfirmed ? '核验目录保存结果' : '保存目录'" :disabled="busy" @click="saveCatalog" />
+          <RendererButton :data-view-key="catalogKey" label="取消" :disabled="busy || unconfirmed" @click="cancelEditor" />
+        </template>
+      </RendererDialog>
+    </template>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME, RendererTable, RendererDialog, RendererForm, RendererButton, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
+import type {RFilterProps} from '@spark-appworks/spark-component'
 import {NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 
+const {PAGE_RUNTIME, RendererSection, RendererTable, RendererDialog, RendererForm, RendererButton, DisplayAlert, useSparkComponent, consumeRequiredPageService} = SparkComponent
 const route = useRoute()
 const router = useRouter()
-const {sparkProvide, sparkRemove} = useSparkComponent({type: 'logic-view-list-page'})
+const {sparkProvide, sparkRemove, sparkConsume} = useSparkComponent({type: 'logic-view-list-page'})
+consumeRequiredPageService(sparkConsume, 'logic-view-list-page')
 const session = new NativePageRuntimeSession({
   provide: () => undefined,
   remove: () => sparkRemove(PAGE_RUNTIME),
@@ -48,12 +61,12 @@ const selected = computed(() => {
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodeLogicView.catalogMetaName, 'default', scenarioId.value))
 const designPath = '/features/data-platform/structured-config/logic-view/ui/logic-view-design-page'
-const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
-  {type: 'r-button', props: {label: '新增视图', permAction: 'create', disabled: loading.value || busy.value || !!editing.value || pending.value, onClick: createView}},
-  {type: 'r-button', props: {label: '编辑视图', disabled: !selected.value || loading.value || busy.value || !!editing.value || pending.value, onClick: editCatalog}},
-  {type: 'r-button', props: {label: '打开设计', disabled: !selected.value || loading.value || busy.value || !!editing.value || pending.value || unconfirmed.value, onClick: openDesign}},
-  {type: 'r-button', props: {label: '刷新', action: 'refresh', disabled: busy.value || !!editing.value || pending.value || unconfirmed.value}},
-]}))
+const listLocked = computed(() => loading.value || busy.value || !!editing.value || pending.value || unconfirmed.value)
+async function refreshCatalog(): Promise<void> {
+  if (listLocked.value || !view.value) return
+  try {await view.value.refresh()}
+  catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
+}
 const fields = computed<SparkNode[]>(() => [
   {type: 'r-text', props: {field: 'name', label: '视图名称', width: 260}},
   {type: 'r-text', props: {field: 'description', label: '描述', width: 320}},
@@ -144,6 +157,5 @@ onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.di
 </script>
 
 <style scoped>
-.structured-catalog-page { display: grid; gap: 16px; padding: 24px; }
-.structured-catalog-page h1 { margin: 0; font-size: 1.25rem; }
+.logic-view-catalog {padding: 8px}
 </style>

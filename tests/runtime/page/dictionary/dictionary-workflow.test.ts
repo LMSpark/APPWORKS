@@ -2,6 +2,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h, ref, type Ref} from 'vue'
+import {withTestPageService} from '../../../support/helpers/page-service-host'
 import ElementPlus from 'element-plus'
 import {AI_DATA_ENTRY_HOST, PAGE_RUNTIME, Spark, SparkAiDataEntry, registerAllRenderers, RendererButton, RendererForm, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
 import {DataSet} from '@spark-appworks/spark-data'
@@ -58,7 +59,7 @@ async function open(kind: 'design' | 'data', create = false, dictionaryId: strin
     ]})})
   await dynamic.registerRoutes()
   await router.push('/dictionary'); await router.isReady()
-  const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
+  const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(RouterView, router))}), {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
   wrappers.push(wrapper)
   hosts.set(wrapper, {dynamic, designId, dataId, openState})
   await flushPromises()

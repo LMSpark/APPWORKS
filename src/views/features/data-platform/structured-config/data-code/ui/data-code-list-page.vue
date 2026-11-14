@@ -2,17 +2,23 @@
 @module app:views/features/data-platform/structured-config/data-code/ui/data-code-list-page
 -->
 <template>
-  <section class="structured-catalog-page">
-    <header><h1>数据编码</h1><p>编码方案目录，规则设计在独立编辑器中维护。</p></header>
-    <p v-if="loading" role="status">正在读取编码目录…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
+  <RendererSection class="data-code-catalog" title="数据编码" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取编码目录…' : ''" :error="error">
+    <template v-if="ready" #header-actions>
+      <RendererButton label="新增编码" button-type="primary" icon="Plus" :disabled="catalogLocked || !selectedApplication" @click="createCode" />
+      <RendererButton label="方案设计" icon="Edit" :disabled="catalogLocked || !selected" @click="openEditor" />
+      <RendererButton label="刷新" icon="Refresh" :disabled="catalogLocked" @click="refreshCatalog" />
+    </template>
     <template v-if="ready">
-      <RendererForm :data-view-key="appsKey" :show-data-view-meta="false" :auto-columns="false" :grid-columns="3">
-        <FieldSelect :data-view-key="appsKey" data-member="value" :option-data-view-key="appsKey" label="应用" placeholder="请选择应用" />
+      <DisplayAlert v-if="queryError" alert-type="error" :closable="false" :show-icon="true" :title="queryError" />
+      <RendererForm :data-view-key="appsKey" :show-data-view-meta="false" :auto-columns="false" :grid-columns="3" label-width="80px">
+        <FieldSelect :data-view-key="appsKey" data-member="value" :option-data-view-key="appsKey" label="应用" placeholder="请选择应用" :filterable="true"
+          option-value-field="rowid" option-label-field="AppDesc" :option-label-fields="['AppDesc', 'AppName']" :disabled="catalogLocked" />
       </RendererForm>
-      <p v-if="queryError" role="alert">{{ queryError }}</p>
-      <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :filter="filter"
-        :stripe="true" :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
+      <div :inert="catalogLocked">
+        <RendererTable :data-view-key="catalogKey" :children="fields" :filter="filter" :stripe="true" :border="true"
+          :on-row-click="choose" :highlight-current-row="true" :show-data-view-meta="false" />
+      </div>
       <RendererDialog v-if="designTarget" :model-value="true" :title="designTarget.create ? '新增编码' : '编码方案设计'"
         :data-view-key="catalogKey" :width="960" :destroy-on-close="true" :close-disabled="designPending"
         @update:model-value="closeDesign">
@@ -23,7 +29,7 @@
         </template>
       </RendererDialog>
     </template>
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
@@ -35,21 +41,22 @@ import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 
 type RFilterProps = SparkComponent.RFilterProps
-type RToolbarProps = SparkComponent.RToolbarProps
-const {PAGE_RUNTIME, FieldSelect, RendererForm, RendererTable, RendererDialog, RendererButton, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, FieldSelect, RendererSection, RendererForm, RendererTable, RendererDialog, RendererButton, DisplayAlert, useSparkComponent, consumeRequiredPageService} = SparkComponent
 
 const route = useRoute()
+const {sparkProvide, sparkRemove, sparkConsume} = useSparkComponent({type: 'data-code-list-page'})
+consumeRequiredPageService(sparkConsume, 'data-code-list-page')
 const DataCodeEditor = defineAsyncComponent(() => import('./data-code-editor-page.vue'))
 const designTarget = shallowRef<{applicationId: string; codeDesignId: string; create: boolean}>()
 const designPage = ref<{hasPending: boolean; busy: boolean; unconfirmed: boolean; discardChanges: () => boolean}>()
 const designPending = computed(() => designPage.value?.hasPending === true || designPage.value?.busy === true)
-const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-code-list-page'})
 const session = new NativePageRuntimeSession({
   provide: current => sparkProvide(PAGE_RUNTIME, current),
   remove: () => sparkRemove(PAGE_RUNTIME),
 })
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 let unsubscribe: (() => void) | undefined, generation = 0, active = true
+const catalogLocked = computed(() => loading.value || !!designTarget.value)
 const selected = computed(() => {
   revision.value
   const values = view.value?.getSelectedValues() ?? []
@@ -68,24 +75,32 @@ const queryError = computed(() => {
   const apps = session.runtime?.getDataSet(scenarioId.value)?.getView('Base_AppSystemList')
   return view.value?.loadingError?.message ?? apps?.loadingError?.message ?? ''
 })
-const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
-  {type: 'r-button', props: {label: '新增编码', permAction: 'create', disabled: loading.value || !selectedApplication.value, onClick: createCode}},
-  {type: 'r-button', props: {label: '方案设计', disabled: !selected.value || loading.value, onClick: openEditor}},
-  {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
-]}))
+function applicationLabel(value: unknown): string {
+  revision.value
+  const apps = session.runtime?.getDataSet(scenarioId.value)?.getView('Base_AppSystemList')
+  if (!apps || value === null || value === undefined || value === '') return ''
+  const row = apps.rows.find(item => item['rowid'] === value)
+  if (!row) return String(value)
+  const desc = row['AppDesc'] ?? row['AppName']
+  return typeof desc === 'string' && desc ? desc : String(value)
+}
 const fields = computed<SparkNode[]>(() => [
-  {type: 'r-select', props: {field: 'AppID', label: '应用', readonly: true, width: 180, optionDataViewKey: appsKey.value}},
-  {type: 'r-text', props: {field: 'Name', label: '名称', readonly: true, width: 230}},
-  {type: 'r-text', props: {field: 'CodeDescription', label: '编码描述', readonly: true, width: 320}},
-  {type: 'r-text', props: {field: 'CodeExample', label: '编码示例', readonly: true, width: 180}},
+  {type: 'r-text', props: {field: 'AppID', label: '应用', readonly: true, minWidth: 180, showOverflowTooltip: true,
+    displayFormatter: (value: unknown) => applicationLabel(value)}},
+  {type: 'r-text', props: {field: 'Name', label: '名称', readonly: true, minWidth: 220, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'CodeDescription', label: '编码描述', readonly: true, minWidth: 320, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'CodeExample', label: '编码示例', readonly: true, minWidth: 180, showOverflowTooltip: true}},
   {type: 'r-select', props: {field: 'createuser', label: '创建人', readonly: true, width: 150,
     optionDataViewKey: buildDataViewKey('Base_UserInfo', 'default', scenarioId.value)}},
   {type: 'r-text', props: {field: 'createtime', label: '创建时间', readonly: true, width: 180}},
 ])
 const filter = computed<RFilterProps>(() => ({autoFitMinWidth: '230px', children: [
-  {type: 'r-text', props: {field: 'Name', label: '名称', placeholder: '按名称筛选'}},
+  {type: 'r-text', props: {field: 'Name', label: '名称', placeholder: '按名称筛选', clearable: true}},
 ]}))
-function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
+function choose(row: DataRow): void {
+  if (catalogLocked.value) return
+  view.value?.setSelectedRows([row])
+}
 function createCode(): void {
   if (!selectedApplication.value) return
   const id = crypto.randomUUID().replaceAll('-', '').toUpperCase()
@@ -97,6 +112,11 @@ function openEditor(): void {
 function openDesign(codeDesignId: string, create: boolean): void {
   if (!selectedApplication.value || designTarget.value) return
   designTarget.value = {applicationId: selectedApplication.value, codeDesignId, create}
+}
+async function refreshCatalog(): Promise<void> {
+  if (catalogLocked.value || !view.value) return
+  try {await view.value.refresh()}
+  catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
 }
 async function closeDesign(open: boolean, discarded = false): Promise<void> {
   if (open || designPage.value?.unconfirmed || (discarded ? designPage.value?.hasPending : designPending.value)) return
@@ -135,8 +155,5 @@ onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.di
 </script>
 
 <style scoped>
-.structured-catalog-page { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
-.structured-catalog-page header { display: grid; gap: 4px; }
-.structured-catalog-page h1 { margin: 0; font-size: 1.25rem; font-weight: 600; }
-.structured-catalog-page header p { margin: 0; color: var(--el-text-color-secondary); }
+.data-code-catalog {padding: 8px}
 </style>

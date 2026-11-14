@@ -1,0 +1,27 @@
+{
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "workspaceHead": "09e081263a86887874d915961ac880d42c236018",
+  "recordedAt": "2026-11-14",
+  "typecheck": "pass",
+  "vitest": {
+    "agent-workflow-deletion": "3/3",
+    "agent-workflow-creation": "21/21 (incl. parameterized)",
+    "workflow-designs-ui": "31/31",
+    "workflow-bundle-2026-11-14": "55/55 (deletion+creation+UI, exit 0)",
+    "lowcode-runtime-scenario-loader-deletion-binding": "1/1",
+    "s4-host-batch": "long batch terminal 539255 still running at last check; rerun per-page before freeze"
+  },
+  "productChanges": [
+    "src/lowcode/resources/repository/agent-workflow/deletion.ts",
+    "config/pages/shared/agent-workflow-files/pagedata.json AgentWorkflowDeletion",
+    "src/views/app/workflow-designs/workflow-delete-dialog.vue",
+    "src/views/app/WorkflowDesigns.vue delete entry"
+  ],
+  "openGaps": [
+    "copy-table-dialog ephemeral fields",
+    "table-design workflow filter native inputs",
+    "formal-model SPA blocked items per ledger",
+    "SaveView online",
+    "S4 AY–CF freeze pending full matrix sign-off"
+  ]
+}

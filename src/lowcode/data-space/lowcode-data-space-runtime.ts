@@ -26,6 +26,7 @@ import {createApiInterfaceBindings} from '../resources/integration/api-managemen
 import {createWorkflowScenarioBindings} from '../resources/structured-config/workflow-definition/execution/runtime-bindings'
 import {createAgentWorkflowCreationBindings} from '../resources/repository/agent-workflow/creation'
 import {createAgentWorkflowPublicationBindings} from '../resources/repository/agent-workflow/publication'
+import {createAgentWorkflowDeletionBindings} from '../resources/repository/agent-workflow/deletion'
 import {createLogicViewDesignExecutor, LOGIC_VIEW_DESIGN_RESOURCE_ID, LOGIC_VIEW_DESIGN_VIEW} from '../resources/structured-config/logic-view/design-ops'
 import {createExcelCatalogBindings} from '../resources/semi-structured/excel-import/catalog/creation'
 
@@ -178,6 +179,7 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
  const {dataSpace, readScope} = executionScopeOf(projectId)
  const agentCreation = createAgentWorkflowCreationBindings({config,applicationId:projectId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,assertCurrent})
  const agentPublication = createAgentWorkflowPublicationBindings({config,applicationId:projectId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,assertCurrent})
+ const agentDeletion = createAgentWorkflowDeletionBindings({config,applicationId:projectId,api:lowcodeApi.design,assertCurrent})
  const cacheBindings = createCacheScenarioBindings({config,runtime:dataSpace.runtime,assertCurrent})
  const workflowBindings = createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const excelBindings = createExcelCatalogBindings({config,http:lowcodeHttp,readScope,assertCurrent})
@@ -187,6 +189,7 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
  const result = await loadScenarioDataSet({scenarioId, config, assertCurrent, dataSpace,
   ...agentCreation,
   ...agentPublication,
+  ...agentDeletion,
   ...cacheBindings,
   ...workflowBindings,
   ...excelBindings,
@@ -197,6 +200,7 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
   commandBindings: {
    ...agentCreation.commandBindings,
    ...agentPublication.commandBindings,
+   ...agentDeletion.commandBindings,
    ...cacheBindings.commandBindings,
    ...workflowBindings.commandBindings,
    ...excelBindings.commandBindings,

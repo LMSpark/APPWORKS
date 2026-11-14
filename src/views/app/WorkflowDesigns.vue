@@ -42,6 +42,8 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
       <section>
         <h3>工作流</h3>
         <RendererButton v-if="owner" v-bind="creationView ? {dataViewKey: viewKey(creationView)} : {}" label="新建工作流" :disabled="busy || !owner || creationId !== undefined" @click="openCreation" />
+        <RendererButton v-if="owner && deletionView" v-bind="{dataViewKey: viewKey(deletionView)}" label="删除工作流" button-type="danger"
+          :disabled="busy || !workflowId || deletionId !== undefined" @click="openDeletion" />
         <RendererButton label="刷新目录" :disabled="busy || !owner" @click="refreshDirectory" />
         <RendererButton label="流程属性" :disabled="!design || busy" @click="openDrawer('workflow')" />
         <RendererButton label="复制已保存 JSON" :disabled="!design || busy" @click="copyJson" />
@@ -119,6 +121,8 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
 
     <WorkflowCreateDialog v-if="creationId !== undefined && creationView" :key="creationId" :data-view-key="viewKey(creationView)"
       :record-id="creationId" @finish="finishCreation" />
+    <WorkflowDeleteDialog v-if="deletionId !== undefined && deletionView" :key="deletionId" :data-view-key="viewKey(deletionView)"
+      :record-id="deletionId" @finish="finishDeletion" />
 
     <RendererDialog v-if="design && nodeCreateOpen" v-model="nodeCreateOpen" title="新增节点" :width="520">
       <RendererForm :grid-columns="1" :auto-columns="false" :show-data-view-meta="false" :form-props="{labelPosition: 'top'}">
@@ -155,7 +159,9 @@ import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {createAgentWorkflowFileDataViewOwner, type AgentWorkflowDesignViews, type AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
 import WorkflowCreateDialog from './workflow-designs/workflow-create-dialog.vue'
+import WorkflowDeleteDialog from './workflow-designs/workflow-delete-dialog.vue'
 import {AGENT_WORKFLOW_CREATE_TABLE} from '@/lowcode/resources/repository/agent-workflow/creation'
+import {AGENT_WORKFLOW_DELETION_TABLE} from '@/lowcode/resources/repository/agent-workflow/deletion'
 import {AGENT_WORKFLOW_PUBLICATION_TABLE} from '@/lowcode/resources/repository/agent-workflow/publication'
 import {AGENT_WORKFLOW_FILE_TABLE} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource'
 import {createAgentWorkflowDefinitionFromDesign, formatJson, parseWorkflowDesignJson, type WorkflowDesignNodeCreateKind} from '@/services/workflow-designs'
@@ -211,7 +217,9 @@ if (!pageService) throw new Error('PAGE_SERVICE_MISSING: WorkflowDesigns 缺少�
 const owner = shallowRef<AgentWorkflowFileDataViewOwner>()
 const revision = ref(0)
 const creationId = ref<string | number>()
+const deletionId = ref<string | number>()
 const creationView = computed(() => owner.value?.dataSet.getView(AGENT_WORKFLOW_CREATE_TABLE, 'default'))
+const deletionView = computed(() => owner.value?.dataSet.getView(AGENT_WORKFLOW_DELETION_TABLE, 'default'))
 const publicationView = computed(() => owner.value?.dataSet.getView(AGENT_WORKFLOW_PUBLICATION_TABLE, 'default'))
 const workflowId = ref('')
 const childPath = ref('')
@@ -250,13 +258,15 @@ const hasPending = computed(() => {revision.value; return designViews.value.some
 const unconfirmed = computed(() => {revision.value; return designViews.value.some(view => view.hasUnconfirmedSave)})
 const publicationUnconfirmed = computed(() => {revision.value; return publicationView.value?.hasUnconfirmedSave === true})
 const busy = computed(() => {revision.value; return acting.value || saving.value || publishing.value || creationView.value?.mutating === true
+  || deletionView.value?.mutating === true
   || publicationView.value?.mutating === true || designViews.value.some(view => view.mutating)})
 const definitionPending = computed(() => {revision.value; const view = owner.value?.definitionView; return view ? pendingIn(view) : false})
 const directoryKey = computed(() => owner.value ? viewKey(owner.value.directoryView) : '')
 const definitionKey = computed(() => owner.value ? buildDataViewKey(AGENT_WORKFLOW_FILE_TABLE, 'definition', owner.value.dataSet.scenarioId) : '')
 const drawerTitle = computed(() => drawerTarget.value === 'workflow' ? '流程属性' : drawerTarget.value === 'node' ? '节点属性' : '连线属性')
 useSystemPageDirtySource({get isDirty() {revision.value; return hasPending.value || definitionPending.value
-  || Boolean(creationView.value && pendingIn(creationView.value)) || Boolean(publicationView.value && pendingIn(publicationView.value))}})
+  || Boolean(creationView.value && pendingIn(creationView.value)) || Boolean(deletionView.value && pendingIn(deletionView.value))
+  || Boolean(publicationView.value && pendingIn(publicationView.value))}})
 
 function viewKey(view: DataView): string {return buildDataViewKey(view.tableName, view.viewId, view.dataSet?.scenarioId ?? '')}
 function currentRow(view: DataView): DataRow | null {revision.value; return view.currentRow}
@@ -460,7 +470,8 @@ function toggleLeft(): void {
 }
 
 function editableViews(): DataView[] {return [...designViews.value, ...(owner.value ? [owner.value.definitionView] : []),
-  ...(creationView.value ? [creationView.value] : []), ...(publicationView.value ? [publicationView.value] : [])]}
+  ...(creationView.value ? [creationView.value] : []), ...(deletionView.value ? [deletionView.value] : []),
+  ...(publicationView.value ? [publicationView.value] : [])]}
 
 async function confirmDiscard(): Promise<boolean> {
   const inFlight = (view: DataView) => view.mutating || view.requestState === RequestState.Preparing || view.requestState === RequestState.Loading
@@ -563,6 +574,47 @@ async function finishCreation(result: 'saved' | 'cancelled' | 'preserved'): Prom
 
 async function refreshDirectory(): Promise<void> {
   try {await owner.value?.refreshDirectory()} catch (error) {pageService.showMessage(`刷新目录失败: ${message(error)}`, 'error')}
+}
+
+async function openDeletion(): Promise<void> {
+  const current = owner.value, view = deletionView.value, target = workflowId.value
+  if (!current || busy.value || deletionId.value !== undefined || !target) return
+  acting.value = true
+  try {
+    if (!view || view.dataSet !== current.dataSet || view.dataTable?.resourceType !== 'command') throw new Error('正式工作流场景缺少删除命令')
+    if (pendingIn(view)) throw new Error('原删除命令仍有未处理或待核验的修改')
+    const loaded = await view.loadFromServer()
+    if (!active || owner.value !== current || view.destroyed) return
+    if (!loaded.success) throw loaded.error ?? new Error(loaded.message ?? '删除命令初始化失败')
+    const row = await view.addRow({workflowId: target})
+    if (!active || owner.value !== current || view.destroyed) return
+    if (!('commandId' in row) || typeof row['commandId'] !== 'string') throw new Error('删除命令未返回原记录身份')
+    view.setCurrentRow(row)
+    deletionId.value = row['commandId']
+  } catch (error) {if (active) pageService.showMessage(`打开删除失败: ${message(error)}`, 'error')}
+  finally {acting.value = false}
+}
+
+async function finishDeletion(result: 'saved' | 'cancelled' | 'preserved'): Promise<void> {
+  const current = owner.value, view = deletionView.value, id = deletionId.value, target = workflowId.value
+  if (!active || !current || !view || id === undefined) return
+  if (result !== 'saved') {deletionId.value = undefined; return}
+  deletionId.value = undefined
+  const row = view.rows.find(item => view.getPkKey(item) === id)
+  if (!row || row['status'] !== 'deleted' || row['workflowId'] !== target) {
+    pageService.showMessage('删除已返回，但原删除回执不可读；请保留原命令核查', 'error')
+    return
+  }
+  pageService.showMessage('工作流已删除', 'success')
+  workflowId.value = ''
+  childPath.value = ''
+  selected.value = null
+  try {
+    await current.refreshDirectory()
+    if (active && owner.value === current) revision.value++
+  } catch (error) {
+    if (active) pageService.showMessage(`删除成功，但目录刷新失败: ${message(error)}`, 'error')
+  }
 }
 
 async function save(): Promise<boolean> {

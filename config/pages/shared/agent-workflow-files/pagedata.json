@@ -460,6 +460,37 @@
                 }
             }
         },
+        "AgentWorkflowDeletion": {
+            "resourceType": "command",
+            "resourceId": "agent-workflow-deletion",
+            "columns": [
+                {
+                    "name": "commandId",
+                    "type": "string",
+                    "isPrimaryKey": true
+                },
+                {
+                    "name": "workflowId",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                }
+            ],
+            "views": {
+                "default": {
+                    "autoLoad": false,
+                    "autoCurrentFirst": false,
+                    "autoSelectFirst": false,
+                    "commitMode": "staged",
+                    "queryConfig": {
+                        "pagination": "none"
+                    }
+                }
+            }
+        },
         "AgentWorkflowPublication": {
             "resourceType": "command",
             "resourceId": "agent-workflow-publication",

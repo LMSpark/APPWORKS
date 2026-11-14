@@ -76,7 +76,7 @@ describe('loadLowcodeRuntimeScenario', () => {
   beforeEach(() => { vi.clearAllMocks() })
   afterEach(() => { vi.restoreAllMocks() })
 
-  it('keeps both Agent Workflow command bindings in the assembled DataSet', async () => {
+  it('keeps Agent Workflow creation, publication and deletion command bindings in the assembled DataSet', async () => {
     const scenarioId = agentWorkflowConfig.scenarioId
     mocks.readRequestScope.mockReturnValue(scope('workflow-token', 'APP-A'))
     mocks.readText.mockResolvedValue(JSON.stringify(agentWorkflowConfig))
@@ -87,15 +87,20 @@ describe('loadLowcodeRuntimeScenario', () => {
     try {
       const creation = dataSet.getView('AgentWorkflowCreation')
       const publication = dataSet.getView('AgentWorkflowPublication')
-      if (!creation || !publication) throw new Error('Agent Workflow 命令视图缺失')
+      const deletion = dataSet.getView('AgentWorkflowDeletion')
+      if (!creation || !publication || !deletion) throw new Error('Agent Workflow 命令视图缺失')
       expect((await creation.loadFromServer()).success).toBe(true)
       expect((await publication.loadFromServer()).success).toBe(true)
+      expect((await deletion.loadFromServer()).success).toBe(true)
       const creationRow = await creation.addRow({title: ''})
       const publicationRow = await publication.addRow({workflowId: 'alpha', designContent: '{}', definitionContent: '{}'})
+      const deletionRow = await deletion.addRow({workflowId: 'alpha'})
       expect(creation.getPkKey(creationRow)).toBeDefined()
       expect(publication.getPkKey(publicationRow)).toBeDefined()
+      expect(deletion.getPkKey(deletionRow)).toBeDefined()
       creation.discardPendingChanges()
       publication.discardPendingChanges()
+      deletion.discardPendingChanges()
       expect(mocks.request).not.toHaveBeenCalled()
     } finally {dataSet.destroy()}
   })

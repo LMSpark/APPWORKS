@@ -7,6 +7,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {RendererButton, RendererDialog, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createReportRuntime} from './report.fixture'
+import {provideTestPageService} from '../../../support/helpers/page-service-host'
 
 const state: {runtime: PageRuntime | undefined} = vi.hoisted(() => ({runtime: undefined}))
 const scenario = 'FB291E325272007AEED8921C28B93CFD'
@@ -50,7 +51,7 @@ async function open() {
     ]}), componentMap: {'/report': ReportManagementPage, '/clean': clean}})
   await dynamic.registerRoutes()
   await router.push('/report')
-  const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {
+  const wrapper = mount(defineComponent({setup: () => {provideTestPageService(router); return () => h(RouterView)}}), {
     attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]},
   })
   wrappers.push(wrapper)

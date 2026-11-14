@@ -20,6 +20,10 @@ import {
   type FlowRunPreparedPage,
 } from '@/lowcode/resources/system/workflow/manage'
 import {
+  parseFlowRunHandleNodeOptions,
+  readFlowRunAllowForceBack,
+} from '@/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options'
+import {
   createFlowBusinessPageRegistry,
   createFlowBusinessTabBuilder,
 } from '../model/flow-run-business-tab'
@@ -40,6 +44,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   const opinionText = ref('')
   const selectedNodeId = ref('')
   const selectedBackNodeId = ref('')
+  const selectedForceBackNodeId = ref('')
   const activeFormId = ref('')
   const appendOpen = ref(false)
   const appendContext = shallowRef<FlowAppendUserContext | null>(null)
@@ -118,6 +123,8 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       selectedNodeId.value = String(options['DefaultNodeId'] ?? options['defaultNodeId'] ?? '')
       const backList = backNodeOptions.value
       selectedBackNodeId.value = backList[0]?.id ?? ''
+      const forceList = forceBackNodeOptions.value
+      selectedForceBackNodeId.value = forceList[0]?.id ?? ''
       handleOpen.value = true
     } catch (error) {
       handleError.value = error instanceof Error ? error.message : '加载办理选项失败'
@@ -193,6 +200,34 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     }
   }
 
+  async function forceBack(): Promise<void> {
+    const own = generation
+    handleLoading.value = true
+    handleError.value = ''
+    try {
+      const runtime = sparkConsume(PAGE_RUNTIME)
+      const stepView = runtime?.resolveView(stepViewKey.value)
+      const step = stepView?.rows.find(isRecord)
+      const prep = prepared.value
+      const nodeId = selectedForceBackNodeId.value
+      if (!prep || !step) throw new Error('未定位到当前办理步骤')
+      if (!nodeId) throw new Error('请选择强制退回目标节点')
+      await clientFor(own).forceBack({
+        flowObjId: prep.flowObjectId,
+        curStepId: String(step['rowid'] ?? ''),
+        nodeId,
+        idea: opinionText.value,
+      })
+      if (own !== generation) return
+      handleOpen.value = false
+      await loadPage()
+    } catch (error) {
+      handleError.value = error instanceof Error ? error.message : '强制退回失败'
+    } finally {
+      handleLoading.value = false
+    }
+  }
+
   async function backToCreator(): Promise<void> {
     const own = generation
     handleLoading.value = true
@@ -251,23 +286,21 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     }
   }
 
-  const nextNodeOptions = computed(() => {
-    const raw = optionData.value['NextNodeList'] ?? optionData.value['nextNodeList'] ?? optionData.value['nodes']
-    if (!Array.isArray(raw)) return []
-    return raw.filter(isRecord).map(row => ({
-      id: String(row['NodeId'] ?? row['rowid'] ?? row['id'] ?? ''),
-      title: String(row['TITLE'] ?? row['Title'] ?? row['nodeName'] ?? row['NodeId'] ?? ''),
-    })).filter(item => item.id)
-  })
+  const nextNodeOptions = computed(() => parseFlowRunHandleNodeOptions(optionData.value, [
+    'NextNodeList', 'nextNodeList', 'nodes',
+  ]))
 
-  const backNodeOptions = computed(() => {
-    const raw = optionData.value['BackNodeList'] ?? optionData.value['backNodeList']
-      ?? optionData.value['historyNodes'] ?? optionData.value['BackNodes']
-    if (!Array.isArray(raw)) return []
-    return raw.filter(isRecord).map(row => ({
-      id: String(row['NodeId'] ?? row['nodeId'] ?? row['rowid'] ?? row['id'] ?? ''),
-      title: String(row['TITLE'] ?? row['Title'] ?? row['nodeName'] ?? row['NodeId'] ?? row['nodeId'] ?? ''),
-    })).filter(item => item.id)
+  const backNodeOptions = computed(() => parseFlowRunHandleNodeOptions(optionData.value, [
+    'BackNodeList', 'backNodeList', 'historyNodes', 'BackNodes',
+  ]))
+
+  const forceBackNodeOptions = computed(() => parseFlowRunHandleNodeOptions(optionData.value, [
+    'ForceBackNodeList', 'forceBackNodeList', 'ForceBackNodes',
+  ]))
+
+  const allowForceBack = computed(() => {
+    if (readFlowRunAllowForceBack(optionData.value)) return true
+    return forceBackNodeOptions.value.length > 0
   })
 
   watch(() => [runtimeReady(), routeQuery().wfid, routeQuery().flowid] as const, () => {
@@ -285,8 +318,11 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     opinionText,
     selectedNodeId,
     selectedBackNodeId,
+    selectedForceBackNodeId,
     nextNodeOptions,
     backNodeOptions,
+    forceBackNodeOptions,
+    allowForceBack,
     businessTabs,
     activeFormId,
     activeTab,
@@ -301,6 +337,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     openHandlePanel,
     submitFlow,
     backByHistory,
+    forceBack,
     backToCreator,
     openAppendDialog,
     openFlowChart,

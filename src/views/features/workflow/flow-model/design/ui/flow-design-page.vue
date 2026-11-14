@@ -7,6 +7,8 @@
   <RendererSection class="flow-design-page" :bordered="false" :grid-columns="1" :grid-gap="12"
     :status="loading ? '正在打开流程设计…' : ''" :error="error" :retryable="!loading && !ready" @retry="load">
     <template v-if="ready && prepared" #header-actions>
+      <RendererButton label="新增节点" :disabled="saving" @click="addNode" />
+      <RendererButton label="删除选中" :disabled="saving || !graphSelection" @click="removeSelection" />
       <RendererButton label="保存设计" button-type="primary" :disabled="saving" @click="saveDesign" />
     </template>
     <template v-if="ready && prepared">
@@ -32,7 +34,9 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import type {GraphSelection} from '@spark-appworks/spark-component'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {
+  addFlowDesignNode,
   prepareFlowDesignViews,
+  removeFlowDesignGraphSelection,
   saveFlowDesignInfo,
   type FlowDesignLayoutOverride,
   type FlowDesignPreparedViews,
@@ -96,6 +100,59 @@ function onNodeMove(event: {id: string | number; x: number; y: number}): void {
   }
 }
 
+async function addNode(): Promise<void> {
+  const runtime = sparkConsume(PAGE_RUNTIME)
+  if (!runtime) {
+    error.value = '流程设计缺少父页运行实例'
+    return
+  }
+  try {
+    const result = await addFlowDesignNode({
+      runtime,
+      flowModelId: flowModelId.value,
+      layoutOverride: layoutOverride.value,
+    })
+    layoutOverride.value = result.layoutOverride
+    graphSelection.value = {kind: 'node', id: result.nodeId}
+    await refreshPrepared()
+  } catch (cause) {
+    error.value = cause instanceof Error ? cause.message : String(cause)
+  }
+}
+
+function removeSelection(): void {
+  const selection = graphSelection.value
+  const runtime = sparkConsume(PAGE_RUNTIME)
+  if (!runtime || !selection) return
+  try {
+    const result = removeFlowDesignGraphSelection({
+      runtime,
+      flowModelId: flowModelId.value,
+      selection: {kind: selection.kind, id: String(selection.id)},
+      layoutOverride: layoutOverride.value,
+    })
+    layoutOverride.value = result.layoutOverride
+    void refreshPrepared(true)
+  } catch (cause) {
+    error.value = cause instanceof Error ? cause.message : String(cause)
+  }
+}
+
+async function refreshPrepared(clearSelection = false): Promise<void> {
+  const own = generation
+  try {
+    const runtime = sparkConsume(PAGE_RUNTIME)
+    if (!runtime) throw new Error('流程设计缺少父页运行实例')
+    const next = await prepareFlowDesignViews(runtime, flowModelId.value, {assertCurrent: () => own === generation})
+    if (own !== generation) return
+    prepared.value = next
+    ready.value = true
+    if (clearSelection) graphSelection.value = null
+  } catch (cause) {
+    if (own === generation) error.value = cause instanceof Error ? cause.message : String(cause)
+  }
+}
+
 async function load(): Promise<void> {
   const own = ++generation
   ready.value = false
@@ -105,14 +162,7 @@ async function load(): Promise<void> {
   layoutOverride.value = {}
   graphSelection.value = null
   try {
-    const runtime = sparkConsume(PAGE_RUNTIME)
-    if (!runtime) throw new Error('流程设计缺少父页运行实例')
-    const next = await prepareFlowDesignViews(runtime, flowModelId.value, {assertCurrent: () => own === generation})
-    if (own !== generation) return
-    prepared.value = next
-    ready.value = true
-  } catch (cause) {
-    if (own === generation) error.value = cause instanceof Error ? cause.message : String(cause)
+    await refreshPrepared(true)
   } finally {
     if (own === generation) loading.value = false
   }

@@ -1,0 +1,22 @@
+{
+  "kind": "workflow-smoke",
+  "at": "2026-11-15T02:53:00+08:00",
+  "branch": "codex/spark-data-s1-command-safety",
+  "round": "R4",
+  "automated": {
+    "typecheck": {"command": "pnpm run typecheck", "exitCode": 0},
+    "workflowVitest": {"command": "pnpm exec vitest run tests/runtime/page/structured-config/workflow", "files": 45, "tests": 588, "exitCode": 0},
+    "verifyRules": {"command": "pnpm run verify:rules", "exitCode": 0}
+  },
+  "delivered": [
+    "FlowForceBack client + run page UI",
+    "flow-design-graph-edit add/remove node",
+    "flow-workbench-todo-panel MVP",
+    "consumer ledger regenerated"
+  ],
+  "d99Manual": {
+    "status": "blocked",
+    "reason": "No SPARK_TOKEN; 5273 not started",
+    "pending": ["ForceBack on live instance", "design add/delete save reopen", "G0 modelId writeback"]
+  }
+}

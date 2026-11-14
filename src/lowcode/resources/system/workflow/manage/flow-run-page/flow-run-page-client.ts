@@ -129,6 +129,24 @@ export class FlowRunPageClient {
     this.#options.assertCurrent?.()
   }
 
+  async forceBack(params: FlowRunBackParams): Promise<void> {
+    const scope = this.#guard()
+    const nodeId = normalizeText(params.nodeId)
+    if (!nodeId) throw new Error('强制退回缺少目标节点')
+    await requestFlowResult(this.#options.http, {
+      method: 'POST',
+      path: '/api/Flow/FlowForceBack',
+      data: {
+        flowObjId: normalizeText(params.flowObjId),
+        curStepId: normalizeText(params.curStepId),
+        nodeId,
+        Idea: normalizeText(params.idea),
+      },
+      headers: this.#headers(scope),
+    })
+    this.#options.assertCurrent?.()
+  }
+
   async rejectToCreator(params: FlowRunBackParams): Promise<void> {
     const scope = this.#guard()
     await requestFlowResult(this.#options.http, {

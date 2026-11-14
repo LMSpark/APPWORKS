@@ -35,7 +35,12 @@ export {
   type FlowRunSubmitParams,
 } from './flow-run-page'
 export {resolveFlowDesignFileContext, type FlowDesignFileContext} from './flow-design-file-context'
-export {saveFlowDesignInfo, type SaveFlowDesignCommand} from './flow-design'
+export {
+  saveFlowDesignInfo,
+  addFlowDesignNode,
+  removeFlowDesignGraphSelection,
+  type SaveFlowDesignCommand,
+} from './flow-design'
 export {serializeFlowDesignGraphJson} from './flow-design-graph-projection'
 export {prepareFlowRunDetailPage, type FlowRunDetailPreparedPage} from './flow-run-detail/flow-run-detail-runtime'
 export {

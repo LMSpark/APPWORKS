@@ -41,11 +41,22 @@
             </label>
           </div>
         </template>
+        <template v-if="allowForceBack && forceBackNodeOptions.length > 0">
+          <p class="flow-run-page__section-label">强制退回目标</p>
+          <div class="flow-run-page__nodes">
+            <label v-for="item in forceBackNodeOptions" :key="`force-${item.id}`" class="flow-run-page__node-option">
+              <input v-model="selectedForceBackNodeId" type="radio" name="flow-run-force-back-node" :value="item.id">
+              <span>{{ item.title || item.id }}</span>
+            </label>
+          </div>
+        </template>
         <el-empty v-else-if="nextNodeOptions.length === 0" description="未返回办理或退回选项" />
         <el-input v-model="opinionText" type="textarea" :rows="4" placeholder="办理意见" />
         <div class="flow-run-page__handle-actions">
           <RendererButton label="提交" button-type="primary" :loading="handleLoading" @click="submitFlow" />
           <RendererButton v-if="backNodeOptions.length > 0" label="退回上一节点" :loading="handleLoading" @click="backByHistory" />
+          <RendererButton v-if="allowForceBack && forceBackNodeOptions.length > 0" label="强制退回"
+            :loading="handleLoading" @click="forceBack" />
           <RendererButton label="退回发起人" :loading="handleLoading" @click="backToCreator" />
           <RendererButton label="关闭" @click="handleOpen = false" />
         </div>
@@ -105,8 +116,11 @@ const {
   opinionText,
   selectedNodeId,
   selectedBackNodeId,
+  selectedForceBackNodeId,
   nextNodeOptions,
   backNodeOptions,
+  forceBackNodeOptions,
+  allowForceBack,
   businessTabs,
   activeFormId,
   businessRegistry,
@@ -120,6 +134,7 @@ const {
   openHandlePanel,
   submitFlow,
   backByHistory,
+  forceBack,
   backToCreator,
   openAppendDialog,
   openFlowChart,

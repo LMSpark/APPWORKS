@@ -24,12 +24,12 @@
 
 ## 差距（待账本）
 
-- 参考体量仍大于本仓；**核心闭环已接**：设计布局拖拽 + `syncFlowDesignTables` 全量删增、`flow-run-page` FlowBack、加签共用 `flow-http`。下批：ForceBack、工作台待办、画布上新建/删节点类型。
+- 参考体量仍大于本仓；**Round4 已接**：办理 **FlowForceBack**（`flow-run-page-client` + 侧栏）、设计页 **新增/删除节点**（`flow-design-graph-edit` + 节点表 TITLE/MEMO 可编辑）、工作台待办 **MVP 列表**（共用 `E328` + `View_FlowObjList`）。未接：`saveFlowAndFormRelation`、详情页强退、精确「我的待办」过滤合同。
 - 设计保存：EJ2.json + DesignJson + 节点/边表同步 + `saveChanges`；**未**接回 `saveFlowAndFormRelation` 与节点权限扩展表。
 - **`flow-model-list` / `flow-design` modelId：** 仍仅 `modelName`；2026-11-15 实服回读阻塞见 `notes/evidence/workflow-g0-model-ids-attempt-20261115.json`（脚本 `tools/workflow/read-workflow-model-ids.mjs` 已就绪）。
 - **仓内场景登记：** 运行/监控/详情共用 `E328FBBF518141973C575D612CD75151` 时，`system-scenarios.json` 只登记 `flowMonitor` → `config/pages/system/flow-monitor/pagedata.json`；不得对同一 `scenarioId` 重复登记（2026-11-14 烟测已删 `flowRunDetail` 重复项）。
 - **设计对话框：** 布局可拖 + `layoutOverride` 保存；**G2** `saveFlowDesignInfo` + `syncFlowDesignTables`；**G3** 图↔表双向高亮。
-- **办理页：** 业务页签、`Submit`、**FlowBack**（`BackNodeList` 等字段解析）、退回发起人、流程图/加签对话框。
+- **办理页：** 业务页签、`Submit`、**FlowBack** / **FlowForceBack**（`BackNodeList`、`ForceBackNodeList`、`AllowToForceBack`）、退回发起人、流程图/加签对话框。
 - **运行详情 G4：** `flow-run-detail-page` 在 `E328…` 场景 + `peerScenarioIds` 设计场景上，`prepareFlowRunDetailPage` 刷新 `WFOBJ_FLOW_RELATIONLINE_STEP`/`WFOBJ_FLOW_Waiting` 并投影只读运行图（节点 completed/waiting 徽标）；节点/连线 `@select` 打开步骤钻取弹窗（不含强退）。
 - **modelId：** `WFM_*` pagedata 仍仅 `modelName`，须实服只读回读后写入（R1 未阻断列表只读装配）。
 - **G5 FlowAppendUser：** `flow-append-user/` lowcode 客户端（`GetExeUsers`/`FlowAddReceiveUser`/`FlowRevoke`）+ 步骤 DataView 筛选列表；`flow-append-user.vue` 接回列表/加人/撤回（无 PersonPicker，allowChange=1 时可选 `userDirectoryViewKey` 绑定 `Base_UserInfo`）。

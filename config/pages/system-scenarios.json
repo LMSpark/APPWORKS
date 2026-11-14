@@ -38,6 +38,9 @@
     {"name": "logicViewCatalog", "scenarioId": "EB720370EF06A5A656838F87E0716D6B", "resourceId": "repository:scenario-view:EB720370EF06A5A656838F87E0716D6B", "path": "config/pages/structured-config/logic-view-catalog/pagedata.json"},
     {"name": "organizationStructure", "scenarioId": "4138A7C47ECB96EA85CA61A8A8B7191F", "resourceId": "repository:scenario-view:4138A7C47ECB96EA85CA61A8A8B7191F", "path": "config/pages/organization/organization-structure/pagedata.json"},
     {"name": "jobManagement", "scenarioId": "0A835EB88AAC2BDFBDE344477C6827BB", "resourceId": "repository:scenario-view:0A835EB88AAC2BDFBDE344477C6827BB", "path": "config/pages/organization/job-management/pagedata.json"},
-    {"name": "platformLogin", "scenarioId": "2D0B0B82A1AE41099F252E40747286AE", "resourceId": "repository:scenario-view:2D0B0B82A1AE41099F252E40747286AE", "path": "config/pages/platform/login/pagedata.json", "scope": "public"}
+    {"name": "platformLogin", "scenarioId": "2D0B0B82A1AE41099F252E40747286AE", "resourceId": "repository:scenario-view:2D0B0B82A1AE41099F252E40747286AE", "path": "config/pages/platform/login/pagedata.json", "scope": "public"},
+    {"name": "flowModelList", "scenarioId": "87F0EF6AD1B64D67FFE597E7E3285994", "resourceId": "repository:scenario-view:87F0EF6AD1B64D67FFE597E7E3285994", "path": "config/pages/workflow/flow-model-list/pagedata.json"},
+    {"name": "flowDesign", "scenarioId": "6E462C4A39EE0D96F4D1A28FFE887C89", "resourceId": "repository:scenario-view:6E462C4A39EE0D96F4D1A28FFE887C89", "path": "config/pages/workflow/flow-design/pagedata.json"},
+    {"name": "flowRunDetail", "scenarioId": "E328FBBF518141973C575D612CD75151", "resourceId": "repository:scenario-view:E328FBBF518141973C575D612CD75151", "path": "config/pages/workflow/flow-run-detail/pagedata.json"}
   ]
 }

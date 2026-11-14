@@ -7,16 +7,23 @@ AI用途：迁移系统运维流程监控时，核对状态字典、创建人映
 <template>
   <RendererSection class="flow-monitor-page" :bordered="false" :grid-columns="1" :grid-gap="16"
     :status="loading ? '正在读取流程列表…' : ''" :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
-    <RendererTable v-if="ready" :data-view-key="viewKey" :children="fields" :filter="filter"
+    <RendererTable v-if="ready" :data-view-key="viewKey" :children="fields" :filter="filter" :actions="actions"
       :stripe="true" :show-row-index="true" :show-data-view-meta="false"
       :pagination="{pageSizes: [10, 15, 20, 50], showJumper: true}" />
   </RendererSection>
 </template>
 
 <script setup lang="ts">
-import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererSection, RendererTable, type RFilterProps} from '@spark-appworks/spark-component'
+import {computed} from 'vue'
+import {useRouter} from 'vue-router'
+import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
+import {RendererSection, RendererTable, consumeRequiredPageService, type RFilterProps, type RToolbarProps, useSparkComponent} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
+
+const {sparkConsume} = useSparkComponent({type: 'flow-monitor-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'flow-monitor-page')
+
+const FLOW_RUN_DETAIL_PATH = '/features/workflow/flow-runtime/detail/ui/flow-run-detail-page'
 
 const scenarioId = 'E328FBBF518141973C575D612CD75151'
 const {viewKey, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
@@ -44,6 +51,23 @@ const fields: SparkNode[] = [
   {type: 'r-text', props: {field: 'CrtTime', label: '创建时间', readonly: true, minWidth: 160,
     displayFormatter: formatMinute}},
 ]
+const router = useRouter()
+const actions = computed<RToolbarProps>(() => ({children: [
+  {type: 'r-button', props: {label: '运行详情', onClick: (row: DataRow) => openRunDetail(row)}},
+]}))
+function textValue(row: DataRow, field: string): string {
+  const value = row[field]
+  return typeof value === 'string' || typeof value === 'number' ? String(value).trim() : ''
+}
+function openRunDetail(row: DataRow): void {
+  const wfid = textValue(row, 'rowid')
+  const flowid = textValue(row, 'WFMID')
+  if (!wfid || !flowid) {
+    void pageService.showMessage('流程记录缺少 wfid 或 flowid', 'warning')
+    return
+  }
+  void router.push({path: FLOW_RUN_DETAIL_PATH, query: {wfid, flowid}})
+}
 const filter: RFilterProps = {
   autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,
   children: [

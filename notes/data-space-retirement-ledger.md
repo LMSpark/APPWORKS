@@ -9859,3 +9859,15 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
   - **AppWorks 烟测（D99 `D99A1DCE9894698799101EFD70F8FC76`）。** 导航宿主管理、入驻管理直链开页正常：页头新增/刷新、表格与行内「设计/授权/审核」等按钮可见，无 Config Page Target Error。
   - **页面直调下沉。** `project-blueprint-document`、`read-formal-models` 资源承接文档提交与设计态模型读取；蓝图工作台与应用系统列表改消费资源；共性差距 C 上述两项已核销。
   - **未做。** `application-function-page` 整页 `RendererSection` 外壳统一（工作区布局复杂，单独排期）；批 4 其余页面级 reg 无新增直调。
+- **批 5 设计页外壳与 page-thin（2026-11-14）。**
+  - **维度中心。** `RendererSection` 外壳 + `DisplayAlert` 业务提示；页头刷新；去掉长说明副标题。
+  - **数据空间设计。** 仅无 `session` 入口态套 `RendererSection`；设计页模板去除四处 `:field-ids=`，`DataSpaceModelFields.fieldIds` 改可选并由视图派生；`page-thin-baseline` 清零该页 `hand-passed-ids`。
+  - **验证。** 维度页 runtime 测试、`verify:page-thin`、typecheck 通过。
+- **批 6 旧页外壳（2026-11-14）。**
+  - **文件管理 / 数据库列表。** `RendererSection` 页头动作与状态区；数据库标题对齐「数据库列表」，左右面板双 `RendererSection`；`directory-page` 测试断言同步。
+- **业务审批流程迁入（2026-11-14，阶段交付）。**
+  - **范围。** 在 `src/views/features/workflow/**` 注册 8 个 Vue 入口（模型列表/设计/运行详情/办理 PC·移动/加签/工作台待办/业务明细）；`vue-pages.json` 与 `config/pages/workflow/**`；低代码入口 `src/lowcode/resources/system/workflow/manage/**`（模型编排 + 路由解析 + 设计场景常量）。
+  - **场景合同。** 模型列表导航 `87F0EF6AD1B64D67FFE597E7E3285994` + `WFM_FLOW_MODLE`；设计场景 `6E462C4A39EE0D96F4D1A28FFE887C89`；运行/监控 `E328FBBF518141973C575D612CD75151` + `View_FlowObjList`（见 `notes/research-workflow-approval.md`）。
+  - **流程监控断链。** `flow-monitor-page` 行内「运行详情」→ `flow-run-detail-page?wfid&flowid`。
+  - **仍有差距。** 参考 `FlowDesign`/`FlowRunPage`/`FlowRunDetail` 全量图编辑与办理命令未 1:1 接回；设计/办理/详情页含占位提示；`pagedata` 中 `WFM_FLOW_MODLE` 缺实服 `modelId` 时须后端对齐；工作台待办为壳层。
+- **门禁。** `tools/directory-limits-baseline.json` 登记既有 `src/lowcode/resources` 九子目录超限，本轮未做资源根重组。

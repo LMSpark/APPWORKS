@@ -1,16 +1,18 @@
 <template>
   <main class="data-space-design-page" :aria-busy="loading || busy">
-    <header v-if="!session">
-      <div><h1>数据空间设计</h1><p>{{ title }}<span v-if="targetId"> · {{ targetId }}</span></p></div>
-      <RendererButton :disabled="loading || hasPending || parameterOpen" @click="load" label="重新打开" />
-    </header>
-    <p v-if="loading" role="status">正在读取空间定义…</p>
-    <p v-if="definitionLoading" role="status">正在读取画布关系…</p>
-    <p v-if="workspaceLoading" role="status">正在读取工作区数据…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <p v-if="removalMessage" role="status">{{ removalMessage }}</p>
-    <p v-if="selectedId === 'parameters' && actionError" role="alert">{{ actionError }}</p>
-    <p v-if="selectedId === 'parameters' && actionMessage" role="status">{{ actionMessage }}</p>
+    <RendererSection v-if="!session" class="data-space-design-page__gate" title="数据空间设计" :bordered="false" :grid-columns="1" :grid-gap="12"
+      :status="gateStatus" :error="error" :retryable="!loading && !!error" retry-text="重新打开" @retry="load">
+      <template #header-actions>
+        <RendererButton :disabled="loading || hasPending || parameterOpen" @click="load" label="重新打开" />
+      </template>
+      <DisplayAlert v-if="removalMessage" alert-type="info" :closable="false" :show-icon="true" :title="removalMessage" />
+      <DisplayAlert v-if="selectedId === 'parameters' && actionError" alert-type="error" :closable="false" :show-icon="true" :title="actionError" />
+      <DisplayAlert v-if="selectedId === 'parameters' && actionMessage" alert-type="info" :closable="false" :show-icon="true" :title="actionMessage" />
+    </RendererSection>
+    <template v-else>
+    <DisplayAlert v-if="removalMessage" alert-type="info" :closable="false" :show-icon="true" :title="removalMessage" />
+    <DisplayAlert v-if="selectedId === 'parameters' && actionError" alert-type="error" :closable="false" :show-icon="true" :title="actionError" />
+    <DisplayAlert v-if="selectedId === 'parameters' && actionMessage" alert-type="info" :closable="false" :show-icon="true" :title="actionMessage" />
     <template v-if="session">
       <section class="space-history-entry" aria-label="空间级场景历史">
         <RendererButton v-if="historyView" label="场景历史" :disabled="historyPending" @click="historyOpen = true" />
@@ -208,7 +210,7 @@
                 </RendererSection>
                 <RendererSection :data-view-key="modelViewKey" title="本地计算字段" collapsible default-collapsed lazy data-local-computed :grid-columns="1">
                   <DataSpaceTableConfiguration ref="computedEditor" :key="`computed:${viewContext.modelId}`" section="columns" workspace-actions
-                    :session="session" :model-id="viewContext.modelId" :field-ids="[]" :revision="revision"
+                    :session="session" :model-id="viewContext.modelId" :revision="revision"
                     :disabled="busy || arrayEditorPending || layoutPending || viewEditorPending || fieldCreatePending || fieldEditorPending || modelEditorPending || modelSourcePending || modelRemovalPending || modelRenamePending || dataProcessPending"
                     @changed="changed" @pending="computedConfigPending = $event" />
                 </RendererSection>
@@ -222,7 +224,7 @@
                   @changed="changed" @pending="modelRequestPending = $event" />
               </RendererTabPane>
               <RendererTabPane :index="2" name="fields" label="3 字段呈现" lazy :disabled="processEditor?.interactionLocked === true">
-                <DataSpaceModelFields ref="metaFieldsEditor" workspace-actions :key="viewContext.modelId" :session="session" :model-id="viewContext.modelId" :field-ids="modelFieldIds ?? []"
+                <DataSpaceModelFields ref="metaFieldsEditor" workspace-actions :key="viewContext.modelId" :session="session" :model-id="viewContext.modelId"
                   :revision="revision" :disabled="busy || arrayEditorPending || workspaceBusy || computedConfigPending || layoutPending || viewEditorPending || modelRenamePending || dataProcessPending || modelSourcePending || modelRemovalPending || fieldCreatePending || !!activeFieldRemovalId || modelRequestPending"
                   :create-disabled="busy || computedConfigPending || layoutPending || viewEditorPending || modelRenamePending || arrayEditorPending || dataProcessPending || modelRequestPending
                     || modelSourcePending || modelRemovalPending || workspaceBusy || metaFieldsEditor?.interactionLocked === true || modelEditor?.dialogOpen === true"
@@ -230,7 +232,7 @@
                   @remove="beginFieldRemoval($event, 'modelFields')" />
               </RendererTabPane>
               <RendererTabPane :index="3" name="dataProcess" label="4 数据处理" lazy>
-                <DataSpaceTableConfiguration ref="processEditor" workspace-actions :key="viewContext.modelId" :session="session" :model-id="viewContext.modelId" :field-ids="modelFieldIds ?? []"
+                <DataSpaceTableConfiguration ref="processEditor" workspace-actions :key="viewContext.modelId" :session="session" :model-id="viewContext.modelId"
                   :revision="revision" :disabled="busy || computedConfigPending || layoutPending || (viewEditorPending && !dataProcessPending) || modelEditorPending || modelRenamePending || modelSourcePending || modelRemovalPending || fieldEditorPending || fieldCreatePending"
                   @changed="changed" @pending="dataProcessPending = $event" />
               </RendererTabPane>
@@ -272,7 +274,7 @@
             <template v-else-if="fieldModelId">
               <DataSpaceFieldCreate :key="fieldModelId" :session="session" :model-id="fieldModelId" :revision="revision" :disabled="busy || layoutPending || fieldEditorPending"
                 @changed="changed" @pending="fieldCreatePending = $event" />
-              <DataSpaceModelFields v-if="!fieldCreatePending && !activeFieldRemovalId" :key="selectedId" :session="session" :model-id="fieldModelId" :field-ids="modelFieldIds ?? []"
+              <DataSpaceModelFields v-if="!fieldCreatePending && !activeFieldRemovalId" :key="selectedId" :session="session" :model-id="fieldModelId"
                 :revision="revision" :disabled="busy || layoutPending" @changed="changed" @pending="fieldEditorPending = $event" @remove="beginFieldRemoval($event, 'modelFields')" />
             </template>
             <DataSpaceFieldEditor v-else-if="fieldEditorId" :key="dataFieldId || selectedId" :session="session" :field-id="fieldEditorId"
@@ -303,6 +305,7 @@
             :disabled="!canCloseDefinition" @click="closeDefinition" />
         </template>
       </RendererDialog>
+    </template>
     </template>
   </main>
 </template>
@@ -346,7 +349,7 @@ import {LOWCODE_FILE_RESOURCE_REGISTRY, type LowcodeFileResourceDefinition} from
 type RGraphProps = SparkComponent.RGraphProps
 /** 一个设计记录字段的读取位置；source 省略时使用 table 的默认视图。 */
 type DesignCell = Readonly<{table: string; row: DataRow; field: string; source?: DataView | undefined}>
-const {PAGE_RUNTIME, DisplayText, FieldJson, RendererForm, RendererButton, RendererTree, RendererGraph, RendererSection, RendererTabs, RendererTabPane, RendererDialog, RendererDetail, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, DisplayAlert, DisplayText, FieldJson, RendererForm, RendererButton, RendererTree, RendererGraph, RendererSection, RendererTabs, RendererTabPane, RendererDialog, RendererDetail, useSparkComponent} = SparkComponent
 
 type DesignNode = {id: string; label: string; table?: string; viewId?: string; rowKey?: string | number; workspace?: 'views' | 'fields'; description?: string; children?: DesignNode[]; recordIndex?: number; unplacedReason?: string; removalModelId?: string}
 /** 唯一被设计空间 ID 由宿主（数据空间目录对话框）传入；页面不读路由参数，也不接受第二个空间身份。 */
@@ -367,6 +370,12 @@ const definitionLoading = ref(false)
 const workspaceLoading = ref(false)
 const busy = ref(false)
 const error = ref('')
+const gateStatus = computed(() => {
+  if (loading.value) return '正在读取空间定义…'
+  if (definitionLoading.value) return '正在读取画布关系…'
+  if (workspaceLoading.value) return '正在读取工作区数据…'
+  return ''
+})
 const actionError = ref('')
 const actionMessage = ref('')
 const apiMessage = ref('')

@@ -5,27 +5,22 @@
 AI用途：迁移参考仓 FileDataManager/FileManager 时，核对文件区、导航身份(dataSpaceId)与保存回执。
 -->
 <template>
-  <section class="file-page">
-    <header class="file-page__header">
-      <h1>文件管理</h1>
-      <div class="file-page__tools">
-        <RendererButton v-if="ready" label="上传" button-type="primary" :disabled="busy" @click="pickAndUpload" />
-        <RendererButton v-if="ready" :data-view-key="viewKey" label="刷新" action="refresh" :disabled="busy" />
-      </div>
-    </header>
-    <p v-if="loading" role="status">正在读取文件目录…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
+  <RendererSection class="file-page" title="文件管理" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取文件目录…' : ''" :error="error" :retryable="!loading && !ready" retry-text="重试" @retry="loadCurrentRoute">
+    <template v-if="ready" #header-actions>
+      <RendererButton label="上传" button-type="primary" :disabled="busy" @click="pickAndUpload" />
+      <RendererButton :data-view-key="viewKey" label="刷新" action="refresh" :disabled="busy" />
+    </template>
     <RendererTable v-if="ready" :data-view-key="viewKey" :children="fields" :filter="filter" :actions="actions"
-      :stripe="true" :show-row-index="true" :show-data-view-meta="false"
+      :stripe="true" :border="true" :show-row-index="true" :show-data-view-meta="false"
       :pagination="{pageSizes: [15, 30, 50, 100], showJumper: true}" />
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import type {DataRow, DataView, SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {RendererButton, RendererSection, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
 const {sparkConsume} = useSparkComponent({type: 'file-manager-page'})
@@ -86,8 +81,5 @@ async function remove(row: DataRow): Promise<void> {
 </script>
 
 <style scoped>
-.file-page {display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary)}
-.file-page__header {display: flex; align-items: center; justify-content: space-between; gap: 16px}
-.file-page__header h1 {margin: 0; font-size: 20px}
-.file-page__tools {display: flex; gap: 8px}
+.file-page {padding: 8px}
 </style>

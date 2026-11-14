@@ -1,0 +1,20 @@
+{
+  "scenarioId": "__SCENARIO__",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "WFM_FLOW_MODLE": {
+      "modelBinding": {"modelName": "WFM_FLOW_MODLE"},
+      "views": {"default": {"autoLoad": false, "queryConfig": {"fields": ["rowid", "TITLE", "MEMO", "sysid"]}}}
+    },
+    "WFM_FLOW_NODE": {
+      "modelBinding": {"modelName": "WFM_FLOW_NODE"},
+      "views": {"default": {"autoLoad": false, "queryConfig": {"fields": ["rowid", "FLOWID", "TITLE", "NODETYPE"]}}}
+    },
+    "WFM_NODE_REALATION": {
+      "modelBinding": {"modelName": "WFM_NODE_REALATION"},
+      "views": {"default": {"autoLoad": false, "queryConfig": {"fields": ["rowid", "FLOWID", "PARENTID", "CHILDID"]}}}
+    }
+  },
+  "viewCascades": []
+}

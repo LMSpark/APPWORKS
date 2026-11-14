@@ -4,39 +4,32 @@
 AI用途：数据库列表筛选、分页、明确服务器选择及跳转到正式表视图页面。
 -->
 <template>
-  <section class="database-directory-page">
-    <header>
-      <h1>数据库管理</h1>
-      <p>选择服务器后可新增数据库；数据库列表支持按字段筛选。</p>
-    </header>
-    <p v-if="loading" role="status">正在读取数据库目录…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <p v-if="message" role="status">{{ message }}</p>
+  <RendererSection class="database-directory-page" title="数据库列表" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取数据库目录…' : ''" :error="error" :retryable="!loading && !!error" retry-text="重试" @retry="reloadPage">
+    <DisplayAlert v-if="message" alert-type="info" :closable="false" :show-icon="true" :title="message" />
     <template v-if="ready">
       <div class="database-directory-page__layout">
-        <section aria-label="服务器选择" class="database-directory-page__servers">
-          <h2>服务器</h2>
-          <p v-if="serverError" role="alert">{{ serverError }}</p>
+        <RendererSection title="服务器" aria-label="服务器选择" class="database-directory-page__servers" :bordered="true" :grid-columns="1">
+          <DisplayAlert v-if="serverError" alert-type="error" :closable="false" :show-icon="true" :title="serverError" />
           <RendererTable :data-view-key="serverKey" :children="DATABASE_SERVER_LIST_FIELDS"
-            :stripe="true" :on-row-click="chooseServer" :highlight-current-row="true"
+            :stripe="true" :border="true" :on-row-click="chooseServer" :highlight-current-row="true"
             :show-pagination="true" :show-data-view-meta="false" />
-        </section>
-        <section aria-label="数据库列表" class="database-directory-page__databases">
-          <h2>数据库</h2>
-          <p v-if="databaseError" role="alert">{{ databaseError }}</p>
+        </RendererSection>
+        <RendererSection title="数据库" aria-label="数据库列表" class="database-directory-page__databases" :bordered="true" :grid-columns="1">
+          <DisplayAlert v-if="databaseError" alert-type="error" :closable="false" :show-icon="true" :title="databaseError" />
           <RendererTable :data-view-key="databaseKey" :children="DATABASE_DIRECTORY_LIST_FIELDS"
-            :toolbar="toolbar" :filter="listFilter" :stripe="true" :on-row-click="chooseDatabase"
+            :toolbar="toolbar" :filter="listFilter" :stripe="true" :border="true" :on-row-click="chooseDatabase"
             :highlight-current-row="true" :show-pagination="true" :show-data-view-meta="false" />
-        </section>
+        </RendererSection>
       </div>
-      <p v-if="connectionTestError && !connectionTestOpen" role="alert">{{ connectionTestError }}</p>
+      <DisplayAlert v-if="connectionTestError && !connectionTestOpen" alert-type="error" :closable="false" :show-icon="true" :title="connectionTestError" />
       <RendererDialog :data-view-key="connectionTestInputKey" :model-value="connectionTestOpen" title="测试数据库连接" :width="560"
         @update:model-value="closeConnectionTest">
         <p>当前目标数据库：{{ selectedDatabase?.['Name'] ?? '' }}</p>
         <p>数据库与服务器参数来自当前选中的目录记录。账号和密码仅用于本次测试。</p>
         <RendererForm :data-view-key="connectionTestInputKey" :children="CONNECTION_TEST_FIELDS" />
         <RendererForm :data-view-key="connectionTestResultKey" :children="CONNECTION_TEST_RESULT_FIELDS" :readonly="true" />
-        <p v-if="connectionTestError" role="alert">{{ connectionTestError }}</p>
+        <DisplayAlert v-if="connectionTestError" alert-type="error" :closable="false" :show-icon="true" :title="connectionTestError" />
         <template #footer>
           <RendererButton label="取消" @click="closeConnectionTest(false)" />
           <RendererButton label="测试连接" :disabled="connectionTesting" @click="runConnectionTest" />
@@ -50,17 +43,18 @@ AI用途：数据库列表筛选、分页、明确服务器选择及跳转到正
         :close-disabled="busy || deleteUnconfirmed" @update:model-value="closeDeleteConfirmation">
         <p v-if="deleteConfirmation">确定删除数据库目录中的“{{ deleteConfirmation.name }}”记录吗？</p>
         <p>有有效表或视图时，服务会拒绝删除；不会删除物理数据库。</p>
-        <p v-if="deleteUnconfirmed" role="status">删除结果尚未确认。核验只确认原提交，不会再次写入；请使用下方核验操作。</p>
-        <p v-if="actionError" role="alert">{{ actionError }}</p>
+        <DisplayAlert v-if="deleteUnconfirmed" alert-type="warning" :closable="false" :show-icon="true"
+          title="删除结果尚未确认。核验只确认原提交，不会再次写入；请使用下方核验操作。" />
+        <DisplayAlert v-if="actionError" alert-type="error" :closable="false" :show-icon="true" :title="actionError" />
         <template #footer>
           <RendererButton label="取消" :disabled="busy || deleteUnconfirmed" @click="closeDeleteConfirmation(false)" />
           <RendererButton :label="deleteUnconfirmed ? '核验删除结果' : '确认删除'" button-type="danger"
             :disabled="busy || !deleteConfirmation" @click="deleteCapturedDatabase" />
         </template>
       </RendererDialog>
-      <p v-if="actionError && !editing" role="alert">{{ actionError }}</p>
+      <DisplayAlert v-if="actionError && !editing" alert-type="error" :closable="false" :show-icon="true" :title="actionError" />
     </template>
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
@@ -68,8 +62,10 @@ import {computed, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
 import {NativePageRuntimeSession, normalizeNavRuntimePath, resolveNavNodeRuntimeTarget, useNav, getNavTree,
   useSystemPageDirtySource, type RuntimeNavigationItem} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME, RendererTable, RendererDialog, RendererButton, RendererForm, useSparkComponent,
-  type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
+import type {RFilterProps, RToolbarProps} from '@spark-appworks/spark-component'
+
+const {DisplayAlert, PAGE_RUNTIME, RendererSection, RendererTable, RendererDialog, RendererButton, RendererForm, useSparkComponent} = SparkComponent
 import {useRoute} from 'vue-router'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 import {LowcodeDatabaseDirectory, DATABASE_DIRECTORY_COMMAND_INPUT_TABLE, DATABASE_DIRECTORY_LIST_FIELDS,
@@ -114,7 +110,8 @@ const serverView = shallowRef<DataView>()
 const databaseView = shallowRef<DataView>()
 const edit = shallowRef<DatabaseCatalogDbEditState>()
 const deleteConfirmation = shallowRef<{id: string | number; name: string}>()
-const ready = ref(false), loading = ref(false), error = ref(''), revision = ref(0)
+const ready = ref(false), loading = ref(false), error = ref(''), reloadNonce = ref(0), revision = ref(0)
+const reloadPage = () => {reloadNonce.value++}
 const busy = ref(false), actionError = ref(''), message = ref(''), unregisteredHint = ref('')
 const connectionTestOpen = ref(false), connectionTesting = ref(false), connectionTestError = ref('')
 let unsubscribe: (() => void) | undefined
@@ -464,7 +461,7 @@ function release(): void {
   dataSet.value?.destroy(); dataSet.value = undefined
 }
 
-watch([scenarioId, scopeFingerprint], async ([id, scope]) => {
+watch([scenarioId, scopeFingerprint, reloadNonce], async ([id, scope]) => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
   release()
@@ -492,13 +489,8 @@ onBeforeUnmount(() => {active = false; generation++; release()})
 </script>
 
 <style scoped>
-.database-directory-page { display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
-h1, h2 { margin: 0; }
-h1 { font-size: 20px; }
-h2 { margin-bottom: 8px; font-size: 16px; }
-header p { color: var(--el-text-color-secondary); }
+.database-directory-page { padding: 8px; color: var(--el-text-color-primary); }
 .database-directory-page__layout { display: grid; grid-template-columns: minmax(300px, 38%) 1fr; gap: 20px; align-items: start; }
 .database-directory-page__servers, .database-directory-page__databases { min-width: 0; }
-[role="alert"] { color: var(--el-color-danger); }
 @media (max-width: 960px) { .database-directory-page__layout { grid-template-columns: 1fr; } }
 </style>

@@ -10,11 +10,9 @@ import type {
 } from '@spark-appworks/spark-lowcode-api'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 
-export type BlueprintDocumentKind = LowcodeProjectBlueprintDocumentKind
-
 export async function submitBlueprintDocument(
   projectId: string,
-  kind: BlueprintDocumentKind,
+  kind: LowcodeProjectBlueprintDocumentKind,
   options: LowcodeProjectBlueprintDocumentSubmitOptions = {},
 ): Promise<LowcodeProjectBlueprintDocumentTask> {
   return lowcodeApi.blueprint.submitDocument(projectId, kind, options)

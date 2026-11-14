@@ -12,8 +12,8 @@ export type DataSpaceModelFieldsProps = {
   session: LowcodeDataSpaceDesignSession
   /** 当前目标空间内的正式模型ID。 */
   modelId: string
-  /** 目录增删字段后重新读取，身份列表不替代绑定视图的数据。 */
-  fieldIds: readonly string[]
+  /** 已废弃：字段身份由 modelFields 视图行派生，保留可选项仅兼容旧调用方。 */
+  fieldIds?: readonly string[] | undefined
   /** 当前会话修订，用于刷新字段操作状态。 */
   revision: number
   /** 其他定义操作对本工作区的交互限制。 */

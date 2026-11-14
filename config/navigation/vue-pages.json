@@ -419,6 +419,72 @@
       "source": "src/views/app/WorkflowDesigns.vue",
       "description": "Dify-like Agent workflow 设计稿编辑页",
       "order": 60
+    },
+    {
+      "path": "/features/workflow/flow-model/ui/flow-model-list-page",
+      "title": "流程模型",
+      "icon": "Share",
+      "scope": "app",
+      "source": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",
+      "description": "业务流程模型目录",
+      "group": "业务审批流程",
+      "order": 55,
+      "dataSpaceId": "87F0EF6AD1B64D67FFE597E7E3285994",
+      "navigationId": "87F0EF6AD1B64D67FFE597E7E3285994"
+    },
+    {
+      "path": "/features/workflow/flow-model/design/ui/flow-design-page",
+      "title": "流程设计",
+      "scope": "app",
+      "source": "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue",
+      "hidden": true,
+      "dataSpaceId": "6E462C4A39EE0D96F4D1A28FFE887C89",
+      "navigationId": "6E462C4A39EE0D96F4D1A28FFE887C89"
+    },
+    {
+      "path": "/features/workflow/flow-runtime/detail/ui/flow-run-detail-page",
+      "title": "流程运行详情",
+      "scope": "app",
+      "source": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
+      "hidden": true,
+      "dataSpaceId": "E328FBBF518141973C575D612CD75151"
+    },
+    {
+      "path": "/features/workflow/flow-runtime/run-page/ui/flow-run-page",
+      "title": "流程办理",
+      "scope": "app",
+      "source": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
+      "hidden": true,
+      "dataSpaceId": "E328FBBF518141973C575D612CD75151"
+    },
+    {
+      "path": "/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile",
+      "title": "流程办理（移动）",
+      "scope": "app",
+      "source": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue",
+      "hidden": true,
+      "dataSpaceId": "E328FBBF518141973C575D612CD75151"
+    },
+    {
+      "path": "/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page",
+      "title": "业务流程详情",
+      "scope": "app",
+      "source": "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue",
+      "hidden": true
+    },
+    {
+      "path": "/features/workflow/flow-workbench/ui/flow-workbench-todo-panel",
+      "title": "流程待办",
+      "scope": "app",
+      "source": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel.vue",
+      "hidden": true
+    },
+    {
+      "path": "/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile",
+      "title": "流程待办（移动）",
+      "scope": "app",
+      "source": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile.vue",
+      "hidden": true
     }
   ]
 }

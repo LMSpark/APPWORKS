@@ -1,0 +1,22 @@
+{
+  "scenarioId": "__SCENARIO__",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "View_FlowObjList": {
+      "modelBinding": {"modelName": "View_FlowObjList"},
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "pageSize": 1,
+          "queryConfig": {"fields": ["rowid", "WFMID", "TITLE", "AppDesc", "status", "UserNameList"]}
+        }
+      }
+    },
+    "Dict_state": {
+      "modelBinding": {"modelName": "Dict_state"},
+      "views": {"default": {"autoLoad": false, "pageSize": 100, "valueField": "val", "labelField": "txt", "queryConfig": {"allPages": true, "fields": ["val", "txt"]}}}
+    }
+  },
+  "viewCascades": []
+}

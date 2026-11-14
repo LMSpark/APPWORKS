@@ -286,7 +286,7 @@ describe('database directory page', () => {
   it('renders both formal DataViews without implicit server filtering and guards dirty DataView state', async () => {
     const wrapper = await open()
     expect(wrapper.findAllComponents(RendererTable)).toHaveLength(2)
-    expect(wrapper.text()).toContain('选择服务器后可新增数据库')
+    expect(wrapper.text()).toContain('数据库列表')
     expect(wrapper.text()).not.toContain('按服务器筛选数据库')
     const requests = http.requests.filter(request => request.url === '/api/DataOperation/GetData')
     const dbRequest = requests.find(request => JSON.stringify(request.data).includes('_base_dbInfo'))
@@ -504,7 +504,7 @@ describe('database directory page', () => {
     await flushPromises()
     releaseCreate()
     await flushPromises()
-    expect(replacement.text()).toContain('数据库管理')
+    expect(replacement.text()).toContain('数据库列表')
     expect(replacement.findAll('.el-dialog')).toHaveLength(0)
   })
 

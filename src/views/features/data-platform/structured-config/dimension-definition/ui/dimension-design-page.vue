@@ -5,13 +5,12 @@
 AI用途：迁移参考仓 integration/dimension 页面时，核对规则启用前置、引用删除守卫与条件/结果的规则归属。
 -->
 <template>
-  <section class="dimension-page">
-    <header class="dimension-page__header">
-      <div><h1>维度中心</h1><p>租户级统一维度治理：维护事件合同、维度定义、字典映射与规则，支撑跨 APP 数据贯通。</p></div>
-      <RendererButton v-if="ready" label="刷新" :disabled="busy || !!dialog || !!ruleDialog || !!deletion" @click="refreshAll" />
-    </header>
-    <p v-if="loading" role="status">正在加载维度配置…</p>
-    <p v-if="error || message" role="alert">{{ error || message }}</p>
+  <RendererSection class="dimension-page" title="维度中心" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在加载维度配置…' : ''" :error="error" :retryable="!loading && !ready" retry-text="重试" @retry="loadCurrentRoute">
+    <template v-if="ready" #header-actions>
+      <RendererButton label="刷新" :disabled="busy || !!dialog || !!ruleDialog || !!deletion" @click="refreshAll" />
+    </template>
+    <DisplayAlert v-if="message" :alert-type="deletion ? 'warning' : 'info'" :closable="false" :show-icon="true" :title="message" />
     <div v-if="deletion" class="dimension-page__actions">
       <RendererButton v-if="deletion.phase === 'verify'" label="核验原删除结果" :disabled="busy" @click="verifyDelete" />
       <RendererButton v-if="deletion.phase === 'verify'" label="放弃核验并回读" :disabled="busy" @click="abandonDelete" />
@@ -21,7 +20,6 @@ AI用途：迁移参考仓 integration/dimension 页面时，核对规则启用�
       <RendererButton v-if="deletion.phase === 'reload'" label="重试删除回读" :disabled="busy" @click="retryDeleteReadback" />
       <RendererButton v-if="deletion.phase === 'reload'" label="返回并核对删除结果" :disabled="busy" @click="dismissDeleteReadback" />
     </div>
-    <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
     <RendererTabs v-if="ready" v-model="tab">
       <RendererTabPane label="来源锚点" name="binding" :index="0" :lazy="true">
         <RendererTable :data-view-key="bindingKey" :children="bindingColumns" :current-page-search="search('binding_code', 'source_model_meta_name', 'event_code')" :highlight-current-row="true"
@@ -80,7 +78,7 @@ AI用途：迁移参考仓 integration/dimension 页面时，核对规则启用�
     <DimensionRuleEditor v-if="ready && ruleDialog" :key="ruleDialog.epoch" :rule-key="ruleKey" :condition-key="conditionKey"
       :result-key="resultKey" :event-key="templateKey" :binding-key="validationBindingKey" :rule-id="ruleDialog.id" :created="ruleDialog.created"
       @close="closeRuleDialog" />
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
@@ -88,7 +86,10 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {RequestState, buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererTable, RendererTabs, RendererTabPane, useSparkComponent, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
+import type {RToolbarProps} from '@spark-appworks/spark-component'
+
+const {DisplayAlert, RendererButton, RendererSection, RendererTable, RendererTabs, RendererTabPane, useSparkComponent, consumeRequiredPageService} = SparkComponent
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
@@ -418,10 +419,7 @@ function dismissDeleteReadback(): void {
 </script>
 
 <style scoped>
-.dimension-page {display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary)}
-.dimension-page__header {display: flex; align-items: center; justify-content: space-between; gap: 16px}
-.dimension-page__header h1 {margin: 0; font-size: 20px}
-.dimension-page__header p {margin: 4px 0 0; color: var(--el-text-color-secondary)}
+.dimension-page {padding: 8px; color: var(--el-text-color-primary)}
 .dimension-page__actions {display: flex; flex-wrap: wrap; gap: 8px}
 .dimension-page h2 {margin: 16px 0 8px; font-size: 16px}
 </style>

@@ -41,7 +41,7 @@ const interactionLocked = computed(() => loading.value || !ready.value || editor
 async function save(): Promise<void> {await editor.value?.save()}
 defineExpose({save, canSave, busy, hasEditor, interactionLocked})
 let active = true
-const loadKey = computed(() => JSON.stringify([props.modelId, props.fieldIds]))
+const loadKey = computed(() => JSON.stringify([props.modelId, props.revision, props.fieldIds]))
 const invalidated = computed(() => {props.revision; return ready.value && props.session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')?.requestState === RequestState.Idle})
 let requestedKey: string | undefined
 const ids = computed(() => {

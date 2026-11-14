@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/integration/registered-interface-call-resource",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/integration/registered-interface-call-resource",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/integration/registered-interface-call-resource\n职责：把“调用已登记接口”适配为原命令DataView的单次服务命令，回执保存本次输出文本供页面显示。\n边界：接口按已保存的提供商、名称和参数类型定位；测试值与结果过滤取当前编辑值。每条命令只发送一次，失败或结果未知都不重发。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RegisteredInterfaceCallResource"
+    ]
+  },
+  "$defs": {
+    "RegisteredInterfaceCallOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RegisteredInterfaceCallOptions",
+      "properties": {
+        "interfaces": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "parameters": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "http": {
+          "$ref": "../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string"
+            },
+            "headers": {
+              "type": "object",
+              "title": "Record<string, string>"
+            }
+          },
+          "required": [
+            "token",
+            "headers"
+          ],
+          "additionalProperties": false
+        },
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "RegisteredInterfaceCallResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RegisteredInterfaceCallResource",
+      "properties": {
+        "resourceId": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/RegisteredInterfaceCallOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.return": {
+          "$ref": "../../../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-14T05:07:30.858Z",
+  "models": {
+    "RegisteredInterfaceCallOptions": {
+      "name": "RegisteredInterfaceCallOptions",
+      "jsdoc": "interfaces为接口列表视图，parameters为按所选接口级联的输入参数视图，二者与命令视图须属同一DataSet。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    interfaces: DataView;\n    parameters: DataView;\n    http: HttpClientBase;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    interfaces: DataView;\n    parameters: DataView;\n    http: HttpClientBase;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "interfaces",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parameters",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "RegisteredInterfaceCallResource": {
+      "name": "RegisteredInterfaceCallResource",
+      "jsdoc": "命令行ID只标识本次本地捕获；结果未知时可放弃该命令，再由用户重新调用。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: RegisteredInterfaceCallOptions)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "RegisteredInterfaceCallOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "binding",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindCommandSubmitOptions"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/shared/table/feature-table-actions",
+    "sourcePath": "src/views/features/shared/table/feature-table-actions.ts",
+    "sourceFile": "src/views/features/shared/table/feature-table-actions.ts",
+    "packageName": "app",
+    "modulePath": "views/features/shared/table/feature-table-actions",
+    "jsdoc": "@module app:views/features/shared/table/feature-table-actions\n职责：行内编辑表格的“新增/删除/保存/取消”标准工具栏及其DataView动作。\n边界：只调用原DataView及所属DataSet的新增、删除、提交与放弃能力；权限、规则和回执核验仍由SPARK data承接。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "FeatureTableAction",
+      "FeatureTableToolbarInput"
+    ]
+  },
+  "$defs": {
+    "FeatureTableAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "FeatureTableAction",
+      "enum": [
+        "cancel",
+        "save",
+        "add",
+        "remove"
+      ]
+    },
+    "FeatureTableToolbarInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FeatureTableToolbarInput",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "order": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FeatureTableAction"
+          }
+        },
+        "locked": {
+          "type": "boolean"
+        },
+        "addBlocked": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.run.params": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "$ref": "#/$defs/FeatureTableAction"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.run.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-14T04:51:19.002Z",
+  "models": {
+    "FeatureTableAction": {
+      "name": "FeatureTableAction",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'add' | 'remove' | 'save' | 'cancel'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'add'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'remove'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'save'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'cancel'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FeatureTableToolbarInput": {
+      "name": "FeatureTableToolbarInput",
+      "jsdoc": "locked为页面忙碌等外部锁；addBlocked只进一步限制新增，例如所属父记录尚未保存。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    view: DataView;\n    order: readonly FeatureTableAction[];\n    locked: boolean;\n    run: (action: FeatureTableAction) => unknown;\n    addBlocked?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    view: DataView;\n    order: readonly FeatureTableAction[];\n    locked: boolean;\n    run: (action: FeatureTableAction) => unknown;\n    addBlocked?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "locked",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "addBlocked",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "run",
+              "parameters": [
+                {
+                  "name": "action",
+                  "type": {
+                    "type": "reference",
+                    "name": "FeatureTableAction",
+                    "sourcePath": "src/views/features/shared/table/feature-table-actions.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

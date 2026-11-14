@@ -914,12 +914,12 @@
     "packages/spark-component/src/components/containers/data-views/RendererList/RendererList.props.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererList/RendererList.props.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererList/RendererList.props.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.390Z"
+      "sourceModifiedAt": "2026-11-14T04:46:54.311Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererList/RendererList.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererList/RendererList.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererList/RendererList.vue.json",
-      "sourceModifiedAt": "2026-11-07T17:06:56.544Z"
+      "sourceModifiedAt": "2026-11-14T04:46:55.533Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererList/types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererList/types.ts",
@@ -2204,12 +2204,12 @@
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts.json",
-      "sourceModifiedAt": "2026-11-12T18:52:50.594Z"
+      "sourceModifiedAt": "2026-11-14T04:39:38.453Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue.json",
-      "sourceModifiedAt": "2026-11-12T18:52:50.595Z"
+      "sourceModifiedAt": "2026-11-14T04:39:48.105Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue",
@@ -3104,7 +3104,7 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-13T05:23:15.983Z"
+      "sourceModifiedAt": "2026-11-14T04:43:04.912Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3335,6 +3335,11 @@
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts.json",
       "sourceModifiedAt": "2026-11-13T05:31:29.350Z"
+    },
+    "packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts.json",
+      "sourceModifiedAt": "2026-11-14T05:07:30.858Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts",
@@ -3839,7 +3844,7 @@
     "src/lowcode/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-12T21:45:21.846Z"
+      "sourceModifiedAt": "2026-11-14T04:44:11.699Z"
     },
     "src/lowcode/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
@@ -4180,6 +4185,11 @@
       "sourceFile": "src/lowcode/resources/integration/api-management/queries.ts",
       "shardFile": "files/src/lowcode/resources/integration/api-management/queries.ts.json",
       "sourceModifiedAt": "2026-11-06T19:49:25.496Z"
+    },
+    "src/lowcode/resources/integration/api-management/runtime-bindings.ts": {
+      "sourceFile": "src/lowcode/resources/integration/api-management/runtime-bindings.ts",
+      "shardFile": "files/src/lowcode/resources/integration/api-management/runtime-bindings.ts.json",
+      "sourceModifiedAt": "2026-11-14T04:44:10.765Z"
     },
     "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts": {
       "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts",
@@ -4949,7 +4959,7 @@
     "src/views/features/application/application-context/ui/application-database-relations-content.vue": {
       "sourceFile": "src/views/features/application/application-context/ui/application-database-relations-content.vue",
       "shardFile": "files/src/views/features/application/application-context/ui/application-database-relations-content.vue.json",
-      "sourceModifiedAt": "2026-11-13T18:44:17.461Z"
+      "sourceModifiedAt": "2026-11-14T05:10:01.573Z"
     },
     "src/views/features/application/application-context/ui/application-database-relations-page.vue": {
       "sourceFile": "src/views/features/application/application-context/ui/application-database-relations-page.vue",
@@ -5004,7 +5014,7 @@
     "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog.vue": {
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog.vue",
       "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-12T19:13:34.113Z"
+      "sourceModifiedAt": "2026-11-14T05:10:19.294Z"
     },
     "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config.vue": {
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-navigation-config.vue",
@@ -5114,7 +5124,7 @@
     "src/views/features/application/application-manager/ui/application-database-dialog.vue": {
       "sourceFile": "src/views/features/application/application-manager/ui/application-database-dialog.vue",
       "shardFile": "files/src/views/features/application/application-manager/ui/application-database-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-13T18:36:56.109Z"
+      "sourceModifiedAt": "2026-11-14T05:10:17.978Z"
     },
     "src/views/features/application/application-manager/ui/application-manager-form-dialog.vue": {
       "sourceFile": "src/views/features/application/application-manager/ui/application-manager-form-dialog.vue",
@@ -5124,7 +5134,7 @@
     "src/views/features/application/application-manager/ui/application-manager-page.vue": {
       "sourceFile": "src/views/features/application/application-manager/ui/application-manager-page.vue",
       "shardFile": "files/src/views/features/application/application-manager/ui/application-manager-page.vue.json",
-      "sourceModifiedAt": "2026-11-13T18:59:41.628Z"
+      "sourceModifiedAt": "2026-11-14T05:09:51.245Z"
     },
     "src/views/features/application/application-manager/ui/application-relation-dialogs.vue": {
       "sourceFile": "src/views/features/application/application-manager/ui/application-relation-dialogs.vue",
@@ -5139,7 +5149,7 @@
     "src/views/features/application/data-menu/ui/data-menu-page.vue": {
       "sourceFile": "src/views/features/application/data-menu/ui/data-menu-page.vue",
       "shardFile": "files/src/views/features/application/data-menu/ui/data-menu-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T09:02:10.044Z"
+      "sourceModifiedAt": "2026-11-14T05:10:23.851Z"
     },
     "src/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model.ts": {
       "sourceFile": "src/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model.ts",
@@ -5149,7 +5159,7 @@
     "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue": {
       "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue",
       "shardFile": "files/src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue.json",
-      "sourceModifiedAt": "2026-11-13T18:05:46.320Z"
+      "sourceModifiedAt": "2026-11-14T05:10:18.510Z"
     },
     "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue": {
       "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
@@ -5164,12 +5174,12 @@
     "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue": {
       "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue",
       "shardFile": "files/src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue.json",
-      "sourceModifiedAt": "2026-11-13T18:40:02.658Z"
+      "sourceModifiedAt": "2026-11-14T05:10:09.291Z"
     },
     "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue": {
       "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue",
       "shardFile": "files/src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue.json",
-      "sourceModifiedAt": "2026-11-13T18:40:05.117Z"
+      "sourceModifiedAt": "2026-11-14T05:10:03.720Z"
     },
     "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue": {
       "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue",
@@ -5194,7 +5204,7 @@
     "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue": {
       "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue",
       "shardFile": "files/src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue.json",
-      "sourceModifiedAt": "2026-11-13T04:23:47.741Z"
+      "sourceModifiedAt": "2026-11-14T05:10:18.838Z"
     },
     "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts",
@@ -5229,7 +5239,7 @@
     "src/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue.json",
-      "sourceModifiedAt": "2026-11-04T09:24:19.123Z"
+      "sourceModifiedAt": "2026-11-14T05:10:35.191Z"
     },
     "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
@@ -5604,7 +5614,7 @@
     "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-11T18:32:17.499Z"
+      "sourceModifiedAt": "2026-11-14T05:10:19.801Z"
     },
     "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts": {
       "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts",
@@ -5714,7 +5724,7 @@
     "src/views/features/integration/api-management/ui/api-config-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-config-page.vue.json",
-      "sourceModifiedAt": "2026-11-14T04:17:15.738Z"
+      "sourceModifiedAt": "2026-11-14T04:51:25.491Z"
     },
     "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts",
@@ -5724,37 +5734,52 @@
     "src/views/features/integration/api-management/ui/api-interface-list-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-interface-list-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-interface-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-14T04:05:00.758Z"
+      "sourceModifiedAt": "2026-11-14T05:13:12.652Z"
     },
     "src/views/features/integration/api-management/ui/api-management-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-management-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-management-page.vue.json",
-      "sourceModifiedAt": "2026-11-14T04:05:08.499Z"
+      "sourceModifiedAt": "2026-11-14T05:10:38.469Z"
     },
-    "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue": {
-      "sourceFile": "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue",
-      "shardFile": "files/src/views/features/integration/api-management/ui/api-output-edit-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-06T21:04:32.297Z"
+    "src/views/features/integration/api-management/ui/interface-list/interface-edit-panel.vue": {
+      "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-edit-panel.vue",
+      "shardFile": "files/src/views/features/integration/api-management/ui/interface-list/interface-edit-panel.vue.json",
+      "sourceModifiedAt": "2026-11-14T04:58:55.742Z"
     },
-    "src/views/features/integration/api-management/ui/api-output-operation-dialog.vue": {
-      "sourceFile": "src/views/features/integration/api-management/ui/api-output-operation-dialog.vue",
-      "shardFile": "files/src/views/features/integration/api-management/ui/api-output-operation-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-06T20:56:43.873Z"
+    "src/views/features/integration/api-management/ui/interface-list/interface-invoke-panel.vue": {
+      "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-invoke-panel.vue",
+      "shardFile": "files/src/views/features/integration/api-management/ui/interface-list/interface-invoke-panel.vue.json",
+      "sourceModifiedAt": "2026-11-14T05:06:09.531Z"
+    },
+    "src/views/features/integration/api-management/ui/interface-list/interface-json-import-dialog.vue": {
+      "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-json-import-dialog.vue",
+      "shardFile": "files/src/views/features/integration/api-management/ui/interface-list/interface-json-import-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-14T04:55:13.441Z"
+    },
+    "src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts": {
+      "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts",
+      "shardFile": "files/src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts.json",
+      "sourceModifiedAt": "2026-11-14T05:07:27.334Z"
+    },
+    "src/views/features/integration/api-management/ui/interface-list/interface-output-panel.vue": {
+      "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-output-panel.vue",
+      "shardFile": "files/src/views/features/integration/api-management/ui/interface-list/interface-output-panel.vue.json",
+      "sourceModifiedAt": "2026-11-14T05:06:09.900Z"
     },
     "src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-dialog.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-dialog.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-06T21:50:59.077Z"
+      "sourceModifiedAt": "2026-11-14T05:16:40.689Z"
     },
     "src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-record.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-record.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-record.vue.json",
-      "sourceModifiedAt": "2026-11-06T21:57:00.709Z"
+      "sourceModifiedAt": "2026-11-14T05:16:44.480Z"
     },
     "src/views/features/integration/report/ui/report-create-dialog.vue": {
       "sourceFile": "src/views/features/integration/report/ui/report-create-dialog.vue",
       "shardFile": "files/src/views/features/integration/report/ui/report-create-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-11T15:42:04.897Z"
+      "sourceModifiedAt": "2026-11-14T05:16:48.781Z"
     },
     "src/views/features/integration/report/ui/report-format.ts": {
       "sourceFile": "src/views/features/integration/report/ui/report-format.ts",
@@ -5764,12 +5789,12 @@
     "src/views/features/integration/report/ui/report-management-page.vue": {
       "sourceFile": "src/views/features/integration/report/ui/report-management-page.vue",
       "shardFile": "files/src/views/features/integration/report/ui/report-management-page.vue.json",
-      "sourceModifiedAt": "2026-11-14T04:11:34.882Z"
+      "sourceModifiedAt": "2026-11-14T05:09:45.650Z"
     },
     "src/views/features/integration/report/ui/report-model-dialog.vue": {
       "sourceFile": "src/views/features/integration/report/ui/report-model-dialog.vue",
       "shardFile": "files/src/views/features/integration/report/ui/report-model-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-11T16:36:00.839Z"
+      "sourceModifiedAt": "2026-11-14T05:16:50.921Z"
     },
     "src/views/features/integration/report/ui/report-save.ts": {
       "sourceFile": "src/views/features/integration/report/ui/report-save.ts",
@@ -5779,22 +5804,22 @@
     "src/views/features/integration/report/ui/report-version-dialog.vue": {
       "sourceFile": "src/views/features/integration/report/ui/report-version-dialog.vue",
       "shardFile": "files/src/views/features/integration/report/ui/report-version-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-11T16:35:51.257Z"
+      "sourceModifiedAt": "2026-11-14T05:16:50.017Z"
     },
     "src/views/features/organization/job-management/ui/job-management-page.vue": {
       "sourceFile": "src/views/features/organization/job-management/ui/job-management-page.vue",
       "shardFile": "files/src/views/features/organization/job-management/ui/job-management-page.vue.json",
-      "sourceModifiedAt": "2026-11-14T03:13:25.941Z"
+      "sourceModifiedAt": "2026-11-14T05:09:54.730Z"
     },
     "src/views/features/organization/organization-structure/ui/organization-structure-page.vue": {
       "sourceFile": "src/views/features/organization/organization-structure/ui/organization-structure-page.vue",
       "shardFile": "files/src/views/features/organization/organization-structure/ui/organization-structure-page.vue.json",
-      "sourceModifiedAt": "2026-11-14T03:13:11.775Z"
+      "sourceModifiedAt": "2026-11-14T05:09:55.112Z"
     },
     "src/views/features/organization/user-management/ui/user-management-page.vue": {
       "sourceFile": "src/views/features/organization/user-management/ui/user-management-page.vue",
       "shardFile": "files/src/views/features/organization/user-management/ui/user-management-page.vue.json",
-      "sourceModifiedAt": "2026-11-14T03:13:32.313Z"
+      "sourceModifiedAt": "2026-11-14T05:09:54.387Z"
     },
     "src/views/features/shared/ai/ai-data-entry-dialog.vue": {
       "sourceFile": "src/views/features/shared/ai/ai-data-entry-dialog.vue",
@@ -5821,6 +5846,11 @@
       "shardFile": "files/src/views/features/shared/runtime/use-feature-page-runtime.ts.json",
       "sourceModifiedAt": "2026-11-13T13:55:42.983Z"
     },
+    "src/views/features/shared/table/feature-table-actions.ts": {
+      "sourceFile": "src/views/features/shared/table/feature-table-actions.ts",
+      "shardFile": "files/src/views/features/shared/table/feature-table-actions.ts.json",
+      "sourceModifiedAt": "2026-11-14T04:51:19.002Z"
+    },
     "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue": {
       "sourceFile": "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue",
       "shardFile": "files/src/views/features/system/bug-manage/ui/bug-detail-dialog.vue.json",
@@ -5829,7 +5859,7 @@
     "src/views/features/system/bug-manage/ui/bug-manage-page.vue": {
       "sourceFile": "src/views/features/system/bug-manage/ui/bug-manage-page.vue",
       "shardFile": "files/src/views/features/system/bug-manage/ui/bug-manage-page.vue.json",
-      "sourceModifiedAt": "2026-11-14T03:12:56.369Z"
+      "sourceModifiedAt": "2026-11-14T05:09:50.381Z"
     },
     "src/views/features/system/cache-management/ui/cache-delete-confirmation.vue": {
       "sourceFile": "src/views/features/system/cache-management/ui/cache-delete-confirmation.vue",
@@ -5844,17 +5874,17 @@
     "src/views/features/system/data-recovery/ui/data-recovery-page.vue": {
       "sourceFile": "src/views/features/system/data-recovery/ui/data-recovery-page.vue",
       "shardFile": "files/src/views/features/system/data-recovery/ui/data-recovery-page.vue.json",
-      "sourceModifiedAt": "2026-11-14T03:25:55.688Z"
+      "sourceModifiedAt": "2026-11-14T05:09:45.769Z"
     },
     "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue": {
       "sourceFile": "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue",
       "shardFile": "files/src/views/features/system/flow-monitor/ui/flow-monitor-page.vue.json",
-      "sourceModifiedAt": "2026-11-14T03:13:04.679Z"
+      "sourceModifiedAt": "2026-11-14T05:09:49.341Z"
     },
     "src/views/FileDataManager/FileManager/index.vue": {
       "sourceFile": "src/views/FileDataManager/FileManager/index.vue",
       "shardFile": "files/src/views/FileDataManager/FileManager/index.vue.json",
-      "sourceModifiedAt": "2026-11-11T10:22:58.921Z"
+      "sourceModifiedAt": "2026-11-14T05:10:22.290Z"
     },
     "src/views/platform/About.vue": {
       "sourceFile": "src/views/platform/About.vue",

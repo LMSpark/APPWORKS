@@ -16,6 +16,11 @@ export type JsonArrayRowAdapter = {
   /** 可进一步限制新增/编辑，不能扩大原字段权限；省略表示不增加限制。 */
   canEdit?: (original: Readonly<Record<string, unknown>> | undefined) => boolean
 }
+/** rows模式的对象成员来源：每个成员一行，keyField列为成员名、valueField列为成员值；写回对象并保持行次序。成员名须为非空且不重复的字符串。 */
+export type JsonObjectEntryRows = {
+  keyField: string
+  valueField: string
+}
 /** modelValue及更新事件保持编辑器JSON文本；绑定字段可显式选择原生值格式，业务有效性仍由所属合同核定。 */
 export type RJsonProps = SparkNodeProps & SparkFieldSemanticProps<string> & {
   /** 默认tree，复用JsonTreeEditor及spark-json-document的对象树；非法原文在可编辑且无结构约束时可显式修复，未应用输入不写字段，取消恢复原文，不绕过只读及树策略；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。 */
@@ -55,6 +60,8 @@ export type RJsonProps = SparkNodeProps & SparkFieldSemanticProps<string> & {
   reorderable?: boolean
   /** rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。 */
   rowAdapter?: JsonArrayRowAdapter
+  /** rows模式按对象成员而非对象数组维护行；仅text格式且无valuePath时可用，原值不是对象时明确报错并保留原文。emptyArrayAsEmptyText对空对象同样生效。 */
+  rowsSource?: JsonObjectEntryRows
   /** rows模式仅在开始新增行时使用的JSON成员默认值；不补齐既有行、不改写当前行草稿，取消新增不写原字段。 */
   rowDefaults?: Readonly<Record<string,JsonValue>>
   /** 显式将text格式、无valuePath的rows根字段空数组写为空串；默认写[]，native及子路径保持原行为。只在实际编辑接纳时转换，不规范化既有原值。 */

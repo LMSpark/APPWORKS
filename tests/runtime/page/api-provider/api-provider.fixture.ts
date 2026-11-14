@@ -17,7 +17,7 @@ export const pagedata: Record<string, string> = {[NAV]: navigation, [CONFIG]: co
  Base_TblField:{modelBinding:sourceFieldMetadata.modelBinding,views:{default:{autoLoad:false,queryConfig:{fields:['rowid','tblid','enname','DataType','IsPKey'],allPages:true}}}}}})}
 type Row = Record<string, unknown>
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
-type Table = {modelBinding: {modelId: string; modelName: string}; columns?: Array<{name: string}>; views: Record<string, {queryConfig?: {fields?: string[]}; filterExpression?: unknown}>}
+type Table = {modelBinding?: {modelId: string; modelName: string}; columns?: Array<{name: string}>; views: Record<string, {queryConfig?: {fields?: string[]}; filterExpression?: unknown}>}
 
 const keys: Record<string, string> = {Base_UserInfo: 'ID', _Base_ParamList: 'parid'}
 const extra: Record<string, string[]> = {Base_UserInfo: ['rowid'], Base_InterfaceProvider_Account: ['ProviderID'],
@@ -27,15 +27,15 @@ const extra: Record<string, string[]> = {Base_UserInfo: ['rowid'], Base_Interfac
 /** 按正式pagedata推导各空间的正式模型：字段取视图投影、列规则与过滤引用的并集。 */
 export function models(scenarioId: string): FormalModel[] {
   const tables = (JSON.parse(pagedata[scenarioId]!) as {tables: Record<string, Table>}).tables
-  return Object.entries(tables).map(([name, table]) => {
-    const formalName=table.modelBinding.modelName
+  return Object.entries(tables).flatMap(([name, table]) => table.modelBinding ? [[name, table.modelBinding, table] as const] : []).map(([name, binding, table]) => {
+    const formalName=binding.modelName
     const fields = new Set<string>([keys[formalName] ?? 'rowid', ...(extra[formalName] ?? [])])
     for (const column of table.columns ?? []) fields.add(column.name)
     for (const view of Object.values(table.views)) {
       for (const field of view.queryConfig?.fields ?? []) fields.add(field)
       for (const match of JSON.stringify(view.filterExpression ?? {}).matchAll(/"field":"([^"]+)"/g)) fields.add(match[1]!)
     }
-    const pk = keys[formalName] ?? 'rowid', modelId = table.modelBinding.modelId
+    const pk = keys[formalName] ?? 'rowid', modelId = binding.modelId
     return {id: modelId, name, metaName: formalName, sourceType: 'table', sourceId: 'DB', sourceName: formalName, primaryKey: pk, businessMain: false, raw: {},
       fields: [...fields].map((field, order) => ({id: `${modelId}-${field}`, modelId, name: field, canonicalName: field, primaryKey: field === pk,
         description: field, type: ['requiresAuth', 'IsPKey'].includes(field) ? 'number' : 'string', output: true, computed: false, order, orderType: '', raw: {}}))}
@@ -57,9 +57,14 @@ export class ApiBackend extends HttpClientBase {
   readonlyFields:Record<string,string[]> = {}
   beforeSave?: () => Promise<void>
   beforeDefinitionRead?: (table:string)=>Promise<void>
+  invocations: RequestConfig[] = []
+  invocationResult: unknown = {token: 'abc', expires: 3600, ratio: 0.5}
   protected override async executeRequest(request: RequestConfig): Promise<HttpResponse<unknown>> {
     let result: unknown
-    if (request.url === '/api/DataOperation/GetData') {
+    if (request.url?.startsWith('/api/dataInterface/callApi/')) {
+      this.invocations.push(request)
+      result = this.invocationResult
+    } else if (request.url === '/api/DataOperation/GetData') {
       const body = request.data as {Table: Array<{Name: string; Filter?: unknown; Fields: Array<{Name: string}>}>; InputParams?: Row; Params?: Row}
       const table = body.Table[0]!
       this.reads.push({table: table.Name, data: request.data})
@@ -126,7 +131,7 @@ export const seed: Record<string, Row[]> = {
   Base_Interface_PublicParam: [{rowid: 'Q1', providerId: 'P1', paramName: 'access_token', desc: '令牌', interfaceId: 'I1', outputfield: 'token', interfaceName: '取令牌', accessPath: '/token'},
     {rowid: 'Q2', providerId: 'P2', paramName: 'other', desc: '', interfaceId: 'I3', outputfield: 'x'}],
   接口公共头部信息使用类型: [{rowid: 'T1', val: 'all', txt: '固定使用'}, {rowid: 'T2', val: 'auth', txt: '认证使用'}],
-  Base_DataServiceInterface: [{rowid: 'I1', ProviderID: 'P1', Name: '取令牌', LinkUrl: '/token', request: 'POST', requiresAuth: 0},
+  Base_DataServiceInterface: [{rowid: 'I1', ProviderID: 'P1', Name: '取令牌', LinkUrl: '/token', request: 'POST', requiresAuth: 0, RequestType: 'Body'},
     {rowid: 'I2', ProviderID: 'P1', Name: '查询', LinkUrl: '/query', request: 'GET', requiresAuth: 1},
     {rowid: 'I3', ProviderID: 'P2', Name: '其他', LinkUrl: '/other', request: 'GET', requiresAuth: 0}],
   Base_TblField: [{rowid: 'F1', tblid: 'I1', enname: 'token', cnname: '令牌', DataTypeName: 'string', DataType: 'string', IsPKey: 0, tblname: '取令牌', Memo: null, description: null},
@@ -137,6 +142,6 @@ export const seed: Record<string, Row[]> = {
   Base_InterfaceProvider_Account: [{rowid: 'C1', ProviderID: 'P1', UserName: 'acc'}],
   request: [{rowid: 'R1', val: 'GET', txt: 'GET'}, {rowid: 'R2', val: 'POST', txt: 'POST'}],
   ContentType: [{rowid: 'CT1', val: 'application/json', txt: 'json'}],
-  接口参数类型: [{rowid: 'PT1', val: 'json', txt: 'JSON'}],
-  ParamType: [{rowid: 'K1', val: 'string', txt: '文本'}, {rowid: 'K2', val: 'int', txt: '整数'}],
+  接口参数类型: [{rowid: 'PT1', val: 'FormData', txt: 'Body/FormData'}, {rowid: 'PT2', val: 'Body', txt: 'Body/Json'}],
+  ParamType: [{rowid: 'K1', val: 'string', txt: '文本'}, {rowid: 'K2', val: 'int', txt: '整数'}, {rowid: 'K3', val: 'double', txt: '小数'}],
 }

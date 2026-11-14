@@ -6,12 +6,8 @@
 <template>
   <RendererDialog :model-value="true" :data-view-key="infoKey" title="新增报表" :width="640" :append-to-body="true"
     :close-disabled="!canCancel" @update:model-value="open => {if (!open) cancel()}">
-    <p v-if="hint" role="alert">{{ hint }}</p>
-    <p v-if="!current" role="alert">原报表编辑身份已变化，不能处理当前草稿。</p>
-    <p v-else-if="abandonInterrupted" role="alert">放弃核验未完整执行，本窗不能再次提交或丢弃。</p>
-    <p v-else-if="foreignUnknown" role="alert">存在其他操作的待核验提交，请由原操作处理；本窗保留草稿。</p>
-    <p v-else-if="recoveryEnded" role="alert">原提交捕获已结束，本窗不能重新提交或丢弃，请先核对正式结果。</p>
-    <p v-else-if="missingReceipt" role="alert">部分记录缺少本窗确认回执，请先核对正式结果，不能重发或丢弃。</p>
+    <DisplayAlert v-if="hint" alert-type="error" :closable="false" :title="hint" />
+    <DisplayAlert v-if="blocked" alert-type="warning" :closable="false" :title="blocked" />
     <RendererForm :data-view-key="infoKey" :context-row-id="infoId" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
       <FieldText field="RptName" label="报表名称" :readonly="locked" />
       <FieldSelect field="modid" label="应用系统" :option-data-view-key="appKey" :filterable="true" :readonly="locked" />
@@ -36,7 +32,7 @@ import {ElMessageBox} from 'element-plus'
 import {DataViewSaveNotAppliedError, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import {isOn, syncAppName, textOf} from './report-format'
-const {PAGE_RUNTIME, RendererDialog, RendererForm, RendererButton, FieldText, FieldTextarea, FieldSelect, FieldCheckbox, useSparkComponent} = Components
+const {PAGE_RUNTIME, RendererDialog, RendererForm, RendererButton, FieldText, FieldTextarea, FieldSelect, FieldCheckbox, DisplayAlert, useSparkComponent} = Components
 const props = defineProps<{infoKey: string; reportKey: string; appKey: string; infoId: string | number; reportId: string | number}>()
 const emit = defineEmits<{close: [reason?: 'abandoned']}>()
 const {sparkConsume} = useSparkComponent({type: 'report-create-dialog'})
@@ -77,6 +73,11 @@ const canCancel = computed(() => current.value && !busy.value && !abandonInterru
   && !missingReceipt.value && confirmed.value.size === 0)
 const locked = computed(() => busy.value || abandonInterrupted.value || unknown.value || recoveryEnded.value || missingReceipt.value
   || confirmed.value.size > 0 || !current.value)
+const blocked = computed(() => !current.value ? '原报表编辑身份已变化，不能处理当前草稿。'
+  : abandonInterrupted.value ? '放弃核验未完整执行，本窗不能再次提交或丢弃。'
+  : foreignUnknown.value ? '存在其他操作的待核验提交，请由原操作处理；本窗保留草稿。'
+  : recoveryEnded.value ? '原提交捕获已结束，本窗不能重新提交或丢弃，请先核对正式结果。'
+  : missingReceipt.value ? '部分记录缺少本窗确认回执，请先核对正式结果，不能重发或丢弃。' : '')
 const saveLabel = computed(() => ownUnknown.value ? '核验原保存结果' : permissionsPending.value ? '回读已保存权限'
   : confirmed.value.size > 0 ? '保存剩余记录' : '确定')
 const editing = (target: DataView, id: string | number): Readonly<DataRow> | undefined => {

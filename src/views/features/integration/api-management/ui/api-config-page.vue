@@ -48,10 +48,11 @@ AI用途：每个页签只保存本页签视图，不夹带其它页签草稿；
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, reactive, ref} from 'vue'
-import {ElMessage, ElMessageBox} from 'element-plus'
+import {ElMessageBox} from 'element-plus'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
+import {featureTableToolbar, runFeatureTableAction, type FeatureTableAction} from '@/views/features/shared/table/feature-table-actions'
 import type {ApiConfigPageProps} from './api-config-page.props'
 
 type RToolbarProps = SparkComponent.RToolbarProps
@@ -140,20 +141,9 @@ const accountColumns: SparkNode[] = [
   cell('r-text', {field: 'description', label: '备注', minWidth: 240}),
 ]
 
-type TabAction = 'add' | 'remove' | 'save' | 'cancel'
-function toolbar(viewKey: string, order: readonly TabAction[]): RToolbarProps {
+function toolbar(viewKey: string, order: readonly FeatureTableAction[]): RToolbarProps {
   revision.value
-  const target = view(viewKey), row = target.currentRow, id = row ? target.getPkKey(row) : undefined
-  const locked = busy.value || target.hasUnconfirmedSave
-  const pending = target.hasEditingChanges() || target.dirtyTracking.hasPendingChanges()
-  const removable = !!row && id !== undefined && (target.dirtyTracking.isPendingCreate(id) || target.deleteActionState(row) === 'enabled')
-  const buttons: Readonly<Record<TabAction, SparkNode>> = {
-    add: {type: 'r-button', props: {label: '新增', buttonType: 'primary', permAction: 'create', disabled: locked, onClick: () => add(viewKey)}},
-    remove: {type: 'r-button', props: {label: '删除', buttonType: 'primary', disabled: locked || !removable, onClick: () => remove(viewKey)}},
-    save: {type: 'r-button', props: {label: '保存', buttonType: 'primary', disabled: locked || !pending, onClick: () => save(viewKey)}},
-    cancel: {type: 'r-button', props: {label: '取消', disabled: locked || !pending, onClick: () => cancel(viewKey)}},
-  }
-  return {gap: 10, children: order.map(action => buttons[action])}
+  return featureTableToolbar({view: view(viewKey), order, locked: busy.value, run: action => run(viewKey, action)})
 }
 
 async function act(action: () => Promise<unknown>): Promise<void> {
@@ -162,32 +152,14 @@ async function act(action: () => Promise<unknown>): Promise<void> {
   try {await action()} catch (cause) {error.value = failure(cause)}
   finally {busy.value = false; changed()}
 }
-function add(viewKey: string): Promise<void> {
-  return act(async () => {const target = view(viewKey); target.setCurrentRow(await target.addRow({}))})
-}
-function remove(viewKey: string): Promise<void> {
+function run(viewKey: string, action: FeatureTableAction): Promise<void> {
   return act(async () => {
-    const target = view(viewKey), row = target.currentRow, id = row ? target.getPkKey(row) : undefined
-    if (!row || id === undefined) {ElMessage.warning('请先选择一条记录'); return}
-    await target.removeRow(id)
+    await runFeatureTableAction(view(viewKey), action)
+    if (action === 'save' && viewKey === parameterKey && loaded.has('headers')) await view(referencesKey).refresh()
   })
 }
 function save(viewKey: string): Promise<void> {
-  return act(async () => {
-    const target = view(viewKey)
-    if (!target.hasEditingChanges() && !target.dirtyTracking.hasPendingChanges()) {ElMessage.info('当前页签没有可保存的变更'); return}
-    const result = await dataSet?.saveChanges({views: [{tableName: target.tableName, viewId: target.viewId}]})
-    if (!result) throw new Error('配置信息设置缺少所属数据空间')
-    if (!result.success) throw new Error(result.error?.message ?? result.message ?? '保存结果未确认，请重读核验')
-    ElMessage.success('保存成功')
-    if (viewKey === parameterKey && loaded.has('headers')) await view(referencesKey).refresh()
-  })
-}
-function cancel(viewKey: string): void {
-  const target = view(viewKey)
-  if (busy.value || target.hasUnconfirmedSave) return
-  target.discardPendingChanges()
-  changed()
+  return run(viewKey, 'save')
 }
 function reload(): Promise<void> {
   return act(async () => {

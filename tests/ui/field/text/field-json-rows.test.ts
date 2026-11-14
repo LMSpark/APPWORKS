@@ -11,7 +11,7 @@ import type {JsonArrayRowAdapter,RJsonProps} from '../../../../packages/spark-co
 const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = []
 const originalStubs = {...config.global.stubs}
 afterEach(() => {wrappers.splice(0).forEach(w => w.unmount()); runtimes.splice(0).forEach(r => r.dispose()); config.global.stubs = originalStubs})
-async function fixture(value = '[{"name":"first","count":2,"active":false,"extra":{"x":1}}]', onChange?: (value: string) => Promise<void>, reorderable = false, rowAdapter?: JsonArrayRowAdapter, rowEditMode: 'row' | 'inline' = 'row', onTextChange?: (value: unknown, previous: unknown, control: {cancel: boolean}) => void, settings?:Pick<RJsonProps,'rowDefaults'|'emptyArrayAsEmptyText'>) {
+async function fixture(value = '[{"name":"first","count":2,"active":false,"extra":{"x":1}}]', onChange?: (value: string) => Promise<void>, reorderable = false, rowAdapter?: JsonArrayRowAdapter, rowEditMode: 'row' | 'inline' = 'row', onTextChange?: (value: unknown, previous: unknown, control: {cancel: boolean}) => void, settings?:Pick<RJsonProps,'rowDefaults'|'emptyArrayAsEmptyText'|'rowsSource'>) {
   registerAllRenderers()
   const ds = SparkData.fromJson({scenarioId: 'S', dataSetName: 'S', tables: {Models: {resourceType: 'static-data',
     columns: [{name:'id',type:'string',isPrimaryKey:true},{name:'items',type:'string'}],
@@ -357,6 +357,30 @@ it.each(['[]', '[{"name":"existing","extra":false}]'])('clears the cancelled add
   expect(f.view.getEditingRow('a')?.['items']).toBe(original)
   expect(f.view.hasEditingChanges()).toBe(false)
   expect(writes).toEqual([])
+})
+
+describe('object member rows',()=>{
+  const rowsSource={keyField:'name',valueField:'count'}
+  it('edits object members as rows and writes the object back in row order',async()=>{
+    const f=await fixture('{"a":1,"b":2}',undefined,false,undefined,'inline',undefined,{rowsSource})
+    expect(f.wrapper.findAll('.el-table__body tr')).toHaveLength(2)
+    await f.wrapper.findAll('.el-table__body td:first-child input')[0]!.setValue('c');await flushPromises()
+    expect(f.view.getEditingRow('a')?.['items']).toBe('{"c":1,"b":2}')
+  })
+  it('rejects duplicate member names without writing the field',async()=>{
+    const f=await fixture('{"a":1,"b":2}',undefined,false,undefined,'inline',undefined,{rowsSource})
+    await f.wrapper.findAll('.el-table__body td:first-child input')[1]!.setValue('a');await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+    expect(f.wrapper.text()).toContain('成员名不能重复')
+  })
+  it('writes an empty object as empty text when configured and keeps a non-object source untouched',async()=>{
+    const f=await fixture('{"a":1}',undefined,false,undefined,'inline',undefined,{rowsSource,emptyArrayAsEmptyText:true})
+    await f.wrapper.get('.el-table__body tr').trigger('click');await f.wrapper.get('[data-json-delete]').trigger('click');await flushPromises()
+    expect(f.view.getEditingRow('a')?.['items']).toBe('')
+    const g=await fixture('[{"name":"x"}]',undefined,false,undefined,'inline',undefined,{rowsSource})
+    expect(g.wrapper.text()).toContain('JSON必须是对象')
+    expect(g.view.hasEditingChanges()).toBe(false)
+  })
 })
 
 it('retains a valid existing-row selection after cancelling its edit', async () => {

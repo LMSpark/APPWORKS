@@ -7,8 +7,8 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 225,
-  "directUnmatchedCount": 127,
+  "consumerCount": 230,
+  "directUnmatchedCount": 128,
   "consumers": [
     {
       "expression": "/api/v1",
@@ -956,6 +956,36 @@
       "expression": "/api/FormDesign/GetNavigationMenus/PROJECT-1/ROOT",
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-authorization.test.ts",
       "sourceLine": 39,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/dataInterface/callApi/Body",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts",
+      "sourceLine": 66,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/dataInterface/callApi/FormData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts",
+      "sourceLine": 70,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/dataInterface/callApi/",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/integration/tests/registered-interface-call.test.ts",
+      "sourceLine": 13,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/dataInterface/callApi/Body",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/integration/tests/registered-interface-call.test.ts",
+      "sourceLine": 57,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/dataInterface/callApi/FormData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/integration/tests/registered-interface-call.test.ts",
+      "sourceLine": 64,
       "scope": "publishable-lowcode-api"
     },
     {

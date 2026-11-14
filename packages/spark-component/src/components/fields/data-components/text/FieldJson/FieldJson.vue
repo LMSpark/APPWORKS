@@ -19,9 +19,10 @@ AI用途：通过r-json维护JSON配置字段，不在业务页面手传值或�
         :schema="props.schema" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
       <JsonObjectProperties v-else-if="mode === 'properties'" :key="revision" :model-value="editorText" :read-only="!permission.isCurrentFieldEditable.value"
         :schema="props.schema" :value-label="props.valueLabel" :height="height" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
-      <JsonArrayRows v-else-if="mode === 'rows'" :key="revision" :model-value="editorText" :read-only="!permission.isCurrentFieldEditable.value"
+      <p v-else-if="mode === 'rows' && entryRows.error" role="alert">{{ entryRows.error }}；原始JSON保留。</p>
+      <JsonArrayRows v-else-if="mode === 'rows'" :key="revision" :model-value="entryRows.text" :read-only="!permission.isCurrentFieldEditable.value"
         :children="props.children" :height="height" :max-height="props.maxHeight" :row-edit-mode="props.rowEditMode"
-        :toolbar="props.toolbar" :reorderable="props.reorderable" :row-adapter="props.rowAdapter" :row-defaults="props.rowDefaults" :row-operations="props.rowOperations" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
+        :toolbar="props.toolbar" :reorderable="props.reorderable" :row-adapter="props.rowAdapter" :row-defaults="props.rowDefaults" :row-operations="props.rowOperations" :commit="writeRows" @editing-change="props.onEditingChange?.($event)" />
       <JsonTreeEditor v-else-if="mode === 'tree'" :key="revision" :model-value="editorText" :read-only="writing || !permission.isCurrentFieldEditable.value"
         :height="height" :schema="props.schema ?? null" v-bind="treePolicy ? {policy:treePolicy} : {}" @update:model-value="writeForRevision" @editing-change="completeInput = $event" />
       <SparkJsonEditor v-else :key="revision" :model-value="editorText" :read-only="writing || !permission.isCurrentFieldEditable.value"
@@ -126,6 +127,7 @@ watch(permission.dataSource,(view,_,cleanup)=>{
 watch([permission.dataSource,()=>{const row=permission.currentRow.value;return row?permission.dataSource.value?.getPkKey(row):undefined},permission.fieldName,permission.isCurrentFieldEditable,()=>props.mode,()=>props.valueFormat,()=>props.dataViewKey,()=>props.dataMember],resetEditor,{flush:'sync'})
 watch(() => JSON.stringify(props.valuePath ?? []), resetEditor, {flush:'sync'})
 watch(() => props.rowAdapter, resetEditor, {flush:'sync'})
+watch(() => JSON.stringify(props.rowsSource), resetEditor, {flush:'sync'})
 watch(() => props.rowEditMode, resetEditor, {flush:'sync'})
 watch(() => JSON.stringify(props.rowOperations), resetEditor, {flush:'sync'})
 onBeforeUnmount(()=>{revision.value++;if(completeMode.value)props.onEditingChange?.(false)})
@@ -152,6 +154,33 @@ const writeForRevision=computed(()=>{
       if(own===revision.value) {error.value=cause instanceof Error ? cause.message : String(cause);rejectedInput.value=completeMode.value}
       return false
     } finally {activeWrite = undefined;if(own===revision.value)writing.value=false}
+  }
+})
+/** 对象成员与行之间的往返须保持键序，行编辑器据回传文本核对本次写入是否被接纳。 */
+const entryRows=computed<{text:string;error:string}>(()=>{
+  const source=props.rowsSource
+  if(!source) return {text:editorText.value,error:''}
+  if(props.valueFormat==='native' || props.valuePath?.length) return {text:'',error:'对象成员行只支持文本格式的整个字段'}
+  try {
+    const parsed=editorText.value.trim()?parseJsonDocument(editorText.value):{}
+    if(Array.isArray(parsed)) throw new Error('JSON必须是对象')
+    return {text:JSON.stringify(Object.entries(parsed).map(([key,value])=>({[source.keyField]:key,[source.valueField]:value}))),error:''}
+  } catch(cause) {return {text:'',error:cause instanceof Error ? cause.message : String(cause)}}
+})
+const writeRows=computed(()=>{
+  const source=props.rowsSource, write=writeForRevision.value
+  if(!source) return write
+  return async(value:string,isCurrentIntent?:()=>boolean):Promise<boolean>=>{
+    const rows=value.trim()?parseJsonDocument(value):[]
+    if(!Array.isArray(rows)) throw new Error('对象成员行必须是数组')
+    const entries=rows.map(row=>{
+      const key=Array.isArray(row)||typeof row!=='object'||row===null?undefined:row[source.keyField]
+      if(typeof key!=='string'||!key.trim()) throw new Error('成员名不能为空')
+      return [key,Array.isArray(row)||typeof row!=='object'||row===null?null:row[source.valueField] ?? null] as const
+    })
+    if(new Set(entries.map(([key])=>key)).size!==entries.length) throw new Error('成员名不能重复')
+    const next=!entries.length&&props.emptyArrayAsEmptyText?'':JSON.stringify(Object.fromEntries(entries))
+    return isCurrentIntent?write(next,isCurrentIntent):write(next)
   }
 })
 </script>

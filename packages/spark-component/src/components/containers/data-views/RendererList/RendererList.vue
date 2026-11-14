@@ -41,7 +41,8 @@ AI用途：需要理解 renderer list 的实际渲染结构、slot/toolbar/状�
             :style="itemGridStyle"
           >
             <div
-              :class="['renderer-list-item-shell', `renderer-list-item-shell--${itemActionsPositionValue}`]"
+              :class="['renderer-list-item-shell', `renderer-list-item-shell--${itemActionsPositionValue}`, {'renderer-list-item-shell--current': isCurrent(row)}]"
+              :aria-current="isCurrent(row) ? 'true' : undefined"
               @click="handleItemClick(row, index, $event)"
             >
               <div
@@ -288,6 +289,10 @@ function getRowScope(row: DataRow, index: number) {
   })
 }
 
+function isCurrent(row: DataRow): boolean {
+  return props.highlightCurrent === true && dataState.currentRow.value === row
+}
+
 async function handleItemClick(row: DataRow, index: number, event: Event) {
   await dispatch('item-click', row, index, event)
 }
@@ -358,6 +363,12 @@ function getDefaultScope() {
   gap: 8px;
   min-width: 0;
   align-items: stretch;
+}
+
+.renderer-list-item-shell--current {
+  border-radius: 6px;
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
 }
 
 .renderer-list-item-shell--right {

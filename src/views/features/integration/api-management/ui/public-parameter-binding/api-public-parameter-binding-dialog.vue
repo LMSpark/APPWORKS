@@ -5,18 +5,18 @@
 -->
 <template>
   <RendererDialog :model-value="true" :data-view-key="parametersKey" title="设置公共参数" :width="720" :append-to-body="true" :close-disabled="!!chosen" @update:model-value="close">
-    <RendererForm :data-view-key="parametersKey" :auto-columns="false" :show-data-view-meta="false">
+    <RendererForm :data-view-key="parametersKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
       <FieldSelect :data-view-key="parametersKey" :option-data-view-key="parametersKey" data-member="value" label="公共参数" :filterable="true" :readonly="!!chosen" />
     </RendererForm>
     <RendererButton label="编辑选中参数绑定" :disabled="!!chosen" @click="choose" />
-    <p v-if="error" role="alert">{{ error }}</p>
+    <DisplayAlert v-if="error" alert-type="error" :closable="false" :title="error" />
     <BindingRecord v-if="chosen" :key="chosen.epoch" :parameters-key="parametersKey" :record-id="chosen.id" :mode="chosen.mode" :interface-key="interfaceKey" :interface-id="interfaceId" :output-key="outputKey" :output-id="outputId" @finish="finished" />
     <RendererButton v-else label="关闭参数选择" @click="close" />
   </RendererDialog>
 </template>
 <script setup lang="ts">
 import {ref} from 'vue'
-import {PAGE_RUNTIME,RendererDialog,RendererForm,RendererButton,FieldSelect,useSparkComponent,type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME,RendererDialog,RendererForm,RendererButton,FieldSelect,DisplayAlert,useSparkComponent,type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
 import BindingRecord from './api-public-parameter-binding-record.vue'
 const props=defineProps<{parametersKey:string;interfaceKey:string;interfaceId:string|number;outputKey:string;outputId:string|number}>()
 const emit=defineEmits<{close:[result:DataViewRecordEditingFinish]}>()

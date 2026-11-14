@@ -455,6 +455,21 @@ describe('RendererList and RendererSection container integration', () => {
     expect(view.currentRow).toBeNull()
   })
 
+  it('highlights only the DataView current row when highlightCurrent is enabled', async () => {
+    const ds = SparkData.createDataSet({dataSetName: 'ListCurrentDS', tables: {Users: {tableName: 'Users',
+      columns: [{name: 'id', type: 'number' as const, isPrimaryKey: true}], views: {default: {autoCurrentFirst: false, rows: [{id: 1}, {id: 2}]}}}}})
+    const view = ds.getView('Users', 'default')!
+    const wrapper = mountWithPageDataSet(RendererList, {dataSet: ds, props: {dataViewKey: 'Users@default', highlightCurrent: true},
+      slots: {default: () => h('div', 'item')}, global: {stubs: {SparkComponentRenderer: SparkActionStub, 'el-card': ElCardStub}}})
+    const current = () => wrapper.findAll('.renderer-list-item-shell').map(item => item.classes('renderer-list-item-shell--current'))
+    expect(current()).toEqual([false, false])
+    view.setCurrentRowById(2); await nextTick()
+    expect(current()).toEqual([false, true])
+    expect(wrapper.findAll('.renderer-list-item-shell')[1]!.attributes('aria-current')).toBe('true')
+    view.setCurrentRowById(1); await nextTick()
+    expect(current()).toEqual([true, false])
+  })
+
   it('should allow section header slot and default slot scopes to control collapse state', async () => {
     const wrapper = mount(RendererSection, {
       props: {

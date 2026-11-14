@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1178,
+  "scannedFileCount": 1184,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -7673,6 +7673,7 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "JsonArrayRowAdapter",
+          "JsonObjectEntryRows",
           "RJsonProps"
         ],
         "componentName": "FieldJson",
@@ -11459,6 +11460,21 @@
         ]
       }
     },
+    "packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/integration/registered-interface-call-resource",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/integration/registered-interface-call-resource",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/integration/registered-interface-call-resource\n职责：把“调用已登记接口”适配为原命令DataView的单次服务命令，回执保存本次输出文本供页面显示。\n边界：接口按已保存的提供商、名称和参数类型定位；测试值与结果过滤取当前编辑值。每条命令只发送一次，失败或结果未知都不重发。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "RegisteredInterfaceCallResource"
+        ]
+      }
+    },
     "packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts": {
       "file": "files/packages/spark-lowcode-api/src/platform/resources/rich-text/rich-text-image-upload-resource.ts.json",
       "module": {
@@ -14123,6 +14139,19 @@
         "symbols": [
           "ApiDefinitionQuery"
         ]
+      }
+    },
+    "src/lowcode/resources/integration/api-management/runtime-bindings.ts": {
+      "file": "files/src/lowcode/resources/integration/api-management/runtime-bindings.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/integration/api-management/runtime-bindings",
+        "sourcePath": "src/lowcode/resources/integration/api-management/runtime-bindings.ts",
+        "sourceFile": "src/lowcode/resources/integration/api-management/runtime-bindings.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/integration/api-management/runtime-bindings",
+        "jsdoc": "@module app:lowcode/resources/integration/api-management/runtime-bindings\n职责：为接口配置正式场景的首次装配绑定“调用已登记接口”命令，接口与输入参数视图取自同一DataSet。\n边界：只核本次配置与正式模型身份，不创建表、查询、草稿或页面owner。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
       }
     },
     "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts": {
@@ -18528,7 +18557,7 @@
         "sourceFile": "src/views/features/integration/api-management/ui/api-interface-list-page.vue",
         "packageName": "app",
         "modulePath": "views/features/integration/api-management/ui/api-interface-list-page",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/api-interface-list-page\n职责：按原接口目录/定义工作区恢复方案设计。\n边界：经标准场景入口装配，providerId作为场景输入；子定义由查询级联限定，规则、当前行锁定与保存均由SPARK data承接，页面只转发事件。\nAI用途：原页面结构与输入语义保留，不查询凭据、不维护调用数据、不发送HTTP。",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/api-interface-list-page\n职责：按原“接口列表”对话框恢复左侧接口目录与右侧“接口编辑/调用输出/输出内容”工作区。\n边界：经标准场景入口装配，providerId作为场景输入；子定义由查询级联限定，规则、当前行锁定与保存均由SPARK data承接；调用经命令资源提交。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -18546,28 +18575,71 @@
         "symbols": []
       }
     },
-    "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue": {
-      "file": "files/src/views/features/integration/api-management/ui/api-output-edit-dialog.vue.json",
+    "src/views/features/integration/api-management/ui/interface-list/interface-edit-panel.vue": {
+      "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-edit-panel.vue.json",
       "module": {
-        "name": "app:views/features/integration/api-management/ui/api-output-edit-dialog",
-        "sourcePath": "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue",
-        "sourceFile": "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue",
+        "name": "app:views/features/integration/api-management/ui/interface-list/interface-edit-panel",
+        "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-edit-panel.vue",
+        "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-edit-panel.vue",
         "packageName": "app",
-        "modulePath": "views/features/integration/api-management/ui/api-output-edit-dialog",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/api-output-edit-dialog\n职责：固定原输出记录的标准字段编辑。\n边界：读写及保存使用原DataView，生命周期由公共记录编辑能力承接；不持有草稿或存储owner。",
+        "modulePath": "views/features/integration/api-management/ui/interface-list/interface-edit-panel",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/interface-list/interface-edit-panel\n职责：按原“接口编辑”页签恢复接口基础信息、请求参数（Params/Body/Json/Body/FormData/Header）和右侧输入参数。\n边界：接口字段写当前接口行的编辑覆盖，由页面头部“保存”提交；请求头与输入参数各自经所属DataView的staged保存提交。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
-    "src/views/features/integration/api-management/ui/api-output-operation-dialog.vue": {
-      "file": "files/src/views/features/integration/api-management/ui/api-output-operation-dialog.vue.json",
+    "src/views/features/integration/api-management/ui/interface-list/interface-invoke-panel.vue": {
+      "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-invoke-panel.vue.json",
       "module": {
-        "name": "app:views/features/integration/api-management/ui/api-output-operation-dialog",
-        "sourcePath": "src/views/features/integration/api-management/ui/api-output-operation-dialog.vue",
-        "sourceFile": "src/views/features/integration/api-management/ui/api-output-operation-dialog.vue",
+        "name": "app:views/features/integration/api-management/ui/interface-list/interface-invoke-panel",
+        "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-invoke-panel.vue",
+        "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-invoke-panel.vue",
         "packageName": "app",
-        "modulePath": "views/features/integration/api-management/ui/api-output-operation-dialog",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/api-output-operation-dialog\n职责：确认原输出删除或明确处理原待提交修改。\n边界：复用公共单记录操作，不复制提交、取消与原捕获核验管线。",
+        "modulePath": "views/features/integration/api-management/ui/interface-list/interface-invoke-panel",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/interface-list/interface-invoke-panel\n职责：按原“调用输出”页签填写结果过滤并调用接口，展示本接口最近一次调用结果。\n边界：调用经InterfaceCallRequest命令资源提交；结果过滤写当前接口resultPath编辑覆盖，由接口“保存”持久；结果未知只可放弃，不重发。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/api-management/ui/interface-list/interface-json-import-dialog.vue": {
+      "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-json-import-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/integration/api-management/ui/interface-list/interface-json-import-dialog",
+        "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-json-import-dialog.vue",
+        "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-json-import-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/api-management/ui/interface-list/interface-json-import-dialog",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/interface-list/interface-json-import-dialog\n职责：按原“JSON输入”对话框整体替换当前接口的请求体：Body/Json直接替换；Body/FormData接受对象数组并规范为原四成员行。\n边界：编辑当前接口行BodyParamJsonStr的编辑覆盖，取消恢复打开前的值；由接口“保存”统一提交，不另存草稿。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts": {
+      "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts.json",
+      "module": {
+        "name": "app:views/features/integration/api-management/ui/interface-list/interface-list-workspace",
+        "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts",
+        "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts",
+        "packageName": "app",
+        "modulePath": "views/features/integration/api-management/ui/interface-list/interface-list-workspace",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/interface-list/interface-list-workspace\n职责：接口列表工作区的场景视图键、子面板共享上下文，以及原页“路径参数随地址同步”“按调用结果生成输出字段”的业务推导。\n边界：只做值推导，写入仍由页面经DataView编辑覆盖和staged保存提交；不发送请求、不持有第二份草稿。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "InterfaceWorkspace",
+          "InterfaceCallViews",
+          "InterfaceOutputField"
+        ]
+      }
+    },
+    "src/views/features/integration/api-management/ui/interface-list/interface-output-panel.vue": {
+      "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-output-panel.vue.json",
+      "module": {
+        "name": "app:views/features/integration/api-management/ui/interface-list/interface-output-panel",
+        "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-output-panel.vue",
+        "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-output-panel.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/api-management/ui/interface-list/interface-output-panel",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/interface-list/interface-output-panel\n职责：按原“输出内容”页签按调用结果重新设置输出字段，维护描述，并为输出设置公共参数。\n边界：重新设置经调用命令取得结果后，在Base_TblField视图同名保留、类型更新、多余删除、缺少新增，由“保存”经staged提交；已绑定公共参数的字段拒绝移除。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -18783,6 +18855,22 @@
         "jsdoc": "@module app:views/features/shared/runtime/use-feature-page-runtime\n职责：按导航身份装配功能页的正式运行实例并加载主视图；可在同一实例内一并装配伙伴数据空间。\n边界：校验导航身份并释放过期实例，不承载页面字段或业务数据副本；主场景始终是 scenarioId。\nAI用途：原生功能页以一个主模型视图为入口时复用；navigationId 允许页面以独立导航身份消费其他空间。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
+      }
+    },
+    "src/views/features/shared/table/feature-table-actions.ts": {
+      "file": "files/src/views/features/shared/table/feature-table-actions.ts.json",
+      "module": {
+        "name": "app:views/features/shared/table/feature-table-actions",
+        "sourcePath": "src/views/features/shared/table/feature-table-actions.ts",
+        "sourceFile": "src/views/features/shared/table/feature-table-actions.ts",
+        "packageName": "app",
+        "modulePath": "views/features/shared/table/feature-table-actions",
+        "jsdoc": "@module app:views/features/shared/table/feature-table-actions\n职责：行内编辑表格的“新增/删除/保存/取消”标准工具栏及其DataView动作。\n边界：只调用原DataView及所属DataSet的新增、删除、提交与放弃能力；权限、规则和回执核验仍由SPARK data承接。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "FeatureTableAction",
+          "FeatureTableToolbarInput"
+        ]
       }
     },
     "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue": {
@@ -22261,6 +22349,14 @@
       "sourcePath": "src/views/features/shared/record/feature-field-spec.ts",
       "file": "files/src/views/features/shared/record/feature-field-spec.ts.json"
     },
+    "FeatureTableAction": {
+      "sourcePath": "src/views/features/shared/table/feature-table-actions.ts",
+      "file": "files/src/views/features/shared/table/feature-table-actions.ts.json"
+    },
+    "FeatureTableToolbarInput": {
+      "sourcePath": "src/views/features/shared/table/feature-table-actions.ts",
+      "file": "files/src/views/features/shared/table/feature-table-actions.ts.json"
+    },
     "FetchNestedInput": {
       "sourcePath": "packages/spark-data/src/node-tree/tree-manager.ts",
       "file": "files/packages/spark-data/src/node-tree/tree-manager.ts.json"
@@ -22665,6 +22761,10 @@
       "sourcePath": "packages/spark-component/src/components/containers/support/interactionControl.ts",
       "file": "files/packages/spark-component/src/components/containers/support/interactionControl.ts.json"
     },
+    "InterfaceCallViews": {
+      "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts",
+      "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts.json"
+    },
     "InterfaceDeclarationMembers": {
       "sourcePath": "packages/spark-ai/src/class-model/class-model/types.ts",
       "file": "files/packages/spark-ai/src/class-model/class-model/types.ts.json"
@@ -22676,6 +22776,14 @@
     "InterfaceDeclarationPayload": {
       "sourcePath": "packages/spark-ai/src/class-model/class-model/types.ts",
       "file": "files/packages/spark-ai/src/class-model/class-model/types.ts.json"
+    },
+    "InterfaceOutputField": {
+      "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts",
+      "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts.json"
+    },
+    "InterfaceWorkspace": {
+      "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts",
+      "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts.json"
     },
     "InterpretAgentWorkflowDefinitionCommand": {
       "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-runtime.ts",
@@ -22708,6 +22816,10 @@
     "JsonObject": {
       "sourcePath": "packages/spark-json-document/src/core/json-types.ts",
       "file": "files/packages/spark-json-document/src/core/json-types.ts.json"
+    },
+    "JsonObjectEntryRows": {
+      "sourcePath": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts",
+      "file": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts.json"
     },
     "JsonParams": {
       "sourcePath": "packages/spark-json-document/src/core/json-types.ts",
@@ -24480,6 +24592,10 @@
     "RefreshAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
+    },
+    "RegisteredInterfaceCallResource": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/integration/registered-interface-call-resource.ts.json"
     },
     "RegisterObjectType": {
       "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
@@ -26814,6 +26930,18 @@
           "directory": "fields/data-components"
         }
       },
+      "JsonObjectEntryRows": {
+        "className": "JsonObjectEntryRows",
+        "sourcePath": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts",
+        "file": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts.json",
+        "component": {
+          "name": "FieldJson",
+          "type": "r-json",
+          "level": "field-level",
+          "layer": "data-field",
+          "directory": "fields/data-components"
+        }
+      },
       "MultiValue": {
         "className": "MultiValue",
         "sourcePath": "packages/spark-component/src/components/fields/data-components/choice/FieldMultiSelect/FieldMultiSelect.props.ts",
@@ -28506,6 +28634,7 @@
       ],
       "FieldJson": [
         "JsonArrayRowAdapter",
+        "JsonObjectEntryRows",
         "RJsonProps"
       ],
       "FieldMention": [
@@ -28922,6 +29051,7 @@
       ],
       "r-json": [
         "JsonArrayRowAdapter",
+        "JsonObjectEntryRows",
         "RJsonProps"
       ],
       "r-link": [
@@ -29158,6 +29288,7 @@
         "FieldValueUpdateEmits",
         "FieldValueUpdateEmitter",
         "JsonArrayRowAdapter",
+        "JsonObjectEntryRows",
         "MultiValue",
         "OptionFieldStateProps",
         "RAutocompleteProps",
@@ -29283,6 +29414,7 @@
         "FieldValueUpdateEmits",
         "FieldValueUpdateEmitter",
         "JsonArrayRowAdapter",
+        "JsonObjectEntryRows",
         "MultiValue",
         "OptionFieldStateProps",
         "RAutocompleteProps",
@@ -29592,6 +29724,7 @@
         "FieldValueUpdateEmits",
         "FieldValueUpdateEmitter",
         "JsonArrayRowAdapter",
+        "JsonObjectEntryRows",
         "MultiValue",
         "OptionFieldStateProps",
         "RAutocompleteProps",

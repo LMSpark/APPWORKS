@@ -5,7 +5,7 @@
 -->
 <template>
   <section>
-    <RendererForm :data-view-key="parametersKey" :context-row-id="recordId" :auto-columns="false" :show-data-view-meta="false">
+    <RendererForm :data-view-key="parametersKey" :context-row-id="recordId" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
       <FieldText field="paramName" label="公共参数" :readonly="true" />
       <FieldText field="desc" label="说明" :readonly="true" />
       <FieldText field="interfaceName" label="接口名称" :readonly="true" />
@@ -13,17 +13,17 @@
       <FieldText field="accessPath" label="访问路径" :readonly="true" />
     </RendererForm>
     <template v-if="mode === 'edit'">
-      <RendererForm :data-view-key="interfaceKey" :context-row-id="interfaceId" :auto-columns="false" :show-data-view-meta="false">
+      <RendererForm :data-view-key="interfaceKey" :context-row-id="interfaceId" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
         <FieldText field="Name" label="拟绑定接口" :readonly="true" />
         <FieldText field="LinkUrl" label="拟访问路径" :readonly="true" />
       </RendererForm>
-      <RendererForm :data-view-key="outputKey" :context-row-id="outputId" :auto-columns="false" :show-data-view-meta="false">
+      <RendererForm :data-view-key="outputKey" :context-row-id="outputId" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
         <FieldText field="enname" label="拟输出字段" :readonly="true" />
       </RendererForm>
-      <p>确认后只修改本条参数的接口、输出名称、接口名称和访问路径，保留参数名称及说明。</p>
+      <DisplayAlert alert-type="info" :closable="false" title="确认后只修改本条参数的接口、输出名称、接口名称和访问路径，保留参数名称及说明。" />
     </template>
-    <p v-else>仅处理所选参数的原待提交修改，不重新生成绑定或提交其他记录。</p>
-    <p v-if="message || error" role="alert">{{ message || error }}</p>
+    <DisplayAlert v-else alert-type="info" :closable="false" title="仅处理所选参数的原待提交修改，不重新生成绑定或提交其他记录。" />
+    <DisplayAlert v-if="message || error" alert-type="error" :closable="false" :title="message || error" />
     <RendererButton :label="hasStaged || foreignRecovery || recoveryEnded ? '关闭并保留参数修改' : '取消参数重绑'" :disabled="busy || ownUnconfirmed" @click="cancel" />
     <RendererButton v-if="mode === 'pending'" label="放弃原参数待提交修改" :disabled="busy || ownUnconfirmed || foreignRecovery || confirmedCreation" @click="discard" />
     <RendererButton :label="ownUnconfirmed ? '核验原参数重绑' : mode === 'pending' ? '继续保存原参数修改' : '确认替换原绑定'" button-type="primary"
@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import {ref,toRaw} from 'vue'
 import * as Components from '@spark-appworks/spark-component'
-const {PAGE_RUNTIME,RendererForm,FieldText,RendererButton,useSparkComponent,useDataViewRecordEditing}=Components
+const {PAGE_RUNTIME,RendererForm,FieldText,RendererButton,DisplayAlert,useSparkComponent,useDataViewRecordEditing}=Components
 const props=defineProps<{parametersKey:string;recordId:string|number;mode:'edit'|'pending';interfaceKey:string;interfaceId:string|number;outputKey:string;outputId:string|number}>()
 const emit=defineEmits<{'finish':[result:Components.DataViewRecordEditingFinish]}>()
 const {sparkConsume}=useSparkComponent({type:'api-public-parameter-binding-record'})

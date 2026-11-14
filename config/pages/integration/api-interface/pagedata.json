@@ -32,7 +32,8 @@
           }
         },
         {
-          "name": "paramType",
+          "name": "RequestType",
+          "required": true,
           "optionsView": {
             "tableName": "接口参数类型",
             "valueField": "val",
@@ -61,31 +62,9 @@
           "max": 1
         },
         {
-          "name": "GetParamStr",
+          "name": "PathStr",
           "valueFunction": {
             "format": "json-object",
-            "capabilities": [
-              "huoshan"
-            ],
-            "sources": {
-              "inputParams": {
-                "tableName": "_Base_ParamList",
-                "viewId": "references",
-                "valueField": "parname",
-                "labelField": "pardesc"
-              },
-              "apiPublicParams": {
-                "tableName": "Base_Interface_PublicParam",
-                "valueField": "paramName",
-                "labelField": "desc"
-              }
-            }
-          }
-        },
-        {
-          "name": "FormDataParam",
-          "valueFunction": {
-            "format": "json",
             "capabilities": [
               "huoshan"
             ],
@@ -133,7 +112,6 @@
           "autoCurrentFirst": false,
           "autoSelectFirst": false,
           "commitMode": "staged",
-          "allowDelete": false,
           "lockCurrentWhilePending": true,
           "queryContext": {
             "providerId": ""
@@ -148,9 +126,6 @@
               "request",
               "LinkUrl",
               "Desc",
-              "paramType",
-              "GetParamStr",
-              "FormDataParam",
               "BodyParamJsonStr",
               "resultPath",
               "requiresAuth",
@@ -217,7 +192,8 @@
               "pid",
               "parname",
               "pardesc",
-              "parzdtype"
+              "parzdtype",
+              "testvalue"
             ],
             "allPages": true
           }
@@ -497,6 +473,19 @@
             "allPages": true
           }
         }
+      }
+    },
+    "InterfaceCallRequest": {
+      "resourceType": "command",
+      "resourceId": "integration:registered-interface-call",
+      "columns": [
+        {"name": "commandId", "type": "string", "isPrimaryKey": true},
+        {"name": "interfaceId", "type": "string"},
+        {"name": "resultFilter", "type": "string"},
+        {"name": "result", "type": "string"}
+      ],
+      "views": {
+        "default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}
       }
     },
     "ParamType": {

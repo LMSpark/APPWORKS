@@ -50,6 +50,8 @@ export type RListProps = SparkNodeProps & SparkCrudDataContainerProps & SparkGri
     itemRowSpan?: number
     /** 列表项点击回调 */
     onItemClick?: RowClickHandler
+    /** 突出显示绑定DataView的当前行，默认false；只呈现currentRow，不因点击移动当前行，当前行仍由宿主或点击回调维护。 */
+    highlightCurrent?: boolean
     /** 透传给列表根节点的显式属性 */
     listProps?: Record<string, unknown>
     /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。 */

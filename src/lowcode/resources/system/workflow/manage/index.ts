@@ -13,7 +13,14 @@ export {
   type FlowDesignPlatformFileApi,
   type ReadFlowDesignDataJsonCommand,
 } from './flow-design-data-json'
-export {FLOW_MONITOR_SCENARIO_ID, readFlowRuntimeRouteQuery, type FlowRuntimeRouteQuery} from './flow-runtime-client'
+export {
+  FLOW_MONITOR_SCENARIO_ID,
+  FLOW_RUN_PAGE_PATH,
+  buildFlowRunPageRoute,
+  readFlowRuntimeRouteQuery,
+  type FlowRunPageRoute,
+  type FlowRuntimeRouteQuery,
+} from './flow-runtime-client'
 export {
   createFlowAppendUserClient,
   filterFlowAppendUserList,
@@ -42,7 +49,9 @@ export {
   removeFlowDesignGraphSelection,
   buildWorkFormRelationPayload,
   saveFlowWorkFormRelation,
+  defaultFlowDesignNodeAuthRow,
   syncFlowDesignNodeAuthView,
+  type FlowDesignNodeAuthRowSeed,
   type SaveFlowDesignCommand,
   type SyncFlowDesignNodeAuthCommand,
 } from './flow-design'

@@ -11,7 +11,17 @@ const scenarios = [
   {key: 'flowModelList', scenarioId: '87F0EF6AD1B64D67FFE597E7E3285994'},
   {key: 'flowDesign', scenarioId: '6E462C4A39EE0D96F4D1A28FFE887C89'},
 ]
-const modelNames = ['WFM_FLOW_MODLE', 'WFM_FLOW_NODE', 'WFM_NODE_REALATION']
+const scenarioModelNames = {
+  flowModelList: ['WFM_FLOW_MODLE'],
+  flowDesign: [
+    'WFM_FLOW_MODLE',
+    'WFM_FLOW_NODE',
+    'WFM_NODE_REALATION',
+    'WFM_WORKFORM',
+    'FunctionNodeAuth',
+    '_Base_FunctionNode',
+  ],
+}
 
 if (!baseUrl || !token || !appId) {
   console.error('缺少 SPARK_BASE_URL / SPARK_TOKEN / SPARK_APP_ID')
@@ -35,12 +45,12 @@ async function postJson(path, body) {
   return json.Result ?? json
 }
 
-async function readModels(scenarioId) {
+async function readModels(scenarioKey, scenarioId) {
   const payload = await postJson('/api/DataSpaceDesign/ReadModelBatch', {dataSpaceId: scenarioId})
   const models = Array.isArray(payload) ? payload : payload?.models
   if (!Array.isArray(models)) throw new Error(`场景 ${scenarioId} 未返回模型数组`)
   const picked = {}
-  for (const name of modelNames) {
+  for (const name of scenarioModelNames[scenarioKey] ?? []) {
     const hit = models.find(item => String(item?.Name ?? item?.name ?? '').trim() === name)
     const modelId = String(hit?.rowid ?? hit?.RowID ?? hit?.modelId ?? '').trim()
     if (modelId) picked[name] = modelId
@@ -51,7 +61,7 @@ async function readModels(scenarioId) {
 async function main() {
   const output = {readAt: new Date().toISOString(), scenarios: {}}
   for (const entry of scenarios) {
-    output.scenarios[entry.key] = {scenarioId: entry.scenarioId, models: await readModels(entry.scenarioId)}
+    output.scenarios[entry.key] = {scenarioId: entry.scenarioId, models: await readModels(entry.key, entry.scenarioId)}
   }
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`)
 }

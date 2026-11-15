@@ -1,0 +1,31 @@
+{
+  "round": 13,
+  "branch": "codex/spark-data-s1-command-safety",
+  "delivered": [
+    "read-workflow-model-ids 扩展 FunctionNodeAuth/_Base_FunctionNode",
+    "flow-design-node-auth-panel editable + featureTableToolbar",
+    "defaultFlowDesignNodeAuthRow + saveChanges via 保存设计",
+    "flow-run-detail 前往办理 navigation",
+    "buildFlowRunPageRoute"
+  ],
+  "gates": {
+    "typecheck": "pass",
+    "workflowVitest": "607 passed",
+    "verifyRules": "pass"
+  },
+  "g0": {
+    "status": "blocked",
+    "evidence": "notes/evidence/workflow-g0-model-ids-r13-20261115.json"
+  },
+  "d99": {
+    "status": "blocked",
+    "reason": "未在本机会话注入 SPARK 凭证；人工矩阵待用户本机执行",
+    "matrix": [
+      "workbench 四页签首屏",
+      "设计选节点 nodeAuth 查询/保存重开",
+      "办理 Submit/退回抽测",
+      "详情→前往办理",
+      "GetStepHistory wfId 对照"
+    ]
+  }
+}

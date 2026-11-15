@@ -2,6 +2,7 @@
   "task": "G0 WFM_* modelId 实服回读",
   "attemptedAt": "2026-11-15",
   "status": "blocked",
+  "r13Evidence": "notes/evidence/workflow-g0-model-ids-r13-20261115.json",
   "tool": "tools/workflow/read-workflow-model-ids.mjs",
   "applyTool": "tools/workflow/apply-workflow-model-ids.mjs",
   "blockers": [

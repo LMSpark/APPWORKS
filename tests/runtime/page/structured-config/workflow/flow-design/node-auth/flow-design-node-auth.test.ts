@@ -1,6 +1,10 @@
 import {describe, expect, it, vi} from 'vitest'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {FLOW_DESIGN_SCENARIO_ID, syncFlowDesignNodeAuthView} from '@/lowcode/resources/system/workflow/manage'
+import {
+  FLOW_DESIGN_SCENARIO_ID,
+  defaultFlowDesignNodeAuthRow,
+  syncFlowDesignNodeAuthView,
+} from '@/lowcode/resources/system/workflow/manage'
 
 type MockView = {
   destroyed: boolean
@@ -12,6 +16,17 @@ type MockView = {
 function createView(): MockView {
   return {destroyed: false, queryContext: {}, loadingError: null, refresh: vi.fn(async () => undefined)}
 }
+
+describe('defaultFlowDesignNodeAuthRow', () => {
+  it('seeds page and node ids with contenttype 1', () => {
+    expect(defaultFlowDesignNodeAuthRow({flowModelId: 'FM', selectedNodeId: 'N1'})).toEqual({
+      contenttype: 1,
+      pageID: 'FM',
+      FunCodeID: 'N1',
+      status: 1,
+    })
+  })
+})
 
 describe('syncFlowDesignNodeAuthView', () => {
   it('writes FLOWID and selectedNodeId then refreshes nodeAuth view', async () => {

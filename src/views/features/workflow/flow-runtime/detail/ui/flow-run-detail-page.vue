@@ -7,6 +7,9 @@
   <RendererSection class="flow-run-detail-page" title="流程运行详情" :bordered="false" :grid-columns="1" :grid-gap="12"
     :status="loading || graphLoading ? '正在读取运行详情…' : ''"
     :error="error || graphError" :retryable="!loading && !graphLoading && (!ready || !graphReady)" @retry="retryLoad">
+    <template v-if="ready && canOpenRun" #header-actions>
+      <RendererButton label="前往办理" button-type="primary" @click="openRunPage" />
+    </template>
     <DisplayAlert v-if="ready" alert-type="info" :closable="false" :show-icon="true"
       :title="`实例 ${routeQuery.wfid} · 模型 ${routeQuery.flowid}`" />
     <RendererTable v-if="ready" :data-view-key="viewKey" :children="columns" :stripe="true" :show-data-view-meta="false" />
@@ -54,26 +57,55 @@
 
 <script setup lang="ts">
 import {computed} from 'vue'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
-import {
+import * as SparkComponent from '@spark-appworks/spark-component'
+
+const {
   DisplayAlert,
   DisplayText,
+  RendererButton,
   RendererDialog,
   RendererGraph,
   RendererSection,
   RendererTabPane,
   RendererTable,
   RendererTabs,
-} from '@spark-appworks/spark-component'
-import {FLOW_DESIGN_SCENARIO_ID, readFlowRuntimeRouteQuery} from '@/lowcode/resources/system/workflow/manage'
+  consumeRequiredPageService,
+  useSparkComponent,
+} = SparkComponent
+import {
+  FLOW_DESIGN_SCENARIO_ID,
+  buildFlowRunPageRoute,
+  readFlowRuntimeRouteQuery,
+} from '@/lowcode/resources/system/workflow/manage'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FlowRunDetailStepTable from './flow-run-detail-step-table.vue'
 import {useFlowRunDetailPage} from './use-flow-run-detail-page'
 
 const scenarioId = 'E328FBBF518141973C575D612CD75151'
 const route = useRoute()
+const router = useRouter()
+const {sparkConsume} = useSparkComponent({type: 'flow-run-detail-page'})
+const pageService = consumeRequiredPageService(sparkConsume, 'flow-run-detail-page')
 const routeQuery = computed(() => readFlowRuntimeRouteQuery(route.query))
+const canOpenRun = computed(() => {
+  try {
+    readFlowRuntimeRouteQuery(route.query)
+    return true
+  } catch {
+    return false
+  }
+})
+function openRunPage(): void {
+  try {
+    const target = buildFlowRunPageRoute(route.query)
+    void router.push(target)
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : String(cause)
+    void pageService.showMessage(message, 'warning')
+  }
+}
 const {viewKey, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId,
   modelName: 'View_FlowObjList',

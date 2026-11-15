@@ -47,3 +47,16 @@ export async function syncFlowDesignNodeAuthView(command: SyncFlowDesignNodeAuth
   if (view.loadingError) throw view.loadingError
   return buildDataViewKey('FunctionNodeAuth', 'nodeAuth', FLOW_DESIGN_SCENARIO_ID)
 }
+
+export type FlowDesignNodeAuthRowSeed = Readonly<{
+  flowModelId: string
+  selectedNodeId: string
+}>
+
+/** 新增节点权限行时的默认字段（保存前仍须走 DataView 编辑链）。 */
+export function defaultFlowDesignNodeAuthRow(seed: FlowDesignNodeAuthRowSeed): Record<string, unknown> {
+  const pageId = String(seed.flowModelId ?? '').trim()
+  const nodeId = String(seed.selectedNodeId ?? '').trim()
+  if (!pageId || !nodeId) throw new Error('新增节点权限缺少流程或节点身份')
+  return {contenttype: 1, pageID: pageId, FunCodeID: nodeId, status: 1}
+}

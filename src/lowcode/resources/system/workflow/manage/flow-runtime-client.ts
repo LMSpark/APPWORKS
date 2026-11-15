@@ -7,6 +7,8 @@ import {isRecord} from '@spark-appworks/spark-utils'
 
 export const FLOW_MONITOR_SCENARIO_ID = 'E328FBBF518141973C575D612CD75151'
 
+export const FLOW_RUN_PAGE_PATH = '/features/workflow/flow-runtime/run-page/ui/flow-run-page'
+
 export type FlowRuntimeRouteQuery = Readonly<{
   wfid?: string
   flowid?: string
@@ -24,4 +26,15 @@ export function readFlowRuntimeRouteQuery(query: unknown): Required<FlowRuntimeR
   if (!wfid) throw new Error('缺少流程实例标识 wfid')
   if (!flowid) throw new Error('缺少流程模型标识 flowid')
   return {wfid, flowid}
+}
+
+export type FlowRunPageRoute = Readonly<{
+  path: string
+  query: Required<FlowRuntimeRouteQuery>
+}>
+
+/** 组装办理页路由（监控/详情/工作台共用 wfid+flowid 合同）。 */
+export function buildFlowRunPageRoute(query: unknown): FlowRunPageRoute {
+  const parsed = readFlowRuntimeRouteQuery(query)
+  return {path: FLOW_RUN_PAGE_PATH, query: parsed}
 }

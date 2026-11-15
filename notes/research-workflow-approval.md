@@ -35,12 +35,12 @@
 - 设计：拖布局、增删节点/边、拖线建边、`WFM_WORKFORM` 关联、`node-panel`/`edge-panel` 可写字段（`TITLE`/`NODETYPE`/`MEMO` 等，pagedata 已扩列）。
 - 办理：`Submit`/退回/强退/发起人/加签/**撤回**、`CanAutoSubmitAfter` 链式提交（最多 3 次）、步骤历史 `WFOBJ_FLOW_RELATIONLINE_STEP` 标准表；`GetStepHistory` HTTP 已登记 `wfId` query（实服参数待 D99 核对）。
 - 监控/工作台/待办：监控行 **办理** 入口；工作台四页签 → `workbenchPending` / `workbenchProcessed` / `workbenchShared` / `workbenchStarted`（pagedata 过滤 + `currentUserId`）；`View_FlowObjList@workbenchTodo` 保留作监控类列表视图。
-- 运行详情 G4、**bus-flow-detail** 业务摘要 + 只读页签、移动办理页布局折叠。
+- 运行详情 G4、**bus-flow-detail** 业务摘要 + 只读页签、移动办理页布局折叠；R13 **前往办理**（`buildFlowRunPageRoute`，无详情页写入）。
+- **节点权限（R12–R13）**：`FunctionNodeAuth@nodeAuth` + `syncFlowDesignNodeAuthView`；R13 面板可增删改 + 行内保存/随 **保存设计** `saveChanges`；`defaultFlowDesignNodeAuthRow`。
 
 ### 仍缺口
 
-- **节点权限（R12）**：`FunctionNodeAuth@nodeAuth`（`pageID`+`FunCodeID`+`contenttype=1`）、`_Base_FunctionNode@flowDesignOptions`；设计页 **`FlowDesignNodeAuthPanel`** + `syncFlowDesignNodeAuthView`；脏行随设计 **`saveChanges`**。
-- **G0 modelId**、**D99 手工矩阵（含四页签实查）**：见 `notes/evidence/workflow-smoke-r6-20261115.json`、`workflow-g0-model-ids-attempt-20261115.json`（blocked，不阻塞合并）。
+- **G0 modelId**、**D99 手工矩阵**：R13 见 `notes/evidence/workflow-g0-model-ids-r13-20261115.json`、`workflow-smoke-r13-20261115.json`（Agent 无 SPARK env 时 blocked；用户本机配置后重跑）。
 - **转办/协办/委派**、步骤已读通知：无 endpoint/optionData 证据，不接线。
 - 运行详情：**强退**、办理写入仍不在详情页。
 

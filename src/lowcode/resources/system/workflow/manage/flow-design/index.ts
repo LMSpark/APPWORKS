@@ -12,4 +12,9 @@ export {
   saveFlowWorkFormRelation,
   shouldSyncWorkFormRelation,
 } from './flow-design-form-relation'
-export {syncFlowDesignNodeAuthView, type SyncFlowDesignNodeAuthCommand} from './flow-design-node-auth'
+export {
+  defaultFlowDesignNodeAuthRow,
+  syncFlowDesignNodeAuthView,
+  type FlowDesignNodeAuthRowSeed,
+  type SyncFlowDesignNodeAuthCommand,
+} from './flow-design-node-auth'

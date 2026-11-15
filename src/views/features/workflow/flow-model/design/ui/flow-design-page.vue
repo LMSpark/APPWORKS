@@ -26,7 +26,8 @@
         <FlowDesignNodePanel :view-key="prepared.nodeViewKey" :highlight-id="nodeHighlightId" @select-graph-id="selectNodeFromTable" />
         <FlowDesignEdgePanel :view-key="prepared.edgeViewKey" :highlight-id="edgeHighlightId" @select-graph-id="selectEdgeFromTable" />
         <FlowDesignFormPanel v-if="prepared.workFormViewKey" :view-key="prepared.workFormViewKey" class="flow-design-page__form" />
-        <FlowDesignNodeAuthPanel :view-key="nodeAuthViewKey" :selected-node-id="selectedNodeId" class="flow-design-page__auth" />
+        <FlowDesignNodeAuthPanel :view-key="nodeAuthViewKey" :selected-node-id="selectedNodeId"
+          :flow-model-id="flowModelId" class="flow-design-page__auth" />
       </div>
     </template>
   </RendererSection>

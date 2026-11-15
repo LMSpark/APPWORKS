@@ -9,6 +9,8 @@ export const FLOW_MONITOR_SCENARIO_ID = 'E328FBBF518141973C575D612CD75151'
 
 export const FLOW_RUN_PAGE_PATH = '/features/workflow/flow-runtime/run-page/ui/flow-run-page'
 
+export const FLOW_RUN_DETAIL_PATH = '/features/workflow/flow-runtime/detail/ui/flow-run-detail-page'
+
 export type FlowRuntimeRouteQuery = Readonly<{
   wfid?: string
   flowid?: string
@@ -37,4 +39,10 @@ export type FlowRunPageRoute = Readonly<{
 export function buildFlowRunPageRoute(query: unknown): FlowRunPageRoute {
   const parsed = readFlowRuntimeRouteQuery(query)
   return {path: FLOW_RUN_PAGE_PATH, query: parsed}
+}
+
+/** 组装运行详情页路由。 */
+export function buildFlowRunDetailRoute(query: unknown): FlowRunPageRoute {
+  const parsed = readFlowRuntimeRouteQuery(query)
+  return {path: FLOW_RUN_DETAIL_PATH, query: parsed}
 }

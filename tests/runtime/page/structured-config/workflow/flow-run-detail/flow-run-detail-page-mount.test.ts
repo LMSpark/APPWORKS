@@ -22,11 +22,13 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', () => {
     }),
   }
 })
+const routerPush = vi.fn()
 vi.mock('vue-router', async importOriginal => {
   const actual = await importOriginal<typeof import('vue-router')>()
   return {
     ...actual,
     useRoute: () => ({query: {wfid: 'WF-1', flowid: 'FM-1'}, meta: {}, path: '/test'}),
+    useRouter: () => ({push: routerPush}),
   }
 })
 vi.mock('@spark-appworks/spark-component', async importOriginal => {
@@ -121,5 +123,24 @@ describe('flow run detail page mount', () => {
     expect(wrapper.text()).toContain('流程运行详情')
     expect(wrapper.text()).toContain('运行轨迹')
     expect(wrapper.find('[data-testid="run-graph"]').exists()).toBe(true)
+  })
+  it('header 前往办理 navigates to run page route', async () => {
+    routerPush.mockClear()
+    const wrapper = mount(defineComponent({
+      setup: () => () => h(withTestPageService(Host)),
+    }), {
+      attachTo: document.body,
+      global: {plugins: [ElementPlus, Spark.createPlugin()]},
+    })
+    wrappers.push(wrapper)
+    await flushPromises()
+    await flushPromises()
+    const button = wrapper.findAll('button').find(item => item.text().includes('前往办理'))
+    expect(button).toBeDefined()
+    await button!.trigger('click')
+    expect(routerPush).toHaveBeenCalledWith({
+      path: '/features/workflow/flow-runtime/run-page/ui/flow-run-page',
+      query: {wfid: 'WF-1', flowid: 'FM-1'},
+    })
   })
 })

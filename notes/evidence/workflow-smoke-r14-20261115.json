@@ -1,0 +1,24 @@
+{
+  "round": 14,
+  "branch": "codex/spark-data-s1-command-safety",
+  "delivered": [
+    "load-spark-env.mjs + read script auto-load .env.local",
+    "run-g0-apply.mjs one-shot G0 pipeline",
+    "buildFlowRunDetailRoute + monitor/workbench/bus-detail route SSOT",
+    "flow-run-detail mount 前往办理 navigation test"
+  ],
+  "gates": {
+    "typecheck": "pass",
+    "workflowVitest": "609 passed",
+    "verifyRules": "pass"
+  },
+  "g0": {
+    "status": "blocked",
+    "reason": "no .env.local SPARK_* in agent shell",
+    "command": "node tools/workflow/run-g0-apply.mjs"
+  },
+  "d99": {
+    "status": "blocked",
+    "carryFrom": "workflow-smoke-r13-20261115.json"
+  }
+}

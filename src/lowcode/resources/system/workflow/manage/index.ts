@@ -15,7 +15,9 @@ export {
 } from './flow-design-data-json'
 export {
   FLOW_MONITOR_SCENARIO_ID,
+  FLOW_RUN_DETAIL_PATH,
   FLOW_RUN_PAGE_PATH,
+  buildFlowRunDetailRoute,
   buildFlowRunPageRoute,
   readFlowRuntimeRouteQuery,
   type FlowRunPageRoute,

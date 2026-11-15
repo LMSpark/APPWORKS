@@ -19,12 +19,10 @@ import {useRouter} from 'vue-router'
 import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererSection, RendererTable, consumeRequiredPageService, type RFilterProps, type RToolbarProps, useSparkComponent} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
+import {buildFlowRunDetailRoute, buildFlowRunPageRoute} from '@/lowcode/resources/system/workflow/manage'
 
 const {sparkConsume} = useSparkComponent({type: 'flow-monitor-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'flow-monitor-page')
-
-const FLOW_RUN_PAGE_PATH = '/features/workflow/flow-runtime/run-page/ui/flow-run-page'
-const FLOW_RUN_DETAIL_PATH = '/features/workflow/flow-runtime/detail/ui/flow-run-detail-page'
 
 const scenarioId = 'E328FBBF518141973C575D612CD75151'
 const {viewKey, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
@@ -60,7 +58,7 @@ function openRun(row: DataRow): void {
     void pageService.showMessage('流程记录缺少 wfid 或 flowid', 'warning')
     return
   }
-  void router.push({path: FLOW_RUN_PAGE_PATH, query: {wfid, flowid}})
+  void router.push(buildFlowRunPageRoute({wfid, flowid}))
 }
 const actions = computed<RToolbarProps>(() => ({children: [
   {type: 'r-button', props: {label: '办理', buttonType: 'primary', onClick: (row: DataRow) => openRun(row)}},
@@ -77,7 +75,7 @@ function openRunDetail(row: DataRow): void {
     void pageService.showMessage('流程记录缺少 wfid 或 flowid', 'warning')
     return
   }
-  void router.push({path: FLOW_RUN_DETAIL_PATH, query: {wfid, flowid}})
+  void router.push(buildFlowRunDetailRoute({wfid, flowid}))
 }
 const filter: RFilterProps = {
   autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,

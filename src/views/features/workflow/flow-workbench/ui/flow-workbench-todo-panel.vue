@@ -29,11 +29,9 @@ import {
   useSparkComponent,
 } from '@spark-appworks/spark-component'
 import type {FlowWorkbenchTab} from '@/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters'
+import {buildFlowRunDetailRoute, buildFlowRunPageRoute} from '@/lowcode/resources/system/workflow/manage'
 import {readFlowWorkbenchRowRoute} from '@/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row'
 import {useFlowWorkbenchTodo} from '../model/use-flow-workbench-todo'
-
-const FLOW_RUN_PAGE_PATH = '/features/workflow/flow-runtime/run-page/ui/flow-run-page'
-const FLOW_RUN_DETAIL_PATH = '/features/workflow/flow-runtime/detail/ui/flow-run-detail-page'
 
 const {sparkConsume} = useSparkComponent({type: 'flow-workbench-todo-panel'})
 const pageService = consumeRequiredPageService(sparkConsume, 'flow-workbench-todo-panel')
@@ -62,7 +60,7 @@ function openRun(row: DataRow): void {
     void pageService.showMessage('行记录缺少 wfid 或流程模型 ID', 'warning')
     return
   }
-  void router.push({path: FLOW_RUN_PAGE_PATH, query: {wfid: routeIds.wfid, flowid: routeIds.flowid}})
+  void router.push(buildFlowRunPageRoute({wfid: routeIds.wfid, flowid: routeIds.flowid}))
 }
 
 function openDetail(row: DataRow): void {
@@ -71,7 +69,7 @@ function openDetail(row: DataRow): void {
     void pageService.showMessage('行记录缺少 wfid 或流程模型 ID', 'warning')
     return
   }
-  void router.push({path: FLOW_RUN_DETAIL_PATH, query: {wfid: routeIds.wfid, flowid: routeIds.flowid}})
+  void router.push(buildFlowRunDetailRoute({wfid: routeIds.wfid, flowid: routeIds.flowid}))
 }
 
 const actions = computed<RToolbarProps>(() => ({

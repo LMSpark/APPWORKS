@@ -31,6 +31,8 @@ import {PAGE_RUNTIME, RendererButton, RendererSection, RendererTable, useSparkCo
 import {
   FLOW_DESIGN_SCENARIO_ID,
   FLOW_MONITOR_SCENARIO_ID,
+  buildFlowRunDetailRoute,
+  buildFlowRunPageRoute,
   prepareFlowRunPage,
   readFlowRuntimeRouteQuery,
   type FlowRunPreparedPage,
@@ -42,9 +44,6 @@ import {
 } from '../../run-page/model/flow-run-business-tab'
 import {getVuePageOptions} from '@/registries/vue-page-registry'
 import FlowRunRouteRenderer from '../../run-page/ui/flow-run-route-renderer.vue'
-
-const FLOW_RUN_PAGE_PATH = '/features/workflow/flow-runtime/run-page/ui/flow-run-page'
-const FLOW_RUN_DETAIL_PATH = '/features/workflow/flow-runtime/detail/ui/flow-run-detail-page'
 
 const scenarioId = FLOW_MONITOR_SCENARIO_ID
 const route = useRoute()
@@ -111,13 +110,13 @@ async function loadPage(): Promise<void> {
 function openRun(): void {
   const query = routeQuery()
   if (!query.wfid || !query.flowid) return
-  void router.push({path: FLOW_RUN_PAGE_PATH, query: {wfid: query.wfid, flowid: query.flowid}})
+  void router.push(buildFlowRunPageRoute(query))
 }
 
 function openDetail(): void {
   const query = routeQuery()
   if (!query.wfid || !query.flowid) return
-  void router.push({path: FLOW_RUN_DETAIL_PATH, query: {wfid: query.wfid, flowid: query.flowid}})
+  void router.push(buildFlowRunDetailRoute(query))
 }
 
 watch(() => [runtimeReady.value, routeQuery().wfid, routeQuery().flowid] as const, () => {

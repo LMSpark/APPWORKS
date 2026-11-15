@@ -3,6 +3,10 @@
  * 只读拉取 workflow 场景 WFM_* 正式 modelId，输出 JSON 供 pagedata 粘贴。
  * 用法：SPARK_BASE_URL=http://localhost:5273 SPARK_TOKEN=... SPARK_APP_ID=... node tools/workflow/read-workflow-model-ids.mjs
  */
+import {loadSparkEnvFromLocal} from './load-spark-env.mjs'
+
+loadSparkEnvFromLocal()
+
 const baseUrl = String(process.env.SPARK_BASE_URL ?? '').replace(/\/$/, '')
 const token = String(process.env.SPARK_TOKEN ?? '').trim()
 const appId = String(process.env.SPARK_APP_ID ?? '').trim()

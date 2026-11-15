@@ -40,7 +40,7 @@
 
 ### 仍缺口
 
-- **G0 modelId**、**D99 手工矩阵**：R13 见 `notes/evidence/workflow-g0-model-ids-r13-20261115.json`、`workflow-smoke-r13-20261115.json`（Agent 无 SPARK env 时 blocked；用户本机配置后重跑）。
+- **G0 modelId**、**D99 手工矩阵**：R14 起可用 `node tools/workflow/run-g0-apply.mjs`（读 `.env.local` 中 `SPARK_*`）；证据见 `workflow-g0-model-ids-r13`、`workflow-smoke-r13`。未完成则 blocked。
 - **转办/协办/委派**、步骤已读通知：无 endpoint/optionData 证据，不接线。
 - 运行详情：**强退**、办理写入仍不在详情页。
 

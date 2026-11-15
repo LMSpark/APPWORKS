@@ -17,8 +17,7 @@ describe('flow model list page contract', () => {
       resolve('src/views/features/system/flow-monitor/ui/flow-monitor-page.vue'),
       'utf8',
     )
-    expect(source).toContain('flow-run-detail-page')
-    expect(source).toContain('wfid')
-    expect(source).toContain('flowid')
+    expect(source).toContain('buildFlowRunDetailRoute')
+    expect(source).toContain('buildFlowRunPageRoute')
   })
 })

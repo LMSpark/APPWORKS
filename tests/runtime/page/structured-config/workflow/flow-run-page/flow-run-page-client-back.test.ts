@@ -66,6 +66,21 @@ describe('FlowRunPageClient.revokeCurrentStep', () => {
   })
 })
 
+describe('FlowRunPageClient.fetchStepHistory', () => {
+  it('GET GetStepHistory with wfId query param', async () => {
+    const http = new FlowHttpStub()
+    const client = createFlowRunPageClient({
+      http,
+      scenarioId: 'E328FBBF518141973C575D612CD75151',
+      readScope: () => ({token: 't', headers: {'X-AppId': 'app'}}),
+    })
+    await client.fetchStepHistory('WF-42')
+    const call = http.calls.find(item => item.url === '/api/Flow/GetStepHistory')
+    expect(call?.method).toBe('GET')
+    expect(call?.params).toMatchObject({wfId: 'WF-42'})
+  })
+})
+
 describe('FlowRunPageClient.backByHistory', () => {
   it('posts FlowBack with flowObjId, curStepId and nodeId', async () => {
     const http = new FlowHttpStub()

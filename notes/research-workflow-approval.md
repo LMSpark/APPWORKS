@@ -40,7 +40,7 @@
 
 ### 仍缺口
 
-- **G0 modelId**、**D99 手工矩阵**：R14 起可用 `node tools/workflow/run-g0-apply.mjs`（读 `.env.local` 中 `SPARK_*`）；证据见 `workflow-g0-model-ids-r13`、`workflow-smoke-r13`。未完成则 blocked。
+- **G0 modelId**、**D99**：`run-g0-apply.mjs` + 半自动 `workflow-d99-smoke.mjs`（`WORKFLOW_SMOKE_WFID` 探测 GetStepHistory）；证据 `workflow-smoke-r15`、`workflow-d99-probe-*`。手工矩阵四页签/设计/办理仍 `manual: pending`。
 - **转办/协办/委派**、步骤已读通知：无 endpoint/optionData 证据，不接线。
 - 运行详情：**强退**、办理写入仍不在详情页。
 

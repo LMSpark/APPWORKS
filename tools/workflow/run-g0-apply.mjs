@@ -12,7 +12,7 @@ import {loadSparkEnvFromLocal} from './load-spark-env.mjs'
 const here = dirname(fileURLToPath(import.meta.url))
 const root = join(here, '..', '..')
 const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '')
-const outPath = join(root, 'notes', 'evidence', `workflow-g0-read-r14-${stamp}.json`)
+const outPath = join(root, 'notes', 'evidence', `workflow-g0-read-${stamp}.json`)
 
 loadSparkEnvFromLocal()
 

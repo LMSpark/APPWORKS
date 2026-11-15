@@ -1,0 +1,11 @@
+{
+  "g0": {
+    "status": "blocked",
+    "reason": "missing SPARK_BASE_URL / SPARK_TOKEN / SPARK_APP_ID"
+  },
+  "getStepHistory": {
+    "status": "blocked",
+    "reason": "missing SPARK credentials"
+  },
+  "probedAt": "2026-11-15T15:08:46.588Z"
+}

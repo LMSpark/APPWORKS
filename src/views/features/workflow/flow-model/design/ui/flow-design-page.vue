@@ -19,11 +19,13 @@
         :edge-data-view-key="prepared.edgeViewKey" label-field="TITLE" description-field="MEMO"
         node-caption-field="NODETYPE" edge-source-field="PARENTID" edge-target-field="CHILDID"
         :node-positions="graphLayout.nodePositions" :edge-paths="graphLayout.edgePaths"
-        :draggable-keys="draggableNodeKeys" :current="graphSelection" background-pattern="dots" node-appearance="card"
-        :viewport-controls="true" :disabled="false" :on-node-move="onNodeMove" @select="onGraphSelect" />
+        :draggable-keys="draggableNodeKeys" :connectable-keys="draggableNodeKeys" :current="graphSelection"
+        background-pattern="dots" node-appearance="card" :viewport-controls="true" :disabled="false"
+        :on-node-move="onNodeMove" :on-connect="onGraphConnect" @select="onGraphSelect" />
       <div class="flow-design-page__tables">
         <FlowDesignNodePanel :view-key="prepared.nodeViewKey" :highlight-id="nodeHighlightId" @select-graph-id="selectNodeFromTable" />
         <FlowDesignEdgePanel :view-key="prepared.edgeViewKey" :highlight-id="edgeHighlightId" @select-graph-id="selectEdgeFromTable" />
+        <FlowDesignFormPanel v-if="prepared.workFormViewKey" :view-key="prepared.workFormViewKey" class="flow-design-page__form" />
       </div>
     </template>
   </RendererSection>
@@ -34,6 +36,7 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import type {GraphSelection} from '@spark-appworks/spark-component'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {
+  addFlowDesignEdge,
   addFlowDesignNode,
   prepareFlowDesignViews,
   removeFlowDesignGraphSelection,
@@ -46,6 +49,7 @@ import {lowcodeDesignFileUpload} from '@/lowcode/lowcode-runtime'
 const {DisplayAlert, PAGE_RUNTIME, RendererButton, RendererGraph, RendererSection, useSparkComponent} = SparkComponent
 import FlowDesignNodePanel from './node-panel/flow-design-node-panel.vue'
 import FlowDesignEdgePanel from './edge-panel/flow-design-edge-panel.vue'
+import FlowDesignFormPanel from './form-panel/flow-design-form-panel.vue'
 
 const props = defineProps<{flowModelId: string}>()
 const flowModelId = computed(() => String(props.flowModelId ?? '').trim())
@@ -97,6 +101,28 @@ function onNodeMove(event: {id: string | number; x: number; y: number}): void {
   layoutOverride.value = {
     ...layoutOverride.value,
     nodePositions: {...layoutOverride.value.nodePositions, [id]: {x: event.x, y: event.y}},
+  }
+}
+
+async function onGraphConnect(event: {source: string | number; target: string | number}): Promise<void> {
+  const runtime = sparkConsume(PAGE_RUNTIME)
+  if (!runtime) {
+    error.value = '流程设计缺少父页运行实例'
+    return
+  }
+  try {
+    const result = await addFlowDesignEdge({
+      runtime,
+      flowModelId: flowModelId.value,
+      parentId: String(event.source),
+      childId: String(event.target),
+      layoutOverride: layoutOverride.value,
+    })
+    layoutOverride.value = result.layoutOverride
+    graphSelection.value = {kind: 'edge', id: result.edgeId}
+    await refreshPrepared()
+  } catch (cause) {
+    error.value = cause instanceof Error ? cause.message : String(cause)
   }
 }
 
@@ -202,7 +228,9 @@ onBeforeUnmount(() => { generation++ })
 .flow-design-page {min-height: 420px; padding: 8px}
 .flow-design-page__graph {min-height: 360px; height: 42vh}
 .flow-design-page__tables {display: grid; grid-template-columns: 1fr 1fr; gap: 12px}
+.flow-design-page__form {grid-column: 1 / -1}
 @media (max-width: 960px) {
   .flow-design-page__tables {grid-template-columns: 1fr}
+  .flow-design-page__form {grid-column: auto}
 }
 </style>

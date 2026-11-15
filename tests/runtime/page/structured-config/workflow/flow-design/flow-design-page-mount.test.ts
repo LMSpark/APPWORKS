@@ -15,6 +15,13 @@ vi.mock('@/views/features/workflow/flow-model/design/ui/node-panel/flow-design-n
     template: '<button data-testid="pick-node" type="button" @click="$emit(\'selectGraphId\', \'N-42\')">流程节点</button>',
   }),
 }))
+vi.mock('@/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue', () => ({
+  default: defineComponent({
+    name: 'FlowDesignFormPanel',
+    props: {viewKey: String},
+    template: '<div data-testid="form-panel" />',
+  }),
+}))
 vi.mock('@/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue', () => ({
   default: defineComponent({
     name: 'FlowDesignEdgePanel',
@@ -53,6 +60,8 @@ function createDesignRuntime(): PageRuntime {
     WFM_FLOW_MODLE: createView([{TITLE: '审批样例', DesignJson: ''}]),
     WFM_FLOW_NODE: createView([{TITLE: '开始', NODETYPE: '8'}]),
     WFM_NODE_REALATION: createView([]),
+    WFM_WORKFORM: createView([]),
+    Base_NavigationInfo: createView([]),
   }
   return {
     instanceId: 'flow-design-mount-runtime',

@@ -32,10 +32,12 @@ describe('prepareFlowDesignViews', () => {
     const model = createView([{TITLE: '请假流程', DesignJson: ''}])
     const node = createView([{TITLE: '开始'}])
     const edge = createView([])
+    const workForm = createView([])
     const runtime = createRuntime({
       WFM_FLOW_MODLE: model,
       WFM_FLOW_NODE: node,
       WFM_NODE_REALATION: edge,
+      WFM_WORKFORM: workForm,
       Base_NavigationInfo: createView([]),
     })
     const result = await prepareFlowDesignViews(runtime, 'flow-key-1')
@@ -45,6 +47,8 @@ describe('prepareFlowDesignViews', () => {
     expect(model.refresh).toHaveBeenCalledOnce()
     expect(result.nodeViewKey).toContain('WFM_FLOW_NODE')
     expect(result.edgeViewKey).toContain('WFM_NODE_REALATION')
+    expect(result.workFormViewKey).toContain('WFM_WORKFORM')
+    expect(workForm.refresh).toHaveBeenCalledOnce()
     expect(result.graphLayout.nodePositions).toBeDefined()
   })
 

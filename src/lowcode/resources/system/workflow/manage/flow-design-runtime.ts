@@ -11,12 +11,13 @@ import {resolveFlowDesignFileContext} from './flow-design-file-context'
 import {buildFlowDesignGraphLayout, type FlowDesignGraphLayout} from './flow-design-graph-projection'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 
-const DESIGN_TABLES = ['WFM_FLOW_MODLE', 'WFM_FLOW_NODE', 'WFM_NODE_REALATION'] as const
+const DESIGN_TABLES = ['WFM_FLOW_MODLE', 'WFM_FLOW_NODE', 'WFM_NODE_REALATION', 'WFM_WORKFORM'] as const
 
 export type FlowDesignPreparedViews = Readonly<{
   modelTitle: string
   nodeViewKey: string
   edgeViewKey: string
+  workFormViewKey: string
   graphLayout: FlowDesignGraphLayout
 }>
 
@@ -80,6 +81,7 @@ export async function prepareFlowDesignViews(
     modelTitle: readRowTitle(modelRow, targetId),
     nodeViewKey: buildDataViewKey('WFM_FLOW_NODE', 'default', FLOW_DESIGN_SCENARIO_ID),
     edgeViewKey: buildDataViewKey('WFM_NODE_REALATION', 'default', FLOW_DESIGN_SCENARIO_ID),
+    workFormViewKey: buildDataViewKey('WFM_WORKFORM', 'default', FLOW_DESIGN_SCENARIO_ID),
     graphLayout: buildFlowDesignGraphLayout({modelView, nodeView, edgeView, designJsonOverride: designJson}),
   }
 }

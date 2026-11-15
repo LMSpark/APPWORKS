@@ -15,6 +15,22 @@
       "modelBinding": {"modelName": "WFM_NODE_REALATION"},
       "views": {"default": {"autoLoad": false, "pageSize": 50, "queryConfig": {"fields": ["rowid", "FLOWID", "PARENTID", "CHILDID"]}}}
     },
+    "WFM_WORKFORM": {
+      "modelBinding": {"modelName": "WFM_WORKFORM"},
+      "views": {"default": {
+        "autoLoad": false,
+        "autoCurrentFirst": false,
+        "autoSelectFirst": false,
+        "pageSize": 50,
+        "queryContext": {"FlowID": "", "WFMID": "", "FLOWID": ""},
+        "filterExpression": {
+          "field": "FlowID",
+          "operator": "eq",
+          "value": {"Type": "GetInputParam", "ParamName": "FLOWID"}
+        },
+        "queryConfig": {"allPages": true, "fields": ["rowid", "FORMID", "FormName", "URL", "MobileUrl", "BusField", "TitleField", "BusTable", "FlowID", "Width", "Height", "CnPath"]}
+      }}
+    },
     "Base_NavigationInfo": {
       "modelBinding": {"modelName": "Base_NavigationInfo"},
       "views": {"default": {

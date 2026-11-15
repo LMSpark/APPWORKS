@@ -1,6 +1,7 @@
 import {describe, expect, it, vi} from 'vitest'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {
+  addFlowDesignEdge,
   addFlowDesignNode,
   removeFlowDesignGraphSelection,
 } from '@/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit'
@@ -74,6 +75,30 @@ describe('flow-design-graph-edit', () => {
     expect(result.nodeId).toBe('NEW-NODE-ID')
     expect(nodeView.addRow).toHaveBeenCalledWith(expect.objectContaining({rowid: 'NEW-NODE-ID', FLOWID: 'FM-1'}))
     expect(result.layoutOverride.nodePositions?.['NEW-NODE-ID']).toEqual({x: 50, y: 60})
+    vi.unstubAllGlobals()
+  })
+
+  it('adds edge between existing nodes', async () => {
+    const nodeView = createView([
+      {rowid: 'N1', FLOWID: 'FM-1'},
+      {rowid: 'N2', FLOWID: 'FM-1'},
+    ])
+    const edgeView = createView([])
+    const runtime = createRuntime(nodeView, edgeView)
+    vi.stubGlobal('crypto', {randomUUID: () => 'EDGE-1'})
+    const result = await addFlowDesignEdge({
+      runtime,
+      flowModelId: 'FM-1',
+      parentId: 'N1',
+      childId: 'N2',
+      layoutOverride: {},
+    })
+    expect(result.edgeId).toBe('EDGE-1')
+    expect(edgeView.addRow).toHaveBeenCalledWith(expect.objectContaining({
+      rowid: 'EDGE-1',
+      PARENTID: 'N1',
+      CHILDID: 'N2',
+    }))
     vi.unstubAllGlobals()
   })
 })

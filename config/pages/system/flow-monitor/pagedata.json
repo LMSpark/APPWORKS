@@ -7,12 +7,20 @@
       "modelBinding": {"modelId": "a6fa2c61-9b3f-4528-8117-9203ccafaa58", "modelName": "View_FlowObjList"},
       "columns": [{"name": "handleInfo", "type": "string", "label": "办理信息",
         "computeExpression": "UserNameList || (status + '' === '1' ? '流程结束。' : '当前办理人员：无')"}],
-      "views": {"default": {
-        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false,
-        "page": 1, "pageSize": 15,
-        "queryContext": {"rowid": ""},
-        "queryConfig": {"fields": ["rowid", "WFMID", "TITLE", "AppDesc", "CrtUserID", "CrtTime", "UserNameList", "status", "BusTblObjID"]}
-      }}
+      "views": {
+        "default": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false,
+          "page": 1, "pageSize": 15,
+          "queryContext": {"rowid": ""},
+          "queryConfig": {"fields": ["rowid", "WFMID", "TITLE", "AppDesc", "CrtUserID", "CrtTime", "UserNameList", "status", "BusTblObjID"]}
+        },
+        "workbenchTodo": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false,
+          "page": 1, "pageSize": 15,
+          "queryContext": {"rowid": ""},
+          "queryConfig": {"fields": ["rowid", "WFMID", "TITLE", "AppDesc", "CrtUserID", "CrtTime", "UserNameList", "status", "BusTblObjID", "handleInfo"]}
+        }
+      }
     },
     "WFOBJ_FLOW": {
       "modelBinding": {"modelName": "WFOBJ_FLOW"},

@@ -26,6 +26,7 @@ function createRuntime(): PageRuntime {
     WFM_FLOW_MODLE: createView([{TITLE: '测试流程', DesignJson: ''}]),
     WFM_FLOW_NODE: createView([{rowid: 'N1', TITLE: '开始'}]),
     WFM_NODE_REALATION: createView([]),
+    WFM_WORKFORM: createView([]),
     Base_NavigationInfo: createView([]),
   }
   const monitor = {

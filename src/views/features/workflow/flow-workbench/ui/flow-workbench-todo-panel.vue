@@ -6,7 +6,7 @@
   <RendererSection class="flow-workbench-todo" title="流程待办" :bordered="false" :grid-columns="1" :grid-gap="16"
     :status="loading ? '正在读取待办…' : ''" :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
     <DisplayAlert alert-type="info" :closable="false" :show-icon="true"
-      title="列表使用流程监控同源视图；精确「当前用户待办」过滤待实服合同确认后补齐。" />
+      title="消费 View_FlowObjList@workbenchTodo 命名视图；当前与 default 同源查询，精确「我的待办」过滤待在 D99 实服合同确认后写入 pagedata。" />
     <RendererTable v-if="ready" :data-view-key="viewKey" :children="fields" :filter="filter" :actions="actions"
       :stripe="true" :show-row-index="true" :show-data-view-meta="false"
       :pagination="{pageSizes: [10, 15, 20, 50], showJumper: true}" />
@@ -39,6 +39,7 @@ const scenarioId = 'E328FBBF518141973C575D612CD75151'
 const {viewKey, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId,
   modelName: 'View_FlowObjList',
+  viewId: 'workbenchTodo',
   componentType: 'flow-workbench-todo-panel',
   title: '流程待办',
   optionModels: ['Dict_state', 'Base_UserInfo'],

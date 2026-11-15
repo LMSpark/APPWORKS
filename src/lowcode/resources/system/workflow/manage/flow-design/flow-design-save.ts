@@ -5,6 +5,8 @@
 import type {DataView} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type {LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
+import {saveFlowWorkFormRelation} from './flow-design-form-relation'
+import {lowcodeApi, lowcodeHttp} from '@/lowcode/lowcode-runtime'
 import {FLOW_DESIGN_SCENARIO_ID, assertFlowDesignTarget} from '../flow-design-client'
 import {resolveFlowDesignFileContext} from '../flow-design-file-context'
 import {type FlowDesignLayoutOverride, serializeFlowDesignGraphJson} from '../flow-design-graph-projection'
@@ -79,4 +81,14 @@ export async function saveFlowDesignInfo(command: SaveFlowDesignCommand): Promis
   const result = await dataSet.saveChanges()
   command.assertCurrent?.()
   if (result && !result.success) throw result.error ?? new Error(result.message ?? '保存流程设计失败')
+  const workFormView = dataSet.getView('WFM_WORKFORM', 'default')
+  if (workFormView && !workFormView.destroyed) {
+    await saveFlowWorkFormRelation({
+      http: lowcodeHttp,
+      flowModelId: targetId,
+      view: workFormView,
+      readScope: () => lowcodeApi.readRequestScope(),
+      ...(command.assertCurrent ? {assertCurrent: command.assertCurrent} : {}),
+    })
+  }
 }

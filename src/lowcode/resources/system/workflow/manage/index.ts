@@ -37,8 +37,11 @@ export {
 export {resolveFlowDesignFileContext, type FlowDesignFileContext} from './flow-design-file-context'
 export {
   saveFlowDesignInfo,
+  addFlowDesignEdge,
   addFlowDesignNode,
   removeFlowDesignGraphSelection,
+  buildWorkFormRelationPayload,
+  saveFlowWorkFormRelation,
   type SaveFlowDesignCommand,
 } from './flow-design'
 export {serializeFlowDesignGraphJson} from './flow-design-graph-projection'

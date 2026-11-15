@@ -20,6 +20,8 @@ type FeaturePageRuntimeOptions = Readonly<{
   navigationId?: string
   /** 主视图所属的正式模型名称，而非物理来源别名。 */
   modelName: string
+  /** 主视图命名键；默认 default。 */
+  viewId?: string
   /** 本页能力树节点类型，不作为数据身份。 */
   componentType: string
   /** 用于入口及主视图诊断的页面名称。 */
@@ -38,7 +40,8 @@ type FeaturePageRuntimeOptions = Readonly<{
 export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
   const {scenarioId, modelName, componentType, title} = options
   const navigationId = options.navigationId ?? scenarioId
-  const viewKey = buildDataViewKey(modelName, 'default', scenarioId)
+  const viewId = options.viewId ?? 'default'
+  const viewKey = buildDataViewKey(modelName, viewId, scenarioId)
   const peers = options.peerScenarioIds ?? []
   const route = useRoute()
   const {sparkProvide, sparkRemove} = useSparkComponent({type: componentType})
@@ -80,8 +83,8 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
       await current.load()
       if (!isCurrent(current, own)) return
       const dataSet = current.getDataSet(scenarioId)
-      const view = dataSet?.getView(modelName, 'default')
-      if (!view) throw new Error(`${title}缺少正式${modelName}视图`)
+      const view = dataSet?.getView(modelName, viewId)
+      if (!view) throw new Error(`${title}缺少正式${modelName}@${viewId}视图`)
       const runtime = current
       const views = [view, ...(options.optionModels ?? []).map(name => {
         const option = dataSet?.getView(name, 'default')

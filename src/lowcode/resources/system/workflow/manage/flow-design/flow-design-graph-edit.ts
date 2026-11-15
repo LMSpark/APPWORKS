@@ -125,3 +125,44 @@ export async function addFlowDesignNode(command: AddFlowDesignNodeCommand): Prom
     },
   }
 }
+
+export type AddFlowDesignEdgeCommand = Readonly<{
+  runtime: PageRuntime
+  flowModelId: string
+  parentId: string
+  childId: string
+  layoutOverride: FlowDesignLayoutOverride
+}>
+
+export type AddFlowDesignEdgeResult = Readonly<{
+  edgeId: string
+  layoutOverride: FlowDesignLayoutOverride
+}>
+
+/** 新增连线行；同源同目标不重复添加。 */
+export async function addFlowDesignEdge(command: AddFlowDesignEdgeCommand): Promise<AddFlowDesignEdgeResult> {
+  const flowModelId = assertFlowDesignTarget({flowModelId: command.flowModelId})
+  const parentId = normalizeText(command.parentId)
+  const childId = normalizeText(command.childId)
+  if (!parentId || !childId) throw new Error('连线缺少端点节点')
+  if (parentId === childId) throw new Error('不能将节点连接到自身')
+  const nodeView = requireView(command.runtime, 'WFM_FLOW_NODE')
+  const edgeView = requireView(command.runtime, 'WFM_NODE_REALATION')
+  const nodeExists = (id: string) => nodeView.rows.some(row => isRecord(row) && readRowId(row) === id && normalizeText(row['FLOWID']) === flowModelId)
+  if (!nodeExists(parentId) || !nodeExists(childId)) throw new Error('端点节点不属于当前流程')
+  const edgeExists = edgeView.rows.some(row =>
+    isRecord(row)
+    && normalizeText(row['FLOWID']) === flowModelId
+    && normalizeText(row['PARENTID']) === parentId
+    && normalizeText(row['CHILDID']) === childId,
+  )
+  if (edgeExists) throw new Error('相同节点间连线已存在')
+  const edgeId = crypto.randomUUID()
+  await edgeView.addRow({
+    rowid: edgeId,
+    FLOWID: flowModelId,
+    PARENTID: parentId,
+    CHILDID: childId,
+  })
+  return {edgeId, layoutOverride: command.layoutOverride}
+}

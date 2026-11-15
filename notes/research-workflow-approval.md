@@ -30,8 +30,25 @@
 
 ## 差距（待账本）
 
-- 参考体量仍大于本仓；**Round5 已接**：画布 **拖线建边**（`addFlowDesignEdge` + `RendererGraph` `onConnect`）、设计 **`WFM_WORKFORM` DataView** + `saveFlowWorkFormRelation`（`saveChanges` 之后）、**`FlowDesignFormPanel`**、工作台 **`View_FlowObjList@workbenchTodo`**（filter 待 D99）。Round4：ForceBack、增删节点、待办 MVP。
-- 设计保存：EJ2.json + DesignJson + 节点/边表同步 + `saveChanges` + **表单关联命令**（有行或脏变更时）；**未**接节点权限扩展表。
+### 已移植（R1–R10 源码，2026-11-15）
+
+- 设计：拖布局、增删节点/边、拖线建边、`WFM_WORKFORM` 关联、`node-panel`/`edge-panel` 可写字段（`TITLE`/`NODETYPE`/`MEMO` 等，pagedata 已扩列）。
+- 办理：`Submit`/退回/强退/发起人/加签/**撤回**、`CanAutoSubmitAfter` 链式提交（最多 3 次）、步骤历史 `WFOBJ_FLOW_RELATIONLINE_STEP` 标准表；`GetStepHistory` HTTP 已登记 `wfId` query（实服参数待 D99 核对）。
+- 监控/工作台/待办：监控行 **办理** 入口；`View_FlowObjList@workbenchTodo`（**精确待办 filter 仍待 D99**）。
+- 运行详情 G4、**bus-flow-detail** 业务摘要 + 只读页签、移动办理页布局折叠。
+
+### 仍缺口
+
+- **节点权限扩展表**：参考 `FlowDesign` 权限子表；本仓未找到正式 DataView 合同，**不做 UI**（待研读登记模型/视图名）。
+- **G0 modelId**、**workbenchTodo filter**、**D99 手工矩阵**：见 `notes/evidence/workflow-smoke-r6-20261115.json`、`workflow-g0-model-ids-attempt-20261115.json`（blocked，不阻塞合并）。
+- **转办/协办/委派**、步骤已读通知：无 endpoint/optionData 证据，不接线。
+- 运行详情：**强退**、办理写入仍不在详情页。
+
+### 历史轮次
+
+- Round5：画布建边、表单关联、workbenchTodo 命名视图（`f5826f550`）。
+- Round4：ForceBack、增删节点、待办 MVP。
+- 设计保存：EJ2.json + DesignJson + 节点/边表同步 + `saveChanges` + 表单关联命令。
 - **`flow-model-list` / `flow-design` modelId：** 仍仅 `modelName`；2026-11-15 实服回读阻塞见 `notes/evidence/workflow-g0-model-ids-attempt-20261115.json`（脚本 `tools/workflow/read-workflow-model-ids.mjs` 已就绪）。
 - **仓内场景登记：** 运行/监控/详情共用 `E328FBBF518141973C575D612CD75151` 时，`system-scenarios.json` 只登记 `flowMonitor` → `config/pages/system/flow-monitor/pagedata.json`；不得对同一 `scenarioId` 重复登记（2026-11-14 烟测已删 `flowRunDetail` 重复项）。
 - **设计对话框：** 布局可拖 + `layoutOverride` 保存；**G2** `saveFlowDesignInfo` + `syncFlowDesignTables`；**G3** 图↔表双向高亮。

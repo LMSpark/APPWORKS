@@ -32,6 +32,7 @@ describe('prepareFlowRunPage', () => {
     expect(result.busRowId).toBe('BUS-9')
     expect(result.formTabs).toHaveLength(1)
     expect(result.formTabs[0]?.tabKey).toBe('F1')
+    expect(result.stepHistoryViewKey).toContain('WFOBJ_FLOW_RELATIONLINE_STEP')
     expect(views['WFOBJ_FLOW_RELATIONLINE_STEP']?.queryContext['WFOBJID']).toBe('WF-1')
     expect(views['WFOBJ_FLOW_RELATIONLINE_STEP']?.refresh).toHaveBeenCalledOnce()
   })

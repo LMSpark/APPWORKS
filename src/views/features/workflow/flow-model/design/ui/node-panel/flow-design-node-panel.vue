@@ -43,7 +43,7 @@ function onRowClick(row: Record<string, unknown>): void {
 }
 const columns: SparkNode[] = [
   {type: 'r-text', props: {field: 'TITLE', label: '节点名称', minWidth: 160}},
-  {type: 'r-text', props: {field: 'NODETYPE', label: '节点类型', readonly: true, minWidth: 100}},
+  {type: 'r-text', props: {field: 'NODETYPE', label: '节点类型', minWidth: 100}},
   {type: 'r-text', props: {field: 'MEMO', label: '备注', minWidth: 200, showOverflowTooltip: true}},
 ]
 </script>

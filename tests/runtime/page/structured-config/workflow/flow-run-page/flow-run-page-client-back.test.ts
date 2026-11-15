@@ -36,6 +36,36 @@ describe('FlowRunPageClient.forceBack', () => {
   })
 })
 
+describe('FlowRunPageClient.canAutoSubmitAfter', () => {
+  it('posts CanAutoSubmitAfter with curStepId', async () => {
+    const http = new FlowHttpStub()
+    const client = createFlowRunPageClient({
+      http,
+      scenarioId: 'E328FBBF518141973C575D612CD75151',
+      readScope: () => ({token: 't', headers: {'X-AppId': 'app'}}),
+    })
+    await client.canAutoSubmitAfter('STEP-1')
+    const call = http.calls.find(item => item.url === '/api/Flow/CanAutoSubmitAfter')
+    expect(call?.method).toBe('POST')
+    expect(call?.data).toEqual({curStepId: 'STEP-1'})
+  })
+})
+
+describe('FlowRunPageClient.revokeCurrentStep', () => {
+  it('posts FlowRevoke with wfid and curStepID', async () => {
+    const http = new FlowHttpStub()
+    const client = createFlowRunPageClient({
+      http,
+      scenarioId: 'E328FBBF518141973C575D612CD75151',
+      readScope: () => ({token: 't', headers: {'X-AppId': 'app'}}),
+    })
+    await client.revokeCurrentStep('WF-1', 'S1')
+    const call = http.calls.find(item => item.url === '/api/Flow/FlowRevoke')
+    expect(call?.method).toBe('POST')
+    expect(call?.params).toMatchObject({wfid: 'WF-1', curStepID: 'S1'})
+  })
+})
+
 describe('FlowRunPageClient.backByHistory', () => {
   it('posts FlowBack with flowObjId, curStepId and nodeId', async () => {
     const http = new FlowHttpStub()

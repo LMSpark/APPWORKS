@@ -4,7 +4,7 @@
  */
 import {computed, ref, shallowRef, watch} from 'vue'
 import {useRouter} from 'vue-router'
-import {buildDataViewKey} from '@spark-appworks/spark-data'
+import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {lowcodeApi, lowcodeHttp} from '@/lowcode/lowcode-runtime'
@@ -23,6 +23,7 @@ import {
   parseFlowRunHandleNodeOptions,
   readFlowRunAllowForceBack,
 } from '@/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options'
+import {readCanAutoSubmitAfter} from '@/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit'
 import {
   createFlowBusinessPageRegistry,
   createFlowBusinessTabBuilder,
@@ -30,6 +31,7 @@ import {
 import {getVuePageOptions} from '@/registries/vue-page-registry'
 
 const STEP_MODEL = 'WFOBJ_FLOW_RELATIONLINE_STEP'
+const AUTO_SUBMIT_MAX_DEPTH = 3
 
 export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRuntimeRouteQuery>, runtimeReady: () => boolean) {
   const router = useRouter()
@@ -66,7 +68,15 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
 
   const activeTab = computed(() => businessTabs.value.find(tab => tab.tabKey === activeFormId.value) ?? businessTabs.value[0])
 
-  const stepViewKey = computed(() => buildDataViewKey(STEP_MODEL, 'default', FLOW_MONITOR_SCENARIO_ID))
+  const stepViewKey = computed(() => prepared.value?.stepHistoryViewKey
+    ?? buildDataViewKey(STEP_MODEL, 'default', FLOW_MONITOR_SCENARIO_ID))
+
+  const stepHistoryColumns: SparkNode[] = [
+    {type: 'r-text', props: {field: 'description', label: '摘要', readonly: true, minWidth: 220, showOverflowTooltip: true}},
+    {type: 'r-text', props: {field: 'ReceiveUserName', label: '办理人', readonly: true, minWidth: 120}},
+    {type: 'r-text', props: {field: 'STARTTIME', label: '开始时间', readonly: true, minWidth: 160}},
+    {type: 'r-text', props: {field: 'StepState', label: '状态', readonly: true, minWidth: 80}},
+  ]
 
   function clientFor(gen: number) {
     return createFlowRunPageClient({
@@ -133,6 +143,53 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     }
   }
 
+  async function runSubmitWithCurrentStep(own: number, opinion: string, nextNodeId: string): Promise<void> {
+    const runtime = sparkConsume(PAGE_RUNTIME)
+    const stepView = runtime?.resolveView(stepViewKey.value)
+    const step = stepView?.rows.find(isRecord)
+    const prep = prepared.value
+    if (!prep || !step) throw new Error('未定位到当前办理步骤')
+    const nextNode = nextNodeId ? [{NodeId: nextNodeId, ExecUserList: []}] : []
+    await clientFor(own).submitOrStart({
+      flowId: prep.flowModelId,
+      flowObjId: prep.flowObjectId,
+      curStepId: String(step['rowid'] ?? ''),
+      busRowid: prep.busRowId,
+      ...(activeTab.value?.tabKey ? {formKey: activeTab.value.tabKey} : {}),
+      nextNode,
+      idea: opinion,
+      type: String(optionData.value['type'] ?? optionData.value['Type'] ?? ''),
+    })
+  }
+
+  async function tryAutoSubmitAfterReload(own: number, depth: number): Promise<void> {
+    if (depth >= AUTO_SUBMIT_MAX_DEPTH) return
+    const runtime = sparkConsume(PAGE_RUNTIME)
+    const step = runtime?.resolveView(stepViewKey.value)?.rows.find(isRecord)
+    const prep = prepared.value
+    if (!prep || !step) return
+    const curStepId = String(step['rowid'] ?? '')
+    const can = await clientFor(own).canAutoSubmitAfter(curStepId)
+    if (own !== generation) return
+    if (!readCanAutoSubmitAfter(can)) return
+    const options = await clientFor(own).getHandleOptionData({
+      modelId: prep.flowModelId,
+      stepId: curStepId,
+      busRowId: prep.busRowId,
+      ...(activeTab.value?.tabKey ? {formid: activeTab.value.tabKey} : {}),
+    })
+    if (own !== generation) return
+    optionData.value = options
+    const nodes = parseFlowRunHandleNodeOptions(options, ['NextNodeList', 'nextNodeList', 'nodes'])
+    const nextId = String(options['DefaultNodeId'] ?? options['defaultNodeId'] ?? nodes[0]?.id ?? '')
+    selectedNodeId.value = nextId
+    await runSubmitWithCurrentStep(own, opinionText.value, nextId)
+    if (own !== generation) return
+    await loadPage()
+    if (own !== generation) return
+    await tryAutoSubmitAfterReload(own, depth + 1)
+  }
+
   async function submitFlow(): Promise<void> {
     const own = generation
     handleLoading.value = true
@@ -148,23 +205,13 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
         const gate = await activePage.flowSubmit()
         if (gate === false || String(gate).toLowerCase() === 'cancel') return
       }
-      const nextNode = selectedNodeId.value
-        ? [{NodeId: selectedNodeId.value, ExecUserList: []}]
-        : []
-      await clientFor(own).submitOrStart({
-        flowId: prep.flowModelId,
-        flowObjId: prep.flowObjectId,
-        curStepId: String(step['rowid'] ?? ''),
-        busRowid: prep.busRowId,
-        ...(activeTab.value?.tabKey ? {formKey: activeTab.value.tabKey} : {}),
-        nextNode,
-        idea: opinionText.value,
-        type: String(optionData.value['type'] ?? optionData.value['Type'] ?? ''),
-      })
+      await runSubmitWithCurrentStep(own, opinionText.value, selectedNodeId.value)
       if (own !== generation) return
       handleOpen.value = false
       opinionText.value = ''
       await loadPage()
+      if (own !== generation) return
+      await tryAutoSubmitAfterReload(own, 0)
     } catch (error) {
       handleError.value = error instanceof Error ? error.message : '提交失败'
     } finally {
@@ -263,6 +310,26 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     appendOpen.value = true
   }
 
+  async function revokeCurrentStep(): Promise<void> {
+    const own = generation
+    handleLoading.value = true
+    handleError.value = ''
+    try {
+      const runtime = sparkConsume(PAGE_RUNTIME)
+      const step = runtime?.resolveView(stepViewKey.value)?.rows.find(isRecord)
+      const prep = prepared.value
+      if (!prep || !step) throw new Error('未定位到当前办理步骤')
+      await clientFor(own).revokeCurrentStep(prep.flowObjectId, String(step['rowid'] ?? ''))
+      if (own !== generation) return
+      handleOpen.value = false
+      await loadPage()
+    } catch (error) {
+      if (own === generation) handleError.value = error instanceof Error ? error.message : '撤回失败'
+    } finally {
+      if (own === generation) handleLoading.value = false
+    }
+  }
+
   async function openFlowChart(): Promise<void> {
     const own = ++generation
     chartOpen.value = true
@@ -333,9 +400,12 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     chartLoading,
     chartError,
     chartPrepared,
+    stepViewKey,
+    stepHistoryColumns,
     loadPage,
     openHandlePanel,
     submitFlow,
+    revokeCurrentStep,
     backByHistory,
     forceBack,
     backToCreator,

@@ -8,6 +8,7 @@
     <template v-if="prepared" #header-actions>
       <RendererButton label="流程图" @click="openFlowChart" />
       <RendererButton label="加签" @click="openAppendDialog" />
+      <RendererButton label="撤回" :loading="handleLoading" @click="revokeCurrentStep" />
       <RendererButton label="办理" button-type="primary" :loading="handleLoading" @click="openHandlePanel" />
     </template>
     <div v-if="prepared" class="flow-run-page__layout">
@@ -22,6 +23,11 @@
               :tab-key="tab.tabKey" :registry="businessRegistry" />
           </el-tab-pane>
         </el-tabs>
+      </section>
+      <section v-if="prepared" class="flow-run-page__history">
+        <h3 class="flow-run-page__section-label">步骤历史</h3>
+        <RendererTable :data-view-key="stepViewKey" :children="[...stepHistoryColumns]" :stripe="true"
+          :show-data-view-meta="false" :pagination="{pageSizes: [10, 20, 50], showJumper: true}" />
       </section>
       <aside v-if="handleOpen" class="flow-run-page__handle">
         <h3 class="flow-run-page__handle-title">办理</h3>
@@ -83,7 +89,7 @@
 
 <script setup lang="ts">
 import {useRoute} from 'vue-router'
-import {DisplayAlert, RendererButton, RendererDialog, RendererGraph, RendererSection} from '@spark-appworks/spark-component'
+import {DisplayAlert, RendererButton, RendererDialog, RendererGraph, RendererSection, RendererTable} from '@spark-appworks/spark-component'
 import {
   FLOW_DESIGN_SCENARIO_ID,
   FLOW_RUN_GRAPH_NODE_BADGE_FIELD,
@@ -138,6 +144,9 @@ const {
   backToCreator,
   openAppendDialog,
   openFlowChart,
+  revokeCurrentStep,
+  stepViewKey,
+  stepHistoryColumns,
 } = useFlowRunPage(routeQuery, () => runtimeReady.value)
 
 const chartBadgeRules = [
@@ -156,8 +165,10 @@ const chartBadgeRules = [
 .flow-run-page__nodes {display: grid; gap: 8px}
 .flow-run-page__node-option {display: flex; gap: 8px; align-items: center}
 .flow-run-page__handle-actions {display: flex; flex-wrap: wrap; gap: 8px}
+.flow-run-page__history {margin-top: 16px}
 .flow-run-page__chart {min-height: 50vh}
 @media (max-width: 960px) {
   .flow-run-page__layout {grid-template-columns: 1fr}
+  .flow-run-page__handle {grid-column: 1}
 }
 </style>

@@ -29,6 +29,7 @@ export type FlowRunPreparedPage = Readonly<{
   busRowId: string
   formTabs: readonly FlowRunFormRecord[]
   userDirectoryViewKey: string
+  stepHistoryViewKey: string
 }>
 
 function requireView(view: DataView | undefined, modelName: string): DataView {
@@ -124,6 +125,7 @@ export async function prepareFlowRunPage(command: PrepareFlowRunPageCommand): Pr
     busRowId,
     formTabs,
     userDirectoryViewKey: buildDataViewKey('Base_UserInfo', 'default', FLOW_MONITOR_SCENARIO_ID),
+    stepHistoryViewKey: buildDataViewKey(STEP_MODEL, 'default', FLOW_MONITOR_SCENARIO_ID),
   }
 }
 

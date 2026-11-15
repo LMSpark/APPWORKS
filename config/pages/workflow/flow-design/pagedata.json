@@ -13,7 +13,7 @@
     },
     "WFM_NODE_REALATION": {
       "modelBinding": {"modelName": "WFM_NODE_REALATION"},
-      "views": {"default": {"autoLoad": false, "pageSize": 50, "queryConfig": {"fields": ["rowid", "FLOWID", "PARENTID", "CHILDID"]}}}
+      "views": {"default": {"autoLoad": false, "pageSize": 50, "queryConfig": {"fields": ["rowid", "FLOWID", "PARENTID", "CHILDID", "TITLE", "MEMO"]}}}
     },
     "WFM_WORKFORM": {
       "modelBinding": {"modelName": "WFM_WORKFORM"},

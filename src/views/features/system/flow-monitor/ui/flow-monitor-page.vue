@@ -23,6 +23,7 @@ import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature
 const {sparkConsume} = useSparkComponent({type: 'flow-monitor-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'flow-monitor-page')
 
+const FLOW_RUN_PAGE_PATH = '/features/workflow/flow-runtime/run-page/ui/flow-run-page'
 const FLOW_RUN_DETAIL_PATH = '/features/workflow/flow-runtime/detail/ui/flow-run-detail-page'
 
 const scenarioId = 'E328FBBF518141973C575D612CD75151'
@@ -52,7 +53,17 @@ const fields: SparkNode[] = [
     displayFormatter: formatMinute}},
 ]
 const router = useRouter()
+function openRun(row: DataRow): void {
+  const wfid = textValue(row, 'rowid')
+  const flowid = textValue(row, 'WFMID')
+  if (!wfid || !flowid) {
+    void pageService.showMessage('流程记录缺少 wfid 或 flowid', 'warning')
+    return
+  }
+  void router.push({path: FLOW_RUN_PAGE_PATH, query: {wfid, flowid}})
+}
 const actions = computed<RToolbarProps>(() => ({children: [
+  {type: 'r-button', props: {label: '办理', buttonType: 'primary', onClick: (row: DataRow) => openRun(row)}},
   {type: 'r-button', props: {label: '运行详情', onClick: (row: DataRow) => openRunDetail(row)}},
 ]}))
 function textValue(row: DataRow, field: string): string {

@@ -562,6 +562,15 @@ export const backendApiEndpoints = [
     responseType: "AjaxResult<unknown>",
   },
   {
+    id: "flow.stepHistory",
+    controller: "FlowController",
+    method: "GET",
+    path: "/api/Flow/GetStepHistory",
+    summary: "读取流程实例步骤历史（query 参数以实服为准）。",
+    parameters: [p("wfId", "query", "string", true, "流程实例 ID。")],
+    responseType: "AjaxResult<unknown>",
+  },
+  {
     id: "flow.canAutoSubmitAfter",
     controller: "FlowController",
     method: "POST",

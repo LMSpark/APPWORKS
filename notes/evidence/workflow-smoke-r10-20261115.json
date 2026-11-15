@@ -1,0 +1,23 @@
+{
+  "round": 10,
+  "branch": "codex/spark-data-s1-command-safety",
+  "signoff": "code-complete",
+  "automatedGates": {
+    "typecheck": "pass",
+    "workflowVitest": "595 passed",
+    "verifyRules": "pass"
+  },
+  "w2Matrix": [
+    {"action": "FlowSubmitOrStart", "vitest": "flow-run-page-client / use-flow-run-page", "d99": "blocked"},
+    {"action": "FlowBack", "vitest": "flow-run-page-client-back", "d99": "blocked"},
+    {"action": "FlowForceBack", "vitest": "flow-run-page-client-back", "d99": "blocked"},
+    {"action": "FlowToCreator", "vitest": "flow-run-page-runtime", "d99": "blocked"},
+    {"action": "FlowAddReceiveUser", "vitest": "flow-append-user", "d99": "blocked"},
+    {"action": "FlowRevoke", "vitest": "flow-run-page-client-back revokeCurrentStep", "d99": "blocked"},
+    {"action": "CanAutoSubmitAfter", "vitest": "flow-run-auto-submit", "d99": "blocked"},
+    {"action": "GetStepHistory", "vitest": "DataView WFOBJ_FLOW_RELATIONLINE_STEP + client wfId", "d99": "blocked"},
+    {"action": "SaveFlowAndFormRelation", "vitest": "flow-design-form-relation", "d99": "blocked"},
+    {"action": "design save/sync", "vitest": "flow-design-save", "d99": "blocked"}
+  ],
+  "integrationPlan": "notes/research-workflow-approval.md 差距段已勾销 W1/W2 源码项；D99 未证实项保留 blocked"
+}

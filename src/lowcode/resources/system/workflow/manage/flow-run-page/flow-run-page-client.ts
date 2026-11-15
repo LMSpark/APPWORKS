@@ -161,6 +161,49 @@ export class FlowRunPageClient {
     })
     this.#options.assertCurrent?.()
   }
+
+  async canAutoSubmitAfter(curStepId: string): Promise<unknown> {
+    const stepId = normalizeText(curStepId)
+    if (!stepId) throw new Error('自动提交判断缺少步骤 ID')
+    const scope = this.#guard()
+    const value = await requestFlowResult(this.#options.http, {
+      method: 'POST',
+      path: '/api/Flow/CanAutoSubmitAfter',
+      data: {curStepId: stepId},
+      headers: this.#headers(scope),
+    })
+    this.#options.assertCurrent?.()
+    return value
+  }
+
+  async revokeCurrentStep(flowObjectId: string, curStepId: string): Promise<void> {
+    const wfid = normalizeText(flowObjectId)
+    const stepId = normalizeText(curStepId)
+    if (!wfid || !stepId) throw new Error('撤回缺少流程实例或步骤 ID')
+    const scope = this.#guard()
+    await requestFlowResult(this.#options.http, {
+      method: 'POST',
+      path: '/api/Flow/FlowRevoke',
+      params: {wfid, curStepID: stepId},
+      headers: this.#headers(scope),
+    })
+    this.#options.assertCurrent?.()
+  }
+
+  /** GET /api/Flow/GetStepHistory；query 合同以实服为准，当前登记 wfId。 */
+  async fetchStepHistory(flowObjectId: string): Promise<unknown> {
+    const wfId = normalizeText(flowObjectId)
+    if (!wfId) throw new Error('步骤历史缺少流程实例 ID')
+    const scope = this.#guard()
+    const value = await requestFlowResult(this.#options.http, {
+      method: 'GET',
+      path: '/api/Flow/GetStepHistory',
+      params: {wfId},
+      headers: this.#headers(scope),
+    })
+    this.#options.assertCurrent?.()
+    return value
+  }
 }
 
 export function createFlowRunPageClient(options: FlowRunPageClientOptions): FlowRunPageClient {

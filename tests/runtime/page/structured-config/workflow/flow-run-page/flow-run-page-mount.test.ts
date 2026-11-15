@@ -53,10 +53,28 @@ type MockView = {
   loadingError: Error | null
   refresh: ReturnType<typeof vi.fn>
   rows: Array<Record<string, unknown>>
+  events: {on: (event: string, handler: () => void) => void; off: (event: string, handler: () => void) => void}
 }
 
 function createView(rows: MockView['rows']): MockView {
-  return {destroyed: false, queryContext: {}, loadingError: null, refresh: vi.fn(async () => undefined), rows}
+  const handlers = new Map<string, Array<() => void>>()
+  return {
+    destroyed: false,
+    queryContext: {},
+    loadingError: null,
+    refresh: vi.fn(async () => undefined),
+    rows,
+    events: {
+      on: (event, handler) => {
+        const list = handlers.get(event) ?? []
+        list.push(handler)
+        handlers.set(event, list)
+      },
+      off: (event, handler) => {
+        handlers.set(event, (handlers.get(event) ?? []).filter(item => item !== handler))
+      },
+    },
+  }
 }
 
 function createRuntime(): PageRuntime {
@@ -128,5 +146,6 @@ describe('flow run page mount', () => {
     expect(wrapper.text()).toContain('实例')
     expect(wrapper.text()).toContain('流程图')
     expect(wrapper.text()).toContain('加签')
+    expect(wrapper.text()).toContain('撤回')
   })
 })

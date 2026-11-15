@@ -51,7 +51,7 @@ const actions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', pr
 }}]}))
 
 function openDetail(row: DataRow): void {
-  const view = session.runtime?.resolveView(viewKey)
+  const view = session.runtime?.resolveView(viewKey.value)
   const id = view?.rows.includes(row) ? view.getPkKey(row) : undefined
   if (id === undefined) { error.value = 'BUG记录缺少原生身份'; return }
   editing.value = {id, epoch: ++epoch}

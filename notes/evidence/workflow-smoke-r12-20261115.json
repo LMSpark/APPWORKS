@@ -1,0 +1,24 @@
+{
+  "round": 12,
+  "branch": "codex/spark-data-s1-command-safety",
+  "delivered": [
+    "flow-monitor pagedata workbenchProcessed/shared/started + STEP default filters contract",
+    "flow-workbench four tabs + use-flow-workbench-todo + row route by tab",
+    "flow-design FunctionNodeAuth@nodeAuth + _Base_FunctionNode@flowDesignOptions",
+    "flow-design-node-auth-panel + syncFlowDesignNodeAuthView",
+    "use-feature-page-runtime reactive modelName/viewId for tab switch"
+  ],
+  "gates": {
+    "typecheck": "pass",
+    "workflowVitest": "605 passed",
+    "verifyRules": "pass"
+  },
+  "d99": {
+    "status": "blocked",
+    "reason": "missing SPARK_BASE_URL / SPARK_TOKEN / SPARK_APP_ID"
+  },
+  "g0": {
+    "status": "blocked",
+    "reason": "missing SPARK_BASE_URL / SPARK_TOKEN / SPARK_APP_ID"
+  }
+}

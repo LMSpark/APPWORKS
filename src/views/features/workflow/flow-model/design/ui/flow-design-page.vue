@@ -26,6 +26,7 @@
         <FlowDesignNodePanel :view-key="prepared.nodeViewKey" :highlight-id="nodeHighlightId" @select-graph-id="selectNodeFromTable" />
         <FlowDesignEdgePanel :view-key="prepared.edgeViewKey" :highlight-id="edgeHighlightId" @select-graph-id="selectEdgeFromTable" />
         <FlowDesignFormPanel v-if="prepared.workFormViewKey" :view-key="prepared.workFormViewKey" class="flow-design-page__form" />
+        <FlowDesignNodeAuthPanel :view-key="nodeAuthViewKey" :selected-node-id="selectedNodeId" class="flow-design-page__auth" />
       </div>
     </template>
   </RendererSection>
@@ -41,6 +42,7 @@ import {
   prepareFlowDesignViews,
   removeFlowDesignGraphSelection,
   saveFlowDesignInfo,
+  syncFlowDesignNodeAuthView,
   type FlowDesignLayoutOverride,
   type FlowDesignPreparedViews,
 } from '@/lowcode/resources/system/workflow/manage'
@@ -50,14 +52,21 @@ const {DisplayAlert, PAGE_RUNTIME, RendererButton, RendererGraph, RendererSectio
 import FlowDesignNodePanel from './node-panel/flow-design-node-panel.vue'
 import FlowDesignEdgePanel from './edge-panel/flow-design-edge-panel.vue'
 import FlowDesignFormPanel from './form-panel/flow-design-form-panel.vue'
+import FlowDesignNodeAuthPanel from './node-panel/flow-design-node-auth-panel.vue'
 
 const props = defineProps<{flowModelId: string}>()
 const flowModelId = computed(() => String(props.flowModelId ?? '').trim())
 const {sparkConsume} = useSparkComponent({type: 'flow-design-page'})
 const ready = ref(false), loading = ref(false), saving = ref(false), error = ref('')
 const prepared = shallowRef<FlowDesignPreparedViews>()
+const nodeAuthViewKey = ref('')
 const layoutOverride = ref<FlowDesignLayoutOverride>({})
 const graphSelection = ref<Readonly<{kind: 'node' | 'edge'; id: string | number}> | null>(null)
+const selectedNodeId = computed(() => {
+  const sel = graphSelection.value
+  if (!sel || sel.kind !== 'node') return ''
+  return String(sel.id).trim()
+})
 const graphLayout = computed(() => {
   const base = prepared.value?.graphLayout
   if (!base) return {nodePositions: {}, edgePaths: {}}
@@ -86,10 +95,12 @@ let generation = 0
 
 function onGraphSelect(event: GraphSelection): void {
   graphSelection.value = {kind: event.kind, id: event.id}
+  if (event.kind === 'node') void refreshNodeAuth(String(event.id))
 }
 
 function selectNodeFromTable(id: string | number): void {
   graphSelection.value = {kind: 'node', id}
+  void refreshNodeAuth(String(id))
 }
 
 function selectEdgeFromTable(id: string | number): void {
@@ -164,6 +175,25 @@ function removeSelection(): void {
   }
 }
 
+async function refreshNodeAuth(nodeId: string): Promise<void> {
+  const own = generation
+  const runtime = sparkConsume(PAGE_RUNTIME)
+  if (!runtime || !nodeId.trim()) {
+    nodeAuthViewKey.value = ''
+    return
+  }
+  try {
+    nodeAuthViewKey.value = await syncFlowDesignNodeAuthView({
+      runtime,
+      flowModelId: flowModelId.value,
+      selectedNodeId: nodeId,
+      assertCurrent: () => own === generation,
+    })
+  } catch (cause) {
+    if (own === generation) error.value = cause instanceof Error ? cause.message : String(cause)
+  }
+}
+
 async function refreshPrepared(clearSelection = false): Promise<void> {
   const own = generation
   try {
@@ -173,7 +203,10 @@ async function refreshPrepared(clearSelection = false): Promise<void> {
     if (own !== generation) return
     prepared.value = next
     ready.value = true
-    if (clearSelection) graphSelection.value = null
+    if (clearSelection) {
+      graphSelection.value = null
+      nodeAuthViewKey.value = ''
+    }
   } catch (cause) {
     if (own === generation) error.value = cause instanceof Error ? cause.message : String(cause)
   }
@@ -228,7 +261,8 @@ onBeforeUnmount(() => { generation++ })
 .flow-design-page {min-height: 420px; padding: 8px}
 .flow-design-page__graph {min-height: 360px; height: 42vh}
 .flow-design-page__tables {display: grid; grid-template-columns: 1fr 1fr; gap: 12px}
-.flow-design-page__form {grid-column: 1 / -1}
+.flow-design-page__form,
+.flow-design-page__auth {grid-column: 1 / -1}
 @media (max-width: 960px) {
   .flow-design-page__tables {grid-template-columns: 1fr}
   .flow-design-page__form {grid-column: auto}

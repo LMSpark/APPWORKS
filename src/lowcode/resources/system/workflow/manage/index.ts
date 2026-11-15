@@ -42,7 +42,9 @@ export {
   removeFlowDesignGraphSelection,
   buildWorkFormRelationPayload,
   saveFlowWorkFormRelation,
+  syncFlowDesignNodeAuthView,
   type SaveFlowDesignCommand,
+  type SyncFlowDesignNodeAuthCommand,
 } from './flow-design'
 export {serializeFlowDesignGraphJson} from './flow-design-graph-projection'
 export {prepareFlowRunDetailPage, type FlowRunDetailPreparedPage} from './flow-run-detail/flow-run-detail-runtime'
@@ -53,9 +55,14 @@ export {
   type FlowRunGraphNodeBadges,
 } from './flow-run-detail/flow-run-detail-graph-projection'
 export {
+  buildFlowWorkbenchTabFilterExpression,
   buildFlowWorkbenchTabFilterFields,
   flowWorkbenchMetaName,
+  flowWorkbenchTabBinding,
+  flowWorkbenchTabViewId,
   FLOW_WORKBENCH_WAITING_META,
+  FLOW_WORKBENCH_PROCESSED_META,
+  FLOW_WORKBENCH_FLOW_META,
   type FlowWorkbenchTab,
 } from './flow-workbench/flow-workbench-filters'
 export {readFlowWorkbenchRowRoute, type FlowWorkbenchRowRoute} from './flow-workbench/flow-workbench-row'

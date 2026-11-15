@@ -40,6 +40,55 @@
         "pageSize": 1,
         "queryConfig": {"fields": ["rowid", "folderName", "FOLDERNAME", "Title"]}
       }}
+    },
+    "_Base_FunctionNode": {
+      "modelBinding": {"modelName": "_Base_FunctionNode"},
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "pageSize": 50,
+          "queryConfig": {"fields": ["rowid", "Nodetext", "prowid", "FunCode", "ordidx"]}
+        },
+        "flowDesignOptions": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 100,
+          "queryContext": {"FLOWID": ""},
+          "filterExpression": {
+            "field": "prowid",
+            "operator": "eq",
+            "value": {"Type": "GetInputParam", "ParamName": "FLOWID"}
+          },
+          "queryConfig": {"allPages": true, "fields": ["rowid", "Nodetext", "prowid", "FunCode", "ordidx"]}
+        }
+      }
+    },
+    "FunctionNodeAuth": {
+      "modelBinding": {"modelName": "FunctionNodeAuth"},
+      "views": {
+        "nodeAuth": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 20,
+          "queryContext": {"FLOWID": "", "pageID": "", "selectedNodeId": ""},
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {"field": "pageID", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "FLOWID"}},
+              {"field": "FunCodeID", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "selectedNodeId"}},
+              {"field": "contenttype", "operator": "eq", "value": 1}
+            ]
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid", "pageID", "FunCodeID", "contenttype", "functionoption", "QID", "granttype",
+              "masterId", "mastervaluefield", "status", "businessId", "QName", "valueType"
+            ]
+          }
+        }
+      }
     }
   },
   "viewCascades": []

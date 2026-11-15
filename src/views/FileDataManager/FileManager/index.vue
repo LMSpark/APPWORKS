@@ -42,7 +42,7 @@ const actions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', pr
 }}]}))
 
 function currentView(): DataView {
-  const view = session.runtime?.resolveView(viewKey)
+  const view = session.runtime?.resolveView(viewKey.value)
   if (!view) throw new Error('文件目录视图已失效')
   return view
 }

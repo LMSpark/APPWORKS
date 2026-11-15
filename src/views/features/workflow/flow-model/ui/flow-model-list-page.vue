@@ -86,7 +86,7 @@ const actions = computed<RToolbarProps>(() => ({children: [
 ]}))
 
 function listView() {
-  const view = session.runtime?.resolveView(viewKey)
+  const view = session.runtime?.resolveView(viewKey.value)
   if (!view) throw new Error('流程模型列表尚未就绪')
   return view
 }

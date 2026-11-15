@@ -4,7 +4,7 @@
  * 边界：校验导航身份并释放过期实例，不承载页面字段或业务数据副本；主场景始终是 scenarioId。
  * AI用途：原生功能页以一个主模型视图为入口时复用；navigationId 允许页面以独立导航身份消费其他空间。
  */
-import {computed, onBeforeUnmount, ref, watch} from 'vue'
+import {computed, onBeforeUnmount, ref, toValue, watch, type MaybeRefOrGetter, type Ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {buildDataViewKey} from '@spark-appworks/spark-data'
@@ -19,9 +19,9 @@ type FeaturePageRuntimeOptions = Readonly<{
   /** 页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。 */
   navigationId?: string
   /** 主视图所属的正式模型名称，而非物理来源别名。 */
-  modelName: string
+  modelName: MaybeRefOrGetter<string>
   /** 主视图命名键；默认 default。 */
-  viewId?: string
+  viewId?: MaybeRefOrGetter<string>
   /** 本页能力树节点类型，不作为数据身份。 */
   componentType: string
   /** 用于入口及主视图诊断的页面名称。 */
@@ -38,10 +38,14 @@ type FeaturePageRuntimeOptions = Readonly<{
 
 /** 在路由的执行作用域（应用或目录）内加载主视图，切换或卸载时撤销原实例。 */
 export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
-  const {scenarioId, modelName, componentType, title} = options
+  const {scenarioId, componentType, title} = options
   const navigationId = options.navigationId ?? scenarioId
-  const viewId = options.viewId ?? 'default'
-  const viewKey = buildDataViewKey(modelName, viewId, scenarioId)
+  const resolveViewKey = () => buildDataViewKey(
+    toValue(options.modelName),
+    toValue(options.viewId ?? 'default'),
+    scenarioId,
+  )
+  const viewKey: Ref<string> = ref(resolveViewKey())
   const peers = options.peerScenarioIds ?? []
   const route = useRoute()
   const {sparkProvide, sparkRemove} = useSparkComponent({type: componentType})
@@ -83,6 +87,8 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
       await current.load()
       if (!isCurrent(current, own)) return
       const dataSet = current.getDataSet(scenarioId)
+      const modelName = toValue(options.modelName)
+      const viewId = toValue(options.viewId ?? 'default')
       const view = dataSet?.getView(modelName, viewId)
       if (!view) throw new Error(`${title}缺少正式${modelName}@${viewId}视图`)
       const runtime = current
@@ -111,6 +117,13 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
   }
 
   watch(target, loadCurrentRoute, {immediate: true})
+  watch(
+    () => [toValue(options.modelName), toValue(options.viewId ?? 'default')] as const,
+    (next, prev) => {
+      viewKey.value = buildDataViewKey(next[0], next[1], scenarioId)
+      if (prev && (prev[0] !== next[0] || prev[1] !== next[1])) void loadCurrentRoute()
+    },
+  )
   onBeforeUnmount(() => {active = false; generation++; session.dispose()})
   return {viewKey, session, ready, loading, error, loadCurrentRoute}
 }

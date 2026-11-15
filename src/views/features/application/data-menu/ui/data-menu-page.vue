@@ -97,7 +97,7 @@ const filter: RFilterProps = {
   autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,
   children: [{type: 'r-text', props: {field: 'Name', label: '宿主名称', placeholder: '请输入宿主名称', filterTrim: true}}],
 }
-const catalogView = computed(() => {revision.value; return ready.value ? view(viewKey) : undefined})
+const catalogView = computed(() => {revision.value; return ready.value ? view(viewKey.value) : undefined})
 const current = computed(() => catalogView.value?.currentRow ?? null)
 const headerDisabled = computed(() => busy.value || !!editing.value || !!designId.value)
 const actions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
@@ -127,13 +127,13 @@ async function loadDataSets(): Promise<void> {
 watch(ready, isReady => {
   unbind()
   if (!isReady) return
-  listen(view(viewKey)); listen(view(dataSetKey))
+  listen(view(viewKey.value)); listen(view(dataSetKey))
   void loadDataSets()
 })
 onBeforeUnmount(unbind)
 
 async function create(): Promise<void> {
-  const target = view(viewKey)
+  const target = view(viewKey.value)
   if (busy.value || target.addActionState() !== 'enabled') return
   busy.value = true; message.value = ''
   try {
@@ -144,17 +144,17 @@ async function create(): Promise<void> {
   } catch (cause) { message.value = `新增导航宿主失败：${failure(cause)}` } finally { busy.value = false }
 }
 function edit(): void {
-  const target = view(viewKey), row = target.currentRow
+  const target = view(viewKey.value), row = target.currentRow
   const id = row ? target.getPkKey(row) : undefined
   if (id === undefined) { message.value = '请先选择导航宿主'; return }
   editing.value = {id, created: false, epoch: ++epoch}
 }
 async function closeEdit(): Promise<void> {
   editing.value = undefined
-  await view(viewKey).refresh()
+  await view(viewKey.value).refresh()
 }
 async function remove(): Promise<void> {
-  const target = view(viewKey), row = target.currentRow
+  const target = view(viewKey.value), row = target.currentRow
   const id = row ? target.getPkKey(row) : undefined
   if (busy.value || !row || id === undefined || target.deleteActionState(row) !== 'enabled') return
   const confirmed = await pageService.showConfirm(`确定删除导航宿主"${text(row, 'Name')}"吗？`, '删除确认', {type: 'warning'})

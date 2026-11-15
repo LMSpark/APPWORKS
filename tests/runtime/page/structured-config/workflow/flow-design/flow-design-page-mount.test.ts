@@ -15,6 +15,13 @@ vi.mock('@/views/features/workflow/flow-model/design/ui/node-panel/flow-design-n
     template: '<button data-testid="pick-node" type="button" @click="$emit(\'selectGraphId\', \'N-42\')">流程节点</button>',
   }),
 }))
+vi.mock('@/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-auth-panel.vue', () => ({
+  default: defineComponent({
+    name: 'FlowDesignNodeAuthPanel',
+    props: {viewKey: String, selectedNodeId: String},
+    template: '<div data-testid="node-auth-panel" />',
+  }),
+}))
 vi.mock('@/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue', () => ({
   default: defineComponent({
     name: 'FlowDesignFormPanel',
@@ -62,11 +69,17 @@ function createDesignRuntime(): PageRuntime {
     WFM_NODE_REALATION: createView([]),
     WFM_WORKFORM: createView([]),
     Base_NavigationInfo: createView([]),
+    FunctionNodeAuth: createView([]),
+    _Base_FunctionNode: createView([]),
   }
   return {
     instanceId: 'flow-design-mount-runtime',
     getDataSet: (scenarioId: string) => scenarioId === FLOW_DESIGN_SCENARIO_ID
-      ? {getView: (name: string) => tables[name]}
+      ? {getView: (name: string, viewId = 'default') => {
+        if (name === 'FunctionNodeAuth' && viewId === 'nodeAuth') return tables['FunctionNodeAuth']
+        if (name === '_Base_FunctionNode' && viewId === 'flowDesignOptions') return tables['_Base_FunctionNode']
+        return tables[name]
+      }}
       : undefined,
     resolveView: () => null,
     dispose: () => undefined,

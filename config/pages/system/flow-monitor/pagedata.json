@@ -24,19 +24,35 @@
     },
     "WFOBJ_FLOW": {
       "modelBinding": {"modelName": "WFOBJ_FLOW"},
-      "views": {"default": {
-        "autoLoad": false,
-        "autoCurrentFirst": false,
-        "autoSelectFirst": false,
-        "pageSize": 1,
-        "queryContext": {"rowid": "", "wfid": ""},
-        "filterExpression": {
-          "field": "rowid",
-          "operator": "eq",
-          "value": {"Type": "GetInputParam", "ParamName": "rowid"}
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1,
+          "queryContext": {"rowid": "", "wfid": ""},
+          "filterExpression": {
+            "field": "rowid",
+            "operator": "eq",
+            "value": {"Type": "GetInputParam", "ParamName": "rowid"}
+          },
+          "queryConfig": {"fields": ["rowid", "WFMID", "TITLE", "BusTblObjID", "status", "createuser", "CrtUserID"]}
         },
-        "queryConfig": {"fields": ["rowid", "WFMID", "TITLE", "BusTblObjID", "status"]}
-      }}
+        "workbenchStarted": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "page": 1,
+          "pageSize": 15,
+          "queryContext": {"currentUserId": ""},
+          "filterExpression": {
+            "field": "createuser",
+            "operator": "eq",
+            "value": {"Type": "GetInputParam", "ParamName": "currentUserId"}
+          },
+          "queryConfig": {"fields": ["rowid", "WFMID", "TITLE", "AppDesc", "status", "createuser", "CrtUserID", "CrtTime", "BusTblObjID"]}
+        }
+      }
     },
     "WFM_WORKFORM": {
       "modelBinding": {"modelName": "WFM_WORKFORM"},
@@ -80,27 +96,76 @@
     },
     "WFOBJ_FLOW_RELATIONLINE_STEP": {
       "modelBinding": {"modelName": "WFOBJ_FLOW_RELATIONLINE_STEP"},
-      "views": {"default": {
-        "autoLoad": false,
-        "autoCurrentFirst": false,
-        "autoSelectFirst": false,
-        "pageSize": 500,
-        "queryContext": {"WFOBJID": ""},
-        "filterExpression": {
-          "logic": "and",
-          "conditions": [
-            {"field": "WFOBJID", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "WFOBJID"}},
-            {"field": "STEPTYPE", "operator": "ne", "value": 12}
-          ]
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "queryContext": {"WFOBJID": ""},
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {"field": "WFOBJID", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "WFOBJID"}},
+              {"field": "STEPTYPE", "operator": "ne", "value": 12}
+            ]
+          },
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid", "WFOBJID", "WFMID", "FlowID", "description", "ReceiveUserName", "SendUserName",
+              "SendUserId", "ReceiveUserId", "STARTTIME", "ProcessingTime", "STATUS", "StepState", "STEPTYPE",
+              "SendNodeModelId", "ReceiveNodeModelId", "LastStepID"
+            ]
+          }
         },
-        "queryConfig": {
-          "allPages": true,
-          "fields": [
-            "rowid", "WFOBJID", "description", "ReceiveUserName", "STARTTIME", "ProcessingTime",
-            "STATUS", "StepState", "STEPTYPE", "SendNodeModelId", "ReceiveNodeModelId", "LastStepID"
-          ]
+        "workbenchProcessed": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "page": 1,
+          "pageSize": 15,
+          "queryContext": {"currentUserId": ""},
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {"field": "SendUserId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "currentUserId"}},
+              {"logic": "or", "filters": [
+                {"field": "STEPTYPE", "operator": "eq", "value": "0"},
+                {"field": "STEPTYPE", "operator": "eq", "value": "3"},
+                {"field": "STEPTYPE", "operator": "eq", "value": "9"}
+              ]},
+              {"logic": "or", "filters": [
+                {"field": "StepState", "operator": "eq", "value": "0"},
+                {"field": "StepState", "operator": "eq", "value": "1"},
+                {"field": "StepState", "operator": "eq", "value": "9"}
+              ]}
+            ]
+          },
+          "queryConfig": {"fields": [
+            "rowid", "WFOBJID", "WFMID", "FlowID", "description", "ReceiveUserName", "SendUserName",
+            "STARTTIME", "StepState", "STEPTYPE"
+          ]}
+        },
+        "workbenchShared": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "page": 1,
+          "pageSize": 15,
+          "queryContext": {"currentUserId": ""},
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {"field": "ReceiveUserId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "currentUserId"}},
+              {"field": "STEPTYPE", "operator": "eq", "value": "4"}
+            ]
+          },
+          "queryConfig": {"fields": [
+            "rowid", "WFOBJID", "WFMID", "FlowID", "description", "ReceiveUserName", "STARTTIME", "StepState", "STEPTYPE"
+          ]}
         }
-      }}
+      }
     },
     "WFOBJ_FLOW_Waiting": {
       "modelBinding": {"modelName": "WFOBJ_FLOW_Waiting"},

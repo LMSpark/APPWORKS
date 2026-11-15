@@ -1,8 +1,9 @@
 /**
  * @module app:lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row
- * 职责：从工作台待办行解析办理/详情路由参数。
+ * 职责：从工作台各页签行解析办理/详情路由参数。
  */
 import type {DataRow} from '@spark-appworks/spark-data'
+import type {FlowWorkbenchTab} from './flow-workbench-filters'
 
 function textValue(row: DataRow, keys: readonly string[]): string {
   for (const key of keys) {
@@ -21,10 +22,23 @@ export type FlowWorkbenchRowRoute = Readonly<{
   stepId: string
 }>
 
-export function readFlowWorkbenchRowRoute(row: DataRow): FlowWorkbenchRowRoute | null {
-  const wfid = textValue(row, ['wfid', 'WFOBJID', 'WfObjId', 'rowid'])
+export function readFlowWorkbenchRowRoute(row: DataRow, tab: FlowWorkbenchTab = 'pending'): FlowWorkbenchRowRoute | null {
+  if (tab === 'started') {
+    const wfid = textValue(row, ['rowid', 'ROWID', 'wfid', 'WFOBJID'])
+    const flowid = textValue(row, ['WFMID', 'FLOWID', 'FlowID', 'flowid'])
+    if (!wfid || !flowid) return null
+    return {wfid, flowid, stepId: ''}
+  }
+  if (tab === 'pending') {
+    const wfid = textValue(row, ['wfid', 'WFOBJID', 'WfObjId'])
+    const flowid = textValue(row, ['FlowID', 'FLOWID', 'WFMID', 'flowid'])
+    const stepId = textValue(row, ['StepID', 'rowid'])
+    if (!wfid || !flowid) return null
+    return {wfid, flowid, stepId}
+  }
+  const wfid = textValue(row, ['WFOBJID', 'wfid', 'WfObjId'])
   const flowid = textValue(row, ['FlowID', 'FLOWID', 'WFMID', 'flowid'])
-  const stepId = textValue(row, ['StepID', 'rowid'])
+  const stepId = textValue(row, ['rowid', 'StepID'])
   if (!wfid || !flowid) return null
   return {wfid, flowid, stepId}
 }

@@ -84,7 +84,7 @@ async function guarded(action: () => Promise<void>): Promise<void> {
 }
 const versionsKey = key('Base_Report', 'byReport')
 function reportViews(): DataView[] {
-  return session.runtime && !session.runtime.destroyed ? [viewKey, reportKey, versionsKey].map(view) : []
+  return session.runtime && !session.runtime.destroyed ? [viewKey.value, reportKey, versionsKey].map(view) : []
 }
 const unconfirmed = computed(() => {void revision.value; return !dialog.value && reportViews().some(item => item.hasUnconfirmedSave)})
 function assertSettled(): void {
@@ -96,7 +96,7 @@ const verify = () => guarded(async () => {
   try {
     pageService.showMessage(await verifyReportSaves(views), 'success')
   } finally {
-    if (!views.some(item => item.hasUnconfirmedSave)) await Promise.all([view(viewKey).refresh(), view(reportKey).refresh()])
+    if (!views.some(item => item.hasUnconfirmedSave)) await Promise.all([view(viewKey.value).refresh(), view(reportKey).refresh()])
   }
 })
 
@@ -151,15 +151,15 @@ function open(kind: Dialog['kind'], row: DataRow): void {
   try {
     assertSettled()
     if (kind === 'model' && !textOf(row, 'version_id')) throw new Error('该报表没有启用版本，请先在历史版本中启动一个版本')
-    dialog.value = {kind, infoId: idOf(view(viewKey), row), epoch: ++epoch}
+    dialog.value = {kind, infoId: idOf(view(viewKey.value), row), epoch: ++epoch}
   } catch (cause) { message.value = failure(cause) }
 }
 function validateEdit(row: Readonly<DataRow>): string | undefined {
   const id = dialog.value?.infoId
-  return id === undefined ? '记录缺少原生身份' : syncAppName({info: view(viewKey), apps: view(appKey), id, row})
+  return id === undefined ? '记录缺少原生身份' : syncAppName({info: view(viewKey.value), apps: view(appKey), id, row})
 }
 const create = () => guarded(async () => {
-  const info = view(viewKey), report = view(reportKey)
+  const info = view(viewKey.value), report = view(reportKey)
   assertSettled()
   const infoId = idOf(info, await info.addRow({}))
   let reportId: string | number | undefined
@@ -178,7 +178,7 @@ async function closeDialog(reason?: 'abandoned'): Promise<void> {
   dialog.value = undefined
   await guarded(async () => {
     if (reportViews().some(item => item.hasUnconfirmedSave)) throw new Error(`存在${UNCONFIRMED_HINT}`)
-    await Promise.all([view(viewKey).refresh(), view(reportKey).refresh()])
+    await Promise.all([view(viewKey.value).refresh(), view(reportKey).refresh()])
   })
   if (original) {
     const warning = `已放弃原新增核验，服务端可能已部分或全部生效；请核对报表ID ${String(original.infoId)}、版本ID ${String(original.reportId)}`
@@ -186,7 +186,7 @@ async function closeDialog(reason?: 'abandoned'): Promise<void> {
   }
 }
 const remove = (row: DataRow) => guarded(async () => {
-  const info = view(viewKey), id = idOf(info, row)
+  const info = view(viewKey.value), id = idOf(info, row)
   assertSettled()
   if (!await pageService.showConfirm(`确定删除报表"${textOf(row, 'RptName') || String(id)}"及其全部版本吗？`, '删除确认', {type: 'warning'})) return
   assertSettled()

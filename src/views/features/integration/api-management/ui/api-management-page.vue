@@ -76,7 +76,7 @@ const resolve = (key: string): DataView => {
   if (!view) throw new Error(`外部服务管理缺少视图 ${key}`)
   return view
 }
-const list = () => resolve(viewKey)
+const list = () => resolve(viewKey.value)
 const text = (row: Readonly<DataRow>, field: string) => typeof row[field] === 'string' ? row[field] : ''
 
 const unresolvedModifier = computed(() => {

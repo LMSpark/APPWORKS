@@ -22,7 +22,7 @@ AI用途：迁移参考仓 integration/dimension 页面时，核对规则启用�
     </div>
     <RendererTabs v-if="ready" v-model="tab">
       <RendererTabPane label="来源锚点" name="binding" :index="0" :lazy="true">
-        <RendererTable :data-view-key="bindingKey" :children="bindingColumns" :current-page-search="search('binding_code', 'source_model_meta_name', 'event_code')" :highlight-current-row="true"
+        <RendererTable :data-view-key="bindingKeyRef" :children="bindingColumns" :current-page-search="search('binding_code', 'source_model_meta_name', 'event_code')" :highlight-current-row="true"
           :show-data-view-meta="false" />
         <template v-if="selectedBinding">
           <h2>映射明细：{{ selectedBinding }}</h2>
@@ -102,9 +102,10 @@ const scenarioId = '88A4D51B01702C3856F4632E234BF34B'
 const key = (model: string, view = 'default') => buildDataViewKey(`Bil_Dimension_${model}`, view, scenarioId)
 const {sparkConsume} = useSparkComponent({type: 'dimension-design-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'dimension-design-page')
-const {viewKey: bindingKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
+const {viewKey: bindingKeyRef, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Bil_Dimension_Source_Binding', componentType: 'dimension-design-page', title: '维度中心',
 })
+const bindingKey = () => bindingKeyRef.value
 const templateKey = key('Rule_Template'), ruleKey = key('Rule'), definitionKey = key('Definition'), dictTypeKey = key('Dict_Type')
 const categoryKey = key('Biz_Category'), mappingKey = key('Source_Mapping', 'byBinding'), eventBindingKey = key('Source_Binding', 'byEvent')
 const validationBindingKey = key('Source_Binding', 'validationByEvent')
@@ -117,7 +118,7 @@ const dialog = shallowRef<Dialog>()
 const ruleDialog = shallowRef<Readonly<{id: string | number; created: boolean; epoch: number}>>()
 const deletion = shallowRef<DimensionRuleDeletion>()
 const workspaceViews: Readonly<Record<string, readonly string[]>> = {
-  binding: [bindingKey], event: [templateKey], rule: [ruleKey, templateKey],
+  binding: [bindingKey()], event: [templateKey], rule: [ruleKey, templateKey],
   definition: [definitionKey], dictionary: [dictTypeKey], category: [categoryKey],
 }
 const search = (...fields: string[]) => ({fields, placeholder: '关键字'})
@@ -144,7 +145,7 @@ function view(viewKey: string): DataView {
 }
 watch(ready, value => {
   stop?.(); stop = undefined
-  if (value) stop = view(bindingKey).dataSet?.onAnyViewChange({
+  if (value) stop = view(bindingKey()).dataSet?.onAnyViewChange({
     rowsChanged: changed, currentRowChanged: changed, requestStateChanged: changed, cleared: changed,
   })
 }, {immediate: true})
@@ -161,7 +162,7 @@ function selectedLabel(viewKey: string, field: string, fallback?: string): strin
   if (value) return value
   return fallback && target.fieldAccess(row, fallback).read === 'visible' ? text(row, fallback) || '（未填写）' : '（未填写）'
 }
-const selectedBinding = computed(() => selectedLabel(bindingKey, 'binding_code', 'id'))
+const selectedBinding = computed(() => selectedLabel(bindingKey(), 'binding_code', 'id'))
 const selectedEvent = computed(() => selectedLabel(templateKey, 'event_code'))
 const selectedDictType = computed(() => selectedLabel(dictTypeKey, 'dict_type_code'))
 function detailError(viewKey: string): string {
@@ -244,7 +245,7 @@ async function refreshAll(): Promise<void> {
   await guarded(async () => {
     const active = workspaceViews[tab.value]
     if (!active) throw new Error(`未知维度工作区 ${tab.value}`)
-    for (const viewKey of [bindingKey, templateKey, ruleKey, definitionKey, dictTypeKey, categoryKey]) {
+    for (const viewKey of [bindingKey(), templateKey, ruleKey, definitionKey, dictTypeKey, categoryKey]) {
       if (view(viewKey).requestState !== RequestState.Idle || active.includes(viewKey)) await load(viewKey, {})
     }
   })

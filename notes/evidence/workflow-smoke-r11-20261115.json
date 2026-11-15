@@ -1,0 +1,13 @@
+{
+  "round": 11,
+  "branch": "codex/spark-data-s1-command-safety",
+  "delivered": [
+    "WFOBJ_FLOW_Waiting@workbenchPending pagedata filter UserID",
+    "flow-workbench-todo-panel binds waiting view + readLowcodePrincipal",
+    "flow-workbench-filters/row lowcode helpers",
+    "research FunctionNodeAuth registration"
+  ],
+  "gates": {"typecheck": "pass", "workflowVitest": "599 passed"},
+  "d99": "blocked",
+  "g0": "blocked"
+}

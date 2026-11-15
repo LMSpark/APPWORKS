@@ -53,6 +53,13 @@ export {
   type FlowRunGraphNodeBadges,
 } from './flow-run-detail/flow-run-detail-graph-projection'
 export {
+  buildFlowWorkbenchTabFilterFields,
+  flowWorkbenchMetaName,
+  FLOW_WORKBENCH_WAITING_META,
+  type FlowWorkbenchTab,
+} from './flow-workbench/flow-workbench-filters'
+export {readFlowWorkbenchRowRoute, type FlowWorkbenchRowRoute} from './flow-workbench/flow-workbench-row'
+export {
   filterVoidedSteps,
   isWaitingStep,
   stepsOnEdge,

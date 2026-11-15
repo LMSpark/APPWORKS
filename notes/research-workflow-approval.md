@@ -34,13 +34,13 @@
 
 - 设计：拖布局、增删节点/边、拖线建边、`WFM_WORKFORM` 关联、`node-panel`/`edge-panel` 可写字段（`TITLE`/`NODETYPE`/`MEMO` 等，pagedata 已扩列）。
 - 办理：`Submit`/退回/强退/发起人/加签/**撤回**、`CanAutoSubmitAfter` 链式提交（最多 3 次）、步骤历史 `WFOBJ_FLOW_RELATIONLINE_STEP` 标准表；`GetStepHistory` HTTP 已登记 `wfId` query（实服参数待 D99 核对）。
-- 监控/工作台/待办：监控行 **办理** 入口；`View_FlowObjList@workbenchTodo`（**精确待办 filter 仍待 D99**）。
+- 监控/工作台/待办：监控行 **办理** 入口；工作台 **待处理** → `WFOBJ_FLOW_Waiting@workbenchPending`（`UserID=currentUserId`）；`View_FlowObjList@workbenchTodo` 保留作监控类列表视图。
 - 运行详情 G4、**bus-flow-detail** 业务摘要 + 只读页签、移动办理页布局折叠。
 
 ### 仍缺口
 
-- **节点权限扩展表**：参考 `FlowDesign` 权限子表；本仓未找到正式 DataView 合同，**不做 UI**（待研读登记模型/视图名）。
-- **G0 modelId**、**workbenchTodo filter**、**D99 手工矩阵**：见 `notes/evidence/workflow-smoke-r6-20261115.json`、`workflow-g0-model-ids-attempt-20261115.json`（blocked，不阻塞合并）。
+- **节点权限扩展表（研读 2026-11-15）**：参考 `FlowDesign.ts` — 模型 **`FunctionNodeAuth`**，关联 **`_Base_FunctionNode`**；查询/保存 `getFlowFunctionNodeAuthDetail` / `saveFlowFunctionNodeAuth`（filter：`pageId` + `nodeId`）；设计场景身份 `SPARK_FLOW_DESIGN_FORM_KEY`（本仓 `6E462C4A39EE0D96F4D1A28FFE887C89`）。**pagedata 未挂表前不做 UI**。
+- **G0 modelId**、**工作台其余页签（已处理/传阅/发起）**、**D99 手工矩阵**：见 `notes/evidence/workflow-smoke-r6-20261115.json`、`workflow-g0-model-ids-attempt-20261115.json`（blocked，不阻塞合并）。
 - **转办/协办/委派**、步骤已读通知：无 endpoint/optionData 证据，不接线。
 - 运行详情：**强退**、办理写入仍不在详情页。
 

@@ -104,19 +104,35 @@
     },
     "WFOBJ_FLOW_Waiting": {
       "modelBinding": {"modelName": "WFOBJ_FLOW_Waiting"},
-      "views": {"default": {
-        "autoLoad": false,
-        "autoCurrentFirst": false,
-        "autoSelectFirst": false,
-        "pageSize": 200,
-        "queryContext": {"wfid": ""},
-        "filterExpression": {
-          "field": "wfid",
-          "operator": "eq",
-          "value": {"Type": "GetInputParam", "ParamName": "wfid"}
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 200,
+          "queryContext": {"wfid": ""},
+          "filterExpression": {
+            "field": "wfid",
+            "operator": "eq",
+            "value": {"Type": "GetInputParam", "ParamName": "wfid"}
+          },
+          "queryConfig": {"allPages": true, "fields": ["rowid", "wfid", "WFOBJID", "FlowID", "StepID", "NodeID", "NodeName", "UserName", "UserID"]}
         },
-        "queryConfig": {"allPages": true, "fields": ["rowid", "wfid", "StepID", "NodeID", "NodeName", "UserName"]}
-      }}
+        "workbenchPending": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "page": 1,
+          "pageSize": 15,
+          "queryContext": {"currentUserId": ""},
+          "filterExpression": {
+            "field": "UserID",
+            "operator": "eq",
+            "value": {"Type": "GetInputParam", "ParamName": "currentUserId"}
+          },
+          "queryConfig": {"fields": ["rowid", "wfid", "WFOBJID", "FlowID", "StepID", "NodeID", "NodeName", "UserName", "UserID"]}
+        }
+      }
     },
     "Base_UserInfo": {
       "modelBinding": {"modelId": "72546df0-40d8-477f-bc5f-94eff18e5d48", "modelName": "Base_UserInfo"},

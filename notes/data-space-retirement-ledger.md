@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **当前用户任务（2026-11-16）：** 按本台账[全量重核与迁移计划](#appworks-full-migration-20261116)持续实现完整20包，纠正前期错误、真实烟测、逐轮修复重验并提交推送；当前I06实施原查询防重复、业务页签身份及标准标签受控选择并验证，不另建总计划。仅在主仓、标准组件+唯一SPARK data，不开Node服务、不改/启停/部署后端Java。后面的 S1–S4 条目保留历史证据，不能将已通过的工程检查等同于20包业务验收。
+> **当前用户任务（2026-11-16）：** 按本台账[全量重核与迁移计划](#appworks-full-migration-20261116)持续实现完整20包，纠正前期错误、真实烟测、逐轮修复重验并提交推送；当前I06已验收提交工程检查点，接续办理候选范围、完整回调与原页面差距，不另建总计划。仅在主仓、标准组件+唯一SPARK data，不开Node服务、不改/启停/部署后端Java。后面的 S1–S4 条目保留历史证据，不能将已通过的工程检查等同于20包业务验收。
 
 > **历史分层索引（2026-11-10，当日S1、S2与S3冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见 [BH](#bh-s4-data-code-catalog-host)，编码设计见 [BI](#bi-s4-data-code-editor-host)，逻辑视图目录见 [BJ](#bj-s4-logic-view-catalog-host)，工作流目录见 [BK](#bk-s4-workflow-catalog-host)，工作流设计见 [BL](#bl-s4-workflow-design-host)，JSON 目录见 [BM](#bm-s4-json-catalog-host)，Excel 目录见 [BN](#bn-s4-excel-catalog-host)，Excel 设计见 [BO](#bo-s4-excel-editor-host)，PDF 目录见 [BP](#bp-s4-pdf-catalog-host)，PDF 设计见 [BQ](#bq-s4-pdf-editor-host)，外部 API 目录见 [BR](#br-s4-api-catalog-host)，API 配置见 [BS](#bs-s4-api-config-host)，API 接口目录见 [BT](#bt-s4-api-interface-host)，缓存管理见 [BU](#bu-s4-cache-management-host)，分阶段设计助手见 [BV](#bv-s4-staged-design-host)，设计查询预览见 [BW](#bw-s4-query-preview-host)，工作流文件 owner 见 [BX](#bx-s4-workflow-file-owner-host)，工作台见 [BY](#by-s4-workbench-host)，启动导航见 [BZ](#bz-s4-startup-navigation-host)，表和视图旧路径见 [CA](#ca-s4-table-view-alias-removal)，系统页 alias 链见 [CB](#cb-s4-system-page-alias-chain)，路由回滚不再恢复 alias 见 [CC](#cc-s4-route-rollback-alias)，数据库目录第二路径见 [CD](#cd-s4-dbms-path-removal)，缓存直连统计见文末 CE，系统设置假配置见 CF，项目设置弹窗见 CG。S4未冻结。RendererCollapse 布局数据上下文的专项结果见 CW；最新 AppWorks 实施与验收断点见文末I03及2026-11-16完整20包计划，生成物、门禁与远端状态以末尾当前检查点为准，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
@@ -9926,7 +9926,7 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 ## 2026-11-16 当前项目重核与完整 AppWorks 迁移计划
 
-状态：实施中（用户已要求按本方案持续迭代；I01至I05已形成提交推送检查点，I06继续实施；整体验收未完成）。本节是当前唯一总计划；前文各轮记录保留其日期、范围及原始证据，不自动沿旧编号继续实施。
+状态：实施中（用户已要求按本方案持续迭代；I01至I06已形成提交推送检查点，完整20包继续实施；整体验收未完成）。本节是当前唯一总计划；前文各轮记录保留其日期、范围及原始证据，不自动沿旧编号继续实施。
 
 - 本仓基线：`b9c14db6b10c52fcd8554b9eea319a4c979e633c`，单一目录 `D:/SPARK_AppWorks`；此前提交检查点已推送。
 - 固定参考：`E:/r/sparkproject` 提交 `1147b00ee53a1476d4ee715c61368b453a215192` 的 `apps/appworks`，473 文件；参考仓当前 HEAD 的该目录已撤除，不能据此清零迁移范围。
@@ -10186,3 +10186,6 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 
 - I06最终工程门禁：完整verify自然exit0（cache/i06-verify-confirmed.log，会话25423已结束），移动后测试3项自然exit0（cache/i06-moved-tabs.log，会话46007已结束），目录规则已通过。最后产品源码的根全量578文件10021项、完整构建cache/i06-build-final.log及正式ClassModel生成cache/i06-class-model-last.log均有当前终态证据。全量后仅做测试路径等内容迁移与过程文档更新，未改变产品源码/测试断言；所有I06检查会话已结束，无待恢复进程。
 - I06知识候选继续留台账，不未经确认写knowledge或用户记忆：受控标签必须在底层本地选中前确认父级接纳，仅wrapper computed不足；审批步骤可被撤回恢复而复用ID，防重须区分原查询与新正式查询。过程度量按仓内规则追加notes/ai-code-metrics.md，不另建迁移总计划。I06提交的是上述工程修复检查点，浏览器连接/真实审批写入与回读、跨实例原未知核验服务合同、allowChange目录选择、完整布局/四文件及其余20包仍开放。后续须补已确认命令重复入口与业务预回调的组合验收，不能将命令零重复派发扩大成所有业务副作用的幂等保证。
+
+- I06提交推送回执：实现62eb4db7c77f8f24bc7bf5cc15b2b5a3045787b3已推送origin/codex/spark-data-s1-command-safety，push自然exit0；独立git ls-remote与本地HEAD一致，当时工作区干净。根全量/verify/构建/生成及补验所有句柄已收终态，无待恢复检查。整体目标维持active，不把工程检查点当20包或实服签收。
+- 接续工作次序（沿原完整20包矩阵，不另起计划）：先核审批已确认命令重复入口与业务预回调组合、allowChange目录选择及原页完整办理语义，按标准组件与同实例DataView完成；字典整删、DOCX附件/蓝图链等预核服务与引用缺口继续保留并取得正式合同。浏览器host不可用、当前账号无待办的历史只读证据、原未知核验服务合同均不得通过mock/源码推断销账。只在主仓；不新建Node服务，不改/启停/部署后端Java，凭据不写日志文档或提交。

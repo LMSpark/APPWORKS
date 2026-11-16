@@ -4,6 +4,17 @@
  */
 import type {DataSet, DataRow} from '@spark-appworks/spark-data'
 
+/** 只核验原未知捕获；不刷新、不新增命令，也不提交同场景其它视图。 */
+export async function verifyApprovalCommand(dataSet: DataSet): Promise<void> {
+  const view = dataSet.getView('ApprovalCommand', 'default')
+  if (!view || view.destroyed || dataSet.destroyed) throw Error('审批命令视图未装配')
+  if (view.mutating) throw Error('原审批命令仍在执行')
+  const isUnconfirmed = () => view.hasUnconfirmedSave
+  if (!isUnconfirmed()) throw Error('没有待核验的原审批命令')
+  const result = await dataSet.saveChanges({views: [{tableName: 'ApprovalCommand', viewId: 'default'}]})
+  if (!result.success || isUnconfirmed()) throw Error('原审批命令结果仍待核验')
+}
+
 export async function submitApprovalCommand(dataSet: DataSet, input: Readonly<DataRow>): Promise<void> {
   const view = dataSet.getView('ApprovalCommand', 'default')
   if (!view || view.destroyed || dataSet.destroyed) throw Error('审批命令视图未装配')

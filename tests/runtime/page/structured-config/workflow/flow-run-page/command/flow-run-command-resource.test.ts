@@ -1,6 +1,7 @@
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet, bindDataSetCommandSubmit, ensureDataSetResourceView} from '@spark-appworks/spark-data'
 import {FlowRunCommandResource} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
+import {verifyApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
 
 describe('approval command through the original DataSet', () => {
   it('retains an unknown command and verifies without dispatching it twice', async () => {
@@ -31,6 +32,8 @@ describe('approval command through the original DataSet', () => {
       await expect(view.addRow({action: 'submit', flowObjectId: 'WF-2', stepId: 'S2'})).rejects.toThrow()
       await expect(ds.saveChanges()).rejects.toThrow()
       expect(view.hasUnconfirmedSave).toBe(true)
+      await expect(verifyApprovalCommand(ds)).rejects.toThrow(/核验/)
+      expect(dispatch).toHaveBeenCalledTimes(1)
       await expect(binding.submit({...row})).rejects.toThrow()
       expect(dispatch).toHaveBeenCalledTimes(1)
       await expect(ds.saveChanges()).rejects.toThrow()

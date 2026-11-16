@@ -4,8 +4,14 @@ import ElementPlus from 'element-plus'
 import {defineComponent, h, reactive} from 'vue'
 import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
+import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, type DataView} from '@spark-appworks/spark-data'
+import {createFlowRunOptionsBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding'
+import {FlowRunCommandResource} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
 import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
+import {createMemoryHistory, createRouter} from 'vue-router'
+import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
+const {reloadRuntime} = vi.hoisted(() => ({reloadRuntime: vi.fn(async () => undefined)}))
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeApi: {readRequestScope: vi.fn(() => ({}))},
@@ -19,7 +25,7 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
       ready: ref(true),
       loading: ref(false),
       error: ref(''),
-      loadCurrentRoute: vi.fn(async () => undefined),
+      loadCurrentRoute: reloadRuntime,
     }),
   }
 })
@@ -27,6 +33,9 @@ const routeState = reactive({query: {wfid: 'WF-1', flowid: 'FM-1', stepid: ''}, 
 let releaseOldQuery: (() => void) | undefined
 let delayFirstQuery = false
 let instanceReads = 0
+const approvalState = {hasUnconfirmedSave: false, mutating: false, hasEditingChanges: () => false, dirtyTracking: {hasPendingChanges: () => false}}
+let originalCommandView: DataView | undefined
+let originalOptionsView: DataView | undefined
 vi.mock('vue-router', async importOriginal => {
   const actual = await importOriginal<typeof import('vue-router')>()
   return {
@@ -102,6 +111,8 @@ function createRuntime(): PageRuntime {
     Base_UserInfo: createView([]),
   }
   const workbench = {
+    ApprovalOptions: originalOptionsView,
+    ApprovalCommand: originalCommandView ?? approvalState,
     WFOBJ_FLOW: createView([{rowid: 'WF-1', WFMID: 'FM-1'}]),
     WFOBJ_FLOW_FORM: createView([{FORMID: 'F1', FormPath: '/business', FormParams: 'rowid=BUS-9'}]),
     WFOBJ_FLOW_RELATIONLINE_STEP: createView([{rowid: 'S1', WFOBJID: 'WF-1'}]),
@@ -129,18 +140,24 @@ function createRuntime(): PageRuntime {
   } as unknown as PageRuntime
 }
 
-const Host = defineComponent({
+const RawHost = defineComponent({
   setup() {
     const {sparkProvide} = useSparkComponent({type: 'flow-run-page-mount-host'})
     sparkProvide(PAGE_RUNTIME, createRuntime())
     return () => h(FlowRunPage)
   },
 })
+const pagePool = new SystemPageIdentityPool()
+const fixtureRouter = createRouter({history: createMemoryHistory(), routes: []})
+const pageInstance = pagePool.get(fixtureRouter.currentRoute.value, {scope: 'application', nodeId: 'run', pageId: 'run', path: '/test', title: '办理', component: RawHost, explicitQuery: {}})
+const Host = pageInstance.view
 
 const wrappers: VueWrapper[] = []
 
 beforeEach(() => {
   registerAllRenderers()
+  approvalState.hasUnconfirmedSave = false
+  reloadRuntime.mockClear()
   routeState.query.stepid = ''
   releaseOldQuery = undefined
   delayFirstQuery = false
@@ -152,6 +169,65 @@ afterEach(() => {
 })
 
 describe('flow run page mount', () => {
+  it('queries and renders approval options from the original runtime DataView', async () => {
+    const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
+    const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})
+    const query = vi.fn(async () => ({nextNodes: [{rowid: 'NEXT-1', title: '正式后续节点'}]}))
+    bindDataSetReadonlyCommandQuery(view, createFlowRunOptionsBinding({view, client: {getHandleOptionData: query}, guard: () => {}, captureTarget: () => () => {}}))
+    originalOptionsView = view
+    routeState.query.stepid = 'S1'
+    const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(Host))}), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+    try {
+      await flushPromises()
+      const button = wrapper.findAll('button').find(item => item.text() === '办理')!
+      await button.trigger('click')
+      await flushPromises()
+      expect(query).toHaveBeenCalledWith({modelId: 'FM-1', stepId: 'S1', busRowId: 'BUS-1', formid: 'F1'})
+      expect(wrapper.text()).toContain('正式后续节点')
+      expect(view.rows[0]?.['payload']).toEqual({nextNodes: [{rowid: 'NEXT-1', title: '正式后续节点'}]})
+    } finally {wrapper.unmount(); originalOptionsView = undefined; ds.destroy()}
+  })
+  it('retains the actual unknown DataSet command when the system page is closed', async () => {
+    const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
+    const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCommand', resource: {resourceType: 'command', resourceId: 'workflow:approval'}, columns: [{name: 'rowid', primary: true}, {name: 'action'}, {name: 'flowObjectId'}, {name: 'stepId'}]})
+    const dispatch = vi.fn(async () => {throw Error('lost receipt')})
+    bindDataSetCommandSubmit(view, new FlowRunCommandResource({view, guard: () => {}, captureTarget: () => () => {}, dispatch}).binding())
+    originalCommandView = view
+    const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(Host))}), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+    try {
+      await flushPromises()
+      await view.refresh()
+      await view.addRow({action: 'submit', flowObjectId: 'WF-1', stepId: 'S1'})
+      await expect(ds.saveChanges()).rejects.toThrow()
+      expect(view.hasUnconfirmedSave).toBe(true)
+      expect(() => pagePool.close(pageInstance.instanceId)).toThrow('待核验')
+      expect(view.destroyed).toBe(false)
+      expect(dispatch).toHaveBeenCalledTimes(1)
+      originalCommandView = undefined
+      const second = pagePool.get({...fixtureRouter.currentRoute.value, path: '/second'}, {scope: 'application', nodeId: 'second', pageId: 'second', path: '/second', title: '另一个办理页', component: RawHost, explicitQuery: {}})
+      const secondWrapper = mount(defineComponent({setup: () => () => h(withTestPageService(second.view))}), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+      try {
+        await flushPromises()
+        expect(second.isDirty).toBe(false)
+        expect(pagePool.close(second.instanceId)).toBe(true)
+        expect(() => pagePool.close(pageInstance.instanceId)).toThrow('待核验')
+      } finally {secondWrapper.unmount()}
+    } finally {wrapper.unmount(); originalCommandView = undefined; ds.destroy()}
+  })
+  it('blocks releasing the real system-page instance while its original command is unknown', async () => {
+    const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(Host))}), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+    wrappers.push(wrapper)
+    await flushPromises()
+    approvalState.hasUnconfirmedSave = true
+    expect(() => pagePool.assertClean()).toThrow('待核验')
+    expect(() => pagePool.close(pageInstance.instanceId)).toThrow('待核验')
+    wrapper.findComponent({name: 'RendererSection'}).vm.$emit('retry')
+    await flushPromises()
+    expect(reloadRuntime).not.toHaveBeenCalled()
+    expect(wrapper.text()).toContain('原审批命令')
+    approvalState.hasUnconfirmedSave = false
+    expect(() => pagePool.assertClean()).not.toThrow()
+  })
   it('stops an outstanding query after the page is unmounted', async () => {
     delayFirstQuery = true
     const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(Host))}), {
@@ -196,6 +272,7 @@ describe('flow run page mount', () => {
     expect(wrapper.text()).toContain('流程图')
     expect(wrapper.text()).toContain('加签')
     expect(wrapper.text()).toContain('撤回')
+    expect(wrapper.text()).toContain('核验原办理结果')
     expect(JSON.parse(wrapper.find('[data-testid="biz-route"]').text())).toEqual({
       flowid: 'FM-1', flowobjid: 'WF-1', stepid: '', workFormId: 'F1', pageParam: 'rowid=BUS-9', busRowid: 'BUS-1',
     })

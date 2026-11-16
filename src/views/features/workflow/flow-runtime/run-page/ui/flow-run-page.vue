@@ -10,6 +10,7 @@
       <RendererButton label="加签" @click="openAppendDialog" />
       <RendererButton label="撤回" :loading="handleLoading" @click="revokeCurrentStep" />
       <RendererButton label="办理" button-type="primary" :loading="handleLoading" @click="openHandlePanel" />
+      <RendererButton label="核验原办理结果" :loading="handleLoading" @click="verifyOriginalApproval" />
     </template>
     <div v-if="prepared" class="flow-run-page__layout">
       <section class="flow-run-page__business">
@@ -147,9 +148,10 @@ const {
   chartLoading,
   chartError,
   chartPrepared,
-  loadPage,
+  retryPage,
   openHandlePanel,
   submitFlow,
+  verifyOriginalApproval,
   backByHistory,
   forceBack,
   backToCreator,
@@ -164,8 +166,7 @@ const shellLoading = computed(() => runtimeLoading.value || pageLoading.value)
 const shellError = computed(() => runtimeError.value || pageError.value)
 
 function retryShell(): void {
-  void reloadFeatureRuntime()
-  void loadPage()
+  void retryPage(reloadFeatureRuntime)
 }
 
 const chartBadgeRules = [

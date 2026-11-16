@@ -4,8 +4,9 @@
  */
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRouter} from 'vue-router'
+import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, useDataViewState, useSparkComponent} from '@spark-appworks/spark-component'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {lowcodeApi, lowcodeHttp} from '@/lowcode/lowcode-runtime'
 import {
@@ -29,7 +30,7 @@ import {
   createFlowBusinessPageRegistry,
   createFlowBusinessTabBuilder,
 } from '../model/flow-run-business-tab'
-import {submitApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
+import {submitApprovalCommand, verifyApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
 import {getVuePageOptions} from '@/registries/vue-page-registry'
 
 const STEP_MODEL = 'WFOBJ_FLOW_RELATIONLINE_STEP'
@@ -38,13 +39,32 @@ const AUTO_SUBMIT_MAX_DEPTH = 3
 export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRuntimeRouteQuery>, runtimeReady: () => boolean) {
   const router = useRouter()
   const {sparkConsume} = useSparkComponent({type: 'flow-run-page'})
+  function hasPendingApproval(): boolean {
+    const view = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('ApprovalCommand', 'default')
+    return view !== undefined && (view.mutating || view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
+  }
+  useSystemPageDirtySource({get isDirty() {return hasPendingApproval()}})
   const prepared = shallowRef<FlowRunPreparedPage>()
   const pageLoading = ref(false)
   const pageError = ref('')
   const handleOpen = ref(false)
   const handleLoading = ref(false)
   const handleError = ref('')
-  const optionData = shallowRef<Record<string, unknown>>({})
+  const optionsView = computed(() => {
+    runtimeReady(); prepared.value
+    return sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('ApprovalOptions', 'default') ?? null
+  })
+  const optionsState = useDataViewState(optionsView)
+  const optionData = computed<Record<string, unknown>>(() => {
+    const rows = optionsState.rows.value
+    optionsState.requestState.value
+    const view = optionsView.value
+    if (!view || view.loadingError || rows.length !== 1) return {}
+    const row = rows[0]
+    if (!row) return {}
+    try {view.captureReadRow(row, ['payload'])(); return isRecord(row['payload']) ? row['payload'] : {}}
+    catch {return {}}
+  })
   const opinionText = ref('')
   const selectedNodeId = ref('')
   const selectedBackNodeId = ref('')
@@ -114,7 +134,39 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     })
   }
 
+  async function queryHandleOptions(own: number): Promise<Record<string, unknown>> {
+    assertGeneration(own)
+    const prep = prepared.value, step = readCurrentStep(), view = optionsView.value
+    if (!prep || !step || !view) throw Error('办理选项视图或当前步骤尚未装配')
+    Object.assign(view.queryContext, {modelId: prep.flowModelId, stepId: String(step['rowid'] ?? ''), busRowId: prep.busRowId, formid: activeTab.value?.tabKey ?? ''})
+    await view.refresh()
+    assertGeneration(own)
+    if (view !== optionsView.value || view.loadingError) throw view.loadingError ?? Error('办理选项视图已变化')
+    const row = view.rows[0]
+    if (view.rows.length !== 1 || !row) throw Error('办理选项缺少唯一查询结果')
+    view.captureReadRow(row, ['payload'])()
+    if (!isRecord(row['payload'])) throw Error('办理选项响应结构无效')
+    return row['payload']
+  }
+
+  async function verifyOriginalApproval(): Promise<void> {
+    const own = generation
+    handleLoading.value = true
+    handleError.value = ''
+    try {
+      const ds = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
+      if (!ds) throw Error('原审批命令空间未装配')
+      await verifyApprovalCommand(ds)
+      assertGeneration(own)
+    } catch (error) {
+      if (own === generation) handleError.value = error instanceof Error ? error.message : '原审批结果核验失败'
+    } finally {
+      if (own === generation) handleLoading.value = false
+    }
+  }
+
   async function loadPage(): Promise<void> {
+    if (hasPendingApproval()) {handleError.value = '原审批命令尚有待提交或待核验状态，请先处理原命令'; return}
     const own = ++generation
     pageLoading.value = true
     pageError.value = ''
@@ -141,6 +193,12 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     }
   }
 
+  async function retryPage(reload: () => Promise<void>): Promise<void> {
+    if (hasPendingApproval()) {handleError.value = '原审批命令尚有待提交或待核验状态，不能重建运行实例'; return}
+    await reload()
+    await loadPage()
+  }
+
   async function openHandlePanel(): Promise<void> {
     const own = generation
     handleLoading.value = true
@@ -149,14 +207,8 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       const step = readCurrentStep()
       const prep = prepared.value
       if (!prep || !step) throw new Error('未定位到当前办理步骤')
-      const options = await clientFor(own).getHandleOptionData({
-        modelId: prep.flowModelId,
-        stepId: String(step['rowid'] ?? ''),
-        busRowId: prep.busRowId,
-        ...(activeTab.value?.tabKey ? {formid: activeTab.value.tabKey} : {}),
-      })
+      const options = await queryHandleOptions(own)
       if (own !== generation) return
-      optionData.value = options
       selectedNodeId.value = String(options['DefaultNodeId'] ?? options['defaultNodeId'] ?? '')
       const backList = backNodeOptions.value
       selectedBackNodeId.value = backList[0]?.id ?? ''
@@ -196,15 +248,9 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     const can = await clientFor(own).canAutoSubmitAfter(curStepId)
     if (own !== generation) return
     if (!readCanAutoSubmitAfter(can)) return
-    const options = await clientFor(own).getHandleOptionData({
-      modelId: prep.flowModelId,
-      stepId: curStepId,
-      busRowId: prep.busRowId,
-      ...(activeTab.value?.tabKey ? {formid: activeTab.value.tabKey} : {}),
-    })
+    const options = await queryHandleOptions(own)
     if (own !== generation) return
-    optionData.value = options
-    const nodes = parseFlowRunHandleNodeOptions(options, ['NextNodeList', 'nextNodeList', 'nodes'])
+    const nodes = parseFlowRunHandleNodeOptions(options, ['nextNodes', 'NextNodeList', 'nextNodeList', 'nodes'])
     const nextId = String(options['DefaultNodeId'] ?? options['defaultNodeId'] ?? nodes[0]?.id ?? '')
     selectedNodeId.value = nextId
     await runSubmitWithCurrentStep(own, opinionText.value, nextId)
@@ -368,15 +414,15 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   }
 
   const nextNodeOptions = computed(() => parseFlowRunHandleNodeOptions(optionData.value, [
-    'NextNodeList', 'nextNodeList', 'nodes',
+    'nextNodes', 'NextNodeList', 'nextNodeList', 'nodes',
   ]))
 
   const backNodeOptions = computed(() => parseFlowRunHandleNodeOptions(optionData.value, [
-    'BackNodeList', 'backNodeList', 'historyNodes', 'BackNodes',
+    'allowToBackSteps', 'BackNodeList', 'backNodeList', 'historyNodes', 'BackNodes',
   ]))
 
   const forceBackNodeOptions = computed(() => parseFlowRunHandleNodeOptions(optionData.value, [
-    'ForceBackNodeList', 'forceBackNodeList', 'ForceBackNodes',
+    'forceBackNodes', 'ForceBackNodeList', 'forceBackNodeList', 'ForceBackNodes',
   ]))
 
   const allowForceBack = computed(() => {
@@ -417,8 +463,10 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     stepViewKey,
     stepHistoryColumns,
     loadPage,
+    retryPage,
     openHandlePanel,
     submitFlow,
+    verifyOriginalApproval,
     revokeCurrentStep,
     backByHistory,
     forceBack,

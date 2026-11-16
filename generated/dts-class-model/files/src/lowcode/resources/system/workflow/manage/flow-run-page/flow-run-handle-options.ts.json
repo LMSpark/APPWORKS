@@ -24,6 +24,15 @@
         },
         "title": {
           "type": "string"
+        },
+        "direction": {
+          "type": "string"
+        },
+        "isTurnBack": {
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "required": [
@@ -33,18 +42,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-14T18:44:46.706Z",
+  "generatedAt": "2026-11-16T11:39:38.872Z",
   "models": {
     "FlowRunHandleNodeOption": {
       "name": "FlowRunHandleNodeOption",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    id: string;\n    title: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    id: string;\n    title: string;\n    direction?: string;\n    isTurnBack?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    id: string;\n    title: string;\n}>",
+            "typeText": "Readonly<{\n    id: string;\n    title: string;\n    direction?: string;\n    isTurnBack?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -57,6 +66,16 @@
             },
             {
               "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "direction",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isTurnBack",
               "readable": true,
               "writable": false
             }

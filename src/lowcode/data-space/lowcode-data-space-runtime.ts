@@ -18,6 +18,7 @@ import {createPageToolFileResourceExecutor} from '@/services/project/page-tool-f
 import {resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {registerApiModelRules,type ApiModelRuleHost} from '../resources/integration/api-management/model-rules'
 import {createCacheScenarioBindings} from '../resources/system/cache-management/runtime-bindings'
+import {createApprovalOptionsBindings} from '../resources/system/workflow/manage/flow-run-page/query/runtime-bindings'
 import {createApprovalCommandBindings} from '../resources/system/workflow/manage/flow-run-page/command/runtime-bindings'
 import {registerNavigationHostModelRules} from '../resources/system/navigation-host/model-rules'
 import {registerDimensionSourceModelRules} from '../resources/structured-config/dimension-source/model-rules'
@@ -188,6 +189,10 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
  const recoveryBindings = createDataRecoveryScenarioBindings({config,assertCurrent})
  const enterpriseBindings = createEnterpriseRegistrationBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const apiInterfaceBindings = createApiInterfaceBindings({config,http:lowcodeHttp,readScope,assertCurrent})
+ const approvalOptions = createApprovalOptionsBindings({config,http:lowcodeHttp,readScope,assertCurrent})
+ const definitions = definitionBindings({projectId, scenarioId, config, assertCurrent,
+   ...(input.owner?{owner:input.owner}:{}),
+   ...(input.blueprintTreeProjection?{blueprintTreeProjection:input.blueprintTreeProjection}:{})})
  const result = await loadScenarioDataSet({scenarioId, config, assertCurrent, dataSpace,
   ...agentCreation,
   ...agentPublication,
@@ -211,9 +216,8 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
    ...apiInterfaceBindings.commandBindings,
   },
   ...(input.getPage?{getPage:input.getPage}:{}),
-  ...definitionBindings({projectId, scenarioId, config, assertCurrent,
-   ...(input.owner?{owner:input.owner}:{}),
-   ...(input.blueprintTreeProjection?{blueprintTreeProjection:input.blueprintTreeProjection}:{})})})
+  ...definitions,
+  projectionBindings: {...definitions.projectionBindings, ...approvalOptions.projectionBindings}})
  try {
   assertCurrent()
   if (result.diagnostics.length > 0) {

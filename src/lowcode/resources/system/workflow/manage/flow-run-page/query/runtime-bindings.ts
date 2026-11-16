@@ -1,0 +1,33 @@
+/**
+ * @module app:lowcode/resources/system/workflow/manage/flow-run-page/query/runtime-bindings
+ * 职责：为原审批工作台装配只读选项投影并捕获正式步骤/实例。
+ */
+import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
+import type {LowcodeDataSpaceAssemblerInput} from '@/lowcode/data-space/lowcode-data-space-assembler'
+import {createFlowRunOptionsBinding} from './options-binding'
+import {createFlowRunPageClient, type FlowRunPageClientOptions} from '../flow-run-page-client'
+import {FLOW_WORKBENCH_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID} from '../../flow-runtime-client'
+import {isRecord} from '@spark-appworks/spark-utils'
+
+type Input = Readonly<{config: ScenarioViewConfig; http: FlowRunPageClientOptions['http']; readScope: FlowRunPageClientOptions['readScope']; assertCurrent: () => void}>
+export function createApprovalOptionsBindings(input: Input): Pick<LowcodeDataSpaceAssemblerInput, 'projectionBindings'> {
+  if (input.config.scenarioId !== FLOW_WORKBENCH_SCENARIO_ID) return {}
+  const tables = input.config.toJSON()['tables'], declared = isRecord(tables) ? tables['ApprovalOptions'] : undefined
+  if (!isRecord(declared) || declared['resourceType'] !== 'logical-view' || declared['resourceId'] !== 'workflow:approval-options' || Object.hasOwn(declared, 'modelBinding')) throw Error('审批选项投影声明无效')
+  return {projectionBindings: {ApprovalOptions: view => {
+    const ds = view.dataSet
+    const guard = () => {input.assertCurrent(); if (!ds || ds.destroyed || view.destroyed || ds.getView('ApprovalOptions') !== view) throw Error('审批选项空间已失效')}
+    const client = createFlowRunPageClient({http: input.http, readScope: input.readScope, scenarioId: FLOW_MONITOR_SCENARIO_ID, assertCurrent: guard})
+    return createFlowRunOptionsBinding({view, client, guard, captureTarget: params => {
+      guard()
+      const steps = ds?.getView('WFOBJ_FLOW_RELATIONLINE_STEP'), objects = ds?.getView('WFOBJ_FLOW')
+      const matches = steps?.rows.filter(row => row['rowid'] === params.stepId) ?? []
+      const step = matches[0]
+      const instances = objects?.rows.filter(row => row['rowid'] === step?.['WFOBJID'] && row['WFMID'] === params.modelId) ?? []
+      const object = instances[0]
+      if (!steps || !objects || matches.length !== 1 || instances.length !== 1 || !step || !object) throw Error('审批选项缺少唯一正式目标')
+      const assertStep = steps.captureReadRow(step, ['rowid', 'WFOBJID']), assertObject = objects.captureReadRow(object, ['rowid', 'WFMID'])
+      return () => {guard(); assertStep(); assertObject()}
+    }})
+  }}}
+}

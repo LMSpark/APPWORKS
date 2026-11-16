@@ -5,12 +5,14 @@ import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {createApprovalCommandBindings} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/runtime-bindings'
 import {submitApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
+import {createApprovalOptionsBindings} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/runtime-bindings'
 
 class Http extends HttpClientBase {
   result = true
   calls: RequestConfig[] = []
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.calls.push(config)
+    if (config.url === '/api/Flow/GetOptionButtonHandleUserOptionData') return {data: {Code: 200, Result: {nextNodes: [{rowid: 'N1'}], execUser: [{nodeId: 'N1', userList: []}]}}, status: 200, statusText: 'OK', headers: {}}
     return {data: {Code: 200, Result: this.result}, status: 200, statusText: 'OK', headers: {}}
   }
 }
@@ -42,6 +44,14 @@ it('submits the captured instance and step through the original command view', a
       await submitApprovalCommand(ds, {action, flowObjectId: 'WF1', stepId: 'S1', nodeId: 'N1', idea: '退回'})
       expect(http.calls.at(-1)?.url).toBe(`/api/Flow/${endpoint}`)
     }
+    const optionsView = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})
+    const optionFactory = createApprovalOptionsBindings({config, http, readScope: () => ({token: 't', headers: {}}), assertCurrent: () => {}}).projectionBindings?.['ApprovalOptions']
+    if (!optionFactory) throw Error('option factory missing')
+    bindDataSetReadonlyCommandQuery(optionsView, optionFactory(optionsView))
+    optionsView.queryContext = {modelId: 'FM1', stepId: 'S1', busRowId: '', formid: ''}
+    await optionsView.refresh()
+    expect(optionsView.loadingError).toBeNull()
+    expect(optionsView.rows[0]?.['payload']).toMatchObject({execUser: [{userList: []}]})
     http.result = false
     await expect(submitApprovalCommand(ds, {action: 'revoke', flowObjectId: 'WF1', stepId: 'S1'})).rejects.toThrow()
     expect(command.hasUnconfirmedSave).toBe(true)

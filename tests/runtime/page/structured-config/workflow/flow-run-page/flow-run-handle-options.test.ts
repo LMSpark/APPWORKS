@@ -5,6 +5,10 @@ import {
 } from '@/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options'
 
 describe('flow-run-handle-options', () => {
+  it('preserves declared direction and return semantics from the formal nextNodes payload', () => {
+    expect(parseFlowRunHandleNodeOptions({nextNodes: [{rowid: 'N1', title: '退回审核', Direction: 'backward', IsTurnBack: true}]}, ['nextNodes']))
+      .toEqual([{id: 'N1', title: '退回审核', direction: 'backward', isTurnBack: true}])
+  })
   it('parses next and force back node lists with alias keys', () => {
     const source = {
       NextNodeList: [{NodeId: 'N2', TITLE: '审批'}],

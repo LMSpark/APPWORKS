@@ -4,7 +4,7 @@
  */
 import {isRecord} from '@spark-appworks/spark-utils'
 
-export type FlowRunHandleNodeOption = Readonly<{id: string; title: string}>
+export type FlowRunHandleNodeOption = Readonly<{id: string; title: string; direction?: string; isTurnBack?: boolean}>
 
 function normalizeText(value: unknown): string {
   return String(value ?? '').trim()
@@ -31,8 +31,10 @@ export function parseFlowRunHandleNodeOptions(
   return raw.filter(isRecord).map(row => ({
     id: normalizeText(row['NodeId'] ?? row['nodeId'] ?? row['rowid'] ?? row['id']),
     title: normalizeText(
-      row['TITLE'] ?? row['Title'] ?? row['nodeName'] ?? row['NodeId'] ?? row['nodeId'],
+      row['TITLE'] ?? row['Title'] ?? row['title'] ?? row['nodeName'] ?? row['NodeId'] ?? row['nodeId'],
     ),
+    ...(row['direction'] !== undefined || row['Direction'] !== undefined ? {direction: normalizeText(row['direction'] ?? row['Direction'])} : {}),
+    ...(row['isTurnBack'] !== undefined || row['IsTurnBack'] !== undefined ? {isTurnBack: readTruthyFlag(row['isTurnBack'] ?? row['IsTurnBack'])} : {}),
   })).filter(item => item.id)
 }
 

@@ -79,6 +79,13 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     {type: 'r-text', props: {field: 'StepState', label: '状态', readonly: true, minWidth: 80}},
   ]
 
+  function readCurrentStep() {
+    const stepId = prepared.value?.stepId
+    if (!stepId) return undefined
+    const runtime = sparkConsume(PAGE_RUNTIME)
+    return runtime?.resolveView(stepViewKey.value)?.rows.find(row => isRecord(row) && String(row['rowid'] ?? '') === stepId && String(row['WFOBJID'] ?? '') === prepared.value?.flowObjectId)
+  }
+
   function clientFor(gen: number) {
     return createFlowRunPageClient({
       http: lowcodeHttp,
@@ -102,6 +109,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
         runtime,
         wfid: query.wfid,
         flowid: query.flowid,
+        ...(query.stepid ? {stepId: query.stepid} : {}),
         assertCurrent: () => own === generation,
       })
       if (own !== generation) return
@@ -118,9 +126,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     handleLoading.value = true
     handleError.value = ''
     try {
-      const runtime = sparkConsume(PAGE_RUNTIME)
-      const stepView = runtime?.resolveView(stepViewKey.value)
-      const step = stepView?.rows.find(isRecord)
+      const step = readCurrentStep()
       const prep = prepared.value
       if (!prep || !step) throw new Error('未定位到当前办理步骤')
       const options = await clientFor(own).getHandleOptionData({
@@ -145,9 +151,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   }
 
   async function runSubmitWithCurrentStep(own: number, opinion: string, nextNodeId: string): Promise<void> {
-    const runtime = sparkConsume(PAGE_RUNTIME)
-    const stepView = runtime?.resolveView(stepViewKey.value)
-    const step = stepView?.rows.find(isRecord)
+    const step = readCurrentStep()
     const prep = prepared.value
     if (!prep || !step) throw new Error('未定位到当前办理步骤')
     const nextNode = nextNodeId ? [{NodeId: nextNodeId, ExecUserList: []}] : []
@@ -165,8 +169,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
 
   async function tryAutoSubmitAfterReload(own: number, depth: number): Promise<void> {
     if (depth >= AUTO_SUBMIT_MAX_DEPTH) return
-    const runtime = sparkConsume(PAGE_RUNTIME)
-    const step = runtime?.resolveView(stepViewKey.value)?.rows.find(isRecord)
+    const step = readCurrentStep()
     const prep = prepared.value
     if (!prep || !step) return
     const curStepId = String(step['rowid'] ?? '')
@@ -196,9 +199,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     handleLoading.value = true
     handleError.value = ''
     try {
-      const runtime = sparkConsume(PAGE_RUNTIME)
-      const stepView = runtime?.resolveView(stepViewKey.value)
-      const step = stepView?.rows.find(isRecord)
+      const step = readCurrentStep()
       const prep = prepared.value
       if (!prep || !step) throw new Error('未定位到当前办理步骤')
       const activePage = activeTab.value?.tabKey ? businessRegistry.get(activeTab.value.tabKey) : null
@@ -225,9 +226,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     handleLoading.value = true
     handleError.value = ''
     try {
-      const runtime = sparkConsume(PAGE_RUNTIME)
-      const stepView = runtime?.resolveView(stepViewKey.value)
-      const step = stepView?.rows.find(isRecord)
+      const step = readCurrentStep()
       const prep = prepared.value
       const nodeId = selectedBackNodeId.value
       if (!prep || !step) throw new Error('未定位到当前办理步骤')
@@ -253,9 +252,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     handleLoading.value = true
     handleError.value = ''
     try {
-      const runtime = sparkConsume(PAGE_RUNTIME)
-      const stepView = runtime?.resolveView(stepViewKey.value)
-      const step = stepView?.rows.find(isRecord)
+      const step = readCurrentStep()
       const prep = prepared.value
       const nodeId = selectedForceBackNodeId.value
       if (!prep || !step) throw new Error('未定位到当前办理步骤')
@@ -281,9 +278,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     handleLoading.value = true
     handleError.value = ''
     try {
-      const runtime = sparkConsume(PAGE_RUNTIME)
-      const stepView = runtime?.resolveView(stepViewKey.value)
-      const step = stepView?.rows.find(isRecord)
+      const step = readCurrentStep()
       const prep = prepared.value
       if (!prep || !step) throw new Error('未定位到当前办理步骤')
       await clientFor(own).rejectToCreator({
@@ -301,8 +296,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   }
 
   function openAppendDialog(): void {
-    const runtime = sparkConsume(PAGE_RUNTIME)
-    const step = runtime?.resolveView(stepViewKey.value)?.rows.find(isRecord)
+    const step = readCurrentStep()
     appendContext.value = buildAppendUserContext(step)
     if (!appendContext.value) {
       pageError.value = '当前步骤不支持加签'
@@ -316,8 +310,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     handleLoading.value = true
     handleError.value = ''
     try {
-      const runtime = sparkConsume(PAGE_RUNTIME)
-      const step = runtime?.resolveView(stepViewKey.value)?.rows.find(isRecord)
+      const step = readCurrentStep()
       const prep = prepared.value
       if (!prep || !step) throw new Error('未定位到当前办理步骤')
       await clientFor(own).revokeCurrentStep(prep.flowObjectId, String(step['rowid'] ?? ''))

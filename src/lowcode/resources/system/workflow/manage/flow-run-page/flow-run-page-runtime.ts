@@ -28,6 +28,7 @@ export type FlowRunPreparedPage = Readonly<{
   flowObjectId: string
   flowModelId: string
   busRowId: string
+  stepId: string
   formTabs: readonly FlowRunFormRecord[]
   userDirectoryViewKey: string
   stepHistoryViewKey: string
@@ -90,6 +91,7 @@ export type PrepareFlowRunPageCommand = Readonly<{
   runtime: PageRuntime
   wfid: string
   flowid: string
+  stepId?: string
   assertCurrent?: () => void
 }>
 
@@ -119,6 +121,11 @@ export async function prepareFlowRunPage(command: PrepareFlowRunPageCommand): Pr
   command.assertCurrent?.()
   const failed = [listView, flowView, formView, objectFormView].find(item => item.loadingError)
   if (failed?.loadingError) throw failed.loadingError
+  if (stepView.loadingError) throw stepView.loadingError
+  const stepId = command.stepId?.trim() ?? ''
+  if (stepId && !stepView.rows.filter(isRecord).some(row => String(row['rowid'] ?? '') === stepId && String(row['WFOBJID'] ?? '') === wfid)) {
+    throw new Error('指定办理步骤不在本次实例正式查询结果中')
+  }
   const instance = listView.rows.find(isRecord) ?? flowView.rows.find(isRecord)
   const title = instance ? firstText(instance, ['TITLE', 'title', 'AppDesc']) : wfid
   const busRowId = instance ? firstText(instance, ['BusTblObjID', 'busRowId', 'busrowid']) : ''
@@ -128,6 +135,7 @@ export async function prepareFlowRunPage(command: PrepareFlowRunPageCommand): Pr
     flowObjectId: wfid,
     flowModelId: flowid,
     busRowId,
+    stepId,
     formTabs,
     userDirectoryViewKey: buildDataViewKey('Base_UserInfo', 'default', FLOW_MONITOR_SCENARIO_ID),
     stepHistoryViewKey: buildDataViewKey(STEP_MODEL, 'default', FLOW_WORKBENCH_SCENARIO_ID),

@@ -67,7 +67,7 @@ function openRun(row: DataRow): void {
     void pageService.showMessage('行记录缺少 wfid 或流程模型 ID', 'warning')
     return
   }
-  void router.push(buildFlowRunPageRoute({wfid: routeIds.wfid, flowid: routeIds.flowid}, appScope()))
+  void router.push(buildFlowRunPageRoute({wfid: routeIds.wfid, flowid: routeIds.flowid, stepid: routeIds.stepId}, appScope()))
 }
 
 function openDetail(row: DataRow): void {

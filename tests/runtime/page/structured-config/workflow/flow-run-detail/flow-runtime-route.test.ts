@@ -8,6 +8,10 @@ import {
 } from '@/lowcode/resources/system/workflow/manage'
 
 describe('readFlowRuntimeRouteQuery', () => {
+  it('preserves the explicit pending step identity in the run route', () => {
+    const route = buildFlowRunPageRoute({wfid: 'W1', flowid: 'F1', stepid: ' S2 '})
+    expect(route.query).toMatchObject({wfid: 'W1', flowid: 'F1', stepid: 'S2'})
+  })
   it('parses wfid and flowid from route query', () => {
     expect(readFlowRuntimeRouteQuery({wfid: ' W1 ', flowid: 'F1'})).toEqual({wfid: 'W1', flowid: 'F1'})
   })

@@ -44,11 +44,15 @@ describe('prepareFlowRunPage', () => {
     expect(result.instanceTitle).toBe('请假')
     expect(result.flowObjectId).toBe('WF-1')
     expect(result.busRowId).toBe('BUS-9')
+    expect(result.stepId).toBe('')
     expect(result.formTabs).toHaveLength(1)
     expect(result.formTabs[0]?.tabKey).toBe('F1')
     expect(result.stepHistoryViewKey).toContain('WFOBJ_FLOW_RELATIONLINE_STEP')
     expect(workbench.WFOBJ_FLOW_RELATIONLINE_STEP.queryContext['WFOBJID']).toBe('WF-1')
     expect(workbench.WFOBJ_FLOW_RELATIONLINE_STEP.refresh).toHaveBeenCalledOnce()
+    const selected = await prepareFlowRunPage({runtime, wfid: 'WF-1', flowid: 'FM-1', stepId: 'S1'})
+    expect(selected.stepId).toBe('S1')
+    await expect(prepareFlowRunPage({runtime, wfid: 'WF-1', flowid: 'FM-1', stepId: 'missing'})).rejects.toThrow(/步骤/)
   })
 
   it('rejects missing wfid', async () => {

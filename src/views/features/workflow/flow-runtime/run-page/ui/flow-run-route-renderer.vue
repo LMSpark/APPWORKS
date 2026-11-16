@@ -11,10 +11,10 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onBeforeUnmount, ref, shallowRef, watch, type Component} from 'vue'
+import {computed, onBeforeUnmount, provide, ref, shallowReactive, shallowRef, watch, type Component} from 'vue'
 import {DisplayAlert} from '@spark-appworks/spark-component'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {loadRouteLocation, type RouteLocationResolved} from 'vue-router'
+import {loadRouteLocation, routeLocationKey, type RouteLocationResolved} from 'vue-router'
 import type {FlowRunBusinessPageExpose} from '../model/flow-run-business-tab'
 
 const props = defineProps<{
@@ -26,6 +26,9 @@ const props = defineProps<{
 }>()
 
 const businessComponent = shallowRef<Component | null>(null)
+// Embedded business pages consume their own route rather than the outer workflow route.
+const embeddedRoute = shallowReactive({...props.route, name: props.route.name ?? undefined})
+provide(routeLocationKey, embeddedRoute)
 const renderError = ref('')
 let loadVersion = 0
 
@@ -39,7 +42,8 @@ function readExposeCarrier(instance: unknown): FlowRunBusinessPageExpose | null 
 }
 
 function syncExpose(instance: unknown): void {
-  props.registry.set(props.tabKey, readExposeCarrier(instance))
+  const component = isRecord(instance) ? instance['component'] : null
+  props.registry.set(props.tabKey, readExposeCarrier(component))
 }
 
 const routeProps = computed(() => {
@@ -52,6 +56,7 @@ const routeProps = computed(() => {
 })
 
 watch(() => props.route, async route => {
+  Object.assign(embeddedRoute, route, {name: route.name ?? undefined})
   const version = ++loadVersion
   businessComponent.value = null
   renderError.value = ''

@@ -1,0 +1,210 @@
+{
+  "observedAt": "2026-11-16T10:29:54.143Z",
+  "readOnly": true,
+  "account": "wangtao",
+  "boundary": "Metadata response only; does not establish physical primary keys, runtime query identity or write support.",
+  "results": [
+    {
+      "scenario": "flowModelList",
+      "scenarioId": "87F0EF6AD1B64D67FFE597E7E3285994",
+      "count": 3,
+      "models": [
+        {
+          "name": "WFM_WORKFORM",
+          "modelId": "0c92226d-b464-47f8-a6c9-0b82bc459d54",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "WFM_FLOW_MODLE",
+          "modelId": "87F0EF6AD1B64D67FFE597E7E3285994p000",
+          "primaryKeyFields": "rowid",
+          "type": "数据库表"
+        },
+        {
+          "name": "Base_UserInfo",
+          "modelId": "87F0EF6AD1B64D67FFE597E7E3285994p001",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        }
+      ]
+    },
+    {
+      "scenario": "flowDesign",
+      "scenarioId": "6E462C4A39EE0D96F4D1A28FFE887C89",
+      "count": 17,
+      "models": [
+        {
+          "name": "WFM_FLOW_MODLE",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p000",
+          "primaryKeyFields": "rowid",
+          "type": "数据库表"
+        },
+        {
+          "name": "WFM_FLOW_NODE",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p001",
+          "primaryKeyFields": "rowid",
+          "type": "数据库表"
+        },
+        {
+          "name": "WFM_NODE_REALATION",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p002",
+          "primaryKeyFields": "rowid",
+          "type": "数据库表"
+        },
+        {
+          "name": "Base_DataModel",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p003",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "Base_DataModel_Field",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p004",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "获取角色宿主信息",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p005",
+          "primaryKeyFields": null,
+          "type": "接口"
+        },
+        {
+          "name": "Base_DepartInfo",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p006",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "pt_depRank",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p007",
+          "primaryKeyFields": null,
+          "type": "字典"
+        },
+        {
+          "name": "RoleCategories",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p008",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "Base_RoleInfo",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p009",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "Base_JobInfo",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p010",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "_Base_Form",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p011",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "WFM_WORKFORM",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p012",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "_Base_FunctionNode",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p013",
+          "primaryKeyFields": "rowid",
+          "type": "数据库表"
+        },
+        {
+          "name": "FunctionNodeAuth",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p014",
+          "primaryKeyFields": "rowid",
+          "type": "数据库表"
+        },
+        {
+          "name": "Base_NavigationInfo",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p015",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "Base_AppSystemList",
+          "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p016",
+          "primaryKeyFields": "rowid",
+          "type": "数据库表"
+        }
+      ]
+    },
+    {
+      "scenario": "flowMonitor",
+      "scenarioId": "E328FBBF518141973C575D612CD75151",
+      "count": 4,
+      "models": [
+        {
+          "name": "Base_UserInfo",
+          "modelId": "72546df0-40d8-477f-bc5f-94eff18e5d48",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "View_FlowObjList",
+          "modelId": "a6fa2c61-9b3f-4528-8117-9203ccafaa58",
+          "primaryKeyFields": null,
+          "type": "数据库视图"
+        },
+        {
+          "name": "Dict_state",
+          "modelId": "c9d53daf-68e0-4223-bf39-f5589c88b39d",
+          "primaryKeyFields": null,
+          "type": "字典"
+        },
+        {
+          "name": "WFOBJ_FLOW",
+          "modelId": "cefff969-511b-4238-bbc3-21c9b671cc84",
+          "primaryKeyFields": "rowid",
+          "type": "数据库表"
+        }
+      ]
+    },
+    {
+      "scenario": "flowWorkbench",
+      "scenarioId": "A5BADCEE11D2438CB9E75C2453A220A6",
+      "count": 5,
+      "models": [
+        {
+          "name": "WFOBJ_FLOW_Waiting",
+          "modelId": "1ae5bacc-9124-4acf-8b75-a78c61298fb3",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "WFOBJ_FLOW",
+          "modelId": "3c0d6640-9c84-4894-9996-cf1418bd4106",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "WFOBJ_FLOW_RELATIONLINE_STEP",
+          "modelId": "8b5ef80f-6dfc-4769-9bbe-34c58128c73c",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "WFOBJ_FLOW_FORM",
+          "modelId": "b831c094-07e0-478d-b248-7a472d47b254",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        },
+        {
+          "name": "WFM_FLOW_NODE",
+          "modelId": "e0d93ed8-cb9a-4dd2-8b7a-428dfc857dc9",
+          "primaryKeyFields": null,
+          "type": "数据库表"
+        }
+      ]
+    }
+  ]
+}

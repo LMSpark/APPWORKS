@@ -1,7 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
-import {defineComponent, h} from 'vue'
+import {defineComponent, h, reactive} from 'vue'
 import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
@@ -23,11 +23,12 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
     }),
   }
 })
+const routeState = reactive({query: {wfid: 'WF-1', flowid: 'FM-1', stepid: ''}, meta: {}, path: '/test'})
 vi.mock('vue-router', async importOriginal => {
   const actual = await importOriginal<typeof import('vue-router')>()
   return {
     ...actual,
-    useRoute: () => ({query: {wfid: 'WF-1', flowid: 'FM-1'}, meta: {}, path: '/test'}),
+    useRoute: () => routeState,
     useRouter: () => ({resolve: vi.fn(() => ({matched: [], path: '/demo'}))}),
   }
 })
@@ -128,6 +129,7 @@ const wrappers: VueWrapper[] = []
 
 beforeEach(() => {
   registerAllRenderers()
+  routeState.query.stepid = ''
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
 })
 afterEach(() => {
@@ -150,5 +152,8 @@ describe('flow run page mount', () => {
     expect(wrapper.text()).toContain('流程图')
     expect(wrapper.text()).toContain('加签')
     expect(wrapper.text()).toContain('撤回')
+    routeState.query.stepid = 'missing-step'
+    await flushPromises()
+    expect(wrapper.text()).toContain('指定办理步骤不在本次实例正式查询结果中')
   })
 })

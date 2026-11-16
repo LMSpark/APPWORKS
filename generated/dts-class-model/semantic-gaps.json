@@ -42411,7 +42411,7 @@
       "chainBreak": "FlowRunCommandResource.binding 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
-      "declarationLine": 15,
+      "declarationLine": 17,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
       "declarationKind": "class"
     },

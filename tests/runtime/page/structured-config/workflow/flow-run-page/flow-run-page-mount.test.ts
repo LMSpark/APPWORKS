@@ -189,7 +189,7 @@ afterEach(() => {
 })
 
 describe('flow run page mount', () => {
-  it.each(['success', 'unknown', 'callback-error', 'form-switch'])('uses original parameter views through the %s outcome', async outcome => {
+  it.each(['success', 'unknown', 'callback-error', 'form-switch', 'business-error'])('uses original parameter views through the %s outcome', async outcome => {
     const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
     const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})
     ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCandidates', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-candidates'}, columns: [{name: 'id', primary: true}, {name: 'name'}, {name: 'value'}, {name: 'nodeId'}]})
@@ -244,7 +244,16 @@ describe('flow run page mount', () => {
       callbacks.end.mockResolvedValueOnce(false)
       await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click'); await flushPromises()
       expect(dispatch).not.toHaveBeenCalled()
+      expect(command.dirtyTracking.hasPendingChanges()).toBe(false)
       expect(ds.getView('ApprovalInput')?.getEditingRow('current')?.['idea']).toBe('同意')
+      if (outcome === 'business-error') {
+        callbacks.end.mockRejectedValueOnce(Error('business validation failed'))
+        await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click'); await flushPromises()
+        expect(dispatch).not.toHaveBeenCalled()
+        expect(callbacks.failed).not.toHaveBeenCalled()
+        expect(command.dirtyTracking.hasPendingChanges()).toBe(false)
+        expect(wrapper.text()).toContain('business validation failed')
+      }
       await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click'); await flushPromises()
       expect(dispatch).toHaveBeenCalledTimes(1)
       expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({idea: '同意', notifyType: '0', nextNode: [{NodeId: 'NEXT-1', ExecUserList: []}]}))
@@ -263,7 +272,10 @@ describe('flow run page mount', () => {
       if (outcome === 'callback-error') {
         expect(wrapper.text()).toContain('审批提交已确认')
         expect(wrapper.find('textarea').exists()).toBe(false)
+        const beforeRepeat = callbacks.end.mock.calls.length
         await button.trigger('click'); await flushPromises()
+        await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click'); await flushPromises()
+        expect(callbacks.end).toHaveBeenCalledTimes(beforeRepeat)
         expect(dispatch).toHaveBeenCalledTimes(1)
       }
       expect(callbacks.succeeded).toHaveBeenCalledTimes(1)

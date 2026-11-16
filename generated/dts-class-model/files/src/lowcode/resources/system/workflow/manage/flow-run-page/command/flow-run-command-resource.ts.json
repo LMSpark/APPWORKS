@@ -73,6 +73,19 @@
           },
           "additionalProperties": false
         },
+        "method.assertCanPrepare.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "input": {
+              "$ref": "../../../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertCanPrepare.return": true,
         "method.binding.params": {
           "type": "object",
           "properties": {},
@@ -84,7 +97,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T14:05:01.459Z",
+  "generatedAt": "2026-11-16T15:03:29.823Z",
   "models": {
     "Options": {
       "name": "Options",
@@ -200,6 +213,36 @@
         },
         "members": {
           "methods": [
+            {
+              "name": "assertCanPrepare",
+              "jsdoc": "在原绑定owner校验当次输入；不创建命令、改变查询或执行HTTP。宿主须先经原view.refresh激活owner。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
             {
               "name": "binding",
               "parameters": [],

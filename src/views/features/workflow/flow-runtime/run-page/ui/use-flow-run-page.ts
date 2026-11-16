@@ -29,7 +29,7 @@ import {
   createFlowBusinessPageRegistry,
   createFlowBusinessTabBuilder,
 } from '../model/flow-run-business-tab'
-import {submitApprovalCommand, verifyApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
+import {assertApprovalCommandAvailable, submitApprovalCommand, verifyApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
 import {getVuePageOptions} from '@/registries/vue-page-registry'
 
 const STEP_MODEL = 'WFOBJ_FLOW_RELATIONLINE_STEP'
@@ -267,6 +267,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       const captured = workspace.capture(action)
       const ds = workspace.inputs.dataSet
       if (!ds) throw Error('原办理参数空间已失效')
+      await assertApprovalCommandAvailable(ds, captured.input)
       const activePage = activeTab.value?.tabKey ? businessRegistry.get(activeTab.value.tabKey) : null
       const submitted = await submitFlowBusinessPage({page: activePage, payload: captured.payload,
         assertCurrent: () => {assertGeneration(own); captured.assertCurrent()},

@@ -12,6 +12,8 @@ type Options = Readonly<{
   captureTarget: (row: Readonly<DataRow>) => () => void
 }>
 class FlowRunCommandUnknown extends Error {}
+// Owner handles only: no second command rows, drafts, permissions or receipts.
+const preflights = new WeakMap<DataView, (row: Readonly<DataRow>) => void>()
 const inputFields = ['action', 'flowObjectId', 'stepId', 'flowId', 'formKey', 'formUrl', 'formParams', 'busRowid', 'nodeId', 'idea', 'notifyType', 'type']
 function nodeSignature(value: unknown): string {
   if (value === undefined) return '[]'
@@ -30,6 +32,13 @@ function nodeSignature(value: unknown): string {
 export class FlowRunCommandResource {
   public constructor(private readonly input: Options) {}
 
+  /** 在原绑定owner校验当次输入；不创建命令、改变查询或执行HTTP。宿主须先经原view.refresh激活owner。 */
+  public static assertCanPrepare(view: DataView, input: Readonly<DataRow>): void {
+    const assertAvailable = preflights.get(view)
+    if (!assertAvailable) throw Error('审批命令缺少原绑定预检owner')
+    assertAvailable(input)
+  }
+
   public binding(): BindCommandSubmitOptions {
     const {view, guard, dispatch} = this.input
     const captures = new Map<unknown, Readonly<{row: Readonly<DataRow>; assertTarget: () => void}>>()
@@ -46,6 +55,27 @@ export class FlowRunCommandResource {
       guard()
       if (view.destroyed || view.dataSet?.destroyed || view.dataTable?.resourceType !== 'command'
         || view.dataTable.resourceId !== 'workflow:approval') throw Error('审批命令实例已失效')
+      preflights.set(view, assertAvailable)
+    }
+    const assertAvailable = (row: Readonly<DataRow>) => {
+      assertCurrent()
+      if (view.hasUnconfirmedSave || [...dispatched].some(key => !confirmed.has(key))) throw Error('请先核验原审批命令')
+      if (!['submit', 'back', 'forceBack', 'toCreator', 'revoke'].includes(String(row['action']))
+        || !String(row['flowObjectId'] ?? '').trim() || !String(row['stepId'] ?? '').trim()) throw Error('审批命令缺少正式动作或目标')
+      if (inputFields.some(field => row[field] !== undefined && typeof row[field] !== 'string')) throw Error('审批命令文本输入类型不符')
+      if (row['isReturn'] !== undefined && typeof row['isReturn'] !== 'boolean') throw Error('审批返回标志须为布尔值')
+      nodeSignature(row['nextNode'])
+      const assertTarget = this.input.captureTarget(row)
+      assertTarget()
+      for (const [confirmedKey, receipt] of confirmed) {
+        if (receipt['action'] !== row['action'] || receipt['flowObjectId'] !== row['flowObjectId'] || receipt['stepId'] !== row['stepId']) continue
+        const original = captures.get(confirmedKey)
+        if (!original) throw Error('已确认审批命令缺少原目标证明')
+        let originalCurrent = true
+        try {original.assertTarget()} catch {originalCurrent = false}
+        if (originalCurrent) throw Error('本次正式查询的审批动作已确认，请重新查询目标状态后办理')
+      }
+      return assertTarget
     }
     return {
       resource: {resourceType: 'command', resourceId: 'workflow:approval'},
@@ -54,25 +84,9 @@ export class FlowRunCommandResource {
       createKey: () => crypto.randomUUID(),
       allowAbandonUnconfirmed: false,
       onPrepareInput: row => {
-        assertCurrent()
-        if (view.hasUnconfirmedSave || [...dispatched].some(key => !confirmed.has(key))) throw Error('请先核验原审批命令')
-        if (!['submit', 'back', 'forceBack', 'toCreator', 'revoke'].includes(String(row['action']))
-          || !String(row['flowObjectId'] ?? '').trim() || !String(row['stepId'] ?? '').trim()) throw Error('审批命令缺少正式动作或目标')
-        if (inputFields.some(field => row[field] !== undefined && typeof row[field] !== 'string')) throw Error('审批命令文本输入类型不符')
-        if (row['isReturn'] !== undefined && typeof row['isReturn'] !== 'boolean') throw Error('审批返回标志须为布尔值')
-        nodeSignature(row['nextNode'])
+        const assertTarget = assertAvailable(row)
         const key = row[view.primaryKey]
         if (typeof key !== 'string' || key.length === 0 || captures.has(key)) throw Error('审批命令身份重复')
-        const assertTarget = this.input.captureTarget(row)
-        assertTarget()
-        for (const [confirmedKey, receipt] of confirmed) {
-          if (receipt['action'] !== row['action'] || receipt['flowObjectId'] !== row['flowObjectId'] || receipt['stepId'] !== row['stepId']) continue
-          const original = captures.get(confirmedKey)
-          if (!original) throw Error('已确认审批命令缺少原目标证明')
-          let originalCurrent = true
-          try {original.assertTarget()} catch {originalCurrent = false}
-          if (originalCurrent) throw Error('本次正式查询的审批动作已确认，请重新查询目标状态后办理')
-        }
         captures.set(key, {row: Object.freeze(structuredClone(row)), assertTarget})
       },
       submit: async row => {

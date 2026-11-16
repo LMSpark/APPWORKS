@@ -1,7 +1,7 @@
 /**
  * @module app:lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace
  * 职责：同一DataSet持有办理参数，确认时从原选项核验后捕获不可变命令。
- * 边界：参数视图不保存业务数据；不缓存另一份可编辑节点或候选，不扩大服务返回的候选范围。
+ * 边界：参数视图不保存业务数据；仅明确允许扩选时消费正式人员目录，不缓存另一份可编辑候选。
  */
 import {bindDataSetReadonlyCommandQuery, buildDataViewKey, ensureDataSetResourceView, ensureDataSetStaticInputTable, type DataSet, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
@@ -22,7 +22,7 @@ export class FlowRunApprovalInputWorkspace {
   private source: DataRow | undefined
   private sourceGuard: (() => void) | undefined
   private readonly bound = new Set<DataView>()
-  constructor(private readonly options: Readonly<{dataSet: DataSet; assertCurrent: () => void}>) {
+  constructor(private readonly options: Readonly<{dataSet: DataSet; assertCurrent: () => void; userDirectory?: () => DataView}>) {
     const ds = options.dataSet
     if (!ds.scenarioId) throw Error('办理参数缺少明确数据空间身份')
     ensureDataSetStaticInputTable(ds, 'ApprovalInput', [{name: 'inputId', primary: true}, ...['idea', 'forceNodeId'].map(name => ({name})), ...['notifySms', 'notifyQywx', 'notifyDingTalk', 'notifyWechat'].map(name => ({name, type: 'boolean'}))])
@@ -55,15 +55,23 @@ export class FlowRunApprovalInputWorkspace {
     if (!isRecord(row['payload'])) throw Error('办理选项结构无效')
     const data = row['payload'], next = parseFlowRunHandleNodeOptions(data, nextKeys), configs = parseFlowRunExecUsers(data)
     if (new Set(next.map(node => node.id)).size !== next.length) throw Error('办理下一节点身份重复')
+    if (next.some(node => configs.some(config => config.nodeId === node.id && config.allowChange === true && (config.maxNum ?? 0) > 0))) {
+      const directory = this.options.userDirectory?.()
+      if (!directory) throw Error('允许扩选的节点缺少正式人员目录')
+      await directory.refresh(); this.options.assertCurrent(); assertInputCurrent(); assertSource()
+      if (this.options.userDirectory?.() !== directory) throw Error('原人员目录实例已变化')
+      if (directory.loadingError) throw directory.loadingError
+    }
     const rows: DataRow[] = []
     for (const [index, node] of next.entries()) {
       const viewId = `node-${index}`, view = table.getView(viewId) ?? table.addView(viewId)
       if (!this.bound.has(view)) {
-        bindDataSetReadonlyCommandQuery(view, createFlowRunCandidatesBinding({view, source, guard: this.options.assertCurrent}))
+        bindDataSetReadonlyCommandQuery(view, createFlowRunCandidatesBinding({view, source, guard: this.options.assertCurrent,
+          ...(this.options.userDirectory ? {userDirectory: this.options.userDirectory} : {})}))
         this.bound.add(view)
       }
       view.queryContext = {nodeId: node.id}; view.queryConfig = {pagination: 'none'}
-      await view.refresh(); this.options.assertCurrent(); assertSource()
+      await view.refresh(); this.options.assertCurrent(); assertInputCurrent(); assertSource()
       if (view.loadingError) throw view.loadingError
       const config = configs.find(item => item.nodeId === node.id), max = config?.maxNum ?? 0
       const users = config?.users.map(user => `${user.id}:${user.name || user.id}`) ?? []
@@ -114,6 +122,7 @@ export class FlowRunApprovalInputWorkspace {
     const current = isRecord(data['curNode']) ? data['curNode'] : {}
     let nodes: ReadonlyArray<Readonly<{NodeId: string; ExecUserList: string[]}>> = []
     const returnState = {value: false}
+    const candidateProofs: Array<() => void> = []
     let selected: Array<Readonly<{nodeId: string; title: string; direction: string; selectedUsers: string[]}>> = []
     let nodeId = ''
     if (action === 'submit') {
@@ -130,7 +139,17 @@ export class FlowRunApprovalInputWorkspace {
         if (users.length > max) throw Error(`${node.title}办理人数超过${max}`)
         if (users.length < min) throw Error(`${node.title}办理人数少于${min}`)
         const allowed = config?.users.map(user => `${user.id}:${user.name || user.id}`) ?? []
-        if (users.some((user: unknown) => !allowed.includes(String(user)))) throw Error('办理人员不在原候选范围')
+        if (config?.allowChange === true && max > 0) {
+          const candidates = this.options.dataSet.getView('ApprovalCandidates', `node-${definitions.indexOf(node)}`)
+          if (!candidates || candidates.queryContext['nodeId'] !== id) throw Error('办理人员缺少原节点候选视图')
+          candidateProofs.push(candidates.captureReadResult())
+          for (const user of users) {
+            const matches = candidates.rows.filter(candidate => candidate['value'] === user)
+            const match = matches[0]
+            if (matches.length !== 1 || !match) throw Error('办理人员不在原候选范围')
+            candidateProofs.push(candidates.captureReadRow(match, ['id', 'name', 'value', 'nodeId']))
+          }
+        } else if (users.some((user: unknown) => !allowed.includes(String(user)))) throw Error('办理人员不在原候选范围')
         if (value['checkedReturn'] === true) {
           if (node.direction !== 'backward' || node.isTurnBack !== true) throw Error('该节点不允许返回原办理人')
           returnState.value = true
@@ -153,6 +172,7 @@ export class FlowRunApprovalInputWorkspace {
     const signature = JSON.stringify(input)
     const sourceGuard = this.sourceGuard
     return {input, payload, assertCurrent: () => {
+      candidateProofs.forEach(proof => proof())
       continuation?.assertCurrent()
       if (this.sourceGuard !== sourceGuard || this.target !== target || JSON.stringify(input) !== signature || JSON.stringify(this.captureParameters(action).input) !== signature) throw Error('办理参数已变化')
     }}

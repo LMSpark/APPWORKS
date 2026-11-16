@@ -16376,7 +16376,7 @@
         "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace",
-        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace\n职责：同一DataSet持有办理参数，确认时从原选项核验后捕获不可变命令。\n边界：参数视图不保存业务数据；不缓存另一份可编辑节点或候选，不扩大服务返回的候选范围。",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace\n职责：同一DataSet持有办理参数，确认时从原选项核验后捕获不可变命令。\n边界：参数视图不保存业务数据；仅明确允许扩选时消费正式人员目录，不缓存另一份可编辑候选。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ApprovalInputCapture",
@@ -16392,7 +16392,7 @@
         "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding",
-        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding\n职责：从原办理选项查询按节点投影人员候选，供标准字段绑定消费。\n边界：不扩展空范围，不复制可编辑人员草稿，不查询人员目录或派发审批。",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding\n职责：从原办理选项查询按节点投影人员候选，供标准字段绑定消费。\n边界：仅明确允许扩选时消费宿主已查询的正式目录；不复制可编辑人员草稿或派发审批。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }

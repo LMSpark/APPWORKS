@@ -2,10 +2,10 @@ import {afterEach,expect,it} from 'vitest'
 import {DataSet} from '../../../dataset'
 const sets:DataSet[]=[]
 afterEach(()=>sets.splice(0).forEach(ds=>ds.destroy()))
-async function fixture(value:unknown=0,assertIdentity:()=>void=()=>undefined){
+async function fixture(value:unknown=0,assertIdentity:()=>void=()=>undefined,empty=false){
  const ds=DataSet.fromJson({scenarioId:'SPACE',tables:{Rows:{resourceType:'read-proof-test',resourceId:'source',columns:[{name:'key',type:'string'},{name:'value',type:'number'},{name:'optional',type:'string'},{name:'hidden',type:'string'},{name:'computed',type:'number',computeExpression:'1'}],views:{default:{queryConfig:{pagination:'none'}}}}}});sets.push(ds)
  const view=ds.getView('Rows')!
- view.bindQueryExecutor({executeQuery:async()=>({rows:[Object.freeze({key:'A',value,optional:undefined,hidden:'private'})],total:1,resultPrimaryKey:'',assertIdentity,rowKey:()=>undefined,
+ view.bindQueryExecutor({executeQuery:async()=>({rows:empty?[]:[Object.freeze({key:'A',value,optional:undefined,hidden:'private'})],total:empty?0:1,resultPrimaryKey:'',assertIdentity,rowKey:()=>undefined,
   fieldAccess:()=>({read:'visible' as const,write:'denied' as const,component:'readonly' as const,required:false,writeMode:'readonly' as const}),readFieldAccess:(_row,field)=>field==='hidden'?'invisible':'visible',addActionState:()=> 'hidden',editActionState:()=> 'hidden',deleteActionState:()=> 'hidden',createChildActionState:()=> 'hidden',viewActionState:()=> 'enabled'})},{resource:{resourceType:'read-proof-test',resourceId:'source'}})
  await view.refresh();return{view,row:view.rows[0]!}
 }
@@ -42,4 +42,21 @@ it('rechecks the original resource identity without acquiring a replacement quer
  const proof=f.view.captureReadRow(f.row,['key']);current=false
  expect(()=>proof()).toThrow('ORIGINAL_RESOURCE_STALE')
  expect(()=>f.view.captureReadRow(f.row,['key'])).toThrow('ORIGINAL_RESOURCE_STALE')
+})
+it('captures an empty formal result and rejects even a same-value refresh',async()=>{
+ const f=await fixture(0,()=>{},true)
+ const proof=f.view.captureReadResult()
+ expect(()=>proof()).not.toThrow()
+ await f.view.refresh()
+ expect(()=>proof()).toThrow('DATA_VIEW_READ_RESULT')
+ expect(()=>f.view.captureReadResult()()).not.toThrow()
+})
+it('result proofs recheck original ownership and query inputs without granting row access',async()=>{
+ let current=true
+ const f=await fixture(0,()=>{if(!current)throw Error('ORIGINAL_RESOURCE_STALE')})
+ const proof=f.view.captureReadResult()
+ current=false;expect(()=>proof()).toThrow('ORIGINAL_RESOURCE_STALE')
+ current=true;f.view.queryContext={other:'scope'}
+ expect(()=>proof()).toThrow('DATA_VIEW_READ_RESULT')
+ expect(()=>f.view.captureReadResult()).toThrow('DATA_VIEW_READ_RESULT')
 })

@@ -13,7 +13,10 @@ type Options = Readonly<{
 }>
 class FlowRunCommandUnknown extends Error {}
 // Owner handles only: no second command rows, drafts, permissions or receipts.
-const preflights = new WeakMap<DataView, (row: Readonly<DataRow>) => void>()
+const preflights = new WeakMap<DataView, Readonly<{
+  assertAvailable: (row: Readonly<DataRow>) => void
+  registerInputProof: (key: string, assertInput: () => void) => () => void
+}>>()
 const inputFields = ['action', 'flowObjectId', 'stepId', 'flowId', 'formKey', 'formUrl', 'formParams', 'busRowid', 'nodeId', 'idea', 'notifyType', 'type']
 function nodeSignature(value: unknown): string {
   if (value === undefined) return '[]'
@@ -34,14 +37,22 @@ export class FlowRunCommandResource {
 
   /** 在原绑定owner校验当次输入；不创建命令、改变查询或执行HTTP。宿主须先经原view.refresh激活owner。 */
   public static assertCanPrepare(view: DataView, input: Readonly<DataRow>): void {
-    const assertAvailable = preflights.get(view)
-    if (!assertAvailable) throw Error('审批命令缺少原绑定预检owner')
-    assertAvailable(input)
+    const owner = preflights.get(view)
+    if (!owner) throw Error('审批命令缺少原绑定预检owner')
+    owner.assertAvailable(input)
+  }
+
+  /** 将本次参数校验函数交给原命令owner，在准备和实际派发前复核；不存参数副本。返回清理函数仅释放未派发的本次命令，未知命令保留。 */
+  public static registerInputProof(view: DataView, key: string, assertInput: () => void): () => void {
+    const owner = preflights.get(view)
+    if (!owner) throw Error('审批命令缺少原绑定预检owner')
+    return owner.registerInputProof(key, assertInput)
   }
 
   public binding(): BindCommandSubmitOptions {
     const {view, guard, dispatch} = this.input
-    const captures = new Map<unknown, Readonly<{row: Readonly<DataRow>; assertTarget: () => void}>>()
+    const captures = new Map<unknown, Readonly<{row: Readonly<DataRow>; assertTarget: () => void; assertInput?: () => void}>>()
+    const inputProofs = new Map<string, () => void>()
     const dispatched = new Set<unknown>()
     const confirmed = new Map<unknown, DataRow>()
     const assertCapture = (row: Readonly<DataRow>) => {
@@ -50,12 +61,13 @@ export class FlowRunCommandResource {
         throw Error('审批命令与原捕获目标不符')
       }
       captured.assertTarget()
+      captured.assertInput?.()
     }
     const assertCurrent = () => {
       guard()
       if (view.destroyed || view.dataSet?.destroyed || view.dataTable?.resourceType !== 'command'
         || view.dataTable.resourceId !== 'workflow:approval') throw Error('审批命令实例已失效')
-      preflights.set(view, assertAvailable)
+      preflights.set(view, {assertAvailable, registerInputProof})
     }
     const assertAvailable = (row: Readonly<DataRow>) => {
       assertCurrent()
@@ -77,6 +89,17 @@ export class FlowRunCommandResource {
       }
       return assertTarget
     }
+    const registerInputProof = (key: string, assertInput: () => void) => {
+      assertCurrent(); assertInput()
+      if (!key.trim() || captures.has(key) || inputProofs.has(key)) throw Error('审批参数证明缺少唯一命令身份')
+      inputProofs.set(key, assertInput)
+      return () => {
+        inputProofs.delete(key)
+        if (!dispatched.has(key) && !view.destroyed && !view.hasUnconfirmedSave) {
+          view.discardEditingRows([key]); view.discardPendingChanges([key]); captures.delete(key)
+        }
+      }
+    }
     return {
       resource: {resourceType: 'command', resourceId: 'workflow:approval'},
       guard: assertCurrent,
@@ -87,7 +110,9 @@ export class FlowRunCommandResource {
         const assertTarget = assertAvailable(row)
         const key = row[view.primaryKey]
         if (typeof key !== 'string' || key.length === 0 || captures.has(key)) throw Error('审批命令身份重复')
-        captures.set(key, {row: Object.freeze(structuredClone(row)), assertTarget})
+        const assertInput = inputProofs.get(key)
+        assertInput?.()
+        captures.set(key, {row: Object.freeze(structuredClone(row)), assertTarget, ...(assertInput ? {assertInput} : {})})
       },
       submit: async row => {
         assertCurrent()

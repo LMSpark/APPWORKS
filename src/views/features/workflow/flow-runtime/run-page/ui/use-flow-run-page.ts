@@ -228,7 +228,12 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       const originalQuery = routeQuery()
       let workspace = approvalWorkspace.value
       if (workspace?.inputs.dataSet !== ds) {
-        workspace = new FlowRunApprovalInputWorkspace({dataSet: ds, assertCurrent: () => {
+        workspace = new FlowRunApprovalInputWorkspace({dataSet: ds, userDirectory: () => {
+          const key = prepared.value?.userDirectoryViewKey
+          const view = key ? sparkConsume(PAGE_RUNTIME)?.resolveView(key) : undefined
+          if (!view) throw Error('办理人员正式目录未装配')
+          return view
+        }, assertCurrent: () => {
           if (sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID) !== ds || ds.destroyed) throw Error('原办理参数实例已失效')
         }})
         approvalWorkspace.value = workspace
@@ -274,7 +279,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
         isUnconfirmed: () => ds.getView('ApprovalCommand')?.hasUnconfirmedSave === true,
         submit: async () => {
           captured.assertCurrent()
-          await submitApprovalCommand(ds, captured.input)
+          await submitApprovalCommand(ds, captured.input, captured.assertCurrent)
           submission.confirmed = true
         },
       })

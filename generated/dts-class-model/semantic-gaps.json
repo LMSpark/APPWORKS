@@ -42411,7 +42411,7 @@
       "chainBreak": "FlowRunCommandResource.binding 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
-      "declarationLine": 17,
+      "declarationLine": 19,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
       "declarationKind": "class"
     },
@@ -43716,7 +43716,7 @@
       "chainBreak": "FlowRunApprovalInputWorkspace.active 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
-      "declarationLine": 31,
+      "declarationLine": 32,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
       "declarationKind": "class"
     },
@@ -43728,7 +43728,7 @@
       "chainBreak": "FlowRunApprovalInputWorkspace.dirty 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
-      "declarationLine": 32,
+      "declarationLine": 33,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
       "declarationKind": "class"
     },
@@ -43740,7 +43740,7 @@
       "chainBreak": "FlowRunApprovalInputWorkspace.open 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
-      "declarationLine": 35,
+      "declarationLine": 36,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
       "declarationKind": "class"
     },
@@ -43752,7 +43752,7 @@
       "chainBreak": "FlowRunApprovalInputWorkspace.refreshContinuation 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
-      "declarationLine": 36,
+      "declarationLine": 37,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
       "declarationKind": "class"
     },
@@ -43764,7 +43764,7 @@
       "chainBreak": "FlowRunApprovalInputWorkspace.capture 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
-      "declarationLine": 38,
+      "declarationLine": 39,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
       "declarationKind": "class"
     },
@@ -43776,7 +43776,7 @@
       "chainBreak": "FlowRunApprovalInputWorkspace.close 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
-      "declarationLine": 40,
+      "declarationLine": 41,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
       "declarationKind": "class"
     },

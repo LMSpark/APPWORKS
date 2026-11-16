@@ -26,12 +26,16 @@ export async function assertApprovalCommandAvailable(dataSet: DataSet, input: Re
   FlowRunCommandResource.assertCanPrepare(view, input)
 }
 
-export async function submitApprovalCommand(dataSet: DataSet, input: Readonly<DataRow>): Promise<void> {
+export async function submitApprovalCommand(dataSet: DataSet, input: Readonly<DataRow>, assertInput?: () => void): Promise<void> {
   const view = dataSet.getView('ApprovalCommand', 'default')
   if (!view) throw Error('原审批命令视图已失效')
   await assertApprovalCommandAvailable(dataSet, input)
   if (dataSet.getView('ApprovalCommand', 'default') !== view) throw Error('原审批命令视图已变化')
-  await view.addRow({...input, ...(view.getColumn('isReturn') ? {isReturn: input['isReturn'] ?? false} : {}), nextNode: input['nextNode'] ?? []})
-  const result = await dataSet.saveChanges({views: [{tableName: 'ApprovalCommand', viewId: 'default'}]})
-  if (!result.success) throw Error('审批命令未确认完成')
+  const key = crypto.randomUUID()
+  const release = assertInput ? FlowRunCommandResource.registerInputProof(view, key, assertInput) : () => {}
+  try {
+    await view.addRow({...input, [view.primaryKey]: key, ...(view.getColumn('isReturn') ? {isReturn: input['isReturn'] ?? false} : {}), nextNode: input['nextNode'] ?? []})
+    const result = await dataSet.saveChanges({views: [{tableName: 'ApprovalCommand', viewId: 'default'}]})
+    if (!result.success) throw Error('审批命令未确认完成')
+  } finally {release()}
 }

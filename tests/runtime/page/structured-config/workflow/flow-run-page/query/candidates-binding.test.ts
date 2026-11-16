@@ -40,3 +40,27 @@ it('keeps each node candidate range in its original options query and rejects st
     expect(view.loadingError).not.toBeNull()
   } finally {ds.destroy()}
 })
+
+it('uses the original full directory only for explicit free choice and expires its projection on refresh', async () => {
+  const ds = DataSet.fromJson({scenarioId: 'S', tables: {}}), directorySet = DataSet.fromJson({scenarioId: 'DIRECTORY', tables: {}})
+  const source = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})
+  let allowChange = '1'
+  bindDataSetReadonlyCommandQuery(source, {resource: {resourceType: 'logical-view', resourceId: 'options'}, guard: () => {}, loadRows: async () => [{id: 'current', payload: {execUser: [{nodeId: 'N', maxNum: 1, allowChange, userList: [{UserId: 'U1', UserName: '张三'}]}]}}]})
+  const directory = ensureDataSetResourceView({dataSet: directorySet, tableName: 'Base_UserInfo', resource: {resourceType: 'logical-view', resourceId: 'directory'}, columns: [{name: 'rowid', primary: true}, {name: 'UserName'}]})
+  directory.queryConfig = {allPages: true, fields: ['rowid', 'UserName']}
+  bindDataSetReadonlyCommandQuery(directory, {resource: {resourceType: 'logical-view', resourceId: 'directory'}, guard: () => {}, loadRows: async () => [{rowid: 'U1', UserName: '张三'}, {rowid: 'U2', UserName: '李四'}]})
+  const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCandidates', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-candidates'}, columns: [{name: 'id', primary: true}, {name: 'name'}, {name: 'value'}, {name: 'nodeId'}]})
+  let reads = 0
+  bindDataSetReadonlyCommandQuery(view, createFlowRunCandidatesBinding({view, source, guard: () => {}, userDirectory: () => {reads++; return directory}}))
+  try {
+    await source.refresh(); await directory.refresh(); view.queryContext = {nodeId: 'N'}; await view.refresh()
+    expect(view.loadingError).toBeNull()
+    expect(view.rows.map(row => row['value'])).toEqual(['U1:张三', 'U2:李四'])
+    const proof = view.captureReadRow(view.rows[1]!, ['value'])
+    await directory.refresh()
+    expect(() => proof()).toThrow()
+    allowChange = '0'; await source.refresh(); reads = 0; await view.refresh()
+    expect(view.loadingError).toBeNull(); expect(reads).toBe(0)
+    expect(view.rows.map(row => row['value'])).toEqual(['U1:张三'])
+  } finally {ds.destroy(); directorySet.destroy()}
+})

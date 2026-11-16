@@ -1940,6 +1940,15 @@
           ],
           "additionalProperties": false
         },
+        "method.captureReadResult.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.captureReadResult.return": {
+          "type": "object",
+          "title": "() => void"
+        },
         "method.captureReadRow.params": {
           "type": "object",
           "properties": {
@@ -3291,7 +3300,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-13T13:49:35.973Z",
+  "generatedAt": "2026-11-16T15:25:29.175Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -6034,6 +6043,25 @@
                     "name": "{\n        /** 原owner提供的直接子结果。 */\n        result: DataViewQueryResult;\n        /** 本次公开父行引用，null表示未选父行。 */\n        parentRow: DataRow | null;\n        /** 原父查询请求代次，同键刷新也必须重新捕获。 */\n        version: number;\n        /** 复核当前父行、查询代次、结果与执行域仍然一致。 */\n        assertCurrent: () => void;\n    }"
                   }
                 ]
+              }
+            },
+            {
+              "name": "captureReadResult",
+              "jsdoc": "捕获当前已加载的正式查询结果身份，包含空结果；不复制行、权限或查询凭据。\n@returns 复核原结果、请求代次、查询输入及所属实例的函数；同值刷新也使原证明失效。\n@remarks 仅证明查询身份，字段读取仍须消费fieldAccess或captureReadRow。",
+              "parameters": [],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
               }
             },
             {

@@ -37,6 +37,7 @@ let instanceReads = 0
 const approvalState = {rows: [], hasUnconfirmedSave: false, mutating: false, hasEditingChanges: () => false, dirtyTracking: {hasPendingChanges: () => false}}
 let originalCommandView: DataView | undefined
 let originalOptionsView: DataView | undefined
+let originalDirectoryView: DataView | undefined
 vi.mock('vue-router', async importOriginal => {
   const actual = await importOriginal<typeof import('vue-router')>()
   return {
@@ -115,7 +116,7 @@ function createRuntime(): PageRuntime {
     View_FlowObjList: createView([{rowid: 'WF-1', TITLE: '实例', WFMID: 'FM-1', BusTblObjID: 'BUS-1'}]),
     WFOBJ_FLOW: createView([{rowid: 'WF-1', WFMID: 'FM-1', TITLE: '实例'}]),
     Dict_state: createView([]),
-    Base_UserInfo: createView([]),
+    Base_UserInfo: originalDirectoryView ?? createView([]),
   }
   const workbench = {
     ApprovalOptions: originalOptionsView,
@@ -140,6 +141,7 @@ function createRuntime(): PageRuntime {
       return undefined
     },
     resolveView: (key: string) => {
+      if (key === `${FLOW_MONITOR_SCENARIO_ID}@Base_UserInfo@default`) return originalDirectoryView ?? null
       const descriptor = parseDataViewKey(key)
       const actual = descriptor && actualWorkbench?.getView(descriptor.tableName, descriptor.viewId)
       if (actual) return actual
@@ -173,6 +175,7 @@ beforeEach(() => {
   registerAllRenderers()
   approvalState.hasUnconfirmedSave = false
   originalOptionsView = undefined
+  originalDirectoryView = undefined
   config.global.stubs = {...baselineStubs}
   reloadRuntime.mockClear()
   callbacks.end.mockReset().mockResolvedValue(true); callbacks.succeeded.mockReset().mockResolvedValue(undefined); callbacks.failed.mockClear()
@@ -189,13 +192,19 @@ afterEach(() => {
 })
 
 describe('flow run page mount', () => {
-  it.each(['success', 'unknown', 'callback-error', 'form-switch', 'business-error'])('uses original parameter views through the %s outcome', async outcome => {
+  it.each(['success', 'unknown', 'callback-error', 'form-switch', 'business-error', 'directory'])('uses original parameter views through the %s outcome', async outcome => {
     const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
     const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})
     ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCandidates', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-candidates'}, columns: [{name: 'id', primary: true}, {name: 'name'}, {name: 'value'}, {name: 'nodeId'}]})
     const steps = ensureDataSetResourceView({dataSet: ds, tableName: 'WFOBJ_FLOW_RELATIONLINE_STEP', resource: {resourceType: 'service-query', resourceId: 'steps'}, columns: [{name: 'rowid', primary: true}, ...['WFOBJID', 'description', 'ReceiveUserName', 'STARTTIME', 'StepState'].map(name => ({name}))]})
     bindDataSetReadonlyCommandQuery(steps, {resource: {resourceType: 'service-query', resourceId: 'steps'}, guard: () => {}, loadRows: async () => [{rowid: 'S1', WFOBJID: 'WF-1'}]})
-    const payload = {curNode: {rowid: 'CUR', TYPEID: '1', TITLE: '当前'}, nextNodes: [{rowid: 'NEXT-1', title: '正式后续节点', direction: 'forward'}], execUser: []}
+    const directorySet = DataSet.fromJson({scenarioId: FLOW_MONITOR_SCENARIO_ID, tables: {}})
+    const directory = ensureDataSetResourceView({dataSet: directorySet, tableName: 'Base_UserInfo', resource: {resourceType: 'logical-view', resourceId: 'directory'}, columns: [{name: 'rowid', primary: true}, {name: 'UserName'}]})
+    directory.queryConfig = {allPages: true, fields: ['rowid', 'UserName']}
+    const readDirectory = vi.fn(async () => [{rowid: 'U1', UserName: '张三'}, {rowid: 'U2', UserName: '李四'}])
+    bindDataSetReadonlyCommandQuery(directory, {resource: {resourceType: 'logical-view', resourceId: 'directory'}, guard: () => {}, loadRows: readDirectory})
+    if (outcome === 'directory') originalDirectoryView = directory
+    const payload = {curNode: {rowid: 'CUR', TYPEID: '1', TITLE: '当前'}, nextNodes: [{rowid: 'NEXT-1', title: '正式后续节点', direction: 'forward'}], execUser: outcome === 'directory' ? [{nodeId: 'NEXT-1', minNum: 1, maxNum: 1, allowChange: '1', userList: [{UserId: 'U1', UserName: '张三'}]}] : []}
     const query = vi.fn(async () => payload)
     bindDataSetReadonlyCommandQuery(view, createFlowRunOptionsBinding({view, client: {getHandleOptionData: query}, guard: () => {}, captureTarget: () => () => {}}))
     const command = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCommand', resource: {resourceType: 'command', resourceId: 'workflow:approval'}, columns: [{name: 'rowid', primary: true}, ...['action', 'flowObjectId', 'stepId', 'flowId', 'busRowid', 'formKey', 'idea', 'nodeId', 'type', 'notifyType'].map(name => ({name})), {name: 'isReturn', type: 'boolean'}, {name: 'nextNode', type: 'array'}]})
@@ -219,6 +228,8 @@ describe('flow run page mount', () => {
       expect(wrapper.text()).toContain('正式后续节点')
       expect(wrapper.findAllComponents(RendererForm).some(form => form.props('dataViewKey') === `${FLOW_WORKBENCH_SCENARIO_ID}@ApprovalInput@default`)).toBe(true)
       expect(view.rows[0]?.['payload']).toEqual(payload)
+      expect(readDirectory).toHaveBeenCalledTimes(outcome === 'directory' ? 1 : 0)
+      if (outcome === 'directory') ds.getView('ApprovalNodeInput')!.updateEditingValue('NEXT-1', 'ExecUserList', ['U2:李四'])
       if (outcome === 'form-switch') {
         const tabs = wrapper.findComponent(RendererTabs)
         expect(tabs.exists()).toBe(true)
@@ -256,7 +267,7 @@ describe('flow run page mount', () => {
       }
       await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click'); await flushPromises()
       expect(dispatch).toHaveBeenCalledTimes(1)
-      expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({idea: '同意', notifyType: '0', nextNode: [{NodeId: 'NEXT-1', ExecUserList: []}]}))
+      expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({idea: '同意', notifyType: '0', nextNode: [{NodeId: 'NEXT-1', ExecUserList: outcome === 'directory' ? ['U2:李四'] : []}]}))
       if (outcome === 'unknown') {
         expect(command.hasUnconfirmedSave).toBe(true)
         expect(wrapper.text()).toContain('审批结果未知')
@@ -280,9 +291,9 @@ describe('flow run page mount', () => {
       }
       expect(callbacks.succeeded).toHaveBeenCalledTimes(1)
       expect(callbacks.failed).not.toHaveBeenCalled()
-      expect(callbacks.end).toHaveBeenCalledWith(expect.objectContaining({action: {name: '提交', nodes: [{nodeId: 'NEXT-1', title: '正式后续节点', direction: 'forward', selectedUsers: []}]}, currentNode: expect.objectContaining({rowid: 'CUR'}), opinionText: '同意'}))
+      expect(callbacks.end).toHaveBeenCalledWith(expect.objectContaining({action: {name: '提交', nodes: [{nodeId: 'NEXT-1', title: '正式后续节点', direction: 'forward', selectedUsers: outcome === 'directory' ? ['U2:李四'] : []}]}, currentNode: expect.objectContaining({rowid: 'CUR'}), opinionText: '同意'}))
       expect(wrapper.findAll('button').find(item => item.text() === '办理')!.attributes('disabled')).toBeUndefined()
-    } finally {wrapper.unmount(); originalOptionsView = undefined; config.global.stubs = originalStubs; ds.destroy()}
+    } finally {wrapper.unmount(); originalOptionsView = undefined; originalDirectoryView = undefined; config.global.stubs = originalStubs; ds.destroy(); directorySet.destroy()}
   })
   it('retains the actual unknown DataSet command when the system page is closed', async () => {
     const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})

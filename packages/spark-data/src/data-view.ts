@@ -1011,6 +1011,27 @@ rows: DataRow[] = []
   get reportedPrimaryKey(): string | undefined { return this.currentQueryResult()?.reportedPrimaryKey }
 
   /**
+   * 捕获当前已加载的正式查询结果身份，包含空结果；不复制行、权限或查询凭据。
+   * @returns 复核原结果、请求代次、查询输入及所属实例的函数；同值刷新也使原证明失效。
+   * @remarks 仅证明查询身份，字段读取仍须消费fieldAccess或captureReadRow。
+   */
+  captureReadResult(): () => void {
+    const table = this._dataTable, dataSet = this.dataSet, version = this.currentLoadRequestId
+    const identity = this.refreshIdentity(), context = this.currentQueryResult()
+    const assertCurrent = () => {
+      this.checkDestroyed()
+      if (!context || !table || !dataSet || dataSet.destroyed || table.getView(this.viewId) !== this
+        || this._resultStale || this.requestState !== RequestState.Loaded || this.currentLoadRequestId !== version
+        || this._dataTable !== table || this.dataSet !== dataSet || this.refreshIdentity() !== identity
+        || this.#queryResultRefreshIdentity !== identity || this.currentQueryResult() !== context) {
+        throw new Error('DATA_VIEW_READ_RESULT: 原正式查询结果已失效')
+      }
+    }
+    assertCurrent()
+    return assertCurrent
+  }
+
+  /**
    * 捕获已加载原查询行的指定正式可读字段证明；不公开权限凭据或复制整页。
    * @param row 本视图rows中的原生行；不接纳同值副本、编辑覆盖或外部行。
    * @param fields 非空且不重复的字段名；不接受隐藏、脱敏、框架控制或本地计算字段。

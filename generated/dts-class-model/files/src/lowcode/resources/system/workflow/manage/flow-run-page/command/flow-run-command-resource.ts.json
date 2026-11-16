@@ -86,6 +86,26 @@
           "additionalProperties": false
         },
         "method.assertCanPrepare.return": true,
+        "method.registerInputProof.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "key": {
+              "type": "string"
+            },
+            "assertInput": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.registerInputProof.return": {
+          "type": "object",
+          "title": "() => void"
+        },
         "method.binding.params": {
           "type": "object",
           "properties": {},
@@ -97,7 +117,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T15:03:29.823Z",
+  "generatedAt": "2026-11-16T15:44:48.438Z",
   "models": {
     "Options": {
       "name": "Options",
@@ -241,6 +261,57 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            },
+            {
+              "name": "registerInputProof",
+              "jsdoc": "将本次参数校验函数交给原命令owner，在准备和实际派发前复核；不存参数副本。返回清理函数仅释放未派发的本次命令，未知命令保留。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertInput",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
               }
             },
             {

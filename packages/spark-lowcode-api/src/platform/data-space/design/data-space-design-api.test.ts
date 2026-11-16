@@ -1065,7 +1065,7 @@ describe('DataTable formal field AI generation metadata', () => {
   })
 
   it('consumes an unaliased ROWID field by the server output key rowid', () => {
-    const model = DataSpaceDesignApi.projectModel(modelRow, [
+    const model = DataSpaceDesignApi.projectModel({...modelRow, PrimaryKeyFields: 'ID'}, [
       {...fieldBase, rowid: 'FIELD-PK', Name: 'ID', IsPKey: 1},
       {...fieldBase, rowid: 'FIELD-ROW', Name: 'ROWID'},
     ], 'ID')

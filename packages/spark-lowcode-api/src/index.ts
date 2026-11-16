@@ -113,6 +113,7 @@ export type {
   LowcodeVerificationScene,
 } from './platform/lowcode-platform-api.js'
 export type { SendCodeType, SendCodeScene } from './contracts/lowcode-send-code.js'
+export {ApplicationDictionaryResource, type ApplicationDictionaryResourceOptions} from './platform/resources/structured-config/dictionary/application-resource.js'
 export { DictionarySchema } from './platform/resources/structured-config/dictionary/schema.js'
 export { DictionaryWorkspace } from './platform/resources/structured-config/dictionary/workspace.js'
 export { DesignResourceRejection } from './platform/resources/shared/http-record-guards.js'

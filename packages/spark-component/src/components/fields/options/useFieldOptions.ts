@@ -177,6 +177,14 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
   const optionChildrenField = computed(() => props.optionChildrenField ?? 'children')
   const valueSeparator = computed(() => props.valueSeparator ?? optionConfig.value.selectionDelimiter ?? ',')
 
+  // 原投影/执行域可能已失效；显示与选人同样复核查询证明，异常作为字段诊断而非渲染异常。
+  const optionResultError = computed(() => {
+    optionRevision.value
+    const view = optionDataView.value
+    if (!view || view.destroyed) return undefined
+    try {void view.countReported; return undefined}
+    catch (error) {return error instanceof Error ? error.message : '原选项查询已失效'}
+  })
   const trimmedOptionSource = computed(() => {
     if (props.optionValueTrim !== true) return undefined
     const view = optionDataView.value
@@ -186,6 +194,7 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
       throw new Error('FIELD_OPTION_VALUE: 修剪选项值需要直接绑定平面视图和明确的字段值')
     }
     optionRevision.value
+    if (view.destroyed || optionResultError.value !== undefined || [RequestState.Preparing, RequestState.Loading, RequestState.Failed].includes(view.requestState)) return undefined
     return buildOptionSourceFromView(view, {
       labelField: optionLabelField.value, valueField: optionValueField.value, childrenField: optionChildrenField.value,
       trimValue: true, ...(props.optionLabelFields ? {labelFields: props.optionLabelFields} : {}),
@@ -290,13 +299,13 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
     const view=optionDataView.value
     return !view||(!view.destroyed&&!view.loadingError
       &&![RequestState.Preparing,RequestState.Loading,RequestState.Failed].includes(view.requestState)
-      &&trimmedOptionError.value===undefined)
+      &&optionResultError.value===undefined&&trimmedOptionError.value===undefined)
   })
   const optionError = computed(() => {
     optionRevision.value
     if(cascade.definition.value)return cascade.state.value.error
     const view=optionDataView.value
-    return view&&!view.destroyed?(view.loadingError?.message ?? trimmedOptionError.value):undefined
+    return view&&!view.destroyed?(view.loadingError?.message ?? optionResultError.value ?? trimmedOptionError.value):undefined
   })
   const optionsReady = computed(() => {
     optionRevision.value

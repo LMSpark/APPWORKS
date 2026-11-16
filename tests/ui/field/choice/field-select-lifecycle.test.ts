@@ -2,7 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h, ref} from 'vue'
 import ElementPlus, {ElOption, ElSelect} from 'element-plus'
-import {SparkData,DataViewOptionCatalog} from '@spark-appworks/spark-data'
+import {SparkData,DataViewOptionCatalog,bindDataSetReadonlyCommandQuery} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererForm, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 
@@ -50,6 +50,24 @@ async function fixture(value: string | number = 'first', selection = false, inhe
 }
 
 describe('FieldSelect native option lifecycle', () => {
+  it('keeps trimmed options inside the original query proof after its source expires', async () => {
+    const f = await fixture(), table = f.choices.dataTable!
+    let scope = 'original'
+    table.resourceType = 'logical-view'; table.resourceId = 'choices'
+    f.choices.queryConfig = {pagination: 'none'}
+    bindDataSetReadonlyCommandQuery(f.choices, {resource: {resourceType: 'logical-view', resourceId: 'choices'}, guard: () => {},
+      captureQueryInputs: () => {const original = scope; return () => {if (scope !== original) throw Error('original choice scope expired')}},
+      loadRows: async () => [{id: ' first ', title: '原选项'}]})
+    await f.choices.refresh(); f.optionValueTrim.value = true; await flushPromises()
+    expect(f.wrapper.getComponent(ElSelect).props('disabled')).toBe(false)
+    const apply = f.wrapper.getComponent(ElSelect).vm.$.vnode.props?.['onUpdate:modelValue']
+    scope = 'next'; f.choices.queryConfig = {pagination: 'none', fields: ['id', 'title']}; await flushPromises()
+    expect(f.wrapper.getComponent(ElSelect).props('disabled')).toBe(true)
+    expect(f.wrapper.text()).not.toContain('原选项')
+    if (typeof apply !== 'function') throw Error('Missing select callback')
+    await apply('first'); await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+  })
   it('keeps new selections writable after appending a sibling while invalidating the previous callback',async()=>{
     const f=await fixture(),oldApply=f.wrapper.getComponent(ElSelect).vm.$.vnode.props?.['onUpdate:modelValue'],row=f.view.currentRow
     f.view.appendRow({id:'c',choice:'first'});await flushPromises()

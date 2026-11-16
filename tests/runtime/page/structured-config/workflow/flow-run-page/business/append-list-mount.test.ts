@@ -17,7 +17,15 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({lowcodeApi: {}, lowcodeHttp: {}}))
 class FlowAppendRevokeHttp extends HttpClientBase {
   readonly calls: RequestConfig[] = []
   unknown = false
+  badDictionary = false
+  dictionaryCalls: RequestConfig[] = []
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+    if (config.url === '/api/DataOperation/GetData') {
+      this.dictionaryCalls.push(config)
+      if (this.badDictionary) return {data: {Code: 500, Message: 'dictionary failed'}, status: 200, statusText: 'OK', headers: {}}
+      const stepState = JSON.stringify(config.data).includes('流程步骤状态')
+      return {data: {Code: 200, Result: {data: {Count: 2, Items: [{rowid: 'D0', val: 0, txt: stepState ? '待接收' : '待办理', ordIdx: 0}, {rowid: 'D1', val: 1, txt: stepState ? '处理中' : '已办理', ordIdx: 1}]}}}, status: 200, statusText: 'OK', headers: {}}
+    }
     this.calls.push(config)
     if (config.method === 'GET') return {data: {Code: 200, Result: [{nodeId: 'N2', maxNum: 2, minNum: 1, allowChange: '0', userList: [{UserId: 'U1', UserName: '张三'}, {UserId: 'U3', UserName: '王五'}]}]}, status: 200, statusText: 'OK', headers: {}}
     if (this.unknown) throw Error('lost receipt')
@@ -25,12 +33,12 @@ class FlowAppendRevokeHttp extends HttpClientBase {
   }
 }
 
-it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save', 'add-cancel', 'add-success', 'add-unknown', 'add-late', 'add-target'])('keeps the original list and command through %s', async outcome => {
+it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save', 'add-cancel', 'add-success', 'add-unknown', 'add-late', 'add-target', 'dictionary-error', 'dictionary-stale'])('keeps the original list and command through %s', async outcome => {
   const scene = 'A5BADCEE11D2438CB9E75C2453A220A6'
 
   const pageText = readFileSync('config/pages/workflow/flow-workbench/pagedata.json', 'utf8'), pageTables = JSON.parse(pageText).tables
   const declaration = JSON.parse(readFileSync('config/pages/workflow/flow-workbench/pagedata.json', 'utf8')).tables.WFOBJ_FLOW_RELATIONLINE_STEP
-  const ds = DataSet.fromJson({scenarioId: scene, tables: {AppendOptions: pageTables.AppendOptions, AppendCandidates: pageTables.AppendCandidates, ApprovalCommand: pageTables.ApprovalCommand, WFOBJ_FLOW_RELATIONLINE_STEP: {resourceType: 'logical-view', resourceId: 'steps', columns: [...['rowid', 'WFOBJID', 'SendNodeModelId', 'ReceiveNodeModelId', 'LastStepID', 'StepState', 'STATUS', 'ReceiveUserId', 'ReceiveUserName'].map(name => ({name, type: 'string', ...(name === 'rowid' ? {isPrimaryKey: true} : {})})), ...declaration.columns], views: {default: {autoLoad: false, queryConfig: {pagination: 'none'}}, appendParticipants: declaration.views.appendParticipants}}}})
+  const ds = DataSet.fromJson({scenarioId: scene, tables: {AppendStepStates: pageTables.AppendStepStates, AppendHandleStates: pageTables.AppendHandleStates, AppendOptions: pageTables.AppendOptions, AppendCandidates: pageTables.AppendCandidates, ApprovalCommand: pageTables.ApprovalCommand, WFOBJ_FLOW_RELATIONLINE_STEP: {resourceType: 'logical-view', resourceId: 'steps', columns: [...['rowid', 'WFOBJID', 'SendNodeModelId', 'ReceiveNodeModelId', 'LastStepID', 'StepState', 'STATUS', 'ReceiveUserId', 'ReceiveUserName'].map(name => ({name, type: 'string', ...(name === 'rowid' ? {isPrimaryKey: true} : {})})), ...declaration.columns], views: {default: {autoLoad: false, queryConfig: {pagination: 'none'}}, appendParticipants: declaration.views.appendParticipants}}}})
   const source = ds.getView('WFOBJ_FLOW_RELATIONLINE_STEP')!, list = ds.getView('WFOBJ_FLOW_RELATIONLINE_STEP', 'appendParticipants')!
   const context = ref({rowid: 'T', WFOBJID: 'WF', SendNodeModelId: 'N1', ReceiveNodeModelId: 'N2', LastStepID: 'L', TITLE: '节点'})
   const rows = [{...context.value, ReceiveUserId: 'U1', ReceiveUserName: '张三', StepState: '0', STATUS: '0'}, {...context.value, rowid: 'A', ReceiveUserId: 'U2', ReceiveUserName: '李四', StepState: '1', STATUS: '1'}, {...context.value, rowid: 'OTHER', LastStepID: 'L2', ReceiveUserName: '其他关系', StepState: '0', STATUS: '0'}]
@@ -42,13 +50,20 @@ it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save', 'add-ca
   const objects = ensureDataSetResourceView({dataSet: ds, tableName: 'WFOBJ_FLOW', resource: {resourceType: 'service-query', resourceId: 'objects'}, columns: [{name: 'rowid', primary: true}, {name: 'WFMID'}]})
   bindDataSetReadonlyCommandQuery(objects, {resource: {resourceType: 'service-query', resourceId: 'objects'}, guard: () => {}, loadRows: async () => [{rowid: 'WF', WFMID: 'M'}]})
   await objects.refresh()
-  const http = new FlowAppendRevokeHttp()
-  const factory = createApprovalCommandBindings({config: new ScenarioViewConfig(scene, readFileSync('config/pages/workflow/flow-workbench/pagedata.json', 'utf8')), http, readScope: () => ({token: 'fixture', headers: {'X-AppId': 'APP'}}), assertCurrent: () => {}}).commandBindings?.['ApprovalCommand']
+  const http = new FlowAppendRevokeHttp(); http.badDictionary = outcome === 'dictionary-error'
+  let appScope = 'fixture'
+  const factory = createApprovalCommandBindings({config: new ScenarioViewConfig(scene, readFileSync('config/pages/workflow/flow-workbench/pagedata.json', 'utf8')), http, readScope: () => ({token: appScope, headers: {'X-AppId': 'APP'}}), assertCurrent: () => {}}).commandBindings?.['ApprovalCommand']
   if (!factory) throw Error('missing original command owner')
   bindDataSetCommandSubmit(command, factory(command))
-  const optionView = ds.getView('AppendOptions')!, optionFactory = createApprovalOptionsBindings({config: new ScenarioViewConfig(scene, pageText), http, readScope: () => ({token: 'fixture', headers: {'X-AppId': 'APP'}}), assertCurrent: () => {}}).projectionBindings?.['AppendOptions']
+  const optionView = ds.getView('AppendOptions')!, optionFactory = createApprovalOptionsBindings({config: new ScenarioViewConfig(scene, pageText), http, readScope: () => ({token: appScope, headers: {'X-AppId': 'APP'}}), assertCurrent: () => {}}).projectionBindings?.['AppendOptions']
   if (!optionFactory) throw Error('missing append options owner')
   bindDataSetReadonlyCommandQuery(optionView, optionFactory(optionView))
+  const dictionaryFactories = createApprovalOptionsBindings({config: new ScenarioViewConfig(scene, pageText), http, readScope: () => ({token: appScope, headers: {'X-AppId': 'APP'}}), assertCurrent: () => {}}).projectionBindings
+  for (const name of ['AppendStepStates', 'AppendHandleStates']) {
+    const view = ds.getView(name)!, binding = dictionaryFactories?.[name]
+    if (!binding) throw Error('missing original dictionary binding')
+    bindDataSetReadonlyCommandQuery(view, binding(view))
+  }
   const select = vi.fn(async () => [{label: '王五', value: 'U3:王五'}])
   const save = vi.spyOn(ds, 'saveChanges')
   const runtime = new PageRuntime({pageId: 'append-list', scenarioIds: [scene], loadScenario: async () => ds})
@@ -64,8 +79,19 @@ it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save', 'add-ca
   const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin()], stubs}})
   try {
     await flushPromises()
+    if (outcome === 'dictionary-error') {expect(wrapper.text()).toContain('dictionary failed'); expect(wrapper.findComponent(RendererTable).exists()).toBe(false); expect(http.calls).toHaveLength(0); return}
+    expect(http.dictionaryCalls).toHaveLength(2)
     expect(wrapper.findComponent(RendererTable).props('dataViewKey')).toBe(`${scene}@WFOBJ_FLOW_RELATIONLINE_STEP@appendParticipants`)
     expect(wrapper.text()).toContain('张三'); expect(wrapper.text()).toContain('李四'); expect(wrapper.text()).not.toContain('其他关系')
+    if (outcome === 'list') {expect(ds.getView('AppendStepStates')?.rows[0]).toMatchObject({val: 0, value: '0'}); const state = ds.getView('AppendStepStates')!; expect(state.fieldAccess(state.rows[0]!, 'value').read).toBe('visible'); expect(state.fieldAccess(state.rows[0]!, 'txt').read).toBe('visible'); state.captureReadResult()(); expect(wrapper.text()).toContain('待办理'); expect(wrapper.text()).toContain('处理中')}
+    if (outcome === 'dictionary-stale') {
+      appScope = 'other'
+      for (const name of ['AppendStepStates', 'AppendHandleStates']) ds.getView(name)!.queryConfig = {pagination: 'none', fields: ['rowid', 'val', 'txt', 'value', 'label']}
+      await flushPromises()
+      expect(wrapper.text()).not.toContain('待办理'); expect(wrapper.text()).not.toContain('处理中')
+      expect(http.calls).toHaveLength(0)
+      return
+    }
     const buttons = wrapper.findAll('button').filter(button => button.text() === '撤回')
     expect(buttons).toHaveLength(2)
     expect(buttons[0]!.attributes('disabled')).toBeUndefined(); expect(buttons[1]!.attributes('disabled')).toBeDefined()

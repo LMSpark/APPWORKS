@@ -74,6 +74,8 @@ const {
   pageLoading,
   pageError,
   listViewKey,
+  stepStateViewKey,
+  handleStateViewKey,
   revoking,
   commandLocked,
   revokeUnconfirmed,
@@ -100,11 +102,11 @@ const limitFields: SparkNode[] = [
   {type: 'r-number', props: {field: 'minNum', label: '最少人数', readonly: true}},
   {type: 'r-number', props: {field: 'maxNum', label: '最多人数', readonly: true}},
 ]
-const listFields: SparkNode[] = [
+const listFields = computed<SparkNode[]>(() => [
   {type: 'r-text', props: {field: 'ReceiveUserName', label: '办理人', readonly: true, minWidth: 180}},
-  {type: 'r-text', props: {field: 'StepState', label: '步骤状态', readonly: true, minWidth: 120}},
-  {type: 'r-text', props: {field: 'STATUS', label: '办理状态', readonly: true, minWidth: 120}},
-]
+  {type: 'r-select', props: {field: 'StepState', label: '步骤状态', readonly: true, minWidth: 120, optionDataViewKey: stepStateViewKey.value, optionValueField: 'value', optionLabelField: 'label'}},
+  {type: 'r-select', props: {field: 'STATUS', label: '办理状态', readonly: true, minWidth: 120, optionDataViewKey: handleStateViewKey.value, optionValueField: 'value', optionLabelField: 'label'}},
+])
 const listActions = computed<RToolbarProps>(() => ({children: [
   {type: 'r-button', props: {label: '撤回', link: true, buttonType: 'primary', disabled: pageLoading.value || revoking.value || commandLocked.value ? true : '$[appendRevokeDisabled]', onClick: revokeRecord}},
 ]}))

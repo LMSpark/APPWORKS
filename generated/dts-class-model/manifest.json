@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1255,
+  "scannedFileCount": 1258,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -11707,6 +11707,36 @@
         "symbols": []
       }
     },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-query.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-query.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/dictionary/application-query",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-query.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-query.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/structured-config/dictionary/application-query",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/dictionary/application-query\n职责：复用应用级GetData字典合同读取完整原行，供DataView资源及既有设计读取适配。\n边界：不是场景模型，不伪造模型身份或写权限；保留真实rowid，不由代码值生成主键。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ApplicationDictionaryResourceOptions"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/dictionary/application-resource",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/structured-config/dictionary/application-resource",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/dictionary/application-resource\n职责：把当前应用级字典接入只读DataView，标准选项组件消费同一结果与scope证明。\n边界：只有读取，不授予业务编辑权限；不缓存标签或接受伪造的场景模型绑定。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ApplicationDictionaryResource"
+        ]
+      }
+    },
     "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts": {
       "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts.json",
       "module": {
@@ -13968,7 +13998,7 @@
         "packageName": "app",
         "modulePath": "lowcode/resources/database/catalog/scenario",
         "jsdoc": "@module app:lowcode/resources/database/catalog/scenario\n职责：校验数据库目录宿主明确提供的正式 Base_DataSet.rowid，不推断或替换页面身份。\nAI用途：维护目录装配时，确保一次查询只属于本次正式导航绑定的数据空间。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DatabaseCatalogLoadOptions",
           "ResolveDatabaseCatalogDataSpaceIdInput"
@@ -15942,6 +15972,19 @@
         "packageName": "app",
         "modulePath": "lowcode/resources/system/workflow/manage/flow-append-user/command-input",
         "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/command-input\n职责：核验原追加配置与候选选择，区分正式目标证明和临时输入证明。\n边界：不保存业务数据，不生成权限或另建命令状态。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-append-user/dictionary-bindings.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/dictionary-bindings.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-append-user/dictionary-bindings",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/dictionary-bindings.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/dictionary-bindings.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-append-user/dictionary-bindings",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/dictionary-bindings\n职责：把参考页两类应用字典声明接到既有只读DataView适配。\n边界：步骤与办理字典各有来源，不用实例状态替代，不维护页面标签数组。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -21157,6 +21200,14 @@
     "AppEnvironment": {
       "sourcePath": "packages/spark-app/src/types.ts",
       "file": "files/packages/spark-app/src/types.ts.json"
+    },
+    "ApplicationDictionaryResource": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts.json"
+    },
+    "ApplicationDictionaryResourceOptions": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-query.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-query.ts.json"
     },
     "ApplicationFunctionAiInput": {
       "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-ai.ts",

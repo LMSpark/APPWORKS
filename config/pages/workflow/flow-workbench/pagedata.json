@@ -449,6 +449,32 @@
       ],
       "views": {"default": {"autoLoad": false, "queryContext": {"nodeId": ""}, "queryConfig": {"pagination": "none"}}}
     },
+    "AppendStepStates": {
+      "resourceType": "logical-view",
+      "resourceId": "application-dictionary:流程步骤状态",
+      "columns": [
+        {"name": "rowid", "type": "string", "isPrimaryKey": true},
+        {"name": "val", "type": "string"},
+        {"name": "txt", "type": "string"},
+        {"name": "ordIdx", "type": "number"},
+        {"name": "value", "type": "string"},
+        {"name": "label", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "valueField": "value", "labelField": "label", "queryConfig": {"pagination": "none"}}}
+    },
+    "AppendHandleStates": {
+      "resourceType": "logical-view",
+      "resourceId": "application-dictionary:流程办理状态",
+      "columns": [
+        {"name": "rowid", "type": "string", "isPrimaryKey": true},
+        {"name": "val", "type": "string"},
+        {"name": "txt", "type": "string"},
+        {"name": "ordIdx", "type": "number"},
+        {"name": "value", "type": "string"},
+        {"name": "label", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "valueField": "value", "labelField": "label", "queryConfig": {"pagination": "none"}}}
+    },
     "AppendOptions": {
       "resourceType": "logical-view",
       "resourceId": "workflow:append-options",

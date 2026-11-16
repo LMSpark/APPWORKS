@@ -8,7 +8,7 @@ import type { HttpClientBase } from '@spark-appworks/spark-utils'
 import { DataViewFilter, type DataSet, type DataView, type DataViewFieldProjection, type TableResourceType } from '@spark-appworks/spark-data'
 import type { DataSpaceRuntimeApi } from '../runtime/data-space-runtime-api.js'
 import type { DataSpaceRequestScope, DataSpaceQueryOptions } from '../runtime/data-space-runtime-contract.js'
-import { collectDataSpaceQueryPages } from '../runtime/protocol/data-space-pagination.js'
+import {captureApplicationDictionaryQuery} from '../../resources/structured-config/dictionary/application-query'
 import { DataViewFilterCodec } from '@spark-appworks/spark-data'
 import { parseDataSpaceValueFunction } from '../runtime/protocol/data-space-value-function.js'
 import type { DataSpaceSourceInputBinding } from '../runtime/query/data-space-source-input.js'
@@ -16,7 +16,6 @@ import type { DataViewFilterValueFunction } from '@spark-appworks/spark-data'
 import { DataSpaceInputParameters, type InputParameterRowAdapter } from './data-space-input-parameters.js'
 
 import { LowcodeApiError } from '../../../core/lowcode-api-error.js'
-import { LowcodeClient } from '../../../core/lowcode-client.js'
 import type { LowcodeModelRelationRecord } from '../data-space.js'
 import { parseNativeDataSpaceResourceType } from '../data-space-resource-type-wire.js'
 
@@ -28,7 +27,6 @@ const MODEL_TABLE = 'Base_DataModel'
 const FIELD_TABLE = 'Base_DataModel_Field'
 const RELATION_TABLE = 'Base_DataModel_Relation'
 const RELATION_DEPENDENCY_DICTIONARY = '数据关系依赖'
-const DICTIONARY_PAGE_SIZE = 500
 
 /** 正式元数据查询的消费行；保留字段原值，不包含可由调用方替换的查询凭据。 */
 type DataSpaceFormalRow = Readonly<Record<string, unknown>>
@@ -212,18 +210,6 @@ function serializedText(value: unknown): string {
   return typeof value === 'string' ? value : JSON.stringify(value)
 }
 
-function dictionaryPage(result: unknown): Readonly<{ rows: readonly DataSpaceFormalRow[]; total: unknown }> {
-  if (!isRecord(result)) throw new LowcodeApiError(0, '数据关系依赖字典响应不是对象')
-  const data = result['data'] ?? result['Data']
-  if (!isRecord(data)) throw new LowcodeApiError(0, '数据关系依赖字典响应缺少 data')
-  const rows = data['Items'] ?? data['items'] ?? data['List'] ?? data['list']
-  if (!Array.isArray(rows) || !rows.every(isRecord)) {
-    throw new LowcodeApiError(0, '数据关系依赖字典 Items 不是对象数组')
-  }
-  const total = data['Count'] ?? data['Total'] ?? data['TotalCount'] ?? data['count'] ?? data['total'] ?? data['totalCount']
-  return { rows, total }
-}
-
 function isDictionaryScalar(value: unknown): value is string | number | boolean {
   return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
 }
@@ -270,7 +256,7 @@ function dataSpaceRelation(row: DataSpaceFormalRow): LowcodeModelRelationRecord 
 
 /** 正式元数据读取与纯解析门面；设计编辑、取消及提交由绑定的DataView/DataSet承接。 */
 export class DataSpaceDesignApi {
-  private readonly client: LowcodeClient
+  private readonly http: HttpClientBase
   private readonly runtime: DataSpaceRuntimeApi
   private readonly readScope: () => DataSpaceRequestScope
 
@@ -291,7 +277,7 @@ export class DataSpaceDesignApi {
 
   /** 绑定宿主请求与共享运行 owner；正式读取校验 scope，不建立第二套设计写入口。 */
   public constructor(options: DataSpaceDesignApiOptions) {
-    this.client = new LowcodeClient(options.http)
+    this.http = options.http
     this.runtime = options.runtime
     this.readScope = options.readScope
   }
@@ -646,35 +632,9 @@ export class DataSpaceDesignApi {
 
   /** 读取应用级关系依赖字典；该资源不是场景注册模型，不携带 scenarioId。 */
   public async readRelationDependencyOptions(): Promise<ReadonlyArray<Readonly<{ label: string; value: string }>>> {
-    const scope = this.readScope()
-    if (!scope.token.trim()) throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 关系依赖字典读取需要有效执行域')
-    if (!Object.entries(scope.headers).some(([key, value]) => key.toLowerCase() === 'x-appid'
-      && typeof value === 'string' && value.trim().length > 0)) {
-      throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 关系依赖字典读取需要明确选中应用')
-    }
-    const assertCurrent = () => {
-      if (this.readScope().token !== scope.token) {
-        throw new Error('SPARK_EXECUTION_SCOPE_STALE: 关系依赖字典读取身份已失效')
-      }
-    }
-    const headers = Object.fromEntries(Object.entries(scope.headers).filter(([key]) => key.toLowerCase() !== 'x-formkey'))
-    headers['x-FormKey'] = ''
-    const collection = await collectDataSpaceQueryPages(async page => {
-      assertCurrent()
-      const result = await this.client.requestResult({
-        path: '/api/DataOperation/GetData',
-        method: 'POST',
-        data: { Table: [{ Name: RELATION_DEPENDENCY_DICTIONARY, Type: '字典', PrimaryKeyFields: 'rowid',
-          OutputType: 'Table', Filter: null, inputParams: [], DISTINCT: false, IsBusinessMain: 1 }],
-          PageParam: page },
-        headers,
-      })
-      assertCurrent()
-      return dictionaryPage(result)
-    }, { pageSize: DICTIONARY_PAGE_SIZE, maxRows: 50_000, assertCurrent })
-    assertCurrent()
-    if (collection.rows.length === 0) throw new LowcodeApiError(0, `数据关系依赖字典 ${RELATION_DEPENDENCY_DICTIONARY} 为空`)
-    return relationDependencyOptions(collection.rows)
+    const rows = await captureApplicationDictionaryQuery({http: this.http, readScope: this.readScope, name: RELATION_DEPENDENCY_DICTIONARY}).readRows()
+    if (rows.length === 0) throw new LowcodeApiError(0, `数据关系依赖字典 ${RELATION_DEPENDENCY_DICTIONARY} 为空`)
+    return relationDependencyOptions(rows)
   }
 
   private async readFormalRows(command: DataSpaceFormalQueryCommand, requireReadable = false): Promise<readonly DataSpaceFormalRow[]> {

@@ -26,6 +26,8 @@ export function useFlowAppendUser(options: UseFlowAppendUserOptions) {
   const listView = shallowRef<DataView>()
   const listViewKey = computed(() => listView.value?.dataSet?.scenarioId
     ? buildDataViewKey(STEP_MODEL, 'appendParticipants', listView.value.dataSet.scenarioId) : '')
+  const stepStateViewKey = computed(() => listView.value?.dataSet?.scenarioId ? buildDataViewKey('AppendStepStates', 'default', listView.value.dataSet.scenarioId) : '')
+  const handleStateViewKey = computed(() => listView.value?.dataSet?.scenarioId ? buildDataViewKey('AppendHandleStates', 'default', listView.value.dataSet.scenarioId) : '')
   const revoking = ref(false)
   const commandView = computed(() => {listView.value; return stepView()?.dataSet?.getView('ApprovalCommand') ?? null})
   const commandState = useDataViewState(commandView)
@@ -73,9 +75,15 @@ export function useFlowAppendUser(options: UseFlowAppendUserOptions) {
       const context = normalizeFlowAppendUserContext(options.context())
       const view = stepView()
       if (!view) throw Error('追加参与人原步骤视图未装配')
-      const result = await queryFlowAppendParticipants(view, context, () => {
-        if (own !== generation || stepView() !== view) throw Error('追加参与人原步骤目标已变化')
+      const stateViews = ['AppendStepStates', 'AppendHandleStates'].map(name => {
+        const state = view.dataSet?.getView(name)
+        if (!state) throw Error(`追加参与人缺少正式字典视图:${name}`)
+        return state
       })
+      const [result] = await Promise.all([queryFlowAppendParticipants(view, context, () => {
+        if (own !== generation || stepView() !== view) throw Error('追加参与人原步骤目标已变化')
+      }), ...stateViews.map(async state => {await state.refresh(); if (state.loadingError) throw state.loadingError; state.captureReadResult()()})])
+      if (!active || own !== generation || stepView() !== view) throw Error('原追加列表已失效')
       if (own === generation) listView.value = result
     } catch (error) {
       if (own !== generation) return
@@ -179,6 +187,8 @@ export function useFlowAppendUser(options: UseFlowAppendUserOptions) {
     pageLoading,
     pageError,
     listViewKey,
+    stepStateViewKey,
+    handleStateViewKey,
     revoking,
     commandLocked,
     revokeUnconfirmed,

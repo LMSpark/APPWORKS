@@ -10,6 +10,7 @@ import {createFlowRunContinuationBinding} from './continuation-binding'
 import {createFlowRunPageClient, type FlowRunPageClientOptions} from '../flow-run-page-client'
 import {FLOW_WORKBENCH_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID} from '../../flow-runtime-client'
 import {isRecord} from '@spark-appworks/spark-utils'
+import {createFlowAppendDictionaryBindings} from '../../flow-append-user/dictionary-bindings'
 import {createFlowAppendOptionsBinding} from '../../flow-append-user/options-binding'
 import {createFlowAppendUserClient} from '../../flow-append-user/flow-append-user-client'
 
@@ -20,7 +21,7 @@ export function createApprovalOptionsBindings(input: Input): Pick<LowcodeDataSpa
   if (!isRecord(declared) || declared['resourceType'] !== 'logical-view' || declared['resourceId'] !== 'workflow:approval-options' || Object.hasOwn(declared, 'modelBinding')) throw Error('审批选项投影声明无效')
   const candidates = isRecord(tables) ? tables['ApprovalCandidates'] : undefined
   if (!isRecord(candidates) || candidates['resourceType'] !== 'logical-view' || candidates['resourceId'] !== 'workflow:approval-candidates' || Object.hasOwn(candidates, 'modelBinding')) throw Error('审批候选投影声明无效')
-  return {projectionBindings: {ApprovalOptions: view => {
+  return {projectionBindings: {...createFlowAppendDictionaryBindings(input), ApprovalOptions: view => {
     const ds = view.dataSet
     const guard = () => {input.assertCurrent(); if (!ds || ds.destroyed || view.destroyed || ds.getView('ApprovalOptions') !== view) throw Error('审批选项空间已失效')}
     const client = createFlowRunPageClient({http: input.http, readScope: input.readScope, scenarioId: FLOW_MONITOR_SCENARIO_ID, assertCurrent: guard})

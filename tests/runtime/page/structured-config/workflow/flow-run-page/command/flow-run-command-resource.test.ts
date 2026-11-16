@@ -1,7 +1,7 @@
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet, bindDataSetCommandSubmit, ensureDataSetResourceView} from '@spark-appworks/spark-data'
 import {FlowRunCommandResource} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
-import {verifyApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
+import {submitApprovalCommand, verifyApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
 
 describe('approval command through the original DataSet', () => {
   it('retains an unknown command and verifies without dispatching it twice', async () => {
@@ -41,4 +41,28 @@ describe('approval command through the original DataSet', () => {
       expect(view.hasUnconfirmedSave).toBe(true)
     } finally {ds.destroy()}
   })
+})
+
+
+it.each(['submit', 'back', 'forceBack', 'toCreator', 'revoke'])('does not issue a new %s command for an already confirmed original target', async action => {
+  const ds = DataSet.fromJson({scenarioId: 'approval', tables: {}})
+  const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCommand', resource: {resourceType: 'command', resourceId: 'workflow:approval'}, columns: [{name: 'rowid', primary: true}, {name: 'action'}, {name: 'flowObjectId'}, {name: 'stepId'}, {name: 'nextNode', type: 'array'}]})
+  const dispatch = vi.fn(async () => {})
+  let revision = 0
+  bindDataSetCommandSubmit(view, new FlowRunCommandResource({view, dispatch, guard: () => {}, captureTarget: () => {
+    const captured = revision
+    return () => {if (captured !== revision) throw Error('formal query replaced')}
+  }}).binding())
+  try {
+    const input = {action, flowObjectId: 'WF-1', stepId: 'S1'}
+    await submitApprovalCommand(ds, input)
+    await view.refresh()
+    await expect(submitApprovalCommand(ds, input)).rejects.toThrow(/已确认/)
+    expect(dispatch).toHaveBeenCalledTimes(1)
+    revision += 1
+    await submitApprovalCommand(ds, input)
+    expect(dispatch).toHaveBeenCalledTimes(2)
+    await submitApprovalCommand(ds, {...input, stepId: 'S2'})
+    expect(dispatch).toHaveBeenCalledTimes(3)
+  } finally {ds.destroy()}
 })

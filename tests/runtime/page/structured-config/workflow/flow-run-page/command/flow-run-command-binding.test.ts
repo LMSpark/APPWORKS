@@ -60,6 +60,9 @@ it('submits the captured instance and step through the original command view', a
     await candidates.refresh()
     expect(candidates.loadingError).toBeNull()
     expect(candidates.rows).toEqual([])
+    // A new formal read can represent a legitimately restored step with the same ID.
+    await steps.refresh()
+    await objects.refresh()
     http.result = false
     await expect(submitApprovalCommand(ds, {action: 'revoke', flowObjectId: 'WF1', stepId: 'S1'})).rejects.toThrow()
     expect(command.hasUnconfirmedSave).toBe(true)

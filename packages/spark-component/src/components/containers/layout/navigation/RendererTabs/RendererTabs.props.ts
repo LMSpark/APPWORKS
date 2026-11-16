@@ -19,7 +19,7 @@ export type RTabsProps = LayoutDataContextProps & {
     toolbar?: RToolbarProps
     /** 工具栏位于标签头同一行或容器外侧；默认outside沿toolbar.position布局，header在窄屏自动换行。 */
     toolbarPlacement?: 'outside' | 'header'
-    /** 当前激活标签页 */
+    /** 当前激活标签页；提供时由父级控制，切换请求须经update:modelValue接纳才显示新面板；省略时组件维护默认选择。 */
     modelValue?: string | number
     /** 标签页切换回调（activeName 变更） */
     onTabChange?: (name: string | number) => void

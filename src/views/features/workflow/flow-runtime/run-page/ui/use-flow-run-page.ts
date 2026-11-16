@@ -98,6 +98,18 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     queryString: tab.queryString,
   }, router)))
 
+  function selectBusinessForm(value: string | number): void {
+    const key = String(value)
+    if (key === activeFormId.value) return
+    if (handleLoading.value || hasPendingApproval() || approvalWorkspace.value?.active) {
+      handleError.value = '请先确认、核验或取消原办理参数后切换业务表单'
+      return
+    }
+    if (!businessTabs.value.some(tab => tab.tabKey === key)) {handleError.value = '未定位到目标业务表单'; return}
+    activeFormId.value = key
+    handleError.value = ''
+  }
+
   const activeTab = computed(() => businessTabs.value.find(tab => tab.tabKey === activeFormId.value) ?? businessTabs.value[0])
 
   const stepViewKey = computed(() => prepared.value?.stepHistoryViewKey
@@ -210,11 +222,10 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       if (!prep || !step) throw Error('未定位到当前办理步骤')
       const ds = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
       if (!ds) throw Error('办理参数空间未装配')
-      const confirmed = ds.getView('ApprovalCommand')?.rows.some(row => row['action'] === 'submit' && row['stepId'] === prep.stepId)
-      if (confirmed) throw Error('本次办理已确认，请从待办进入新的正式步骤')
       await queryHandleOptions(own)
       assertGeneration(own)
       const formid = activeTab.value?.tabKey ?? ''
+      const originalQuery = routeQuery()
       let workspace = approvalWorkspace.value
       if (workspace?.inputs.dataSet !== ds) {
         workspace = new FlowRunApprovalInputWorkspace({dataSet: ds, assertCurrent: () => {
@@ -224,6 +235,8 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       }
       await workspace.open({flowObjectId: prep.flowObjectId, modelId: prep.flowModelId, stepId: prep.stepId, busRowId: prep.busRowId, formid}, () => {
         assertGeneration(own)
+        const currentQuery = routeQuery()
+        if (!runtimeReady() || currentQuery.wfid !== originalQuery.wfid || currentQuery.flowid !== originalQuery.flowid || currentQuery.stepid !== originalQuery.stepid) throw Error('流程办理目标已变化，请取消原参数后重新加载')
         if ((activeTab.value?.tabKey ?? '') !== formid) throw Error('业务表单已变化，请取消原办理参数后重新打开')
       })
       assertGeneration(own)
@@ -351,7 +364,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     return forceBackNodeOptions.value.length > 0
   })
 
-  watch(() => [runtimeReady(), routeQuery().wfid, routeQuery().flowid] as const, () => {
+  watch(() => [runtimeReady(), routeQuery().wfid, routeQuery().flowid, routeQuery().stepid] as const, () => {
     if (runtimeReady()) void loadPage()
   }, {immediate: true})
 
@@ -372,6 +385,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     allowForceBack,
     businessTabs,
     activeFormId,
+    selectBusinessForm,
     activeTab,
     businessRegistry,
     appendOpen,

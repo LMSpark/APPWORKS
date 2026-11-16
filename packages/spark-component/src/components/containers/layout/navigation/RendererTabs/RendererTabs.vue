@@ -14,6 +14,7 @@ AI用途：需要理解 renderer tabs 的实际渲染结构、slot/toolbar/状�
       <p v-if="aggregateError" role="alert">{{ aggregateError.message }}</p>
       <el-tabs
         :model-value="currentActiveName"
+        :before-leave="beforePaneLeave"
         @update:model-value="handleModelUpdate"
         @tab-click="handleTabClick"
         @tab-change="handleTabChange"
@@ -37,7 +38,7 @@ AI用途：需要理解 renderer tabs 的实际渲染结构、slot/toolbar/状�
  * @category container
  * @notes children 内放 r-tab-pane，每个 tab-pane 内可嵌套任意组件
  */
-import { computed } from 'vue'
+import { computed, nextTick } from 'vue'
 import { SparkComponentRenderer } from '../../../../internal'
 import { useLayoutDataContext } from '../../../runtime/layout-data-context'
 
@@ -61,10 +62,15 @@ const { registerApi, scopeKey, aggregateError } = useLayoutDataContext(props)
 
 // 工具栏优先通过 props.toolbar 输入；children 作为面板内容输入。
 const paneConfigs = computed(() => getSparkNodeChildren(props.children))
-const currentActiveName = useDefaultedSelection({
+const defaultActiveName = useDefaultedSelection({
   value: computed(() => props.modelValue),
   items: paneConfigs,
   getValue: getPaneName,
+})
+// A controlled selection changes only when the parent accepts modelValue.
+const currentActiveName = computed({
+  get: () => props.modelValue ?? defaultActiveName.value,
+  set: value => {if (props.modelValue === undefined) defaultActiveName.value = value},
 })
 
 const { toolbarConfig, toolbarPositionValue, toolbarClassValue } =
@@ -74,7 +80,7 @@ const { toolbarConfig, toolbarPositionValue, toolbarClassValue } =
 
 const {
   tabsApi,
-  handleModelUpdate,
+  handleModelUpdate: handleAcceptedModelUpdate,
   handleTabChange,
 }: {
   tabsApi: RendererTabsApi
@@ -89,6 +95,18 @@ const {
 })
 
 registerApi(tabsApi)
+
+function handleModelUpdate(value: string | number): void {
+  if (props.modelValue !== undefined && props.modelValue === value) return
+  handleAcceptedModelUpdate(value)
+}
+
+async function beforePaneLeave(name: string | number): Promise<boolean> {
+  if (props.modelValue === undefined || props.modelValue === name) return true
+  emit('update:modelValue', name)
+  await nextTick()
+  return props.modelValue === name
+}
 
 function getPaneName(pane: SparkNode, index: number): string | number {
   const value = nodeInputProp(pane, 'name') ?? nodeInputProp(pane, 'value') ?? nodeId(pane)

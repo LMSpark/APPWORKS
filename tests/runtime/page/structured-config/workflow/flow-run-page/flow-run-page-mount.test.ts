@@ -2,7 +2,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {defineComponent, h, reactive} from 'vue'
-import {PAGE_RUNTIME, RendererForm, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererForm, RendererTabs, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, parseDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {createFlowRunOptionsBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding'
@@ -61,6 +61,7 @@ vi.mock('@spark-appworks/spark-component', async importOriginal => {
   const actual = await importOriginal<typeof import('@spark-appworks/spark-component')>()
   return {
     ...actual,
+    __v_isRef: false,
     RendererGraph: {name: 'RendererGraph', template: '<div data-testid="run-chart">图</div>'},
   }
 })
@@ -120,7 +121,7 @@ function createRuntime(): PageRuntime {
     ApprovalOptions: originalOptionsView,
     ApprovalCommand: originalCommandView ?? approvalState,
     WFOBJ_FLOW: createView([{rowid: 'WF-1', WFMID: 'FM-1'}]),
-    WFOBJ_FLOW_FORM: createView([{FORMID: 'F1', FormPath: '/business', FormParams: 'rowid=BUS-9'}]),
+    WFOBJ_FLOW_FORM: createView([{FORMID: 'F1', FormPath: '/business', FormParams: 'rowid=BUS-9'}, {FORMID: 'F2', FormPath: '/business', FormParams: 'rowid=BUS-10'}]),
     WFOBJ_FLOW_RELATIONLINE_STEP: createView([{rowid: 'S1', WFOBJID: 'WF-1'}]),
     WFOBJ_FLOW_Waiting: createView([]),
   }
@@ -175,6 +176,7 @@ beforeEach(() => {
   config.global.stubs = {...baselineStubs}
   reloadRuntime.mockClear()
   callbacks.end.mockReset().mockResolvedValue(true); callbacks.succeeded.mockReset().mockResolvedValue(undefined); callbacks.failed.mockClear()
+  routeState.query.wfid = 'WF-1'
   routeState.query.stepid = ''
   releaseOldQuery = undefined
   delayFirstQuery = false
@@ -187,7 +189,7 @@ afterEach(() => {
 })
 
 describe('flow run page mount', () => {
-  it.each(['success', 'unknown', 'callback-error'])('uses original parameter views through the %s outcome', async outcome => {
+  it.each(['success', 'unknown', 'callback-error', 'form-switch'])('uses original parameter views through the %s outcome', async outcome => {
     const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
     const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})
     ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCandidates', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-candidates'}, columns: [{name: 'id', primary: true}, {name: 'name'}, {name: 'value'}, {name: 'nodeId'}]})
@@ -217,6 +219,26 @@ describe('flow run page mount', () => {
       expect(wrapper.text()).toContain('正式后续节点')
       expect(wrapper.findAllComponents(RendererForm).some(form => form.props('dataViewKey') === `${FLOW_WORKBENCH_SCENARIO_ID}@ApprovalInput@default`)).toBe(true)
       expect(view.rows[0]?.['payload']).toEqual(payload)
+      if (outcome === 'form-switch') {
+        const tabs = wrapper.findComponent(RendererTabs)
+        expect(tabs.exists()).toBe(true)
+        await tabs.get('#tab-F2').trigger('click'); await flushPromises()
+        expect(tabs.props('modelValue')).toBe('F1')
+        expect(tabs.get('#tab-F1').attributes('aria-selected')).toBe('true')
+        expect(wrapper.text()).toContain('取消原办理参数')
+        await wrapper.findAll('button').find(item => item.text() === '关闭')!.trigger('click'); await flushPromises()
+        await tabs.get('#tab-F2').trigger('click'); await flushPromises()
+        expect(tabs.props('modelValue')).toBe('F2')
+        await button.trigger('click'); await flushPromises()
+        expect(query).toHaveBeenLastCalledWith(expect.objectContaining({formid: 'F2'}))
+        await wrapper.get('textarea').setValue('保留原目标意见')
+        routeState.query.wfid = 'WF-OTHER'; await flushPromises()
+        await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click'); await flushPromises()
+        expect(dispatch).not.toHaveBeenCalled()
+        expect(callbacks.end).not.toHaveBeenCalled()
+        expect(wrapper.text()).toContain('目标已变化')
+        return
+      }
       await wrapper.get('textarea').setValue('同意')
       ds.getView('ApprovalInput')!.updateEditingValue('current', 'notifySms', true)
       callbacks.end.mockResolvedValueOnce(false)

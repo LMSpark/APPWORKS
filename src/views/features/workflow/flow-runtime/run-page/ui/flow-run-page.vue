@@ -3,72 +3,72 @@
 职责：流程办理桌面页：业务页签、办理侧栏、提交/退回与加签/流程图对话框。
 -->
 <template>
-  <RendererSection class="flow-run-page" title="流程办理" :bordered="false" :grid-columns="1"
+  <SparkComponent.RendererSection class="flow-run-page" title="流程办理" :bordered="false" :grid-columns="1"
     :status="shellLoading ? '正在加载办理页…' : ''" :error="shellError" :retryable="!shellLoading" @retry="retryShell">
     <template v-if="prepared" #header-actions>
-      <RendererButton label="流程图" @click="openFlowChart" />
-      <RendererButton label="加签" @click="openAppendDialog" />
-      <RendererButton label="撤回" :loading="handleLoading" @click="revokeCurrentStep" />
-      <RendererButton label="办理" button-type="primary" :loading="handleLoading" @click="openHandlePanel" />
-      <RendererButton label="核验原办理结果" :loading="handleLoading" @click="verifyOriginalApproval" />
+      <SparkComponent.RendererButton label="流程图" @click="openFlowChart" />
+      <SparkComponent.RendererButton label="加签" @click="openAppendDialog" />
+      <SparkComponent.RendererButton label="撤回" :loading="handleLoading" @click="revokeCurrentStep" />
+      <SparkComponent.RendererButton label="办理" button-type="primary" :loading="handleLoading" @click="openHandlePanel" />
+      <SparkComponent.RendererButton label="核验原办理结果" :loading="handleLoading" @click="verifyOriginalApproval" />
     </template>
     <div v-if="prepared" class="flow-run-page__layout">
       <section class="flow-run-page__business">
         <p class="flow-run-page__title">{{ prepared.instanceTitle }}</p>
-        <DisplayAlert v-if="handleError" alert-type="error" :closable="false" :show-icon="true" :title="handleError" />
-        <el-empty v-if="businessTabs.length === 0" description="未查询到业务页签" />
-        <el-tabs v-else v-model="activeFormId" class="flow-run-page__tabs">
-          <el-tab-pane v-for="tab in businessTabs" :key="tab.tabKey" :label="tab.label" :name="tab.tabKey" lazy>
-            <el-empty v-if="!tab.routeFound" :description="tab.routeError" />
+        <SparkComponent.DisplayAlert v-if="handleError" alert-type="error" :closable="false" :show-icon="true" :title="handleError" />
+        <SparkComponent.DisplayEmpty v-if="businessTabs.length === 0" description="未查询到业务页签" />
+        <SparkComponent.RendererTabs v-else :model-value="activeFormId" @update:model-value="selectBusinessForm" class="flow-run-page__tabs">
+          <SparkComponent.RendererTabPane v-for="(tab, index) in businessTabs" :index="index" :key="tab.tabKey" :label="tab.label" :name="tab.tabKey" lazy>
+            <SparkComponent.DisplayEmpty v-if="!tab.routeFound" :description="tab.routeError" />
             <FlowRunRouteRenderer v-else-if="tab.routeLocation" :route="tab.routeLocation" :cache-key="tab.cacheKey"
               :tab-key="tab.tabKey" :registry="businessRegistry"
               :fallback-props="{flowid: prepared.flowModelId, flowobjid: prepared.flowObjectId, stepid: prepared.stepId,
                 workFormId: tab.tabKey, pageParam: prepared.formTabs.find(form => form.tabKey === tab.tabKey)?.queryString ?? '', busRowid: prepared.busRowId}" />
-          </el-tab-pane>
-        </el-tabs>
+          </SparkComponent.RendererTabPane>
+        </SparkComponent.RendererTabs>
       </section>
       <section v-if="prepared" class="flow-run-page__history">
         <h3 class="flow-run-page__section-label">步骤历史</h3>
-        <RendererTable :data-view-key="stepViewKey" :children="[...stepHistoryColumns]" :stripe="true"
+        <SparkComponent.RendererTable :data-view-key="stepViewKey" :children="[...stepHistoryColumns]" :stripe="true"
           :show-data-view-meta="false" :pagination="{pageSizes: [10, 20, 50], showJumper: true}" />
       </section>
       <aside v-if="handleOpen" class="flow-run-page__handle">
         <h3 class="flow-run-page__handle-title">办理</h3>
-        <RendererTable :data-view-key="nodeInputViewKey" :children="nodeFields" :auto-columns="false" :show-pagination="false" :show-data-view-meta="false" />
-        <RendererForm :data-view-key="inputViewKey" :children="inputFields" :auto-columns="false" :show-data-view-meta="false" />
+        <SparkComponent.RendererTable :data-view-key="nodeInputViewKey" :children="nodeFields" :auto-columns="false" :show-pagination="false" :show-data-view-meta="false" />
+        <SparkComponent.RendererForm :data-view-key="inputViewKey" :children="inputFields" :auto-columns="false" :show-data-view-meta="false" />
         <div class="flow-run-page__handle-actions">
-          <RendererButton label="提交" button-type="primary" :loading="handleLoading" @click="submitFlow" />
-          <RendererButton v-if="backNodeOptions.length > 0" label="普通退回" :loading="handleLoading" @click="backByHistory" />
-          <RendererButton v-if="allowForceBack && forceBackNodeOptions.length > 0" label="强制退回"
+          <SparkComponent.RendererButton label="提交" button-type="primary" :loading="handleLoading" @click="submitFlow" />
+          <SparkComponent.RendererButton v-if="backNodeOptions.length > 0" label="普通退回" :loading="handleLoading" @click="backByHistory" />
+          <SparkComponent.RendererButton v-if="allowForceBack && forceBackNodeOptions.length > 0" label="强制退回"
             :loading="handleLoading" @click="forceBack" />
-          <RendererButton label="退回发起人" :loading="handleLoading" @click="backToCreator" />
-          <RendererButton label="关闭" @click="closeHandlePanel" />
+          <SparkComponent.RendererButton label="退回发起人" :loading="handleLoading" @click="backToCreator" />
+          <SparkComponent.RendererButton label="关闭" @click="closeHandlePanel" />
         </div>
       </aside>
     </div>
 
-    <RendererDialog v-model="appendOpen" title="追加办理人" width="92vw" :append-to-body="true" :destroy-on-close="true">
+    <SparkComponent.RendererDialog v-model="appendOpen" title="追加办理人" width="92vw" :append-to-body="true" :destroy-on-close="true">
       <FlowAppendUser v-if="appendContext && prepared" :context="appendContext" embedded
         :user-directory-view-key="prepared.userDirectoryViewKey" />
-    </RendererDialog>
+    </SparkComponent.RendererDialog>
 
-    <RendererDialog v-model="chartOpen" title="流程图" width="94vw" top="3vh" :append-to-body="true" :destroy-on-close="true">
-      <RendererSection :status="chartLoading ? '正在加载流程图…' : ''" :error="chartError" :bordered="false" :grid-columns="1">
-        <RendererGraph v-if="chartPrepared" class="flow-run-page__chart"
+    <SparkComponent.RendererDialog v-model="chartOpen" title="流程图" width="94vw" top="3vh" :append-to-body="true" :destroy-on-close="true">
+      <SparkComponent.RendererSection :status="chartLoading ? '正在加载流程图…' : ''" :error="chartError" :bordered="false" :grid-columns="1">
+        <SparkComponent.RendererGraph v-if="chartPrepared" class="flow-run-page__chart"
           :data-view-key="chartPrepared.nodeViewKey" :edge-data-view-key="chartPrepared.edgeViewKey"
           label-field="TITLE" edge-source-field="PARENTID" edge-target-field="CHILDID"
           :node-positions="chartPrepared.graphLayout.nodePositions" :edge-paths="chartPrepared.graphLayout.edgePaths"
           :node-badge-field="chartPrepared.nodeBadgeField" :node-badge-rules="chartBadgeRules"
           background-pattern="dots" :disabled="true" />
-      </RendererSection>
-    </RendererDialog>
-  </RendererSection>
+      </SparkComponent.RendererSection>
+    </SparkComponent.RendererDialog>
+  </SparkComponent.RendererSection>
 </template>
 
 <script setup lang="ts">
 import {computed} from 'vue'
 import {useRoute} from 'vue-router'
-import {DisplayAlert, RendererButton, RendererDialog, RendererGraph, RendererSection, RendererTable, RendererForm} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {
   FLOW_DESIGN_SCENARIO_ID,
   FLOW_MONITOR_SCENARIO_ID,
@@ -115,6 +115,7 @@ const {
   allowForceBack,
   businessTabs,
   activeFormId,
+  selectBusinessForm,
   businessRegistry,
   appendOpen,
   appendContext,

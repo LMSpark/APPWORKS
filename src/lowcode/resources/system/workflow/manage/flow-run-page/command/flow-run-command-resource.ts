@@ -65,6 +65,14 @@ export class FlowRunCommandResource {
         if (typeof key !== 'string' || key.length === 0 || captures.has(key)) throw Error('审批命令身份重复')
         const assertTarget = this.input.captureTarget(row)
         assertTarget()
+        for (const [confirmedKey, receipt] of confirmed) {
+          if (receipt['action'] !== row['action'] || receipt['flowObjectId'] !== row['flowObjectId'] || receipt['stepId'] !== row['stepId']) continue
+          const original = captures.get(confirmedKey)
+          if (!original) throw Error('已确认审批命令缺少原目标证明')
+          let originalCurrent = true
+          try {original.assertTarget()} catch {originalCurrent = false}
+          if (originalCurrent) throw Error('本次正式查询的审批动作已确认，请重新查询目标状态后办理')
+        }
         captures.set(key, {row: Object.freeze(structuredClone(row)), assertTarget})
       },
       submit: async row => {

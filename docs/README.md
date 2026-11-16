@@ -1,5 +1,7 @@
 # SPARK AppWorks 文档入口
 
+投标业务新 APP 的正式依据见[智能投标平台建设依据](smart-bid/README.md)。
+
 SPARK AppWorks 用项目蓝图表达需求与节点关系，用页面工具表达可复用界面，用场景视图文件表达业务数据视图，用运行实例表达一次页面调用。
 
 ```text

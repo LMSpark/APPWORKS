@@ -315,19 +315,18 @@ describe('computed field creation', () => {
     expect(sibling.hasUnconfirmedSave).toBe(true)
     expect(writes()).toHaveLength(2)
   })
-  it('ends an authoritative not-applied intent only through the explicit abandon action', async () => {
+  it('keeps a missing field create unresolved and refuses abandonment or another create', async () => {
     const {f, owner, writes} = await setup({omitFieldWrite: true})
     f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe('unknown')
-    expect(await owner.verify()).toBeNull()
-    expect(owner.getState()).toMatchObject({status: 'different', canAbandonNotApplied: true})
-    owner.abandonNotApplied()
-    expect(owner.getState()).toMatchObject({status: 'idle', pending: false})
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState()).toMatchObject({status: 'unknown', pending: true, canAbandonNotApplied: false})
+    expect(() => owner.abandonNotApplied()).toThrow()
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     expect(writes()).toHaveLength(1)
-    owner.begin()
-    expect(owner.getState().status).toBe('editing')
-    owner.cancel()
+    expect(() => owner.begin()).toThrow()
+    expect(owner.getState().status).toBe('unknown')
   })
   it.each(['overlay', 'applied'] as const)('preserves a later %s target edit through the first native await until explicit discard', async kind => {
     const {f, owner, fields, session, writes} = await setup(), dataSet = session.metadataDataSet
@@ -375,7 +374,7 @@ describe('computed field creation', () => {
     expect(await owner.discardLocalChangesAndVerify()).toBe(id)
     expect(writes()).toHaveLength(1)
   })
-  it('does not abandon an original not-applied intent after a later edit changes its signature', async () => {
+  it('keeps a later edit while an unknown field creation remains unverifiable', async () => {
     const {f, owner, fields, session, writes} = await setup({omitFieldWrite: true}), dataSet = session.metadataDataSet
     f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
     const nativeSave = dataSet.saveChanges.bind(dataSet)
@@ -387,10 +386,10 @@ describe('computed field creation', () => {
     const id = owner.getState().fieldId!
     fields.updateEditingValue(id, 'description', 'late edit')
     release()
-    await expect(verifying).resolves.toBeNull()
-    expect(owner.getState()).toMatchObject({status: 'different', canAbandonNotApplied: false})
+    await expect(verifying).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState()).toMatchObject({status: 'unknown', canAbandonNotApplied: false})
     expect(fields.getEditingPatch(id)).toEqual({description: 'late edit'})
-    expect(await owner.verify()).toBeNull()
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     expect(owner.getState().canAbandonNotApplied).toBe(false)
     expect(writes()).toHaveLength(1)
   })
@@ -533,7 +532,7 @@ describe('computed field creation', () => {
     await wrapper.get('[data-action="cancel-field-create"]').trigger('click'); await flushPromises()
     expect(f.sessions[0]!.hasPendingFieldEdits()).toBe(false)
   })
-  it('shows the explicit abandon action only after native not-applied confirmation', async () => {
+  it('keeps field recovery available without offering abandonment after an empty readback', async () => {
     const f = fixture({missing: true, sourceFields: [], omitFieldWrite: true}), wrapper = await page()
     const model = wrapper.findAll('[data-design-node]').find(item => item.text() === 'Orders')!
     const arrow = model.element.closest('.el-tree-node__content')?.querySelector('.el-tree-node__expand-icon')
@@ -547,9 +546,10 @@ describe('computed field creation', () => {
     expect(new DOMWrapper(document.body).findAll('[role="alert"]').some(item => item.text().includes('新增尚未完全确认'))).toBe(true)
     expect(new DOMWrapper(document.body).findAll('[data-action="verify-field-create"]')).toHaveLength(1)
     await new DOMWrapper(document.body).get('[data-action="verify-field-create"]').trigger('click'); await flushPromises()
-    expect(new DOMWrapper(document.body).find('[data-action="abandon-field-create"]').exists()).toBe(true)
-    await new DOMWrapper(document.body).get('[data-action="abandon-field-create"]').trigger('click'); await flushPromises()
-    expect(wrapper.text()).toContain('本次新增意图已结束，未再次提交')
+    expect(new DOMWrapper(document.body).find('[data-action="abandon-field-create"]').exists()).toBe(false)
+    expect(new DOMWrapper(document.body).text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+    await new DOMWrapper(document.body).get('[data-action="verify-field-create"]').trigger('click'); await flushPromises()
+    expect(f.sessions[0]!.hasPendingFieldEdits()).toBe(true)
     expect(f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1)
   })
   it('shows the separate confirmed-later-edit discard action in the native page', async () => {

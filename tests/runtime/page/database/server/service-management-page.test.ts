@@ -26,7 +26,7 @@ const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.f
 let http: DatabaseServerHttp, runtime: DataSpaceRuntimeApi
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
-  lowcodeApi: {readRequestScope: service.readRequestScope, application: {get: () => null}, dataSpace: {design: service, get runtime() {return runtime}}},
+  lowcodeApi: {readRequestScope: service.readRequestScope, application: {get: () => ({application: {id: 'APP'}})}, dataSpace: {design: service, get runtime() {return runtime}}},
 }))
 
 const sets: DataSet[] = []

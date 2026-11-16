@@ -1,0 +1,23 @@
+{
+  "observedAt": "2026-11-16T19:40:16.225Z",
+  "query": "智能投标",
+  "code": 200,
+  "count": 2,
+  "records": [
+    {
+      "id": "84A0E416D20FCB87F1CB48159F4173E1",
+      "name": "SMART_BID_DEMO",
+      "caption": "领码智能投标",
+      "createdAt": "2026-07-29T21:46:07",
+      "webUrl": "/apps/smart-bid-demo"
+    },
+    {
+      "id": "D8490EC99436A8B9AFDE205BE3153802",
+      "name": "spark-bid",
+      "caption": "智能投标平台",
+      "createdAt": "2026-11-17T02:37:21",
+      "webUrl": "/apps/D8490EC99436A8B9AFDE205BE3153802/"
+    }
+  ],
+  "writes": 0
+}

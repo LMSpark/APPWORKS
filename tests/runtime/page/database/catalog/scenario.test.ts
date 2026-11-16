@@ -1,6 +1,7 @@
 import {describe, expect, it, vi} from 'vitest'
 import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {resolveDatabaseCatalogScenarioId} from '@/lowcode/resources/database/catalog/scenario'
+import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 
 const readModelBatch = vi.hoisted(() => vi.fn())
 vi.mock('@/lowcode/lowcode-runtime', () => ({
@@ -11,6 +12,7 @@ describe('database/catalog/scenario exact identity', () => {
   it('checks the exact host-bound data-space id and required models once', async () => {
     readModelBatch.mockReset().mockResolvedValue(undefined)
     const result = await resolveDatabaseCatalogScenarioId({
+      dataSpace: lowcodeApi.dataSpace,
       preferredScenarioId: 'FORM-rowid',
       metaNames: ['_base_dbInfo', '_Base_TblList', '_Base_ViewList', 'Base_TblField'],
       assertCurrent: () => {},
@@ -27,6 +29,7 @@ describe('database/catalog/scenario exact identity', () => {
   it('fails the exact target when required models are missing without trying candidates', async () => {
     readModelBatch.mockReset().mockRejectedValue(new Error('target models missing'))
     await expect(resolveDatabaseCatalogScenarioId({
+      dataSpace: lowcodeApi.dataSpace,
       preferredScenarioId: 'FORM-rowid',
       metaNames: ['_base_dbInfo', '_Base_TblList'],
       assertCurrent: () => {},
@@ -38,6 +41,7 @@ describe('database/catalog/scenario exact identity', () => {
   it('rejects a missing host target without querying another data space', async () => {
     readModelBatch.mockReset()
     await expect(resolveDatabaseCatalogScenarioId({
+      dataSpace: lowcodeApi.dataSpace,
       preferredScenarioId: '  ',
       metaNames: ['Base_serverInfo'],
       assertCurrent: () => {},

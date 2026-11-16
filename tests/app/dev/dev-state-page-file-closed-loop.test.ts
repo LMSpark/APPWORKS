@@ -396,6 +396,22 @@ describe('DevState 页面文件闭环', () => {
     vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:createDictionaryRuntimeDataSet()}))
   })
 
+  it('selects the formal application root from its DataView even when it has no child nodes', async () => {
+    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([],'APP-A'))
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({projectId:'APP-A'})
+      expect(state.treeData.value).toHaveLength(0)
+      await state.selectNodeById('APP-A_root')
+      expect(state.selectedNode.value).toMatchObject({nodeId:'APP-A_root',projectId:'APP-A',kind:'module'})
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      expect(owner.nodeId).toBe('APP-A_root')
+      expect(owner.row?.['rowid']).toBe('APP-A_root')
+      expect(fixture.save).not.toHaveBeenCalled()
+    } finally {scope.stop()}
+  })
+
   it('在执行应用中装配元数据场景，按被设计应用查询和保存蓝图，不切换执行身份', async () => {
     const root=blueprintRoot([node('TARGET-NODE','目标节点','','TARGET-APP')],'TARGET-APP')
     const fixture=createBlueprintRuntimeDataSet('TARGET-APP',root)

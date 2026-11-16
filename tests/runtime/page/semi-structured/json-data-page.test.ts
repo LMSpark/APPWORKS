@@ -123,10 +123,12 @@ it('verifies an unknown new file before saving metadata and never uploads it twi
  const f=await open();await f.click('新增');await setNewName(f.wrapper,'file unknown');state.lose=true;await f.click('创建JSON');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toEqual([]);expect(f.wrapper.findAll('button').find(b=>b.text()==='取消新增')?.attributes('disabled')).toBeDefined()
  await f.click('核验内容保存结果');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false)
 })
-it('keeps a confirmed file after metadata fails before write, verifies absence, and retries only metadata',async()=>{
+it('keeps a confirmed file and unknown metadata capture after empty verification without replaying either source',async()=>{
  const f=await open();await f.click('新增');await setNewName(f.wrapper,'retry metadata');state.http.beforeSave=async()=>{delete state.http.beforeSave;throw new Error('no database receipt')};await f.click('创建JSON');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toEqual([])
  await f.click('核验目录保存结果');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(true)
- await f.click('创建JSON');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false)
+ await f.click('核验目录保存结果');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(true)
+ expect(f.wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+ expect(f.wrapper.findAll('button').some(button=>button.text()==='创建JSON'&&button.attributes('disabled')===undefined)).toBe(false)
 })
 
 it('does not create a file when the catalog has no usable source name',async()=>{

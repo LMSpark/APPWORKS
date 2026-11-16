@@ -545,7 +545,8 @@ export class DataSpaceRuntimeApi {
 
   /**
    * 核验未确认的原批次：按正式主键回读，新增须存在、修改字段须一致、删除须不存在。
-   * 全部生效以回读行形成回执；全部未生效则解除待核验并保留草稿；部分生效或无法按主键核验时保持待核验。
+   * 全部生效以回读行形成回执；修改/删除全部明确未生效才解除待核验并保留草稿。
+   * 新增查不到提交键仍保持未知：服务端可能重分配主键，缺少原回执不能据此证明未生效。
    */
   private async verifyUnconfirmed(command: DataSpaceRuntimeVerifyCommand): Promise<DataSpaceRuntimeSaveResult> {
     const {scope, changes, pending, signature} = command
@@ -618,7 +619,7 @@ export class DataSpaceRuntimeApi {
     if (found.size !== context.rows.length || context.total !== context.rows.length) return unknown
     const same = (left: unknown, right: unknown) => Object.is(left, right) || JSON.stringify(left) === JSON.stringify(right)
     const states = [
-      ...added.map(item => found.has(item) ? 'applied' : 'absent'),
+      ...added.map(item => found.has(item) ? 'applied' : 'unknown'),
       ...changed.map(row => {
         const actual = found.get(key(row))
         const changedFields = Object.keys(row).filter(field => field !== keyField)

@@ -6,13 +6,13 @@
 import type {DataSet, DataView, SparkNode} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {lowcodeApi, lowcodeHttp} from '../../lowcode-runtime'
+import {type lowcodeApi, lowcodeHttp} from '../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../data-space/lowcode-data-space-assembler'
 import {attachCatalogCommandViews, attachDatabaseDirectoryConnectionTestViews} from './dataset-extensions'
 import {DATABASE_SERVER_TYPE_OPTIONS} from './server/catalog-metadata'
 import {DATABASE_SERVER_MODEL} from './server/resource'
 import {DATABASE_CATALOG_DB_MODEL} from './catalog/table-view'
-import {resolveDatabaseCatalogScenarioId} from './catalog/scenario'
+import {readDatabaseCatalogScope, resolveDatabaseCatalogScenarioId} from './catalog/scenario'
 
 export const DATABASE_DIRECTORY_COMMAND_INPUT_TABLE = 'DatabaseDirectoryCommandInput'
 export const DATABASE_DIRECTORY_UNREGISTERED_DATABASES_TABLE = 'DatabaseDirectoryUnregisteredDatabaseNames'
@@ -63,23 +63,18 @@ export class LowcodeDatabaseDirectory {
   public static async loadCatalog(dataSpaceIdInput: string): Promise<DataSet> {
     const dataSpaceId = dataSpaceIdInput.trim()
     if (!dataSpaceId) throw new Error('数据库管理页面缺少正式数据空间 ID')
-    const scope = lowcodeApi.readRequestScope()
-    const assertCurrent = (): void => {
-      const current = lowcodeApi.readRequestScope()
-      if (current.token !== scope.token || current.headers['X-AppId'] !== scope.headers['X-AppId']) {
-        throw new Error('数据库目录请求所属应用或登录身份已变化')
-      }
-    }
+    const {dataSpace, runtime, assertCurrent} = readDatabaseCatalogScope()
     const exactId = await resolveDatabaseCatalogScenarioId({
+      dataSpace,
       preferredScenarioId: dataSpaceId,
       metaNames: DATABASE_DIRECTORY_META_NAMES,
       assertCurrent,
     })
     const input = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: exactId, assertCurrent}
     const [space, server, database] = await Promise.all([
-      lowcodeApi.dataSpace.design.readSpaceDefinition(input),
-      lowcodeApi.dataSpace.design.readModel({...input, metaName: DATABASE_SERVER_MODEL}),
-      lowcodeApi.dataSpace.design.readModel({...input, metaName: DATABASE_CATALOG_DB_MODEL}),
+      dataSpace.design.readSpaceDefinition(input),
+      dataSpace.design.readModel({...input, metaName: DATABASE_SERVER_MODEL}),
+      dataSpace.design.readModel({...input, metaName: DATABASE_CATALOG_DB_MODEL}),
     ])
     assertCurrent()
     const config = new ScenarioViewConfig(exactId, JSON.stringify({
@@ -97,7 +92,7 @@ export class LowcodeDatabaseDirectory {
       resourceRelations: [],
       viewCascades: [],
     }))
-    const {dataSet} = new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({
+    const {dataSet} = new LowcodeDataSpaceAssembler(runtime, lowcodeHttp).assemble({
       config,
       space,
       models: [server, database],

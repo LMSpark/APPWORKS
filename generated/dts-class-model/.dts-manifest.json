@@ -4134,7 +4134,7 @@
     "src/lowcode/resources/database/catalog/scenario.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/scenario.ts",
       "shardFile": "files/src/lowcode/resources/database/catalog/scenario.ts.json",
-      "sourceModifiedAt": "2026-11-16T18:55:25.900Z"
+      "sourceModifiedAt": "2026-11-16T19:47:57.014Z"
     },
     "src/lowcode/resources/database/catalog/table-view.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table-view.ts",
@@ -5314,7 +5314,7 @@
     "src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts.json",
-      "sourceModifiedAt": "2026-11-16T19:31:25.830Z"
+      "sourceModifiedAt": "2026-11-16T19:47:17.028Z"
     },
     "src/views/features/application/application-function-management/ui/page-design/DeliveryPane.vue": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/DeliveryPane.vue",

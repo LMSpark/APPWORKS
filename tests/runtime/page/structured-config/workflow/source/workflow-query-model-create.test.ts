@@ -51,13 +51,15 @@ describe('workflow query model creation in the original DataSet',()=>{
   await expect(openWorkflowNodeModelBinding({dataSet:ds,workflowId:'W1',nodeId:'SAVED',sources:reader,assertCurrent(){}})).rejects.toThrow('正式节点类型已变化')
   expect(http.saves).toHaveLength(0)
  })
- it('abandons a model batch proven not applied without discarding later node edits or replaying it',async()=>{
+ it('retains an unknown model batch and later node edits without abandonment or replay',async()=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!;await nodes.refresh()
   const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}});await owner.model.preview(source)
   let dispatches=0;http.beforeSave=async()=>{dispatches++;throw Error('before model transport')}
   await expect(owner.save()).rejects.toThrow();nodes.updateEditingValue(owner.nodeId,'name','后续名称')
-  await expect(owner.save()).rejects.toThrow();expect(owner.model.getState().canAbandonNotApplied).toBe(true)
-  await owner.abandonNotApplied();owner.cancel()
+  const original=owner.model.getState()
+  await expect(owner.save()).rejects.toThrow();expect(owner.model.getState().canAbandonNotApplied).toBe(false)
+  await expect(owner.abandonNotApplied()).rejects.toThrow();expect(()=>owner.cancel()).toThrow()
+  expect(owner.model.getState().modelId).toBe(original.modelId)
   expect(nodes.getEditingRow(owner.nodeId)?.['name']).toBe('后续名称');expect(dispatches).toBe(1);expect(http.saves).toHaveLength(0)
  })
  it('rejects an existing formal binding hidden by an empty editing overlay',async()=>{
@@ -626,7 +628,7 @@ describe('workflow query model creation in the original DataSet',()=>{
   expect(id).toBe(owner.nodeId);expect(owner.pending).toBe(false)
   expect(http.saves).toHaveLength(3);expect(http.records['Base_WorkflowNodeDefinition']).toHaveLength(1)
  })
- it('keeps the original node locked after an unknown submission is independently proven not applied',async()=>{
+ it('keeps the original node locked when a missing temporary key cannot resolve an unknown submission',async()=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
   await nodes.refresh()
   const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
@@ -634,15 +636,16 @@ describe('workflow query model creation in the original DataSet',()=>{
   let nodeDispatches=0
   http.beforeSave=async()=>{if(http.saves.length===2){nodeDispatches++;throw Error('transport failed before node write')}}
   await expect(owner.save()).rejects.toThrow();expect(nodeDispatches).toBe(1)
-  await expect(owner.save()).rejects.toThrow('SPARK_SAVE_NOT_APPLIED')
-  expect(nodes.hasUnconfirmedSave).toBe(false)
-  await expect(owner.save()).rejects.toThrow('未生效')
+  await expect(owner.save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(nodes.hasUnconfirmedSave).toBe(true)
+  await expect(owner.save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
   expect(nodeDispatches).toBe(1);expect(owner.nodeId).toEqual(expect.any(String));expect(owner.modelId).toEqual(expect.any(String))
-  expect(owner.nodeNotApplied).toBe(true);expect(owner.pending).toBe(true)
-  const nodeId=owner.nodeId
+  expect(owner.nodeNotApplied).toBe(false);expect(owner.pending).toBe(true)
+  const nodeId=owner.nodeId,modelId=owner.modelId
   http.beforeSave=async()=>{nodeDispatches++}
-  expect(await owner.resubmitNotApplied()).toBe(nodeId)
-  expect(nodeDispatches).toBe(2);expect(http.saves).toHaveLength(3)
+  await expect(owner.resubmitNotApplied()).rejects.toThrow()
+  expect(owner.nodeId).toBe(nodeId);expect(owner.modelId).toBe(modelId)
+  expect(nodeDispatches).toBe(1);expect(http.saves).toHaveLength(2)
  })
  it.each(['name','dataOperateModId'])('does not verify or submit a node with a later edit to %s',async field=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!

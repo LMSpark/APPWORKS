@@ -38,6 +38,16 @@
         },
         "row": {
           "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+        },
+        "savedId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
         }
       },
       "required": [
@@ -90,19 +100,23 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.749Z",
+  "generatedAt": "2026-11-16T18:31:57.912Z",
   "models": {
     "DatabaseCatalogDbEditState": {
       "name": "DatabaseCatalogDbEditState",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    id: string | number;\n    mode: 'add' | 'edit';\n    row: DataRow;\n}>",
+        "declarationTypeText": "Readonly<{\n    id: string | number;\n    mode: 'add' | 'edit';\n    row: DataRow;\n}> & {\n    /** 保存已确认、回读尚未完成时保留正式回执身份；后续只查询，不再次提交。 */\n    savedId?: string | number;\n}",
         "declarationRelations": [
           {
-            "kind": "alias",
+            "kind": "intersection",
             "typeText": "Readonly<{\n    id: string | number;\n    mode: 'add' | 'edit';\n    row: DataRow;\n}>",
             "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 保存已确认、回读尚未完成时保留正式回执身份；后续只查询，不再次提交。 */\n    savedId?: string | number;\n}"
           }
         ],
         "members": {
@@ -119,6 +133,12 @@
             },
             {
               "name": "row",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "savedId",
+              "jsdoc": "保存已确认、回读尚未完成时保留正式回执身份；后续只查询，不再次提交。",
               "readable": true,
               "writable": false
             }

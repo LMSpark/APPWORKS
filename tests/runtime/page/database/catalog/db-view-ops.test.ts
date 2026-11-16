@@ -23,7 +23,7 @@ const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.f
 let http: DatabaseTableViewHttp, runtime: DataSpaceRuntimeApi
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
-  lowcodeApi: {readRequestScope: service.readRequestScope, application: {get: () => null}, dataSpace: {design: service, get runtime() {return runtime}}},
+  lowcodeApi: {readRequestScope: service.readRequestScope, application: {get: () => ({application: {id: 'APP'}})}, dataSpace: {design: service, get runtime() {return runtime}}},
 }))
 
 const sets: DataSet[] = []
@@ -335,6 +335,30 @@ describe('database/catalog/db-view-ops', () => {
     expect(http.requests.some(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
   })
 
+  it('creates through the formal projected fields when State is owned by the server and not output', async () => {
+    service.readModel.mockImplementation(({metaName}: {metaName: string}) => {
+      const found = databaseTableViewModels[metaName as keyof typeof databaseTableViewModels]
+      if (!found) throw new Error(`unexpected model ${metaName}`)
+      return Promise.resolve(metaName === DATABASE_CATALOG_DB_MODEL
+        ? {...found, fields: found.fields.map(field => field.name === 'State' ? {...field, output: false} : field)}
+        : found)
+    })
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const serverView = requireDatabaseCatalogServerView(ds)
+    const dbView = requireDatabaseCatalogDbView(ds)
+    serverView.setSelectedRows([serverView.rows[0]!])
+    const edit = await databaseCatalogDbBeginCreate(dbView, serverView)
+    dbView.updateEditingValue(edit.id, 'Name', 'spark_bid')
+    dbView.updateEditingValue(edit.id, 'SchemaName', 'spark_bid')
+    await databaseCatalogDbSaveEdit(ds, dbView, edit)
+    const request = http.requests.find(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+    const payload = request?.data as Array<{CrudModel: {Added: Array<Record<string, unknown>>}}>
+    expect(payload[0]?.CrudModel.Added[0]).toMatchObject({Name: 'spark_bid', SchemaName: 'spark_bid', serverId: 'S1'})
+    expect(payload[0]?.CrudModel.Added[0]).not.toHaveProperty('State')
+    expect(dbView.rows.find(row => row['Name'] === 'spark_bid')?.['SchemaName']).toBe('spark_bid')
+  })
+
   it('blocks cancel and create after an unknown save, then verifies only the original DataView target', async () => {
     const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
@@ -353,5 +377,111 @@ describe('database/catalog/db-view-ops', () => {
 
     expect(saveChanges).toHaveBeenCalledOnce()
     expect(saveChanges).toHaveBeenCalledWith({views: [{tableName: dbView.tableName, viewId: dbView.viewId, ids: [edit.id]}]})
+  })
+
+  it.each([{primaryKey: 'rowid', failRead: false}, {primaryKey: 'Id', failRead: false}, {primaryKey: 'Id', failRead: true}])(
+    'reads back the server-assigned database identity without repeating a successful save ($primaryKey, read failure=$failRead)', async ({primaryKey, failRead}) => {
+    http.databasePrimaryKey = primaryKey
+    http.databaseCreatedId = 'DB-SERVER-ID'
+    for (const row of http.rows[DATABASE_CATALOG_DB_MODEL] ?? []) row[primaryKey] = row['rowid']
+    const readModel = service.readModel.getMockImplementation()!
+    service.readModel.mockImplementation(async (input: {metaName: string}) => {
+      const model = await readModel(input)
+      return input.metaName === DATABASE_CATALOG_DB_MODEL
+        ? {...model, primaryKey, fields: model.fields.map((field: {name: string}) => ({...field, primaryKey: field.name === primaryKey}))}
+        : model
+    })
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const serverView = requireDatabaseCatalogServerView(ds)
+    const view = requireDatabaseCatalogDbView(ds)
+    serverView.setSelectedRows([serverView.rows[0]!])
+    const edit = await databaseCatalogDbBeginCreate(view, serverView)
+    view.updateEditingValue(edit.id, 'Name', 'spark_bid')
+    const save = vi.spyOn(ds, 'saveChanges')
+    if (failRead) {
+      vi.spyOn(view, 'refresh').mockRejectedValueOnce(new Error('readback disconnected'))
+      await expect(databaseCatalogDbSaveEdit(ds, view, edit)).rejects.toThrow('readback disconnected')
+    }
+    await expect(databaseCatalogDbSaveEdit(ds, view, edit)).resolves.toBeUndefined()
+    expect(view.rows.find(row => view.getPkKey(row) === 'DB-SERVER-ID')?.['Name']).toBe('spark_bid')
+    expect(save).toHaveBeenCalledOnce()
+    expect(http.requests.filter(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1)
+    expect((await save.mock.results[0]?.value)?.data?.viewResults[0]?.createdIdentities)
+      .toEqual([{submittedId: edit.id, savedId: 'DB-SERVER-ID'}])
+  })
+
+  it.each([false, true])('never repeats a create after losing its receipt (server replaced identity=%s)', async reassigned => {
+    if (reassigned) http.databaseCreatedId = 'DB-SERVER-ID'
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const servers = requireDatabaseCatalogServerView(ds), view = requireDatabaseCatalogDbView(ds)
+    servers.setSelectedRows([servers.rows[0]!])
+    const edit = await databaseCatalogDbBeginCreate(view, servers)
+    view.updateEditingValue(edit.id, 'Name', 'lost-receipt')
+    let dropReceipt = true
+    const remove = http.interceptors.response.use({onResponse: response => {
+      if (dropReceipt && http.requests.at(-1)?.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
+        dropReceipt = false
+        throw Object.assign(new Error('save response lost after persistence'), {name: 'RequestError', status: 503})
+      }
+      return response
+    }})
+    try {
+      await expect(databaseCatalogDbSaveEdit(ds, view, edit)).rejects.toThrow()
+      expect(view.hasUnconfirmedSave).toBe(true)
+      expect(http.rows[DATABASE_CATALOG_DB_MODEL]?.filter(row => row['Name'] === 'lost-receipt')).toHaveLength(1)
+      if (reassigned) {
+        for (let attempt = 0; attempt < 2; attempt++) {
+          await expect(databaseCatalogDbSaveEdit(ds, view, edit)).rejects.toThrow()
+          expect(view.hasUnconfirmedSave).toBe(true)
+          expect(() => databaseCatalogDbCancelEdit(view, edit)).toThrow('请先核验')
+        }
+        expect(edit.savedId).toBeUndefined()
+      } else {
+        await expect(databaseCatalogDbSaveEdit(ds, view, edit)).resolves.toBeUndefined()
+        expect(view.hasUnconfirmedSave).toBe(false)
+        expect(edit.savedId).toBe(edit.id)
+      }
+      expect(http.requests.filter(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1)
+    } finally {remove()}
+  })
+
+  it('reads the confirmed new identity beyond the current list page through a named query without changing the list', async () => {
+    http.databaseCreatedId = 'DB-LAST'
+    const template = http.rows[DATABASE_CATALOG_DB_MODEL]![0]!
+    http.rows[DATABASE_CATALOG_DB_MODEL] = Array.from({length: 25}, (_, i) => ({...template, rowid: `DB-${i}`}))
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const servers = requireDatabaseCatalogServerView(ds), view = requireDatabaseCatalogDbView(ds)
+    servers.setSelectedRows([servers.rows[0]!])
+    const edit = await databaseCatalogDbBeginCreate(view, servers)
+    view.updateEditingValue(edit.id, 'Name', 'spark_bid')
+    await databaseCatalogDbSaveEdit(ds, view, edit)
+    expect(view.rows).toHaveLength(20)
+    expect(view.rows.some(row => view.getPkKey(row) === 'DB-LAST')).toBe(false)
+    expect(http.rows[DATABASE_CATALOG_DB_MODEL]?.find(row => row['rowid'] === 'DB-LAST')?.['Name']).toBe('spark_bid')
+    expect(http.requests.some(item => item.url === '/api/DataOperation/GetData' && JSON.stringify(item.data).includes('DB-LAST'))).toBe(true)
+    expect(Object.keys(view.dataTable!.views).filter(id => id.startsWith('databaseSaveReadback_'))).toEqual([])
+    expect(http.requests.filter(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1)
+  })
+
+  it('does not accept a same-name row as the saved identity and only rereads after confirmation', async () => {
+    http.databaseCreatedId = 'DB-SERVER-ID'
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const servers = requireDatabaseCatalogServerView(ds), view = requireDatabaseCatalogDbView(ds)
+    servers.setSelectedRows([servers.rows[0]!])
+    const edit = await databaseCatalogDbBeginCreate(view, servers)
+    view.updateEditingValue(edit.id, 'Name', 'spark_bid')
+    const refresh = view.refresh.bind(view)
+    vi.spyOn(view, 'refresh').mockImplementation(async () => {
+      http.rows[DATABASE_CATALOG_DB_MODEL] = http.rows[DATABASE_CATALOG_DB_MODEL]!.map(row =>
+        row['rowid'] === 'DB-SERVER-ID' ? {...row, rowid: 'OTHER-ID'} : row)
+      await refresh()
+    })
+    await expect(databaseCatalogDbSaveEdit(ds, view, edit)).rejects.toThrow('重新读取目录未见该记录（DB-SERVER-ID）')
+    await expect(databaseCatalogDbSaveEdit(ds, view, edit)).rejects.toThrow('重新读取目录未见该记录（DB-SERVER-ID）')
+    expect(http.requests.filter(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1)
   })
 })

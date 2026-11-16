@@ -1898,7 +1898,7 @@ describe('native graph layout persistence', () => {
     expect(writes(f)).toHaveLength(0); expect(f.fileWrites).toHaveLength(0)
   })
 
-  it('requires explicit UI abandonment after the original model create is authoritatively not applied', async () => {
+  it('does not offer UI abandonment when an unknown model create returns no matching rows', async () => {
     const source = {type: 'table' as const, id: 'NO_WRITE', name: 'NoWrite', description: '未写入', dbid: 'DB', databaseName: 'database', providerId: ''}
     const f = fixture({allowModelAdd: true, allowFieldAdd: true, omitModelWrite: true, omitAllFieldChanges: true, modelSources: {
       query: async () => ({rows: [source], total: 1}), prepare: async () => ({source, model: {
@@ -1912,10 +1912,10 @@ describe('native graph layout persistence', () => {
     await sourceButton(editor, 'create-model').trigger('click'); await flushPromises()
     expect(session.getModelCreate().getState()).toMatchObject({status: 'unknown', pending: true})
     await sourceButton(editor, 'verify-create').trigger('click'); await flushPromises()
-    expect(session.getModelCreate().getState()).toMatchObject({status: 'different', pending: true, canAbandonNotApplied: true})
-    expect(editor.findAllComponents(RendererButton).some(button => button.attributes('data-action') === 'abandon-not-applied-create')).toBe(true)
-    await sourceButton(editor, 'abandon-not-applied-create').trigger('click'); await flushPromises()
-    expect(session.getModelCreate().getState()).toMatchObject({status: 'idle', pending: false, preview: null})
+    expect(session.getModelCreate().getState()).toMatchObject({status: 'unknown', pending: true, canAbandonNotApplied: false})
+    expect(editor.findAllComponents(RendererButton).some(button => button.attributes('data-action') === 'abandon-not-applied-create')).toBe(false)
+    await sourceButton(editor, 'verify-create').trigger('click'); await flushPromises()
+    expect(session.getModelCreate().getState()).toMatchObject({status: 'unknown', pending: true})
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
   })
 
@@ -2848,7 +2848,7 @@ describe('native data-space design entry', () => {
     expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(row=>row['rowid']==='M1')).toMatchObject({Name:'Orders',Type:'数据库'})
     expect(wrapper.findAllComponents(RendererDialog).some(dialog=>dialog.props('title')==='编辑前端数组' && dialog.props('modelValue'))).toBe(false)
   })
-  it('explicitly abandons an authoritatively not-applied array batch through standard toolbar recovery', async () => {
+  it('keeps an unknown array creation pending after an empty readback through standard toolbar recovery', async () => {
     const f=fixture({overviewOnly:true,allowModelAdd:true,allowFieldAdd:true,omitModelWrite:true,omitFieldWrite:true})
     const {wrapper,instance}=await page('?scenarioId=A',true);await select(wrapper,'Orders')
     const body=new DOMWrapper(document.body)
@@ -2859,14 +2859,14 @@ describe('native data-space design entry', () => {
     await body.get('[data-action="save-new-array"]').trigger('click');await flushPromises()
     expect(writes(f)).toHaveLength(1);expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
     await body.get('[data-action="verify-new-array"]').trigger('click');await flushPromises()
-    expect(owner.getState()).toMatchObject({status:'different',pending:true,canAbandonNotApplied:true})
+    expect(owner.getState()).toMatchObject({status:'unknown',pending:true,canAbandonNotApplied:false})
     expect(body.findAll('[data-action="accept-new-array"]')).toHaveLength(0)
-    expect(body.findAll('[data-action="abandon-not-applied-array"]')).toHaveLength(1)
-    await body.get('[data-action="abandon-not-applied-array"]').trigger('click');await flushPromises()
-    expect(wrapper.findAllComponents(RendererDialog).some(dialog=>dialog.props('title')==='新增前端数组'&&dialog.props('modelValue'))).toBe(false)
-    expect(owner.getState()).toMatchObject({status:'idle',pending:false,modelId:null})
+    expect(body.findAll('[data-action="abandon-not-applied-array"]')).toHaveLength(0)
+    await body.get('[data-action="verify-new-array"]').trigger('click');await flushPromises()
+    expect(wrapper.findAllComponents(RendererDialog).some(dialog=>dialog.props('title')==='新增前端数组'&&dialog.props('modelValue'))).toBe(true)
+    expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
     expect(f.created.get('Base_DataModel')).toBeUndefined();expect(writes(f)).toHaveLength(1)
-    expect(f.fileWrites).toHaveLength(0);expect(instance.isDirty).toBe(false)
+    expect(f.fileWrites).toHaveLength(0);expect(instance.isDirty).toBe(true)
   })
   it('explicitly discards a confirmed array target edit through the standard toolbar without replay', async () => {
     const f=fixture({overviewOnly:true,allowModelAdd:true,allowFieldAdd:true})
@@ -5871,7 +5871,7 @@ describe('native data-space design entry', () => {
     expect(instance.isDirty).toBe(false)
   })
 
-  it.each(['model-only', 'absent', 'orphan-fields'] as const)('adopts a partial creation without binding the pending node and recovers %s explicitly', async result => {
+  it.each(['model-only', 'absent', 'orphan-fields'] as const)('keeps an unknown creation pending without binding or replaying when readback is %s', async result => {
     const source = {type: 'table' as const, id: 'NEW', name: 'Recovered', description: '恢复来源', dbid: 'DB', databaseName: 'database', providerId: ''}
     const field = {type: 'dataModel' as const, Name: 'id', description: 'ID', FieldType: 'varchar', IsPKey: 1, IsOutput: 1,
       AsName: '', ValueFun: '', Expression: '', allowAIAdd: 0, OrderType: '', Order: 0, Group: 0}
@@ -5894,39 +5894,18 @@ describe('native data-space design entry', () => {
     if (result !== 'model-only') f.created.delete('Base_DataModel')
     if (result === 'absent') f.created.delete('Base_DataModel_Field')
     await sourceButton(editor, 'verify-create').trigger('click'); await flushPromises()
-    if (result !== 'absent') {
-      // 部分生效的原批次按正式合同不可核验：保持未知、不重发，须重开页面查询实际结果。
-      expect(editor.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
-      expect(f.sessions[0]!.getModelCreate().getState().status).toBe('unknown')
-      expect(writes(f)).toHaveLength(1)
-      expect(f.created.get('Base_DataModel') ?? []).toHaveLength(result === 'model-only' ? 1 : 0)
-      expect(f.created.get('Base_DataModel_Field') ?? []).toHaveLength(result === 'model-only' ? 0 : 2)
-      return
-    }
-    expect(f.sessions[0]!.getModelCreate().getState().status).toBe('different')
-    expect(editor.text()).toContain('正式结果与本次预览不一致')
-    await sourceButton(editor, 'abandon-not-applied-create').trigger('click'); await flushPromises()
-    expect(f.sessions[0]!.hasPendingModelCreate()).toBe(false)
+    expect(editor.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(f.sessions[0]!.getModelCreate().getState()).toMatchObject({status: 'unknown', modelId, canAbandonNotApplied: false})
+    expect(f.created.get('Base_DataModel') ?? []).toHaveLength(result === 'model-only' ? 1 : 0)
+    expect(f.created.get('Base_DataModel_Field') ?? []).toHaveLength(result === 'orphan-fields' ? 2 : 0)
+    expect(f.sessions[0]!.hasPendingModelCreate()).toBe(true)
     expect(editor.emitted('created')).toBeUndefined()
     expect(wrapper.get('.design-detail h2').text()).toBe('待配置模型')
     expect(instance.isDirty).toBe(true)
     expect(f.fileWrites).toHaveLength(0); expect(f.stored.get('A')).toBe(before)
-    await cancelDirectoryNode(wrapper)
-    expect(instance.isDirty).toBe(false)
+    await sourceButton(editor, 'verify-create').trigger('click'); await flushPromises()
+    expect(f.sessions[0]!.hasPendingModelCreate()).toBe(true)
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
-    {
-      await createDirectoryNode(wrapper)
-      const retry = wrapper.getComponent(DataSpaceModelSource)
-      await openSourcePicker(retry)
-      const list = retry.getComponent(RendererTable), view = resolveDataViewKey(list.props('dataViewKey'), f.sessions[0]!.metadataDataSet)!
-      list.getComponent(SourceTable).vm.$emit('current-change', view.rows[0]); await flushPromises()
-      await sourceButton(retry, 'preview-source').trigger('click'); await flushPromises()
-      expect(writes(f)).toHaveLength(2)
-      expect(f.created.get('Base_DataModel')).toHaveLength(1)
-      expect(f.created.get('Base_DataModel')![0]!['rowid']).not.toBe(modelId)
-      expect(wrapper.get('.design-detail h2').text()).toBe('Recovered')
-      expect(instance.isDirty).toBe(false)
-    }
   }, 10000)
 
   it('cancels a source preview without saving and invalidates it when filters change', async () => {

@@ -370,8 +370,8 @@ describe('维度规则整组编辑', () => {
   })
 
   it('确认原批次未生效后，只有显式操作才重新提交', async () => {
-    const f = await open()
-    await f.addResult()
+    const f = await open(true)
+    f.rule.updateEditingValue('R1', 'rule_name', '已修改规则')
     let interrupted = true
     f.http.beforeSave = async () => {if (interrupted) {interrupted = false; throw new Error('派发后连接中断')}}
     await f.click('保存规则')
@@ -382,12 +382,11 @@ describe('维度规则整组编辑', () => {
     expect(f.http.saves).toHaveLength(0)
     await f.click('重新保存原修改')
     await vi.waitFor(() => expect(f.closed).toHaveBeenCalledOnce())
-    expect(f.http.saves).toHaveLength(2)
+    expect(f.http.saves).toHaveLength(1)
   })
 
   it('原批次未生效后重试前重新核验锚点，不使用过期条件', async () => {
-    const f = await open()
-    await f.addResult()
+    const f = await open(true)
     f.http.records['Bil_Dimension_Source_Binding'] = [anchor()]
     f.rule.updateEditingValue('R1', 'status', true)
     let interrupted = true
@@ -401,6 +400,22 @@ describe('维度规则整组编辑', () => {
     expect(document.body.textContent).toContain('身份完整且在有效期内的已启用来源锚点')
     expect(f.http.saves).toHaveLength(0)
     expect(f.closed).not.toHaveBeenCalled()
+  })
+
+  it('新增原批次空回读仍保持未知，不提供重提或取消', async () => {
+    const f = await open()
+    await f.addResult()
+    f.http.beforeSave = async () => {throw new Error('派发后连接中断')}
+    await f.click('保存规则')
+    await vi.waitFor(() => expect(f.rule.hasUnconfirmedSave).toBe(true))
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await f.click('核验原保存结果')
+      expect(f.rule.hasUnconfirmedSave).toBe(true)
+      expect(f.button('取消').props('disabled')).toBe(true)
+      expect(f.wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '重新保存原修改' && !button.props('disabled'))).toBe(false)
+    }
+    expect(f.closed).not.toHaveBeenCalled()
+    expect(f.http.saves).toHaveLength(0)
   })
 
   it('部分生效时保留未知捕获，明确放弃后回读实际结果', async () => {

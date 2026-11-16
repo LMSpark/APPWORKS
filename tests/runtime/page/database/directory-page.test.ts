@@ -20,13 +20,16 @@ import {buildComponentMap} from '@/registries/vue-page-registry'
 
 const mocks = vi.hoisted(() => ({
   readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn(),
+  readAuthenticatedRequestScope: vi.fn(), application: vi.fn(),
   dirtySources: [] as Array<{isDirty: boolean}>, navItems: [] as RuntimeNavigationItem[],
   activePath: [] as RuntimeNavigationItem[],
 }))
 let http: DatabaseTableViewHttp, runtime: DataSpaceRuntimeApi
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
-  lowcodeApi: {readRequestScope: mocks.readRequestScope, application: {get: () => null}, dataSpace: {design: mocks, get runtime() {return runtime}}},
+  lowcodeApi: {readRequestScope: mocks.readRequestScope, readAuthenticatedRequestScope: mocks.readAuthenticatedRequestScope,
+    application: {get: mocks.application}, dataSpace: {design: mocks, get runtime() {return runtime}}},
+  lowcodeCatalogDataSpace: {design: mocks, get runtime() {return runtime}},
 }))
 vi.mock('@spark-appworks/spark-app', async importOriginal => ({
   ...await importOriginal<Record<string, unknown>>(),
@@ -48,6 +51,8 @@ const tableViewNode: RuntimeNavigationItem = {id: 'table-view-target', title: '�
 beforeEach(() => {
   http = new DatabaseTableViewHttp()
   runtime = bootstrapDatabaseTableViewRuntime(http, mocks)
+  mocks.application.mockReturnValue({application: {id: 'APP'}})
+  mocks.readAuthenticatedRequestScope.mockReturnValue({token: 'enterprise-session', headers: {}})
   mocks.dirtySources.splice(0)
   mocks.navItems.splice(0, mocks.navItems.length, {...directoryModule, children: [directoryNode, tableViewNode]})
   mocks.activePath.splice(0, mocks.activePath.length, mocks.navItems[0]!, directoryNode)
@@ -302,6 +307,17 @@ describe('database directory page', () => {
     await dialog.findAll('button').find(button => button.text() === '取消')!.trigger('click')
     await flushPromises()
     expect(mocks.dirtySources.at(-1)?.isDirty).toBe(false)
+  })
+
+  it('renders enterprise directory controls without requiring a selected application', async () => {
+    mocks.application.mockReturnValue(null)
+    mocks.readRequestScope.mockImplementation(() => {throw new Error('no application selected')})
+    runtime = new DataSpaceRuntimeApi({http, readScope: mocks.readAuthenticatedRequestScope})
+    const wrapper = await open()
+    expect(wrapper.findAllComponents(RendererTable)).toHaveLength(2)
+    expect(wrapper.text()).toContain('数据库列表')
+    expect(http.requests.length).toBeGreaterThan(0)
+    expect(http.requests.every(request => request.headers?.['X-AppId'] === undefined)).toBe(true)
   })
 
   it('includes standard DataView edits in the native page dirty guard', async () => {

@@ -265,6 +265,14 @@ export function assembleLowcodeRuntimeNavigation(
   const businessChildren = sortBlueprintRecords(
     candidates.filter(record => !candidateIds.has(record.parentNodeId)),
   ).map(record => buildRuntimeNavigationItem(record, childrenByParent, authorizationById))
+  return applicationNavigation(input, businessChildren)
+}
+
+/** 系统设计页来自正式页面登记；业务菜单必须由授权后的投影传入。 */
+function applicationNavigation(
+  input: Pick<LowcodeRuntimeNavigationAssemblyInput, 'applicationName' | 'projectId' | 'navigationRootId'>,
+  businessChildren: readonly RuntimeNavigationItem[],
+): RuntimeNavigation {
   const navigationItems = withApplicationDesign(businessChildren)
   const landingItem = runtimeLanding(businessChildren, navigationItems)
   const homePath = landingItem?.itemKind === 'system-page'
@@ -343,20 +351,26 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
       const dataSet = runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)
       if (!dataSet) throw new Error('启动导航运行时缺少正式蓝图 DataSet')
       owner = new BlueprintWorkspaceDataView(dataSet, application.id, assertExecutionScope)
-      const [recordsResult, authorizationResult] = await Promise.allSettled([
-        readWithinExecutionScope(owner.loadProjectRecords()),
-        readWithinExecutionScope(readNavigationAuthorizationDataView({applicationId: application.id,
-          navigationRootId, assertCurrent: assertExecutionScope})),
-      ])
+      const records = await readWithinExecutionScope(owner.loadProjectRecords())
+      const identity = {applicationName: application.name, projectId: application.id, navigationRootId}
+      const root = records.find(record => record.nodeId === navigationRootId)
+      // 新应用只有无目标的容器根和未发布节点时，尚无业务菜单可授权。
+      // 缺少正式根、根本身有目标或有已发布子项仍走原授权查询，不将读取错误解释为空应用。
+      const rootTarget = root?.source['NavigationUrl']
+      const designOnly = root?.kind === 'module' && isRootBlueprintParent(root.parentNodeId)
+        && typeof rootTarget === 'string' && rootTarget.trim() === '' && records.every(record => {
+          if (record.nodeId === navigationRootId) return true
+          // source 已由原查询权限过滤；只接受正式未发布值，缺字段或未知值不推断为空菜单。
+          const flag = record.source['IsShowAtNav']
+          return flag === false || flag === 0 || flag === '0'
+        })
       assertExecutionScope()
-      if (recordsResult.status === 'rejected') throw recordsResult.reason
-      if (authorizationResult.status === 'rejected') throw authorizationResult.reason
+      if (designOnly) return applicationNavigation(identity, [])
+      const authorization = await readWithinExecutionScope(readNavigationAuthorizationDataView({applicationId: application.id,
+        navigationRootId, assertCurrent: assertExecutionScope}))
+      assertExecutionScope()
       return assembleLowcodeRuntimeNavigation({
-        applicationName: application.name,
-        projectId: application.id,
-        navigationRootId,
-        records: recordsResult.value,
-        authorization: authorizationResult.value,
+        ...identity, records, authorization,
       })
     } finally {
       owner?.dispose()

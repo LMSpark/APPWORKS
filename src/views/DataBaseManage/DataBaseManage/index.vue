@@ -67,7 +67,7 @@ import type {RFilterProps, RToolbarProps} from '@spark-appworks/spark-component'
 
 const {DisplayAlert, PAGE_RUNTIME, RendererSection, RendererTable, RendererDialog, RendererButton, RendererForm, useSparkComponent} = SparkComponent
 import {useRoute} from 'vue-router'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {readDatabaseCatalogScope} from '@/lowcode/resources/database/catalog/scenario'
 import {LowcodeDatabaseDirectory, DATABASE_DIRECTORY_COMMAND_INPUT_TABLE, DATABASE_DIRECTORY_LIST_FIELDS,
   DATABASE_DIRECTORY_UNREGISTERED_DATABASES_TABLE} from '@/lowcode/resources/database/directory'
 import {DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/server/resource'
@@ -96,10 +96,7 @@ const TABLE_VIEW_PATH = '/features/data-platform/database-management/table-and-v
 const route = useRoute()
 const nav = useNav()
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : '')
-const scopeFingerprint = computed(() => {
-  const scope = lowcodeApi.readRequestScope()
-  return `${scope.token}:${scope.headers['X-AppId'] ?? ''}`
-})
+const scopeFingerprint = computed(() => readDatabaseCatalogScope().fingerprint)
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'database-directory-page'})
 const session = new NativePageRuntimeSession({
   provide: current => sparkProvide(PAGE_RUNTIME, current),

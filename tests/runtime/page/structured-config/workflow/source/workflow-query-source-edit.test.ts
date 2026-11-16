@@ -363,12 +363,14 @@ describe('workflow query source edit composition',()=>{
   expect(f.owner.getState().isolation?.fork?.modelId).toBe(captured?.modelId)
   await expect(f.owner.abandonIsolationNotApplied()).rejects.toThrow();expect(f.http.saves).toHaveLength(writes)
  })
- it('abandons a rejected component batch only after the original verifier proves not applied',async()=>{
+ it('retains the original component batch when missing temporary keys leave submission unknown',async()=>{
   const f=await componentFixture(),before=structuredClone(f.http.records);f.http.beforeSave=async()=>{throw Error('rejected')}
   await expect(f.owner.isolate('Copy')).rejects.toThrow();delete f.http.beforeSave
-  await expect(f.owner.verifyIsolation()).rejects.toThrow('尚未完整确认');expect(f.owner.getState().isolation?.canAbandonNotApplied).toBe(true)
-  await f.owner.abandonIsolationNotApplied();f.owner.cancel();expect(f.http.records).toEqual(before);expect(f.http.saves).toHaveLength(0)
-  expect(Object.values(f.ds.tables).flatMap(table=>table.viewList).some(view=>view.viewId.startsWith('modelComponentFork_'))).toBe(false)
+  const original=f.owner.getState().isolation?.fork?.modelId
+  await expect(f.owner.verifyIsolation()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE');expect(f.owner.getState().isolation?.canAbandonNotApplied).toBe(false)
+  await expect(f.owner.abandonIsolationNotApplied()).rejects.toThrow();expect(()=>f.owner.cancel()).toThrow()
+  expect(f.owner.getState().isolation?.fork?.modelId).toBe(original);expect(f.http.records).toEqual(before);expect(f.http.saves).toHaveLength(0)
+  expect(Object.values(f.ds.tables).flatMap(table=>table.viewList).some(view=>view.viewId.startsWith('modelComponentFork_'))).toBe(true)
  })
  it('preserves later component edits and explicitly discards only captured targets without repeating creation',async()=>{
   const f=await componentFixture();f.http.beforeSave=async()=>{const key=f.owner.getState().isolation?.fork?.modelId;if(!key)throw Error('missing captured root');const view=f.ds.getTable('Base_DataModel')!.viewList.find(view=>view.rows.some(row=>row['rowid']===key));if(!view)throw Error('missing original component view');view.updateEditingValue(key,'description','late')}
@@ -489,11 +491,13 @@ describe('workflow query source edit composition',()=>{
   await owner.source.preview(source);await owner.source.includeField({sourceName:'extra',included:true})
   await expect(owner.source.save()).rejects.toThrow('原查询输出');expect(f.http.saves).toHaveLength(0)
  })
- it('can explicitly abandon an isolation batch independently confirmed not applied without replay',async()=>{
+ it('cannot abandon an isolation batch based on an absent temporary key',async()=>{
   const f=await fixture();f.http.beforeSave=async()=>{throw Error('rejected')}
   await expect(f.owner.isolate('IsolatedQuery')).rejects.toThrow();delete f.http.beforeSave;await expect(f.owner.verifyIsolation()).rejects.toThrow()
-  expect(f.owner.getState().isolation?.canAbandonNotApplied).toBe(true)
-  await f.owner.abandonIsolationNotApplied();f.owner.cancel();expect(f.http.saves).toHaveLength(0)
+  expect(f.owner.getState().isolation?.canAbandonNotApplied).toBe(false)
+  const original=f.owner.getState().isolation?.fork?.modelId
+  await expect(f.owner.abandonIsolationNotApplied()).rejects.toThrow();expect(()=>f.owner.cancel()).toThrow()
+  expect(f.owner.getState().isolation?.fork?.modelId).toBe(original);expect(f.http.saves).toHaveLength(0)
  })
  it('explicitly discards only later isolation edits and verifies the same created model without replay',async()=>{
   const f=await fixture();f.http.beforeSave=async()=>{const id=f.owner.getState().isolation?.fork?.modelId;if(!id)throw Error('missing captured model');const view=f.ds.getTable('Base_DataModel')!.viewList.find(view=>view.rows.some(row=>row['rowid']===id));if(!view)throw Error('missing original view');view.updateEditingValue(id,'description','later-description')}

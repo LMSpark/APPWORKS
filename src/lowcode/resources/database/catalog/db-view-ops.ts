@@ -2,7 +2,7 @@
  * @module app:lowcode/resources/database/catalog/db-view-ops
  * 职责：_base_dbInfo 单行新增编排（非 query/save owner）。
  */
-import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {DataViewFilter, RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {
   DATABASE_CATALOG_COMMAND_INPUT_TABLE,
   DATABASE_CATALOG_DB_MODEL,
@@ -10,9 +10,12 @@ import {
 import {DATABASE_SERVER_MODEL} from '../server/resource'
 import {databaseCatalogDbSelectedId} from './table/view-ops'
 
-const createFields = ['serverId', 'Name', 'Type', 'ServerName', 'SchemaName', 'State', 'Remark'] as const
+const createFields = ['serverId', 'Name', 'Type', 'ServerName', 'SchemaName', 'Remark'] as const
 const existingEditFields = ['Name', 'SchemaName', 'Remark'] as const
-export type DatabaseCatalogDbEditState = Readonly<{id: string | number; mode: 'add' | 'edit'; row: DataRow}>
+export type DatabaseCatalogDbEditState = Readonly<{id: string | number; mode: 'add' | 'edit'; row: DataRow}> & {
+  /** 保存已确认、回读尚未完成时保留正式回执身份；后续只查询，不再次提交。 */
+  savedId?: string | number
+}
 
 export type DatabaseCatalogDbEditingUi = Readonly<{
   id: string | number
@@ -49,7 +52,8 @@ export function databaseCatalogDbEditing(view: DataView, edit: DatabaseCatalogDb
   if (!edit) return undefined
   const unconfirmed = view.hasUnconfirmedSave
   const pending = view.hasEditingChanges(edit.id) || view.dirtyTracking.hasPendingChanges()
-  return {id: edit.id, mode: edit.mode, unconfirmed, readbackFailed: !unconfirmed && !pending && !!view.loadingError}
+  return {id: edit.savedId ?? edit.id, mode: edit.mode, unconfirmed,
+    readbackFailed: !unconfirmed && (edit.savedId !== undefined || !pending && !!view.loadingError)}
 }
 
 function idleDb(view: DataView, edit: DatabaseCatalogDbEditState | undefined): boolean {
@@ -83,7 +87,6 @@ export async function databaseCatalogDbBeginCreate(dbView: DataView, serverView:
     Type: server.type,
     ServerName: server.name,
     SchemaName: 'dbo',
-    State: '1',
     Remark: '',
   })
   const primaryKey = dbView.getPkKey(created)
@@ -223,12 +226,29 @@ function assertEditTarget(view: DataView, edit: DatabaseCatalogDbEditState): Dat
   return target
 }
 
-async function commit(dataSet: DataSet, view: DataView, id: string | number): Promise<void> {
-  const result = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
-  if (!result.success) throw new Error(result.message ?? '数据库保存失败')
+async function commit(dataSet: DataSet, view: DataView, edit: DatabaseCatalogDbEditState): Promise<void> {
+  if (edit.savedId === undefined) {
+    const result = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [edit.id]}]})
+    if (!result.success) throw new Error(result.message ?? '数据库保存失败')
+    const receipt = result.data?.viewResults.find(item => item.tableName === view.tableName && item.viewId === view.viewId)
+    edit.savedId = receipt?.createdIdentities?.find(item => item.submittedId === edit.id)?.savedId ?? edit.id
+  }
+  const id = edit.savedId
   await view.refresh()
   if (view.loadingError) throw view.loadingError
-  if (!view.rows.some(row => view.getPkKey(row) === id)) throw new Error(`数据库保存回执成功，但重新读取目录未见该记录（${id}），请勿重复提交`)
+  if (view.rows.some(row => view.getPkKey(row) === id)) return
+  const [keyField] = view.effectivePkFields
+  const table = view.dataTable
+  if (keyField && view.effectivePkFields.length === 1 && table) {
+    const verification = view.createQueryView(`databaseSaveReadback_${crypto.randomUUID().replaceAll('-', '')}`)
+    try {
+      verification.configure({filterExpression: DataViewFilter.condition({field: keyField, operator: 'eq', value: id}).toJSON()})
+      await verification.refresh()
+      if (verification.loadingError) throw verification.loadingError
+      if (verification.rows.some(row => verification.getPkKey(row) === id)) return
+    } finally {table.destroyView(verification.viewId)}
+  }
+  throw new Error(`数据库保存回执成功，但重新读取目录未见该记录（${id}），请勿重复提交`)
 }
 
 export async function databaseCatalogDbSaveEdit(
@@ -239,12 +259,11 @@ export async function databaseCatalogDbSaveEdit(
   if (view.mutating) throw new Error('当前编辑不能重复提交')
   const ui = databaseCatalogDbEditing(view, edit)
   if (view.hasUnconfirmedSave) {
-    await commit(dataSet, view, edit.id)
+    await commit(dataSet, view, edit)
     return undefined
   }
   if (ui?.readbackFailed) {
-    await view.refresh()
-    if (view.loadingError) throw view.loadingError
+    await commit(dataSet, view, edit)
     return undefined
   }
   if (view.requestState !== RequestState.Loaded || view.loadingError) throw new Error('数据库目录尚未加载完成，不能保存')
@@ -277,7 +296,7 @@ export async function databaseCatalogDbSaveEdit(
     if (text !== scalar(input)) view.updateEditingValue(edit.id, field, text)
   }
   if (!view.hasEditingChanges(edit.id)) return undefined
-  await commit(dataSet, view, edit.id)
+  await commit(dataSet, view, edit)
   return undefined
 }
 

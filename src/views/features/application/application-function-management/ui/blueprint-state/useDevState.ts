@@ -1819,14 +1819,17 @@ export function useDevState() {
         return
       }
       await owner.load(node.nodeId)
+      const projection=readBlueprintProjection()
+      const currentNode='blueprint' in projection&&projection.blueprint.nodeId===node.nodeId
+        ?projection.blueprint:findNodeById(projection.tree,node.nodeId)
       if(selectionRevision!==nodeSelectionRevision||currentScopeKey()!==scope||currentEditor.value!==workspace
-        ||!findNodeById(readBlueprintProjection().tree,node.nodeId))throw new Error('节点选择期间当前项目树已变化')
-      if (selectedNode.value?.nodeId !== node.nodeId || selectedNode.value.dataSpace?.scenarioId !== node.dataSpace?.scenarioId) {
+        ||currentNode?.projectId!==scope)throw new Error('节点选择期间当前项目树已变化')
+      if (selectedNode.value?.nodeId !== currentNode.nodeId || selectedNode.value.dataSpace?.scenarioId !== currentNode.dataSpace?.scenarioId) {
         scenarioLoad++; installScenarioDocument(null); pageDataError.value = null
       }
-      loadNodeToForm(node)
-      const pageId = resolvePageNodePageId(node)
-      if (pageId && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(node))) {
+      loadNodeToForm(currentNode)
+      const pageId = resolvePageNodePageId(currentNode)
+      if (pageId && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(currentNode))) {
         // The active file and preview load the original file DataViews on demand.
         persistActivePageId(pageId)
       }

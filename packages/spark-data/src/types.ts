@@ -1540,6 +1540,8 @@ export type DataSetSaveChangesViewResult = {
   failedEditingRows: number
   /** 新增记录数 */
   createdCount: number
+  /** 本视图已接纳新增回执的提交主键与正式主键；缺省表示保存路径未提供映射。 */
+  createdIdentities?: ReadonlyArray<Readonly<{submittedId: string | number; savedId: string | number}>>
   /** 保存（更新）记录数 */
   savedCount: number
   /** 删除记录数 */

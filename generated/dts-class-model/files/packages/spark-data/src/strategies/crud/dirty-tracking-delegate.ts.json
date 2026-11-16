@@ -48,6 +48,39 @@
         "createdCount": {
           "type": "number"
         },
+        "createdIdentities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "submittedId": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "savedId": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "submittedId",
+              "savedId"
+            ],
+            "additionalProperties": false
+          }
+        },
         "savedCount": {
           "type": "number"
         },
@@ -425,7 +458,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-06T13:33:36.234Z",
+  "generatedAt": "2026-11-16T18:28:58.654Z",
   "models": {
     "FieldChange": {
       "name": "FieldChange",
@@ -465,7 +498,7 @@
       "jsdoc": "saveChanges() 执行结果（三态统计）",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 新增行成功提交数 */\n    createdCount: number;\n    /** 编辑行成功保存数 */\n    savedCount: number;\n    /** 删除行成功提交数 */\n    deletedCount: number;\n    /** 总失败数（三态合计） */\n    failedCount: number;\n    /** 失败的行主键列表（可用于精准重试或 UI 高亮） */\n    failedIds: Array<string | number>;\n    /** 失败行的错误详情映射（主键 → 错误消息，用于诊断和 UI 提示） */\n    failedErrors: Record<string | number, string>;\n}",
+        "declarationTypeText": "{\n    /** 新增行成功提交数 */\n    createdCount: number;\n    /** 已接纳新增回执的提交主键与正式主键；仅来自本次确认回执，不推断未确认结果。 */\n    createdIdentities?: ReadonlyArray<Readonly<{\n        submittedId: string | number;\n        savedId: string | number;\n    }>>;\n    /** 编辑行成功保存数 */\n    savedCount: number;\n    /** 删除行成功提交数 */\n    deletedCount: number;\n    /** 总失败数（三态合计） */\n    failedCount: number;\n    /** 失败的行主键列表（可用于精准重试或 UI 高亮） */\n    failedIds: Array<string | number>;\n    /** 失败行的错误详情映射（主键 → 错误消息，用于诊断和 UI 提示） */\n    failedErrors: Record<string | number, string>;\n}",
         "members": {
           "attributes": [
             {
@@ -473,6 +506,12 @@
               "jsdoc": "新增行成功提交数",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "createdIdentities",
+              "jsdoc": "已接纳新增回执的提交主键与正式主键；仅来自本次确认回执，不推断未确认结果。",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "savedCount",

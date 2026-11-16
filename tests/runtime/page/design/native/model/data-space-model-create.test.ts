@@ -475,52 +475,53 @@ describe('native model creation with formal metadata ownership', () => {
     expect(writes()).toHaveLength(1)
   })
 
-  it('retains the original generated identity until explicitly abandoning an authoritative not-applied capture', async () => {
+  it('retains the original generated identity when missing rows cannot prove an unknown create was not applied', async () => {
     const {owner, f, writes} = await setup({omitModelWrite: true, omitFieldWrite: true})
     f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     const modelId = owner.getState().modelId
     expect(modelId).toBeTruthy()
     expect(owner.getState().status).toBe('unknown')
-    expect(await owner.verify()).toEqual({confirmed: false, modelId: null})
-    expect(owner.getState()).toMatchObject({status: 'different', pending: true, modelId, canAbandonNotApplied: true})
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState()).toMatchObject({status: 'unknown', pending: true, modelId, canAbandonNotApplied: false})
     expect(owner.getState().preview).not.toBeNull()
     expect(writes()).toHaveLength(1)
     await expect(owner.save()).rejects.toThrow('先核验')
 
-    await owner.abandonNotApplied()
-    expect(owner.getState()).toMatchObject({status: 'idle', pending: false, modelId: null, preview: null, canAbandonNotApplied: false})
+    await expect(owner.abandonNotApplied()).rejects.toThrow()
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState()).toMatchObject({status: 'unknown', pending: true, modelId, canAbandonNotApplied: false})
     expect(f.created.get('Base_DataModel')).toBeUndefined()
     expect(f.created.get('Base_DataModel_Field')).toBeUndefined()
     expect(writes()).toHaveLength(1)
-    await expect(owner.save()).rejects.toThrow('先预览')
+    await expect(owner.save()).rejects.toThrow('先核验')
   })
 
-  it('preflights all original targets before abandoning a not-applied model create', async () => {
+  it('does not release an unknown model create when its original child view becomes idle', async () => {
     const {owner, session, f, writes} = await setup({omitModelWrite: true, omitFieldWrite: true})
     f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
-    await owner.verify()
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     const modelId = owner.getState().modelId!
     const models = session.metadataDataSet.getView('Base_DataModel', 'default')!
     const fields = session.metadataDataSet.getView('Base_DataModel_Field', `createModel:${modelId}`)
     expect(fields).toBeDefined()
     fields!.mutating = true
-    await expect(owner.abandonNotApplied()).rejects.toThrow('仍在操作')
+    await expect(owner.abandonNotApplied()).rejects.toThrow()
     expect(models.dirtyTracking.isPendingCreate(modelId)).toBe(true)
-    expect(owner.getState()).toMatchObject({status: 'different', modelId, pending: true})
+    expect(owner.getState()).toMatchObject({status: 'unknown', modelId, pending: true})
     expect(writes()).toHaveLength(1)
     fields!.mutating = false
-    await owner.abandonNotApplied()
-    expect(owner.getState().status).toBe('idle')
+    await expect(owner.abandonNotApplied()).rejects.toThrow()
+    expect(owner.getState().status).toBe('unknown')
   })
 
   it.each(['model-overlay', 'model-applied', 'field-overlay', 'field-applied'] as const)(
-    'preserves a post-click %s edit while explicitly abandoning a not-applied create', async edit => {
+    'preserves a post-click %s edit when abandoning an unknown create is refused', async edit => {
       const {owner, session, f, writes} = await setup({omitModelWrite: true, omitFieldWrite: true})
       f.loseNextResponse()
       await expect(owner.save()).rejects.toThrow()
-      await owner.verify()
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
       const modelId = owner.getState().modelId!, fields = session.metadataDataSet.getView('Base_DataModel_Field', `createModel:${owner.getState().modelId}`)!
       const isField = edit.startsWith('field'), id = isField ? [...fields.dirtyTracking.pendingCreateIds][0] as string : modelId
       const view = isField ? fields : session.metadataDataSet.getView('Base_DataModel', 'default')!
@@ -528,7 +529,7 @@ describe('native model creation with formal metadata ownership', () => {
       view.updateEditingValue(id, 'description', `post-click ${edit}`)
       if (edit.endsWith('applied')) expect((await view.applyEditingRows([id])).success).toBe(true)
       await expect(abandoning).rejects.toThrow()
-      expect(owner.getState()).toMatchObject({status: 'different', pending: true, modelId})
+      expect(owner.getState()).toMatchObject({status: 'unknown', pending: true, modelId})
       expect(view.getEditingRow(id)?.['description'] ?? view.rows.find(row => view.getPkKey(row) === id)?.['description']).toBe(`post-click ${edit}`)
       expect(writes()).toHaveLength(1)
       expect(f.fileWrites).toHaveLength(0)

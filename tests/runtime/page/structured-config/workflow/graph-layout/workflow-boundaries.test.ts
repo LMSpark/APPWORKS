@@ -41,11 +41,14 @@ describe('workflow boundaries on original node DataView',()=>{
   await expect(f.command.acceptCurrent()).rejects.toThrow('独立回读');expect(f.command.confirmed).toBe(false);expect(f.command.canFinishCurrent).toBe(true)
   const count=f.http.saves.length;f.command.finishCurrent();expect(f.command.complete).toBe(true);expect(f.command.confirmed).toBe(false);expect(f.http.saves).toHaveLength(count)
  })
- it('explicitly abandons an original batch proven not applied, without replay',async()=>{
+ it('retains an unknown original batch when its temporary key is absent, without replay',async()=>{
   const f=await fixture([0]);await f.command.stage();f.http.beforeSave=async()=>{throw Error('not delivered')}
   await expect(f.command.save()).rejects.toThrow();delete f.http.beforeSave
-  await expect(f.command.save()).rejects.toThrow('确认未生效');expect(f.command.canDiscardNotApplied).toBe(true)
-  await f.command.discardNotApplied();expect(f.nodes.rows.map(row=>row['rowid'])).toEqual(['N0']);expect(f.http.saves).toHaveLength(0)
+  const ids=[...f.command.ids]
+  await expect(f.command.save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE');expect(f.command.canDiscardNotApplied).toBe(false)
+  await expect(f.command.discardNotApplied()).rejects.toThrow();expect(()=>f.command.cancel()).toThrow()
+  expect(f.command.ids).toEqual(ids);expect(f.command.submitted).toBe(true);expect(f.nodes.hasUnconfirmedSave).toBe(true)
+  expect(f.nodes.rows.map(row=>row['rowid'])).toEqual(['N0',...ids]);expect(f.http.saves).toHaveLength(0)
  })
  it('rechecks all new boundary fields in the fresh formal query before dispatch',async()=>{
   const f=await fixture([0]);await f.command.stage();const create=f.nodes.createQueryView.bind(f.nodes)

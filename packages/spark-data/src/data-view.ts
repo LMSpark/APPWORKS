@@ -4234,6 +4234,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       const restored = this.getRowById(submitted.id)
       if (restored !== null) this.dirtyTrackingDelegate.trackCreate(submitted.id, restored)
     })
+    const createdIdentities: Array<NonNullable<SaveChangesData['createdIdentities']>[number]> = []
     receipt.added.forEach((accepted, index) => {
       const submitted = added[index]
       if (submitted === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 新增行未对应提交')
@@ -4245,6 +4246,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       if (this.#explicitNewRowIds.has(submitted.id) && nextId !== submitted.id) {
         throw new Error('DATA_VIEW_SAVE_RECEIPT_IDENTITY: 显式正式身份不能被保存回执改写')
       }
+      createdIdentities.push({submittedId: submitted.id, savedId: nextId})
       this.#explicitNewRowIds.delete(submitted.id)
       this.dirtyTrackingDelegate.cancelCreate(submitted.id)
       if (current === null) {
@@ -4271,7 +4273,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     })
     this.total = receipt.context.total
     this.emitRowsChanged()
-    const data: SaveChangesData = { createdCount: receipt.added.length, savedCount: receipt.changed.length,
+    const data: SaveChangesData = { createdCount: receipt.added.length, createdIdentities, savedCount: receipt.changed.length,
       deletedCount: receipt.deleted.length, failedCount: 0, failedIds: [], failedErrors: {} }
     return { success: true, message: this.dirtyTrackingDelegate.hasPendingChanges() || this.hasEditingChanges()
       ? '已接纳保存回执，仍有未保存变更' : '已接纳保存回执', data }

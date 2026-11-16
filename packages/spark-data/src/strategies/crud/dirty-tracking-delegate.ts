@@ -63,6 +63,8 @@ export type RowDiff = {
 export type SaveChangesData = {
   /** 新增行成功提交数 */
   createdCount: number
+  /** 已接纳新增回执的提交主键与正式主键；仅来自本次确认回执，不推断未确认结果。 */
+  createdIdentities?: ReadonlyArray<Readonly<{submittedId: string | number; savedId: string | number}>>
   /** 编辑行成功保存数 */
   savedCount: number
   /** 删除行成功提交数 */

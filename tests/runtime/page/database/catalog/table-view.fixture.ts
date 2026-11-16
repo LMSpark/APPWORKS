@@ -113,6 +113,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
   failNextVerifyRead = false
   omitCountByModel = new Set<string>()
   databasePrimaryKey = 'rowid'
+  databaseCreatedId: string | undefined
   allowDeleteByModel = new Set<string>()
   unregisteredByServer: Record<string, string[]> = {}
   unregisteredDbBody: unknown = undefined
@@ -268,7 +269,9 @@ export class DatabaseTableViewHttp extends HttpClientBase {
         if (itemAdded.length > 0) {
           const physical: Record<string, unknown>[] = []
           for (const row of itemAdded) {
-            physical.push(row)
+            const accepted = tableName === DATABASE_CATALOG_DB_MODEL && this.databaseCreatedId !== undefined
+              ? {...row, [this.databasePrimaryKey]: this.databaseCreatedId} : row
+            physical.push(accepted)
             if (tableName === DATABASE_CATALOG_TABLE_MODEL || (Object.hasOwn(row, 'tblname') && !Object.hasOwn(row, 'enname'))) {
               this.rows[DATABASE_CATALOG_TABLE_MODEL]!.push({
                 rowid: 'T-NEW', dbid: 'DB1', tblname: '', tbldesc: '', schemaName: 'dbo', status: 1, createuser: 'admin', createtime: '2026-01-01', ...row,
@@ -286,7 +289,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
               })
             } else {
               this.rows[DATABASE_CATALOG_DB_MODEL]!.push({
-                rowid: 'DB-NEW', serverId: 'S1', Name: '', SchemaName: 'dbo', ServerName: '主库', Type: 'MYSQL', State: '1', Remark: '', ...row,
+                rowid: 'DB-NEW', serverId: 'S1', Name: '', SchemaName: 'dbo', ServerName: '主库', Type: 'MYSQL', State: '1', Remark: '', ...accepted,
               })
             }
           }

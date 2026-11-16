@@ -397,7 +397,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@274601": {
+            "__@iterator@274795": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -452,7 +452,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@274601"
+            "__@iterator@274795"
           ],
           "additionalProperties": false
         },
@@ -1029,7 +1029,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@274601": {
+            "__@iterator@274795": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1084,7 +1084,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@274601"
+            "__@iterator@274795"
           ],
           "additionalProperties": false
         },
@@ -1310,7 +1310,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@274601": {
+            "__@iterator@274795": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1365,7 +1365,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@274601"
+            "__@iterator@274795"
           ],
           "additionalProperties": false
         },
@@ -1603,7 +1603,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@274601": {
+                "__@iterator@274795": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1658,7 +1658,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@274601"
+                "__@iterator@274795"
               ],
               "additionalProperties": false
             },
@@ -1888,7 +1888,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@274601": {
+                "__@iterator@274795": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1943,7 +1943,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@274601"
+                "__@iterator@274795"
               ],
               "additionalProperties": false
             },
@@ -2879,7 +2879,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@274601": {
+                "__@iterator@274795": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2934,7 +2934,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@274601"
+                "__@iterator@274795"
               ],
               "additionalProperties": false
             },
@@ -3164,7 +3164,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@274601": {
+                "__@iterator@274795": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3219,7 +3219,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@274601"
+                "__@iterator@274795"
               ],
               "additionalProperties": false
             },
@@ -5884,6 +5884,39 @@
         "createdCount": {
           "type": "number"
         },
+        "createdIdentities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "submittedId": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "savedId": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "submittedId",
+              "savedId"
+            ],
+            "additionalProperties": false
+          }
+        },
         "savedCount": {
           "type": "number"
         },
@@ -6337,7 +6370,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-13T13:49:25.510Z",
+  "generatedAt": "2026-11-16T18:28:58.656Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -10558,7 +10591,7 @@
       "jsdoc": "DataSet 级单视图保存结果",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 表名 */\n    tableName: string;\n    /** 视图 ID */\n    viewId: string;\n    /** 成功应用的编辑态行数 */\n    appliedEditingRows: number;\n    /** 失败的编辑态行数 */\n    failedEditingRows: number;\n    /** 新增记录数 */\n    createdCount: number;\n    /** 保存（更新）记录数 */\n    savedCount: number;\n    /** 删除记录数 */\n    deletedCount: number;\n    /** 失败记录数 */\n    failedCount: number;\n    /** 失败的行 ID 列表 */\n    failedIds: Array<string | number>;\n    /** 失败的行 ID -> 错误消息映射 */\n    failedErrors: Record<string, string>;\n}",
+        "declarationTypeText": "{\n    /** 表名 */\n    tableName: string;\n    /** 视图 ID */\n    viewId: string;\n    /** 成功应用的编辑态行数 */\n    appliedEditingRows: number;\n    /** 失败的编辑态行数 */\n    failedEditingRows: number;\n    /** 新增记录数 */\n    createdCount: number;\n    /** 本视图已接纳新增回执的提交主键与正式主键；缺省表示保存路径未提供映射。 */\n    createdIdentities?: ReadonlyArray<Readonly<{\n        submittedId: string | number;\n        savedId: string | number;\n    }>>;\n    /** 保存（更新）记录数 */\n    savedCount: number;\n    /** 删除记录数 */\n    deletedCount: number;\n    /** 失败记录数 */\n    failedCount: number;\n    /** 失败的行 ID 列表 */\n    failedIds: Array<string | number>;\n    /** 失败的行 ID -> 错误消息映射 */\n    failedErrors: Record<string, string>;\n}",
         "members": {
           "attributes": [
             {
@@ -10590,6 +10623,12 @@
               "jsdoc": "新增记录数",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "createdIdentities",
+              "jsdoc": "本视图已接纳新增回执的提交主键与正式主键；缺省表示保存路径未提供映射。",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "savedCount",

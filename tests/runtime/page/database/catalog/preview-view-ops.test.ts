@@ -22,7 +22,7 @@ const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.f
 let http: DatabaseTableViewHttp, runtime: DataSpaceRuntimeApi
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
-  lowcodeApi: {readRequestScope: service.readRequestScope, application: {get: () => null}, dataSpace: {design: service, get runtime() {return runtime}}},
+  lowcodeApi: {readRequestScope: service.readRequestScope, application: {get: () => ({application: {id: 'APP'}})}, dataSpace: {design: service, get runtime() {return runtime}}},
 }))
 
 const sets: DataSet[] = []
@@ -177,7 +177,7 @@ describe('database/catalog/table/preview-view-ops', () => {
 
     await expect(databaseCatalogPreviewRefresh(ds, preview, {
       dbId: 'DB1', tableName: 'Orders', tblid: 'T1', pageIndex: 1, pageSize: 10,
-    })).rejects.toThrow('表和视图目录请求所属应用或登录身份已变化')
+    })).rejects.toThrow('请求所属应用或登录身份已变化')
 
     expect(preview.columns.map(column => column.name)).toEqual(originalColumns)
     expect(preview.rows).toEqual([])

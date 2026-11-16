@@ -5,7 +5,7 @@
 import {DataViewFilter, RequestState, type DataSet} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY, DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {lowcodeApi, lowcodeHttp} from '../../../lowcode-runtime'
+import {type lowcodeApi, lowcodeHttp} from '../../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../../data-space/lowcode-data-space-assembler'
 import {DATABASE_SERVER_MODEL} from '../server/resource'
 import {
@@ -17,7 +17,7 @@ import {
 import {applyDatabaseCatalogFieldMetadata} from './table/field-metadata'
 import {applyDatabaseCatalogObjectDesignMetadata} from './object-design-metadata'
 import {attachDatabaseCatalogTablePreviewView, attachDatabaseCatalogViewPreviewView} from './table/preview-view-ops'
-import {type DatabaseCatalogLoadOptions, resolveDatabaseCatalogDataSpaceId} from './scenario'
+import {type DatabaseCatalogLoadOptions, readDatabaseCatalogScope, resolveDatabaseCatalogDataSpaceId} from './scenario'
 
 export const DATABASE_CATALOG_DESENSITIZATION_RULE_MODEL = 'Base_Desensitization_Rule'
 export const DATABASE_CATALOG_ENCRYPTION_DICT_MODEL = 'Dict_encryption_rule'
@@ -94,18 +94,12 @@ function defaultView(model: Awaited<ReturnType<typeof lowcodeApi.dataSpace.desig
 export class LowcodeDatabaseTableView {
   public static async loadCatalog(scenarioId: string, options: DatabaseCatalogLoadOptions = {}): Promise<DataSet> {
     if (!scenarioId.trim()) throw new Error('表和视图管理入口缺少导航绑定的数据空间 ID（Base_DataSet.rowid）')
-    const scope = lowcodeApi.readRequestScope()
-    const assertCurrent = (): void => {
-      const current = lowcodeApi.readRequestScope()
-      if (current.token !== scope.token || current.headers['X-AppId'] !== scope.headers['X-AppId']) {
-        throw new Error('表和视图目录请求所属应用或登录身份已变化')
-      }
-    }
-    const dataSpaceId = await resolveDatabaseCatalogDataSpaceId({preferredScenarioId: scenarioId, metaNames: catalogModels, options, assertCurrent})
+    const {dataSpace, runtime, assertCurrent} = readDatabaseCatalogScope()
+    const dataSpaceId = await resolveDatabaseCatalogDataSpaceId({dataSpace, preferredScenarioId: scenarioId, metaNames: catalogModels, options, assertCurrent})
     const input = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId, assertCurrent}
     const [space, ...models] = await Promise.all([
-      lowcodeApi.dataSpace.design.readSpaceDefinition(input),
-      ...catalogModels.map(metaName => lowcodeApi.dataSpace.design.readModel({...input, metaName})),
+      dataSpace.design.readSpaceDefinition(input),
+      ...catalogModels.map(metaName => dataSpace.design.readModel({...input, metaName})),
     ])
     assertCurrent()
     const byName = new Map(models.map(model => [model.metaName, model]))
@@ -115,7 +109,7 @@ export class LowcodeDatabaseTableView {
     const optionModels: Array<Awaited<ReturnType<typeof lowcodeApi.dataSpace.design.readModel>>> = []
     for (const metaName of DATABASE_CATALOG_OPTION_META_NAMES) {
       try {
-        optionModels.push(await lowcodeApi.dataSpace.design.readModel({...input, metaName}))
+        optionModels.push(await dataSpace.design.readModel({...input, metaName}))
       } catch {
         // 未登记脱敏规则模型时仍装配核心目录模型；字段网格降级为只读 DesenID 列。
       }
@@ -255,7 +249,7 @@ export class LowcodeDatabaseTableView {
       resourceRelations: [],
       viewCascades,
     }))
-    const {dataSet} = new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({
+    const {dataSet} = new LowcodeDataSpaceAssembler(runtime, lowcodeHttp).assemble({
       config,
       space,
       models: [...models, ...optionModels],

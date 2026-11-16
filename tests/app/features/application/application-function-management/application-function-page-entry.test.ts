@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {flushPromises, mount} from '@vue/test-utils'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import ElementPlus from 'element-plus'
-import {DataSet, isDataRow, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {DataSet, DataViewFilter, isDataRow, type DataRow, type DataView, type DataViewFilterTree} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {FieldText, sanitizeRichTextHtml} from '@spark-appworks/spark-component'
@@ -108,17 +108,19 @@ function matches(row: DataRow, filter: unknown, context: Readonly<Record<string,
     : conditions.every(condition => matches(row, condition, context))
   if (typeof filter['field'] !== 'string') return true
   const raw = filter['value']
-  const actual = row[filter['field']], expected = isDataRow(raw) && raw['Type'] === 'GetInputParam' ? context[String(raw['ParamName'])] : raw
+  const actual = row[filter['field']], expected = isDataRow(raw) && raw['Type'] === 'GetInputParam' ? context[String(raw['ParamName'])]
+    : isDataRow(raw) && raw['Type'] === 'GetConstValue' ? raw['Value'] : raw
   if (filter['operator'] === 'in') return Array.isArray(expected) && expected.includes(actual)
   if (filter['operator'] === 'is-empty') return actual === undefined || actual === null || actual === ''
   return actual === expected
 }
 
 type PagedataColumn = Readonly<{name: string; type?: string; pattern?: string; patternMessage?: string; computeExpression?: string}>
-type PagedataView = Readonly<{queryConfig?: {fields?: string[]}; filterExpression?: unknown}>
+type PagedataView = Readonly<{queryConfig?: {fields?: string[]}; filterExpression?: unknown; scopeFilter?: DataViewFilterTree}>
 type PagedataTable = Readonly<{modelBinding: {modelId: string; modelName: string}; columns?: PagedataColumn[]; views: Record<string, PagedataView>}>
 const readPagedata = (path: string): {tables: Record<string, PagedataTable>} => JSON.parse(readFileSync(resolve(process.cwd(), path), 'utf8'))
 const blueprintPagedata = readPagedata('config/pages/application/project-blueprint/pagedata.json')
+const applicationPagedata = readPagedata('config/pages/application/application-manager/pagedata.json')
 const ledgerPagedata = readPagedata('config/pages/structured-config/dimension-ledger/pagedata.json')
 const NUMBER_FIELDS = ['FunOrderValue', 'IsOutput', 'IsPKey', 'lingma_sys_is_delete']
 /** 正式 pagedata 表：视图投影与过滤引用的字段为模型列，pagedata 计算列追加其后。 */
@@ -198,7 +200,12 @@ function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: r
         changedFields: changed.map(row => Object.keys(row)), context: result(rows)}
     }))
   view.bindQueryExecutor({queryColumns: target => target.columns,
-    executeQuery: async (_target, params) => result(rows.filter(row => matches(row, params.filter, params.context ?? {}))), save,
+    executeQuery: async (_target, params) => {
+      const parsed = params.filter === undefined ? undefined : DataViewFilter.parse(params.filter)
+      if (parsed && !parsed.ok) throw new Error('fixture query filter is invalid')
+      const filter = parsed?.value.bindInputParams(params.context ?? {}).toJSON()
+      return result(rows.filter(row => matches(row, filter, params.context ?? {})))
+    }, save,
     appendQueryResult: (base, addition) => {
       const keys = new Set(base.rows.map(row => row['rowid']))
       return result([...base.rows, ...addition.rows.filter(row => !keys.has(row['rowid']))].map(row => ({...row})))
@@ -206,11 +213,11 @@ function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: r
   return save
 }
 
-function optionDataSet(scenarioId: string, models: ReadonlyArray<{model: string; fields: readonly string[]; rows: DataRow[]}>) {
-  const dataSet = DataSet.fromJson({scenarioId, tables: Object.fromEntries(models.map(({model, fields}) => [model, {
+function optionDataSet(scenarioId: string, models: ReadonlyArray<{model: string; fields: readonly string[]; rows: DataRow[]; views?: Record<string, PagedataView>}>) {
+  const dataSet = DataSet.fromJson({scenarioId, tables: Object.fromEntries(models.map(({model, fields, views}) => [model, {
     modelBinding: {modelId: `${model}-ID`, modelName: model},
     columns: fields.map(name => ({name, type: 'string', isPrimaryKey: name === 'rowid'})),
-    views: {default: {autoLoad: false}}}]))})
+    views: views ?? {default: {autoLoad: false}}}]))})
   datasets.push(dataSet)
   for (const {model, rows} of models) bindRows(dataSet.getView(model)!, rows)
   return dataSet
@@ -270,8 +277,14 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
           {rowid: 'USER-1', UserName: 'Alice'}, {rowid: 'USER-2', UserName: 'Bob'}, {rowid: 'USER-X', UserName: 'Outsider'}]},
       ])
       if (scenarioId === memberScenario) return optionDataSet(memberScenario, [
-        {model: 'Base_MainBody_RoleUser', fields: ['rowid', 'EntityPKValue', 'UserIdField'], rows: [
-          {rowid: 'M1', EntityPKValue: TARGET, UserIdField: memberUserIds}, {rowid: 'M2', EntityPKValue: 'OTHER', UserIdField: 'USER-X'}]},
+        {model: 'Base_MainBody_RoleUser', fields: ['rowid', 'EntityPKValue', 'sysId', 'UserIdField', 'RoleIdField', 'CategoryID'],
+          views: applicationPagedata.tables['Base_MainBody_RoleUser']!.views,
+          rows: [
+            {rowid: 'M1', EntityPKValue: TARGET, UserIdField: memberUserIds, RoleIdField: 'C80FF642A38841FF91D2953C4103E917', CategoryID: '1'},
+            {rowid: 'M2', EntityPKValue: 'OTHER', UserIdField: 'USER-X', RoleIdField: 'C80FF642A38841FF91D2953C4103E917', CategoryID: '1'},
+            {rowid: 'M3', EntityPKValue: TARGET, UserIdField: 'USER-X', RoleIdField: 'OTHER', CategoryID: '1'},
+            {rowid: 'M4', EntityPKValue: TARGET, UserIdField: 'USER-X', RoleIdField: 'C80FF642A38841FF91D2953C4103E917', CategoryID: 'OTHER'},
+          ]},
       ])
       return ownerDataSet
     }})
@@ -402,6 +415,7 @@ describe('application function page entry', () => {
     expect(page.peopleAvailable.value).toBe(true)
     expect(page.optionsError.value).toBe('')
     const runtime = state.blueprintPageRuntime.value
+    expect(runtime.getDataSet('0C70F74793F9E858B71E0DBDEC784D57')?.getView('Base_MainBody_RoleUser')?.queryContext['appId']).toBe(TARGET)
     expect(runtime.resolveView(page.statusOptionViewKey)?.rows.map(row => row['val'])).toEqual(['0', '1'])
     expect(runtime.resolveView(page.personOptionViewKey)?.rows.map(row => row['rowid']).sort()).toEqual(['USER-1', 'USER-2'])
     const keys = wrapper.findAllComponents({name: 'FieldSelect'}).map(field => field.props('optionDataViewKey'))

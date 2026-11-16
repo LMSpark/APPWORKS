@@ -132,7 +132,7 @@ async function prepareNodeOptionViews(input: Readonly<{
   await refreshComplete(statusView, '功能导航状态字典', assertCurrent)
   const members = requireView(runtime, BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID, 'Base_MainBody_RoleUser')
   members.queryConfig = {...members.queryConfig, allPages: true}
-  members.filterExpression = DataViewFilter.condition({field: 'EntityPKValue', operator: 'eq', value: input.projectId}).toJSON()
+  members.queryContext = {...members.queryContext, appId: input.projectId}
   await refreshComplete(members, '应用成员关系', assertCurrent)
   const userIds = [...new Set(members.rows.flatMap(row => readText(row, 'UserIdField').split(','))
     .map(id => id.trim()).filter(id => id.length > 0))]

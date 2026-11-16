@@ -23,7 +23,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   },
   lowcodeApi: {
     readRequestScope: service.readRequestScope,
-    application: {get: () => null},
+    application: {get: () => ({application: {id: 'APP'}})},
     blueprint: {readRecords: async () => []},
     catalog: {getDatabaseCatalog: async () => ({sourceDataSpaces: {}})},
     dataSpace: {

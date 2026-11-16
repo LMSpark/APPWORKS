@@ -108,7 +108,7 @@ describe('报表新增的双记录提交', () => {
     expect(f.http.saves).toHaveLength(0)
   })
 
-  it('确认原批次未生效后仅允许用户显式重新提交', async () => {
+  it('新增原批次缺失时保留未知，不把空回读当成可以重新提交', async () => {
     const f = await open()
     let interrupted = true
     f.http.beforeSave = async () => {
@@ -118,13 +118,16 @@ describe('报表新增的双记录提交', () => {
     await vi.waitFor(() => expect(f.info.hasUnconfirmedSave).toBe(true))
     expect(f.http.saves).toHaveLength(0)
     await f.click('核验原保存结果')
-    await vi.waitFor(() => expect(f.info.hasUnconfirmedSave).toBe(false))
-    expect(document.body.textContent).toContain('原提交未生效')
+    expect(f.info.hasUnconfirmedSave).toBe(true)
+    expect(f.report.hasUnconfirmedSave).toBe(true)
+    expect(f.button('取消').props('disabled')).toBe(true)
+    expect(f.wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '确定')).toBe(false)
     expect(f.closed).not.toHaveBeenCalled()
     expect(f.http.saves).toHaveLength(0)
-    await f.click('确定')
-    await vi.waitFor(() => expect(f.closed).toHaveBeenCalledOnce())
-    expect(f.http.saves).toHaveLength(2)
+    await f.click('核验原保存结果')
+    expect(f.info.hasUnconfirmedSave).toBe(true)
+    expect(f.closed).not.toHaveBeenCalled()
+    expect(f.http.saves).toHaveLength(0)
   })
 
   it('部分生效的原批次保持待核验，不允许关闭或重发', async () => {

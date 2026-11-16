@@ -1062,7 +1062,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-12T21:29:12.942Z",
+  "generatedAt": "2026-11-16T19:47:17.028Z",
   "models": {
     "StatusMessage": {
       "name": "StatusMessage",

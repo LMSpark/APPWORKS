@@ -116,14 +116,16 @@ export async function prepareFlowRunPage(command: PrepareFlowRunPageCommand): Pr
   objectFormView.queryContext = {...objectFormView.queryContext, WFOBJID: wfid, wfid}
   const stepView = requireView(workbench.getView(STEP_MODEL, 'default'), STEP_MODEL)
   stepView.queryContext = {...stepView.queryContext, WFOBJID: wfid}
+  const commandInstanceView = requireView(workbench.getView(FLOW_OBJ_MODEL, 'default'), FLOW_OBJ_MODEL)
+  commandInstanceView.queryContext = {...commandInstanceView.queryContext, rowid: wfid, wfid}
   command.assertCurrent?.()
-  await Promise.all([listView.refresh(), flowView.refresh(), formView.refresh(), objectFormView.refresh(), stepView.refresh()])
+  await Promise.all([listView.refresh(), flowView.refresh(), formView.refresh(), objectFormView.refresh(), stepView.refresh(), commandInstanceView.refresh()])
   command.assertCurrent?.()
-  const failed = [listView, flowView, formView, objectFormView].find(item => item.loadingError)
+  const failed = [listView, flowView, formView, objectFormView, commandInstanceView].find(item => item.loadingError)
   if (failed?.loadingError) throw failed.loadingError
   if (stepView.loadingError) throw stepView.loadingError
   const stepId = command.stepId?.trim() ?? ''
-  if (stepId && !stepView.rows.filter(isRecord).some(row => String(row['rowid'] ?? '') === stepId && String(row['WFOBJID'] ?? '') === wfid)) {
+  if (stepId && stepView.rows.filter(isRecord).filter(row => String(row['rowid'] ?? '') === stepId && String(row['WFOBJID'] ?? '') === wfid).length !== 1) {
     throw new Error('指定办理步骤不在本次实例正式查询结果中')
   }
   const instance = listView.rows.find(isRecord) ?? flowView.rows.find(isRecord)

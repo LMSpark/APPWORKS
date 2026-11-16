@@ -334,6 +334,78 @@
           }
         }
       }
+    },
+    "ApprovalCommand": {
+      "resourceType": "command",
+      "resourceId": "workflow:approval",
+      "columns": [
+        {
+          "name": "rowid",
+          "type": "string",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "action",
+          "type": "string"
+        },
+        {
+          "name": "flowObjectId",
+          "type": "string"
+        },
+        {
+          "name": "stepId",
+          "type": "string"
+        },
+        {
+          "name": "flowId",
+          "type": "string"
+        },
+        {
+          "name": "formKey",
+          "type": "string"
+        },
+        {
+          "name": "formUrl",
+          "type": "string"
+        },
+        {
+          "name": "formParams",
+          "type": "string"
+        },
+        {
+          "name": "busRowid",
+          "type": "string"
+        },
+        {
+          "name": "nodeId",
+          "type": "string"
+        },
+        {
+          "name": "idea",
+          "type": "string"
+        },
+        {
+          "name": "notifyType",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "nextNode",
+          "type": "array"
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "commitMode": "staged",
+          "queryConfig": {
+            "pagination": "none"
+          }
+        }
+      }
     }
   }
 }

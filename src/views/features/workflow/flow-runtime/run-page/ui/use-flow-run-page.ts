@@ -2,9 +2,9 @@
  * @module app:views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page
  * 职责：办理页装配、办理侧栏与提交流程编排。
  */
-import {computed, ref, shallowRef, watch} from 'vue'
+import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRouter} from 'vue-router'
-import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {lowcodeApi, lowcodeHttp} from '@/lowcode/lowcode-runtime'
@@ -29,6 +29,7 @@ import {
   createFlowBusinessPageRegistry,
   createFlowBusinessTabBuilder,
 } from '../model/flow-run-business-tab'
+import {submitApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
 import {getVuePageOptions} from '@/registries/vue-page-registry'
 
 const STEP_MODEL = 'WFOBJ_FLOW_RELATIONLINE_STEP'
@@ -59,6 +60,10 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   const registeredPaths = computed(() => new Set(getVuePageOptions().map(item => item.path)))
   const buildTab = createFlowBusinessTabBuilder(() => registeredPaths.value)
   let generation = 0
+  onBeforeUnmount(() => {
+    generation += 1
+    businessRegistry.clear()
+  })
 
   const businessTabs = computed(() => (prepared.value?.formTabs ?? []).map(tab => buildTab({
     tabKey: tab.tabKey,
@@ -86,12 +91,26 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     return runtime?.resolveView(stepViewKey.value)?.rows.find(row => isRecord(row) && String(row['rowid'] ?? '') === stepId && String(row['WFOBJID'] ?? '') === prepared.value?.flowObjectId)
   }
 
+  function assertGeneration(value: number): void {
+    if (value !== generation) throw new Error('流程办理目标已失效')
+  }
+
+  async function executeApproval(own: number, action: string, params: Readonly<DataRow>): Promise<void> {
+    assertGeneration(own)
+    const runtime = sparkConsume(PAGE_RUNTIME)
+    const ds = runtime?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
+    if (!ds) throw new Error('审批命令空间未装配')
+    const {flowObjId, curStepId, ...fields} = params
+    await submitApprovalCommand(ds, {...fields, action, flowObjectId: flowObjId, stepId: curStepId})
+    assertGeneration(own)
+  }
+
   function clientFor(gen: number) {
     return createFlowRunPageClient({
       http: lowcodeHttp,
       scenarioId: FLOW_MONITOR_SCENARIO_ID,
       readScope: () => lowcodeApi.readRequestScope(),
-      assertCurrent: () => gen === generation,
+      assertCurrent: () => assertGeneration(gen),
     })
   }
 
@@ -105,14 +124,15 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       const runtime = sparkConsume(PAGE_RUNTIME)
       if (!runtime) throw new Error('缺少页面运行实例')
       const query = routeQuery()
-      prepared.value = await prepareFlowRunPage({
+      const result = await prepareFlowRunPage({
         runtime,
         wfid: query.wfid,
         flowid: query.flowid,
         ...(query.stepid ? {stepId: query.stepid} : {}),
-        assertCurrent: () => own === generation,
+        assertCurrent: () => assertGeneration(own),
       })
       if (own !== generation) return
+      prepared.value = result
       activeFormId.value = prepared.value.formTabs[0]?.tabKey ?? ''
     } catch (error) {
       if (own === generation) pageError.value = error instanceof Error ? error.message : '加载办理页失败'
@@ -155,7 +175,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     const prep = prepared.value
     if (!prep || !step) throw new Error('未定位到当前办理步骤')
     const nextNode = nextNodeId ? [{NodeId: nextNodeId, ExecUserList: []}] : []
-    await clientFor(own).submitOrStart({
+    await executeApproval(own, 'submit', {
       flowId: prep.flowModelId,
       flowObjId: prep.flowObjectId,
       curStepId: String(step['rowid'] ?? ''),
@@ -231,7 +251,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       const nodeId = selectedBackNodeId.value
       if (!prep || !step) throw new Error('未定位到当前办理步骤')
       if (!nodeId) throw new Error('请选择退回目标节点')
-      await clientFor(own).backByHistory({
+      await executeApproval(own, 'back', {
         flowObjId: prep.flowObjectId,
         curStepId: String(step['rowid'] ?? ''),
         nodeId,
@@ -257,7 +277,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       const nodeId = selectedForceBackNodeId.value
       if (!prep || !step) throw new Error('未定位到当前办理步骤')
       if (!nodeId) throw new Error('请选择强制退回目标节点')
-      await clientFor(own).forceBack({
+      await executeApproval(own, 'forceBack', {
         flowObjId: prep.flowObjectId,
         curStepId: String(step['rowid'] ?? ''),
         nodeId,
@@ -281,7 +301,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       const step = readCurrentStep()
       const prep = prepared.value
       if (!prep || !step) throw new Error('未定位到当前办理步骤')
-      await clientFor(own).rejectToCreator({
+      await executeApproval(own, 'toCreator', {
         flowObjId: prep.flowObjectId,
         curStepId: String(step['rowid'] ?? ''),
         idea: opinionText.value,
@@ -313,7 +333,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       const step = readCurrentStep()
       const prep = prepared.value
       if (!prep || !step) throw new Error('未定位到当前办理步骤')
-      await clientFor(own).revokeCurrentStep(prep.flowObjectId, String(step['rowid'] ?? ''))
+      await executeApproval(own, 'revoke', {flowObjId: prep.flowObjectId, curStepId: String(step['rowid'] ?? '')})
       if (own !== generation) return
       handleOpen.value = false
       await loadPage()
@@ -338,7 +358,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
         runtime,
         wfid: query.wfid,
         flowid: query.flowid,
-        assertCurrent: () => own === generation,
+        assertCurrent: () => assertGeneration(own),
       })
     } catch (error) {
       if (own === generation) chartError.value = error instanceof Error ? error.message : '加载流程图失败'

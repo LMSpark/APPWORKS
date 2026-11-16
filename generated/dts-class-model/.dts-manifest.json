@@ -3859,7 +3859,7 @@
     "src/lowcode/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-14T08:34:22.551Z"
+      "sourceModifiedAt": "2026-11-16T11:01:53.709Z"
     },
     "src/lowcode/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
@@ -4881,10 +4881,25 @@
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps.ts.json",
       "sourceModifiedAt": "2026-11-14T16:39:31.978Z"
     },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts": {
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
+      "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts.json",
+      "sourceModifiedAt": "2026-11-16T10:57:14.803Z"
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/command/runtime-bindings.ts": {
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/runtime-bindings.ts",
+      "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/command/runtime-bindings.ts.json",
+      "sourceModifiedAt": "2026-11-16T11:07:34.905Z"
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/command/submit.ts": {
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/submit.ts",
+      "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/command/submit.ts.json",
+      "sourceModifiedAt": "2026-11-16T11:06:50.038Z"
+    },
     "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-http.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-http.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-http.ts.json",
-      "sourceModifiedAt": "2026-11-14T17:29:00.665Z"
+      "sourceModifiedAt": "2026-11-16T11:08:43.518Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit.ts",
@@ -4899,12 +4914,12 @@
     "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts.json",
-      "sourceModifiedAt": "2026-11-15T00:44:12.102Z"
+      "sourceModifiedAt": "2026-11-16T11:08:44.004Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-16T07:29:57.413Z"
+      "sourceModifiedAt": "2026-11-16T11:02:43.837Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-run-page/index.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/index.ts",
@@ -4914,7 +4929,7 @@
     "src/lowcode/resources/system/workflow/manage/flow-runtime-client.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-runtime-client.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-runtime-client.ts.json",
-      "sourceModifiedAt": "2026-11-15T23:23:48.447Z"
+      "sourceModifiedAt": "2026-11-16T10:24:41.709Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts",
@@ -6139,7 +6154,7 @@
     "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue.json",
-      "sourceModifiedAt": "2026-11-15T23:36:07.453Z"
+      "sourceModifiedAt": "2026-11-16T10:43:51.920Z"
     },
     "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue",
@@ -6149,7 +6164,7 @@
     "src/views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page.ts": {
       "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page.ts",
       "shardFile": "files/src/views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page.ts.json",
-      "sourceModifiedAt": "2026-11-16T07:28:15.199Z"
+      "sourceModifiedAt": "2026-11-16T11:03:57.353Z"
     },
     "src/views/features/workflow/flow-workbench/model/use-flow-workbench-todo.ts": {
       "sourceFile": "src/views/features/workflow/flow-workbench/model/use-flow-workbench-todo.ts",
@@ -6164,7 +6179,7 @@
     "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel.vue": {
       "sourceFile": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel.vue",
       "shardFile": "files/src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel.vue.json",
-      "sourceModifiedAt": "2026-11-15T23:14:07.534Z"
+      "sourceModifiedAt": "2026-11-16T10:23:48.056Z"
     },
     "src/views/FileDataManager/FileManager/index.vue": {
       "sourceFile": "src/views/FileDataManager/FileManager/index.vue",

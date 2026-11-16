@@ -18,6 +18,7 @@ import {createPageToolFileResourceExecutor} from '@/services/project/page-tool-f
 import {resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {registerApiModelRules,type ApiModelRuleHost} from '../resources/integration/api-management/model-rules'
 import {createCacheScenarioBindings} from '../resources/system/cache-management/runtime-bindings'
+import {createApprovalCommandBindings} from '../resources/system/workflow/manage/flow-run-page/command/runtime-bindings'
 import {registerNavigationHostModelRules} from '../resources/system/navigation-host/model-rules'
 import {registerDimensionSourceModelRules} from '../resources/structured-config/dimension-source/model-rules'
 import {createDataRecoveryScenarioBindings} from '../resources/system/data-recovery/runtime-bindings'
@@ -181,6 +182,7 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
  const agentPublication = createAgentWorkflowPublicationBindings({config,applicationId:projectId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,assertCurrent})
  const agentDeletion = createAgentWorkflowDeletionBindings({config,applicationId:projectId,api:lowcodeApi.design,assertCurrent})
  const cacheBindings = createCacheScenarioBindings({config,runtime:dataSpace.runtime,assertCurrent})
+ const approvalBindings = createApprovalCommandBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const workflowBindings = createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const excelBindings = createExcelCatalogBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const recoveryBindings = createDataRecoveryScenarioBindings({config,assertCurrent})
@@ -202,6 +204,7 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
    ...agentPublication.commandBindings,
    ...agentDeletion.commandBindings,
    ...cacheBindings.commandBindings,
+   ...approvalBindings.commandBindings,
    ...workflowBindings.commandBindings,
    ...excelBindings.commandBindings,
    ...enterpriseBindings.commandBindings,

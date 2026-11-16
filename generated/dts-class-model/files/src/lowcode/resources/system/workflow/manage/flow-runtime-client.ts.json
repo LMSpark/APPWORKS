@@ -63,7 +63,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-15T23:23:48.447Z",
+  "generatedAt": "2026-11-16T10:24:41.709Z",
   "models": {
     "FlowRuntimeRouteQuery": {
       "name": "FlowRuntimeRouteQuery",

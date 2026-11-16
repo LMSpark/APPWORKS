@@ -63,6 +63,9 @@
         "busRowId": {
           "type": "string"
         },
+        "stepId": {
+          "type": "string"
+        },
         "formTabs": {
           "type": "array",
           "items": {
@@ -81,6 +84,7 @@
         "flowObjectId",
         "flowModelId",
         "busRowId",
+        "stepId",
         "formTabs",
         "userDirectoryViewKey",
         "stepHistoryViewKey"
@@ -100,6 +104,9 @@
         },
         "flowid": {
           "type": "string"
+        },
+        "stepId": {
+          "type": "string"
         }
       },
       "additionalProperties": false,
@@ -113,7 +120,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T07:29:57.413Z",
+  "generatedAt": "2026-11-16T11:02:43.837Z",
   "models": {
     "FlowRunFormRecord": {
       "name": "FlowRunFormRecord",
@@ -164,11 +171,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    instanceTitle: string;\n    flowObjectId: string;\n    flowModelId: string;\n    busRowId: string;\n    formTabs: readonly FlowRunFormRecord[];\n    userDirectoryViewKey: string;\n    stepHistoryViewKey: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    instanceTitle: string;\n    flowObjectId: string;\n    flowModelId: string;\n    busRowId: string;\n    stepId: string;\n    formTabs: readonly FlowRunFormRecord[];\n    userDirectoryViewKey: string;\n    stepHistoryViewKey: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    instanceTitle: string;\n    flowObjectId: string;\n    flowModelId: string;\n    busRowId: string;\n    formTabs: readonly FlowRunFormRecord[];\n    userDirectoryViewKey: string;\n    stepHistoryViewKey: string;\n}>",
+            "typeText": "Readonly<{\n    instanceTitle: string;\n    flowObjectId: string;\n    flowModelId: string;\n    busRowId: string;\n    stepId: string;\n    formTabs: readonly FlowRunFormRecord[];\n    userDirectoryViewKey: string;\n    stepHistoryViewKey: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -191,6 +198,11 @@
             },
             {
               "name": "busRowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stepId",
               "readable": true,
               "writable": false
             },
@@ -218,11 +230,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    wfid: string;\n    flowid: string;\n    assertCurrent?: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    wfid: string;\n    flowid: string;\n    stepId?: string;\n    assertCurrent?: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    wfid: string;\n    flowid: string;\n    assertCurrent?: () => void;\n}>",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    wfid: string;\n    flowid: string;\n    stepId?: string;\n    assertCurrent?: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -240,6 +252,11 @@
             },
             {
               "name": "flowid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stepId",
               "readable": true,
               "writable": false
             }

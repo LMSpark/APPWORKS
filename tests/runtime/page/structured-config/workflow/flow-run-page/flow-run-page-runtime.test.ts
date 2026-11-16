@@ -29,6 +29,7 @@ describe('prepareFlowRunPage', () => {
       WFM_WORKFORM: createView([{FORMID: 'F1', FormName: '表单1', URL: '/demo/form', FlowID: 'FM-1'}]),
     }
     const workbench = {
+      WFOBJ_FLOW: createView([{rowid: 'WF-1', WFMID: 'FM-1'}]),
       WFOBJ_FLOW_FORM: createView([]),
       WFOBJ_FLOW_RELATIONLINE_STEP: createView([{rowid: 'S1', WFOBJID: 'WF-1'}]),
     }
@@ -45,6 +46,7 @@ describe('prepareFlowRunPage', () => {
     expect(result.flowObjectId).toBe('WF-1')
     expect(result.busRowId).toBe('BUS-9')
     expect(result.stepId).toBe('')
+    expect(workbench.WFOBJ_FLOW.refresh).toHaveBeenCalledOnce()
     expect(result.formTabs).toHaveLength(1)
     expect(result.formTabs[0]?.tabKey).toBe('F1')
     expect(result.stepHistoryViewKey).toContain('WFOBJ_FLOW_RELATIONLINE_STEP')
@@ -53,6 +55,8 @@ describe('prepareFlowRunPage', () => {
     const selected = await prepareFlowRunPage({runtime, wfid: 'WF-1', flowid: 'FM-1', stepId: 'S1'})
     expect(selected.stepId).toBe('S1')
     await expect(prepareFlowRunPage({runtime, wfid: 'WF-1', flowid: 'FM-1', stepId: 'missing'})).rejects.toThrow(/步骤/)
+    workbench.WFOBJ_FLOW_RELATIONLINE_STEP.rows.push({rowid: 'S1', WFOBJID: 'WF-1'})
+    await expect(prepareFlowRunPage({runtime, wfid: 'WF-1', flowid: 'FM-1', stepId: 'S1'})).rejects.toThrow(/步骤/)
   })
 
   it('rejects missing wfid', async () => {

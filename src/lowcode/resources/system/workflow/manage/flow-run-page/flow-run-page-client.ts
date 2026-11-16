@@ -4,7 +4,7 @@
  */
 import type {HttpClientBase} from '@spark-appworks/spark-utils'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {requestFlowResult, type FlowRequestScope} from './flow-http'
+import {requestFlowResult, requestFlowOperationResult, type FlowRequestScope} from './flow-http'
 
 export type FlowRunPageClientOptions = Readonly<{
   http: HttpClientBase
@@ -91,7 +91,7 @@ export class FlowRunPageClient {
 
   async submitOrStart(params: FlowRunSubmitParams): Promise<void> {
     const scope = this.#guard()
-    await requestFlowResult(this.#options.http, {
+    await requestFlowOperationResult(this.#options.http, {
       method: 'POST',
       path: '/api/Flow/FlowSubmitOrStart',
       data: {
@@ -115,7 +115,7 @@ export class FlowRunPageClient {
 
   async backByHistory(params: FlowRunBackParams): Promise<void> {
     const scope = this.#guard()
-    await requestFlowResult(this.#options.http, {
+    await requestFlowOperationResult(this.#options.http, {
       method: 'POST',
       path: '/api/Flow/FlowBack',
       data: {
@@ -133,7 +133,7 @@ export class FlowRunPageClient {
     const scope = this.#guard()
     const nodeId = normalizeText(params.nodeId)
     if (!nodeId) throw new Error('强制退回缺少目标节点')
-    await requestFlowResult(this.#options.http, {
+    await requestFlowOperationResult(this.#options.http, {
       method: 'POST',
       path: '/api/Flow/FlowForceBack',
       data: {
@@ -149,7 +149,7 @@ export class FlowRunPageClient {
 
   async rejectToCreator(params: FlowRunBackParams): Promise<void> {
     const scope = this.#guard()
-    await requestFlowResult(this.#options.http, {
+    await requestFlowOperationResult(this.#options.http, {
       method: 'POST',
       path: '/api/Flow/FlowToCreator',
       data: {
@@ -181,7 +181,7 @@ export class FlowRunPageClient {
     const stepId = normalizeText(curStepId)
     if (!wfid || !stepId) throw new Error('撤回缺少流程实例或步骤 ID')
     const scope = this.#guard()
-    await requestFlowResult(this.#options.http, {
+    await requestFlowOperationResult(this.#options.http, {
       method: 'POST',
       path: '/api/Flow/FlowRevoke',
       params: {wfid, curStepID: stepId},

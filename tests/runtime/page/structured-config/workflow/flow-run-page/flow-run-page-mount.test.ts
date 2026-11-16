@@ -24,6 +24,9 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
   }
 })
 const routeState = reactive({query: {wfid: 'WF-1', flowid: 'FM-1', stepid: ''}, meta: {}, path: '/test'})
+let releaseOldQuery: (() => void) | undefined
+let delayFirstQuery = false
+let instanceReads = 0
 vi.mock('vue-router', async importOriginal => {
   const actual = await importOriginal<typeof import('vue-router')>()
   return {
@@ -33,8 +36,9 @@ vi.mock('vue-router', async importOriginal => {
   }
 })
 vi.mock('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue', () => ({
-  default: {name: 'FlowRunRouteRenderer', template: '<div data-testid="biz-route">业务页</div>'},
+  default: {name: 'FlowRunRouteRenderer', props: ['fallbackProps'], template: '<div data-testid="biz-route">{{ JSON.stringify(fallbackProps) }}</div>'},
 }))
+vi.mock('@/registries/vue-page-registry', () => ({getVuePageOptions: () => [{path: '/business'}]}))
 vi.mock('@/views/features/workflow/flow-append-user/ui/flow-append-user.vue', () => ({
   default: {name: 'FlowAppendUser', template: '<div data-testid="append-user">加签</div>'},
 }))
@@ -63,7 +67,12 @@ function createView(rows: MockView['rows']): MockView {
     destroyed: false,
     queryContext: {},
     loadingError: null,
-    refresh: vi.fn(async () => undefined),
+    refresh: vi.fn(async () => {
+      if (delayFirstQuery) {
+        delayFirstQuery = false
+        await new Promise<void>(resolve => {releaseOldQuery = resolve})
+      }
+    }),
     rows,
     events: {
       on: (event, handler) => {
@@ -93,10 +102,13 @@ function createRuntime(): PageRuntime {
     Base_UserInfo: createView([]),
   }
   const workbench = {
-    WFOBJ_FLOW_FORM: createView([]),
+    WFOBJ_FLOW: createView([{rowid: 'WF-1', WFMID: 'FM-1'}]),
+    WFOBJ_FLOW_FORM: createView([{FORMID: 'F1', FormPath: '/business', FormParams: 'rowid=BUS-9'}]),
     WFOBJ_FLOW_RELATIONLINE_STEP: createView([{rowid: 'S1', WFOBJID: 'WF-1'}]),
     WFOBJ_FLOW_Waiting: createView([]),
   }
+  const instanceRows = monitor.View_FlowObjList.rows
+  Object.defineProperty(monitor.View_FlowObjList, 'rows', {get: () => {instanceReads += 1; return instanceRows}})
   return {
     instanceId: 'flow-run-page-mount',
     getDataSet: (id: string) => {
@@ -130,6 +142,8 @@ const wrappers: VueWrapper[] = []
 beforeEach(() => {
   registerAllRenderers()
   routeState.query.stepid = ''
+  releaseOldQuery = undefined
+  delayFirstQuery = false
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
 })
 afterEach(() => {
@@ -138,6 +152,36 @@ afterEach(() => {
 })
 
 describe('flow run page mount', () => {
+  it('stops an outstanding query after the page is unmounted', async () => {
+    delayFirstQuery = true
+    const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(Host))}), {
+      global: {plugins: [ElementPlus, Spark.createPlugin()]},
+    })
+    await flushPromises()
+    wrapper.unmount()
+    const readsBeforeRelease = instanceReads
+    releaseOldQuery?.()
+    await flushPromises()
+    expect(instanceReads).toBe(readsBeforeRelease)
+  })
+
+  it('does not let a late old query replace the newer rejected step', async () => {
+    delayFirstQuery = true
+    const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(Host))}), {
+      global: {plugins: [ElementPlus, Spark.createPlugin()]},
+    })
+    wrappers.push(wrapper)
+    await flushPromises()
+    routeState.query.stepid = 'missing'
+    await flushPromises()
+    expect(wrapper.text()).toContain('指定办理步骤')
+    const readsBeforeRelease = instanceReads
+    releaseOldQuery?.()
+    await flushPromises()
+    expect(instanceReads).toBe(readsBeforeRelease)
+    expect(wrapper.text()).not.toContain('未查询到业务页签')
+  })
+
   it('loads instance title and header actions', async () => {
     const wrapper = mount(defineComponent({
       setup: () => () => h(withTestPageService(Host)),
@@ -152,6 +196,9 @@ describe('flow run page mount', () => {
     expect(wrapper.text()).toContain('流程图')
     expect(wrapper.text()).toContain('加签')
     expect(wrapper.text()).toContain('撤回')
+    expect(JSON.parse(wrapper.find('[data-testid="biz-route"]').text())).toEqual({
+      flowid: 'FM-1', flowobjid: 'WF-1', stepid: '', workFormId: 'F1', pageParam: 'rowid=BUS-9', busRowid: 'BUS-1',
+    })
     routeState.query.stepid = 'missing-step'
     await flushPromises()
     expect(wrapper.text()).toContain('指定办理步骤不在本次实例正式查询结果中')

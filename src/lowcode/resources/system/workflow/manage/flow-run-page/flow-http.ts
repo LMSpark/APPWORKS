@@ -40,3 +40,9 @@ export async function requestFlowResult(http: HttpClientBase, command: FlowReque
   })
   return unwrapFlowResult(response)
 }
+
+/** 写操作的显式否定结果不能被当成已确认成功；该响应不证明服务端未产生副作用。 */
+export async function requestFlowOperationResult(http: HttpClientBase, command: FlowRequestCommand): Promise<void> {
+  const result = await requestFlowResult(http, command)
+  if (result === false) throw new Error('审批服务未确认操作成功')
+}

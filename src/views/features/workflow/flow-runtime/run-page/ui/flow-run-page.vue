@@ -20,7 +20,9 @@
           <el-tab-pane v-for="tab in businessTabs" :key="tab.tabKey" :label="tab.label" :name="tab.tabKey" lazy>
             <el-empty v-if="!tab.routeFound" :description="tab.routeError" />
             <FlowRunRouteRenderer v-else-if="tab.routeLocation" :route="tab.routeLocation" :cache-key="tab.cacheKey"
-              :tab-key="tab.tabKey" :registry="businessRegistry" />
+              :tab-key="tab.tabKey" :registry="businessRegistry"
+              :fallback-props="{flowid: prepared.flowModelId, flowobjid: prepared.flowObjectId, stepid: prepared.stepId,
+                workFormId: tab.tabKey, pageParam: prepared.formTabs.find(form => form.tabKey === tab.tabKey)?.queryString ?? '', busRowid: prepared.busRowId}" />
           </el-tab-pane>
         </el-tabs>
       </section>

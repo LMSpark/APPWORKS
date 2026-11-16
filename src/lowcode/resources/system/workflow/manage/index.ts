@@ -26,7 +26,6 @@ export {
 } from './flow-runtime-client'
 export {
   createFlowAppendUserClient,
-  filterFlowAppendUserList,
   FlowAppendUserClient,
   normalizeFlowAppendUserContext,
   type FlowAppendUserClientOptions,

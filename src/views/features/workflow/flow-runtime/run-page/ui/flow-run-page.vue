@@ -49,7 +49,7 @@
 
     <SparkComponent.RendererDialog v-model="appendOpen" title="追加办理人" width="92vw" :append-to-body="true" :destroy-on-close="true">
       <FlowAppendUser v-if="appendContext && prepared" :context="appendContext" embedded
-        :user-directory-view-key="prepared.userDirectoryViewKey" />
+        :user-directory-view-key="prepared.userDirectoryViewKey" :step-view-key="stepViewKey" />
     </SparkComponent.RendererDialog>
 
     <SparkComponent.RendererDialog v-model="chartOpen" title="流程图" width="94vw" top="3vh" :append-to-body="true" :destroy-on-close="true">

@@ -1,5 +1,4 @@
 export {
-  filterFlowAppendUserList,
   normalizeFlowAppendUserContext,
   normalizeFlowAppendUserListRecord,
   type FlowAppendUserContext,

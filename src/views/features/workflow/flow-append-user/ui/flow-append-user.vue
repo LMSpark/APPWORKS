@@ -1,7 +1,7 @@
 <!--
 @module app:views/features/workflow/flow-append-user/ui/flow-append-user
 职责：流程参与人追加（列表、加人、撤回）；嵌入办理页或对话框宿主。
-边界：写操作经 lowcode FlowAppendUserClient；列表消费监控场景步骤 DataView。
+边界：写操作经 lowcode FlowAppendUserClient；列表消费宿主正式步骤的独立命名 DataView；追加参数/写命令迁移另见唯一台账。
 -->
 <template>
   <RendererSection
@@ -20,35 +20,12 @@
         <span class="flow-append-user__node-label">节点</span>
         <span class="flow-append-user__node-value">{{ contextTitle }}</span>
       </div>
-      <RendererButton label="添加办理人" button-type="primary" :disabled="pageLoading" @click="openAddDialog" />
+      <RendererButton label="添加办理人" button-type="primary" :disabled="pageLoading || !listViewKey" @click="openAddDialog" />
     </template>
   <p v-if="!embedded" class="flow-append-user__node-title">{{ contextTitle }}</p>
-    <el-table
-      v-loading="pageLoading"
-      :data="appendList"
-      border
-      height="380"
-      row-key="rowid"
-      empty-text="暂无追加办理记录"
-      class="flow-append-user__table"
-    >
-      <el-table-column prop="ReceiveUserName" label="办理人" min-width="180" show-overflow-tooltip />
-      <el-table-column prop="StepState" label="步骤状态" min-width="120" show-overflow-tooltip />
-      <el-table-column prop="STATUS" label="办理状态" min-width="120" show-overflow-tooltip />
-      <el-table-column label="操作" width="120" fixed="right">
-        <template #default="{row}">
-          <el-button
-            link
-            type="primary"
-            :disabled="!canRevoke(row) || revokeRowId === row.rowid"
-            :loading="revokeRowId === row.rowid"
-            @click="revokeRecord(row)"
-          >
-            撤回
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <RendererTable v-if="listViewKey && !pageLoading && !pageError" :data-view-key="listViewKey"
+      :children="listFields" :actions="listActions" :auto-columns="false" :show-pagination="false"
+      :show-data-view-meta="false" :max-height="380" />
 
     <RendererDialog
       v-model="addDialog.visible"
@@ -89,7 +66,9 @@
 </template>
 
 <script setup lang="ts">
-import {DisplayAlert, RendererButton, RendererDialog, RendererSection} from '@spark-appworks/spark-component'
+import {computed} from 'vue'
+import {DisplayAlert, RendererButton, RendererDialog, RendererSection, RendererTable, type RToolbarProps} from '@spark-appworks/spark-component'
+import type {SparkNode} from '@spark-appworks/spark-data'
 import type {FlowAppendUserContext} from '@/lowcode/resources/system/workflow/manage'
 import {useFlowAppendUser} from './use-flow-append-user'
 
@@ -97,6 +76,7 @@ const props = withDefaults(defineProps<{
   context: FlowAppendUserContext
   embedded?: boolean
   userDirectoryViewKey?: string
+  stepViewKey: string
 }>(), {embedded: false})
 
 const {
@@ -104,11 +84,10 @@ const {
   contextTitle,
   pageLoading,
   pageError,
-  appendList,
+  listViewKey,
   revokeRowId,
   addDialog,
   selectOptions,
-  canRevoke,
   openAddDialog,
   submitAddDialog,
   resetAddDialog,
@@ -116,10 +95,19 @@ const {
   loadPageData,
 } = useFlowAppendUser({
   context: () => props.context,
+  stepViewKey: () => props.stepViewKey,
   embedded: () => props.embedded,
   ...(props.userDirectoryViewKey ? {userDirectoryViewKey: () => props.userDirectoryViewKey} : {}),
 })
 
+const listFields: SparkNode[] = [
+  {type: 'r-text', props: {field: 'ReceiveUserName', label: '办理人', readonly: true, minWidth: 180}},
+  {type: 'r-text', props: {field: 'StepState', label: '步骤状态', readonly: true, minWidth: 120}},
+  {type: 'r-text', props: {field: 'STATUS', label: '办理状态', readonly: true, minWidth: 120}},
+]
+const listActions = computed<RToolbarProps>(() => ({children: [
+  {type: 'r-button', props: {label: '撤回', link: true, buttonType: 'primary', disabled: pageLoading.value || !!revokeRowId.value ? true : '$[appendRevokeDisabled]', onClick: revokeRecord}},
+]}))
 </script>
 
 <style scoped>

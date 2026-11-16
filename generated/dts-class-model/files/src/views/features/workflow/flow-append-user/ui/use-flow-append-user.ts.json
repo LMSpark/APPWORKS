@@ -49,22 +49,30 @@
         },
         "method.userDirectoryViewKey.return": {
           "type": "string"
+        },
+        "method.stepViewKey.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.stepViewKey.return": {
+          "type": "string"
         }
       }
     }
   },
-  "generatedAt": "2026-11-14T17:01:34.206Z",
+  "generatedAt": "2026-11-16T16:09:52.176Z",
   "models": {
     "UseFlowAppendUserOptions": {
       "name": "UseFlowAppendUserOptions",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    context: () => FlowAppendUserContext | Partial<FlowAppendUserContext>;\n    embedded?: () => boolean;\n    userDirectoryViewKey?: () => string | undefined;\n}>",
+        "declarationTypeText": "Readonly<{\n    context: () => FlowAppendUserContext | Partial<FlowAppendUserContext>;\n    embedded?: () => boolean;\n    userDirectoryViewKey?: () => string | undefined;\n    stepViewKey: () => string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    context: () => FlowAppendUserContext | Partial<FlowAppendUserContext>;\n    embedded?: () => boolean;\n    userDirectoryViewKey?: () => string | undefined;\n}>",
+            "typeText": "Readonly<{\n    context: () => FlowAppendUserContext | Partial<FlowAppendUserContext>;\n    embedded?: () => boolean;\n    userDirectoryViewKey?: () => string | undefined;\n    stepViewKey: () => string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -110,6 +118,14 @@
                   "type": "intrinsic",
                   "name": "string"
                 }
+              }
+            },
+            {
+              "name": "stepViewKey",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
               }
             }
           ]

@@ -42,6 +42,7 @@
       }
     },
     "WFOBJ_FLOW_RELATIONLINE_STEP": {
+      "columns": [{"name": "appendRevokeDisabled", "type": "boolean", "computeExpression": "STATUS + '' !== '0' || (StepState + '' !== '0' && StepState + '' !== '1')"}],
       "modelBinding": {
         "modelName": "WFOBJ_FLOW_RELATIONLINE_STEP",
         "modelId": "8b5ef80f-6dfc-4769-9bbe-34c58128c73c"
@@ -94,6 +95,26 @@
               "ReceiveNodeModelId",
               "LastStepID"
             ]
+          }
+        },
+        "appendParticipants": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "queryContext": {"WFOBJID": "", "SendNodeModelId": "", "ReceiveNodeModelId": "", "LastStepID": ""},
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {"field": "WFOBJID", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "WFOBJID"}},
+              {"field": "SendNodeModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "SendNodeModelId"}},
+              {"field": "ReceiveNodeModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "ReceiveNodeModelId"}},
+              {"field": "LastStepID", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "LastStepID"}},
+              {"logic": "or", "filters": [{"field": "StepState", "operator": "eq", "value": "0"}, {"field": "StepState", "operator": "eq", "value": "1"}]}
+            ]
+          },
+          "queryConfig": {
+            "allPages": true,
+            "fields": ["rowid", "WFOBJID", "SendNodeModelId", "ReceiveNodeModelId", "LastStepID", "ReceiveUserId", "ReceiveUserName", "StepState", "STATUS"]
           }
         },
         "workbenchProcessed": {

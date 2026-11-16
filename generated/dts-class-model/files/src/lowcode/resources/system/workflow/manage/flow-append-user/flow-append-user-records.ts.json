@@ -7,7 +7,7 @@
     "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records",
-    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records\n职责：从步骤 DataView 行筛选追加办理列表，并规范化字段。",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records\n职责：规范化宿主步骤上下文和单条原查询记录；不执行列表查询或过滤。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "FlowAppendUserContext",
@@ -90,7 +90,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-16T07:29:57.409Z",
+  "generatedAt": "2026-11-16T16:09:53.021Z",
   "models": {
     "FlowAppendUserContext": {
       "name": "FlowAppendUserContext",

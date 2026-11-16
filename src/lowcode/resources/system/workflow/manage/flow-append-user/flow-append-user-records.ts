@@ -1,6 +1,6 @@
 /**
  * @module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records
- * 职责：从步骤 DataView 行筛选追加办理列表，并规范化字段。
+ * 职责：规范化宿主步骤上下文和单条原查询记录；不执行列表查询或过滤。
  */
 import {isRecord} from '@spark-appworks/spark-utils'
 
@@ -59,29 +59,4 @@ export function normalizeFlowAppendUserListRecord(record: unknown): FlowAppendUs
     STATUS: firstTextByKeys(record, ['STATUS', 'Status', 'status']),
     raw: record,
   }
-}
-
-const ACTIVE_STEP_STATES = new Set(['0', '1'])
-
-/** 对齐参考 queryFlowAppendUserList 过滤：同关系组、LastStepID、StepState 0/1。 */
-export function filterFlowAppendUserList(
-  rows: ReadonlyArray<Record<string, unknown>>,
-  context: Partial<FlowAppendUserContext> | null | undefined,
-): FlowAppendUserListRecord[] {
-  const normalized = normalizeFlowAppendUserContext(context)
-  if (!normalized.WFOBJID || !normalized.SendNodeModelId || !normalized.ReceiveNodeModelId || !normalized.LastStepID) {
-    return []
-  }
-  const output: FlowAppendUserListRecord[] = []
-  for (const row of rows) {
-    const item = normalizeFlowAppendUserListRecord(row)
-    if (!item) continue
-    if (item.WFOBJID !== normalized.WFOBJID) continue
-    if (firstTextByKeys(row, ['SendNodeModelId']) !== normalized.SendNodeModelId) continue
-    if (firstTextByKeys(row, ['ReceiveNodeModelId']) !== normalized.ReceiveNodeModelId) continue
-    if (firstTextByKeys(row, ['LastStepID', 'lastStepID', 'LastStepId']) !== normalized.LastStepID) continue
-    if (!ACTIVE_STEP_STATES.has(item.StepState)) continue
-    output.push(item)
-  }
-  return output
 }

@@ -4796,15 +4796,20 @@
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts.json",
       "sourceModifiedAt": "2026-11-14T18:26:09.846Z"
     },
+    "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-list.ts": {
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-list.ts",
+      "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-list.ts.json",
+      "sourceModifiedAt": "2026-11-16T16:04:17.135Z"
+    },
     "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts.json",
-      "sourceModifiedAt": "2026-11-16T07:29:57.409Z"
+      "sourceModifiedAt": "2026-11-16T16:09:53.021Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-append-user/index.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/index.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/index.ts.json",
-      "sourceModifiedAt": "2026-11-14T16:58:30.080Z"
+      "sourceModifiedAt": "2026-11-16T16:09:03.254Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-design-client.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-client.ts",
@@ -4974,7 +4979,7 @@
     "src/lowcode/resources/system/workflow/manage/index.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/index.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/index.ts.json",
-      "sourceModifiedAt": "2026-11-15T22:57:08.155Z"
+      "sourceModifiedAt": "2026-11-16T16:09:03.257Z"
     },
     "src/lowcode/system-navigation.ts": {
       "sourceFile": "src/lowcode/system-navigation.ts",
@@ -6109,12 +6114,12 @@
     "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue": {
       "sourceFile": "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue",
       "shardFile": "files/src/views/features/workflow/flow-append-user/ui/flow-append-user.vue.json",
-      "sourceModifiedAt": "2026-11-14T16:59:18.370Z"
+      "sourceModifiedAt": "2026-11-16T16:05:54.353Z"
     },
     "src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts": {
       "sourceFile": "src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts",
       "shardFile": "files/src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts.json",
-      "sourceModifiedAt": "2026-11-14T17:01:34.206Z"
+      "sourceModifiedAt": "2026-11-16T16:09:52.176Z"
     },
     "src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue",
@@ -6194,7 +6199,7 @@
     "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue.json",
-      "sourceModifiedAt": "2026-11-16T14:17:05.233Z"
+      "sourceModifiedAt": "2026-11-16T16:00:04.387Z"
     },
     "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue",

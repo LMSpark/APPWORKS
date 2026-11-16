@@ -7,11 +7,10 @@
     "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records",
-    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records\n职责：规范化宿主步骤上下文和单条原查询记录；不执行列表查询或过滤。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records\n职责：规范化宿主步骤上下文并维护撤回业务前置条件；不复制记录、执行列表查询或过滤。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "FlowAppendUserContext",
-      "FlowAppendUserListRecord"
+      "FlowAppendUserContext"
     ]
   },
   "$defs": {
@@ -48,53 +47,13 @@
         "TITLE"
       ],
       "additionalProperties": false
-    },
-    "FlowAppendUserListRecord": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "FlowAppendUserListRecord",
-      "properties": {
-        "rowid": {
-          "type": "string"
-        },
-        "WFOBJID": {
-          "type": "string"
-        },
-        "ReceiveUserId": {
-          "type": "string"
-        },
-        "ReceiveUserName": {
-          "type": "string"
-        },
-        "StepState": {
-          "type": "string"
-        },
-        "STATUS": {
-          "type": "string"
-        },
-        "raw": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": true
-        }
-      },
-      "required": [
-        "rowid",
-        "WFOBJID",
-        "ReceiveUserId",
-        "ReceiveUserName",
-        "StepState",
-        "STATUS",
-        "raw"
-      ],
-      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-16T16:09:53.021Z",
+  "generatedAt": "2026-11-16T16:49:47.477Z",
   "models": {
     "FlowAppendUserContext": {
       "name": "FlowAppendUserContext",
-      "jsdoc": "",
+      "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records\n职责：规范化宿主步骤上下文并维护撤回业务前置条件；不复制记录、执行列表查询或过滤。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    rowid: string;\n    WFOBJID: string;\n    SendNodeModelId: string;\n    ReceiveNodeModelId: string;\n    LastStepID: string;\n    TITLE: string;\n}>",
@@ -134,60 +93,6 @@
             },
             {
               "name": "TITLE",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "FlowAppendUserListRecord": {
-      "name": "FlowAppendUserListRecord",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    rowid: string;\n    WFOBJID: string;\n    ReceiveUserId: string;\n    ReceiveUserName: string;\n    StepState: string;\n    STATUS: string;\n    raw: Record<string, unknown>;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    rowid: string;\n    WFOBJID: string;\n    ReceiveUserId: string;\n    ReceiveUserName: string;\n    StepState: string;\n    STATUS: string;\n    raw: Record<string, unknown>;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "rowid",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "WFOBJID",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "ReceiveUserId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "ReceiveUserName",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "StepState",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "STATUS",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "raw",
               "readable": true,
               "writable": false
             }

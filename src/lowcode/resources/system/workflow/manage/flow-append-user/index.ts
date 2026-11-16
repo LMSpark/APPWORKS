@@ -1,8 +1,6 @@
 export {
   normalizeFlowAppendUserContext,
-  normalizeFlowAppendUserListRecord,
   type FlowAppendUserContext,
-  type FlowAppendUserListRecord,
 } from './flow-append-user-records'
 export {
   createFlowAppendUserClient,

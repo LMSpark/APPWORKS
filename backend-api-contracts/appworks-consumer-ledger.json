@@ -7,7 +7,7 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 243,
+  "consumerCount": 242,
   "directUnmatchedCount": 129,
   "consumers": [
     {
@@ -1394,12 +1394,6 @@
       "expression": "/api/Flow/FlowAddReceiveUser",
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
       "sourceLine": 135,
-      "scope": "app-composition"
-    },
-    {
-      "expression": "/api/Flow/FlowRevoke",
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "sourceLine": 151,
       "scope": "app-composition"
     },
     {

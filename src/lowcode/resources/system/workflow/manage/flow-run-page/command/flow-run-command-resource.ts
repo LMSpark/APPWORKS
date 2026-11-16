@@ -17,7 +17,7 @@ const preflights = new WeakMap<DataView, Readonly<{
   assertAvailable: (row: Readonly<DataRow>) => void
   registerInputProof: (key: string, assertInput: () => void) => () => void
 }>>()
-const inputFields = ['action', 'flowObjectId', 'stepId', 'flowId', 'formKey', 'formUrl', 'formParams', 'busRowid', 'nodeId', 'idea', 'notifyType', 'type']
+const inputFields = ['action', 'flowObjectId', 'stepId', 'flowId', 'formKey', 'formUrl', 'formParams', 'busRowid', 'nodeId', 'idea', 'notifyType', 'type', 'targetStepViewKey']
 function nodeSignature(value: unknown): string {
   if (value === undefined) return '[]'
   if (!Array.isArray(value)) throw Error('审批下一节点须为数组')

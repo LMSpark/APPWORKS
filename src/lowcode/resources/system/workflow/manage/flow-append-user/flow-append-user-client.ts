@@ -1,6 +1,6 @@
 /**
  * @module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client
- * 职责：追加办理人 workflow.runtime 写操作（GetExeUsers / FlowAddReceiveUser / FlowRevoke）。
+ * 职责：追加办理人候选及添加适配（GetExeUsers / FlowAddReceiveUser）；撤回复用原审批命令适配。
  * 边界：经 lowcode HTTP 与正式执行域请求；列表查询优先消费 DataView 行筛选。
  */
 import type {HttpClientBase} from '@spark-appworks/spark-utils'
@@ -140,20 +140,6 @@ export class FlowAppendUserClient {
     this.#options.assertCurrent?.()
   }
 
-  async revokeAppendStep(curStepId: string, wfId: string): Promise<void> {
-    const stepId = normalizeText(curStepId)
-    const wfid = normalizeText(wfId)
-    if (!stepId || !wfid) throw new Error('撤回缺少步骤或流程实例标识')
-    const scope = this.#guard()
-    const headers = {...scope.headers, 'X-FormKey': this.#options.scenarioId.trim()}
-    await requestFlowResult(this.#options.http, {
-      method: 'POST',
-      path: '/api/Flow/FlowRevoke',
-      params: {curStepID: stepId, wfid},
-      headers,
-    })
-    this.#options.assertCurrent?.()
-  }
 }
 
 export function createFlowAppendUserClient(options: FlowAppendUserClientOptions): FlowAppendUserClient {

@@ -1,9 +1,9 @@
 import {describe, expect, it} from 'vitest'
 import {
-  canRevokeFlowAppendRecord,
   createFlowAppendReceiveUserList,
   validateFlowAppendSelection,
 } from '@/views/features/workflow/flow-append-user/model/flow-append-user-model'
+import {canRevokeFlowAppendRecord} from '@/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records'
 
 describe('flow append user model', () => {
   it('validates selection count against min and max', () => {

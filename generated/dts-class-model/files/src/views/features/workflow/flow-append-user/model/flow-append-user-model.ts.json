@@ -7,7 +7,7 @@
     "sourceFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
     "packageName": "app",
     "modulePath": "views/features/workflow/flow-append-user/model/flow-append-user-model",
-    "jsdoc": "@module app:views/features/workflow/flow-append-user/model/flow-append-user-model\n职责：追加办理人领域规则（可撤回、选人校验、提交载荷），对齐参考 flow-append-user-model。",
+    "jsdoc": "@module app:views/features/workflow/flow-append-user/model/flow-append-user-model\n职责：追加办理人选人校验与提交载荷；撤回前置条件归流程资源层。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "FlowAppendPersonValue"
@@ -31,31 +31,13 @@
         "UserName"
       ],
       "additionalProperties": false
-    },
-    "FlowAppendRecordState": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "FlowAppendRecordState",
-      "properties": {
-        "STATUS": {
-          "type": "string"
-        },
-        "StepState": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "STATUS",
-        "StepState"
-      ],
-      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-14T16:58:19.724Z",
+  "generatedAt": "2026-11-16T16:27:53.139Z",
   "models": {
     "FlowAppendPersonValue": {
       "name": "FlowAppendPersonValue",
-      "jsdoc": "@module app:views/features/workflow/flow-append-user/model/flow-append-user-model\n职责：追加办理人领域规则（可撤回、选人校验、提交载荷），对齐参考 flow-append-user-model。",
+      "jsdoc": "@module app:views/features/workflow/flow-append-user/model/flow-append-user-model\n职责：追加办理人选人校验与提交载荷；撤回前置条件归流程资源层。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    UserId: string;\n    UserName: string;\n}>",
@@ -75,35 +57,6 @@
             },
             {
               "name": "UserName",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "FlowAppendRecordState": {
-      "name": "FlowAppendRecordState",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    STATUS: string;\n    StepState: string;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    STATUS: string;\n    StepState: string;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "STATUS",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "StepState",
               "readable": true,
               "writable": false
             }

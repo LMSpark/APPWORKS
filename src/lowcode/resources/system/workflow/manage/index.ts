@@ -32,7 +32,6 @@ export {
   type FlowAppendUserContext,
   type FlowAppendUserExecConfig,
   type FlowAppendUserExecUserCandidate,
-  type FlowAppendUserListRecord,
 } from './flow-append-user'
 export {
   buildAppendUserContext,

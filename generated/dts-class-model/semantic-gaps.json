@@ -1,5 +1,5 @@
 {
-  "gapCount": 4292,
+  "gapCount": 4279,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -40557,18 +40557,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "method",
-      "className": "FlowAppendUserClient",
-      "memberName": "revokeAppendStep",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserClient.revokeAppendStep 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 34,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationKind": "class"
-    },
-    {
       "kind": "module",
       "className": "app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-list",
       "moduleName": "app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-list",
@@ -40591,17 +40579,6 @@
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts"
     },
     {
-      "kind": "model",
-      "className": "FlowAppendUserContext",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserContext 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "attribute",
       "className": "FlowAppendUserContext",
       "memberName": "rowid",
@@ -40609,7 +40586,7 @@
       "chainBreak": "FlowAppendUserContext.rowid 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 2,
+      "declarationLine": 6,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
       "declarationKind": "interface"
     },
@@ -40621,7 +40598,7 @@
       "chainBreak": "FlowAppendUserContext.WFOBJID 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 3,
+      "declarationLine": 7,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
       "declarationKind": "interface"
     },
@@ -40633,7 +40610,7 @@
       "chainBreak": "FlowAppendUserContext.SendNodeModelId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 4,
+      "declarationLine": 8,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
       "declarationKind": "interface"
     },
@@ -40645,7 +40622,7 @@
       "chainBreak": "FlowAppendUserContext.ReceiveNodeModelId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 5,
+      "declarationLine": 9,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
       "declarationKind": "interface"
     },
@@ -40657,7 +40634,7 @@
       "chainBreak": "FlowAppendUserContext.LastStepID 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 6,
+      "declarationLine": 10,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
       "declarationKind": "interface"
     },
@@ -40669,102 +40646,7 @@
       "chainBreak": "FlowAppendUserContext.TITLE 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 7,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "model",
-      "className": "FlowAppendUserListRecord",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserListRecord 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 9,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserListRecord",
-      "memberName": "rowid",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserListRecord.rowid 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserListRecord",
-      "memberName": "WFOBJID",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserListRecord.WFOBJID 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
       "declarationLine": 11,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserListRecord",
-      "memberName": "ReceiveUserId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserListRecord.ReceiveUserId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 12,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserListRecord",
-      "memberName": "ReceiveUserName",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserListRecord.ReceiveUserName 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 13,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserListRecord",
-      "memberName": "StepState",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserListRecord.StepState 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 14,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserListRecord",
-      "memberName": "STATUS",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserListRecord.STATUS 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 15,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserListRecord",
-      "memberName": "raw",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserListRecord.raw 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
-      "declarationLine": 16,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
       "declarationKind": "interface"
     },
@@ -50073,41 +49955,6 @@
       "fixHint": "在 src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
       "declarationLine": 7,
-      "sourceFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "model",
-      "className": "FlowAppendRecordState",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendRecordState 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-      "declarationLine": 9,
-      "sourceFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendRecordState",
-      "memberName": "STATUS",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendRecordState.STATUS 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendRecordState",
-      "memberName": "StepState",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendRecordState.StepState 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-      "declarationLine": 11,
       "sourceFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
       "declarationKind": "interface"
     },

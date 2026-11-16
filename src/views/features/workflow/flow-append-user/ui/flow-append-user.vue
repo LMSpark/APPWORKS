@@ -1,7 +1,7 @@
 <!--
 @module app:views/features/workflow/flow-append-user/ui/flow-append-user
 职责：流程参与人追加（列表、加人、撤回）；嵌入办理页或对话框宿主。
-边界：写操作经 lowcode FlowAppendUserClient；列表消费宿主正式步骤的独立命名 DataView；追加参数/写命令迁移另见唯一台账。
+边界：列表及撤回走原SPARK data；添加和选人旧入口继续沿唯一台账迁移。
 -->
 <template>
   <RendererSection
@@ -12,7 +12,7 @@
     :grid-columns="1"
     :status="pageLoading ? '正在加载…' : ''"
     :error="pageError"
-    :retryable="!!pageError && !pageLoading"
+    :retryable="!!pageError && !pageLoading && !commandLocked"
     @retry="loadPageData"
   >
     <template #header-actions>
@@ -20,7 +20,8 @@
         <span class="flow-append-user__node-label">节点</span>
         <span class="flow-append-user__node-value">{{ contextTitle }}</span>
       </div>
-      <RendererButton label="添加办理人" button-type="primary" :disabled="pageLoading || !listViewKey" @click="openAddDialog" />
+      <RendererButton label="添加办理人" button-type="primary" :disabled="pageLoading || !listViewKey || commandLocked" @click="openAddDialog" />
+      <RendererButton v-if="revokeUnconfirmed" label="核验原命令结果" :disabled="revoking" @click="verifyOriginalRevoke" />
     </template>
   <p v-if="!embedded" class="flow-append-user__node-title">{{ contextTitle }}</p>
     <RendererTable v-if="listViewKey && !pageLoading && !pageError" :data-view-key="listViewKey"
@@ -85,7 +86,10 @@ const {
   pageLoading,
   pageError,
   listViewKey,
-  revokeRowId,
+  revoking,
+  commandLocked,
+  revokeUnconfirmed,
+  verifyOriginalRevoke,
   addDialog,
   selectOptions,
   openAddDialog,
@@ -106,7 +110,7 @@ const listFields: SparkNode[] = [
   {type: 'r-text', props: {field: 'STATUS', label: '办理状态', readonly: true, minWidth: 120}},
 ]
 const listActions = computed<RToolbarProps>(() => ({children: [
-  {type: 'r-button', props: {label: '撤回', link: true, buttonType: 'primary', disabled: pageLoading.value || !!revokeRowId.value ? true : '$[appendRevokeDisabled]', onClick: revokeRecord}},
+  {type: 'r-button', props: {label: '撤回', link: true, buttonType: 'primary', disabled: pageLoading.value || revoking.value || commandLocked.value ? true : '$[appendRevokeDisabled]', onClick: revokeRecord}},
 ]}))
 </script>
 

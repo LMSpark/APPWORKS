@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue",
     "packageName": "app",
     "modulePath": "views/features/workflow/flow-append-user/ui/flow-append-user",
-    "jsdoc": "@module app:views/features/workflow/flow-append-user/ui/flow-append-user\n职责：流程参与人追加（列表、加人、撤回）；嵌入办理页或对话框宿主。\n边界：写操作经 lowcode FlowAppendUserClient；列表消费宿主正式步骤的独立命名 DataView；追加参数/写命令迁移另见唯一台账。",
+    "jsdoc": "@module app:views/features/workflow/flow-append-user/ui/flow-append-user\n职责：流程参与人追加（列表、加人、撤回）；嵌入办理页或对话框宿主。\n边界：列表及撤回走原SPARK data；添加和选人旧入口继续沿唯一台账迁移。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-16T16:05:54.353Z",
+  "generatedAt": "2026-11-16T16:49:47.475Z",
   "models": {}
 }

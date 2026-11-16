@@ -361,6 +361,7 @@
       "resourceId": "workflow:approval",
       "columns": [
         {"name": "isReturn", "type": "boolean"},
+        {"name": "targetStepViewKey", "type": "string"},
         {
           "name": "rowid",
           "type": "string",

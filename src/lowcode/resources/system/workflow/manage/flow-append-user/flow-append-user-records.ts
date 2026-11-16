@@ -1,9 +1,7 @@
 /**
  * @module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records
- * 职责：规范化宿主步骤上下文和单条原查询记录；不执行列表查询或过滤。
+ * 职责：规范化宿主步骤上下文并维护撤回业务前置条件；不复制记录、执行列表查询或过滤。
  */
-import {isRecord} from '@spark-appworks/spark-utils'
-
 export type FlowAppendUserContext = Readonly<{
   rowid: string
   WFOBJID: string
@@ -13,26 +11,14 @@ export type FlowAppendUserContext = Readonly<{
   TITLE: string
 }>
 
-export type FlowAppendUserListRecord = Readonly<{
-  rowid: string
-  WFOBJID: string
-  ReceiveUserId: string
-  ReceiveUserName: string
-  StepState: string
-  STATUS: string
-  raw: Record<string, unknown>
-}>
+/** 仅收窄业务可用性；查询身份、数据权限及命令提交仍由原DataView执行。 */
+export function canRevokeFlowAppendRecord(record: Readonly<{STATUS: unknown; StepState: unknown}>): boolean {
+  const stepState = normalizeText(record.StepState)
+  return normalizeText(record.STATUS) === '0' && (stepState === '0' || stepState === '1')
+}
 
 function normalizeText(value: unknown): string {
   return String(value ?? '').trim()
-}
-
-function firstTextByKeys(record: Record<string, unknown>, keys: readonly string[]): string {
-  for (const key of keys) {
-    const text = normalizeText(record[key])
-    if (text) return text
-  }
-  return ''
 }
 
 export function normalizeFlowAppendUserContext(
@@ -45,18 +31,5 @@ export function normalizeFlowAppendUserContext(
     ReceiveNodeModelId: normalizeText(context?.ReceiveNodeModelId),
     LastStepID: normalizeText(context?.LastStepID),
     TITLE: normalizeText(context?.TITLE),
-  }
-}
-
-export function normalizeFlowAppendUserListRecord(record: unknown): FlowAppendUserListRecord | null {
-  if (!isRecord(record)) return null
-  return {
-    rowid: firstTextByKeys(record, ['rowid', 'ROWID', 'RowID']),
-    WFOBJID: firstTextByKeys(record, ['WFOBJID', 'WfObjId', 'wfobjid']),
-    ReceiveUserId: firstTextByKeys(record, ['ReceiveUserId', 'receiveUserId', 'ReceiveUserid']),
-    ReceiveUserName: firstTextByKeys(record, ['ReceiveUserName', 'receiveUserName', 'ReceiveUsername']),
-    StepState: firstTextByKeys(record, ['StepState', 'stepState']),
-    STATUS: firstTextByKeys(record, ['STATUS', 'Status', 'status']),
-    raw: record,
   }
 }

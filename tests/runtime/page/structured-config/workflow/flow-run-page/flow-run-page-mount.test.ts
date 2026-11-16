@@ -2,7 +2,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {defineComponent, h, reactive} from 'vue'
-import {PAGE_RUNTIME, RendererForm, RendererTabs, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererDialog, RendererForm, RendererTabs, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, parseDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {createFlowRunOptionsBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding'
@@ -270,6 +270,7 @@ describe('flow run page mount', () => {
       expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({idea: '同意', notifyType: '0', nextNode: [{NodeId: 'NEXT-1', ExecUserList: outcome === 'directory' ? ['U2:李四'] : []}]}))
       if (outcome === 'unknown') {
         expect(command.hasUnconfirmedSave).toBe(true)
+        expect(wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title') === '追加办理人')?.props('closeDisabled')).toBe(true)
         expect(wrapper.text()).toContain('审批结果未知')
         expect(ds.getView('ApprovalInput')?.getEditingRow('current')?.['idea']).toBe('同意')
         expect(callbacks.succeeded).not.toHaveBeenCalled()

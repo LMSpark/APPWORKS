@@ -7,7 +7,7 @@
     "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client",
-    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client\n职责：追加办理人 workflow.runtime 写操作（GetExeUsers / FlowAddReceiveUser / FlowRevoke）。\n边界：经 lowcode HTTP 与正式执行域请求；列表查询优先消费 DataView 行筛选。",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client\n职责：追加办理人候选及添加适配（GetExeUsers / FlowAddReceiveUser）；撤回复用原审批命令适配。\n边界：经 lowcode HTTP 与正式执行域请求；列表查询优先消费 DataView 行筛选。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "FlowAppendUserExecUserCandidate",
@@ -183,27 +183,11 @@
         "method.addReceiveUsers.return": {
           "type": "object",
           "title": "Promise<void>"
-        },
-        "method.revokeAppendStep.params": {
-          "type": "object",
-          "properties": {
-            "curStepId": {
-              "type": "string"
-            },
-            "wfId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.revokeAppendStep.return": {
-          "type": "object",
-          "title": "Promise<void>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-14T18:26:09.846Z",
+  "generatedAt": "2026-11-16T16:40:17.574Z",
   "models": {
     "FlowAppendUserExecUserCandidate": {
       "name": "FlowAppendUserExecUserCandidate",
@@ -462,35 +446,6 @@
                   "type": {
                     "type": "unknown",
                     "name": "readonly string[]"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "revokeAppendStep",
-              "parameters": [
-                {
-                  "name": "curStepId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "wfId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
                   }
                 }
               ],

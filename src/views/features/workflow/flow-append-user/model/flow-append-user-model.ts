@@ -1,16 +1,11 @@
 /**
  * @module app:views/features/workflow/flow-append-user/model/flow-append-user-model
- * 职责：追加办理人领域规则（可撤回、选人校验、提交载荷），对齐参考 flow-append-user-model。
+ * 职责：追加办理人选人校验与提交载荷；撤回前置条件归流程资源层。
  */
 
 export type FlowAppendPersonValue = Readonly<{
   UserId: string
   UserName: string
-}>
-
-type FlowAppendRecordState = Readonly<{
-  STATUS: string
-  StepState: string
 }>
 
 function normalizeText(value: unknown): string {
@@ -25,11 +20,6 @@ export function normalizeFlowAppendPeople(values: readonly FlowAppendPersonValue
     userMap.set(userId, {UserId: userId, UserName: normalizeText(item.UserName)})
   }
   return [...userMap.values()]
-}
-
-export function canRevokeFlowAppendRecord(record: FlowAppendRecordState): boolean {
-  const stepState = normalizeText(record.StepState)
-  return normalizeText(record.STATUS) === '0' && (stepState === '0' || stepState === '1')
 }
 
 export function validateFlowAppendSelection(selectedCount: number, minNum: number, maxNum: number): string {

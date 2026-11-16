@@ -7,7 +7,7 @@ describe('approval command through the original DataSet', () => {
   it('retains an unknown command and verifies without dispatching it twice', async () => {
     const ds = DataSet.fromJson({scenarioId: 'approval', tables: {}})
     const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCommand', resource: {resourceType: 'command', resourceId: 'workflow:approval'},
-      columns: [{name: 'rowid', primary: true}, {name: 'action'}, {name: 'flowObjectId'}, {name: 'stepId'}, {name: 'idea'}, {name: 'nextNode', type: 'array'}]})
+      columns: [{name: 'rowid', primary: true}, {name: 'action'}, {name: 'flowObjectId'}, {name: 'stepId'}, {name: 'idea'}, {name: 'targetStepViewKey'}, {name: 'nextNode', type: 'array'}]})
     const dispatch = vi.fn(async () => {throw Error('lost response')})
     const guard = vi.fn()
     let sourceCurrent = true
@@ -22,6 +22,8 @@ describe('approval command through the original DataSet', () => {
       await expect(binding.submit({...row, idea: 'changed'})).rejects.toThrow()
       expect(dispatch).not.toHaveBeenCalled()
       await expect(binding.submit({...row, stepId: 'other-step'})).rejects.toThrow()
+      expect(dispatch).not.toHaveBeenCalled()
+      await expect(binding.submit({...row, targetStepViewKey: 'OTHER@WFOBJ_FLOW_RELATIONLINE_STEP@appendParticipants'})).rejects.toThrow()
       expect(dispatch).not.toHaveBeenCalled()
       sourceCurrent = false
       await expect(ds.saveChanges()).rejects.toThrow()

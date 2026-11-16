@@ -3,11 +3,13 @@
  * 职责：将审批命令绑定原运行工作台DataSet及已读取的实例/步骤。
  */
 import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
+import {parseDataViewKey, resolveDataViewKey} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {LowcodeDataSpaceAssemblerInput} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {FlowRunCommandResource} from './flow-run-command-resource'
 import {createFlowRunPageClient, type FlowRunPageClientOptions} from '../flow-run-page-client'
 import {FLOW_WORKBENCH_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID} from '../../flow-runtime-client'
+import {canRevokeFlowAppendRecord} from '../../flow-append-user/flow-append-user-records'
 
 type Input = Readonly<{config: ScenarioViewConfig; http: FlowRunPageClientOptions['http']; readScope: FlowRunPageClientOptions['readScope']; assertCurrent: () => void}>
 export function createApprovalCommandBindings(input: Input): Pick<LowcodeDataSpaceAssemblerInput, 'commandBindings'> {
@@ -25,15 +27,24 @@ export function createApprovalCommandBindings(input: Input): Pick<LowcodeDataSpa
     return new FlowRunCommandResource({view, guard,
       captureTarget: row => {
         guard()
-        const steps = ds?.getView('WFOBJ_FLOW_RELATIONLINE_STEP'), instances = ds?.getView('WFOBJ_FLOW')
+        const key = row['targetStepViewKey'], explicit = key !== undefined && key !== ''
+        const descriptor = typeof key === 'string' ? parseDataViewKey(key) : null
+        if (explicit && (row['action'] !== 'revoke' || !descriptor || descriptor.scope !== ds?.scenarioId
+          || descriptor.tableName !== 'WFOBJ_FLOW_RELATIONLINE_STEP' || descriptor.viewId !== 'appendParticipants')) throw Error('撤回追加行缺少本空间原步骤完整视图键')
+        const steps = explicit && typeof key === 'string' ? resolveDataViewKey(key, ds) : ds?.getView('WFOBJ_FLOW_RELATIONLINE_STEP')
+        const instances = ds?.getView('WFOBJ_FLOW')
         const targets = steps?.rows.filter(item => item['rowid'] === row['stepId'] && item['WFOBJID'] === row['flowObjectId']) ?? []
         const objects = instances?.rows.filter(item => item['rowid'] === row['flowObjectId']) ?? []
         const step = targets[0], object = objects[0]
         if (!steps || !instances || targets.length !== 1 || objects.length !== 1 || !step || !object) throw Error('审批命令缺少唯一正式实例或步骤')
-        const assertStep = steps.captureReadRow(step, ['rowid', 'WFOBJID'])
+        const assertStep = steps.captureReadRow(step, explicit ? ['rowid', 'WFOBJID', 'STATUS', 'StepState', 'SendNodeModelId', 'ReceiveNodeModelId', 'LastStepID'] : ['rowid', 'WFOBJID'])
+        if (explicit && !canRevokeFlowAppendRecord({STATUS: step['STATUS'], StepState: step['StepState']})) throw Error('原追加步骤当前不可撤回')
         if (row['action'] === 'submit' && (typeof row['flowId'] !== 'string' || !row['flowId'].trim() || row['flowId'] !== object['WFMID'])) throw Error('审批流程模型与正式实例不符')
         const assertObject = instances.captureReadRow(object, ['rowid', 'WFMID'])
-        return () => {guard(); assertStep(); assertObject()}
+        return () => {
+          guard(); assertStep(); assertObject()
+          if (explicit && typeof key === 'string' && resolveDataViewKey(key, ds) !== steps) throw Error('原追加步骤视图已变化')
+        }
       },
       dispatch: async row => {
         const flowObjId = String(row['flowObjectId']), curStepId = String(row['stepId'])

@@ -47,7 +47,7 @@
       </aside>
     </div>
 
-    <SparkComponent.RendererDialog v-model="appendOpen" title="追加办理人" width="92vw" :append-to-body="true" :destroy-on-close="true">
+    <SparkComponent.RendererDialog v-model="appendOpen" title="追加办理人" width="92vw" :append-to-body="true" :destroy-on-close="true" :close-disabled="appendCloseDisabled">
       <FlowAppendUser v-if="appendContext && prepared" :context="appendContext" embedded
         :user-directory-view-key="prepared.userDirectoryViewKey" :step-view-key="stepViewKey" />
     </SparkComponent.RendererDialog>
@@ -118,6 +118,7 @@ const {
   selectBusinessForm,
   businessRegistry,
   appendOpen,
+  appendCloseDisabled,
   appendContext,
   chartOpen,
   chartLoading,

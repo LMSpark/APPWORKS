@@ -72,6 +72,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     return view instanceof DataView ? view : null
   })
   const commandState = useDataViewState(commandView)
+  const appendCloseDisabled = computed(() => handleLoading.value || commandState.resultReplacementBlocked.value || commandState.mutating.value)
   const inputLocked = computed(() => {commandState.mutating.value; commandState.requestState.value; return handleLoading.value || hasPendingApproval()})
   const inputFields = computed(() => flowRunInputFields({scope: FLOW_WORKBENCH_SCENARIO_ID, locked: inputLocked.value, force: allowForceBack.value && forceBackNodeOptions.value.length > 0}))
   const nodeFields = computed(() => flowRunNodeFields(inputLocked.value))
@@ -304,6 +305,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   const backToCreator = () => runParameterAction('toCreator')
 
   function openAppendDialog(): void {
+    if (approvalWorkspace.value?.active || hasPendingApproval()) {handleError.value = '请先确认、取消办理参数或核验原审批命令'; return}
     const step = readCurrentStep()
     appendContext.value = buildAppendUserContext(step)
     if (!appendContext.value) {
@@ -395,6 +397,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     activeTab,
     businessRegistry,
     appendOpen,
+    appendCloseDisabled,
     appendContext,
     chartOpen,
     chartLoading,

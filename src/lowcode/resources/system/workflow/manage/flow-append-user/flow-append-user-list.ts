@@ -6,8 +6,8 @@
 import {buildDataViewKey, resolveDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {normalizeFlowAppendUserContext, type FlowAppendUserContext} from './flow-append-user-records'
 
-export async function queryFlowAppendParticipants(source: DataView, input: Partial<FlowAppendUserContext>, assertCurrent: () => void): Promise<DataView> {
-  assertCurrent()
+/** 捕获宿主原步骤及关系的只读证明；查询和命令共用，不复制权限或可编辑数据。 */
+export function captureFlowAppendStep(source: DataView, input: Partial<FlowAppendUserContext>): () => void {
   const context = normalizeFlowAppendUserContext(input), dataSet = source.dataSet, table = source.dataTable
   if (!context.rowid || !context.WFOBJID || !context.SendNodeModelId || !context.ReceiveNodeModelId
     || !dataSet || dataSet.destroyed || source.destroyed || !table || dataSet.getView(source.tableName, source.viewId) !== source) throw Error('追加参与人缺少原步骤查询身份')
@@ -17,11 +17,21 @@ export async function queryFlowAppendParticipants(source: DataView, input: Parti
   if (matches.length !== 1 || !row) throw Error('追加参与人缺少唯一原步骤')
   const assertSource = source.captureReadRow(row, fields)
   if (fields.some(field => row[field] !== context[field])) throw Error('追加参与人上下文与原步骤不符')
+  return () => {
+    assertSource()
+    if (source.dataSet !== dataSet || resolveDataViewKey(buildDataViewKey('WFOBJ_FLOW_RELATIONLINE_STEP', source.viewId, dataSet.scenarioId), dataSet) !== source) throw Error('原追加参与人步骤实例已变化')
+  }
+}
+
+export async function queryFlowAppendParticipants(source: DataView, input: Partial<FlowAppendUserContext>, assertCurrent: () => void): Promise<DataView> {
+  assertCurrent()
+  const context = normalizeFlowAppendUserContext(input), assertSource = captureFlowAppendStep(source, context), table = source.dataTable
+  if (!table) throw Error('追加参与人原步骤模型已释放')
   const view = table.getView('appendParticipants')
   if (!view || view === source) throw Error('追加参与人正式列表视图未装配')
-  view.queryContext = Object.fromEntries(fields.filter(field => field !== 'rowid').map(field => [field, context[field]]))
+  view.queryContext = Object.fromEntries((['WFOBJID', 'SendNodeModelId', 'ReceiveNodeModelId', 'LastStepID'] as const).map(field => [field, context[field]]))
   await view.refresh(); assertCurrent(); assertSource()
-  if (view.destroyed || table.getView('appendParticipants') !== view || source.dataSet !== dataSet) throw Error('追加参与人列表实例已变化')
+  if (view.destroyed || table.getView('appendParticipants') !== view || source.dataTable !== table) throw Error('追加参与人列表实例已变化')
   if (view.loadingError) throw view.loadingError
   view.captureReadResult()()
   return view

@@ -5,6 +5,7 @@
 import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import type {LowcodeDataSpaceAssemblerInput} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {createFlowRunOptionsBinding} from './options-binding'
+import {createFlowRunCandidatesBinding} from './candidates-binding'
 import {createFlowRunPageClient, type FlowRunPageClientOptions} from '../flow-run-page-client'
 import {FLOW_WORKBENCH_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID} from '../../flow-runtime-client'
 import {isRecord} from '@spark-appworks/spark-utils'
@@ -14,6 +15,8 @@ export function createApprovalOptionsBindings(input: Input): Pick<LowcodeDataSpa
   if (input.config.scenarioId !== FLOW_WORKBENCH_SCENARIO_ID) return {}
   const tables = input.config.toJSON()['tables'], declared = isRecord(tables) ? tables['ApprovalOptions'] : undefined
   if (!isRecord(declared) || declared['resourceType'] !== 'logical-view' || declared['resourceId'] !== 'workflow:approval-options' || Object.hasOwn(declared, 'modelBinding')) throw Error('审批选项投影声明无效')
+  const candidates = isRecord(tables) ? tables['ApprovalCandidates'] : undefined
+  if (!isRecord(candidates) || candidates['resourceType'] !== 'logical-view' || candidates['resourceId'] !== 'workflow:approval-candidates' || Object.hasOwn(candidates, 'modelBinding')) throw Error('审批候选投影声明无效')
   return {projectionBindings: {ApprovalOptions: view => {
     const ds = view.dataSet
     const guard = () => {input.assertCurrent(); if (!ds || ds.destroyed || view.destroyed || ds.getView('ApprovalOptions') !== view) throw Error('审批选项空间已失效')}
@@ -28,6 +31,13 @@ export function createApprovalOptionsBindings(input: Input): Pick<LowcodeDataSpa
       if (!steps || !objects || matches.length !== 1 || instances.length !== 1 || !step || !object) throw Error('审批选项缺少唯一正式目标')
       const assertStep = steps.captureReadRow(step, ['rowid', 'WFOBJID']), assertObject = objects.captureReadRow(object, ['rowid', 'WFMID'])
       return () => {guard(); assertStep(); assertObject()}
+    }})
+  }, ApprovalCandidates: view => {
+    const ds = view.dataSet, source = ds?.getView('ApprovalOptions', 'default')
+    if (!source) throw Error('审批人员候选缺少原选项视图')
+    return createFlowRunCandidatesBinding({view, source, guard: () => {
+      input.assertCurrent()
+      if (ds?.destroyed || ds?.getView('ApprovalOptions', 'default') !== source) throw Error('审批人员候选空间已失效')
     }})
   }}}
 }

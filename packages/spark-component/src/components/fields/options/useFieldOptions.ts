@@ -308,7 +308,11 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
   function captureOptionsGuard():()=>boolean {
     const isAvailable=()=>optionsAvailable.value
     const available=isAvailable(),view=optionDataView.value,spec=cascade.definition.value,epoch=optionIntentRevision.value
-    return()=>{try{return available&&isAvailable()&&cascade.definition.value===spec&&optionDataView.value===view
+    return()=>{try{
+      // Query metadata rechecks the original result identity, including projection-source guards.
+      // A source may expire without emitting an event on this bound option view.
+      if (view) view.countReported
+      return available&&isAvailable()&&cascade.definition.value===spec&&optionDataView.value===view
       &&(spec!==undefined||epoch===optionIntentRevision.value)}catch{return false}}
   }
 

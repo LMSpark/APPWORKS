@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1247,
+  "scannedFileCount": 1248,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -16365,6 +16365,19 @@
         "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/index",
         "jsdoc": "app 的 lowcode/resources/system/workflow/manage/flow-run-page/index 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
         "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding\n职责：从原办理选项查询按节点投影人员候选，供标准字段绑定消费。\n边界：不扩展空范围，不复制可编辑人员草稿，不查询人员目录或派发审批。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },

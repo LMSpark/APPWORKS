@@ -2014,7 +2014,7 @@
     "packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.189Z"
+      "sourceModifiedAt": "2026-11-16T12:56:45.705Z"
     },
     "packages/spark-component/src/components/fields/data-components/composables/state/useFieldControlState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useFieldControlState.ts",
@@ -2159,7 +2159,7 @@
     "packages/spark-component/src/components/fields/data-components/picker/FieldEntityPicker/FieldEntityPicker.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/picker/FieldEntityPicker/FieldEntityPicker.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/picker/FieldEntityPicker/FieldEntityPicker.vue.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.167Z"
+      "sourceModifiedAt": "2026-11-16T12:56:45.709Z"
     },
     "packages/spark-component/src/components/fields/data-components/picker/FieldProductPicker/FieldProductPicker.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/picker/FieldProductPicker/FieldProductPicker.vue",
@@ -2409,7 +2409,7 @@
     "packages/spark-component/src/components/fields/options/useFieldOptions.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/options/useFieldOptions.ts.json",
-      "sourceModifiedAt": "2026-11-13T03:25:30.079Z"
+      "sourceModifiedAt": "2026-11-16T12:46:39.919Z"
     },
     "packages/spark-component/src/components/fields/options/useInputParameterFunctionContext.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/options/useInputParameterFunctionContext.ts",
@@ -4931,6 +4931,11 @@
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/index.ts.json",
       "sourceModifiedAt": "2026-11-15T00:44:18.862Z"
     },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding.ts": {
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding.ts",
+      "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding.ts.json",
+      "sourceModifiedAt": "2026-11-16T12:37:16.646Z"
+    },
     "src/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding.ts.json",
@@ -4939,7 +4944,7 @@
     "src/lowcode/resources/system/workflow/manage/flow-run-page/query/runtime-bindings.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/query/runtime-bindings.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/query/runtime-bindings.ts.json",
-      "sourceModifiedAt": "2026-11-16T12:09:29.160Z"
+      "sourceModifiedAt": "2026-11-16T12:38:36.178Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-runtime-client.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-runtime-client.ts",

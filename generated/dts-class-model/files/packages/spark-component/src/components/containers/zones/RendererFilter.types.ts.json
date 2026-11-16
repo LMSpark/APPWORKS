@@ -181,11 +181,11 @@
               "type": "object",
               "title": "((index: number) => string | number | SparkNode | undefined) & ((index: number) => SparkNode | undefined)"
             },
-            "__@iterator@273704": {
+            "__@iterator@273783": {
               "type": "object",
               "title": "(() => ArrayIterator<string | number | SparkNode>) & (() => ArrayIterator<SparkNode>)"
             },
-            "__@unscopables@273706": {
+            "__@unscopables@273785": {
               "type": "object",
               "properties": {
                 "length": {
@@ -386,13 +386,13 @@
                     true
                   ]
                 },
-                "__@iterator@273704": {
+                "__@iterator@273783": {
                   "enum": [
                     false,
                     true
                   ]
                 },
-                "__@unscopables@273706": {
+                "__@unscopables@273785": {
                   "enum": [
                     false,
                     true
@@ -436,8 +436,8 @@
             "flatMap",
             "flat",
             "at",
-            "__@iterator@273704",
-            "__@unscopables@273706"
+            "__@iterator@273783",
+            "__@unscopables@273785"
           ],
           "additionalProperties": false
         },

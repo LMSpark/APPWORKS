@@ -71,8 +71,8 @@ const { hasSelectorCapability, primaryAction, selectEntities } = useSelectorFiel
   isEditable: isCurrentFieldEditable,
 })
 
-async function updateValue(value: NonNullable<REntityPickerProps['modelValue']>): Promise<void> {
-  await handleControlledChange(value)
+async function updateValue(value: NonNullable<REntityPickerProps['modelValue']>, isCurrentIntent: () => boolean = () => true): Promise<void> {
+  await handleControlledChange(value, isCurrentIntent)
 }
 
 const {
@@ -97,6 +97,8 @@ const {
   hasSelectorCapability,
   primaryAction,
   selectEntities,
+  captureWriteGuard: optionResult.captureWriteGuard,
+  captureOptionsGuard: optionResult.captureOptionsGuard,
   updateValue,
 })
 </script>

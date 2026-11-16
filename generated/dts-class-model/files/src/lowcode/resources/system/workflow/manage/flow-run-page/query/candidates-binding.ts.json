@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding",
+    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding.ts",
+    "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding\n职责：从原办理选项查询按节点投影人员候选，供标准字段绑定消费。\n边界：不扩展空范围，不复制可编辑人员草稿，不查询人员目录或派发审批。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-16T12:37:16.646Z",
+  "models": {}
+}

@@ -407,6 +407,17 @@
         }
       }
     },
+    "ApprovalCandidates": {
+      "resourceType": "logical-view",
+      "resourceId": "workflow:approval-candidates",
+      "columns": [
+        {"name": "id", "type": "string", "isPrimaryKey": true},
+        {"name": "name", "type": "string"},
+        {"name": "value", "type": "string"},
+        {"name": "nodeId", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "queryContext": {"nodeId": ""}, "queryConfig": {"pagination": "none"}}}
+    },
     "ApprovalOptions": {
       "resourceType": "logical-view",
       "resourceId": "workflow:approval-options",

@@ -52,6 +52,14 @@ it('submits the captured instance and step through the original command view', a
     await optionsView.refresh()
     expect(optionsView.loadingError).toBeNull()
     expect(optionsView.rows[0]?.['payload']).toMatchObject({execUser: [{userList: []}]})
+    const candidates = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCandidates', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-candidates'}, columns: [{name: 'id', primary: true}, {name: 'name'}, {name: 'value'}, {name: 'nodeId'}]})
+    const candidateFactory = createApprovalOptionsBindings({config, http, readScope: () => ({token: 't', headers: {}}), assertCurrent: () => {}}).projectionBindings?.['ApprovalCandidates']
+    if (!candidateFactory) throw Error('candidate factory missing')
+    bindDataSetReadonlyCommandQuery(candidates, candidateFactory(candidates))
+    candidates.queryContext = {nodeId: 'N1'}
+    await candidates.refresh()
+    expect(candidates.loadingError).toBeNull()
+    expect(candidates.rows).toEqual([])
     http.result = false
     await expect(submitApprovalCommand(ds, {action: 'revoke', flowObjectId: 'WF1', stepId: 'S1'})).rejects.toThrow()
     expect(command.hasUnconfirmedSave).toBe(true)

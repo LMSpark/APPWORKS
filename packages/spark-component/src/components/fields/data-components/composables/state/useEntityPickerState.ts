@@ -78,8 +78,12 @@ type UseEntityPickerStateOptions = {
   primaryAction: ValueRef<'select' | 'view'>
   /** 打开实体选择器并返回用户选择结果。 */
   selectEntities: (options: EntityPickerSelectCommand) => Promise<EntityPickerSelectedOption[]>
-  /** 将选择结果写回字段值。 */
-  updateValue: (value: PageSelectorOption['value'] | Array<PageSelectorOption['value']> | string) => void | Promise<void>
+  /** 打开时捕获原字段及原候选身份，迟到结果不得跟随新上下文。 */
+  captureWriteGuard: () => () => boolean
+  /** 独立核候选查询的可读身份；只读查看仍可打开，过期来源不可读旧候选。 */
+  captureOptionsGuard: () => () => boolean
+  /** 将选择结果写回字段值，异步事件期间继续核对原选择意图。 */
+  updateValue: (value: PageSelectorOption['value'] | Array<PageSelectorOption['value']> | string, isCurrentIntent?: () => boolean) => void | Promise<void>
 }
 
 export function useEntityPickerState(options: UseEntityPickerStateOptions) {
@@ -99,6 +103,8 @@ export function useEntityPickerState(options: UseEntityPickerStateOptions) {
   }
 
   async function openSelector(): Promise<void> {
+    if (!options.captureOptionsGuard()()) return
+    const isCurrentIntent = options.captureWriteGuard()
     const selected = await options.selectEntities({
       title: `${primaryActionText.value}${options.entityName.value}`,
       entityName: options.entityName.value,
@@ -113,8 +119,8 @@ export function useEntityPickerState(options: UseEntityPickerStateOptions) {
       })),
     })
 
-    if (!options.isCurrentFieldEditable.value) return
-    await options.updateValue(buildNextValue(selected.map(item => item.value)))
+    if (!isCurrentIntent() || !options.isCurrentFieldEditable.value) return
+    await options.updateValue(buildNextValue(selected.map(item => item.value)), isCurrentIntent)
   }
 
   function clearValue(): void {

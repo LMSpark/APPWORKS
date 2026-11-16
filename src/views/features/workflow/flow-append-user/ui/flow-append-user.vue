@@ -1,7 +1,7 @@
 <!--
 @module app:views/features/workflow/flow-append-user/ui/flow-append-user
 职责：流程参与人追加（列表、加人、撤回）；嵌入办理页或对话框宿主。
-边界：列表及撤回走原SPARK data；添加和选人旧入口继续沿唯一台账迁移。
+边界：列表、选人、参数及命令统一走原SPARK data，未知结果保留原输入。
 -->
 <template>
   <RendererSection
@@ -35,32 +35,20 @@
       :append-to-body="true"
       :close-on-click-modal="false"
       :destroy-on-close="true"
+      :close-disabled="addCloseDisabled"
       @closed="resetAddDialog"
     >
       <div v-loading="addDialog.loading" class="flow-append-user__dialog-body">
-        <el-select
-          v-if="selectOptions.length > 0"
-          v-model="addDialog.selectedIds"
-          multiple
-          filterable
-          collapse-tags
-          collapse-tags-tooltip
-          placeholder="选择办理人"
-          class="flow-append-user__user-select"
-        >
-          <el-option
-            v-for="item in selectOptions"
-            :key="item.UserId"
-            :label="item.UserName || item.UserId"
-            :value="item.UserId"
-          />
-        </el-select>
-        <DisplayAlert v-else alert-type="warning" :closable="false" :show-icon="true" title="未获取到可选办理人。" />
-        <p class="flow-append-user__dialog-tip">最少 {{ addDialog.minNum }} 人，最多 {{ addDialog.maxNum }} 人</p>
+        <DisplayAlert v-if="pageError" alert-type="error" :closable="false" :show-icon="true" :title="pageError" />
+        <RendererForm v-if="parameterViewKey && candidateViewKey && !addDialog.loading" :data-view-key="parameterViewKey"
+          :children="inputFields" :auto-columns="false" :show-data-view-meta="false" />
+        <RendererForm v-if="optionsViewKey && !addDialog.loading" :data-view-key="optionsViewKey"
+          :children="limitFields" :auto-columns="false" :show-data-view-meta="false" />
       </div>
       <template #footer>
-        <RendererButton label="取消" :disabled="addDialog.submitting" @click="resetAddDialog" />
-        <RendererButton label="确认" button-type="primary" :disabled="addDialog.submitting" @click="submitAddDialog" />
+        <RendererButton v-if="revokeUnconfirmed" label="核验原命令结果" :disabled="addDialog.submitting" @click="verifyOriginalRevoke" />
+        <RendererButton label="取消" :disabled="addDialog.loading || addDialog.submitting || commandLocked" @click="resetAddDialog" />
+        <RendererButton label="确认" button-type="primary" :disabled="addDialog.loading || addDialog.submitting || commandLocked" @click="submitAddDialog" />
       </template>
     </RendererDialog>
   </RendererSection>
@@ -68,7 +56,7 @@
 
 <script setup lang="ts">
 import {computed} from 'vue'
-import {DisplayAlert, RendererButton, RendererDialog, RendererSection, RendererTable, type RToolbarProps} from '@spark-appworks/spark-component'
+import {DisplayAlert, RendererButton, RendererDialog, RendererForm, RendererSection, RendererTable, type RToolbarProps} from '@spark-appworks/spark-component'
 import type {SparkNode} from '@spark-appworks/spark-data'
 import type {FlowAppendUserContext} from '@/lowcode/resources/system/workflow/manage'
 import {useFlowAppendUser} from './use-flow-append-user'
@@ -91,7 +79,10 @@ const {
   revokeUnconfirmed,
   verifyOriginalRevoke,
   addDialog,
-  selectOptions,
+  parameterViewKey,
+  optionsViewKey,
+  candidateViewKey,
+  addCloseDisabled,
   openAddDialog,
   submitAddDialog,
   resetAddDialog,
@@ -104,6 +95,11 @@ const {
   ...(props.userDirectoryViewKey ? {userDirectoryViewKey: () => props.userDirectoryViewKey} : {}),
 })
 
+const inputFields = computed<SparkNode[]>(() => [{type: 'r-user-picker', props: {field: 'receiveUsers', label: '办理人', multiple: true, valueMode: 'array', optionDataViewKey: candidateViewKey.value, optionLabelField: 'name', optionValueField: 'value', disabled: commandLocked.value || addDialog.submitting}}])
+const limitFields: SparkNode[] = [
+  {type: 'r-number', props: {field: 'minNum', label: '最少人数', readonly: true}},
+  {type: 'r-number', props: {field: 'maxNum', label: '最多人数', readonly: true}},
+]
 const listFields: SparkNode[] = [
   {type: 'r-text', props: {field: 'ReceiveUserName', label: '办理人', readonly: true, minWidth: 180}},
   {type: 'r-text', props: {field: 'StepState', label: '步骤状态', readonly: true, minWidth: 120}},

@@ -1,28 +1,15 @@
 /**
  * @module app:views/features/workflow/flow-append-user/ui/use-flow-append-user
- * 职责：列表与撤回复用原DataView和命令owner；添加及选人旧入口继续沿台账迁移。
+ * 职责：列表、参数及追加/撤回均复用原DataView与命令owner。
  */
 import {computed, onBeforeUnmount, reactive, ref, shallowRef, toRaw, watch} from 'vue'
 import {buildDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useDataViewState, useSparkComponent} from '@spark-appworks/spark-component'
-import {isRecord} from '@spark-appworks/spark-utils'
-import {lowcodeApi, lowcodeHttp} from '@/lowcode/lowcode-runtime'
-import {
-  FLOW_MONITOR_SCENARIO_ID,
-  createFlowAppendUserClient,
-  normalizeFlowAppendUserContext,
-  type FlowAppendUserContext,
-  type FlowAppendUserExecUserCandidate,
-} from '@/lowcode/resources/system/workflow/manage'
+import {normalizeFlowAppendUserContext, type FlowAppendUserContext} from '@/lowcode/resources/system/workflow/manage'
+import {FlowAppendInputWorkspace} from '@/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace'
 import {canRevokeFlowAppendRecord} from '@/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records'
 import {captureFlowAppendStep, queryFlowAppendParticipants} from '@/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-list'
 import {submitApprovalCommand, verifyApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
-import {
-  createFlowAppendReceiveUserList,
-  validateFlowAppendSelection,
-  type FlowAppendPersonValue,
-} from '../model/flow-append-user-model'
-
 const STEP_MODEL = 'WFOBJ_FLOW_RELATIONLINE_STEP'
 
 export type UseFlowAppendUserOptions = Readonly<{
@@ -31,21 +18,6 @@ export type UseFlowAppendUserOptions = Readonly<{
   userDirectoryViewKey?: () => string | undefined
   stepViewKey: () => string
 }>
-
-type AddDialogState = {
-  visible: boolean
-  loading: boolean
-  submitting: boolean
-  selectedIds: string[]
-  maxNum: number
-  minNum: number
-  allowChange: string
-  candidates: FlowAppendUserExecUserCandidate[]
-}
-
-function personFromCandidate(candidate: FlowAppendUserExecUserCandidate): FlowAppendPersonValue {
-  return {UserId: candidate.UserId, UserName: candidate.UserName}
-}
 
 export function useFlowAppendUser(options: UseFlowAppendUserOptions) {
   const {sparkConsume} = useSparkComponent({type: 'flow-append-user'})
@@ -62,38 +34,20 @@ export function useFlowAppendUser(options: UseFlowAppendUserOptions) {
     commandState.mutating.value; commandState.mutatingError.value; commandState.resultReplacementBlocked.value
     return commandView.value?.hasUnconfirmedSave === true
   })
-  const userOptions = ref<readonly FlowAppendPersonValue[]>([])
+  const workspace = shallowRef<FlowAppendInputWorkspace>()
   let generation = 0
-
-  const addDialog = reactive<AddDialogState>({
-    visible: false,
-    loading: false,
-    submitting: false,
-    selectedIds: [],
-    maxNum: 0,
-    minNum: 0,
-    allowChange: '1',
-    candidates: [],
-  })
-
-  const contextTitle = computed(() => normalizeFlowAppendUserContext(options.context()).TITLE || '-')
+  let active = true
+  const addDialog = reactive({visible: false, loading: false, submitting: false})
+  const parameterView = computed(() => workspace.value?.parameters ?? null)
+  const parameterState = useDataViewState(parameterView)
+  const addCloseDisabled = computed(() => addDialog.loading || addDialog.submitting || commandLocked.value || parameterState.resultReplacementBlocked.value)
+  const parameterViewKey = computed(() => workspace.value?.parameters.dataSet?.scenarioId
+    ? buildDataViewKey('AppendInput', 'default', workspace.value.parameters.dataSet.scenarioId) : '')
+  const optionsViewKey = computed(() => workspace.value?.parameters.dataSet?.scenarioId
+    ? buildDataViewKey('AppendOptions', 'default', workspace.value.parameters.dataSet.scenarioId) : '')
+  const candidateViewKey = computed(() => {addDialog.loading; addDialog.visible; return workspace.value?.candidateKey ?? ''})
+  const contextTitle = computed(() => {addDialog.visible; addDialog.loading; return workspace.value?.active ? workspace.value.title : normalizeFlowAppendUserContext(options.context()).TITLE || '-'})
   const embedded = computed(() => options.embedded?.() === true)
-
-  function clientFor(gen: number) {
-    return createFlowAppendUserClient({
-      http: lowcodeHttp,
-      scenarioId: FLOW_MONITOR_SCENARIO_ID,
-      readScope: () => lowcodeApi.readRequestScope(),
-      assertCurrent: () => {
-        if (gen !== generation) throw new Error('追加办理操作已过期')
-      },
-    })
-  }
-
-  const selectOptions = computed(() => {
-    if (addDialog.allowChange === '1' && userOptions.value.length > 0) return userOptions.value
-    return addDialog.candidates.map(personFromCandidate)
-  })
 
   function stepView(): DataView | undefined {
     const runtime = sparkConsume(PAGE_RUNTIME)
@@ -109,22 +63,8 @@ export function useFlowAppendUser(options: UseFlowAppendUserOptions) {
     return view
   }
 
-  async function ensureUserDirectory(): Promise<void> {
-    if (userOptions.value.length > 0) return
-    const key = options.userDirectoryViewKey?.()
-    const runtime = sparkConsume(PAGE_RUNTIME)
-    if (!key || !runtime) return
-    const view = runtime.resolveView(key)
-    if (!view || view.destroyed) return
-    if (view.rows.length === 0) await view.refresh()
-    userOptions.value = view.rows
-      .filter(isRecord)
-      .map(row => ({UserId: String(row['rowid'] ?? '').trim(), UserName: String(row['UserName'] ?? '').trim()}))
-      .filter(item => item.UserId)
-  }
-
   async function loadPageData(): Promise<void> {
-    if (commandLocked.value) {pageError.value = '请先处理或核验原撤回命令'; return}
+    if (commandLocked.value || workspace.value?.active || addDialog.loading) {pageError.value = '请先处理或核验原追加/撤回操作'; return}
     const own = ++generation
     pageLoading.value = true
     pageError.value = ''
@@ -146,70 +86,55 @@ export function useFlowAppendUser(options: UseFlowAppendUserOptions) {
   }
 
   function resetAddDialog(): void {
-    addDialog.visible = false
-    addDialog.loading = false
-    addDialog.submitting = false
-    addDialog.selectedIds = []
-    addDialog.maxNum = 0
-    addDialog.minNum = 0
-    addDialog.allowChange = '1'
-    addDialog.candidates = []
+    if (addDialog.loading || addDialog.submitting || commandLocked.value) return
+    try {
+      const hadInput = workspace.value?.active === true
+      workspace.value?.close(); addDialog.visible = false
+      if (hadInput) {try {assertListCurrent()} catch {void loadPageData()}}
+    }
+    catch (error) {pageError.value = error instanceof Error ? error.message : '原追加参数尚未释放'}
   }
 
   async function openAddDialog(): Promise<void> {
-    if (commandLocked.value) {pageError.value = '请先处理或核验原撤回命令'; return}
-    addDialog.loading = true
-    addDialog.visible = true
+    if (commandLocked.value || addDialog.loading || workspace.value?.active) return
+    pageError.value = ''
     try {
       assertListCurrent()
-      const configs = await clientFor(generation).getExecutionUsers(options.context(), true)
-      assertListCurrent()
-      const config = configs[0]
-      if (!config) {
-        pageError.value = '未获取到可追加办理人配置'
-        addDialog.visible = false
-        return
-      }
-      addDialog.allowChange = config.allowChange
-      addDialog.maxNum = config.maxNum
-      addDialog.minNum = config.minNum
-      addDialog.candidates = [...config.userList]
-      if (config.allowChange === '1') await ensureUserDirectory()
-      const view = listView.value
-      const existing = new Set(view?.rows.filter(row => view.fieldAccess(row, 'ReceiveUserId').read === 'visible').map(row => row['ReceiveUserId']).filter(Boolean) ?? [])
-      const defaults = selectOptions.value.filter(item => !existing.has(item.UserId)).map(item => item.UserId)
-      addDialog.selectedIds = defaults.length <= config.maxNum ? defaults : []
+      const source = stepView(), ds = source?.dataSet, own = generation
+      if (!ds) throw Error('追加参数缺少原数据空间')
+      workspace.value ??= new FlowAppendInputWorkspace({dataSet: ds, stepView, listView: () => listView.value,
+        context: options.context, assertCurrent: () => {if (!active || stepView()?.dataSet !== ds) throw Error('原追加数据空间已释放')},
+        userDirectory: () => {
+          const key = options.userDirectoryViewKey?.(), runtime = sparkConsume(PAGE_RUNTIME)
+          const view = key && runtime ? runtime.resolveView(key) : undefined
+          if (!view) throw Error('缺少宿主正式人员目录完整键')
+          return view
+        }})
+      addDialog.loading = true; addDialog.visible = true
+      await workspace.value.open(() => {if (!active || own !== generation) throw Error('原追加输入已过期')})
     } catch (error) {
       pageError.value = error instanceof Error ? error.message : '加载可追加办理人失败'
       addDialog.visible = false
-    } finally {
-      addDialog.loading = false
-    }
+    } finally {addDialog.loading = false}
   }
 
   async function submitAddDialog(): Promise<void> {
-    if (commandLocked.value) {pageError.value = '请先处理或核验原撤回命令'; return}
-    try {assertListCurrent()} catch (error) {pageError.value = error instanceof Error ? error.message : '追加参与人列表已失效'; return}
-    const validationMessage = validateFlowAppendSelection(addDialog.selectedIds.length, addDialog.minNum, addDialog.maxNum)
-    if (validationMessage) {
-      pageError.value = validationMessage
-      return
-    }
-    const selected = selectOptions.value.filter(item => addDialog.selectedIds.includes(item.UserId))
-    addDialog.submitting = true
-    pageError.value = ''
+    if (commandLocked.value || addDialog.loading || addDialog.submitting) return
+    addDialog.submitting = true; pageError.value = ''
     try {
-      await clientFor(generation).addReceiveUsers(options.context(), createFlowAppendReceiveUserList(selected))
-      resetAddDialog()
+      assertListCurrent()
+      const owner = workspace.value, ds = owner?.parameters.dataSet
+      if (!owner || !ds) throw Error('原追加参数未装配')
+      const captured = owner.capture()
+      await submitApprovalCommand(ds, captured.input, captured.assertCurrent)
+      owner.close(); addDialog.visible = false
       await loadPageData()
-    } catch (error) {
-      pageError.value = error instanceof Error ? error.message : '添加办理人失败'
-    } finally {
-      addDialog.submitting = false
-    }
+    } catch (error) {pageError.value = error instanceof Error ? error.message : '添加办理人失败'}
+    finally {addDialog.submitting = false}
   }
 
   async function revokeRecord(value: unknown): Promise<void> {
+    if (workspace.value?.active || addDialog.loading || commandLocked.value) return
     const view = listView.value, original = view?.rows.find(row => row === toRaw(value))
     if (!view || !original) return
     revoking.value = true
@@ -239,15 +164,14 @@ export function useFlowAppendUser(options: UseFlowAppendUserOptions) {
     const dataSet = commandView.value?.dataSet
     if (!dataSet || commandState.mutating.value) return
     pageError.value = ''
-    try {await verifyApprovalCommand(dataSet); await loadPageData()}
+    try {await verifyApprovalCommand(dataSet); if (workspace.value?.active) {workspace.value.close(); addDialog.visible = false}; await loadPageData()}
     catch (error) {pageError.value = error instanceof Error ? error.message : '原撤回结果仍待核验'}
   }
 
   watch(() => {const value = normalizeFlowAppendUserContext(options.context()); return [options.stepViewKey(), value.rowid, value.WFOBJID, value.SendNodeModelId, value.ReceiveNodeModelId, value.LastStepID]}, () => {
-    if (!addDialog.submitting) resetAddDialog()
-    void loadPageData()
+    if (!workspace.value?.active && !addDialog.loading && !addDialog.submitting) void loadPageData()
   }, {immediate: true})
-  onBeforeUnmount(() => {generation++; listView.value = undefined})
+  onBeforeUnmount(() => {active = false; generation++; if (!commandLocked.value && !addDialog.loading) workspace.value?.close(); listView.value = undefined})
 
   return {
     embedded,
@@ -260,7 +184,10 @@ export function useFlowAppendUser(options: UseFlowAppendUserOptions) {
     revokeUnconfirmed,
     verifyOriginalRevoke,
     addDialog,
-    selectOptions,
+    parameterViewKey,
+    optionsViewKey,
+    candidateViewKey,
+    addCloseDisabled,
     openAddDialog,
     submitAddDialog,
     resetAddDialog,

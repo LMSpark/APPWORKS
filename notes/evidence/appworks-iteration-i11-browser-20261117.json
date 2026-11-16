@@ -1,0 +1,12 @@
+{
+  "iteration": "I11",
+  "observedAt": "2026-11-16T17:50:58.085039+00:00",
+  "browserCount": 0,
+  "errors": [
+    "Browsers: Error: The browser access host is unavailable"
+  ],
+  "uiActions": 0,
+  "businessWrites": 0,
+  "credentialInput": false,
+  "scope": "connection only; no live acceptance"
+}

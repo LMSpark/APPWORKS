@@ -4,7 +4,7 @@ import ElementPlus from 'element-plus'
 import {defineComponent, h, reactive} from 'vue'
 import {PAGE_RUNTIME, RendererDialog, RendererForm, RendererTabs, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, parseDataViewKey, type DataView} from '@spark-appworks/spark-data'
+import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, ensureDataSetStaticInputTable, parseDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {createFlowRunOptionsBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding'
 import {FlowRunCommandResource} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
 import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
@@ -192,7 +192,7 @@ afterEach(() => {
 })
 
 describe('flow run page mount', () => {
-  it.each(['success', 'unknown', 'callback-error', 'form-switch', 'business-error', 'directory'])('uses original parameter views through the %s outcome', async outcome => {
+  it.each(['success', 'unknown', 'callback-error', 'form-switch', 'business-error', 'directory', 'append-input'])('uses original parameter views through the %s outcome', async outcome => {
     const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
     const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})
     ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCandidates', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-candidates'}, columns: [{name: 'id', primary: true}, {name: 'name'}, {name: 'value'}, {name: 'nodeId'}]})
@@ -213,6 +213,8 @@ describe('flow run page mount', () => {
     bindDataSetCommandSubmit(command, new FlowRunCommandResource({view: command, guard: () => {}, captureTarget: () => () => {}, dispatch}).binding())
     const continuation = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalContinuation', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-continuation'}, columns: [{name: 'id', primary: true}, {name: 'enableNext', type: 'boolean'}]})
     bindDataSetReadonlyCommandQuery(continuation, {resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-continuation'}, guard: () => {}, loadRows: async () => [{id: 'current', enableNext: false}]})
+    const appendOptions = ensureDataSetResourceView({dataSet: ds, tableName: 'AppendOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:append-options'}, columns: [{name: 'id', primary: true}]})
+    bindDataSetReadonlyCommandQuery(appendOptions, {resource: {resourceType: 'logical-view', resourceId: 'workflow:append-options'}, guard: () => {}, loadRows: async () => []})
     originalOptionsView = view
     const originalStubs = {...config.global.stubs}, stubs = {...config.global.stubs}
     for (const key of ['el-table', 'el-table-column', 'el-button', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[key]
@@ -221,6 +223,20 @@ describe('flow run page mount', () => {
     const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(Host))}), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
     try {
       await flushPromises()
+      if (outcome === 'append-input') {
+        ensureDataSetStaticInputTable(ds, 'AppendInput', [{name: 'inputId', primary: true}, {name: 'receiveUsers', type: 'array'}])
+        const input = ds.getView('AppendInput')!; input.commitMode = 'staged'
+        await appendOptions.refresh(); await flushPromises()
+        input.replaceRows([{inputId: 'current', receiveUsers: ['U1:张三']}]); input.setCurrentRowById('current'); await flushPromises()
+        expect(pageInstance.isDirty).toBe(true)
+        expect(wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title') === '追加办理人')?.props('closeDisabled')).toBe(true)
+        await wrapper.findAll('button').find(item => item.text() === '办理')!.trigger('click'); await flushPromises()
+        expect(query).not.toHaveBeenCalled(); expect(input.rows).toHaveLength(1)
+        input.replaceRows([]); await flushPromises()
+        expect(pageInstance.isDirty).toBe(false)
+        expect(wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title') === '追加办理人')?.props('closeDisabled')).toBe(false)
+        return
+      }
       const button = wrapper.findAll('button').find(item => item.text() === '办理')!
       await button.trigger('click')
       await flushPromises()

@@ -25,13 +25,8 @@ export {
   type FlowRuntimeRouteQuery,
 } from './flow-runtime-client'
 export {
-  createFlowAppendUserClient,
-  FlowAppendUserClient,
   normalizeFlowAppendUserContext,
-  type FlowAppendUserClientOptions,
   type FlowAppendUserContext,
-  type FlowAppendUserExecConfig,
-  type FlowAppendUserExecUserCandidate,
 } from './flow-append-user'
 export {
   buildAppendUserContext,

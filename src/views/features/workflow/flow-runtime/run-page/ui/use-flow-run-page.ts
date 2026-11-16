@@ -5,7 +5,7 @@
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRouter} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, DataView, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, DataView, RequestState, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useDataViewState, useSparkComponent} from '@spark-appworks/spark-component'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {
@@ -42,7 +42,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     const view = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('ApprovalCommand', 'default')
     return view !== undefined && (view.mutating || view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
   }
-  useSystemPageDirtySource({get isDirty() {return hasPendingApproval() || approvalWorkspace.value?.dirty === true}})
+  useSystemPageDirtySource({get isDirty() {return hasPendingApproval() || approvalWorkspace.value?.dirty === true || hasPendingAppendInput()}})
   const prepared = shallowRef<FlowRunPreparedPage>()
   const pageLoading = ref(false)
   const pageError = ref('')
@@ -72,7 +72,15 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     return view instanceof DataView ? view : null
   })
   const commandState = useDataViewState(commandView)
-  const appendCloseDisabled = computed(() => handleLoading.value || commandState.resultReplacementBlocked.value || commandState.mutating.value)
+  const appendOptionsView = computed(() => {runtimeReady(); prepared.value; return sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('AppendOptions') ?? null})
+  const appendOptionsState = useDataViewState(appendOptionsView)
+  const appendInputView = computed(() => {appendOptionsState.requestState.value; return sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('AppendInput') ?? null})
+  const appendInputState = useDataViewState(appendInputView)
+  function hasPendingAppendInput(): boolean {
+    const ds = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID), view = ds?.getView('AppendInput')
+    return ds?.getView('AppendOptions')?.requestState === RequestState.Loading || (view !== undefined && (view.rows.length > 0 || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))
+  }
+  const appendCloseDisabled = computed(() => handleLoading.value || commandState.resultReplacementBlocked.value || commandState.mutating.value || appendOptionsState.requestState.value === RequestState.Loading || appendInputState.rows.value.length > 0 || appendInputState.resultReplacementBlocked.value)
   const inputLocked = computed(() => {commandState.mutating.value; commandState.requestState.value; return handleLoading.value || hasPendingApproval()})
   const inputFields = computed(() => flowRunInputFields({scope: FLOW_WORKBENCH_SCENARIO_ID, locked: inputLocked.value, force: allowForceBack.value && forceBackNodeOptions.value.length > 0}))
   const nodeFields = computed(() => flowRunNodeFields(inputLocked.value))
@@ -102,7 +110,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   function selectBusinessForm(value: string | number): void {
     const key = String(value)
     if (key === activeFormId.value) return
-    if (handleLoading.value || hasPendingApproval() || approvalWorkspace.value?.active) {
+    if (handleLoading.value || hasPendingApproval() || hasPendingAppendInput() || approvalWorkspace.value?.active) {
       handleError.value = '请先确认、核验或取消原办理参数后切换业务表单'
       return
     }
@@ -176,7 +184,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   }
 
   async function loadPage(): Promise<void> {
-    if (hasPendingApproval()) {handleError.value = '原审批命令尚有待提交或待核验状态，请先处理原命令'; return}
+    if (hasPendingApproval() || hasPendingAppendInput()) {handleError.value = '原审批命令尚有待提交或待核验状态，请先处理原命令'; return}
     if (approvalWorkspace.value?.dirty) {handleError.value = '请先确认或取消原办理参数'; return}
     if (approvalWorkspace.value?.active) approvalWorkspace.value.close()
     const own = ++generation
@@ -206,7 +214,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   }
 
   async function retryPage(reload: () => Promise<void>): Promise<void> {
-    if (hasPendingApproval()) {handleError.value = '原审批命令尚有待提交或待核验状态，不能重建运行实例'; return}
+    if (hasPendingApproval() || hasPendingAppendInput()) {handleError.value = '原审批命令尚有待提交或待核验状态，不能重建运行实例'; return}
     if (approvalWorkspace.value?.dirty) {handleError.value = '请先确认或取消原办理参数，不能重建运行实例'; return}
     await reload()
     await loadPage()
@@ -217,7 +225,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     handleLoading.value = true
     handleError.value = ''
     try {
-      if (hasPendingApproval()) throw Error('请先处理或核验原审批命令')
+      if (hasPendingApproval() || hasPendingAppendInput()) throw Error('请先处理或核验原审批命令')
       if (approvalWorkspace.value?.active) {handleOpen.value = true; return}
       const step = readCurrentStep(), prep = prepared.value
       if (!prep || !step) throw Error('未定位到当前办理步骤')
@@ -305,7 +313,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   const backToCreator = () => runParameterAction('toCreator')
 
   function openAppendDialog(): void {
-    if (approvalWorkspace.value?.active || hasPendingApproval()) {handleError.value = '请先确认、取消办理参数或核验原审批命令'; return}
+    if (approvalWorkspace.value?.active || hasPendingApproval() || hasPendingAppendInput()) {handleError.value = '请先确认、取消办理参数或核验原审批命令'; return}
     const step = readCurrentStep()
     appendContext.value = buildAppendUserContext(step)
     if (!appendContext.value) {

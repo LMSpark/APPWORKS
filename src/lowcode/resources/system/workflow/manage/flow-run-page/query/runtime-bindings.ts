@@ -10,6 +10,8 @@ import {createFlowRunContinuationBinding} from './continuation-binding'
 import {createFlowRunPageClient, type FlowRunPageClientOptions} from '../flow-run-page-client'
 import {FLOW_WORKBENCH_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID} from '../../flow-runtime-client'
 import {isRecord} from '@spark-appworks/spark-utils'
+import {createFlowAppendOptionsBinding} from '../../flow-append-user/options-binding'
+import {createFlowAppendUserClient} from '../../flow-append-user/flow-append-user-client'
 
 type Input = Readonly<{config: ScenarioViewConfig; http: FlowRunPageClientOptions['http']; readScope: FlowRunPageClientOptions['readScope']; assertCurrent: () => void}>
 export function createApprovalOptionsBindings(input: Input): Pick<LowcodeDataSpaceAssemblerInput, 'projectionBindings'> {
@@ -40,6 +42,19 @@ export function createApprovalOptionsBindings(input: Input): Pick<LowcodeDataSpa
       input.assertCurrent()
       if (ds?.destroyed || ds?.getView('ApprovalOptions', 'default') !== source) throw Error('审批人员候选空间已失效')
     }})
+  }, AppendOptions: view => {
+    const ds = view.dataSet, source = ds?.getView('WFOBJ_FLOW_RELATIONLINE_STEP')
+    if (!source) throw Error('追加配置缺少原步骤视图')
+    const guard = () => {
+      input.assertCurrent()
+      if (ds?.destroyed || view.destroyed || ds?.getView('AppendOptions') !== view) throw Error('原追加配置空间已失效')
+    }
+    const client = createFlowAppendUserClient({http: input.http, readScope: input.readScope, scenarioId: FLOW_MONITOR_SCENARIO_ID, assertCurrent: guard})
+    return createFlowAppendOptionsBinding({view, source, client, guard})
+  }, AppendCandidates: view => {
+    const source = view.dataSet?.getView('AppendOptions')
+    if (!source) throw Error('追加候选缺少原配置视图')
+    return createFlowRunCandidatesBinding({view, source, resourceId: 'workflow:append-candidates', guard: input.assertCurrent})
   }, ApprovalContinuation: view => {
     const ds = view.dataSet, source = ds?.getView('ApprovalOptions')
     if (!source) throw Error('自动后继缺少原办理选项')

@@ -10,65 +10,12 @@
     "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client\n职责：追加办理人候选及添加适配（GetExeUsers / FlowAddReceiveUser）；撤回复用原审批命令适配。\n边界：经 lowcode HTTP 与正式执行域请求；列表查询优先消费 DataView 行筛选。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "FlowAppendUserExecUserCandidate",
-      "FlowAppendUserExecConfig",
       "FlowAppendUserRequestScope",
       "FlowAppendUserClientOptions",
       "FlowAppendUserClient"
     ]
   },
   "$defs": {
-    "FlowAppendUserExecUserCandidate": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "FlowAppendUserExecUserCandidate",
-      "properties": {
-        "UserId": {
-          "type": "string"
-        },
-        "UserName": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "UserId",
-        "UserName"
-      ],
-      "additionalProperties": false
-    },
-    "FlowAppendUserExecConfig": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "FlowAppendUserExecConfig",
-      "properties": {
-        "nodeId": {
-          "type": "string"
-        },
-        "maxNum": {
-          "type": "number"
-        },
-        "minNum": {
-          "type": "number"
-        },
-        "allowChange": {
-          "type": "string"
-        },
-        "userList": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/FlowAppendUserExecUserCandidate"
-          }
-        }
-      },
-      "required": [
-        "nodeId",
-        "maxNum",
-        "minNum",
-        "allowChange",
-        "userList"
-      ],
-      "additionalProperties": false
-    },
     "FlowAppendUserRequestScope": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -147,16 +94,13 @@
                   "type": "null"
                 }
               ]
-            },
-            "isAdd": {
-              "type": "boolean"
             }
           },
           "additionalProperties": false
         },
         "method.getExecutionUsers.return": {
           "type": "object",
-          "title": "Promise<readonly FlowAppendUserExecConfig[]>"
+          "title": "Promise<readonly unknown[]>"
         },
         "method.addReceiveUsers.params": {
           "type": "object",
@@ -187,81 +131,8 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T16:40:17.574Z",
+  "generatedAt": "2026-11-16T17:51:22.396Z",
   "models": {
-    "FlowAppendUserExecUserCandidate": {
-      "name": "FlowAppendUserExecUserCandidate",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    UserId: string;\n    UserName: string;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    UserId: string;\n    UserName: string;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "UserId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "UserName",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "FlowAppendUserExecConfig": {
-      "name": "FlowAppendUserExecConfig",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    maxNum: number;\n    minNum: number;\n    allowChange: string;\n    userList: readonly FlowAppendUserExecUserCandidate[];\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    nodeId: string;\n    maxNum: number;\n    minNum: number;\n    allowChange: string;\n    userList: readonly FlowAppendUserExecUserCandidate[];\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "nodeId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "maxNum",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "minNum",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "allowChange",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "userList",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "FlowAppendUserRequestScope": {
       "name": "FlowAppendUserRequestScope",
       "jsdoc": "",
@@ -388,16 +259,6 @@
                       }
                     ]
                   }
-                },
-                {
-                  "name": "isAdd",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "boolean"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
                 }
               ],
               "type": {
@@ -406,7 +267,7 @@
                 "typeArguments": [
                   {
                     "type": "unknown",
-                    "name": "readonly FlowAppendUserExecConfig[]"
+                    "name": "readonly unknown[]"
                   }
                 ]
               }

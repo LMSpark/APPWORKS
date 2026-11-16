@@ -1,5 +1,5 @@
 {
-  "gapCount": 4279,
+  "gapCount": 4282,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -40300,6 +40300,17 @@
     },
     {
       "kind": "module",
+      "className": "app:lowcode/resources/system/workflow/manage/flow-append-user/command-input",
+      "moduleName": "app:lowcode/resources/system/workflow/manage/flow-append-user/command-input",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/system/workflow/manage/flow-append-user/command-input 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/command-input.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/command-input.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/command-input.ts"
+    },
+    {
+      "kind": "module",
       "className": "app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client",
       "moduleName": "app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client",
       "reason": "weak-module-jsdoc",
@@ -40311,118 +40322,12 @@
     },
     {
       "kind": "model",
-      "className": "FlowAppendUserExecUserCandidate",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserExecUserCandidate 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 8,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserExecUserCandidate",
-      "memberName": "UserId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserExecUserCandidate.UserId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 9,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserExecUserCandidate",
-      "memberName": "UserName",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserExecUserCandidate.UserName 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "model",
-      "className": "FlowAppendUserExecConfig",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserExecConfig 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 12,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserExecConfig",
-      "memberName": "nodeId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserExecConfig.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 13,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserExecConfig",
-      "memberName": "maxNum",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserExecConfig.maxNum 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 14,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserExecConfig",
-      "memberName": "minNum",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserExecConfig.minNum 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 15,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserExecConfig",
-      "memberName": "allowChange",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserExecConfig.allowChange 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 16,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendUserExecConfig",
-      "memberName": "userList",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendUserExecConfig.userList 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 17,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "model",
       "className": "FlowAppendUserRequestScope",
       "reason": "missing-jsdoc",
       "chainBreak": "FlowAppendUserRequestScope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 19,
+      "declarationLine": 8,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
       "declarationKind": "typeAlias"
     },
@@ -40434,7 +40339,7 @@
       "chainBreak": "FlowAppendUserRequestScope.token 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 20,
+      "declarationLine": 9,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
       "declarationKind": "interface"
     },
@@ -40446,7 +40351,7 @@
       "chainBreak": "FlowAppendUserRequestScope.headers 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 21,
+      "declarationLine": 10,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
       "declarationKind": "interface"
     },
@@ -40457,7 +40362,7 @@
       "chainBreak": "FlowAppendUserClientOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 23,
+      "declarationLine": 12,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
       "declarationKind": "typeAlias"
     },
@@ -40469,7 +40374,7 @@
       "chainBreak": "FlowAppendUserClientOptions.http 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 24,
+      "declarationLine": 13,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
       "declarationKind": "interface"
     },
@@ -40481,7 +40386,7 @@
       "chainBreak": "FlowAppendUserClientOptions.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 25,
+      "declarationLine": 14,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
       "declarationKind": "interface"
     },
@@ -40493,7 +40398,7 @@
       "chainBreak": "FlowAppendUserClientOptions.readScope 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 26,
+      "declarationLine": 15,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
       "declarationKind": "typeAlias"
     },
@@ -40505,7 +40410,7 @@
       "chainBreak": "FlowAppendUserClientOptions.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 27,
+      "declarationLine": 16,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
       "declarationKind": "typeAlias"
     },
@@ -40516,7 +40421,7 @@
       "chainBreak": "FlowAppendUserClient 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 29,
+      "declarationLine": 18,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
       "declarationKind": "class"
     },
@@ -40528,7 +40433,7 @@
       "chainBreak": "FlowAppendUserClient.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 31,
+      "declarationLine": 20,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
       "declarationKind": "class"
     },
@@ -40540,7 +40445,7 @@
       "chainBreak": "FlowAppendUserClient.getExecutionUsers 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 32,
+      "declarationLine": 21,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
       "declarationKind": "class"
     },
@@ -40552,7 +40457,7 @@
       "chainBreak": "FlowAppendUserClient.addReceiveUsers 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "declarationLine": 33,
+      "declarationLine": 22,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
       "declarationKind": "class"
     },
@@ -40660,6 +40565,159 @@
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/index.ts",
       "declarationLine": 1,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/index.ts"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/system/workflow/manage/flow-append-user/input-workspace",
+      "moduleName": "app:lowcode/resources/system/workflow/manage/flow-append-user/input-workspace",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/system/workflow/manage/flow-append-user/input-workspace 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts"
+    },
+    {
+      "kind": "model",
+      "className": "FlowAppendInputWorkspace",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowAppendInputWorkspace 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationLine": 8,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "FlowAppendInputWorkspace",
+      "memberName": "parameters",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowAppendInputWorkspace.parameters 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "constructor",
+      "className": "FlowAppendInputWorkspace",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowAppendInputWorkspace.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationLine": 15,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "FlowAppendInputWorkspace",
+      "memberName": "active",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowAppendInputWorkspace.active 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationLine": 23,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "FlowAppendInputWorkspace",
+      "memberName": "loading",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowAppendInputWorkspace.loading 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationLine": 24,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "FlowAppendInputWorkspace",
+      "memberName": "dirty",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowAppendInputWorkspace.dirty 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationLine": 25,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "FlowAppendInputWorkspace",
+      "memberName": "title",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowAppendInputWorkspace.title 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationLine": 26,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "FlowAppendInputWorkspace",
+      "memberName": "candidateKey",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowAppendInputWorkspace.candidateKey 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationLine": 27,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "FlowAppendInputWorkspace",
+      "memberName": "open",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowAppendInputWorkspace.open 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationLine": 29,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "FlowAppendInputWorkspace",
+      "memberName": "capture",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowAppendInputWorkspace.capture 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationLine": 30,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "FlowAppendInputWorkspace",
+      "memberName": "close",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowAppendInputWorkspace.close 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationLine": 35,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/system/workflow/manage/flow-append-user/options-binding",
+      "moduleName": "app:lowcode/resources/system/workflow/manage/flow-append-user/options-binding",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/system/workflow/manage/flow-append-user/options-binding 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-append-user/options-binding.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/options-binding.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/options-binding.ts"
     },
     {
       "kind": "module",
@@ -42280,7 +42338,7 @@
       "chainBreak": "FlowRunCommandResource 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
-      "declarationLine": 12,
+      "declarationLine": 14,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
       "declarationKind": "class"
     },
@@ -42292,7 +42350,7 @@
       "chainBreak": "FlowRunCommandResource.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
-      "declarationLine": 14,
+      "declarationLine": 16,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
       "declarationKind": "class"
     },
@@ -42304,7 +42362,7 @@
       "chainBreak": "FlowRunCommandResource.binding 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
-      "declarationLine": 19,
+      "declarationLine": 21,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
       "declarationKind": "class"
     },
@@ -43672,6 +43730,17 @@
       "declarationLine": 41,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
       "declarationKind": "class"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection",
+      "moduleName": "app:lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection.ts"
     },
     {
       "kind": "module",
@@ -49922,41 +49991,6 @@
       "declarationFile": "src/views/features/system/cache-management/ui/cache-management-page.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/system/cache-management/ui/cache-management-page.vue"
-    },
-    {
-      "kind": "module",
-      "className": "app:views/features/workflow/flow-append-user/model/flow-append-user-model",
-      "moduleName": "app:views/features/workflow/flow-append-user/model/flow-append-user-model",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:views/features/workflow/flow-append-user/model/flow-append-user-model 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendPersonValue",
-      "memberName": "UserId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendPersonValue.UserId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-      "declarationLine": 6,
-      "sourceFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowAppendPersonValue",
-      "memberName": "UserName",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowAppendPersonValue.UserName 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-      "declarationLine": 7,
-      "sourceFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-      "declarationKind": "interface"
     },
     {
       "kind": "module",

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1252,
+  "scannedFileCount": 1255,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -15933,6 +15933,19 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/system/workflow/manage/flow-append-user/command-input.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/command-input.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-append-user/command-input",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/command-input.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/command-input.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-append-user/command-input",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/command-input\n职责：核验原追加配置与候选选择，区分正式目标证明和临时输入证明。\n边界：不保存业务数据，不生成权限或另建命令状态。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts": {
       "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts.json",
       "module": {
@@ -15944,8 +15957,6 @@
         "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client\n职责：追加办理人候选及添加适配（GetExeUsers / FlowAddReceiveUser）；撤回复用原审批命令适配。\n边界：经 lowcode HTTP 与正式执行域请求；列表查询优先消费 DataView 行筛选。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "FlowAppendUserExecUserCandidate",
-          "FlowAppendUserExecConfig",
           "FlowAppendUserRequestScope",
           "FlowAppendUserClientOptions",
           "FlowAppendUserClient"
@@ -15990,6 +16001,34 @@
         "modulePath": "lowcode/resources/system/workflow/manage/flow-append-user/index",
         "jsdoc": "app 的 lowcode/resources/system/workflow/manage/flow-append-user/index 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
         "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-append-user/input-workspace",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-append-user/input-workspace",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/input-workspace\n职责：同DataSet持有追加参数，按原配置和候选捕获不可变命令。\n边界：不复制可编辑人员数组；只释放已确定未派发的本次输入/候选视图。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowAppendInputWorkspace"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-append-user/options-binding.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/options-binding.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-append-user/options-binding",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/options-binding.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/options-binding.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-append-user/options-binding",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/options-binding\n职责：通过原步骤证明查询追加候选配置，保留原响应并匹配明确节点。\n边界：只读语义资源；不猜首配置、权限、节点或人数，不派发写命令。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
@@ -16394,6 +16433,19 @@
           "ApprovalInputCapture",
           "FlowRunApprovalInputWorkspace"
         ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection\n职责：从原候选DataView捕获人数、值及读取证明；不维护可编辑候选副本。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
       }
     },
     "src/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding.ts": {
@@ -19650,21 +19702,6 @@
         "symbols": []
       }
     },
-    "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts": {
-      "file": "files/src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts.json",
-      "module": {
-        "name": "app:views/features/workflow/flow-append-user/model/flow-append-user-model",
-        "sourcePath": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-        "sourceFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-        "packageName": "app",
-        "modulePath": "views/features/workflow/flow-append-user/model/flow-append-user-model",
-        "jsdoc": "@module app:views/features/workflow/flow-append-user/model/flow-append-user-model\n职责：追加办理人选人校验与提交载荷；撤回前置条件归流程资源层。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "FlowAppendPersonValue"
-        ]
-      }
-    },
     "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue": {
       "file": "files/src/views/features/workflow/flow-append-user/ui/flow-append-user.vue.json",
       "module": {
@@ -19673,7 +19710,7 @@
         "sourceFile": "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue",
         "packageName": "app",
         "modulePath": "views/features/workflow/flow-append-user/ui/flow-append-user",
-        "jsdoc": "@module app:views/features/workflow/flow-append-user/ui/flow-append-user\n职责：流程参与人追加（列表、加人、撤回）；嵌入办理页或对话框宿主。\n边界：列表及撤回走原SPARK data；添加和选人旧入口继续沿唯一台账迁移。",
+        "jsdoc": "@module app:views/features/workflow/flow-append-user/ui/flow-append-user\n职责：流程参与人追加（列表、加人、撤回）；嵌入办理页或对话框宿主。\n边界：列表、选人、参数及命令统一走原SPARK data，未知结果保留原输入。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -19686,7 +19723,7 @@
         "sourceFile": "src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts",
         "packageName": "app",
         "modulePath": "views/features/workflow/flow-append-user/ui/use-flow-append-user",
-        "jsdoc": "@module app:views/features/workflow/flow-append-user/ui/use-flow-append-user\n职责：列表与撤回复用原DataView和命令owner；添加及选人旧入口继续沿台账迁移。",
+        "jsdoc": "@module app:views/features/workflow/flow-append-user/ui/use-flow-append-user\n职责：列表、参数及追加/撤回均复用原DataView与命令owner。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "UseFlowAppendUserOptions"
@@ -23633,9 +23670,9 @@
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
     },
-    "FlowAppendPersonValue": {
-      "sourcePath": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
-      "file": "files/src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts.json"
+    "FlowAppendInputWorkspace": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace.ts.json"
     },
     "FlowAppendUserClient": {
       "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
@@ -23648,14 +23685,6 @@
     "FlowAppendUserContext": {
       "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
       "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts.json"
-    },
-    "FlowAppendUserExecConfig": {
-      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts.json"
-    },
-    "FlowAppendUserExecUserCandidate": {
-      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
-      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts.json"
     },
     "FlowAppendUserRequestScope": {
       "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",

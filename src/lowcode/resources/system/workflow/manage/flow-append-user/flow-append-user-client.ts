@@ -4,25 +4,11 @@
  * 边界：经 lowcode HTTP 与正式执行域请求；列表查询优先消费 DataView 行筛选。
  */
 import type {HttpClientBase} from '@spark-appworks/spark-utils'
-import {isRecord} from '@spark-appworks/spark-utils'
-import {requestFlowResult} from '../flow-run-page/flow-http'
+import {requestFlowResult, requestFlowOperationResult} from '../flow-run-page/flow-http'
 import {
   normalizeFlowAppendUserContext,
   type FlowAppendUserContext,
 } from './flow-append-user-records'
-
-export type FlowAppendUserExecUserCandidate = Readonly<{
-  UserId: string
-  UserName: string
-}>
-
-export type FlowAppendUserExecConfig = Readonly<{
-  nodeId: string
-  maxNum: number
-  minNum: number
-  allowChange: string
-  userList: readonly FlowAppendUserExecUserCandidate[]
-}>
 
 export type FlowAppendUserRequestScope = Readonly<{
   token: string
@@ -35,44 +21,6 @@ export type FlowAppendUserClientOptions = Readonly<{
   readScope: () => FlowAppendUserRequestScope
   assertCurrent?: () => void
 }>
-
-function normalizeText(value: unknown): string {
-  return String(value ?? '').trim()
-}
-
-function firstTextByKeys(record: Record<string, unknown>, keys: readonly string[]): string {
-  for (const key of keys) {
-    const text = normalizeText(record[key])
-    if (text) return text
-  }
-  return ''
-}
-
-function normalizeUserCandidate(raw: unknown): FlowAppendUserExecUserCandidate | null {
-  if (!isRecord(raw)) return null
-  const userId = firstTextByKeys(raw, ['UserId', 'userId', 'userid', 'rowid'])
-  if (!userId) return null
-  return {UserId: userId, UserName: firstTextByKeys(raw, ['UserName', 'userName', 'username', 'NAME'])}
-}
-
-function normalizeExecConfig(raw: unknown): FlowAppendUserExecConfig | null {
-  if (!isRecord(raw)) return null
-  const userListRaw = raw['userList'] ?? raw['UserList'] ?? raw['users']
-  const userList: FlowAppendUserExecUserCandidate[] = []
-  if (Array.isArray(userListRaw)) {
-    for (const entry of userListRaw) {
-      const candidate = normalizeUserCandidate(entry)
-      if (candidate) userList.push(candidate)
-    }
-  }
-  return {
-    nodeId: firstTextByKeys(raw, ['nodeId', 'NodeId', 'nodeID']),
-    maxNum: Number(raw['maxNum'] ?? raw['MaxNum'] ?? 0),
-    minNum: Number(raw['minNum'] ?? raw['MinNum'] ?? 0),
-    allowChange: firstTextByKeys(raw, ['allowChange', 'AllowChange']) || '1',
-    userList,
-  }
-}
 
 export class FlowAppendUserClient {
   readonly #options: FlowAppendUserClientOptions
@@ -95,10 +43,9 @@ export class FlowAppendUserClient {
 
   async getExecutionUsers(
     context: Partial<FlowAppendUserContext> | null | undefined,
-    isAdd = false,
-  ): Promise<readonly FlowAppendUserExecConfig[]> {
+  ): Promise<readonly unknown[]> {
     const normalized = normalizeFlowAppendUserContext(context)
-    if (!normalized.WFOBJID || !normalized.SendNodeModelId || !normalized.ReceiveNodeModelId) return []
+    if (!normalized.WFOBJID || !normalized.SendNodeModelId || !normalized.ReceiveNodeModelId) throw Error('追加候选缺少原流程关系')
     const scope = this.#guard()
     const headers = {...scope.headers, 'X-FormKey': this.#options.scenarioId.trim()}
     const value = await requestFlowResult(this.#options.http, {
@@ -108,18 +55,14 @@ export class FlowAppendUserClient {
         wfId: normalized.WFOBJID,
         upNodeId: normalized.SendNodeModelId,
         nodeId: normalized.ReceiveNodeModelId,
-        isAdd: String(isAdd),
+        isAdd: 'true',
       },
       headers,
     })
     this.#options.assertCurrent?.()
     if (!Array.isArray(value)) throw new Error('GetExeUsers 结果必须是数组')
-    const configs: FlowAppendUserExecConfig[] = []
-    for (const entry of value) {
-      const config = normalizeExecConfig(entry)
-      if (config) configs.push(config)
-    }
-    return configs
+    const rows: readonly unknown[] = value
+    return rows
   }
 
   async addReceiveUsers(
@@ -130,7 +73,7 @@ export class FlowAppendUserClient {
     if (!normalized.rowid || !normalized.WFOBJID) throw new Error('追加办理缺少步骤或流程实例身份')
     const scope = this.#guard()
     const headers = {...scope.headers, 'X-FormKey': this.#options.scenarioId.trim()}
-    await requestFlowResult(this.#options.http, {
+    await requestFlowOperationResult(this.#options.http, {
       method: 'POST',
       path: '/api/Flow/FlowAddReceiveUser',
       params: {stepId: normalized.rowid, wfId: normalized.WFOBJID},

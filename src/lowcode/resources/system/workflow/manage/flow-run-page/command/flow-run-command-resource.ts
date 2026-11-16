@@ -4,12 +4,15 @@
  */
 import type {BindCommandSubmitOptions, DataRow, DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
+import {readFlowAppendReceivers} from '../../flow-append-user/command-input'
 
 type Options = Readonly<{
   view: DataView
   guard: () => void
   dispatch: (row: Readonly<DataRow>) => Promise<void>
   captureTarget: (row: Readonly<DataRow>) => () => void
+  /** 临时候选/输入证明不决定已确认目标是否成为新查询，避免关闭编辑器解除防重。 */
+  captureInput?: (row: Readonly<DataRow>) => (() => void) | undefined
 }>
 class FlowRunCommandUnknown extends Error {}
 // Owner handles only: no second command rows, drafts, permissions or receipts.
@@ -17,7 +20,10 @@ const preflights = new WeakMap<DataView, Readonly<{
   assertAvailable: (row: Readonly<DataRow>) => void
   registerInputProof: (key: string, assertInput: () => void) => () => void
 }>>()
-const inputFields = ['action', 'flowObjectId', 'stepId', 'flowId', 'formKey', 'formUrl', 'formParams', 'busRowid', 'nodeId', 'idea', 'notifyType', 'type', 'targetStepViewKey']
+const inputFields = ['action', 'flowObjectId', 'stepId', 'flowId', 'formKey', 'formUrl', 'formParams', 'busRowid', 'nodeId', 'idea', 'notifyType', 'type', 'targetStepViewKey', 'candidateViewKey']
+function receiverSignature(value: unknown): string {
+  return JSON.stringify(readFlowAppendReceivers(value))
+}
 function nodeSignature(value: unknown): string {
   if (value === undefined) return '[]'
   if (!Array.isArray(value)) throw Error('审批下一节点须为数组')
@@ -57,7 +63,8 @@ export class FlowRunCommandResource {
     const confirmed = new Map<unknown, DataRow>()
     const assertCapture = (row: Readonly<DataRow>) => {
       const captured = captures.get(row[view.primaryKey])
-      if (!captured || [...inputFields, 'isReturn'].some(field => captured.row[field] !== row[field]) || nodeSignature(captured.row['nextNode']) !== nodeSignature(row['nextNode'])) {
+      if (!captured || [...inputFields, 'isReturn'].some(field => captured.row[field] !== row[field]) || nodeSignature(captured.row['nextNode']) !== nodeSignature(row['nextNode'])
+        || row['action'] === 'append' && receiverSignature(captured.row['receiveUsers']) !== receiverSignature(row['receiveUsers'])) {
         throw Error('审批命令与原捕获目标不符')
       }
       captured.assertTarget()
@@ -72,11 +79,12 @@ export class FlowRunCommandResource {
     const assertAvailable = (row: Readonly<DataRow>) => {
       assertCurrent()
       if (view.hasUnconfirmedSave || [...dispatched].some(key => !confirmed.has(key))) throw Error('请先核验原审批命令')
-      if (!['submit', 'back', 'forceBack', 'toCreator', 'revoke'].includes(String(row['action']))
+      if (!['submit', 'back', 'forceBack', 'toCreator', 'revoke', 'append'].includes(String(row['action']))
         || !String(row['flowObjectId'] ?? '').trim() || !String(row['stepId'] ?? '').trim()) throw Error('审批命令缺少正式动作或目标')
       if (inputFields.some(field => row[field] !== undefined && typeof row[field] !== 'string')) throw Error('审批命令文本输入类型不符')
       if (row['isReturn'] !== undefined && typeof row['isReturn'] !== 'boolean') throw Error('审批返回标志须为布尔值')
       nodeSignature(row['nextNode'])
+      if (row['action'] === 'append') receiverSignature(row['receiveUsers'])
       const assertTarget = this.input.captureTarget(row)
       assertTarget()
       for (const [confirmedKey, receipt] of confirmed) {
@@ -87,7 +95,9 @@ export class FlowRunCommandResource {
         try {original.assertTarget()} catch {originalCurrent = false}
         if (originalCurrent) throw Error('本次正式查询的审批动作已确认，请重新查询目标状态后办理')
       }
-      return assertTarget
+      const assertInput = this.input.captureInput?.(row)
+      assertInput?.()
+      return {assertTarget, assertInput}
     }
     const registerInputProof = (key: string, assertInput: () => void) => {
       assertCurrent(); assertInput()
@@ -103,16 +113,17 @@ export class FlowRunCommandResource {
     return {
       resource: {resourceType: 'command', resourceId: 'workflow:approval'},
       guard: assertCurrent,
-      inputFields: [...inputFields, 'isReturn', 'nextNode'],
+      inputFields: [...inputFields, 'isReturn', 'nextNode', 'receiveUsers'],
       createKey: () => crypto.randomUUID(),
       allowAbandonUnconfirmed: false,
       onPrepareInput: row => {
-        const assertTarget = assertAvailable(row)
+        const available = assertAvailable(row)
         const key = row[view.primaryKey]
         if (typeof key !== 'string' || key.length === 0 || captures.has(key)) throw Error('审批命令身份重复')
-        const assertInput = inputProofs.get(key)
+        const callerInput = inputProofs.get(key)
+        const assertInput = available.assertInput || callerInput ? () => {available.assertInput?.(); callerInput?.()} : undefined
         assertInput?.()
-        captures.set(key, {row: Object.freeze(structuredClone(row)), assertTarget, ...(assertInput ? {assertInput} : {})})
+        captures.set(key, {row: Object.freeze(structuredClone(row)), assertTarget: available.assertTarget, ...(assertInput ? {assertInput} : {})})
       },
       submit: async row => {
         assertCurrent()

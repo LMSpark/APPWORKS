@@ -34,7 +34,8 @@ export async function submitApprovalCommand(dataSet: DataSet, input: Readonly<Da
   const key = crypto.randomUUID()
   const release = assertInput ? FlowRunCommandResource.registerInputProof(view, key, assertInput) : () => {}
   try {
-    await view.addRow({...input, [view.primaryKey]: key, ...(view.getColumn('isReturn') ? {isReturn: input['isReturn'] ?? false} : {}), nextNode: input['nextNode'] ?? []})
+    await view.addRow({...input, [view.primaryKey]: key, ...(view.getColumn('isReturn') ? {isReturn: input['isReturn'] ?? false} : {}),
+      ...(view.getColumn('receiveUsers') ? {receiveUsers: input['receiveUsers'] ?? []} : {}), nextNode: input['nextNode'] ?? []})
     const result = await dataSet.saveChanges({views: [{tableName: 'ApprovalCommand', viewId: 'default'}]})
     if (!result.success) throw Error('审批命令未确认完成')
   } finally {release()}

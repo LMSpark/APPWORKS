@@ -362,6 +362,8 @@
       "columns": [
         {"name": "isReturn", "type": "boolean"},
         {"name": "targetStepViewKey", "type": "string"},
+        {"name": "candidateViewKey", "type": "string"},
+        {"name": "receiveUsers", "type": "array"},
         {
           "name": "rowid",
           "type": "string",
@@ -446,6 +448,31 @@
         {"name": "nodeId", "type": "string"}
       ],
       "views": {"default": {"autoLoad": false, "queryContext": {"nodeId": ""}, "queryConfig": {"pagination": "none"}}}
+    },
+    "AppendOptions": {
+      "resourceType": "logical-view",
+      "resourceId": "workflow:append-options",
+      "columns": [
+        {"name": "id", "type": "string", "isPrimaryKey": true},
+        {"name": "payload", "type": "object"},
+        {"name": "nodeId", "type": "string"},
+        {"name": "minNum", "type": "number"},
+        {"name": "maxNum", "type": "number"},
+        {"name": "allowChange", "type": "boolean"}
+      ],
+      "views": {"default": {"autoLoad": false, "queryConfig": {"pagination": "none"}}}
+    },
+    "AppendCandidates": {
+      "resourceType": "logical-view",
+      "resourceId": "workflow:append-candidates",
+      "columns": [
+        {"name": "id", "type": "string", "isPrimaryKey": true},
+        {"name": "name", "type": "string"},
+        {"name": "value", "type": "string"},
+        {"name": "nodeId", "type": "string"},
+        {"name": "isDefault", "type": "boolean"}
+      ],
+      "views": {"default": {"autoLoad": false, "queryConfig": {"pagination": "none"}}}
     },
     "ApprovalOptions": {
       "resourceType": "logical-view",

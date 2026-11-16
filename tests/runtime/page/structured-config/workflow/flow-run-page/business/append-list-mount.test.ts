@@ -8,6 +8,7 @@ import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-mod
 import {PAGE_RUNTIME, PAGE_SERVICE, RendererTable, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {createTestPageService} from '../../../../../../support/helpers/page-service-host'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
+import {createApprovalOptionsBindings} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/runtime-bindings'
 import {createApprovalCommandBindings} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/runtime-bindings'
 import FlowAppendUser from '@/views/features/workflow/flow-append-user/ui/flow-append-user.vue'
 
@@ -18,16 +19,18 @@ class FlowAppendRevokeHttp extends HttpClientBase {
   unknown = false
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.calls.push(config)
+    if (config.method === 'GET') return {data: {Code: 200, Result: [{nodeId: 'N2', maxNum: 2, minNum: 1, allowChange: '0', userList: [{UserId: 'U1', UserName: '张三'}, {UserId: 'U3', UserName: '王五'}]}]}, status: 200, statusText: 'OK', headers: {}}
     if (this.unknown) throw Error('lost receipt')
     return {data: {Code: 200, Result: true}, status: 200, statusText: 'OK', headers: {}}
   }
 }
 
-it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save'])('keeps the original list and command through %s', async outcome => {
+it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save', 'add-cancel', 'add-success', 'add-unknown', 'add-late', 'add-target'])('keeps the original list and command through %s', async outcome => {
   const scene = 'A5BADCEE11D2438CB9E75C2453A220A6'
 
+  const pageText = readFileSync('config/pages/workflow/flow-workbench/pagedata.json', 'utf8'), pageTables = JSON.parse(pageText).tables
   const declaration = JSON.parse(readFileSync('config/pages/workflow/flow-workbench/pagedata.json', 'utf8')).tables.WFOBJ_FLOW_RELATIONLINE_STEP
-  const ds = DataSet.fromJson({scenarioId: scene, tables: {WFOBJ_FLOW_RELATIONLINE_STEP: {resourceType: 'logical-view', resourceId: 'steps', columns: [...['rowid', 'WFOBJID', 'SendNodeModelId', 'ReceiveNodeModelId', 'LastStepID', 'StepState', 'STATUS', 'ReceiveUserId', 'ReceiveUserName'].map(name => ({name, type: 'string', ...(name === 'rowid' ? {isPrimaryKey: true} : {})})), ...declaration.columns], views: {default: {autoLoad: false, queryConfig: {pagination: 'none'}}, appendParticipants: declaration.views.appendParticipants}}}})
+  const ds = DataSet.fromJson({scenarioId: scene, tables: {AppendOptions: pageTables.AppendOptions, AppendCandidates: pageTables.AppendCandidates, ApprovalCommand: pageTables.ApprovalCommand, WFOBJ_FLOW_RELATIONLINE_STEP: {resourceType: 'logical-view', resourceId: 'steps', columns: [...['rowid', 'WFOBJID', 'SendNodeModelId', 'ReceiveNodeModelId', 'LastStepID', 'StepState', 'STATUS', 'ReceiveUserId', 'ReceiveUserName'].map(name => ({name, type: 'string', ...(name === 'rowid' ? {isPrimaryKey: true} : {})})), ...declaration.columns], views: {default: {autoLoad: false, queryConfig: {pagination: 'none'}}, appendParticipants: declaration.views.appendParticipants}}}})
   const source = ds.getView('WFOBJ_FLOW_RELATIONLINE_STEP')!, list = ds.getView('WFOBJ_FLOW_RELATIONLINE_STEP', 'appendParticipants')!
   const context = ref({rowid: 'T', WFOBJID: 'WF', SendNodeModelId: 'N1', ReceiveNodeModelId: 'N2', LastStepID: 'L', TITLE: '节点'})
   const rows = [{...context.value, ReceiveUserId: 'U1', ReceiveUserName: '张三', StepState: '0', STATUS: '0'}, {...context.value, rowid: 'A', ReceiveUserId: 'U2', ReceiveUserName: '李四', StepState: '1', STATUS: '1'}, {...context.value, rowid: 'OTHER', LastStepID: 'L2', ReceiveUserName: '其他关系', StepState: '0', STATUS: '0'}]
@@ -35,7 +38,7 @@ it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save'])('keeps
   bindDataSetReadonlyCommandQuery(source, {resource: {resourceType: 'logical-view', resourceId: 'steps'}, guard: () => {}, loadRows: async () => rows})
   bindDataSetReadonlyCommandQuery(list, {resource: {resourceType: 'logical-view', resourceId: 'steps'}, guard: () => {}, loadRows: readList})
   await source.refresh()
-  const command = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCommand', resource: {resourceType: 'command', resourceId: 'workflow:approval'}, columns: [{name: 'rowid', primary: true}, ...['action', 'flowObjectId', 'stepId', 'targetStepViewKey'].map(name => ({name})), {name: 'nextNode', type: 'array'}]})
+  const command = ds.getView('ApprovalCommand')!
   const objects = ensureDataSetResourceView({dataSet: ds, tableName: 'WFOBJ_FLOW', resource: {resourceType: 'service-query', resourceId: 'objects'}, columns: [{name: 'rowid', primary: true}, {name: 'WFMID'}]})
   bindDataSetReadonlyCommandQuery(objects, {resource: {resourceType: 'service-query', resourceId: 'objects'}, guard: () => {}, loadRows: async () => [{rowid: 'WF', WFMID: 'M'}]})
   await objects.refresh()
@@ -43,12 +46,16 @@ it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save'])('keeps
   const factory = createApprovalCommandBindings({config: new ScenarioViewConfig(scene, readFileSync('config/pages/workflow/flow-workbench/pagedata.json', 'utf8')), http, readScope: () => ({token: 'fixture', headers: {'X-AppId': 'APP'}}), assertCurrent: () => {}}).commandBindings?.['ApprovalCommand']
   if (!factory) throw Error('missing original command owner')
   bindDataSetCommandSubmit(command, factory(command))
+  const optionView = ds.getView('AppendOptions')!, optionFactory = createApprovalOptionsBindings({config: new ScenarioViewConfig(scene, pageText), http, readScope: () => ({token: 'fixture', headers: {'X-AppId': 'APP'}}), assertCurrent: () => {}}).projectionBindings?.['AppendOptions']
+  if (!optionFactory) throw Error('missing append options owner')
+  bindDataSetReadonlyCommandQuery(optionView, optionFactory(optionView))
+  const select = vi.fn(async () => [{label: '王五', value: 'U3:王五'}])
   const save = vi.spyOn(ds, 'saveChanges')
   const runtime = new PageRuntime({pageId: 'append-list', scenarioIds: [scene], loadScenario: async () => ds})
   await runtime.load(); registerAllRenderers()
   const Host = defineComponent({setup() {
     const {sparkProvide} = useSparkComponent({type: 'append-test'})
-    sparkProvide(PAGE_RUNTIME, runtime); sparkProvide(PAGE_SERVICE, createTestPageService())
+    sparkProvide(PAGE_RUNTIME, runtime); sparkProvide(PAGE_SERVICE, {...createTestPageService(), selectEntities: select})
     return () => h(FlowAppendUser, {context: context.value, stepViewKey: `${scene}@WFOBJ_FLOW_RELATIONLINE_STEP@default`})
   }})
   const originalStubs = {...config.global.stubs}, stubs = {...originalStubs}
@@ -62,6 +69,42 @@ it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save'])('keeps
     const buttons = wrapper.findAll('button').filter(button => button.text() === '撤回')
     expect(buttons).toHaveLength(2)
     expect(buttons[0]!.attributes('disabled')).toBeUndefined(); expect(buttons[1]!.attributes('disabled')).toBeDefined()
+    if (outcome.startsWith('add-')) {
+      await wrapper.findAll('button').find(button => button.text() === '添加办理人')!.trigger('click'); await flushPromises()
+      const input = ds.getView('AppendInput')!
+      expect(input.rows[0]?.['receiveUsers']).toEqual(['U3:王五'])
+      const click = async (label: string) => {const button = Array.from(document.body.querySelectorAll('button')).find(button => button.textContent?.trim() === label); expect(button).toBeDefined(); button!.click(); await flushPromises()}
+      if (outcome === 'add-target') {
+        context.value = {...context.value, LastStepID: 'L2', TITLE: '新节点'}; await flushPromises()
+        await click('确认')
+        expect(command.hasUnconfirmedSave).toBe(false); expect(input.rows).toHaveLength(1)
+        await click('取消')
+        expect(input.rows).toEqual([]); expect(wrapper.text()).toContain('新节点'); expect(wrapper.text()).toContain('上下文与原步骤不符')
+        expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
+      } else if (outcome === 'add-late') {
+        let release: (() => void) | undefined
+        select.mockImplementationOnce(() => new Promise(resolve => {release = () => resolve([{label: '王五', value: 'U3:王五'}])}))
+        const picker = document.body.querySelector<HTMLButtonElement>('.primary-action-button'); expect(picker).not.toBeNull(); picker!.click(); await flushPromises()
+        await click('取消'); release?.(); await flushPromises()
+        expect(input.rows).toEqual([])
+      } else if (outcome === 'add-cancel') {await click('取消'); expect(input.rows).toEqual([])}
+      else {
+        if (outcome === 'add-unknown') http.unknown = true
+        await click('确认')
+        if (outcome === 'add-unknown') {
+          const ids = [...command.dirtyTracking.pendingCreateIds]
+          expect(command.hasUnconfirmedSave).toBe(true); expect(input.rows[0]?.['receiveUsers']).toEqual(['U3:王五'])
+          await click('核验原命令结果')
+          expect(command.hasUnconfirmedSave).toBe(true); expect([...command.dirtyTracking.pendingCreateIds]).toEqual(ids)
+          const cancel = Array.from(document.body.querySelectorAll<HTMLButtonElement>('button')).find(button => button.textContent?.trim() === '取消')
+          expect(cancel?.disabled).toBe(true)
+        } else {expect(command.hasUnconfirmedSave).toBe(false); expect(input.rows).toEqual([]); expect(readList).toHaveBeenCalledTimes(2)}
+      }
+      const posts = http.calls.filter(call => call.method === 'POST')
+      expect(posts).toHaveLength(['add-cancel', 'add-late', 'add-target'].includes(outcome) ? 0 : 1)
+      if (posts.length) expect(posts[0]?.data).toEqual(['U3:王五'])
+      return
+    }
     if (outcome !== 'list') {
       if (outcome === 'unknown') http.unknown = true
       if (outcome === 'expired-refresh') vi.spyOn(command, 'refresh').mockImplementationOnce(async () => {await command.loadFromServer(); await list.refresh()})

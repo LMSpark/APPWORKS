@@ -23,8 +23,8 @@ it.each(['zero', 'empty', 'hidden-name', 'partial', 'limited', 'replacement'] as
     expect(view.loadingError).toBeNull()
     if (mode === 'zero') {expect(reads).toBe(0); expect(view.rows).toEqual([]); return}
     const proof = view.captureReadResult()
-    if (mode === 'empty' || mode === 'hidden-name') expect(view.rows).toEqual([])
-    else expect(view.rows.map(row => row['value'])).toEqual(['U2:李四'])
+    if (mode === 'empty' || mode === 'hidden-name') expect(view.rows.map(row => row['value'])).toEqual(['U1:张三'])
+    else expect(view.rows.map(row => row['value'])).toEqual(['U1:张三', 'U2:李四'])
     if (mode === 'replacement') current = source
     else await directory.refresh()
     expect(() => proof()).toThrow()

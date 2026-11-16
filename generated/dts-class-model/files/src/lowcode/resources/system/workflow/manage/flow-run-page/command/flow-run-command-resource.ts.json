@@ -56,6 +56,19 @@
         "method.captureTarget.return": {
           "type": "object",
           "title": "() => void"
+        },
+        "method.captureInput.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.captureInput.return": {
+          "type": "object",
+          "title": "() => void"
         }
       }
     },
@@ -117,18 +130,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T16:27:53.148Z",
+  "generatedAt": "2026-11-16T17:27:18.163Z",
   "models": {
     "Options": {
       "name": "Options",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    view: DataView;\n    guard: () => void;\n    dispatch: (row: Readonly<DataRow>) => Promise<void>;\n    captureTarget: (row: Readonly<DataRow>) => () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    view: DataView;\n    guard: () => void;\n    dispatch: (row: Readonly<DataRow>) => Promise<void>;\n    captureTarget: (row: Readonly<DataRow>) => () => void;\n    /** 临时候选/输入证明不决定已确认目标是否成为新查询，避免关闭编辑器解除防重。 */\n    captureInput?: (row: Readonly<DataRow>) => (() => void) | undefined;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    view: DataView;\n    guard: () => void;\n    dispatch: (row: Readonly<DataRow>) => Promise<void>;\n    captureTarget: (row: Readonly<DataRow>) => () => void;\n}>",
+            "typeText": "Readonly<{\n    view: DataView;\n    guard: () => void;\n    dispatch: (row: Readonly<DataRow>) => Promise<void>;\n    captureTarget: (row: Readonly<DataRow>) => () => void;\n    /** 临时候选/输入证明不决定已确认目标是否成为新查询，避免关闭编辑器解除防重。 */\n    captureInput?: (row: Readonly<DataRow>) => (() => void) | undefined;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -206,6 +219,42 @@
                       }
                     }
                   ]
+                }
+              }
+            },
+            {
+              "name": "captureInput",
+              "jsdoc": "临时候选/输入证明不决定已确认目标是否成为新查询，避免关闭编辑器解除防重。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reflection",
+                  "declaration": {
+                    "signatures": [
+                      {
+                        "parameters": [],
+                        "type": {
+                          "type": "intrinsic",
+                          "name": "void"
+                        }
+                      }
+                    ]
+                  }
                 }
               }
             }

@@ -9926,7 +9926,7 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 ## 2026-11-16 当前项目重核与完整 AppWorks 迁移计划
 
-状态：实施中（用户已要求按本方案持续迭代；I01至I09已形成提交推送检查点，完整20包继续实施；整体验收未完成）。本节是当前唯一总计划；前文各轮记录保留其日期、范围及原始证据，不自动沿旧编号继续实施。
+状态：实施中（用户已要求按本方案持续迭代；I01至I10已形成提交推送检查点，完整20包继续实施；整体验收未完成）。本节是当前唯一总计划；前文各轮记录保留其日期、范围及原始证据，不自动沿旧编号继续实施。
 
 - 本仓基线：`b9c14db6b10c52fcd8554b9eea319a4c979e633c`，单一目录 `D:/SPARK_AppWorks`；此前提交检查点已推送。
 - 固定参考：`E:/r/sparkproject` 提交 `1147b00ee53a1476d4ee715c61368b453a215192` 的 `apps/appworks`，473 文件；参考仓当前 HEAD 的该目录已撤除，不能据此清零迁移范围。
@@ -10242,3 +10242,4 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - I10收口自审补正：撤回前先规范化原记录会在字段证明前读取STATUS及不必要的人员字段，现改为先捕获原DataView必要字段再读原值提交；旧normalizeFlowAppendUserListRecord、FlowAppendUserListRecord及无消费者导出同步删除。撤回中的字符串rowId仅作UI忙标志，改为revoking布尔值，不再缓存第二个记录身份。最后ClassModel已按正式链刷新，完整verify-confirmed 27310、最后工作流与Dialog/view-runtime-state回归、完整build在途；旧快照不冒称最后源码结果。
 - I10最终门禁终态：最后完整verify cache/i10-verify-confirmed.log自然exit0（27310已结束），正式ClassModel与lowcode-contracts生成均exit0；最后工作流、标准Dialog及view-runtime-state共71文件701项通过，143.32秒，cache/i10-workflow-confirmed.log自然exit0（28992已结束）；完整build cache/i10-build-final.log自然exit0（81100已结束）。所有本轮检查句柄含旧失败快照均已收终态。未重跑根全量，不将I06历史10021项当当前结果。
 - I10现场与范围：本轮仅复查CUA连接，仍browserCount=0/host unavailable，证据notes/evidence/appworks-iteration-i10-browser-20261117.json；无UI/实服业务写入或凭据输入。撤回追加行已工程闭环进入原命令owner，unknown/防重与父对话框保护均有当前夹具/挂载证据；实际撤回、持久回读和权威未知核验仍缺现场支持，不称包16或20包验收。添加、GetExeUsers及选人仍有已登记旧入口，下一轮继续同一命令和DataView承接，不新建Node服务、不改/启停/部署Java。
+- I10提交推送回执：实现557e1b15078799fea62b2166e3d6d36c67f07d34已推送origin/codex/spark-data-s1-command-safety，push自然exit0；独立git ls-remote与本地HEAD一致，当时工作区干净。最后完整verify、正式两类生成、71文件701项及完整build均已收终态；暂存diff --check通过，含新文件的高置信凭据模式扫描0。当前无待恢复检查。下一轮按I11继续GetExeUsers→原参数/候选DataView→标准选人→同一ApprovalCommand添加动作，纠正首配置猜测、allowChange默认扩选与max=0无限人数等旧逻辑；默认仍以原候选为准，服务未确认协议不凭Java源码新增。完整20包、真实撤回回读/未知核验及四文件仍开放，目标保持active。

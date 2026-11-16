@@ -52,7 +52,7 @@ export function applyFlowRunGraphNodeBadges(nodeView: DataView, badges: FlowRunG
     const id = rowId(row)
     const badge = badges[id]
     if (badge) row[NODE_BADGE_FIELD] = badge
-    else delete row[NODE_BADGE_FIELD]
+    else Reflect.deleteProperty(row, NODE_BADGE_FIELD)
   }
 }
 

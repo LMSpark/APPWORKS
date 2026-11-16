@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page",
+    "sourcePath": "src/views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page.ts",
+    "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page.ts",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page",
+    "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page\n职责：办理页装配、办理侧栏与提交流程编排。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-16T07:28:15.199Z",
+  "models": {}
+}

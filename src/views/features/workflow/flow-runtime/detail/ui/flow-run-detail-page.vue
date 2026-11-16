@@ -76,10 +76,13 @@ const {
 } = SparkComponent
 import {
   FLOW_DESIGN_SCENARIO_ID,
+  FLOW_MONITOR_SCENARIO_ID,
+  FLOW_WORKBENCH_SCENARIO_ID,
   buildFlowRunPageRoute,
   readFlowRuntimeRouteQuery,
 } from '@/lowcode/resources/system/workflow/manage'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
+import {parseApplicationPathScope} from '@/services/application-scope'
 import FlowRunDetailStepTable from './flow-run-detail-step-table.vue'
 import {useFlowRunDetailPage} from './use-flow-run-detail-page'
 
@@ -99,8 +102,9 @@ const canOpenRun = computed(() => {
 })
 function openRunPage(): void {
   try {
-    const target = buildFlowRunPageRoute(route.query)
-    void router.push(target)
+    const scope = parseApplicationPathScope(route.path)
+    if (!scope) throw new Error('流程办理缺少应用路径作用域')
+    void router.push(buildFlowRunPageRoute(route.query, scope))
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause)
     void pageService.showMessage(message, 'warning')
@@ -108,11 +112,12 @@ function openRunPage(): void {
 }
 const {viewKey, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId,
+  navigationId: FLOW_MONITOR_SCENARIO_ID,
   modelName: 'View_FlowObjList',
   componentType: 'flow-run-detail-page',
   title: '流程运行详情',
   optionModels: ['Dict_state'],
-  peerScenarioIds: [FLOW_DESIGN_SCENARIO_ID],
+  peerScenarioIds: [FLOW_DESIGN_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID],
   queryContext: () => ({rowid: routeQuery.value.wfid, WFMID: routeQuery.value.flowid}),
 })
 const {

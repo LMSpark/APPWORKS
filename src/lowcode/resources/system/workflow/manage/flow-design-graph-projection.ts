@@ -8,7 +8,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 
 export type FlowDesignGraphLayout = Readonly<{
   nodePositions: Readonly<Record<string, {x: number; y: number}>>
-  edgePaths: Readonly<Record<string, readonly {x: number; y: number}[]>>
+  edgePaths: Readonly<Record<string, ReadonlyArray<{x: number; y: number}>>>
 }>
 
 const DESIGN_JSON_KEYS = ['DesignJson', 'DESIGNJSON', 'designJson', 'DesignJSON'] as const
@@ -28,8 +28,8 @@ function readDesignJsonText(modelView: DataView): string {
 }
 
 export function parseFlowDesignGraphJson(content: string): Readonly<{
-  nodes: readonly Record<string, unknown>[]
-  edges: readonly Record<string, unknown>[]
+  nodes: ReadonlyArray<Record<string, unknown>>
+  edges: ReadonlyArray<Record<string, unknown>>
 }> | null {
   const text = normalizeText(content)
   if (!text) return null
@@ -55,7 +55,7 @@ function readPoint(value: unknown): {x: number; y: number} | undefined {
   return Number.isFinite(x) && Number.isFinite(y) ? {x, y} : undefined
 }
 
-function readPointsList(edge: Readonly<Record<string, unknown>>): readonly {x: number; y: number}[] | undefined {
+function readPointsList(edge: Readonly<Record<string, unknown>>): ReadonlyArray<{x: number; y: number}> | undefined {
   const raw = edge['pointsList']
   if (!Array.isArray(raw) || raw.length < 2) return undefined
   const points = raw.map(item => readPoint(item)).filter((item): item is {x: number; y: number} => Boolean(item))
@@ -64,7 +64,7 @@ function readPointsList(edge: Readonly<Record<string, unknown>>): readonly {x: n
 
 export type FlowDesignLayoutOverride = Readonly<{
   nodePositions?: Readonly<Record<string, {x: number; y: number}>>
-  edgePaths?: Readonly<Record<string, readonly {x: number; y: number}[]>>
+  edgePaths?: Readonly<Record<string, ReadonlyArray<{x: number; y: number}>>>
 }>
 
 export type FlowDesignGraphLayoutInput = Readonly<{
@@ -80,7 +80,7 @@ export function buildFlowDesignGraphLayout(input: FlowDesignGraphLayoutInput): F
   const override = normalizeText(input.designJsonOverride)
   const parsed = parseFlowDesignGraphJson(override || readDesignJsonText(input.modelView))
   const nodePositions: Record<string, {x: number; y: number}> = {}
-  const edgePaths: Record<string, readonly {x: number; y: number}[]> = {}
+  const edgePaths: Record<string, ReadonlyArray<{x: number; y: number}>> = {}
 
   for (const node of parsed?.nodes ?? []) {
     const id = normalizeText(node['id'])
@@ -94,7 +94,7 @@ export function buildFlowDesignGraphLayout(input: FlowDesignGraphLayoutInput): F
   }
 
   input.nodeView.rows.forEach((row, index) => {
-    if (!row || typeof row !== 'object') return
+    if (!isRecord(row)) return
     const id = normalizeText(row['rowid'] ?? row['ROWID'])
     if (!id || nodePositions[id]) return
     nodePositions[id] = {x: 120 + (index % 4) * 220, y: 80 + Math.floor(index / 4) * 140}
@@ -103,13 +103,13 @@ export function buildFlowDesignGraphLayout(input: FlowDesignGraphLayoutInput): F
   const sessionPositions = input.layoutOverride?.nodePositions
   if (sessionPositions) {
     for (const [id, point] of Object.entries(sessionPositions)) {
-      if (id && point && Number.isFinite(point.x) && Number.isFinite(point.y)) nodePositions[id] = {x: point.x, y: point.y}
+      if (id && isRecord(point) && Number.isFinite(point.x) && Number.isFinite(point.y)) nodePositions[id] = {x: point.x, y: point.y}
     }
   }
   const sessionPaths = input.layoutOverride?.edgePaths
   if (sessionPaths) {
     for (const [id, points] of Object.entries(sessionPaths)) {
-      if (id && points?.length) edgePaths[id] = points
+      if (id && Array.isArray(points) && points.length > 0) edgePaths[id] = points
     }
   }
 
@@ -120,7 +120,7 @@ export function buildFlowDesignGraphLayout(input: FlowDesignGraphLayoutInput): F
 export function serializeFlowDesignGraphJson(input: FlowDesignGraphLayoutInput): string {
   const layout = buildFlowDesignGraphLayout(input)
   const nodes = input.nodeView.rows
-    .filter(row => row && typeof row === 'object')
+    .filter(isRecord)
     .map(row => {
       const id = normalizeText(row['rowid'] ?? row['ROWID'])
       if (!id) return null
@@ -129,7 +129,7 @@ export function serializeFlowDesignGraphJson(input: FlowDesignGraphLayoutInput):
     })
     .filter((item): item is NonNullable<typeof item> => Boolean(item))
   const edges = input.edgeView.rows
-    .filter(row => row && typeof row === 'object')
+    .filter(isRecord)
     .map(row => {
       const id = normalizeText(row['rowid'] ?? row['ROWID'])
       const sourceNodeId = normalizeText(row['PARENTID'])

@@ -83,7 +83,7 @@ const listView = computed(() => ready.value ? session.runtime?.getDataSet(scenar
 const canAudit = ({row, dataSource}: {row?: DataRow | null; dataSource?: DataView | null}) =>
   Boolean(row && dataSource && dataSource.fieldAccess(row, 'CheckState').write === 'allowed')
 const action = (label: string, kind: DialogKind, extra: Record<string, unknown> = {}) => ({type: 'r-button', props: {
-  dataViewKey: viewKey, label, link: true, ...extra, onClick: (row: DataRow) => openDialog(kind, row),
+  dataViewKey: viewKey.value, label, link: true, ...extra, onClick: (row: DataRow) => openDialog(kind, row),
 }})
 const actions = {wrap: true, gap: 4, children: [
   action('应用授权', 'auth'),

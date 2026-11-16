@@ -12,7 +12,9 @@ import {
 import {readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
-const SCENARIO_ID = 'E328FBBF518141973C575D612CD75151'
+import {FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
+
+const SCENARIO_ID = FLOW_WORKBENCH_SCENARIO_ID
 
 const TAB_ITEMS = [
   {id: 'pending' as const, label: '待处理'},
@@ -31,6 +33,7 @@ export function useFlowWorkbenchTodo() {
 
   const runtime = useFeaturePageRuntime({
     scenarioId: SCENARIO_ID,
+    navigationId: FLOW_MONITOR_SCENARIO_ID,
     modelName: () => binding.value.modelName,
     viewId: () => binding.value.viewId,
     componentType: 'flow-workbench-todo-panel',

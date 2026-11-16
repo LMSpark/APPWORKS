@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page",
+    "sourcePath": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
+    "sourceFile": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page",
+    "jsdoc": "@module app:views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page\n职责：流程运行详情：实例摘要、只读运行图与节点/连线步骤钻取弹窗。\n边界：消费监控场景与伙伴设计场景；不含强退与办理写入。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-15T23:23:49.979Z",
+  "models": {}
+}

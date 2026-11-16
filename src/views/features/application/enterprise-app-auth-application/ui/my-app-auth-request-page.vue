@@ -78,9 +78,9 @@ const canReapply = ({row, dataSource}: {row?: DataRow | null; dataSource?: DataV
 const actions = computed(() => {
   revision.value
   return {wrap: false, gap: 4, children: [
-    {type: 'r-button', props: {dataViewKey: viewKey, label: '取消申请', link: true, buttonType: 'danger', onBeforeRender: canCancel,
+    {type: 'r-button', props: {dataViewKey: viewKey.value, label: '取消申请', link: true, buttonType: 'danger', onBeforeRender: canCancel,
       onClick: (row: DataRow) => operate(row, {to: 'CANCELLED', verb: '取消对「{name}」的申请', title: '取消申请确认', success: '已取消申请'})}},
-    {type: 'r-button', props: {dataViewKey: viewKey, label: '重新申请', link: true, buttonType: 'primary', onBeforeRender: canReapply,
+    {type: 'r-button', props: {dataViewKey: viewKey.value, label: '重新申请', link: true, buttonType: 'primary', onBeforeRender: canReapply,
       onClick: (row: DataRow) => operate(row, {to: 'PENDING', verb: '重新申请「{name}」', title: '重新申请确认', success: '已重新提交申请，等待审批'})}},
   ]}
 })

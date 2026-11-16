@@ -38,6 +38,7 @@ import {
   type FlowRunPreparedPage,
 } from '@/lowcode/resources/system/workflow/manage'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
+import {parseApplicationPathScope} from '@/services/application-scope'
 import {
   createFlowBusinessPageRegistry,
   createFlowBusinessTabBuilder,
@@ -110,13 +111,17 @@ async function loadPage(): Promise<void> {
 function openRun(): void {
   const query = routeQuery()
   if (!query.wfid || !query.flowid) return
-  void router.push(buildFlowRunPageRoute(query))
+  const scope = parseApplicationPathScope(route.path)
+  if (!scope) return
+  void router.push(buildFlowRunPageRoute(query, scope))
 }
 
 function openDetail(): void {
   const query = routeQuery()
   if (!query.wfid || !query.flowid) return
-  void router.push(buildFlowRunDetailRoute(query))
+  const scope = parseApplicationPathScope(route.path)
+  if (!scope) return
+  void router.push(buildFlowRunDetailRoute(query, scope))
 }
 
 watch(() => [runtimeReady.value, routeQuery().wfid, routeQuery().flowid] as const, () => {

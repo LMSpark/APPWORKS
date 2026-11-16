@@ -4,7 +4,7 @@ import {defineComponent, h, type Component} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererButton, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {api, APPLY, BASE, MY, pagedataText, resetEnterpriseAppAuthFixture, REVIEW, session} from './enterprise-app-auth.fixture'
 import {provideTestPageService} from '../../../support/helpers/page-service-host'
 
@@ -112,10 +112,16 @@ const authReads = () => http.reads.filter(read => read.table === 'enterprise_app
 
 describe('我的申请', () => {
   it('在同一运行实例装配 47DA、0221 与 C06D，常驻范围只列本企业的 REQUEST，名称经选项视图显示', async () => {
-    const {observed, runtime, rows} = await open(MyPage, MY)
+    const {wrapper, observed, runtime, rows} = await open(MyPage, MY)
     expect(observed.size).toBe(1)
     for (const id of [MY, APPLY, REVIEW]) expect(runtime().getDataSet(id)).toBeDefined()
     expect(rows(`${MY}@enterprise_app_auth@default`)).toEqual(['A1', 'A2', 'A3'])
+    const actions = wrapper.findAllComponents(RendererButton).filter(item => ['取消申请', '重新申请'].includes(item.props('label') ?? ''))
+    expect(actions).toHaveLength(3)
+    for (const action of actions) {
+      expect(typeof action.props('dataViewKey')).toBe('string')
+      expect(action.props('dataViewKey')).toBe(`${MY}@enterprise_app_auth@default`)
+    }
     expect(authReads()[0]).toContain('{"Name":"entShortName","Value":"ME"}')
     const text = document.body.textContent ?? ''
     for (const expected of ['客户管理[crm]', '资源计划[erp]', '办公[oa]', '他企业', '待审批', '初始化超时', '不合适', '2026-11-01 10:00:00']) expect(text).toContain(expected)
@@ -205,8 +211,11 @@ describe('申请应用授权', () => {
 
 describe('申请列表', () => {
   it('常驻范围只列来源为本企业的待审批 REQUEST；通过只写 INITIALIZING 与操作人', async () => {
-    const {rows} = await open(ReviewPage, REVIEW)
+    const {wrapper, rows} = await open(ReviewPage, REVIEW)
     expect(rows(`${REVIEW}@enterprise_app_auth@default`)).toEqual(['R1'])
+    const audit = wrapper.findAllComponents(RendererButton).find(item => item.props('label') === '审核')
+    expect(typeof audit?.props('dataViewKey')).toBe('string')
+    expect(audit?.props('dataViewKey')).toBe(`${REVIEW}@enterprise_app_auth@default`)
     for (const expected of ['他企业', '我的应用[mine]', '请批准']) expect(document.body.textContent).toContain(expected)
     await click('审核')
     expect(document.body.textContent).toContain('拒绝原因（不通过时填写）')

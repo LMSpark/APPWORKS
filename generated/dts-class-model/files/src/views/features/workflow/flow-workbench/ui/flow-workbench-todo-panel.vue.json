@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel",
+    "sourcePath": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel.vue",
+    "sourceFile": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel.vue",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel",
+    "jsdoc": "@module app:views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel\n职责：流程工作台四页签列表，消费 pagedata 命名视图并提供办理/详情入口。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-15T23:14:07.534Z",
+  "models": {}
+}

@@ -15,7 +15,7 @@ import {
   type FlowRunGraphNodeBadges,
 } from './flow-run-detail-graph-projection'
 
-import {FLOW_MONITOR_SCENARIO_ID} from '../flow-runtime-client'
+import {FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '../flow-runtime-client'
 
 const MONITOR_SCENARIO_ID = FLOW_MONITOR_SCENARIO_ID
 const STEP_MODEL = 'WFOBJ_FLOW_RELATIONLINE_STEP'
@@ -47,8 +47,8 @@ export type PrepareFlowRunDetailPageCommand = Readonly<{
 export async function prepareFlowRunDetailPage(
   command: PrepareFlowRunDetailPageCommand,
 ): Promise<FlowRunDetailPreparedPage> {
-  const wfid = String(command.wfid ?? '').trim()
-  const flowid = String(command.flowid ?? '').trim()
+  const wfid = typeof command.wfid === 'string' ? command.wfid.trim() : ''
+  const flowid = typeof command.flowid === 'string' ? command.flowid.trim() : ''
   if (!flowid) throw new Error('缺少流程模型标识 flowid')
   command.assertCurrent?.()
   if (!command.runtime.getDataSet(FLOW_DESIGN_SCENARIO_ID)) {
@@ -56,9 +56,11 @@ export async function prepareFlowRunDetailPage(
   }
   const monitor = command.runtime.getDataSet(MONITOR_SCENARIO_ID)
   if (!monitor) throw new Error('流程运行详情场景尚未装配')
+  const workbench = command.runtime.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
+  if (!workbench) throw new Error('运行详情缺少运行工作台伙伴场景')
   if (wfid) {
-    const stepView = requireView(monitor.getView(STEP_MODEL, 'default'), STEP_MODEL)
-    const waitingView = requireView(monitor.getView(WAITING_MODEL, 'default'), WAITING_MODEL)
+    const stepView = requireView(workbench.getView(STEP_MODEL, 'default'), STEP_MODEL)
+    const waitingView = requireView(workbench.getView(WAITING_MODEL, 'default'), WAITING_MODEL)
     stepView.queryContext = {...stepView.queryContext, WFOBJID: wfid}
     waitingView.queryContext = {...waitingView.queryContext, wfid}
     command.assertCurrent?.()
@@ -71,8 +73,8 @@ export async function prepareFlowRunDetailPage(
     ...(command.assertCurrent ? {assertCurrent: command.assertCurrent} : {}),
   })
   command.assertCurrent?.()
-  const stepView = requireView(monitor.getView(STEP_MODEL, 'default'), STEP_MODEL)
-  const waitingView = requireView(monitor.getView(WAITING_MODEL, 'default'), WAITING_MODEL)
+  const stepView = requireView(workbench.getView(STEP_MODEL, 'default'), STEP_MODEL)
+  const waitingView = requireView(workbench.getView(WAITING_MODEL, 'default'), WAITING_MODEL)
   const badgeSteps = stepView.rows.filter(isRecord)
   const badgeWaiting = waitingView.rows.filter(isRecord)
   const badges = buildFlowRunGraphNodeBadges(badgeSteps, badgeWaiting)
@@ -82,8 +84,8 @@ export async function prepareFlowRunDetailPage(
   return {
     nodeViewKey: design.nodeViewKey,
     edgeViewKey: design.edgeViewKey,
-    stepViewKey: buildDataViewKey(STEP_MODEL, 'default', MONITOR_SCENARIO_ID),
-    waitingViewKey: buildDataViewKey(WAITING_MODEL, 'default', MONITOR_SCENARIO_ID),
+    stepViewKey: buildDataViewKey(STEP_MODEL, 'default', FLOW_WORKBENCH_SCENARIO_ID),
+    waitingViewKey: buildDataViewKey(WAITING_MODEL, 'default', FLOW_WORKBENCH_SCENARIO_ID),
     graphLayout: design.graphLayout,
     nodeBadgeField: FLOW_RUN_GRAPH_NODE_BADGE_FIELD,
     nodeBadges: badges,

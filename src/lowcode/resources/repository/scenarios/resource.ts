@@ -12,6 +12,25 @@ type QueryResult = Awaited<ReturnType<Parameters<DataView['bindQueryExecutor']>[
 type RepositoryTextResource = Readonly<{id: string; resourceId: string; path: string; tableName: string}>
 const repositoryFiles = import.meta.glob<string>('../../../../../config/pages/**/pagedata.json', {query: '?raw', import: 'default'})
 const columns = ['id', 'text', 'sourceRevision']
+const REPOSITORY_SCENARIO_TOKEN = '__SCENARIO__'
+
+function isJsonObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/** 将仓内占位场景身份解析为登记 scenarioId，供 ScenarioViewConfig 消费。 */
+export function materializeRepositoryScenarioText(scenarioId: string, text: string): string {
+  const id = scenarioId.trim()
+  if (!id) throw new Error('REPOSITORY_SCENARIO_ID_INVALID: 场景身份不能为空')
+  if (!text.includes(REPOSITORY_SCENARIO_TOKEN)) return text
+  let parsed: unknown
+  try {parsed = JSON.parse(text)} catch {return text}
+  if (!isJsonObject(parsed)) return text
+  const config = parsed
+  if (config['scenarioId'] !== REPOSITORY_SCENARIO_TOKEN) return text
+  const next = JSON.stringify({...config, scenarioId: id})
+  return next.replaceAll(`${REPOSITORY_SCENARIO_TOKEN}@`, `${id}@`)
+}
 
 /** A read-only repository file resource; content loading is owned by its native DataView executor. */
 function createRepositoryTextDataSet(resource: RepositoryTextResource): DataSet {
@@ -47,7 +66,7 @@ async function readRepositoryText(resource: RepositoryTextResource, assertCurren
     if (!row || typeof row['text'] !== 'string' || view.fieldAccess(row, 'text').read !== 'visible') {
       throw new Error(`REPOSITORY_RESOURCE_CONTENT_MISSING: ${resource.id} 仓内配置不可读`)
     }
-    return row['text']
+    return materializeRepositoryScenarioText(resource.id, row['text'])
   } finally {dataSet.destroy()}
 }
 

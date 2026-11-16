@@ -11,11 +11,12 @@ import {lowcodeApi, lowcodeHttp} from '@/lowcode/lowcode-runtime'
 import {
   FLOW_DESIGN_SCENARIO_ID,
   FLOW_MONITOR_SCENARIO_ID,
+  FLOW_WORKBENCH_SCENARIO_ID,
   buildAppendUserContext,
   createFlowRunPageClient,
   prepareFlowRunDetailPage,
   prepareFlowRunPage,
-  readFlowRuntimeRouteQuery,
+  type readFlowRuntimeRouteQuery,
   type FlowAppendUserContext,
   type FlowRunPreparedPage,
 } from '@/lowcode/resources/system/workflow/manage'
@@ -69,7 +70,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   const activeTab = computed(() => businessTabs.value.find(tab => tab.tabKey === activeFormId.value) ?? businessTabs.value[0])
 
   const stepViewKey = computed(() => prepared.value?.stepHistoryViewKey
-    ?? buildDataViewKey(STEP_MODEL, 'default', FLOW_MONITOR_SCENARIO_ID))
+    ?? buildDataViewKey(STEP_MODEL, 'default', FLOW_WORKBENCH_SCENARIO_ID))
 
   const stepHistoryColumns: SparkNode[] = [
     {type: 'r-text', props: {field: 'description', label: '摘要', readonly: true, minWidth: 220, showOverflowTooltip: true}},

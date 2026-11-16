@@ -50,11 +50,12 @@ const modelName = 'WFM_FLOW_MODLE'
 const {sparkConsume} = useSparkComponent({type: 'flow-model-list-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'flow-model-list-page')
 const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
-  scenarioId, navigationId: scenarioId, modelName, componentType: 'flow-model-list-page', title: '流程模型列表',
-  optionModels: ['Base_AppSystemList', 'Base_UserInfo'],
+  scenarioId, modelName, componentType: 'flow-model-list-page', title: '流程模型列表',
+  optionModels: ['Base_UserInfo'],
+  optionViews: [buildDataViewKey('Base_AppSystemList', 'default', FLOW_DESIGN_SCENARIO_ID)],
   peerScenarioIds: [FLOW_DESIGN_SCENARIO_ID],
 })
-const appKey = buildDataViewKey('Base_AppSystemList', 'default', scenarioId)
+const appKey = buildDataViewKey('Base_AppSystemList', 'default', FLOW_DESIGN_SCENARIO_ID)
 const userKey = buildDataViewKey('Base_UserInfo', 'default', scenarioId)
 const manager = shallowRef<WorkflowFlowModelManager>()
 const busy = ref(false), listError = ref(''), createUserWarning = ref('')

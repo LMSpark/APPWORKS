@@ -5,7 +5,6 @@
 import {computed, ref, shallowRef, watch} from 'vue'
 import type {GraphSelection} from '@spark-appworks/spark-component'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
-import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {
   FLOW_RUN_GRAPH_NODE_BADGE_FIELD,

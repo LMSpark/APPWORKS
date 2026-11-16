@@ -302,16 +302,23 @@ function createPageLoggerProxy(context: CapabilityContext): LoggerApi {
 const PLACEHOLDER_RE = /\$\[([^\]]+)\]/g
 const PURE_PLACEHOLDER_RE = /^\$\[([^\]]+)\]$/
 
-function hasPlaceholderString(value: unknown): boolean {
-  if (typeof value === 'string') return value.includes('$[')
-  if (Array.isArray(value)) return value.some(hasPlaceholderString)
-  if (isRecord(value)) {
-    return Object.values(value).some(hasPlaceholderString)
-  }
-  return false
+function isPlaceholderRecord(value: unknown): value is Record<string, unknown> {
+  if (!isRecord(value)) return false
+  const prototype: unknown = Object.getPrototypeOf(value)
+  // 只解释配置对象，不进入 DataView、Vue ref 等运行实例的内部状态。
+  return prototype === Object.prototype || prototype === null
 }
 
-function resolveValuePlaceholders(value: unknown, row: Record<string, unknown>): unknown {
+function hasPlaceholderString(value: unknown, visited = new WeakSet<object>()): boolean {
+  if (typeof value === 'string') return value.includes('$[')
+  if (!Array.isArray(value) && !isPlaceholderRecord(value)) return false
+  if (visited.has(value)) return false
+  visited.add(value)
+  if (Array.isArray(value)) return value.some(item => hasPlaceholderString(item, visited))
+  return Object.values(value).some(item => hasPlaceholderString(item, visited))
+}
+
+function resolveValuePlaceholders(value: unknown, row: Record<string, unknown>, resolved: WeakMap<object, unknown>): unknown {
   if (typeof value === 'string') {
     const pureMatch = PURE_PLACEHOLDER_RE.exec(value)
     const pureField = pureMatch?.[1]
@@ -323,19 +330,21 @@ function resolveValuePlaceholders(value: unknown, row: Record<string, unknown>):
       return val === null || val === undefined ? '' : String(val)
     })
   }
+  if (!Array.isArray(value) && !isPlaceholderRecord(value)) return value
+  if (resolved.has(value)) return resolved.get(value)
+  if (!hasPlaceholderString(value)) return value
   if (Array.isArray(value)) {
-    if (!value.some(hasPlaceholderString)) return value
-    return value.map(v => resolveValuePlaceholders(v, row))
-  }
-  if (isRecord(value)) {
-    if (!Object.values(value).some(hasPlaceholderString)) return value
-    const result: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(value)) {
-      result[k] = resolveValuePlaceholders(v, row)
-    }
+    const result = new Array<unknown>(value.length)
+    resolved.set(value, result)
+    value.forEach((item, index) => {result[index] = resolveValuePlaceholders(item, row, resolved)})
     return result
   }
-  return value
+  const result: Record<string, unknown> = {}
+  resolved.set(value, result)
+  for (const [key, item] of Object.entries(value)) {
+    result[key] = resolveValuePlaceholders(item, row, resolved)
+  }
+  return result
 }
 
 export function resolvePlaceholderProps(
@@ -345,8 +354,9 @@ export function resolvePlaceholderProps(
   // 无 DATA_ROW 或 props 中根本没有占位符时直接复用原对象，避免无意义复制。
   if (!row || !hasPlaceholderString(props)) return props
   const result: Record<string, unknown> = {}
+  const resolved = new WeakMap<object, unknown>([[props, result]])
   for (const [key, value] of Object.entries(props)) {
-    result[key] = resolveValuePlaceholders(value, row)
+    result[key] = resolveValuePlaceholders(value, row, resolved)
   }
   return result
 }

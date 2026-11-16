@@ -15,10 +15,11 @@ AI用途：迁移系统运维流程监控时，核对状态字典、创建人映
 
 <script setup lang="ts">
 import {computed} from 'vue'
-import {useRouter} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererSection, RendererTable, consumeRequiredPageService, type RFilterProps, type RToolbarProps, useSparkComponent} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
+import {parseApplicationPathScope} from '@/services/application-scope'
 import {buildFlowRunDetailRoute, buildFlowRunPageRoute} from '@/lowcode/resources/system/workflow/manage'
 
 const {sparkConsume} = useSparkComponent({type: 'flow-monitor-page'})
@@ -51,6 +52,12 @@ const fields: SparkNode[] = [
     displayFormatter: formatMinute}},
 ]
 const router = useRouter()
+const route = useRoute()
+const appScope = () => {
+  const scope = parseApplicationPathScope(route.path)
+  if (!scope) throw new Error('流程监控缺少应用路径作用域')
+  return scope
+}
 function openRun(row: DataRow): void {
   const wfid = textValue(row, 'rowid')
   const flowid = textValue(row, 'WFMID')
@@ -58,7 +65,7 @@ function openRun(row: DataRow): void {
     void pageService.showMessage('流程记录缺少 wfid 或 flowid', 'warning')
     return
   }
-  void router.push(buildFlowRunPageRoute({wfid, flowid}))
+  void router.push(buildFlowRunPageRoute({wfid, flowid}, appScope()))
 }
 const actions = computed<RToolbarProps>(() => ({children: [
   {type: 'r-button', props: {label: '办理', buttonType: 'primary', onClick: (row: DataRow) => openRun(row)}},
@@ -75,7 +82,7 @@ function openRunDetail(row: DataRow): void {
     void pageService.showMessage('流程记录缺少 wfid 或 flowid', 'warning')
     return
   }
-  void router.push(buildFlowRunDetailRoute({wfid, flowid}))
+  void router.push(buildFlowRunDetailRoute({wfid, flowid}, appScope()))
 }
 const filter: RFilterProps = {
   autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,

@@ -22,7 +22,7 @@ export type FlowWorkbenchFilterLeaf = Readonly<{
 
 export type FlowWorkbenchFilterExpression = Readonly<{
   logic: 'and' | 'or'
-  filters: readonly (FlowWorkbenchFilterLeaf | FlowWorkbenchFilterExpression)[]
+  filters: ReadonlyArray<FlowWorkbenchFilterLeaf | FlowWorkbenchFilterExpression>
 }>
 
 const CURRENT_USER_PARAM = Object.freeze({Type: 'GetInputParam', ParamName: 'currentUserId'})
@@ -60,7 +60,7 @@ function orEq(field: string, values: readonly string[]): FlowWorkbenchFilterExpr
 }
 
 function andFilters(
-  filters: readonly (FlowWorkbenchFilterLeaf | FlowWorkbenchFilterExpression)[],
+  filters: ReadonlyArray<FlowWorkbenchFilterLeaf | FlowWorkbenchFilterExpression>,
 ): FlowWorkbenchFilterExpression {
   return {logic: 'and', filters}
 }
@@ -84,7 +84,7 @@ export function buildFlowWorkbenchTabFilterFields(
   tab: FlowWorkbenchTab,
   userId: string,
 ): readonly FlowWorkbenchFilterLeaf[] | null {
-  const id = String(userId ?? '').trim()
+  const id = typeof userId === 'string' ? userId.trim() : ''
   if (!id) return null
   if (tab === 'pending') return [eq('UserID', id)]
   if (tab === 'started') return [eq('createuser', id)]

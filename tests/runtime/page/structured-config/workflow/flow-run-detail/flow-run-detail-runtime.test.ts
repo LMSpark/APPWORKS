@@ -5,7 +5,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeApi: {design: {readTextFile: vi.fn(async () => '')}},
 }))
 
-const {FLOW_DESIGN_SCENARIO_ID, prepareFlowRunDetailPage} = await import('@/lowcode/resources/system/workflow/manage')
+const {FLOW_DESIGN_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID, prepareFlowRunDetailPage} = await import('@/lowcode/resources/system/workflow/manage')
 
 const MONITOR_SCENARIO_ID = 'E328FBBF518141973C575D612CD75151'
 
@@ -29,14 +29,15 @@ function createRuntime(): PageRuntime {
     WFM_WORKFORM: createView([]),
     Base_NavigationInfo: createView([]),
   }
-  const monitor = {
+  const workbench = {
     WFOBJ_FLOW_RELATIONLINE_STEP: createView([{rowid: 'S1', WFOBJID: 'WF-1'}]),
     WFOBJ_FLOW_Waiting: createView([]),
   }
   return {
     getDataSet: (id: string) => {
       if (id === FLOW_DESIGN_SCENARIO_ID) return {getView: (name: string) => design[name as keyof typeof design]}
-      if (id === MONITOR_SCENARIO_ID) return {getView: (name: string) => monitor[name as keyof typeof monitor]}
+      if (id === MONITOR_SCENARIO_ID) return {getView: () => undefined}
+      if (id === FLOW_WORKBENCH_SCENARIO_ID) return {getView: (name: string) => workbench[name as keyof typeof workbench]}
       return undefined
     },
   } as unknown as PageRuntime

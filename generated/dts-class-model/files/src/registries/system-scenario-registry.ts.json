@@ -49,6 +49,9 @@
         "bugManage",
         "dataRecovery",
         "flowMonitor",
+        "flowModelList",
+        "flowDesign",
+        "flowWorkbench",
         "databaseRelations",
         "dataMenu",
         "dimensionDesign",
@@ -98,6 +101,9 @@
             "bugManage",
             "dataRecovery",
             "flowMonitor",
+            "flowModelList",
+            "flowDesign",
+            "flowWorkbench",
             "databaseRelations",
             "dataMenu",
             "dimensionDesign",
@@ -126,7 +132,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-13T15:33:16.614Z",
+  "generatedAt": "2026-11-15T22:57:07.354Z",
   "models": {
     "SystemScenarioName": {
       "name": "SystemScenarioName",

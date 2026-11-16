@@ -330,6 +330,9 @@ describe('external API pages assembled through the standard scenario entry', () 
   it('lists providers with the reference columns and creates one through the shared record dialog', async () => {
     const wrapper = await mountAt(ManagementPage)
     for (const text of ['外部服务管理', '服务提供商名称', 'API 基础 URL', '修改人', '修改时间', '提供商操作', '服务甲', '服务乙', '修改人甲']) expect(wrapper.text()).toContain(text)
+    const rowActions = wrapper.findAllComponents(RendererButton).filter(item => ['编辑', '删除', '接口列表', '基础配置'].includes(item.props('label') ?? ''))
+    expect(rowActions).toHaveLength(8)
+    for (const action of rowActions) expect(action.props('dataViewKey')).toBe(`${NAV}@Base_InterfaceProvider@default`)
     await button(wrapper, '新建')!.trigger('click')
     await vi.waitFor(async () => {await flushPromises(); expect(document.body.textContent).toContain('新增外部服务提供商')})
     const form = wrapper.findAllComponents(RendererForm).at(-1)!

@@ -104,6 +104,9 @@ export default defineConfig(({ command, mode }) => {
   server: {
     port: 5273,
     strictPort: true,
+    watch: {
+      ignored: ['**/notes/**'],
+    },
     proxy: {
       // 开发态所有 /api 请求只代理到显式配置的 lowcode gateway。
       '/api': {

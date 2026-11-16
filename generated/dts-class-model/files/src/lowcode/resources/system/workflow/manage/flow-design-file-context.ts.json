@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/system/workflow/manage/flow-design-file-context",
+    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
+    "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/system/workflow/manage/flow-design-file-context",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-file-context\n职责：按流程模型 sysid 解析设计图平台文件 customPath（导航 folderName）。\n边界：只读；无 sysid/导航记录时回退 SysForm。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "FlowDesignFileContext",
+      "ResolveFlowDesignFileContextCommand"
+    ]
+  },
+  "$defs": {
+    "FlowDesignFileContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowDesignFileContext",
+      "properties": {
+        "customPath": {
+          "type": "string"
+        },
+        "applicationId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "customPath",
+        "applicationId"
+      ],
+      "additionalProperties": false
+    },
+    "ResolveFlowDesignFileContextCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolveFlowDesignFileContextCommand",
+      "properties": {
+        "runtime": {
+          "$ref": "../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "flowModelId": {
+          "type": "string"
+        },
+        "modelRow": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-16T07:29:57.409Z",
+  "models": {
+    "FlowDesignFileContext": {
+      "name": "FlowDesignFileContext",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    customPath: string;\n    applicationId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    customPath: string;\n    applicationId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "customPath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applicationId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResolveFlowDesignFileContextCommand": {
+      "name": "ResolveFlowDesignFileContextCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    flowModelId: string;\n    modelRow?: Record<string, unknown>;\n    assertCurrent?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    flowModelId: string;\n    modelRow?: Record<string, unknown>;\n    assertCurrent?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelRow",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

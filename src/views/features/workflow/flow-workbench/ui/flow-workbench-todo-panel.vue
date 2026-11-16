@@ -17,7 +17,8 @@
 
 <script setup lang="ts">
 import {computed} from 'vue'
-import {useRouter} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
+import {parseApplicationPathScope} from '@/services/application-scope'
 import type {DataRow} from '@spark-appworks/spark-data'
 import {
   RendererSection,
@@ -36,6 +37,12 @@ import {useFlowWorkbenchTodo} from '../model/use-flow-workbench-todo'
 const {sparkConsume} = useSparkComponent({type: 'flow-workbench-todo-panel'})
 const pageService = consumeRequiredPageService(sparkConsume, 'flow-workbench-todo-panel')
 const router = useRouter()
+const route = useRoute()
+const appScope = () => {
+  const scope = parseApplicationPathScope(route.path)
+  if (!scope) throw new Error('流程工作台缺少应用路径作用域')
+  return scope
+}
 
 const {
   TAB_ITEMS,
@@ -60,7 +67,7 @@ function openRun(row: DataRow): void {
     void pageService.showMessage('行记录缺少 wfid 或流程模型 ID', 'warning')
     return
   }
-  void router.push(buildFlowRunPageRoute({wfid: routeIds.wfid, flowid: routeIds.flowid}))
+  void router.push(buildFlowRunPageRoute({wfid: routeIds.wfid, flowid: routeIds.flowid}, appScope()))
 }
 
 function openDetail(row: DataRow): void {
@@ -69,7 +76,7 @@ function openDetail(row: DataRow): void {
     void pageService.showMessage('行记录缺少 wfid 或流程模型 ID', 'warning')
     return
   }
-  void router.push(buildFlowRunDetailRoute({wfid: routeIds.wfid, flowid: routeIds.flowid}))
+  void router.push(buildFlowRunDetailRoute({wfid: routeIds.wfid, flowid: routeIds.flowid}, appScope()))
 }
 
 const actions = computed<RToolbarProps>(() => ({

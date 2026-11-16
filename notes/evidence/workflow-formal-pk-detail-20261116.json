@@ -1,0 +1,325 @@
+{
+  "probedAt": "2026-11-16T04:35:48.148Z",
+  "gapCount": 8,
+  "fieldScan": {
+    "pages": 126,
+    "catalogTotal": 227871,
+    "saturated": false
+  },
+  "models": [
+    {
+      "scenarioKey": "flowModelList",
+      "scenarioId": "87F0EF6AD1B64D67FFE597E7E3285994",
+      "modelName": "Base_UserInfo",
+      "modelId": "87F0EF6AD1B64D67FFE597E7E3285994p001",
+      "metaName": "Base_UserInfo",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "suggestedPrimaryKeyFields": "rowid",
+      "modelFieldCount": 26,
+      "modelFieldIsPKey": [
+        "ID"
+      ],
+      "modelFieldOutputAndPKey": [
+        "ID"
+      ],
+      "sourcePrimaryKey": "ID",
+      "sourceTblPrimaryKeys": [
+        "ID"
+      ],
+      "repairHint": "保存模型 PrimaryKeyFields=ID"
+    },
+    {
+      "scenarioKey": "flowDesign",
+      "scenarioId": "6E462C4A39EE0D96F4D1A28FFE887C89",
+      "modelName": "WFM_FLOW_MODLE",
+      "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p000",
+      "metaName": "WFM_FLOW_MODLE",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "suggestedPrimaryKeyFields": "rowid",
+      "modelFieldCount": 28,
+      "modelFieldIsPKey": [
+        "ROWID"
+      ],
+      "modelFieldOutputAndPKey": [
+        "ROWID"
+      ],
+      "sourcePrimaryKey": "rowid",
+      "sourceTblPrimaryKeys": [
+        "rowid"
+      ],
+      "repairHint": "保存模型 PrimaryKeyFields=rowid"
+    },
+    {
+      "scenarioKey": "flowDesign",
+      "scenarioId": "6E462C4A39EE0D96F4D1A28FFE887C89",
+      "modelName": "WFM_NODE_REALATION",
+      "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p002",
+      "metaName": "WFM_NODE_REALATION",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "suggestedPrimaryKeyFields": "rowid",
+      "modelFieldCount": 32,
+      "modelFieldIsPKey": [
+        "ROWID"
+      ],
+      "modelFieldOutputAndPKey": [
+        "ROWID"
+      ],
+      "sourcePrimaryKey": "rowid",
+      "sourceTblPrimaryKeys": [
+        "rowid"
+      ],
+      "repairHint": "保存模型 PrimaryKeyFields=rowid"
+    },
+    {
+      "scenarioKey": "flowDesign",
+      "scenarioId": "6E462C4A39EE0D96F4D1A28FFE887C89",
+      "modelName": "WFM_WORKFORM",
+      "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p012",
+      "metaName": "WFM_WORKFORM",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "suggestedPrimaryKeyFields": "rowid",
+      "modelFieldCount": 22,
+      "modelFieldIsPKey": [
+        "ROWID"
+      ],
+      "modelFieldOutputAndPKey": [
+        "ROWID"
+      ],
+      "sourcePrimaryKey": "ROWID",
+      "sourceTblPrimaryKeys": [
+        "ROWID"
+      ],
+      "repairHint": "保存模型 PrimaryKeyFields=ROWID"
+    },
+    {
+      "scenarioKey": "flowWorkbench",
+      "scenarioId": "A5BADCEE11D2438CB9E75C2453A220A6",
+      "modelName": "WFOBJ_FLOW_Waiting",
+      "modelId": "1ae5bacc-9124-4acf-8b75-a78c61298fb3",
+      "metaName": "WFOBJ_FLOW_Waiting",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "suggestedPrimaryKeyFields": "rowid",
+      "modelFieldCount": 26,
+      "modelFieldIsPKey": [
+        "rowid"
+      ],
+      "modelFieldOutputAndPKey": [
+        "rowid"
+      ],
+      "sourcePrimaryKey": "rowid",
+      "sourceTblPrimaryKeys": [
+        "lingma_sys_ent",
+        "rowid"
+      ],
+      "repairHint": "保存模型 PrimaryKeyFields=rowid（字段层已唯一标记 rowid）"
+    },
+    {
+      "scenarioKey": "flowWorkbench",
+      "scenarioId": "A5BADCEE11D2438CB9E75C2453A220A6",
+      "modelName": "WFOBJ_FLOW_RELATIONLINE_STEP",
+      "modelId": "8b5ef80f-6dfc-4769-9bbe-34c58128c73c",
+      "metaName": "WFOBJ_FLOW_RELATIONLINE_STEP",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "suggestedPrimaryKeyFields": "rowid",
+      "modelFieldCount": 42,
+      "modelFieldIsPKey": [
+        "rowid",
+        "lingma_sys_ent"
+      ],
+      "modelFieldOutputAndPKey": [
+        "rowid",
+        "lingma_sys_ent"
+      ],
+      "sourcePrimaryKey": "rowid",
+      "sourceTblPrimaryKeys": [
+        "lingma_sys_ent",
+        "rowid"
+      ],
+      "repairHint": "修正字段 IsPKey（当前多个：rowid, lingma_sys_ent）；再设 PrimaryKeyFields=rowid"
+    },
+    {
+      "scenarioKey": "flowWorkbench",
+      "scenarioId": "A5BADCEE11D2438CB9E75C2453A220A6",
+      "modelName": "WFOBJ_FLOW",
+      "modelId": "3c0d6640-9c84-4894-9996-cf1418bd4106",
+      "metaName": "WFOBJ_FLOW",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "suggestedPrimaryKeyFields": "rowid",
+      "modelFieldCount": 22,
+      "modelFieldIsPKey": [
+        "rowid"
+      ],
+      "modelFieldOutputAndPKey": [
+        "rowid"
+      ],
+      "sourcePrimaryKey": "rowid",
+      "sourceTblPrimaryKeys": [
+        "lingma_sys_ent",
+        "rowid"
+      ],
+      "repairHint": "保存模型 PrimaryKeyFields=rowid（字段层已唯一标记 rowid）"
+    },
+    {
+      "scenarioKey": "flowWorkbench",
+      "scenarioId": "A5BADCEE11D2438CB9E75C2453A220A6",
+      "modelName": "WFOBJ_FLOW_FORM",
+      "modelId": "b831c094-07e0-478d-b248-7a472d47b254",
+      "metaName": "WFOBJ_FLOW_FORM",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "suggestedPrimaryKeyFields": "rowid",
+      "modelFieldCount": 16,
+      "modelFieldIsPKey": [
+        "rowid",
+        "WFOBJID"
+      ],
+      "modelFieldOutputAndPKey": [
+        "rowid",
+        "WFOBJID"
+      ],
+      "sourcePrimaryKeyError": "正式来源必须有且仅有一个非租户主键",
+      "sourceTblPrimaryKeys": [
+        "WFOBJID",
+        "rowid",
+        "lingma_sys_ent"
+      ],
+      "repairHint": "修正字段 IsPKey（当前多个：rowid, WFOBJID）；再设 PrimaryKeyFields=rowid"
+    }
+  ],
+  "sources": [
+    {
+      "tblCount": 1,
+      "tblId": "C50CD4A8899A4415A2F4B687E234FC9D",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "metaName": "Base_UserInfo",
+      "primaryKeys": [
+        "ID"
+      ],
+      "resolved": {
+        "ok": true,
+        "sourcePrimaryKey": "ID",
+        "keys": [
+          "ID"
+        ]
+      }
+    },
+    {
+      "tblCount": 1,
+      "tblId": "C7BB4DE8BEE14FBD85CD3233956240AC",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "metaName": "WFM_FLOW_MODLE",
+      "primaryKeys": [
+        "rowid"
+      ],
+      "resolved": {
+        "ok": true,
+        "sourcePrimaryKey": "rowid",
+        "keys": [
+          "rowid"
+        ]
+      }
+    },
+    {
+      "tblCount": 1,
+      "tblId": "3C08CC72159442FA961B58E52F302001",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "metaName": "WFM_NODE_REALATION",
+      "primaryKeys": [
+        "rowid"
+      ],
+      "resolved": {
+        "ok": true,
+        "sourcePrimaryKey": "rowid",
+        "keys": [
+          "rowid"
+        ]
+      }
+    },
+    {
+      "tblCount": 1,
+      "tblId": "927E2C64BEB347CC80C09EA600F700B9",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "metaName": "WFM_WORKFORM",
+      "primaryKeys": [
+        "ROWID"
+      ],
+      "resolved": {
+        "ok": true,
+        "sourcePrimaryKey": "ROWID",
+        "keys": [
+          "ROWID"
+        ]
+      }
+    },
+    {
+      "tblCount": 1,
+      "tblId": "3D3CF243BB164DF5ADC5209EE4AFAC6A",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "metaName": "WFOBJ_FLOW_Waiting",
+      "primaryKeys": [
+        "lingma_sys_ent",
+        "rowid"
+      ],
+      "resolved": {
+        "ok": true,
+        "sourcePrimaryKey": "rowid",
+        "keys": [
+          "rowid"
+        ]
+      }
+    },
+    {
+      "tblCount": 1,
+      "tblId": "5E7EDAC738F44926BA6E01DEBCAA541A",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "metaName": "WFOBJ_FLOW_RELATIONLINE_STEP",
+      "primaryKeys": [
+        "lingma_sys_ent",
+        "rowid"
+      ],
+      "resolved": {
+        "ok": true,
+        "sourcePrimaryKey": "rowid",
+        "keys": [
+          "rowid"
+        ]
+      }
+    },
+    {
+      "tblCount": 1,
+      "tblId": "3141FCB594824361AF70A608F7FB51A3",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "metaName": "WFOBJ_FLOW",
+      "primaryKeys": [
+        "lingma_sys_ent",
+        "rowid"
+      ],
+      "resolved": {
+        "ok": true,
+        "sourcePrimaryKey": "rowid",
+        "keys": [
+          "rowid"
+        ]
+      }
+    },
+    {
+      "tblCount": 1,
+      "tblId": "828F76439EFF4B899DACB6AD39D1118F",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "metaName": "WFOBJ_FLOW_FORM",
+      "primaryKeys": [
+        "WFOBJID",
+        "rowid",
+        "lingma_sys_ent"
+      ],
+      "resolved": {
+        "ok": false,
+        "keys": [
+          "WFOBJID",
+          "rowid"
+        ],
+        "error": "正式来源必须有且仅有一个非租户主键"
+      }
+    }
+  ],
+  "note": "lingmacn GetData 对元数据表 Filter 常被忽略；字段扫描为客户端 modelId 过滤+提前停止。"
+}

@@ -5,16 +5,13 @@
 import type {DataView} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type {LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {saveFlowWorkFormRelation} from './flow-design-form-relation'
 import {lowcodeApi, lowcodeHttp} from '@/lowcode/lowcode-runtime'
 import {FLOW_DESIGN_SCENARIO_ID, assertFlowDesignTarget} from '../flow-design-client'
 import {resolveFlowDesignFileContext} from '../flow-design-file-context'
 import {type FlowDesignLayoutOverride, serializeFlowDesignGraphJson} from '../flow-design-graph-projection'
 import {syncFlowDesignTables} from './flow-design-table-sync'
-
-function normalizeText(value: unknown): string {
-  return String(value ?? '').trim()
-}
 
 function requireView(view: DataView | undefined, modelName: string): DataView {
   if (!view || view.destroyed) throw new Error(`流程设计保存缺少正式 ${modelName} 视图`)
@@ -41,7 +38,7 @@ export async function saveFlowDesignInfo(command: SaveFlowDesignCommand): Promis
   const modelView = requireView(dataSet.getView('WFM_FLOW_MODLE', 'default'), 'WFM_FLOW_MODLE')
   const nodeView = requireView(dataSet.getView('WFM_FLOW_NODE', 'default'), 'WFM_FLOW_NODE')
   const edgeView = requireView(dataSet.getView('WFM_NODE_REALATION', 'default'), 'WFM_NODE_REALATION')
-  const modelRow = modelView.rows.find(row => row && typeof row === 'object')
+  const modelRow = modelView.rows.find(isRecord)
   const modelRecord = modelRow && typeof modelRow === 'object' ? modelRow : undefined
   const projectionInput = {
     modelView,
@@ -80,7 +77,7 @@ export async function saveFlowDesignInfo(command: SaveFlowDesignCommand): Promis
   }
   const result = await dataSet.saveChanges()
   command.assertCurrent?.()
-  if (result && !result.success) throw result.error ?? new Error(result.message ?? '保存流程设计失败')
+  if (!result.success) throw result.error ?? new Error(result.message ?? '保存流程设计失败')
   const workFormView = dataSet.getView('WFM_WORKFORM', 'default')
   if (workFormView && !workFormView.destroyed) {
     await saveFlowWorkFormRelation({

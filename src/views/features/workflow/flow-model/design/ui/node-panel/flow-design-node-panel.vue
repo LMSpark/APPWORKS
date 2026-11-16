@@ -11,7 +11,6 @@
 </template>
 
 <script setup lang="ts">
-import {toRef} from 'vue'
 import type {SparkNode} from '@spark-appworks/spark-data'
 import {RendererSection, RendererTable} from '@spark-appworks/spark-component'
 import {useFlowDesignViewHighlight} from '../use-flow-design-view-highlight'

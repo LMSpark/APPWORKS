@@ -10,6 +10,7 @@
       <DisplayAlert v-if="selectedId === 'parameters' && actionMessage" alert-type="info" :closable="false" :show-icon="true" :title="actionMessage" />
     </RendererSection>
     <template v-else>
+    <DisplayAlert v-if="error && !detailOpen" alert-type="error" :closable="false" :show-icon="true" :title="error" />
     <DisplayAlert v-if="removalMessage" alert-type="info" :closable="false" :show-icon="true" :title="removalMessage" />
     <DisplayAlert v-if="selectedId === 'parameters' && actionError" alert-type="error" :closable="false" :show-icon="true" :title="actionError" />
     <DisplayAlert v-if="selectedId === 'parameters' && actionMessage" alert-type="info" :closable="false" :show-icon="true" :title="actionMessage" />

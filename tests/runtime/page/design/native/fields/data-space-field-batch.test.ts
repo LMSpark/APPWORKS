@@ -1,9 +1,12 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest'
 import {flushPromises, mount} from '@vue/test-utils'
+import {markRaw} from 'vue'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus, {ElTree, ElButton} from 'element-plus'
 import {FieldTextarea, RendererButton, RendererForm, RendererTable, registerAllRenderers, Spark} from '@spark-appworks/spark-component'
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
+import DataSpaceModelFields from '@/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.vue'
+import {RequestState} from '@spark-appworks/spark-data'
 import {installAuthenticatedLowcodeTestSession, installRepositoryScenarioTestFetch, restoreLowcodeTestSession} from '../../../../../support/helpers/authenticated-lowcode-session'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
 import {fieldEditReloadBatch, fieldEditSaveBatch} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session'
@@ -43,6 +46,64 @@ async function setup(options: Parameters<typeof dataSpacePageFixture>[0] = {}) {
   const owners = ['F1', 'F3'].map(id => session.getFieldEdit(id))
   return {f, session, fields, owners, writes: () => f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')}
 }
+
+describe('model field workspace loading', () => {
+  async function workspace() {
+    const sourceFields = records.map(row => ({...row}))
+    const {f, session} = await setup({sourceFields})
+    const wrapper = mount(DataSpaceModelFields, {props: {session: markRaw(session), modelId: 'M1', revision: 0},
+      global: {stubs: {DataSpaceFieldEditor: true, DataSpaceFieldCreate: true}}})
+    wrappers.push(wrapper); await flushPromises()
+    expect(wrapper.find('[role="alert"]').exists(), wrapper.text()).toBe(false)
+    const fields = session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
+    return {f, wrapper, fields, sourceFields}
+  }
+
+  it('keeps the loaded query and field draft when page revisions advance', async () => {
+    const {f, wrapper, fields} = await workspace()
+    expect(fields.rows.map(row => row['rowid'])).toEqual(['PK', 'F1', 'F3'])
+    const requests = f.requests.length
+    await wrapper.setProps({revision: 1}); await flushPromises()
+    expect(f.requests).toHaveLength(requests)
+    fields.updateEditingValue('F1', 'description', '保留字段草稿')
+    await wrapper.setProps({revision: 2}); await flushPromises()
+    expect(fields.getEditingPatch('F1')?.['description']).toBe('保留字段草稿')
+    expect(wrapper.getComponent({name: 'DataSpaceFieldEditor'}).props('disabled')).toBe(false)
+    expect(f.requests).toHaveLength(requests)
+    expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it('reloads explicit field identities and model switches into the same named view', async () => {
+    const {f, wrapper, fields, sourceFields} = await workspace()
+    sourceFields.splice(sourceFields.findIndex(row => row.rowid === 'F3'), 1)
+    await wrapper.setProps({fieldIds: ['PK', 'F1']}); await flushPromises()
+    expect(fields.rows.map(row => row['rowid'])).toEqual(['PK', 'F1'])
+    await wrapper.setProps({modelId: 'M2', fieldIds: ['OTHER']}); await flushPromises()
+    expect(fields.queryContext).toMatchObject({dataSpaceId: 'A', modelId: 'M2'})
+    expect(fields.rows.map(row => row['rowid'])).toEqual(['OTHER'])
+    expect(wrapper.getComponent({name: 'DataSpaceFieldEditor'}).props('fieldIds')).toEqual(['OTHER'])
+    expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it('reloads an invalidated field view after unlocking and reflects added or removed records', async () => {
+    const {f, wrapper, fields, sourceFields} = await workspace()
+    const requests = f.requests.length
+    await wrapper.setProps({disabled: true})
+    sourceFields.push({...records[1]!, rowid: 'ADDED', Name: 'extra', AsName: 'extra'})
+    fields.clearAll()
+    await wrapper.setProps({revision: 1}); await flushPromises()
+    expect(fields.requestState).toBe(RequestState.Idle)
+    expect(f.requests).toHaveLength(requests)
+    await wrapper.setProps({disabled: false}); await flushPromises()
+    expect(fields.requestState).toBe(RequestState.Loaded)
+    expect(wrapper.getComponent({name: 'DataSpaceFieldEditor'}).props('fieldIds')).toEqual(['PK', 'F1', 'F3', 'ADDED'])
+    sourceFields.splice(sourceFields.findIndex(row => row.rowid === 'F1'), 1)
+    fields.clearAll()
+    await wrapper.setProps({revision: 2}); await flushPromises()
+    expect(wrapper.getComponent({name: 'DataSpaceFieldEditor'}).props('fieldIds')).toEqual(['PK', 'F3', 'ADDED'])
+    expect(f.fileWrites).toHaveLength(0)
+  })
+})
 
 describe('model field batch maintenance', () => {
   it('saves two edited fields in one signed request and restores their values on independent reopen', async () => {

@@ -81,7 +81,7 @@ export function createFlowBusinessPageRegistry<T extends FlowRunBusinessPageExpo
   }
 }
 
-export function readRegisteredVuePagePaths(pages: readonly {path?: string}[]): Set<string> {
+export function readRegisteredVuePagePaths(pages: ReadonlyArray<{path?: string}>): Set<string> {
   const paths = new Set<string>()
   for (const page of pages) {
     const text = normalizeText(page.path)

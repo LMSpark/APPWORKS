@@ -128,7 +128,7 @@ const filter: RFilterProps = {
 const actions = computed<RToolbarProps>(() => {
   const disabled = busy.value || !!dialog.value || unconfirmed.value
   type RowAction = Readonly<{label: string; run: (row: DataRow) => void; danger?: boolean; permAction?: 'edit' | 'delete'}>
-  const button = ({label, run, danger, permAction}: RowAction): SparkNode => ({type: 'r-button', props: {dataViewKey: viewKey, label, link: true,
+  const button = ({label, run, danger, permAction}: RowAction): SparkNode => ({type: 'r-button', props: {dataViewKey: viewKey.value, label, link: true,
     buttonType: danger ? 'danger' : 'primary', disabled, onClick: run, ...(permAction ? {permAction} : {})}})
   return {gap: 4, children: [button({label: '编辑', run: row => open('edit', row), permAction: 'edit'}),
     button({label: '删除', run: row => void remove(row), danger: true, permAction: 'delete'}),

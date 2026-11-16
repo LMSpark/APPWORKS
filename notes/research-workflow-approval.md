@@ -40,7 +40,7 @@
 
 ### 仍缺口
 
-- **G0 modelId**、**D99**：`run-g0-apply.mjs` + 半自动 `workflow-d99-smoke.mjs`（`WORKFLOW_SMOKE_WFID` 探测 GetStepHistory）；证据 `workflow-smoke-r15`、`workflow-d99-probe-*`。手工矩阵四页签/设计/办理仍 `manual: pending`。
+- **G0 modelId**、**D99（R16 lingmacn）**：烟测链已对齐 `Result.data` + 分页 G0（2026-11-16 **pass**）；workflow 页为仓内系统场景，**不需**远端 SysForm。**R16 签收**：`manualContract` 与 **`manualSpa`（本仓 dev + lingmacn 四格）** 拆分；`signoffStatus` 须 **ready** 后才 closed / 开 R17；当前 **awaiting-spa**（见 `notes/research-workflow-r16-smoke.md`）。
 - **转办/协办/委派**、步骤已读通知：无 endpoint/optionData 证据，不接线。
 - 运行详情：**强退**、办理写入仍不在详情页。
 

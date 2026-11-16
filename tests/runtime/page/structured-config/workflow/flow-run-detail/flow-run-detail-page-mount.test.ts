@@ -2,19 +2,20 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {defineComponent, h} from 'vue'
+import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {FLOW_DESIGN_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
+import {FLOW_DESIGN_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeApi: {design: {readTextFile: vi.fn(async () => '')}},
 }))
-vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', () => {
-  const {ref} = require('vue')
+vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => {
+  const {ref} = await import('vue')
   return {
     useFeaturePageRuntime: () => ({
-      viewKey: 'E328@View_FlowObjList@default',
+      viewKey: ref('E328FBBF518141973C575D612CD75151@View_FlowObjList@default'),
       ready: ref(true),
       loading: ref(false),
       error: ref(''),
@@ -27,7 +28,7 @@ vi.mock('vue-router', async importOriginal => {
   const actual = await importOriginal<typeof import('vue-router')>()
   return {
     ...actual,
-    useRoute: () => ({query: {wfid: 'WF-1', flowid: 'FM-1'}, meta: {}, path: '/test'}),
+    useRoute: () => ({query: {wfid: 'WF-1', flowid: 'FM-1'}, meta: {}, path: '/apps/APP-1/features/workflow/flow-runtime/detail/ui/flow-run-detail-page'}),
     useRouter: () => ({push: routerPush}),
   }
 })
@@ -36,7 +37,7 @@ vi.mock('@spark-appworks/spark-component', async importOriginal => {
   return {
     ...actual,
     RendererGraph: {name: 'RendererGraph', template: '<div data-testid="run-graph">运行图</div>', emits: ['select']},
-    RendererTable: {name: 'RendererTable', props: ['dataViewKey'], template: '<div data-testid="run-summary">摘要</div>'},
+    RendererTable: {name: 'RendererTable', props: ['dataViewKey', 'children'], template: '<div data-testid="run-summary">摘要</div>'},
   }
 })
 
@@ -66,21 +67,24 @@ function createRuntime(): PageRuntime {
   }
   const monitor = {
     View_FlowObjList: createView([{TITLE: '实例', WFMID: 'FM-1'}]),
+    Dict_state: createView([]),
+  }
+  const workbench = {
     WFOBJ_FLOW_RELATIONLINE_STEP: createView([]),
     WFOBJ_FLOW_Waiting: createView([]),
-    Dict_state: createView([]),
   }
   return {
     instanceId: 'flow-run-detail-mount',
     getDataSet: (id: string) => {
       if (id === FLOW_DESIGN_SCENARIO_ID) return {getView: (name: string) => design[name as keyof typeof design]}
       if (id === MONITOR_SCENARIO_ID) return {getView: (name: string) => monitor[name as keyof typeof monitor]}
+      if (id === FLOW_WORKBENCH_SCENARIO_ID) return {getView: (name: string) => workbench[name as keyof typeof workbench]}
       return undefined
     },
     resolveView: (key: string) => {
       if (key.includes('View_FlowObjList')) return monitor.View_FlowObjList
-      if (key.includes('WFOBJ_FLOW_RELATIONLINE_STEP')) return monitor.WFOBJ_FLOW_RELATIONLINE_STEP
-      if (key.includes('WFOBJ_FLOW_Waiting')) return monitor.WFOBJ_FLOW_Waiting
+      if (key.includes('WFOBJ_FLOW_RELATIONLINE_STEP')) return workbench.WFOBJ_FLOW_RELATIONLINE_STEP
+      if (key.includes('WFOBJ_FLOW_Waiting')) return workbench.WFOBJ_FLOW_Waiting
       if (key.includes('WFM_FLOW_NODE')) return design.WFM_FLOW_NODE
       if (key.includes('WFM_NODE_REALATION')) return design.WFM_NODE_REALATION
       return null
@@ -139,8 +143,8 @@ describe('flow run detail page mount', () => {
     expect(button).toBeDefined()
     await button!.trigger('click')
     expect(routerPush).toHaveBeenCalledWith({
-      path: '/features/workflow/flow-runtime/run-page/ui/flow-run-page',
-      query: {wfid: 'WF-1', flowid: 'FM-1'},
+      path: '/apps/APP-1/features/workflow/flow-runtime/run-page/ui/flow-run-page',
+      query: {wfid: 'WF-1', flowid: 'FM-1', [SYSTEM_PAGE_NAVIGATION_ID_QUERY]: MONITOR_SCENARIO_ID},
     })
   })
 })

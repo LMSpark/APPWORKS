@@ -1,0 +1,390 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/system/workflow/manage/flow-model-manager",
+    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-model-manager.ts",
+    "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-model-manager.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/system/workflow/manage/flow-model-manager",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-model-manager\n职责：流程模型目录的正式读取与写入，供模型列表页编排新建、编辑与删除。\n边界：经 spark-data DataView 提交变更，不从前端 Vue 直接调用 lowcodeApi。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FlowModelListResult",
+      "WorkflowFlowModelManager"
+    ]
+  },
+  "$defs": {
+    "FlowModelListResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowModelListResult",
+      "properties": {
+        "unresolvedCreateUserIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "unresolvedCreateUserIds"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowFlowModelManager": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowFlowModelManager",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "userView": {
+                  "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<FlowModelListResult>"
+        },
+        "method.canAdd.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.canAdd.return": {
+          "type": "boolean"
+        },
+        "method.canEditRow.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canEditRow.return": {
+          "type": "boolean"
+        },
+        "method.canDeleteRow.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canDeleteRow.return": {
+          "type": "boolean"
+        },
+        "method.beginAdd.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beginAdd.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.beginEdit.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.beginEdit.return": true,
+        "method.saveCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.saveCurrent.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.removeRow.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeRow.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.readModelKey.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readModelKey.return": {
+          "type": "string"
+        },
+        "method.readWorkFormId.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readWorkFormId.return": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-16T07:29:57.413Z",
+  "models": {
+    "FlowModelListResult": {
+      "name": "FlowModelListResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    unresolvedCreateUserIds: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    unresolvedCreateUserIds: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "unresolvedCreateUserIds",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowFlowModelManager": {
+      "name": "WorkflowFlowModelManager",
+      "jsdoc": "绑定当前页正式模型列表视图的编排入口。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(view: DataView, options?: Readonly<{\n        userView?: DataView | undefined;\n        assertCurrent?: () => void;\n    }>)",
+          "parameters": [
+            {
+              "name": "view",
+              "type": {
+                "type": "reference",
+                "name": "DataView"
+              }
+            },
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        userView?: DataView | undefined;\n        assertCurrent?: () => void;\n    }"
+                  }
+                ]
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "refresh",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "FlowModelListResult",
+                    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-model-manager.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "canAdd",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "canEditRow",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "canDeleteRow",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "beginAdd",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "beginEdit",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "saveCurrent",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "removeRow",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readModelKey",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "readWorkFormId",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

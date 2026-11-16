@@ -5,7 +5,8 @@
 import {buildDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {FLOW_MONITOR_SCENARIO_ID} from '../flow-runtime-client'
+import {FLOW_DESIGN_SCENARIO_ID} from '../flow-design-client'
+import {FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '../flow-runtime-client'
 import type {FlowAppendUserContext} from '../flow-append-user'
 
 const FLOW_OBJ_MODEL = 'WFOBJ_FLOW'
@@ -46,8 +47,8 @@ function firstText(row: Record<string, unknown>, keys: readonly string[]): strin
 }
 
 function buildFormTabs(
-  forms: readonly Record<string, unknown>[],
-  objectForms: readonly Record<string, unknown>[],
+  forms: ReadonlyArray<Record<string, unknown>>,
+  objectForms: ReadonlyArray<Record<string, unknown>>,
   flowObjectId: string,
 ): FlowRunFormRecord[] {
   const tabs: FlowRunFormRecord[] = []
@@ -93,21 +94,25 @@ export type PrepareFlowRunPageCommand = Readonly<{
 }>
 
 export async function prepareFlowRunPage(command: PrepareFlowRunPageCommand): Promise<FlowRunPreparedPage> {
-  const wfid = String(command.wfid ?? '').trim()
-  const flowid = String(command.flowid ?? '').trim()
+  const wfid = typeof command.wfid === 'string' ? command.wfid.trim() : ''
+  const flowid = typeof command.flowid === 'string' ? command.flowid.trim() : ''
   if (!wfid || !flowid) throw new Error('办理页缺少 wfid 或 flowid')
   command.assertCurrent?.()
   const monitor = command.runtime.getDataSet(FLOW_MONITOR_SCENARIO_ID)
   if (!monitor) throw new Error('流程办理场景尚未装配')
+  const design = command.runtime.getDataSet(FLOW_DESIGN_SCENARIO_ID)
+  if (!design) throw new Error('流程办理缺少设计场景伙伴')
+  const workbench = command.runtime.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
+  if (!workbench) throw new Error('流程办理缺少运行工作台场景伙伴')
   const listView = requireView(monitor.getView(FLOW_LIST_MODEL, 'default'), FLOW_LIST_MODEL)
   listView.queryContext = {...listView.queryContext, rowid: wfid}
   const flowView = requireView(monitor.getView(FLOW_OBJ_MODEL, 'default'), FLOW_OBJ_MODEL)
   flowView.queryContext = {...flowView.queryContext, rowid: wfid, wfid}
-  const formView = requireView(monitor.getView(FORM_MODEL, 'default'), FORM_MODEL)
+  const formView = requireView(design.getView(FORM_MODEL, 'default'), FORM_MODEL)
   formView.queryContext = {...formView.queryContext, FlowID: flowid, WFMID: flowid}
-  const objectFormView = requireView(monitor.getView(OBJ_FORM_MODEL, 'default'), OBJ_FORM_MODEL)
+  const objectFormView = requireView(workbench.getView(OBJ_FORM_MODEL, 'default'), OBJ_FORM_MODEL)
   objectFormView.queryContext = {...objectFormView.queryContext, WFOBJID: wfid, wfid}
-  const stepView = requireView(monitor.getView(STEP_MODEL, 'default'), STEP_MODEL)
+  const stepView = requireView(workbench.getView(STEP_MODEL, 'default'), STEP_MODEL)
   stepView.queryContext = {...stepView.queryContext, WFOBJID: wfid}
   command.assertCurrent?.()
   await Promise.all([listView.refresh(), flowView.refresh(), formView.refresh(), objectFormView.refresh(), stepView.refresh()])
@@ -125,7 +130,7 @@ export async function prepareFlowRunPage(command: PrepareFlowRunPageCommand): Pr
     busRowId,
     formTabs,
     userDirectoryViewKey: buildDataViewKey('Base_UserInfo', 'default', FLOW_MONITOR_SCENARIO_ID),
-    stepHistoryViewKey: buildDataViewKey(STEP_MODEL, 'default', FLOW_MONITOR_SCENARIO_ID),
+    stepHistoryViewKey: buildDataViewKey(STEP_MODEL, 'default', FLOW_WORKBENCH_SCENARIO_ID),
   }
 }
 

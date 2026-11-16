@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1188,
+  "scannedFileCount": 1240,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -13836,6 +13836,32 @@
         ]
       }
     },
+    "src/lowcode/resources/application/project-blueprint-document.ts": {
+      "file": "files/src/lowcode/resources/application/project-blueprint-document.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/application/project-blueprint-document",
+        "sourcePath": "src/lowcode/resources/application/project-blueprint-document.ts",
+        "sourceFile": "src/lowcode/resources/application/project-blueprint-document.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/application/project-blueprint-document",
+        "jsdoc": "@module app:lowcode/resources/application/project-blueprint-document\n职责：承接蓝图 legacy 文档导出提交，供应用管理/蓝图工作台消费。\n边界：只返回 submitted 回执，不表示文件已生成；HTTP 留在 lowcode 网关内。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/data-space/design/read-formal-models.ts": {
+      "file": "files/src/lowcode/resources/data-space/design/read-formal-models.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/data-space/design/read-formal-models",
+        "sourcePath": "src/lowcode/resources/data-space/design/read-formal-models.ts",
+        "sourceFile": "src/lowcode/resources/data-space/design/read-formal-models.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/data-space/design/read-formal-models",
+        "jsdoc": "@module app:lowcode/resources/data-space/design/read-formal-models\n职责：读取数据空间设计态正式模型目录，供维度来源编辑等数据层消费者装配。\n边界：只读设计元数据；调用方须自备 assertCurrent 与场景/dataSpace 身份。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/lowcode/resources/database/catalog/db-view-ops.ts": {
       "file": "files/src/lowcode/resources/database/catalog/db-view-ops.ts.json",
       "module": {
@@ -15904,6 +15930,447 @@
         "modulePath": "lowcode/resources/system/platform-auth/runtime-bindings",
         "jsdoc": "@module app:lowcode/resources/system/platform-auth/runtime-bindings\n职责：为登录公开场景绑定企业目录投影与登录、注册、注册租户、发送验证码命令。\n边界：只核本次配置的表键与资源身份，执行全部交给 PlatformAuthResource；不创建表、草稿或页面 owner。",
         "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client\n职责：追加办理人 workflow.runtime 写操作（GetExeUsers / FlowAddReceiveUser / FlowRevoke）。\n边界：经 lowcode HTTP 与正式执行域请求；列表查询优先消费 DataView 行筛选。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowAppendUserExecUserCandidate",
+          "FlowAppendUserExecConfig",
+          "FlowAppendUserRequestScope",
+          "FlowAppendUserClientOptions",
+          "FlowAppendUserClient"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records\n职责：从步骤 DataView 行筛选追加办理列表，并规范化字段。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "FlowAppendUserContext",
+          "FlowAppendUserListRecord"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-append-user/index.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/index.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-append-user/index",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/index.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/index.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-append-user/index",
+        "jsdoc": "app 的 lowcode/resources/system/workflow/manage/flow-append-user/index 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-design-client.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-client.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-design-client",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-client.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-client.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-design-client",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-client\n职责：流程设计聚合读写的 lowcode 入口占位；完整图编辑语义待接 FlowDesign 专用合同。\n边界：页面经本模块访问设计能力，禁止在 Vue 中直接引用 lowcodeApi。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowDesignClientOptions"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-design-data-json",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-design-data-json",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-data-json\n职责：读取流程设计图 JSON（平台文件优先，模型字段回退），对齐参考 FlowDesign.readFlowDesignDataJson。\n边界：只读文本；不保存、不刷新节点/连线表。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowDesignPlatformFileApi",
+          "ReadFlowDesignDataJsonCommand"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-design-file-context",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-design-file-context",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-file-context\n职责：按流程模型 sysid 解析设计图平台文件 customPath（导航 folderName）。\n边界：只读；无 sysid/导航记录时回退 SysForm。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "FlowDesignFileContext",
+          "ResolveFlowDesignFileContextCommand"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-design-graph-projection",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-design-graph-projection",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-graph-projection\n职责：从流程模型 DesignJson 解析节点坐标与连线路径，投影为 RendererGraph 只读布局。\n边界：不读写平台文件、不修改节点/连线表；解析失败时按节点行顺序兜底排布。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowDesignGraphLayout",
+          "FlowDesignLayoutOverride",
+          "FlowDesignGraphLayoutInput"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-design-runtime",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-design-runtime",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-runtime\n职责：在已装配流程设计场景的 PageRuntime 内，按目标模型 rowid 刷新模型/节点/连线视图。\n边界：供设计对话框消费父页运行实例，不单独触发场景装载或导航身份校验。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "FlowDesignPreparedViews"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation\n职责：从 WFM_WORKFORM DataView 序列化并提交 SaveFlowAndFormRelation。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowWorkFormPayloadRow",
+          "SaveFlowWorkFormRelationCommand"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit\n职责：设计页会话内增删节点/连线行与布局覆盖，保存仍走 saveFlowDesignInfo。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "RemoveFlowDesignGraphSelectionCommand",
+          "RemoveFlowDesignGraphSelectionResult",
+          "AddFlowDesignNodeCommand",
+          "AddFlowDesignNodeResult",
+          "AddFlowDesignEdgeCommand",
+          "AddFlowDesignEdgeResult"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth\n职责：刷新设计场景节点权限视图 queryContext（FunctionNodeAuth@nodeAuth）。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "SyncFlowDesignNodeAuthCommand",
+          "FlowDesignNodeAuthRowSeed"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-save",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-design/flow-design-save",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design/flow-design-save\n职责：保存流程设计图 JSON 与模型/节点/连线 DataView 变更，对齐参考 saveFlowDesignInfo 主链。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "SaveFlowDesignCommand"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync\n职责：按 DesignJson 节点/边 id 集合同 FLOWID 下行做 staged 删增，供 saveFlowDesignInfo 提交。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "SyncFlowDesignTablesCommand"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-design/index.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/index.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-design/index",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/index.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/index.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-design/index",
+        "jsdoc": "app 的 lowcode/resources/system/workflow/manage/flow-design/index 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-model-manager.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-model-manager.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-model-manager",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-model-manager.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-model-manager.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-model-manager",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-model-manager\n职责：流程模型目录的正式读取与写入，供模型列表页编排新建、编辑与删除。\n边界：经 spark-data DataView 提交变更，不从前端 Vue 直接调用 lowcodeApi。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowModelListResult",
+          "WorkflowFlowModelManager"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-detail-graph-projection\n职责：按运行步骤/待办为设计图节点打上 in-memory 展示字段，供 RendererGraph 徽标规则消费。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowRunNodeBadge",
+          "FlowRunGraphNodeBadges"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-detail-runtime\n职责：运行详情页聚合刷新步骤/待办与设计只读图，不发起办理写入。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "FlowRunDetailPreparedPage",
+          "PrepareFlowRunDetailPageCommand"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-detail-steps\n职责：运行详情步骤钻取纯逻辑（过滤、分组、待办标记）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowRunDetailStepRow",
+          "FlowRunDetailWaitingRow"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-http.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-http.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-http",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-http.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-http.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/flow-http",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-http\n职责：Flow 控制器 AjaxResult 请求解包，供运行/加签客户端复用。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "FlowRequestScope"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit\n职责：解析 CanAutoSubmitAfter 响应，决定是否链式提交。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options\n职责：解析 GetOptionButtonHandleUserOptionData 返回的节点候选列表与开关字段。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "FlowRunHandleNodeOption"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client\n职责：流程办理 HTTP 命令（选项、提交、退回发起人）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowRunPageClientOptions",
+          "FlowRunHandleOptionParams",
+          "FlowRunSubmitNode",
+          "FlowRunSubmitParams",
+          "FlowRunBackParams",
+          "FlowRunPageClient"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime\n职责：办理页装配：刷新实例、表单候选与步骤上下文。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "FlowRunFormRecord",
+          "FlowRunPreparedPage",
+          "PrepareFlowRunPageCommand"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/index.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/index.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/index",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/index.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/index.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/index",
+        "jsdoc": "app 的 lowcode/resources/system/workflow/manage/flow-run-page/index 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-runtime-client.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-runtime-client.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-runtime-client",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-runtime-client.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-runtime-client.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-runtime-client",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-runtime-client\n职责：流程运行、运行详情、加签等运行态操作的 lowcode 入口占位。\n边界：运行命令与查询统一由此导出，Vue 不直接调用 HTTP 或 lowcodeApi。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "FlowRuntimeRouteQuery",
+          "FlowRunPageRoute"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters\n职责：流程工作台各页签过滤语义（对齐参考 flow-workbench-filters.ts），供 pagedata 与测试核对。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowWorkbenchTab",
+          "FlowWorkbenchTabBinding",
+          "FlowWorkbenchFilterLeaf",
+          "FlowWorkbenchFilterExpression"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row\n职责：从工作台各页签行解析办理/详情路由参数。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowWorkbenchRowRoute"
+        ]
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/index.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/index.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/index",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/index.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/index.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/index",
+        "jsdoc": "app 的 lowcode/resources/system/workflow/manage/index 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
         "symbols": []
       }
     },
@@ -18949,7 +19416,7 @@
         "packageName": "app",
         "modulePath": "views/features/shared/runtime/use-feature-page-runtime",
         "jsdoc": "@module app:views/features/shared/runtime/use-feature-page-runtime\n职责：按导航身份装配功能页的正式运行实例并加载主视图；可在同一实例内一并装配伙伴数据空间。\n边界：校验导航身份并释放过期实例，不承载页面字段或业务数据副本；主场景始终是 scenarioId。\nAI用途：原生功能页以一个主模型视图为入口时复用；navigationId 允许页面以独立导航身份消费其他空间。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
@@ -19043,6 +19510,302 @@
         "packageName": "app",
         "modulePath": "views/features/system/flow-monitor/ui/flow-monitor-page",
         "jsdoc": "@module app:views/features/system/flow-monitor/ui/flow-monitor-page\n职责：恢复流程监控列表：按应用名称、流程标题、流程状态查询，分页显示办理信息、创建人及创建时间。\n边界：列表与选项绑定同一PageRuntime的正式DataView；办理信息由DataTable计算列派生，创建人经用户选项视图显示姓名。流程运行详情随工作流运行页迁移。\nAI用途：迁移系统运维流程监控时，核对状态字典、创建人映射与查询条件。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts": {
+      "file": "files/src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-append-user/model/flow-append-user-model",
+        "sourcePath": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
+        "sourceFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-append-user/model/flow-append-user-model",
+        "jsdoc": "@module app:views/features/workflow/flow-append-user/model/flow-append-user-model\n职责：追加办理人领域规则（可撤回、选人校验、提交载荷），对齐参考 flow-append-user-model。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowAppendPersonValue"
+        ]
+      }
+    },
+    "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue": {
+      "file": "files/src/views/features/workflow/flow-append-user/ui/flow-append-user.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-append-user/ui/flow-append-user",
+        "sourcePath": "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue",
+        "sourceFile": "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-append-user/ui/flow-append-user",
+        "jsdoc": "@module app:views/features/workflow/flow-append-user/ui/flow-append-user\n职责：流程参与人追加（列表、加人、撤回）；嵌入办理页或对话框宿主。\n边界：写操作经 lowcode FlowAppendUserClient；列表消费监控场景步骤 DataView。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts": {
+      "file": "files/src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-append-user/ui/use-flow-append-user",
+        "sourcePath": "src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts",
+        "sourceFile": "src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-append-user/ui/use-flow-append-user",
+        "jsdoc": "@module app:views/features/workflow/flow-append-user/ui/use-flow-append-user\n职责：追加办理列表、加人对话框与撤回；列表来自步骤 DataView，写操作经 lowcode 客户端。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "UseFlowAppendUserOptions"
+        ]
+      }
+    },
+    "src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue": {
+      "file": "files/src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel",
+        "sourcePath": "src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue",
+        "sourceFile": "src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel",
+        "jsdoc": "@module app:views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel\n职责：流程设计连线列表，绑定父级已刷新的 WFM_NODE_REALATION 正式视图。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue": {
+      "file": "files/src/views/features/workflow/flow-model/design/ui/flow-design-page.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-model/design/ui/flow-design-page",
+        "sourcePath": "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue",
+        "sourceFile": "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-model/design/ui/flow-design-page",
+        "jsdoc": "@module app:views/features/workflow/flow-model/design/ui/flow-design-page\n职责：按目标模型 rowid 打开流程设计工作区，可拖拽布局的 RendererGraph + 节点/边列表。\n边界：消费父 PAGE_RUNTIME；布局来自 DesignJson 投影与会话内覆盖；保存走 saveFlowDesignInfo。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue": {
+      "file": "files/src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel",
+        "sourcePath": "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue",
+        "sourceFile": "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel",
+        "jsdoc": "@module app:views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel\n职责：流程设计关联表单列表，绑定 WFM_WORKFORM 正式视图。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-auth-panel.vue": {
+      "file": "files/src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-auth-panel.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-auth-panel",
+        "sourcePath": "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-auth-panel.vue",
+        "sourceFile": "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-auth-panel.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-auth-panel",
+        "jsdoc": "@module app:views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-auth-panel\n职责：选中节点的 FunctionNodeAuth 授权行，绑定设计场景 nodeAuth 视图。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue": {
+      "file": "files/src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel",
+        "sourcePath": "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue",
+        "sourceFile": "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel",
+        "jsdoc": "@module app:views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel\n职责：流程设计节点列表，绑定父级已刷新的 WFM_FLOW_NODE 正式视图。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight.ts": {
+      "file": "files/src/views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight.ts.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight",
+        "sourcePath": "src/views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight.ts",
+        "sourceFile": "src/views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight.ts",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight",
+        "jsdoc": "@module app:views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight\n职责：将图选中 id 同步到已绑定 DataView 的当前行（表格高亮）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue": {
+      "file": "files/src/views/features/workflow/flow-model/ui/flow-model-list-page.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-model/ui/flow-model-list-page",
+        "sourcePath": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",
+        "sourceFile": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-model/ui/flow-model-list-page",
+        "jsdoc": "@module app:views/features/workflow/flow-model/ui/flow-model-list-page\n职责：流程模型目录查询、分页、新建编辑删除与设计入口。\n边界：列表与选项绑定 87F0 正式 DataView；设计对话框消费 6E462 设计场景。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue": {
+      "file": "files/src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page",
+        "sourcePath": "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue",
+        "sourceFile": "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page",
+        "jsdoc": "@module app:views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page\n职责：业务表单 + 流程摘要只读页，与办理页共用监控场景装配。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue": {
+      "file": "files/src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page",
+        "sourcePath": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
+        "sourceFile": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page",
+        "jsdoc": "@module app:views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page\n职责：流程运行详情：实例摘要、只读运行图与节点/连线步骤钻取弹窗。\n边界：消费监控场景与伙伴设计场景；不含强退与办理写入。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue": {
+      "file": "files/src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table",
+        "sourcePath": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue",
+        "sourceFile": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table",
+        "jsdoc": "@module app:views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table\n职责：运行详情钻取弹窗内的步骤子集表格（内存行，不另开 DataView）。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts": {
+      "file": "files/src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page",
+        "sourcePath": "src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts",
+        "sourceFile": "src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page",
+        "jsdoc": "@module app:views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page\n职责：运行详情只读图加载与节点/连线步骤钻取弹窗状态。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "FlowRunDetailRouteQuery"
+        ]
+      }
+    },
+    "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab.ts": {
+      "file": "files/src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab.ts.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab",
+        "sourcePath": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab.ts",
+        "sourceFile": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab.ts",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab",
+        "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab\n职责：办理页业务页签路由解析与业务组件暴露注册。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FlowRunBusinessTab",
+          "FlowRunBusinessTabSeed",
+          "FlowRunBusinessPageExpose"
+        ]
+      }
+    },
+    "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue": {
+      "file": "files/src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile",
+        "sourcePath": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue",
+        "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile",
+        "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile\n职责：流程办理移动端布局占位，与桌面页共用运行 query 合同。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue": {
+      "file": "files/src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page",
+        "sourcePath": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
+        "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-runtime/run-page/ui/flow-run-page",
+        "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page\n职责：流程办理桌面页：业务页签、办理侧栏、提交/退回与加签/流程图对话框。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue": {
+      "file": "files/src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer",
+        "sourcePath": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue",
+        "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer",
+        "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer\n职责：在办理页内按已解析路由挂载业务 Vue 页，并向注册表暴露 flowSubmit* 回调。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page.ts": {
+      "file": "files/src/views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page.ts.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page",
+        "sourcePath": "src/views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page.ts",
+        "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page.ts",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page",
+        "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page\n职责：办理页装配、办理侧栏与提交流程编排。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-workbench/model/use-flow-workbench-todo.ts": {
+      "file": "files/src/views/features/workflow/flow-workbench/model/use-flow-workbench-todo.ts.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-workbench/model/use-flow-workbench-todo",
+        "sourcePath": "src/views/features/workflow/flow-workbench/model/use-flow-workbench-todo.ts",
+        "sourceFile": "src/views/features/workflow/flow-workbench/model/use-flow-workbench-todo.ts",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-workbench/model/use-flow-workbench-todo",
+        "jsdoc": "@module app:views/features/workflow/flow-workbench/model/use-flow-workbench-todo\n职责：工作台四页签绑定与列定义。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile.vue": {
+      "file": "files/src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile",
+        "sourcePath": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile.vue",
+        "sourceFile": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile",
+        "jsdoc": "@module app:views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile\n职责：工作台待办移动端面板占位。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel.vue": {
+      "file": "files/src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel.vue.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel",
+        "sourcePath": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel.vue",
+        "sourceFile": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel.vue",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel",
+        "jsdoc": "@module app:views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel\n职责：流程工作台四页签列表，消费 pagedata 命名视图并提供办理/详情入口。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -19207,6 +19970,22 @@
     "ActivateProjectPlanningAgentWorkflowOptions": {
       "sourcePath": "src/services/ai/agent-workflow-bindings.ts",
       "file": "files/src/services/ai/agent-workflow-bindings.ts.json"
+    },
+    "AddFlowDesignEdgeCommand": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts.json"
+    },
+    "AddFlowDesignEdgeResult": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts.json"
+    },
+    "AddFlowDesignNodeCommand": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts.json"
+    },
+    "AddFlowDesignNodeResult": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts.json"
     },
     "AddRowHandler": {
       "sourcePath": "packages/spark-component/src/components/containers/support/interactionControl.ts",
@@ -22688,6 +23467,182 @@
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
     },
+    "FlowAppendPersonValue": {
+      "sourcePath": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
+      "file": "files/src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts.json"
+    },
+    "FlowAppendUserClient": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts.json"
+    },
+    "FlowAppendUserClientOptions": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts.json"
+    },
+    "FlowAppendUserContext": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts.json"
+    },
+    "FlowAppendUserExecConfig": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts.json"
+    },
+    "FlowAppendUserExecUserCandidate": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts.json"
+    },
+    "FlowAppendUserListRecord": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts.json"
+    },
+    "FlowAppendUserRequestScope": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts.json"
+    },
+    "FlowDesignClientOptions": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-client.ts.json"
+    },
+    "FlowDesignFileContext": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts.json"
+    },
+    "FlowDesignGraphLayout": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts.json"
+    },
+    "FlowDesignGraphLayoutInput": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts.json"
+    },
+    "FlowDesignLayoutOverride": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts.json"
+    },
+    "FlowDesignNodeAuthRowSeed": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts.json"
+    },
+    "FlowDesignPlatformFileApi": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts.json"
+    },
+    "FlowDesignPreparedViews": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts.json"
+    },
+    "FlowModelListResult": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-model-manager.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-model-manager.ts.json"
+    },
+    "FlowRequestScope": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-http.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-http.ts.json"
+    },
+    "FlowRunBackParams": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts.json"
+    },
+    "FlowRunBusinessPageExpose": {
+      "sourcePath": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab.ts",
+      "file": "files/src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab.ts.json"
+    },
+    "FlowRunBusinessTab": {
+      "sourcePath": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab.ts",
+      "file": "files/src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab.ts.json"
+    },
+    "FlowRunBusinessTabSeed": {
+      "sourcePath": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab.ts",
+      "file": "files/src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab.ts.json"
+    },
+    "FlowRunDetailPreparedPage": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime.ts.json"
+    },
+    "FlowRunDetailRouteQuery": {
+      "sourcePath": "src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts",
+      "file": "files/src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts.json"
+    },
+    "FlowRunDetailStepRow": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps.ts.json"
+    },
+    "FlowRunDetailWaitingRow": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps.ts.json"
+    },
+    "FlowRunFormRecord": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts.json"
+    },
+    "FlowRunGraphNodeBadges": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts.json"
+    },
+    "FlowRunHandleNodeOption": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts.json"
+    },
+    "FlowRunHandleOptionParams": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts.json"
+    },
+    "FlowRunNodeBadge": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts.json"
+    },
+    "FlowRunPageClient": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts.json"
+    },
+    "FlowRunPageClientOptions": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts.json"
+    },
+    "FlowRunPageRoute": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-runtime-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-runtime-client.ts.json"
+    },
+    "FlowRunPreparedPage": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts.json"
+    },
+    "FlowRunSubmitNode": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts.json"
+    },
+    "FlowRunSubmitParams": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts.json"
+    },
+    "FlowRuntimeRouteQuery": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-runtime-client.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-runtime-client.ts.json"
+    },
+    "FlowWorkbenchFilterExpression": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts.json"
+    },
+    "FlowWorkbenchFilterLeaf": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts.json"
+    },
+    "FlowWorkbenchRowRoute": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row.ts.json"
+    },
+    "FlowWorkbenchTab": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts.json"
+    },
+    "FlowWorkbenchTabBinding": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts.json"
+    },
+    "FlowWorkFormPayloadRow": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts.json"
+    },
     "FormalField": {
       "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
       "file": "files/src/lowcode/resources/structured-config/dimension-source/view-support.ts.json"
@@ -24300,6 +25255,14 @@
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts.json"
     },
+    "PrepareFlowRunDetailPageCommand": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime.ts.json"
+    },
+    "PrepareFlowRunPageCommand": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts.json"
+    },
     "PrimaryKeyDelegate": {
       "sourcePath": "packages/spark-data/src/strategies/primary-key-delegate.ts",
       "file": "files/packages/spark-data/src/strategies/primary-key-delegate.ts.json"
@@ -24692,6 +25655,10 @@
       "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererDropdown/RendererDropdown.props.ts",
       "file": "files/packages/spark-component/src/components/containers/layout/overlay/RendererDropdown/RendererDropdown.props.ts.json"
     },
+    "ReadFlowDesignDataJsonCommand": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts.json"
+    },
     "ReasoningDisplayItem": {
       "sourcePath": "packages/spark-component/src/ai/types.ts",
       "file": "files/packages/spark-component/src/ai/types.ts.json"
@@ -24715,6 +25682,14 @@
     "RegistrationDefaultFieldsNotAppliedError": {
       "sourcePath": "src/lowcode/resources/database/dataset-extensions.ts",
       "file": "files/src/lowcode/resources/database/dataset-extensions.ts.json"
+    },
+    "RemoveFlowDesignGraphSelectionCommand": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts.json"
+    },
+    "RemoveFlowDesignGraphSelectionResult": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts.json"
     },
     "RemoveRowHandler": {
       "sourcePath": "packages/spark-component/src/components/containers/support/interactionControl.ts",
@@ -24863,6 +25838,10 @@
     "ResolvedViewRef": {
       "sourcePath": "packages/spark-component/src/components/containers/data-views/view-runtime-state.ts",
       "file": "files/packages/spark-component/src/components/containers/data-views/view-runtime-state.ts.json"
+    },
+    "ResolveFlowDesignFileContextCommand": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts.json"
     },
     "ResolvePageDesignPlanningContextOptions": {
       "sourcePath": "src/services/page-design/page-design-agent-workflow-binding.ts",
@@ -25195,6 +26174,14 @@
     "SaveDataSetAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
+    },
+    "SaveFlowDesignCommand": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts.json"
+    },
+    "SaveFlowWorkFormRelationCommand": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts.json"
     },
     "SaveRuleValidator": {
       "sourcePath": "packages/spark-data/src/validation/save-rule-validator.ts",
@@ -25812,6 +26799,14 @@
       "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts",
       "file": "files/packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts.json"
     },
+    "SyncFlowDesignNodeAuthCommand": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts.json"
+    },
+    "SyncFlowDesignTablesCommand": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts.json"
+    },
     "SystemPageIdentityCompanion": {
       "sourcePath": "packages/spark-app/src/router/dynamic.ts",
       "file": "files/packages/spark-app/src/router/dynamic.ts.json"
@@ -26024,6 +27019,10 @@
       "sourcePath": "packages/spark-component/src/components/containers/runtime/container-layout.ts",
       "file": "files/packages/spark-component/src/components/containers/runtime/container-layout.ts.json"
     },
+    "UseFlowAppendUserOptions": {
+      "sourcePath": "src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts",
+      "file": "files/src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts.json"
+    },
     "UsePermissionBinding": {
       "sourcePath": "packages/spark-component/src/permission/usePermission.ts",
       "file": "files/packages/spark-component/src/permission/usePermission.ts.json"
@@ -26227,6 +27226,10 @@
     "WorkflowExecutionResource": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts.json"
+    },
+    "WorkflowFlowModelManager": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-model-manager.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-model-manager.ts.json"
     },
     "WorkflowLayoutDocument": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/layout/layout-document.ts",

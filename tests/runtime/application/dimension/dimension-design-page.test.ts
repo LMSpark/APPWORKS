@@ -18,7 +18,7 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
     if (!state.runtime) throw new Error('缺少测试运行实例')
     const {sparkProvide} = useSparkComponent({type: 'dimension-test-runtime'})
     sparkProvide(PAGE_RUNTIME, state.runtime)
-    return {viewKey: keys.binding, session: {runtime: state.runtime},
+    return {viewKey: ref(keys.binding), session: {runtime: state.runtime},
       ready: ref(true), loading: ref(false), error: ref(''), loadCurrentRoute: vi.fn()}
   }}
 })

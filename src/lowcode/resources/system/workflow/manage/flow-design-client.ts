@@ -12,7 +12,7 @@ export type FlowDesignClientOptions = Readonly<{
 
 /** 设计页装配前校验目标模型身份。 */
 export function assertFlowDesignTarget(options: FlowDesignClientOptions): string {
-  const flowModelId = String(options.flowModelId ?? '').trim()
+  const flowModelId = typeof options.flowModelId === 'string' ? options.flowModelId.trim() : ''
   if (!flowModelId) throw new Error('流程设计缺少目标模型 rowid')
   options.assertCurrent?.()
   return flowModelId

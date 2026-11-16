@@ -104,7 +104,7 @@ type RowRenderContext = Readonly<{row?: DataRow | null; dataSource?: DataView | 
 type RowGuard = (row: DataRow, view: DataView) => boolean
 type RowButtonOptions = Readonly<{visible?: RowGuard; buttonType?: string; permAction?: 'edit' | 'delete'}>
 const rowButton = (label: string, onClick: (row: DataRow) => unknown, options: RowButtonOptions = {}): SparkNode =>
-  ({type: 'r-button', props: {dataViewKey: viewKey, label, link: true, buttonType: options.buttonType ?? 'primary', disabled: blocked.value, onClick,
+  ({type: 'r-button', props: {dataViewKey: viewKey.value, label, link: true, buttonType: options.buttonType ?? 'primary', disabled: blocked.value, onClick,
     ...(options.permAction ? {permAction: options.permAction} : {}),
     ...(options.visible ? {onBeforeRender: ({row, dataSource}: RowRenderContext) =>
       Boolean(row && dataSource && options.visible?.(row, dataSource))} : {})}})

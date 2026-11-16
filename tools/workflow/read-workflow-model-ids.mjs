@@ -1,72 +1,31 @@
 #!/usr/bin/env node
 /**
  * 只读拉取 workflow 场景 WFM_* 正式 modelId，输出 JSON 供 pagedata 粘贴。
- * 用法：SPARK_BASE_URL=http://localhost:5273 SPARK_TOKEN=... SPARK_APP_ID=... node tools/workflow/read-workflow-model-ids.mjs
  */
 import {loadSparkEnvFromLocal} from './load-spark-env.mjs'
+import {ensureSparkEnvFromSession} from './resolve-spark-session.mjs'
+import {buildSparkAuthHeaders, loadSparkHttpContext, WORKFLOW_METADATA_DESIGN_FORM_KEY} from './spark-http-headers.mjs'
+import {listMissingModels, readWorkflowModelMap} from './workflow-metadata-models.mjs'
 
 loadSparkEnvFromLocal()
+await ensureSparkEnvFromSession()
 
-const baseUrl = String(process.env.SPARK_BASE_URL ?? '').replace(/\/$/, '')
-const token = String(process.env.SPARK_TOKEN ?? '').trim()
-const appId = String(process.env.SPARK_APP_ID ?? '').trim()
-
-const scenarios = [
-  {key: 'flowModelList', scenarioId: '87F0EF6AD1B64D67FFE597E7E3285994'},
-  {key: 'flowDesign', scenarioId: '6E462C4A39EE0D96F4D1A28FFE887C89'},
-]
-const scenarioModelNames = {
-  flowModelList: ['WFM_FLOW_MODLE'],
-  flowDesign: [
-    'WFM_FLOW_MODLE',
-    'WFM_FLOW_NODE',
-    'WFM_NODE_REALATION',
-    'WFM_WORKFORM',
-    'FunctionNodeAuth',
-    '_Base_FunctionNode',
-  ],
-}
+const {baseUrl, token, appId} = loadSparkHttpContext()
 
 if (!baseUrl || !token || !appId) {
   console.error('缺少 SPARK_BASE_URL / SPARK_TOKEN / SPARK_APP_ID')
   process.exit(1)
 }
 
-async function postJson(path, body) {
-  const response = await fetch(`${baseUrl}${path}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      'X-AppId': appId,
-    },
-    body: JSON.stringify(body),
-  })
-  const json = await response.json()
-  if (!response.ok || (typeof json?.Code === 'number' && json.Code !== 200)) {
-    throw new Error(json?.Message ?? `HTTP ${response.status}`)
-  }
-  return json.Result ?? json
-}
-
-async function readModels(scenarioKey, scenarioId) {
-  const payload = await postJson('/api/DataSpaceDesign/ReadModelBatch', {dataSpaceId: scenarioId})
-  const models = Array.isArray(payload) ? payload : payload?.models
-  if (!Array.isArray(models)) throw new Error(`场景 ${scenarioId} 未返回模型数组`)
-  const picked = {}
-  for (const name of scenarioModelNames[scenarioKey] ?? []) {
-    const hit = models.find(item => String(item?.Name ?? item?.name ?? '').trim() === name)
-    const modelId = String(hit?.rowid ?? hit?.RowID ?? hit?.modelId ?? '').trim()
-    if (modelId) picked[name] = modelId
-  }
-  return picked
-}
-
 async function main() {
-  const output = {readAt: new Date().toISOString(), scenarios: {}}
-  for (const entry of scenarios) {
-    output.scenarios[entry.key] = {scenarioId: entry.scenarioId, models: await readModels(entry.key, entry.scenarioId)}
+  const output = await readWorkflowModelMap({baseUrl, headers: buildSparkAuthHeaders()})
+  const missing = listMissingModels(output)
+  if (missing.length) {
+    throw new Error(`实服未返回 modelId: ${missing.join(', ')}（元数据 Base_DataModel 缺登记或 dataSetId 不一致）`)
   }
+  output.readAt = new Date().toISOString()
+  output.designFormKey = WORKFLOW_METADATA_DESIGN_FORM_KEY
+  output.transport = 'DataOperation/GetData+pagedScan'
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`)
 }
 

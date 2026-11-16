@@ -29,5 +29,9 @@ export function loadSparkEnvFromLocal() {
     process.env[key] = stripQuotes(match[2])
     loaded += 1
   }
+  if (!process.env.SPARK_BASE_URL?.trim() && process.env.LOWCODE_GATEWAY_URL?.trim()) {
+    process.env.SPARK_BASE_URL = stripQuotes(process.env.LOWCODE_GATEWAY_URL)
+    loaded += 1
+  }
   return loaded > 0
 }

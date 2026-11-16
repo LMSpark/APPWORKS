@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-append-user/ui/flow-append-user",
+    "sourcePath": "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue",
+    "sourceFile": "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-append-user/ui/flow-append-user",
+    "jsdoc": "@module app:views/features/workflow/flow-append-user/ui/flow-append-user\n职责：流程参与人追加（列表、加人、撤回）；嵌入办理页或对话框宿主。\n边界：写操作经 lowcode FlowAppendUserClient；列表消费监控场景步骤 DataView。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-14T16:59:18.370Z",
+  "models": {}
+}

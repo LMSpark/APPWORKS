@@ -444,18 +444,20 @@
     {
       "path": "/features/workflow/flow-runtime/detail/ui/flow-run-detail-page",
       "title": "流程运行详情",
-      "scope": "app",
+      "scope": "enterprise",
       "source": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
       "hidden": true,
-      "dataSpaceId": "E328FBBF518141973C575D612CD75151"
+      "dataSpaceId": "E328FBBF518141973C575D612CD75151",
+      "identityHost": "/features/system/flow-monitor/ui/flow-monitor-page"
     },
     {
       "path": "/features/workflow/flow-runtime/run-page/ui/flow-run-page",
       "title": "流程办理",
-      "scope": "app",
+      "scope": "enterprise",
       "source": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
       "hidden": true,
-      "dataSpaceId": "E328FBBF518141973C575D612CD75151"
+      "dataSpaceId": "E328FBBF518141973C575D612CD75151",
+      "identityHost": "/features/system/flow-monitor/ui/flow-monitor-page"
     },
     {
       "path": "/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile",
@@ -475,9 +477,11 @@
     {
       "path": "/features/workflow/flow-workbench/ui/flow-workbench-todo-panel",
       "title": "流程待办",
-      "scope": "app",
+      "scope": "enterprise",
       "source": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel.vue",
-      "hidden": true
+      "hidden": true,
+      "dataSpaceId": "A5BADCEE11D2438CB9E75C2453A220A6",
+      "identityHost": "/features/system/flow-monitor/ui/flow-monitor-page"
     },
     {
       "path": "/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile",

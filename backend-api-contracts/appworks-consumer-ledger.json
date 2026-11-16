@@ -7,7 +7,7 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 242,
+  "consumerCount": 243,
   "directUnmatchedCount": 129,
   "consumers": [
     {
@@ -1457,9 +1457,15 @@
       "scope": "app-composition"
     },
     {
-      "expression": "/api/DataSpaceDesign/ReadModelBatch",
-      "sourceFile": "tools/workflow/read-workflow-model-ids.mjs",
-      "sourceLine": 53,
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "tools/workflow/probe-workflow-metadata.mjs",
+      "sourceLine": 119,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "sourceFile": "tools/workflow/workflow-formal-pk-batch.mjs",
+      "sourceLine": 7,
       "scope": "tooling"
     }
   ]

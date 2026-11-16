@@ -1,0 +1,58 @@
+{
+  "round": 16,
+  "probedAt": "2026-11-15T23:32:27.115Z",
+  "devBaseUrl": "http://127.0.0.1:5273",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "manualSpa": {
+    "workbenchFourTabs": "fail",
+    "designNodeAuthSaveReopen": "fail",
+    "runSubmitOrBack": "fail",
+    "detailToRunPage": "fail"
+  },
+  "manualSpaNotes": {
+    "workbenchFourTabs": "E328 隐藏页已解析身份并显示四 tab；待处理装配报 WFOBJ_FLOW 缺少 views.default（已补 default 待 HMR 复验）",
+    "designNodeAuthSaveReopen": "flow-model-list 报 WFM_FLOW_MODLE 正式主键无法映射到唯一有效输出字段（87F0 p000 元数据）",
+    "runSubmitOrBack": "监控→办理 URL+__sparkNavigationId 正确；伴随页 identityHost=flow-monitor 后不再「无法确定系统页面」，但办理区仅标题壳层",
+    "detailToRunPage": "监控→运行详情 URL 正确；页内报正式主键无法映射（含伙伴空间模型装配失败）"
+  },
+  "networkSamples": {
+    "getStepHistory": {
+      "wfId": "F524CFF931DD41A6873F6B81D9D75563",
+      "stepId": "40D887FF34CF4CE19A79CBB180429BBE",
+      "code": 200,
+      "source": "workflow-step-history-sample.mjs"
+    }
+  },
+  "steps": [
+    {
+      "route": "session",
+      "result": "pass",
+      "note": "已登录 王涛，D99"
+    },
+    {
+      "route": "flow-model-list?__sparkNavigationId=87F0…",
+      "result": "fail",
+      "note": "WFM_FLOW_MODLE 正式主键无法映射"
+    },
+    {
+      "route": "flow-monitor?__sparkNavigationId=E328…",
+      "result": "pass",
+      "note": "15 行列表"
+    },
+    {
+      "route": "flow-workbench-todo-panel?__sparkNavigationId=E328…",
+      "result": "fail",
+      "note": "四 tab 可见；WFOBJ_FLOW 缺少 views.default"
+    },
+    {
+      "route": "flow-monitor → 办理",
+      "result": "fail",
+      "note": "路由与导航身份 OK；办理内容未装配"
+    },
+    {
+      "route": "flow-monitor → 运行详情",
+      "result": "fail",
+      "note": "路由 OK；正式主键映射失败"
+    }
+  ]
+}

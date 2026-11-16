@@ -24,7 +24,7 @@ export async function syncFlowDesignNodeAuthView(command: SyncFlowDesignNodeAuth
     flowModelId: command.flowModelId,
     ...(command.assertCurrent ? {assertCurrent: command.assertCurrent} : {}),
   })
-  const nodeId = String(command.selectedNodeId ?? '').trim()
+  const nodeId = typeof command.selectedNodeId === 'string' ? command.selectedNodeId.trim() : ''
   command.assertCurrent?.()
   const dataSet = command.runtime.getDataSet(FLOW_DESIGN_SCENARIO_ID)
   if (!dataSet) throw new Error('流程设计场景尚未装配')
@@ -55,8 +55,8 @@ export type FlowDesignNodeAuthRowSeed = Readonly<{
 
 /** 新增节点权限行时的默认字段（保存前仍须走 DataView 编辑链）。 */
 export function defaultFlowDesignNodeAuthRow(seed: FlowDesignNodeAuthRowSeed): Record<string, unknown> {
-  const pageId = String(seed.flowModelId ?? '').trim()
-  const nodeId = String(seed.selectedNodeId ?? '').trim()
+  const pageId = typeof seed.flowModelId === 'string' ? seed.flowModelId.trim() : ''
+  const nodeId = typeof seed.selectedNodeId === 'string' ? seed.selectedNodeId.trim() : ''
   if (!pageId || !nodeId) throw new Error('新增节点权限缺少流程或节点身份')
   return {contenttype: 1, pageID: pageId, FunCodeID: nodeId, status: 1}
 }

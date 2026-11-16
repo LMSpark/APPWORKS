@@ -49,6 +49,18 @@ describe('repository-backed system scenario resources', () => {
     expect(resolveSystemScenarioResource(scenarioIds[0]!)).not.toBeNull()
     expect(resolveSystemScenarioResource('UNREGISTERED')).toBeNull()
   })
+
+  it('materializes __SCENARIO__ token for workflow repository pagedata', async () => {
+    const scenarioId = '6E462C4A39EE0D96F4D1A28FFE887C89'
+    const resource = resolveSystemScenarioResource(scenarioId)
+    expect(resource).not.toBeNull()
+    const raw = readFileSync(resource!.path, 'utf8')
+    expect(raw).toContain('"scenarioId": "__SCENARIO__"')
+    await stubHostResponses([{resourceId: resource!.resourceId, scenarioId, text: raw}])
+    const text = await readRepositoryScenarioText(resource!, () => undefined)
+    expect(JSON.parse(text).scenarioId).toBe(scenarioId)
+    expect(new ScenarioViewConfig(scenarioId, text).scenarioId).toBe(scenarioId)
+  })
 })
 
 afterEach(() => {vi.unstubAllEnvs(); vi.unstubAllGlobals()})

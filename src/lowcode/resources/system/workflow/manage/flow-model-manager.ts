@@ -4,6 +4,7 @@
  * 边界：经 spark-data DataView 提交变更，不从前端 Vue 直接调用 lowcodeApi。
  */
 import {DataViewFilter, type DataView, type DataRow, RequestState} from '@spark-appworks/spark-data'
+import {isRecord} from '@spark-appworks/spark-utils'
 
 export type FlowModelListResult = Readonly<{
   unresolvedCreateUserIds: readonly string[]
@@ -66,7 +67,7 @@ export class WorkflowFlowModelManager {
     this.#assertCurrent()
     if (!this.canAdd()) throw new Error('当前不允许新增流程模型')
     const row = await this.#view.addRow({})
-    if (!row || typeof row !== 'object') throw new Error('无法开始新增流程模型')
+    if (!isRecord(row)) throw new Error('无法开始新增流程模型')
     this.#view.setCurrentRow(row)
   }
 
@@ -82,7 +83,7 @@ export class WorkflowFlowModelManager {
     if (!dataSet) throw new Error('流程模型 DataSet 已失效')
     const result = await dataSet.saveChanges()
     this.#assertCurrent()
-    if (result && !result.success) throw result.error ?? new Error(result.message ?? '保存流程模型失败')
+    if (!result.success) throw result.error ?? new Error(result.message ?? '保存流程模型失败')
     await this.refresh()
   }
 
@@ -96,7 +97,7 @@ export class WorkflowFlowModelManager {
     if (!dataSet) throw new Error('流程模型 DataSet 已失效')
     const result = await dataSet.saveChanges()
     this.#assertCurrent()
-    if (result && !result.success) throw result.error ?? new Error(result.message ?? '保存流程模型失败')
+    if (!result.success) throw result.error ?? new Error(result.message ?? '保存流程模型失败')
     await this.refresh()
   }
 

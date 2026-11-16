@@ -10,6 +10,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
+import { computed } from 'vue'
 import { resolvePlaceholderProps } from '../../../packages/spark-component/src/core/useSparkComponent'
 
 describe('resolvePlaceholderProps', () => {
@@ -142,5 +143,42 @@ describe('resolvePlaceholderProps', () => {
     const props = { style, label: '$[name]' }
     const resolved = resolvePlaceholderProps(props, row)
     expect(resolved['style']).toBe(style) // 无占位符的嵌套对象保持原引用
+  })
+
+  it('preserves runtime computed refs without traversing or interpolating their internal state', () => {
+    const binding = computed(() => '$[name]')
+    const props = { binding, label: '$[name]' }
+    const resolved = resolvePlaceholderProps(props, row)
+    expect(resolved['label']).toBe('张三')
+    expect(resolved['binding']).toBe(binding)
+    expect(binding.value).toBe('$[name]')
+  })
+
+  it('returns cyclic objects and arrays unchanged when they contain no placeholders', () => {
+    const props: Record<string, unknown> = { label: '普通文本' }
+    const items: unknown[] = [props]
+    props['self'] = props
+    props['items'] = items
+    items.push(items)
+    expect(resolvePlaceholderProps(props, row)).toBe(props)
+  })
+
+  it('resolves cyclic configuration while retaining shared references without changing the source', () => {
+    const shared: Record<string, unknown> = { label: '$[name]' }
+    const items: unknown[] = [shared, '$[age]']
+    const props: Record<string, unknown> = { first: shared, second: shared, items }
+    shared['parent'] = props
+    items.length = 3
+    items.push(items)
+    const resolved = resolvePlaceholderProps(props, row)
+    expect(resolved).not.toBe(props)
+    expect(resolved['first']).toEqual({ label: '张三', parent: resolved })
+    expect(resolved['first']).toBe(resolved['second'])
+    expect(resolved['items']).toEqual([resolved['first'], 25, undefined, resolved['items']])
+    expect(resolved['items']).not.toHaveProperty('2')
+    expect(shared['label']).toBe('$[name]')
+    expect(shared['parent']).toBe(props)
+    expect(items).toEqual([shared, '$[age]', undefined, items])
+    expect(items).not.toHaveProperty('2')
   })
 })

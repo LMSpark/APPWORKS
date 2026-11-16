@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/application/project-blueprint-document",
+    "sourcePath": "src/lowcode/resources/application/project-blueprint-document.ts",
+    "sourceFile": "src/lowcode/resources/application/project-blueprint-document.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/application/project-blueprint-document",
+    "jsdoc": "@module app:lowcode/resources/application/project-blueprint-document\n职责：承接蓝图 legacy 文档导出提交，供应用管理/蓝图工作台消费。\n边界：只返回 submitted 回执，不表示文件已生成；HTTP 留在 lowcode 网关内。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-14T14:02:22.106Z",
+  "models": {}
+}

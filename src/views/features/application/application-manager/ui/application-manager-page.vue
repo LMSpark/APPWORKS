@@ -76,7 +76,7 @@ const notDelivered = (label: string) => () => pageService.showMessage(`${label}�
 const header = computed(() => ({children: [
   {type: 'r-button', props: {label: '新增', buttonType: 'primary', disabled: !ready.value || busy.value, onClick: openCreate}},
   {type: 'r-button', props: {label: '导出', onClick: notDelivered('导出')}},
-  ...(ready.value ? [{type: 'r-button', props: {dataViewKey: viewKey, label: '刷新', action: 'refresh'}}] : []),
+  ...(ready.value ? [{type: 'r-button', props: {dataViewKey: viewKey.value, label: '刷新', action: 'refresh'}}] : []),
 ]}))
 const column = (field: string, label: string, props: Record<string, unknown>): SparkNode =>
   ({type: 'r-text', props: {field, label, readonly: true, showOverflowTooltip: true, ...props}})
@@ -106,7 +106,7 @@ type RowButtonOptions = Readonly<{visible?: RowGuard; buttonType?: string; disab
 type ApplicationTarget = Readonly<{path: string; query?: Record<string, string>}>
 type RowRenderContext = Readonly<{row?: DataRow | null; dataSource?: DataView | null}>
 const rowButton = (label: string, onClick: (row: DataRow) => unknown, options: RowButtonOptions = {}) =>
-  ({type: 'r-button', props: {dataViewKey: viewKey, label, link: true, onClick,
+  ({type: 'r-button', props: {dataViewKey: viewKey.value, label, link: true, onClick,
     ...(options.buttonType ? {buttonType: options.buttonType} : {}), ...(options.disabled ? {disabled: true} : {}),
     ...(options.visible ? {onBeforeRender: ({row, dataSource}: RowRenderContext) =>
       Boolean(row && dataSource && options.visible?.(row, dataSource))} : {})}})

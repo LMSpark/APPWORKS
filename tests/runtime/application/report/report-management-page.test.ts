@@ -4,6 +4,7 @@ import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
+import {getSparkNodeChildren} from '@spark-appworks/spark-data'
 import {RendererButton, RendererDialog, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createReportRuntime} from './report.fixture'
@@ -18,7 +19,7 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
     if (!state.runtime) throw new Error('缺少测试运行实例')
     const {sparkProvide} = useSparkComponent({type: 'report-test-runtime'})
     sparkProvide(PAGE_RUNTIME, state.runtime)
-    return {viewKey: `${scenario}@Base_ReportInfo@default`, session: {runtime: state.runtime},
+    return {viewKey: ref(`${scenario}@Base_ReportInfo@default`), session: {runtime: state.runtime},
       ready: ref(true), loading: ref(false), error: ref(''), loadCurrentRoute: vi.fn()}
   }}
 })
@@ -176,6 +177,17 @@ async function confirmBox(accept: boolean) {
   await flushPromises()
 }
 describe('报表多记录修改的失败收敛', () => {
+  it('行操作绑定报表目录的正式完整视图键', async () => {
+    const f = await open()
+    await seed(f)
+    const actions = getSparkNodeChildren(f.wrapper.getComponent(RendererTable).props('actions')?.children)
+    expect(actions).toHaveLength(4)
+    for (const action of actions) {
+      expect(typeof action.props?.['dataViewKey']).toBe('string')
+      expect(action.props?.['dataViewKey']).toBe(`${scenario}@Base_ReportInfo@default`)
+    }
+  })
+
   it('删除回执中断后锁定目录，核验原批次确认已删除且不重发', async () => {
     const f = await open()
     await seed(f)

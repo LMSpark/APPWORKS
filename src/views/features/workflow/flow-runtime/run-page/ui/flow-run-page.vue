@@ -4,7 +4,7 @@
 -->
 <template>
   <RendererSection class="flow-run-page" title="流程办理" :bordered="false" :grid-columns="1"
-    :status="pageLoading ? '正在加载办理页…' : ''" :error="pageError" :retryable="!pageLoading" @retry="loadPage">
+    :status="shellLoading ? '正在加载办理页…' : ''" :error="shellError" :retryable="!shellLoading" @retry="retryShell">
     <template v-if="prepared" #header-actions>
       <RendererButton label="流程图" @click="openFlowChart" />
       <RendererButton label="加签" @click="openAppendDialog" />
@@ -88,10 +88,13 @@
 </template>
 
 <script setup lang="ts">
+import {computed} from 'vue'
 import {useRoute} from 'vue-router'
 import {DisplayAlert, RendererButton, RendererDialog, RendererGraph, RendererSection, RendererTable} from '@spark-appworks/spark-component'
 import {
   FLOW_DESIGN_SCENARIO_ID,
+  FLOW_MONITOR_SCENARIO_ID,
+  FLOW_WORKBENCH_SCENARIO_ID,
   FLOW_RUN_GRAPH_NODE_BADGE_FIELD,
   readFlowRuntimeRouteQuery,
 } from '@/lowcode/resources/system/workflow/manage'
@@ -103,12 +106,18 @@ import {useFlowRunPage} from './use-flow-run-page'
 const scenarioId = 'E328FBBF518141973C575D612CD75151'
 const route = useRoute()
 const routeQuery = () => readFlowRuntimeRouteQuery(route.query)
-const {ready: runtimeReady} = useFeaturePageRuntime({
+const {
+  ready: runtimeReady,
+  loading: runtimeLoading,
+  error: runtimeError,
+  loadCurrentRoute: reloadFeatureRuntime,
+} = useFeaturePageRuntime({
   scenarioId,
+  navigationId: FLOW_MONITOR_SCENARIO_ID,
   modelName: 'View_FlowObjList',
   componentType: 'flow-run-page',
   title: '流程办理',
-  peerScenarioIds: [FLOW_DESIGN_SCENARIO_ID],
+  peerScenarioIds: [FLOW_DESIGN_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID],
   queryContext: () => ({rowid: routeQuery().wfid, WFOBJID: routeQuery().wfid}),
 })
 
@@ -148,6 +157,14 @@ const {
   stepViewKey,
   stepHistoryColumns,
 } = useFlowRunPage(routeQuery, () => runtimeReady.value)
+
+const shellLoading = computed(() => runtimeLoading.value || pageLoading.value)
+const shellError = computed(() => runtimeError.value || pageError.value)
+
+function retryShell(): void {
+  void reloadFeatureRuntime()
+  void loadPage()
+}
 
 const chartBadgeRules = [
   {field: FLOW_RUN_GRAPH_NODE_BADGE_FIELD, value: 'waiting', label: '待办', tone: 'warning' as const},

@@ -65,7 +65,7 @@ const ACTIVE_STEP_STATES = new Set(['0', '1'])
 
 /** 对齐参考 queryFlowAppendUserList 过滤：同关系组、LastStepID、StepState 0/1。 */
 export function filterFlowAppendUserList(
-  rows: readonly Record<string, unknown>[],
+  rows: ReadonlyArray<Record<string, unknown>>,
   context: Partial<FlowAppendUserContext> | null | undefined,
 ): FlowAppendUserListRecord[] {
   const normalized = normalizeFlowAppendUserContext(context)

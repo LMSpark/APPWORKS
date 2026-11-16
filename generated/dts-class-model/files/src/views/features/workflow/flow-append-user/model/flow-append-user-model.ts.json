@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-append-user/model/flow-append-user-model",
+    "sourcePath": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
+    "sourceFile": "src/views/features/workflow/flow-append-user/model/flow-append-user-model.ts",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-append-user/model/flow-append-user-model",
+    "jsdoc": "@module app:views/features/workflow/flow-append-user/model/flow-append-user-model\n职责：追加办理人领域规则（可撤回、选人校验、提交载荷），对齐参考 flow-append-user-model。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FlowAppendPersonValue"
+    ]
+  },
+  "$defs": {
+    "FlowAppendPersonValue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowAppendPersonValue",
+      "properties": {
+        "UserId": {
+          "type": "string"
+        },
+        "UserName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "UserId",
+        "UserName"
+      ],
+      "additionalProperties": false
+    },
+    "FlowAppendRecordState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowAppendRecordState",
+      "properties": {
+        "STATUS": {
+          "type": "string"
+        },
+        "StepState": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "STATUS",
+        "StepState"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-14T16:58:19.724Z",
+  "models": {
+    "FlowAppendPersonValue": {
+      "name": "FlowAppendPersonValue",
+      "jsdoc": "@module app:views/features/workflow/flow-append-user/model/flow-append-user-model\n职责：追加办理人领域规则（可撤回、选人校验、提交载荷），对齐参考 flow-append-user-model。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    UserId: string;\n    UserName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    UserId: string;\n    UserName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "UserId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "UserName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowAppendRecordState": {
+      "name": "FlowAppendRecordState",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    STATUS: string;\n    StepState: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    STATUS: string;\n    StepState: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "STATUS",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "StepState",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

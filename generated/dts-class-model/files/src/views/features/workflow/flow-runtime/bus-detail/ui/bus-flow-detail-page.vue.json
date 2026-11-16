@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page",
+    "sourcePath": "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue",
+    "sourceFile": "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page",
+    "jsdoc": "@module app:views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page\n职责：业务表单 + 流程摘要只读页，与办理页共用监控场景装配。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-15T23:14:13.651Z",
+  "models": {}
+}

@@ -39,7 +39,6 @@ type FeaturePageRuntimeOptions = Readonly<{
 /** 在路由的执行作用域（应用或目录）内加载主视图，切换或卸载时撤销原实例。 */
 export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
   const {scenarioId, componentType, title} = options
-  const navigationId = options.navigationId ?? scenarioId
   const resolveViewKey = () => buildDataViewKey(
     toValue(options.modelName),
     toValue(options.viewId ?? 'default'),
@@ -65,12 +64,14 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
     active && own === generation && session.isCurrent(runtime)
 
   async function loadCurrentRoute(): Promise<void> {
-    const {projectId, scenario, nodeId, state} = target.value
+    const {projectId, nodeId: nodeIdRaw, state} = target.value
+    const nodeId = typeof nodeIdRaw === 'string' ? nodeIdRaw.trim() : ''
     const own = ++generation
     ready.value = false; loading.value = true; error.value = ''; session.dispose()
     let current: ReturnType<NativePageRuntimeSession['acquire']> | undefined
     try {
-      if (!projectId || scenario !== scenarioId || nodeId !== navigationId || state !== 'resolved') {
+      const navigationId = options.navigationId ?? nodeId
+      if (!projectId || !nodeId || nodeId !== navigationId || state !== 'resolved') {
         throw new Error(`${title}入口缺少正式导航身份或数据空间绑定`)
       }
       if (peers.some(peer => !peer || peer === scenarioId) || new Set(peers).size !== peers.length) {
@@ -121,7 +122,7 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
     () => [toValue(options.modelName), toValue(options.viewId ?? 'default')] as const,
     (next, prev) => {
       viewKey.value = buildDataViewKey(next[0], next[1], scenarioId)
-      if (prev && (prev[0] !== next[0] || prev[1] !== next[1])) void loadCurrentRoute()
+      if (prev[0] !== next[0] || prev[1] !== next[1]) void loadCurrentRoute()
     },
   )
   onBeforeUnmount(() => {active = false; generation++; session.dispose()})

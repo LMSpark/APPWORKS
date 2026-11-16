@@ -40,6 +40,7 @@
     {"name": "jobManagement", "scenarioId": "0A835EB88AAC2BDFBDE344477C6827BB", "resourceId": "repository:scenario-view:0A835EB88AAC2BDFBDE344477C6827BB", "path": "config/pages/organization/job-management/pagedata.json"},
     {"name": "platformLogin", "scenarioId": "2D0B0B82A1AE41099F252E40747286AE", "resourceId": "repository:scenario-view:2D0B0B82A1AE41099F252E40747286AE", "path": "config/pages/platform/login/pagedata.json", "scope": "public"},
     {"name": "flowModelList", "scenarioId": "87F0EF6AD1B64D67FFE597E7E3285994", "resourceId": "repository:scenario-view:87F0EF6AD1B64D67FFE597E7E3285994", "path": "config/pages/workflow/flow-model-list/pagedata.json"},
-    {"name": "flowDesign", "scenarioId": "6E462C4A39EE0D96F4D1A28FFE887C89", "resourceId": "repository:scenario-view:6E462C4A39EE0D96F4D1A28FFE887C89", "path": "config/pages/workflow/flow-design/pagedata.json"}
+    {"name": "flowDesign", "scenarioId": "6E462C4A39EE0D96F4D1A28FFE887C89", "resourceId": "repository:scenario-view:6E462C4A39EE0D96F4D1A28FFE887C89", "path": "config/pages/workflow/flow-design/pagedata.json"},
+    {"name": "flowWorkbench", "scenarioId": "A5BADCEE11D2438CB9E75C2453A220A6", "resourceId": "repository:scenario-view:A5BADCEE11D2438CB9E75C2453A220A6", "path": "config/pages/workflow/flow-workbench/pagedata.json"}
   ]
 }

@@ -4,18 +4,18 @@ import ElementPlus from 'element-plus'
 import {defineComponent, h} from 'vue'
 import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
+import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeApi: {readRequestScope: vi.fn(() => ({}))},
   lowcodeHttp: {},
 }))
-vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', () => {
-  const {ref} = require('vue')
+vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => {
+  const {ref} = await import('vue')
   return {
     useFeaturePageRuntime: () => ({
-      viewKey: 'E328@View_FlowObjList@default',
+      viewKey: ref('E328FBBF518141973C575D612CD75151@View_FlowObjList@default'),
       ready: ref(true),
       loading: ref(false),
       error: ref(''),
@@ -82,28 +82,31 @@ function createRuntime(): PageRuntime {
     WFM_FLOW_MODLE: createView([{TITLE: '样例', DesignJson: ''}]),
     WFM_FLOW_NODE: createView([{rowid: 'N1', TITLE: '开始'}]),
     WFM_NODE_REALATION: createView([]),
+    WFM_WORKFORM: createView([]),
     Base_NavigationInfo: createView([]),
   }
   const monitor = {
     View_FlowObjList: createView([{rowid: 'WF-1', TITLE: '实例', WFMID: 'FM-1', BusTblObjID: 'BUS-1'}]),
     WFOBJ_FLOW: createView([{rowid: 'WF-1', WFMID: 'FM-1', TITLE: '实例'}]),
-    WFM_WORKFORM: createView([]),
+    Dict_state: createView([]),
+    Base_UserInfo: createView([]),
+  }
+  const workbench = {
     WFOBJ_FLOW_FORM: createView([]),
     WFOBJ_FLOW_RELATIONLINE_STEP: createView([{rowid: 'S1', WFOBJID: 'WF-1'}]),
     WFOBJ_FLOW_Waiting: createView([]),
-    Dict_state: createView([]),
-    Base_UserInfo: createView([]),
   }
   return {
     instanceId: 'flow-run-page-mount',
     getDataSet: (id: string) => {
       if (id === FLOW_DESIGN_SCENARIO_ID) return {getView: (name: string) => design[name as keyof typeof design]}
       if (id === FLOW_MONITOR_SCENARIO_ID) return {getView: (name: string) => monitor[name as keyof typeof monitor]}
+      if (id === FLOW_WORKBENCH_SCENARIO_ID) return {getView: (name: string) => workbench[name as keyof typeof workbench]}
       return undefined
     },
     resolveView: (key: string) => {
       if (key.includes('View_FlowObjList')) return monitor.View_FlowObjList
-      if (key.includes('WFOBJ_FLOW_RELATIONLINE_STEP')) return monitor.WFOBJ_FLOW_RELATIONLINE_STEP
+      if (key.includes('WFOBJ_FLOW_RELATIONLINE_STEP')) return workbench.WFOBJ_FLOW_RELATIONLINE_STEP
       if (key.includes('WFM_FLOW_NODE')) return design.WFM_FLOW_NODE
       if (key.includes('WFM_NODE_REALATION')) return design.WFM_NODE_REALATION
       return null

@@ -1,0 +1,220 @@
+{
+  "probedAt": "2026-11-16T04:47:47.440Z",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "results": [
+    {
+      "probe": "runtime:flowModelList:WFM_FLOW_MODLE",
+      "code": 200,
+      "message": "操作成功",
+      "count": 24,
+      "sample": [
+        {
+          "rowid": "F292D47C5120F89322501F16C0D31661",
+          "Name": "新增流程测试",
+          "dataSetId": ""
+        },
+        {
+          "rowid": "1F862A9DDA91EF50CEFC92208B627930",
+          "Name": "湖北工程薪酬分配",
+          "dataSetId": ""
+        },
+        {
+          "rowid": "55FF64D2C503A64D7FADD5D3379544B8",
+          "Name": "项目管理提升",
+          "dataSetId": ""
+        }
+      ]
+    },
+    {
+      "probe": "runtime:flowDesign:WFM_FLOW_MODLE",
+      "code": 200,
+      "message": "操作成功",
+      "count": 24,
+      "sample": [
+        {
+          "rowid": "00990451C0D94DE4B4EE52AFD494E869",
+          "Name": "湖北公司奖励加分流程启动",
+          "dataSetId": ""
+        },
+        {
+          "rowid": "02EF9134B40D21DE8FF42DC8BC27B6B9",
+          "Name": "履职评价流程启动",
+          "dataSetId": ""
+        },
+        {
+          "rowid": "1F862A9DDA91EF50CEFC92208B627930",
+          "Name": "湖北工程薪酬分配",
+          "dataSetId": ""
+        }
+      ]
+    },
+    {
+      "probe": "runtime:flowMonitor:WFM_FLOW_MODLE",
+      "code": null,
+      "error": "[400] 数据源模型类型不支持：表",
+      "count": 0,
+      "sample": []
+    },
+    {
+      "probe": "runtime:flowWorkbench:WFM_FLOW_MODLE",
+      "code": null,
+      "error": "[400] 数据源模型类型不支持：表",
+      "count": 0,
+      "sample": []
+    },
+    {
+      "probe": "meta:Base_DataModel:pagedScan",
+      "note": "G0 使用分页扫描，不再信任服务端 Filter"
+    }
+  ],
+  "pagedata": [
+    {
+      "scenario": "flowModelList",
+      "scenarioId": "87F0EF6AD1B64D67FFE597E7E3285994",
+      "repositoryBacked": true,
+      "code": 404,
+      "message": "[404] 文件不存在",
+      "customPath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/87F0EF6AD1B64D67FFE597E7E3285994",
+      "remoteSysFormOk": false,
+      "contentLength": 0
+    },
+    {
+      "scenario": "flowDesign",
+      "scenarioId": "6E462C4A39EE0D96F4D1A28FFE887C89",
+      "repositoryBacked": true,
+      "code": 404,
+      "message": "[404] 文件不存在",
+      "customPath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/6E462C4A39EE0D96F4D1A28FFE887C89",
+      "remoteSysFormOk": false,
+      "contentLength": 0
+    },
+    {
+      "scenario": "flowMonitor",
+      "scenarioId": "E328FBBF518141973C575D612CD75151",
+      "repositoryBacked": true,
+      "code": 404,
+      "message": "[404] 文件不存在",
+      "customPath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/E328FBBF518141973C575D612CD75151",
+      "remoteSysFormOk": false,
+      "contentLength": 0
+    },
+    {
+      "scenario": "flowWorkbench",
+      "scenarioId": "A5BADCEE11D2438CB9E75C2453A220A6",
+      "repositoryBacked": true,
+      "code": 404,
+      "message": "[404] 文件不存在",
+      "customPath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/A5BADCEE11D2438CB9E75C2453A220A6",
+      "remoteSysFormOk": false,
+      "contentLength": 0
+    }
+  ],
+  "g0ModelScan": {
+    "ready": true,
+    "missing": [],
+    "wfmFlowModleRowid": true,
+    "flowDesignModelCount": 7,
+    "scan": {
+      "baseDataModelRows": 9382,
+      "reportedTotal": 9382,
+      "pages": 19
+    },
+    "formalTablePrimaryKeyReady": false,
+    "formalTablePrimaryKeyGaps": 6
+  },
+  "formalTablePrimaryKey": {
+    "ready": false,
+    "repair": [
+      {
+        "scenarioKey": "flowModelList",
+        "scenarioId": "87F0EF6AD1B64D67FFE597E7E3285994",
+        "modelName": "Base_UserInfo",
+        "modelId": "87F0EF6AD1B64D67FFE597E7E3285994p001",
+        "metaName": "Base_UserInfo",
+        "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "suggestedPrimaryKeyFields": "rowid"
+      },
+      {
+        "scenarioKey": "flowDesign",
+        "scenarioId": "6E462C4A39EE0D96F4D1A28FFE887C89",
+        "modelName": "WFM_WORKFORM",
+        "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p012",
+        "metaName": "WFM_WORKFORM",
+        "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "suggestedPrimaryKeyFields": "rowid"
+      },
+      {
+        "scenarioKey": "flowWorkbench",
+        "scenarioId": "A5BADCEE11D2438CB9E75C2453A220A6",
+        "modelName": "WFOBJ_FLOW_Waiting",
+        "modelId": "1ae5bacc-9124-4acf-8b75-a78c61298fb3",
+        "metaName": "WFOBJ_FLOW_Waiting",
+        "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "suggestedPrimaryKeyFields": "rowid"
+      },
+      {
+        "scenarioKey": "flowWorkbench",
+        "scenarioId": "A5BADCEE11D2438CB9E75C2453A220A6",
+        "modelName": "WFOBJ_FLOW_RELATIONLINE_STEP",
+        "modelId": "8b5ef80f-6dfc-4769-9bbe-34c58128c73c",
+        "metaName": "WFOBJ_FLOW_RELATIONLINE_STEP",
+        "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "suggestedPrimaryKeyFields": "rowid"
+      },
+      {
+        "scenarioKey": "flowWorkbench",
+        "scenarioId": "A5BADCEE11D2438CB9E75C2453A220A6",
+        "modelName": "WFOBJ_FLOW",
+        "modelId": "3c0d6640-9c84-4894-9996-cf1418bd4106",
+        "metaName": "WFOBJ_FLOW",
+        "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "suggestedPrimaryKeyFields": "rowid"
+      },
+      {
+        "scenarioKey": "flowWorkbench",
+        "scenarioId": "A5BADCEE11D2438CB9E75C2453A220A6",
+        "modelName": "WFOBJ_FLOW_FORM",
+        "modelId": "b831c094-07e0-478d-b248-7a472d47b254",
+        "metaName": "WFOBJ_FLOW_FORM",
+        "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "suggestedPrimaryKeyFields": "rowid"
+      }
+    ],
+    "hint": "元数据设计：为各表模型保存 PrimaryKeyFields（建议 rowid）；并确认 View_TblList/Base_TblField 仅保留一个非租户主键"
+  },
+  "runtimeWfm": {
+    "count": 24,
+    "code": 200
+  },
+  "dataSpaces": {
+    "flowModelList": {
+      "found": false
+    },
+    "flowDesign": {
+      "found": false
+    },
+    "flowMonitor": {
+      "found": false
+    },
+    "flowWorkbench": {
+      "found": false
+    }
+  },
+  "publishReady": {
+    "g0ModelsReady": true,
+    "formalTablePrimaryKeyReady": false,
+    "metaModelsInListScenario": true,
+    "wfmFlowModleRowid": true,
+    "remotePagedataOk": true,
+    "repositoryBackedScenarios": [
+      "87F0EF6AD1B64D67FFE597E7E3285994",
+      "6E462C4A39EE0D96F4D1A28FFE887C89",
+      "E328FBBF518141973C575D612CD75151",
+      "A5BADCEE11D2438CB9E75C2453A220A6"
+    ],
+    "g0MayProceed": false
+  },
+  "publishBlockers": [
+    "formal table PrimaryKeyFields missing (6): flowModelList:Base_UserInfo, flowDesign:WFM_WORKFORM, flowWorkbench:WFOBJ_FLOW_Waiting, flowWorkbench:WFOBJ_FLOW_RELATIONLINE_STEP, flowWorkbench:WFOBJ_FLOW, flowWorkbench:WFOBJ_FLOW_FORM"
+  ]
+}

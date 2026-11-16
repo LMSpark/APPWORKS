@@ -5,7 +5,7 @@ import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus, {ElMessage} from 'element-plus'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_SERVICE, RendererTable, Spark, registerAllRenderers, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
+import {PAGE_SERVICE, RendererButton, RendererTable, Spark, registerAllRenderers, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
 import * as Fixture from './application-manager.fixture'
@@ -212,8 +212,22 @@ describe('application manager restored with standard components and formal DataV
     expect(view('Base_AppSystemList').rows).toHaveLength(10)
     await wrapper.get('.el-pagination .btn-next').trigger('click'); await settle()
     expect(view('Base_AppSystemList').page).toBe(2)
+    const id = view('Base_AppSystemList').rows[0]?.['rowid']
+    const refreshed = http.records['Base_AppSystemList']?.find(row => row['rowid'] === id)
+    if (!refreshed) throw new Error('第二页应用记录缺失')
+    refreshed['AppDesc'] = '刷新后应用'
+    expect(table.text()).not.toContain('刷新后应用')
+    const reads = http.reads.filter(read => read.table === 'Base_AppSystemList').length
     await click('刷新')
+    expect(http.reads.filter(read => read.table === 'Base_AppSystemList')).toHaveLength(reads + 1)
+    expect(table.text()).toContain('刷新后应用')
     expect(view('Base_AppSystemList').page).toBe(2)
+    const actions = wrapper.findAllComponents(RendererButton).filter(item => item.props('dataViewKey') !== undefined)
+    expect(actions.length).toBeGreaterThan(1)
+    for (const action of actions) {
+      expect(typeof action.props('dataViewKey')).toBe('string')
+      expect(action.props('dataViewKey')).toBe(`${SCENARIO}@Base_AppSystemList@default`)
+    }
     expect(http.saves).toHaveLength(0)
   })
 

@@ -1,0 +1,79 @@
+{
+  "probedAt": "2026-11-16T04:48:09.896Z",
+  "contracts": {
+    "workbench": {
+      "ok": true,
+      "bindings": [
+        {
+          "tab": "pending",
+          "modelName": "WFOBJ_FLOW_Waiting",
+          "viewId": "workbenchPending"
+        },
+        {
+          "tab": "processed",
+          "modelName": "WFOBJ_FLOW_RELATIONLINE_STEP",
+          "viewId": "workbenchProcessed"
+        },
+        {
+          "tab": "shared",
+          "modelName": "WFOBJ_FLOW_RELATIONLINE_STEP",
+          "viewId": "workbenchShared"
+        },
+        {
+          "tab": "started",
+          "modelName": "WFOBJ_FLOW",
+          "viewId": "workbenchStarted"
+        }
+      ]
+    },
+    "design": {
+      "ok": true,
+      "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p014"
+    },
+    "route": {
+      "ok": true,
+      "evidence": "tests/runtime/page/structured-config/workflow/flow-run-detail/flow-runtime-route.test.ts"
+    },
+    "probedAt": "2026-11-16T04:48:09.561Z"
+  },
+  "live": {
+    "wfId": "F524CFF931DD41A6873F6B81D9D75563",
+    "stepHistory": {
+      "status": "pass",
+      "code": 200,
+      "message": "操作成功",
+      "wfId": "F524CFF931DD41A6873F6B81D9D75563",
+      "stepId": "40D887FF34CF4CE19A79CBB180429BBE",
+      "httpStatus": 200,
+      "resultShape": "object",
+      "source": "workflow-spa-smoke"
+    },
+    "listData": {
+      "count": 24,
+      "sampleTitles": [
+        "新增流程测试",
+        "湖北工程薪酬分配",
+        "项目管理提升"
+      ]
+    },
+    "flowMonitorScenario": "E328FBBF518141973C575D612CD75151"
+  },
+  "manualContract": {
+    "workbench": {
+      "status": "pass",
+      "note": "pagedata 四命名视图合同通过（非 SPA tab 切换）"
+    },
+    "design": {
+      "status": "pass",
+      "note": "FunctionNodeAuth modelId+nodeAuth 合同通过（保存重开须 SPA）"
+    },
+    "runApi": {
+      "status": "pass",
+      "note": "GetStepHistory Code=200 wfId=F524CFF931DD41A6873F6B81D9D75563 stepId=40D887FF34CF4CE19A79CBB180429BBE"
+    },
+    "route": {
+      "status": "pass",
+      "note": "tests/runtime/page/structured-config/workflow/flow-run-detail/flow-runtime-route.test.ts"
+    }
+  }
+}

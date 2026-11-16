@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile",
+    "sourcePath": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue",
+    "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile",
+    "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile\n职责：流程办理移动端布局占位，与桌面页共用运行 query 合同。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-15T00:44:42.116Z",
+  "models": {}
+}

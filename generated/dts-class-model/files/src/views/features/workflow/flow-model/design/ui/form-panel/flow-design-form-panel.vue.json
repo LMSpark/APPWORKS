@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel",
+    "sourcePath": "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue",
+    "sourceFile": "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel",
+    "jsdoc": "@module app:views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel\n职责：流程设计关联表单列表，绑定 WFM_WORKFORM 正式视图。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-15T00:21:47.723Z",
+  "models": {}
+}

@@ -23,7 +23,7 @@ function normalizeText(value: unknown): string {
   return String(value ?? '').trim()
 }
 
-function readSysid(modelRow: Record<string, unknown> | undefined, flowModelId: string): string {
+function readSysid(modelRow: Record<string, unknown> | undefined): string {
   if (modelRow) {
     const sysid = normalizeText(modelRow['sysid'] ?? modelRow['SYSID'])
     if (sysid) return sysid
@@ -45,7 +45,7 @@ async function readNavigationFolder(view: DataView, applicationId: string, asser
 export async function resolveFlowDesignFileContext(
   command: ResolveFlowDesignFileContextCommand,
 ): Promise<FlowDesignFileContext> {
-  const applicationId = readSysid(command.modelRow, command.flowModelId)
+  const applicationId = readSysid(command.modelRow)
   if (!applicationId) return {customPath: 'SysForm', applicationId: ''}
   command.assertCurrent?.()
   const dataSet = command.runtime.getDataSet(FLOW_DESIGN_SCENARIO_ID)

@@ -288,7 +288,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T12:37:59.750Z",
+  "generatedAt": "2026-11-16T07:33:04.025Z",
   "models": {
     "UseSparkComponentReturn": {
       "name": "UseSparkComponentReturn",

@@ -4,7 +4,10 @@
   "resourceRelations": [],
   "tables": {
     "WFM_FLOW_MODLE": {
-      "modelBinding": {"modelName": "WFM_FLOW_MODLE"},
+      "modelBinding": {
+        "modelName": "WFM_FLOW_MODLE",
+        "modelId": "87F0EF6AD1B64D67FFE597E7E3285994p000"
+      },
       "views": {
         "default": {
           "autoLoad": false,
@@ -13,34 +16,37 @@
           "page": 1,
           "pageSize": 15,
           "queryConfig": {
-            "fields": ["rowid", "TITLE", "MEMO", "sysid", "CRTDATE", "createuser", "CRTUSER", "workFormId", "BusinessTable", "STATE"]
+            "fields": [
+              "rowid",
+              "TITLE",
+              "MEMO",
+              "sysid",
+              "CRTDATE",
+              "createuser"
+            ]
           }
         }
       }
     },
-    "Base_AppSystemList": {
-      "modelBinding": {"modelName": "Base_AppSystemList"},
-      "views": {
-        "default": {
-          "autoLoad": false,
-          "autoCurrentFirst": false,
-          "autoSelectFirst": false,
-          "pageSize": 200,
-          "valueField": "rowid",
-          "labelField": "AppDesc",
-          "queryConfig": {"allPages": true, "fields": ["rowid", "AppDesc", "AppName"]}
-        }
-      }
-    },
     "Base_UserInfo": {
-      "modelBinding": {"modelName": "Base_UserInfo"},
+      "modelBinding": {
+        "modelName": "Base_UserInfo",
+        "modelId": "87F0EF6AD1B64D67FFE597E7E3285994p001"
+      },
       "views": {
         "default": {
           "autoLoad": false,
           "autoCurrentFirst": false,
           "autoSelectFirst": false,
           "pageSize": 500,
-          "queryConfig": {"allPages": true, "fields": ["rowid", "ID", "UserName"]}
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "ID",
+              "UserName"
+            ]
+          }
         }
       }
     }

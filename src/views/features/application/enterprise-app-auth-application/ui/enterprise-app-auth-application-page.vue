@@ -57,7 +57,7 @@ const canAudit = ({row, dataSource}: {row?: DataRow | null; dataSource?: DataVie
   return dataSource.fieldAccess(row, 'auth_status').read === 'visible' && row['auth_status'] === 'PENDING'
 }
 const actions = {wrap: false, gap: 4, children: [
-  {type: 'r-button', props: {dataViewKey: viewKey, label: '审核', link: true, buttonType: 'primary', icon: 'Select', onBeforeRender: canAudit,
+  {type: 'r-button', props: {dataViewKey: viewKey.value, label: '审核', link: true, buttonType: 'primary', icon: 'Select', onBeforeRender: canAudit,
     onClick: openAudit}},
 ]}
 

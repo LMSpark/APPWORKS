@@ -28,10 +28,8 @@ function stripLayoutForIds(
   nodeIds: ReadonlySet<string>,
   edgeIds: ReadonlySet<string>,
 ): FlowDesignLayoutOverride {
-  const nextPositions = {...layoutOverride.nodePositions}
-  const nextPaths = {...layoutOverride.edgePaths}
-  for (const id of nodeIds) delete nextPositions[id]
-  for (const id of edgeIds) delete nextPaths[id]
+  const nextPositions = Object.fromEntries(Object.entries(layoutOverride.nodePositions ?? {}).filter(([id]) => !nodeIds.has(id)))
+  const nextPaths = Object.fromEntries(Object.entries(layoutOverride.edgePaths ?? {}).filter(([id]) => !edgeIds.has(id)))
   return {
     ...(Object.keys(nextPositions).length > 0 ? {nodePositions: nextPositions} : {}),
     ...(Object.keys(nextPaths).length > 0 ? {edgePaths: nextPaths} : {}),

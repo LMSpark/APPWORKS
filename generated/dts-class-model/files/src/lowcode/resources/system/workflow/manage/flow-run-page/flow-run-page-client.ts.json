@@ -1,0 +1,756 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client",
+    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts",
+    "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client\n职责：流程办理 HTTP 命令（选项、提交、退回发起人）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FlowRunPageClientOptions",
+      "FlowRunHandleOptionParams",
+      "FlowRunSubmitNode",
+      "FlowRunSubmitParams",
+      "FlowRunBackParams",
+      "FlowRunPageClient"
+    ]
+  },
+  "$defs": {
+    "FlowRunPageClientOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunPageClientOptions",
+      "properties": {
+        "http": {
+          "$ref": "../../../../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "scenarioId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "flow-http.ts.json#/$defs/FlowRequestScope"
+        },
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "FlowRunHandleOptionParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunHandleOptionParams",
+      "properties": {
+        "modelId": {
+          "type": "string"
+        },
+        "stepId": {
+          "type": "string"
+        },
+        "busRowId": {
+          "type": "string"
+        },
+        "formid": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "FlowRunSubmitNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunSubmitNode",
+      "properties": {
+        "NodeId": {
+          "type": "string"
+        },
+        "ExecUserList": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "NodeId"
+      ],
+      "additionalProperties": false
+    },
+    "FlowRunSubmitParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunSubmitParams",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "nextNode": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FlowRunSubmitNode"
+          }
+        },
+        "flowId": {
+          "type": "string"
+        },
+        "formKey": {
+          "type": "string"
+        },
+        "formUrl": {
+          "type": "string"
+        },
+        "formParams": {
+          "type": "string"
+        },
+        "busRowid": {
+          "type": "string"
+        },
+        "curStepId": {
+          "type": "string"
+        },
+        "flowObjId": {
+          "type": "string"
+        },
+        "isReturn": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "idea": {
+          "type": "string"
+        },
+        "notifyType": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "flowId"
+      ],
+      "additionalProperties": false
+    },
+    "FlowRunBackParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunBackParams",
+      "properties": {
+        "flowObjId": {
+          "type": "string"
+        },
+        "curStepId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "idea": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "flowObjId",
+        "curStepId"
+      ],
+      "additionalProperties": false
+    },
+    "FlowRunPageClient": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunPageClient",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/FlowRunPageClientOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getHandleOptionData.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/FlowRunHandleOptionParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getHandleOptionData.return": {
+          "type": "object",
+          "title": "Promise<Record<string, unknown>>"
+        },
+        "method.submitOrStart.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/FlowRunSubmitParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.submitOrStart.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.backByHistory.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/FlowRunBackParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.backByHistory.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.forceBack.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/FlowRunBackParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.forceBack.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.rejectToCreator.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/FlowRunBackParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rejectToCreator.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.canAutoSubmitAfter.params": {
+          "type": "object",
+          "properties": {
+            "curStepId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canAutoSubmitAfter.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        },
+        "method.revokeCurrentStep.params": {
+          "type": "object",
+          "properties": {
+            "flowObjectId": {
+              "type": "string"
+            },
+            "curStepId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.revokeCurrentStep.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.fetchStepHistory.params": {
+          "type": "object",
+          "properties": {
+            "flowObjectId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fetchStepHistory.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-15T00:44:12.102Z",
+  "models": {
+    "FlowRunPageClientOptions": {
+      "name": "FlowRunPageClientOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    scenarioId: string;\n    readScope: () => FlowRequestScope;\n    assertCurrent?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    scenarioId: string;\n    readScope: () => FlowRequestScope;\n    assertCurrent?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "FlowRequestScope",
+                "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-http.ts"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FlowRunHandleOptionParams": {
+      "name": "FlowRunHandleOptionParams",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    modelId?: string;\n    stepId?: string;\n    busRowId?: string;\n    formid?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    modelId?: string;\n    stepId?: string;\n    busRowId?: string;\n    formid?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stepId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "busRowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formid",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowRunSubmitNode": {
+      "name": "FlowRunSubmitNode",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    NodeId: string;\n    ExecUserList?: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    NodeId: string;\n    ExecUserList?: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "NodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ExecUserList",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowRunSubmitParams": {
+      "name": "FlowRunSubmitParams",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    type?: string;\n    nextNode?: readonly FlowRunSubmitNode[];\n    flowId: string;\n    formKey?: string;\n    formUrl?: string;\n    formParams?: string;\n    busRowid?: string;\n    curStepId?: string;\n    flowObjId?: string;\n    isReturn?: boolean;\n    idea?: string;\n    notifyType?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    type?: string;\n    nextNode?: readonly FlowRunSubmitNode[];\n    flowId: string;\n    formKey?: string;\n    formUrl?: string;\n    formParams?: string;\n    busRowid?: string;\n    curStepId?: string;\n    flowObjId?: string;\n    isReturn?: boolean;\n    idea?: string;\n    notifyType?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nextNode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formUrl",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formParams",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "busRowid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "curStepId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowObjId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isReturn",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idea",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "notifyType",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowRunBackParams": {
+      "name": "FlowRunBackParams",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    flowObjId: string;\n    curStepId: string;\n    nodeId?: string;\n    idea?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    flowObjId: string;\n    curStepId: string;\n    nodeId?: string;\n    idea?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "flowObjId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "curStepId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idea",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowRunPageClient": {
+      "name": "FlowRunPageClient",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: FlowRunPageClientOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "FlowRunPageClientOptions",
+                "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "getHandleOptionData",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "FlowRunHandleOptionParams",
+                    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "submitOrStart",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "FlowRunSubmitParams",
+                    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "backByHistory",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "FlowRunBackParams",
+                    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "forceBack",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "FlowRunBackParams",
+                    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "rejectToCreator",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "FlowRunBackParams",
+                    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "canAutoSubmitAfter",
+              "parameters": [
+                {
+                  "name": "curStepId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "revokeCurrentStep",
+              "parameters": [
+                {
+                  "name": "flowObjectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "curStepId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "fetchStepHistory",
+              "jsdoc": "GET /api/Flow/GetStepHistory；query 合同以实服为准，当前登记 wfId。",
+              "parameters": [
+                {
+                  "name": "flowObjectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

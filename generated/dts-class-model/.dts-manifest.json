@@ -3174,7 +3174,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
-      "sourceModifiedAt": "2026-11-13T13:49:41.583Z"
+      "sourceModifiedAt": "2026-11-16T18:57:56.872Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
@@ -4084,7 +4084,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-12T20:51:54.474Z"
+      "sourceModifiedAt": "2026-11-16T19:24:39.817Z"
     },
     "src/lowcode/resources/application/project-blueprint-document.ts": {
       "sourceFile": "src/lowcode/resources/application/project-blueprint-document.ts",
@@ -4134,12 +4134,12 @@
     "src/lowcode/resources/database/catalog/scenario.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/scenario.ts",
       "shardFile": "files/src/lowcode/resources/database/catalog/scenario.ts.json",
-      "sourceModifiedAt": "2026-11-16T18:18:20.650Z"
+      "sourceModifiedAt": "2026-11-16T18:55:25.900Z"
     },
     "src/lowcode/resources/database/catalog/table-view.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table-view.ts",
       "shardFile": "files/src/lowcode/resources/database/catalog/table-view.ts.json",
-      "sourceModifiedAt": "2026-11-16T18:25:52.781Z"
+      "sourceModifiedAt": "2026-11-16T18:55:25.905Z"
     },
     "src/lowcode/resources/database/catalog/table/copy-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table/copy-view-ops.ts",
@@ -4194,7 +4194,7 @@
     "src/lowcode/resources/database/directory.ts": {
       "sourceFile": "src/lowcode/resources/database/directory.ts",
       "shardFile": "files/src/lowcode/resources/database/directory.ts.json",
-      "sourceModifiedAt": "2026-11-16T18:25:52.779Z"
+      "sourceModifiedAt": "2026-11-16T18:55:25.902Z"
     },
     "src/lowcode/resources/database/server/catalog-metadata.ts": {
       "sourceFile": "src/lowcode/resources/database/server/catalog-metadata.ts",
@@ -4204,7 +4204,7 @@
     "src/lowcode/resources/database/server/resource.ts": {
       "sourceFile": "src/lowcode/resources/database/server/resource.ts",
       "shardFile": "files/src/lowcode/resources/database/server/resource.ts.json",
-      "sourceModifiedAt": "2026-11-16T18:15:21.670Z"
+      "sourceModifiedAt": "2026-11-16T18:55:25.904Z"
     },
     "src/lowcode/resources/database/server/view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/server/view-ops.ts",
@@ -4844,12 +4844,12 @@
     "src/lowcode/resources/system/workflow/manage/flow-design-client.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-client.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design-client.ts.json",
-      "sourceModifiedAt": "2026-11-16T07:29:57.409Z"
+      "sourceModifiedAt": "2026-11-16T19:10:56.866Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts.json",
-      "sourceModifiedAt": "2026-11-14T16:32:27.787Z"
+      "sourceModifiedAt": "2026-11-16T19:10:56.867Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
@@ -5314,7 +5314,7 @@
     "src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts.json",
-      "sourceModifiedAt": "2026-11-12T21:29:12.942Z"
+      "sourceModifiedAt": "2026-11-16T19:31:25.830Z"
     },
     "src/views/features/application/application-function-management/ui/page-design/DeliveryPane.vue": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/DeliveryPane.vue",
@@ -5369,7 +5369,7 @@
     "src/views/features/application/application-function-management/ui/use-application-function-page.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-page.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/use-application-function-page.ts.json",
-      "sourceModifiedAt": "2026-11-14T13:27:48.146Z"
+      "sourceModifiedAt": "2026-11-16T19:35:56.133Z"
     },
     "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-prototype.ts",
@@ -6159,7 +6159,7 @@
     "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-model/design/ui/flow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-15T13:45:20.709Z"
+      "sourceModifiedAt": "2026-11-16T19:22:00.324Z"
     },
     "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue",
@@ -6184,12 +6184,12 @@
     "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-model/ui/flow-model-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-15T23:16:11.825Z"
+      "sourceModifiedAt": "2026-11-16T19:06:04.424Z"
     },
     "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue.json",
-      "sourceModifiedAt": "2026-11-15T23:14:13.651Z"
+      "sourceModifiedAt": "2026-11-16T19:06:04.416Z"
     },
     "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
@@ -6204,7 +6204,7 @@
     "src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts": {
       "sourceFile": "src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts",
       "shardFile": "files/src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts.json",
-      "sourceModifiedAt": "2026-11-16T07:28:15.199Z"
+      "sourceModifiedAt": "2026-11-16T19:06:04.422Z"
     },
     "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-submit.ts": {
       "sourceFile": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-submit.ts",

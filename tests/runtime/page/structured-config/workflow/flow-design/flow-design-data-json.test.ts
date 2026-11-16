@@ -16,6 +16,24 @@ describe('readFlowDesignDataJsonText', () => {
     expect(text).toBe('{"edges":[]}')
   })
 
+  it.each([new LowcodeApiError(403, 'denied'), new Error('network lost')])('propagates a file failure instead of using old model text: %s', async failure => {
+    const readTextFile = vi.fn(async () => {throw failure})
+    await expect(readFlowDesignDataJsonText({flowId: 'FM-1', modelRow: {DesignJson: 'old'}, api: {readTextFile}})).rejects.toBe(failure)
+  })
+
+  it.each(['before', 'success', 'missing'])('keeps the original request guard through %s', async phase => {
+    let current = phase !== 'before'
+    const readTextFile = vi.fn(async () => {current = false; if (phase === 'missing') throw new LowcodeApiError(404, 'missing'); return 'new'})
+    await expect(readFlowDesignDataJsonText({flowId: 'FM-1', modelRow: {DesignJson: 'old'}, api: {readTextFile}, assertCurrent: () => {if (!current) throw Error('original request expired')}})).rejects.toThrow('original request expired')
+    expect(readTextFile).toHaveBeenCalledTimes(phase === 'before' ? 0 : 1)
+  })
+
+  it('rejects a missing file target before reading or accepting fallback text', async () => {
+    const readTextFile = vi.fn(async () => 'file')
+    await expect(readFlowDesignDataJsonText({flowId: ' ', modelRow: {DesignJson: 'old'}, api: {readTextFile}})).rejects.toThrow(/flowId/)
+    expect(readTextFile).not.toHaveBeenCalled()
+  })
+
   it('falls back when platform file is empty', async () => {
     const readTextFile = vi.fn(async () => '   ')
     const text = await readFlowDesignDataJsonText({flowId: 'FM-3', modelRow: {designJson: 'from-row'}, api: {readTextFile}})

@@ -93,14 +93,15 @@ async function loadPage(): Promise<void> {
     const runtime = sparkConsume(PAGE_RUNTIME)
     if (!runtime) throw new Error('缺少页面运行实例')
     const query = routeQuery()
-    prepared.value = await prepareFlowRunPage({
+    const next = await prepareFlowRunPage({
       runtime,
       wfid: query.wfid,
       flowid: query.flowid,
-      assertCurrent: () => own === generation,
+      assertCurrent: () => {const current = routeQuery(); if (own !== generation || current.wfid !== query.wfid || current.flowid !== query.flowid || sparkConsume(PAGE_RUNTIME) !== runtime) throw Error('原业务流程读取已失效')},
     })
     if (own !== generation) return
-    activeFormId.value = prepared.value.formTabs[0]?.tabKey ?? ''
+    prepared.value = next
+    activeFormId.value = next.formTabs[0]?.tabKey ?? ''
   } catch (err) {
     if (own === generation) error.value = err instanceof Error ? err.message : '加载失败'
   } finally {

@@ -67,7 +67,7 @@ export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, 
         runtime,
         wfid: query.wfid,
         flowid: query.flowid,
-        assertCurrent: () => own === generation,
+        assertCurrent: () => {const current = routeQuery(); if (own !== generation || current.wfid !== query.wfid || current.flowid !== query.flowid || sparkConsume(PAGE_RUNTIME) !== runtime) throw Error('原流程详情读取已失效')},
       })
       if (own !== generation) return
       prepared.value = next

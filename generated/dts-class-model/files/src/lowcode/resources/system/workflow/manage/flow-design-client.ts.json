@@ -34,18 +34,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T07:29:57.409Z",
+  "generatedAt": "2026-11-16T19:10:56.866Z",
   "models": {
     "FlowDesignClientOptions": {
       "name": "FlowDesignClientOptions",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    flowModelId: string;\n    assertCurrent?: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    flowModelId: string;\n    /** 检查本次原目标及运行实例；失效时抛错中止后续读取或保存。 */\n    assertCurrent?: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    flowModelId: string;\n    assertCurrent?: () => void;\n}>",
+            "typeText": "Readonly<{\n    flowModelId: string;\n    /** 检查本次原目标及运行实例；失效时抛错中止后续读取或保存。 */\n    assertCurrent?: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -60,6 +60,7 @@
           "methods": [
             {
               "name": "assertCurrent",
+              "jsdoc": "检查本次原目标及运行实例；失效时抛错中止后续读取或保存。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

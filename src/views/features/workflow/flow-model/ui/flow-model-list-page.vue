@@ -100,7 +100,7 @@ async function bindManager(): Promise<void> {
     const userView = session.runtime?.resolveView(userKey)
     const next = new WorkflowFlowModelManager(view, {
       ...(userView ? {userView} : {}),
-      assertCurrent: () => own === generation,
+      assertCurrent: () => {if (own !== generation || session.runtime?.resolveView(viewKey.value) !== view) throw Error('原流程模型目录已失效')},
     })
     const result = await next.refresh()
     if (own !== generation) return

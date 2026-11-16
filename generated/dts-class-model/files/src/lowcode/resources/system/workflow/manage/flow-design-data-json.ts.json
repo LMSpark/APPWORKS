@@ -60,7 +60,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-14T16:32:27.787Z",
+  "generatedAt": "2026-11-16T19:10:56.867Z",
   "models": {
     "FlowDesignPlatformFileApi": {
       "name": "FlowDesignPlatformFileApi",
@@ -83,11 +83,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    flowId: string;\n    modelRow?: Record<string, unknown>;\n    api: FlowDesignPlatformFileApi;\n    customPath?: string;\n    assertCurrent?: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    flowId: string;\n    modelRow?: Record<string, unknown>;\n    api: FlowDesignPlatformFileApi;\n    customPath?: string;\n    /** 检查本次原目标及运行实例；失效时抛错中止后续读取或保存。 */\n    assertCurrent?: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    flowId: string;\n    modelRow?: Record<string, unknown>;\n    api: FlowDesignPlatformFileApi;\n    customPath?: string;\n    assertCurrent?: () => void;\n}>",
+            "typeText": "Readonly<{\n    flowId: string;\n    modelRow?: Record<string, unknown>;\n    api: FlowDesignPlatformFileApi;\n    customPath?: string;\n    /** 检查本次原目标及运行实例；失效时抛错中止后续读取或保存。 */\n    assertCurrent?: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -117,6 +117,7 @@
           "methods": [
             {
               "name": "assertCurrent",
+              "jsdoc": "检查本次原目标及运行实例；失效时抛错中止后续读取或保存。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

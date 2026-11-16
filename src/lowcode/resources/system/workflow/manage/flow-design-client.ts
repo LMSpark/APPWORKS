@@ -7,6 +7,7 @@ export const FLOW_DESIGN_SCENARIO_ID = '6E462C4A39EE0D96F4D1A28FFE887C89'
 
 export type FlowDesignClientOptions = Readonly<{
   flowModelId: string
+  /** 检查本次原目标及运行实例；失效时抛错中止后续读取或保存。 */
   assertCurrent?: () => void
 }>
 

@@ -4,7 +4,7 @@
 边界：消费父 PAGE_RUNTIME；布局来自 DesignJson 投影与会话内覆盖；保存走 saveFlowDesignInfo。
 -->
 <template>
-  <RendererSection class="flow-design-page" :bordered="false" :grid-columns="1" :grid-gap="12"
+  <RendererSection title="流程设计" class="flow-design-page" :bordered="false" :grid-columns="1" :grid-gap="12"
     :status="loading ? '正在打开流程设计…' : ''" :error="error" :retryable="!loading && !ready" @retry="load">
     <template v-if="ready && prepared" #header-actions>
       <RendererButton label="新增节点" :disabled="saving" @click="addNode" />
@@ -20,7 +20,7 @@
         node-caption-field="NODETYPE" edge-source-field="PARENTID" edge-target-field="CHILDID"
         :node-positions="graphLayout.nodePositions" :edge-paths="graphLayout.edgePaths"
         :draggable-keys="draggableNodeKeys" :connectable-keys="draggableNodeKeys" :current="graphSelection"
-        background-pattern="dots" node-appearance="card" :viewport-controls="true" :disabled="false"
+        background-pattern="dots" node-appearance="card" :viewport-controls="true" :disabled="saving || loading"
         :on-node-move="onNodeMove" :on-connect="onGraphConnect" @select="onGraphSelect" />
       <div class="flow-design-page__tables">
         <FlowDesignNodePanel :view-key="prepared.nodeViewKey" :highlight-id="nodeHighlightId" @select-graph-id="selectNodeFromTable" />
@@ -177,30 +177,31 @@ function removeSelection(): void {
 }
 
 async function refreshNodeAuth(nodeId: string): Promise<void> {
-  const own = generation
+  const own = generation, targetId = flowModelId.value
   const runtime = sparkConsume(PAGE_RUNTIME)
   if (!runtime || !nodeId.trim()) {
     nodeAuthViewKey.value = ''
     return
   }
   try {
-    nodeAuthViewKey.value = await syncFlowDesignNodeAuthView({
+    const next = await syncFlowDesignNodeAuthView({
       runtime,
-      flowModelId: flowModelId.value,
+      flowModelId: targetId,
       selectedNodeId: nodeId,
-      assertCurrent: () => own === generation,
+      assertCurrent: () => {if (own !== generation || flowModelId.value !== targetId || selectedNodeId.value !== nodeId || sparkConsume(PAGE_RUNTIME) !== runtime) throw Error('原节点配置目标已变化')},
     })
+    if (own === generation && selectedNodeId.value === nodeId) nodeAuthViewKey.value = next
   } catch (cause) {
-    if (own === generation) error.value = cause instanceof Error ? cause.message : String(cause)
+    if (own === generation && flowModelId.value === targetId && selectedNodeId.value === nodeId) error.value = cause instanceof Error ? cause.message : String(cause)
   }
 }
 
 async function refreshPrepared(clearSelection = false): Promise<void> {
-  const own = generation
+  const own = generation, targetId = flowModelId.value
   try {
     const runtime = sparkConsume(PAGE_RUNTIME)
     if (!runtime) throw new Error('流程设计缺少父页运行实例')
-    const next = await prepareFlowDesignViews(runtime, flowModelId.value, {assertCurrent: () => own === generation})
+    const next = await prepareFlowDesignViews(runtime, targetId, {assertCurrent: () => {if (own !== generation || flowModelId.value !== targetId || sparkConsume(PAGE_RUNTIME) !== runtime) throw Error('原流程设计读取已失效')}})
     if (own !== generation) return
     prepared.value = next
     ready.value = true
@@ -229,7 +230,8 @@ async function load(): Promise<void> {
 }
 
 async function saveDesign(): Promise<void> {
-  const own = ++generation
+  if (saving.value) return
+  const own = ++generation, targetId = flowModelId.value
   saving.value = true
   error.value = ''
   try {
@@ -240,17 +242,17 @@ async function saveDesign(): Promise<void> {
       || Boolean(override.edgePaths && Object.keys(override.edgePaths).length > 0)
     await saveFlowDesignInfo({
       runtime,
-      flowModelId: flowModelId.value,
+      flowModelId: targetId,
       fileUpload: lowcodeDesignFileUpload,
       ...(hasOverride ? {layoutOverride: override} : {}),
-      assertCurrent: () => own === generation,
+      assertCurrent: () => {if (own !== generation || flowModelId.value !== targetId || sparkConsume(PAGE_RUNTIME) !== runtime) throw Error('原流程设计保存已失效')},
     })
     if (own !== generation) return
     await load()
   } catch (cause) {
     if (own === generation) error.value = cause instanceof Error ? cause.message : String(cause)
   } finally {
-    if (own === generation) saving.value = false
+    saving.value = false
   }
 }
 

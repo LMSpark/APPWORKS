@@ -28,24 +28,26 @@ export type ReadFlowDesignDataJsonCommand = Readonly<{
   modelRow?: Record<string, unknown>
   api: FlowDesignPlatformFileApi
   customPath?: string
+  /** 检查本次原目标及运行实例；失效时抛错中止后续读取或保存。 */
   assertCurrent?: () => void
 }>
 
-/** 读取设计图 JSON：优先 `${flowId}EJ2.json`，失败或空则回退模型行 DesignJson 字段。 */
+/** 读取明确目标的设计图；仅真实404或成功空文本回退模型，权限/网络/失效错误继续向上传递。 */
 export async function readFlowDesignDataJsonText(command: ReadFlowDesignDataJsonCommand): Promise<string> {
+  command.assertCurrent?.()
   const id = normalizeText(command.flowId)
+  if (!id) throw Error('流程设计文件读取缺少目标flowId')
   const fallback = readDesignJsonFromModelRow(command.modelRow)
-  if (!id) return fallback
   const customPath = normalizeText(command.customPath) || 'SysForm'
   const fileName = `${id}EJ2.json`
+  let content: string
   try {
-    const content = normalizeText(await command.api.readTextFile({appType: 'designfile', customPath, fileName}))
-    command.assertCurrent?.()
-    if (content) return content
+    content = await command.api.readTextFile({appType: 'designfile', customPath, fileName})
   } catch (error) {
-    if (error instanceof LowcodeApiError && error.code === 404) {
-      // 无平台文件时与参考实现一致，回退模型字段。
-    }
+    command.assertCurrent?.()
+    if (error instanceof LowcodeApiError && error.code === 404) return fallback
+    throw error
   }
-  return fallback
+  command.assertCurrent?.()
+  return normalizeText(content) || fallback
 }

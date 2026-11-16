@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1248,
+  "scannedFileCount": 1251,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -16368,6 +16368,22 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace\n职责：同一DataSet持有办理参数，确认时从原选项核验后捕获不可变命令。\n边界：参数视图不保存业务数据；不缓存另一份可编辑节点或候选，不扩大服务返回的候选范围。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ApprovalInputCapture",
+          "FlowRunApprovalInputWorkspace"
+        ]
+      }
+    },
     "src/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding.ts": {
       "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding.ts.json",
       "module": {
@@ -16377,6 +16393,19 @@
         "packageName": "app",
         "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding",
         "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding\n职责：从原办理选项查询按节点投影人员候选，供标准字段绑定消费。\n边界：不扩展空范围，不复制可编辑人员草稿，不查询人员目录或派发审批。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/system/workflow/manage/flow-run-page/query/continuation-binding.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/query/continuation-binding.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/query/continuation-binding",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/query/continuation-binding.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/query/continuation-binding.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/query/continuation-binding",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/query/continuation-binding\n职责：按原办理选项与步骤身份读取正式自动后继判断，供业务回调消费。\n边界：只读判断，不派发后继办理，不把未知结果推断为false。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -19827,6 +19856,19 @@
         ]
       }
     },
+    "src/views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields.ts": {
+      "file": "files/src/views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields.ts.json",
+      "module": {
+        "name": "app:views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields",
+        "sourcePath": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields.ts",
+        "sourceFile": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields.ts",
+        "packageName": "app",
+        "modulePath": "views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields",
+        "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields\n职责：用标准字段子组件声明办理参数与节点人员选择。\n边界：只编排绑定，不持有参数或候选值，不执行查询和保存。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue": {
       "file": "files/src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue.json",
       "module": {
@@ -21106,6 +21148,10 @@
     "AppLogTransport": {
       "sourcePath": "packages/spark-app/src/logger/index.ts",
       "file": "files/packages/spark-app/src/logger/index.ts.json"
+    },
+    "ApprovalInputCapture": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts.json"
     },
     "AppThemeCapability": {
       "sourcePath": "packages/spark-app/src/shell/theme/index.ts",
@@ -23646,6 +23692,10 @@
     "FlowRequestScope": {
       "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-http.ts",
       "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-http.ts.json"
+    },
+    "FlowRunApprovalInputWorkspace": {
+      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts.json"
     },
     "FlowRunBackParams": {
       "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-client.ts",

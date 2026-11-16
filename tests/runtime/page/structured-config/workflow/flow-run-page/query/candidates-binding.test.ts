@@ -5,7 +5,8 @@ import {createFlowRunCandidatesBinding} from '@/lowcode/resources/system/workflo
 it('keeps each node candidate range in its original options query and rejects stale sources', async () => {
   const ds = DataSet.fromJson({scenarioId: 'S', tables: {}})
   const source = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})
-  bindDataSetReadonlyCommandQuery(source, {resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, guard: () => {}, loadRows: async () => [{id: 'current', payload: {execUser: [{nodeId: 'N1', maxNum: 1, userList: [{UserId: 'U1', UserName: '张三'}]}, {nodeId: 'N2', maxNum: 1, userList: []}]}}]})
+  let payload: Record<string, unknown> = {execUser: [{nodeId: 'N1', maxNum: 1, userList: [{UserId: 'U1', UserName: '张三'}]}, {nodeId: 'N2', maxNum: 1, userList: []}]}
+  bindDataSetReadonlyCommandQuery(source, {resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, guard: () => {}, loadRows: async () => [{id: 'current', payload}]})
   const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCandidates', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-candidates'}, columns: [{name: 'id', primary: true}, {name: 'name'}, {name: 'value'}, {name: 'nodeId'}]})
   bindDataSetReadonlyCommandQuery(view, createFlowRunCandidatesBinding({view, source, guard: () => {}}))
   try {
@@ -29,6 +30,13 @@ it('keeps each node candidate range in its original options query and rejects st
     expect(view.rows).toEqual([])
     source.queryContext = {stepId: 'S2'}
     await view.refresh()
+    expect(view.loadingError).not.toBeNull()
+    payload = {nextNodes: [{rowid: 'END'}], execUser: []}
+    await source.refresh()
+    view.queryContext = {nodeId: 'END'}; await view.refresh()
+    expect(view.loadingError).toBeNull()
+    expect(view.rows).toEqual([])
+    view.queryContext = {nodeId: 'UNKNOWN'}; await view.refresh()
     expect(view.loadingError).not.toBeNull()
   } finally {ds.destroy()}
 })

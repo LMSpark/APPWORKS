@@ -6,6 +6,7 @@
 import type {BindReadonlyCommandQueryOptions, DataRow, DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {parseFlowRunExecUsers} from '../flow-run-exec-users'
+import {parseFlowRunHandleNodeOptions} from '../flow-run-handle-options'
 
 export function createFlowRunCandidatesBinding({view, source, guard}: Readonly<{view: DataView; source: DataView; guard: () => void}>): BindReadonlyCommandQueryOptions {
   const captures = new WeakMap<object, () => DataRow[]>()
@@ -33,7 +34,10 @@ export function createFlowRunCandidatesBinding({view, source, guard}: Readonly<{
         const payload = row['payload']
         if (!isRecord(payload)) throw Error('审批人员候选来源无效')
         const config = parseFlowRunExecUsers(payload).find(item => item.nodeId === nodeId)
-        if (!config) throw Error('审批节点未声明人员候选范围')
+        if (!config) {
+          if (parseFlowRunHandleNodeOptions(payload, ['nextNodes', 'NextNodeList', 'nextNodeList', 'nodes']).some(node => node.id === nodeId)) return []
+          throw Error('审批节点未声明人员候选范围')
+        }
         return config.users.map(user => ({id: user.id, name: user.name, value: `${user.id}:${user.name || user.id}`, nodeId}))
       }
       captures.set(params, read)

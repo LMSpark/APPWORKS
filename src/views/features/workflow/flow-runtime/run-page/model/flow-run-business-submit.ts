@@ -8,10 +8,10 @@ export async function submitFlowBusinessPage({page, payload, submit, assertCurre
   assertCurrent()
   const gate = await page?.flowSubmit?.()
   assertCurrent()
-  if (gate === false || gate === 'cancel') return false
+  if (gate === false || (typeof gate === 'string' && gate.toLowerCase() === 'cancel')) return false
   const end = await page?.flowSubmitEnd?.(payload)
   assertCurrent()
-  if (end === false || end === 'cancel') return false
+  if (end === false || (typeof end === 'string' && end.toLowerCase() === 'cancel')) return false
   try {
     await submit()
   } catch (cause) {

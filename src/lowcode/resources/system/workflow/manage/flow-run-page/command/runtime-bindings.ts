@@ -47,7 +47,7 @@ export function createApprovalCommandBindings(input: Input): Pick<LowcodeDataSpa
             }) : []
             await client.submitOrStart({flowId: String(row['flowId'] ?? ''), flowObjId, curStepId, nextNode,
               formKey: String(row['formKey'] ?? ''), formUrl: String(row['formUrl'] ?? ''), formParams: String(row['formParams'] ?? ''),
-              busRowid: String(row['busRowid'] ?? ''), idea: params.idea, notifyType: String(row['notifyType'] ?? ''), type: String(row['type'] ?? '')})
+              busRowid: String(row['busRowid'] ?? ''), idea: params.idea, isReturn: row['isReturn'] === true, notifyType: String(row['notifyType'] ?? ''), type: String(row['type'] ?? '')})
             break
           }
           case 'back': await client.backByHistory(params); break

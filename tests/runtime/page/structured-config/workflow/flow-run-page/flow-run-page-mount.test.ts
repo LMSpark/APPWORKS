@@ -1,10 +1,10 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {defineComponent, h, reactive} from 'vue'
-import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererForm, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, type DataView} from '@spark-appworks/spark-data'
+import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, parseDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {createFlowRunOptionsBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding'
 import {FlowRunCommandResource} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
 import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
@@ -12,6 +12,7 @@ import {withTestPageService} from '../../../../../support/helpers/page-service-h
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
 const {reloadRuntime} = vi.hoisted(() => ({reloadRuntime: vi.fn(async () => undefined)}))
+const callbacks = vi.hoisted(() => ({end: vi.fn(async (_payload: unknown) => true), succeeded: vi.fn(async (_payload: unknown) => {}), failed: vi.fn((_payload: unknown) => {})}))
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeApi: {readRequestScope: vi.fn(() => ({}))},
@@ -33,7 +34,7 @@ const routeState = reactive({query: {wfid: 'WF-1', flowid: 'FM-1', stepid: ''}, 
 let releaseOldQuery: (() => void) | undefined
 let delayFirstQuery = false
 let instanceReads = 0
-const approvalState = {hasUnconfirmedSave: false, mutating: false, hasEditingChanges: () => false, dirtyTracking: {hasPendingChanges: () => false}}
+const approvalState = {rows: [], hasUnconfirmedSave: false, mutating: false, hasEditingChanges: () => false, dirtyTracking: {hasPendingChanges: () => false}}
 let originalCommandView: DataView | undefined
 let originalOptionsView: DataView | undefined
 vi.mock('vue-router', async importOriginal => {
@@ -44,9 +45,14 @@ vi.mock('vue-router', async importOriginal => {
     useRouter: () => ({resolve: vi.fn(() => ({matched: [], path: '/demo'}))}),
   }
 })
-vi.mock('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue', () => ({
-  default: {name: 'FlowRunRouteRenderer', props: ['fallbackProps'], template: '<div data-testid="biz-route">{{ JSON.stringify(fallbackProps) }}</div>'},
-}))
+vi.mock('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue', async () => {
+  const {defineComponent, h, onMounted, onBeforeUnmount} = await import('vue')
+  return {default: defineComponent({name: 'FlowRunRouteRenderer', props: ['fallbackProps', 'registry', 'tabKey'], setup(props) {
+    onMounted(() => props['registry'].set(props['tabKey'], {flowSubmitEnd: callbacks.end, flowSubmitSucceeded: callbacks.succeeded, flowSubmitFailed: callbacks.failed}))
+    onBeforeUnmount(() => props['registry'].set(props['tabKey'], null))
+    return () => h('div', {'data-testid': 'biz-route'}, JSON.stringify(props['fallbackProps']))
+  }})}
+})
 vi.mock('@/registries/vue-page-registry', () => ({getVuePageOptions: () => [{path: '/business'}]}))
 vi.mock('@/views/features/workflow/flow-append-user/ui/flow-append-user.vue', () => ({
   default: {name: 'FlowAppendUser', template: '<div data-testid="append-user">加签</div>'},
@@ -119,16 +125,23 @@ function createRuntime(): PageRuntime {
     WFOBJ_FLOW_Waiting: createView([]),
   }
   const instanceRows = monitor.View_FlowObjList.rows
+  const actualWorkbench = originalOptionsView?.dataSet
+  if (actualWorkbench) {
+    vi.spyOn(actualWorkbench, 'getView').mockImplementation((name, id) => DataSet.prototype.getView.call(actualWorkbench, name, id) ?? workbench[name as keyof typeof workbench] as DataView | undefined)
+  }
   Object.defineProperty(monitor.View_FlowObjList, 'rows', {get: () => {instanceReads += 1; return instanceRows}})
   return {
     instanceId: 'flow-run-page-mount',
     getDataSet: (id: string) => {
       if (id === FLOW_DESIGN_SCENARIO_ID) return {getView: (name: string) => design[name as keyof typeof design]}
       if (id === FLOW_MONITOR_SCENARIO_ID) return {getView: (name: string) => monitor[name as keyof typeof monitor]}
-      if (id === FLOW_WORKBENCH_SCENARIO_ID) return {getView: (name: string) => workbench[name as keyof typeof workbench]}
+      if (id === FLOW_WORKBENCH_SCENARIO_ID) return actualWorkbench ?? {getView: (name: string) => workbench[name as keyof typeof workbench]}
       return undefined
     },
     resolveView: (key: string) => {
+      const descriptor = parseDataViewKey(key)
+      const actual = descriptor && actualWorkbench?.getView(descriptor.tableName, descriptor.viewId)
+      if (actual) return actual
       if (key.includes('View_FlowObjList')) return monitor.View_FlowObjList
       if (key.includes('WFOBJ_FLOW_RELATIONLINE_STEP')) return workbench.WFOBJ_FLOW_RELATIONLINE_STEP
       if (key.includes('WFM_FLOW_NODE')) return design.WFM_FLOW_NODE
@@ -153,11 +166,15 @@ const pageInstance = pagePool.get(fixtureRouter.currentRoute.value, {scope: 'app
 const Host = pageInstance.view
 
 const wrappers: VueWrapper[] = []
+const baselineStubs = {...config.global.stubs}
 
 beforeEach(() => {
   registerAllRenderers()
   approvalState.hasUnconfirmedSave = false
+  originalOptionsView = undefined
+  config.global.stubs = {...baselineStubs}
   reloadRuntime.mockClear()
+  callbacks.end.mockReset().mockResolvedValue(true); callbacks.succeeded.mockReset().mockResolvedValue(undefined); callbacks.failed.mockClear()
   routeState.query.stepid = ''
   releaseOldQuery = undefined
   delayFirstQuery = false
@@ -165,16 +182,30 @@ beforeEach(() => {
 })
 afterEach(() => {
   wrappers.splice(0).forEach(item => item.unmount())
+  config.global.stubs = {...baselineStubs}
   vi.unstubAllGlobals()
 })
 
 describe('flow run page mount', () => {
-  it('queries and renders approval options from the original runtime DataView', async () => {
+  it.each(['success', 'unknown', 'callback-error'])('uses original parameter views through the %s outcome', async outcome => {
     const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
     const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})
-    const query = vi.fn(async () => ({nextNodes: [{rowid: 'NEXT-1', title: '正式后续节点'}]}))
+    ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCandidates', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-candidates'}, columns: [{name: 'id', primary: true}, {name: 'name'}, {name: 'value'}, {name: 'nodeId'}]})
+    const steps = ensureDataSetResourceView({dataSet: ds, tableName: 'WFOBJ_FLOW_RELATIONLINE_STEP', resource: {resourceType: 'service-query', resourceId: 'steps'}, columns: [{name: 'rowid', primary: true}, ...['WFOBJID', 'description', 'ReceiveUserName', 'STARTTIME', 'StepState'].map(name => ({name}))]})
+    bindDataSetReadonlyCommandQuery(steps, {resource: {resourceType: 'service-query', resourceId: 'steps'}, guard: () => {}, loadRows: async () => [{rowid: 'S1', WFOBJID: 'WF-1'}]})
+    const payload = {curNode: {rowid: 'CUR', TYPEID: '1', TITLE: '当前'}, nextNodes: [{rowid: 'NEXT-1', title: '正式后续节点', direction: 'forward'}], execUser: []}
+    const query = vi.fn(async () => payload)
     bindDataSetReadonlyCommandQuery(view, createFlowRunOptionsBinding({view, client: {getHandleOptionData: query}, guard: () => {}, captureTarget: () => () => {}}))
+    const command = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCommand', resource: {resourceType: 'command', resourceId: 'workflow:approval'}, columns: [{name: 'rowid', primary: true}, ...['action', 'flowObjectId', 'stepId', 'flowId', 'busRowid', 'formKey', 'idea', 'nodeId', 'type', 'notifyType'].map(name => ({name})), {name: 'isReturn', type: 'boolean'}, {name: 'nextNode', type: 'array'}]})
+    const dispatch = vi.fn(async (_row: Readonly<Record<string, unknown>>) => {if (outcome === 'unknown') throw Error('lost receipt')})
+    if (outcome === 'callback-error') callbacks.succeeded.mockRejectedValueOnce(Error('callback refresh failed'))
+    bindDataSetCommandSubmit(command, new FlowRunCommandResource({view: command, guard: () => {}, captureTarget: () => () => {}, dispatch}).binding())
+    const continuation = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalContinuation', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-continuation'}, columns: [{name: 'id', primary: true}, {name: 'enableNext', type: 'boolean'}]})
+    bindDataSetReadonlyCommandQuery(continuation, {resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-continuation'}, guard: () => {}, loadRows: async () => [{id: 'current', enableNext: false}]})
     originalOptionsView = view
+    const originalStubs = {...config.global.stubs}, stubs = {...config.global.stubs}
+    for (const key of ['el-table', 'el-table-column', 'el-button', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[key]
+    config.global.stubs = stubs
     routeState.query.stepid = 'S1'
     const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(Host))}), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
     try {
@@ -184,8 +215,40 @@ describe('flow run page mount', () => {
       await flushPromises()
       expect(query).toHaveBeenCalledWith({modelId: 'FM-1', stepId: 'S1', busRowId: 'BUS-1', formid: 'F1'})
       expect(wrapper.text()).toContain('正式后续节点')
-      expect(view.rows[0]?.['payload']).toEqual({nextNodes: [{rowid: 'NEXT-1', title: '正式后续节点'}]})
-    } finally {wrapper.unmount(); originalOptionsView = undefined; ds.destroy()}
+      expect(wrapper.findAllComponents(RendererForm).some(form => form.props('dataViewKey') === `${FLOW_WORKBENCH_SCENARIO_ID}@ApprovalInput@default`)).toBe(true)
+      expect(view.rows[0]?.['payload']).toEqual(payload)
+      await wrapper.get('textarea').setValue('同意')
+      ds.getView('ApprovalInput')!.updateEditingValue('current', 'notifySms', true)
+      callbacks.end.mockResolvedValueOnce(false)
+      await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click'); await flushPromises()
+      expect(dispatch).not.toHaveBeenCalled()
+      expect(ds.getView('ApprovalInput')?.getEditingRow('current')?.['idea']).toBe('同意')
+      await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click'); await flushPromises()
+      expect(dispatch).toHaveBeenCalledTimes(1)
+      expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({idea: '同意', notifyType: '0', nextNode: [{NodeId: 'NEXT-1', ExecUserList: []}]}))
+      if (outcome === 'unknown') {
+        expect(command.hasUnconfirmedSave).toBe(true)
+        expect(wrapper.text()).toContain('审批结果未知')
+        expect(ds.getView('ApprovalInput')?.getEditingRow('current')?.['idea']).toBe('同意')
+        expect(callbacks.succeeded).not.toHaveBeenCalled()
+        expect(callbacks.failed).not.toHaveBeenCalled()
+        await wrapper.findAll('button').find(item => item.text() === '关闭')!.trigger('click'); await flushPromises()
+        expect(wrapper.find('textarea').exists()).toBe(true)
+        await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click'); await flushPromises()
+        expect(dispatch).toHaveBeenCalledTimes(1)
+        return
+      }
+      if (outcome === 'callback-error') {
+        expect(wrapper.text()).toContain('审批提交已确认')
+        expect(wrapper.find('textarea').exists()).toBe(false)
+        await button.trigger('click'); await flushPromises()
+        expect(dispatch).toHaveBeenCalledTimes(1)
+      }
+      expect(callbacks.succeeded).toHaveBeenCalledTimes(1)
+      expect(callbacks.failed).not.toHaveBeenCalled()
+      expect(callbacks.end).toHaveBeenCalledWith(expect.objectContaining({action: {name: '提交', nodes: [{nodeId: 'NEXT-1', title: '正式后续节点', direction: 'forward', selectedUsers: []}]}, currentNode: expect.objectContaining({rowid: 'CUR'}), opinionText: '同意'}))
+      expect(wrapper.findAll('button').find(item => item.text() === '办理')!.attributes('disabled')).toBeUndefined()
+    } finally {wrapper.unmount(); originalOptionsView = undefined; config.global.stubs = originalStubs; ds.destroy()}
   })
   it('retains the actual unknown DataSet command when the system page is closed', async () => {
     const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})

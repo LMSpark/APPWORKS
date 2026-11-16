@@ -82,7 +82,7 @@ describe('FlowRunPageClient.fetchStepHistory', () => {
 })
 
 describe('FlowRunPageClient.backByHistory', () => {
-  it('posts FlowBack with flowObjId, curStepId and nodeId', async () => {
+  it('posts an ordinary return without promising a client-selected target', async () => {
     const http = new FlowHttpStub()
     const client = createFlowRunPageClient({
       http,
@@ -101,8 +101,8 @@ describe('FlowRunPageClient.backByHistory', () => {
     expect(call?.data).toMatchObject({
       flowObjId: 'WF-1',
       curStepId: 'S1',
-      nodeId: 'N-prev',
       Idea: '请修改',
     })
+    expect(call?.data).not.toHaveProperty('nodeId')
   })
 })

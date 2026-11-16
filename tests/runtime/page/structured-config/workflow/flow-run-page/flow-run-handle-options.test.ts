@@ -5,6 +5,10 @@ import {
 } from '@/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options'
 
 describe('flow-run-handle-options', () => {
+  it('reads raw service ROWID and the original display memo without losing node identity', () => {
+    expect(parseFlowRunHandleNodeOptions({nextNodes: [{ROWID: 'RAW', TITLE: '标题', MEMO: '说明', direction: 'forward'}]}, ['nextNodes']))
+      .toEqual([{id: 'RAW', title: '说明', direction: 'forward'}])
+  })
   it('preserves declared direction and return semantics from the formal nextNodes payload', () => {
     expect(parseFlowRunHandleNodeOptions({nextNodes: [{rowid: 'N1', title: '退回审核', Direction: 'backward', IsTurnBack: true}]}, ['nextNodes']))
       .toEqual([{id: 'N1', title: '退回审核', direction: 'backward', isTurnBack: true}])

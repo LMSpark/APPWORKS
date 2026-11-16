@@ -121,7 +121,6 @@ export class FlowRunPageClient {
       data: {
         flowObjId: normalizeText(params.flowObjId),
         curStepId: normalizeText(params.curStepId),
-        nodeId: normalizeText(params.nodeId),
         Idea: normalizeText(params.idea),
       },
       headers: this.#headers(scope),

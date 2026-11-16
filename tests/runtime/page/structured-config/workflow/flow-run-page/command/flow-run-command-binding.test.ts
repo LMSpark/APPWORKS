@@ -22,7 +22,7 @@ it('submits the captured instance and step through the original command view', a
   const config = new ScenarioViewConfig(scene, text)
   const ds = DataSet.fromJson({scenarioId: scene, tables: {}}), http = new Http()
   for (const name of ['ApprovalCommand', 'WFOBJ_FLOW_RELATIONLINE_STEP', 'WFOBJ_FLOW']) {
-    ensureDataSetResourceView({dataSet: ds, tableName: name, resource: {resourceType: name === 'ApprovalCommand' ? 'command' : 'service-query', resourceId: name === 'ApprovalCommand' ? 'workflow:approval' : name}, columns: [{name: 'rowid', primary: true}, ...['action','flowObjectId','stepId','flowId','idea','WFOBJID','WFMID'].map(name => ({name})), {name: 'nextNode', type: 'array'}]})
+    ensureDataSetResourceView({dataSet: ds, tableName: name, resource: {resourceType: name === 'ApprovalCommand' ? 'command' : 'service-query', resourceId: name === 'ApprovalCommand' ? 'workflow:approval' : name}, columns: [{name: 'rowid', primary: true}, ...['action','flowObjectId','stepId','flowId','idea','WFOBJID','WFMID'].map(name => ({name})), {name: 'nextNode', type: 'array'}, {name: 'isReturn', type: 'boolean'}]})
   }
   const bindings = createApprovalCommandBindings({config, http, readScope: () => ({token: 't', headers: {}}), assertCurrent: () => {}})
   const command = ds.getView('ApprovalCommand'), steps = ds.getView('WFOBJ_FLOW_RELATIONLINE_STEP'), objects = ds.getView('WFOBJ_FLOW')
@@ -37,9 +37,9 @@ it('submits the captured instance and step through the original command view', a
   try {
     await expect(submitApprovalCommand(ds, {action: 'submit', flowObjectId: 'WF1', stepId: 'S1', flowId: 'wrong', nextNode: []})).rejects.toThrow(/模型/)
     expect(http.calls).toHaveLength(0)
-    await submitApprovalCommand(ds, {action: 'submit', flowObjectId: 'WF1', stepId: 'S1', flowId: 'FM1', idea: '同意', nextNode: [{NodeId: 'N1', ExecUserList: ['U1']}]})
+    await submitApprovalCommand(ds, {action: 'submit', flowObjectId: 'WF1', stepId: 'S1', flowId: 'FM1', idea: '同意', isReturn: true, nextNode: [{NodeId: 'N1', ExecUserList: ['U1']}]})
     expect(http.calls[0]?.url).toBe('/api/Flow/FlowSubmitOrStart')
-    expect(http.calls[0]?.data).toMatchObject({flowObjId: 'WF1', curStepId: 'S1', nextNode: [{NodeId: 'N1', ExecUserList: ['U1']}]})
+    expect(http.calls[0]?.data).toMatchObject({flowObjId: 'WF1', curStepId: 'S1', isReturn: true, nextNode: [{NodeId: 'N1', ExecUserList: ['U1']}]})
     for (const [action, endpoint] of [['back', 'FlowBack'], ['forceBack', 'FlowForceBack'], ['toCreator', 'FlowToCreator'], ['revoke', 'FlowRevoke']]) {
       await submitApprovalCommand(ds, {action, flowObjectId: 'WF1', stepId: 'S1', nodeId: 'N1', idea: '退回'})
       expect(http.calls.at(-1)?.url).toBe(`/api/Flow/${endpoint}`)

@@ -6,6 +6,7 @@ import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import type {LowcodeDataSpaceAssemblerInput} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {createFlowRunOptionsBinding} from './options-binding'
 import {createFlowRunCandidatesBinding} from './candidates-binding'
+import {createFlowRunContinuationBinding} from './continuation-binding'
 import {createFlowRunPageClient, type FlowRunPageClientOptions} from '../flow-run-page-client'
 import {FLOW_WORKBENCH_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID} from '../../flow-runtime-client'
 import {isRecord} from '@spark-appworks/spark-utils'
@@ -39,5 +40,11 @@ export function createApprovalOptionsBindings(input: Input): Pick<LowcodeDataSpa
       input.assertCurrent()
       if (ds?.destroyed || ds?.getView('ApprovalOptions', 'default') !== source) throw Error('审批人员候选空间已失效')
     }})
+  }, ApprovalContinuation: view => {
+    const ds = view.dataSet, source = ds?.getView('ApprovalOptions')
+    if (!source) throw Error('自动后继缺少原办理选项')
+    const guard = () => {input.assertCurrent(); if (ds?.destroyed || view.destroyed) throw Error('自动后继空间已失效')}
+    const client = createFlowRunPageClient({http: input.http, readScope: input.readScope, scenarioId: FLOW_MONITOR_SCENARIO_ID, assertCurrent: guard})
+    return createFlowRunContinuationBinding({view, source, client, guard})
   }}}
 }

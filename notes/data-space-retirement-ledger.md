@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **当前用户任务（2026-11-16）：** 按本台账[全量重核与迁移计划](#appworks-full-migration-20261116)持续实现完整20包，纠正前期错误、真实烟测、逐轮修复重验并提交推送；当前I04接续标准选人、原参数视图及完整回调缺口，不另建总计划。仅在主仓、标准组件+唯一SPARK data，不开Node服务、不改/启停/部署后端Java。后面的 S1–S4 条目保留历史证据，不能将已通过的工程检查等同于20包业务验收。
+> **当前用户任务（2026-11-16）：** 按本台账[全量重核与迁移计划](#appworks-full-migration-20261116)持续实现完整20包，纠正前期错误、真实烟测、逐轮修复重验并提交推送；当前I05实施办理页原参数DataView、标准字段及完整回调并扩大验证，不另建总计划。仅在主仓、标准组件+唯一SPARK data，不开Node服务、不改/启停/部署后端Java。后面的 S1–S4 条目保留历史证据，不能将已通过的工程检查等同于20包业务验收。
 
 > **历史分层索引（2026-11-10，当日S1、S2与S3冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见 [BH](#bh-s4-data-code-catalog-host)，编码设计见 [BI](#bi-s4-data-code-editor-host)，逻辑视图目录见 [BJ](#bj-s4-logic-view-catalog-host)，工作流目录见 [BK](#bk-s4-workflow-catalog-host)，工作流设计见 [BL](#bl-s4-workflow-design-host)，JSON 目录见 [BM](#bm-s4-json-catalog-host)，Excel 目录见 [BN](#bn-s4-excel-catalog-host)，Excel 设计见 [BO](#bo-s4-excel-editor-host)，PDF 目录见 [BP](#bp-s4-pdf-catalog-host)，PDF 设计见 [BQ](#bq-s4-pdf-editor-host)，外部 API 目录见 [BR](#br-s4-api-catalog-host)，API 配置见 [BS](#bs-s4-api-config-host)，API 接口目录见 [BT](#bt-s4-api-interface-host)，缓存管理见 [BU](#bu-s4-cache-management-host)，分阶段设计助手见 [BV](#bv-s4-staged-design-host)，设计查询预览见 [BW](#bw-s4-query-preview-host)，工作流文件 owner 见 [BX](#bx-s4-workflow-file-owner-host)，工作台见 [BY](#by-s4-workbench-host)，启动导航见 [BZ](#bz-s4-startup-navigation-host)，表和视图旧路径见 [CA](#ca-s4-table-view-alias-removal)，系统页 alias 链见 [CB](#cb-s4-system-page-alias-chain)，路由回滚不再恢复 alias 见 [CC](#cc-s4-route-rollback-alias)，数据库目录第二路径见 [CD](#cd-s4-dbms-path-removal)，缓存直连统计见文末 CE，系统设置假配置见 CF，项目设置弹窗见 CG。S4未冻结。RendererCollapse 布局数据上下文的专项结果见 CW；最新 AppWorks 实施与验收断点见文末I03及2026-11-16完整20包计划，生成物、门禁与远端状态以末尾当前检查点为准，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
@@ -9926,7 +9926,7 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 ## 2026-11-16 当前项目重核与完整 AppWorks 迁移计划
 
-状态：实施中（用户已要求按本方案持续迭代；I01、I02已形成提交推送检查点，I03继续实施；整体验收未完成）。本节是当前唯一总计划；前文各轮记录保留其日期、范围及原始证据，不自动沿旧编号继续实施。
+状态：实施中（用户已要求按本方案持续迭代；I01至I04已形成提交推送检查点，I05继续实施；整体验收未完成）。本节是当前唯一总计划；前文各轮记录保留其日期、范围及原始证据，不自动沿旧编号继续实施。
 
 - 本仓基线：`b9c14db6b10c52fcd8554b9eea319a4c979e633c`，单一目录 `D:/SPARK_AppWorks`；此前提交检查点已推送。
 - 固定参考：`E:/r/sparkproject` 提交 `1147b00ee53a1476d4ee715c61368b453a215192` 的 `apps/appworks`，473 文件；参考仓当前 HEAD 的该目录已撤除，不能据此清零迁移范围。
@@ -10137,3 +10137,23 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - I04检查点验收：扩大影响测试125文件/1469项通过（cache/i04-impact-tests.log），随后开窗前来源失效补正的3文件34项通过（cache/i04-picker-final.log）；最终候选/显式命名视图隔离、原来源失效、组件参数写回/取消、确认后命令提交及实际factory共4文件8项通过（cache/i04-candidate-final.log）。最后源码的完整verify exit0（cache/i04-verify-confirmed.log）、完整build exit0（cache/i04-build-confirmed.log）及正式ClassModel生成exit0（cache/i04-class-model-confirmed.log）。本轮未重跑根573文件全量，不把I03的9993测试快照写成本轮新全量；无已知未关闭检查失败。
 - I04未完范围与接续：候选DataView工厂已进入正式A5装配，标准选人迟到/过期缺陷已在公共责任层修正；组合测试证明同一DataSet中的唯一可编辑参数视图与确认后的不可变命令可衔接，未新增第二可编辑业务草稿。本轮尚未把参数视图、人数/多节点限制、通知与完整业务回调接到实际办理页；下一轮先复用既有静态参数表能力及标准JSON/人员组件接完整业务，再确认新后继步骤与真实烟测。当前20包整体、四文件推广、包16及浏览器/实服写入均未验收；不新建Node服务，不修改/启停/部署Java。
 - I04提交推送完成：实现提交e5d2dd8fc8590da457ec1fee4e5b06566dafa823已推送origin/codex/spark-data-s1-command-safety；git ls-remote独立返回同SHA，工作区干净。当前目标保持进行中。接续I05从实际办理页的单一参数DataView接线开始，保留不可变命令及原未知意图，不以本轮组件/数据组合通过替代整页及实服烟测。
+- I05在途：从65d1238a干净检查点接续，目标是实际办理页参数/标准组件/确认/取消及完整回调，不缩减20包。新增FlowRunApprovalInputWorkspace，同一DataSet持有ApprovalInput和ApprovalNodeInput静态参数视图；候选仍是原ApprovalOptions的独立命名只读投影，原源captureReadRow守卫持续核验。确认时才捕获命令与协议值证明，不更改FlowRunCommandResource的不可变输入要求。已覆盖原查询失效、人数上下限、候选编码范围及参数变化；初跑因对静态输入设置queryConfig使结果标过期失败，按既有静态参数合同去掉不必要的查询配置后通过（cache/i05-input-green.log）。实际页面尚未接线，不能算整页完成。
+- I05已证实并修正返回标志断链：现有FlowRunSubmitParams/HTTP已有isReturn合同，但命令资源字段、捕获和runtime-bindings漏掉它，真实DataSet→HTTP回归先红。已补布尔列、命令原捕获比较/类型校验和显式传递；submitApprovalCommand仅在正式列存在时补false，避免公用命令默认文本空串伪装布尔。命令目录回归cache/i05-return-green.log待核最终结果，不改后端Java协议。
+- I05零人员节点语义：固定参考对已知nextNodes但无execUser项使用零人配置；候选投影现仅在该节点确属原正式nextNodes时返回空范围，未知节点仍拒绝，未扩大目录范围。反例红→绿，连同参数视图2文件2项通过cache/i05-terminal-green.log。allowChange扩展人员目录仍需按正式授权数据合同完成，不能把候选只读投影当作该专题已完。
+- I05页面挂载反例在途：原页面仍有本地selectedNode/opinion、原生input及手传办理选项。测试开始要求正式ApprovalInput标准表单；先修正测试DataSet.getView替身重复包裹导致的递归，随后才复核真实页面缺口，日志cache/i05-page-input-red.log。不把测试夹具错误当产品缺陷。接续还需退回目标DataView、通知、全部业务回调与已确认/unknown分流；自动后继未有正式新步骤身份时不得沿旧步骤重发。
+
+- I05实际页面接线：办理侧栏已移除本地意见/节点选择副本，RendererTable/RendererForm绑定同DataSet的ApprovalNodeInput/ApprovalInput；节点字段复用标准r-column-group行上下文及r-user-picker原候选视图。RTable正式属性showPagination、RJson正式属性valueFormat以源码及指南为准；没有另造页面列模型。6项挂载回归覆盖真实标准表单、通知、业务预处理取消保留参数、确认后一次派发与成功回调。首次确认后busy未释放的反例已修复（刷新页面递增generation前释放本次busy），cache/i05-page-submit-green.log。
+- I05自动后继查询：新增ApprovalContinuation只读DataView及正式factory，复用现有CanAutoSubmitAfter(curStepId)接口，捕获原选项证明，只接受布尔结果；不猜未知=false。提交前查询并向原业务回调传enableNext，不沿旧步骤递归重复提交。组合3文件8项通过cache/i05-page-continuation.log；实际服务的后继自动办理效果仍待现场证据。
+- I05协议纠偏：正式节点ROWID与MEMO标题消费已补齐，人数限制拒绝布尔/对象/数组及min>max（含max=0），2文件10项通过cache/i05-wire-limits-green.log。普通FlowBack历史目标由后端选定，现有控制器不消费nodeId，故删除前端虚假历史目标选择和该请求字段；强退仍须从原forceBackNodes选择并传真实目标。上述来自固定参考与本地Java只读核对，不等同实际服务验收；3文件12项通过cache/i05-ordinary-back-green.log。
+- I05参数生命周期补验：取消重开复用已绑定候选owner，原捕获即使值相同也不能恢复有效；业务回调载荷深拷贝不改变不可变命令。另复现CANCEL/Cancel被误当继续，按原大小写无关取消合同纠正；2文件7项通过cache/i05-cancel-reopen-green.log。完整typecheck最新自然exit0；正式生成、扩大工作流测试、lint、构建仍在途，当前未提交，不将I03全量快照当成本轮全绿。
+- I05未完：整页unknown/已确认回调异常与切换组合、allowChange目录扩大合同、整页标准组件及四文件收敛、其余20包和真实业务写入/读回烟测继续开放；浏览器策略与当前账号待办0限制仍未消失。本轮未开Node服务、未改/启停/部署Java，也未向实服提交审批业务写入。
+
+- I05整页结果回归：挂载用例扩为成功/unknown/已确认但回调异常三路径，8项通过cache/i05-outcomes.log，原命令未知不能关闭参数或二次派发，已确认回调异常不再重复办理。进一步以“审批结果未知”可见文案反例复现原capture.assertCurrent在提交后误做新命令清理检查、遮蔽真实unknown；将私有原参数证明与公开新命令入口检查分开，原禁止新命令/取消守卫保留，2文件9项红→绿cache/i05-unknown-message-{red,green}.log。旧扩测有修复前CANCEL两项失败，后续19文件51项已通过cache/i05-page-final.log；不将修复前在途快照判绿。
+- I05构建首跑Vite显示built后进程Windows状态3221226505异常退出，未算通过；相同正式build命令复跑自然exit0，cache/i05-build-final.log。最后原参数证明小修之后继续正式生成和相关复验，最终结果待后续记录。当前扩大影响测试及完整verify尚在运行，不能提前提交或宣称全绿。
+
+- I05最终门禁接续：完整verify首轮在verify:lowcode-contracts发现appworks-consumer-ledger.json过期，未算通过；正式pnpm run generate:lowcode-contracts已完成（611 endpoints/243 consumers），没有手改生成合同。最后ClassModel正式生成cache/i05-class-model-last.log自然exit0，最后涉及的workspace与挂载测试lint exit0（cache/i05-last-lint.log）。完整verify重跑cache/i05-verify-confirmed.log会话24914、完整build重跑cache/i05-build-confirmed.log会话83968、扩大影响回归cache/i05-impact-final.log会话26896均在途；保留原句柄收终态，不重复启动全套。下一轮完成门禁后提交推送并独立核remote，然后沿原20包计划继续整页标准组件/四文件与未完业务语义，不据本地通过提前核销现场验收。
+
+- I05扩大影响回归自然exit0：127文件/1483项通过，355.49s，cache/i05-impact-final.log；该进程从最后提示小修前启动，最后小修另有2文件9项通过与目标lint补验。最后源码完整build亦自然exit0（cache/i05-build-confirmed.log，会话83968结束）。完整verify会话24914尚在lint阶段，不伪报通过。
+- I06候选接续（未实施）：已只读核现有RendererTabs/RendererTabPane/DisplayEmpty源码，原生slot、lazy及index合同可复用，不需要再造标签宿主。正式ClassModel目录/概要/指南仍须在I06生成前查询。后续须一起核业务页签切换、所有已确认动作的旧步骤防重入、allowChange和完整参考交互；不能只替换el-tabs名称就称整页1:1或四文件完成。当前I05提交范围不包含这些后续实现。
+
+- I05最终工程验收：完整pnpm run verify自然exit0（cache/i05-verify-confirmed.log，最后源码typecheck/lint及全部规则），完整pnpm run build自然exit0（cache/i05-build-confirmed.log，8包缓存有效/前端重建），最后正式ClassModel生成exit0（cache/i05-class-model-last.log）。扩大回归127文件1483项通过，最后unknown提示修正另补2文件9项及目标lint通过；未重跑根全量，不冒用I03的9993项。page-thin对本轮JSON签名的提示已审：它只校验已捕获命令输入是否变化，不承载编辑/取消基线；唯一编辑源仍是原参数DataView，不新增草稿或保存算法。服务、浏览器和整20包验收仍未完成，目标保持active。

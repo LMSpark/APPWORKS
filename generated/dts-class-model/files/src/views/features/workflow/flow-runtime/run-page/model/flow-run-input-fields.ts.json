@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields",
+    "sourcePath": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields.ts",
+    "sourceFile": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields.ts",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields",
+    "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields\n职责：用标准字段子组件声明办理参数与节点人员选择。\n边界：只编排绑定，不持有参数或候选值，不执行查询和保存。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-16T13:41:34.859Z",
+  "models": {}
+}

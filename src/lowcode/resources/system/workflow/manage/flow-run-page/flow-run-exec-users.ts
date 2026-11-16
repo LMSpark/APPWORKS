@@ -6,6 +6,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 export type FlowRunExecUsers = Readonly<{nodeId: string; minNum?: number; maxNum?: number; allowChange?: boolean; users: ReadonlyArray<Readonly<{id: string; name: string}>>}>
 function limit(value: unknown): number | undefined {
   if (value === undefined || value === null || value === '') return undefined
+  if (typeof value !== 'number' && typeof value !== 'string' || typeof value === 'string' && !value.trim()) throw Error('审批办理人数限制无效')
   const number = Number(value)
   if (!Number.isInteger(number) || number < 0) throw Error('审批办理人数限制无效')
   return number
@@ -21,7 +22,7 @@ export function parseFlowRunExecUsers(source: Readonly<Record<string, unknown>>)
     if (!nodeId || ids.has(nodeId)) throw Error('审批办理节点身份缺失或重复')
     ids.add(nodeId)
     const minNum = limit(item['minNum']), maxNum = limit(item['maxNum'])
-    if (minNum !== undefined && maxNum !== undefined && maxNum > 0 && minNum > maxNum) throw Error('审批办理人数范围冲突')
+    if (minNum !== undefined && maxNum !== undefined && minNum > maxNum) throw Error('审批办理人数范围冲突')
     const list = item['userList']
     if (!Array.isArray(list)) throw Error('审批办理人候选范围缺失')
     const users = list.map((user: unknown) => {

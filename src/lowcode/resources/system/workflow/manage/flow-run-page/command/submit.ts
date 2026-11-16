@@ -21,7 +21,7 @@ export async function submitApprovalCommand(dataSet: DataSet, input: Readonly<Da
   if (view.mutating || view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()) throw Error('请先处理原审批命令；结果未知时禁止重新提交')
   await view.refresh()
   if (view.loadingError) throw view.loadingError
-  await view.addRow({...input, nextNode: input['nextNode'] ?? []})
+  await view.addRow({...input, ...(view.getColumn('isReturn') ? {isReturn: input['isReturn'] ?? false} : {}), nextNode: input['nextNode'] ?? []})
   const result = await dataSet.saveChanges({views: [{tableName: 'ApprovalCommand', viewId: 'default'}]})
   if (!result.success) throw Error('审批命令未确认完成')
 }

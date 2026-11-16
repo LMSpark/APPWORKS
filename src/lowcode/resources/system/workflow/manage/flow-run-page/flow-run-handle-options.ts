@@ -29,8 +29,8 @@ export function parseFlowRunHandleNodeOptions(
   }
   if (!Array.isArray(raw)) return []
   return raw.filter(isRecord).map(row => ({
-    id: normalizeText(row['NodeId'] ?? row['nodeId'] ?? row['rowid'] ?? row['id']),
-    title: normalizeText(
+    id: normalizeText(row['NodeId'] ?? row['nodeId'] ?? row['rowid'] ?? row['ROWID'] ?? row['RowID'] ?? row['id']),
+    title: normalizeText(row['MEMO'] ?? row['memo']) || normalizeText(
       row['TITLE'] ?? row['Title'] ?? row['title'] ?? row['nodeName'] ?? row['NodeId'] ?? row['nodeId'],
     ),
     ...(row['direction'] !== undefined || row['Direction'] !== undefined ? {direction: normalizeText(row['direction'] ?? row['Direction'])} : {}),

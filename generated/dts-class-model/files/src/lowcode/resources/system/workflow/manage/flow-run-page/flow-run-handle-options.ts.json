@@ -42,7 +42,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-16T11:39:38.872Z",
+  "generatedAt": "2026-11-16T13:40:19.874Z",
   "models": {
     "FlowRunHandleNodeOption": {
       "name": "FlowRunHandleNodeOption",

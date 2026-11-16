@@ -37,7 +37,7 @@ export class FlowRunCommandResource {
     const confirmed = new Map<unknown, DataRow>()
     const assertCapture = (row: Readonly<DataRow>) => {
       const captured = captures.get(row[view.primaryKey])
-      if (!captured || inputFields.some(field => captured.row[field] !== row[field]) || nodeSignature(captured.row['nextNode']) !== nodeSignature(row['nextNode'])) {
+      if (!captured || [...inputFields, 'isReturn'].some(field => captured.row[field] !== row[field]) || nodeSignature(captured.row['nextNode']) !== nodeSignature(row['nextNode'])) {
         throw Error('审批命令与原捕获目标不符')
       }
       captured.assertTarget()
@@ -50,7 +50,7 @@ export class FlowRunCommandResource {
     return {
       resource: {resourceType: 'command', resourceId: 'workflow:approval'},
       guard: assertCurrent,
-      inputFields: [...inputFields, 'nextNode'],
+      inputFields: [...inputFields, 'isReturn', 'nextNode'],
       createKey: () => crypto.randomUUID(),
       allowAbandonUnconfirmed: false,
       onPrepareInput: row => {
@@ -59,6 +59,7 @@ export class FlowRunCommandResource {
         if (!['submit', 'back', 'forceBack', 'toCreator', 'revoke'].includes(String(row['action']))
           || !String(row['flowObjectId'] ?? '').trim() || !String(row['stepId'] ?? '').trim()) throw Error('审批命令缺少正式动作或目标')
         if (inputFields.some(field => row[field] !== undefined && typeof row[field] !== 'string')) throw Error('审批命令文本输入类型不符')
+        if (row['isReturn'] !== undefined && typeof row['isReturn'] !== 'boolean') throw Error('审批返回标志须为布尔值')
         nodeSignature(row['nextNode'])
         const key = row[view.primaryKey]
         if (typeof key !== 'string' || key.length === 0 || captures.has(key)) throw Error('审批命令身份重复')

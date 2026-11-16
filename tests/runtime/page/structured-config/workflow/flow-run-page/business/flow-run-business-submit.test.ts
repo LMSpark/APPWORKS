@@ -23,3 +23,9 @@ it('does not call the business failure callback for an unconfirmed original comm
   await expect(submitFlowBusinessPage({page: {flowSubmitFailed: failed}, payload: {}, submit: async () => {throw Error('unknown receipt')}, assertCurrent: () => {}, isUnconfirmed: () => true})).rejects.toThrow('unknown receipt')
   expect(failed).not.toHaveBeenCalled()
 })
+
+it.each(['cancel', 'CANCEL', 'Cancel'])('honors cancellation token %s before dispatch', async token => {
+  const submit = vi.fn(async () => undefined)
+  expect(await submitFlowBusinessPage({page: {flowSubmitEnd: () => token}, payload: {}, submit, assertCurrent: () => {}, isUnconfirmed: () => false})).toBe(false)
+  expect(submit).not.toHaveBeenCalled()
+})

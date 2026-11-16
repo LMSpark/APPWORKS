@@ -34,40 +34,15 @@
       </section>
       <aside v-if="handleOpen" class="flow-run-page__handle">
         <h3 class="flow-run-page__handle-title">办理</h3>
-        <p v-if="nextNodeOptions.length > 0" class="flow-run-page__section-label">下一节点</p>
-        <div v-if="nextNodeOptions.length > 0" class="flow-run-page__nodes">
-          <label v-for="item in nextNodeOptions" :key="item.id" class="flow-run-page__node-option">
-            <input v-model="selectedNodeId" type="radio" name="flow-run-next-node" :value="item.id">
-            <span>{{ item.title || item.id }}</span>
-          </label>
-        </div>
-        <template v-if="backNodeOptions.length > 0">
-          <p class="flow-run-page__section-label">退回目标</p>
-          <div class="flow-run-page__nodes">
-            <label v-for="item in backNodeOptions" :key="`back-${item.id}`" class="flow-run-page__node-option">
-              <input v-model="selectedBackNodeId" type="radio" name="flow-run-back-node" :value="item.id">
-              <span>{{ item.title || item.id }}</span>
-            </label>
-          </div>
-        </template>
-        <template v-if="allowForceBack && forceBackNodeOptions.length > 0">
-          <p class="flow-run-page__section-label">强制退回目标</p>
-          <div class="flow-run-page__nodes">
-            <label v-for="item in forceBackNodeOptions" :key="`force-${item.id}`" class="flow-run-page__node-option">
-              <input v-model="selectedForceBackNodeId" type="radio" name="flow-run-force-back-node" :value="item.id">
-              <span>{{ item.title || item.id }}</span>
-            </label>
-          </div>
-        </template>
-        <el-empty v-else-if="nextNodeOptions.length === 0" description="未返回办理或退回选项" />
-        <el-input v-model="opinionText" type="textarea" :rows="4" placeholder="办理意见" />
+        <RendererTable :data-view-key="nodeInputViewKey" :children="nodeFields" :auto-columns="false" :show-pagination="false" :show-data-view-meta="false" />
+        <RendererForm :data-view-key="inputViewKey" :children="inputFields" :auto-columns="false" :show-data-view-meta="false" />
         <div class="flow-run-page__handle-actions">
           <RendererButton label="提交" button-type="primary" :loading="handleLoading" @click="submitFlow" />
-          <RendererButton v-if="backNodeOptions.length > 0" label="退回上一节点" :loading="handleLoading" @click="backByHistory" />
+          <RendererButton v-if="backNodeOptions.length > 0" label="普通退回" :loading="handleLoading" @click="backByHistory" />
           <RendererButton v-if="allowForceBack && forceBackNodeOptions.length > 0" label="强制退回"
             :loading="handleLoading" @click="forceBack" />
           <RendererButton label="退回发起人" :loading="handleLoading" @click="backToCreator" />
-          <RendererButton label="关闭" @click="handleOpen = false" />
+          <RendererButton label="关闭" @click="closeHandlePanel" />
         </div>
       </aside>
     </div>
@@ -93,7 +68,7 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {useRoute} from 'vue-router'
-import {DisplayAlert, RendererButton, RendererDialog, RendererGraph, RendererSection, RendererTable} from '@spark-appworks/spark-component'
+import {DisplayAlert, RendererButton, RendererDialog, RendererGraph, RendererSection, RendererTable, RendererForm} from '@spark-appworks/spark-component'
 import {
   FLOW_DESIGN_SCENARIO_ID,
   FLOW_MONITOR_SCENARIO_ID,
@@ -131,11 +106,10 @@ const {
   handleOpen,
   handleLoading,
   handleError,
-  opinionText,
-  selectedNodeId,
-  selectedBackNodeId,
-  selectedForceBackNodeId,
-  nextNodeOptions,
+  inputViewKey,
+  nodeInputViewKey,
+  inputFields,
+  nodeFields,
   backNodeOptions,
   forceBackNodeOptions,
   allowForceBack,
@@ -150,6 +124,7 @@ const {
   chartPrepared,
   retryPage,
   openHandlePanel,
+  closeHandlePanel,
   submitFlow,
   verifyOriginalApproval,
   backByHistory,

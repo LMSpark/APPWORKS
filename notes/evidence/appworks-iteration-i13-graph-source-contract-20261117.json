@@ -1,0 +1,690 @@
+{
+  "observedAt": "2026-11-17T06:07:15.400Z",
+  "scope": "Read-only registered source-catalog contract for graph save diagnosis",
+  "models": [
+    {
+      "name": "Base_TblField",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "sourceName": "Base_TblField",
+      "fields": [
+        {
+          "name": "createuser",
+          "canonicalName": "createuser",
+          "type": "varchar",
+          "output": true
+        },
+        {
+          "name": "ValueFun",
+          "canonicalName": "ValueFun",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "Spare2",
+          "canonicalName": "Spare2",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "minVal",
+          "canonicalName": "minVal",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "lingma_sys_is_delete",
+          "canonicalName": "lingma_sys_is_delete",
+          "type": "int",
+          "output": true
+        },
+        {
+          "name": "object_id",
+          "canonicalName": "object_id",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "StateField",
+          "canonicalName": "StateField",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "updatetime",
+          "canonicalName": "updatetime",
+          "type": "datetime",
+          "output": true
+        },
+        {
+          "name": "DXExpression",
+          "canonicalName": "DXExpression",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "DataTableExpression",
+          "canonicalName": "DataTableExpression",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "IsNill",
+          "canonicalName": "IsNill",
+          "type": "tinyint",
+          "output": false
+        },
+        {
+          "name": "Memo",
+          "canonicalName": "Memo",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "createtime",
+          "canonicalName": "createtime",
+          "type": "datetime",
+          "output": true
+        },
+        {
+          "name": "tblid",
+          "canonicalName": "tblid",
+          "type": "char",
+          "output": true
+        },
+        {
+          "name": "isGrowth",
+          "canonicalName": "isGrowth",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "ordIdx",
+          "canonicalName": "ordIdx",
+          "type": "tinyint",
+          "output": false
+        },
+        {
+          "name": "wfid",
+          "canonicalName": "wfid",
+          "type": "varchar",
+          "output": true
+        },
+        {
+          "name": "DesenID",
+          "canonicalName": "DesenID",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "rowid",
+          "canonicalName": "rowid",
+          "type": "varchar",
+          "output": true
+        },
+        {
+          "name": "encryption_rule",
+          "canonicalName": "encryption_rule",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "enname",
+          "canonicalName": "enname",
+          "type": "varchar",
+          "output": true
+        },
+        {
+          "name": "cnname",
+          "canonicalName": "cnname",
+          "type": "varchar",
+          "output": true
+        },
+        {
+          "name": "ReportID",
+          "canonicalName": "ReportID",
+          "type": "varchar",
+          "output": true
+        },
+        {
+          "name": "IsOldSys",
+          "canonicalName": "IsOldSys",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "UseCtrlName",
+          "canonicalName": "UseCtrlName",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "IsPKey",
+          "canonicalName": "IsPKey",
+          "type": "tinyint",
+          "output": true
+        },
+        {
+          "name": "IsUQ",
+          "canonicalName": "IsUQ",
+          "type": "tinyint",
+          "output": false
+        },
+        {
+          "name": "flowstate",
+          "canonicalName": "flowstate",
+          "type": "int",
+          "output": true
+        },
+        {
+          "name": "IsSys",
+          "canonicalName": "IsSys",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "SQLExpression",
+          "canonicalName": "SQLExpression",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "DataType",
+          "canonicalName": "DataType",
+          "type": "varchar",
+          "output": true
+        },
+        {
+          "name": "updateuser",
+          "canonicalName": "updateuser",
+          "type": "varchar",
+          "output": true
+        },
+        {
+          "name": "DefaultValue",
+          "canonicalName": "DefaultValue",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "maxVal",
+          "canonicalName": "maxVal",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "status",
+          "canonicalName": "status",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "description",
+          "canonicalName": "description",
+          "type": "varchar",
+          "output": true
+        },
+        {
+          "name": "AsName",
+          "canonicalName": "AsName",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "crttime",
+          "canonicalName": "crttime",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "allowAIAdd",
+          "canonicalName": "allowAIAdd",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "Spare3",
+          "canonicalName": "Spare3",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "SettingParamJwt",
+          "canonicalName": "SettingParamJwt",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "functiondesc",
+          "canonicalName": "functiondesc",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "applyFormat",
+          "canonicalName": "applyFormat",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "DataTypeName",
+          "canonicalName": "DataTypeName",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "DataLen",
+          "canonicalName": "DataLen",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "Spare1",
+          "canonicalName": "Spare1",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "DataTypeRowid",
+          "canonicalName": "DataTypeRowid",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "tblname",
+          "canonicalName": "tblname",
+          "type": "varchar",
+          "output": true
+        },
+        {
+          "name": "DefaultValueType",
+          "canonicalName": "DefaultValueType",
+          "type": "varchar",
+          "output": false
+        }
+      ]
+    },
+    {
+      "name": "View_TblList",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "sourceName": "View_TblList",
+      "fields": [
+        {
+          "name": "multiTenancy",
+          "canonicalName": "multiTenancy",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "WebChartViewUrl",
+          "canonicalName": "WebChartViewUrl",
+          "type": "text",
+          "output": false
+        },
+        {
+          "name": "functiondesc",
+          "canonicalName": "functiondesc",
+          "type": "text",
+          "output": false
+        },
+        {
+          "name": "DropDownViewJson",
+          "canonicalName": "DropDownViewJson",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "tbldesc",
+          "canonicalName": "tbldesc",
+          "type": "text",
+          "output": true
+        },
+        {
+          "name": "dbid",
+          "canonicalName": "dbid",
+          "type": "char",
+          "output": true
+        },
+        {
+          "name": "RecCreater",
+          "canonicalName": "RecCreater",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "ColCount",
+          "canonicalName": "ColCount",
+          "type": "int",
+          "output": true
+        },
+        {
+          "name": "hasDefaultFields",
+          "canonicalName": "hasDefaultFields",
+          "type": "bigint",
+          "output": false
+        },
+        {
+          "name": "DbName",
+          "canonicalName": "DbName",
+          "type": "varchar",
+          "output": true
+        },
+        {
+          "name": "updateuser",
+          "canonicalName": "updateuser",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "IsVisible",
+          "canonicalName": "IsVisible",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "DetailViewUrl",
+          "canonicalName": "DetailViewUrl",
+          "type": "text",
+          "output": false
+        },
+        {
+          "name": "ListViewUrl",
+          "canonicalName": "ListViewUrl",
+          "type": "text",
+          "output": false
+        },
+        {
+          "name": "modid",
+          "canonicalName": "modid",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "wfid",
+          "canonicalName": "wfid",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "ViewTempLoc",
+          "canonicalName": "ViewTempLoc",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "RecLast",
+          "canonicalName": "RecLast",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "tblname",
+          "canonicalName": "tblname",
+          "type": "varchar",
+          "output": true
+        },
+        {
+          "name": "SchemaName",
+          "canonicalName": "SchemaName",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "updatetime",
+          "canonicalName": "updatetime",
+          "type": "datetime",
+          "output": false
+        },
+        {
+          "name": "QuoteTblid",
+          "canonicalName": "QuoteTblid",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "RecordOrState",
+          "canonicalName": "RecordOrState",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "IsOldSys",
+          "canonicalName": "IsOldSys",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "lingma_sys_is_delete",
+          "canonicalName": "lingma_sys_is_delete",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "lingma_sys_ent",
+          "canonicalName": "lingma_sys_ent",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "IsReferenceSelf",
+          "canonicalName": "IsReferenceSelf",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "object_id",
+          "canonicalName": "object_id",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "ReportID",
+          "canonicalName": "ReportID",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "Expression",
+          "canonicalName": "Expression",
+          "type": "text",
+          "output": false
+        },
+        {
+          "name": "ReferenceParentKey",
+          "canonicalName": "ReferenceParentKey",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "StateTable",
+          "canonicalName": "StateTable",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "modname",
+          "canonicalName": "modname",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "ReferenceKey",
+          "canonicalName": "ReferenceKey",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "crttime",
+          "canonicalName": "crttime",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "ListViewJson",
+          "canonicalName": "ListViewJson",
+          "type": "longtext",
+          "output": false
+        },
+        {
+          "name": "tblname",
+          "canonicalName": "tblname",
+          "type": "varchar",
+          "output": true
+        },
+        {
+          "name": "PhysicsDel",
+          "canonicalName": "PhysicsDel",
+          "type": "bigint",
+          "output": false
+        },
+        {
+          "name": "description",
+          "canonicalName": "description",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "rowid",
+          "canonicalName": "rowid",
+          "type": "char",
+          "output": true
+        },
+        {
+          "name": "status",
+          "canonicalName": "status",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "DetailViewJson",
+          "canonicalName": "DetailViewJson",
+          "type": "longtext",
+          "output": false
+        },
+        {
+          "name": "flowstate",
+          "canonicalName": "flowstate",
+          "type": "int",
+          "output": false
+        },
+        {
+          "name": "createtime",
+          "canonicalName": "createtime",
+          "type": "datetime",
+          "output": false
+        },
+        {
+          "name": "FormViewType",
+          "canonicalName": "FormViewType",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "LastTime",
+          "canonicalName": "LastTime",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "createuser",
+          "canonicalName": "createuser",
+          "type": "varchar",
+          "output": false
+        },
+        {
+          "name": "MapSync",
+          "canonicalName": "MapSync",
+          "type": "int",
+          "output": false
+        }
+      ]
+    }
+  ],
+  "graphSources": [
+    {
+      "name": "WFM_FLOW_NODE",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "sourceName": "WFM_FLOW_NODE"
+    },
+    {
+      "name": "WFM_NODE_REALATION",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "sourceName": "WFM_NODE_REALATION"
+    }
+  ],
+  "dbWrites": 0,
+  "fileWrites": 0,
+  "fileDeletes": 0,
+  "sessionPersisted": false,
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetBaseData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/LoginAuthority/UserLoginByEnt",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    }
+  ]
+}

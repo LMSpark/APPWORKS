@@ -1,0 +1,688 @@
+{
+  "observedAt": "2026-11-17T05:51:40.384Z",
+  "scope": "Read-only actual service graph model prerequisites",
+  "models": [
+    {
+      "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p001",
+      "name": "WFM_FLOW_NODE",
+      "metaName": "WFM_FLOW_NODE",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "name": "TYPEID",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowDelegateChange",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "minExecNum",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowToCreator",
+          "type": "bigint",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "description",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "IsAutoOverTime",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowToShare",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowCooperateChange",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "createtime",
+          "type": "datetime",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "DelegateEXEOBJ",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "NotifyAllExecUser",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowToReject",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "rowid",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": true
+        },
+        {
+          "name": "MEMO",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "submitStrategy",
+          "type": "text",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "NodeCode",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "lingma_sys_is_delete",
+          "type": "bigint",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowToDelegate",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "flowstate",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowOneSend",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CrtDate",
+          "type": "datetime",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "wfid",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "NotifyInterface",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowToAppend",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "EXEUSERFROM",
+          "type": "char",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "updateuser",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "NodeRoleID",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AutoExecType",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "NodeOrder",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "isFlowInitiatorNode",
+          "type": "tinyint",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "isSinkNode",
+          "type": "bigint",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "createuser",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "lingma_sys_appid",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false
+        },
+        {
+          "name": "TITLE",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AutoHour",
+          "type": "decimal",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "NodeFormID",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "updatetime",
+          "type": "datetime",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CooperateEXEOBJ",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "FLOWID",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "NotifyContent",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowToCooperate",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowToApotheosis",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowToEnd",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "ReportID",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "EXEOBJ",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "maxExecNum",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        }
+      ]
+    },
+    {
+      "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p002",
+      "name": "WFM_NODE_REALATION",
+      "metaName": "WFM_NODE_REALATION",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "name": "TITLE",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "description",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "updateuser",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "NextNodeID",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "createuser",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowToAppend",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "MinUserNum",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowOneSend",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "rowid",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": true
+        },
+        {
+          "name": "lingma_sys_is_delete",
+          "type": "bigint",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "NextNodeCode",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "flowstate",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "direction",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "IsMoreUser",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "submitType",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "updatetime",
+          "type": "datetime",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowToForceBack",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "wfid",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowToRevoke",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AutoSubmitJson",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "RelationOrder",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UpNodeCode",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "signatureNum",
+          "type": "bigint",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowToForceRevoke",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "ConditionExpress",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "createtime",
+          "type": "datetime",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "AllowToBack",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "MaxUserNum",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UpNodeID",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "ReportID",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "TypeID",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "FLOWID",
+          "type": "char",
+          "output": true,
+          "primaryKey": false
+        }
+      ]
+    },
+    {
+      "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p012",
+      "name": "WFM_WORKFORM",
+      "metaName": "WFM_WORKFORM",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "name": "createtime",
+          "type": "datetime",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "description",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "URL",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "lingma_sys_appid",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false
+        },
+        {
+          "name": "mobileUrl",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "ROWID",
+          "type": "char",
+          "output": true,
+          "primaryKey": true
+        },
+        {
+          "name": "flowstate",
+          "type": "int",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "FormName",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "createuser",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "updateuser",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "BusField",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "wfid",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "Width",
+          "type": "bigint",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "updatetime",
+          "type": "datetime",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "BusTable",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "FORMID",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CnPath",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "lingma_sys_is_delete",
+          "type": "bigint",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "FlowID",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "ReportID",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "Height",
+          "type": "bigint",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "TitleField",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        }
+      ]
+    }
+  ],
+  "dbWrites": 0,
+  "fileWrites": 0,
+  "fileDeletes": 0,
+  "metadataWrites": 0,
+  "sessionPersisted": false,
+  "uiSmoke": false,
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetBaseData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/LoginAuthority/UserLoginByEnt",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    }
+  ]
+}

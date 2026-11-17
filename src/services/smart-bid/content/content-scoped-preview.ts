@@ -160,7 +160,7 @@ export function previewScopedRevisionChanges(
  command:Omit<ScopedContentPreviewInput,'responseChanges'|'responses'>&Partial<Pick<ScopedContentPreviewInput,'responses'>>,
  manifests:Readonly<{basis:unknown;current:unknown;candidate:unknown}>,
 ){
- const responseComparison=compareRevisionResponses(manifests.basis,manifests.current,manifests.candidate,command.projectId)
+ const responseComparison=compareRevisionResponses({...manifests,expectedProjectId:command.projectId})
  const error='CONTENT_SCOPE_ASSIGNMENT_BASIS',assignments=new Set<string>()
  if(manifests.basis!==null){
   const basis=snapshotReferenceRecord(manifests.basis,error)

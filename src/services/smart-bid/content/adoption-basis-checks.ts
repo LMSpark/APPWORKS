@@ -28,7 +28,8 @@ function entries(value:unknown):Map<string,BasisEntry>{
    if(records.has(encoded))throw Error('ADOPTION_BASIS_CHECK_DUPLICATE')
    records.add(encoded)
   },error)
-  result.set(key,{owner,scopeRef:JSON.parse(scopeJson) as unknown,scopeVersion,records:[...records].sort()})
+  const capturedScope:unknown=JSON.parse(scopeJson)
+  result.set(key,{owner,scopeRef:capturedScope,scopeVersion,records:[...records].sort()})
  },error)
  return result
 }

@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {prepareAdoptionRequest} from '@/services/smart-bid/content/adoption-request'
+import {prepareAdoptionFromApprovedPreview,prepareAdoptionRequest} from '@/services/smart-bid/content/adoption-request'
 import {inspectAdoptionRecovery} from '@/services/smart-bid/content/adoption-recovery'
 
 const command={projectId:'P',candidateRevisionId:'T',expectedHead:'H',previewRef:'PV',requestKey:'K',
@@ -37,4 +37,13 @@ it('rejects whole-node overlap and overlapping target parts before capturing the
   owner:{kind:'RESPONSE',assignmentId:'A',responseId}})
  await expect(prepareAdoptionRequest({...command,nodeIds:[],responseRefs:[{assignmentId:'A',responseId:'R2'}],
   selectedParts:[{operation:'replace',sourceRef:response('T','R2'),targetRef:response('H','R1')}] })).rejects.toThrow('ADOPTION_SELECTION_OVERLAP')
+})
+it('binds preparation to the reviewed scope and exact preview revision identity',async()=>{
+ const approved={projectId:'P',candidateRevisionId:'T',expectedHead:'H',previewRef:'PV',
+  nodeIds:['N','M'],responseRefs:[],selectedParts:[]}
+ expect((await prepareAdoptionFromApprovedPreview({...command,nodeIds:['M','N']},approved)).previewRef).toBe('PV')
+ await expect(prepareAdoptionFromApprovedPreview({...command,nodeIds:['M','OTHER']},approved))
+  .rejects.toThrow('ADOPTION_PREVIEW_SCOPE_MISMATCH')
+ await expect(prepareAdoptionFromApprovedPreview({...command,nodeIds:['M','N']},{...approved,expectedHead:'OTHER'}))
+  .rejects.toThrow('ADOPTION_PREVIEW_CONTEXT_MISMATCH')
 })

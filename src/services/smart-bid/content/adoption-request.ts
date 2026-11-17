@@ -7,7 +7,10 @@ import {canonicalSnapshotValue,hashCanonicalSnapshotText} from './revision-snaps
 import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from './references/snapshot-reference-values'
 import {contentTextRangeConflict,readContentTextSpanReference,type ContentTextOwner,type ContentTextSpan} from './content-text-span'
 
-const fields=['projectId','candidateRevisionId','expectedHead','previewRef','requestKey','nodeIds','responseRefs','selectedParts','decisionTraceRef','reason'] as const
+const previewIdentityFields=['projectId','candidateRevisionId','expectedHead','previewRef'] as const
+const selectionFields=['nodeIds','responseRefs','selectedParts'] as const
+const previewFields=[...previewIdentityFields,...selectionFields] as const
+const fields=[...previewFields,'requestKey','decisionTraceRef','reason'] as const
 function identity(value:unknown):string{
  if(!snapshotReferenceIdentity(value))throw Error('ADOPTION_REQUEST_MODEL')
  return value
@@ -65,4 +68,19 @@ export async function prepareAdoptionRequest(input:unknown){
  const requestDigest=await hashCanonicalSnapshotText(canonicalInput)
  return Object.freeze({projectId,candidateRevisionId,previewRef,requestKey,requestDigest,canonicalInput,
   requiresScopeAndAuthorityChecks:true as const,requiresPersistentRequestRecord:true as const})
+}
+
+function scopeMembers(value:unknown):string{
+ const members:string[]=[]
+ visitSnapshotReferences(value,item=>members.push(canonicalSnapshotValue(item)),'ADOPTION_SELECTION_MODEL')
+ return JSON.stringify(members.sort())
+}
+
+/** 核准范围须来自不可变预演；这里只匹配它的身份与实选范围。 */
+export async function prepareAdoptionFromApprovedPreview(input:unknown,approvedPreview:unknown){
+ const row=snapshotReferenceFields(input,fields,'ADOPTION_REQUEST_MODEL')
+ const preview=snapshotReferenceFields(approvedPreview,previewFields,'ADOPTION_PREVIEW_REQUIRED')
+ if(previewIdentityFields.some(field=>row[field]!==preview[field]))throw Error('ADOPTION_PREVIEW_CONTEXT_MISMATCH')
+ if(selectionFields.some(field=>scopeMembers(row[field])!==scopeMembers(preview[field])))throw Error('ADOPTION_PREVIEW_SCOPE_MISMATCH')
+ return prepareAdoptionRequest(row)
 }

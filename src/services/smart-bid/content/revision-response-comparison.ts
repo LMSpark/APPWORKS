@@ -14,11 +14,14 @@ export type RevisionResponseComparison=Readonly<{
 }>
 
 /** 使用快照规范编码比较载荷，保留响应身份用于后续定位和重核。 */
-export function compareRevisionResponses(basis:unknown,current:unknown,candidate:unknown,expectedProjectId?:string):readonly RevisionResponseComparison[]{
+export function compareRevisionResponses(input:Readonly<{
+ basis:unknown;current:unknown;candidate:unknown;expectedProjectId?:string
+}>):readonly RevisionResponseComparison[]{
+ const {basis,current,candidate,expectedProjectId}=input
  const identities=new Map<string,string>()
  let projectId:unknown=expectedProjectId
- const read=(input:unknown)=>{
-  const value:unknown=JSON.parse(canonicalRevisionSnapshot(input))
+ const read=(snapshot:unknown)=>{
+  const value:unknown=JSON.parse(canonicalRevisionSnapshot(snapshot))
   const manifest=snapshotReferenceRecord(value,'RESPONSE_COMPARISON_MANIFEST')
   projectId??=manifest['projectId']
   if(projectId!==manifest['projectId'])throw Error('RESPONSE_COMPARISON_PROJECT')

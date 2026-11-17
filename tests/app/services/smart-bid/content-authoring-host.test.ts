@@ -6,6 +6,7 @@ import {DataSet, type DataView, type QueryParams, type DataViewFilterTree} from 
 import {PageRuntime,PageTool} from '@spark-appworks/spark-project-model'
 import {captureContentAuthoringSession,ContentAuthoringHost, type ContentAuthoringTarget} from '@/views/features/application/smart-bid/authoring/model/content-authoring-host'
 import ContentDraftWorkspace from '@/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue'
+import {createPublishedContentAuthoringHost} from '@/views/features/application/smart-bid/authoring/entry/content-authoring-script-host'
 import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -25,21 +26,21 @@ const originalStubs={...config.global.stubs}
 let wrapper:VueWrapper|undefined
 beforeEach(()=>{auth.token='session-1';auth.userId='U';auth.appId='APP';load.mockReset()})
 afterEach(()=>{wrapper?.unmount();wrapper=undefined;config.global.stubs=originalStubs})
-function fixture(scoped=true,hiddenProject:boolean|(()=>boolean)=false) {
+function fixture(scoped=true,hiddenProject:boolean|(()=>boolean)=false,draftKey='draftId') {
  const ds=DataSet.fromJson({scenarioId:'SPACE',tables:{
   ContentProject:{modelBinding:{modelId:'PM',modelName:'ContentProject'},columns:[{name:'projectId',type:'string',isPrimaryKey:true}],
    views:{default:{},selectedProject:{...(scoped?{scopeFilter:projectScope}:{}),commitMode:'staged'}}},
   WorkingDraft:{modelBinding:{modelId:'DM',modelName:'WorkingDraft'},columns:[
-   {name:'draftId',type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},{name:'draft',type:'object'}],
+   {name:draftKey,type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},{name:'draft',type:'object'}],
    views:{default:{},personalDraft:{...(scoped?{scopeFilter:draftScope}:{}),commitMode:'staged'}}},
  }})
  const queries=vi.fn(async(view:DataView,params:QueryParams)=>{
   const model=view.dataTable!.modelBinding!.modelName
   const query=new DataSpaceQueryTable({scenarioId:'SPACE',metaName:model})
   const rows=model==='ContentProject'?[{projectId:params.context!['projectId']}]:[
-   {draftId:'D',projectId:params.context!['projectId'],userId:params.context!['currentUserId'],draft:{nodes:[],responseChanges:[]}}]
+   {[draftKey]:'D',projectId:params.context!['projectId'],userId:params.context!['currentUserId'],draft:{nodes:[],responseChanges:[]}}]
   return new DataSpaceQueryContext({identity:query.identity,scope:'original',readScope:()=> 'original',snapshot:query.applyResult({Result:{
-   primaryKeyField:model==='ContentProject'?'projectId':'draftId',data:{Count:rows.length,Items:rows.map(row=>({...row,
+   primaryKeyField:model==='ContentProject'?'projectId':draftKey,data:{Count:rows.length,Items:rows.map(row=>({...row,
     lingma_sys_params:{r:[],e:['draft'],h:model==='ContentProject'&&(typeof hiddenProject==='function'?hiddenProject():hiddenProject)?['projectId']:[],m:[],d:false}}))}}})})
  })
  const save=vi.fn(async()=>{throw Error('UNEXPECTED_REMOTE_WRITE')})
@@ -72,6 +73,26 @@ it('binds the supplied runtime without taking ownership of it',async()=>{
   host.close()
   expect(runtime.isLoaded).toBe(true)
   expect(()=>binding.assertCurrent()).toThrow('CONTENT_AUTHORING_STALE')
+ }finally{runtime.dispose()}
+})
+it('connects the published script to the original runtime only once per load',async()=>{
+ const {ds,queries}=fixture(true,false,'id')
+ const session=captureContentAuthoringSession(target)
+ const runtime=new PageRuntime({pageId:target.pageId,scenarioIds:[target.scenarioId],
+  scenarioInputs:session.scenarioInputs,loadScenario:async()=>ds})
+ try{
+  const host=createPublishedContentAuthoringHost(runtime,target,session.assertCurrent)
+  expect(host.runtime).toBe(runtime)
+  await runtime.load()
+  const controller=new AbortController()
+  await expect(host.invoke('content.authoring.connect',undefined,AbortSignal.abort())).rejects.toThrow('CONTENT_PAGE_RENDER_STALE')
+  expect(queries).not.toHaveBeenCalled()
+  const connect=()=>host.invoke('content.authoring.connect',undefined,controller.signal)
+  const [first,second]=await Promise.all([connect(),connect()])
+  first.assertCurrent();second.assertCurrent()
+  expect(queries).toHaveBeenCalledTimes(2)
+  controller.abort()
+  expect(()=>first.assertCurrent()).toThrow('CONTENT_PAGE_RENDER_STALE')
  }finally{runtime.dispose()}
 })
 it('invalidates the binding when the runtime no longer resolves the original draft view',async()=>{

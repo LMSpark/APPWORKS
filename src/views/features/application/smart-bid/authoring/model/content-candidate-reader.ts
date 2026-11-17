@@ -32,6 +32,16 @@ type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|nul
 type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>
 type CandidateScopePreview=Readonly<ReturnType<typeof previewScopedRevisionChanges>&{assertCurrent:()=>void}>
 type CandidateNodeSelection=Pick<ContentTextSelection,'path'|'start'|'end'|'mode'>&Readonly<{role:'candidate'|'head';nodeId:string}>
+type NodeTextCoordinates=Omit<CandidateNodeSelection,'role'|'mode'>
+type NodeTextChange=Readonly<{operation:'delete';target:NodeTextCoordinates}>
+ |Readonly<{operation:'insert'|'replace';source:NodeTextCoordinates;target:NodeTextCoordinates}>
+type TextPreviewBinding=Readonly<ContentTextSnapshotPreview&{assertCurrent:()=>void}>
+type TextSelectionBinding=Readonly<VerifiedContentTextSpan&{assertCurrent:()=>void}>
+type PreviewVersionSession=PreviewVersions&Readonly<{
+ previewText:(changes:unknown)=>Promise<TextPreviewBinding>
+ captureNodeTextSelection:(input:CandidateNodeSelection)=>Promise<TextSelectionBinding>
+ previewNodeTextChange:(change:NodeTextChange)=>Promise<TextPreviewBinding>
+}>
 
 function assertRevisionManifest(manifest:unknown,row:Readonly<Record<string,unknown>>):asserts manifest is object{
  if(typeof manifest!=='object'||manifest===null||Array.isArray(manifest))throw Error('CONTENT_CANDIDATE_MANIFEST_REQUIRED')
@@ -48,10 +58,10 @@ export type ContentCandidateBinding=Readonly<{
  readRequirementPinIssues:(assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementPinsBinding>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
- readPreviewVersions:(assertConsumer?:()=>void)=>Promise<PreviewVersions>
+ readPreviewVersions:(assertConsumer?:()=>void)=>Promise<PreviewVersionSession>
  previewScope:(input:PreviewScopeInput,assertConsumer?:()=>void)=>Promise<CandidateScopePreview>
- previewText:(changes:unknown,assertConsumer?:()=>void)=>Promise<Readonly<ContentTextSnapshotPreview&{assertCurrent:()=>void}>>
- captureNodeTextSelection:(input:CandidateNodeSelection,assertConsumer?:()=>void)=>Promise<Readonly<VerifiedContentTextSpan&{assertCurrent:()=>void}>>
+ previewText:(changes:unknown,assertConsumer?:()=>void)=>Promise<TextPreviewBinding>
+ captureNodeTextSelection:(input:CandidateNodeSelection,assertConsumer?:()=>void)=>Promise<TextSelectionBinding>
  revisions:ContentRevisionReadBinding;snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding
  revisionMatchVerified:true;templateBindingsVerified:true;requirementBindingsVerified:true;responseAnchorsVerified:true;responseTextVerified:true
  requiresResponseReferenceChecks:true;requiresResponsePayloadChecks:true;requiresTemplateResourceChecks:true;requiresRequirementVersionChecks:true;requiresBusinessSectionChecks:true;assertCurrent:()=>void
@@ -138,7 +148,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const baseline=await readContentBaselineTenderRecord({...host,assertCurrent:assertContext},{baselineId,stageRef:row['stageRef']},fixedReference)
   return readContentTenderRecord({...host,assertCurrent:baseline.assertCurrent},fixedReference)
  }
- const readPreviewVersions=async(assertConsumer?:()=>void):Promise<PreviewVersions>=>{
+ const readPreviewVersions=async(assertConsumer?:()=>void):Promise<PreviewVersionSession>=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}
   const basisRevision=await readContentRevisionBasis({...host,assertCurrent:assertContext},revisions)
   const assertRevisions=()=>{assertContext();basisRevision.assertCurrent()}
@@ -157,7 +167,23 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const [basis,head]=await Promise.all([readVersion(basisRevision.dataViewKey,'basis'),readVersion(revisions.headDataViewKey,'head')])
   const assertPreview=()=>{assertRevisions();basis?.nodes.assertCurrent();head?.nodes.assertCurrent()}
   assertPreview()
-  return Object.freeze({basis,head,candidate:Object.freeze({snapshot,nodes}),assertCurrent:assertPreview})
+  const versions={basis,head,candidate:Object.freeze({snapshot,nodes}),assertCurrent:assertPreview}
+  const captureSelection=(input:CandidateNodeSelection)=>captureNodeSelection(input,input.role==='candidate'?versions.candidate:head,assertPreview)
+  return Object.freeze({...versions,
+   previewText:(changes:unknown)=>previewTextFromVersions(versions,changes),
+   captureNodeTextSelection:captureSelection,
+   previewNodeTextChange:async(change:NodeTextChange)=>{
+    assertPreview()
+    const assertTargetScope=candidate.captureReadRow(row,['targetScope'])
+    const {operation}=change
+    const [target,source]=await Promise.all([
+     captureSelection({...change.target,role:'head',mode:operation==='insert'?'INSERTION':'TEXT'}),
+     change.operation==='delete'?null:captureSelection({...change.source,role:'candidate',mode:'TEXT'}),
+    ])
+    assertTargetScope()
+    return previewTextFromVersions(versions,[{operation,targetRef:target.reference,...(source?{sourceRef:source.reference}:{})}])
+   },
+  })
  }
  const readNodes=(version:PreviewVersion|null)=>{
    const key=version?.nodes.dataViewKey
@@ -181,12 +207,11 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertPreview()
   return Object.freeze({...result,assertCurrent:assertPreview})
  }
- const previewText=async(changes:unknown,assertConsumer?:()=>void)=>{
-  assertCurrent();assertConsumer?.()
+ const previewTextFromVersions=async(versions:PreviewVersions,changes:unknown):Promise<TextPreviewBinding>=>{
+  versions.assertCurrent()
   if(expectedHead===null)throw Error('CONTENT_TEXT_HEAD_REQUIRED')
   const assertTargetScope=candidate.captureReadRow(row,['targetScope'])
   const capturedChanges=structuredClone(changes)
-  const versions=await readPreviewVersions(assertConsumer)
   const assertPreview=()=>{versions.assertCurrent();assertTargetScope()}
   assertPreview()
   const readResponses=(version:PreviewVersion|null)=>{
@@ -208,13 +233,11 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertPreview()
   return Object.freeze({...result,assertCurrent:assertPreview})
  }
- const captureNodeTextSelection=async(input:CandidateNodeSelection,assertConsumer?:()=>void)=>{
+ const captureNodeSelection=async(input:CandidateNodeSelection,version:PreviewVersion|null,assertContext:()=>void):Promise<TextSelectionBinding>=>{
   const {role,nodeId,path,start,end,mode}=input
-  const assertContext=()=>{assertCurrent();assertConsumer?.()}
   assertContext()
   const revisionId=role==='candidate'?candidateRevisionId:expectedHead
   if(revisionId===null)throw Error('CONTENT_TEXT_HEAD_REQUIRED')
-  const version=role==='candidate'?{snapshot,nodes}:(await readPreviewVersions(assertConsumer)).head
   const key=version?.nodes.dataViewKey
   if(!key)throw Error('CONTENT_CANDIDATE_NODE_REQUIRED')
   const assertSelection=()=>{assertContext();version.nodes.assertCurrent()}
@@ -225,6 +248,16 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
    object:selected['payload'],path,start,end,mode})
   assertSelection()
   return Object.freeze({...result,assertCurrent:assertSelection})
+ }
+ const previewText=async(changes:unknown,assertConsumer?:()=>void)=>{
+  const capturedChanges=structuredClone(changes)
+  if(expectedHead===null)throw Error('CONTENT_TEXT_HEAD_REQUIRED')
+  return (await readPreviewVersions(assertConsumer)).previewText(capturedChanges)
+ }
+ const captureNodeTextSelection=async(input:CandidateNodeSelection,assertConsumer?:()=>void)=>{
+  const capturedInput={...input}
+  if(capturedInput.role==='head')return (await readPreviewVersions(assertConsumer)).captureNodeTextSelection(capturedInput)
+  return captureNodeSelection(capturedInput,{snapshot,nodes},()=>{assertCurrent();assertConsumer?.()})
  }
  return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,

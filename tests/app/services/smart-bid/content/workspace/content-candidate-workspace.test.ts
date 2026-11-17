@@ -1,4 +1,4 @@
-import {afterEach,expect,it} from 'vitest'
+import {afterEach,expect,it,vi} from 'vitest'
 import {config,flushPromises,mount,type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import VXETable from 'vxe-table'
@@ -22,7 +22,7 @@ function treeLevels(target:VueWrapper):number[]{
 afterEach(()=>{wrapper?.unmount();runtime?.dispose();config.global.stubs=originalStubs})
 async function fixture(mode='populated',options?:Parameters<typeof createCandidateReadFixture>[1]){
  registerAllRenderers()
- const f=await createCandidateReadFixture(mode,options),binding=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+ const f=await createCandidateReadFixture(mode,options),binding=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:options?.threeVersions?'V2':null})
  runtime=new PageRuntime({pageId:'candidate-workspace',scenarioIds:['S'],loadScenario:async()=>f.ds});await runtime.load()
  const stubs={...originalStubs};for(const key of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])delete stubs[key]
  config.global.stubs=stubs
@@ -196,5 +196,25 @@ it('shows the reference owner and exact scope issue when comparing a candidate d
  await button.trigger('click');await flushPromises()
  expect(f.wrapper.text()).toContain('待删节点 target 仍被引用：source')
  expect(f.wrapper.text()).toContain('节点 target 超出候选范围')
+ expect(f.save).not.toHaveBeenCalled()
+})
+it('opens matching node text from both fixed views and closes it when the head view refreshes',async()=>{
+ const f=await fixture('populated',{threeVersions:true})
+ await f.wrapper.findAll('.el-tree-node__content')[0]!.trigger('click');await flushPromises()
+ expect(f.wrapper.findAll('button').some(item=>item.text()==='对照当前稿原文')).toBe(false)
+ await f.wrapper.findAll('.el-tree-node__content')[2]!.trigger('click');await flushPromises()
+ const button=f.wrapper.findAll('button').find(item=>item.text()==='对照当前稿原文')
+ expect(button).toBeDefined();await button!.trigger('click');await flushPromises()
+ expect(f.wrapper.text()).toContain('当前稿原文')
+ await vi.waitFor(()=>expect(f.wrapper.text()).toContain('候选稿原文'))
+ expect(f.wrapper.findAll('input').filter(input=>input.element.value==='标题{{册名}}').length).toBeGreaterThanOrEqual(2)
+ await f.wrapper.findAll('.el-tree-node__content')[1]!.trigger('click');await flushPromises()
+ expect(f.wrapper.text()).not.toContain('候选稿原文')
+ await f.wrapper.findAll('.el-tree-node__content')[2]!.trigger('click');await flushPromises()
+ expect(f.wrapper.text()).not.toContain('候选稿原文')
+ await f.wrapper.findAll('button').find(item=>item.text()==='对照当前稿原文')!.trigger('click');await flushPromises()
+ await vi.waitFor(()=>expect(f.wrapper.text()).toContain('候选稿原文'))
+ await f.ds.getView('ContentNodeVersion','headSnapshotMembers')!.refresh();await flushPromises()
+ expect(f.wrapper.text()).not.toContain('候选稿原文')
  expect(f.save).not.toHaveBeenCalled()
 })

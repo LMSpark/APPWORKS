@@ -7,6 +7,8 @@
 import {captureContentAuthoringSession, type ContentAuthoringTarget} from '../model/content-authoring-host'
 import {resolveExecutionProjectId} from '@/services/application-scope'
 import {isRecord} from '@spark-appworks/spark-utils'
+import type {PageRuntime} from '@spark-appworks/spark-project-model'
+import {createPublishedContentAuthoringHost} from './content-authoring-script-host'
 
 const applicationId='D8490EC99436A8B9AFDE205BE3153802',scenarioId='D3BBA1F0780056C837AC35E9825CAD5A'
 function identity(value:unknown):value is string {return typeof value==='string'&&value.length>0&&value.trim()===value}
@@ -20,7 +22,10 @@ export type ContentAuthoringPublishedEntry = Readonly<{nodeId:string; pageId:str
 /** Prepare the published route with the session inputs expected by the runtime pool. */
 export function preparePublishedContentAuthoringCall(route:ContentAuthoringRoute, entry:ContentAuthoringPublishedEntry) {
  const target = resolvePublishedContentAuthoringTarget(route, entry)
- return target ? captureContentAuthoringSession(target) : undefined
+ if(!target)return undefined
+ const session=captureContentAuthoringSession(target)
+ return {scenarioInputs:session.scenarioInputs,assertCurrent:session.assertCurrent,
+  createHost:(runtime:PageRuntime)=>createPublishedContentAuthoringHost(runtime,target,session.assertCurrent)}
 }
 
 /** Select only the registered tool before preparing its authenticated runtime inputs. */

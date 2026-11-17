@@ -3,12 +3,48 @@
  * 职责：将同次正文宿主的业务能力交页11脚本消费。
  * 边界：不创建运行实例、不查询/保存、不持有业务草稿或全局命令表。
  */
-import type {ContentAuthoringBinding} from '../model/content-authoring-host'
-import type {ContentAuthoringCommands} from './content-authoring-commands'
+import {ContentAuthoringHost,type ContentAuthoringBinding,type ContentAuthoringTarget} from '../model/content-authoring-host'
+import {ContentAuthoringCommands} from './content-authoring-commands'
+import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type {JsonPath} from '@spark-appworks/spark-json-document'
 import {contentTreeDraftActionLayout,contentTreeEditorLayout,type ContentTreeEditorLayoutInput} from '@/services/smart-bid/content-tree-editor-layout'
 import {isCallable,isRecord} from '@spark-appworks/spark-utils'
 type Binding=Pick<ContentAuthoringBinding,'runtime'|'dataViewKey'|'projectId'|'draftId'|'actorUserId'|'assertCurrent'|'setPending'>
+
+/** 实例池创建宿主后，仅在三文件脚本连接时装配原视图。并行连接共享本次装载。 */
+export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:ContentAuthoringTarget,assertSession:()=>void){
+ let active:Readonly<{generation:number;connection:Promise<ReturnType<typeof createContentAuthoringScriptHost>>}>|undefined
+ const assertCurrent=()=>{
+  assertSession()
+  if(runtime.destroyed)throw Error('CONTENT_PAGE_RENDER_STALE')
+ }
+ return {runtime,assertCurrent,
+  async invoke(name:string,input:unknown,signal:AbortSignal):Promise<ContentAuthoringScriptSession>{
+   const generation=runtime.generation
+   const assertRender=()=>{
+    assertCurrent()
+    if(signal.aborted||!runtime.isLoaded||runtime.generation!==generation)throw Error('CONTENT_PAGE_RENDER_STALE')
+   }
+   assertRender()
+   if(name!=='content.authoring.connect'||input!==undefined)throw Error('CONTENT_PAGE_COMMAND_UNKNOWN')
+   if(active?.generation!==generation){
+    const owner=new ContentAuthoringHost(runtime)
+    const connection=owner.open(target).then(binding=>{
+     assertCurrent()
+     binding.assertCurrent()
+     return createContentAuthoringScriptHost(binding,new ContentAuthoringCommands(binding))
+    }).catch((cause:unknown)=>{
+     if(active?.connection===connection)active=undefined
+     throw cause
+    })
+    active={generation,connection}
+   }
+   const host=await active.connection
+   assertRender()
+   return host.invoke(name,input,signal)
+  },
+ }
+}
 /** 脚本句柄只有业务能力和选择代次，没有业务数据副本。 */
 export type ContentAuthoringScriptSession=Readonly<{
  assertCurrent:()=>void;select:()=>void;cancel:()=>void;setInputPending:(pending:boolean)=>void

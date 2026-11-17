@@ -223,6 +223,15 @@ it('previews selected text against the verified current head without modifying i
   const target=await versions.captureNodeTextSelection({role:'head',nodeId:'H',path:'/value',start:0,end:2,mode:'TEXT'})
   expect(target.reference).toEqual(span('V2','标题'))
   const result=await versions.previewText([{operation:'replace',sourceRef:captured.reference,targetRef:target.reference}])
+  const selectionResult=await versions.previewNodeTextChange({operation:'replace',
+   source:{nodeId:'H',path:'/value',start:0,end:1},target:{nodeId:'H',path:'/value',start:0,end:2}})
+  expect(selectionResult.textPreview.patches).toEqual(result.textPreview.patches)
+  const source={nodeId:'H',path:'/value',start:0,end:1},insertion={...source,start:2,end:2}
+  const inserted=await versions.previewNodeTextChange({operation:'insert',source,target:insertion})
+  expect(inserted.textPreview.patches[0]?.after).toBe('标题标{{册名}}')
+  const deleted=await versions.previewNodeTextChange({operation:'delete',target:source})
+  expect(deleted.textPreview.patches[0]?.after).toBe('题{{册名}}')
+  await expect(versions.previewNodeTextChange({operation:'insert',source,target:source})).rejects.toThrow('CONTENT_SPAN_RANGE')
   expect(f.query).toHaveBeenCalledTimes(queries)
   target.assertCurrent()
   expect(result.textPreview.patches[0]?.after).toBe('标{{册名}}')
@@ -230,5 +239,7 @@ it('previews selected text against the verified current head without modifying i
   expect(f.save).not.toHaveBeenCalled()
   await f.ds.getView('ContentNodeVersion','headSnapshotMembers')!.refresh()
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  await expect(versions.previewNodeTextChange({operation:'delete',target:{nodeId:'H',path:'/value',start:0,end:1}}))
+   .rejects.toThrow('DATA_VIEW_READ_RESULT')
  }finally{f.ds.destroy()}
 })

@@ -61,6 +61,10 @@ function sameOwner(left:ContentTextOwner,right:ContentTextOwner):boolean {
  return left.kind==='NODE'?right.kind==='NODE'&&left.nodeId===right.nodeId
   :right.kind==='RESPONSE'&&left.assignmentId===right.assignmentId&&left.responseId===right.responseId
 }
+/** 支持直接用 /value 定位正文的节点类型；表格选区另走单元格路径。 */
+export function supportsContentTextValue(type:unknown):boolean{
+ return typeof type==='string'&&['heading','paragraph','caption','image','raw'].includes(type)
+}
 function stringAt(input:Readonly<{source:unknown;owner:ContentTextOwner;path:string}>):Readonly<{text:string;data:Record<string,unknown>}> {
  const row=object(input.source)
  if(input.owner.kind==='RESPONSE'){
@@ -71,7 +75,7 @@ function stringAt(input:Readonly<{source:unknown;owner:ContentTextOwner;path:str
  canonicalContentNode(input.source)
  if(row['nodeId']!==input.owner.nodeId)throw Error('CONTENT_SPAN_OWNER')
  if(input.path==='/value'){
-  if(!['heading','paragraph','caption','image','raw'].includes(identity(row['type'])))throw Error('CONTENT_SPAN_PATH')
+  if(!supportsContentTextValue(row['type']))throw Error('CONTENT_SPAN_PATH')
   return {text:unicode(row['value']),data:object(row['data'])}
  }
  const match=/^\/data\/rows\/(0|[1-9]\d*)\/(0|[1-9]\d*)\/value$/u.exec(input.path)

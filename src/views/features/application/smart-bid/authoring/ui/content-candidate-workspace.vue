@@ -25,6 +25,14 @@ AI用途：正文宿主读取候选后传入同次绑定；采用须另完成完
     <RendererSection v-if="state.nodesKey" title="节点详情" :status="state.selectedNode ? '' : '选择节点查看原稿与数据引用'">
       <RendererForm v-if="state.selectedNode" :data-view-key="state.nodesKey" context-data-member="currentRow" :auto-columns="false" :children="detailFields" />
       <RendererButton v-for="reference in references" :key="reference.label" :data-view-key="state.nodesKey" :label="reference.label" :disabled="referenceLoading" :on-click="reference.read" />
+      <RendererButton v-if="nodeTextAction" :data-view-key="state.nodesKey" label="对照当前稿原文"
+        :disabled="nodeTextLoading" :on-click="nodeTextAction" />
+      <RendererSection v-if="nodeTextState" title="节点原文对照" :grid-columns="2" :error="nodeTextState.error ?? ''">
+        <RendererForm v-if="nodeTextState.candidate" :data-view-key="nodeTextState.candidate.key"
+          :context-row-id="nodeTextState.candidate.rowId" :auto-columns="false" :children="candidateTextFields" />
+        <RendererForm v-if="nodeTextState.head" :data-view-key="nodeTextState.head.key"
+          :context-row-id="nodeTextState.head.rowId" :auto-columns="false" :children="headTextFields" />
+      </RendererSection>
     </RendererSection>
     <RendererSection v-if="referenceError" :title="referenceError.title" :error="referenceError.message" />
     <RendererSection v-if="referenceState" :title="referenceState.title" status="本次用途许可待核">
@@ -44,6 +52,7 @@ import type {ContentCandidateBinding} from '../model/content-candidate-reader'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {validateContentReference} from '@/services/smart-bid/content-reference'
 import type {ContentScopeViolation} from '@/services/smart-bid/content/content-scoped-preview'
+import {supportsContentTextValue} from '@/services/smart-bid/content/content-text-span'
 
 const props=defineProps<{runtime:PageRuntime;binding:ContentCandidateBinding}>()
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'content-candidate-workspace'})
@@ -68,7 +77,8 @@ const comparisonState=computed(()=>{
  const undeclared=result.violations.filter(item=>item.code==='UNDECLARED_ADDITION').length
  const scopeIssues=result.violations.filter(item=>item.code!=='UNDECLARED_ADDITION').map(item=>({text:scopeIssueText[item.code](item)}))
  const conflicts=result.comparison.nodes.flatMap(item=>item.nodeId!==null&&item.conflicts.length?[item.nodeId]:[])
- const referencedDeletions=result.comparison.nodes.filter(item=>item.deletionReferenceCheck==='REFERENCED')
+ const referencedDeletions=result.comparison.nodes.flatMap(({nodeId,deletionReferenceCheck,referencedBy})=>
+  nodeId!==null&&deletionReferenceCheck==='REFERENCED'?[{nodeId,referencedBy}]:[])
  const orderConflicts=result.comparison.siblings.filter(item=>item.status==='CONFLICT').map(item=>item.parentId)
  const responseConflicts=result.responseComparison.filter(item=>item.delta==='DIVERGED').map(item=>item.assignmentId)
  const added=result.addedNodeIds
@@ -83,6 +93,15 @@ const comparisonState=computed(()=>{
  return {status,added,undeclared,conflicts,referencedDeletions,orderConflicts,responseConflicts,scopeIssues,confirmAdditions}
 })
 let nodeSelectionVersion=0
+type NodeTextTarget={key:string;rowId:string|number}
+type NodeTextState={candidate?:NodeTextTarget;head?:NodeTextTarget;error?:string;assertCurrent:()=>void}
+const nodeTextLoading=ref(false),nodeText=shallowRef<NodeTextState>()
+const nodeTextState=computed(()=>{
+ revision.value
+ try{nodeText.value?.assertCurrent();return nodeText.value}catch{return undefined}
+})
+const candidateTextFields=[{type:'r-text',props:{field:'payload',valuePath:['value'],valueFormat:'native',label:'候选稿原文',readonly:true}}]
+const headTextFields=[{type:'r-text',props:{...candidateTextFields[0]!.props,label:'当前稿原文'}}]
 const referenceLoading=ref(false)
 type ReferenceKind='事实'|'要求'
 const referenceFailure=shallowRef<{title:string;message:string;assertSelected:()=>void}>()
@@ -208,6 +227,39 @@ const state=computed<{revisionKey?:string;revisionRowId?:string|number;nodesKey?
   return {error:message==='候选运行实例不匹配'?message:'候选读取已失效，请重新读取'}
  }
 })
+const nodeTextAction=computed(()=>{
+ revision.value
+ const binding=toRaw(props.binding),runtime=toRaw(props.runtime),key=state.value.nodesKey
+ if(!key||!binding.revisions.headDataViewKey)return undefined
+ const view=runtime.resolveView(key),selected=view?.currentRow,payload=selected?.['payload'],nodeId=selected?.['nodeId']
+ if(!view||!selected||typeof nodeId!=='string'||!isRecord(payload)||!supportsContentTextValue(payload['type'])||typeof payload['value']!=='string')return undefined
+ const selectionVersion=nodeSelectionVersion,assertRow=view.captureReadRow(selected,['id','nodeId','payload'])
+ const assertSelected=()=>{
+  if(!active||toRaw(props.runtime)!==runtime||toRaw(props.binding)!==binding||nodeSelectionVersion!==selectionVersion||view.currentRow!==selected)
+   throw Error('节点原文已失效')
+  binding.assertCurrent();assertRow()
+ }
+ return async()=>{
+  if(nodeTextLoading.value)return
+  try{assertSelected()}catch{return}
+  nodeTextLoading.value=true;nodeText.value=undefined
+  try{
+   const versions=await binding.readPreviewVersions(assertSelected)
+   const headKey=versions.head?.nodes.dataViewKey,headView=headKey?runtime.resolveView(headKey):undefined
+   const headRow=headView?.rows.find(member=>member['nodeId']===nodeId)
+   const headPayload=headRow?.['payload']
+   const candidateId=view.getPkKey(selected),headId=headRow?headView?.getPkKey(headRow):undefined
+   versions.assertCurrent()
+   if(candidateId===undefined||!headKey||headId===undefined)throw Error('当前稿没有同一节点的原文')
+   if(!isRecord(headPayload)||headPayload['type']!==payload['type']||typeof headPayload['value']!=='string')
+    throw Error('当前稿的节点类型或正文与候选节点不匹配')
+   nodeText.value={candidate:{key,rowId:candidateId},head:{key:headKey,rowId:headId},assertCurrent:versions.assertCurrent}
+  }catch(cause){
+   if(active&&toRaw(props.binding)===binding&&toRaw(props.runtime)===runtime)
+    nodeText.value={error:cause instanceof Error?cause.message:String(cause),assertCurrent:assertSelected}
+  }finally{nodeTextLoading.value=false}
+ }
+})
 async function compareVersions(declaredAddedNodeIds:readonly string[]=[]):Promise<void>{
  if(comparisonLoading.value||state.value.error)return
  const binding=toRaw(props.binding),runtime=toRaw(props.runtime)
@@ -225,6 +277,7 @@ async function compareVersions(declaredAddedNodeIds:readonly string[]=[]):Promis
 watch(()=>[props.runtime,props.binding] as const,()=>{
  referenceResult.value=undefined;referenceFailure.value=undefined
  comparison.value=undefined;comparisonError.value=''
+ nodeText.value=undefined
  unsubscribe?.();unsubscribe=undefined;sparkRemove(PAGE_RUNTIME)
  const runtime=toRaw(props.runtime)
  sparkProvide(PAGE_RUNTIME,runtime)

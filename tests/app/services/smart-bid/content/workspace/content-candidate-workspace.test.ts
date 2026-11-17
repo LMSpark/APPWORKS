@@ -119,7 +119,10 @@ it.each(['selection','unmount'])('withdraws a late fact read after %s changes',a
  if(mode==='selection')await f.wrapper.findAll('.el-tree-node__content')[0]!.trigger('click')
  else f.wrapper.unmount()
  release();await pending;await flushPromises()
- if(mode==='selection')expect(f.wrapper.text()).not.toContain('固定事实原记录')
+ if(mode==='selection'){
+  expect(f.wrapper.text()).not.toContain('固定事实原记录')
+  expect(f.wrapper.text()).not.toContain('事实读取失败')
+ }
  expect(f.ds.getView('FactVersion','selectedFactVersion')!.rows).toHaveLength(0)
  expect(f.save).not.toHaveBeenCalled()
 })

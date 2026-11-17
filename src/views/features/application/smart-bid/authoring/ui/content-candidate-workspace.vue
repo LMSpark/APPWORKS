@@ -31,7 +31,12 @@ import {validateContentReference} from '@/services/smart-bid/content-reference'
 const props=defineProps<{runtime:PageRuntime;binding:ContentCandidateBinding}>()
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'content-candidate-workspace'})
 const revision=ref(0)
-const factLoading=ref(false),factError=ref('')
+const factLoading=ref(false)
+const factFailure=shallowRef<{message:string;assertSelected:()=>void}>()
+const factError=computed(()=>{
+ revision.value
+ try{factFailure.value?.assertSelected();return factFailure.value?.message??''}catch{return ''}
+})
 const fact=shallowRef<{binding:ContentCandidateFactBinding;assertSelected:()=>void}>()
 let active=true
 let unsubscribe:(()=>void)|undefined
@@ -84,12 +89,12 @@ async function readFact(factId:string,assertOrigin:()=>void):Promise<void>{
   if(!active||toRaw(props.binding)!==binding||toRaw(props.runtime)!==runtime||view.currentRow!==row)throw Error('事实读取上下文已变化')
   binding.assertCurrent();assertRow()
  }
- factLoading.value=true;factError.value='';fact.value=undefined
+ factLoading.value=true;factFailure.value=undefined;fact.value=undefined
  try{
   assertSelected()
   const result=await binding.readFixedFact({factId},assertSelected);assertSelected();result.assertCurrent()
   fact.value={binding:result,assertSelected}
- }catch(cause){if(active&&toRaw(props.binding)===binding&&toRaw(props.runtime)===runtime)factError.value=cause instanceof Error?cause.message:String(cause)}
+ }catch(cause){if(active&&toRaw(props.binding)===binding&&toRaw(props.runtime)===runtime)factFailure.value={message:cause instanceof Error?cause.message:String(cause),assertSelected}}
  finally{factLoading.value=false}
 }
 const state=computed<{revisionKey?:string;revisionRowId?:string|number;nodesKey?:string;selectedNode?:boolean;error:string}>(()=>{
@@ -110,7 +115,7 @@ const state=computed<{revisionKey?:string;revisionRowId?:string|number;nodesKey?
  }
 })
 watch(()=>[props.runtime,props.binding] as const,()=>{
- fact.value=undefined;factError.value=''
+ fact.value=undefined;factFailure.value=undefined
  unsubscribe?.();unsubscribe=undefined;sparkRemove(PAGE_RUNTIME)
  const runtime=toRaw(props.runtime)
  sparkProvide(PAGE_RUNTIME,runtime)

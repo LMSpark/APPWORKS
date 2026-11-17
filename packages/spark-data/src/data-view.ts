@@ -3498,7 +3498,8 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
 
   /** 已确认新增行正在等待原查询的行权限；与保存结果未知分别处理。 */
   get hasPendingSavedRowPermissions(): boolean {
-    return this.currentQueryResult()?.hasPendingSavedRowPermissions === true
+    this.checkDestroyed()
+    return this.#queryResult?.hasPendingSavedRowPermissions === true
   }
 
   /** 只读恢复已确认新增行的正式权限，保留其他行、选择及读取期间产生的本地编辑。 */

@@ -2002,6 +2002,7 @@ describe('DataView original query execution boundary', () => {
     const application = api.application.get()
     if (!application) throw new Error('fixture application missing')
     api.application.save({ ...application, application: { ...application.application, id: 'APP-B' } })
+    expect(view.hasPendingSavedRowPermissions).toBe(false)
     expect(() => view.fieldAccess(view.rows[0] ?? null, 'salary')).toThrow('SPARK_QUERY_CONTEXT_STALE')
     expect(() => view.updateEditingValue('ROW-1', 'salary', 120)).toThrow('SPARK_QUERY_CONTEXT_STALE')
     ds.destroy()

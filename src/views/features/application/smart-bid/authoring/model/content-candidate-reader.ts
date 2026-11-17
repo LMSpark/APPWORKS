@@ -8,9 +8,9 @@ import {canonicalRevisionSnapshot} from '@/services/smart-bid/content/revision-s
 import {assertRevisionTemplateBindings} from '@/services/smart-bid/content/revision-template-bindings'
 import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
 import {assertRevisionResponseText} from '@/services/smart-bid/content/references/revision-response-text'
-import {hasCompleteSingleContentResult,readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
+import {hasCompleteSingleContentResult,readContentRevisionBasis,readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
 import {assertContentNodeVersionPayload} from './content-node-version-reader'
-import {readContentSnapshotIndex,type ContentSnapshotIndexBinding} from './content-snapshot-reader'
+import {readContentSnapshotIndex,type ContentSnapshotIndexBinding,type ContentSnapshotRole} from './content-snapshot-reader'
 import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './content-snapshot-nodes'
 import {readContentBaselineFact,readContentBaselineRequirement,readContentBaselineRequirementPins,readContentBaselineTenderRecord,type ContentBaselineFactBinding,type ContentBaselineRequirementPinsBinding} from './content-baseline-reader'
 import type {RevisionRequirementPin} from '@/services/smart-bid/content/references/revision-requirement-pins'
@@ -24,6 +24,16 @@ export type ContentCandidateFactBinding=Omit<ContentBaselineFactBinding,'require
 export type ContentCandidateRequirementPinsBinding=Omit<ContentBaselineRequirementPinsBinding,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
 /** 候选章节、固定基线和原要求记录已匹配；用途另核。 */
 export type ContentCandidateRequirementBinding=Omit<Awaited<ReturnType<typeof readContentBaselineRequirement>>,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
+type PreviewVersion=Readonly<{snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding}>
+type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
+
+function assertRevisionManifest(manifest:unknown,row:Readonly<Record<string,unknown>>):asserts manifest is object{
+ if(typeof manifest!=='object'||manifest===null||Array.isArray(manifest))throw Error('CONTENT_CANDIDATE_MANIFEST_REQUIRED')
+ const original=canonicalRevisionSnapshot(manifest)
+ const withRevision=canonicalRevisionSnapshot({...manifest,projectId:row['projectId'],baselineId:row['baselineId'],
+  stageRef:row['stageRef'],templateRefs:row['templateRefs']})
+ if(original!==withRevision)throw Error('CONTENT_CANDIDATE_REVISION_MISMATCH')
+}
 
 /** 候选链保留各原视图证明；其它业务分组、当前依据、rootHash和采用必须继续核验。 */
 export type ContentCandidateBinding=Readonly<{
@@ -32,6 +42,7 @@ export type ContentCandidateBinding=Readonly<{
  readRequirementPinIssues:(assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementPinsBinding>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
+ readPreviewVersions:(assertConsumer?:()=>void)=>Promise<PreviewVersions>
  revisions:ContentRevisionReadBinding;snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding
  revisionMatchVerified:true;templateBindingsVerified:true;requirementBindingsVerified:true;responseAnchorsVerified:true;responseTextVerified:true
  requiresResponseReferenceChecks:true;requiresResponsePayloadChecks:true;requiresTemplateResourceChecks:true;requiresRequirementVersionChecks:true;requiresBusinessSectionChecks:true;assertCurrent:()=>void
@@ -54,11 +65,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
  assertCandidate();snapshot.assertCurrent()
  const snapshotView=host.runtime.resolveView(snapshot.dataViewKey),manifest=snapshotView?.rows[0]?.['manifest']
  // 同一规范编码保留精确引用身份；临时比较值不是另一份可编辑或保存的业务真源。
- const original=canonicalRevisionSnapshot(manifest)
- if(typeof manifest!=='object'||manifest===null||Array.isArray(manifest))throw Error('CONTENT_CANDIDATE_MANIFEST_REQUIRED')
- const withRevision=canonicalRevisionSnapshot({...manifest,projectId:row['projectId'],baselineId:row['baselineId'],
-  stageRef:row['stageRef'],templateRefs:row['templateRefs']})
- if(original!==withRevision)throw Error('CONTENT_CANDIDATE_REVISION_MISMATCH')
+ assertRevisionManifest(manifest,row)
  const nodes=await readContentSnapshotNodes(host,snapshot)
  const assertCurrent=()=>{assertCandidate();snapshot.assertCurrent();nodes.assertCurrent()}
  assertCurrent()
@@ -121,7 +128,28 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const baseline=await readContentBaselineTenderRecord({...host,assertCurrent:assertContext},{baselineId,stageRef:row['stageRef']},fixedReference)
   return readContentTenderRecord({...host,assertCurrent:baseline.assertCurrent},fixedReference)
  }
- return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+ const readPreviewVersions=async(assertConsumer?:()=>void):Promise<PreviewVersions>=>{
+  const assertContext=()=>{assertCurrent();assertConsumer?.()}
+  const basisRevision=await readContentRevisionBasis({...host,assertCurrent:assertContext},revisions)
+  const assertRevisions=()=>{assertContext();basisRevision.assertCurrent()}
+  const readVersion=async(revisionKey:string|null,role:ContentSnapshotRole):Promise<PreviewVersion|null>=>{
+   assertRevisions()
+   if(revisionKey===null)return null
+   const view=host.runtime.resolveView(revisionKey),revisionRow=view?.rows[0],hash=revisionRow?.['snapshotHash']
+   if(!view||!revisionRow||typeof hash!=='string')throw Error('CONTENT_CANDIDATE_SNAPSHOT_REQUIRED')
+   const assertRevisionRow=view.captureReadRow(revisionRow,['projectId','snapshotHash','baselineId','stageRef','templateRefs'])
+   const versionHost={...host,assertCurrent:()=>{assertRevisions();assertRevisionRow()}}
+   const index=await readContentSnapshotIndex(versionHost,{snapshotHash:hash},role)
+   assertRevisionManifest(host.runtime.resolveView(index.dataViewKey)?.rows[0]?.['manifest'],revisionRow)
+   const members=await readContentSnapshotNodes(versionHost,index)
+   return Object.freeze({snapshot:index,nodes:members})
+  }
+  const [basis,head]=await Promise.all([readVersion(basisRevision.dataViewKey,'basis'),readVersion(revisions.headDataViewKey,'head')])
+  const assertPreview=()=>{assertRevisions();basis?.nodes.assertCurrent();head?.nodes.assertCurrent()}
+  assertPreview()
+  return Object.freeze({basis,head,candidate:Object.freeze({snapshot,nodes}),assertCurrent:assertPreview})
+ }
+ return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,
   requiresBusinessSectionChecks:true,assertCurrent})

@@ -12,10 +12,11 @@ async function fixture(mode='normal'){
    data:mode==='link'?{missing:{type:'xref',nodeId:'MISSING',show:'title'}}:{}}]
  const entries=await Promise.all(nodes.map(async payload=>({nodeId:payload.nodeId,nodeHash:await hashContentNode(payload),payload})))
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ContentNodeVersion:{modelBinding:{modelId:'M',modelName:'ContentNodeVersion'},
-  columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'nodeId'},{name:'nodeHash'},{name:'payload',type:'object'}],views:{default:{},snapshotMembers:{
+  columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'nodeId'},{name:'nodeHash'},{name:'payload',type:'object'}],views:{default:{},
+   ...Object.fromEntries(['snapshotMembers','basisSnapshotMembers','headSnapshotMembers'].map(key=>[key,{
    commitMode:'staged',queryConfig:{allPages:true,pagination:'paged'},scopeFilter:{logic:'and',filters:[
     {field:'projectId',operator:'eq',value:{Type:'GetInputParam',ParamName:'projectId'}},
-    {field:'nodeHash',operator:'in',value:{Type:'GetInputParam',ParamName:'nodeHashes'}}]}}}}}})
+    {field:'nodeHash',operator:'in',value:{Type:'GetInputParam',ParamName:'nodeHashes'}}]}}]))}}}})
  const view=ds.getView('ContentNodeVersion','snapshotMembers')!,q=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContentNodeVersion'})
  const query=vi.fn(async(_view:DataView,_params:QueryParams)=>{
   let rows=entries.map((entry,i)=>({id:String(i),projectId:'P',...entry}))
@@ -26,14 +27,28 @@ async function fixture(mode='normal'){
   return new DataSpaceQueryContext({identity:q.identity,scope:'q',readScope:()=> 'q',snapshot:q.applyResult({Result:{primaryKeyField:'id',data:{
    ...(mode==='unknown'?{}:{Count:rows.length}),Items:rows.map(row=>({...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}))}}})})
  })
- const save=vi.fn(async()=>{throw Error('NO_WRITE')});view.bindQueryExecutor({executeQuery:query,save})
+ const save=vi.fn(async()=>{throw Error('NO_WRITE')})
+ for(const configured of Object.values(ds.tables['ContentNodeVersion']!.views))configured.bindQueryExecutor({executeQuery:query,save})
  const assertCurrent=vi.fn()
  const snapshot={dataViewKey:'S@RevisionSnapshot@selectedSnapshot',index:{projectId:'P',baselineId:'B',hashContract:'spark-bid.revision-snapshot/1' as const,
   nodes:mode==='empty'?[]:entries.map(({nodeId,nodeHash})=>({nodeId,nodeHash})).sort((a,b)=>a.nodeId<b.nodeId?-1:1),requiresBusinessSectionChecks:true as const},
-  manifestHashVerified:true as const,requiresRevisionMatchCheck:true as const,assertCurrent}
+  role:'candidate' as const,manifestHashVerified:true as const,requiresRevisionMatchCheck:true as const,assertCurrent}
  const host={runtime:{resolveView:(key:string)=>{const k=parseDataViewKey(key);return k?ds.getView(k.tableName,k.viewId):undefined}},scenarioId:'S',projectId:'P',assertCurrent:vi.fn()}
- return {view,query,save,snapshot,host}
+ return {ds,view,query,save,snapshot,host}
 }
+it('queries each revision role in its own complete member view',async()=>{
+ const f=await fixture()
+ try{
+  const basis=await readContentSnapshotNodes(f.host,{...f.snapshot,role:'basis',dataViewKey:'S@RevisionSnapshot@selectedBasisSnapshot'})
+  const head=await readContentSnapshotNodes(f.host,{...f.snapshot,role:'head',dataViewKey:'S@RevisionSnapshot@selectedHeadSnapshot'})
+  const candidate=await readContentSnapshotNodes(f.host,f.snapshot)
+  expect(f.query.mock.calls.map(([view])=>view.viewId)).toEqual(['basisSnapshotMembers','headSnapshotMembers','snapshotMembers'])
+  basis.assertCurrent();head.assertCurrent();candidate.assertCurrent()
+  await f.ds.getView('ContentNodeVersion','headSnapshotMembers')!.refresh()
+  expect(()=>head.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  basis.assertCurrent();candidate.assertCurrent()
+ }finally{f.ds.destroy()}
+})
 it('reads the exact full member set in one view and keeps all original proofs alive',async()=>{
  const f=await fixture(),result=await readContentSnapshotNodes(f.host,f.snapshot)
  expect(result.dataViewKey).toBe('S@ContentNodeVersion@snapshotMembers')

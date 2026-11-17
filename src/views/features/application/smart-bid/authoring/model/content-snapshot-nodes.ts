@@ -12,7 +12,9 @@ import {readContentNodeLinks} from '@/services/smart-bid/content/content-node-li
 import {hashContentSubtrees,SUBTREE_HASH_CONTRACT,type ContentSubtreeHash} from '@/services/smart-bid/content/hashes/content-subtree-hash'
 import {assertContentNodeVersionPayload} from './content-node-version-reader'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
-import type {ContentSnapshotIndexBinding} from './content-snapshot-reader'
+import type {ContentSnapshotIndexBinding,ContentSnapshotRole} from './content-snapshot-reader'
+
+const memberViews:Record<ContentSnapshotRole,string>={basis:'basisSnapshotMembers',head:'headSnapshotMembers',candidate:'snapshotMembers'}
 
 /** 整批原成员绑定；空节点清单不绑定旧视图，也不发空IN查询。 */
 export type ContentSnapshotNodesBinding=Readonly<{
@@ -43,7 +45,7 @@ export async function readContentSnapshotNodes(host:ContentRevisionReadHost,snap
  const members=snapshot.index.nodes
  if(!members.length)return Object.freeze({dataViewKey:null,nodeMembershipVerified:true,requiresBusinessSectionChecks:true,assertCurrent:assertOwners,
   subtreeHashContract:SUBTREE_HASH_CONTRACT,subtreeHashes:Object.freeze([])})
- const dataViewKey=buildDataViewKey('ContentNodeVersion','snapshotMembers',scenarioId),view=runtime.resolveView(dataViewKey)
+ const dataViewKey=buildDataViewKey('ContentNodeVersion',memberViews[snapshot.role],scenarioId),view=runtime.resolveView(dataViewKey)
  if(!view||!validScope(view))throw Error('CONTENT_SNAPSHOT_NODES_SCOPE_REQUIRED')
  if(view.hasEditingChanges())throw Error('CONTENT_SNAPSHOT_NODES_EDITING')
  const treeConfig:TreeConfig={idField:'nodeId',parentIdField:{field:'payload',path:['parentId'],format:'native'},
@@ -56,7 +58,7 @@ export async function readContentSnapshotNodes(host:ContentRevisionReadHost,snap
  view.queryContext={...view.queryContext,projectId,nodeHashes:hashes}
  const assertScope=()=>{
   assertOwners()
-  if(!validScope(view)||view.hasEditingChanges()||view.queryConfig.maxRows!==members.length+1||JSON.stringify(view.treeConfig)!==treeSignature
+  if(runtime.resolveView(dataViewKey)!==view||!validScope(view)||view.hasEditingChanges()||view.queryConfig.maxRows!==members.length+1||JSON.stringify(view.treeConfig)!==treeSignature
    ||view.queryContext['projectId']!==projectId||JSON.stringify(view.queryContext['nodeHashes'])!==JSON.stringify(hashes))throw Error('CONTENT_SNAPSHOT_NODES_STALE')
  }
  await view.refresh();assertScope()

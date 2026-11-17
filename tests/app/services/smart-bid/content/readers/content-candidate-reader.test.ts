@@ -168,3 +168,31 @@ it('opens the original requirement only for an exact chapter pin in the candidat
   expect(f.save).not.toHaveBeenCalled()
  }finally{f.ds.destroy()}
 })
+it('assembles explicit empty versions only for the verified first candidate',async()=>{
+ const f=await fixture('populated')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const preview=await candidate.readPreviewVersions()
+  expect(preview.basis).toBeNull();expect(preview.head).toBeNull()
+  expect(preview.candidate.snapshot).toBe(candidate.snapshot)
+  expect(preview.candidate.nodes).toBe(candidate.nodes)
+  expect(f.query).toHaveBeenCalledTimes(4)
+  preview.assertCurrent()
+  await f.ds.getView('RevisionSnapshot','selectedSnapshot')!.refresh()
+  expect(()=>preview.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+ }finally{f.ds.destroy()}
+})
+it('assembles complete basis and head from their own revision, snapshot and member views',async()=>{
+ const f=await fixture('populated',{threeVersions:true})
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:'V2'})
+  const preview=await candidate.readPreviewVersions()
+  expect(preview.basis?.nodes.dataViewKey).toBe('S@ContentNodeVersion@basisSnapshotMembers')
+  expect(preview.head?.nodes.dataViewKey).toBe('S@ContentNodeVersion@headSnapshotMembers')
+  expect(preview.candidate.nodes.dataViewKey).toBe('S@ContentNodeVersion@snapshotMembers')
+  preview.assertCurrent()
+  await f.ds.getView('RevisionSnapshot','selectedHeadSnapshot')!.refresh()
+  expect(()=>preview.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  candidate.assertCurrent()
+ }finally{f.ds.destroy()}
+})

@@ -11,17 +11,33 @@ async function fixture(options:{count?:number|null;hidden?:boolean;wrongProject?
   requirementPins:[],responseAssignments:[],responses:[],qualificationReviews:[],sensitiveRefs:[]}
  const hash=options.wrongHash?'a'.repeat(64):await hashRevisionSnapshot(manifest)
  const ds=DataSet.fromJson({scenarioId:'S',tables:{RevisionSnapshot:{modelBinding:{modelId:'SM',modelName:'RevisionSnapshot'},
-  columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'snapshotHash'},{name:'manifest',type:'object'}],views:{default:{},selectedSnapshot:{commitMode:'staged',
-   scopeFilter:{logic:'and',filters:['projectId','snapshotHash'].map(field=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName:field}}))}}}}}})
+  columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'snapshotHash'},{name:'manifest',type:'object'}],views:{default:{},
+   ...Object.fromEntries(['selectedSnapshot','selectedBasisSnapshot','selectedHeadSnapshot'].map(key=>[key,{commitMode:'staged',
+    scopeFilter:{logic:'and',filters:['projectId','snapshotHash'].map(field=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName:field}}))}}]))}}}})
  const view=ds.getView('RevisionSnapshot','selectedSnapshot')!,save=vi.fn(async()=>{throw Error('NO_WRITE')})
  const query=vi.fn(async()=>new DataSpaceQueryContext({identity:q.identity,scope:'q',readScope:()=> 'q',snapshot:q.applyResult({Result:{primaryKeyField:'id',data:{
   ...(options.count===null?{}:{Count:options.count??1}),Items:[{id:'ROW',projectId:'P',snapshotHash:hash,manifest,lingma_sys_params:{r:[],e:[],h:options.hidden?['manifest']:[],m:[],d:false}}]}}})}))
- view.bindQueryExecutor({executeQuery:query,save})
+ for(const configured of Object.values(ds.tables['RevisionSnapshot']!.views))configured.bindQueryExecutor({executeQuery:query,save})
  let current=true
  const host={runtime:{resolveView:(key:string)=>{const k=parseDataViewKey(key);return k?ds.getView(k.tableName,k.viewId):undefined}},scenarioId:'S',projectId:'P',
   assertCurrent:()=>{if(!current)throw Error('HOST_STALE')}}
- return {host,view,hash,query,save,expire:()=>{current=false}}
+ return {ds,host,view,hash,query,save,expire:()=>{current=false}}
 }
+it('keeps basis, current head and candidate snapshot proofs independent',async()=>{
+ const f=await fixture()
+ try{
+  const basis=await readContentSnapshotIndex(f.host,{snapshotHash:f.hash},'basis')
+  const head=await readContentSnapshotIndex(f.host,{snapshotHash:f.hash},'head')
+  const candidate=await readContentSnapshotIndex(f.host,{snapshotHash:f.hash})
+  expect([basis.dataViewKey,head.dataViewKey,candidate.dataViewKey]).toEqual([
+   'S@RevisionSnapshot@selectedBasisSnapshot','S@RevisionSnapshot@selectedHeadSnapshot','S@RevisionSnapshot@selectedSnapshot',
+  ])
+  basis.assertCurrent();head.assertCurrent();candidate.assertCurrent()
+  await f.ds.getView('RevisionSnapshot','selectedHeadSnapshot')!.refresh()
+  expect(()=>head.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  basis.assertCurrent();candidate.assertCurrent()
+ }finally{f.ds.destroy()}
+})
 it('verifies the full manifest digest while keeping business closure and revision matching pending',async()=>{
  const f=await fixture(),result=await readContentSnapshotIndex(f.host,{snapshotHash:f.hash})
  expect(result.dataViewKey).toBe('S@RevisionSnapshot@selectedSnapshot')

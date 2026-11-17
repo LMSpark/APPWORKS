@@ -11,9 +11,11 @@ import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevi
 
 /** 精确快照键；必须来自所选修订或冻结首稿，不能由草稿哈希冒充。 */
 export type ContentSnapshotSelection=Readonly<{snapshotHash:string}>
+export type ContentSnapshotRole='basis'|'head'|'candidate'
+const snapshotViews={basis:'selectedBasisSnapshot',head:'selectedHeadSnapshot',candidate:'selectedSnapshot'} as const
 /** 原清单绑定和索引；修订阶段/模板/基线匹配及完整校验另核。 */
 export type ContentSnapshotIndexBinding=Readonly<{
- dataViewKey:string;index:RevisionSnapshotNodeIndex;manifestHashVerified:true;requiresRevisionMatchCheck:true;assertCurrent:()=>void
+ dataViewKey:string;role:ContentSnapshotRole;index:RevisionSnapshotNodeIndex;manifestHashVerified:true;requiresRevisionMatchCheck:true;assertCurrent:()=>void
 }>
 function validScope(view:DataView):boolean {
  return view.dataTable?.modelBinding?.modelName==='RevisionSnapshot'&&view.commitMode==='staged'
@@ -21,19 +23,20 @@ function validScope(view:DataView):boolean {
 }
 
 /** 沿本次原DataView读取清单索引；同值重新查询也使旧绑定失效，不生成替代快照。 */
-export async function readContentSnapshotIndex(host:ContentRevisionReadHost,input:ContentSnapshotSelection):Promise<ContentSnapshotIndexBinding> {
+export async function readContentSnapshotIndex(host:ContentRevisionReadHost,input:ContentSnapshotSelection,
+ role:ContentSnapshotRole='candidate'):Promise<ContentSnapshotIndexBinding> {
  const {runtime,scenarioId,projectId,assertCurrent:assertHost}=host,{snapshotHash}=input
  assertHost()
  if(typeof snapshotHash!=='string'||!/^[a-f0-9]{64}$/u.test(snapshotHash)
   ||typeof projectId!=='string'||projectId.trim().length===0||projectId.trim()!==projectId
   ||typeof scenarioId!=='string'||scenarioId.trim().length===0||scenarioId.trim()!==scenarioId)throw Error('CONTENT_SNAPSHOT_IDENTITY_REQUIRED')
- const dataViewKey=buildDataViewKey('RevisionSnapshot','selectedSnapshot',scenarioId),view=runtime.resolveView(dataViewKey)
+ const dataViewKey=buildDataViewKey('RevisionSnapshot',snapshotViews[role],scenarioId),view=runtime.resolveView(dataViewKey)
  if(!view||!validScope(view))throw Error('CONTENT_SNAPSHOT_SCOPE_REQUIRED')
  if(view.hasEditingChanges())throw Error('CONTENT_SNAPSHOT_EDITING')
  view.queryContext={...view.queryContext,projectId,snapshotHash}
  const assertScope=()=>{
   assertHost()
-  if(!validScope(view)||view.hasEditingChanges()||view.queryContext['projectId']!==projectId
+  if(runtime.resolveView(dataViewKey)!==view||!validScope(view)||view.hasEditingChanges()||view.queryContext['projectId']!==projectId
    ||view.queryContext['snapshotHash']!==snapshotHash)throw Error('CONTENT_SNAPSHOT_STALE')
  }
  await view.refresh();assertScope()
@@ -46,7 +49,7 @@ export async function readContentSnapshotIndex(host:ContentRevisionReadHost,inpu
  const actualHash=await hashRevisionSnapshot(row['manifest'])
  assertScope();assertResult();assertRow()
  if(actualHash!==snapshotHash)throw Error('CONTENT_SNAPSHOT_HASH_MISMATCH')
- return Object.freeze({dataViewKey,index,manifestHashVerified:true,requiresRevisionMatchCheck:true,assertCurrent:()=>{
+ return Object.freeze({dataViewKey,role,index,manifestHashVerified:true,requiresRevisionMatchCheck:true,assertCurrent:()=>{
   assertScope();assertResult();assertRow()
   if(!hasCompleteSingleContentResult(view))throw Error('CONTENT_SNAPSHOT_NOT_UNIQUE')
  }})

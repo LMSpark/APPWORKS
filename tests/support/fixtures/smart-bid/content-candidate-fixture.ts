@@ -5,7 +5,7 @@ import {hashContentNode} from '@/services/smart-bid/content-node-hash'
 import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
-export async function createCandidateReadFixture(mode='normal',options:{tenderConfirmStatus?:'CONFIRMED'|'REJECTED'}={}){
+export async function createCandidateReadFixture(mode='normal',options:{tenderConfirmStatus?:'CONFIRMED'|'REJECTED';threeVersions?:boolean}={}){
  const param=(name:string)=>({Type:'GetInputParam',ParamName:name})
  const eq=(field:string,name=field)=>({field,operator:'eq' as const,value:param(name)})
  const payloads=[{nodeId:'D',parentId:'P',index:0,type:'document',class:[],value:'',data:{}},
@@ -46,15 +46,19 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   ContentProject:{modelBinding:{modelId:'PM',modelName:'ContentProject'},columns:[{name:'projectId',type:'string',isPrimaryKey:true},{name:'headRevisionId',type:'string'}],
    views:{default:{},selectedProject:{scopeFilter:eq('projectId')}}},
   ContentRevision:{modelBinding:{modelId:'RM',modelName:'ContentRevision'},columns:[{name:'id',type:'string',isPrimaryKey:true},
-   ...['projectId','status','snapshotHash','baselineId'].map(name=>({name,type:'string'})),{name:'stageRef',type:'object'},{name:'templateRefs',type:'object'}],
-   views:{default:{},selectedCandidate:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','candidateRevisionId'),{field:'status',operator:'eq',value:'CANDIDATE'}]}}}},
+   ...['projectId','status','snapshotHash','baselineId','basisRevisionId'].map(name=>({name,type:'string'})),{name:'stageRef',type:'object'},{name:'templateRefs',type:'object'}],
+   views:{default:{},selectedCandidate:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','candidateRevisionId'),{field:'status',operator:'eq',value:'CANDIDATE'}]}},
+    selectedBasis:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','basisRevisionId'),{field:'status',operator:'eq',value:'ADOPTED'}]}},
+    selectedHead:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','expectedHead'),{field:'status',operator:'eq',value:'ADOPTED'}]}}}},
   RevisionSnapshot:{modelBinding:{modelId:'SM',modelName:'RevisionSnapshot'},columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'snapshotHash',type:'string'},{name:'manifest',type:'object'}],
-   views:{default:{},selectedSnapshot:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('snapshotHash')]}}}},
+   views:{default:{},...Object.fromEntries(['selectedSnapshot','selectedBasisSnapshot','selectedHeadSnapshot'].map(key=>[key,
+    {commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('snapshotHash')]}}]))}},
   ContentNodeVersion:{modelBinding:{modelId:'NM',modelName:'ContentNodeVersion'},columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},
-   {name:'nodeId',type:'string'},{name:'nodeHash',type:'string'},{name:'payload',type:'object'}],views:{default:{},snapshotMembers:{commitMode:'staged',queryConfig:{allPages:true,pagination:'paged'},
-    scopeFilter:{logic:'and',filters:[eq('projectId'),{field:'nodeHash',operator:'in',value:param('nodeHashes')}]}}}}
+   {name:'nodeId',type:'string'},{name:'nodeHash',type:'string'},{name:'payload',type:'object'}],views:{default:{},
+    ...Object.fromEntries(['snapshotMembers','basisSnapshotMembers','headSnapshotMembers'].map(key=>[key,{commitMode:'staged',queryConfig:{allPages:true,pagination:'paged'},
+     scopeFilter:{logic:'and',filters:[eq('projectId'),{field:'nodeHash',operator:'in',value:param('nodeHashes')}]}}]))}}
  }})
- const candidate={id:'C',projectId:'P',status:'CANDIDATE',snapshotHash,baselineId:mode==='baseline'?'OTHER':'B',
+ const candidate={id:'C',projectId:'P',status:'CANDIDATE',snapshotHash,basisRevisionId:options.threeVersions?'V1':null,baselineId:mode==='baseline'?'OTHER':'B',
   stageRef:mode==='stage'?{id:'ST',version:'2'}:{version:'1',id:'ST'},
   templateRefs:mode==='template'?[{documentId:'D',key:'T',version:'2',hash:'a'.repeat(64)}]:templateRefs}
  const query=vi.fn(async(view:DataView)=>{
@@ -62,7 +66,8 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   const rows=model==='TenderRecord'?[tender]:model==='Requirement'?[requirement]:model==='Baseline'?[{id:mode==='wrong-fact-baseline'?'OTHER':'B',projectId:'P',stageRef:{id:'ST',version:'1'},factVersions:[{factId:'PRICE',version:2}],requirementVersions:[{lineageId:'L',version:'R2'}],
    tenderRecords:[{runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}]}]:
    model==='FactVersion'?[{id:'FV2',projectId:'P',key:'PRICE',version:2,kind:'PRICE',value:'0.00',unit:'元',sourceIds:[],claimId:null,scopeRef:null,decisionRefs:[],dependencyRefs:[],promiseTerms:null,sourceRecord:null,status:'ADOPTED'}]:
-   model==='ContentProject'?[{projectId:'P',headRevisionId:null}]:model==='ContentRevision'?[candidate]:
+   model==='ContentProject'?[{projectId:'P',headRevisionId:options.threeVersions?'V2':null}]:
+   model==='ContentRevision'?[view.viewId==='selectedCandidate'?candidate:{...candidate,id:view.viewId==='selectedBasis'?'V1':'V2',status:'ADOPTED'}]:
    model==='ContentNodeVersion'?(mode==='sibling-tree'?[...members].sort((a,b)=>a.nodeId<b.nodeId?-1:1):members)
     .map(member=>({id:`ROW_${member.nodeId}`,projectId:'P',...member})):[{id:'SN',projectId:'P',snapshotHash,manifest}]
   return new DataSpaceQueryContext({identity:q.identity,scope:'q',readScope:()=> 'q',snapshot:q.applyResult({Result:{primaryKeyField:model==='ContentProject'?'projectId':'id',data:{

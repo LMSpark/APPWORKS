@@ -1,25 +1,27 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey,type DataView,type QueryParams} from '@spark-appworks/spark-data'
-import {readContentRevisions} from '@/views/features/application/smart-bid/authoring/model/content-revision-reader'
+import {readContentRevisionBasis,readContentRevisions} from '@/views/features/application/smart-bid/authoring/model/content-revision-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 const param=(name:string)=>({Type:'GetInputParam',ParamName:name})
-function fixture(head:string|null='H',incompleteView?:string) {
+function fixture(head:string|null='H',incompleteView?:string,basisRevisionId:string|null='B') {
  const scope=(name:string,status:string)=>({logic:'and' as const,filters:[
   {field:'projectId',operator:'eq' as const,value:param('projectId')},
   {field:'id',operator:'eq' as const,value:param(name)},
   {field:'status',operator:'eq' as const,value:status}]})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ContentProject:{modelBinding:{modelId:'PM',modelName:'ContentProject'},columns:[{name:'projectId',isPrimaryKey:true},{name:'headRevisionId'}],
   views:{default:{},selectedProject:{scopeFilter:{field:'projectId',operator:'eq',value:param('projectId')}}}},ContentRevision:{modelBinding:{modelId:'RM',modelName:'ContentRevision'},
-  columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'status'},{name:'snapshotHash'}],views:{default:{},
+  columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'status'},{name:'snapshotHash'},{name:'basisRevisionId'}],views:{default:{},
    selectedCandidate:{scopeFilter:scope('candidateRevisionId','CANDIDATE'),commitMode:'staged'},
-   selectedHead:{scopeFilter:scope('expectedHead','ADOPTED'),commitMode:'staged'}}}}})
+   selectedHead:{scopeFilter:scope('expectedHead','ADOPTED'),commitMode:'staged'},
+   selectedBasis:{scopeFilter:scope('basisRevisionId','ADOPTED'),commitMode:'staged'}}}}})
  let hidden=false,wrong=false,current=true
  const query=vi.fn(async(view:DataView,params:QueryParams)=>{
   const isProject=view.dataTable?.tableName==='ContentProject',candidate=view.viewId==='selectedCandidate'
-  const rows=isProject?[{projectId:'P',headRevisionId:head}]:[{id:wrong?'OTHER':params.context?.[candidate?'candidateRevisionId':'expectedHead'],projectId:'P',
-   status:candidate?'CANDIDATE':'ADOPTED',snapshotHash:'digest'}]
+  const parameter=candidate?'candidateRevisionId':view.viewId==='selectedBasis'?'basisRevisionId':'expectedHead'
+  const rows=isProject?[{projectId:'P',headRevisionId:head}]:[{id:wrong?'OTHER':params.context?.[parameter],projectId:'P',
+   status:candidate?'CANDIDATE':'ADOPTED',snapshotHash:'digest',basisRevisionId}]
   const q=new DataSpaceQueryTable({scenarioId:'S',metaName:isProject?'ContentProject':'ContentRevision'})
   return new DataSpaceQueryContext({identity:q.identity,scope:'q',readScope:()=> 'q',snapshot:q.applyResult({Result:{
    primaryKeyField:isProject?'projectId':'id',data:{Count:view.viewId===incompleteView?2:1,Items:rows.map(row=>({...row,lingma_sys_params:{r:[],e:isProject?['headRevisionId']:[],h:hidden?['snapshotHash']:[],m:[],d:false}}))}}})})
@@ -41,6 +43,28 @@ it('reads exact named revision views from the original runtime without writes or
 it('uses an explicit null head for a first candidate and never queries the head view',async()=>{
  const f=fixture(null),result=await readContentRevisions(f.input,{candidateRevisionId:'C',expectedHead:null})
  expect(result.headDataViewKey).toBeNull();expect(f.query).toHaveBeenCalledTimes(2)
+})
+it('reads the basis pinned by the candidate while retaining the separate head evidence',async()=>{
+ const f=fixture()
+ try{
+  const revisions=await readContentRevisions(f.input,{candidateRevisionId:'C',expectedHead:'H'})
+  const basis=await readContentRevisionBasis(f.input,revisions)
+  expect(basis.dataViewKey).toBe('S@ContentRevision@selectedBasis')
+  expect(f.ds.getView('ContentRevision','selectedBasis')!.queryContext).toMatchObject({basisRevisionId:'B',projectId:'P'})
+  basis.assertCurrent();revisions.assertCurrent()
+  await f.ds.getView('ContentRevision','selectedBasis')!.refresh()
+  expect(()=>basis.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  revisions.assertCurrent()
+ }finally{f.ds.destroy()}
+})
+it.each([null,'H'])('accepts the empty basis only for a verified empty head %s',async expectedHead=>{
+ const f=fixture(expectedHead,undefined,null)
+ try{
+  const revisions=await readContentRevisions(f.input,{candidateRevisionId:'C',expectedHead})
+  if(expectedHead===null)expect((await readContentRevisionBasis(f.input,revisions)).dataViewKey).toBeNull()
+  else await expect(readContentRevisionBasis(f.input,revisions)).rejects.toThrow('CONTENT_REVISION_BASIS_REQUIRED')
+  expect(f.query.mock.calls.some(([view])=>view.viewId==='selectedBasis')).toBe(false)
+ }finally{f.ds.destroy()}
 })
 it.each(['selectedProject','selectedCandidate','selectedHead'])('rejects a partial result for %s even if one row matches',async viewId=>{
  const f=fixture('H',viewId)

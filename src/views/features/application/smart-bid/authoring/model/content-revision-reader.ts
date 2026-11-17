@@ -105,3 +105,41 @@ export async function readContentRevisions(host:ContentRevisionReadHost,input:Co
   assertScope();proofs.forEach(proof=>{proof.result();proof.row()});assertRows()
  }})
 }
+
+/** 基准由原候选固定，首候选只有当前项目仍空头时才可保留空基准。 */
+export async function readContentRevisionBasis(host:ContentRevisionReadHost,revisions:ContentRevisionReadBinding):Promise<Readonly<{
+ dataViewKey:string|null;assertCurrent:()=>void
+}>>{
+ const {runtime,scenarioId,projectId}=host
+ const candidate=runtime.resolveView(revisions.candidateDataViewKey),candidateRow=candidate?.rows[0]
+ host.assertCurrent();revisions.assertCurrent()
+ if(!candidate||candidateRow?.['projectId']!==projectId)throw Error('CONTENT_REVISION_BASIS_REQUIRED')
+ const assertCandidateBasis=candidate.captureReadRow(candidateRow,['basisRevisionId'])
+ const basisRevisionId=candidateRow['basisRevisionId']
+ const assertCandidate=()=>{
+  host.assertCurrent();revisions.assertCurrent();assertCandidateBasis()
+  if(runtime.resolveView(revisions.candidateDataViewKey)!==candidate)throw Error('CONTENT_REVISION_STALE')
+ }
+ if(basisRevisionId===null&&revisions.headDataViewKey===null){
+  assertCandidate()
+  return Object.freeze({dataViewKey:null,assertCurrent:assertCandidate})
+ }
+ if(!identity(basisRevisionId)||revisions.headDataViewKey===null)throw Error('CONTENT_REVISION_BASIS_REQUIRED')
+ const dataViewKey=buildDataViewKey('ContentRevision','selectedBasis',scenarioId),view=runtime.resolveView(dataViewKey)
+ if(!view||!valid(view,'basisRevisionId','ADOPTED'))throw Error('CONTENT_REVISION_SCOPE_REQUIRED')
+ if(view.hasEditingChanges())throw Error('CONTENT_REVISION_UNAVAILABLE')
+ view.queryContext={...view.queryContext,projectId,basisRevisionId}
+ const assertScope=()=>{
+  assertCandidate()
+  if(runtime.resolveView(dataViewKey)!==view||!valid(view,'basisRevisionId','ADOPTED')||
+   view.queryContext['projectId']!==projectId||view.queryContext['basisRevisionId']!==basisRevisionId)throw Error('CONTENT_REVISION_STALE')
+ }
+ assertScope();await view.refresh();assertScope()
+ const target={projectId,id:basisRevisionId,status:'ADOPTED'},row=view.rows[0]
+ if(!row||!available(view,target))throw Error('CONTENT_REVISION_UNAVAILABLE')
+ const assertResult=view.captureReadResult(),assertRow=view.captureReadRow(row,['id','projectId','status','snapshotHash'])
+ return Object.freeze({dataViewKey,assertCurrent:()=>{
+  assertScope();assertResult();assertRow()
+  if(!available(view,target))throw Error('CONTENT_REVISION_UNAVAILABLE')
+ }})
+}

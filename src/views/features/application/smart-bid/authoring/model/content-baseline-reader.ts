@@ -92,12 +92,26 @@ export async function readContentBaselineTenderRecord(
  baseline.assertCurrent()
  return Object.freeze({baselineDataViewKey:baseline.key,assertCurrent:baseline.assertCurrent})
 }
+/** 事实与要求共用同一份基线的来源成员与原记录证明。 */
+async function readBaselineMemberSource(host:ContentRevisionReadHost,baseline:Awaited<ReturnType<typeof readOriginalBaseline>>,
+ member:Readonly<{dataViewKey:string;assertCurrent:()=>void}>,
+){
+ member.assertCurrent()
+ const sourceRecord=host.runtime.resolveView(member.dataViewKey)?.rows[0]?.['sourceRecord']
+ if(sourceRecord===null||sourceRecord===undefined)return undefined
+ const assertMembership=baseline.view.captureReadRow(baseline.row,['tenderRecords'])
+ assertBaselineTenderRecordMember(baseline.row['tenderRecords'],sourceRecord)
+ const source=await readContentTenderRecord({...host,assertCurrent:()=>{member.assertCurrent();assertMembership()}},sourceRecord)
+ return source.assertCurrent
+}
+
 /** 原基线和事实证明组合；后续任何重查、编辑或宿主替换都会撤销该绑定。 */
 export async function readContentBaselineFact(host:ContentRevisionReadHost,input:ContentBaselineFactSelection):Promise<ContentBaselineFactBinding>{
  const baseline=await readOriginalBaseline(host,input,'factVersions')
  const member=selectBaselineFactMember(baseline.row['factVersions'],{factId:input.factId,...(Object.hasOwn(input,'version')?{version:input.version}:{})})
  const fact=await readContentFactVersion({...host,assertCurrent:baseline.assertCurrent},member)
- const assertCurrent=()=>{baseline.assertCurrent();fact.assertCurrent()}
+ const assertSource=await readBaselineMemberSource(host,baseline,fact)
+ const assertCurrent=()=>{fact.assertCurrent();assertSource?.()}
  assertCurrent()
  return Object.freeze({baselineDataViewKey:baseline.key,factDataViewKey:fact.dataViewKey,baselineMembershipVerified:true,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent})
 }
@@ -114,16 +128,8 @@ export async function readContentBaselineRequirement(
  const baseline=await readOriginalBaseline(host,input,'requirementVersions')
  const member=selectBaselineRequirementMember(baseline.row['requirementVersions'],{lineageId,version})
  const requirement=await readContentRequirement({...host,assertCurrent:baseline.assertCurrent},member)
- requirement.assertCurrent()
- const sourceRecord=host.runtime.resolveView(requirement.dataViewKey)?.rows[0]?.['sourceRecord']
- let assertSource:(()=>void)|undefined
- if(sourceRecord!==null&&sourceRecord!==undefined){
-  const assertMembership=baseline.view.captureReadRow(baseline.row,['tenderRecords'])
-  assertBaselineTenderRecordMember(baseline.row['tenderRecords'],sourceRecord)
-  const source=await readContentTenderRecord({...host,assertCurrent:()=>{requirement.assertCurrent();assertMembership()}},sourceRecord)
-  assertSource=source.assertCurrent
- }
- const assertCurrent=()=>{baseline.assertCurrent();requirement.assertCurrent();assertSource?.()}
+ const assertSource=await readBaselineMemberSource(host,baseline,requirement)
+ const assertCurrent=()=>{requirement.assertCurrent();assertSource?.()}
  assertCurrent()
  return Object.freeze({baselineDataViewKey:baseline.key,requirementDataViewKey:requirement.dataViewKey,
   baselineMembershipVerified:true,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent})

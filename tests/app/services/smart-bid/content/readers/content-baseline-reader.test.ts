@@ -31,6 +31,19 @@ function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,u
  return {ds,host,queries,save,expire:()=>{active=false}}
 }
 const input={baselineId:'B',stageRef:{decisionId:'STAGE'},factId:'PRICE',version:2}
+it('requires a fixed fact source to belong to its baseline and keeps the original record proof',async()=>{
+ const missing=fixture({fact:{sourceRecord:requirementSource},baseline:{tenderRecords:[]}})
+ const exact=fixture({fact:{sourceRecord:requirementSource},baseline:{tenderRecords:[requirementSource]}})
+ try{
+  await expect(readContentBaselineFact(missing.host,input)).rejects.toThrow('BASELINE_TENDER_RECORD_MISSING')
+  expect(missing.queries[3]).not.toHaveBeenCalled()
+  const result=await readContentBaselineFact(exact.host,input)
+  result.assertCurrent()
+  expect(exact.queries[3]).toHaveBeenCalledTimes(1)
+  await exact.ds.getView('TenderRecord','selectedTenderRecord')!.refresh()
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+ }finally{missing.ds.destroy();exact.ds.destroy()}
+})
 it('requires the requirement source to match the same original baseline and keeps its field proof',async()=>{
  const ref={runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}
  const selection={baselineId:'B',stageRef:input.stageRef,lineageId:'L',version:'R2'}

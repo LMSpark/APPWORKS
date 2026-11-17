@@ -1,12 +1,19 @@
 import {afterEach, beforeEach, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
-import {Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {Spark, SparkPageRenderer, registerAllRenderers} from '@spark-appworks/spark-component'
+import {createMemoryHistory,createRouter} from 'vue-router'
+import VXETable from 'vxe-table'
 import {DataSet, type DataView, type QueryParams, type DataViewFilterTree} from '@spark-appworks/spark-data'
 import {PageRuntime,PageTool} from '@spark-appworks/spark-project-model'
 import {captureContentAuthoringSession,ContentAuthoringHost, type ContentAuthoringTarget} from '@/views/features/application/smart-bid/authoring/model/content-authoring-host'
 import ContentDraftWorkspace from '@/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue'
 import {createPublishedContentAuthoringHost} from '@/views/features/application/smart-bid/authoring/entry/content-authoring-script-host'
+import {preparePublishedContentAuthoringCall} from '@/views/features/application/smart-bid/authoring/entry/content-authoring-target'
+import rule from '@/views/features/application/smart-bid/authoring/page11/rule.json?raw'
+import script from '@/views/features/application/smart-bid/authoring/page11/script.js?raw'
+import style from '@/views/features/application/smart-bid/authoring/page11/style.css?raw'
+import {PageRuntimePool} from '../../../../packages/spark-app/src/router/page-runtime-pool'
 import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -26,8 +33,8 @@ const originalStubs={...config.global.stubs}
 let wrapper:VueWrapper|undefined
 beforeEach(()=>{auth.token='session-1';auth.userId='U';auth.appId='APP';load.mockReset()})
 afterEach(()=>{wrapper?.unmount();wrapper=undefined;config.global.stubs=originalStubs})
-function fixture(scoped=true,hiddenProject:boolean|(()=>boolean)=false,draftKey='draftId') {
- const ds=DataSet.fromJson({scenarioId:'SPACE',tables:{
+function fixture(scoped=true,hiddenProject:boolean|(()=>boolean)=false,draftKey='draftId',scenarioId='SPACE') {
+ const ds=DataSet.fromJson({scenarioId,tables:{
   ContentProject:{modelBinding:{modelId:'PM',modelName:'ContentProject'},columns:[{name:'projectId',type:'string',isPrimaryKey:true}],
    views:{default:{},selectedProject:{...(scoped?{scopeFilter:projectScope}:{}),commitMode:'staged'}}},
   WorkingDraft:{modelBinding:{modelId:'DM',modelName:'WorkingDraft'},columns:[
@@ -36,7 +43,7 @@ function fixture(scoped=true,hiddenProject:boolean|(()=>boolean)=false,draftKey=
  }})
  const queries=vi.fn(async(view:DataView,params:QueryParams)=>{
   const model=view.dataTable!.modelBinding!.modelName
-  const query=new DataSpaceQueryTable({scenarioId:'SPACE',metaName:model})
+  const query=new DataSpaceQueryTable({scenarioId,metaName:model})
   const rows=model==='ContentProject'?[{projectId:params.context!['projectId']}]:[
    {[draftKey]:'D',projectId:params.context!['projectId'],userId:params.context!['currentUserId'],draft:{nodes:[],responseChanges:[]}}]
   return new DataSpaceQueryContext({identity:query.identity,scope:'original',readScope:()=> 'original',snapshot:query.applyResult({Result:{
@@ -94,6 +101,59 @@ it('connects the published script to the original runtime only once per load',as
   controller.abort()
   expect(()=>first.assertCurrent()).toThrow('CONTENT_PAGE_RENDER_STALE')
  }finally{runtime.dispose()}
+})
+it('loads the actual three files and authoring host through the page runtime pool',async()=>{
+ registerAllRenderers()
+ const stubs={...originalStubs}
+ for(const key of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])delete stubs[key]
+ config.global.stubs=stubs
+ const applicationId='D8490EC99436A8B9AFDE205BE3153802',scenarioId='D3BBA1F0780056C837AC35E9825CAD5A'
+ auth.appId=applicationId
+ const {ds,queries,save}=fixture(true,false,'id',scenarioId)
+ const entry={nodeId:'fixture-navigation',pageId:'fixture-tool'}
+ const tool={pageId:entry.pageId,projectId:applicationId}
+ const path=`/apps/${applicationId}/__page/${entry.nodeId}`
+ const router=createRouter({history:createMemoryHistory(),routes:[{path,component:SparkPageRenderer,
+  meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,tool}}]})
+ const readPageFiles=vi.fn(async(commands:ReadonlyArray<{fileName:string}>)=>
+  commands.map(({fileName})=>fileName==='rule.json'?rule:fileName==='script.js'?script:style))
+ const pool=new PageRuntimePool({pageComponent:SparkPageRenderer,readPageFile:undefined,readPageFiles,
+  preparePageCall:route=>preparePublishedContentAuthoringCall(route,entry),
+  loadScenario:async(input)=>{
+   expect(input).toEqual({projectId:applicationId,scenarioId})
+   return ds
+  },
+  readNavTree:()=>({title:'Fixture',childPlacement:'header',items:[{id:entry.nodeId,title:'Fixture tool',itemKind:'page',tool}]}),
+  refreshRoutes:async()=>{},
+ })
+ try{
+  await router.push({path,query:{scenarioId,projectId:'P',draftId:'D'}})
+  const route=router.currentRoute.value, runtime=pool.getPageRuntime(route), component=pool.getPageRuntimeView(route)
+  if(!runtime||!component)throw Error('Missing pooled authoring page')
+  wrapper=mount(component,{global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
+  await flushPromises()
+  expect(wrapper.text()).toContain('标书正文编制')
+  expect(wrapper.text()).toContain('新增逻辑册')
+  expect(runtime.getDataSet(scenarioId)).toBe(ds)
+  expect(pool.getPageRuntime(route)).toBe(runtime)
+  expect(readPageFiles).toHaveBeenCalledOnce()
+  expect(queries).toHaveBeenCalledTimes(2)
+  expect(load).not.toHaveBeenCalled()
+  const drafts=ds.getView('WorkingDraft','personalDraft')!
+  const button=(label:string)=>wrapper?.findAll('button').find(item=>item.text()===label)
+  await button('新增逻辑册')!.trigger('click');await flushPromises()
+  expect(drafts.getEditingRow('D')?.['draft']).not.toEqual(drafts.rows[0]?.['draft'])
+  expect(()=>pool.closePageRuntime(runtime.instanceId)).toThrow('未保存')
+  await button('取消本次草稿编辑')!.trigger('click');await flushPromises()
+  expect(drafts.getEditingRow('D')?.['draft']).toEqual(drafts.rows[0]?.['draft'])
+  expect(save).not.toHaveBeenCalled()
+  pool.closePageRuntime(runtime.instanceId)
+  expect(runtime.destroyed).toBe(true)
+ }finally{
+  wrapper?.unmount();wrapper=undefined
+  if(!ds.destroyed)ds.getView('WorkingDraft','personalDraft')?.discardEditingRows()
+  pool.disposePageRuntimes()
+ }
 })
 it('invalidates the binding when the runtime no longer resolves the original draft view',async()=>{
  fixture()

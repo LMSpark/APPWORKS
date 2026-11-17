@@ -120,9 +120,9 @@
         },
         "cardShadow": {
           "enum": [
-            "never",
             "always",
-            "hover"
+            "hover",
+            "never"
           ]
         },
         "bodyClass": {

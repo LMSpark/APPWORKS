@@ -68,6 +68,29 @@
           "type": "object",
           "title": "Promise<readonly string[]>"
         },
+        "method.preparePageCall.params": {
+          "type": "object",
+          "properties": {
+            "route": {
+              "type": "object",
+              "title": "RouteLocationNormalizedLoaded"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preparePageCall.return": {
+          "type": "object",
+          "properties": {
+            "scenarioInputs": {
+              "type": "object",
+              "title": "NonNullable<PageRuntimeOptions['scenarioInputs']>"
+            }
+          },
+          "required": [
+            "scenarioInputs"
+          ],
+          "additionalProperties": false
+        },
         "method.readNavTree.params": {
           "type": "object",
           "properties": {},
@@ -193,7 +216,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T18:28:11.733Z",
+  "generatedAt": "2026-11-17T18:32:04.009Z",
   "models": {
     "RuntimeScenarioLoadCommand": {
       "name": "RuntimeScenarioLoadCommand",
@@ -229,11 +252,11 @@
       "jsdoc": "实例池依赖：页面渲染组件、工具文件读取、场景装配、当前导航树与路由刷新。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** One scoped read session for the complete tool. Results correspond to the input order. */\n    readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** One scoped read session for the complete tool. Results correspond to the input order. */\n    readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>;\n    preparePageCall?: (route: RouteLocationNormalizedLoaded) => Readonly<{\n        scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>;\n        assertCurrent(): void;\n    }> | undefined;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** One scoped read session for the complete tool. Results correspond to the input order. */\n    readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
+            "typeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** One scoped read session for the complete tool. Results correspond to the input order. */\n    readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>;\n    preparePageCall?: (route: RouteLocationNormalizedLoaded) => Readonly<{\n        scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>;\n        assertCurrent(): void;\n    }> | undefined;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -283,6 +306,31 @@
                     "name": "readonly string[]"
                   }
                 ]
+              }
+            },
+            {
+              "name": "preparePageCall",
+              "parameters": [
+                {
+                  "name": "route",
+                  "type": {
+                    "type": "reference",
+                    "name": "RouteLocationNormalizedLoaded"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Readonly",
+                  "typeArguments": [
+                    {
+                      "type": "unknown",
+                      "name": "{\n        scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>;\n        assertCurrent(): void;\n    }"
+                    }
+                  ]
+                }
               }
             },
             {

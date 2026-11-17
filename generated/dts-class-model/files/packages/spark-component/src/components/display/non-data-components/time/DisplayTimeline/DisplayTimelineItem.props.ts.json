@@ -63,8 +63,8 @@
         "itemType": {
           "enum": [
             "info",
-            "warning",
             "success",
+            "warning",
             "danger",
             "primary"
           ]

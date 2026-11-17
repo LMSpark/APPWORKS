@@ -155,9 +155,9 @@
         },
         "cardShadow": {
           "enum": [
-            "never",
             "always",
-            "hover"
+            "hover",
+            "never"
           ]
         },
         "itemColSpan": {

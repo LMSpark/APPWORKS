@@ -31,8 +31,8 @@
         "number",
         "boolean",
         "object",
-        "null",
-        "array"
+        "array",
+        "null"
       ]
     },
     "JsonTreeNode": {
@@ -229,7 +229,7 @@
           "type": "object",
           "title": "() => MapIterator<JsonTreeNode>"
         },
-        "__@iterator@164108": {
+        "__@iterator@117437": {
           "type": "object",
           "title": "() => MapIterator<[string, JsonTreeNode]>"
         }
@@ -242,7 +242,7 @@
         "entries",
         "keys",
         "values",
-        "__@iterator@164108"
+        "__@iterator@117437"
       ],
       "additionalProperties": false
     },
@@ -847,7 +847,7 @@
               "writable": true
             },
             {
-              "name": "__@iterator@164108",
+              "name": "__@iterator@117437",
               "readable": true,
               "writable": true
             }

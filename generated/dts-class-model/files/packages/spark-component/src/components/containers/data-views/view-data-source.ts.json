@@ -56,7 +56,7 @@
         },
         "contextDataMember": {
           "type": "object",
-          "title": "MaybeRefOrGetter<\"page\" | \"columns\" | \"rows\" | \"total\" | \"requestState\" | DataMember | \"value\" | \"pageSize\" | \"currentRow\" | \"selectedRows\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"mutating\" | \"loadingError\" | \"mutatingError\" | undefined>"
+          "title": "MaybeRefOrGetter<\"page\" | \"columns\" | \"rows\" | \"total\" | \"requestState\" | DataMember | \"value\" | \"currentRow\" | \"selectedRows\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"pageSize\" | \"mutating\" | \"loadingError\" | \"mutatingError\" | undefined>"
         },
         "contextDataField": {
           "type": "object",

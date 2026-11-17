@@ -13,6 +13,7 @@
 import { createApp, type Component, type Plugin } from 'vue'
 import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
 import type { PageFileReader } from '@spark-appworks/spark-project-model'
+import type { PageRuntimePoolOptions } from '../router/page-runtime-pool'
 import { Spark, SparkPageRenderer, registerAllRenderers } from '@spark-appworks/spark-component'
 import { createDynamicRouter, type DynamicRouterOptions } from '../router/dynamic'
 import type { BootstrapOptions } from '../types'
@@ -80,6 +81,7 @@ export type PageNodeOptions = {
   /** 注入式页面四文件读取器，不绑定服务器路径。 */
   readPageFile?: PageFileReader
   readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>
+  preparePageCall?: NonNullable<PageRuntimePoolOptions['preparePageCall']>
   /** 认证状态检查（DynamicRouter 据此决定使用远程导航树还是 preAuthNavTree） */
   isAuthenticated?: () => boolean
   /** 页面组件（默认使用 PageRenderer） */
@@ -314,6 +316,7 @@ export async function start(options: StartOptions): Promise<void> {
         router,
         ...(pageNode.readPageFile ? {readPageFile: pageNode.readPageFile} : {}),
         ...(pageNode.readPageFiles ? {readPageFiles: pageNode.readPageFiles} : {}),
+        ...(pageNode.preparePageCall ? {preparePageCall: pageNode.preparePageCall} : {}),
         pageComponent, // SparkPageRenderer 或用户提供的组件，if 块已确保非空
         ...(pageNode.componentMap !== undefined && { componentMap: pageNode.componentMap }),
         ...(pageNode.systemPageIdentityCompanions !== undefined && { systemPageIdentityCompanions: pageNode.systemPageIdentityCompanions }),

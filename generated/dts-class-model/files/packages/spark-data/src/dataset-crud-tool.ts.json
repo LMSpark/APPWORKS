@@ -219,7 +219,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@164108": {
+                "__@iterator@117437": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -274,7 +274,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@164108"
+                "__@iterator@117437"
               ],
               "additionalProperties": false
             },
@@ -504,7 +504,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@164108": {
+                "__@iterator@117437": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -559,7 +559,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@164108"
+                "__@iterator@117437"
               ],
               "additionalProperties": false
             },
@@ -645,7 +645,16 @@
                   "const": "array"
                 },
                 {
-                  "const": "integer"
+                  "const": "decimal"
+                },
+                {
+                  "const": "date"
+                },
+                {
+                  "const": "text"
+                },
+                {
+                  "const": "time"
                 },
                 {
                   "type": "object",
@@ -845,7 +854,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@164108": {
+                    "__@iterator@117437": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -900,30 +909,18 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@164108"
+                    "__@iterator@117437"
                   ],
                   "additionalProperties": false
-                },
-                {
-                  "const": "enum"
-                },
-                {
-                  "const": "decimal"
-                },
-                {
-                  "const": "date"
-                },
-                {
-                  "const": "text"
-                },
-                {
-                  "const": "time"
                 },
                 {
                   "const": "int"
                 },
                 {
                   "const": "bool"
+                },
+                {
+                  "const": "integer"
                 },
                 {
                   "const": "float"
@@ -936,6 +933,9 @@
                 },
                 {
                   "const": "datetime"
+                },
+                {
+                  "const": "enum"
                 }
               ]
             },
@@ -1299,7 +1299,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@164108": {
+                "__@iterator@117437": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1354,7 +1354,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@164108"
+                "__@iterator@117437"
               ],
               "additionalProperties": false
             },
@@ -1587,7 +1587,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@164108": {
+                "__@iterator@117437": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1642,7 +1642,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@164108"
+                "__@iterator@117437"
               ],
               "additionalProperties": false
             },
@@ -1792,7 +1792,16 @@
                   "const": "array"
                 },
                 {
-                  "const": "integer"
+                  "const": "decimal"
+                },
+                {
+                  "const": "date"
+                },
+                {
+                  "const": "text"
+                },
+                {
+                  "const": "time"
                 },
                 {
                   "type": "object",
@@ -1992,7 +2001,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@164108": {
+                    "__@iterator@117437": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -2047,30 +2056,18 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@164108"
+                    "__@iterator@117437"
                   ],
                   "additionalProperties": false
-                },
-                {
-                  "const": "enum"
-                },
-                {
-                  "const": "decimal"
-                },
-                {
-                  "const": "date"
-                },
-                {
-                  "const": "text"
-                },
-                {
-                  "const": "time"
                 },
                 {
                   "const": "int"
                 },
                 {
                   "const": "bool"
+                },
+                {
+                  "const": "integer"
                 },
                 {
                   "const": "float"
@@ -2083,6 +2080,9 @@
                 },
                 {
                   "const": "datetime"
+                },
+                {
+                  "const": "enum"
                 }
               ]
             },
@@ -2472,7 +2472,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@164108": {
+                "__@iterator@117437": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2527,7 +2527,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@164108"
+                "__@iterator@117437"
               ],
               "additionalProperties": false
             },
@@ -2760,7 +2760,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@164108": {
+                "__@iterator@117437": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2815,7 +2815,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@164108"
+                "__@iterator@117437"
               ],
               "additionalProperties": false
             },
@@ -2940,7 +2940,33 @@
               "type": "object",
               "properties": {
                 "tree": {
-                  "$ref": "../../spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryTree"
+                  "type": "object",
+                  "properties": {
+                    "keyField": {
+                      "type": "string"
+                    },
+                    "parentField": {
+                      "type": "string"
+                    },
+                    "nodeId": {
+                      "type": "string"
+                    },
+                    "hasChildrenField": {
+                      "type": "string"
+                    },
+                    "mode": {
+                      "enum": [
+                        "parent",
+                        "child"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "keyField",
+                    "parentField",
+                    "nodeId"
+                  ],
+                  "additionalProperties": false
                 },
                 "children": {
                   "type": "array",

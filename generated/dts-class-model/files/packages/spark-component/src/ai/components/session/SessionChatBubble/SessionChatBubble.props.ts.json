@@ -22,9 +22,9 @@
         "role": {
           "enum": [
             "error",
-            "system",
             "user",
-            "assistant"
+            "assistant",
+            "system"
           ]
         },
         "content": {

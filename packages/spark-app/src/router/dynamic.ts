@@ -62,6 +62,7 @@ export type DynamicRouterOptions = {
   /** 工具三文件读取器；缺省时打开配置页会明确失败。 */
   readPageFile?: PageFileReader
   readPageFiles?: NonNullable<PageRuntimePoolOptions['readPageFiles']>
+  preparePageCall?: NonNullable<PageRuntimePoolOptions['preparePageCall']>
 
   /**
    * 动态页面组件（必需）
@@ -226,6 +227,7 @@ constructor(options: DynamicRouterOptions) {
       pageComponent: options.pageComponent,
       readPageFile: options.readPageFile,
       ...(options.readPageFiles ? {readPageFiles: options.readPageFiles} : {}),
+      ...(options.preparePageCall ? {preparePageCall: options.preparePageCall} : {}),
       loadScenario: options.loadScenario,
       readNavTree: () => this._navTree,
       refreshRoutes: () => this.refreshRoutes(),

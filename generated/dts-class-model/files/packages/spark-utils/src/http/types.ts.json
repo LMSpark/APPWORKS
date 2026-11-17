@@ -77,8 +77,8 @@
           "enum": [
             "formdata",
             "text",
-            "json",
             "document",
+            "json",
             "arraybuffer",
             "blob"
           ]
@@ -499,8 +499,8 @@
           "enum": [
             "formdata",
             "text",
-            "json",
             "document",
+            "json",
             "arraybuffer",
             "blob"
           ]
@@ -581,8 +581,8 @@
         },
         "storage": {
           "enum": [
-            "sessionStorage",
             "localStorage",
+            "sessionStorage",
             "memory"
           ]
         },

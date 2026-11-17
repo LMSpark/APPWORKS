@@ -8,6 +8,7 @@ import type { RouteLocationNormalizedLoaded, LocationQuery, RouteParams } from '
 import { defineComponent, h, markRaw, ref, type Component, type ComponentPublicInstance } from 'vue'
 import {
   PageRuntime,
+  type PageRuntimeOptions,
   PageTool,
   PAGE_TOOL_FILE_NAMES,
   type PageFileReader,
@@ -18,7 +19,7 @@ import type { RuntimeNavigation, RuntimeNavigationItem } from '../navigation/run
 /** 为一次页面调用装配指定应用中的一个场景；应用身份由请求层校验。 */
 export type RuntimeScenarioLoadCommand = Readonly<{ projectId: string; scenarioId: string }>
 
-type RuntimeRouteEntry = { runtime: PageRuntime; view: Component; route: RouteLocationNormalizedLoaded; nodeId: string; key: string }
+type RuntimeRouteEntry = { runtime: PageRuntime; view: Component; route: RouteLocationNormalizedLoaded; nodeId: string; key: string; assertCurrent?: () => void }
 
 /** 实例池依赖：页面渲染组件、工具文件读取、场景装配、当前导航树与路由刷新。 */
 export type PageRuntimePoolOptions = Readonly<{
@@ -28,6 +29,10 @@ export type PageRuntimePoolOptions = Readonly<{
   readPageFile: PageFileReader | undefined
   /** One scoped read session for the complete tool. Results correspond to the input order. */
   readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>
+  preparePageCall?: (route: RouteLocationNormalizedLoaded) => Readonly<{
+    scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>
+    assertCurrent(): void
+  }> | undefined
   /** 装配页面调用所需场景；未注入时场景加载显式失败。 */
   loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined
   /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */
@@ -67,16 +72,23 @@ export class PageRuntimePool {
     const query = Object.fromEntries(Object.keys(route.query).sort().map(key => [key, key === 'additionalScenarioIds' ? call.ids.filter(id => id !== call.main).sort() : route.query[key]]))
     const key = JSON.stringify([projectId, route.meta['nodeId'], tool.pageId, query, route.hash])
     const existing = this.pageInstances.get(key)
-    if (existing && !existing.runtime.destroyed) return existing.runtime
+    if (existing && !existing.runtime.destroyed) {
+      existing.assertCurrent?.()
+      return existing.runtime
+    }
+    const prepared = this.options.preparePageCall?.(route)
+    prepared?.assertCurrent()
     const inputText = route.query['scenarioInputs']
+    if (prepared && inputText !== undefined) throw new Error('此页面调用参数由宿主提供')
     if (inputText !== undefined && (typeof inputText !== 'string' || !inputText.trim())) throw new Error('scenarioInputs 必须是单个非空 JSON 参数')
-    const scenarioInputs = inputText === undefined ? undefined : PageRuntime.parseScenarioInputs(inputText)
+    const scenarioInputs = prepared?.scenarioInputs ?? (inputText === undefined ? undefined : PageRuntime.parseScenarioInputs(inputText))
     const page = new PageTool({ pageId: tool.pageId })
     const reader = this.options.readPageFile
     const runtime = markRaw(new PageRuntime({
       tool: page, scenarioIds: call.ids, ...(call.main === undefined ? {} : { mainScenarioId: call.main }),
       ...(scenarioInputs === undefined ? {} : { scenarioInputs }),
       loadTool: async () => {
+        prepared?.assertCurrent()
         const batchReader = this.options.readPageFiles
         if (!reader && !batchReader) throw new Error('未注入工具文件读取器')
         const generation = runtime.generation
@@ -101,6 +113,7 @@ export class PageRuntimePool {
         }))
         const texts = batchReader ? await batchReader(commands) : reader ? await Promise.all(commands.map(reader)) : []
         if (runtime.destroyed || runtime.generation !== generation) throw new Error('PAGE_RUNTIME_STALE: 工具读取已失效')
+        prepared?.assertCurrent()
         if (texts.length !== commands.length) throw new Error('工具文件读取结果数量不符')
         for (const [index, command] of commands.entries()) {
           const text = texts[index]
@@ -111,8 +124,11 @@ export class PageRuntimePool {
         return page
       },
       loadScenario: async scenarioId => {
+        prepared?.assertCurrent()
         if (!this.options.loadScenario) throw new Error('未注入场景运行装配器')
-        return this.options.loadScenario({ projectId, scenarioId })
+        const dataSet = await this.options.loadScenario({ projectId, scenarioId })
+        try { prepared?.assertCurrent(); return dataSet }
+        catch (error) { dataSet.destroy(); throw error }
       },
     }))
     const querySnapshot: LocationQuery = {}
@@ -142,7 +158,8 @@ export class PageRuntimePool {
         } })
         return () => h(this.options.pageComponent, { ref: renderer, pageRuntime: runtime, routeSnapshot: snapshot })
       } }))
-    this.pageInstances.set(key, { runtime, view, route: snapshot, nodeId: String(route.meta['nodeId']), key })
+    this.pageInstances.set(key, { runtime, view, route: snapshot, nodeId: String(route.meta['nodeId']), key,
+      ...(prepared ? {assertCurrent: () => prepared.assertCurrent()} : {}) })
     return runtime
   }
 

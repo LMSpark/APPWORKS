@@ -22,8 +22,13 @@ describe('page call tabs and retained renderer instances', () => {
     ] })
     const readPageFiles = vi.fn(async (commands: readonly {fileName: string}[]) =>
       commands.map(({fileName}) => fileName === 'rule.json' ? '[]' : ''))
+    let sessionCurrent = true
     const owner = createDynamicRouter({ router, pageComponent: Page,
       readPageFiles,
+      preparePageCall: () => ({
+        scenarioInputs: {SCENE: {actor: 'trusted'}},
+        assertCurrent() {if (!sessionCurrent) throw Error('SESSION_STALE')},
+      }),
       loadScenario: async ({ scenarioId }) => SparkData.createDataSet({ dataSetName: 'PageData', scenarioId, tables: {
         Users: { tableName: 'Users', columns: [{ name: 'id', type: 'string' }, { name: 'name', type: 'string' }],
           views: { default: { rows: [{ id: 'u-1', name: 'Original' }] } } },
@@ -58,6 +63,10 @@ describe('page call tabs and retained renderer instances', () => {
     if (!scenarioId) throw new Error('missing runtime scenario identity')
     const firstView = first.getDataSet(scenarioId)?.tables['Users']?.getView('default')
     if (!firstView) throw new Error('missing first runtime DataView')
+    expect(firstView.queryContext['actor']).toBe('trusted')
+    sessionCurrent = false
+    expect(() => owner.getPageRuntime(router.currentRoute.value)).toThrow('SESSION_STALE')
+    sessionCurrent = true
     await router.push('/__page/tool-node?value=1&scenarioId=SCENE')
     await flushPromises()
     await controls.switchTo(first.instanceId)

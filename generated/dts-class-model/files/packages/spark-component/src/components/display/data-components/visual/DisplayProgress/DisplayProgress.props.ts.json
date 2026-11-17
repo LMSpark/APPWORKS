@@ -90,8 +90,8 @@
         },
         "status": {
           "enum": [
-            "warning",
             "success",
+            "warning",
             "exception"
           ]
         },

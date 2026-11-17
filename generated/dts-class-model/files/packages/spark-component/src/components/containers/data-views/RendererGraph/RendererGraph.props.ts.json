@@ -312,8 +312,8 @@
         "tone": {
           "enum": [
             "info",
-            "warning",
             "success",
+            "warning",
             "danger",
             "primary"
           ]
@@ -569,8 +569,8 @@
               "tone": {
                 "enum": [
                   "info",
-                  "warning",
                   "success",
+                  "warning",
                   "danger",
                   "primary"
                 ]

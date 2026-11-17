@@ -358,8 +358,8 @@
         "kind": {
           "enum": [
             "message",
-            "unknown",
-            "functionCall"
+            "functionCall",
+            "unknown"
           ]
         },
         "direction": {

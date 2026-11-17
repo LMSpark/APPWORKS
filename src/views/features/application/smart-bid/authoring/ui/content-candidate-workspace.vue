@@ -16,6 +16,9 @@ AI用途：正文宿主读取候选后传入同次绑定；采用须另完成完
     <RendererSection v-if="referenceError" :title="referenceError.title" :error="referenceError.message" />
     <RendererSection v-if="referenceState" :title="referenceState.title" status="本次用途许可待核">
       <RendererForm :data-view-key="referenceState.key" :context-row-id="referenceState.rowId" :auto-columns="false" :children="referenceState.fields" />
+      <RendererSection v-if="referenceState.source" title="核定招标来源">
+        <RendererForm :data-view-key="referenceState.source.key" :context-row-id="referenceState.source.rowId" :auto-columns="false" :children="sourceFields" />
+      </RendererSection>
     </RendererSection>
   </RendererSection>
 </template>
@@ -39,7 +42,8 @@ const referenceError=computed(()=>{
  revision.value
  try{referenceFailure.value?.assertSelected();return referenceFailure.value}catch{return undefined}
 })
-const referenceResult=shallowRef<{kind:ReferenceKind;key:string;assertCurrent:()=>void;assertSelected:()=>void}>()
+type ReferenceResult={key:string;sourceDataViewKey?:string;assertCurrent:()=>void}
+const referenceResult=shallowRef<ReferenceResult & {kind:ReferenceKind;assertSelected:()=>void}>()
 let active=true
 let unsubscribe:(()=>void)|undefined
 const treeProps={defaultExpandAll:true,expandOnClickNode:false,draggable:false}
@@ -60,6 +64,9 @@ const factFields=[...['key','version','kind','unit','status'].map(field=>({type:
 const requirementFields=[
  ...['lineageId','version','kind','text','status'].map(field=>({type:'r-text',props:{field,label:field,readonly:true}})),
  ...['score','sourceRecord','sourceSpan','supportingSpans','checks','constraint','applicability'].map(field=>({type:'r-json',props:{field,valueFormat:'native',mode:'tree',label:field,readonly:true}}))]
+const sourceFields=[
+ ...['runId','type','ordinal','recordVersion','recordHash','parseQuality','confirmStatus'].map(field=>({type:'r-text',props:{field,label:field,readonly:true}})),
+ ...['payload','sourceSpan'].map(field=>({type:'r-json',props:{field,valueFormat:'native',mode:'tree',label:field,readonly:true}}))]
 const references=computed(()=>{
  revision.value
  if(!state.value.nodesKey||state.value.error)return []
@@ -75,7 +82,7 @@ const references=computed(()=>{
  const actions=Object.entries(payload['data']).flatMap(([name,value])=>isRecord(value)&&value['type']==='fact'
   &&typeof value['factId']==='string'&&validateContentReference(value).length===0?[{label:`读取事实：${name}`,read:()=>readReference('事实',assertOrigin,async assertSelected=>{
    const result=await binding.readFixedFact({factId:String(value['factId'])},assertSelected)
-   return {key:result.factDataViewKey,assertCurrent:result.assertCurrent}
+   return {...result,key:result.factDataViewKey}
   })}]:[])
  const manifest=runtime.resolveView(binding.snapshot.dataViewKey)?.rows[0]?.['manifest']
  const pins=isRecord(manifest)?manifest['requirementPins']:null
@@ -85,7 +92,7 @@ const references=computed(()=>{
   const {chapterId,lineageId,version}=pin
   actions.push({label:`读取要求：${lineageId} / ${version}`,read:()=>readReference('要求',assertOrigin,async assertSelected=>{
    const result=await binding.readFixedRequirement({chapterId,lineageId,version},assertSelected)
-   return {key:result.requirementDataViewKey,assertCurrent:result.assertCurrent}
+   return {...result,key:result.requirementDataViewKey}
   })})
  }
  return actions
@@ -95,12 +102,24 @@ const referenceState=computed(()=>{
  try{
   if(!active||state.value.error||!referenceResult.value)return null
   referenceResult.value.assertSelected();referenceResult.value.assertCurrent()
-  const {key,kind}=referenceResult.value,view=toRaw(props.runtime).resolveView(key),row=view?.rows[0],rowId=row?view?.getPkKey(row):undefined
-  return rowId===undefined?null:{key,rowId,title:`固定${kind}原记录`,fields:kind==='事实'?factFields:requirementFields}
+  const {key,kind,sourceDataViewKey}=referenceResult.value
+  const target=readFormTarget(key)
+  if(!target)return null
+  const source=sourceDataViewKey?readFormTarget(sourceDataViewKey):undefined
+  return {...target,source,title:`固定${kind}原记录`,fields:kind==='事实'?factFields:requirementFields}
  }catch{return null}
 })
+function readFormTarget(key:string){
+ const view=toRaw(props.runtime).resolveView(key),row=view?.rows[0],rowId=row?view?.getPkKey(row):undefined
+ return rowId===undefined?undefined:{key,rowId}
+}
+const referenceFailureMessages=new Map([
+ ['CONTENT_TENDER_RECORD_UNAVAILABLE','固定版本的招标来源无法读取或未通过核定，请核对原核定记录。'],
+ ['BASELINE_TENDER_RECORD_MISSING','编制基线缺少对应版本的招标来源，请核对基线。'],
+ ['BASELINE_REQUIREMENT_MEMBER_MISSING','该要求版本未纳入编制基线，请核对章节挂接。'],
+])
 async function readReference(kind:ReferenceKind,assertOrigin:()=>void,
- read:(assertSelected:()=>void)=>Promise<{key:string;assertCurrent:()=>void}>):Promise<void>{
+ read:(assertSelected:()=>void)=>Promise<ReferenceResult>):Promise<void>{
  if(referenceLoading.value)return
  try{assertOrigin()}catch{return}
  const binding=toRaw(props.binding),runtime=toRaw(props.runtime),key=state.value.nodesKey,view=key?runtime.resolveView(key):undefined,row=view?.currentRow
@@ -116,7 +135,12 @@ async function readReference(kind:ReferenceKind,assertOrigin:()=>void,
   assertSelected()
   const result=await read(assertSelected);assertSelected();result.assertCurrent()
   referenceResult.value={kind,...result,assertSelected}
- }catch(cause){if(active&&toRaw(props.binding)===binding&&toRaw(props.runtime)===runtime)referenceFailure.value={title:`${kind}读取失败`,message:cause instanceof Error?cause.message:String(cause),assertSelected}}
+ }catch(cause){
+  if(active&&toRaw(props.binding)===binding&&toRaw(props.runtime)===runtime){
+   const message=cause instanceof Error?cause.message:String(cause)
+   referenceFailure.value={title:`${kind}读取失败`,message:referenceFailureMessages.get(message)??message,assertSelected}
+  }
+ }
  finally{referenceLoading.value=false}
 }
 const state=computed<{revisionKey?:string;revisionRowId?:string|number;nodesKey?:string;selectedNode?:boolean;error:string}>(()=>{

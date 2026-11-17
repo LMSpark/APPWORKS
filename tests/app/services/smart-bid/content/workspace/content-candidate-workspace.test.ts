@@ -19,9 +19,9 @@ function treeLevels(target:VueWrapper):number[]{
  })
 }
 afterEach(()=>{wrapper?.unmount();runtime?.dispose();config.global.stubs=originalStubs})
-async function fixture(mode='populated'){
+async function fixture(mode='populated',options?:Parameters<typeof createCandidateReadFixture>[1]){
  registerAllRenderers()
- const f=await createCandidateReadFixture(mode),binding=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+ const f=await createCandidateReadFixture(mode,options),binding=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
  runtime=new PageRuntime({pageId:'candidate-workspace',scenarioIds:['S'],loadScenario:async()=>f.ds});await runtime.load()
  const stubs={...originalStubs};for(const key of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])delete stubs[key]
  config.global.stubs=stubs
@@ -123,6 +123,20 @@ it('opens the fixed requirement of the selected chapter in its original read-onl
  expect(f.wrapper.text()).not.toContain('固定要求原记录')
  await f.wrapper.findAll('.el-tree-node__content')[0]!.trigger('click');await flushPromises()
  expect(f.wrapper.text()).not.toContain('固定要求原记录')
+ expect(f.save).not.toHaveBeenCalled()
+})
+it('keeps a source rejection on the chapter it belongs to and leaves the candidate open',async()=>{
+ const f=await fixture('fixed-pin',{tenderConfirmStatus:'REJECTED'})
+ const nodes=f.wrapper.findAll('.el-tree-node__content')
+ await nodes[1]!.trigger('click');await flushPromises()
+ const button=f.wrapper.findAll('button').find(item=>item.text()==='读取要求：L / R2')!
+ await button.trigger('click');await flushPromises()
+ expect(f.wrapper.text()).toContain('固定版本的招标来源无法读取或未通过核定')
+ expect(f.wrapper.text()).not.toContain('固定要求原记录')
+ expect(f.wrapper.text()).not.toContain('核定招标来源')
+ expect(f.wrapper.findAll('.el-tree-node')).toHaveLength(3)
+ await nodes[0]!.trigger('click');await flushPromises()
+ expect(f.wrapper.text()).not.toContain('要求读取失败')
  expect(f.save).not.toHaveBeenCalled()
 })
 it.each(['selection','reselection','unmount'])('withdraws a late fact read after %s changes',async mode=>{

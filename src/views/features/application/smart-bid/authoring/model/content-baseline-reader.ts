@@ -35,7 +35,7 @@ export async function readContentBaselineRequirementPins(host:ContentRevisionRea
 export type ContentBaselineFactSelection=Readonly<{factId:string;version?:number;baselineId:string;stageRef:unknown}>
 /** 仅原基线成员和原事实版本读取成立；准用继续由责任域核验。 */
 export type ContentBaselineFactBinding=Readonly<{
- baselineDataViewKey:string;factDataViewKey:string;baselineMembershipVerified:true;requiresRevisionMatchCheck:true;requiresUseCheck:true;assertCurrent:()=>void
+ baselineDataViewKey:string;factDataViewKey:string;sourceDataViewKey?:string;baselineMembershipVerified:true;requiresRevisionMatchCheck:true;requiresUseCheck:true;assertCurrent:()=>void
 }>
 function stage(value:unknown,ancestors=new Set<object>()):string {
  if(typeof value==='string'&&snapshotReferenceIdentity(value))return JSON.stringify(value)
@@ -101,8 +101,7 @@ async function readBaselineMemberSource(host:ContentRevisionReadHost,baseline:Aw
  if(sourceRecord===null||sourceRecord===undefined)return undefined
  const assertMembership=baseline.view.captureReadRow(baseline.row,['tenderRecords'])
  assertBaselineTenderRecordMember(baseline.row['tenderRecords'],sourceRecord)
- const source=await readContentTenderRecord({...host,assertCurrent:()=>{member.assertCurrent();assertMembership()}},sourceRecord)
- return source.assertCurrent
+ return readContentTenderRecord({...host,assertCurrent:()=>{member.assertCurrent();assertMembership()}},sourceRecord)
 }
 
 /** 原基线和事实证明组合；后续任何重查、编辑或宿主替换都会撤销该绑定。 */
@@ -110,10 +109,11 @@ export async function readContentBaselineFact(host:ContentRevisionReadHost,input
  const baseline=await readOriginalBaseline(host,input,'factVersions')
  const member=selectBaselineFactMember(baseline.row['factVersions'],{factId:input.factId,...(Object.hasOwn(input,'version')?{version:input.version}:{})})
  const fact=await readContentFactVersion({...host,assertCurrent:baseline.assertCurrent},member)
- const assertSource=await readBaselineMemberSource(host,baseline,fact)
- const assertCurrent=()=>{fact.assertCurrent();assertSource?.()}
+ const source=await readBaselineMemberSource(host,baseline,fact)
+ const assertCurrent=()=>{fact.assertCurrent();source?.assertCurrent()}
  assertCurrent()
- return Object.freeze({baselineDataViewKey:baseline.key,factDataViewKey:fact.dataViewKey,baselineMembershipVerified:true,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent})
+ return Object.freeze({baselineDataViewKey:baseline.key,factDataViewKey:fact.dataViewKey,
+  ...(source?{sourceDataViewKey:source.dataViewKey}:{}),baselineMembershipVerified:true,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent})
 }
 
 /** 基线成员与要求原记录的组合证明，当前用途仍须核定。 */
@@ -121,16 +121,16 @@ export async function readContentBaselineRequirement(
  host:ContentRevisionReadHost,
  input:ContentRequirementSelection&Readonly<{baselineId:string;stageRef:unknown}>,
 ):Promise<Readonly<{
- baselineDataViewKey:string;requirementDataViewKey:string;baselineMembershipVerified:true
+ baselineDataViewKey:string;requirementDataViewKey:string;sourceDataViewKey?:string;baselineMembershipVerified:true
  requiresRevisionMatchCheck:true;requiresUseCheck:true;assertCurrent:()=>void
 }>>{
  const {lineageId,version}=input
  const baseline=await readOriginalBaseline(host,input,'requirementVersions')
  const member=selectBaselineRequirementMember(baseline.row['requirementVersions'],{lineageId,version})
  const requirement=await readContentRequirement({...host,assertCurrent:baseline.assertCurrent},member)
- const assertSource=await readBaselineMemberSource(host,baseline,requirement)
- const assertCurrent=()=>{requirement.assertCurrent();assertSource?.()}
+ const source=await readBaselineMemberSource(host,baseline,requirement)
+ const assertCurrent=()=>{requirement.assertCurrent();source?.assertCurrent()}
  assertCurrent()
  return Object.freeze({baselineDataViewKey:baseline.key,requirementDataViewKey:requirement.dataViewKey,
-  baselineMembershipVerified:true,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent})
+  ...(source?{sourceDataViewKey:source.dataViewKey}:{}),baselineMembershipVerified:true,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent})
 }

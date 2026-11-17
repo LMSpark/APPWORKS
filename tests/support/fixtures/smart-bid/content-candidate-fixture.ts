@@ -5,7 +5,7 @@ import {hashContentNode} from '@/services/smart-bid/content-node-hash'
 import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
-export async function createCandidateReadFixture(mode='normal'){
+export async function createCandidateReadFixture(mode='normal',options:{tenderConfirmStatus?:'CONFIRMED'|'REJECTED'}={}){
  const param=(name:string)=>({Type:'GetInputParam',ParamName:name})
  const eq=(field:string,name=field)=>({field,operator:'eq' as const,value:param(name)})
  const payloads=[{nodeId:'D',parentId:'P',index:0,type:'document',class:[],value:'',data:{}},
@@ -31,7 +31,7 @@ export async function createCandidateReadFixture(mode='normal'){
  const requirement={id:'REQ',projectId:'P',lineageId:'L',version:'R2',kind:'FORMAT',text:'原文',score:null,sourceSpan:null,
   supportingSpans:[],sourceRecord:mode==='fixed-pin'?tenderReference:null,parseQuality:'TEXT_ONLY',checks:[],constraint:null,applicability:{},status:'ADOPTED'}
  const tender={id:'TR',projectId:'P',...tenderReference,
-  payload:{text:'核定原文'},sourceSpan:{page:1},parseQuality:'LOCATED',confirmStatus:'CONFIRMED'}
+  payload:{text:'核定原文'},sourceSpan:{page:1},parseQuality:'LOCATED',confirmStatus:options.tenderConfirmStatus??'CONFIRMED'}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{
   TenderRecord:{modelBinding:{modelId:'TENDER_MODEL',modelName:'TenderRecord'},
    columns:Object.keys(tender).map(name=>({name,isPrimaryKey:name==='id',type:name==='ordinal'?'number':name==='payload'||name==='sourceSpan'?'object':'string'})),

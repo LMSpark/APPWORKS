@@ -180,6 +180,25 @@ describe('LowcodeDatabaseTableView', () => {
     expect(http.requests.some(request => JSON.stringify(request.data).includes(DATABASE_CATALOG_TABLE_MODEL))).toBe(true)
   })
 
+  it('withdraws previous tables and views when switching databases before the next query', async () => {
+    http.rows[DATABASE_CATALOG_DB_MODEL]!.push({rowid: 'DB2', serverId: 'S1', Name: '分析库', SchemaName: 'dbo'})
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const databases = ds.getView(DATABASE_CATALOG_DB_MODEL)!
+    const tables = ds.getView(DATABASE_CATALOG_TABLE_MODEL)!
+    const views = ds.getView(DATABASE_CATALOG_VIEW_MODEL)!
+    databases.setSelectedRows([databases.rows.find(row => row['rowid'] === 'DB1')!])
+    await Promise.all([tables.refresh(), views.refresh()])
+    expect(tables.rows).toHaveLength(2)
+    expect(views.rows).toHaveLength(1)
+    databases.setSelectedRows([databases.rows.find(row => row['rowid'] === 'DB2')!])
+    expect(tables.rows).toEqual([])
+    expect(views.rows).toEqual([])
+    await Promise.all([tables.refresh(), views.refresh()])
+    expect(tables.rows.map(row => row['rowid'])).toEqual(['T2'])
+    expect(views.rows).toEqual([])
+  })
+
   it('scopes views when parent database is selected', async () => {
     const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)

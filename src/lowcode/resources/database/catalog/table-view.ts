@@ -201,7 +201,7 @@ export class LowcodeDatabaseTableView {
           relationPeersView['valueField'] = 'rowid'
           relationPeersView['labelField'] = 'tblname'
           return [name, {modelBinding: {modelId: model.id, modelName: model.metaName}, views: {
-            default: {...tableView},
+            default: {...tableView, queryConfig: {allPages: false, autoQuery: false}},
             [DATABASE_CATALOG_TABLE_REGISTER_VERIFY_VIEW]: {...registrationVerifyView},
             [DATABASE_CATALOG_RELATION_PEER_VIEW]: {...relationPeersView},
             [DATABASE_CATALOG_RELATION_ENDPOINT_VIEW]: {...relationEndpointsView},
@@ -214,7 +214,7 @@ export class LowcodeDatabaseTableView {
           registrationVerifyView['queryConfig'] = {allPages: false}
           registrationVerifyView['autoLoad'] = false
           return [name, {modelBinding: {modelId: model.id, modelName: model.metaName}, views: {
-            default: {...catalogView},
+            default: {...catalogView, queryConfig: {allPages: false, autoQuery: false}},
             [DATABASE_CATALOG_VIEW_REGISTER_VERIFY_VIEW]: {...registrationVerifyView},
           }}]
         }

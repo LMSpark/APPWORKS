@@ -15,6 +15,7 @@ import type {ContentStructureNode} from '@/services/smart-bid/content-tree-struc
 import {assessBaselineRequirementPins,selectBaselineRequirementMember,type BaselineRequirementPinIssue} from '@/services/smart-bid/content/references/baseline-requirement-members'
 import {readContentRequirement,type ContentRequirementSelection} from './content-requirement-reader'
 import {assertBaselineTenderRecordMember} from '@/services/smart-bid/content/references/baseline-tender-records'
+import {readContentTenderRecord} from './content-tender-record-reader'
 
 /** 原基线挂接诊断；不是要求原记录或当前用途证明。 */
 export type ContentBaselineRequirementPinsBinding=Readonly<{
@@ -117,8 +118,10 @@ export async function readContentBaselineRequirement(
  const sourceRecord=host.runtime.resolveView(requirement.dataViewKey)?.rows[0]?.['sourceRecord']
  let assertSource:(()=>void)|undefined
  if(sourceRecord!==null&&sourceRecord!==undefined){
-  assertSource=baseline.view.captureReadRow(baseline.row,['tenderRecords'])
+  const assertMembership=baseline.view.captureReadRow(baseline.row,['tenderRecords'])
   assertBaselineTenderRecordMember(baseline.row['tenderRecords'],sourceRecord)
+  const source=await readContentTenderRecord({...host,assertCurrent:()=>{requirement.assertCurrent();assertMembership()}},sourceRecord)
+  assertSource=source.assertCurrent
  }
  const assertCurrent=()=>{baseline.assertCurrent();requirement.assertCurrent();assertSource?.()}
  assertCurrent()

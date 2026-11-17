@@ -43,6 +43,12 @@
       "type": "object",
       "title": "DataSpaceQueryProjection",
       "properties": {
+        "newRowFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "columns": {
           "type": "array",
           "items": {
@@ -352,7 +358,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-03T19:08:42.801Z",
+  "generatedAt": "2026-11-17T00:28:42.501Z",
   "models": {
     "DataSpaceQueryIdentity": {
       "name": "DataSpaceQueryIdentity",
@@ -388,16 +394,22 @@
       "jsdoc": "正式绑定内部生成的结果投影与模型图守卫，不作为GetData请求或业务页面输入。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。 */\n    columns: readonly DataColumn[];\n    /** 原查询owner已捕获的层级模型树，不进入GetData封包。 */\n    nested?: Readonly<{\n        mode: 'navigation' | 'hierarchy';\n        root: DataSpaceQueryNestedNode;\n    }>;\n    /** 根DataView实例；隔离不同命名视图的在途查询和结果生命周期。 */\n    owner: object;\n    /** 本次完整正式模型图的定义快照，参与查询复用键，不包含业务行。 */\n    signature: string;\n    /** 核对当前模型图、绑定实例及scope；失效时抛错，禁止接纳迟到结果。 */\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 原视图捕获的完整普通新行输入范围；参与本地查询身份，不进入GetData线协议、不授予权限。 */\n    newRowFields?: readonly string[];\n    /** 最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。 */\n    columns: readonly DataColumn[];\n    /** 原查询owner已捕获的层级模型树，不进入GetData封包。 */\n    nested?: Readonly<{\n        mode: 'navigation' | 'hierarchy';\n        root: DataSpaceQueryNestedNode;\n    }>;\n    /** 根DataView实例；隔离不同命名视图的在途查询和结果生命周期。 */\n    owner: object;\n    /** 本次完整正式模型图的定义快照，参与查询复用键，不包含业务行。 */\n    signature: string;\n    /** 核对当前模型图、绑定实例及scope；失效时抛错，禁止接纳迟到结果。 */\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。 */\n    columns: readonly DataColumn[];\n    /** 原查询owner已捕获的层级模型树，不进入GetData封包。 */\n    nested?: Readonly<{\n        mode: 'navigation' | 'hierarchy';\n        root: DataSpaceQueryNestedNode;\n    }>;\n    /** 根DataView实例；隔离不同命名视图的在途查询和结果生命周期。 */\n    owner: object;\n    /** 本次完整正式模型图的定义快照，参与查询复用键，不包含业务行。 */\n    signature: string;\n    /** 核对当前模型图、绑定实例及scope；失效时抛错，禁止接纳迟到结果。 */\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    /** 原视图捕获的完整普通新行输入范围；参与本地查询身份，不进入GetData线协议、不授予权限。 */\n    newRowFields?: readonly string[];\n    /** 最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。 */\n    columns: readonly DataColumn[];\n    /** 原查询owner已捕获的层级模型树，不进入GetData封包。 */\n    nested?: Readonly<{\n        mode: 'navigation' | 'hierarchy';\n        root: DataSpaceQueryNestedNode;\n    }>;\n    /** 根DataView实例；隔离不同命名视图的在途查询和结果生命周期。 */\n    owner: object;\n    /** 本次完整正式模型图的定义快照，参与查询复用键，不包含业务行。 */\n    signature: string;\n    /** 核对当前模型图、绑定实例及scope；失效时抛错，禁止接纳迟到结果。 */\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "newRowFields",
+              "jsdoc": "原视图捕获的完整普通新行输入范围；参与本地查询身份，不进入GetData线协议、不授予权限。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "columns",
               "jsdoc": "最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。",

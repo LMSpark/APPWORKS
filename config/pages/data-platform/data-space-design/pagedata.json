@@ -62,6 +62,7 @@
         {"name": "viewId", "type": "string", "required": true, "isPrimaryKey": true},
         {"name": "onRequestComplete", "type": "string", "label": "请求完成函数"},
         {"name": "fieldProjection", "type": "json"},
+        {"name": "newRowFields", "type": "json"},
         {"name": "queryContext", "type": "json"},
         {"name": "queryConfig", "type": "json"},
         {"name": "filterExpression", "type": "json"},

@@ -309,6 +309,27 @@ export class DataSpaceDesignApi {
     return this.resolveFieldsByName(model, false)
   }
 
+  /**
+   * 解析本视图声明的完整普通新行输入范围；只验证正式结构，不授予新增或正式读取权限。
+   * 范围使用规范字段名，不能包含主键、计算/系统字段或映射到同一来源的重复输入。
+   * @param model 原查询owner读取的完整正式模型。
+   * @param names 当前视图明确声明的完整新行输入名；空数组表示不接受普通输入。
+   * @returns 与输入顺序一致的正式字段，引用同一模型定义，不生成字段或模型副本。
+   */
+  public static resolveNewRowFields(model: DataSpaceFormalModel, names: readonly string[]): readonly DataSpaceFormalField[] {
+    const fields = this.resolveFields(model), physical = new Set<string>(), result: DataSpaceFormalField[] = []
+    if (new Set(names).size !== names.length) throw new LowcodeApiError(0, 'SPARK_NEW_ROW_INPUT: 新行字段范围重复')
+    for (const name of names) {
+      const field = fields.find(candidate => candidate.canonicalName === name)
+      if (!field || field.primaryKey || name === model.primaryKey || field.computed || name === '_pk'
+        || name.startsWith('lingma_sys_') || field.name.startsWith('lingma_sys_') || physical.has(field.name.toLowerCase())) {
+        throw new LowcodeApiError(0, `SPARK_NEW_ROW_INPUT: 新行字段须为唯一正式普通输入: ${name}`)
+      }
+      physical.add(field.name.toLowerCase()); result.push(field)
+    }
+    return Object.freeze(result)
+  }
+
   private static resolveFieldsByName(model: DataSpaceFormalModel, outputOnly: boolean): readonly DataSpaceFormalField[] {
     const outputs: DataSpaceFormalField[] = []
     const byCanonicalName = new Map<string, DataSpaceFormalField>()

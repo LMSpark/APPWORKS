@@ -255,6 +255,12 @@
             "type": "object",
             "title": "DataColumn"
           }
+        },
+        "newRowFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false,
@@ -436,6 +442,19 @@
         },
         "method.withAppendedRows.return": {
           "$ref": "#/$defs/DataSpaceQueryContext"
+        },
+        "method.newRowFieldAccess.params": {
+          "type": "object",
+          "properties": {
+            "fieldName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.newRowFieldAccess.return": {
+          "type": "object",
+          "title": "Pick<DataSpaceFieldAccess, 'read' | 'write' | 'required'>"
         },
         "method.prepareNewRow.params": {
           "type": "object",
@@ -648,7 +667,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T05:23:19.947Z",
+  "generatedAt": "2026-11-17T01:47:55.589Z",
   "models": {
     "DataSpaceActionState": {
       "name": "DataSpaceActionState",
@@ -866,11 +885,11 @@
       "jsdoc": "原结果快照及执行域读取器；scope 非空且后续访问必须仍然匹配。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 原来源探测已确认的下一页状态；不从本页长度推算。 */\n    nextPageAvailable?: boolean;\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接、导航和层级结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join' | 'navigation' | 'hierarchy';\n    /** 原层级owner按精确公开父行引用读取直接子结果；不接纳同键副本。 */\n    readChild?: (parent: DataSpaceRow | null, modelName: string) => DataSpaceQueryContext;\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 原来源探测已确认的下一页状态；不从本页长度推算。 */\n    nextPageAvailable?: boolean;\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接、导航和层级结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join' | 'navigation' | 'hierarchy';\n    /** 原层级owner按精确公开父行引用读取直接子结果；不接纳同键副本。 */\n    readChild?: (parent: DataSpaceRow | null, modelName: string) => DataSpaceQueryContext;\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n    /** 原正式视图捕获的完整普通新行输入范围，不改变输出列和原行读取授权。 */\n    newRowFields?: readonly string[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 原来源探测已确认的下一页状态；不从本页长度推算。 */\n    nextPageAvailable?: boolean;\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接、导航和层级结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join' | 'navigation' | 'hierarchy';\n    /** 原层级owner按精确公开父行引用读取直接子结果；不接纳同键副本。 */\n    readChild?: (parent: DataSpaceRow | null, modelName: string) => DataSpaceQueryContext;\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n}>",
+            "typeText": "Readonly<{\n    /** 原来源探测已确认的下一页状态；不从本页长度推算。 */\n    nextPageAvailable?: boolean;\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接、导航和层级结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join' | 'navigation' | 'hierarchy';\n    /** 原层级owner按精确公开父行引用读取直接子结果；不接纳同键副本。 */\n    readChild?: (parent: DataSpaceRow | null, modelName: string) => DataSpaceQueryContext;\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n    /** 原正式视图捕获的完整普通新行输入范围，不改变输出列和原行读取授权。 */\n    newRowFields?: readonly string[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -911,6 +930,12 @@
             {
               "name": "columns",
               "jsdoc": "本次正式输出列；不修改共享模型字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "newRowFields",
+              "jsdoc": "原正式视图捕获的完整普通新行输入范围，不改变输出列和原行读取授权。",
               "readable": true,
               "writable": false
             }
@@ -1191,6 +1216,47 @@
                 "type": "reference",
                 "name": "DataSpaceQueryContext",
                 "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            },
+            {
+              "name": "newRowFieldAccess",
+              "jsdoc": "新行只显示本地输入；正式行读取仍由原输出和逐行权限决定，范围本身不授予新增许可。",
+              "parameters": [
+                {
+                  "name": "fieldName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Pick",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSpaceFieldAccess",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-permission.ts"
+                  },
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "read"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "write"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "required"
+                      }
+                    ]
+                  }
+                ]
               }
             },
             {

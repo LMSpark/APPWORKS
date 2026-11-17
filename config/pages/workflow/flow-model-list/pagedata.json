@@ -10,6 +10,8 @@
       },
       "views": {
         "default": {
+          "commitMode": "staged",
+          "newRowFields": ["TITLE", "MEMO", "CRTUSER", "CRTDATE", "STATE", "BusinessTable", "sysid"],
           "autoLoad": false,
           "autoCurrentFirst": false,
           "autoSelectFirst": false,
@@ -22,6 +24,8 @@
               "MEMO",
               "sysid",
               "CRTDATE",
+              "CRTUSER",
+              "BusinessTable",
               "createuser"
             ]
           }

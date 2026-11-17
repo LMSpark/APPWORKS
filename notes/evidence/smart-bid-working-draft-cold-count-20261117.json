@@ -1,0 +1,93 @@
+{
+  "truncated": true,
+  "diagnosis": "Observed request 31980.253 returned HTTP 200 application/json containing the scalar string 服务未找到, not an AjaxResult/data-page object. Missing Count was a downstream shape error; it was not proof of missing/deleted fields. This truncated event window cannot establish completeness or absence of other requests.",
+  "recovery": "Retried the table-directory read only; table list returned Total 2 and original table. Subsequent native field query 31980.258 Code 200 reported Count 22. No mutation was replayed.",
+  "queries": [
+    {
+      "requestId": "31980.220",
+      "requestTables": [
+        {
+          "Name": "Base_DataModel",
+          "OutputType": "Table"
+        }
+      ],
+      "code": 200,
+      "message": "操作成功",
+      "resultKeys": [
+        "data",
+        "primaryKeyField",
+        "allowAdd",
+        "lingma_sys_key"
+      ],
+      "dataCount": 4,
+      "itemCount": 4
+    },
+    {
+      "requestId": "31980.222",
+      "requestTables": [
+        {
+          "Name": "View_TblList",
+          "OutputType": "Table"
+        }
+      ],
+      "code": 200,
+      "message": "操作成功",
+      "resultKeys": [
+        "data",
+        "primaryKeyField",
+        "allowAdd",
+        "lingma_sys_key"
+      ],
+      "dataCount": 4,
+      "itemCount": 4
+    },
+    {
+      "requestId": "31980.226",
+      "requestTables": [
+        {
+          "Name": "Base_DataModel",
+          "OutputType": "Table"
+        }
+      ],
+      "code": 200,
+      "message": "操作成功",
+      "resultKeys": [
+        "data",
+        "primaryKeyField",
+        "allowAdd",
+        "lingma_sys_key"
+      ],
+      "dataCount": 1,
+      "itemCount": 1
+    },
+    {
+      "requestId": "31980.234",
+      "requestTables": [
+        {
+          "Name": "View_TblList",
+          "OutputType": "Table"
+        }
+      ],
+      "code": 200,
+      "message": "操作成功",
+      "resultKeys": [
+        "data",
+        "primaryKeyField",
+        "allowAdd",
+        "lingma_sys_key"
+      ],
+      "dataCount": 1,
+      "itemCount": 1
+    },
+    {
+      "requestId": "31980.253",
+      "requestTables": [
+        {
+          "Name": "_Base_TblList",
+          "OutputType": "Table"
+        }
+      ],
+      "resultKeys": []
+    }
+  ]
+}

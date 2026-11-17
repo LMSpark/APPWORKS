@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-17",
+  "databaseId": "8C0FC2087F5D4103987A0D1FC6C3045B",
+  "databaseName": "spark_bid",
+  "surface": "Native table-and-view management page through its standard components and DataSet",
+  "observations": [
+    "Registered table query showed Total 1: bid_fact_version, same existing resource",
+    "Registration dialog completed its unregistered physical-table query and displayed No Data; canceled without confirming registration",
+    "Existing table field directory showed primary field id, string length 32, not nullable; this is distinct from metadata record rowid",
+    "Default fields include createuser, updateuser, createtime and updatetime, whose descriptions declare system-managed audit behavior"
+  ],
+  "writesDispatched": 0,
+  "workingDraftContract": {
+    "source": "docs/smart-bid/authoring-submission-specification.md#bid-draft-save",
+    "required": "Authenticated author, expectedDraftVersion / initial absence, atomic draft plus retained original request result, fixed submitted snapshot, conflict zero-write, unknown original-result lookup, later edits retained",
+    "explicitFallback": "The specification allows local editing with remote save pending when platform guarantees are unavailable; it prohibits replacing these guarantees with frontend preflight or timestamps",
+    "resourceDecision": "No WorkingDraft table, model or business row created in this check. Plan exact default-id/owner/audit and business-field mapping before creation; do not infer a runnable save service from table existence."
+  },
+  "boundary": "Read-only directory observations at this query time. Does not prove future absence, schema completeness, CAS support, save/reopen, authority or adoption. Historical unknown submissions were not replayed."
+}

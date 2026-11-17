@@ -111,7 +111,8 @@ export class DataSpaceQueryResource {
     return new DataSpaceQueryContext({ identity: table.identity, snapshot, scope,
       ...(captured.outputType === 'Join' ? {resultKind: 'join' as const} : captured.outputType === 'Navigation'
         ? {resultKind: 'navigation' as const} : captured.outputType === 'HierarchyData' ? {resultKind: 'hierarchy' as const} : {}),
-      ...(projection === undefined ? {} : {columns: projection.columns}),
+      ...(projection === undefined ? {} : {columns: projection.columns,
+        ...(projection.newRowFields === undefined ? {} : {newRowFields: projection.newRowFields})}),
       readScope })
   }
 

@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-11-16T21:56:32.106Z",
+  "observedAt": "2026-11-17T00:06:41.285Z",
   "scope": "formal workflow model-list creation contract read only",
   "writes": 0,
   "sessionPersisted": false,
@@ -36,6 +36,13 @@
     {
       "name": "sysid",
       "canonicalName": "sysid",
+      "type": "varchar",
+      "output": true,
+      "computed": false
+    },
+    {
+      "name": "createuser",
+      "canonicalName": "createuser",
       "type": "varchar",
       "output": true,
       "computed": false

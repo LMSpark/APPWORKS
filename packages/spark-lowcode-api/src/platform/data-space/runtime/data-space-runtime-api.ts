@@ -413,8 +413,30 @@ export class DataSpaceRuntimeApi {
     if (options.children?.length && aggregateResult) throw new Error('SPARK_JOIN_AGGREGATE: 显式子Join的全图聚合尚未承接')
     const join = DataSpaceQueryGraph.resolve({view, model, options: {...options, ...(queryFields === undefined ? {} : {fields: queryFields})},
       readModel: table => {const entry = this.#models.get(table); if (entry) this.assertScope(entry.scope); return entry?.model}})
+    let projection = join?.projection
+    if (view.newRowFields !== undefined) {
+      const table = view.dataTable
+      if (!table || !binding || join || aggregateResult || ['Join', 'Navigation', 'HierarchyData'].includes(options.outputType ?? '')) {
+        throw new Error('SPARK_NEW_ROW_INPUT: 显式新行输入只适用于正式实体查询')
+      }
+      const originalBinding = binding
+      const signature = () => JSON.stringify([table.modelBinding, table.columns, view.fieldProjection, view.newRowFields])
+      const captured = signature(), inputFields = Object.freeze([...view.newRowFields])
+      const outputs = new Set(outputFields.map(field => field.canonicalName))
+      projection = {
+        owner: view, signature: captured, newRowFields: inputFields,
+        columns: Object.freeze(view.columns.filter(column => outputs.has(column.name)).map(column => structuredClone(column))),
+        assertCurrent: () => {
+          this.assertScope(originalBinding.scope)
+          if (view.isDestroyed() || view.dataSet?.destroyed || view.dataTable !== table
+            || this.#models.get(table) !== originalBinding || signature() !== captured) {
+            throw new Error('SPARK_NEW_ROW_INPUT_STALE: 原视图的新行输入或正式绑定已变化')
+          }
+        },
+      }
+    }
     return {
-      ...(join === undefined ? {} : {projection: join.projection}),
+      ...(projection === undefined ? {} : {projection}),
       identity: command.identity,
       options: {...options, outputFieldMode: 'REQUEST',
         ...(join?.options.children === undefined ? {} : {children: join.options.children}),

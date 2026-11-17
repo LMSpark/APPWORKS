@@ -86,7 +86,7 @@ type SelectTablesInput = Readonly<{
 export class ScenarioViewConfig {
   static readonly #viewProperties = Object.freeze<Record<keyof Omit<SparkData.ViewMetadata, 'tableName' | 'viewId' | 'rows'>, true>>({
     onRequestComplete: true,
-    fieldProjection: true, queryContext: true, queryConfig: true, scopeFilter: true, filterExpression: true, sortExpression: true,
+    fieldProjection: true, newRowFields: true, queryContext: true, queryConfig: true, scopeFilter: true, filterExpression: true, sortExpression: true,
     autoCurrentFirst: true, autoSelectFirst: true, page: true, pageSize: true, treeConfig: true,
     valueField: true, labelField: true, selectionDelimiter: true, autoLoad: true, commitMode: true, aggregates: true,
     allowDelete: true, lockCurrentWhilePending: true, fieldOptions: true,
@@ -793,6 +793,13 @@ export class ScenarioViewConfig {
       && !(Array.isArray(view['valueField']) && view['valueField'].every(item => typeof item === 'string'))) throw new Error(`${path}.valueField 无效`)
     if ('queryContext' in view) record(view['queryContext'], `${path}.queryContext`)
     if ('queryConfig' in view) SparkData.DataViewQuery.parse(view['queryConfig'], `${path}.queryConfig`)
+    if ('newRowFields' in view) {
+      const fields = view['newRowFields']
+      if (!Array.isArray(fields) || fields.some((field: unknown) => typeof field !== 'string' || field.length === 0 || field.trim() !== field
+        || field === '_pk' || field.startsWith('lingma_sys_')) || new Set(fields).size !== fields.length) {
+        throw new Error(`${path}.newRowFields 必须是不重复的普通字段名数组`)
+      }
+    }
     for (const key of ['scopeFilter', 'filterExpression']) {
       if (!(key in view)) continue
       const parsed = SparkData.DataViewFilter.parse(view[key])

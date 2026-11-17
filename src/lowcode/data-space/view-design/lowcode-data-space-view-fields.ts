@@ -69,6 +69,13 @@ export class LowcodeDataSpaceViewFields {
 
   /** 视图可配置GetData安全聚合及分组；正式字段身份、类型及任意计算定义保持不变。 */
   static validateProjection(view: Record<string, unknown>, model: FormalModel, path: string): void {
+    const inputs = view['newRowFields']
+    if (inputs !== undefined) {
+      if (!Array.isArray(inputs) || !inputs.every((field: unknown): field is string => typeof field === 'string')) {
+        throw new Error(`${path}.newRowFields 必须是正式字段名数组`)
+      }
+      DataSpaceDesignApi.resolveNewRowFields(model, inputs)
+    }
     const projection = view['fieldProjection']
     if (projection === undefined) return
     if (!Array.isArray(projection) || projection.length === 0) throw new Error(`${path} 正式模型输出投影必须是非空数组`)

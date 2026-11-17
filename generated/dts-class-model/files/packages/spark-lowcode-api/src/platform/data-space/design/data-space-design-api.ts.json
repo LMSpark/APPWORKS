@@ -499,6 +499,27 @@
             "$ref": "#/$defs/DataSpaceFormalField"
           }
         },
+        "method.resolveNewRowFields.params": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "$ref": "#/$defs/DataSpaceFormalModel"
+            },
+            "names": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveNewRowFields.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceFormalField"
+          }
+        },
         "method.createFieldProjection.params": {
           "type": "object",
           "properties": {
@@ -687,7 +708,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T21:14:39.689Z",
+  "generatedAt": "2026-11-17T00:38:43.800Z",
   "models": {
     "DataSpaceFormalRow": {
       "name": "DataSpaceFormalRow",
@@ -1286,6 +1307,31 @@
                     "type": "reference",
                     "name": "DataSpaceFormalModel",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly DataSpaceFormalField[]"
+              }
+            },
+            {
+              "name": "resolveNewRowFields",
+              "jsdoc": "解析本视图声明的完整普通新行输入范围；只验证正式结构，不授予新增或正式读取权限。\n范围使用规范字段名，不能包含主键、计算/系统字段或映射到同一来源的重复输入。\n@param model 原查询owner读取的完整正式模型。\n@param names 当前视图明确声明的完整新行输入名；空数组表示不接受普通输入。\n@returns 与输入顺序一致的正式字段，引用同一模型定义，不生成字段或模型副本。",
+              "parameters": [
+                {
+                  "name": "model",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceFormalModel",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                  }
+                },
+                {
+                  "name": "names",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
                   }
                 }
               ],

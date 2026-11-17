@@ -12,6 +12,8 @@ import type { OrderType } from '../../../contracts/lowcode-wire-query'
 export type DataSpaceQueryIdentity = Readonly<{ scenarioId: string; metaName: string }>
 /** 正式绑定内部生成的结果投影与模型图守卫，不作为GetData请求或业务页面输入。 */
 export type DataSpaceQueryProjection = Readonly<{
+  /** 原视图捕获的完整普通新行输入范围；参与本地查询身份，不进入GetData线协议、不授予权限。 */
+  newRowFields?: readonly string[]
   /** 最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。 */
   columns: readonly DataColumn[]
   /** 原查询owner已捕获的层级模型树，不进入GetData封包。 */

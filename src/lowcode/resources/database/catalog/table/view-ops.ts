@@ -2,7 +2,7 @@
  * @module app:lowcode/resources/database/catalog/table/view-ops
  * 职责：_Base_TblList 注册表编排（非 query/save owner）。
  */
-import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {RequestState, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {
   DATABASE_CATALOG_COMMAND_INPUT_TABLE,
   DATABASE_CATALOG_DB_MODEL,
@@ -31,6 +31,13 @@ function boundCreateFields(view: DataView): readonly string[] {
     if (optionalCreateFields.has(field)) return []
     throw new Error(`数据表目录缺少正式列 ${field}`)
   })
+}
+
+/** 新增表单只呈现同一命令接受的正式字段；数据库身份由选中目录固定，不开放改绑。 */
+export function databaseCatalogTableCreateFormFields(view: DataView): SparkNode[] {
+  return boundCreateFields(view).map(field => ({type: 'r-text', props: {
+    field, label: view.getColumn(field)?.label ?? field, readonly: field.toLowerCase() === 'dbid',
+  }}))
 }
 
 export type DatabaseCatalogTableEditState = Readonly<{id: string; mode: 'add'; row: DataRow}>

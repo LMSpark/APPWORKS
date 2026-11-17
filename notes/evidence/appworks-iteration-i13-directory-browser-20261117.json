@@ -1,0 +1,11 @@
+{
+  "iteration": "I13-directory",
+  "observedOn": "2026-11-17",
+  "scope": "CUA browser inventory recheck after native directory CRUD",
+  "browserCount": 0,
+  "error": "The browser access host is unavailable",
+  "uiSmoke": false,
+  "credentialsEntered": false,
+  "browserBusinessActions": 0,
+  "status": "browser connection unavailable; native DataSet CRUD is verified separately"
+}

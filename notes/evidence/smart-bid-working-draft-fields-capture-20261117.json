@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-17",
+  "tableId": "F00A6AB6FE193E124331B1946D70A8BB",
+  "truncated": false,
+  "requests": [
+    {
+      "requestId": "31980.163",
+      "groups": [
+        {
+          "tableName": "Base_TblField",
+          "added": [
+            {
+              "rowid": "F5F123194ECCBC886F0F7F1E8A1238FD",
+              "tblid": "F00A6AB6FE193E124331B1946D70A8BB",
+              "enname": "draft_version",
+              "cnname": "服务端确认的个人草稿保存版本；不是正式修订",
+              "DataTypeName": "整数型",
+              "DataLen": "0",
+              "IsPKey": "0",
+              "IsNill": "0",
+              "IsUQ": "0"
+            },
+            {
+              "rowid": "38D466D9FD6C9E6B832969D4A522D5A9",
+              "tblid": "F00A6AB6FE193E124331B1946D70A8BB",
+              "enname": "user_id",
+              "cnname": "个人草稿作者；由正式保存命令取当前会话并核编辑范围",
+              "DataTypeName": "字符串型",
+              "DataLen": "100",
+              "IsPKey": "0",
+              "IsNill": "0",
+              "IsUQ": "0"
+            },
+            {
+              "rowid": "6EB4738FC8CD739D529048B5343335EF",
+              "tblid": "F00A6AB6FE193E124331B1946D70A8BB",
+              "enname": "project_id",
+              "cnname": "所属投标项目标识；保存时核本次项目范围",
+              "DataTypeName": "字符串型",
+              "DataLen": "256",
+              "IsPKey": "0",
+              "IsNill": "0",
+              "IsUQ": "0"
+            },
+            {
+              "rowid": "AAE50B78AC1625FC705E2BB24121B985",
+              "tblid": "F00A6AB6FE193E124331B1946D70A8BB",
+              "enname": "target_scope",
+              "cnname": "节点或独立作答的固定目标范围",
+              "DataTypeName": "json类型",
+              "DataLen": "0",
+              "IsPKey": "0",
+              "IsNill": "0",
+              "IsUQ": "0"
+            },
+            {
+              "rowid": "80F79A3E7D669F1A058718520EE5ADEE",
+              "tblid": "F00A6AB6FE193E124331B1946D70A8BB",
+              "enname": "base_revision_id",
+              "cnname": "草稿基准修订；空项目首次草稿允许为空",
+              "DataTypeName": "字符串型",
+              "DataLen": "256",
+              "IsPKey": "0",
+              "IsNill": "1",
+              "IsUQ": "0"
+            },
+            {
+              "rowid": "B566577F7DDA39D6F1C295FFC41DF931",
+              "tblid": "F00A6AB6FE193E124331B1946D70A8BB",
+              "enname": "baseline_id",
+              "cnname": "本次草稿固定的依据基线版本",
+              "DataTypeName": "字符串型",
+              "DataLen": "256",
+              "IsPKey": "0",
+              "IsNill": "0",
+              "IsUQ": "0"
+            },
+            {
+              "rowid": "8C169A212D1B6AB8376CD331BAC3EEF3",
+              "tblid": "F00A6AB6FE193E124331B1946D70A8BB",
+              "enname": "draft",
+              "cnname": "个人编辑内容：nodes与responseChanges；不自动产生正式修订",
+              "DataTypeName": "json类型",
+              "DataLen": "0",
+              "IsPKey": "0",
+              "IsNill": "0",
+              "IsUQ": "0"
+            },
+            {
+              "rowid": "E9DCC9585BFB7117C4D467536DD806BF",
+              "tblid": "F00A6AB6FE193E124331B1946D70A8BB",
+              "enname": "last_save_request_key",
+              "cnname": "最新草稿保存请求索引；不能代替原请求结果留存",
+              "DataTypeName": "字符串型",
+              "DataLen": "256",
+              "IsPKey": "0",
+              "IsNill": "0",
+              "IsUQ": "0"
+            },
+            {
+              "rowid": "0C9C091854D9A994B08A06B9BADC24FD",
+              "tblid": "F00A6AB6FE193E124331B1946D70A8BB",
+              "enname": "request_digest",
+              "cnname": "最新固定草稿保存请求的内容摘要",
+              "DataTypeName": "字符串型",
+              "DataLen": "64",
+              "IsPKey": "0",
+              "IsNill": "0",
+              "IsUQ": "0"
+            },
+            {
+              "rowid": "16965C47D66AE996F8A6C0770329127D",
+              "tblid": "F00A6AB6FE193E124331B1946D70A8BB",
+              "enname": "updated_at",
+              "cnname": "同次确认草稿保存的业务时点；不等同元数据审计时间",
+              "DataTypeName": "日期型",
+              "DataLen": "0",
+              "IsPKey": "0",
+              "IsNill": "0",
+              "IsUQ": "0"
+            }
+          ],
+          "changedCount": 0,
+          "deletedCount": 0
+        }
+      ]
+    }
+  ],
+  "receipt": {
+    "requestId": "31980.163",
+    "code": 200,
+    "message": "操作成功"
+  }
+}

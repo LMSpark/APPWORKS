@@ -683,6 +683,12 @@ export type ViewMetadata = {
   viewId?: string
   /** 视图对资源字段的稳定投影；viewId 可直接承载外部模型 ID。 */
   fieldProjection?: readonly DataViewFieldProjection[]
+  /**
+   * 普通新行可提交的完整字段范围，不含原生生成/独立传递的主键。
+   * 省略保持既有输出字段合同；空数组不接受普通输入。只收窄输入，不授予权限或扩大查询输出。
+   * 显式范围必须由原查询owner的newRowFieldAccess支持，非输出字段仍须属于正式DataTable。
+   */
+  newRowFields?: readonly string[]
   /** 由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。 */
   queryContext?: DataViewQueryContext
   /** 查询模式、输出字段、服务器节点参数及读取范围；每次刷新沿用，空对象恢复默认。不含结果或权限。 */

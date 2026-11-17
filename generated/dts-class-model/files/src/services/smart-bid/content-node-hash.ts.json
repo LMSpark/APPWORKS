@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content-node-hash",
+    "sourcePath": "src/services/smart-bid/content-node-hash.ts",
+    "sourceFile": "src/services/smart-bid/content-node-hash.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content-node-hash",
+    "jsdoc": "@module app:services/smart-bid/content-node-hash\n职责：按投标规格§1.1及工序合同生成节点规范载荷及SHA-256，不改变传入节点。\n边界：不计算子树/有效摘要，不保存、授权或采用修订；data数字必须由业务以字符串表达。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-17T03:17:22.318Z",
+  "models": {}
+}

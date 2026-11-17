@@ -6755,7 +6755,7 @@ describe('native data-space design entry', () => {
     const {wrapper} = await page()
     await select(wrapper, 'shared')
     await openViewProperties(wrapper)
-    expect(wrapper.findAll('[data-property]')).toHaveLength(16)
+    expect(wrapper.find('[data-property="newRowFields"]').exists()).toBe(true)
     expect(wrapper.find('[data-property="scopeFilter"]').exists()).toBe(true)
     expect(wrapper.find('[data-property="aggregates"]').exists()).toBe(false)
     await openViewProperties(wrapper)
@@ -6785,7 +6785,7 @@ describe('native data-space design entry', () => {
     const tree = {idField: 'rowid', parentIdField: 'parentId', treeMode: 'flat', lazy: false, depthLimit: 4,
       textField: 'rowid', serverPaginationMode: 'root', filterMode: 'include-ancestors'}
     // Exercise the public JSON editor output; VXE rendering is outside this persistence test.
-    for (const [property, value] of Object.entries({treeConfig: tree, valueField: ['rowid']})) {
+    for (const [property, value] of Object.entries({treeConfig: tree, valueField: ['rowid'], newRowFields: ['parentId']})) {
       await openViewProperties(wrapper)
       await wrapper.get(`[data-edit-property="${property}"]`).trigger('click')
       const jsonField=editor.getComponent(FieldJson)
@@ -6801,7 +6801,7 @@ describe('native data-space design entry', () => {
     const reopened = await f.open('A')
     const row = reopened.metadataDataSet.getView('DataViewDefinition', 'default')!.rows.find(item => item['tableName'] === 'OrdersAlias' && item['viewId'] === 'shared')!
     expect(row).toMatchObject({autoLoad: false, autoSelectFirst: false, commitMode: 'staged', selectionDelimiter: '|',
-      treeConfig: tree, valueField: ['rowid'], labelField: 'rowid'})
+      treeConfig: tree, valueField: ['rowid'], labelField: 'rowid', newRowFields: ['parentId']})
     expect(row).not.toHaveProperty('pageSize')
     expect(reopened.definitionDataSet?.getView('OrdersAlias', 'shared')?.autoLoad).toBe(false)
     expect(f.fileWrites).toHaveLength(1)

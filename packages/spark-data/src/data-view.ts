@@ -184,10 +184,13 @@ type DataViewQueryIdentity = Readonly<{
   resource?: DataViewResourceIdentity
 }>
 /** Internal explicit-identity staging mode; child permissions are supplied by the canonical parent's current query result. */
-type DataViewIdentityCreateOptions = Readonly<{
-  mode: 'root' | 'child'
-  parentKey?: unknown
-  expectedField?: Readonly<{field: string; value: unknown}>
+type DataViewIdentityCreateOptions = Readonly<{mode: 'root'}> | Readonly<{
+  mode: 'child'; parentKey: string | number; parentField: string
+  expectedField: Readonly<{field: string; value: unknown}>
+}>
+/** 原生子行创建的父身份及外键映射证明；不复制行数据或权限凭据。 */
+type DataViewChildCreateProof = Readonly<{
+  context: DataViewQueryResult; parentKey: string | number; parentField: string; foreignKey: string
 }>
 /** 非后端模型资源的显式身份；与所属 DataTable 声明一致，不能借此覆盖正式模型绑定。 */
 type DataViewResourceIdentity = Readonly<{
@@ -500,6 +503,24 @@ viewId: string
   queryContext: DataViewQueryContext = {}
 
   private _queryConfig: NonNullable<ViewMetadata['queryConfig']> = Object.freeze({})
+  private _newRowFields: readonly string[] | undefined
+
+  /** 普通新行的完整输入范围；不改变columns或既有行权限。配置改变使原查询失效，未保存/未知提交不能被替换。 */
+  get newRowFields(): readonly string[] | undefined { return this._newRowFields }
+  set newRowFields(value: readonly string[] | undefined) {
+    this.assertResultReplacementAllowed()
+    const candidate: unknown = value
+    if (candidate !== undefined && (!Array.isArray(candidate) || candidate.some((field: unknown) => typeof field !== 'string' || field.length === 0
+      || field.trim() !== field || field === '_pk' || field.startsWith('lingma_sys_')) || new Set(candidate).size !== candidate.length)) {
+      throw new TypeError('DATA_VIEW_NEW_ROW_FIELDS: 新行范围须为不重复的普通字段名')
+    }
+    if (JSON.stringify(value) === JSON.stringify(this._newRowFields)) return
+    this._newRowFields = value === undefined ? undefined : Object.freeze([...value])
+    if (this.currentLoadRequestId > 0 || this.requestState === RequestState.Preparing) this.currentLoadRequestId++
+    this._resultStale = true
+    this.setRequestState(RequestState.Idle)
+    this.emitConfigChanged()
+  }
 
   /** 持久查询配置，所有刷新入口复用；整体赋值，空对象恢复默认。变更使旧结果及在途请求失效，不自动查询。 */
   get queryConfig(): NonNullable<ViewMetadata['queryConfig']> { return this._queryConfig }
@@ -558,6 +579,7 @@ rows: DataRow[] = []
   #queryOriginalRows = new WeakMap<DataRow, DataViewQueryRow>()
   /** 显式身份新增在保存回执前不得被owner换成其他主键。 */
   readonly #explicitNewRowIds = new Set<string | number>()
+  readonly #childCreateParents = new Map<string | number, DataViewChildCreateProof>()
   #ingestingQueryResult = false
 
   /**
@@ -817,6 +839,7 @@ rows: DataRow[] = []
    * @returns 该字段对当前查询新行的只读呈现/写入合同；未知或不可写字段返回拒绝结果。
    */
   newRowFieldAccess(field: string): DataViewFieldAccess {
+    if (this._resultStale) return DENIED_FIELD_ACCESS
     const context = this.currentQueryResult()
     if (!context || context.resultPrimaryKey === '' || context.prepareNewRow === undefined || this.queryParentPendingCreate()) {
       return DENIED_FIELD_ACCESS
@@ -855,10 +878,17 @@ rows: DataRow[] = []
         component: editable ? 'editable' : 'readonly', writeMode: editable ? required ? 'required' : 'editable' : 'readonly'}
     }
     if (!context || !row) return DENIED_FIELD_ACCESS
-    if (context.columns !== undefined && !this.getColumn(field)) return DENIED_FIELD_ACCESS
     if (this.isPendingQueryCreation(row,context)) {
+      const key = this.getPkKey(row), child = key === undefined ? undefined : this.#childCreateParents.get(key)
+      if (child) {
+        if (child.context !== context) return DENIED_FIELD_ACCESS
+        const access = this.queryNewRowFieldAccess(context, field, child.parentKey)
+        return field === child.foreignKey ? {...access, write: 'denied', writeMode: 'readonly',
+          component: access.read === 'invisible' ? 'hidden' : 'readonly'} : access
+      }
       return this.queryNewRowFieldAccess(context, field)
     }
+    if (context.columns !== undefined && !this.getColumn(field)) return DENIED_FIELD_ACCESS
     if (this._computedDelegate.isConfigured(field)) {
       const read = this.#computedQueryToken && this._computedDelegate.configuredReadAccess(row, field, this.#computedQueryToken)
         ? 'visible' : 'invisible'
@@ -875,16 +905,24 @@ rows: DataRow[] = []
       component: access.read === 'invisible' ? 'hidden' : 'readonly' }
   }
 
-  private queryNewRowFieldAccess(context: DataViewQueryResult, field: string): DataViewFieldAccess {
-    const column = this.getColumn(field)
+  private queryNewRowColumn(context: DataViewQueryResult, field: string): DataColumn | undefined {
+    if (this.newRowFields === undefined) return this.getColumn(field)
+    if (!this.newRowFields.includes(field) || !context.newRowFieldAccess) return undefined
+    return this.getColumn(field) ?? this._dataTable?.columns.find(column => column.name === field)
+  }
+
+  private queryNewRowFieldAccess(context: DataViewQueryResult, field: string, parentKey?: unknown): DataViewFieldAccess {
+    const column = parentKey === undefined ? this.queryNewRowColumn(context, field) : this.getColumn(field)
     if (!column || this._computedDelegate.isConfigured(field) || column.isComputed) return DENIED_FIELD_ACCESS
     // 新行只呈现正式查询新增输入；查询身份或输入变化时不得借用旧权限。
     const sameQueryInputs = this.#queryResultRefreshIdentity === this.refreshIdentity()
     const editable = sameQueryInputs && !this._resultStale
-      && context.addActionState(!this._resultStale) === 'enabled'
+      && (parentKey === undefined ? context.addActionState(!this._resultStale)
+        : context.createChildActionState(parentKey, !this._resultStale)) === 'enabled'
       && !this.effectivePkFields.includes(field) && !column.autoIncrement && context.isFieldReadOnly?.(field) !== true
     const required = column.required ?? column.allowDBNull === false
-    const owned = context.newRowFieldAccess?.(field)
+    const owned = parentKey === undefined ? context.newRowFieldAccess?.(field)
+      : {...context.fieldAccess(parentKey, field), read: 'visible' as const}
     if (owned) {
       const writable = editable && owned.write === 'allowed'
       const requiredInput = required || owned.required
@@ -2515,7 +2553,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   private refreshIdentity(): string {
     const {autoQuery: _autoQuery, ...queryConfig} = this.queryConfig
     return JSON.stringify([this.#queryExecutor ? this.queryIdentity() : [this.dataSet?.scenarioId, this.tableName],
-      this.viewId, this.queryContext, queryConfig, this.scopeFilter, this.filterExpression, this.sortExpression, this.page, this.pageSize])
+      this.viewId, this.queryContext, queryConfig, this.newRowFields, this.scopeFilter, this.filterExpression, this.sortExpression, this.page, this.pageSize])
   }
 
   private readonly clearRefreshRequest = (): void => {
@@ -3044,6 +3082,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       tracking.clearDirty(id)
       tracking.cancelDelete(id)
       this.#explicitNewRowIds.delete(id)
+      if (!this.hasUnconfirmedSave) this.#childCreateParents.delete(id)
       editingChanged = this._editingPatches.delete(id) || editingChanged
       editingChanged = this._editingOriginalRows.delete(id) || editingChanged
     }
@@ -3210,8 +3249,9 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     if (!Object.is(row[identity.field], identity.value)) {
       throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_MISMATCH: 查询owner未原样保留请求身份')
     }
-    if (options.expectedField && !this.sameQuerySaveValue(row[options.expectedField.field], options.expectedField.value)) throw new Error('DATA_VIEW_CHILD_FK_MISMATCH: 查询owner未保留映射的父身份')
-    return this.acceptNewRow(row, true)
+    if (options.mode === 'child' && !this.sameQuerySaveValue(row[options.expectedField.field], options.expectedField.value)) throw new Error('DATA_VIEW_CHILD_FK_MISMATCH: 查询owner未保留映射的父身份')
+    return this.acceptNewRow(row, true, options.mode === 'child'
+      ? {context, parentKey: options.parentKey, parentField: options.parentField, foreignKey: options.expectedField.field} : undefined)
   }
 
   /**
@@ -3253,7 +3293,8 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       throw new Error(`DATA_VIEW_NEW_ROW_DEFAULT_CONFLICT: ${field} 与当前查询归属默认值冲突`)
     }
     if (input.identity) {
-      return this.addRowWithIdentityInternal(input.identity, data, {mode: 'child', parentKey, expectedField: {field:input.childForeignKey,value:canonical[input.parentField]}})
+      return this.addRowWithIdentityInternal(input.identity, data, {mode: 'child', parentKey, parentField: input.parentField,
+        expectedField: {field:input.childForeignKey,value:canonical[input.parentField]}})
     }
     if (!context.prepareNewRow) throw new Error('DATA_VIEW_NEW_ROW_OWNER: 当前查询owner不支持owner生成身份新增')
     const row = context.prepareNewRow({...defaults, ...data})
@@ -3262,13 +3303,13 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     if ((typeof key !== 'string' && typeof key !== 'number') || (typeof key === 'string' && key.trim() === '') || this.rows.some(item => Object.is(this.getPkKey(item), key))) {
       throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_MISMATCH: 查询owner未准备有效且唯一的子节点身份')
     }
-    return this.acceptNewRow(row)
+    return this.acceptNewRow(row, false, {context, parentKey, parentField: input.parentField, foreignKey: input.childForeignKey})
   }
 
   private preflightNewRowFields(context: DataViewQueryResult, data: Partial<DataRow>, parentKey?: unknown): void {
     context.assertIdentity(this.queryIdentity())
     for (const field of Object.keys(data)) {
-      const column = this.getColumn(field)
+      const column = parentKey === undefined ? this.queryNewRowColumn(context, field) : this.getColumn(field)
       if (!column) throw new Error(`DATA_VIEW_NEW_ROW_FIELD_UNKNOWN: ${field} 不是当前DataTable正式列`)
       if (this._computedDelegate.isConfigured(field) || column.isComputed || column.computeExpression !== undefined) {
         throw new Error(`DATA_VIEW_NEW_ROW_FIELD_COMPUTED: ${field} 是计算字段，不能作为新增输入`)
@@ -3279,7 +3320,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     }
   }
 
-  private async acceptNewRow(row: DataRow, preserveIdentity = false): Promise<DataRow | CrudResult<DataRow>> {
+  private async acceptNewRow(row: DataRow, preserveIdentity = false, child?: DataViewChildCreateProof): Promise<DataRow | CrudResult<DataRow>> {
     if (this.shouldDirectCommitCrud('create')) {
       return this.crudDelegate.createRecord(row)
     }
@@ -3288,6 +3329,8 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     if (pkKey !== undefined) {
       this.dirtyTrackingDelegate.trackCreate(pkKey, row)
       if (preserveIdentity) this.#explicitNewRowIds.add(pkKey)
+      if (child && this.newRowFields !== undefined) this.#childCreateParents.set(pkKey, child)
+      else this.#childCreateParents.delete(pkKey)
     }
     return row
   }
@@ -3312,6 +3355,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     if (result) {
       this.dirtyTrackingDelegate.trackDelete(id, snapshot)
       this.#explicitNewRowIds.delete(id)
+      if (!this.hasUnconfirmedSave) this.#childCreateParents.delete(id)
       this.discardEditingRows([id])
     }
     return result
@@ -3874,7 +3918,16 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     }
     const addedFields = new Set(this._dataTable?.columns.filter(column => !column.name.startsWith('lingma_sys_'))
       .map(column => column.name))
-    for (const item of capture.added) check(item.row, addedFields)
+    for (const item of capture.added) {
+      if (this.newRowFields !== undefined) {
+        const input = Object.fromEntries(Object.entries(item.row).filter(([field]) => !this.effectivePkFields.includes(field)
+          && field !== '_pk' && !field.startsWith('lingma_sys_') && !this.computedColumnNames.has(field)))
+        const child = this.#childCreateParents.get(item.id)
+        if (child) this.validateChildCreate(capture.context, input, child)
+        else this.preflightNewRowFields(capture.context, input)
+      }
+      check(item.row, addedFields)
+    }
     const rules = this.querySaveRuleRows(capture)
     for (const item of rules) if (!item.created) check(item.row, item.fields)
     const submitted = new Map([...capture.added, ...capture.changed].map(item => [item.id, item.row]))
@@ -3886,10 +3939,31 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       return [submitted.get(id) ?? (includeEditingRows ? this.getEditingRow(id) ?? row : row)]
     })
     const declared = this.queryConfig.fields
-    SaveRuleValidator.check({ label, columns: this.columns, rows: rules, retained,
+    const columns = [...new Map([...this.columns, ...(this.newRowFields ?? []).flatMap(field => {
+      const column = this.queryNewRowColumn(capture.context, field)
+      return column ? [column] : []
+    })].map(column => [column.name, column])).values()]
+    SaveRuleValidator.check({ label, columns, rows: rules, retained,
       ...(declared === undefined ? {} : { allowedFields: new Set(declared) }),
-      createdExemptFields: new Set(Object.keys(this.queryOwnershipDefaults())),
+      createdExemptFields: new Set([...Object.keys(this.queryOwnershipDefaults()), ...this.newRowFields ?? []]),
       deletes: capture.deleted.length, allowDelete: this.allowDelete })
+  }
+
+  private validateChildCreate(context: DataViewQueryResult, row: DataViewQueryRow, proof: DataViewChildCreateProof): void {
+    const parents = context.rows.filter(parent => Object.is(context.rowKey(parent), proof.parentKey)), parent = parents[0]
+    if (proof.context !== context || parents.length !== 1 || !parent
+      || context.createChildActionState(proof.parentKey) !== 'enabled'
+      || context.readFieldAccess(parent, proof.parentField) !== 'visible'
+      || !this.sameQuerySaveValue(row[proof.foreignKey], parent[proof.parentField])) {
+      throw new Error('DATA_VIEW_CHILD_PARENT_STALE: 子行创建的原父身份或映射已变化')
+    }
+    const defaults = this.queryOwnershipDefaults()
+    const input = Object.fromEntries(Object.entries(row).filter(([field, value]) => {
+      if (!Object.hasOwn(defaults, field)) return true
+      if (!this.sameQuerySaveValue(value, defaults[field])) throw new Error(`DATA_VIEW_NEW_ROW_DEFAULT_CONFLICT: ${field}`)
+      return false
+    }))
+    this.preflightNewRowFields(context, input, proof.parentKey)
   }
 
   /** 提交行及其修改字段；新增行取非空输入字段，既有行与唯一原查询行比较。 */
@@ -4248,6 +4322,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       }
       createdIdentities.push({submittedId: submitted.id, savedId: nextId})
       this.#explicitNewRowIds.delete(submitted.id)
+      this.#childCreateParents.delete(submitted.id)
       this.dirtyTrackingDelegate.cancelCreate(submitted.id)
       if (current === null) {
         this.dirtyTrackingDelegate.trackDelete(nextId, row)
@@ -4342,6 +4417,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     this.#computedQueryToken = undefined
     this.#queryOriginalRows = new WeakMap<DataRow, DataViewQueryRow>()
     this.#explicitNewRowIds.clear()
+    this.#childCreateParents.clear()
     const selectionChanged = this._currentRowId !== null || this._keylessCurrentRow !== null || this._selectedRowIds.length > 0 || this._keylessSelectedRows.length > 0
     this.rows = []
     this.total = 0
@@ -4756,6 +4832,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
     this.assertResultReplacementAllowed()
     if (vc.onRequestComplete !== undefined) this.onRequestComplete = vc.onRequestComplete
     if (vc.queryConfig !== undefined) this.queryConfig = vc.queryConfig
+    if (vc.newRowFields !== undefined) this.newRowFields = vc.newRowFields
     if (vc.queryContext !== undefined) this.queryContext = { ...vc.queryContext }
     if (vc.scopeFilter !== undefined) {
       const scope = this._parseFilter(vc.scopeFilter)
@@ -4861,6 +4938,7 @@ toJson(): ViewMetadata {
     if (this.autoLoad !== false) result.autoLoad = this.autoLoad
     if (this.onRequestComplete) result.onRequestComplete = this.onRequestComplete
     if (this.commitMode !== 'immediate') result.commitMode = this.commitMode
+    if (this.newRowFields !== undefined) result.newRowFields = [...this.newRowFields]
     if (!this.allowDelete) result.allowDelete = false
     if (this.lockCurrentWhilePending) result.lockCurrentWhilePending = true
     if (Object.keys(this.fieldOptions).length > 0) result.fieldOptions = structuredClone(this.fieldOptions)

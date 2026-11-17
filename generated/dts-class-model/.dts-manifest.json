@@ -2709,7 +2709,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-16T18:37:52.006Z"
+      "sourceModifiedAt": "2026-11-17T01:47:55.586Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -2944,7 +2944,7 @@
     "packages/spark-data/src/types.ts": {
       "sourceFile": "packages/spark-data/src/types.ts",
       "shardFile": "files/packages/spark-data/src/types.ts.json",
-      "sourceModifiedAt": "2026-11-16T18:28:58.656Z"
+      "sourceModifiedAt": "2026-11-17T00:28:42.494Z"
     },
     "packages/spark-data/src/validation/column-validation.ts": {
       "sourceFile": "packages/spark-data/src/validation/column-validation.ts",
@@ -3154,7 +3154,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json",
-      "sourceModifiedAt": "2026-11-16T21:14:39.689Z"
+      "sourceModifiedAt": "2026-11-17T00:38:43.800Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts",
@@ -3179,12 +3179,12 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
-      "sourceModifiedAt": "2026-11-16T18:57:56.872Z"
+      "sourceModifiedAt": "2026-11-17T01:47:55.588Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json",
-      "sourceModifiedAt": "2026-11-03T19:08:42.801Z"
+      "sourceModifiedAt": "2026-11-17T00:28:42.501Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-pagination.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-pagination.ts",
@@ -3234,7 +3234,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts.json",
-      "sourceModifiedAt": "2026-11-12T05:23:19.947Z"
+      "sourceModifiedAt": "2026-11-17T01:47:55.589Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts",
@@ -3254,7 +3254,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts.json",
-      "sourceModifiedAt": "2026-11-03T19:06:42.588Z"
+      "sourceModifiedAt": "2026-11-17T00:28:42.503Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-tree.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-tree.ts",
@@ -3624,7 +3624,7 @@
     "packages/spark-project-model/src/scenario/scenario-view-config.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
       "shardFile": "files/packages/spark-project-model/src/scenario/scenario-view-config.ts.json",
-      "sourceModifiedAt": "2026-11-13T13:50:15.432Z"
+      "sourceModifiedAt": "2026-11-17T01:47:55.591Z"
     },
     "packages/spark-project-model/src/scenario/scenario-view-data.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-data.ts",
@@ -4069,7 +4069,7 @@
     "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts",
       "shardFile": "files/src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts.json",
-      "sourceModifiedAt": "2026-10-25T08:42:55.800Z"
+      "sourceModifiedAt": "2026-11-17T01:55:12.866Z"
     },
     "src/lowcode/data-space/view-design/lowcode-data-space-view-layout.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-layout.ts",
@@ -4189,7 +4189,7 @@
     "src/lowcode/resources/database/catalog/table/view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table/view-ops.ts",
       "shardFile": "files/src/lowcode/resources/database/catalog/table/view-ops.ts.json",
-      "sourceModifiedAt": "2026-11-01T15:02:55.028Z"
+      "sourceModifiedAt": "2026-11-17T01:34:41.794Z"
     },
     "src/lowcode/resources/database/catalog/workflow/metadata.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/workflow/metadata.ts",
@@ -4904,7 +4904,7 @@
     "src/lowcode/resources/system/workflow/manage/flow-model-manager.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-model-manager.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-model-manager.ts.json",
-      "sourceModifiedAt": "2026-11-16T22:16:17.875Z"
+      "sourceModifiedAt": "2026-11-17T02:13:29.828Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts",
@@ -5166,6 +5166,16 @@
       "shardFile": "files/src/services/project/project-shell.ts.json",
       "sourceModifiedAt": "2026-11-12T21:29:12.910Z"
     },
+    "src/services/smart-bid/content-draft-save-rule.ts": {
+      "sourceFile": "src/services/smart-bid/content-draft-save-rule.ts",
+      "shardFile": "files/src/services/smart-bid/content-draft-save-rule.ts.json",
+      "sourceModifiedAt": "2026-11-17T00:38:42.358Z"
+    },
+    "src/services/smart-bid/content-node-hash.ts": {
+      "sourceFile": "src/services/smart-bid/content-node-hash.ts",
+      "shardFile": "files/src/services/smart-bid/content-node-hash.ts.json",
+      "sourceModifiedAt": "2026-11-17T03:17:22.318Z"
+    },
     "src/services/smart-bid/content-placeholders.ts": {
       "sourceFile": "src/services/smart-bid/content-placeholders.ts",
       "shardFile": "files/src/services/smart-bid/content-placeholders.ts.json",
@@ -5179,7 +5189,7 @@
     "src/services/smart-bid/content-tree-draft-editor.ts": {
       "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
       "shardFile": "files/src/services/smart-bid/content-tree-draft-editor.ts.json",
-      "sourceModifiedAt": "2026-11-16T22:37:19.812Z"
+      "sourceModifiedAt": "2026-11-17T00:38:42.360Z"
     },
     "src/services/smart-bid/content-tree-editor-layout.ts": {
       "sourceFile": "src/services/smart-bid/content-tree-editor-layout.ts",
@@ -5714,7 +5724,7 @@
     "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.957Z"
+      "sourceModifiedAt": "2026-11-17T01:34:41.796Z"
     },
     "src/views/features/data-platform/database-management/table-and-view/ui/application-option-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/application-option-dialog.vue",
@@ -5739,7 +5749,7 @@
     "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue.json",
-      "sourceModifiedAt": "2026-11-16T20:40:23.164Z"
+      "sourceModifiedAt": "2026-11-17T01:34:41.798Z"
     },
     "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
@@ -6214,7 +6224,7 @@
     "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-model/ui/flow-model-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-16T20:11:48.330Z"
+      "sourceModifiedAt": "2026-11-17T02:08:19.381Z"
     },
     "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue",

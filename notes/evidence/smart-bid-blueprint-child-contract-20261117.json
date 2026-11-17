@@ -30,7 +30,14 @@
     "parentField": null,
     "PrimaryKeyFields": null,
     "topValue": null,
-    "note": "These are observed model properties, not a claim that the physical/returned primary key is absent."
+    "note": "These are observed model properties, not a claim that the physical/returned primary key is absent.",
+    "readabilityCheck": {
+      "requestId": "14320.6954",
+      "fields": ["selfType", "OutputType", "parentField", "PrimaryKeyFields", "topValue"],
+      "allOwnPropertiesPresent": true,
+      "noneInHiddenOrMaskedFieldLists": true,
+      "interpretation": "Observed nulls are not explained by missing properties or reported h/m visibility suppression."
+    }
   },
   "frontendContract": {
     "configuration": "config/pages/application/project-blueprint/pagedata.json: default treeConfig uses rowid/prowid/FunName/000000",
@@ -39,5 +46,6 @@
   },
   "uiObservation": "Existing root selected by exact application/root ID; add root and sibling enabled, add child disabled. Only that existing root was visible. No create button was activated and no metadata/file save was dispatched.",
   "screenshot": "notes/evidence/smart-bid-blueprint-child-disabled-20261117.jpg",
-  "boundary": "The missing explicit child grant and the model/tree-query configuration mismatch require investigation at the owning contract. Source-only Java behavior is not proof of deployed behavior. No shared-model metadata, permissions or frontend guard was changed; no ordinary-add workaround was used."
+  "boundary": "The missing explicit child grant and the model/tree-query configuration mismatch require investigation at the owning contract. Source-only Java behavior is not proof of deployed behavior. No shared-model metadata, permissions or frontend guard was changed; no ordinary-add workaround was used.",
+  "nativeSelfRefProbe": "smart-bid-blueprint-selfref-probe-20261117.json: explicit supported tree query returned the exact existing root without a c grant; corrected public createChildActionState called with the returned row reports hidden. Query presentation settings alone did not obtain child authorization."
 }

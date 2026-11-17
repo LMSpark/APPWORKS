@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-11-16T23:39:59.621Z",
+  "observedAt": "2026-11-17T02:10:38.284Z",
   "scope": "original DataSet workflow directory creation access read only",
   "businessWrites": 0,
   "metadataWrites": 0,
@@ -13,6 +13,8 @@
     "MEMO",
     "sysid",
     "CRTDATE",
+    "CRTUSER",
+    "BusinessTable",
     "createuser"
   ],
   "fields": [
@@ -74,11 +76,11 @@
       "field": "STATE",
       "projected": false,
       "newRow": {
-        "read": "invisible",
-        "write": "denied",
-        "component": "hidden",
+        "read": "visible",
+        "write": "allowed",
         "required": false,
-        "writeMode": "readonly"
+        "component": "editable",
+        "writeMode": "editable"
       },
       "noCurrentRow": {
         "read": "invisible",

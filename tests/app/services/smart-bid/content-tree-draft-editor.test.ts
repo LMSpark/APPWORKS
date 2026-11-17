@@ -17,6 +17,28 @@ async function fixture(writable = true) {
   return {ds, view, editor: new ContentTreeDraftEditor(view, 'D', 'P'), invalidate: () => {scope = 'changed'}}
 }
 
+it('rejects noncanonical payloads before changing native draft editing state', async () => {
+  const {ds, view, editor} = await fixture()
+  try {
+    editor.addDocument({documentId: 'B', chapterId: 'C', headingId: 'H', title: '实施方案'})
+    editor.addParagraph('C', {nodeId: 'N', value: '原正文', data: {amount: '1200.00'}})
+    const before = structuredClone(view.getEditingRow('D')?.['draft'])
+    for (const data of [{amount: 1200}, {'é': true, 'e\u0301': false}, {date: new Date()}, {missing: undefined}]) {
+      expect(() => editor.updateText('N', '不得部分写入', data)).toThrow()
+      expect(view.getEditingRow('D')?.['draft']).toEqual(before)
+    }
+    expect(() => editor.updateText('N', '\uD800')).toThrow('INVALID_UNICODE')
+    expect(view.getEditingRow('D')?.['draft']).toEqual(before)
+    const cycle: Record<string, unknown> = {}; cycle['self'] = cycle
+    expect(() => editor.addParagraph('C', {nodeId: 'bad', value: '', data: cycle})).toThrow('CYCLIC_PAYLOAD')
+    expect(view.getEditingRow('D')?.['draft']).toEqual(before)
+    const sparse = Object.assign(new Array<unknown>(2), {1: false, extra: true})
+    expect(() => editor.addParagraph('C', {nodeId: 'sparse', value: '', data: {items: sparse}})).toThrow('NON_JSON_ARRAY')
+    expect(view.getEditingRow('D')?.['draft']).toEqual(before)
+    expect(view.rows[0]?.['draft']).toEqual({nodes: [], responseChanges: [{id: 'R'}]})
+  } finally {ds.destroy()}
+})
+
 it('edits logical books and paragraphs in the original DataView and cancels with native editing state', async () => {
   const {ds, view, editor} = await fixture()
   try {

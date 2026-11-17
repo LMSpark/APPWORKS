@@ -3,11 +3,22 @@ import {fixture,storage} from './flow-design-data.fixture'
 import {saveFlowDesignInfo,addFlowDesignNode,removeFlowDesignGraphSelection,stageFlowDesignGraph,cancelFlowDesignChanges,prepareFlowDesignViews,WorkflowFlowModelManager} from '@/lowcode/resources/system/workflow/manage'
 
 describe('flow design saves through its original data workspace',()=>{
+ it('uses current new-row access for model creation when no row is current and rejects stale query access',async()=>{
+  const {ds}=await fixture(),model=ds.getView('WFM_FLOW_MODLE')!,manager=new WorkflowFlowModelManager(model)
+  model.setCurrentRow(null)
+  expect(model.newRowFieldAccess('TITLE').write).toBe('allowed')
+  expect(model.fieldAccess(null,'TITLE').write).toBe('denied')
+  expect(manager.canAdd()).toBe(true)
+  model.queryContext={rowid:'OTHER'}
+  expect(manager.canAdd()).toBe(false)
+ })
+
  it('saves a model through its bound DataView without committing another workspace draft',async()=>{
   const {ds,http,nodes}=await fixture()
   const model=ds.getView('WFM_FLOW_MODLE')!
   model.updateEditingValue('FM-1','TITLE','Model edit');nodes.updateEditingValue('N1','TITLE','Unrelated node draft')
-  await new WorkflowFlowModelManager(model).saveCurrent()
+  const manager=new WorkflowFlowModelManager(model)
+  manager.beginEdit(model.rows[0]!);await manager.saveCurrent()
   expect(http.records['WFM_FLOW_MODLE']![0]!['TITLE']).toBe('Model edit')
   expect(http.records['WFM_FLOW_NODE']![0]!['TITLE']).toBe('Start')
   expect(nodes.getEditingRow('N1')?.['TITLE']).toBe('Unrelated node draft')

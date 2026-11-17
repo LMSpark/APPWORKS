@@ -1,0 +1,155 @@
+{
+  "iteration": "I13-directory",
+  "recordedAt": "2026-11-17T03:25:46.133848+00:00",
+  "baseCommit": "8b3610a42a87290c01363ac51629d18ded7a9dbc",
+  "scope": "SPARK Data native ordinary new-row input contract and workflow directory; related parallel standard-component sources retained",
+  "architecture": {
+    "newBusinessOwner": false,
+    "pageSaveChannel": "DataSet/DataView",
+    "nodeServiceStarted": false,
+    "javaChanged": false
+  },
+  "checks": {
+    "formalClassModel": {
+      "status": "passed after array fix",
+      "seconds": 53.301,
+      "log": "cache/i13-directory-p2-class-model.log"
+    },
+    "lowcodeContracts": {
+      "status": "passed",
+      "endpoints": 611,
+      "consumers": 244,
+      "log": "cache/i13-directory-lowcode-contracts.log"
+    },
+    "verify": {
+      "status": "passed",
+      "exitCode": 0,
+      "log": "cache/i13-directory-verify-serial.log"
+    },
+    "packageBuild": {
+      "status": "passed",
+      "builtPackages": 8,
+      "skippedPackages": 0,
+      "log": "cache/i13-directory-package-build-forced.log",
+      "packageSourcesChangedAfterBuild": false
+    },
+    "packageTests": {
+      "status": "passed",
+      "exitCode": 0,
+      "packages": {
+        "spark-utils": {
+          "files": 5,
+          "tests": 45
+        },
+        "spark-data": {
+          "files": 60,
+          "tests": 1391
+        },
+        "spark-json-document": {
+          "files": 5,
+          "tests": 25
+        },
+        "spark-ai": {
+          "files": 27,
+          "tests": 176
+        },
+        "spark-lowcode-api": {
+          "files": 53,
+          "tests": 1592
+        },
+        "spark-project-model": {
+          "files": 6,
+          "tests": 286
+        },
+        "spark-component": {
+          "files": 28,
+          "tests": 225
+        },
+        "spark-app": {
+          "files": 13,
+          "tests": 83
+        }
+      },
+      "log": "cache/i13-directory-packages-final.log",
+      "overlapsRootTests": true
+    },
+    "previousRoot": {
+      "status": "failed",
+      "files": 597,
+      "tests": 10256,
+      "failedTests": 1,
+      "reason": "old fixed property-count assertion; corrected and independently exercised JSON edit/save/reopen",
+      "log": "cache/i13-directory-root-bounded.log"
+    },
+    "correctedNativePropertyTest": {
+      "status": "passed",
+      "selected": 1,
+      "notSelected": 377,
+      "log": "cache/i13-new-row-design-page-green.log"
+    },
+    "currentRoot": {
+      "status": "passed before subsequent private array fix",
+      "files": 597,
+      "tests": 10256,
+      "seconds": 844.03,
+      "exitCode": 0,
+      "log": "cache/i13-directory-root-final.log",
+      "command": "pnpm run test:run --maxWorkers=4 --reporter=verbose"
+    },
+    "frontendBuild": {
+      "status": "passed after array fix",
+      "seconds": 5.5,
+      "log": "cache/i13-directory-p2-frontend-build.log"
+    },
+    "subsequentArrayFix": {
+      "status": "passed",
+      "files": 7,
+      "tests": 68,
+      "scope": "complete tests/app/services/smart-bid suite, including content/operation hashes and original draft writes",
+      "log": "cache/i13-smart-bid-sparse-green-all.log",
+      "redLog": "cache/i13-smart-bid-sparse-red.log",
+      "rootRerunAfterThisFix": false,
+      "packageSourcesChanged": false,
+      "newTestCasesAdded": 0
+    },
+    "currentVerify": {
+      "status": "passed after array fix",
+      "includes": [
+        "typecheck",
+        "whole-repository lint",
+        "all formal verification rules"
+      ],
+      "log": "cache/i13-directory-p2-verify.log"
+    }
+  },
+  "nativeServiceCrudEvidence": "notes/evidence/appworks-iteration-i13-directory-crud-native-20261117.json",
+  "nativeServiceCrud": {
+    "create": "confirmed and cold verified",
+    "update": "confirmed and cold verified",
+    "delete": "confirmed and cold verified absent",
+    "businessWrites": 3,
+    "cleaned": true,
+    "fileWrites": 0,
+    "metadataWrites": 0
+  },
+  "review": {
+    "result": "local Ready",
+    "mode": "independent read-only source review",
+    "scope": "native new-row/parent proof/SDK/metadata/directory changes; no independent UI run",
+    "arrayFix": "P2 independently re-reviewed and closed; local Ready"
+  },
+  "browserEvidence": "notes/evidence/appworks-iteration-i13-directory-browser-20261117.json",
+  "uiSmoke": false,
+  "full20PackageMigrationComplete": false,
+  "committed": false,
+  "pushed": false,
+  "afterFullRootChanges": {
+    "sourceAndTests": [
+      "src/services/smart-bid/content-node-hash.ts",
+      "tests/app/services/smart-bid/content-node-hash.test.ts",
+      "tests/app/services/smart-bid/content-tree-draft-editor.test.ts"
+    ],
+    "generatedArtifacts": "refreshed through official compiler after private implementation fix; no handwritten products"
+  },
+  "publicationStatus": "prepared; actual commit and push recorded after verification"
+}

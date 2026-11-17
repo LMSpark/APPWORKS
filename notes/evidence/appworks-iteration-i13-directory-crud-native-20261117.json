@@ -1,0 +1,105 @@
+{
+  "observedAt": "2026-11-17T02:12:35.963Z",
+  "scope": "isolated workflow directory native DataSet/DataView CRUD",
+  "flowModelId": "e55231789c344862a495403e2fa36221",
+  "sessionPersisted": false,
+  "fileWrites": 0,
+  "metadataWrites": 0,
+  "uiSmoke": false,
+  "stages": [
+    {
+      "stage": "create",
+      "status": "confirmed",
+      "unconfirmed": false,
+      "coldVerified": true
+    },
+    {
+      "stage": "update",
+      "status": "confirmed",
+      "unconfirmed": false,
+      "coldVerified": true
+    },
+    {
+      "stage": "delete",
+      "status": "confirmed",
+      "unconfirmed": false,
+      "coldVerified": true
+    }
+  ],
+  "preflight": true,
+  "cleaned": true,
+  "success": true,
+  "businessWrites": 3,
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetBaseData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/LoginAuthority/UserLoginByEnt",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    }
+  ]
+}

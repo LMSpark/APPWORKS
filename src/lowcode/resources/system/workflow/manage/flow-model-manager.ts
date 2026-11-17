@@ -5,6 +5,7 @@
  */
 import {DataViewFilter, type DataView, type DataRow, RequestState} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
+import {readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
 
 export type FlowModelListResult = Readonly<{
   unresolvedCreateUserIds: readonly string[]
@@ -48,11 +49,11 @@ export class WorkflowFlowModelManager {
     this.#assertCurrent()
     if (this.#view.loadingError) throw this.#view.loadingError
     if (this.#view.requestState !== RequestState.Loaded) throw new Error('流程模型列表尚未加载')
-    return this.#hydrateCreateUsers()
+    return this.#loadCreateUsers()
   }
 
   canAdd(): boolean {
-    return this.#view.fieldAccess(null, 'TITLE').write === 'allowed'
+    return this.#view.newRowFieldAccess('TITLE').write === 'allowed'
   }
 
   canEditRow(row: DataRow): boolean {
@@ -60,13 +61,19 @@ export class WorkflowFlowModelManager {
   }
 
   canDeleteRow(row: DataRow): boolean {
-    return this.canEditRow(row)
+    return this.#view.deleteActionState(row) === 'enabled'
   }
 
   async beginAdd(): Promise<void> {
     this.#assertCurrent()
     if (!this.canAdd()) throw new Error('当前不允许新增流程模型')
-    const row = await this.#view.addRow({})
+    const principal = readLowcodePrincipal()
+    if (!principal?.userId.trim()) throw new Error('流程模型新建缺少当前登录用户')
+    const now = new Date()
+    const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    const row = await this.#view.addRow({TITLE: '', MEMO: '', CRTUSER: principal.userId,
+      CRTDATE: date, STATE: '1', BusinessTable: '', sysid: principal.applicationId ?? ''})
+    this.#assertCurrent()
     if (!isRecord(row)) throw new Error('无法开始新增流程模型')
     this.#view.setCurrentRow(row)
   }
@@ -79,6 +86,18 @@ export class WorkflowFlowModelManager {
 
   async saveCurrent(): Promise<void> {
     this.#assertCurrent()
+    const current = this.#view.currentRow
+    const key = current && this.#view.getPkKey(current)
+    const row = key === null || key === undefined ? null : this.#view.getEditingRow(key)
+    if (!row || key === null || key === undefined) throw new Error('尚未选择要保存的流程模型')
+    const title = normalizeText(row['TITLE'])
+    if (!title) throw new Error('请输入流程名称')
+    if (this.#view.dirtyTracking.isPendingCreate(key) && !normalizeText(row['sysid'])) throw new Error('请选择应用系统')
+    for (const field of ['TITLE', 'MEMO']) {
+      if (typeof row[field] !== 'string') continue
+      const value = normalizeText(row[field])
+      if (row[field] !== value) this.#view.updateEditingValue(key, field, value)
+    }
     const dataSet = this.#view.dataSet
     if (!dataSet) throw new Error('流程模型 DataSet 已失效')
     const result = await dataSet.saveChanges({views:[{tableName:this.#view.tableName,viewId:this.#view.viewId}]})
@@ -109,38 +128,21 @@ export class WorkflowFlowModelManager {
     return firstTextByKeys(row, ['workFormId', 'WorkFormId', 'WORKFORMID'])
   }
 
-  async #hydrateCreateUsers(): Promise<FlowModelListResult> {
+  async #loadCreateUsers(): Promise<FlowModelListResult> {
     const userView = this.#userView
     if (!userView) return {unresolvedCreateUserIds: []}
-    const ids = [...new Set(this.#view.rows.map(row => normalizeText(firstTextByKeys(row, ['createuser', 'CRTUSER']))).filter(Boolean))]
+    const ids = [...new Set(this.#view.rows.filter(row => this.#view.fieldAccess(row, 'createuser').read === 'visible')
+      .map(row => normalizeText(row['createuser'])).filter(Boolean))]
     if (!ids.length) return {unresolvedCreateUserIds: []}
     const parsed = DataViewFilter.parse({
-      logic: 'or',
-      filters: [
-        {field: 'rowid', operator: 'in', value: ids},
-        {field: 'ID', operator: 'in', value: ids},
-      ],
+      field: 'rowid', operator: 'in', value: ids,
     })
     if (!parsed.ok) throw new Error('用户选项过滤无效')
     userView.filterExpression = parsed.value.toJSON()
     await userView.refresh()
+    this.#assertCurrent()
     if (userView.loadingError) throw userView.loadingError
-    const names = new Map<string, string>()
-    for (const row of userView.rows) {
-      const name = firstTextByKeys(row, ['UserName', 'username']) || firstTextByKeys(row, ['rowid', 'ID'])
-      const rowId = firstTextByKeys(row, ['rowid', 'ROWID'])
-      const id = firstTextByKeys(row, ['ID', 'Id'])
-      if (rowId) names.set(rowId, name)
-      if (id) names.set(id, name)
-    }
-    const unresolved: string[] = []
-    for (const row of this.#view.rows) {
-      const key = normalizeText(firstTextByKeys(row, ['createuser', 'CRTUSER']))
-      if (!key) continue
-      const mapped = names.get(key)
-      if (mapped) row['createuser'] = mapped
-      else unresolved.push(key)
-    }
-    return {unresolvedCreateUserIds: unresolved}
+    return {unresolvedCreateUserIds: ids.filter(id => userView.rows.filter(row =>
+      userView.fieldAccess(row, 'rowid').read === 'visible' && row['rowid'] === id).length !== 1)}
   }
 }

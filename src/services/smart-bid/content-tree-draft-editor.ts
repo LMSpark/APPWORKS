@@ -5,7 +5,7 @@
  */
 import type {DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {validateContentTreeStructure} from './content-tree-structure'
+import {validateContentDraftPayload} from './content-draft-save-rule'
 
 type Node = {nodeId: string; parentId: string; index: number; type: string; class: string[]; value: string; data: Record<string, unknown>}
 type ChapterInput = Readonly<{chapterId: string; headingId: string; title: string}>
@@ -44,8 +44,8 @@ export class ContentTreeDraftEditor {
         class: value['class'], value: value['value'], data: value['data']}
     })
     change(nodes)
-    const errors = validateContentTreeStructure({projectId: this.projectId, nodes})
-    if (errors.length) throw Error(`内容结构无效：${errors.join('；')}`)
+    // 正式载荷校验先于唯一写回；失败不污染原DataView编辑覆盖，也不重算/覆盖历史摘要。
+    validateContentDraftPayload({projectId: this.projectId, draft: {...draft, nodes}})
     const ordered: Node[] = []
     const visit = (parentId: string) => {
       for (const child of nodes.filter(item => item.parentId === parentId).sort((a, b) => a.index - b.index)) {

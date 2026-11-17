@@ -167,7 +167,7 @@ describe('native view definitions through the designer DataSet', () => {
         resourceFieldId: field.id, resourceField: field.canonicalName, viewField: field.canonicalName,
         type: field.type, label: field.description, output: true, sortOrder: field.order, sortDirection: null,
         group: 0, distinct: false, primaryKey: field.primaryKey, value: '', valueFunction: '', expression: ''})),
-      queryContext: {parentIds: [1, 2], active: false}, page: 2, pageSize: 25,
+      newRowFields: ['label'], queryContext: {parentIds: [1, 2], active: false}, page: 2, pageSize: 25,
       queryConfig: {outputType: 'SelfRefData', tree: {keyField: 'id', parentField: 'label', nodeId: 'root', mode: 'child' as const}, allPages: false, maxRows: 100},
       autoCurrentFirst: false, autoSelectFirst: false, autoLoad: false,
       filterExpression: {field: 'id', operator: 'eq' as const, value: '1'}, scopeFilter: {field: 'label', operator: 'ne' as const, value: 'x'}, sortExpression: [{field: 'label', direction: 'asc' as const}],
@@ -202,6 +202,7 @@ describe('native view definitions through the designer DataSet', () => {
     {treeConfig: {idField: 'missing'}}, {treeConfig: {parentIdField: 'missing'}}, {treeConfig: {textField: 'missing'}},
     {aggregates: {bad: {type: 'count', field: 'missing'}}}, {aggregates: {unknownTotal: {type: 'sum'}}},
     {queryConfig: {outputType: 'Table', fields: ['missing']}},
+    {newRowFields: ['missing']}, {newRowFields: ['id']},
   ])('rejects invalid native field references on save and retains them for cancellation: %j', async configuration => {
     const f = fixture(), {session, view, key} = await openNative(f)
     try {

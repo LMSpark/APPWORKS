@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-17",
+  "scope": "Content/operation payload hashing and diagnostic verification; not overall SmartBid acceptance",
+  "production": "src/services/smart-bid/content-node-hash.ts",
+  "focused": {
+    "hashCases": 16,
+    "hashFiles": 2,
+    "result": "passed",
+    "lint": "passed",
+    "logs": ["cache/smart-bid-operation-hash-red.log", "cache/smart-bid-operation-hash-green.log", "cache/smart-bid-operation-hash-lint.log"]
+  },
+  "earlierFullChain": {
+    "handle": 99134,
+    "terminalExit": 1,
+    "verify": "passed",
+    "build": "passed, 5.34s",
+    "rootFiles": {"passed": 592, "failed": 2, "total": 594},
+    "rootTests": {"passed": 10229, "failed": 2, "total": 10231},
+    "durationSeconds": 807.70,
+    "failures": [
+      {"file": "tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts", "case": "creates two named views through standard controls and reopens their independent requests and pages", "error": "Test timed out in 15000ms"},
+      {"file": "tests/runtime/page/design/native/data-space-view-parameter-input.test.ts", "case": "keeps the selected named view identity through a late field-directory response and saves/restores only that property", "error": "Test timed out in 15000ms"}
+    ],
+    "sourceBoundary": "Operation hash additions and other tasks' shared new-row changes occurred after this chain started. It does not prove the final source snapshot."
+  },
+  "failureIsolation": {
+    "originalTimeoutPreserved": true,
+    "testsUnmodified": true,
+    "selectedCases": "2 passed, 29 skipped, maxWorkers=1",
+    "completeFiles": "2 files / 31 tests passed, maxWorkers=1, 36.79s",
+    "logs": ["cache/smart-bid-full-failure-isolation.log", "cache/smart-bid-full-failure-files.log"],
+    "interpretation": "Current focused runs did not reproduce the timeouts. Resource competition is a hypothesis; original full failures are preserved, not reclassified as passing."
+  },
+  "latestGeneration": {"handle": 91282, "seconds": 43.517, "result": "passed"},
+  "latestTypecheck": {
+    "result": "failed, exit 2",
+    "errors": [
+      "ScenarioViewConfig exhaustive view-property map lacks shared newRowFields",
+      "lowcode-data-space-view-design test exhaustive ViewMetadata sample lacks shared newRowFields"
+    ],
+    "boundary": "Shared new-row implementation is in progress in another task. No claim of current full typecheck success; no competing patch applied to its files."
+  },
+  "draftCommandIntegration": {
+    "consumer": "ContentTreeDraftEditor.edit invokes canonicalContentNode after structure validation and before its sole updateEditingValue call",
+    "red": "New regression first failed because invalid numeric payload did not throw",
+    "green": "All SmartBid service tests: 7 files / 66 cases passed; relevant lint passed",
+    "cases": "Numeric business data, NFC-colliding keys, Date, undefined, invalid Unicode and cyclic data reject; native editing overlay and original query rows remain unchanged",
+    "logs": ["cache/smart-bid-draft-payload-red.log", "cache/smart-bid-draft-payload-green.log", "cache/smart-bid-draft-payload-lint.log"],
+    "boundary": "This validates editor commands only. Direct standard-component editing, actual WorkingDraft resource save/reopen and formal adoption require their own binding/validation and acceptance. No query/save/permission channel was added."
+  },
+  "nativeSaveRuleIntegration": {
+    "production": "src/services/smart-bid/content-draft-save-rule.ts",
+    "contract": "DataTable.setQuerySaveRule, dependencies projectId and draft, synchronous native save preflight",
+    "classModel": "Formal generation 35.941s, followed by DataTable catalog, member summary and setQuerySaveRule guide; cache/smart-bid-draft-save-rule-guides.json",
+    "reuse": "Editor commands and native save rule call the same validateContentDraftPayload; no second query, draft state, permission or save owner",
+    "mountEvidence": "Actual RendererForm/r-json edit -> original DataView overlay -> DataSet.saveChanges rejects invalid Unicode before save owner dispatch; correcting input reaches an intentionally failing test dispatch probe",
+    "negativeEvidence": "Orphan structure and wrong bound project reject before dispatch; original row and rejected editing value retained",
+    "tests": "7 files / 67 tests passed before the final added structure/project case; latest complete affected 2 files / 11 tests passed. Counts overlap and are not added.",
+    "logs": ["cache/smart-bid-draft-save-rule-red.log", "cache/smart-bid-draft-save-rule-green.log", "cache/smart-bid-draft-save-rule-native.log", "cache/smart-bid-draft-save-rule-lint.log"],
+    "boundary": "Host must register this factory on the actual project WorkingDraft DataTable instance. The mounted fixture proves native binding semantics, not an existing production host/resource, save receipt, conflict control or adoption. The rule covers content structure/payload only; independent responses and other WorkingDraft rules remain separate."
+  },
+  "delivery": "Not committed/pushed. Production host, WorkingDraft persistence, authority, adoption and full I0-I7 remain incomplete."
+}

@@ -52,7 +52,7 @@
         @cancel="closeObjectRegister" @confirm="confirmObjectRegister" @verify="verifyObjectRegister"
         @discard-pending="discardPendingObjectRegister" />
       <AddTableDialog v-if="tableEditing"
-        :table-key="tableKey" :database-label="selectedDatabaseLabel" :editing="tableEditing"
+        :table-key="tableKey" :fields="tableCreateFormFields" :database-label="selectedDatabaseLabel" :editing="tableEditing"
         :busy="busy" :action-error="actionError" :unregistered-hint="unregisteredTableHint"
         :can-load-unregistered="canLoadUnregisteredTables"
         @cancel="cancelTableRegister" @save="saveTableRegister" @load-unregistered="loadUnregisteredTableNames" />
@@ -181,6 +181,7 @@ import {
   databaseCatalogDbSelectedId,
   databaseCatalogQueryUnregisteredTableNames,
   databaseCatalogTableBeginCreate,
+  databaseCatalogTableCreateFormFields,
   databaseCatalogTableCancelEdit,
   databaseCatalogTableCanCreate,
   databaseCatalogTableEditing,
@@ -517,6 +518,7 @@ const activeFieldParentSelected = computed(() => {
 
 const dbListError = computed(() => {revision.value; return dbView.value?.loadingError?.message ?? ''})
 const tableEditing = computed(() => {revision.value; const v = tableView.value; return v ? databaseCatalogTableEditing(v, tableEdit.value) : undefined})
+const tableCreateFormFields = computed(() => {revision.value; return tableView.value ? databaseCatalogTableCreateFormFields(tableView.value) : []})
 const selectedDatabaseLabel = computed(() => {
   revision.value
   const view = dbView.value

@@ -7,22 +7,23 @@
   <RendererSection class="flow-model-page" title="流程模型列表" :bordered="false" :grid-columns="1" :grid-gap="16"
     :status="loading ? '正在读取流程模型…' : ''" :error="error || listError" :retryable="!loading && !ready" @retry="loadCurrentRoute">
     <template v-if="ready" #header-actions>
-      <RendererButton label="新建" button-type="primary" icon="Plus" :disabled="busy || !manager?.canAdd()" @click="beginAdd" />
-      <RendererButton :data-view-key="viewKey" label="刷新" action="refresh" :disabled="busy" />
+      <RendererButton label="新建" button-type="primary" icon="Plus" :disabled="busy || !!editing || !manager?.canAdd()" @click="beginAdd" />
+      <RendererButton :data-view-key="viewKey" label="刷新" action="refresh" :disabled="busy || !!editing" />
     </template>
     <DisplayAlert v-if="createUserWarning" alert-type="warning" :closable="false" :show-icon="true" :title="createUserWarning" />
     <RendererTable v-if="ready" :data-view-key="viewKey" :children="columns" :filter="filter" :actions="actions"
       :stripe="true" :show-row-index="true" :show-data-view-meta="false"
       :pagination="{pageSizes: [10, 15, 20, 50], showJumper: true}" />
     <RendererDialog v-if="editing" :model-value="true" :data-view-key="viewKey" :title="editing === 'add' ? '新增流程' : '编辑流程'"
-      :width="680" :close-disabled="busy" @update:model-value="cancelEdit">
+      :width="680" :close-disabled="busy || hasUnconfirmedSave()" @update:model-value="cancelEdit">
       <RendererForm :data-view-key="viewKey" context-data-member="currentRow" label-width="88px" :grid-columns="1" :show-data-view-meta="false">
-        <FieldSelect v-if="editing === 'add'" field="sysid" label="应用系统" :option-data-view-key="appKey" :filterable="true" clearable />
-        <FieldText field="TITLE" label="流程名称" :maxlength="200" />
-        <FieldTextarea field="MEMO" label="备注" :autosize="{minRows: 4}" :maxlength="500" />
+        <FieldSelect v-if="editing === 'add'" field="sysid" label="应用系统" :option-data-view-key="appKey"
+          option-value-field="rowid" option-label-field="AppDesc" :filterable="true" clearable />
+        <FieldText field="TITLE" label="流程名称" />
+        <FieldTextarea field="MEMO" label="备注" :autosize="{minRows: 4}" />
       </RendererForm>
       <template #footer>
-        <RendererButton label="取消" :disabled="busy" @click="cancelEdit" />
+        <RendererButton label="取消" :disabled="busy || hasUnconfirmedSave()" @click="cancelEdit" />
         <RendererButton label="保存" button-type="primary" :disabled="busy" @click="saveEdit" />
       </template>
     </RendererDialog>
@@ -51,7 +52,6 @@ const {sparkConsume} = useSparkComponent({type: 'flow-model-list-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'flow-model-list-page')
 const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName, componentType: 'flow-model-list-page', title: '流程模型列表',
-  optionModels: ['Base_UserInfo'],
   optionViews: [buildDataViewKey('Base_AppSystemList', 'default', FLOW_DESIGN_SCENARIO_ID)],
   peerScenarioIds: [FLOW_DESIGN_SCENARIO_ID],
 })
@@ -66,7 +66,8 @@ let generation = 0
 const columns: SparkNode[] = [
   {type: 'r-select', props: {field: 'sysid', label: '应用系统', readonly: true, minWidth: 160, sortable: false, optionDataViewKey: appKey, optionValueField: 'rowid', optionLabelField: 'AppDesc'}},
   {type: 'r-text', props: {field: 'TITLE', label: '流程名称', readonly: true, minWidth: 220, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'createuser', label: '创建人', readonly: true, minWidth: 120, showOverflowTooltip: true}},
+  {type: 'r-select', props: {field: 'createuser', label: '创建人', readonly: true, minWidth: 120, showOverflowTooltip: true,
+    optionDataViewKey: userKey, optionValueField: 'rowid', optionLabelField: 'UserName'}},
   {type: 'r-text', props: {field: 'CRTDATE', label: '创建时间', readonly: true, minWidth: 170, showOverflowTooltip: true}},
   {type: 'r-text', props: {field: 'MEMO', label: '备注', readonly: true, minWidth: 240, showOverflowTooltip: true}},
 ]
@@ -117,17 +118,22 @@ watch([ready, viewKey], () => { void bindManager() }, {immediate: true})
 onBeforeUnmount(() => { generation++ })
 
 async function beginAdd(): Promise<void> {
-  try { await manager.value?.beginAdd(); editing.value = 'add' } catch (cause) { listError.value = String(cause) }
+  try {
+    if (!manager.value) throw new Error('流程模型目录尚未就绪')
+    await manager.value.beginAdd(); editing.value = 'add'; listError.value = ''
+  } catch (cause) { listError.value = String(cause) }
 }
 function beginEdit(row: DataRow): void {
   try { manager.value?.beginEdit(row); editing.value = 'edit' } catch (cause) { listError.value = String(cause) }
 }
 function cancelEdit(): void {
-  editing.value = null
   const view = listView()
+  if (busy.value || view.hasUnconfirmedSave) {listError.value = '保存结果尚待核实，请先核实原次保存结果'; return}
   view.discardPendingChanges()
   view.setCurrentRow(null)
+  editing.value = null
 }
+function hasUnconfirmedSave(): boolean {return session.runtime?.resolveView(viewKey.value)?.hasUnconfirmedSave === true}
 async function saveEdit(): Promise<void> {
   busy.value = true
   try { await manager.value?.saveCurrent(); editing.value = null } catch (cause) { listError.value = String(cause) }

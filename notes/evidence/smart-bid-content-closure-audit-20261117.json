@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-17",
+  "failedChain": {
+    "handle": 41824,
+    "logsPrefix": "cache/smart-bid-content-closure-",
+    "terminalExit": 1,
+    "generationSeconds": 48.127,
+    "consumerContracts": "generated through official generator",
+    "verify": "passed, including original type/lint/consumer gates",
+    "build": "passed, 5.99s",
+    "root": "failed with native Zone Allocation out-of-memory; no complete root test totals",
+    "shellFailure": "System.OutOfMemoryException launching node.exe was also reported by the original execution handle",
+    "packages": "not completed",
+    "finalSourceSnapshot": "not reached; no final unchanged-source claim"
+  },
+  "resourceAudit": {
+    "physicalMemoryKiB": 33338800,
+    "freePhysicalMemoryKiB": 9206460,
+    "virtualCommitLimitKiB": 59459684,
+    "freeVirtualMemoryKiB": 12341660,
+    "boundary": "Point-in-time post-failure observation, not a measurement of peak failure-time consumption"
+  },
+  "existingControlledRun": {
+    "pid": 26600,
+    "startLocal": "2026-11-17 10:23:56 +08:00",
+    "command": "vitest run --maxWorkers=2",
+    "log": "cache/i13-directory-root-bounded.log",
+    "observed": "Live main process and owned workers confirmed after the failed four-worker run terminated",
+    "decision": "Do not start another full-root run concurrently; preserve original assertions/timeouts. Await its actual terminal evidence and source scope before reusing any result.",
+    "fallback": "If another root run is required, execute all native shards serially with one worker and verify file-set union against Vitest list. This fallback has not been dispatched or claimed passing."
+  },
+  "stableSmokeEntry": {
+    "url": "http://127.0.0.1:5274/",
+    "command": "vite preview --host 127.0.0.1 --port 5274 --strictPort",
+    "handle": 72945,
+    "pid": 17804,
+    "binding": "127.0.0.1 only",
+    "contract": "Installed Vite resolvePreviewOptions inherits server.proxy; original configured lowcode gateway is reused. No Java or business Node service added.",
+    "browser": "Native existing-account login succeeded, existing bid_working_draft visible in same database directory; static preview tab retained, old no-draft developer tab closed",
+    "boundary": "Not a production deployment or business save/adoption acceptance; no WorkingDraft business field writes in this audit."
+  }
+}

@@ -216,6 +216,15 @@ async function setupNewRowQuery(options: {
 }
 
 describe('DataView editing checkpoints', () => {
+  it('does not turn configured new-row fields into permission when the query owner lacks its input hook', async () => {
+    const {view} = await setupNewRowQuery()
+    view.newRowFields = ['title']
+    await view.refresh()
+    expect(view.newRowFieldAccess('title').write).toBe('denied')
+    await expect(view.addRow({title: 'not granted'})).rejects.toThrow('DATA_VIEW_NEW_ROW_FIELD_UNKNOWN')
+    expect(view.rows.map(row => row['id'])).toEqual(['1'])
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
   it('cancels a dialog overlay on a stable staged new row without dropping the creation', async () => {
     const view = setup()
     await view.addRow({id: 3, name: 'new', note: ''})

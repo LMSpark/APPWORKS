@@ -33,5 +33,23 @@
     "doesNotProve": "Deployed service behavior, authoritative adoption, server-wide absence of an alternate registered capability, storage constraints, concurrency or cross-terminal request recovery"
   },
   "implementationBoundary": "Do not implement action 39 by frontend preflight followed by generic head updates and call it authoritative adoption. A verified domain capability or validated storage arrangement must prove the full commit contract. Continue independent manual editing, canonicalization and preview work while preserving this gap.",
-  "backendChanges": "None; Java sources were only read. No local Java service or Node business service was started."
+  "backendChanges": "None; Java sources were only read. No local Java service or Node business service was started.",
+  "procedureAlternativeResearch": {
+    "date": "2026-11-17",
+    "sourceOnly": true,
+    "observations": [
+      "BasicFunController declares POST /CallProcedure; BasicFunServiceImpl.CallProcedure uses the first Table item, ordered inputParams.Value (fallback ValueFun.Value), and IsOutput field names.",
+      "CrudServiceImpl.callProcedure validates the procedure identifier and delegates to Anyline Procedure inputs/outputs. A database-owned routine could in principle contain transactional checks, but its existence and deployed availability are unverified.",
+      "The inspected verifyTableParam derives enterprise/database routing from authenticated RequestContext userInfo. The inspected procedure input list does not automatically inject the authenticated user identity or an adoption authority attestation.",
+      "No CallProcedure binding was found in the inspected current spark-lowcode-api sources. It is not an existing confirmed SPARK data resource adapter for this application."
+    ],
+    "unprovedRequirements": [
+      "Actual deployed endpoint and an authorized routine-design/publish contract on spark_bid",
+      "Trusted actor and project/scope authority at the atomic commit point; a caller-supplied userId is insufficient",
+      "Expected-head and draft-version checks, same-key/digest original-result lookup, atomic multi-record effects and recovery",
+      "Native DataSet/DataView command resource binding and positive/negative live acceptance"
+    ],
+    "actions": "Read source only. No routine was created or invoked, no guessed request protocol was added, no database/Java/service mutation was performed.",
+    "conclusion": "Do not infer that all server-side transactional arrangements are absent from generic CRUD limitations. This is a candidate for further contract verification, not an implemented or authorized adoption path."
+  }
 }

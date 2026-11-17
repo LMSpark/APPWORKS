@@ -1198,6 +1198,12 @@
         "queryContext": {
           "$ref": "types.ts.json#/$defs/DataViewQueryContext"
         },
+        "newRowFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "queryConfig": {
           "type": "object",
           "title": "NonNullable<ViewMetadata['queryConfig']>"
@@ -1529,6 +1535,7 @@
         "viewId",
         "fieldProjection",
         "queryContext",
+        "newRowFields",
         "queryConfig",
         "rows",
         "validateQueryResult",
@@ -3300,7 +3307,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T18:37:52.006Z",
+  "generatedAt": "2026-11-17T01:47:55.586Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -4978,6 +4985,12 @@
             {
               "name": "queryContext",
               "jsdoc": "每次查询的输入参数；与私有的结果权限上下文分离。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "newRowFields",
+              "jsdoc": "普通新行的完整输入范围；不改变columns或既有行权限。配置改变使原查询失效，未保存/未知提交不能被替换。",
               "readable": true,
               "writable": true
             },

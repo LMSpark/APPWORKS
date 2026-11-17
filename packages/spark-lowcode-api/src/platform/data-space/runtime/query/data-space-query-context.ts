@@ -60,6 +60,8 @@ type DataSpaceQueryContextOptions = Readonly<{
   readChild?: (parent: DataSpaceRow | null, modelName: string) => DataSpaceQueryContext
   /** 本次正式输出列；不修改共享模型字段。 */
   columns?: readonly DataColumn[]
+  /** 原正式视图捕获的完整普通新行输入范围，不改变输出列和原行读取授权。 */
+  newRowFields?: readonly string[]
 }>
 
 function canonicalKey(value: unknown): string {
@@ -99,6 +101,7 @@ export class DataSpaceQueryContext {
   readonly #missingAuthPolicy: DataSpaceQueryContextOptions['missingAuthPolicy']
   readonly #readonlyKind: 'join' | 'navigation' | 'hierarchy' | undefined
   readonly #columns: readonly DataColumn[] | undefined
+  readonly #newRowFields: readonly string[] | undefined
   readonly #rows: readonly DataSpaceRow[]
   readonly #permissions = new Map<string, DataSpaceRowPermission | null>()
   readonly #rowPermissions = new WeakMap<DataSpaceRow, DataSpaceRowPermission>()
@@ -122,6 +125,7 @@ export class DataSpaceQueryContext {
     this.#missingAuthPolicy = options.missingAuthPolicy ?? (this.#readonlyKind ? 'visible-readonly' : undefined)
     this.#columns = options.columns === undefined ? undefined
       : Object.freeze(options.columns.map(column => Object.freeze(structuredClone(column))))
+    this.#newRowFields = options.newRowFields === undefined ? undefined : Object.freeze([...options.newRowFields])
     this.#rows = Object.freeze(options.snapshot.rows.map((row, index) => {
       const permission = new DataSpaceRowPermission({ row,
         ...(this.#missingAuthPolicy === undefined ? {} : { missingAuthPolicy: this.#missingAuthPolicy }) })
@@ -151,6 +155,9 @@ export class DataSpaceQueryContext {
 
   public bindFormalModel(model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, options: Readonly<{aggregateResult?: boolean}> = {}): void {
     this.assertIdentity({scenarioId: this.#identity.scenarioId, metaName: model.metaName})
+    if (this.#newRowFields !== undefined) {
+      DataSpaceDesignApi.resolveNewRowFields(model, this.#newRowFields)
+    }
     const key = model.primaryKey === '' ? undefined : DataSpaceDesignApi.resolveOutputFields(model)
       .find(field => field.canonicalName === model.primaryKey && field.primaryKey)
     // 字典等来源的查询回执不报告主键，此时以正式模型主键为准；只拒绝回执报告了不同主键的情况。
@@ -193,6 +200,7 @@ export class DataSpaceQueryContext {
     const next = new DataSpaceQueryContext({identity: this.#identity, snapshot: this.#snapshot, scope: this.#scope,
       readScope: () => {this.assertCurrent(); return this.#readScope()}, nextPageAvailable: value,
       ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      ...(this.#newRowFields === undefined ? {} : {newRowFields: this.#newRowFields}),
       ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})})
     if (this.#model) next.bindFormalModel(this.#model)
     return next
@@ -234,6 +242,7 @@ export class DataSpaceQueryContext {
     const next = new DataSpaceQueryContext({identity: this.#identity,
       snapshot: Object.freeze({...snapshot, countReported: this.#snapshot.countReported}), scope: this.#scope, readScope: this.#readScope,
       resultKind: this.#readonlyKind ?? 'entity', ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      ...(this.#newRowFields === undefined ? {} : {newRowFields: this.#newRowFields}),
       ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})})
     if (this.#model) next.bindFormalModel(this.#model)
     next.markSavedRowsPending([...this.#pendingSavedRowKeys].filter(key => !expected.has(key)))
@@ -251,6 +260,7 @@ export class DataSpaceQueryContext {
     if (!keyField || queried.#scope !== this.#scope || queried.keyField !== keyField || this.#readonlyKind || queried.#readonlyKind
       || this.#aggregateResult || queried.#aggregateResult || this.#readChild || queried.#readChild
       || JSON.stringify(queried.#model) !== JSON.stringify(this.#model) || JSON.stringify(queried.#columns) !== JSON.stringify(this.#columns)
+      || JSON.stringify(queried.#newRowFields) !== JSON.stringify(this.#newRowFields)
       || (queried.#snapshot.primaryKey !== '' && this.#snapshot.primaryKey !== '' && queried.#snapshot.primaryKey !== this.#snapshot.primaryKey)) {
       throw new Error('SPARK_APPEND_SCOPE: 增量查询身份、模型或结果类型与原基线不一致')
     }
@@ -277,6 +287,7 @@ export class DataSpaceQueryContext {
     const next = new DataSpaceQueryContext({identity: this.#identity,
       snapshot: Object.freeze({...snapshot, countReported: this.#snapshot.countReported}), scope: this.#scope, readScope: this.#readScope,
       resultKind: 'entity', ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      ...(this.#newRowFields === undefined ? {} : {newRowFields: this.#newRowFields}),
       ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})})
     if (this.#model) next.bindFormalModel(this.#model)
     next.markSavedRowsPending(this.#pendingSavedRowKeys)
@@ -300,6 +311,20 @@ export class DataSpaceQueryContext {
   public get total(): number { this.assertCurrent(); return this.#snapshot.total }
   public get countReported(): boolean { this.assertCurrent(); return this.#snapshot.countReported }
   public get allowAdd(): boolean { this.assertCurrent(); return this.keyField === '' ? false : this.#snapshot.allowAdd }
+
+  /** 新行只显示本地输入；正式行读取仍由原输出和逐行权限决定，范围本身不授予新增许可。 */
+  public newRowFieldAccess(fieldName: string): Pick<DataSpaceFieldAccess, 'read' | 'write' | 'required'> {
+    this.assertCurrent()
+    const fields = this.#model && (this.#newRowFields === undefined
+      ? DataSpaceDesignApi.resolveOutputFields(this.#model) : DataSpaceDesignApi.resolveFields(this.#model))
+    const field = fields?.find(candidate => candidate.canonicalName === fieldName)
+    const supported = this.#newRowFields === undefined
+      ? this.#model === undefined || field !== undefined
+      : this.#newRowFields.includes(fieldName) && field !== undefined
+    const allowed = supported && !field?.computed && !field?.primaryKey && this.allowAdd
+      && !this.#readonlyKind && !this.#aggregateResult
+    return {read: supported ? 'visible' : 'invisible', write: allowed ? 'allowed' : 'denied', required: false}
+  }
 
   public prepareNewRow(input: DataSpaceRow): Record<string, unknown> {
     this.assertCurrent()
@@ -481,7 +506,8 @@ export class DataSpaceQueryContext {
 
   private canonicalReceiptRow(row: DataSpaceRow): DataSpaceSaveRow {
     if (!this.#model) return this.consumerSaveRow(row)
-    const outputFields = DataSpaceDesignApi.resolveOutputFields(this.#model)
+    const outputFields = this.#newRowFields === undefined ? DataSpaceDesignApi.resolveOutputFields(this.#model)
+      : DataSpaceDesignApi.resolveFields(this.#model)
     const result: DataSpaceSaveRow = {}
     for (const [name, value] of Object.entries(row)) {
       if (name === '_pk' || name.startsWith('lingma_sys_')) continue
@@ -498,6 +524,10 @@ export class DataSpaceQueryContext {
     delete copy['_pk']
     delete copy['lingma_sys_key']
     delete copy['lingma_sys_params']
+    if (this.#newRowFields !== undefined && this.#model) {
+      const outputs = new Set(DataSpaceDesignApi.resolveOutputFields(this.#model).map(field => field.canonicalName))
+      for (const field of Object.keys(copy)) if (!outputs.has(field)) Reflect.deleteProperty(copy, field)
+    }
     return copy
   }
 
@@ -524,6 +554,7 @@ export class DataSpaceQueryContext {
       snapshot: Object.freeze({ ...snapshot, countReported: this.#snapshot.countReported }),
       scope: this.#scope, readScope: this.#readScope,
       resultKind: this.#readonlyKind ?? 'entity', ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      ...(this.#newRowFields === undefined ? {} : {newRowFields: this.#newRowFields}),
       ...(this.#missingAuthPolicy === undefined ? {} : { missingAuthPolicy: this.#missingAuthPolicy }) })
     if (this.#model) context.bindFormalModel(this.#model)
     context.markSavedRowsPending([...this.#pendingSavedRowKeys].filter(key => !deleted.has(key)))
@@ -585,7 +616,8 @@ export class DataSpaceQueryContext {
     delete copy['_pk']
     delete copy['lingma_sys_key']
     delete copy['lingma_sys_params']
-    let token: unknown = mode === 'add' ? this.addCredential(copy) : this.#snapshot.systemKey
+    const addition = mode === 'add' ? this.addCredential(copy) : undefined
+    let token: unknown = addition === undefined ? this.#snapshot.systemKey : addition.token
     if (mode !== 'add') {
       const key = canonicalKey(this.rowKeyValue(copy))
       if (!key) return copy
@@ -595,7 +627,9 @@ export class DataSpaceQueryContext {
       token = originals[0]?.['lingma_sys_key']
     }
     const wire: DataSpaceSaveRow = {}
-    const outputFields = this.#model ? DataSpaceDesignApi.resolveOutputFields(this.#model) : undefined
+    const outputFields = this.#model ? mode === 'add' && this.#newRowFields !== undefined && addition?.child !== true
+      ? DataSpaceDesignApi.resolveFields(this.#model).filter(field => field.primaryKey || this.#newRowFields?.includes(field.canonicalName))
+      : DataSpaceDesignApi.resolveOutputFields(this.#model) : undefined
     for (const [name, value] of Object.entries(copy)) {
       if (!this.#model) { wire[name] = value; continue }
       const field = outputFields?.find(candidate => candidate.canonicalName === name)
@@ -614,15 +648,15 @@ export class DataSpaceQueryContext {
   }
 
   /** 正式自引用父字段决定根/子新增；子行只回放唯一原父行的 c 凭据，不用表令牌兼容分支。 */
-  private addCredential(row: DataSpaceRow): unknown {
+  private addCredential(row: DataSpaceRow): Readonly<{token: unknown; child: boolean}> {
     const model = this.#model
-    if (model === undefined) return this.#snapshot.systemKey
+    if (model === undefined) return {token: this.#snapshot.systemKey, child: false}
     const read = (name: string): unknown => {
       const key = Object.keys(model.raw).find(fieldName => fieldName.toLowerCase() === name.toLowerCase())
       return key === undefined ? undefined : model.raw[key]
     }
     const declared = canonicalKey(read('ParentField'))
-    if (!declared) return this.#snapshot.systemKey
+    if (!declared) return {token: this.#snapshot.systemKey, child: false}
     const parents = DataSpaceDesignApi.resolveOutputFields(model)
       .filter(field => field.name.toLowerCase() === declared.toLowerCase())
     const parentField = parents[0]
@@ -634,7 +668,7 @@ export class DataSpaceQueryContext {
     const topValue = read('TopValue')
     if (parentValue === undefined || parentValue === null || String(parentValue).trim() === ''
       || (topValue !== undefined && topValue !== null && String(parentValue) === String(topValue))) {
-      return this.#snapshot.systemKey
+      return {token: this.#snapshot.systemKey, child: false}
     }
     const key = canonicalKey(parentValue)
     if (canonicalKey(this.rowKeyValue(row)) === key) throw new Error('SPARK_CHILD_ADD_PARENT: 新增行不能以自身为父行')
@@ -645,7 +679,7 @@ export class DataSpaceQueryContext {
     }
     const token = parent['lingma_sys_key']
     if (typeof token !== 'string' || !token.trim()) throw new Error('SPARK_CHILD_ADD_PARENT: 原查询父行缺少凭据')
-    return token
+    return {token, child: true}
   }
 
   private rowAction(keyValue: unknown, available: boolean, action: 'edit' | 'delete' | 'child'): DataSpaceActionState {

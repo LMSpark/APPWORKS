@@ -68,11 +68,19 @@ it('reports actual reference owners and dangling candidate targets without claim
  expect(result.linkChecks).toContainEqual({snapshot:'CURRENT',ownerNodeId:'A',path:['data','后文'],kind:'xref',targetNodeId:'C',targetExists:true})
  expect(result.linkChecks).toContainEqual({snapshot:'CANDIDATE',ownerNodeId:'A',path:['data','后文'],kind:'xref',targetNodeId:'C',targetExists:false})
  expect(result.requiresExternalReferenceChecks).toBe(true)
- expect(result.nodes.find(n=>n.nodeId==='C')?.deletionReferenceCheck).toBe('REQUIRED')
+ expect(result.nodes.find(n=>n.nodeId==='C')).toMatchObject({
+  deletionReferenceCheck:'REFERENCED',referencedBy:['A'],conflicts:['REFERENCED_DELETE'],
+ })
+})
+it('blocks candidate deletion when the current version added an incoming reference',()=>{
+ const current=tree().map(n=>n.nodeId==='A'?{...n,value:'见{{后文}}',data:{后文:{type:'page',nodeId:'C'}}}:n)
+ const result=compareContentTreeSnapshots({projectId:'P',basis:tree(),current,candidate:tree().filter(n=>n.nodeId!=='C')})
+ expect(result.nodes.find(n=>n.nodeId==='C')).toMatchObject({referencedBy:['A'],conflicts:['REFERENCED_DELETE']})
 })
 it('does not report a dangling reference when the candidate removes its binding too',()=>{
  const basis=tree().map(n=>n.nodeId==='A'?{...n,value:'见{{后文}}',data:{后文:{type:'page',nodeId:'C'}}}:n)
  const result=compareContentTreeSnapshots({projectId:'P',basis,current:basis,candidate:tree().filter(n=>n.nodeId!=='C')})
  expect(result.linkChecks.filter(link=>link.snapshot==='CANDIDATE')).toEqual([])
  expect(result.linkChecks.filter(link=>link.snapshot==='CURRENT')).toHaveLength(1)
+ expect(result.nodes.find(n=>n.nodeId==='C')?.deletionReferenceCheck).toBe('REQUIRED')
 })

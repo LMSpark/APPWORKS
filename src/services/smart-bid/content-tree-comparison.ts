@@ -64,13 +64,11 @@ function childIds(tree:ReadonlyMap<string,Entry>,parentId:string):string[] {
   .sort((a,b)=>a.index-b.index).map(node=>node.nodeId)
 }
 
-/** 所有输入树先核结构，再按稳定身份比较；删除引用保持待核，不能据缺失索引放行。 */
+/** 先核完整树，再识别仍足以阻断删除的内部引用；外部引用继续待核。 */
 export function compareContentTreeSnapshots(input:ContentTreeComparisonInput):ContentTreeComparison {
  const {projectId}=input,aliases=new Map<string,string>()
  const basis=readTree(input.basis,projectId,aliases),current=readTree(input.current,projectId,aliases),candidate=readTree(input.candidate,projectId,aliases)
  const ids=[...new Set([...basis.keys(),...current.keys(),...candidate.keys()])].sort()
- const nodes=ids.map(id=>compareContentNodeVersions({basis:basis.get(id)?.payload??null,
-  current:current.get(id)?.payload??null,candidate:candidate.get(id)?.payload??null}))
  const parents=new Set<string>()
  for(const tree of [basis,current,candidate])for(const entry of tree.values())parents.add(entry.structure.parentId)
  const siblings=[...parents].sort().map(parentId=>compareContentSiblingOrder({parentId,
@@ -85,6 +83,21 @@ export function compareContentTreeSnapshots(input:ContentTreeComparisonInput):Co
   for(const link of inspection.links)linkChecks.push({...link,snapshot,targetExists:tree.has(link.targetNodeId)})
   if(inspection.requiresTableGeneratorCheck)tableGeneratorChecks.push({snapshot,nodeId:id})
  }
+ const linkIdentity=(link:ContentNodeLink)=>JSON.stringify([link.ownerNodeId,link.kind,link.path,link.targetNodeId])
+ const basisLinks=new Set(linkChecks.filter(link=>link.snapshot==='BASIS').map(linkIdentity))
+ const inbound=new Map<string,Set<string>>()
+ for(const link of linkChecks){
+  const {targetNodeId}=link
+  if(!basis.has(targetNodeId)||!current.has(targetNodeId)||candidate.has(targetNodeId))continue
+  if(link.snapshot!=='CANDIDATE'&&(link.snapshot!=='CURRENT'||basisLinks.has(linkIdentity(link))))continue
+  const owners=inbound.get(targetNodeId)??new Set<string>()
+  owners.add(link.ownerNodeId);inbound.set(targetNodeId,owners)
+ }
+ const nodes=ids.map(id=>{
+  const owners=inbound.get(id)
+  return compareContentNodeVersions({basis:basis.get(id)?.payload??null,current:current.get(id)?.payload??null,
+   candidate:candidate.get(id)?.payload??null,...(owners?{deletionReferencedBy:[...owners].sort()}:{})})
+ })
  return {projectId,nodes,siblings,linkChecks,tableGeneratorChecks,requiresExternalReferenceChecks:true,
   requiresCurrentBasisChecks:true,requiresMergedSnapshotValidation:true}
 }

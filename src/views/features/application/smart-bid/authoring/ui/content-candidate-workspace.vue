@@ -7,9 +7,14 @@ AI用途：正文宿主读取候选后传入同次绑定；采用须另完成完
 <template>
   <RendererSection title="候选内容" :error="state.error" :status="state.error ? '' : '待比对与预演'" :grid-columns="1">
     <RendererForm v-if="state.revisionKey && state.revisionRowId !== undefined" :data-view-key="state.revisionKey" :context-row-id="state.revisionRowId" :auto-columns="false" :children="revisionFields" />
-    <RendererButton v-if="state.revisionKey" :data-view-key="state.revisionKey" label="比对三版" :disabled="comparisonLoading" :on-click="compareVersions" />
+    <RendererButton v-if="state.revisionKey" :data-view-key="state.revisionKey" label="比对三版" :disabled="comparisonLoading" :on-click="() => compareVersions()" />
     <RendererSection v-if="comparisonError && !state.error" title="三版比对失败" :error="comparisonError" />
-    <RendererSection v-if="comparisonState" title="三版比对结果" :status="comparisonState" />
+    <RendererSection v-if="comparisonState" title="三版比对结果" :status="comparisonState.status">
+      <RendererSection v-if="comparisonState.added.length" :title="`新增节点：${comparisonState.added.join('、')}`" />
+      <RendererSection v-if="comparisonState.responseConflicts.length" :title="`冲突分工：${comparisonState.responseConflicts.join('、')}`" />
+      <RendererButton v-if="comparisonState.undeclared && state.revisionKey" :data-view-key="state.revisionKey"
+        label="确认这些新增节点并重新比对" :disabled="comparisonLoading" :on-click="confirmAdditions" />
+    </RendererSection>
     <RendererTree v-if="state.nodesKey" :data-view-key="state.nodesKey" node-key="nodeId" :tree-props="treeProps" :children="nodeFields" />
     <RendererSection v-else-if="!state.error" title="本候选尚无正文节点" />
     <RendererSection v-if="state.nodesKey" title="节点详情" :status="state.selectedNode ? '' : '选择节点查看原稿与数据引用'">
@@ -42,15 +47,17 @@ const comparison=shallowRef<Awaited<ReturnType<ContentCandidateBinding['previewS
 const comparisonState=computed(()=>{
  revision.value
  const result=comparison.value
- if(!result)return ''
- try{result.assertCurrent()}catch{return ''}
+ if(!result)return undefined
+ try{result.assertCurrent()}catch{return undefined}
  const undeclared=result.violations.filter(item=>item.code==='UNDECLARED_ADDITION').length
  const conflicts=result.comparison.nodes.filter(item=>item.conflicts.length>0).length
  const orderConflicts=result.comparison.siblings.filter(item=>item.status==='CONFLICT').length
- const divergent=result.responseComparison.filter(item=>item.delta==='DIVERGED').length
- return [`${result.changedNodeIds.length} 个候选节点变化`,`${conflicts} 个节点冲突`,`${orderConflicts} 处顺序冲突`,`${divergent} 个响应冲突`,
-  ...(undeclared?[`${undeclared} 个新增节点待确认`]:[]),
+ const responseConflicts=result.responseComparison.filter(item=>item.delta==='DIVERGED').map(item=>item.assignmentId)
+ const added=result.addedNodeIds
+ const status=[`${result.changedNodeIds.length} 个候选节点变化`,`${conflicts} 个节点冲突`,`${orderConflicts} 处顺序冲突`,`${responseConflicts.length} 个响应冲突`,
+  ...(added.length?[undeclared?`${undeclared} 个新增节点待确认`:`${added.length} 个新增节点已确认用于本次比对`]:[]),
   ...(result.violations.length>undeclared?['存在超出范围或需要复核的变更']:[]),'待复核采用依据'].join('，')
+ return {status,added,undeclared,responseConflicts}
 })
 let nodeSelectionVersion=0
 const referenceLoading=ref(false)
@@ -178,14 +185,18 @@ const state=computed<{revisionKey?:string;revisionRowId?:string|number;nodesKey?
   return {error:message==='候选运行实例不匹配'?message:'候选读取已失效，请重新读取'}
  }
 })
-async function compareVersions():Promise<void>{
+async function confirmAdditions():Promise<void>{
+ const current=comparisonState.value
+ if(current?.undeclared)await compareVersions(current.added)
+}
+async function compareVersions(declaredAddedNodeIds:readonly string[]=[]):Promise<void>{
  if(comparisonLoading.value||state.value.error)return
  const binding=toRaw(props.binding),runtime=toRaw(props.runtime)
  const isCurrent=()=>active&&toRaw(props.runtime)===runtime&&toRaw(props.binding)===binding
  const assertCurrent=()=>{if(!isCurrent())throw Error('候选比对上下文已变化')}
  comparisonLoading.value=true;comparisonError.value='';comparison.value=undefined
  try{
-  const result=await binding.previewScope({declaredAddedNodeIds:[]},assertCurrent)
+  const result=await binding.previewScope({declaredAddedNodeIds},assertCurrent)
   result.assertCurrent()
   comparison.value=result
  }catch(cause){

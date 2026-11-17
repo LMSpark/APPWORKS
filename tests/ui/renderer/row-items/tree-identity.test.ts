@@ -7,12 +7,56 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {RendererTree,RendererTable,RendererButton,RendererToolbar,FieldText,Spark,PAGE_RUNTIME,PAGE_RUNTIME_SERVICES,useSparkComponent} from '@spark-appworks/spark-component'
 const originalStubs=config.global.stubs,cleanups:(()=>void)[]=[]
+it.each(['click','currentKey','external'] as const)('selects the original version primary key through %s when the tree key is a logical node id',async selection=>{
+ const stubs={...config.global.stubs};delete stubs['el-tree'];config.global.stubs=stubs
+ const ds=DataSet.fromJson({scenarioId:'SCENE',tables:{Rows:{columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'nodeId',type:'string'},{name:'parentId',type:'string'},{name:'label',type:'string'}],views:{default:{autoLoad:false,rows:[{id:'VERSION',nodeId:'NODE',parentId:null,label:'Original version'}],treeConfig:{idField:'nodeId',parentIdField:'parentId',textField:'label'}}}}}})
+ const view=ds.getView('Rows')!,original=view.rows[0]!
+ view.setCurrentRowById(null)
+ const runtime=new PageRuntime({pageId:'version-tree',scenarioIds:['SCENE'],loadScenario:async()=>ds});await runtime.load()
+ const Host=defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'version-tree-host'});sparkProvide(PAGE_RUNTIME,runtime);return()=>h(RendererTree,{dataViewKey:'SCENE@Rows@default',...(selection==='external'?{}:{nodeKey:'nodeId'}),showDataViewMeta:false,...(selection==='currentKey'?{currentKey:'NODE'}:{})})}})
+ const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry:Spark.createRegistry()})]}});cleanups.push(()=>runtime.dispose(),()=>wrapper.unmount());await flushPromises()
+ if(selection==='click'){await wrapper.get('.el-tree-node__content').trigger('click');await flushPromises()}
+ if(selection==='external'){view.setCurrentRowById('VERSION');await flushPromises()}
+ expect(view.currentRow).toBe(original)
+ expect(view.getPkKey(view.currentRow!)).toBe('VERSION')
+ expect(wrapper.find('.el-tree-node.is-current').exists()).toBe(true)
+})
 afterEach(()=>{cleanups.splice(0).reverse().forEach(fn=>fn());config.global.stubs=originalStubs;vi.unstubAllGlobals()})
+it.each(['replacement','newer-click','external','unmount'] as const)('rejects a late tree selection after %s',async change=>{
+ const stubs={...config.global.stubs};delete stubs['el-tree'];config.global.stubs=stubs
+ const rows=[{id:'VA',nodeId:'A',parentId:null,label:'Alpha'},{id:'VB',nodeId:'B',parentId:null,label:'Beta'}]
+ const ds=DataSet.fromJson({scenarioId:'SCENE',tables:{Rows:{columns:['id','nodeId','parentId','label'].map(name=>({name,type:'string',...(name==='id'?{isPrimaryKey:true}:{})})),views:{default:{autoLoad:false,rows,treeConfig:{idField:'nodeId',parentIdField:'parentId',textField:'label'}}}}}})
+ const view=ds.getView('Rows')!;view.setCurrentRowById(null)
+ const runtime=new PageRuntime({pageId:'late-tree',scenarioIds:['SCENE'],loadScenario:async()=>ds});await runtime.load()
+ let release:()=>void=()=>{};const pending=new Promise<void>(resolve=>{release=resolve})
+ const onNodeClick=vi.fn(async(data:DataRow)=>{if(data['nodeId']==='A')await pending})
+ const Host=defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'late-tree-host'});sparkProvide(PAGE_RUNTIME,runtime);return()=>h(RendererTree,{dataViewKey:'SCENE@Rows@default',nodeKey:'nodeId',showDataViewMeta:false,onNodeClick})}})
+ const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry:Spark.createRegistry()})]}});cleanups.push(()=>runtime.dispose(),()=>wrapper.unmount());await flushPromises()
+ await wrapper.findAll('.el-tree-node__content')[0]!.trigger('click');await flushPromises();expect(onNodeClick).toHaveBeenCalledOnce()
+ if(change==='replacement')view.replaceRows(rows.map(row=>({...row})))
+ else if(change==='newer-click'){await wrapper.findAll('.el-tree-node__content')[1]!.trigger('click');await flushPromises()}
+ else if(change==='external')view.setCurrentRowById('VB')
+ else {wrapper.unmount();expect(view.destroyed).toBe(false)}
+ release();await flushPromises()
+ expect(view.currentRow?.['id']??null).toBe(change==='replacement'||change==='unmount'?null:'VB')
+})
 function childRow(view:DataView):DataRow|undefined {
  let result:DataRow|undefined
  view.visitRowsDeep(row=>{if(row['label']==='Child')result=row})
  return result
 }
+it('rejects duplicate display keys without invoking a business click callback',async()=>{
+ const stubs={...config.global.stubs};delete stubs['el-tree'];config.global.stubs=stubs
+ const ds=DataSet.fromJson({scenarioId:'SCENE',tables:{Rows:{columns:['id','nodeId','label'].map(name=>({name,type:'string',...(name==='id'?{isPrimaryKey:true}:{})})),views:{default:{autoLoad:false,rows:[{id:'A',nodeId:'N',label:'Alpha'},{id:'B',nodeId:'N',label:'Beta'}]}}}}})
+ const view=ds.getView('Rows')!;view.setCurrentRowById(null)
+ const runtime=new PageRuntime({pageId:'duplicate-tree',scenarioIds:['SCENE'],loadScenario:async()=>ds});await runtime.load()
+ const onNodeClick=vi.fn(),Host=defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'duplicate-tree-host'});sparkProvide(PAGE_RUNTIME,runtime);return()=>h(RendererTree,{dataViewKey:'SCENE@Rows@default',nodeKey:'nodeId',currentKey:'N',showDataViewMeta:false,onNodeClick})}})
+ const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry:Spark.createRegistry()})]}});cleanups.push(()=>runtime.dispose(),()=>wrapper.unmount());await flushPromises()
+ expect(view.currentRow).toBeNull()
+ await wrapper.findAll('.el-tree-node__content')[0]!.trigger('click');await flushPromises()
+ expect(onNodeClick).not.toHaveBeenCalled();expect(view.currentRow).toBeNull()
+ expect(wrapper.find('.el-tree-node.is-current').exists()).toBe(false)
+})
 it.each(['tree','table'] as const)('keeps %s projection actions tied to their original rows after same-key replacement',async kind=>{
  const stubs={...config.global.stubs}
  for(const name of ['el-table','el-table-column','el-tree','el-button','SparkComponentRenderer','spark-component-renderer'])delete stubs[name]

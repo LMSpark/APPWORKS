@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount, DOMWrapper, flushPromises } from '@vue/test-utils'
 import { defineComponent, h, ref } from 'vue'
-import ElementPlus, { ElOption, ElSelect, ElInput, ElInputNumber, ElDatePicker, ElRadioGroup, ElTabs } from 'element-plus'
+import ElementPlus, { ElButton, ElOption, ElSelect, ElInput, ElInputNumber, ElDatePicker, ElRadioGroup, ElTabs } from 'element-plus'
 import { DataViewFilter, SparkData } from '@spark-appworks/spark-data'
 import { useSparkComponent, DATA_SOURCE } from '../../core'
 import RendererFilter from '../../components/containers/zones/RendererFilter.vue'
@@ -17,6 +17,11 @@ import JsonTreeEditor from '../../components/editors/JsonTreeEditor.vue'
 
 const fields = [{ name: 'Name', type: 'text' }, { name: 'Amount', type: 'number' }] as const
 const wrappers: ReturnType<typeof mount>[] = []
+function functionConfirm(wrapper: ReturnType<typeof mount>) {
+  const button = wrapper.findAllComponents(ElButton).find(item => Object.hasOwn(item.attributes(), 'data-function-confirm'))
+  if (!button) throw new Error('Missing function confirm component')
+  return button
+}
 afterEach(() => { wrappers.splice(0).forEach(wrapper => wrapper.unmount()) })
 
 it('protects function JSON wrappers while confirming a native scalar value through the real tree', async () => {
@@ -187,7 +192,7 @@ describe('lazy filter field catalogues', () => {
       context: {tables: [{name: 'Orders', loadFields: fields.load}]}}, global: {plugins: [ElementPlus]}})
     wrappers.push(wrapper); await flushPromises()
     expect(fields.load).toHaveBeenCalledOnce()
-    const button = wrapper.getComponent('[data-function-confirm]')
+    const button = functionConfirm(wrapper)
     const save = button.vm.$.vnode.props?.['onClick']
     expect(typeof save).toBe('function')
     if (change === 'close') await wrapper.setProps({modelValue: false})
@@ -717,7 +722,7 @@ describe('full public filter editor', () => {
       global: {plugins: [ElementPlus], stubs: {}}}); wrappers.push(wrapper)
     await flushPromises()
     const late = wrapper.getComponent(ElSelect).vm.$.vnode.props?.['onUpdate:modelValue']
-    const lateConfirm = wrapper.getComponent('[data-function-confirm]').vm.$.vnode.props?.['onClick']
+    const lateConfirm = functionConfirm(wrapper).vm.$.vnode.props?.['onClick']
     expect(typeof late).toBe('function'); expect(typeof lateConfirm).toBe('function')
     if (change === 'type') {
       wrapper.getComponent(ElTabs).vm.$emit('update:modelValue', 'GetInputParam'); await flushPromises()

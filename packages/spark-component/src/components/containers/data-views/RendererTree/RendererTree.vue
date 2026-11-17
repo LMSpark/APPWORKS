@@ -210,6 +210,8 @@ const nativeTreeRef = ref<NativeTreeLike | null>(null)
 const {
   treeApi,
   getNodeKey,
+  syncCurrentHighlight,
+  invalidatePendingSelection,
   syncCurrentByKey,
   handleNodeClick,
   handleNodeExpand,
@@ -218,6 +220,8 @@ const {
 }: {
   treeApi: RendererTreeApi
   getNodeKey: (data: unknown) => string | number | null
+  syncCurrentHighlight: () => void
+  invalidatePendingSelection: () => void
   syncCurrentByKey: (key: string | number | null | undefined) => void
   handleNodeClick: (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent) => Promise<void>
   handleNodeExpand: (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent) => Promise<void>
@@ -237,14 +241,13 @@ const {
 
 watch(
   currentRow,
-  async (nextCurrentRow) => {
+  async () => {
+    invalidatePendingSelection()
+    const view = dataState.resolvedView.value
     await nextTick()
-    const tree = nativeTreeRef.value
-    if (!tree?.setCurrentKey) return
-    const key = getNodeKey(nextCurrentRow)
-    tree.setCurrentKey(key ?? null)
+    if (view && dataState.resolvedView.value === view && !view.destroyed) syncCurrentHighlight()
   },
-  { immediate: true },
+  { immediate: true, flush: 'sync' },
 )
 
 watch(

@@ -17,6 +17,7 @@ import {
   getNativeRefValue,
 } from '../zero-code-shared.js'
 import type { RendererTreeApi } from './types'
+import {resolveDataViewRow} from '../../support/scope/row-mirror-sync'
 
 /** r-tree 对外暴露的树节点数据形态，兼容普通 DataRow 和嵌套 children。 */
 export type RendererTreeNode = {
@@ -190,11 +191,43 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
     treeIdField,
     logger,
   } = options
+  let selectionGeneration = 0
+  let active = true
+  const invalidatePendingSelection = () => { selectionGeneration += 1 }
+  const isCurrentView = (view: DataView): boolean => active && resolvedView.value === view && !view.destroyed
 
   function getNodeKey(data: unknown): string | number | null {
     if (!isDataRow(data)) return null
     const key = data[nodeKeyField.value]
     return typeof key === 'string' || typeof key === 'number' ? key : null
+  }
+
+  function projectedNodes(): DataRow[] {
+    const result: DataRow[] = []
+    const pending: DataRow[] = [...treeData.value]
+    while (pending.length > 0) {
+      const node = pending.shift()
+      if (!node) continue
+      result.push(node)
+      const children = node['children']
+      if (Array.isArray(children)) for (const child of children) if (isDataRow(child)) pending.push(child)
+    }
+    return result
+  }
+
+  /** Tree keys address display nodes; only their original rows carry a DataView primary key. */
+  function projectedKeyForRow(view: DataView, row: DataRow | null): string | number | null {
+    if (!row) return null
+    const nodes = projectedNodes()
+    const matches = nodes.filter(node => resolveDataViewRow(view, node) === row)
+    const key = matches.length === 1 ? getNodeKey(matches[0]) : null
+    return key !== null && nodes.filter(node => getNodeKey(node) === key).length === 1 ? key : null
+  }
+
+  function syncCurrentHighlight(): void {
+    const view = resolvedView.value
+    if (!view || !isCurrentView(view)) return
+    getNativeTree()?.setCurrentKey?.(projectedKeyForRow(view, view.currentRow))
   }
 
   function findCurrentTreeRow(view: DataView, key: string | number): DataRow | null {
@@ -230,16 +263,21 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
   }
 
   function syncCurrentByKey(key: string | number | null | undefined): void {
+    invalidatePendingSelection()
     // A pending nextTick may resume after its page DataSet has been disposed.
-    if (resolvedView.value?.destroyed) return
+    const view = resolvedView.value
+    if (!view || !isCurrentView(view)) return
     const tree = getNativeTree()
     if (key === null || key === undefined) {
-      resolvedView.value?.setCurrentRowById(null)
+      view.setCurrentRowById(null)
       tree?.setCurrentKey?.(null)
       return
     }
-    resolvedView.value?.setCurrentRowById(key)
-    tree?.setCurrentKey?.(key)
+    const matches = projectedNodes().filter(node => getNodeKey(node) === key)
+    const row = matches.length === 1 ? resolveDataViewRow(view, matches[0]) : null
+    const primaryKey = row ? view.getPkKey(row) : undefined
+    if (primaryKey !== undefined) view.setCurrentRowById(primaryKey)
+    tree?.setCurrentKey?.(projectedKeyForRow(view, view.currentRow))
   }
 
   const {
@@ -365,29 +403,39 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
   }
 
   const handleNodeClick = async (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent) => {
+    const generation = ++selectionGeneration
     const clickedView = resolvedView.value
+    const clickedRow = resolveDataViewRow(clickedView, data)
     try {
+      if (!clickedView || !isCurrentView(clickedView) || !clickedRow) return
+      const clickedPrimaryKey = clickedView.getPkKey(clickedRow)
+      const clickedTreeKey = projectedKeyForRow(clickedView, clickedRow)
+      if (clickedTreeKey === null || clickedTreeKey !== getNodeKey(data)) return
       await runTreeEvent({
         handler: props.onNodeClick,
         data,
         node,
         component,
         autoHandle: () => {
-          const key = getNodeKey(data)
-          if (key === null) {
+          if (clickedView.destroyed || resolvedView.value !== clickedView
+            || generation !== selectionGeneration || resolveDataViewRow(clickedView, data) !== clickedRow
+            || clickedView.getPkKey(clickedRow) !== clickedPrimaryKey
+            || projectedKeyForRow(clickedView, clickedRow) !== clickedTreeKey) return
+          const key = clickedView.getPkKey(clickedRow)
+          if (key === undefined) {
             logger.warn('RendererTree node-click 跳过自动选中：节点缺少主键', {
               nodeKey: nodeKeyField.value,
               treeIdField: treeIdField.value,
             })
             return
           }
-          resolvedView.value?.setCurrentRowById(key)
+          clickedView.setCurrentRowById(key)
         },
       })
     } finally {
       await nextTick()
-      if (clickedView && resolvedView.value === clickedView && !clickedView.destroyed) {
-        const currentKey = getNodeKey(clickedView.currentRow)
+      if (clickedView && isCurrentView(clickedView)) {
+        const currentKey = projectedKeyForRow(clickedView, clickedView.currentRow)
         getNativeTree()?.setCurrentKey?.(currentKey)
       }
     }
@@ -417,6 +465,8 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
     { flush: 'sync' },
   )
   onScopeDispose(() => {
+    active = false
+    invalidatePendingSelection()
     dropGeneration += 1
     dropPending.value = false
     pendingDropView = null
@@ -466,6 +516,8 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
   return {
     treeApi,
     getNodeKey,
+    syncCurrentHighlight,
+    invalidatePendingSelection,
     syncCurrentByKey,
     handleNodeClick,
     handleNodeExpand,

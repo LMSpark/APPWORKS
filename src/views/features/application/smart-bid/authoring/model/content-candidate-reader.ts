@@ -17,6 +17,7 @@ import type {RevisionRequirementPin} from '@/services/smart-bid/content/referenc
 import {snapshotReferenceFields} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readTenderRecordReference} from '@/services/smart-bid/content/references/baseline-tender-records'
 import {readContentTenderRecord} from './content-tender-record-reader'
+import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/services/smart-bid/content/content-scoped-preview'
 
 /** 原候选及同版清单已证明基线身份；冻结和用途许可仍不在读取层推断。 */
 export type ContentCandidateFactBinding=Omit<ContentBaselineFactBinding,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
@@ -26,6 +27,8 @@ export type ContentCandidateRequirementPinsBinding=Omit<ContentBaselineRequireme
 export type ContentCandidateRequirementBinding=Omit<Awaited<ReturnType<typeof readContentBaselineRequirement>>,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
 type PreviewVersion=Readonly<{snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding}>
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
+type PreviewScopeInput=Pick<ScopedContentPreviewInput,'responses'|'declaredAddedNodeIds'>
+type CandidateScopePreview=Readonly<ReturnType<typeof previewScopedRevisionChanges>&{assertCurrent:()=>void}>
 
 function assertRevisionManifest(manifest:unknown,row:Readonly<Record<string,unknown>>):asserts manifest is object{
  if(typeof manifest!=='object'||manifest===null||Array.isArray(manifest))throw Error('CONTENT_CANDIDATE_MANIFEST_REQUIRED')
@@ -43,6 +46,7 @@ export type ContentCandidateBinding=Readonly<{
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
  readPreviewVersions:(assertConsumer?:()=>void)=>Promise<PreviewVersions>
+ previewScope:(input:PreviewScopeInput,assertConsumer?:()=>void)=>Promise<CandidateScopePreview>
  revisions:ContentRevisionReadBinding;snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding
  revisionMatchVerified:true;templateBindingsVerified:true;requirementBindingsVerified:true;responseAnchorsVerified:true;responseTextVerified:true
  requiresResponseReferenceChecks:true;requiresResponsePayloadChecks:true;requiresTemplateResourceChecks:true;requiresRequirementVersionChecks:true;requiresBusinessSectionChecks:true;assertCurrent:()=>void
@@ -149,7 +153,29 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertPreview()
   return Object.freeze({basis,head,candidate:Object.freeze({snapshot,nodes}),assertCurrent:assertPreview})
  }
- return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+ const previewScope=async(input:PreviewScopeInput,assertConsumer?:()=>void):Promise<CandidateScopePreview>=>{
+  assertCurrent();assertConsumer?.()
+  const assertTargetScope=candidate.captureReadRow(row,['targetScope'])
+  const {responses:scopeResponses,declaredAddedNodeIds}=structuredClone(input)
+  const versions=await readPreviewVersions(assertConsumer)
+  const assertPreview=()=>{versions.assertCurrent();assertTargetScope()}
+  assertPreview()
+  const readNodes=(version:PreviewVersion|null)=>{
+   const key=version?.nodes.dataViewKey
+   if(!key)return []
+   const view=host.runtime.resolveView(key)
+   if(!view)throw Error('CONTENT_CANDIDATE_NODE_REQUIRED')
+   return view.rows.map(member=>member['payload'])
+  }
+  const readManifest=(version:PreviewVersion|null)=>version===null?null:
+   host.runtime.resolveView(version.snapshot.dataViewKey)?.rows[0]?.['manifest']
+  const result=previewScopedRevisionChanges({projectId:host.projectId,basis:readNodes(versions.basis),
+   current:readNodes(versions.head),candidate:readNodes(versions.candidate),targetScope:row['targetScope'],responses:scopeResponses,declaredAddedNodeIds},
+  {basis:readManifest(versions.basis),current:readManifest(versions.head),candidate:readManifest(versions.candidate)})
+  assertPreview()
+  return Object.freeze({...result,assertCurrent:assertPreview})
+ }
+ return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,
   requiresBusinessSectionChecks:true,assertCurrent})

@@ -46,7 +46,7 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   ContentProject:{modelBinding:{modelId:'PM',modelName:'ContentProject'},columns:[{name:'projectId',type:'string',isPrimaryKey:true},{name:'headRevisionId',type:'string'}],
    views:{default:{},selectedProject:{scopeFilter:eq('projectId')}}},
   ContentRevision:{modelBinding:{modelId:'RM',modelName:'ContentRevision'},columns:[{name:'id',type:'string',isPrimaryKey:true},
-   ...['projectId','status','snapshotHash','baselineId','basisRevisionId'].map(name=>({name,type:'string'})),{name:'stageRef',type:'object'},{name:'templateRefs',type:'object'}],
+   ...['projectId','status','snapshotHash','baselineId','basisRevisionId'].map(name=>({name,type:'string'})),{name:'stageRef',type:'object'},{name:'templateRefs',type:'object'},{name:'targetScope',type:'object'}],
    views:{default:{},selectedCandidate:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','candidateRevisionId'),{field:'status',operator:'eq',value:'CANDIDATE'}]}},
     selectedBasis:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','basisRevisionId'),{field:'status',operator:'eq',value:'ADOPTED'}]}},
     selectedHead:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','expectedHead'),{field:'status',operator:'eq',value:'ADOPTED'}]}}}},
@@ -59,6 +59,7 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
      scopeFilter:{logic:'and',filters:[eq('projectId'),{field:'nodeHash',operator:'in',value:param('nodeHashes')}]}}]))}}
  }})
  const candidate={id:'C',projectId:'P',status:'CANDIDATE',snapshotHash,basisRevisionId:options.threeVersions?'V1':null,baselineId:mode==='baseline'?'OTHER':'B',
+  targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]},
   stageRef:mode==='stage'?{id:'ST',version:'2'}:{version:'1',id:'ST'},
   templateRefs:mode==='template'?[{documentId:'D',key:'T',version:'2',hash:'a'.repeat(64)}]:templateRefs}
  const query=vi.fn(async(view:DataView)=>{

@@ -36,7 +36,10 @@ export function compareRevisionResponses(basis:unknown,current:unknown,candidate
   },'RESPONSE_COMPARISON_MODEL')
   return byAssignment
  }
- const b=read(basis),o=read(current),t=read(candidate)
+ if((basis===null)!==(current===null))throw Error('RESPONSE_COMPARISON_EMPTY_VERSIONS')
+ const b=basis===null?new Map<string,ResponseVersion>():read(basis)
+ const o=current===null?new Map<string,ResponseVersion>():read(current)
+ const t=read(candidate)
  return [...new Set([...b.keys(),...o.keys(),...t.keys()])].sort().map(assignmentId=>{
   const base=b.get(assignmentId),head=o.get(assignmentId),proposed=t.get(assignmentId)
   const headChanged=head?.payload!==base?.payload,candidateChanged=proposed?.payload!==base?.payload

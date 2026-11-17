@@ -196,3 +196,15 @@ it('assembles complete basis and head from their own revision, snapshot and memb
   candidate.assertCurrent()
  }finally{f.ds.destroy()}
 })
+it('compares verified first-candidate versions under the original target scope',async()=>{
+ const f=await fixture('populated')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const result=await candidate.previewScope({responses:[],declaredAddedNodeIds:['D','C','H']})
+  expect(result.scopeCheckPassed).toBe(true)
+  expect(result.addedNodeIds).toEqual(['C','D','H'])
+  expect(result.requiresCurrentAuthorityChecks).toBe(true)
+  await f.ds.getView('ContentNodeVersion','snapshotMembers')!.refresh()
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+ }finally{f.ds.destroy()}
+})

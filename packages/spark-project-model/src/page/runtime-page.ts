@@ -129,7 +129,19 @@ export class PageRuntime {
   }
   get destroyed():boolean { return this.#destroyed }
   get isLoaded():boolean { return this.#loaded && !this.#destroyed }
-  get isDirty():boolean { if([...this.#externalDirtySources.values()].some(entry=>entry.source.isDirty))return true;if([...this.#content.values()].some(content=>content.isDirty))return true;for(const ds of this.#dataSets.values())for(const table of Object.values(ds.tables))for(const view of Object.values(table.views))if(view.dirtyTracking.hasPendingChanges() || view.editingRows.length > 0)return true;return false }
+  get isDirty(): boolean {
+    if ([...this.#externalDirtySources.values()].some(entry => entry.source.isDirty)) return true
+    if ([...this.#content.values()].some(content => content.isDirty)) return true
+    for (const dataSet of this.#dataSets.values()) {
+      for (const table of Object.values(dataSet.tables)) {
+        for (const view of Object.values(table.views)) {
+          if (view.mutating || view.hasUnconfirmedSave || view.hasPendingSavedRowPermissions
+            || view.dirtyTracking.hasPendingChanges() || view.editingRows.length > 0) return true
+        }
+      }
+    }
+    return false
+  }
   setExternalDirtySource(key:string,source:ExternalDirtySource|null):void {
     this.#assertAlive();if(!key.trim())throw new Error('PAGE_RUNTIME_EXTERNAL_DIRTY_KEY: 配置 owner 身份不能为空')
     const previous=this.#externalDirtySources.get(key)

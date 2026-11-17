@@ -62,6 +62,10 @@ describe('page call tabs and retained renderer instances', () => {
     expect(first.destroyed).toBe(false)
     expect(controls.tabs.value.some(tab => tab.id === first.instanceId)).toBe(true)
     cancel()
+    firstView.mutating = true
+    await expect(controls.closeTab(first.instanceId)).rejects.toThrow()
+    expect(first.destroyed).toBe(false)
+    firstView.mutating = false
     firstView.updateEditingValue('u-1', 'name', 'unsaved draft')
     expect(first.isDirty).toBe(true)
     await router.push('/native')

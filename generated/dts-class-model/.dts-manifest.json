@@ -529,7 +529,7 @@
     "packages/spark-app/src/app/start.ts": {
       "sourceFile": "packages/spark-app/src/app/start.ts",
       "shardFile": "files/packages/spark-app/src/app/start.ts.json",
-      "sourceModifiedAt": "2026-11-08T17:44:55.495Z"
+      "sourceModifiedAt": "2026-11-17T18:28:11.732Z"
     },
     "packages/spark-app/src/constants.ts": {
       "sourceFile": "packages/spark-app/src/constants.ts",
@@ -609,7 +609,7 @@
     "packages/spark-app/src/router/dynamic.ts": {
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "shardFile": "files/packages/spark-app/src/router/dynamic.ts.json",
-      "sourceModifiedAt": "2026-11-13T04:34:27.885Z"
+      "sourceModifiedAt": "2026-11-17T18:26:15.391Z"
     },
     "packages/spark-app/src/router/external-link-frame-page.ts": {
       "sourceFile": "packages/spark-app/src/router/external-link-frame-page.ts",
@@ -634,7 +634,7 @@
     "packages/spark-app/src/router/page-runtime-pool.ts": {
       "sourceFile": "packages/spark-app/src/router/page-runtime-pool.ts",
       "shardFile": "files/packages/spark-app/src/router/page-runtime-pool.ts.json",
-      "sourceModifiedAt": "2026-11-08T09:30:11.209Z"
+      "sourceModifiedAt": "2026-11-17T18:28:11.733Z"
     },
     "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts": {
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts",
@@ -4124,7 +4124,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-17T18:20:19.227Z"
+      "sourceModifiedAt": "2026-11-17T18:26:15.393Z"
     },
     "src/lowcode/resources/application/project-blueprint-document.ts": {
       "sourceFile": "src/lowcode/resources/application/project-blueprint-document.ts",
@@ -5059,7 +5059,7 @@
     "src/main.ts": {
       "sourceFile": "src/main.ts",
       "shardFile": "files/src/main.ts.json",
-      "sourceModifiedAt": "2026-11-12T20:53:55.244Z"
+      "sourceModifiedAt": "2026-11-17T18:26:15.394Z"
     },
     "src/registries/system-scenario-registry.ts": {
       "sourceFile": "src/registries/system-scenario-registry.ts",
@@ -5189,7 +5189,7 @@
     "src/services/project/page-tool-file-operations.ts": {
       "sourceFile": "src/services/project/page-tool-file-operations.ts",
       "shardFile": "files/src/services/project/page-tool-file-operations.ts.json",
-      "sourceModifiedAt": "2026-11-17T18:21:28.095Z"
+      "sourceModifiedAt": "2026-11-17T18:23:15.021Z"
     },
     "src/services/project/project-settings.ts": {
       "sourceFile": "src/services/project/project-settings.ts",
@@ -5660,6 +5660,26 @@
       "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue",
       "shardFile": "files/src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue.json",
       "sourceModifiedAt": "2026-11-16T08:08:16.257Z"
+    },
+    "src/views/features/application/smart-bid/authoring/entry/content-authoring-commands.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-commands.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-commands.ts.json",
+      "sourceModifiedAt": "2026-11-17T18:22:32.133Z"
+    },
+    "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts.json",
+      "sourceModifiedAt": "2026-11-17T18:24:17.273Z"
+    },
+    "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts.json",
+      "sourceModifiedAt": "2026-11-17T17:44:47.060Z"
+    },
+    "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts.json",
+      "sourceModifiedAt": "2026-11-17T17:18:15.032Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",

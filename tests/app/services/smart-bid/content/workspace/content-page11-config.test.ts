@@ -1,0 +1,67 @@
+import {expect,it,vi} from 'vitest'
+import rule from '@/views/features/application/smart-bid/authoring/page11/rule.json'
+import script from '@/views/features/application/smart-bid/authoring/page11/script.js?raw'
+import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
+import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
+import {DataSet} from '@spark-appworks/spark-data'
+import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+
+function fixture(user='U'){
+ const row={id:'D',projectId:'P',userId:user,draft:{nodes:[],responseChanges:[]}}
+ const proof=vi.fn(),resultProof=vi.fn(),view={dataTable:{modelBinding:{modelName:'WorkingDraft'}},queryContext:{projectId:'P',currentUserId:'U'},
+  rows:[row],getPkKey:(item:typeof row)=>item.id,getEditingRow:vi.fn(()=>row),captureReadRow:vi.fn(()=>proof),captureReadResult:vi.fn(()=>resultProof)}
+ const resolveView=vi.fn(()=>view)
+ const functions=compileFunctions(script,{$route:{query:{projectId:'P',draftId:'D'}},$page:{resolveView}} as unknown as PageContext)
+ return {row,view,proof,resultProof,functions,resolveView}
+}
+it('expresses the draft structure with standard children and binds its original row',()=>{
+ const f=fixture()
+ expect(rule[0]?.type).toBe('r-section')
+ expect(f.functions['bindOriginalDraft']!()).toEqual({contextRowId:'D'})
+ expect(f.functions['bindContentOutline']!()).toEqual({outlineRootValue:'P'})
+ expect(f.resolveView).toHaveBeenCalledWith('D3BBA1F0780056C837AC35E9825CAD5A@WorkingDraft@personalDraft')
+ expect(f.view.captureReadRow).toHaveBeenCalledWith(f.row,['id','projectId','userId','draft'])
+ expect(f.proof).toHaveBeenCalled()
+})
+it('hides data when the original authenticated draft or its read proof is unavailable',()=>{
+ const wrong=fixture('OTHER')
+ expect(wrong.functions['bindOriginalDraft']!()).toEqual({visible:false})
+ const f=fixture();f.proof.mockImplementation(()=>{throw Error('STALE')})
+ expect(f.functions['bindContentOutline']!()).toEqual({visible:false})
+})
+it('withdraws the binding when the original query is replaced instead of recapturing a new proof',()=>{
+ const f=fixture()
+ expect(f.functions['bindOriginalDraft']!()).toEqual({contextRowId:'D'})
+ f.resultProof.mockImplementation(()=>{throw Error('REPLACED_RESULT')})
+ expect(f.functions['bindContentOutline']!()).toEqual({visible:false})
+ expect(f.view.captureReadResult).toHaveBeenCalledTimes(1)
+})
+it.each([false,true])('keeps the original query proof when the draft already has an edit overlay (%s), then withdraws after refresh',async edited=>{
+ const scenarioId='D3BBA1F0780056C837AC35E9825CAD5A'
+ const ds=DataSet.fromJson({scenarioId,tables:{WorkingDraft:{modelBinding:{modelId:'M',modelName:'WorkingDraft'},
+  columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},{name:'draft',type:'object'}],
+  views:{default:{},personalDraft:{commitMode:'staged'}}}}})
+ const view=ds.getView('WorkingDraft','personalDraft')!,table=new DataSpaceQueryTable({scenarioId,metaName:'WorkingDraft'})
+ const row={id:'D',projectId:'P',userId:'U',draft:{nodes:[],responseChanges:[]}}
+ const query=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',data:{Count:1,
+  Items:[{...row,lingma_sys_params:{r:[],e:['draft'],h:[],m:[],d:false}}]}}})}))
+ const save=vi.fn(async()=>{throw Error('UNEXPECTED_SAVE')})
+ view.queryContext={projectId:'P',currentUserId:'U'};view.bindQueryExecutor({executeQuery:query,save})
+ try{
+  await view.refresh()
+  if(edited)view.updateEditingValue('D','draft',{nodes:[],responseChanges:[{id:'local-response'}]})
+  const functions=compileFunctions(script,{$route:{query:{projectId:'P',draftId:'D'}},$page:{resolveView:()=>view}} as unknown as PageContext)
+  expect(functions['bindOriginalDraft']!()).toEqual({contextRowId:'D'})
+  expect(functions['bindContentOutline']!()).toEqual({outlineRootValue:'P'})
+  expect(query).toHaveBeenCalledTimes(1);expect(view.hasEditingChanges()).toBe(edited)
+  if(edited){
+   await expect(view.refresh()).rejects.toThrow('DATA_VIEW_UNSAVED_CHANGES')
+   expect(functions['bindOriginalDraft']!()).toEqual({contextRowId:'D'})
+   view.discardEditingRows(['D'])
+  }
+  await view.refresh()
+  expect(functions['bindOriginalDraft']!()).toEqual({visible:false})
+  expect(save).not.toHaveBeenCalled();expect(view.rows[0]?.['draft']).toEqual(row.draft)
+ }finally{ds.destroy()}
+})

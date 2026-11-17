@@ -60,7 +60,7 @@ import {
   enterLowcodeApplicationCatalog,
   hasLowcodeSession,
   lowcodeApi,
-  readLowcodePageFile,
+  readLowcodePageFiles,
   readLowcodePrincipal,
   readLowcodeRuntimeNavigation,
 } from './lowcode/lowcode-runtime'
@@ -403,7 +403,7 @@ async function startApp() {
       // === PageNode 运行配置（路由从 DB 动态加载）===
       pageNode: {
         ...HOST_PAGE_NODE_CONFIG,
-        readPageFile: readLowcodePageFile,
+        readPageFiles: readLowcodePageFiles,
         pageComponent: SparkPageRenderer,
         loadScenario: loadLowcodeRuntimeScenario,
         componentMap,

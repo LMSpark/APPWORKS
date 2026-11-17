@@ -26,6 +26,8 @@ export type PageRuntimePoolOptions = Readonly<{
   pageComponent: Component
   /** 读取页面工具文件；未注入时页面加载显式失败。 */
   readPageFile: PageFileReader | undefined
+  /** One scoped read session for the complete tool. Results correspond to the input order. */
+  readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>
   /** 装配页面调用所需场景；未注入时场景加载显式失败。 */
   loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined
   /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */
@@ -75,7 +77,8 @@ export class PageRuntimePool {
       tool: page, scenarioIds: call.ids, ...(call.main === undefined ? {} : { mainScenarioId: call.main }),
       ...(scenarioInputs === undefined ? {} : { scenarioInputs }),
       loadTool: async () => {
-        if (!reader) throw new Error('未注入工具文件读取器')
+        const batchReader = this.options.readPageFiles
+        if (!reader && !batchReader) throw new Error('未注入工具文件读取器')
         const generation = runtime.generation
         const findTool = (nodes: readonly RuntimeNavigationItem[]): RuntimeNavigationItem['tool'] => {
           for (const node of nodes) {
@@ -93,10 +96,17 @@ export class PageRuntimePool {
         }
         const currentTool = registeredTool ?? tool
         const versionId = 'versionId' in currentTool && typeof currentTool.versionId === 'string' ? currentTool.versionId : undefined
-        const files = await Promise.all(PAGE_TOOL_FILE_NAMES.map(async fileName => ({ fileName,
-          text: await reader({ projectId, pageId: page.pageId, fileName, ...(versionId === undefined ? {} : { versionId }) }) })))
+        const commands = PAGE_TOOL_FILE_NAMES.map(fileName => ({
+          projectId, pageId: page.pageId, fileName, ...(versionId === undefined ? {} : { versionId }),
+        }))
+        const texts = batchReader ? await batchReader(commands) : reader ? await Promise.all(commands.map(reader)) : []
         if (runtime.destroyed || runtime.generation !== generation) throw new Error('PAGE_RUNTIME_STALE: 工具读取已失效')
-        for (const file of files) page.hydrateFileText(file.fileName, file.text)
+        if (texts.length !== commands.length) throw new Error('工具文件读取结果数量不符')
+        for (const [index, command] of commands.entries()) {
+          const text = texts[index]
+          if (typeof text !== 'string') throw new Error('工具文件读取结果缺少文本')
+          page.hydrateFileText(command.fileName, text)
+        }
         page.markLoaded()
         return page
       },

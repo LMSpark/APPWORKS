@@ -20,8 +20,10 @@ describe('page call tabs and retained renderer instances', () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [
       { path: '/native', component: { render: () => h('p', 'native') }, meta: { title: 'Native', type: 'system-page' } },
     ] })
+    const readPageFiles = vi.fn(async (commands: readonly {fileName: string}[]) =>
+      commands.map(({fileName}) => fileName === 'rule.json' ? '[]' : ''))
     const owner = createDynamicRouter({ router, pageComponent: Page,
-      readPageFile: async ({ fileName }) => fileName === 'rule.json' ? '[]' : '',
+      readPageFiles,
       loadScenario: async ({ scenarioId }) => SparkData.createDataSet({ dataSetName: 'PageData', scenarioId, tables: {
         Users: { tableName: 'Users', columns: [{ name: 'id', type: 'string' }, { name: 'name', type: 'string' }],
           views: { default: { rows: [{ id: 'u-1', name: 'Original' }] } } },
@@ -49,6 +51,9 @@ describe('page call tabs and retained renderer instances', () => {
     if (!first || !controls) throw new Error('missing call controls')
     expect(first.call.scenarioIds).toEqual(['SCENE'])
     await first.load()
+    expect(readPageFiles).toHaveBeenCalledOnce()
+    expect(readPageFiles.mock.calls[0]?.[0].map(command => command.fileName).sort())
+      .toEqual(['rule.json', 'script.js', 'style.css'])
     const scenarioId = first.call.scenarioIds[0]
     if (!scenarioId) throw new Error('missing runtime scenario identity')
     const firstView = first.getDataSet(scenarioId)?.tables['Users']?.getView('default')

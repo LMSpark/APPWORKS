@@ -33,7 +33,7 @@ import {
 import type { SystemPageInstance } from './system-page-identity/system-page-identity-pool'
 import { resolveNavNodeRuntimeTarget } from '../navigation/runtime-target'
 import type { RuntimeNavigation, RuntimeNavigationItem } from '../navigation/runtime-navigation'
-import { PageRuntimePool, type RuntimeScenarioLoadCommand } from './page-runtime-pool'
+import { PageRuntimePool, type PageRuntimePoolOptions, type RuntimeScenarioLoadCommand } from './page-runtime-pool'
 
 function isUnauthorizedError(error: unknown): boolean {
   return readProperty(error, 'status') === 401
@@ -61,6 +61,7 @@ export type DynamicRouterOptions = {
 
   /** 工具三文件读取器；缺省时打开配置页会明确失败。 */
   readPageFile?: PageFileReader
+  readPageFiles?: NonNullable<PageRuntimePoolOptions['readPageFiles']>
 
   /**
    * 动态页面组件（必需）
@@ -224,6 +225,7 @@ constructor(options: DynamicRouterOptions) {
     this.runtimePool = new PageRuntimePool({
       pageComponent: options.pageComponent,
       readPageFile: options.readPageFile,
+      ...(options.readPageFiles ? {readPageFiles: options.readPageFiles} : {}),
       loadScenario: options.loadScenario,
       readNavTree: () => this._navTree,
       refreshRoutes: () => this.refreshRoutes(),

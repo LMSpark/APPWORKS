@@ -95,18 +95,37 @@ export function lowcodeRequestHeaders(): Record<string, string> {
   return session === null ? {} : { Authorization: `Bearer ${session.accessToken}` }
 }
 
-export async function readLowcodePageFile(command: ProjectModel.PageFileReadCommand): Promise<string> {
+export async function readLowcodePageFiles(commands: readonly ProjectModel.PageFileReadCommand[]): Promise<string[]> {
+  const first = commands[0]
+  if (!first) return []
   const execution = readLowcodeExecutionProject()
-  if (execution.projectId !== command.projectId) throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 应用身份与工具不一致')
+  if (commands.some(command => command.projectId !== execution.projectId
+    || command.pageId !== first.pageId || command.versionId !== first.versionId)
+    || new Set(commands.map(command => command.fileName)).size !== commands.length) {
+    throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 批量读取必须属于同一应用、工具及版本')
+  }
   const dataSet = await loadLowcodeRuntimeScenario({
     projectId: execution.projectId,
     scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY,
   })
   try {
-    return await readPageToolFileText({...command, dataSet, appId: execution.projectId, assertCurrent: execution.assertCurrent})
+    const results = await Promise.allSettled(commands.map(command => readPageToolFileText({
+      ...command, dataSet, appId: execution.projectId, assertCurrent: execution.assertCurrent,
+    })))
+    execution.assertCurrent()
+    return results.map(result => {
+      if (result.status === 'rejected') throw result.reason
+      return result.value
+    })
   } finally {
     dataSet.destroy()
   }
+}
+
+export async function readLowcodePageFile(command: ProjectModel.PageFileReadCommand): Promise<string> {
+  const [text] = await readLowcodePageFiles([command])
+  if (text === undefined) throw new Error('PAGE_TOOL_FILE_MISSING: 未找到指定工具文件')
+  return text
 }
 
 /** 正式蓝图记录和后端授权证据，按节点身份投影宿主导航。 */

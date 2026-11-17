@@ -21,6 +21,10 @@
       "type": "object",
       "title": "ContentCandidateFactBinding",
       "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
         "baselineDataViewKey": {
           "type": "string"
         },
@@ -33,20 +37,16 @@
         "requiresUseCheck": {
           "const": true
         },
-        "assertCurrent": {
-          "type": "object",
-          "title": "() => void"
-        },
         "requiresRevisionMatchCheck": {
           "const": false
         }
       },
       "required": [
+        "assertCurrent",
         "baselineDataViewKey",
         "factDataViewKey",
         "baselineMembershipVerified",
         "requiresUseCheck",
-        "assertCurrent",
         "requiresRevisionMatchCheck"
       ],
       "additionalProperties": false
@@ -56,15 +56,15 @@
       "type": "object",
       "title": "ContentCandidateRequirementPinsBinding",
       "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
         "baselineDataViewKey": {
           "type": "string"
         },
         "requiresUseCheck": {
           "const": true
-        },
-        "assertCurrent": {
-          "type": "object",
-          "title": "() => void"
         },
         "issues": {
           "type": "array",
@@ -77,9 +77,9 @@
         }
       },
       "required": [
+        "assertCurrent",
         "baselineDataViewKey",
         "requiresUseCheck",
-        "assertCurrent",
         "issues",
         "requiresRevisionMatchCheck"
       ],

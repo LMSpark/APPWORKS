@@ -10924,3 +10924,20 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - 2026-11-18 候选原核定记录闭合到正式视图合同：readFixedTenderRecord替代未提交的仅成员证明入口，冻结同一次输入的五字段引用，先核固定基线再查TenderRecord原视图，错摘要不派发TenderRecord查询。实际DataView夹具读出核定原文，候选快照重查撤销组合证明。实服模型/视图/业务样本与准用待验。
 - 2026-11-18 招标证据竞态验证：消费者在Baseline与TenderRecord各自查询返回前失效，两处都撤销结果；Baseline阶段失效时不向TenderRecord发请求。候选和原记录两文件27项通过。新增的是回归证据，实服仍待。
 - 固定招标来源批已收口：候选同一引用先核基线成员及摘要，再沿原TenderRecord DataView读取；快照重查撤销旧结果。reader/reference 15文件176项、整仓类型、专项lint与正式生成通过。正式模型/视图和实服业务记录仍待核。
+- 2026-11-18 实服招标记录表：独立IAB2/tab10登录领码科技并进入表目录，保留tab9 Requirement未提交编辑。spark_bid已登记八表、注册候选无数据，单次通过标准新增创建bid_tender_record（招标原文核定记录）。界面数据表已新增且目录回读同名，截图smart-bid-tender-record-table-20261118.png；ID、冷读、字段和正式模型/视图待核，无业务行写入。工艺诊断批仍已推送4132d5aa0，来源代码批生成产物在工作区、尚未见新远端提交。
+- Requirement 保存链复核：字段批次从原 DataView.getEditingPatch 逐行捕获变更，批量输出只写 IsOutput。数据库表正式模型读取不解析来源入参 ValueFun；现有字段只有补丁含 ValueFun 才在保存预检中显式解析，补丁含 Name 才触发全模型字段依赖扫描。现场补丁键及失败位置未取证，下一次先核原实例变更键和正式字段记录身份，保留原草稿及提交未知状态。
+- Requirement 保存诊断检查点 334bedcd2 已推送：现有字段待保存 ValueFun 解析失败时显示正式模型与字段记录 ID，保留原校验和草稿。专项 lint 与 2 文件 241 项通过。当前浏览器访问宿主不可用，未连接原编辑页或重试。
+- Requirement 字段保存回归 c999d72e4 已推送：实际字段编辑保存入口在后续正式预检之前可报同样的 ValueFun 错误。已在较早入口补模型与字段 ID；用例证明错误草稿和别名均保留，数据库和文件写入均为零。字段专项 193 项及 lint 通过，现场原草稿根因仍待核。
+- 2026-11-18 实服 spark_bid.bid_tender_record 字段：新增project_id/run_id/record_type/ordinal/record_version/record_hash/payload/source_span/parse_quality/confirm_status十项，ordinal整数，payload/source_span原生JSON（后者可空），其它字符串256；无业务默认。一次保存UI已保存，整页重载重选同库同表，表设计两页全10项独立冷读，截图smart-bid-tender-record-fields-cold-20261118.png。正式TenderRecord模型、别名、命名视图及业务行仍待，tab9 Requirement编辑未动。
+- Requirement 现场根因排查 a26e8d0b2：标准字段界面夹具开放 ValueFun 写权限，修改别名的 DataView 补丁只有 AsName，原 ValueFun 保持；模型工作区启用输出的补丁只有 IsOutput，保存一次并冷重开。字段专项 193 项及 lint 通过，现场原补丁与部署版本仍待独立核对。
+- 2026-11-18 实服TenderRecord模型登记：原投标项目与内容空间8模型无同名。标准来源选择唯一 spark_bid.bid_tender_record，一次提交，UI创建并回读布局；正式模型ID D7E52338859AFE134DA0F9410E286EF8，原模型名bid_tender_record。预览仅Name变更，蓝图无配置工具；确认一次后显示待完整核验，沿原界面核验并接续一次，UI最终报告注册名、本空间引用及已扫描工具绑定已保存并回读，画布TenderRecord。截图smart-bid-tender-record-model-20261118.png。字段别名、输出、selectedTenderRecord、业务数据仍待；tab9 Requirement编辑保持。
+- 全仓检查复核：根 typecheck 退出 0。默认并发全量 Vitest 出现 worker 内存耗尽并终止；单 worker 复跑 data-space-chain 后 Vitest 结果缓存记录该文件 failed=false。旧 lint 执行句柄已失，结果未确认。已启动 --maxWorkers=2 --silent 全量复跑，等待完整汇总。
+- 2026-11-18 TenderRecord 字段首次保存失败：自动化计划录入八项别名和十项业务输出，界面报 ValueFun 无效 JSON。首次观察尚未识别输入框误定位，也未确认写入。原编辑页保留至完成下述纠偏与回读。截图 smart-bid-tender-record-field-save-block-20261118.png。
+- TenderRecord 现场截图复核：record_hash 行的 recordHash 与 record_version 行的 recordVersion 显示在「值函数」列，别名列为空，且值函数显示格式无效提示。源码列顺序为 IsOutput / AsName / ValueFun，AsName 单元格需双击进入编辑。可见证据支持别名文本录入值函数列，未证明跨模型扫描或实际提交状态。保留两个原标签页；后续从对应行字段编辑弹窗录入别名，先独立核正式值与草稿，再仅撤销误录的值函数草稿。截图 smart-bid-tender-record-field-save-block-20261118.png。
+- Requirement 原截图同样可见 project_id 行的 projectId、constraint_json 行的 constraint 出现在值函数列且别名为空，界面明确提示格式无效。两处均支持同一录入路径，保留原草稿，未认定之前派发或已正式修正。
+- 2026-11-18 现场纠偏：TenderRecord八无效ValueFun提示精确对应八拟改别名。此前行级textbox定位实际写进ValueFun，非本例平台保存缺陷。撤销本地修改后无无效提示；改为双击AsName别名格内部标准field-table-cell并用该格输入Enter，恢复八别名、十业务输出，一次新提交，关闭模型重新打开字段呈现八别名全回读、无无效ValueFun、保存disabled。截图smart-bid-tender-record-model-fields-readback-20261118.png。Requirement原编辑待同法纠正；尚无命名视图或业务行。已纠正告知集成；独立ls-remote确认a26e8d0b2含来源批ad87a5c74。
+- 全仓 ESLint --max-warnings=0 复跑退出 0。双 worker 全量测试仍运行，暂未取得总数。
+- Requirement 字段呈现新增回读截图 smart-bid-requirement-fields-readback-20261118.png：可见 supportingSpans、sourceSpan 在别名列、业务输出勾选、对应值函数为空、保存按钮禁用。截图仅覆盖可见行；完整八别名、十四项输出、原保存响应与命名视图仍以正式回读取证为准。
+- 2026-11-18 Requirement字段纠偏完成：原tab9已关闭，tab10从同空间重开确认旧误填未持久。按真实AsName列局部输入8别名，14输出全开，无无效ValueFun，唯一保存后关模型重开冷读8别名/14输出均一致。证据smart-bid-requirement-fields-readback-20261118.png。空间原projectId/version保留，新增lineageId一条、无默认、非主业务，UI输入参数已保存并回读确认。selectedRequirement视图尚未创建。
+- 全量双 worker 首个可稳定复现失败为开发预览测试旧断言：未核验写入按 PageRuntime 合同持续标为脏。修正断言并检查解除未核验后恢复干净；同文件 41 项及专项 lint 通过，检查点 563782032 已推送。原全量进程仍需收退出汇总。
+- 563782032 工程复核：pnpm run verify:rules 退出 0，含架构/依赖/页面配置/代码生成/文档/ClassModel 4文件50项/工作流/低代码合同/蓝图/协议/目录检查。AI model 两项警告和 page-thin 91 项审查诊断仍存在，继续以源码核定其用途，未据退出码判定20包完成。

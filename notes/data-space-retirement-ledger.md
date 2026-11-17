@@ -11071,3 +11071,6 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - 2026-11-18 有效事实摘要接原批量视图：精确固定基线，按使用键/版本组合 OR(AND(key,version)) 查询 FactVersion@effectiveFactVersions，核完整结果和每行原权限。无使用键仅核基线，跳过事实查询；基线刷新撤销证明。17文件155项与 ESLint 通过。实服需正式视图及实际使用键的审核范围传递。
 - 2026-11-18 Baseline 实服回读纠偏：scopeFilter 是视图独立属性。展开旧静态产物的「结果组织与编辑配置」后，确认原 selectedBaseline 常驻 AND(projectId eq GetInputParam(projectId), id eq GetInputParam(baselineId))，提交方式暂存。上一条关于常驻条件缺失的判断误查了 queryConfig，现以此回读为准。selectedBasisBaseline/selectedHeadBaseline 仍缺，本次无实服写入。
 - 2026-11-18 数据视图编辑将 scopeFilter 归入请求配置；原标准条件编辑、保存与冷重开用例通过，专项 ESLint 通过。旧全量终态 655 文件中 652 过、10936 项中 10933 过：三版摘要混读旧源码已在当前读取专项通过，双视图超时已重跑整组通过，旧聚合只读及取消用例单独 2.07 秒通过。仍需在同一冻结源码上重跑全量。
+- 2026-11-18 从正式内容节点 JSON 提取直接使用的事实键。正文按占位符首次出现顺序，表格按行列顺序去重；引用合同校验继续拒绝无占位符的多余数据。内容专项 54 文件 574 项和 ESLint 通过。审核范围、独立响应和计算表仍需接线。
+- 2026-11-18 页11：未确认正文输入时，标准大纲拒绝切换并保留原输入，不把正常保护报作运行异常。三文件真实渲染夹具核对原输入、原 DataView 与取消行为；含实例池关闭在内的 7 文件 81 项、ESLint 和 diff 检查通过。正式导航及持久化仍待实服回读。
+- 2026-11-18 实服 Baseline 补 selectedBasisBaseline、selectedHeadBaseline：两条通过标准常驻范围编辑器配置 AND(projectId eq GetInputParam(projectId), id eq GetInputParam(baselineId))，同拟提交视图选择 staged。各保存一次，UI 均显示已保存并回读确认，保存按钮禁用。未执行实际基线查询或业务写入；仍需整页冷复读、FactVersion 有效成员视图及正式菜单/采用消费。

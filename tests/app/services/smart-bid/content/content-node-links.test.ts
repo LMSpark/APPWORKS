@@ -1,7 +1,19 @@
 import {expect,it} from 'vitest'
-import {readContentNodeLinks} from '@/services/smart-bid/content/content-node-links'
+import {readContentNodeFactIds,readContentNodeLinks} from '@/services/smart-bid/content/content-node-links'
 
 const node=(type='paragraph',value='',data:Record<string,unknown>={})=>({nodeId:'N',parentId:'P',index:0,type,class:[],value,data})
+it('reads distinct fact keys in original placeholder order',()=>{
+ const input=node('paragraph','{{first}} {{second}} {{first}} {{third}}',{
+  third:{type:'fact',factId:'F1'},second:{type:'fact',factId:'F2'},first:{type:'fact',factId:'F1'}})
+ expect(readContentNodeFactIds(input)).toEqual(['F1','F2'])
+ expect(()=>readContentNodeFactIds(node('paragraph','text',{unused:{type:'fact',factId:'F3'}}))).toThrow('UNUSED_DATA')
+})
+it('reads table fact keys in row and column order',()=>{
+ const cell=(name:string,factId:string)=>({value:`{{${name}}}`,data:{[name]:{type:'fact',factId}}})
+ expect(readContentNodeFactIds(node('table','',{header:['a','b'],rows:[
+  [cell('a','F2'),cell('b','F1')],[cell('a','F3'),cell('b','F2')]
+ ]}))).toEqual(['F2','F1','F3'])
+})
 it('reads exact node references and paths while preserving other typed fields',()=>{
  const input=node('paragraph','见{{章节}}第{{页码}}页，{{零}}，{{否}}',{
   章节:{type:'xref',nodeId:'e\u0301',show:'title'},页码:{type:'page',nodeId:'A'},

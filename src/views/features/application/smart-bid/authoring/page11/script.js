@@ -47,15 +47,18 @@ function bindContentOutline() {
 }
 
 function selectContentNode(path) {
-  if (path === null) {editorSession?.select(); selectedPath = null; return}
   let current
   try {current = originalDraft()} catch {selectedPath = null; return}
   const {view, draftId} = current
   const draft = view.getEditingRow(draftId)?.draft
-  if (!Array.isArray(path) || path.length !== 1 || !Number.isSafeInteger(path[0]) || path[0] < 0
-    || !Array.isArray(draft?.nodes) || !draft.nodes[path[0]]) throw Error('CONTENT_PAGE_SELECTION_REQUIRED')
-  editorSession?.select()
-  selectedPath = [path[0]]
+  if (path !== null && (!Array.isArray(path) || path.length !== 1 || !Number.isSafeInteger(path[0]) || path[0] < 0
+    || !Array.isArray(draft?.nodes) || !draft.nodes[path[0]])) throw Error('CONTENT_PAGE_SELECTION_REQUIRED')
+  try {editorSession?.select()}
+  catch (cause) {
+    if (cause?.message === 'CONTENT_COMMAND_PENDING_INPUT') return
+    throw cause
+  }
+  selectedPath = path === null ? null : [path[0]]
 }
 
 function bindAction(label) {

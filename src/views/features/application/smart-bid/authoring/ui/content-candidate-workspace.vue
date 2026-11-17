@@ -29,9 +29,14 @@ AI用途：正文宿主读取候选后传入同次绑定；采用须另完成完
         :disabled="nodeTextLoading" :on-click="nodeTextAction" />
       <RendererSection v-if="nodeTextState" title="节点原文对照" :grid-columns="2" :error="nodeTextState.error ?? ''">
         <RendererForm v-if="nodeTextState.candidate" :data-view-key="nodeTextState.candidate.key"
-          :context-row-id="nodeTextState.candidate.rowId" :auto-columns="false" :children="candidateTextFields" />
+          :context-row-id="nodeTextState.candidate.rowId" :auto-columns="false" :children="nodeTextState.candidate.fields" />
         <RendererForm v-if="nodeTextState.head" :data-view-key="nodeTextState.head.key"
-          :context-row-id="nodeTextState.head.rowId" :auto-columns="false" :children="headTextFields" />
+          :context-row-id="nodeTextState.head.rowId" :auto-columns="false" :children="nodeTextState.head.fields" />
+        <RendererButton v-for="action in textActions" :key="action.label" :data-view-key="state.nodesKey" :label="action.label"
+          :disabled="textPreviewLoading" :on-click="action.run" />
+        <RendererSection v-if="textPreviewState" title="句段预演" :status="textPreviewState.status ?? ''" :error="textPreviewState.error ?? ''">
+          <RendererSection v-if="textPreviewState.after !== undefined" title="改后正文" :status="textPreviewState.after" />
+        </RendererSection>
       </RendererSection>
     </RendererSection>
     <RendererSection v-if="referenceError" :title="referenceError.title" :error="referenceError.message" />
@@ -93,15 +98,49 @@ const comparisonState=computed(()=>{
  return {status,added,undeclared,conflicts,referencedDeletions,orderConflicts,responseConflicts,scopeIssues,confirmAdditions}
 })
 let nodeSelectionVersion=0
-type NodeTextTarget={key:string;rowId:string|number}
-type NodeTextState={candidate?:NodeTextTarget;head?:NodeTextTarget;error?:string;assertCurrent:()=>void}
+type TextOffsets=Readonly<{start:number;end:number}>
+type TextSide='candidate'|'head'
+type TextOperation='replace'|'insert'|'delete'
+type NodeTextTarget={key:string;rowId:string|number;fields:ReturnType<typeof nodeTextFields>}
+type NodeTextState={candidate?:NodeTextTarget;head?:NodeTextTarget;error?:string;assertCurrent:()=>void;
+ previewChange?:(operation:TextOperation,target:TextOffsets,source?:TextOffsets)=>Promise<Readonly<{after:string;scopeCheckPassed:boolean;assertCurrent:()=>void}>>}
 const nodeTextLoading=ref(false),nodeText=shallowRef<NodeTextState>()
+const textSelections=shallowRef<Partial<Record<TextSide,TextOffsets>>>({})
+const textPreviewLoading=ref(false)
+const textPreview=shallowRef<{after?:string;status?:string;error?:string;assertCurrent:()=>void}>()
 const nodeTextState=computed(()=>{
  revision.value
  try{nodeText.value?.assertCurrent();return nodeText.value}catch{return undefined}
 })
-const candidateTextFields=[{type:'r-text',props:{field:'payload',valuePath:['value'],valueFormat:'native',label:'候选稿原文',readonly:true}}]
-const headTextFields=[{type:'r-text',props:{...candidateTextFields[0]!.props,label:'当前稿原文'}}]
+const textPreviewState=computed(()=>{
+ revision.value
+ try{textPreview.value?.assertCurrent();return textPreview.value}catch{return undefined}
+})
+function nodeTextFields(label:string,onTextSelection:(selection:TextOffsets)=>void){
+ return [{type:'r-textarea',props:{field:'payload',valuePath:['value'],valueFormat:'native',label,readonly:true,rows:6,onTextSelection}}]
+}
+const textActions=computed(()=>{
+ const context=nodeTextState.value,source=textSelections.value.candidate,target=textSelections.value.head
+ const preview=context?.previewChange
+ if(!context||!preview||!target)return []
+ const run=(operation:TextOperation)=>async()=>{
+  if(textPreviewLoading.value||nodeTextState.value!==context||textSelections.value.candidate!==source||textSelections.value.head!==target)return
+  textPreviewLoading.value=true;textPreview.value=undefined
+  try{
+   const result=await preview(operation,target,source)
+   if(nodeTextState.value!==context||textSelections.value.candidate!==source||textSelections.value.head!==target)return
+   textPreview.value={after:result.after,status:result.scopeCheckPassed?'待复核改后句意及采用依据':'所选位置超出候选范围',assertCurrent:result.assertCurrent}
+  }catch(cause){
+   if(nodeTextState.value===context&&textSelections.value.candidate===source&&textSelections.value.head===target)
+    textPreview.value={error:cause instanceof Error?cause.message:String(cause),assertCurrent:context.assertCurrent}
+  }finally{textPreviewLoading.value=false}
+ }
+ const actions:Array<{label:string;run:()=>Promise<void>}>=[]
+ if(target.start!==target.end)actions.push({label:'预演删除当前稿选区',run:run('delete')})
+ if(source&&source.start!==source.end)actions.push(target.start===target.end
+  ?{label:'预演插入选中片段',run:run('insert')}:{label:'预演替换选中片段',run:run('replace')})
+ return actions
+})
 const referenceLoading=ref(false)
 type ReferenceKind='事实'|'要求'
 const referenceFailure=shallowRef<{title:string;message:string;assertSelected:()=>void}>()
@@ -242,7 +281,7 @@ const nodeTextAction=computed(()=>{
  return async()=>{
   if(nodeTextLoading.value)return
   try{assertSelected()}catch{return}
-  nodeTextLoading.value=true;nodeText.value=undefined
+  nodeTextLoading.value=true;nodeText.value=undefined;textSelections.value={};textPreview.value=undefined
   try{
    const versions=await binding.readPreviewVersions(assertSelected)
    const headKey=versions.head?.nodes.dataViewKey,headView=headKey?runtime.resolveView(headKey):undefined
@@ -253,7 +292,27 @@ const nodeTextAction=computed(()=>{
    if(candidateId===undefined||!headKey||headId===undefined)throw Error('当前稿没有同一节点的原文')
    if(!isRecord(headPayload)||headPayload['type']!==payload['type']||typeof headPayload['value']!=='string')
     throw Error('当前稿的节点类型或正文与候选节点不匹配')
-   nodeText.value={candidate:{key,rowId:candidateId},head:{key:headKey,rowId:headId},assertCurrent:versions.assertCurrent}
+   const select=(side:TextSide)=>(offsets:TextOffsets)=>{
+    if(nodeText.value?.assertCurrent!==versions.assertCurrent)return
+    try{versions.assertCurrent()}catch{return}
+    const previous=textSelections.value[side]
+    if(previous?.start===offsets.start&&previous.end===offsets.end)return
+    textSelections.value={...textSelections.value,[side]:offsets};textPreview.value=undefined
+   }
+   nodeText.value={
+    candidate:{key,rowId:candidateId,fields:nodeTextFields('候选稿原文',select('candidate'))},
+    head:{key:headKey,rowId:headId,fields:nodeTextFields('当前稿原文',select('head'))},
+    assertCurrent:versions.assertCurrent,
+    previewChange:async(operation,target,source)=>{
+     const targetCoordinates={nodeId,path:'/value',...target}
+     if(operation!=='delete'&&!source)throw Error('请选择候选稿片段')
+     const result=await versions.previewNodeTextChange(operation==='delete'?{operation,target:targetCoordinates}:
+      {operation,target:targetCoordinates,source:{nodeId,path:'/value',...source!}})
+     const after=result.textPreview.patches[0]?.after
+     if(after===undefined)throw Error('没有可显示的句段预演')
+     return {after,scopeCheckPassed:result.nodeScopePreview.scopeCheckPassed,assertCurrent:result.assertCurrent}
+    },
+   }
   }catch(cause){
    if(active&&toRaw(props.binding)===binding&&toRaw(props.runtime)===runtime)
     nodeText.value={error:cause instanceof Error?cause.message:String(cause),assertCurrent:assertSelected}
@@ -278,6 +337,7 @@ watch(()=>[props.runtime,props.binding] as const,()=>{
  referenceResult.value=undefined;referenceFailure.value=undefined
  comparison.value=undefined;comparisonError.value=''
  nodeText.value=undefined
+ textSelections.value={};textPreview.value=undefined
  unsubscribe?.();unsubscribe=undefined;sparkRemove(PAGE_RUNTIME)
  const runtime=toRaw(props.runtime)
  sparkProvide(PAGE_RUNTIME,runtime)

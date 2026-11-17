@@ -5,12 +5,12 @@ import {hashContentNode} from '@/services/smart-bid/content-node-hash'
 import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
-export async function createCandidateReadFixture(mode='normal',options:{tenderConfirmStatus?:'CONFIRMED'|'REJECTED';threeVersions?:boolean}={}){
+export async function createCandidateReadFixture(mode='normal',options:{tenderConfirmStatus?:'CONFIRMED'|'REJECTED';threeVersions?:boolean;headingText?:string}={}){
  const param=(name:string)=>({Type:'GetInputParam',ParamName:name})
  const eq=(field:string,name=field)=>({field,operator:'eq' as const,value:param(name)})
  const payloads=[{nodeId:'D',parentId:'P',index:0,type:'document',class:[],value:'',data:{}},
   {nodeId:'C',parentId:'D',index:0,type:'chapter',class:[],value:'',data:{}},
-  {nodeId:'H',parentId:'C',index:0,type:'heading',class:['candidate-heading'],value:'标题{{册名}}',
+  {nodeId:'H',parentId:'C',index:0,type:'heading',class:['candidate-heading'],value:options.headingText??'标题{{册名}}',
    data:{册名:{type:'xref',nodeId:'D',show:'title'}}}]
  if(mode==='fact'){
   Object.assign(payloads[2]!,{value:'报价{{报价}}元',data:{报价:{type:'fact',factId:'PRICE'}}})

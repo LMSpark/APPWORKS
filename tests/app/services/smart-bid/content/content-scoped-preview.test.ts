@@ -33,6 +33,13 @@ it('derives candidate response scope from the three manifests even with an empty
   {basis:manifest([row]),current:manifest([row]),candidate:manifest([row])})).toThrow('CONTENT_SCOPE_RESPONSE_BASIS')
  expect(()=>previewScopedRevisionChanges(command,{basis:{...manifest([row]),projectId:'OTHER'},
   current:{...manifest([]),projectId:'OTHER'},candidate:{...manifest([]),projectId:'OTHER'}})).toThrow('RESPONSE_COMPARISON_PROJECT')
+ const newResponse={...row,id:'R3',revisionId:'T'}
+ const unfilled={...input(basis(),[{kind:'RESPONSE',assignmentId:'Q',responseId:null}]),
+  responses:[{projectId:'P',assignmentId:'Q',responseId:null}]}
+ expect(()=>previewScopedRevisionChanges(unfilled,{basis:manifest([]),current:manifest([]),candidate:manifest([newResponse])}))
+  .toThrow('CONTENT_SCOPE_ASSIGNMENT_BASIS')
+ const fixedAssignment={...manifest([]),responseAssignments:[{id:'Q'}]}
+ expect(previewScopedRevisionChanges(unfilled,{basis:fixedAssignment,current:fixedAssignment,candidate:manifest([newResponse])}).scopeCheckPassed).toBe(true)
 })
 it('accepts selected node content while retaining current-only edits and pending authority checks',()=>{
  const candidate=basis().map(n=>n.nodeId==='a'?{...n,value:'候选'}:n)

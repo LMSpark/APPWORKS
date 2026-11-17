@@ -10,6 +10,7 @@ import type {ContentStructureNode} from '../content-tree-structure'
 import {resolveContentTargetScope} from './content-target-scope'
 import type {ContentScopeResponse,ContentTargetScope} from './content-target-scope'
 import {compareRevisionResponses} from './revision-response-comparison'
+import {snapshotReferenceIdentity,snapshotReferenceRecord,visitSnapshotReferences} from './references/snapshot-reference-values'
 
 /** 由宿主从实际响应变更提取，不得由AI另交一份无关的“通过清单”。 */
 export type ContentResponseChangeIdentity=Readonly<{assignmentId:string;basisResponseId:string|null;responseId:string|null}>
@@ -161,6 +162,17 @@ export function previewScopedRevisionChanges(
 ){
  const responseComparison=compareRevisionResponses(manifests.basis,manifests.current,manifests.candidate,command.projectId)
  const responses=responseBasis(command.responses),projected=new Map(responses.map(row=>[row.assignmentId,row.responseId]))
+ if(responses.some(row=>row.responseId===null)){
+  const error='CONTENT_SCOPE_ASSIGNMENT_BASIS'
+  const basis=snapshotReferenceRecord(manifests.basis,error)
+  const assignments=new Set<string>()
+  visitSnapshotReferences(basis['responseAssignments'],value=>{
+   const assignmentId=snapshotReferenceRecord(value,error)['id']
+   if(!snapshotReferenceIdentity(assignmentId)||assignments.has(assignmentId))throw Error(error)
+   assignments.add(assignmentId)
+  },error)
+  if(responses.some(row=>row.responseId===null&&!assignments.has(row.assignmentId)))throw Error(error)
+ }
  const basisIds=new Map(responseComparison.map(row=>[row.assignmentId,row.basisResponseId]))
  if(responses.some(row=>row.responseId!==null&&basisIds.get(row.assignmentId)!==row.responseId))
   throw Error('CONTENT_SCOPE_RESPONSE_BASIS')

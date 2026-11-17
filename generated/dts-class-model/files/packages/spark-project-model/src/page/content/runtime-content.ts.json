@@ -34,8 +34,8 @@
         "status": {
           "enum": [
             "idle",
-            "pending",
-            "unknown"
+            "unknown",
+            "pending"
           ]
         },
         "submitted": {

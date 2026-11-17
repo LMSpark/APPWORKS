@@ -12,10 +12,15 @@ import {readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSe
 import {assertContentNodeVersionPayload,hasCompleteSingleContentResult} from './content-node-version-reader'
 import {readContentSnapshotIndex,type ContentSnapshotIndexBinding} from './content-snapshot-reader'
 import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './content-snapshot-nodes'
+import {readContentBaselineFact,type ContentBaselineFactBinding} from './content-baseline-reader'
+
+/** 原候选及同版清单已证明基线身份；冻结和用途许可仍不在读取层推断。 */
+export type ContentCandidateFactBinding=Omit<ContentBaselineFactBinding,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
 
 /** 候选链保留各原视图证明；其它业务分组、当前依据、rootHash和采用必须继续核验。 */
 export type ContentCandidateBinding=Readonly<{
  runtime:ContentRevisionReadHost['runtime']
+ readFixedFact:(selection:Readonly<{factId:string;version?:number}>,assertConsumer?:()=>void)=>Promise<ContentCandidateFactBinding>
  revisions:ContentRevisionReadBinding;snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding
  revisionMatchVerified:true;templateBindingsVerified:true;requirementBindingsVerified:true;responseAnchorsVerified:true;responseTextVerified:true
  requiresResponseReferenceChecks:true;requiresResponsePayloadChecks:true;requiresTemplateResourceChecks:true;requiresRequirementVersionChecks:true;requiresBusinessSectionChecks:true;assertCurrent:()=>void
@@ -60,7 +65,17 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
  assertRevisionResponseAnchors(responses,requirementPins,payloads)
  assertRevisionResponseText(responses,payloads.map(payload=>payload.nodeId))
  assertCurrent()
- return Object.freeze({runtime:host.runtime,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+ const readFixedFact=async(factSelection:Readonly<{factId:string;version?:number}>,assertConsumer?:()=>void):Promise<ContentCandidateFactBinding>=>{
+  const assertContext=()=>{assertCurrent();assertConsumer?.()}
+  assertContext()
+  const baselineId=row['baselineId']
+  if(typeof baselineId!=='string')throw Error('CONTENT_CANDIDATE_BASELINE_REQUIRED')
+  const fact=await readContentBaselineFact({...host,assertCurrent:assertContext},{...factSelection,baselineId,stageRef:row['stageRef']})
+  const assertFact=()=>{assertContext();fact.assertCurrent()}
+  assertFact()
+  return Object.freeze({...fact,requiresRevisionMatchCheck:false,assertCurrent:assertFact})
+ }
+ return Object.freeze({runtime:host.runtime,readFixedFact,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,
   requiresBusinessSectionChecks:true,assertCurrent})

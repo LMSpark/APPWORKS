@@ -12,10 +12,13 @@ export async function createCandidateReadFixture(mode='normal'){
   {nodeId:'C',parentId:'D',index:0,type:'chapter',class:[],value:'',data:{}},
   {nodeId:'H',parentId:'C',index:0,type:'heading',class:['candidate-heading'],value:'标题{{册名}}',
    data:{册名:{type:'xref',nodeId:'D',show:'title'}}}]
+ if(mode==='fact'){
+  Object.assign(payloads[2]!,{value:'报价{{报价}}元',data:{报价:{type:'fact',factId:'PRICE'}}})
+ }
  if(mode==='sibling-tree')payloads.push({nodeId:'Z',parentId:'C',index:1,type:'paragraph',class:[],value:'第一段',data:{}},
   {nodeId:'A',parentId:'C',index:2,type:'paragraph',class:[],value:'第二段',data:{}})
  const members=await Promise.all(payloads.map(async payload=>({nodeId:payload.nodeId,nodeHash:await hashContentNode(payload),payload})))
- const populated=['populated','bad-template','bad-pin','valid-pin','bad-response','sibling-tree'].includes(mode)
+ const populated=['populated','bad-template','bad-pin','valid-pin','bad-response','sibling-tree','fact'].includes(mode)
  const templateRefs=populated?[{documentId:mode==='bad-template'?'H':'D',key:'T',version:'1',hash:'a'.repeat(64)}]:[]
  const manifest={hashContract:'spark-bid.revision-snapshot/1',projectId:'P',baselineId:'B',stageRef:{id:'ST',version:'1'},
   templateRefs,nodes:populated?members.map(({nodeId,nodeHash})=>({nodeId,nodeHash})).sort((a,b)=>a.nodeId<b.nodeId?-1:1):[],
@@ -25,6 +28,10 @@ export async function createCandidateReadFixture(mode='normal'){
   qualificationReviews:[],sensitiveRefs:[]}
  const snapshotHash=await hashRevisionSnapshot(manifest)
  const ds=DataSet.fromJson({scenarioId:'S',tables:{
+  Baseline:{modelBinding:{modelId:'BM',modelName:'Baseline'},columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'stageRef',type:'object'},{name:'factVersions',type:'object'}],
+   views:{default:{},selectedBaseline:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','baselineId')]}}}},
+  FactVersion:{modelBinding:{modelId:'FM',modelName:'FactVersion'},columns:['id','projectId','key','version','kind','value','unit','sourceIds','claimId','scopeRef','decisionRefs','dependencyRefs','promiseTerms','sourceRecord','status'].map(name=>({name,isPrimaryKey:name==='id',type:name==='version'?'number':['value','sourceIds','scopeRef','decisionRefs','dependencyRefs','promiseTerms','sourceRecord'].includes(name)?'object':'string'})),
+   views:{default:{},selectedFactVersion:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('key'),eq('version')]}}}},
   ContentProject:{modelBinding:{modelId:'PM',modelName:'ContentProject'},columns:[{name:'projectId',type:'string',isPrimaryKey:true},{name:'headRevisionId',type:'string'}],
    views:{default:{},selectedProject:{scopeFilter:eq('projectId')}}},
   ContentRevision:{modelBinding:{modelId:'RM',modelName:'ContentRevision'},columns:[{name:'id',type:'string',isPrimaryKey:true},
@@ -41,7 +48,9 @@ export async function createCandidateReadFixture(mode='normal'){
   templateRefs:mode==='template'?[{documentId:'D',key:'T',version:'2',hash:'a'.repeat(64)}]:templateRefs}
  const query=vi.fn(async(view:DataView)=>{
   const model=view.dataTable!.tableName,q=new DataSpaceQueryTable({scenarioId:'S',metaName:model})
-  const rows=model==='ContentProject'?[{projectId:'P',headRevisionId:null}]:model==='ContentRevision'?[candidate]:
+  const rows=model==='Baseline'?[{id:mode==='wrong-fact-baseline'?'OTHER':'B',projectId:'P',stageRef:{id:'ST',version:'1'},factVersions:[{factId:'PRICE',version:2}]}]:
+   model==='FactVersion'?[{id:'FV2',projectId:'P',key:'PRICE',version:2,kind:'PRICE',value:'0.00',unit:'元',sourceIds:[],claimId:null,scopeRef:null,decisionRefs:[],dependencyRefs:[],promiseTerms:null,sourceRecord:null,status:'ADOPTED'}]:
+   model==='ContentProject'?[{projectId:'P',headRevisionId:null}]:model==='ContentRevision'?[candidate]:
    model==='ContentNodeVersion'?(mode==='sibling-tree'?[...members].sort((a,b)=>a.nodeId<b.nodeId?-1:1):members)
     .map(member=>({id:`ROW_${member.nodeId}`,projectId:'P',...member})):[{id:'SN',projectId:'P',snapshotHash,manifest}]
   return new DataSpaceQueryContext({identity:q.identity,scope:'q',readScope:()=> 'q',snapshot:q.applyResult({Result:{primaryKeyField:model==='ContentProject'?'projectId':'id',data:{

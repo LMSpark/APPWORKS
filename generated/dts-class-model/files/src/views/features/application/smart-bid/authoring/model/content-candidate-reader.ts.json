@@ -10,10 +10,46 @@
     "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-candidate-reader\n职责：在原正文运行实例串联候选修订、同版清单及完整节点成员。\n边界：仅返回原视图绑定与证明；不缓存载荷、不采用、不冒充完整业务闭包或三版预演。\nAI用途：候选内容先核固定依据一致，再交后续业务检查；JSON内容与模板引用分别核对。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
+      "ContentCandidateFactBinding",
       "ContentCandidateBinding"
     ]
   },
   "$defs": {
+    "ContentCandidateFactBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentCandidateFactBinding",
+      "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "baselineDataViewKey": {
+          "type": "string"
+        },
+        "factDataViewKey": {
+          "type": "string"
+        },
+        "baselineMembershipVerified": {
+          "const": true
+        },
+        "requiresUseCheck": {
+          "const": true
+        },
+        "requiresRevisionMatchCheck": {
+          "const": false
+        }
+      },
+      "required": [
+        "assertCurrent",
+        "baselineDataViewKey",
+        "factDataViewKey",
+        "baselineMembershipVerified",
+        "requiresUseCheck",
+        "requiresRevisionMatchCheck"
+      ],
+      "additionalProperties": false
+    },
     "ContentCandidateBinding": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -74,6 +110,35 @@
       },
       "additionalProperties": false,
       "$defs": {
+        "method.readFixedFact.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "type": "object",
+              "properties": {
+                "factId": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "factId"
+              ],
+              "additionalProperties": false
+            },
+            "assertConsumer": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFixedFact.return": {
+          "type": "object",
+          "title": "Promise<ContentCandidateFactBinding>"
+        },
         "method.assertCurrent.params": {
           "type": "object",
           "properties": {},
@@ -83,18 +148,47 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T13:33:46.845Z",
+  "generatedAt": "2026-11-17T16:39:52.198Z",
   "models": {
+    "ContentCandidateFactBinding": {
+      "name": "ContentCandidateFactBinding",
+      "jsdoc": "原候选及同版清单已证明基线身份；冻结和用途许可仍不在读取层推断。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<ContentBaselineFactBinding, 'requiresRevisionMatchCheck'> & Readonly<{\n    requiresRevisionMatchCheck: false;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<ContentBaselineFactBinding, 'requiresRevisionMatchCheck'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    requiresRevisionMatchCheck: false;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requiresRevisionMatchCheck",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "ContentCandidateBinding": {
       "name": "ContentCandidateBinding",
       "jsdoc": "候选链保留各原视图证明；其它业务分组、当前依据、rootHash和采用必须继续核验。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -172,6 +266,55 @@
             }
           ],
           "methods": [
+            {
+              "name": "readFixedFact",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        factId: string;\n        version?: number;\n    }"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentCandidateFactBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
             {
               "name": "assertCurrent",
               "parameters": [],

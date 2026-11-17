@@ -8,7 +8,7 @@ import type {RFormProps} from '@spark-appworks/spark-component'
 import type {JsonPath} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {ContentTreeDraftEditor} from './content-tree-draft-editor'
-import {contentReferenceEditorSchema} from './content/references/content-reference-editor-schema'
+import {contentReferenceEditorSchema,contentTableEditorSchema} from './content/references/content-reference-editor-schema'
 
 /** 本次宿主的正式绑定及临时选择；结构操作后宿主须清除选择。 */
 export type ContentTreeEditorLayoutInput = Readonly<{
@@ -41,6 +41,13 @@ function selection(input: ContentTreeEditorLayoutInput) {
 export function contentTreeEditorLayout(input: ContentTreeEditorLayoutInput): RFormProps {
   const {dataViewKey,draftId,projectId,selectedPath}=input,{selected}=selection(input)
   const editableText = isRecord(selected) && ['heading', 'paragraph', 'caption'].includes(String(selected['type']))
+  const tableNode=selected?.['type']==='table'
+  const originalDraft=input.view.rows.find(row=>input.view.getPkKey(row)===draftId)?.['draft']
+  const originalNode:unknown=isRecord(originalDraft)&&Array.isArray(originalDraft['nodes'])
+   ?originalDraft['nodes'].find((node:unknown)=>isRecord(node)&&node['nodeId']===selected?.['nodeId']):undefined
+  const originalData=isRecord(originalNode)?originalNode['data']:undefined
+  const originalGenerator=isRecord(originalData)&&Array.isArray(originalData['header'])&&originalData['header'].length===0
+  const editableTable=tableNode&&!originalGenerator
   return {dataViewKey, contextRowId: draftId, autoColumns: false, gridMinWidth: '360px', children: [
     {type: 'r-json', props: {field: 'draft', dataMember: 'currentRow', valueFormat: 'native', valuePath: ['nodes'],
       mode: 'outline', outlineIdField: 'nodeId', outlineParentField: 'parentId', outlineRootValue: projectId,
@@ -48,8 +55,8 @@ export function contentTreeEditorLayout(input: ContentTreeEditorLayoutInput): RF
       {type: 'r-text', props: {field: 'type', label: '类型'}}, {type: 'r-text', props: {field: 'value', label: '内容'}},
     ]},
     ...(selectedPath === null ? [] : [{type: 'r-json', props: {field: 'draft', dataMember: 'currentRow', valueFormat: 'native',
-      valuePath: ['nodes', ...selectedPath], mode: 'form', readonly: !editableText,
-      schema:contentReferenceEditorSchema(typeof selected?.['value']==='string'?selected['value']:'',selected?.['data']),
+      valuePath: ['nodes', ...selectedPath], mode: 'form', readonly: !editableText&&!editableTable,
+      schema:tableNode?contentTableEditorSchema():contentReferenceEditorSchema(typeof selected?.['value']==='string'?selected['value']:'',selected?.['data']),
       onEditingChange: input.onEditingChange}}]),
   ]}
 }
@@ -99,6 +106,8 @@ export function contentTreeDraftActionLayout(input:ContentTreeEditorLayoutInput,
    onClick:run(editor=>{if(!nodeId)throw Error('请先选择列表');editor.addListItem(nodeId,{itemId:id(),paragraphId:id(),value:''})})}},
   {type:'r-button',props:{label:'新增引文',permAction:'edit',disabled:disabled||!nodeId||type!=='chapter',
    onClick:run(editor=>{if(!nodeId)throw Error('请先选择章节');editor.addQuote(nodeId,{quoteId:id(),paragraphId:id(),value:''})})}},
+  {type:'r-button',props:{label:'新增普通表',permAction:'edit',disabled:disabled||!nodeId||!['chapter','item'].includes(String(type)),
+   onClick:run(editor=>{if(!nodeId)throw Error('请先选择章节或列表项');editor.addTable(nodeId,{nodeId:id(),header:['说明'],rows:[]})})}},
   {type:'r-button',props:{label:'新增目录',permAction:'edit',disabled:disabled||!nodeId||type!=='document'
    ||records.some(node=>node['parentId']===nodeId&&node['type']==='toc'),
    onClick:run(editor=>{if(!nodeId)throw Error('请先选择逻辑册');editor.addTableOfContents(nodeId,id())})}},

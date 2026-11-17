@@ -182,8 +182,7 @@
       "title": "LowcodeDataSpaceAssembly",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "diagnostics": {
           "type": "array",
@@ -230,7 +229,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-13T15:30:08.719Z",
+  "generatedAt": "2026-11-17T16:39:44.009Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",

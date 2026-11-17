@@ -503,7 +503,8 @@
           "type": "string"
         },
         "prepared": {
-          "$ref": "#/$defs/Prepared"
+          "type": "object",
+          "title": "PageDataSpaceModelSourcePrepared"
         },
         "differences": {
           "type": "array",
@@ -766,12 +767,12 @@
       "title": "ModelSourceEditStatus",
       "enum": [
         "idle",
-        "unsubmitted",
-        "unknown",
-        "readback",
         "previewing",
         "ready",
         "saving",
+        "unsubmitted",
+        "unknown",
+        "readback",
         "different",
         "configuration"
       ]
@@ -1114,8 +1115,7 @@
       "title": "ModelSourceEditHost",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"
@@ -1191,8 +1191,7 @@
       "title": "ModelSourceEditHostInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"

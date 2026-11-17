@@ -17,6 +17,48 @@ async function fixture(writable = true) {
   return {ds, view, editor: new ContentTreeDraftEditor(view, 'D', 'P'), invalidate: () => {scope = 'changed'}}
 }
 
+it('inserts an ordinary JSON table with fixed fact references and cancels through the original draft',async()=>{
+ const f=await fixture()
+ try{
+  f.editor.addDocument({documentId:'B',chapterId:'C',headingId:'H',title:'报价'})
+  f.editor.addTable('C',{nodeId:'T',header:['项目','金额'],rows:[[{value:'总价',data:{}},{value:'{{金额}}',data:{金额:{type:'fact',factId:'PRICE'}}}]]})
+  const draft=f.view.getEditingRow('D')!['draft'] as {nodes:Array<{nodeId:string;value:string;data:unknown}>}
+  expect(draft.nodes.find(node=>node.nodeId==='T')).toMatchObject({value:'',data:{header:['项目','金额'],rows:[[{value:'总价',data:{}},{value:'{{金额}}',data:{金额:{type:'fact',factId:'PRICE'}}}]]}})
+  expect(f.view.rows[0]!['draft']).toEqual({nodes:[],responseChanges:[{id:'R'}]})
+  f.view.discardEditingRows();expect(f.view.getEditingRow('D')!['draft']).toEqual({nodes:[],responseChanges:[{id:'R'}]})
+ }finally{f.ds.destroy()}
+})
+it.each([
+ {header:[],rows:[]},
+ {header:['列','列'],rows:[]},
+ {header:['列'],rows:[[]]},
+ {header:['列'],rows:[[{value:'{{金额}}',data:{金额:{type:'fact',factId:'PRICE'}}}]]},
+ {header:['列'],rows:[[{value:'词句',data:{}}],[{value:'{{列}}',data:{列:{type:'fact',factId:'PRICE'}}}]]},
+])('rejects invalid ordinary table data before any editing write %j',async data=>{
+ const f=await fixture()
+ try{
+  f.editor.addDocument({documentId:'B',chapterId:'C',headingId:'H',title:'报价'})
+  const before=structuredClone(f.view.getEditingRow('D')!['draft'])
+  expect(()=>f.editor.addTable('C',{nodeId:'T',...data})).toThrow()
+  expect(f.view.getEditingRow('D')!['draft']).toEqual(before)
+ }finally{f.ds.destroy()}
+})
+it('replaces table content atomically while keeping its identity, position and other draft content',async()=>{
+ const f=await fixture()
+ try{
+  f.editor.addDocument({documentId:'B',chapterId:'C',headingId:'H',title:'报价'})
+  f.editor.addTable('C',{nodeId:'T',header:['说明'],rows:[[{value:'原词句',data:{}}]]})
+  f.editor.updateTable('T',{header:['金额'],rows:[[{value:'{{金额}}',data:{金额:{type:'fact',factId:'PRICE'}}}]]})
+  const draft=f.view.getEditingRow('D')!['draft'] as {nodes:unknown[];responseChanges:unknown[]}
+  expect(draft.nodes).toContainEqual({nodeId:'T',parentId:'C',index:1,type:'table',class:[],value:'',data:{header:['金额'],rows:[[{value:'{{金额}}',data:{金额:{type:'fact',factId:'PRICE'}}}]]}})
+  expect(draft.responseChanges).toEqual([{id:'R'}])
+  const before=structuredClone(draft)
+  expect(()=>f.editor.updateTable('T',{header:['金额'],rows:[[]]})).toThrow()
+  expect(()=>f.editor.updateTable('H',{header:['说明'],rows:[]})).toThrow()
+  expect(f.view.getEditingRow('D')!['draft']).toEqual(before)
+ }finally{f.ds.destroy()}
+})
+
 it('rejects noncanonical payloads before changing native draft editing state', async () => {
   const {ds, view, editor} = await fixture()
   try {

@@ -1,0 +1,401 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/recovery-journal",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/semi-structured/pdf-inspect/recovery-journal",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/recovery-journal\n职责：在原核验命令存储适配内部保留最小请求恢复定位。\n边界：不存业务输入、文件路径或凭据，不派发/重放任务，不充当任务历史。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "PdfInspectionRecoveryOwner",
+      "PdfInspectionRecoveryPointer",
+      "PdfInspectionRecoveryStorage",
+      "PdfInspectionRecoveryJournal"
+    ]
+  },
+  "$defs": {
+    "PdfInspectionRecoveryOwner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionRecoveryOwner",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "enterpriseShortName": {
+          "type": "string"
+        },
+        "actorId": {
+          "type": "string"
+        },
+        "applicationId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enterpriseId",
+        "enterpriseShortName",
+        "actorId",
+        "applicationId",
+        "scenarioId"
+      ],
+      "additionalProperties": false
+    },
+    "PdfInspectionRecoveryPointer": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionRecoveryPointer",
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "recoveryUrl": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "requestId",
+        "recoveryUrl"
+      ],
+      "additionalProperties": false
+    },
+    "PdfInspectionRecoveryStorage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionRecoveryStorage",
+      "properties": {
+        "length": {
+          "type": "number"
+        },
+        "key": {
+          "type": "object",
+          "title": "(index: number) => string | null"
+        },
+        "getItem": {
+          "type": "object",
+          "title": "(key: string) => string | null"
+        },
+        "setItem": {
+          "type": "object",
+          "title": "(key: string, value: string) => void"
+        },
+        "removeItem": {
+          "type": "object",
+          "title": "(key: string) => void"
+        }
+      },
+      "required": [
+        "length",
+        "key",
+        "getItem",
+        "setItem",
+        "removeItem"
+      ],
+      "additionalProperties": false
+    },
+    "PdfInspectionRecoveryJournal": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionRecoveryJournal",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "storage": {
+                  "$ref": "#/$defs/PdfInspectionRecoveryStorage"
+                },
+                "owner": {
+                  "$ref": "#/$defs/PdfInspectionRecoveryOwner"
+                },
+                "resolveUrl": {
+                  "type": "object",
+                  "title": "(requestId: string) => string"
+                }
+              },
+              "required": [
+                "storage",
+                "owner",
+                "resolveUrl"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.begin.params": {
+          "type": "object",
+          "properties": {
+            "requestId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.begin.return": {
+          "$ref": "#/$defs/PdfInspectionRecoveryPointer"
+        },
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {
+            "pointer": {
+              "$ref": "#/$defs/PdfInspectionRecoveryPointer"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.pending.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.pending.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PdfInspectionRecoveryPointer"
+          }
+        },
+        "method.settle.params": {
+          "type": "object",
+          "properties": {
+            "pointer": {
+              "$ref": "#/$defs/PdfInspectionRecoveryPointer"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.settle.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-17T17:03:42.879Z",
+  "models": {
+    "PdfInspectionRecoveryOwner": {
+      "name": "PdfInspectionRecoveryOwner",
+      "jsdoc": "稳定拥有者分区，不得使用登录令牌代替任一身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    enterpriseId: string;\n    enterpriseShortName: string;\n    actorId: string;\n    applicationId: string;\n    scenarioId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    enterpriseId: string;\n    enterpriseShortName: string;\n    actorId: string;\n    applicationId: string;\n    scenarioId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enterpriseShortName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actorId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applicationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectionRecoveryPointer": {
+      "name": "PdfInspectionRecoveryPointer",
+      "jsdoc": "只保存原请求和同站恢复链接；它不是任务接纳回执。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    version: 1;\n    requestId: string;\n    recoveryUrl: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    version: 1;\n    requestId: string;\n    recoveryUrl: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "recoveryUrl",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectionRecoveryStorage": {
+      "name": "PdfInspectionRecoveryStorage",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Storage, 'length' | 'key' | 'getItem' | 'setItem' | 'removeItem'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<Storage, 'length' | 'key' | 'getItem' | 'setItem' | 'removeItem'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "length",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "key",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getItem",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "setItem",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removeItem",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectionRecoveryJournal": {
+      "name": "PdfInspectionRecoveryJournal",
+      "jsdoc": "原命令拥有者调用；业务结果须先由原DataView证明，再结算定位。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: Readonly<{\n        storage: PdfInspectionRecoveryStorage;\n        owner: PdfInspectionRecoveryOwner;\n        resolveUrl: (requestId: string) => string;\n    }>)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        storage: PdfInspectionRecoveryStorage;\n        owner: PdfInspectionRecoveryOwner;\n        resolveUrl: (requestId: string) => string;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "begin",
+              "jsdoc": "写后任何错误仍交还同一捕获；调用方必须接纳原pending行，派发前只读核验。",
+              "parameters": [
+                {
+                  "name": "requestId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "PdfInspectionRecoveryPointer",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "jsdoc": "只读屏障；丢失、损坏或读失败均不允许首次派发，不自动重写。",
+              "parameters": [
+                {
+                  "name": "pointer",
+                  "type": {
+                    "type": "reference",
+                    "name": "PdfInspectionRecoveryPointer",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "pending",
+              "jsdoc": "仅返回该拥有者的待核定位，拒绝损坏记录，不把空结果解释为任务未执行。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "readonly PdfInspectionRecoveryPointer[]"
+              }
+            },
+            {
+              "name": "settle",
+              "jsdoc": "调用者先核原DataSet接纳回执/Recover证明，或资源明确证明从未派发；清理失败不能重init。",
+              "parameters": [
+                {
+                  "name": "pointer",
+                  "type": {
+                    "type": "reference",
+                    "name": "PdfInspectionRecoveryPointer",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

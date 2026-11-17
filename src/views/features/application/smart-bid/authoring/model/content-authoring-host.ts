@@ -6,7 +6,7 @@
  */
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataView, type DataViewFilterTree} from '@spark-appworks/spark-data'
-import type {PageRuntime} from '@spark-appworks/spark-project-model'
+import type {PageRuntime,PageTool} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
@@ -16,6 +16,7 @@ import {readContentSnapshotIndex,type ContentSnapshotSelection,type ContentSnaps
 import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './content-snapshot-nodes'
 import {readCandidateContent,type ContentCandidateBinding} from './content-candidate-reader'
 import {readContentFactVersion,type ContentFactVersionSelection,type ContentFactVersionBinding} from './content-fact-version-reader'
+import {readContentBaselineFact,type ContentBaselineFactSelection,type ContentBaselineFactBinding} from './content-baseline-reader'
 
 /** 导航宿主核实的应用、页面和数据空间，以及本次明确选中的业务目标。作者不由调用参数提供。 */
 export type ContentAuthoringTarget = Readonly<{
@@ -37,6 +38,7 @@ export type ContentAuthoringBinding = Readonly<{
  readCandidateContent:(selection:ContentRevisionSelection)=>Promise<ContentCandidateBinding>
  /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */
  readFactVersion:(selection:ContentFactVersionSelection)=>Promise<ContentFactVersionBinding>
+ readBaselineFact:(selection:ContentBaselineFactSelection)=>Promise<ContentBaselineFactBinding>
 }>
 
 function scoped(view:DataView, field:string, parameter:string):boolean {
@@ -64,29 +66,31 @@ export class ContentAuthoringHost {
  #generation=0
  #binding:ContentAuthoringBinding|undefined
  #key:string|undefined
+ #tool:PageTool|undefined
  #pending=false
  get binding():ContentAuthoringBinding|undefined{return this.#binding}
  get hasPending():boolean{return this.#pending || this.#session.runtime?.isDirty===true}
 
  /** 装配正式空间并只查询本次项目与作者的视图；目标或认证代次变化创建新实例。 */
- async open(input:ContentAuthoringTarget):Promise<ContentAuthoringBinding> {
+ async open(input:ContentAuthoringTarget,tool?:PageTool):Promise<ContentAuthoringBinding> {
   const target=Object.freeze({...input})
   if((['applicationId','pageId','scenarioId','projectId','draftId'] as const).some(name=>{
    const value=target[name]
    return typeof value!=='string'||!value.trim()||value.trim()!==value
   }))
    throw Error('CONTENT_AUTHORING_IDENTITY_REQUIRED: 缺少明确的编制目标')
+  if(tool&&(tool.pageId!==target.pageId||!tool.isLoaded))throw Error('CONTENT_AUTHORING_TOOL_IDENTITY_REQUIRED')
   const actorUserId=lowcodeApi.session.get()?.identity.userId
   const scope=lowcodeApi.readRequestScope()
   if(!actorUserId?.trim()||scope.headers['X-AppId']!==target.applicationId)
    throw Error('CONTENT_AUTHORING_IDENTITY_REQUIRED: 当前作者或应用与目标不符')
   const key=JSON.stringify([target.applicationId,target.pageId,target.scenarioId,target.projectId,target.draftId,scope.token,actorUserId])
-  if(this.#key===key && this.#binding){this.#binding.assertCurrent();return this.#binding}
+  if(this.#key===key && this.#binding&&this.#tool===tool){this.#binding.assertCurrent();return this.#binding}
   if(this.hasPending)throw Error('CONTENT_AUTHORING_PENDING: 请先处理原项目的未保存编辑')
   const own=++this.#generation
-  this.#binding=undefined;this.#key=undefined;this.#pending=false
+  this.#binding=undefined;this.#key=undefined;this.#tool=undefined;this.#pending=false
   try {
-   const runtime=this.#session.acquire({pageId:target.pageId,scenarioIds:[target.scenarioId],targetId:key,
+   const runtime=this.#session.acquire({...(tool?{tool}:{pageId:target.pageId}),scenarioIds:[target.scenarioId],targetId:key,
     scenarioInputs:{[target.scenarioId]:{projectId:target.projectId,currentUserId:actorUserId}},
     loadScenario:scenarioId=>loadLowcodeRuntimeScenario({projectId:target.applicationId,scenarioId})})
    let views:DataView[]=[],loaded=false
@@ -124,6 +128,7 @@ export class ContentAuthoringHost {
     readSnapshotNodes:snapshot=>readContentSnapshotNodes({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},snapshot),
     readCandidateContent:selection=>readCandidateContent({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
     readFactVersion:selection=>readContentFactVersion({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
+    readBaselineFact:selection=>readContentBaselineFact({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
     setPending:(value:boolean)=>{
      if(own!==this.#generation||!this.#session.isCurrent(runtime))return
      // 失效只能保留未写回输入的保护；旧回调不能清除它并放行销毁。
@@ -131,7 +136,7 @@ export class ContentAuthoringHost {
      try{assertCurrent();this.#pending=false}catch{/* 保留当前未保存输入。 */}
     },
    })
-   this.#binding=binding;this.#key=key
+   this.#binding=binding;this.#key=key;this.#tool=tool
    return binding
   } catch(cause){if(own===this.#generation)this.#session.dispose();throw cause}
  }
@@ -139,6 +144,6 @@ export class ContentAuthoringHost {
  /** 正常离页前调用；未保存编辑必须先通过原组件取消或正式保存，不能隐式丢弃。 */
  close():void {
   if(this.hasPending)throw Error('CONTENT_AUTHORING_PENDING: 请先处理未保存编辑')
-  this.#generation++;this.#binding=undefined;this.#key=undefined;this.#pending=false;this.#session.dispose()
+  this.#generation++;this.#binding=undefined;this.#key=undefined;this.#tool=undefined;this.#pending=false;this.#session.dispose()
  }
 }

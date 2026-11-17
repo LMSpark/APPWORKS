@@ -19,7 +19,7 @@ function identity(params:Readonly<QueryParams>,field:string):string{
 function jobRow(job:PdfInspectionJob){return{inspectJobId:job.inspectJobId,requestId:job.requestId,status:job.status,total:job.progress.total,finished:job.progress.finished,files:job.files}}
 /** 只返回给原DataSet装配责任方，页面不直接调用HTTP。 */
 export function pdfInspectionReadonlyBinding(input:Readonly<{api:PdfInspectionApi;kind:PdfInspectionReadonlyKind;assertCurrent:()=>void}>):BindReadonlyCommandQueryOptions{
- const common={resource:{resourceType:'service-query',resourceId:`pdf-inspect:${input.kind}`},guard:input.assertCurrent,
+ const common={resource:{resourceType:'logical-view',resourceId:`pdf-inspect:${input.kind}`},guard:input.assertCurrent,
   captureQueryInputs:(view:DataView,params:Readonly<QueryParams>)=>{
    const context=JSON.stringify(params.context??{})
    return()=>{if(JSON.stringify(view.queryContext)!==context)throw Error('PDF_INSPECTION_QUERY: 原查询参数已变化')}

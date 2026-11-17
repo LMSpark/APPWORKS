@@ -10,6 +10,7 @@
     "jsdoc": "@module app:services/smart-bid/content-tree-draft-editor\n职责：编排人工内容树的草稿编辑，变更只写绑定WorkingDraft视图的draft字段。\n边界：不持有页面草稿、不保存或采用修订；取消和持久化继续由原DataView/DataSet承担。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "ContentTableInput",
       "ContentTreeDraftEditor"
     ]
   },
@@ -56,6 +57,52 @@
       "required": [
         "paragraphId",
         "value"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTableInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTableInput",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "header": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              },
+              "required": [
+                "value",
+                "data"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "required": [
+        "nodeId",
+        "header",
+        "rows"
       ],
       "additionalProperties": false
     },
@@ -277,6 +324,36 @@
           "additionalProperties": false
         },
         "method.addTableOfContents.return": true,
+        "method.addTable.params": {
+          "type": "object",
+          "properties": {
+            "parentId": {
+              "type": "string"
+            },
+            "input": {
+              "$ref": "#/$defs/ContentTableInput"
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addTable.return": true,
+        "method.updateTable.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "input": {
+              "type": "object",
+              "title": "Omit<ContentTableInput, 'nodeId'>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateTable.return": true,
         "method.updateText.params": {
           "type": "object",
           "properties": {
@@ -323,7 +400,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T15:03:03.413Z",
+  "generatedAt": "2026-11-17T16:45:35.203Z",
   "models": {
     "ChapterInput": {
       "name": "ChapterInput",
@@ -386,6 +463,40 @@
             },
             {
               "name": "data",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTableInput": {
+      "name": "ContentTableInput",
+      "jsdoc": "普通表只有语义表头和原生单元格，不携带列宽、边框或文件格式。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    header: readonly string[];\n    rows: ReadonlyArray<ReadonlyArray<Readonly<{\n        value: string;\n        data: Readonly<Record<string, unknown>>;\n    }>>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    header: readonly string[];\n    rows: ReadonlyArray<ReadonlyArray<Readonly<{\n        value: string;\n        data: Readonly<Record<string, unknown>>;\n    }>>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
               "readable": true,
               "writable": false
             }
@@ -709,6 +820,76 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addTable",
+              "jsdoc": "新增原生JSON普通表；计算表由生成器责任域处理。",
+              "parameters": [
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentTableInput",
+                    "sourcePath": "src/services/smart-bid/content-tree-draft-editor.ts"
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "updateTable",
+              "jsdoc": "修改已有普通表的语义内容，稳定身份和结构保持原值。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Omit",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "ContentTableInput",
+                        "sourcePath": "src/services/smart-bid/content-tree-draft-editor.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "nodeId"
+                      }
+                    ]
                   }
                 }
               ],

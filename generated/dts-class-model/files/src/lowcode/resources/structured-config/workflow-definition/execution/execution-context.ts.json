@@ -23,8 +23,7 @@
           "type": "object",
           "properties": {
             "ds": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "workflowId": {
               "type": "string"

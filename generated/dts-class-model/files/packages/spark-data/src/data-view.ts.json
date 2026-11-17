@@ -71,8 +71,8 @@
         "state": {
           "enum": [
             "unknown",
-            "not-applied",
-            "confirmed"
+            "confirmed",
+            "not-applied"
           ]
         },
         "error": {
@@ -96,8 +96,8 @@
           "enum": [
             "none",
             "unknown",
-            "not-applied",
             "confirmed",
+            "not-applied",
             "partial"
           ]
         },

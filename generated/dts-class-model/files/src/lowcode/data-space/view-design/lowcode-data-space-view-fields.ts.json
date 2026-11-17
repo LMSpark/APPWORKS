@@ -122,15 +122,13 @@
         "columns": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "selectionColumns": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "primaryKeys": {
@@ -173,8 +171,7 @@
         "method.columns.return": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "method.validateProjection.params": {
@@ -222,8 +219,7 @@
         "method.selectionColumns.return": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "method.validateSelection.params": {

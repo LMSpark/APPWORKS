@@ -162,6 +162,19 @@
         "method.readFactVersion.return": {
           "type": "object",
           "title": "Promise<ContentFactVersionBinding>"
+        },
+        "method.readBaselineFact.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "content-baseline-reader.ts.json#/$defs/ContentBaselineFactSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readBaselineFact.return": {
+          "type": "object",
+          "title": "Promise<ContentBaselineFactBinding>"
         }
       }
     },
@@ -189,6 +202,9 @@
           "properties": {
             "input": {
               "$ref": "#/$defs/ContentAuthoringTarget"
+            },
+            "tool": {
+              "$ref": "../../../../../../../packages/spark-project-model/src/page/page-tool.ts.json#/$defs/PageTool"
             }
           },
           "additionalProperties": false
@@ -206,7 +222,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T15:08:56.515Z",
+  "generatedAt": "2026-11-17T17:21:49.530Z",
   "models": {
     "ContentAuthoringTarget": {
       "name": "ContentAuthoringTarget",
@@ -257,11 +273,11 @@
       "jsdoc": "直接交给正文组件的原实例绑定；pending只表示尚未写回字段的交互，不保存业务数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n    /** 原节点版本读取；完整快照成员关系仍由快照装配核对。 */\n    readNodeVersion: (selection: ContentNodeVersionSelection) => Promise<ContentNodeVersionBinding>;\n    /** 读取并核同版清单摘要；业务闭包及修订匹配仍另核。 */\n    readSnapshotIndex: (selection: ContentSnapshotSelection) => Promise<ContentSnapshotIndexBinding>;\n    /** 沿完整成员视图装配本次已核清单节点；其它分组和采用另核。 */\n    readSnapshotNodes: (snapshot: ContentSnapshotIndexBinding) => Promise<ContentSnapshotNodesBinding>;\n    /** 候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。 */\n    readCandidateContent: (selection: ContentRevisionSelection) => Promise<ContentCandidateBinding>;\n    /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */\n    readFactVersion: (selection: ContentFactVersionSelection) => Promise<ContentFactVersionBinding>;\n}>",
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n    /** 原节点版本读取；完整快照成员关系仍由快照装配核对。 */\n    readNodeVersion: (selection: ContentNodeVersionSelection) => Promise<ContentNodeVersionBinding>;\n    /** 读取并核同版清单摘要；业务闭包及修订匹配仍另核。 */\n    readSnapshotIndex: (selection: ContentSnapshotSelection) => Promise<ContentSnapshotIndexBinding>;\n    /** 沿完整成员视图装配本次已核清单节点；其它分组和采用另核。 */\n    readSnapshotNodes: (snapshot: ContentSnapshotIndexBinding) => Promise<ContentSnapshotNodesBinding>;\n    /** 候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。 */\n    readCandidateContent: (selection: ContentRevisionSelection) => Promise<ContentCandidateBinding>;\n    /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */\n    readFactVersion: (selection: ContentFactVersionSelection) => Promise<ContentFactVersionBinding>;\n    readBaselineFact: (selection: ContentBaselineFactSelection) => Promise<ContentBaselineFactBinding>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n    /** 原节点版本读取；完整快照成员关系仍由快照装配核对。 */\n    readNodeVersion: (selection: ContentNodeVersionSelection) => Promise<ContentNodeVersionBinding>;\n    /** 读取并核同版清单摘要；业务闭包及修订匹配仍另核。 */\n    readSnapshotIndex: (selection: ContentSnapshotSelection) => Promise<ContentSnapshotIndexBinding>;\n    /** 沿完整成员视图装配本次已核清单节点；其它分组和采用另核。 */\n    readSnapshotNodes: (snapshot: ContentSnapshotIndexBinding) => Promise<ContentSnapshotNodesBinding>;\n    /** 候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。 */\n    readCandidateContent: (selection: ContentRevisionSelection) => Promise<ContentCandidateBinding>;\n    /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */\n    readFactVersion: (selection: ContentFactVersionSelection) => Promise<ContentFactVersionBinding>;\n}>",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n    /** 原节点版本读取；完整快照成员关系仍由快照装配核对。 */\n    readNodeVersion: (selection: ContentNodeVersionSelection) => Promise<ContentNodeVersionBinding>;\n    /** 读取并核同版清单摘要；业务闭包及修订匹配仍另核。 */\n    readSnapshotIndex: (selection: ContentSnapshotSelection) => Promise<ContentSnapshotIndexBinding>;\n    /** 沿完整成员视图装配本次已核清单节点；其它分组和采用另核。 */\n    readSnapshotNodes: (snapshot: ContentSnapshotIndexBinding) => Promise<ContentSnapshotNodesBinding>;\n    /** 候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。 */\n    readCandidateContent: (selection: ContentRevisionSelection) => Promise<ContentCandidateBinding>;\n    /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */\n    readFactVersion: (selection: ContentFactVersionSelection) => Promise<ContentFactVersionBinding>;\n    readBaselineFact: (selection: ContentBaselineFactSelection) => Promise<ContentBaselineFactBinding>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -467,6 +483,30 @@
                   }
                 ]
               }
+            },
+            {
+              "name": "readBaselineFact",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentBaselineFactSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentBaselineFactBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts"
+                  }
+                ]
+              }
             }
           ]
         }
@@ -506,6 +546,16 @@
                     "type": "reference",
                     "name": "ContentAuthoringTarget",
                     "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts"
+                  }
+                },
+                {
+                  "name": "tool",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageTool"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

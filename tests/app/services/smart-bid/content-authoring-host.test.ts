@@ -3,6 +3,7 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {DataSet, type DataView, type QueryParams, type DataViewFilterTree} from '@spark-appworks/spark-data'
+import {PageTool} from '@spark-appworks/spark-project-model'
 import {ContentAuthoringHost, type ContentAuthoringTarget} from '@/views/features/application/smart-bid/authoring/model/content-authoring-host'
 import ContentDraftWorkspace from '@/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue'
 import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
@@ -57,6 +58,29 @@ it('loads the original views with fixed project and trusted session-author input
  expect(filters.join(' ')).toContain('projectId')
  expect(filters.join(' ')).toContain('userId')
  binding.assertCurrent();host.close()
+})
+it('materializes the explicit three-file tool in the same authenticated runtime and rejects a mismatched tool identity',async()=>{
+ const f=fixture(),host=new ContentAuthoringHost(),tool=new PageTool({pageId:target.pageId})
+ tool.hydrateFileText('rule.json',JSON.stringify([{type:'r-form',props:{dataViewKey:'SPACE@WorkingDraft@personalDraft'}}]))
+ tool.hydrateFileText('script.js','function __init__() {}');tool.hydrateFileText('style.css','');tool.markLoaded()
+ const binding=await host.open(target,tool)
+ expect(binding.runtime.tool).toBe(tool)
+ expect(binding.runtime.materialize().rule[0]?.props?.['dataViewKey']).toBe('SPACE@WorkingDraft@personalDraft')
+ expect(binding.runtime.getDataSet('SPACE')).toBe(f.ds);expect(f.queries).toHaveBeenCalledTimes(2)
+ host.close()
+ const wrong=new PageTool({pageId:'OTHER'});wrong.markLoaded()
+ await expect(host.open(target,wrong)).rejects.toThrow('CONTENT_AUTHORING_TOOL_IDENTITY_REQUIRED')
+})
+it('keeps the same tool instance stable and blocks replacing it while editor input is pending',async()=>{
+ fixture();const host=new ContentAuthoringHost(),tool=new PageTool({pageId:target.pageId});tool.markLoaded()
+ const first=await host.open(target,tool)
+ expect(await host.open(target,tool)).toBe(first)
+ const replacement=new PageTool({pageId:target.pageId});replacement.markLoaded()
+ first.setPending(true)
+ await expect(host.open(target,replacement)).rejects.toThrow('CONTENT_AUTHORING_PENDING')
+ first.assertCurrent();expect(first.runtime.tool).toBe(tool)
+ first.setPending(false);host.close()
+ await expect(host.open(target,new PageTool({pageId:target.pageId}))).rejects.toThrow('CONTENT_AUTHORING_TOOL_IDENTITY_REQUIRED')
 })
 it('rejects missing identity and unscoped definitions before any business query',async()=>{
  const f=fixture(false),host=new ContentAuthoringHost()

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/baseline-fact-members",
+    "sourcePath": "src/services/smart-bid/content/references/baseline-fact-members.ts",
+    "sourceFile": "src/services/smart-bid/content/references/baseline-fact-members.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/baseline-fact-members",
+    "jsdoc": "@module app:services/smart-bid/content/references/baseline-fact-members\n职责：核固定基线事实成员的确定JSON合同及精确选版。\n边界：不查询最新版本、不确认冻结/采纳或当前用途许可、不存事实值。\nAI用途：基线原记录读取后核成员，再沿原事实视图读取固定版本。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "BaselineFactMember"
+    ]
+  },
+  "$defs": {
+    "BaselineFactMember": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BaselineFactMember",
+      "properties": {
+        "factId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "factId",
+        "version"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T16:32:24.146Z",
+  "models": {
+    "BaselineFactMember": {
+      "name": "BaselineFactMember",
+      "jsdoc": "项目及阶段归基线原记录；成员只引用事实键和显式原版本。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    factId: string;\n    version: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    factId: string;\n    version: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "factId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -98,7 +98,9 @@ function ownProjectionFactory(bindings: LowcodeDataSpaceAssemblerInput['projecti
 
 function assertProjectionOptions(value: unknown, resourceId: string | undefined, tableName: string): asserts value is Parameters<typeof bindDataSetReadonlyCommandQuery>[1] {
  if (!isRecord(value) || !isRecord(value['resource']) || value['resource']['resourceType'] !== 'logical-view'
-  || value['resource']['resourceId'] !== resourceId || typeof value['guard'] !== 'function' || typeof value['loadRows'] !== 'function') {
+  || value['resource']['resourceId'] !== resourceId || typeof value['guard'] !== 'function'
+  || !(typeof value['loadRows'] === 'function' && value['loadPage'] === undefined
+   || typeof value['loadPage'] === 'function' && value['loadRows'] === undefined)) {
   throw new Error(`SCENARIO_PROJECTION_RESOURCE: ${tableName} 投影资源身份或只读查询工厂无效`)
  }
 }

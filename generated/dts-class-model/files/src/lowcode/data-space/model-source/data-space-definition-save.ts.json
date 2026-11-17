@@ -82,8 +82,8 @@
         },
         "resolution": {
           "enum": [
-            "not-applied",
             "confirmed",
+            "not-applied",
             "accepted-current"
           ]
         },
@@ -138,8 +138,7 @@
       "title": "DataSpaceDefinitionSavePart",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"

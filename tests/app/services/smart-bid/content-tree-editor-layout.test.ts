@@ -61,6 +61,15 @@ it('validates direct standard JSON edits through the original DataSet save befor
   await expect(f.ds.saveChanges()).rejects.toThrow('TEST_DISPATCH_REACHED')
   expect(f.save).toHaveBeenCalledOnce()
 })
+it('rejects invalid direct table edits through the original draft save rule before dispatch',async()=>{
+ const f=await fixture()
+ const table={nodeId:'T',parentId:'C',index:1,type:'table',class:[],value:'',data:{header:['金额'],rows:[[]]}}
+ f.view.updateEditingValue('D','draft',{...f.draft,nodes:[...f.draft.nodes,table]})
+ await expect(f.ds.saveChanges()).rejects.toThrow('CONTENT_LINK_TABLE_ROW')
+ expect(f.save).not.toHaveBeenCalled()
+ expect(f.view.hasEditingChanges()).toBe(true)
+ expect(f.view.rows[0]?.['draft']).toEqual(f.draft)
+})
 
 it('rejects invalid structure or another project through the same native save rule', async () => {
   const f = await fixture()

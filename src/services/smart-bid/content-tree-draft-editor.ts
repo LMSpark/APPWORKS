@@ -6,10 +6,16 @@
 import type {DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {validateContentDraftPayload} from './content-draft-save-rule'
+import {readContentNodeLinks} from './content/content-node-links'
 
 type Node = {nodeId: string; parentId: string; index: number; type: string; class: string[]; value: string; data: Record<string, unknown>}
 type ChapterInput = Readonly<{chapterId: string; headingId: string; title: string}>
 type ParagraphInput = Readonly<{paragraphId: string; value: string; data?: Readonly<Record<string, unknown>>}>
+/** 普通表只有语义表头和原生单元格，不携带列宽、边框或文件格式。 */
+export type ContentTableInput=Readonly<{
+ nodeId:string;header:readonly string[]
+ rows:ReadonlyArray<ReadonlyArray<Readonly<{value:string;data:Readonly<Record<string,unknown>>}>>>
+}>
 function node(input: Readonly<{nodeId: string; parentId: string; type: string; value?: string}>): Node {
   return {...input, index: 0, class: [], value: input.value ?? '', data: {}}
 }
@@ -111,6 +117,27 @@ export class ContentTreeDraftEditor {
   /** 册首唯一目录要求；目录项由标题派生，不写入节点数据。 */
   addTableOfContents(documentId: string, nodeId: string): void {
     this.edit(nodes => insert(nodes, node({nodeId, parentId: documentId, type: 'toc'}), 0))
+  }
+
+  /** 新增原生JSON普通表；计算表由生成器责任域处理。 */
+  addTable(parentId:string,input:ContentTableInput,index?:number):void {
+    this.edit(nodes=>{
+      const table={...node({nodeId:input.nodeId,parentId,type:'table'}),data:structuredClone({header:input.header,rows:input.rows})}
+      if(readContentNodeLinks(table).requiresTableGeneratorCheck)throw Error('CONTENT_TABLE_GENERATOR_REQUIRED')
+      insert(nodes,table,index)
+    })
+  }
+
+  /** 修改已有普通表的语义内容，稳定身份和结构保持原值。 */
+  updateTable(nodeId:string,input:Omit<ContentTableInput,'nodeId'>):void {
+    this.edit(nodes=>{
+      const target=nodes.find(item=>item.nodeId===nodeId)
+      if(target?.type!=='table')throw Error('CONTENT_TABLE_REQUIRED')
+      if(readContentNodeLinks(target).requiresTableGeneratorCheck)throw Error('CONTENT_TABLE_GENERATOR_REQUIRED')
+      const next={...target,data:structuredClone({header:input.header,rows:input.rows})}
+      if(readContentNodeLinks(next).requiresTableGeneratorCheck)throw Error('CONTENT_TABLE_GENERATOR_REQUIRED')
+      target.data=next.data
+    })
   }
 
   /** 编辑标题、正文或题注；语义类型和稳定身份不变，正式引用/交付校验另行执行。 */

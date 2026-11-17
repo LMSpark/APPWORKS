@@ -33,3 +33,12 @@ export function contentReferenceEditorSchema(value:string,data:unknown):JsonSche
   data:{type:'object',title:'字段引用',required:[...names],properties},
  }}
 }
+/** 普通表维护原表头与格子；提交仍核完整表格语义，不携带排版属性。 */
+export function contentTableEditorSchema():JsonSchemaObject {
+ return {type:'object',required:['data'],properties:{data:{type:'object',title:'表格内容',required:['header','rows'],properties:{
+  header:{type:'array',items:{type:'string'},title:'表头'},
+  rows:{type:'array',items:{type:'array',items:{type:'object',required:['value','data'],properties:{
+   value:{type:'string'},data:{type:'object'},
+  }}},title:'表格行'},
+ }}}}
+}

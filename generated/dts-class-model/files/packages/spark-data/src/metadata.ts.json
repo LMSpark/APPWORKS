@@ -20,8 +20,7 @@
         "columns": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "types.ts.json#/$defs/DataColumn"
           }
         },
         "views": {
@@ -238,7 +237,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@280161": {
+                "__@iterator@162823": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -293,7 +292,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@280161"
+                "__@iterator@162823"
               ],
               "additionalProperties": false
             },
@@ -523,7 +522,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@280161": {
+                "__@iterator@162823": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -578,7 +577,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@280161"
+                "__@iterator@162823"
               ],
               "additionalProperties": false
             },

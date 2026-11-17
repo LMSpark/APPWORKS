@@ -445,4 +445,31 @@ describe('declared readonly projections',()=>{
   }finally{dataSet.destroy()}
  })
 
+ it('assembles an authoritative server page without paging it a second time',async()=>{
+  const http=new NoRequest(),runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})
+  const declared=new ScenarioViewConfig('SCENE',JSON.stringify({scenarioId:'SCENE',tables:{Projection:{resourceType:'logical-view',resourceId:'projection:inventory',columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'label',type:'string'}],views:{default:{autoLoad:false,page:2,pageSize:1,queryConfig:{pagination:'paged'}}}}}}))
+  const loadPage=vi.fn(async(_view:DataView,params:Readonly<{page?:number;pageSize?:number}>)=>{
+   expect(params.page).toBe(2);expect(params.pageSize).toBe(1)
+   return{rows:[{id:'B',label:'second page'}],total:7}
+  })
+  const {dataSet}=new LowcodeDataSpaceAssembler(runtime,http).assemble({config:declared,space,models:[],relations:[],projectionBindings:{Projection:()=>({resource:{resourceType:'logical-view',resourceId:'projection:inventory'},guard:()=>{},loadPage})}})
+  try{
+   const view=dataSet.getView('Projection')!
+   await view.refresh()
+   expect(view.loadingError).toBeNull();expect(view.rows).toMatchObject([{id:'B',label:'second page'}])
+   expect(view.total).toBe(7);expect(loadPage).toHaveBeenCalledOnce()
+   expect(view.fieldAccess(view.rows[0]!,'label').write).toBe('denied')
+  }finally{dataSet.destroy()}
+ })
+
+ it.each(['both','neither'])('rejects an invalid readonly loader combination (%s) before querying',combination=>{
+  const http=new NoRequest(),runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})
+  const loadRows=vi.fn(async()=>[{id:'A',label:'one'}]),loadPage=vi.fn(async()=>({rows:[],total:0}))
+  const options={resource:{resourceType:'logical-view',resourceId:'projection:inventory'},guard:()=>{},loadRows}
+  if(combination==='both')Object.defineProperty(options,'loadPage',{value:loadPage})
+  else Reflect.deleteProperty(options,'loadRows')
+  expect(()=>new LowcodeDataSpaceAssembler(runtime,http).assemble({config:definition(),space,models:[],relations:[],projectionBindings:{Projection:()=>options}})).toThrow('SCENARIO_PROJECTION_RESOURCE')
+  expect(loadRows).not.toHaveBeenCalled();expect(loadPage).not.toHaveBeenCalled()
+ })
+
 })

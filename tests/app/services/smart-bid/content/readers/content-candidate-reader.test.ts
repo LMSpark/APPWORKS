@@ -52,3 +52,38 @@ it('rejects an independent answer whose placeholder has no structured binding',a
  await expect(readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})).rejects.toThrow('SNAPSHOT_RESPONSE_PLACEHOLDER')
  expect(f.save).not.toHaveBeenCalled()
 })
+it('derives fixed basis identity from the original candidate instead of caller supplied baseline parameters',async()=>{
+ const f=await fixture()
+ const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+ const fact=await candidate.readFixedFact({factId:'PRICE',version:2})
+ expect(fact.requiresRevisionMatchCheck).toBe(false)
+ expect(fact.requiresUseCheck).toBe(true);fact.assertCurrent()
+ expect(f.ds.getView('Baseline','selectedBaseline')!.queryContext).toMatchObject({projectId:'P',baselineId:'B'})
+ expect(f.save).not.toHaveBeenCalled()
+})
+it('rejects a different available baseline and invalidates fact proofs after candidate refresh',async()=>{
+ const wrong=await fixture('wrong-fact-baseline'),binding=await readCandidateContent(wrong.host,{candidateRevisionId:'C',expectedHead:null})
+ await expect(binding.readFixedFact({factId:'PRICE',version:2})).rejects.toThrow('CONTENT_BASELINE_UNAVAILABLE')
+ const f=await fixture(),candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+ const fact=await candidate.readFixedFact({factId:'PRICE',version:2})
+ await f.ds.getView('ContentRevision','selectedCandidate')!.refresh()
+ expect(()=>fact.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+})
+it('rejects candidate replacement while its fixed baseline query is in flight',async()=>{
+ const f=await fixture(),candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+ const execute=f.query.getMockImplementation()!
+ f.query.mockImplementationOnce(async view=>{
+  const result=await execute(view)
+  await f.ds.getView('ContentRevision','selectedCandidate')!.refresh()
+  return result
+ })
+ await expect(candidate.readFixedFact({factId:'PRICE',version:2})).rejects.toThrow('DATA_VIEW_READ_RESULT')
+ expect(f.save).not.toHaveBeenCalled()
+})
+it('resolves a node fact key through the fixed baseline instead of asking the page to guess a version',async()=>{
+ const f=await fixture(),candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+ const fact=await candidate.readFixedFact({factId:'PRICE'})
+ fact.assertCurrent()
+ expect(f.ds.getView('FactVersion','selectedFactVersion')!.queryContext).toMatchObject({key:'PRICE',version:2})
+ expect(f.save).not.toHaveBeenCalled()
+})

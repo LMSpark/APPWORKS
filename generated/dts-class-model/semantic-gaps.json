@@ -1,5 +1,5 @@
 {
-  "gapCount": 6239,
+  "gapCount": 6276,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -21336,9 +21336,9 @@
     {
       "kind": "attribute",
       "className": "TreeModel",
-      "memberName": "__@iterator@280161",
+      "memberName": "__@iterator@162823",
       "reason": "missing-jsdoc",
-      "chainBreak": "TreeModel.__@iterator@280161 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "TreeModel.__@iterator@162823 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-json-document/src/tree/tree-types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-json-document/src/tree/tree-types.ts",
       "declarationLine": 50,
@@ -29456,7 +29456,7 @@
       "chainBreak": "Prepared 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
-      "declarationLine": 8,
+      "declarationLine": 9,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
       "declarationKind": "typeAlias"
     },
@@ -29468,7 +29468,7 @@
       "chainBreak": "Prepared.input 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
       "declarationKind": "interface"
     },
@@ -29480,7 +29480,7 @@
       "chainBreak": "Prepared.assertReady 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
-      "declarationLine": 10,
+      "declarationLine": 11,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
       "declarationKind": "typeAlias"
     },
@@ -29492,7 +29492,19 @@
       "chainBreak": "PdfInspectionInitResourceInput.api 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
-      "declarationLine": 14,
+      "declarationLine": 15,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionInitResourceInput",
+      "memberName": "recovery",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionInitResourceInput.recovery 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
+      "declarationLine": 16,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
       "declarationKind": "interface"
     },
@@ -29504,7 +29516,7 @@
       "chainBreak": "PdfInspectionInitResourceInput.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
-      "declarationLine": 15,
+      "declarationLine": 17,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
       "declarationKind": "typeAlias"
     },
@@ -29516,7 +29528,7 @@
       "chainBreak": "PdfInspectionInitResourceInput.prepare 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
-      "declarationLine": 16,
+      "declarationLine": 18,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
       "declarationKind": "typeAlias"
     },
@@ -29528,7 +29540,7 @@
       "chainBreak": "PdfInspectionInitResource.resourceId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
-      "declarationLine": 21,
+      "declarationLine": 23,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
       "declarationKind": "class"
     },
@@ -29540,7 +29552,7 @@
       "chainBreak": "PdfInspectionInitResource.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
-      "declarationLine": 22,
+      "declarationLine": 25,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
       "declarationKind": "class"
     },
@@ -29552,8 +29564,220 @@
       "chainBreak": "PdfInspectionInitResource.binding 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
-      "declarationLine": 23,
+      "declarationLine": 26,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/readonly-resources",
+      "moduleName": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/readonly-resources",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/readonly-resources 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/readonly-resources.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/readonly-resources.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/readonly-resources.ts"
+    },
+    {
+      "kind": "model",
+      "className": "PdfInspectionReadonlyKind",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionReadonlyKind 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/readonly-resources.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/readonly-resources.ts",
+      "declarationLine": 8,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/readonly-resources.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/recovery-journal",
+      "moduleName": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/recovery-journal",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/recovery-journal 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionRecoveryOwner",
+      "memberName": "enterpriseId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryOwner.enterpriseId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 3,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionRecoveryOwner",
+      "memberName": "enterpriseShortName",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryOwner.enterpriseShortName 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 4,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionRecoveryOwner",
+      "memberName": "actorId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryOwner.actorId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 5,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionRecoveryOwner",
+      "memberName": "applicationId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryOwner.applicationId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 6,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionRecoveryOwner",
+      "memberName": "scenarioId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryOwner.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 7,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionRecoveryPointer",
+      "memberName": "version",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryPointer.version 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 11,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionRecoveryPointer",
+      "memberName": "requestId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryPointer.requestId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 12,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionRecoveryPointer",
+      "memberName": "recoveryUrl",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryPointer.recoveryUrl 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 13,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionRecoveryStorage",
+      "memberName": "getItem",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryStorage.getItem 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 15,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionRecoveryStorage",
+      "memberName": "key",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryStorage.key 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 15,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionRecoveryStorage",
+      "memberName": "length",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryStorage.length 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 15,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionRecoveryStorage",
+      "memberName": "removeItem",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryStorage.removeItem 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 15,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "PdfInspectionRecoveryStorage",
+      "memberName": "setItem",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryStorage.setItem 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 15,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "PdfInspectionRecoveryStorage",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryStorage 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 15,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "constructor",
+      "className": "PdfInspectionRecoveryJournal",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PdfInspectionRecoveryJournal.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
+      "declarationLine": 20,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts",
       "declarationKind": "class"
     },
     {
@@ -33506,17 +33730,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "module",
-      "className": "@spark-appworks/spark-project-model:page/content/runtime-content",
-      "moduleName": "@spark-appworks/spark-project-model:page/content/runtime-content",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "@spark-appworks/spark-project-model:page/content/runtime-content 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 packages/spark-project-model/src/page/content/runtime-content.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts"
-    },
-    {
       "kind": "model",
       "className": "PageContentState",
       "reason": "missing-jsdoc",
@@ -33526,6 +33739,17 @@
       "declarationLine": 1,
       "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-project-model:page/content/runtime-content",
+      "moduleName": "@spark-appworks/spark-project-model:page/content/runtime-content",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-project-model:page/content/runtime-content 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 packages/spark-project-model/src/page/content/runtime-content.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts"
     },
     {
       "kind": "attribute",
@@ -43408,17 +43632,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "module",
-      "className": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition",
-      "moduleName": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts"
-    },
-    {
       "kind": "model",
       "className": "Row",
       "reason": "missing-jsdoc",
@@ -43428,6 +43641,17 @@
       "declarationLine": 1,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition",
+      "moduleName": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts"
     },
     {
       "kind": "model",
@@ -43525,17 +43749,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "module",
-      "className": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph",
-      "moduleName": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts"
-    },
-    {
       "kind": "model",
       "className": "Row",
       "reason": "missing-jsdoc",
@@ -43545,6 +43758,17 @@
       "declarationLine": 1,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph",
+      "moduleName": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts"
     },
     {
       "kind": "model",
@@ -59108,17 +59332,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:lowcode/resources/structured-config/workflow-definition/output/operation-output",
-      "moduleName": "app:lowcode/resources/structured-config/workflow-definition/output/operation-output",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:lowcode/resources/structured-config/workflow-definition/output/operation-output 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts"
-    },
-    {
       "kind": "model",
       "className": "Row",
       "reason": "missing-jsdoc",
@@ -59128,6 +59341,17 @@
       "declarationLine": 1,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/structured-config/workflow-definition/output/operation-output",
+      "moduleName": "app:lowcode/resources/structured-config/workflow-definition/output/operation-output",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/structured-config/workflow-definition/output/operation-output 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts"
     },
     {
       "kind": "model",
@@ -59318,17 +59542,6 @@
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/output-fields.ts"
     },
     {
-      "kind": "module",
-      "className": "app:lowcode/resources/structured-config/workflow-definition/output/query-output",
-      "moduleName": "app:lowcode/resources/structured-config/workflow-definition/output/query-output",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:lowcode/resources/structured-config/workflow-definition/output/query-output 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts"
-    },
-    {
       "kind": "model",
       "className": "Row",
       "reason": "missing-jsdoc",
@@ -59338,6 +59551,17 @@
       "declarationLine": 1,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/structured-config/workflow-definition/output/query-output",
+      "moduleName": "app:lowcode/resources/structured-config/workflow-definition/output/query-output",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/structured-config/workflow-definition/output/query-output 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts"
     },
     {
       "kind": "attribute",
@@ -62510,17 +62734,6 @@
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit.ts"
     },
     {
-      "kind": "module",
-      "className": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
-      "moduleName": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts"
-    },
-    {
       "kind": "model",
       "className": "FlowRunExecUsers",
       "reason": "missing-jsdoc",
@@ -62530,6 +62743,17 @@
       "declarationLine": 1,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
+      "moduleName": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts"
     },
     {
       "kind": "attribute",
@@ -62592,17 +62816,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
-      "moduleName": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts"
-    },
-    {
       "kind": "model",
       "className": "FlowRunHandleNodeOption",
       "reason": "missing-jsdoc",
@@ -62612,6 +62825,17 @@
       "declarationLine": 1,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
+      "moduleName": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts"
     },
     {
       "kind": "attribute",
@@ -66575,6 +66799,42 @@
       "declarationKind": "interface"
     },
     {
+      "kind": "attribute",
+      "className": "ContentTableInput",
+      "memberName": "nodeId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTableInput.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-draft-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationLine": 19,
+      "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentTableInput",
+      "memberName": "header",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTableInput.header 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-draft-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationLine": 20,
+      "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentTableInput",
+      "memberName": "rows",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTableInput.rows 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-draft-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationLine": 21,
+      "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationKind": "interface"
+    },
+    {
       "kind": "constructor",
       "className": "ContentTreeDraftEditor",
       "memberName": "constructor",
@@ -66582,7 +66842,7 @@
       "chainBreak": "ContentTreeDraftEditor.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/services/smart-bid/content-tree-draft-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/smart-bid/content-tree-draft-editor.ts",
-      "declarationLine": 22,
+      "declarationLine": 31,
       "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
       "declarationKind": "class"
     },
@@ -68328,6 +68588,30 @@
       "declarationFile": "src/services/smart-bid/content/hashes/content-subtree-hash.ts",
       "declarationLine": 20,
       "sourceFile": "src/services/smart-bid/content/hashes/content-subtree-hash.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "BaselineFactMember",
+      "memberName": "factId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BaselineFactMember.factId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/baseline-fact-members.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/baseline-fact-members.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/services/smart-bid/content/references/baseline-fact-members.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "BaselineFactMember",
+      "memberName": "version",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BaselineFactMember.version 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/baseline-fact-members.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/baseline-fact-members.ts",
+      "declarationLine": 4,
+      "sourceFile": "src/services/smart-bid/content/references/baseline-fact-members.ts",
       "declarationKind": "interface"
     },
     {
@@ -72665,7 +72949,7 @@
       "chainBreak": "ContentAuthoringTarget.applicationId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 10,
+      "declarationLine": 11,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "interface"
     },
@@ -72677,7 +72961,7 @@
       "chainBreak": "ContentAuthoringTarget.pageId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 11,
+      "declarationLine": 12,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "interface"
     },
@@ -72689,7 +72973,7 @@
       "chainBreak": "ContentAuthoringTarget.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 12,
+      "declarationLine": 13,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "interface"
     },
@@ -72701,7 +72985,7 @@
       "chainBreak": "ContentAuthoringTarget.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 13,
+      "declarationLine": 14,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "interface"
     },
@@ -72713,7 +72997,7 @@
       "chainBreak": "ContentAuthoringTarget.draftId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 14,
+      "declarationLine": 15,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "interface"
     },
@@ -72725,7 +73009,7 @@
       "chainBreak": "ContentAuthoringBinding.runtime 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 18,
+      "declarationLine": 19,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "interface"
     },
@@ -72737,7 +73021,7 @@
       "chainBreak": "ContentAuthoringBinding.dataViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 19,
+      "declarationLine": 20,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "interface"
     },
@@ -72749,7 +73033,7 @@
       "chainBreak": "ContentAuthoringBinding.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 20,
+      "declarationLine": 21,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "interface"
     },
@@ -72761,7 +73045,7 @@
       "chainBreak": "ContentAuthoringBinding.draftId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 21,
+      "declarationLine": 22,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "interface"
     },
@@ -72773,7 +73057,7 @@
       "chainBreak": "ContentAuthoringBinding.actorUserId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 22,
+      "declarationLine": 23,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "interface"
     },
@@ -72785,7 +73069,7 @@
       "chainBreak": "ContentAuthoringBinding.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 23,
+      "declarationLine": 24,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -72797,7 +73081,19 @@
       "chainBreak": "ContentAuthoringBinding.setPending 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 24,
+      "declarationLine": 25,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "ContentAuthoringBinding",
+      "memberName": "readBaselineFact",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentAuthoringBinding.readBaselineFact 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
+      "declarationLine": 38,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -72809,7 +73105,7 @@
       "chainBreak": "ContentAuthoringHost.binding 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 41,
+      "declarationLine": 43,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "class"
     },
@@ -72821,9 +73117,141 @@
       "chainBreak": "ContentAuthoringHost.hasPending 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 42,
+      "declarationLine": 44,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentBaselineFactSelection",
+      "memberName": "factId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentBaselineFactSelection.factId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentBaselineFactSelection",
+      "memberName": "version",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentBaselineFactSelection.version 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentBaselineFactSelection",
+      "memberName": "baselineId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentBaselineFactSelection.baselineId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationLine": 12,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentBaselineFactSelection",
+      "memberName": "stageRef",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentBaselineFactSelection.stageRef 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentBaselineFactBinding",
+      "memberName": "baselineDataViewKey",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentBaselineFactBinding.baselineDataViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationLine": 17,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentBaselineFactBinding",
+      "memberName": "factDataViewKey",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentBaselineFactBinding.factDataViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationLine": 18,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentBaselineFactBinding",
+      "memberName": "baselineMembershipVerified",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentBaselineFactBinding.baselineMembershipVerified 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationLine": 19,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentBaselineFactBinding",
+      "memberName": "requiresRevisionMatchCheck",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentBaselineFactBinding.requiresRevisionMatchCheck 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationLine": 20,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentBaselineFactBinding",
+      "memberName": "requiresUseCheck",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentBaselineFactBinding.requiresUseCheck 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationLine": 21,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ContentBaselineFactBinding",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentBaselineFactBinding.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationLine": 22,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentCandidateFactBinding",
+      "memberName": "requiresRevisionMatchCheck",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentCandidateFactBinding.requiresRevisionMatchCheck 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "interface"
     },
     {
       "kind": "attribute",
@@ -72833,9 +73261,21 @@
       "chainBreak": "ContentCandidateBinding.runtime 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 6,
+      "declarationLine": 11,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ContentCandidateBinding",
+      "memberName": "readFixedFact",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentCandidateBinding.readFixedFact 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 12,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -72845,7 +73285,7 @@
       "chainBreak": "ContentCandidateBinding.revisions 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 7,
+      "declarationLine": 16,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -72857,7 +73297,7 @@
       "chainBreak": "ContentCandidateBinding.snapshot 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 8,
+      "declarationLine": 17,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -72869,7 +73309,7 @@
       "chainBreak": "ContentCandidateBinding.nodes 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 9,
+      "declarationLine": 18,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -72881,7 +73321,7 @@
       "chainBreak": "ContentCandidateBinding.revisionMatchVerified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -72893,7 +73333,7 @@
       "chainBreak": "ContentCandidateBinding.templateBindingsVerified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 11,
+      "declarationLine": 20,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -72905,7 +73345,7 @@
       "chainBreak": "ContentCandidateBinding.requirementBindingsVerified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 12,
+      "declarationLine": 21,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -72917,7 +73357,7 @@
       "chainBreak": "ContentCandidateBinding.responseAnchorsVerified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 13,
+      "declarationLine": 22,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -72929,7 +73369,7 @@
       "chainBreak": "ContentCandidateBinding.responseTextVerified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 14,
+      "declarationLine": 23,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -72941,7 +73381,7 @@
       "chainBreak": "ContentCandidateBinding.requiresResponseReferenceChecks 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 15,
+      "declarationLine": 24,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -72953,7 +73393,7 @@
       "chainBreak": "ContentCandidateBinding.requiresResponsePayloadChecks 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 16,
+      "declarationLine": 25,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -72965,7 +73405,7 @@
       "chainBreak": "ContentCandidateBinding.requiresTemplateResourceChecks 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 17,
+      "declarationLine": 26,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -72977,7 +73417,7 @@
       "chainBreak": "ContentCandidateBinding.requiresRequirementVersionChecks 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 18,
+      "declarationLine": 27,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -72989,7 +73429,7 @@
       "chainBreak": "ContentCandidateBinding.requiresBusinessSectionChecks 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 19,
+      "declarationLine": 28,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -73001,7 +73441,7 @@
       "chainBreak": "ContentCandidateBinding.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 20,
+      "declarationLine": 29,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "typeAlias"
     },
@@ -73437,17 +73877,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
-      "moduleName": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts"
-    },
-    {
       "kind": "model",
       "className": "DataSpaceParametersEditorProps",
       "reason": "missing-jsdoc",
@@ -73458,6 +73887,17 @@
       "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
       "componentName": "DataSpaceParametersEditor",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
+      "moduleName": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts"
     },
     {
       "kind": "attribute",
@@ -73582,17 +74022,6 @@
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue"
     },
     {
-      "kind": "module",
-      "className": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
-      "moduleName": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue"
-    },
-    {
       "kind": "model",
       "className": "RegisterObjectType",
       "reason": "missing-jsdoc",
@@ -73602,6 +74031,17 @@
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
+      "moduleName": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue"
     },
     {
       "kind": "module",
@@ -73873,17 +74313,6 @@
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue"
     },
     {
-      "kind": "module",
-      "className": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
-      "moduleName": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts"
-    },
-    {
       "kind": "model",
       "className": "RuleTarget",
       "reason": "missing-jsdoc",
@@ -73893,6 +74322,17 @@
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
+      "moduleName": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts"
     },
     {
       "kind": "attribute",
@@ -74174,17 +74614,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
-      "moduleName": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue"
-    },
-    {
       "kind": "model",
       "className": "Id",
       "reason": "missing-jsdoc",
@@ -74194,6 +74623,17 @@
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
+      "moduleName": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue"
     },
     {
       "kind": "module",

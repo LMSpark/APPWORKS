@@ -7,6 +7,7 @@ import type {DataTableQuerySaveRule} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {canonicalContentNode} from './content-node-hash'
 import {validateContentTreeStructure} from './content-tree-structure'
+import {readContentNodeLinks} from './content/content-node-links'
 
 /** 校验草稿中本项目的内容树；独立响应内容和提交效力仍由各自领域合同校验。 */
 export function validateContentDraftPayload(input: Readonly<{projectId: string; draft: unknown}>): void {
@@ -16,6 +17,7 @@ export function validateContentDraftPayload(input: Readonly<{projectId: string; 
     canonicalContentNode(item)
     if (!isRecord(item) || typeof item['nodeId'] !== 'string' || typeof item['parentId'] !== 'string'
       || typeof item['index'] !== 'number' || typeof item['type'] !== 'string') throw Error('CONTENT_DRAFT_PAYLOAD')
+    if(item['type']==='table')readContentNodeLinks(item)
     return {nodeId: item['nodeId'], parentId: item['parentId'], index: item['index'], type: item['type']}
   })
   const errors = validateContentTreeStructure({projectId, nodes})

@@ -21,8 +21,7 @@
       "title": "RichTextImageUploadResourceInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "upload": {
           "$ref": "../../../design/lowcode-design-file-upload.ts.json#/$defs/LowcodeDesignFileUpload"

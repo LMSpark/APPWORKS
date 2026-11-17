@@ -80,8 +80,7 @@
           }
         },
         "metadataDataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "getPage": {
           "type": "object",

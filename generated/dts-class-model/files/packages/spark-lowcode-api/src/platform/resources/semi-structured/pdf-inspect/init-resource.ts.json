@@ -56,6 +56,29 @@
             "recover"
           ],
           "additionalProperties": false
+        },
+        "recovery": {
+          "type": "object",
+          "properties": {
+            "assertCurrent": {
+              "type": "object",
+              "title": "(pointer: PdfInspectionRecoveryPointer) => void"
+            },
+            "begin": {
+              "type": "object",
+              "title": "(requestId: string) => PdfInspectionRecoveryPointer"
+            },
+            "settle": {
+              "type": "object",
+              "title": "(pointer: PdfInspectionRecoveryPointer) => void"
+            }
+          },
+          "required": [
+            "assertCurrent",
+            "begin",
+            "settle"
+          ],
+          "additionalProperties": false
         }
       },
       "additionalProperties": false,
@@ -112,11 +135,37 @@
         },
         "method.binding.return": {
           "$ref": "../../../../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
-        }
+        },
+        "method.settleConfirmed.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "requestId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.settleConfirmed.return": true,
+        "method.releaseCancelled.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "requestId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.releaseCancelled.return": true
       }
     }
   },
-  "generatedAt": "2026-11-17T12:54:29.941Z",
+  "generatedAt": "2026-11-17T17:01:42.753Z",
   "models": {
     "Prepared": {
       "name": "Prepared",
@@ -154,14 +203,14 @@
     },
     "PdfInspectionInitResourceInput": {
       "name": "PdfInspectionInitResourceInput",
-      "jsdoc": "prepare同步核原配置/上传ACK及已持久化的requestId书签；不得派发或返回替代行。",
+      "jsdoc": "prepare只同步核原配置/上传ACK；恢复定位由原命令适配捕获，不改活实例路由。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    api: Pick<PdfInspectionApi, 'init' | 'recover'>;\n    assertCurrent: () => void;\n    prepare: (view: DataView, row: Readonly<DataRow>) => Prepared;\n}>",
+        "declarationTypeText": "Readonly<{\n    api: Pick<PdfInspectionApi, 'init' | 'recover'>;\n    recovery: Pick<PdfInspectionRecoveryJournal, 'begin' | 'assertCurrent' | 'settle'>;\n    assertCurrent: () => void;\n    prepare: (view: DataView, row: Readonly<DataRow>) => Prepared;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    api: Pick<PdfInspectionApi, 'init' | 'recover'>;\n    assertCurrent: () => void;\n    prepare: (view: DataView, row: Readonly<DataRow>) => Prepared;\n}>",
+            "typeText": "Readonly<{\n    api: Pick<PdfInspectionApi, 'init' | 'recover'>;\n    recovery: Pick<PdfInspectionRecoveryJournal, 'begin' | 'assertCurrent' | 'settle'>;\n    assertCurrent: () => void;\n    prepare: (view: DataView, row: Readonly<DataRow>) => Prepared;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -169,6 +218,11 @@
           "attributes": [
             {
               "name": "api",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "recovery",
               "readable": true,
               "writable": false
             }
@@ -257,6 +311,54 @@
               "type": {
                 "type": "reference",
                 "name": "BindCommandSubmitOptions"
+              }
+            },
+            {
+              "name": "settleConfirmed",
+              "jsdoc": "只在DataSet已接纳原回执后结算定位；HTTP成功本身不触发清理。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "requestId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "releaseCancelled",
+              "jsdoc": "先取消原pending行；从未可能派发才可清理定位，不能按UI busy推断。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "requestId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             }
           ]

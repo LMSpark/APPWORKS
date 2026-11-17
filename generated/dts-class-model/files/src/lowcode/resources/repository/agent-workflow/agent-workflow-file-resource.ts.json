@@ -298,8 +298,7 @@
         "columns": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "resultPrimaryKey": {

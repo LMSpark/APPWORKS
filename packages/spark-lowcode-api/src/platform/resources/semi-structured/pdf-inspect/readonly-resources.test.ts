@@ -8,7 +8,7 @@ class Http extends HttpClientBase{
  protected async executeRequest(_config:RequestConfig):Promise<HttpResponse<unknown>>{this.calls++;return{data:{Code:200,Result:{page:2,pageSize:1,total:7,items:[{inspectJobId:'JOB',requestId:'REQ',configId:'RULE',status:'COMPLETED'}]}},status:200,statusText:'OK',headers:{}}}
 }
 function fixture(){
- const ds=DataSet.fromJson({scenarioId:'PDF',tables:{History:{resourceType:'service-query',resourceId:'pdf-inspect:history',columns:['inspectJobId','requestId','configId','status'].map(name=>({name,type:'string',isPrimaryKey:name==='inspectJobId'})),views:{default:{autoLoad:false,commitMode:'staged'}}}}})
+ const ds=DataSet.fromJson({scenarioId:'PDF',tables:{History:{resourceType:'logical-view',resourceId:'pdf-inspect:history',columns:['inspectJobId','requestId','configId','status'].map(name=>({name,type:'string',isPrimaryKey:name==='inspectJobId'})),views:{default:{autoLoad:false,commitMode:'staged'}}}}})
  const http=new Http(),api=new PdfInspectionApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})}),view=ds.getView('History')!
  bindDataSetReadonlyCommandQuery(view,pdfInspectionReadonlyBinding({api,kind:'history',assertCurrent:()=>{}}));view.page=2;view.pageSize=1
  return{ds,view,http}

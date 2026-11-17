@@ -32,6 +32,7 @@ export function createPageFileResourceView(input:Readonly<{
   appId:string
   pageId:string
   fileName:PageToolFileName
+  versionId?:string
   assertCurrent:()=>void
   workspace?:ProjectWorkspace
   rejectLocalDirty?:boolean
@@ -109,6 +110,7 @@ function createPageFileView(input:Readonly<{
   pageId:string
   fileName:string
   io:PageFileIo
+  versionId?:string
   assertCurrent:()=>void
   allowDirectoryEntry:boolean
   workspace?:ProjectWorkspace
@@ -127,8 +129,12 @@ function createPageFileView(input:Readonly<{
     return {key:JSON.stringify([targetAppId,targetPageId,fileName,versionId]),fields:{pageId:targetPageId,fileName,versionId}}
   }
   const transport=createPageFileTransport({appId,io,assertCurrent,...(input.workspace?{workspace:input.workspace}:{}),history:!input.allowDirectoryEntry})
-  const view=getOrCreateFileResourceView({dataSet,tableName:TABLE,viewId:pageFileResourceViewId(pageId,resourceFileName),resourceId:ProjectToolResource.resources.ProjectToolFile,
-    columns:formalTable.columns,contentField:'text',queryContext:{appId,pageId,fileName:resourceFileName,versionId:''},target,transport,assertCurrent,
+  const versionId = input.versionId ?? ''
+  const workingViewId = pageFileResourceViewId(pageId,resourceFileName)
+  const viewId = versionId ? `${workingViewId}-release-${encodeURIComponent(versionId)}` : workingViewId
+  const view=getOrCreateFileResourceView({dataSet,tableName:TABLE,viewId,resourceId:ProjectToolResource.resources.ProjectToolFile,
+    columns:formalTable.columns,contentField:'text',queryContext:{appId,pageId,fileName:resourceFileName,versionId},target,transport,assertCurrent,
+    ...(versionId ? {canCreate:()=>false,canWrite:()=>false,canDelete:()=>false} : {}),
     ...(input.allowDirectoryEntry?{canCreate:()=>false}:{}),
     ...(input.rejectLocalDirty?{canWrite:resource=>resource.fields['versionId']===''&&(!isPageToolFileName(resource.fields['fileName'])||!input.workspace?.project.findPageTool(String(resource.fields['pageId']))?.isDirty())}:{}),
     ...(input.allowDirectoryEntry?{canWrite:()=>false,canDelete:()=>true}:{})})

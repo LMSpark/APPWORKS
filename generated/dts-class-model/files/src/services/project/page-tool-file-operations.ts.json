@@ -20,8 +20,7 @@
       "title": "PageFileOperationScope",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "appId": {
           "type": "string"
@@ -41,7 +40,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.739Z",
+  "generatedAt": "2026-11-17T18:21:28.095Z",
   "models": {
     "PageFileOperationScope": {
       "name": "PageFileOperationScope",

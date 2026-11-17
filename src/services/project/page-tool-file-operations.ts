@@ -5,6 +5,26 @@ import {createPageFileDirectoryEntryView, createPageFileDirectoryView, createPag
 const TABLE='ProjectToolFile'
 const FILES=PAGE_TOOL_FILE_NAMES
 export type PageFileOperationScope=Readonly<{dataSet:DataSet;appId:string;pageId:string;assertCurrent:()=>void}>
+
+/** Read an exact working file or release pointer through the formal tool DataView. */
+export async function readPageToolFileText(
+  input: PageFileOperationScope & Readonly<{fileName: PageToolFileName; versionId?: string}>,
+): Promise<string> {
+  assertPageTarget(input)
+  if (input.versionId !== undefined && !input.versionId.trim()) {
+    throw new Error('PAGE_TOOL_FILE_VERSION_SCOPE: 发布指针不能为空')
+  }
+  const view = createPageFileResourceView(input)
+  await view.refresh()
+  assertPageTarget(input)
+  if (view.loadingError) throw view.loadingError
+  const row = view.rows[0]
+  if (view.rows.length !== 1 || !row || typeof row['text'] !== 'string') {
+    throw new Error('PAGE_TOOL_FILE_MISSING: 未找到指定工具文件')
+  }
+  view.captureReadRow(row, ['text'])()
+  return row['text']
+}
 function defaults(pageId:string):Record<PageToolFileName,string>{const page=new PageTool({pageId});page.markLoaded();return {'rule.json':page.getFileText('rule.json'),'script.js':page.getFileText('script.js'),'style.css':page.getFileText('style.css')}}
 function safeFileName(value:unknown):value is string{return typeof value==='string'&&value.length>0&&value===value.trim()
   &&value!=='.'&&value!=='..'&&!/[\\/\u0000-\u001f\u007f]/.test(value)}

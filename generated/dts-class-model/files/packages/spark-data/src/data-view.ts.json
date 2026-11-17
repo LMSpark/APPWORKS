@@ -70,14 +70,14 @@
         },
         "state": {
           "enum": [
+            "unknown",
             "confirmed",
-            "not-applied",
-            "unknown"
+            "not-applied"
           ]
         },
         "error": {
           "type": "object",
-          "title": "Error"
+          "title": "ErrorDefault"
         }
       },
       "required": [
@@ -95,9 +95,9 @@
         "state": {
           "enum": [
             "none",
+            "unknown",
             "confirmed",
             "not-applied",
-            "unknown",
             "partial"
           ]
         },
@@ -208,13 +208,7 @@
           "items": false,
           "prefixItems": [
             {
-              "enum": [
-                0,
-                1,
-                2,
-                3,
-                4
-              ]
+              "$ref": "../../spark-component/src/components/containers/runtime/useDataViewEventBridge.ts.json#/$defs/DataViewRequestState"
             }
           ]
         },

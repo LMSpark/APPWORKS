@@ -32,8 +32,8 @@
       "enum": [
         "info",
         "error",
-        "success",
-        "warning"
+        "warning",
+        "success"
       ]
     },
     "PageDialogResult": {
@@ -81,8 +81,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         },
         "width": {

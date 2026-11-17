@@ -66,12 +66,6 @@
               "const": "number"
             },
             {
-              "const": "text"
-            },
-            {
-              "const": "date"
-            },
-            {
               "type": "object",
               "properties": {
                 "toString": {
@@ -269,7 +263,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@56948": {
+                "__@iterator@161648": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -324,7 +318,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@56948"
+                "__@iterator@161648"
               ],
               "additionalProperties": false
             },
@@ -335,7 +329,13 @@
               "const": "checkbox"
             },
             {
+              "const": "date"
+            },
+            {
               "const": "radio"
+            },
+            {
+              "const": "text"
             },
             {
               "const": "date-range"

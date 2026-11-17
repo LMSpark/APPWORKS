@@ -125,11 +125,11 @@
       "properties": {
         "state": {
           "enum": [
-            "confirmed",
-            "not-applied",
-            "unknown",
             "idle",
-            "pending"
+            "unknown",
+            "pending",
+            "confirmed",
+            "not-applied"
           ]
         },
         "version": {
@@ -173,10 +173,10 @@
       "properties": {
         "state": {
           "enum": [
-            "confirmed",
-            "not-applied",
+            "idle",
             "unknown",
-            "idle"
+            "confirmed",
+            "not-applied"
           ]
         },
         "text": {

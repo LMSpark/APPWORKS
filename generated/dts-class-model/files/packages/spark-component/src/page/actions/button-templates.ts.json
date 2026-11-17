@@ -23,10 +23,10 @@
         "buttonType": {
           "enum": [
             "info",
-            "success",
             "warning",
-            "primary",
-            "danger"
+            "success",
+            "danger",
+            "primary"
           ]
         },
         "plain": {
@@ -62,8 +62,8 @@
         "buttonSize": {
           "enum": [
             "small",
-            "large",
-            "default"
+            "default",
+            "large"
           ]
         },
         "icon": {

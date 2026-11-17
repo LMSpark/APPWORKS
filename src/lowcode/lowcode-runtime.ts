@@ -15,7 +15,8 @@ import { createRequest } from '@spark-appworks/spark-utils'
 import { parseQuery } from 'vue-router'
 import { buildConfigPageNavigationPath } from '@/services/application-scope'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
-import { loadLowcodeRuntimeScenario } from './data-space/lowcode-data-space-runtime'
+import { loadLowcodeRuntimeScenario, readLowcodeExecutionProject } from './data-space/lowcode-data-space-runtime'
+import { readPageToolFileText } from '@/services/project/page-tool-file-operations'
 import {readLowcodeApplicationById, readLowcodeApplications, readLowcodeNavigationRootId} from './lowcode-application-catalog'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import {resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
@@ -95,15 +96,17 @@ export function lowcodeRequestHeaders(): Record<string, string> {
 }
 
 export async function readLowcodePageFile(command: ProjectModel.PageFileReadCommand): Promise<string> {
-  const versions = command.versionId === undefined ? undefined : LowcodePlatform.parseLowcodeBlueprintFileVersions(command.versionId)
-  const key = command.fileName === 'rule.json' ? 'rule' : command.fileName === 'script.js' ? 'script' : 'style'
-  const version = versions?.[key]
-  if (versions !== undefined && (version === undefined || version === null)) throw new Error(`发布指针缺少 ${command.fileName}`)
-  return lowcodeApi.design.readTextFile({
-    appType: 'designfile',
-    customPath: toolFilePath(command.projectId, command.pageId),
-    fileName: versions === undefined ? command.fileName : LowcodePlatform.lowcodeBlueprintVersionedFileName(command.fileName, versions),
+  const execution = readLowcodeExecutionProject()
+  if (execution.projectId !== command.projectId) throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 应用身份与工具不一致')
+  const dataSet = await loadLowcodeRuntimeScenario({
+    projectId: execution.projectId,
+    scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY,
   })
+  try {
+    return await readPageToolFileText({...command, dataSet, appId: execution.projectId, assertCurrent: execution.assertCurrent})
+  } finally {
+    dataSet.destroy()
+  }
 }
 
 /** 正式蓝图记录和后端授权证据，按节点身份投影宿主导航。 */

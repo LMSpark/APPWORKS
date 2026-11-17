@@ -6,11 +6,24 @@ import dataSpaceDesignConfig from '../../../../config/pages/data-platform/data-s
 import {createPageFileResourceView,createPageToolFileResourceExecutor} from '@/services/project/page-tool-file-dataview'
 import {ProjectWorkspace} from '@spark-appworks/spark-project-model'
 import type {createPageToolFilesIo} from '@/lowcode/lowcode-runtime'
+import {readPageToolFileText} from '@/services/project/page-tool-file-operations'
 
 const storage=vi.hoisted(()=>({io:undefined as unknown}))
 vi.mock('@/lowcode/lowcode-runtime',async importOriginal=>({...await importOriginal<typeof import('@/lowcode/lowcode-runtime')>(),createPageToolFilesIo:()=>storage.io}))
 
 describe('formal ProjectToolFile DataView',()=>{
+  it('reads released runtime text without falling back to the working file', async () => {
+    const read = vi.fn(async () => 'working')
+    const readVersion = vi.fn(async () => 'published')
+    storage.io = {read, readVersion}
+    const dataSet = DataSet.fromJson({scenarioId:'META',tables:{ProjectToolFile:appConfig.tables.ProjectToolFile}})
+    try {
+      await expect(readPageToolFileText({dataSet,appId:'APP',pageId:'PAGE',fileName:'script.js',
+        versionId:'rule=2;script=1;style=3',assertCurrent:()=>{}})).resolves.toBe('published')
+      expect(readVersion).toHaveBeenCalledExactlyOnceWith({appId:'APP',customPath:'APP/PAGE',fileName:'script.js',version:1})
+      expect(read).not.toHaveBeenCalled()
+    } finally {dataSet.destroy()}
+  })
   it.each([
     {fileName:'rule.json',version:2},
     {fileName:'script.js',version:1},

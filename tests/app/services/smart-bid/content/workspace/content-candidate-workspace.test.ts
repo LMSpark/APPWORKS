@@ -166,6 +166,11 @@ it('runs the three-version comparison from the candidate workspace and withdraws
  expect(f.wrapper.text()).toContain('三版比对结果')
  expect(f.wrapper.text()).toContain('3 个新增节点待确认')
  expect(f.wrapper.text()).toContain('新增节点：C、D、H')
+ const staleConfirm=f.wrapper.findAllComponents(RendererButton)
+  .find(item=>item.props('label')==='确认这些新增节点并重新比对')!.props('onClick')!
+ await button!.trigger('click');await flushPromises()
+ await staleConfirm();await flushPromises()
+ expect(f.wrapper.text()).toContain('3 个新增节点待确认')
  const confirm=f.wrapper.findAll('button').find(item=>item.text()==='确认这些新增节点并重新比对')
  expect(confirm).toBeDefined();await confirm!.trigger('click');await flushPromises()
  expect(f.wrapper.text()).toContain('3 个新增节点已确认用于本次比对')

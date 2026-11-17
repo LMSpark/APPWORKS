@@ -11,9 +11,11 @@ AI用途：正文宿主读取候选后传入同次绑定；采用须另完成完
     <RendererSection v-if="comparisonError && !state.error" title="三版比对失败" :error="comparisonError" />
     <RendererSection v-if="comparisonState" title="三版比对结果" :status="comparisonState.status">
       <RendererSection v-if="comparisonState.added.length" :title="`新增节点：${comparisonState.added.join('、')}`" />
+      <RendererSection v-if="comparisonState.conflicts.length" :title="`冲突节点：${comparisonState.conflicts.join('、')}`" />
+      <RendererSection v-if="comparisonState.orderConflicts.length" :title="`顺序冲突所在父节点：${comparisonState.orderConflicts.join('、')}`" />
       <RendererSection v-if="comparisonState.responseConflicts.length" :title="`冲突分工：${comparisonState.responseConflicts.join('、')}`" />
       <RendererButton v-if="comparisonState.undeclared && state.revisionKey" :data-view-key="state.revisionKey"
-        label="确认这些新增节点并重新比对" :disabled="comparisonLoading" :on-click="confirmAdditions" />
+        label="确认这些新增节点并重新比对" :disabled="comparisonLoading" :on-click="comparisonState.confirmAdditions" />
     </RendererSection>
     <RendererTree v-if="state.nodesKey" :data-view-key="state.nodesKey" node-key="nodeId" :tree-props="treeProps" :children="nodeFields" />
     <RendererSection v-else-if="!state.error" title="本候选尚无正文节点" />
@@ -50,14 +52,19 @@ const comparisonState=computed(()=>{
  if(!result)return undefined
  try{result.assertCurrent()}catch{return undefined}
  const undeclared=result.violations.filter(item=>item.code==='UNDECLARED_ADDITION').length
- const conflicts=result.comparison.nodes.filter(item=>item.conflicts.length>0).length
- const orderConflicts=result.comparison.siblings.filter(item=>item.status==='CONFLICT').length
+ const conflicts=result.comparison.nodes.flatMap(item=>item.nodeId!==null&&item.conflicts.length?[item.nodeId]:[])
+ const orderConflicts=result.comparison.siblings.filter(item=>item.status==='CONFLICT').map(item=>item.parentId)
  const responseConflicts=result.responseComparison.filter(item=>item.delta==='DIVERGED').map(item=>item.assignmentId)
  const added=result.addedNodeIds
- const status=[`${result.changedNodeIds.length} 个候选节点变化`,`${conflicts} 个节点冲突`,`${orderConflicts} 处顺序冲突`,`${responseConflicts.length} 个响应冲突`,
+ const status=[`${result.changedNodeIds.length} 个候选节点变化`,`${conflicts.length} 个节点冲突`,`${orderConflicts.length} 处顺序冲突`,`${responseConflicts.length} 个响应冲突`,
   ...(added.length?[undeclared?`${undeclared} 个新增节点待确认`:`${added.length} 个新增节点已确认用于本次比对`]:[]),
   ...(result.violations.length>undeclared?['存在超出范围或需要复核的变更']:[]),'待复核采用依据'].join('，')
- return {status,added,undeclared,responseConflicts}
+ const confirmAdditions=async()=>{
+  if(!undeclared||comparison.value!==result)return
+  try{result.assertCurrent()}catch{return}
+  await compareVersions(added)
+ }
+ return {status,added,undeclared,conflicts,orderConflicts,responseConflicts,confirmAdditions}
 })
 let nodeSelectionVersion=0
 const referenceLoading=ref(false)
@@ -185,10 +192,6 @@ const state=computed<{revisionKey?:string;revisionRowId?:string|number;nodesKey?
   return {error:message==='候选运行实例不匹配'?message:'候选读取已失效，请重新读取'}
  }
 })
-async function confirmAdditions():Promise<void>{
- const current=comparisonState.value
- if(current?.undeclared)await compareVersions(current.added)
-}
 async function compareVersions(declaredAddedNodeIds:readonly string[]=[]):Promise<void>{
  if(comparisonLoading.value||state.value.error)return
  const binding=toRaw(props.binding),runtime=toRaw(props.runtime)

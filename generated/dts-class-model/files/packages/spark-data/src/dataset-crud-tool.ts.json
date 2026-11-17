@@ -219,7 +219,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@163440": {
+                "__@iterator@29445": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -274,7 +274,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@163440"
+                "__@iterator@29445"
               ],
               "additionalProperties": false
             },
@@ -504,7 +504,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@163440": {
+                "__@iterator@29445": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -559,7 +559,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@163440"
+                "__@iterator@29445"
               ],
               "additionalProperties": false
             },
@@ -642,10 +642,43 @@
                   "const": "object"
                 },
                 {
-                  "const": "array"
+                  "const": "text"
+                },
+                {
+                  "const": "int"
                 },
                 {
                   "const": "integer"
+                },
+                {
+                  "const": "decimal"
+                },
+                {
+                  "const": "float"
+                },
+                {
+                  "const": "double"
+                },
+                {
+                  "const": "varchar"
+                },
+                {
+                  "const": "bool"
+                },
+                {
+                  "const": "date"
+                },
+                {
+                  "const": "datetime"
+                },
+                {
+                  "const": "time"
+                },
+                {
+                  "const": "array"
+                },
+                {
+                  "const": "enum"
                 },
                 {
                   "type": "object",
@@ -845,7 +878,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@163440": {
+                    "__@iterator@29445": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -900,42 +933,9 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@163440"
+                    "__@iterator@29445"
                   ],
                   "additionalProperties": false
-                },
-                {
-                  "const": "enum"
-                },
-                {
-                  "const": "decimal"
-                },
-                {
-                  "const": "date"
-                },
-                {
-                  "const": "text"
-                },
-                {
-                  "const": "time"
-                },
-                {
-                  "const": "int"
-                },
-                {
-                  "const": "bool"
-                },
-                {
-                  "const": "float"
-                },
-                {
-                  "const": "double"
-                },
-                {
-                  "const": "varchar"
-                },
-                {
-                  "const": "datetime"
                 }
               ]
             },
@@ -1299,7 +1299,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@163440": {
+                "__@iterator@29445": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1354,7 +1354,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@163440"
+                "__@iterator@29445"
               ],
               "additionalProperties": false
             },
@@ -1587,7 +1587,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@163440": {
+                "__@iterator@29445": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1642,7 +1642,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@163440"
+                "__@iterator@29445"
               ],
               "additionalProperties": false
             },
@@ -1789,10 +1789,43 @@
                   "const": "object"
                 },
                 {
-                  "const": "array"
+                  "const": "text"
+                },
+                {
+                  "const": "int"
                 },
                 {
                   "const": "integer"
+                },
+                {
+                  "const": "decimal"
+                },
+                {
+                  "const": "float"
+                },
+                {
+                  "const": "double"
+                },
+                {
+                  "const": "varchar"
+                },
+                {
+                  "const": "bool"
+                },
+                {
+                  "const": "date"
+                },
+                {
+                  "const": "datetime"
+                },
+                {
+                  "const": "time"
+                },
+                {
+                  "const": "array"
+                },
+                {
+                  "const": "enum"
                 },
                 {
                   "type": "object",
@@ -1992,7 +2025,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@163440": {
+                    "__@iterator@29445": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -2047,42 +2080,9 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@163440"
+                    "__@iterator@29445"
                   ],
                   "additionalProperties": false
-                },
-                {
-                  "const": "enum"
-                },
-                {
-                  "const": "decimal"
-                },
-                {
-                  "const": "date"
-                },
-                {
-                  "const": "text"
-                },
-                {
-                  "const": "time"
-                },
-                {
-                  "const": "int"
-                },
-                {
-                  "const": "bool"
-                },
-                {
-                  "const": "float"
-                },
-                {
-                  "const": "double"
-                },
-                {
-                  "const": "varchar"
-                },
-                {
-                  "const": "datetime"
                 }
               ]
             },
@@ -2472,7 +2472,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@163440": {
+                "__@iterator@29445": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2527,7 +2527,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@163440"
+                "__@iterator@29445"
               ],
               "additionalProperties": false
             },
@@ -2760,7 +2760,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@163440": {
+                "__@iterator@29445": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2815,7 +2815,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@163440"
+                "__@iterator@29445"
               ],
               "additionalProperties": false
             },
@@ -2939,20 +2939,14 @@
             "queryConfig": {
               "type": "object",
               "properties": {
-                "tree": {
-                  "$ref": "../../spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryTree"
-                },
-                "children": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "types.ts.json#/$defs/DataViewQueryChild"
-                  }
-                },
                 "fields": {
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
+                },
+                "tree": {
+                  "$ref": "../../spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryTree"
                 },
                 "parentResult": {
                   "type": "object",
@@ -2993,6 +2987,12 @@
                 },
                 "maxRows": {
                   "type": "number"
+                },
+                "children": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "types.ts.json#/$defs/DataViewQueryChild"
+                  }
                 },
                 "sourceInputMode": {
                   "enum": [
@@ -4060,8 +4060,8 @@
         },
         "kind": {
           "enum": [
-            "query",
-            "field"
+            "field",
+            "query"
           ]
         }
       },

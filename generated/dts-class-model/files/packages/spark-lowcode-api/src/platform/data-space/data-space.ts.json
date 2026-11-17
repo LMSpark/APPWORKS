@@ -20,12 +20,12 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "DataSpaceResourceType",
       "enum": [
-        "interface",
-        "file",
+        "dictionary",
         "table",
         "view",
-        "dictionary",
-        "json"
+        "interface",
+        "json",
+        "file"
       ]
     },
     "DataSpaceDatabaseResourceType": {

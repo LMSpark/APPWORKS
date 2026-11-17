@@ -29,9 +29,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "LowcodeBlueprintFileVersionKey",
       "enum": [
+        "rule",
         "script",
-        "style",
-        "rule"
+        "style"
       ]
     },
     "LowcodeBlueprintFileVersions": {
@@ -39,6 +39,12 @@
       "type": "object",
       "title": "LowcodeBlueprintFileVersions",
       "properties": {
+        "rule": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
         "script": {
           "type": [
             "null",
@@ -50,18 +56,12 @@
             "null",
             "number"
           ]
-        },
-        "rule": {
-          "type": [
-            "null",
-            "number"
-          ]
         }
       },
       "required": [
+        "rule",
         "script",
-        "style",
-        "rule"
+        "style"
       ],
       "additionalProperties": false
     }
@@ -116,17 +116,17 @@
         "members": {
           "attributes": [
             {
+              "name": "rule",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "script",
               "readable": true,
               "writable": true
             },
             {
               "name": "style",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "rule",
               "readable": true,
               "writable": true
             }

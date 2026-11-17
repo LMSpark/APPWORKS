@@ -61,8 +61,27 @@ function assertOperationRouteCandidate(value:unknown):asserts value is Operation
  if(preview.errors.length)throw Error(`OPERATION_ROUTE_CANDIDATE: ${preview.errors.join(';')}`)
 }
 
-/** 读取已解析JSON并返回独立快照；只有模型/载荷/结构通过，不授予执行或发布效力。 */
-export function readOperationRouteCandidate(value:unknown):OperationRouteCandidate {
+function sameRouteRef(left:unknown,right:unknown):boolean {
+ if(left===right)return true
+ if(Array.isArray(left))return Array.isArray(right)&&left.length===right.length
+  &&left.every((item:unknown,index)=>sameRouteRef(item,right[index]))
+ if(Array.isArray(right)||!isRecord(left)||!isRecord(right))return false
+ const keys=Object.keys(left)
+ return keys.length===Object.keys(right).length&&keys.every(key=>Object.hasOwn(right,key)&&sameRouteRef(left[key],right[key]))
+}
+
+/** 读取原生 JSON 候选，并按调用方提供的固定目录核对引用；发布效力由宿主核验。 */
+export function readOperationRouteCandidate(value:unknown,catalog?:Readonly<{
+ stationRefs:readonly string[];routeRefs?:readonly OperationDataValue[]
+}>):OperationRouteCandidate {
  assertOperationRouteCandidate(value)
+ if(catalog!==undefined){
+  const stationRefs=new Set(catalog.stationRefs)
+  for(const node of value.nodes){
+   if(node.type==='task'&&!stationRefs.has(node.data.stationRef))throw Error('OPERATION_ROUTE_STATION_OUTSIDE_CATALOG')
+   if(node.type==='call'&&catalog.routeRefs?.some(ref=>sameRouteRef(node.data.routeRef,ref))!==true)
+    throw Error('OPERATION_ROUTE_CALL_OUTSIDE_CATALOG')
+  }
+ }
  return structuredClone(value)
 }

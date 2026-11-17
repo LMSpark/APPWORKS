@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1312,
+  "scannedFileCount": 1313,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17662,6 +17662,19 @@
           "OperationTaskClasses",
           "OperationRoutePreview"
         ]
+      }
+    },
+    "src/services/smart-bid/operation/operation-station-fit.ts": {
+      "file": "files/src/services/smart-bid/operation/operation-station-fit.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/operation-station-fit",
+        "sourcePath": "src/services/smart-bid/operation/operation-station-fit.ts",
+        "sourceFile": "src/services/smart-bid/operation/operation-station-fit.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/operation-station-fit",
+        "jsdoc": "@module app:services/smart-bid/operation/operation-station-fit\n职责：以正式工位规则核对工序有效分类。\n边界：规则解释及发布目录由调用方提供。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
       }
     },
     "src/services/smart-bid/operation/operation-tree-structure.ts": {

@@ -19,10 +19,10 @@
       "type": "object",
       "title": "DataSpaceAggregateField",
       "properties": {
-        "type": {
+        "name": {
           "type": "string"
         },
-        "name": {
+        "type": {
           "type": "string"
         },
         "canonicalName": {
@@ -30,8 +30,8 @@
         }
       },
       "required": [
-        "type",
         "name",
+        "type",
         "canonicalName"
       ],
       "additionalProperties": false
@@ -98,12 +98,12 @@
         "members": {
           "attributes": [
             {
-              "name": "type",
+              "name": "name",
               "readable": true,
               "writable": true
             },
             {
-              "name": "name",
+              "name": "type",
               "readable": true,
               "writable": true
             },

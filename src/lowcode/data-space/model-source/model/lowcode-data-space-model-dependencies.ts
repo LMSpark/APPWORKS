@@ -200,8 +200,14 @@ export class LowcodeDataSpaceModelDependencies {
     for (const row of this.#expressions.rows) {
       const raw = this.read(this.#expressions, row, 'ValueFun')
       if (typeof raw !== 'string') throw new Error('模型依赖ValueFun原文无效')
-      const fn = DataSpaceDesignApi.parseValueFunction(raw)
-      include(this.read(this.#expressions, row, 'dataModelId'))
+      const ownerId = this.read(this.#expressions, row, 'dataModelId')
+      const fieldId = this.#expressions.getPkKey(row)
+      let fn: ReturnType<typeof DataSpaceDesignApi.parseValueFunction>
+      try { fn = DataSpaceDesignApi.parseValueFunction(raw) }
+      catch (cause) {
+        throw new Error(`模型依赖 ValueFun 无法解析（模型 ${String(ownerId)}，字段记录 ${String(fieldId)}），请核验原字段配置`, {cause})
+      }
+      include(ownerId)
       if (fn?.Type === 'GetRefData' && this.read(this.#expressions, row, 'type') === 'dataModel') continue
       if (fn) includeFunction(fn)
     }

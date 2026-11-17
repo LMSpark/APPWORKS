@@ -238,8 +238,8 @@
         },
         "direction": {
           "enum": [
-            "desc",
-            "asc"
+            "asc",
+            "desc"
           ]
         }
       },

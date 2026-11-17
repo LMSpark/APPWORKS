@@ -368,7 +368,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T09:00:36.539Z",
+  "generatedAt": "2026-11-17T19:06:10.794Z",
   "models": {
     "OperationDataValue": {
       "name": "OperationDataValue",

@@ -51,7 +51,7 @@
       "properties": {
         "http": {
           "type": "object",
-          "title": "import(\"@spark-appworks/spark-utils\").HttpClientBase"
+          "title": "import(\"../../../../../../spark-utils/src\").HttpClientBase"
         },
         "readScope": {
           "type": "object",

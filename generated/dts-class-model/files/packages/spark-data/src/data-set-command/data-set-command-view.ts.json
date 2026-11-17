@@ -27,6 +27,15 @@
       "type": "object",
       "title": "DataSetCommandColumnSpec",
       "properties": {
+        "label": {
+          "type": "string"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
         "type": {
           "anyOf": [
             {
@@ -42,10 +51,43 @@
               "const": "object"
             },
             {
-              "const": "array"
+              "const": "text"
+            },
+            {
+              "const": "int"
             },
             {
               "const": "integer"
+            },
+            {
+              "const": "decimal"
+            },
+            {
+              "const": "float"
+            },
+            {
+              "const": "double"
+            },
+            {
+              "const": "varchar"
+            },
+            {
+              "const": "bool"
+            },
+            {
+              "const": "date"
+            },
+            {
+              "const": "datetime"
+            },
+            {
+              "const": "time"
+            },
+            {
+              "const": "array"
+            },
+            {
+              "const": "enum"
             },
             {
               "type": "object",
@@ -245,7 +287,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@163440": {
+                "__@iterator@29445": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -300,74 +342,11 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@163440"
+                "__@iterator@29445"
               ],
               "additionalProperties": false
-            },
-            {
-              "const": "enum"
-            },
-            {
-              "const": "decimal"
-            },
-            {
-              "const": "date"
-            },
-            {
-              "const": "text"
-            },
-            {
-              "const": "time"
-            },
-            {
-              "const": "int"
-            },
-            {
-              "const": "bool"
-            },
-            {
-              "const": "float"
-            },
-            {
-              "const": "double"
-            },
-            {
-              "const": "varchar"
-            },
-            {
-              "const": "datetime"
             }
           ]
-        },
-        "trim": {
-          "enum": [
-            "reject",
-            "normalize"
-          ]
-        },
-        "label": {
-          "type": "string"
-        },
-        "pattern": {
-          "type": "string"
-        },
-        "min": {
-          "type": "number"
-        },
-        "max": {
-          "type": "number"
-        },
-        "required": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "minLength": {
-          "type": "number"
-        },
-        "maxLength": {
-          "type": "number"
         },
         "allowDBNull": {
           "enum": [
@@ -394,8 +373,29 @@
             true
           ]
         },
+        "required": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "minLength": {
+          "type": "number"
+        },
+        "maxLength": {
+          "type": "number"
+        },
+        "pattern": {
+          "type": "string"
+        },
         "patternMessage": {
           "type": "string"
+        },
+        "trim": {
+          "enum": [
+            "reject",
+            "normalize"
+          ]
         },
         "unique": {
           "enum": [

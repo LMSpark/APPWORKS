@@ -195,10 +195,43 @@
           "const": "object"
         },
         {
-          "const": "array"
+          "const": "text"
+        },
+        {
+          "const": "int"
         },
         {
           "const": "integer"
+        },
+        {
+          "const": "decimal"
+        },
+        {
+          "const": "float"
+        },
+        {
+          "const": "double"
+        },
+        {
+          "const": "varchar"
+        },
+        {
+          "const": "bool"
+        },
+        {
+          "const": "date"
+        },
+        {
+          "const": "datetime"
+        },
+        {
+          "const": "time"
+        },
+        {
+          "const": "array"
+        },
+        {
+          "const": "enum"
         },
         {
           "type": "object",
@@ -398,7 +431,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@163440": {
+            "__@iterator@29445": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -453,42 +486,9 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@163440"
+            "__@iterator@29445"
           ],
           "additionalProperties": false
-        },
-        {
-          "const": "enum"
-        },
-        {
-          "const": "decimal"
-        },
-        {
-          "const": "date"
-        },
-        {
-          "const": "text"
-        },
-        {
-          "const": "time"
-        },
-        {
-          "const": "int"
-        },
-        {
-          "const": "bool"
-        },
-        {
-          "const": "float"
-        },
-        {
-          "const": "double"
-        },
-        {
-          "const": "varchar"
-        },
-        {
-          "const": "datetime"
         }
       ]
     },
@@ -1030,7 +1030,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@163440": {
+            "__@iterator@29445": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1085,7 +1085,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@163440"
+            "__@iterator@29445"
           ],
           "additionalProperties": false
         },
@@ -1311,7 +1311,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@163440": {
+            "__@iterator@29445": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1366,7 +1366,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@163440"
+            "__@iterator@29445"
           ],
           "additionalProperties": false
         },
@@ -1604,7 +1604,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@163440": {
+                "__@iterator@29445": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1659,7 +1659,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@163440"
+                "__@iterator@29445"
               ],
               "additionalProperties": false
             },
@@ -1889,7 +1889,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@163440": {
+                "__@iterator@29445": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1944,7 +1944,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@163440"
+                "__@iterator@29445"
               ],
               "additionalProperties": false
             },
@@ -2880,7 +2880,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@163440": {
+                "__@iterator@29445": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2935,7 +2935,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@163440"
+                "__@iterator@29445"
               ],
               "additionalProperties": false
             },
@@ -3165,7 +3165,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@163440": {
+                "__@iterator@29445": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3220,7 +3220,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@163440"
+                "__@iterator@29445"
               ],
               "additionalProperties": false
             },
@@ -3286,8 +3286,8 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "SortDirection",
       "enum": [
-        "desc",
-        "asc"
+        "asc",
+        "desc"
       ]
     },
     "SortField": {
@@ -3300,8 +3300,8 @@
         },
         "direction": {
           "enum": [
-            "desc",
-            "asc"
+            "asc",
+            "desc"
           ]
         }
       },
@@ -3410,8 +3410,8 @@
         "sortDirection": {
           "enum": [
             null,
-            "desc",
-            "asc"
+            "asc",
+            "desc"
           ]
         },
         "group": {
@@ -3524,20 +3524,14 @@
         "queryConfig": {
           "type": "object",
           "properties": {
-            "tree": {
-              "$ref": "../../spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryTree"
-            },
-            "children": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/DataViewQueryChild"
-              }
-            },
             "fields": {
               "type": "array",
               "items": {
                 "type": "string"
               }
+            },
+            "tree": {
+              "$ref": "../../spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryTree"
             },
             "parentResult": {
               "type": "object",
@@ -3578,6 +3572,12 @@
             },
             "maxRows": {
               "type": "number"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataViewQueryChild"
+              }
             },
             "sourceInputMode": {
               "enum": [
@@ -4468,8 +4468,8 @@
           "enum": [
             "error",
             "idle",
-            "ready",
-            "loading"
+            "loading",
+            "ready"
           ]
         },
         "options": {
@@ -4480,9 +4480,9 @@
         },
         "valueStatus": {
           "enum": [
+            "empty",
             "valid",
             "invalid",
-            "empty",
             "unverified"
           ]
         },
@@ -4804,14 +4804,14 @@
             "null",
             "object"
           ],
-          "title": "ErrorDefault"
+          "title": "Error"
         },
         "computedAggregateError": {
           "type": [
             "null",
             "object"
           ],
-          "title": "ErrorDefault"
+          "title": "Error"
         },
         "aggregateResult": {
           "type": "object",
@@ -5704,9 +5704,9 @@
         },
         "op": {
           "enum": [
-            "delete",
             "create",
-            "update"
+            "update",
+            "delete"
           ]
         },
         "data": {
@@ -6113,7 +6113,7 @@
         "data": true,
         "error": {
           "type": "object",
-          "title": "ErrorDefault"
+          "title": "Error"
         },
         "message": {
           "type": "string"
@@ -6338,7 +6338,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "title": "ErrorDefault"
+            "title": "Error"
           }
         },
         "totalTime": {

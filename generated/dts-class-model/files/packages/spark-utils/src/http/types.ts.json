@@ -75,12 +75,12 @@
         },
         "responseType": {
           "enum": [
-            "formdata",
             "text",
             "json",
-            "document",
             "arraybuffer",
-            "blob"
+            "blob",
+            "document",
+            "formdata"
           ]
         },
         "baseURL": {
@@ -497,12 +497,12 @@
         },
         "responseType": {
           "enum": [
-            "formdata",
             "text",
             "json",
-            "document",
             "arraybuffer",
-            "blob"
+            "blob",
+            "document",
+            "formdata"
           ]
         },
         "baseURL": {

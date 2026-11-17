@@ -21,8 +21,7 @@
       "title": "DataSpaceQueryNestedNode",
       "properties": {
         "model": {
-          "type": "object",
-          "title": "Model"
+          "$ref": "data-space-query-graph.ts.json#/$defs/Model"
         },
         "columns": {
           "type": "array",

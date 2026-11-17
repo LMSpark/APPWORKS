@@ -42,18 +42,18 @@
         "api": {
           "type": "object",
           "properties": {
-            "init": {
-              "type": "object",
-              "title": "(input: PdfInspectionInitInput) => Promise<PdfInspectionInitReceipt>"
-            },
             "recover": {
               "type": "object",
               "title": "(requestId: string) => Promise<PdfInspectionJob>"
+            },
+            "init": {
+              "type": "object",
+              "title": "(input: PdfInspectionInitInput) => Promise<PdfInspectionInitReceipt>"
             }
           },
           "required": [
-            "init",
-            "recover"
+            "recover",
+            "init"
           ],
           "additionalProperties": false
         },

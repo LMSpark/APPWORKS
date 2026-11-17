@@ -4009,7 +4009,7 @@
     "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts.json",
-      "sourceModifiedAt": "2026-11-03T12:14:41.057Z"
+      "sourceModifiedAt": "2026-11-17T19:15:04.822Z"
     },
     "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts",
@@ -5344,12 +5344,17 @@
     "src/services/smart-bid/operation/operation-route-candidate.ts": {
       "sourceFile": "src/services/smart-bid/operation/operation-route-candidate.ts",
       "shardFile": "files/src/services/smart-bid/operation/operation-route-candidate.ts.json",
-      "sourceModifiedAt": "2026-11-17T09:00:36.539Z"
+      "sourceModifiedAt": "2026-11-17T19:06:10.794Z"
     },
     "src/services/smart-bid/operation/operation-route-preview.ts": {
       "sourceFile": "src/services/smart-bid/operation/operation-route-preview.ts",
       "shardFile": "files/src/services/smart-bid/operation/operation-route-preview.ts.json",
       "sourceModifiedAt": "2026-11-17T09:00:36.541Z"
+    },
+    "src/services/smart-bid/operation/operation-station-fit.ts": {
+      "sourceFile": "src/services/smart-bid/operation/operation-station-fit.ts",
+      "shardFile": "files/src/services/smart-bid/operation/operation-station-fit.ts.json",
+      "sourceModifiedAt": "2026-11-17T19:16:57.536Z"
     },
     "src/services/smart-bid/operation/operation-tree-structure.ts": {
       "sourceFile": "src/services/smart-bid/operation/operation-tree-structure.ts",

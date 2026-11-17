@@ -40,14 +40,21 @@ function fixture(scoped=true,hiddenProject:boolean|(()=>boolean)=false,draftKey=
   WorkingDraft:{modelBinding:{modelId:'DM',modelName:'WorkingDraft'},columns:[
    {name:draftKey,type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},{name:'draft',type:'object'}],
    views:{default:{},personalDraft:{...(scoped?{scopeFilter:draftScope}:{}),commitMode:'staged'}}},
+  ContentAdoption:{modelBinding:{modelId:'AM',modelName:'ContentAdoption'},
+   columns:['id','projectId','candidateRevisionId','requestKey','requestDigest','previewRef','mergeRevisionId','commitCheckRef']
+    .map(name=>({name,type:'string',isPrimaryKey:name==='id'})),
+   views:{default:{},selectedAdoption:{commitMode:'staged',scopeFilter:{logic:'and',
+    filters:['projectId','candidateRevisionId','requestKey'].map(field=>({field,operator:'eq',value:param(field)}))}}}},
  }})
  const queries=vi.fn(async(view:DataView,params:QueryParams)=>{
   const model=view.dataTable!.modelBinding!.modelName
   const query=new DataSpaceQueryTable({scenarioId,metaName:model})
-  const rows=model==='ContentProject'?[{projectId:params.context!['projectId']}]:[
+  const rows=model==='ContentProject'?[{projectId:params.context!['projectId']}]:
+   model==='ContentAdoption'?[{id:'A',projectId:params.context!['projectId'],candidateRevisionId:'C',requestKey:'K',
+    requestDigest:'DIGEST',previewRef:'PV',mergeRevisionId:'R',commitCheckRef:null}]:[
    {[draftKey]:'D',projectId:params.context!['projectId'],userId:params.context!['currentUserId'],draft:{nodes:[],responseChanges:[]}}]
   return new DataSpaceQueryContext({identity:query.identity,scope:'original',readScope:()=> 'original',snapshot:query.applyResult({Result:{
-   primaryKeyField:model==='ContentProject'?'projectId':draftKey,data:{Count:rows.length,Items:rows.map(row=>({...row,
+   primaryKeyField:model==='ContentProject'?'projectId':model==='ContentAdoption'?'id':draftKey,data:{Count:rows.length,Items:rows.map(row=>({...row,
     lingma_sys_params:{r:[],e:['draft'],h:model==='ContentProject'&&(typeof hiddenProject==='function'?hiddenProject():hiddenProject)?['projectId']:[],m:[],d:false}}))}}})})
  })
  const save=vi.fn(async()=>{throw Error('UNEXPECTED_REMOTE_WRITE')})
@@ -66,6 +73,20 @@ it('loads the original views with fixed project and trusted session-author input
  expect(filters.join(' ')).toContain('projectId')
  expect(filters.join(' ')).toContain('userId')
  binding.assertCurrent();host.close()
+})
+it('reads adoption with its original project binding and revokes evidence on session change',async()=>{
+ const f=fixture(),host=new ContentAuthoringHost(),binding=await host.open(target)
+ const request={candidateRevisionId:'C',requestKey:'K',requestDigest:'DIGEST',previewRef:'PV'}
+ try{
+  const result=await binding.readOriginalAdoption(request)
+  expect(result).toMatchObject({recordFound:true,requiresOriginalResultEvidence:true})
+  expect(f.queries.mock.calls.at(-1)?.[1].context).toMatchObject({projectId:'P',candidateRevisionId:'C',requestKey:'K'})
+  auth.token='session-2'
+  expect(()=>result.assertCurrent()).toThrow()
+  await expect(binding.readOriginalAdoption(request)).rejects.toThrow()
+  expect(f.queries).toHaveBeenCalledTimes(3)
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{host.close()}
 })
 it('binds the supplied runtime without taking ownership of it',async()=>{
  const {ds}=fixture()

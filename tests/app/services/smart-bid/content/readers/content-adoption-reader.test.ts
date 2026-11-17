@@ -1,6 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {readContentAdoption} from '@/views/features/application/smart-bid/authoring/model/content-adoption-reader'
+import {readContentAdoption} from '@/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -10,16 +10,45 @@ function fixture(options:{count?:number;requestDigest?:string}={}){
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ContentAdoption:{modelBinding:{modelId:'M',modelName:'ContentAdoption'},
   columns:Object.keys(record).map(name=>({name,isPrimaryKey:name==='id'})),views:{default:{},selectedAdoption:{commitMode:'staged',
    scopeFilter:{logic:'and',filters:['projectId','candidateRevisionId','requestKey'].map(field=>({field,operator:'eq',
-    value:{Type:'GetInputParam',ParamName:field}}))}}}}}})
+    value:{Type:'GetInputParam',ParamName:field}}))}}}},
+  ContentRevision:{modelBinding:{modelId:'RM',modelName:'ContentRevision'},columns:['id','projectId','status','snapshotHash'].map(name=>({name,isPrimaryKey:name==='id'})),
+   views:{default:{},selectedAdoptionRevision:{commitMode:'staged',scopeFilter:{logic:'and',filters:[
+    {field:'projectId',operator:'eq',value:{Type:'GetInputParam',ParamName:'projectId'}},
+    {field:'id',operator:'eq',value:{Type:'GetInputParam',ParamName:'mergeRevisionId'}},
+    {field:'status',operator:'eq',value:'ADOPTED'},
+   ]}}}}}})
  const view=ds.getView('ContentAdoption','selectedAdoption')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContentAdoption'})
  const save=vi.fn(async()=>{throw Error('NO_WRITE')})
  const query=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',
   snapshot:table.applyResult({Result:{primaryKeyField:'id',data:{Count:options.count??1,Items:options.count===0?[]:
    [{...record,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}})}))
  view.bindQueryExecutor({executeQuery:query,save})
- const host={scenarioId:'S',projectId:'P',assertCurrent:()=>{},runtime:{resolveView:(key:string)=>key==='S@ContentAdoption@selectedAdoption'?view:undefined}}
- return {host,view,ds,query,save}
+ const revision=ds.getView('ContentRevision','selectedAdoptionRevision')!,revisionTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContentRevision'})
+ const revisionQuery=vi.fn(async()=>new DataSpaceQueryContext({identity:revisionTable.identity,scope:'q',readScope:()=> 'q',
+  snapshot:revisionTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[
+   {id:'R',projectId:'P',status:'ADOPTED',snapshotHash:'DIGEST',lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}},
+  ]}}})}))
+ revision.bindQueryExecutor({executeQuery:revisionQuery,save})
+ const host={scenarioId:'S',projectId:'P',assertCurrent:()=>{},runtime:{resolveView:(key:string)=>
+  key==='S@ContentAdoption@selectedAdoption'?view:key==='S@ContentRevision@selectedAdoptionRevision'?revision:undefined}}
+ return {host,view,ds,query,revision,revisionQuery,save}
 }
+it('reads the adopted merge revision by the original record and invalidates it when that record is refreshed',async()=>{
+ const f=fixture()
+ try{
+  const adoption=await readContentAdoption(f.host,request)
+  if(!adoption.recordFound)throw Error('Expected original adoption')
+  const merge=await adoption.readMergeRevision()
+  expect(merge.dataViewKey).toBe('S@ContentRevision@selectedAdoptionRevision')
+  expect(f.revision.queryContext).toMatchObject({projectId:'P',mergeRevisionId:'R'})
+  expect(f.revisionQuery).toHaveBeenCalledTimes(1)
+  merge.assertCurrent()
+  await f.view.refresh()
+  expect(()=>merge.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  await expect(adoption.readMergeRevision()).rejects.toThrow('DATA_VIEW_READ_RESULT')
+  expect(f.revisionQuery).toHaveBeenCalledTimes(1)
+ }finally{f.ds.destroy()}
+})
 it('binds the original record without claiming the request outcome',async()=>{
  const f=fixture()
  try{

@@ -17,6 +17,7 @@ import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './conte
 import {readCandidateContent,type ContentCandidateBinding} from './content-candidate-reader'
 import {readContentFactVersion,type ContentFactVersionSelection,type ContentFactVersionBinding} from './content-fact-version-reader'
 import {readContentBaselineFact,type ContentBaselineFactSelection,type ContentBaselineFactBinding} from './content-baseline-reader'
+import {readContentAdoption,type ContentAdoptionSelection} from './adoption/content-adoption-reader'
 
 /** 导航宿主核实的应用、页面和数据空间，以及本次明确选中的业务目标。作者不由调用参数提供。 */
 export type ContentAuthoringTarget = Readonly<{
@@ -39,6 +40,8 @@ export type ContentAuthoringBinding = Readonly<{
  /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */
  readFactVersion:(selection:ContentFactVersionSelection)=>Promise<ContentFactVersionBinding>
  readBaselineFact:(selection:ContentBaselineFactSelection)=>Promise<ContentBaselineFactBinding>
+ /** 只读原请求关联的采用行；实际原办理结果另核。 */
+ readOriginalAdoption:(selection:ContentAdoptionSelection)=>ReturnType<typeof readContentAdoption>
 }>
 
 function scoped(view:DataView, field:string, parameter:string):boolean {
@@ -162,6 +165,7 @@ export class ContentAuthoringHost {
     readCandidateContent:selection=>readCandidateContent({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
     readFactVersion:selection=>readContentFactVersion({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
     readBaselineFact:selection=>readContentBaselineFact({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
+    readOriginalAdoption:selection=>readContentAdoption({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
     setPending:(value:boolean)=>{
      if(own!==this.#generation||!runtimeCurrent())return
      // 失效只能保留未写回输入的保护；旧回调不能清除它并放行销毁。

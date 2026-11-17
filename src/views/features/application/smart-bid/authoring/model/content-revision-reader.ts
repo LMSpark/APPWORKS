@@ -110,7 +110,7 @@ export async function readContentRevisions(host:ContentRevisionReadHost,input:Co
 export async function readContentRevisionBasis(host:ContentRevisionReadHost,revisions:ContentRevisionReadBinding):Promise<Readonly<{
  dataViewKey:string|null;assertCurrent:()=>void
 }>>{
- const {runtime,scenarioId,projectId}=host
+ const {runtime,projectId}=host
  const candidate=runtime.resolveView(revisions.candidateDataViewKey),candidateRow=candidate?.rows[0]
  host.assertCurrent();revisions.assertCurrent()
  if(!candidate||candidateRow?.['projectId']!==projectId)throw Error('CONTENT_REVISION_BASIS_REQUIRED')
@@ -125,17 +125,27 @@ export async function readContentRevisionBasis(host:ContentRevisionReadHost,revi
   return Object.freeze({dataViewKey:null,assertCurrent:assertCandidate})
  }
  if(!identity(basisRevisionId)||revisions.headDataViewKey===null)throw Error('CONTENT_REVISION_BASIS_REQUIRED')
- const dataViewKey=buildDataViewKey('ContentRevision','selectedBasis',scenarioId),view=runtime.resolveView(dataViewKey)
- if(!view||!valid(view,'basisRevisionId','ADOPTED'))throw Error('CONTENT_REVISION_SCOPE_REQUIRED')
+ return readAdoptedContentRevision({...host,assertCurrent:assertCandidate},{kind:'basis',revisionId:basisRevisionId})
+}
+
+/** 按固定引用读取历史已采用索引，不读取或替换项目当前头。 */
+export async function readAdoptedContentRevision(host:ContentRevisionReadHost,selection:Readonly<{kind:'basis'|'merge';revisionId:string}>){
+ const {runtime,scenarioId,projectId}=host,{kind,revisionId}=selection
+ host.assertCurrent()
+ if(![scenarioId,projectId,revisionId].every(identity))throw Error('CONTENT_REVISION_IDENTITY_REQUIRED')
+ const viewName=kind==='basis'?'selectedBasis':'selectedAdoptionRevision'
+ const parameter=kind==='basis'?'basisRevisionId':'mergeRevisionId'
+ const dataViewKey=buildDataViewKey('ContentRevision',viewName,scenarioId),view=runtime.resolveView(dataViewKey)
+ if(!view||!valid(view,parameter,'ADOPTED'))throw Error('CONTENT_REVISION_SCOPE_REQUIRED')
  if(view.hasEditingChanges())throw Error('CONTENT_REVISION_UNAVAILABLE')
- view.queryContext={...view.queryContext,projectId,basisRevisionId}
+ view.queryContext={...view.queryContext,projectId,[parameter]:revisionId}
  const assertScope=()=>{
-  assertCandidate()
-  if(runtime.resolveView(dataViewKey)!==view||!valid(view,'basisRevisionId','ADOPTED')||
-   view.queryContext['projectId']!==projectId||view.queryContext['basisRevisionId']!==basisRevisionId)throw Error('CONTENT_REVISION_STALE')
+  host.assertCurrent()
+  if(runtime.resolveView(dataViewKey)!==view||!valid(view,parameter,'ADOPTED')||
+   view.queryContext['projectId']!==projectId||view.queryContext[parameter]!==revisionId)throw Error('CONTENT_REVISION_STALE')
  }
  assertScope();await view.refresh();assertScope()
- const target={projectId,id:basisRevisionId,status:'ADOPTED'},row=view.rows[0]
+ const target={projectId,id:revisionId,status:'ADOPTED'},row=view.rows[0]
  if(!row||!available(view,target))throw Error('CONTENT_REVISION_UNAVAILABLE')
  const assertResult=view.captureReadResult(),assertRow=view.captureReadRow(row,['id','projectId','status','snapshotHash'])
  return Object.freeze({dataViewKey,assertCurrent:()=>{

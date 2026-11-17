@@ -11021,3 +11021,5 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - 2026-11-18 动作38删除引用冲突：候选删除节点时，候选残留或当前头新增的内部 page/xref 引用形成 REFERENCED_DELETE，返回精确引用节点。候选同时解除原链接不会被旧基准链接误拦；其它来源仍待检查。两个反例先红后绿，整树与范围专项29项和 ESLint 通过。
 - 2026-11-18 主仓静态生产构建从 6c4130fb5 启动并退出 0，期间并行标书树比较源码出现变更，保留 Vite 拆包与 pure 注解警告。页11宿主、草稿工作区、三文件配置与渲染联合 4 文件 46 项通过；当前源码下 ContentAuthoringHost、ContentDraftWorkspace 仅见测试接线，正式路由仍缺调用，合成工具未证明实际发布。
 - 2026-11-18 页11删除冲突显示引用方：标准结果区逐项展示待删节点及内部引用节点，沿已验证比对结果撤销。标准组件夹具消费整树比对输出，先红后绿；工作区和整树29项及 ESLint 通过。
+- 2026-11-18 页11正式接线复核：现有 PageRuntimePool.preparePageCall 可返回 scenarioInputs、assertCurrent、createHost 并把宿主交 SparkPageRenderer。preparePublishedContentAuthoringCall 目前只提供认证输入。正式宿主须绑定池中已加载的原 PageRuntime，在首次 content.authoring.connect 装配原项目和草稿 DataView，核认证与运行代次，释放只撤销宿主。当前 open() 自行 acquire 的路径不能用于正式池宿主。正式启动注册需发布回读准确 nodeId/pageId 与固定版文件；三文件还需正式候选比对入口。现存夹具仅验证三文件草稿和独立候选工作区。
+- 2026-11-18 页11比对范围问题显示：对越界节点、父节点、响应分工和响应版本等逐项展示原身份及问题，新增未确认保留独立动作。标准组件夹具消费实质范围输出，反例先红后绿，工作区15项及 ESLint 通过。

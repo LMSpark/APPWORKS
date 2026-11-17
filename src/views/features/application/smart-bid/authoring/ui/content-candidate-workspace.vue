@@ -16,6 +16,7 @@ AI用途：正文宿主读取候选后传入同次绑定；采用须另完成完
         :title="`待删节点 ${deletion.nodeId} 仍被引用：${deletion.referencedBy.join('、')}`" />
       <RendererSection v-if="comparisonState.orderConflicts.length" :title="`顺序冲突所在父节点：${comparisonState.orderConflicts.join('、')}`" />
       <RendererSection v-if="comparisonState.responseConflicts.length" :title="`冲突分工：${comparisonState.responseConflicts.join('、')}`" />
+      <RendererSection v-for="issue in comparisonState.scopeIssues" :key="issue.text" :title="issue.text" />
       <RendererButton v-if="comparisonState.undeclared && state.revisionKey" :data-view-key="state.revisionKey"
         label="确认这些新增节点并重新比对" :disabled="comparisonLoading" :on-click="comparisonState.confirmAdditions" />
     </RendererSection>
@@ -42,18 +43,30 @@ import {PAGE_RUNTIME,RendererButton,RendererForm,RendererSection,RendererTree,us
 import type {ContentCandidateBinding} from '../model/content-candidate-reader'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {validateContentReference} from '@/services/smart-bid/content-reference'
+import type {ContentScopeViolation} from '@/services/smart-bid/content/content-scoped-preview'
 
 const props=defineProps<{runtime:PageRuntime;binding:ContentCandidateBinding}>()
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'content-candidate-workspace'})
 const revision=ref(0)
 const comparisonLoading=ref(false),comparisonError=ref('')
 const comparison=shallowRef<Awaited<ReturnType<ContentCandidateBinding['previewScope']>>>()
+const scopeIssueText:Record<ContentScopeViolation['code'],(item:ContentScopeViolation)=>string>={
+ NODE_OUTSIDE_SCOPE:item=>`节点 ${item.ownerId} 超出候选范围`,
+ STRUCTURE_PARENT_OUTSIDE_SCOPE:item=>`节点 ${item.ownerId} 的父节点 ${item.relatedId} 超出结构调整范围`,
+ ADDITION_OUTSIDE_SCOPE:item=>`新增节点 ${item.ownerId} 超出候选范围`,
+ UNDECLARED_ADDITION:item=>`新增节点 ${item.ownerId} 待确认`,
+ UNEXPECTED_ADDITION_DECLARATION:item=>`节点 ${item.ownerId} 不属于本版新增`,
+ RESPONSE_OUTSIDE_SCOPE:item=>`作答分工 ${item.ownerId} 超出候选范围`,
+ RESPONSE_BASIS_MISMATCH:item=>`作答分工 ${item.ownerId} 的响应版本与固定基准不一致`,
+ RESPONSE_ID_REUSE:item=>`作答分工 ${item.ownerId} 重用了响应版本 ${item.relatedId}`,
+}
 const comparisonState=computed(()=>{
  revision.value
  const result=comparison.value
  if(!result)return undefined
  try{result.assertCurrent()}catch{return undefined}
  const undeclared=result.violations.filter(item=>item.code==='UNDECLARED_ADDITION').length
+ const scopeIssues=result.violations.filter(item=>item.code!=='UNDECLARED_ADDITION').map(item=>({text:scopeIssueText[item.code](item)}))
  const conflicts=result.comparison.nodes.flatMap(item=>item.nodeId!==null&&item.conflicts.length?[item.nodeId]:[])
  const referencedDeletions=result.comparison.nodes.filter(item=>item.deletionReferenceCheck==='REFERENCED')
  const orderConflicts=result.comparison.siblings.filter(item=>item.status==='CONFLICT').map(item=>item.parentId)
@@ -61,13 +74,13 @@ const comparisonState=computed(()=>{
  const added=result.addedNodeIds
  const status=[`${result.changedNodeIds.length} 个候选节点变化`,`${conflicts.length} 个节点冲突`,`${orderConflicts.length} 处顺序冲突`,`${responseConflicts.length} 个响应冲突`,
   ...(added.length?[undeclared?`${undeclared} 个新增节点待确认`:`${added.length} 个新增节点已确认用于本次比对`]:[]),
-  ...(result.violations.length>undeclared?['存在超出范围或需要复核的变更']:[]),'待复核采用依据'].join('，')
+  '待复核采用依据'].join('，')
  const confirmAdditions=async()=>{
   if(!undeclared||comparison.value!==result)return
   try{result.assertCurrent()}catch{return}
   await compareVersions(added)
  }
- return {status,added,undeclared,conflicts,referencedDeletions,orderConflicts,responseConflicts,confirmAdditions}
+ return {status,added,undeclared,conflicts,referencedDeletions,orderConflicts,responseConflicts,scopeIssues,confirmAdditions}
 })
 let nodeSelectionVersion=0
 const referenceLoading=ref(false)

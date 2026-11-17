@@ -180,7 +180,7 @@ it('runs the three-version comparison from the candidate workspace and withdraws
  expect(f.wrapper.text()).not.toContain('三版比对结果')
  expect(f.save).not.toHaveBeenCalled()
 })
-it('shows the reference owner when comparing a candidate that deletes its target',async()=>{
+it('shows the reference owner and exact scope issue when comparing a candidate deletion',async()=>{
  const f=await fixture('populated')
  const payloads=f.ds.getView('ContentNodeVersion','snapshotMembers')!.rows.map(row=>row['payload'])
  const node=(nodeId:string,index:number)=>({nodeId,parentId:'C',index,type:'paragraph',class:[],value:'正文',data:{}})
@@ -190,10 +190,11 @@ it('shows the reference owner when comparing a candidate that deletes its target
  const candidates=[...payloads,source]
  const manifest=f.ds.getView('RevisionSnapshot','selectedSnapshot')!.rows[0]?.['manifest']
  const result=previewScopedRevisionChanges({projectId:'P',basis,current,candidate:candidates,declaredAddedNodeIds:[],
-  targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]}},{basis:manifest,current:manifest,candidate:manifest})
+  targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'NODE',nodeId:'H',extent:'NODE'}]}},{basis:manifest,current:manifest,candidate:manifest})
  await f.wrapper.setProps({binding:{...f.binding,previewScope:async()=>({...result,assertCurrent:f.binding.assertCurrent})}})
  const button=f.wrapper.findAll('button').find(item=>item.text()==='比对三版')!
  await button.trigger('click');await flushPromises()
  expect(f.wrapper.text()).toContain('待删节点 target 仍被引用：source')
+ expect(f.wrapper.text()).toContain('节点 target 超出候选范围')
  expect(f.save).not.toHaveBeenCalled()
 })

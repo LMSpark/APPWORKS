@@ -10975,3 +10975,8 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - 包05 AI 白名单进一步核定：deriveAiDataEntryFields 只从正式结果列中选择 allowAIAdd=true 且本次新增字段可写的项，排除主键、计算、自增及不支持类型；当前仓库数据库目录专用配置无 allowAIAdd 本地声明，需从实服 Base_TblField 正式字段元数据回读授权，不能修改页面伪造。DataTypeName 现标准选项取字段类型字典 val/txt，tableFields 的 tblid 由选中表级联；AI 候选类型须核当前字典返回，tblid 由原正式选中行提供。现有 Agent 租户映射也是宿主前置合同。
 - 包05 历史字段取证：b2-entry-spa-round3.json 的 Base_TblField 正式返回中，可辨认含 DataTypeName 的 17 项 Fields，均未返回 allowAIAdd。旧请求投影与当前元数据可能不同，此证据只说明该回执不能证明 AI 可写范围。继续保留真实模型回读门槛。
 - 包05 已有只读链确认：LowcodeDatabaseTableView.loadCatalog 负责按正式空间读取 Base_TblField 并经 LowcodeDataSpaceAssembler 装配；DataSpaceDesignApi 规范化正式 allowAIAdd，标准列投影显式消费 field.allowAIAdd，页面不需要第二套读取。Requirement 空查询截图仅可见预览身份及合成参数，不含结果区；0 行来自标书会话观察，未据此认定真业务行读取。
+- 包05 切表反例：表 A 的字段已加载，选择 B 后立刻新增，旧实现借 A 的已加载状态及新增权限暂存到 B。真实目录夹具先红；对 tableFields/viewFields 声明手动 autoQuery:false，使原级联在父选择变化时同步撤销旧结果，下一次正式刷新后才可新增。原页面手动查询流程复用，6 项定向通过，数据库目录全专项正在运行。根测试在该源码改动前启动，结果按运行时变化说明。
+- 包05 切表修复 98636e170 已推送：数据库目录全专项 20 文件 485 项（78.39 秒）及专项 lint 通过。覆盖表/视图字段、关系及预览等原路径。新增竞态仅夹具验证，现场原入口仍待独立核。
+- 2026-11-18 页11蓝图再核：同APP进入正式项目蓝图初失败为旧动态分片，整页reload恢复；展开只见应用根，选中确认根ID D8490EC99436A8B9AFDE205BE3153802、模块，新增子级disabled、新增根模块enabled，无正式页11身份。保持历史根模块Code500请求未重放，已交平台原请求核验及正式入口接线。截图smart-bid-page11-blueprint-cold-20261118.png，本轮零蓝图写入。
+- 页11历史根请求复核：smart-bid-i0-blueprint-output-20261117.json 只保留 NavigationType 空串导致 MySQL Code500、acceptedReceipt=false、原页面 owner HMR 丢失及未重发；记录没有原候选 rowid、请求 ID 或可重建的正式捕获。此时空蓝图不能证实原请求终态。原提交继续未决，待服务端按原请求/身份给出可归因结果；不把应用根 ID 充当候选。页11三文件入口夹具已验证，尚无正式发布节点和工具双身份，不安装猜测目标。
+- 页11冷开证据已核截图可见所选应用根、导航地址为空、宿主区无记录。源码 preparePublishedContentAuthoringCall 和脚本宿主已有定义；正式 nodeId/pageId 尚未取得，未找到生产调用，测试装配不能代发布。

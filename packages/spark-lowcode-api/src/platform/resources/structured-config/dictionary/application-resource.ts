@@ -4,15 +4,15 @@
  * 边界：只有读取，不授予业务编辑权限；不缓存标签或接受伪造的场景模型绑定。
  */
 import type {BindReadonlyCommandQueryOptions, DataView} from '@spark-appworks/spark-data'
-import {captureApplicationDictionaryQuery, type ApplicationDictionaryResourceOptions} from './application-query'
+import {captureApplicationDictionaryQuery, captureAuthenticatedDictionaryQuery, type ApplicationDictionaryResourceOptions} from './application-query'
 export type {ApplicationDictionaryResourceOptions} from './application-query'
 
 /** 应用字典只读资源；名称属于来源身份，每个查询捕获本次应用执行域。 */
-export class ApplicationDictionaryResource {
-  constructor(private readonly options: ApplicationDictionaryResourceOptions) {}
+class DictionaryResource {
+  constructor(private readonly options: ApplicationDictionaryResourceOptions, private readonly scope: 'application' | 'authenticated') {}
   /** 绑定配置声明的原视图；派生查询不另开字典或复制可编辑候选。 */
   binding(view: DataView): BindReadonlyCommandQueryOptions {
-    const name = this.options.name.trim(), resourceId = `application-dictionary:${name}`, dataSet = view.dataSet
+    const name = this.options.name.trim(), resourceId = `${this.scope}-dictionary:${name}`, dataSet = view.dataSet
     const captures = new WeakMap<object, ReturnType<typeof captureApplicationDictionaryQuery>>()
     const guard = () => {
       this.options.assertCurrent?.()
@@ -22,7 +22,7 @@ export class ApplicationDictionaryResource {
       captureQueryInputs: (target, params) => {
         guard()
         if (target !== view) throw Error('应用字典只能读取原绑定视图')
-        const capture = captureApplicationDictionaryQuery({...this.options, name, assertCurrent: guard})
+        const capture = (this.scope === 'application' ? captureApplicationDictionaryQuery : captureAuthenticatedDictionaryQuery)({...this.options, name, assertCurrent: guard})
         captures.set(params, capture)
         return capture.assertCurrent
       }, loadRows: async (_target, params) => {
@@ -39,4 +39,14 @@ export class ApplicationDictionaryResource {
         return rows.map(row => ({...row, value: String(row['val']), label: String(row['txt'])}))
       }}
   }
+}
+
+/** 应用字典始终要求当前应用身份。 */
+export class ApplicationDictionaryResource extends DictionaryResource {
+  constructor(options: ApplicationDictionaryResourceOptions) {super(options, 'application')}
+}
+
+/** 企业目录的只读字典，使用宿主本次登录/应用范围；不授予候选记录编辑权限。 */
+export class AuthenticatedDictionaryResource extends DictionaryResource {
+  constructor(options: ApplicationDictionaryResourceOptions) {super(options, 'authenticated')}
 }

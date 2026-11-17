@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1258,
+  "scannedFileCount": 1264,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -10921,6 +10921,21 @@
         ]
       }
     },
+    "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-model-not-found-error",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/data-space/design/data-space-model-not-found-error",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-model-not-found-error\n职责：区分正式精确查询确认零行与权限、网络、重复及损坏合同错误。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DataSpaceModelNotFoundError"
+        ]
+      }
+    },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts": {
       "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts.json",
       "module": {
@@ -11733,7 +11748,8 @@
         "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/dictionary/application-resource\n职责：把当前应用级字典接入只读DataView，标准选项组件消费同一结果与scope证明。\n边界：只有读取，不授予业务编辑权限；不缓存标签或接受伪造的场景模型绑定。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "ApplicationDictionaryResource"
+          "ApplicationDictionaryResource",
+          "AuthenticatedDictionaryResource"
         ]
       }
     },
@@ -12367,6 +12383,23 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ScenarioDefinitionResource"
+        ]
+      }
+    },
+    "packages/spark-project-model/src/scenario/scenario-submission-journal.ts": {
+      "file": "files/packages/spark-project-model/src/scenario/scenario-submission-journal.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-project-model:scenario/scenario-submission-journal",
+        "sourcePath": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+        "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+        "packageName": "@spark-appworks/spark-project-model",
+        "modulePath": "scenario/scenario-submission-journal",
+        "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-submission-journal\n职责：保存文件owner在派发前捕获的原文和写前基线，供重开后只读核验。\n边界：本地恢复审计，不是服务器请求回执、权限缓存或业务草稿真源；不重放写入。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ScenarioSubmissionStorage",
+          "ScenarioSubmissionCapture",
+          "ScenarioSubmissionJournal"
         ]
       }
     },
@@ -14044,6 +14077,19 @@
         "packageName": "app",
         "modulePath": "lowcode/resources/database/catalog/table/field-metadata",
         "jsdoc": "@module app:lowcode/resources/database/catalog/table/field-metadata\n职责：字段目录专题列与标准子组件（选项均经同一 DataSet 的正式模型 DataView）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/database/catalog/table/field-type-options.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/table/field-type-options.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/catalog/table/field-type-options",
+        "sourcePath": "src/lowcode/resources/database/catalog/table/field-type-options.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/table/field-type-options.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/catalog/table/field-type-options",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/table/field-type-options\n职责：字段类型字典到建表服务类型名的只读投影；不改原字典、字段数据或写权限。\n依据：实服拒绝JSON类型；FieldBizTypeEnum.JSON的服务标签是json类型。其余类型原样保留。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -16083,26 +16129,10 @@
         "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-client.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/system/workflow/manage/flow-design-client",
-        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-client\n职责：流程设计聚合读写的 lowcode 入口占位；完整图编辑语义待接 FlowDesign 专用合同。\n边界：页面经本模块访问设计能力，禁止在 Vue 中直接引用 lowcodeApi。",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-client\n职责：声明流程设计正式场景身份并校验调用目标。\n边界：不查询或提交数据，读写由原 DataSet 的模型及文件 DataView 承接。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "FlowDesignClientOptions"
-        ]
-      }
-    },
-    "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts": {
-      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/system/workflow/manage/flow-design-data-json",
-        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/system/workflow/manage/flow-design-data-json",
-        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-data-json\n职责：读取流程设计图 JSON（平台文件优先，模型字段回退），对齐参考 FlowDesign.readFlowDesignDataJson。\n边界：只读文本；不保存、不刷新节点/连线表。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "FlowDesignPlatformFileApi",
-          "ReadFlowDesignDataJsonCommand"
         ]
       }
     },
@@ -16114,8 +16144,8 @@
         "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/system/workflow/manage/flow-design-file-context",
-        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-file-context\n职责：按流程模型 sysid 解析设计图平台文件 customPath（导航 folderName）。\n边界：只读；无 sysid/导航记录时回退 SysForm。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-file-context\n职责：从本次正式模型和导航查询捕获设计文件目标及原读取证明。\n边界：不猜目标、不复制行或权限；只有已确认空sysid/空导航结果才使用SysForm。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": [
           "FlowDesignFileContext",
           "ResolveFlowDesignFileContextCommand"
@@ -16130,7 +16160,7 @@
         "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/system/workflow/manage/flow-design-graph-projection",
-        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-graph-projection\n职责：从流程模型 DesignJson 解析节点坐标与连线路径，投影为 RendererGraph 只读布局。\n边界：不读写平台文件、不修改节点/连线表；解析失败时按节点行顺序兜底排布。",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-graph-projection\n职责：从正式设计文件解析节点坐标与连线路径，投影为 RendererGraph 布局。\n边界：不读写平台文件、不修改节点/连线表；解析失败时按节点行顺序兜底排布。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "FlowDesignGraphLayout",
@@ -16154,20 +16184,17 @@
         ]
       }
     },
-    "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts": {
-      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts.json",
+    "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts": {
+      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts.json",
       "module": {
-        "name": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation",
-        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
+        "name": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource",
+        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
+        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation",
-        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation\n职责：从 WFM_WORKFORM DataView 序列化并提交 SaveFlowAndFormRelation。",
+        "modulePath": "lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource\n职责：将正式流程模型定位的EJ2文件绑定到同一DataSet的文件资源视图。\n边界：保存、冲突、取消和unknown由公共文件适配器承接；不保存数据库或建立图草稿。",
         "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "FlowWorkFormPayloadRow",
-          "SaveFlowWorkFormRelationCommand"
-        ]
+        "symbols": []
       }
     },
     "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts": {
@@ -16214,25 +16241,10 @@
         "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/system/workflow/manage/flow-design/flow-design-save",
-        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design/flow-design-save\n职责：保存流程设计图 JSON 与模型/节点/连线 DataView 变更，对齐参考 saveFlowDesignInfo 主链。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "SaveFlowDesignCommand"
-        ]
-      }
-    },
-    "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts": {
-      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync",
-        "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-        "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync",
-        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync\n职责：按 DesignJson 节点/边 id 集合同 FLOWID 下行做 staged 删增，供 saveFlowDesignInfo 提交。",
+        "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design/flow-design-save\n职责：编排当前设计工作区DataView的图变更、取消和保存。\n边界：无HTTP/文件上传旁路、无第二份图草稿；数据库和文件分别消费原owner回执。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "SyncFlowDesignTablesCommand"
+          "SaveFlowDesignCommand"
         ]
       }
     },
@@ -17066,6 +17078,77 @@
           "ProjectSwitchService",
           "ProjectWorkspaceScope",
           "ShellNavRootListener"
+        ]
+      }
+    },
+    "src/services/smart-bid/content-placeholders.ts": {
+      "file": "files/src/services/smart-bid/content-placeholders.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content-placeholders",
+        "sourcePath": "src/services/smart-bid/content-placeholders.ts",
+        "sourceFile": "src/services/smart-bid/content-placeholders.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content-placeholders",
+        "jsdoc": "@module app:services/smart-bid/content-placeholders\n职责：按投标业务规格§1.2核正文占位名与数据键一一对应。\n边界：只核引用形状和键存在性；数据类型、事实版本及授权另行验证，不展开正文。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content-reference.ts": {
+      "file": "files/src/services/smart-bid/content-reference.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content-reference",
+        "sourcePath": "src/services/smart-bid/content-reference.ts",
+        "sourceFile": "src/services/smart-bid/content-reference.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content-reference",
+        "jsdoc": "@module app:services/smart-bid/content-reference\n职责：按投标业务规格§1.2检查引用值形状，不解析事实或受控原对象。\n边界：通过不表示版本、权限或业务值有效；敏感ownerRef只核存在，具体身份交原对象合同。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content-tree-draft-editor.ts": {
+      "file": "files/src/services/smart-bid/content-tree-draft-editor.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content-tree-draft-editor",
+        "sourcePath": "src/services/smart-bid/content-tree-draft-editor.ts",
+        "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content-tree-draft-editor",
+        "jsdoc": "@module app:services/smart-bid/content-tree-draft-editor\n职责：编排人工内容树的草稿编辑，变更只写绑定WorkingDraft视图的draft字段。\n边界：不持有页面草稿、不保存或采用修订；取消和持久化继续由原DataView/DataSet承担。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ContentTreeDraftEditor"
+        ]
+      }
+    },
+    "src/services/smart-bid/content-tree-editor-layout.ts": {
+      "file": "files/src/services/smart-bid/content-tree-editor-layout.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content-tree-editor-layout",
+        "sourcePath": "src/services/smart-bid/content-tree-editor-layout.ts",
+        "sourceFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content-tree-editor-layout",
+        "jsdoc": "@module app:services/smart-bid/content-tree-editor-layout\n职责：以标准表单和JSON字段配置表达人工内容树及选中正文。\n边界：只读取原视图决定呈现；不查询、不持有草稿、不保存，选择由宿主管理。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ContentTreeEditorLayoutInput"
+        ]
+      }
+    },
+    "src/services/smart-bid/content-tree-structure.ts": {
+      "file": "files/src/services/smart-bid/content-tree-structure.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content-tree-structure",
+        "sourcePath": "src/services/smart-bid/content-tree-structure.ts",
+        "sourceFile": "src/services/smart-bid/content-tree-structure.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content-tree-structure",
+        "jsdoc": "@module app:services/smart-bid/content-tree-structure\n职责：核对投标规格§1的逻辑内容树结构；不保存草稿、不采用修订。\n边界：只校验身份、结构和顺序；正文引用、哈希及权限由各自合同继续核验。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ContentStructureNode"
         ]
       }
     },
@@ -21337,6 +21420,10 @@
       "sourcePath": "packages/spark-ai/src/class-model/class-model/types.ts",
       "file": "files/packages/spark-ai/src/class-model/class-model/types.ts.json"
     },
+    "AuthenticatedDictionaryResource": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts.json"
+    },
     "AutoPopulateEntry": {
       "sourcePath": "packages/spark-json-document/src/tree/tree-types.ts",
       "file": "files/packages/spark-json-document/src/tree/tree-types.ts.json"
@@ -21925,6 +22012,18 @@
       "sourcePath": "packages/spark-component/src/components/containers/runtime/container-ui.ts",
       "file": "files/packages/spark-component/src/components/containers/runtime/container-ui.ts.json"
     },
+    "ContentStructureNode": {
+      "sourcePath": "src/services/smart-bid/content-tree-structure.ts",
+      "file": "files/src/services/smart-bid/content-tree-structure.ts.json"
+    },
+    "ContentTreeDraftEditor": {
+      "sourcePath": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "file": "files/src/services/smart-bid/content-tree-draft-editor.ts.json"
+    },
+    "ContentTreeEditorLayoutInput": {
+      "sourcePath": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "file": "files/src/services/smart-bid/content-tree-editor-layout.ts.json"
+    },
     "ContextItem": {
       "sourcePath": "packages/spark-utils/src/script-types.ts",
       "file": "files/packages/spark-utils/src/script-types.ts.json"
@@ -22392,6 +22491,10 @@
     "DataSpaceModelFieldsProps": {
       "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts",
       "file": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts.json"
+    },
+    "DataSpaceModelNotFoundError": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts.json"
     },
     "DataSpaceModelReadAdapter": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts",
@@ -23765,10 +23868,6 @@
       "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts",
       "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts.json"
     },
-    "FlowDesignPlatformFileApi": {
-      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts.json"
-    },
     "FlowDesignPreparedViews": {
       "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
       "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts.json"
@@ -23892,10 +23991,6 @@
     "FlowWorkbenchTabBinding": {
       "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts",
       "file": "files/src/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts.json"
-    },
-    "FlowWorkFormPayloadRow": {
-      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts.json"
     },
     "FormalField": {
       "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
@@ -25909,10 +26004,6 @@
       "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererDropdown/RendererDropdown.props.ts",
       "file": "files/packages/spark-component/src/components/containers/layout/overlay/RendererDropdown/RendererDropdown.props.ts.json"
     },
-    "ReadFlowDesignDataJsonCommand": {
-      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts.json"
-    },
     "ReasoningDisplayItem": {
       "sourcePath": "packages/spark-component/src/ai/types.ts",
       "file": "files/packages/spark-component/src/ai/types.ts.json"
@@ -26433,10 +26524,6 @@
       "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
       "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts.json"
     },
-    "SaveFlowWorkFormRelationCommand": {
-      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts.json"
-    },
     "SaveRuleValidator": {
       "sourcePath": "packages/spark-data/src/validation/save-rule-validator.ts",
       "file": "files/packages/spark-data/src/validation/save-rule-validator.ts.json"
@@ -26456,6 +26543,18 @@
     "ScenarioDefinitionWriteInput": {
       "sourcePath": "packages/spark-project-model/src/scenario/scenario-definition-records.ts",
       "file": "files/packages/spark-project-model/src/scenario/scenario-definition-records.ts.json"
+    },
+    "ScenarioSubmissionCapture": {
+      "sourcePath": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "file": "files/packages/spark-project-model/src/scenario/scenario-submission-journal.ts.json"
+    },
+    "ScenarioSubmissionJournal": {
+      "sourcePath": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "file": "files/packages/spark-project-model/src/scenario/scenario-submission-journal.ts.json"
+    },
+    "ScenarioSubmissionStorage": {
+      "sourcePath": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "file": "files/packages/spark-project-model/src/scenario/scenario-submission-journal.ts.json"
     },
     "ScenarioViewConfig": {
       "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
@@ -27056,10 +27155,6 @@
     "SyncFlowDesignNodeAuthCommand": {
       "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts",
       "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts.json"
-    },
-    "SyncFlowDesignTablesCommand": {
-      "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "file": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts.json"
     },
     "SystemPageIdentityCompanion": {
       "sourcePath": "packages/spark-app/src/router/dynamic.ts",

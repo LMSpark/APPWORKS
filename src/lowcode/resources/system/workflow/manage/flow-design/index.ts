@@ -1,4 +1,4 @@
-export {saveFlowDesignInfo, type SaveFlowDesignCommand} from './flow-design-save'
+export {saveFlowDesignInfo,flowDesignWorkspaceViews,flowDesignGraphLayout,stageFlowDesignGraph,cancelFlowDesignChanges,hasFlowDesignChanges,type SaveFlowDesignCommand} from './flow-design-save'
 export {
   addFlowDesignEdge,
   addFlowDesignNode,
@@ -7,11 +7,6 @@ export {
   type AddFlowDesignNodeCommand,
   type RemoveFlowDesignGraphSelectionCommand,
 } from './flow-design-graph-edit'
-export {
-  buildWorkFormRelationPayload,
-  saveFlowWorkFormRelation,
-  shouldSyncWorkFormRelation,
-} from './flow-design-form-relation'
 export {
   defaultFlowDesignNodeAuthRow,
   syncFlowDesignNodeAuthView,

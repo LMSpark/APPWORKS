@@ -349,7 +349,7 @@
         },
         "method.verify.return": {
           "type": "object",
-          "title": "Promise<'confirmed' | 'not-applied'>"
+          "title": "Promise<'confirmed'>"
         },
         "method.preview.params": {
           "type": "object",
@@ -398,7 +398,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T06:56:38.446Z",
+  "generatedAt": "2026-11-16T22:59:11.554Z",
   "models": {
     "DataSpaceLayoutPosition": {
       "name": "DataSpaceLayoutPosition",
@@ -806,17 +806,8 @@
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "union",
-                    "types": [
-                      {
-                        "type": "literal",
-                        "value": "confirmed"
-                      },
-                      {
-                        "type": "literal",
-                        "value": "not-applied"
-                      }
-                    ]
+                    "type": "literal",
+                    "value": "confirmed"
                   }
                 ]
               }

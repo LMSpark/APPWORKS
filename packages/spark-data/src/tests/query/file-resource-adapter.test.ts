@@ -28,6 +28,61 @@ function fixture(rejectHistoryBeforeWrite=false,exposeRevision=true) {
   return {dataSet,view,current,read,write,remove,bind,versions,history,transport}
 }
 
+describe('file readback cannot prove an unknown attempt was not applied',()=>{
+  it.each(['create','update','delete'] as const)('keeps the original %s capture until late arrival without another mutation',async operation=>{
+    const f=fixture()
+    if(operation==='create'){f.current.text=null;f.current.revision=null}
+    try{
+      await f.view.refresh()
+      if(operation==='create')await f.view.addRow({pageId:'PAGE',fileName:'rule.json',text:'submitted'})
+      else if(operation==='update')f.view.updateEditingValue(f.view.getPkKey(f.view.rows[0]!)!,'text','submitted')
+      else await f.view.removeRow(f.view.getPkKey(f.view.rows[0]!)!)
+      const mutate=operation==='delete'?f.remove:f.write
+      mutate.mockRejectedValueOnce(new Error('timeout'))
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('timeout')
+      expect((await f.view.verifySourceWriteAttempt()).state).toBe('unknown')
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      await expect(f.dataSet.saveChanges()).rejects.toThrow()
+      expect(mutate).toHaveBeenCalledTimes(1)
+      f.current.text=operation==='delete'?null:'submitted';f.current.revision=operation==='delete'?null:'v2'
+      expect((await f.dataSet.saveChanges()).success).toBe(true)
+      expect(f.view.hasUnconfirmedSave).toBe(false)
+      expect(mutate).toHaveBeenCalledTimes(1)
+    }finally{f.dataSet.destroy()}
+  })
+  it('retains the original unknown attempt across native draft cancellation',async()=>{
+    const f=fixture()
+    try{
+      await f.view.refresh();f.view.updateEditingValue(f.view.getPkKey(f.view.rows[0]!)!,'text','submitted')
+      f.write.mockRejectedValueOnce(new Error('timeout'))
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('timeout')
+      expect(f.view.abandonUnconfirmedSave()).toBe(false)
+      f.view.acknowledgeSourceWriteAttempt()
+      f.view.discardPendingChanges()
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      expect(f.write).toHaveBeenCalledTimes(1)
+      f.current.text='submitted';f.current.revision='v2'
+      expect((await f.dataSet.saveChanges()).success).toBe(true)
+      expect(f.view.hasUnconfirmedSave).toBe(false)
+      expect(f.write).toHaveBeenCalledTimes(1)
+    }finally{f.dataSet.destroy()}
+  })
+  it('keeps a missing original history version unknown without allocating another version',async()=>{
+    const f=fixture()
+    try{
+      await f.view.refresh();await expect(f.view.createSourceVersion()).rejects.toThrow('timeout')
+      const text=f.versions.get(1)!
+      f.versions.delete(1)
+      expect((await f.view.verifySourceHistoryAttempt()).state).toBe('unknown')
+      await expect(f.view.createSourceVersion()).rejects.toThrow()
+      expect(f.versions.size).toBe(0)
+      f.versions.set(1,text)
+      expect((await f.view.verifySourceHistoryAttempt()).state).toBe('confirmed')
+      expect([...f.versions.keys()]).toEqual([1])
+    }finally{f.dataSet.destroy()}
+  })
+})
+
 describe('DataView file resource adapter',()=>{
 
   it('keeps filter ownership defaults private when they are outside the new file output',async()=>{
@@ -244,7 +299,7 @@ describe('DataView file resource adapter',()=>{
     }finally{f.dataSet.destroy()}
   })
 
-  it('does not let an old cleared capture abandon another view newer unknown write',async()=>{
+  it('does not let a completed view abandon a sibling newer unknown write',async()=>{
     const f=fixture()
     try{
       await f.view.refresh()
@@ -252,13 +307,17 @@ describe('DataView file resource adapter',()=>{
       f.write.mockRejectedValue(new Error('timeout'))
       await f.view.editRowById(f.view.getPkKey(f.view.rows[0]!)!,{text:'A'})
       await expect(f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'default'}]})).rejects.toThrow('timeout')
-      expect((await f.view.verifySourceWriteAttempt()).state).toBe('not-applied')
-      f.view.acknowledgeSourceWriteAttempt()
+      expect((await f.view.verifySourceWriteAttempt()).state).toBe('unknown')
+      f.current.text='A';f.current.revision='v2'
+      expect((await f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'default'}]})).success).toBe(true)
+      await peer.refresh()
       await peer.editRowById(peer.getPkKey(peer.rows[0]!)!,{text:'B'})
       await expect(f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'peer'}]})).rejects.toThrow('timeout')
-      expect(()=>f.view.abandonUnconfirmedSave()).toThrow('FILE_RESOURCE_SAVE_OWNER')
+      expect(f.view.abandonUnconfirmedSave()).toBe(true)
       expect(peer.hasUnconfirmedSave).toBe(true)
-      expect(peer.abandonUnconfirmedSave()).toBe(true)
+      expect(peer.abandonUnconfirmedSave()).toBe(false)
+      expect(peer.hasUnconfirmedSave).toBe(true)
+      expect(f.write).toHaveBeenCalledTimes(2)
     }finally{f.dataSet.destroy()}
   })
 

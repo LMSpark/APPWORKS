@@ -1129,8 +1129,10 @@ async function layoutAction(action: 'save' | 'cancel' | 'verify' | 'preview' | '
   try {
     if (action === 'save') {await editor.save(); layoutMessage.value = editor.pending ? '本轮布局保存已确认，仍有修改待保存' : '布局已保存并回读确认'}
     else if (action === 'cancel') {editor.cancel(); layoutMessage.value = '已取消本地布局修改'}
-    else if (action === 'verify') {layoutMessage.value = await editor.verify() === 'confirmed'
-      ? editor.pending ? '本轮布局保存已确认，仍有修改待保存；未重复提交' : '布局已回读确认；未重复提交' : '确认原提交未应用；草稿保留'}
+    else if (action === 'verify') {
+      await editor.verify()
+      layoutMessage.value = editor.pending ? '本轮布局保存已确认，仍有修改待保存；未重复提交' : '布局已回读确认；未重复提交'
+    }
     else if (action === 'preview') layoutPreview.value = await editor.preview()
     else if (layoutPreview.value) {await editor.adopt(layoutPreview.value); layoutMessage.value = '已采用远端共享配置'}
     error.value = ''

@@ -1,0 +1,120 @@
+{
+  "observedAt": "2026-11-16T21:56:32.106Z",
+  "scope": "formal workflow model-list creation contract read only",
+  "writes": 0,
+  "sessionPersisted": false,
+  "modelId": "87F0EF6AD1B64D67FFE597E7E3285994p000",
+  "fields": [
+    {
+      "name": "CRTDATE",
+      "canonicalName": "CRTDATE",
+      "type": "varchar",
+      "output": true,
+      "computed": false
+    },
+    {
+      "name": "STATE",
+      "canonicalName": "STATE",
+      "type": "tinyint",
+      "output": false,
+      "computed": false
+    },
+    {
+      "name": "rowid",
+      "canonicalName": "rowid",
+      "type": "varchar",
+      "output": true,
+      "computed": false
+    },
+    {
+      "name": "TITLE",
+      "canonicalName": "TITLE",
+      "type": "varchar",
+      "output": true,
+      "computed": false
+    },
+    {
+      "name": "sysid",
+      "canonicalName": "sysid",
+      "type": "varchar",
+      "output": true,
+      "computed": false
+    },
+    {
+      "name": "CRTUSER",
+      "canonicalName": "CRTUSER",
+      "type": "varchar",
+      "output": true,
+      "computed": false
+    },
+    {
+      "name": "BusinessTable",
+      "canonicalName": "BusinessTable",
+      "type": "varchar",
+      "output": true,
+      "computed": false
+    }
+  ],
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetBaseData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/LoginAuthority/UserLoginByEnt",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    }
+  ]
+}

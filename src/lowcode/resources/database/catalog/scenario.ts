@@ -16,6 +16,8 @@ type DatabaseCatalogScope = Readonly<{
   fingerprint: string
   /** 复核原应用代次及认证上下文；切换或失效时抛错，中止旧请求。 */
   assertCurrent: () => void
+  /** 仅供数据资源适配器捕获本次正式请求范围。 */
+  readScope: () => ReturnType<typeof lowcodeApi.readAuthenticatedRequestScope>
 }>
 
 /** 企业目录复用正式认证元数据入口；运行owner包含目录宿主的应用代次守卫。 */
@@ -38,7 +40,8 @@ export function readDatabaseCatalogScope(): DatabaseCatalogScope {
   const runtime = applicationId === null
     ? new DataSpaceRuntimeApi({http: lowcodeHttp, readScope: () => {assertCurrent(); return readScope()}})
     : dataSpace.runtime
-  return {dataSpace, runtime, fingerprint: JSON.stringify([applicationId, applicationRevision, scope.token]), assertCurrent}
+  return {dataSpace, runtime, fingerprint: JSON.stringify([applicationId, applicationRevision, scope.token]), assertCurrent,
+    readScope: () => {assertCurrent(); return readScope()}}
 }
 
 /** 数据空间身份说明，供精确身份失败提示使用。 */

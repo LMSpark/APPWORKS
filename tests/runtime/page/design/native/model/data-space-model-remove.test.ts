@@ -73,7 +73,7 @@ describe('formal model removal', () => {
     expect(writes(f)).toHaveLength(0); expect(f.fileWrites).toHaveLength(0)
   })
 
-  it('retains unapplied layout changes and only retries on the next explicit continuation', async () => {
+  it('retains unknown layout changes at the baseline without replaying removal or file writes', async () => {
     const f = fixture({overviewOnly: true})
     const baseline = JSON.stringify({scenarioId: 'A', tables: {}, layout: {modelPositions: {M1: {x: 1, y: 2}}}})
     f.stored.set('A', baseline)
@@ -82,11 +82,17 @@ describe('formal model removal', () => {
     await operation.preview(); f.loseNextFileResponse()
     await expect(operation.save()).rejects.toThrow(/file response/)
     f.stored.set('A', baseline)
-    await expect(operation.verify()).rejects.toThrow(/SCENARIO_DEFINITION_NOT_APPLIED/)
+    await expect(operation.verify()).rejects.toThrow(/SCENARIO_VIEW_RECOVERY_UNRESOLVED/)
     expect(layout.dirtyTracking.hasPendingChanges()).toBe(true)
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
+    await expect(operation.verify()).rejects.toThrow(/SCENARIO_VIEW_RECOVERY_UNRESOLVED/)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
+    const captured = f.workspaces.at(-1)?.getScenarioViews('A')?.submission
+    expect(captured).toBeDefined()
+    if (!captured) throw Error('Original layout submission missing')
+    f.stored.set('A', captured.text)
     expect(await operation.verify()).toBe(true)
-    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(2)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
     expect(layout.dirtyTracking.hasPendingChanges()).toBe(false)
     const reopened = await f.open('A', {deferDefinition: true})
     expect(reopened.viewState?.config['layout']).toEqual({modelPositions: {}})

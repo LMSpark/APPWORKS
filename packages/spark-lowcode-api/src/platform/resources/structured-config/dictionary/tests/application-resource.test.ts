@@ -1,7 +1,7 @@
 import {expect, it} from 'vitest'
 import {DataSet, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import {ApplicationDictionaryResource} from '../application-resource'
+import {ApplicationDictionaryResource, AuthenticatedDictionaryResource} from '../application-resource'
 
 class DictionaryQueryHttp extends HttpClientBase {
   calls: RequestConfig[] = []
@@ -36,5 +36,35 @@ it.each(['complete', 'duplicate', 'missing-id', 'incomplete', 'stale', 'invalid-
     expect(http.calls[0]?.data).toMatchObject({Table: [{Name: '流程步骤状态', Type: '字典', PrimaryKeyFields: 'rowid'}], PageParam: {index: 1, size: 500}})
     expect(http.calls[1]?.data).toMatchObject({PageParam: {index: 2, size: 500}})
     const proof = view.captureReadResult(); scope = 'next'; expect(() => proof()).toThrow(/SCOPE/)
+  } finally {ds.destroy()}
+})
+
+it.each(['complete', 'stale', 'application-required'])('keeps authenticated dictionary scope separate: %s', async mode => {
+  const ds = DataSet.fromJson({scenarioId: 'S', tables: {}}), http = new DictionaryQueryHttp()
+  let token = 'authenticated'
+  const application = mode === 'application-required'
+  const view = ensureDataSetResourceView({dataSet: ds, tableName: 'Types',
+    resource: {resourceType: 'logical-view', resourceId: `${application ? 'application' : 'authenticated'}-dictionary:TblField_type`},
+    columns: [{name: 'rowid', primary: true}, {name: 'val'}, {name: 'txt'}, {name: 'ordIdx', type: 'number'}]})
+  const options = {http, readScope: () => ({token, headers: {}}), name: 'TblField_type'}
+  const resource = application ? new ApplicationDictionaryResource(options) : new AuthenticatedDictionaryResource(options)
+  view.queryConfig = {pagination: 'none'}
+  bindDataSetReadonlyCommandQuery(view, resource.binding(view))
+  if (mode === 'stale') http.onResponse = () => {token = 'changed'}
+  try {
+    await view.refresh()
+    if (mode !== 'complete') {
+      expect(view.loadingError).toBeInstanceOf(Error)
+      expect(view.rows).toEqual([])
+      if (application) expect(http.calls).toHaveLength(0)
+      return
+    }
+    expect(view.loadingError).toBeNull()
+    expect(view.rows).toHaveLength(501)
+    expect(http.calls[0]?.headers).toEqual({'x-FormKey': ''})
+    expect(view.addActionState()).not.toBe('enabled')
+    const proof = view.captureReadResult()
+    token = 'changed'
+    expect(() => proof()).toThrow(/SCOPE/)
   } finally {ds.destroy()}
 })

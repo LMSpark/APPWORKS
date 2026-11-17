@@ -495,8 +495,22 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
     assertCurrent()
     return assertCurrent
   }
+  const submissionJournal = typeof window === 'undefined' ? undefined : (() => {
+    const current = () => {
+      const session = lowcodeApi.session.get()
+      if (!session || lowcodeApi.readRequestScope().headers['X-AppId'] !== normalizedProjectId) throw new Error('SCENARIO_SUBMISSION_OWNER: 恢复记录缺少当前认证身份')
+      return ProjectModel.createScenarioSubmissionJournal(window.localStorage,
+        JSON.stringify([session.enterprise.id, session.enterprise.shortName, session.identity.userId, normalizedProjectId]))
+    }
+    return {
+      read: (scenarioId: string) => current().read(scenarioId),
+      begin: (scenarioId: string, text: string, baseline: string | null) => current().begin(scenarioId, text, baseline),
+      settle: (capture: ProjectModel.ScenarioSubmissionCapture, outcome: 'confirmed' | 'not-applied') => current().settle(capture, outcome),
+    }
+  })()
   return {
     scenarioViews: {
+      ...(submissionJournal ? {submissionJournal} : {}),
       readScope: () => lowcodeApi.readRequestScope().token,
       readText: async scenarioId => {
         const resource = resolveSystemScenarioResource(scenarioId)

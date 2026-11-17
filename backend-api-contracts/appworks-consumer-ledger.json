@@ -655,19 +655,19 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
-      "sourceLine": 386,
+      "sourceLine": 403,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
-      "sourceLine": 519,
+      "sourceLine": 536,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
-      "sourceLine": 990,
+      "sourceLine": 1007,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -1033,7 +1033,7 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-query.ts",
-      "sourceLine": 31,
+      "sourceLine": 40,
       "scope": "publishable-lowcode-api"
     },
     {

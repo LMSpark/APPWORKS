@@ -7,7 +7,7 @@
     "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/system/workflow/manage/flow-design-graph-projection",
-    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-graph-projection\n职责：从流程模型 DesignJson 解析节点坐标与连线路径，投影为 RendererGraph 只读布局。\n边界：不读写平台文件、不修改节点/连线表；解析失败时按节点行顺序兜底排布。",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-graph-projection\n职责：从正式设计文件解析节点坐标与连线路径，投影为 RendererGraph 布局。\n边界：不读写平台文件、不修改节点/连线表；解析失败时按节点行顺序兜底排布。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "FlowDesignGraphLayout",
@@ -127,16 +127,13 @@
       "type": "object",
       "title": "FlowDesignGraphLayoutInput",
       "properties": {
-        "modelView": {
-          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
-        },
         "nodeView": {
           "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "edgeView": {
           "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
-        "designJsonOverride": {
+        "documentText": {
           "type": "string"
         },
         "layoutOverride": {
@@ -144,14 +141,14 @@
         }
       },
       "required": [
-        "modelView",
         "nodeView",
-        "edgeView"
+        "edgeView",
+        "documentText"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-16T07:29:57.413Z",
+  "generatedAt": "2026-11-16T21:30:40.916Z",
   "models": {
     "FlowDesignGraphLayout": {
       "name": "FlowDesignGraphLayout",
@@ -216,21 +213,16 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    modelView: DataView;\n    nodeView: DataView;\n    edgeView: DataView;\n    designJsonOverride?: string;\n    layoutOverride?: FlowDesignLayoutOverride;\n}>",
+        "declarationTypeText": "Readonly<{\n    nodeView: DataView;\n    edgeView: DataView;\n    documentText: string;\n    layoutOverride?: FlowDesignLayoutOverride;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    modelView: DataView;\n    nodeView: DataView;\n    edgeView: DataView;\n    designJsonOverride?: string;\n    layoutOverride?: FlowDesignLayoutOverride;\n}>",
+            "typeText": "Readonly<{\n    nodeView: DataView;\n    edgeView: DataView;\n    documentText: string;\n    layoutOverride?: FlowDesignLayoutOverride;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
-            {
-              "name": "modelView",
-              "readable": true,
-              "writable": false
-            },
             {
               "name": "nodeView",
               "readable": true,
@@ -242,7 +234,7 @@
               "writable": false
             },
             {
-              "name": "designJsonOverride",
+              "name": "documentText",
               "readable": true,
               "writable": false
             },

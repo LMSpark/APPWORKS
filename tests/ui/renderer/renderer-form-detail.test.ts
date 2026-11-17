@@ -275,7 +275,7 @@ it.each(['host', 'field'] as const)('%s scope preserves the DataView row identit
   } finally {wrapper.unmount(); runtime.dispose()}
 })
 
-async function automaticFieldsFixture(kind: 'form' | 'detail', children?: SparkNode[], autoColumns = true) {
+async function automaticFieldsFixture(kind: 'form' | 'detail', children?: SparkNode[], autoColumns = true, fieldTypes: Readonly<Record<string, string>> = {}) {
   const liveChildren = shallowRef(children)
   const stubs = {...config.global.stubs}
   delete stubs['SparkComponentRenderer']; delete stubs['spark-component-renderer']
@@ -286,7 +286,7 @@ async function automaticFieldsFixture(kind: 'form' | 'detail', children?: SparkN
       {name: 'name', type: 'string', label: '姓名'}, {name: 'amount', type: 'number', label: '数量'},
       {name: 'active', type: 'boolean', label: '启用'}, {name: 'date', type: 'date', label: '日期'},
       {name: 'secret', type: 'string', label: '隐藏字段'}, {name: 'masked', type: 'string', label: '脱敏字段'},
-      {name: 'custom', type: 'object', label: '复合字段'}],
+      {name: 'custom', type: 'object', label: '复合字段'}].map(column => ({...column, type: fieldTypes[column.name] ?? column.type})),
     views: {default: {rows: [
       {id: 'A', name: '张三', amount: 3, active: true, date: '2026-10-10', custom: {x: 1}, secret: '禁止泄露隐藏', masked: '禁止泄露脱敏',
         lingma_sys_params: {r: [], e: ['name', 'amount', 'active', 'date', 'custom'], h: ['secret'], m: ['masked'], d: false}},
@@ -319,6 +319,22 @@ async function automaticFieldsFixture(kind: 'form' | 'detail', children?: SparkN
 }
 
 describe('automatic field children use the parent container', () => {
+  it.each(['VARCHAR', 'CHAR', 'TEXT'])('edits formal %s through the original view and still rejects a denied row', async type => {
+    const {wrapper, view, ds} = await automaticFieldsFixture('form', undefined, true, {name: type})
+    try {
+      const name = () => wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'name')!
+      expect(name().get('input').attributes('disabled')).toBeUndefined()
+      await name().get('input').setValue('原查询编辑')
+      await flushPromises()
+      expect(view.getEditingRow('A')?.['name']).toBe('原查询编辑')
+      view.setCurrentRowById('B'); await flushPromises()
+      expect(name().get('input').attributes('disabled')).toBeDefined()
+      name().getComponent({name: 'ElInput'}).vm.$emit('update:modelValue', '不得写入')
+      await flushPromises()
+      expect(view.hasEditingChanges('B')).toBe(false)
+      expect(view.getEditingRow('B')?.['name']).toBe('李四')
+    } finally {wrapper.unmount(); ds.destroy()}
+  })
   it.each(['form', 'detail'] as const)('reacts to configured field titles and readonly changes in %s', async kind => {
     const {wrapper, view, ds, liveChildren} = await automaticFieldsFixture(kind,
       [{type: 'r-text', props: {field: 'name', label: '原标题', readonly: true}}])

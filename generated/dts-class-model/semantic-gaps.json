@@ -1,5 +1,5 @@
 {
-  "gapCount": 4290,
+  "gapCount": 4308,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -7602,7 +7602,7 @@
       "chainBreak": "FileResourceHistoryAttempt 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 14,
+      "declarationLine": 20,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "typeAlias"
     },
@@ -7614,7 +7614,7 @@
       "chainBreak": "FileResourceHistoryAttempt.version 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 15,
+      "declarationLine": 21,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7626,7 +7626,7 @@
       "chainBreak": "FileResourceHistoryAttempt.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 16,
+      "declarationLine": 22,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7637,7 +7637,7 @@
       "chainBreak": "FileResourceTransport 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 18,
+      "declarationLine": 24,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "typeAlias"
     },
@@ -7649,7 +7649,7 @@
       "chainBreak": "FileResourceTransport.read 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 19,
+      "declarationLine": 25,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7661,7 +7661,7 @@
       "chainBreak": "FileResourceTransport.write 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 20,
+      "declarationLine": 26,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7673,7 +7673,7 @@
       "chainBreak": "FileResourceTransport.remove 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 25,
+      "declarationLine": 31,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7685,7 +7685,7 @@
       "chainBreak": "FileResourceTransport.isUnknown 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 31,
+      "declarationLine": 37,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7697,7 +7697,7 @@
       "chainBreak": "FileResourceTransport.history 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 32,
+      "declarationLine": 38,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7708,7 +7708,7 @@
       "chainBreak": "BindFileResourceAdapterOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 46,
+      "declarationLine": 52,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "typeAlias"
     },
@@ -7720,7 +7720,7 @@
       "chainBreak": "BindFileResourceAdapterOptions.resourceId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 47,
+      "declarationLine": 53,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7732,7 +7732,7 @@
       "chainBreak": "BindFileResourceAdapterOptions.contentField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 48,
+      "declarationLine": 54,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7744,7 +7744,7 @@
       "chainBreak": "BindFileResourceAdapterOptions.revisionField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 49,
+      "declarationLine": 55,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7756,7 +7756,7 @@
       "chainBreak": "BindFileResourceAdapterOptions.target 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 56,
+      "declarationLine": 62,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7768,7 +7768,7 @@
       "chainBreak": "BindFileResourceAdapterOptions.transport 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 57,
+      "declarationLine": 63,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7780,7 +7780,7 @@
       "chainBreak": "BindFileResourceAdapterOptions.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 58,
+      "declarationLine": 64,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7791,7 +7791,7 @@
       "chainBreak": "BindFileDirectoryQueryAdapterOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 60,
+      "declarationLine": 66,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "typeAlias"
     },
@@ -7803,7 +7803,7 @@
       "chainBreak": "BindFileDirectoryQueryAdapterOptions.resourceId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 61,
+      "declarationLine": 67,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7815,7 +7815,7 @@
       "chainBreak": "BindFileDirectoryQueryAdapterOptions.target 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 62,
+      "declarationLine": 68,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7827,7 +7827,7 @@
       "chainBreak": "BindFileDirectoryQueryAdapterOptions.list 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 66,
+      "declarationLine": 72,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -7839,7 +7839,7 @@
       "chainBreak": "BindFileDirectoryQueryAdapterOptions.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/file-resource-adapter.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/file-resource-adapter.ts",
-      "declarationLine": 70,
+      "declarationLine": 76,
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "declarationKind": "interface"
     },
@@ -12280,6 +12280,53 @@
       "declarationLine": 5,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-model-not-found-error",
+      "moduleName": "@spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-model-not-found-error",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-model-not-found-error 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "DataSpaceModelNotFoundError",
+      "memberName": "dataSpaceId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DataSpaceModelNotFoundError.dataSpaceId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts",
+      "declarationLine": 8,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "DataSpaceModelNotFoundError",
+      "memberName": "metaName",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DataSpaceModelNotFoundError.metaName 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts",
+      "declarationLine": 9,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "constructor",
+      "className": "DataSpaceModelNotFoundError",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DataSpaceModelNotFoundError.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts",
+      "declarationLine": 10,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts",
+      "declarationKind": "class"
     },
     {
       "kind": "module",
@@ -17884,13 +17931,37 @@
     },
     {
       "kind": "constructor",
+      "className": "DictionaryResource",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DictionaryResource.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts",
+      "declarationLine": 13,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "constructor",
       "className": "ApplicationDictionaryResource",
       "memberName": "constructor",
       "reason": "missing-jsdoc",
       "chainBreak": "ApplicationDictionaryResource.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts",
-      "declarationLine": 12,
+      "declarationLine": 19,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "constructor",
+      "className": "AuthenticatedDictionaryResource",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "AuthenticatedDictionaryResource.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts",
+      "declarationLine": 23,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts",
       "declarationKind": "class"
     },
@@ -22642,7 +22713,7 @@
       "chainBreak": "ScenarioViewVersionAttempt.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 23,
+      "declarationLine": 24,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22654,7 +22725,7 @@
       "chainBreak": "ScenarioViewVersionAttempt.resourceId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 24,
+      "declarationLine": 25,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22666,7 +22737,7 @@
       "chainBreak": "ScenarioViewVersionAttempt.scope 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 25,
+      "declarationLine": 26,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22678,7 +22749,7 @@
       "chainBreak": "ScenarioViewVersionAttempt.version 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 26,
+      "declarationLine": 27,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22690,7 +22761,7 @@
       "chainBreak": "ScenarioViewVersionAttempt.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 27,
+      "declarationLine": 28,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22702,7 +22773,7 @@
       "chainBreak": "ScenarioViewVersionAttempt.text 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 28,
+      "declarationLine": 29,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22714,7 +22785,7 @@
       "chainBreak": "ScenarioViewVersionAttemptStatus.state 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 32,
+      "declarationLine": 33,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22726,7 +22797,7 @@
       "chainBreak": "ScenarioViewVersionAttemptStatus.version 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 33,
+      "declarationLine": 34,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22738,7 +22809,7 @@
       "chainBreak": "ScenarioViewVersionAttemptStatus.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 34,
+      "declarationLine": 35,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22750,7 +22821,7 @@
       "chainBreak": "ScenarioViewVersionAttemptStatus.message 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 35,
+      "declarationLine": 36,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22762,7 +22833,7 @@
       "chainBreak": "ScenarioViewVersionNotAppliedError.resourceId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 39,
+      "declarationLine": 40,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -22774,7 +22845,7 @@
       "chainBreak": "ScenarioViewVersionNotAppliedError.scope 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 40,
+      "declarationLine": 41,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -22786,7 +22857,7 @@
       "chainBreak": "ScenarioViewVersionNotAppliedError.version 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 41,
+      "declarationLine": 42,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -22798,7 +22869,7 @@
       "chainBreak": "ScenarioViewVersionNotAppliedError.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 42,
+      "declarationLine": 43,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -22809,7 +22880,7 @@
       "chainBreak": "ScenarioViewGateway 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 44,
+      "declarationLine": 45,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "typeAlias"
     },
@@ -22821,7 +22892,7 @@
       "chainBreak": "ScenarioViewGateway.readScope 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 45,
+      "declarationLine": 48,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "typeAlias"
     },
@@ -22833,7 +22904,7 @@
       "chainBreak": "ScenarioViewGateway.readText 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 46,
+      "declarationLine": 49,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "typeAlias"
     },
@@ -22845,7 +22916,7 @@
       "chainBreak": "ScenarioViewGateway.listVersions 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 52,
+      "declarationLine": 55,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "typeAlias"
     },
@@ -22857,7 +22928,7 @@
       "chainBreak": "ScenarioViewGateway.readVersion 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 53,
+      "declarationLine": 56,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "typeAlias"
     },
@@ -22869,7 +22940,7 @@
       "chainBreak": "ScenarioViewGateway.createVersion 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 54,
+      "declarationLine": 57,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "typeAlias"
     },
@@ -22881,7 +22952,7 @@
       "chainBreak": "ScenarioViewLoadCommand.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 73,
+      "declarationLine": 76,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22893,7 +22964,7 @@
       "chainBreak": "ScenarioViewLoadCommand.forceReload 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 74,
+      "declarationLine": 77,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22905,7 +22976,7 @@
       "chainBreak": "ScenarioViewCreateCommand.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 78,
+      "declarationLine": 81,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22917,7 +22988,7 @@
       "chainBreak": "ScenarioViewCreateCommand.text 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 79,
+      "declarationLine": 82,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22929,7 +23000,7 @@
       "chainBreak": "ScenarioViewCreateCommand.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 80,
+      "declarationLine": 83,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "typeAlias"
     },
@@ -22941,7 +23012,7 @@
       "chainBreak": "ScenarioViewSaveCommand.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 84,
+      "declarationLine": 87,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22953,7 +23024,7 @@
       "chainBreak": "ScenarioViewSaveCommand.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 85,
+      "declarationLine": 88,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "typeAlias"
     },
@@ -22965,7 +23036,7 @@
       "chainBreak": "ScenarioViewSaveCommand.onAttempt 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 86,
+      "declarationLine": 89,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "typeAlias"
     },
@@ -22977,7 +23048,7 @@
       "chainBreak": "ScenarioViewAdoptCommand.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 93,
+      "declarationLine": 96,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -22989,7 +23060,7 @@
       "chainBreak": "ScenarioViewAdoptCommand.expectedRevision 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 94,
+      "declarationLine": 97,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -23001,7 +23072,7 @@
       "chainBreak": "ScenarioViewAdoptCommand.previewText 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 95,
+      "declarationLine": 98,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -23013,7 +23084,7 @@
       "chainBreak": "ScenarioViewAdoptCommand.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 96,
+      "declarationLine": 99,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "typeAlias"
     },
@@ -23025,7 +23096,7 @@
       "chainBreak": "ScenarioViewVersionCommand.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 102,
+      "declarationLine": 105,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -23037,7 +23108,7 @@
       "chainBreak": "ScenarioViewVersionCommand.version 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 103,
+      "declarationLine": 106,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "interface"
     },
@@ -23049,7 +23120,7 @@
       "chainBreak": "ProjectWorkspace.getScenarioViews 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 155,
+      "declarationLine": 160,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -23061,7 +23132,7 @@
       "chainBreak": "ProjectWorkspace.loadScenarioViews 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 156,
+      "declarationLine": 163,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -23073,7 +23144,7 @@
       "chainBreak": "ProjectWorkspace.createScenarioViews 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 157,
+      "declarationLine": 164,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -23085,7 +23156,7 @@
       "chainBreak": "ProjectWorkspace.saveScenarioViews 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 161,
+      "declarationLine": 168,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -23097,7 +23168,7 @@
       "chainBreak": "ProjectWorkspace.verifyScenarioViews 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 162,
+      "declarationLine": 169,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -23109,7 +23180,7 @@
       "chainBreak": "ProjectWorkspace.previewScenarioViewsRemote 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 163,
+      "declarationLine": 170,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -23121,7 +23192,7 @@
       "chainBreak": "ProjectWorkspace.adoptScenarioViews 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 164,
+      "declarationLine": 171,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -23133,7 +23204,7 @@
       "chainBreak": "ProjectWorkspace.getActivePageTool 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 182,
+      "declarationLine": 189,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -23145,7 +23216,7 @@
       "chainBreak": "ProjectWorkspace.notifyPageFileChanged 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 188,
+      "declarationLine": 195,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -23157,7 +23228,7 @@
       "chainBreak": "ProjectWorkspace.probeLink 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 189,
+      "declarationLine": 196,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -23169,7 +23240,7 @@
       "chainBreak": "ProjectWorkspace.listReferenceProjects 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 193,
+      "declarationLine": 200,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -23181,7 +23252,7 @@
       "chainBreak": "ProjectWorkspace.listReferenceProjectPages 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 194,
+      "declarationLine": 201,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -23290,6 +23361,161 @@
       "declarationLine": 14,
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-project-model:scenario/scenario-submission-journal",
+      "moduleName": "@spark-appworks/spark-project-model:scenario/scenario-submission-journal",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-project-model:scenario/scenario-submission-journal 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-submission-journal.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "ScenarioSubmissionStorage",
+      "memberName": "length",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ScenarioSubmissionStorage.length 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-submission-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationLine": 3,
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ScenarioSubmissionStorage",
+      "memberName": "key",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ScenarioSubmissionStorage.key 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-submission-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationLine": 4,
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ScenarioSubmissionStorage",
+      "memberName": "getItem",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ScenarioSubmissionStorage.getItem 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-submission-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationLine": 5,
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ScenarioSubmissionStorage",
+      "memberName": "setItem",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ScenarioSubmissionStorage.setItem 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-submission-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationLine": 6,
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ScenarioSubmissionStorage",
+      "memberName": "removeItem",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ScenarioSubmissionStorage.removeItem 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-submission-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationLine": 7,
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ScenarioSubmissionCapture",
+      "memberName": "attemptId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ScenarioSubmissionCapture.attemptId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-submission-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationLine": 11,
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ScenarioSubmissionCapture",
+      "memberName": "scenarioId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ScenarioSubmissionCapture.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-submission-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationLine": 12,
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ScenarioSubmissionCapture",
+      "memberName": "text",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ScenarioSubmissionCapture.text 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-submission-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationLine": 13,
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ScenarioSubmissionCapture",
+      "memberName": "baseline",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ScenarioSubmissionCapture.baseline 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-submission-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationLine": 14,
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ScenarioSubmissionJournal",
+      "memberName": "read",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ScenarioSubmissionJournal.read 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-submission-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationLine": 18,
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ScenarioSubmissionJournal",
+      "memberName": "begin",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ScenarioSubmissionJournal.begin 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-submission-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationLine": 19,
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ScenarioSubmissionJournal",
+      "memberName": "settle",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ScenarioSubmissionJournal.settle 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-submission-journal.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationLine": 20,
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "declarationKind": "interface"
     },
     {
       "kind": "attribute",
@@ -23582,24 +23808,12 @@
     {
       "kind": "method",
       "className": "ScenarioViewFile",
-      "memberName": "confirmNotApplied",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ScenarioViewFile.confirmNotApplied 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/scenario/scenario-view-file.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
-      "declarationLine": 45,
-      "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "ScenarioViewFile",
       "memberName": "invalidate",
       "reason": "missing-jsdoc",
       "chainBreak": "ScenarioViewFile.invalidate 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/scenario/scenario-view-file.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
-      "declarationLine": 51,
+      "declarationLine": 50,
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
       "declarationKind": "class"
     },
@@ -23611,7 +23825,7 @@
       "chainBreak": "ScenarioViewFile.setText 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/scenario/scenario-view-file.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
-      "declarationLine": 52,
+      "declarationLine": 51,
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
       "declarationKind": "class"
     },
@@ -23623,7 +23837,7 @@
       "chainBreak": "ScenarioViewFile.loadText 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/scenario/scenario-view-file.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
-      "declarationLine": 53,
+      "declarationLine": 52,
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
       "declarationKind": "class"
     },
@@ -23635,7 +23849,7 @@
       "chainBreak": "ScenarioViewFile.markSaved 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/scenario/scenario-view-file.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
-      "declarationLine": 54,
+      "declarationLine": 53,
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
       "declarationKind": "class"
     },
@@ -23647,7 +23861,7 @@
       "chainBreak": "ScenarioViewFile.undo 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/scenario/scenario-view-file.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
-      "declarationLine": 55,
+      "declarationLine": 54,
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
       "declarationKind": "class"
     },
@@ -23659,7 +23873,7 @@
       "chainBreak": "ScenarioViewFile.redo 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/scenario/scenario-view-file.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
-      "declarationLine": 56,
+      "declarationLine": 55,
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
       "declarationKind": "class"
     },
@@ -33556,7 +33770,7 @@
       "chainBreak": "ResolveDatabaseCatalogScenarioInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/catalog/scenario.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/catalog/scenario.ts",
-      "declarationLine": 34,
+      "declarationLine": 37,
       "sourceFile": "src/lowcode/resources/database/catalog/scenario.ts",
       "declarationKind": "typeAlias"
     },
@@ -33568,7 +33782,7 @@
       "chainBreak": "ResolveDatabaseCatalogDataSpaceIdInput.dataSpace 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/catalog/scenario.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/catalog/scenario.ts",
-      "declarationLine": 51,
+      "declarationLine": 54,
       "sourceFile": "src/lowcode/resources/database/catalog/scenario.ts",
       "declarationKind": "interface"
     },
@@ -33580,7 +33794,7 @@
       "chainBreak": "ResolveDatabaseCatalogDataSpaceIdInput.preferredScenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/catalog/scenario.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/catalog/scenario.ts",
-      "declarationLine": 52,
+      "declarationLine": 55,
       "sourceFile": "src/lowcode/resources/database/catalog/scenario.ts",
       "declarationKind": "interface"
     },
@@ -33592,7 +33806,7 @@
       "chainBreak": "ResolveDatabaseCatalogDataSpaceIdInput.metaNames 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/catalog/scenario.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/catalog/scenario.ts",
-      "declarationLine": 53,
+      "declarationLine": 56,
       "sourceFile": "src/lowcode/resources/database/catalog/scenario.ts",
       "declarationKind": "interface"
     },
@@ -33604,7 +33818,7 @@
       "chainBreak": "ResolveDatabaseCatalogDataSpaceIdInput.options 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/catalog/scenario.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/catalog/scenario.ts",
-      "declarationLine": 54,
+      "declarationLine": 57,
       "sourceFile": "src/lowcode/resources/database/catalog/scenario.ts",
       "declarationKind": "interface"
     },
@@ -33616,7 +33830,7 @@
       "chainBreak": "ResolveDatabaseCatalogDataSpaceIdInput.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/catalog/scenario.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/catalog/scenario.ts",
-      "declarationLine": 55,
+      "declarationLine": 58,
       "sourceFile": "src/lowcode/resources/database/catalog/scenario.ts",
       "declarationKind": "typeAlias"
     },
@@ -33726,6 +33940,17 @@
     },
     {
       "kind": "module",
+      "className": "app:lowcode/resources/database/catalog/table/field-type-options",
+      "moduleName": "app:lowcode/resources/database/catalog/table/field-type-options",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/database/catalog/table/field-type-options 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/database/catalog/table/field-type-options.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/database/catalog/table/field-type-options.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/database/catalog/table/field-type-options.ts"
+    },
+    {
+      "kind": "module",
       "className": "app:lowcode/resources/database/catalog/table/field-view-ops",
       "moduleName": "app:lowcode/resources/database/catalog/table/field-view-ops",
       "reason": "weak-module-jsdoc",
@@ -33753,7 +33978,7 @@
       "chainBreak": "DatabaseCatalogDesignSavePendingInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/catalog/table/field-view-ops.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
-      "declarationLine": 13,
+      "declarationLine": 18,
       "sourceFile": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
       "declarationKind": "typeAlias"
     },
@@ -33765,7 +33990,7 @@
       "chainBreak": "DatabaseCatalogDesignSavePendingInput.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/catalog/table/field-view-ops.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
-      "declarationLine": 14,
+      "declarationLine": 19,
       "sourceFile": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
       "declarationKind": "interface"
     },
@@ -33777,7 +34002,7 @@
       "chainBreak": "DatabaseCatalogDesignSavePendingInput.fieldView 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/catalog/table/field-view-ops.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
-      "declarationLine": 15,
+      "declarationLine": 20,
       "sourceFile": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
       "declarationKind": "interface"
     },
@@ -33789,7 +34014,7 @@
       "chainBreak": "DatabaseCatalogDesignSavePendingInput.objectView 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/catalog/table/field-view-ops.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
-      "declarationLine": 16,
+      "declarationLine": 21,
       "sourceFile": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
       "declarationKind": "interface"
     },
@@ -33801,7 +34026,7 @@
       "chainBreak": "DatabaseCatalogDesignSavePendingInput.extraViews 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/catalog/table/field-view-ops.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
-      "declarationLine": 17,
+      "declarationLine": 22,
       "sourceFile": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
       "declarationKind": "interface"
     },
@@ -40871,87 +41096,6 @@
     },
     {
       "kind": "module",
-      "className": "app:lowcode/resources/system/workflow/manage/flow-design-data-json",
-      "moduleName": "app:lowcode/resources/system/workflow/manage/flow-design-data-json",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:lowcode/resources/system/workflow/manage/flow-design-data-json 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts"
-    },
-    {
-      "kind": "model",
-      "className": "FlowDesignPlatformFileApi",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowDesignPlatformFileApi 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "declarationLine": 7,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "model",
-      "className": "ReadFlowDesignDataJsonCommand",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ReadFlowDesignDataJsonCommand 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "declarationLine": 9,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "ReadFlowDesignDataJsonCommand",
-      "memberName": "flowId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ReadFlowDesignDataJsonCommand.flowId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "ReadFlowDesignDataJsonCommand",
-      "memberName": "modelRow",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ReadFlowDesignDataJsonCommand.modelRow 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "declarationLine": 11,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "ReadFlowDesignDataJsonCommand",
-      "memberName": "api",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ReadFlowDesignDataJsonCommand.api 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "declarationLine": 12,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "ReadFlowDesignDataJsonCommand",
-      "memberName": "customPath",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ReadFlowDesignDataJsonCommand.customPath 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "declarationLine": 13,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "module",
       "className": "app:lowcode/resources/system/workflow/manage/flow-design-file-context",
       "moduleName": "app:lowcode/resources/system/workflow/manage/flow-design-file-context",
       "reason": "weak-module-jsdoc",
@@ -40968,7 +41112,7 @@
       "chainBreak": "FlowDesignFileContext 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
-      "declarationLine": 2,
+      "declarationLine": 8,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
       "declarationKind": "typeAlias"
     },
@@ -40980,7 +41124,7 @@
       "chainBreak": "FlowDesignFileContext.customPath 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
-      "declarationLine": 3,
+      "declarationLine": 9,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
       "declarationKind": "interface"
     },
@@ -40992,7 +41136,7 @@
       "chainBreak": "FlowDesignFileContext.applicationId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
-      "declarationLine": 4,
+      "declarationLine": 10,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
       "declarationKind": "interface"
     },
@@ -41003,7 +41147,7 @@
       "chainBreak": "ResolveFlowDesignFileContextCommand 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
-      "declarationLine": 6,
+      "declarationLine": 12,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
       "declarationKind": "typeAlias"
     },
@@ -41015,7 +41159,7 @@
       "chainBreak": "ResolveFlowDesignFileContextCommand.runtime 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
-      "declarationLine": 7,
+      "declarationLine": 13,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
       "declarationKind": "interface"
     },
@@ -41027,7 +41171,7 @@
       "chainBreak": "ResolveFlowDesignFileContextCommand.flowModelId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
-      "declarationLine": 8,
+      "declarationLine": 14,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
       "declarationKind": "interface"
     },
@@ -41039,7 +41183,7 @@
       "chainBreak": "ResolveFlowDesignFileContextCommand.modelRow 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
-      "declarationLine": 9,
+      "declarationLine": 15,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
       "declarationKind": "interface"
     },
@@ -41051,7 +41195,7 @@
       "chainBreak": "ResolveFlowDesignFileContextCommand.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
-      "declarationLine": 10,
+      "declarationLine": 16,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
       "declarationKind": "typeAlias"
     },
@@ -41150,24 +41294,12 @@
     {
       "kind": "attribute",
       "className": "FlowDesignGraphLayoutInput",
-      "memberName": "modelView",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowDesignGraphLayoutInput.modelView 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
-      "declarationLine": 32,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "FlowDesignGraphLayoutInput",
       "memberName": "nodeView",
       "reason": "missing-jsdoc",
       "chainBreak": "FlowDesignGraphLayoutInput.nodeView 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
-      "declarationLine": 33,
+      "declarationLine": 32,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
       "declarationKind": "interface"
     },
@@ -41179,19 +41311,19 @@
       "chainBreak": "FlowDesignGraphLayoutInput.edgeView 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
-      "declarationLine": 34,
+      "declarationLine": 33,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
       "declarationKind": "interface"
     },
     {
       "kind": "attribute",
       "className": "FlowDesignGraphLayoutInput",
-      "memberName": "designJsonOverride",
+      "memberName": "documentText",
       "reason": "missing-jsdoc",
-      "chainBreak": "FlowDesignGraphLayoutInput.designJsonOverride 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "FlowDesignGraphLayoutInput.documentText 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
-      "declarationLine": 35,
+      "declarationLine": 34,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
       "declarationKind": "interface"
     },
@@ -41203,7 +41335,7 @@
       "chainBreak": "FlowDesignGraphLayoutInput.layoutOverride 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
-      "declarationLine": 36,
+      "declarationLine": 35,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
       "declarationKind": "interface"
     },
@@ -41232,12 +41364,24 @@
     {
       "kind": "attribute",
       "className": "FlowDesignPreparedViews",
+      "memberName": "documentViewKey",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowDesignPreparedViews.documentViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
+      "declarationLine": 4,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "FlowDesignPreparedViews",
       "memberName": "modelTitle",
       "reason": "missing-jsdoc",
       "chainBreak": "FlowDesignPreparedViews.modelTitle 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
-      "declarationLine": 4,
+      "declarationLine": 5,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
       "declarationKind": "interface"
     },
@@ -41249,7 +41393,7 @@
       "chainBreak": "FlowDesignPreparedViews.nodeViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
-      "declarationLine": 5,
+      "declarationLine": 6,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
       "declarationKind": "interface"
     },
@@ -41261,7 +41405,7 @@
       "chainBreak": "FlowDesignPreparedViews.edgeViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
-      "declarationLine": 6,
+      "declarationLine": 7,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
       "declarationKind": "interface"
     },
@@ -41273,7 +41417,7 @@
       "chainBreak": "FlowDesignPreparedViews.workFormViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
-      "declarationLine": 7,
+      "declarationLine": 8,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
       "declarationKind": "interface"
     },
@@ -41285,102 +41429,79 @@
       "chainBreak": "FlowDesignPreparedViews.graphLayout 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
-      "declarationLine": 8,
+      "declarationLine": 9,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
       "declarationKind": "interface"
     },
     {
       "kind": "module",
-      "className": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation",
-      "moduleName": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation",
+      "className": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource",
+      "moduleName": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource",
       "reason": "weak-module-jsdoc",
-      "chainBreak": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
+      "chainBreak": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
       "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts"
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts"
     },
     {
       "kind": "model",
-      "className": "FlowWorkFormPayloadRow",
+      "className": "Options",
       "reason": "missing-jsdoc",
-      "chainBreak": "FlowWorkFormPayloadRow 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-      "declarationLine": 8,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "model",
-      "className": "SaveFlowWorkFormRelationCommand",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SaveFlowWorkFormRelationCommand 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-      "declarationLine": 12,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
+      "chainBreak": "Options 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
+      "declarationLine": 29,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
       "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
-      "className": "SaveFlowWorkFormRelationCommand",
-      "memberName": "http",
+      "className": "Options",
+      "memberName": "applicationId",
       "reason": "missing-jsdoc",
-      "chainBreak": "SaveFlowWorkFormRelationCommand.http 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-      "declarationLine": 13,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
+      "chainBreak": "Options.applicationId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
+      "declarationLine": 30,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
       "declarationKind": "interface"
     },
     {
       "kind": "attribute",
-      "className": "SaveFlowWorkFormRelationCommand",
-      "memberName": "flowModelId",
+      "className": "Options",
+      "memberName": "api",
       "reason": "missing-jsdoc",
-      "chainBreak": "SaveFlowWorkFormRelationCommand.flowModelId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-      "declarationLine": 14,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
+      "chainBreak": "Options.api 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
+      "declarationLine": 31,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
       "declarationKind": "interface"
     },
     {
       "kind": "attribute",
-      "className": "SaveFlowWorkFormRelationCommand",
-      "memberName": "view",
+      "className": "Options",
+      "memberName": "fileUpload",
       "reason": "missing-jsdoc",
-      "chainBreak": "SaveFlowWorkFormRelationCommand.view 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-      "declarationLine": 15,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
+      "chainBreak": "Options.fileUpload 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
+      "declarationLine": 32,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
       "declarationKind": "interface"
     },
     {
       "kind": "method",
-      "className": "SaveFlowWorkFormRelationCommand",
-      "memberName": "readScope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SaveFlowWorkFormRelationCommand.readScope 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-      "declarationLine": 16,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "method",
-      "className": "SaveFlowWorkFormRelationCommand",
+      "className": "Options",
       "memberName": "assertCurrent",
       "reason": "missing-jsdoc",
-      "chainBreak": "SaveFlowWorkFormRelationCommand.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-      "declarationLine": 17,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-      "declarationKind": "typeAlias"
+      "chainBreak": "Options.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
+      "declarationLine": 33,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
+      "declarationKind": "interface"
     },
     {
       "kind": "module",
@@ -41810,7 +41931,7 @@
       "chainBreak": "SaveFlowDesignCommand 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
-      "declarationLine": 4,
+      "declarationLine": 9,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
       "declarationKind": "typeAlias"
     },
@@ -41822,7 +41943,7 @@
       "chainBreak": "SaveFlowDesignCommand.runtime 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
-      "declarationLine": 5,
+      "declarationLine": 10,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
       "declarationKind": "interface"
     },
@@ -41834,31 +41955,7 @@
       "chainBreak": "SaveFlowDesignCommand.flowModelId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
-      "declarationLine": 6,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "SaveFlowDesignCommand",
-      "memberName": "fileUpload",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SaveFlowDesignCommand.fileUpload 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
-      "declarationLine": 7,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "SaveFlowDesignCommand",
-      "memberName": "layoutOverride",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SaveFlowDesignCommand.layoutOverride 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
-      "declarationLine": 8,
+      "declarationLine": 11,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
       "declarationKind": "interface"
     },
@@ -41870,90 +41967,8 @@
       "chainBreak": "SaveFlowDesignCommand.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
-      "declarationLine": 9,
+      "declarationLine": 12,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "module",
-      "className": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync",
-      "moduleName": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts"
-    },
-    {
-      "kind": "model",
-      "className": "SyncFlowDesignTablesCommand",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SyncFlowDesignTablesCommand 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "declarationLine": 6,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "SyncFlowDesignTablesCommand",
-      "memberName": "flowModelId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SyncFlowDesignTablesCommand.flowModelId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "declarationLine": 7,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "SyncFlowDesignTablesCommand",
-      "memberName": "designJson",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SyncFlowDesignTablesCommand.designJson 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "declarationLine": 8,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "SyncFlowDesignTablesCommand",
-      "memberName": "nodeView",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SyncFlowDesignTablesCommand.nodeView 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "declarationLine": 9,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "SyncFlowDesignTablesCommand",
-      "memberName": "edgeView",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SyncFlowDesignTablesCommand.edgeView 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "method",
-      "className": "SyncFlowDesignTablesCommand",
-      "memberName": "assertCurrent",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SyncFlowDesignTablesCommand.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "declarationLine": 11,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
       "declarationKind": "typeAlias"
     },
     {
@@ -45996,6 +46011,204 @@
       "declarationLine": 22,
       "sourceFile": "src/services/project/project-shell.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content-placeholders",
+      "moduleName": "app:services/smart-bid/content-placeholders",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content-placeholders 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content-placeholders.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-placeholders.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content-placeholders.ts"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content-reference",
+      "moduleName": "app:services/smart-bid/content-reference",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content-reference 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content-reference.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-reference.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content-reference.ts"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content-tree-draft-editor",
+      "moduleName": "app:services/smart-bid/content-tree-draft-editor",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content-tree-draft-editor 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content-tree-draft-editor.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts"
+    },
+    {
+      "kind": "model",
+      "className": "ChapterInput",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ChapterInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-draft-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "ChapterInput",
+      "memberName": "chapterId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ChapterInput.chapterId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-draft-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationLine": 8,
+      "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ChapterInput",
+      "memberName": "headingId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ChapterInput.headingId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-draft-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationLine": 9,
+      "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ChapterInput",
+      "memberName": "title",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ChapterInput.title 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-draft-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "constructor",
+      "className": "ContentTreeDraftEditor",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTreeDraftEditor.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-draft-editor.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationLine": 17,
+      "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content-tree-editor-layout",
+      "moduleName": "app:services/smart-bid/content-tree-editor-layout",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content-tree-editor-layout 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content-tree-editor-layout.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content-tree-editor-layout.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentTreeEditorLayoutInput",
+      "memberName": "view",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTreeEditorLayoutInput.view 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-editor-layout.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentTreeEditorLayoutInput",
+      "memberName": "dataViewKey",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTreeEditorLayoutInput.dataViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-editor-layout.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationLine": 12,
+      "sourceFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentTreeEditorLayoutInput",
+      "memberName": "draftId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTreeEditorLayoutInput.draftId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-editor-layout.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentTreeEditorLayoutInput",
+      "memberName": "projectId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTreeEditorLayoutInput.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-editor-layout.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationLine": 14,
+      "sourceFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentTreeEditorLayoutInput",
+      "memberName": "selectedPath",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTreeEditorLayoutInput.selectedPath 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-editor-layout.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationLine": 15,
+      "sourceFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ContentTreeEditorLayoutInput",
+      "memberName": "onSelectedPathChange",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTreeEditorLayoutInput.onSelectedPathChange 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-editor-layout.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationLine": 16,
+      "sourceFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "ContentTreeEditorLayoutInput",
+      "memberName": "onEditingChange",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTreeEditorLayoutInput.onEditingChange 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content-tree-editor-layout.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationLine": 17,
+      "sourceFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content-tree-structure",
+      "moduleName": "app:services/smart-bid/content-tree-structure",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content-tree-structure 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content-tree-structure.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content-tree-structure.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content-tree-structure.ts"
     },
     {
       "kind": "model",

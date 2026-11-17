@@ -124,13 +124,21 @@ describe('original workflow node removal',()=>{
   const f=await fixture();f.http.records['Base_DataModel']![0]!['JoinFilter']=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'value',operator:'eq',value:{Type:'GetInputParam',ParamName:'A.value'}}))
   await expect(f.open()).rejects.toThrow('JoinFilter');expect(f.http.saves).toHaveLength(0)
  })
- it('retries only the layout after independently proving that its original upload did not apply',async()=>{
+ it('keeps the original layout submission unknown at baseline and confirms its late result without replaying deletes',async()=>{
   const f=await fixture(true,JSON.stringify({nodes:[{id:'A',x:1,y:2}],edges:[]})),owner=await f.open();await owner.stage();f.file.rejectBeforeWrite=true
   await expect(owner.save()).rejects.toThrow();const writes=f.http.saves.length
-  await expect(owner.verify()).rejects.toThrow('未生效')
-  if(!owner.getState().canRetryLayout)await expect(owner.verify(true)).rejects.toThrow('未生效')
-  expect(owner.getState().canRetryLayout).toBe(true)
-  await owner.retryLayout();expect(owner.getState().status).toBe('complete');expect(f.http.saves).toHaveLength(writes);expect(f.uploads).toHaveLength(1)
+  const layout=f.ds.getTable('WorkflowLayout')!.viewList.find(view=>view.hasUnconfirmedSave)
+  if(!layout)throw Error('Missing original layout view')
+  const row=layout.rows[0],key=row&&layout.getPkKey(row)
+  if(key===undefined)throw Error('Missing original layout identity')
+  const originalText=layout.getEditingRow(key)?.['content']
+  if(typeof originalText!=='string')throw Error('Missing captured layout text')
+  await expect(owner.verify()).rejects.toThrow('FILE_RESOURCE_UNRESOLVED')
+  await expect(owner.verify(true)).rejects.toThrow('FILE_RESOURCE_UNRESOLVED')
+  expect(owner.getState()).toMatchObject({status:'layout',databaseConfirmed:true})
+  expect(layout.hasUnconfirmedSave).toBe(true);expect(f.http.saves).toHaveLength(writes);expect(f.uploads).toHaveLength(0)
+  f.file.text=originalText
+  await owner.verify();expect(owner.getState().status).toBe('complete');expect(f.http.saves).toHaveLength(writes);expect(f.uploads).toHaveLength(0)
  })
  it('checks indirect lost ancestors through consumers of a surviving model relation',async()=>{
   const f=await fixture(false)

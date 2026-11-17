@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content-tree-structure",
+    "sourcePath": "src/services/smart-bid/content-tree-structure.ts",
+    "sourceFile": "src/services/smart-bid/content-tree-structure.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content-tree-structure",
+    "jsdoc": "@module app:services/smart-bid/content-tree-structure\n职责：核对投标规格§1的逻辑内容树结构；不保存草稿、不采用修订。\n边界：只校验身份、结构和顺序；正文引用、哈希及权限由各自合同继续核验。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ContentStructureNode"
+    ]
+  },
+  "$defs": {
+    "ContentStructureNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentStructureNode",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": "string"
+        },
+        "index": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nodeId",
+        "parentId",
+        "index",
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-16T20:18:00.794Z",
+  "models": {
+    "ContentStructureNode": {
+      "name": "ContentStructureNode",
+      "jsdoc": "固定修订中一个节点的结构投影；项目根不另造节点。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 项目内稳定节点身份。 */\n    nodeId: string;\n    /** document 指向项目，其余指向册内节点。 */\n    parentId: string;\n    /** 同级从零连续的位置。 */\n    index: number;\n    /** 规格定义的业务语义类型。 */\n    type: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 项目内稳定节点身份。 */\n    nodeId: string;\n    /** document 指向项目，其余指向册内节点。 */\n    parentId: string;\n    /** 同级从零连续的位置。 */\n    index: number;\n    /** 规格定义的业务语义类型。 */\n    type: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "jsdoc": "项目内稳定节点身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentId",
+              "jsdoc": "document 指向项目，其余指向册内节点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "jsdoc": "同级从零连续的位置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "规格定义的业务语义类型。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

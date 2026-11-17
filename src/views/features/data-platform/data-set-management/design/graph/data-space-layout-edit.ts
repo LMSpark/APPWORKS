@@ -563,19 +563,13 @@ export class DataSpaceLayoutEdit {
   }
 
   /** 沿原DataSet核验已派发提交；未应用时不自动重放。 */
-  async verify(): Promise<'confirmed' | 'not-applied'> {
+  async verify(): Promise<'confirmed'> {
     if (this.#working || !this.staged) throw new Error('没有本操作待核验的布局')
     this.assertDraft(this.file()); this.#working = true
     try {
       await this.submit()
       this.reset(false)
       return 'confirmed'
-    } catch (cause) {
-      if (cause instanceof Error && cause.message.startsWith('SCENARIO_DEFINITION_NOT_APPLIED:')) {
-        this.#ownedText = this.file().text
-        return 'not-applied'
-      }
-      throw cause
     } finally {this.#working = false}
   }
 

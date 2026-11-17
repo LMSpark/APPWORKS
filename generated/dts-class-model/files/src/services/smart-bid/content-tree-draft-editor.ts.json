@@ -1,0 +1,476 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content-tree-draft-editor",
+    "sourcePath": "src/services/smart-bid/content-tree-draft-editor.ts",
+    "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content-tree-draft-editor",
+    "jsdoc": "@module app:services/smart-bid/content-tree-draft-editor\n职责：编排人工内容树的草稿编辑，变更只写绑定WorkingDraft视图的draft字段。\n边界：不持有页面草稿、不保存或采用修订；取消和持久化继续由原DataView/DataSet承担。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ContentTreeDraftEditor"
+    ]
+  },
+  "$defs": {
+    "ChapterInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ChapterInput",
+      "properties": {
+        "chapterId": {
+          "type": "string"
+        },
+        "headingId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "chapterId",
+        "headingId",
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTreeDraftEditor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTreeDraftEditor",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "draftId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "projectId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addDocument.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ChapterInput"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "documentId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "documentId"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addDocument.return": true,
+        "method.addChapter.params": {
+          "type": "object",
+          "properties": {
+            "parentId": {
+              "type": "string"
+            },
+            "input": {
+              "$ref": "#/$defs/ChapterInput"
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addChapter.return": true,
+        "method.addParagraph.params": {
+          "type": "object",
+          "properties": {
+            "parentId": {
+              "type": "string"
+            },
+            "input": {
+              "type": "object",
+              "properties": {
+                "nodeId": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                }
+              },
+              "required": [
+                "nodeId",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addParagraph.return": true,
+        "method.updateText.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            },
+            "data": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateText.return": true,
+        "method.move.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "parentId": {
+              "type": "string"
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.move.return": true,
+        "method.remove.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.remove.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-16T22:37:19.812Z",
+  "models": {
+    "ChapterInput": {
+      "name": "ChapterInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    chapterId: string;\n    headingId: string;\n    title: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    chapterId: string;\n    headingId: string;\n    title: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "chapterId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headingId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTreeDraftEditor": {
+      "name": "ContentTreeDraftEditor",
+      "jsdoc": "对指定项目和草稿行执行语义动作；每次操作重新读取原视图编辑覆盖和当前字段权限。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(view: DataView, draftId: string | number, projectId: string)",
+          "parameters": [
+            {
+              "name": "view",
+              "type": {
+                "type": "reference",
+                "name": "DataView"
+              }
+            },
+            {
+              "name": "draftId",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "projectId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "addDocument",
+              "jsdoc": "新增逻辑册并建立首章及标题，册不是文件格式。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intersection",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ChapterInput",
+                        "sourcePath": "src/services/smart-bid/content-tree-draft-editor.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Readonly",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "{\n        documentId: string;\n    }"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addChapter",
+              "jsdoc": "在逻辑册或章节下新增章节及唯一首标题。",
+              "parameters": [
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ChapterInput",
+                    "sourcePath": "src/services/smart-bid/content-tree-draft-editor.ts"
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addParagraph",
+              "jsdoc": "新增正文段落；字段引用留在同一节点data，不展开成另份正文。",
+              "parameters": [
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        nodeId: string;\n        value: string;\n        data?: Readonly<Record<string, unknown>>;\n    }"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "updateText",
+              "jsdoc": "编辑标题、正文或题注；语义类型和稳定身份不变，正式引用/交付校验另行执行。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "move",
+              "jsdoc": "按移除后的目标同级位置移动完整子树；非法父、环或六级限制不产生部分编辑。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "remove",
+              "jsdoc": "删除指定子树；剩余内容仍须符合逻辑册及章节结构。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

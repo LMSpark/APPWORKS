@@ -22,6 +22,18 @@ function root(children: ProjectBlueprintTreeNodeData[] = []): ProjectBlueprintTr
 }
 
 describe('projectPlanning full-tree replacement plan', () => {
+  it('omits unspecified integer navigation enums only from new-record commands', () => {
+    const plan = planProjectBlueprintReplacement(root(), [node('new', 'root')], {projectId})
+    expect(plan.commands[0]?.fields).not.toHaveProperty('NavigationType')
+    expect(plan.commands[0]?.fields).not.toHaveProperty('NavigationShowType')
+    const explicit = node('explicit', 'root')
+    explicit.navigation = {...explicit.navigation!, openMode: 'current', displayMode: '1'}
+    const configured = planProjectBlueprintReplacement(root(), [explicit], {projectId})
+    expect(configured.commands[0]?.fields).toMatchObject({NavigationType: '3', NavigationShowType: '1'})
+    const clearing = planProjectBlueprintReplacement(root([explicit]), [node('explicit', 'root')], {projectId})
+    expect(clearing.commands[0]?.fields).toMatchObject({NavigationType: '', NavigationShowType: ''})
+  })
+
   it('plans parent-first creates, a move with mapped fields, updates, and child-first deletes', () => {
     const current = root([
       node('a', 'root'),

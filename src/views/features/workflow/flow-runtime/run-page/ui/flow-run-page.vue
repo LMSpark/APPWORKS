@@ -56,7 +56,7 @@
       <SparkComponent.RendererSection :status="chartLoading ? '正在加载流程图…' : ''" :error="chartError" :bordered="false" :grid-columns="1">
         <SparkComponent.RendererGraph v-if="chartPrepared" class="flow-run-page__chart"
           :data-view-key="chartPrepared.nodeViewKey" :edge-data-view-key="chartPrepared.edgeViewKey"
-          label-field="TITLE" edge-source-field="PARENTID" edge-target-field="CHILDID"
+          label-field="TITLE" edge-source-field="UpNodeID" edge-target-field="NextNodeID"
           :node-positions="chartPrepared.graphLayout.nodePositions" :edge-paths="chartPrepared.graphLayout.edgePaths"
           :node-badge-field="chartPrepared.nodeBadgeField" :node-badge-rules="chartBadgeRules"
           background-pattern="dots" :disabled="true" />

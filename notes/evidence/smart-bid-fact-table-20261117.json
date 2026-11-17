@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-17",
+  "table": {
+    "id": "CB8A4A1F4314977E144C9513ED3025F7",
+    "dbId": "8C0FC2087F5D4103987A0D1FC6C3045B",
+    "name": "bid_fact_version",
+    "description": "投标事实版本",
+    "code": 200
+  }
+}

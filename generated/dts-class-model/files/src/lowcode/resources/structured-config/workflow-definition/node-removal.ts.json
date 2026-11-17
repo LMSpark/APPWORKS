@@ -142,9 +142,6 @@
             },
             "canReadCurrent": {
               "type": "boolean"
-            },
-            "canRetryLayout": {
-              "type": "boolean"
             }
           },
           "required": [
@@ -153,8 +150,7 @@
             "busy",
             "summary",
             "databaseConfirmed",
-            "canReadCurrent",
-            "canRetryLayout"
+            "canReadCurrent"
           ],
           "additionalProperties": false
         },
@@ -189,15 +185,6 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.retryLayout.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.retryLayout.return": {
-          "type": "object",
-          "title": "Promise<void>"
-        },
         "method.cancel.params": {
           "type": "object",
           "properties": {},
@@ -207,7 +194,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-10T05:09:56.021Z",
+  "generatedAt": "2026-11-16T23:22:31.624Z",
   "models": {
     "Input": {
       "name": "Input",
@@ -334,7 +321,7 @@
               "parameters": [],
               "type": {
                 "type": "unknown",
-                "name": "{\n        status: Status;\n        pending: boolean;\n        busy: boolean;\n        summary: Readonly<{\n            nodeId: string;\n            modelId: string;\n            deleteModel: boolean;\n            modelContractConfirmed: boolean;\n            edgeCount: number;\n            conditionCount: number;\n            modelRelationCount: number;\n            fieldCount: number;\n            layoutChanges: boolean;\n        }> | undefined;\n        databaseConfirmed: boolean;\n        canReadCurrent: boolean;\n        canRetryLayout: boolean;\n    }"
+                "name": "{\n        status: Status;\n        pending: boolean;\n        busy: boolean;\n        summary: Readonly<{\n            nodeId: string;\n            modelId: string;\n            deleteModel: boolean;\n            modelContractConfirmed: boolean;\n            edgeCount: number;\n            conditionCount: number;\n            modelRelationCount: number;\n            fieldCount: number;\n            layoutChanges: boolean;\n        }> | undefined;\n        databaseConfirmed: boolean;\n        canReadCurrent: boolean;\n    }"
               }
             },
             {
@@ -369,7 +356,7 @@
             },
             {
               "name": "verify",
-              "jsdoc": "核验只沿原DataSet捕获及原文件owner，未确认未生效时不自动重提。",
+              "jsdoc": "核验只沿原DataSet捕获；旧来源不证明原请求未应用，不重提文件。",
               "parameters": [
                 {
                   "name": "acceptCurrent",
@@ -382,21 +369,6 @@
                   }
                 }
               ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "retryLayout",
-              "jsdoc": "仅在原文件批次已确认未生效后显式重提布局，数据库删除不会重放。",
-              "parameters": [],
               "type": {
                 "type": "reference",
                 "name": "Promise",

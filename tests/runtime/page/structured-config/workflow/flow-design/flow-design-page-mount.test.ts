@@ -1,7 +1,10 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
+import {createRouter,createMemoryHistory} from 'vue-router'
+import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
 import {defineComponent, h, ref, isRef, type Ref} from 'vue'
+import {fixture} from './flow-design-data.fixture'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
@@ -10,7 +13,7 @@ import {withTestPageService} from '../../../../../support/helpers/page-service-h
 
 vi.mock('@/lowcode/resources/system/workflow/manage', async importOriginal => ({
   ...await importOriginal<typeof import('@/lowcode/resources/system/workflow/manage')>(),
-  saveFlowDesignInfo: vi.fn(async () => undefined),
+  saveFlowDesignInfo: vi.fn(async () => ({complete:true})),
 }))
 
 vi.mock('@/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue', () => ({
@@ -43,10 +46,6 @@ vi.mock('@/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-e
     template: '<button data-testid="pick-edge" type="button" @click="$emit(\'selectGraphId\', \'E-7\')">流程连线</button>',
   }),
 }))
-vi.mock('@/lowcode/lowcode-runtime', () => ({
-  lowcodeApi: {design: {readTextFile: vi.fn(async () => '')}},
-  lowcodeDesignFileUpload: {uploadWorkingText: vi.fn()},
-}))
 vi.mock('@spark-appworks/spark-component', async importOriginal => {
   const actual = await importOriginal<typeof import('@spark-appworks/spark-component')>()
   return {
@@ -57,59 +56,29 @@ vi.mock('@spark-appworks/spark-component', async importOriginal => {
 
 const {default: FlowDesignPage} = await import('@/views/features/workflow/flow-model/design/ui/flow-design-page.vue')
 
-type MockView = {
-  destroyed: boolean
-  queryContext: Record<string, string>
-  loadingError: Error | null
-  refresh: ReturnType<typeof vi.fn>
-  rows: Array<Record<string, unknown>>
-}
-
-let queryGate: Promise<void> | undefined
-
-function createView(rows: MockView['rows']): MockView {
-  return {destroyed: false, queryContext: {}, loadingError: null, refresh: vi.fn(async () => {await queryGate}), rows}
-}
-
-function createDesignRuntime(): PageRuntime {
-  const tables: Record<string, MockView> = {
-    WFM_FLOW_MODLE: createView([{TITLE: '审批样例', DesignJson: ''}]),
-    WFM_FLOW_NODE: createView([{TITLE: '开始', NODETYPE: '8'}]),
-    WFM_NODE_REALATION: createView([]),
-    WFM_WORKFORM: createView([]),
-    Base_NavigationInfo: createView([]),
-    FunctionNodeAuth: createView([]),
-    _Base_FunctionNode: createView([]),
-  }
-  return {
-    instanceId: 'flow-design-mount-runtime',
-    getDataSet: (scenarioId: string) => scenarioId === FLOW_DESIGN_SCENARIO_ID
-      ? {getView: (name: string, viewId = 'default') => {
-        if (name === 'FunctionNodeAuth' && viewId === 'nodeAuth') return tables['FunctionNodeAuth']
-        if (name === '_Base_FunctionNode' && viewId === 'flowDesignOptions') return tables['_Base_FunctionNode']
-        return tables[name]
-      }}
-      : undefined,
-    resolveView: () => null,
-    dispose: () => undefined,
-    materialize: () => undefined,
-  } as unknown as PageRuntime
-}
-
+let currentRuntime:PageRuntime
+let queryGate:Promise<void>|undefined
 const Host = defineComponent({
   props: {flowModelId: {type: String, required: true}},
   setup(props) {
     const {sparkProvide} = useSparkComponent({type: 'flow-design-mount-host'})
-    sparkProvide(PAGE_RUNTIME, createDesignRuntime())
+    sparkProvide(PAGE_RUNTIME, currentRuntime)
     return () => h(FlowDesignPage, {flowModelId: props.flowModelId})
   },
 })
 
+const HostWithPageService=withTestPageService(Host)
+let currentPage:ReturnType<SystemPageIdentityPool['get']>
+function systemOwner(component:ReturnType<typeof defineComponent>){
+ const router=createRouter({history:createMemoryHistory(),routes:[]})
+ currentPage=new SystemPageIdentityPool().get(router.currentRoute.value,{scope:'application',nodeId:'design',pageId:'design',path:'/test',title:'流程设计',component,explicitQuery:{}})
+ return currentPage.view
+}
 const wrappers: VueWrapper[] = []
 
 beforeEach(() => {
   queryGate = undefined
-  vi.mocked(saveFlowDesignInfo).mockReset().mockResolvedValue(undefined)
+  vi.mocked(saveFlowDesignInfo).mockReset().mockResolvedValue({complete:true})
   vi.mocked(lowcodeApi.design.readTextFile).mockClear()
   registerAllRenderers()
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
@@ -120,9 +89,11 @@ afterEach(() => {
 })
 
 async function mountDesign(flowModelId: string | Ref<string> = 'FM-1'): Promise<VueWrapper> {
-  const wrapper = mount(defineComponent({
-    setup: () => () => h(withTestPageService(Host), {flowModelId: isRef(flowModelId) ? flowModelId.value : flowModelId}),
-  }), {
+  const state=await fixture(true,false);currentRuntime=state.runtime
+  state.http.beforeDefinitionRead=async()=>{await queryGate}
+  const wrapper = mount(systemOwner(defineComponent({
+    setup: () => () => h(HostWithPageService, {flowModelId: isRef(flowModelId) ? flowModelId.value : flowModelId}),
+  })), {
     attachTo: document.body,
     global: {plugins: [ElementPlus, Spark.createPlugin()]},
   })
@@ -158,7 +129,7 @@ describe('flow design page mount', () => {
 
   it('renders target title, read-only graph, and node/edge sections', async () => {
     const wrapper = await mountDesign()
-    expect(wrapper.text()).toContain('设计目标：审批样例')
+    expect(wrapper.text()).toContain('设计目标：Flow 1')
     expect(wrapper.find('[data-testid="flow-graph"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('流程节点')
     expect(wrapper.text()).toContain('流程连线')
@@ -174,10 +145,31 @@ describe('flow design page mount', () => {
     expect(edgePanel.props('highlightId')).toBeNull()
   })
 
+  it('stages graph creation and cancels it without writes while guarding page close',async()=>{
+    const wrapper=await mountDesign(),nodes=currentRuntime.getDataSet(FLOW_DESIGN_SCENARIO_ID)!.getView('WFM_FLOW_NODE')!
+    const add=wrapper.findAll('button').find(button=>button.text().includes('新增节点'))!
+    await add.trigger('click');await flushPromises()
+    expect(nodes.rows).toHaveLength(2);expect(currentPage.isDirty).toBe(true)
+    const cancel=wrapper.findAll('button').find(button=>button.text().includes('取消修改'))!
+    await cancel.trigger('click');await flushPromises()
+    expect(nodes.rows.map(row=>row['rowid'])).toEqual(['N1']);expect(currentPage.isDirty).toBe(false)
+  })
+
+  it('retains the original dirty workspace when its parent supplies another target',async()=>{
+    const target=ref('FM-1'),wrapper=await mountDesign(target),ds=currentRuntime.getDataSet(FLOW_DESIGN_SCENARIO_ID)!,nodes=ds.getView('WFM_FLOW_NODE')!
+    await wrapper.findAll('button').find(button=>button.text().includes('新增节点'))!.trigger('click');await flushPromises()
+    target.value='FM-2';await flushPromises()
+    expect(nodes.queryContext['FLOWID']).toBe('FM-1');expect(nodes.dirtyTracking.hasPendingChanges()).toBe(true);expect(currentPage.isDirty).toBe(true)
+    const cancel=wrapper.findAll('button').find(button=>button.text().includes('取消修改'))!
+    expect(cancel.attributes('disabled')).toBeUndefined()
+    await cancel.trigger('click');await flushPromises();await flushPromises()
+    expect(nodes.queryContext['FLOWID']).toBe('FM-2');expect(currentPage.isDirty).toBe(false)
+  })
+
   it('surfaces error when parent runtime is missing', async () => {
-    const wrapper = mount(defineComponent({
+    const wrapper = mount(systemOwner(defineComponent({
       setup: () => () => h(withTestPageService(FlowDesignPage), {flowModelId: 'FM-2'}),
-    }), {
+    })), {
       attachTo: document.body,
       global: {plugins: [ElementPlus, Spark.createPlugin()]},
     })

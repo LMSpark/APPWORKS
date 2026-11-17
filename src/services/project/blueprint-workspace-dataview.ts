@@ -777,8 +777,8 @@ export class BlueprintWorkspaceDataView {
     const input: Record<string, unknown> = {
       SysId: this.#projectId, prowid: '000000', name: '新模块', memo: '', funCode: '', personCharge: '', status: '',
       conType: 'Model', FunName: '新模块', FunOrderValue: this.orderValue(0), NavigationImageWxz: 'FolderOpened', NavigationUrl: '', MobileUrl: '',
-      NavigationType: '', ChildItemLocation: 'Left', NavigationShowType: '', HorizontalAlignment: '',
-      IsShowAtNav: '1', IsShowChildItem: '1', BeginGroup: '0', conid: '', htmlDesc: '',
+      ChildItemLocation: 'Left', HorizontalAlignment: '',
+      IsShowAtNav: this.orderValue(1,'IsShowAtNav'), IsShowChildItem: this.orderValue(1,'IsShowChildItem'), ...(this.hasOutput('BeginGroup') ? {BeginGroup: this.orderValue(0,'BeginGroup')} : {}), conid: '', htmlDesc: '',
       ...Object.fromEntries(overrides),
     }
     for (const field of Object.keys(input)) {
@@ -1233,8 +1233,8 @@ export class BlueprintWorkspaceDataView {
     const order=orders.length?Math.max(...orders)+1:0
     return this.addChildNode(parentId,{
       name:'新模块',FunName:'新模块',memo:'',funCode:'',personCharge:'',status:'',conType:'Model',FunOrderValue:this.orderValue(order),
-      NavigationImageWxz:'FolderOpened',NavigationUrl:'',MobileUrl:'',NavigationType:'',ChildItemLocation:'Left',NavigationShowType:'',
-      HorizontalAlignment:'',IsShowAtNav:'0',IsShowChildItem:'1',BeginGroup:'0',conid:'',htmlDesc:'',
+      NavigationImageWxz:'FolderOpened',NavigationUrl:'',MobileUrl:'',ChildItemLocation:'Left',
+      HorizontalAlignment:'',IsShowAtNav:this.orderValue(0,'IsShowAtNav'),IsShowChildItem:this.orderValue(1,'IsShowChildItem'),...(this.hasOutput('BeginGroup')?{BeginGroup:this.orderValue(0,'BeginGroup')}:{}),conid:'',htmlDesc:'',
       ...Object.fromEntries(overrides),
     })
   }
@@ -1453,9 +1453,9 @@ export class BlueprintWorkspaceDataView {
 
   public canWriteFields(fields:readonly string[]):boolean{return fields.length>0&&fields.every(field=>this.canWrite(field))}
 
-  /** 按正式列类型表示新增节点排序值：数值列写 number，其余列写字符串。 */
-  private orderValue(order:number):number|string{
-    const type=this.view.dataTable?.columns.find(column=>column.name==='FunOrderValue')?.type.toLowerCase()
+  /** 按正式列类型表示新增节点的排序或标志：数值列写 number，其余列写字符串。 */
+  private orderValue(order:number,field='FunOrderValue'):number|string{
+    const type=this.view.dataTable?.columns.find(column=>column.name===field)?.type.toLowerCase()
     return type!==undefined&&['number','int','integer','decimal','float','double'].includes(type)?order:String(order)
   }
 

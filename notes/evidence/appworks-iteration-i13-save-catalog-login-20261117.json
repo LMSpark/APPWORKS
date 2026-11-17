@@ -1,0 +1,14 @@
+{
+  "iteration": "I13-save",
+  "observedAt": "2026-11-16T20:47:23.968Z",
+  "action": "formal enterprise catalog then same-account login",
+  "businessQueries": 0,
+  "businessWrites": 0,
+  "sessionPersisted": false,
+  "matchedEnterpriseCount": 1,
+  "domainResolvedFromFormalCatalog": true,
+  "loginHttpStatus": 200,
+  "loginCode": 200,
+  "hasSession": true,
+  "outcome": "same authorized account authenticated in memory"
+}

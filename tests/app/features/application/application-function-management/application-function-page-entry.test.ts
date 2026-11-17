@@ -142,7 +142,7 @@ const NAVIGATION_URL_RULE = blueprintPagedata.tables['Base_NavigationInfo']?.col
 const DICTIONARY_VIEWS = ['NavigationType', 'NavigationShowType_Content', 'NavChildrenLocation', 'Navigationposition', 'DataCatalogParamType',
   'Dict_Page_Popup', 'Dict_Desktop_AppType', 'DesktopStyle']
 
-function catalogDataSet() {
+function catalogDataSet(numericFlags = false) {
   const tables: Record<string, unknown> = Object.fromEntries([
     {model: 'Base_Navigation_DataRelation', fields: HOST_FIELDS},
     {model: 'Base_AppSystemList', fields: ['rowid', 'AppName']},
@@ -151,7 +151,7 @@ function catalogDataSet() {
   ].map(({model, fields}) => {
     const navigation = model === 'Base_NavigationInfo'
     return [model, {modelBinding: {modelId: `${model}-ID`, modelName: model},
-      columns: fields.map(name => ({name, type: name === 'FunOrderValue' ? 'number' : 'string', isPrimaryKey: name === 'rowid',
+      columns: fields.map(name => ({name, type: name === 'FunOrderValue' || numericFlags && ['IsShowAtNav','IsShowChildItem','BeginGroup'].includes(name) ? 'number' : 'string', isPrimaryKey: name === 'rowid',
         ...(navigation && name === 'NavigationUrl' ? NAVIGATION_URL_RULE : {})})),
       views: {default: {autoLoad: false, ...(navigation
         ? {treeConfig: {idField: 'rowid', parentIdField: 'prowid', textField: 'FunName', rootParentValue: '000000'}} : {})},
@@ -164,7 +164,7 @@ function catalogDataSet() {
   return dataSet
 }
 
-function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: readonly string[]; crud?: boolean}> = {}) {
+function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: readonly string[]; crud?: boolean; omitOutput?: readonly string[]}> = {}) {
   const hidden = options.hidden ?? []
   const crud = options.crud ? 'enabled' as const : 'disabled' as const
   const result = (selected: DataRow[]) => ({
@@ -199,7 +199,7 @@ function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: r
       return {metaName: change.identity.metaName, changed, added, deleted,
         changedFields: changed.map(row => Object.keys(row)), context: result(rows)}
     }))
-  view.bindQueryExecutor({queryColumns: target => target.columns,
+  view.bindQueryExecutor({queryColumns: target => target.columns.filter(column => !options.omitOutput?.includes(column.name)),
     executeQuery: async (_target, params) => {
       const parsed = params.filter === undefined ? undefined : DataViewFilter.parse(params.filter)
       if (parsed && !parsed.ok) throw new Error('fixture query filter is invalid')
@@ -605,6 +605,40 @@ function typeInput(setupResult: Awaited<ReturnType<typeof setup>>, field: string
 }
 
 describe('application function page AI and prototype', () => {
+  it('rejects a formally output grouping field whose write access is denied', async () => {
+    const ds = catalogDataSet(), view = ds.getView('Base_NavigationInfo')!
+    const rows: DataRow[] = [{rowid: 'ROOT', SysId: TARGET, prowid: '000000', FunOrderValue: 0, name: 'Root', FunName: 'Root', conType: 'Model', NavigationUrl: ''}]
+    const save = bindRows(view, rows, {crud: true, hidden: ['BeginGroup']})
+    const owner = new BlueprintWorkspaceDataView(ds, TARGET, () => undefined)
+    await owner.loadProjectRecords()
+    const access = view.newRowFieldAccess.bind(view)
+    vi.spyOn(view, 'newRowFieldAccess').mockImplementation(field => field === 'BeginGroup'
+      ? {...access(field), write: 'denied'} : access(field))
+    await expect(owner.addRootModule()).rejects.toThrow('不允许新增字段 BeginGroup')
+    expect(save).not.toHaveBeenCalled()
+    expect(rows).toHaveLength(1)
+  })
+
+  it.each([
+    {position: 'root', groupingOutput: false}, {position: 'child', groupingOutput: false},
+    {position: 'root', groupingOutput: true}, {position: 'child', groupingOutput: true},
+  ])('creates a $position module with numeric flags and grouping output=$groupingOutput', async ({position, groupingOutput}) => {
+    fixtureState.createChild = 'enabled'
+    const ds = catalogDataSet(true), view = ds.getView('Base_NavigationInfo')!
+    const rows: DataRow[] = [{rowid: 'ROOT', SysId: TARGET, prowid: '000000', FunOrderValue: 0, name: 'Root', FunName: 'Root', conType: 'Model', NavigationUrl: ''}]
+    const save = bindRows(view, rows, {crud: true, omitOutput: groupingOutput ? [] : ['BeginGroup']})
+    const owner = new BlueprintWorkspaceDataView(ds, TARGET, () => undefined)
+    await owner.loadProjectRecords()
+    if (position === 'root') await owner.addRootModule({name: 'New', FunName: 'New'})
+    else await owner.addModuleNode('ROOT', {name: 'New', FunName: 'New'})
+    expect(save).toHaveBeenCalledTimes(1)
+    if (groupingOutput) expect(rows.find(row => row['name'] === 'New')).toHaveProperty('BeginGroup', 0)
+    else expect(rows.find(row => row['name'] === 'New')).not.toHaveProperty('BeginGroup')
+    expect(rows.find(row => row['name'] === 'New')).not.toHaveProperty('NavigationType')
+    expect(rows.find(row => row['name'] === 'New')).not.toHaveProperty('NavigationShowType')
+    expect(rows.find(row => row['name'] === 'New')).toMatchObject({IsShowChildItem: 1, IsShowAtNav: position === 'root' ? 1 : 0})
+  })
+
   it('merges only whitelisted AI fields into owner module creation', async () => {
     fixtureState.createChild = 'enabled'
     const {owner, rows} = await setup()

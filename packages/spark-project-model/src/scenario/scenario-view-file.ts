@@ -119,16 +119,6 @@ export class ScenarioViewFile {
     this.notify()
   }
 
-  public confirmNotApplied(): void {
-    this.assertValid()
-    if (!this.#submission || this.#saveStatus !== 'unknown') throw new Error('SCENARIO_VIEW_SAVE_STATE: 无未知提交')
-    this.#submission = null
-    this.#saveStatus = 'idle'
-    this.resetData(this.getText())
-    this.#revision++
-    this.notify()
-  }
-
   /**
    * 仅在写入适配器明确证明替换未开始后，结算同一对象标识的当前提交。
    * 拒绝其他或已过期提交；保留当前文本、已保存基线和撤销历史，使草稿仍可重试。

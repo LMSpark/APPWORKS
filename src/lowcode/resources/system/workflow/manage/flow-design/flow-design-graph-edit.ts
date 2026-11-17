@@ -48,9 +48,9 @@ export type RemoveFlowDesignGraphSelectionResult = Readonly<{
 }>
 
 /** 从正式表删除选中节点或连线，并清除对应布局覆盖。 */
-export function removeFlowDesignGraphSelection(
+export async function removeFlowDesignGraphSelection(
   command: RemoveFlowDesignGraphSelectionCommand,
-): RemoveFlowDesignGraphSelectionResult {
+): Promise<RemoveFlowDesignGraphSelectionResult> {
   const flowModelId = assertFlowDesignTarget({flowModelId: command.flowModelId})
   const id = normalizeText(command.selection.id)
   if (!id) throw new Error('未选中节点或连线')
@@ -61,26 +61,20 @@ export function removeFlowDesignGraphSelection(
     if (!edgeView.rows.some(row => isRecord(row) && readRowId(row) === id && normalizeText(row['FLOWID']) === flowModelId)) {
       throw new Error('未找到所选连线')
     }
-    edgeView.deleteRowById(id)
+    const row=edgeView.rows.find(candidate=>edgeView.getPkKey(candidate)===id)
+    if(!row)throw Error('未找到所选连线')
+    if(edgeView.deleteActionState(row)!=='enabled')throw Error('所选连线不允许删除')
+    await edgeView.removeRow(id)
     return {layoutOverride: stripLayoutForIds(command.layoutOverride, new Set(), new Set([id]))}
   }
 
-  const removedEdges = new Set<string>()
-  for (const row of edgeView.rows) {
-    if (!isRecord(row) || normalizeText(row['FLOWID']) !== flowModelId) continue
-    const parent = normalizeText(row['PARENTID'])
-    const child = normalizeText(row['CHILDID'])
-    if (parent !== id && child !== id) continue
-    const edgeId = readRowId(row)
-    if (edgeId) {
-      edgeView.deleteRowById(edgeId)
-      removedEdges.add(edgeId)
-    }
-  }
-  if (!nodeView.rows.some(row => isRecord(row) && readRowId(row) === id && normalizeText(row['FLOWID']) === flowModelId)) {
-    throw new Error('未找到所选节点')
-  }
-  nodeView.deleteRowById(id)
+  const node=nodeView.rows.find(row=>readRowId(row)===id&&row['FLOWID']===flowModelId)
+  if(!node)throw Error('未找到所选节点')
+  const related=edgeView.rows.filter(row=>row['FLOWID']===flowModelId&&(row['UpNodeID']===id||row['NextNodeID']===id))
+  if(nodeView.deleteActionState(node)!=='enabled'||related.some(row=>edgeView.deleteActionState(row)!=='enabled'))throw Error('节点或关联连线不允许删除')
+  const removedEdges=new Set(related.map(readRowId))
+  for(const edgeId of removedEdges)await edgeView.removeRow(edgeId)
+  await nodeView.removeRow(id)
   return {
     layoutOverride: stripLayoutForIds(command.layoutOverride, new Set([id]), removedEdges),
   }
@@ -106,11 +100,10 @@ export async function addFlowDesignNode(command: AddFlowDesignNodeCommand): Prom
   const nodeId = crypto.randomUUID()
   const x = Number.isFinite(command.x) ? Number(command.x) : 160
   const y = Number.isFinite(command.y) ? Number(command.y) : 120
-  await nodeView.addRow({
-    rowid: nodeId,
+  await nodeView.addRowWithIdentity({field:'rowid',value:nodeId},{
     FLOWID: flowModelId,
     TITLE: '新节点',
-    NODETYPE: '8',
+    TYPEID: 11,
   })
   return {
     nodeId,
@@ -151,16 +144,15 @@ export async function addFlowDesignEdge(command: AddFlowDesignEdgeCommand): Prom
   const edgeExists = edgeView.rows.some(row =>
     isRecord(row)
     && normalizeText(row['FLOWID']) === flowModelId
-    && normalizeText(row['PARENTID']) === parentId
-    && normalizeText(row['CHILDID']) === childId,
+    && normalizeText(row['UpNodeID']) === parentId
+    && normalizeText(row['NextNodeID']) === childId,
   )
   if (edgeExists) throw new Error('相同节点间连线已存在')
   const edgeId = crypto.randomUUID()
-  await edgeView.addRow({
-    rowid: edgeId,
+  await edgeView.addRowWithIdentity({field:'rowid',value:edgeId},{
     FLOWID: flowModelId,
-    PARENTID: parentId,
-    CHILDID: childId,
+    UpNodeID: parentId,
+    NextNodeID: childId,
   })
   return {edgeId, layoutOverride: command.layoutOverride}
 }

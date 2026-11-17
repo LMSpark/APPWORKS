@@ -35,6 +35,7 @@ export type {
 } from './design/lowcode-design-file-upload.js'
 export { DataSpaceApi } from './platform/data-space/data-space-api.js'
 export { DataSpaceDesignApi, DATA_SPACE_DESIGN_FORM_KEY } from './platform/data-space/design/data-space-design-api.js'
+export {DataSpaceModelNotFoundError} from './platform/data-space/design/data-space-model-not-found-error.js'
 export type {
   LowcodeModelRelationRecord,
   DataSpaceResourceType,
@@ -113,7 +114,7 @@ export type {
   LowcodeVerificationScene,
 } from './platform/lowcode-platform-api.js'
 export type { SendCodeType, SendCodeScene } from './contracts/lowcode-send-code.js'
-export {ApplicationDictionaryResource, type ApplicationDictionaryResourceOptions} from './platform/resources/structured-config/dictionary/application-resource.js'
+export {ApplicationDictionaryResource, AuthenticatedDictionaryResource, type ApplicationDictionaryResourceOptions} from './platform/resources/structured-config/dictionary/application-resource.js'
 export { DictionarySchema } from './platform/resources/structured-config/dictionary/schema.js'
 export { DictionaryWorkspace } from './platform/resources/structured-config/dictionary/workspace.js'
 export { DesignResourceRejection } from './platform/resources/shared/http-record-guards.js'

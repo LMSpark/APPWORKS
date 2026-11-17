@@ -666,7 +666,18 @@ function discard(): void {
   } catch (cause) {error.value = describeError(cause)}
 }
 async function verify(): Promise<void> {
-  return run(() => commitDefinitions('已核验并确认保存结果'))
+  return run(async () => {
+    const pendingQuery = ['DataViewDefinition', 'DataTableBindingDefinition'].some(name => dataSet.getTable(name)?.viewList.some(item => item.hasUnconfirmedSave))
+    if (state.value.file?.saveStatus === 'unknown' && view.value && !pendingQuery) {
+      const result = await view.value.verifySourceWriteAttempt()
+      if (result.state !== 'confirmed') throw new Error(result.message ?? '原文件提交仍未确认')
+      await readbackDefinitions()
+      message.value = '原提交文本已回读确认；未重复写入'
+      changed()
+      return
+    }
+    await commitDefinitions('已核验并确认保存结果')
+  })
 }
 async function previewRemote(): Promise<void> {
   return run(async () => {

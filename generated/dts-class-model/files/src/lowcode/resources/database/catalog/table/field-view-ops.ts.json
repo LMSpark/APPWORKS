@@ -52,7 +52,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.762Z",
+  "generatedAt": "2026-11-16T20:40:04.520Z",
   "models": {
     "DatabaseCatalogFieldViewId": {
       "name": "DatabaseCatalogFieldViewId",

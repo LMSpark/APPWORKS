@@ -832,18 +832,25 @@ describe('explicit source field contract synchronization', () => {
     expect(f.stored.get('A')).toBe(remote)
   })
 
-  it('retains unapplied file changes until an explicit retry without replaying the confirmed database batch', async () => {
+  it('retains an unknown file submission at its baseline and confirms late arrival without replaying either phase', async () => {
     const {f, owner, config, writes} = await projectedSync()
     vi.spyOn(f.stored, 'set').mockImplementationOnce(() => {throw new Error('file write did not reach storage')})
     await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe('configuration')
     expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
     expect(JSON.parse(f.stored.get('A')!)).toEqual(config)
-    await expect(owner.verify()).rejects.toThrow('SCENARIO_DEFINITION_NOT_APPLIED:')
+    const captured = f.workspaces.at(-1)?.getScenarioViews('A')?.submission
+    expect(captured).toBeDefined()
+    if (!captured) throw Error('Original file submission missing')
+    await expect(owner.verify()).rejects.toThrow('SCENARIO_VIEW_RECOVERY_UNRESOLVED:')
     expect(owner.getState().status).toBe('configuration')
     expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    await expect(owner.verify()).rejects.toThrow('SCENARIO_VIEW_RECOVERY_UNRESOLVED:')
+    expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    // 模拟原请求迟到，而非由核验重新派发文件保存。
+    f.stored.set('A', captured.text)
     expect(await owner.verify()).toEqual({confirmed: true, modelId: 'M1'})
-    expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
+    expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
     expect(JSON.parse(f.stored.get('A')!).tables.OrdersAlias.views.shared.fieldProjection[0]).toMatchObject({type: 'int', primaryKey: false})
   })
 

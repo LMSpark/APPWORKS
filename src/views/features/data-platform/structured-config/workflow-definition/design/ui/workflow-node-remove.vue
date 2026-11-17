@@ -19,7 +19,6 @@
    <RendererButton v-if="state?.status === 'staged'" :data-view-key="dataViewKey" label="保存删除" :disabled="busy" @click="save" />
    <RendererButton v-if="state?.status === 'database' || state?.status === 'layout'" :data-view-key="dataViewKey" label="核验原删除结果" :disabled="busy" @click="save" />
    <RendererButton v-if="state?.canReadCurrent" :data-view-key="dataViewKey" label="读取并采用当前原范围结果" :disabled="busy" @click="readCurrent" />
-   <RendererButton v-if="state?.canRetryLayout" :data-view-key="dataViewKey" label="重提已确认未生效的布局清理" :disabled="busy" @click="retryLayout" />
    <RendererButton v-if="state?.status === 'complete'" :data-view-key="dataViewKey" label="刷新已确认结果" :disabled="busy" @click="finish" />
    <RendererButton v-if="state?.status === 'ready' || state?.status === 'staged' || state?.status === 'not-applied'" :data-view-key="dataViewKey" label="取消删除" :disabled="busy" @click="cancel" />
   </RendererDialog>
@@ -45,7 +44,6 @@ async function open():Promise<void>{if(props.disabled||!props.eligible||owner.va
 async function stage():Promise<void>{await act(async()=>{if(!owner.value)throw Error('删除预览已失效');await owner.value.stage()})}
 async function finish():Promise<void>{await act(async()=>{await props.onRemoved();owner.value=undefined})}
 async function readCurrent():Promise<void>{await act(async()=>{if(!owner.value)throw Error('删除预览已失效');await owner.value.verify(true);await props.onRemoved();owner.value=undefined})}
-async function retryLayout():Promise<void>{await act(async()=>{if(!owner.value)throw Error('删除预览已失效');await owner.value.retryLayout();await props.onRemoved();owner.value=undefined})}
 async function save():Promise<void>{await act(async()=>{const command=owner.value;if(!command)throw Error('删除预览已失效');await command.save();await props.onRemoved();owner.value=undefined})}
 function cancel():void{if(busy.value)return;try{owner.value?.cancel();owner.value=undefined;error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 function discardChanges():boolean{if(busy.value)return false;cancel();return !owner.value}

@@ -1,0 +1,11 @@
+{
+  "iteration": "I13-save",
+  "observedAt": "2026-11-16T20:43:12.022834+00:00",
+  "action": "existing login contract only",
+  "workflowQueries": 0,
+  "businessWrites": 0,
+  "sessionPersisted": false,
+  "httpStatus": 200,
+  "code": 1003,
+  "hasSessionResult": false
+}

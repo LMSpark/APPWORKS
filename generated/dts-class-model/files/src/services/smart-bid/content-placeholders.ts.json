@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content-placeholders",
+    "sourcePath": "src/services/smart-bid/content-placeholders.ts",
+    "sourceFile": "src/services/smart-bid/content-placeholders.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content-placeholders",
+    "jsdoc": "@module app:services/smart-bid/content-placeholders\n职责：按投标业务规格§1.2核正文占位名与数据键一一对应。\n边界：只核引用形状和键存在性；数据类型、事实版本及授权另行验证，不展开正文。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-16T20:19:08.793Z",
+  "models": {}
+}

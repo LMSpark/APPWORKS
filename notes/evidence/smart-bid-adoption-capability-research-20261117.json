@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-17",
+  "scope": "Read-only research of the currently bound generic SPARK data CRUD path, not an exhaustive server-capability audit or live adoption acceptance",
+  "requiredContract": {
+    "source": "docs/smart-bid/authoring-submission-specification.md sections 2.1 and 2.3",
+    "requirements": [
+      "Commit checks expectedHead, basisChecks, adoption authority and unresolved target scope at the same authoritative commit point",
+      "Snapshot, original request identity and digest, adoption evidence, provenance, head and projection commit atomically",
+      "Same request key and same digest returns the original result; a different digest is rejected",
+      "A generic saved flag, frontend preflight or readable row does not prove these guarantees"
+    ]
+  },
+  "referenceSourceObservations": [
+    {
+      "path": "E:/lowcode-jdk17/lowcode-framework/lowcode-common-data/src/main/java/com/htong/vo/CrudModelRequest.java",
+      "observation": "Request item declares TableName and CrudModel. CrudModel declares Added, Changed and Deleted row maps; no explicit expected-head predicate or domain commit-check field is declared in these DTOs."
+    },
+    {
+      "path": "E:/lowcode-jdk17/lowcode-mainbody/src/main/java/com/htong/service/impl/BasicFunServiceImpl.java",
+      "observation": "operateRows loads write targets and verifies existence/access, then calls crudService.update with QYF.query(primaryKey, EQUAL, id). The inspected predicate does not compare a supplied expected head or draft version."
+    },
+    {
+      "path": "E:/lowcode-jdk17/lowcode-mainbody/src/main/java/com/htong/controller/BasicFunController.java",
+      "observation": "BatchTableOperateRequestByCRUD documents per-table/per-row behavior and no general atomic transaction across all tables. The implementation has transaction handling; that alone does not establish the required domain commit checks or a universal cross-source transaction."
+    }
+  ],
+  "localRuntimeEvidence": {
+    "test": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts: rejects same-record views and a transaction requirement before applying drafts",
+    "commandScope": "Run from packages/spark-lowcode-api with its own Vitest configuration; root configuration does not include this test location",
+    "result": "1 passed, 144 skipped; exit 0",
+    "log": "cache/smart-bid-adoption-transaction-boundary-confirmed.log",
+    "proves": "The existing SDK DataSet path rejects mode=transaction before dispatch and retains editing state in the fixture",
+    "doesNotProve": "Deployed service behavior, authoritative adoption, server-wide absence of an alternate registered capability, storage constraints, concurrency or cross-terminal request recovery"
+  },
+  "implementationBoundary": "Do not implement action 39 by frontend preflight followed by generic head updates and call it authoritative adoption. A verified domain capability or validated storage arrangement must prove the full commit contract. Continue independent manual editing, canonicalization and preview work while preserving this gap.",
+  "backendChanges": "None; Java sources were only read. No local Java service or Node business service was started."
+}

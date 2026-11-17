@@ -6,14 +6,14 @@
 import {buildDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {assertFlowDesignTarget, FLOW_DESIGN_SCENARIO_ID} from './flow-design-client'
-import {readFlowDesignDataJsonText} from './flow-design-data-json'
-import {resolveFlowDesignFileContext} from './flow-design-file-context'
+import {openFlowDesignDocumentView} from './flow-design/flow-design-document-resource'
+import {captureFlowDesignModel,resolveFlowDesignFileContext} from './flow-design-file-context'
 import {buildFlowDesignGraphLayout, type FlowDesignGraphLayout} from './flow-design-graph-projection'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 
 const DESIGN_TABLES = ['WFM_FLOW_MODLE', 'WFM_FLOW_NODE', 'WFM_NODE_REALATION', 'WFM_WORKFORM'] as const
 
 export type FlowDesignPreparedViews = Readonly<{
+  documentViewKey: string
   modelTitle: string
   nodeViewKey: string
   edgeViewKey: string
@@ -45,6 +45,8 @@ export async function prepareFlowDesignViews(
   options.assertCurrent?.()
   const dataSet = runtime.getDataSet(FLOW_DESIGN_SCENARIO_ID)
   if (!dataSet) throw new Error('流程设计场景尚未装配，请从流程模型列表刷新后重开设计')
+  const previous=[...DESIGN_TABLES.map(name=>dataSet.getView(name)),...dataSet.getTable('FlowDesignDocument')?.viewList??[],dataSet.getView('FunctionNodeAuth','nodeAuth')]
+  if(previous.some(view=>view&&(view.mutating||view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())))throw Error('流程设计仍有未保存修改或原提交待核验，不能刷新或切换目标')
   const queryContext = {FLOWID: targetId, rowid: targetId}
   const views: DataView[] = []
   for (const modelName of DESIGN_TABLES) {
@@ -52,6 +54,8 @@ export async function prepareFlowDesignViews(
     view.queryContext = {...view.queryContext, ...queryContext}
     views.push(view)
   }
+  const targetView=requireView(dataSet.getView('WFM_FLOW_MODLE','fileTarget'),'WFM_FLOW_MODLE@fileTarget')
+  targetView.queryContext={rowid:targetId};views.push(targetView)
   options.assertCurrent?.()
   await Promise.all(views.map(item => item.refresh()))
   options.assertCurrent?.()
@@ -61,27 +65,21 @@ export async function prepareFlowDesignViews(
   const nodeView = requireView(dataSet.getView('WFM_FLOW_NODE', 'default'), 'WFM_FLOW_NODE')
   const edgeView = requireView(dataSet.getView('WFM_NODE_REALATION', 'default'), 'WFM_NODE_REALATION')
   const modelRow = modelView.rows[0]
-  const modelRecord = modelRow && typeof modelRow === 'object' ? modelRow : undefined
-  const fileContext = await resolveFlowDesignFileContext({
-    runtime,
-    flowModelId: targetId,
-    ...(modelRecord ? {modelRow: modelRecord} : {}),
-    ...(options.assertCurrent ? {assertCurrent: options.assertCurrent} : {}),
-  })
+  captureFlowDesignModel(dataSet,targetId)
+  await resolveFlowDesignFileContext({runtime,flowModelId:targetId,...(options.assertCurrent?{assertCurrent:options.assertCurrent}:{})})
   options.assertCurrent?.()
-  const designJson = await readFlowDesignDataJsonText({
-    flowId: targetId,
-    ...(modelRecord ? {modelRow: modelRecord} : {}),
-    api: lowcodeApi.design,
-    customPath: fileContext.customPath,
-    ...(options.assertCurrent ? {assertCurrent: options.assertCurrent} : {}),
-  })
+  const document=openFlowDesignDocumentView(dataSet,targetId)
+  await document.refresh()
+  options.assertCurrent?.()
+  if(document.loadingError)throw document.loadingError
+  const designJson=String(document.rows[0]?.['content']??'')
   options.assertCurrent?.()
   return {
-    modelTitle: readRowTitle(modelRow, targetId),
+    documentViewKey:buildDataViewKey(document.tableName,document.viewId,FLOW_DESIGN_SCENARIO_ID),
+    modelTitle: modelRow&&modelView.fieldAccess(modelRow,'TITLE').read==='visible'?readRowTitle(modelRow,targetId):targetId,
     nodeViewKey: buildDataViewKey('WFM_FLOW_NODE', 'default', FLOW_DESIGN_SCENARIO_ID),
     edgeViewKey: buildDataViewKey('WFM_NODE_REALATION', 'default', FLOW_DESIGN_SCENARIO_ID),
     workFormViewKey: buildDataViewKey('WFM_WORKFORM', 'default', FLOW_DESIGN_SCENARIO_ID),
-    graphLayout: buildFlowDesignGraphLayout({modelView, nodeView, edgeView, designJsonOverride: designJson}),
+    graphLayout: buildFlowDesignGraphLayout({nodeView, edgeView, documentText: designJson}),
   }
 }

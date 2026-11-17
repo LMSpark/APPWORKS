@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import {DataSpaceModelNotFoundError, DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {
   DATABASE_CATALOG_DB_MODEL,
   DATABASE_CATALOG_DESENSITIZATION_RULE_MODEL,
@@ -44,6 +44,53 @@ beforeEach(() => {
 afterEach(() => {sets.splice(0).forEach(ds => ds.destroy()); vi.clearAllMocks()})
 
 describe('LowcodeDatabaseTableView', () => {
+  it('loads the field type dictionary as a readonly resource when no scene model exists', async () => {
+    service.readModel.mockImplementation(({metaName}: {metaName: string}) => {
+      if ([DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL, DATABASE_CATALOG_ENCRYPTION_DICT_MODEL].includes(metaName)) throw new DataSpaceModelNotFoundError(DATABASE_TABLE_VIEW_SCENARIO_ID, metaName)
+      return Promise.resolve(databaseTableViewModels[metaName as keyof typeof databaseTableViewModels])
+    })
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const view = ds.getView(DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL)!
+    expect(view).toBeTruthy()
+    expect(view.rows.map(row => row['txt'])).toEqual(['字符串', '整型'])
+    expect(view.dataTable?.modelBinding).toBeUndefined()
+    expect(view.addActionState()).not.toBe('enabled')
+    expect(http.requests.some(request => JSON.stringify(request.data).includes('"Type":"字典"'))).toBe(true)
+  })
+
+  it.each(['network failure', 'masked model', 'duplicate model'])('does not switch field type sources after %s', async reason => {
+    service.readModel.mockImplementation(({metaName}: {metaName: string}) => {
+      if (metaName === DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL) throw Error(reason)
+      return Promise.resolve(databaseTableViewModels[metaName as keyof typeof databaseTableViewModels])
+    })
+    await expect(LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)).rejects.toThrow(reason)
+    expect(http.requests.some(request => JSON.stringify(request.data).includes('"Type":"字典"'))).toBe(false)
+  })
+
+  it('projects the JSON dictionary alias to the service field type without changing its label or source', async () => {
+    service.readModel.mockImplementation(({metaName}: {metaName: string}) => {
+      if (metaName === DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL) throw new DataSpaceModelNotFoundError(DATABASE_TABLE_VIEW_SCENARIO_ID, metaName)
+      return Promise.resolve(databaseTableViewModels[metaName as keyof typeof databaseTableViewModels])
+    })
+    http.rows[DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL] = [{rowid: 'JSON-TYPE', txt: 'JSON类型', val: 'JSON类型', ordIdx: 1}]
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    expect(ds.getView(DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL)?.rows[0]).toMatchObject({rowid: 'JSON-TYPE', txt: 'JSON类型', val: 'json类型'})
+    expect(http.rows[DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL]![0]?.['val']).toBe('JSON类型')
+  })
+
+  it('rejects dictionary aliases that collide after field type projection', async () => {
+    service.readModel.mockImplementation(({metaName}: {metaName: string}) => {
+      if (metaName === DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL) throw new DataSpaceModelNotFoundError(DATABASE_TABLE_VIEW_SCENARIO_ID, metaName)
+      return Promise.resolve(databaseTableViewModels[metaName as keyof typeof databaseTableViewModels])
+    })
+    http.rows[DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL] = [
+      {rowid: 'JSON-OLD', txt: 'JSON类型', val: 'JSON类型', ordIdx: 1},
+      {rowid: 'JSON-NEW', txt: 'json类型', val: 'json类型', ordIdx: 2},
+    ]
+    await expect(LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)).rejects.toThrow('映射后代码重复')
+  })
   it('assembles and loads the four catalog models when the target has no server directory', async () => {
     service.readModel.mockImplementation(({metaName}: {metaName: string}) => {
       if (metaName === DATABASE_SERVER_MODEL) throw new Error('当前目录空间没有 Base_serverInfo')

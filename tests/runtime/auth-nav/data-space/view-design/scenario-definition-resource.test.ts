@@ -2,7 +2,7 @@ import {describe, expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {DataSet, DataViewLocalQuery, RequestState, type DataView} from '@spark-appworks/spark-data'
 import {ProjectWorkspace, ScenarioDefinitionResource, ScenarioDefinitionDocument, ScenarioViewConfig,
-  ScenarioViewWriteNotAppliedError, type ScenarioViewVersionCreateCommand} from '@spark-appworks/spark-project-model'
+  ScenarioViewWriteNotAppliedError, createScenarioSubmissionJournal, type ScenarioSubmissionJournal, type ScenarioViewVersionCreateCommand} from '@spark-appworks/spark-project-model'
 
 const metadataConfig = JSON.parse(readFileSync('config/pages/data-platform/data-space-design/pagedata.json', 'utf8'))
 const definitions = Object.fromEntries(Object.entries(metadataConfig.tables).filter(([, table]) => (table as {resourceId?: string}).resourceId?.startsWith('pagedata:')))
@@ -12,7 +12,8 @@ const initial = {scenarioId: 'TARGET', schemaVersion: 2, tables: {
 }, resourceRelations: [{relationId: 'R', parentTable: 'Parents', childTable: 'Children', filterExpression: {field: 'id', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}}],
   viewCascades: [{kind: 'query', cascadeId: 'Q', parentTable: 'Parents', parentViewId: 'default', childTable: 'Children', childViewId: 'default', filterBindings: [{sourceField: 'id', targetField: 'parentId'}]}]}
 
-function fixture(text: string | null = JSON.stringify(initial)) {
+function fixture(text: string | null = JSON.stringify(initial), submissionJournal?: ScenarioSubmissionJournal) {
+  let attemptedWrites=0
   let stored = text, scope = 'scope', loseResponse = false, rejectedWrite: Error | undefined, gate: Promise<void> | undefined
   const writes: string[] = []
   const versions = new Map<number, string>([[1, JSON.stringify({...initial, layout: {modelPositions: {P: {x: 1, y: 2}}}})]])
@@ -25,8 +26,9 @@ function fixture(text: string | null = JSON.stringify(initial)) {
   const validate = vi.fn(async () => undefined)
   const open = () => {
     const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {}, scenarioDefinitions: async () => dataSet,
-      scenarioViews: {readScope: () => scope, readText: async id => {expect(id).toBe('TARGET'); return stored},
+      scenarioViews: {...(submissionJournal?{submissionJournal}:{}), readScope: () => scope, readText: async id => {expect(id).toBe('TARGET'); return stored},
         writeText: async (_id, next) => {
+          attemptedWrites++
           if (rejectedWrite) {const error = rejectedWrite; rejectedWrite = undefined; throw error}
           writes.push(next); stored = next; await gate
           if (loseResponse) {loseResponse = false; throw new Error('response lost')}
@@ -44,7 +46,7 @@ function fixture(text: string | null = JSON.stringify(initial)) {
     const view = dataSet.getView('DataViewDefinition')!
     return {dataSet, view, workspace, resource}
   }
-  return {open, writes, validate, snapshots, versions, get stored() {if (stored === null) throw new Error('file still missing'); return stored}, changeScope: () => {scope = 'other'},
+  return {open, writes, validate, snapshots, versions, get attemptedWrites(){return attemptedWrites},get stored() {if (stored === null) throw new Error('file still missing'); return stored}, changeScope: () => {scope = 'other'},
     loseResponse: () => {loseResponse = true}, rejectNextWrite: (error: Error) => {rejectedWrite = error},
     restore: (value: string) => {stored = value}, gate: (value: Promise<void> | undefined) => {gate = value}}
 }
@@ -52,6 +54,50 @@ function fixture(text: string | null = JSON.stringify(initial)) {
 const target = (view: DataView) => view.rows.find(row => row['tableName'] === 'Parents' && row['viewId'] === 'one')!
 
 describe('formal definition resources through SPARK data', () => {
+  it('keeps a same-session unknown capture when the original request may still apply after a baseline read',async()=>{
+    const values=new Map<string,string>(),journal=createScenarioSubmissionJournal({get length(){return values.size},key:index=>[...values.keys()][index]??null,getItem:key=>values.get(key)??null,setItem:(key,value)=>{values.set(key,value)},removeItem:key=>{values.delete(key)}},'tenant/user/app')
+    const storage=fixture(JSON.stringify(initial),journal),{dataSet,view,workspace}=storage.open()
+    try{
+      await view.refresh();view.updateEditingValue(view.getPkKey(target(view))!,'pageSize',81)
+      storage.rejectNextWrite(new Error('network timeout'))
+      await expect(dataSet.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]})).rejects.toThrow('network timeout')
+      const capture=journal.read('TARGET')
+      expect(capture).not.toBeNull()
+      await expect(dataSet.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]})).rejects.toThrow('不能证明')
+      expect(journal.read('TARGET')?.attemptId).toBe(capture?.attemptId)
+      expect(workspace.getScenarioViews('TARGET')?.saveStatus).toBe('unknown')
+      await expect(dataSet.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]})).rejects.toThrow()
+      expect(storage.writes).toEqual([])
+      expect(storage.attemptedWrites).toBe(1)
+      storage.restore(capture!.text)
+      expect((await dataSet.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]})).success).toBe(true)
+      expect(journal.read('TARGET')).toBeNull()
+      expect(storage.writes).toEqual([])
+      expect(storage.attemptedWrites).toBe(1)
+    }finally{dataSet.destroy()}
+  })
+  it.each([true, false])('verifies restored captures through DataView without another write; applied=%s', async applied => {
+    const values = new Map<string, string>(), journal = createScenarioSubmissionJournal({get length() {return values.size}, key: index => [...values.keys()][index] ?? null, getItem: key => values.get(key) ?? null,
+      setItem: (key, value) => {values.set(key, value)}, removeItem: key => {values.delete(key)}}, 'tenant/user/app')
+    const baseline = JSON.stringify(initial), submitted = JSON.stringify({...initial, tables: {...initial.tables,
+      Parents: {...initial.tables.Parents, views: {...initial.tables.Parents.views, one: {pageSize: 77}}}}})
+    journal.begin('TARGET', submitted, baseline)
+    const storage = fixture(applied ? submitted : baseline, journal), {dataSet, view, workspace} = storage.open()
+    try {
+      await view.refresh()
+      expect(view.loadingError).toBeFalsy()
+      expect(target(view)['pageSize']).toBe(77)
+      expect(view.addActionState()).not.toBe('enabled')
+      expect(view.fieldAccess(target(view), 'pageSize').write).toBe('denied')
+      const snapshot = await view.previewSource()
+      await expect(view.adoptSource(snapshot)).rejects.toThrow('持久捕获')
+      expect(workspace.getScenarioViews('TARGET')?.saveStatus).toBe('unknown')
+      const result = await view.verifySourceWriteAttempt()
+      expect(result.state).toBe(applied ? 'confirmed' : 'unknown')
+      expect(storage.writes).toEqual([])
+      expect(workspace.getScenarioViews('TARGET')?.saveStatus).toBe(applied ? 'idle' : 'unknown')
+    } finally {dataSet.destroy()}
+  })
   it('does not let a sibling query context consume an original pending file submission',async()=>{
     const storage=fixture(),{dataSet}=storage.open()
     try{
@@ -583,7 +629,7 @@ describe('formal definition resources through SPARK data', () => {
     } finally {dataSet.destroy()}
   })
 
-  it('retains unapplied layout changes after verification and writes again only on explicit save', async () => {
+  it('keeps a baseline read unknown and saves later layout edits only after confirming the original attempt', async () => {
     const storage = fixture(), {dataSet} = storage.open()
     try {
       const layout = dataSet.getView('DataSpaceLayoutDefinition')!
@@ -591,12 +637,19 @@ describe('formal definition resources through SPARK data', () => {
       layout.updateEditingValue(layout.getPkKey(layout.rows[0]!)!, 'modelPositions', {P: {x: 1, y: 2}})
       storage.loseResponse()
       await expect(dataSet.saveChanges()).rejects.toThrow('response lost')
+      const submitted=storage.writes[0]!
+      layout.updateEditingValue(layout.getPkKey(layout.rows[0]!)!,'modelPositions',{P:{x:3,y:4}})
       storage.restore(JSON.stringify(initial))
-      await expect(dataSet.saveChanges()).rejects.toThrow('SCENARIO_DEFINITION_NOT_APPLIED:')
+      await expect(dataSet.saveChanges()).rejects.toThrow('不能证明')
+      expect(storage.writes).toHaveLength(1)
+      expect(layout.hasUnconfirmedSave).toBe(true)
+      storage.restore(submitted)
+      expect((await dataSet.saveChanges()).success).toBe(true)
       expect(storage.writes).toHaveLength(1)
       expect(layout.hasEditingChanges() || layout.dirtyTracking.hasPendingChanges()).toBe(true)
       expect((await dataSet.saveChanges()).success).toBe(true)
       expect(storage.writes).toHaveLength(2)
+      expect(JSON.parse(storage.stored)).toMatchObject({layout:{modelPositions:{P:{x:3,y:4}}}})
     } finally {dataSet.destroy()}
   })
   it('validates layout shape, clears optional positions and preserves unedited definitions', async () => {

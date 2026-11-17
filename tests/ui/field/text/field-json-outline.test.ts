@@ -40,6 +40,29 @@ async function fixture(options:{baseline?:string;outline?:Record<string,unknown>
   await flushPromises();return {view,path,baseline,wrapper}
 }
 describe('bound JSON outline',()=>{
+  it('uses an explicit root-parent identity without changing nodes or their original array paths',async()=>{
+    const baseline=JSON.stringify([{rowid:'chapter',pid:'book',Name:'chapter'},{rowid:'book',pid:'project',Name:'logical book'}])
+    const f=await fixture({baseline,outline:{outlineChildrenField:undefined,outlineIdField:'rowid',outlineParentField:'pid',outlineRootValue:'project'}})
+    const rows=f.wrapper.findAll('.el-table__body-wrapper tbody tr')
+    expect(rows).toHaveLength(2);expect(rows[0]!.text()).toContain('logical book')
+    await rows[1]!.trigger('click');await flushPromises();expect(f.path.value).toEqual([0])
+    expect(f.view.hasEditingChanges()).toBe(false);expect(f.view.rows[0]?.['json']).toBe(baseline)
+  })
+  it('keeps an explicit numeric zero root marker distinct from a string parent',async()=>{
+    const f=await fixture({baseline:'[{"rowid":"B","pid":0,"Name":"book"},{"rowid":"C","pid":"B","Name":"chapter"}]',
+      outline:{outlineChildrenField:undefined,outlineIdField:'rowid',outlineParentField:'pid',outlineRootValue:0}})
+    expect(f.wrapper.findAll('.el-table__body-wrapper tbody tr')).toHaveLength(2)
+    expect(f.view.hasEditingChanges()).toBe(false)
+  })
+  it.each([
+    {root:0,records:[{rowid:0,pid:null,Name:'collision'}],message:'冲突'},
+    {root:' ',records:[{rowid:'B',pid:null,Name:'kept'}],message:'根标记'},
+    {root:0,records:[{rowid:'B',pid:'0',Name:'missing'}],message:'父项'},
+  ])('rejects an ambiguous or invalid explicit root: $message',async({root,records,message})=>{
+    const baseline=JSON.stringify(records),f=await fixture({baseline,outline:{outlineChildrenField:undefined,outlineIdField:'rowid',outlineParentField:'pid',outlineRootValue:root}})
+    expect(f.wrapper.find('[role="alert"]').text()).toContain(message)
+    expect(f.view.rows[0]?.['json']).toBe(baseline);expect(f.view.hasEditingChanges()).toBe(false)
+  })
   it.each(['masked','hidden'] as const)('preserves formal %s field presentation in detail context',async visibility=>{
     const f=await fixture({standalone:true,visibility})
     expect(f.wrapper.findAll('.el-table__body-wrapper tbody tr')).toHaveLength(0)
@@ -93,6 +116,7 @@ describe('bound JSON outline',()=>{
   it.each([
     {outlineChildrenField:undefined,outlineIdField:'rowid'},
     {outlineIdField:'rowid',outlineParentField:'pid'},
+    {outlineRootValue:'P'},
   ])('rejects an incomplete or mixed hierarchy contract without writing configuration',async outline=>{
     const f=await fixture({baseline:'[{"rowid":"A","pid":null,"Name":"kept"}]',outline})
     expect(f.wrapper.find('[role="alert"]').exists()).toBe(true)

@@ -1724,10 +1724,6 @@ export class LowcodeDataSpaceDesignSession {
         const result = await this.metadataDataSet.saveChanges({views: selectors()})
         if (!result.success) throw new Error(result.message ?? '模型已修改，定义提交尚未确认')
         if (file && !file.isDirty && file.saveStatus === 'idle') owned = file.getText()
-      } catch (error) {
-        if (file && error instanceof Error && error.message.startsWith('SCENARIO_DEFINITION_NOT_APPLIED:')
-          && file.getText() === file.savedText) owned = file.getText()
-        throw error
       } finally {
         if (file?.saveStatus === 'unknown' && file.getText() === file.submittedText) owned = file.getText()
       }
@@ -1897,10 +1893,6 @@ export class LowcodeDataSpaceDesignSession {
         const result = await this.metadataDataSet.saveChanges({views: [{tableName: layoutView.tableName, viewId: layoutView.viewId}]})
         if (!result.success) throw new Error(result.message ?? '模型已删除，布局清理尚未确认')
         if (file && !file.isDirty && file.saveStatus === 'idle') ownedText = file.getText()
-      } catch (error) {
-        if (file && error instanceof Error && error.message.startsWith('SCENARIO_DEFINITION_NOT_APPLIED:')
-          && file.getText() === file.savedText) ownedText = file.getText()
-        throw error
       } finally {
         if (file?.saveStatus === 'unknown' && file.getText() === file.submittedText) ownedText = file.getText()
       }
@@ -2733,6 +2725,11 @@ export class LowcodeDataSpaceViewDesign {
     const executor: Parameters<SparkData.DataView['bindQueryExecutor']>[0] = {
       hasUnconfirmedSave: context => requireResource().hasUnconfirmedSave(context),
       source: {
+        verifyWriteAttempt: (view, hooks) => {
+          const verify = requireResource().source.verifyWriteAttempt
+          if (!verify) throw new Error('SCENARIO_DEFINITION_SOURCE: 缺少原提交核验能力')
+          return verify(view, hooks)
+        },
         history: {
           list: view => requireResource().source.history.list(view),
           preview: (view, version) => requireResource().source.history.preview(view, version),

@@ -187,8 +187,9 @@ describe('lazy filter field catalogues', () => {
       context: {tables: [{name: 'Orders', loadFields: fields.load}]}}, global: {plugins: [ElementPlus]}})
     wrappers.push(wrapper); await flushPromises()
     expect(fields.load).toHaveBeenCalledOnce()
-    const button = wrapper.findAllComponents({name: 'GlobalElButtonStub'}).find(item => item.text() === '保存')!
+    const button = wrapper.getComponent('[data-function-confirm]')
     const save = button.vm.$.vnode.props?.['onClick']
+    expect(typeof save).toBe('function')
     if (change === 'close') await wrapper.setProps({modelValue: false})
     if (change === 'context') await wrapper.setProps({context: {tables: [{name: 'Orders', fields: []}]}})
     if (change === 'unmount') wrapper.unmount()
@@ -716,14 +717,16 @@ describe('full public filter editor', () => {
       global: {plugins: [ElementPlus], stubs: {}}}); wrappers.push(wrapper)
     await flushPromises()
     const late = wrapper.getComponent(ElSelect).vm.$.vnode.props?.['onUpdate:modelValue']
-    const lateConfirm = wrapper.findAllComponents({name: 'GlobalElButtonStub'}).find(button => button.text() === '保存')!.vm.$.vnode.props?.['onClick']
+    const lateConfirm = wrapper.getComponent('[data-function-confirm]').vm.$.vnode.props?.['onClick']
     expect(typeof late).toBe('function'); expect(typeof lateConfirm).toBe('function')
     if (change === 'type') {
       wrapper.getComponent(ElTabs).vm.$emit('update:modelValue', 'GetInputParam'); await flushPromises()
       wrapper.getComponent(ElSelect).vm.$emit('update:modelValue', 'customer'); await flushPromises()
     }
     if (change === 'reopen') {
-      await wrapper.findAllComponents({name: 'GlobalElButtonStub'}).find(button => button.text() === '取消')!.trigger('click')
+      const cancel = new DOMWrapper(document.body).findAll('button').find(button => button.text() === '取消')
+      if (!cancel) throw new Error('Missing cancel action')
+      await cancel.trigger('click')
       // Closing must reject an already queued save before the controlled prop catches up.
       if (typeof lateConfirm === 'function') lateConfirm()
       expect(wrapper.emitted('confirm')).toBeUndefined()
@@ -740,7 +743,7 @@ describe('full public filter editor', () => {
       const expected = change === 'type' ? {Type: 'GetInputParam', ParamName: 'customer'}
         : change === 'value' ? {...value, ParamName: 'CurDate', Extra: {flag: true}} : value
       expect(wrapper.getComponent(ElSelect).props('modelValue')).toBe(expected.ParamName)
-      await wrapper.findAllComponents({name: 'GlobalElButtonStub'}).find(button => button.text() === '保存')!.trigger('click')
+      await wrapper.getComponent('[data-function-confirm]').trigger('click')
       expect(wrapper.emitted('confirm')).toEqual([[expected]])
     }
   })
@@ -758,7 +761,7 @@ describe('full public filter editor', () => {
     selects()[0]!.vm.$emit('update:modelValue', 'Orders'); await flushPromises()
     expect(selects()[1]!.props('modelValue')).toBe('name')
     for (const select of selects().slice(1)) expect(select.findAllComponents(ElOption).map(option => option.props('value'))).toEqual(['id', 'amount'])
-    await wrapper.findAllComponents({name: 'GlobalElButtonStub'}).find(button => button.text() === '保存')!.trigger('click')
+    await wrapper.getComponent('[data-function-confirm]').trigger('click')
     expect(wrapper.emitted('confirm')).toBeUndefined()
     expect(new DOMWrapper(document.body).get('[role="alert"]').text()).toContain('引用字段不在当前可用选项中')
     selects()[1]!.vm.$emit('update:modelValue', 'amount'); await flushPromises()
@@ -766,7 +769,7 @@ describe('full public filter editor', () => {
     if (typeof oldChoice === 'function') oldChoice('id')
     await flushPromises()
     expect(selects()[1]!.props('modelValue')).toBe('amount')
-    await wrapper.findAllComponents({name: 'GlobalElButtonStub'}).find(button => button.text() === '保存')!.trigger('click')
+    await wrapper.getComponent('[data-function-confirm]').trigger('click')
     expect(wrapper.emitted('confirm')).toEqual([[{...value, RefTableName: 'Orders', RefFieldName: 'amount'}]])
     expect(value.RefTableName).toBe('Customers'); expect(value.RefFieldName).toBe('name')
   })

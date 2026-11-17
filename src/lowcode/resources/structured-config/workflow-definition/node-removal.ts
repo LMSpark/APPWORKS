@@ -45,8 +45,6 @@ export class WorkflowNodeRemoval{
  #databaseCapture:DataSpaceDefinitionCaptureBatch|undefined
  #layoutCapture:DataSpaceDefinitionCaptureBatch|undefined
  #layoutText:string|undefined
- #layoutBefore:string|undefined
- #layoutNotApplied=false
  #layoutId:string|undefined
  #databaseConfirmed=false
  #busy=false
@@ -169,12 +167,12 @@ export class WorkflowNodeRemoval{
  /** 从原正式视图按需读取删除命令范围，尚不暂存或提交。 */
  static async open(input:Input):Promise<WorkflowNodeRemoval>{const owner=new WorkflowNodeRemoval(input);try{await owner.load();owner.plan();owner.#baseline=owner.allSnapshot();return owner}catch(cause){owner.release();throw cause}}
  /** 只展示原捕获身份和计数，不提供独立可编辑副本。 */
- getState(){return{status:this.#status,pending:this.#status!=='complete'&&this.#status!=='cancelled',busy:this.#busy,summary:this.#summary,databaseConfirmed:this.#databaseConfirmed,canReadCurrent:this.#databaseCapture?.receiptInvalid===true||this.#layoutCapture?.receiptInvalid===true,canRetryLayout:this.#layoutNotApplied}}
+ getState(){return{status:this.#status,pending:this.#status!=='complete'&&this.#status!=='cancelled',busy:this.#busy,summary:this.#summary,databaseConfirmed:this.#databaseConfirmed,canReadCurrent:this.#databaseCapture?.receiptInvalid===true||this.#layoutCapture?.receiptInvalid===true}}
  /** 删除暂存归原DataView；正式服务记录仍保留，保存前可取消。 */
  async stage():Promise<void>{
   if(this.#busy||this.#status!=='ready')throw Error('删除预览已变化或正在操作')
   this.#busy=true
-  try{await this.load();if(this.allSnapshot()!==this.#baseline)throw Error('正式删除范围已变化，请取消后重新预览');this.plan();for(const view of [...this.#views.values(),this.#layout])this.#initial.set(view,snapshot(view));const content=this.#layout.rows[0]?read(this.#layout,this.#layout.rows[0],'content'):undefined;if(content!==undefined&&typeof content!=='string')throw Error('布局内容不是文本');this.#layoutBefore=content;this.#status='staged'
+  try{await this.load();if(this.allSnapshot()!==this.#baseline)throw Error('正式删除范围已变化，请取消后重新预览');this.plan();for(const view of [...this.#views.values(),this.#layout])this.#initial.set(view,snapshot(view));this.#status='staged'
    for(const view of this.#views.values()){const listener=()=>{this.#foreignEdit=true};view.events.on('editingFieldChanged',listener);this.#listeners.push(()=>view.events.off('editingFieldChanged',listener))}
    for(const {view,ids} of this.#selections)for(const key of ids){this.assertCurrent(true);await view.removeRow(key);if(!view.dirtyTracking.isPendingDelete(key))throw Error('删除未进入原视图暂存')}
    for(const {view,ids} of this.#selections)this.#stageSignatures.set(view,definitionTargetDraftSignature(view,ids))
@@ -205,11 +203,11 @@ export class WorkflowNodeRemoval{
   this.#status='layout';this.assertCurrent()
   const key=this.#layoutId,text=this.#layoutText
   if(key!==undefined&&text!==undefined){
-   if(this.#layoutCapture){if(this.#layout.hasUnconfirmedSave){const original=await this.#layout.verifySourceWriteAttempt();this.assertCurrent();if(original.state==='not-applied'){this.#layoutNotApplied=true;throw Error('布局原批次已确认未生效，数据库删除不会重放')}}const outcome=await verifyDataSpaceDefinitionCapture(this.input.dataSet,this.#layoutCapture,acceptCurrent);if(outcome==='not-applied'){this.#layoutNotApplied=true;throw Error('布局原批次已确认未生效，数据库删除不会重放')}}
+   if(this.#layoutCapture)await verifyDataSpaceDefinitionCapture(this.input.dataSet,this.#layoutCapture,acceptCurrent)
    else{this.#layout.updateEditingValue(key,'content',text);await DataSpaceDefinitionSave.run([{dataSet:this.input.dataSet,targetId:this.input.workflowId,modelId:this.summary().modelId,
     prepare:()=>{this.assertCurrent();return Promise.resolve()},apply:async()=>{const result=await this.#layout.applyEditingRows([key]);if(!result.success)throw Error('布局编辑未应用')},check:()=>{this.assertCurrent();if(this.#layout.getEditingRow(key)?.['content']!==text)throw Error('布局清理草稿已变化')},targets:()=>[{tableName:this.#layout.tableName,viewId:this.#layout.viewId,ids:[key]}],dispatched:capture=>{this.#layoutCapture=capture},confirm:async()=>{},failed:()=>{}}])}
    const verify=this.#layout.createQueryView(`${this.#prefix}_layoutVerify`)
-   try{await verify.refresh();this.assertCurrent();const row=verify.rows[0];if(!verify.loadingError&&verify.rows.length===1&&row&&verify.getPkKey(row)===key&&this.#layoutCapture?.resolution==='accepted-current'&&read(verify,row,'content')===this.#layoutBefore){this.#layoutNotApplied=true;throw Error('布局原批次已确认未生效，数据库删除不会重放')}if(verify.loadingError||verify.rows.length!==1||!row||verify.getPkKey(row)!==key||read(verify,row,'content')!==text)throw Error('布局独立回读与精确清理意图不同')}finally{verify.dataTable?.destroyView(verify.viewId)}
+   try{await verify.refresh();this.assertCurrent();const row=verify.rows[0];if(verify.loadingError||verify.rows.length!==1||!row||verify.getPkKey(row)!==key||read(verify,row,'content')!==text)throw Error('布局独立回读与精确清理意图不同')}finally{verify.dataTable?.destroyView(verify.viewId)}
   }
   this.#status='complete';this.release()
  }
@@ -223,15 +221,13 @@ export class WorkflowNodeRemoval{
    prepare:()=>this.checkFormalBaseline(),apply:async()=>{},check:()=>this.checkStaged(),targets:()=>this.#selections.map(({view,ids})=>({tableName:view.tableName,viewId:view.viewId,ids:[...ids]})),dispatched:capture=>{this.#databaseCapture=capture;this.#status='database'},confirm:()=>this.readbackDatabase(),failed:()=>{}}]);await this.finishLayout()}
   finally{this.#busy=false}
  }
- /** 核验只沿原DataSet捕获及原文件owner，未确认未生效时不自动重提。 */
+ /** 核验只沿原DataSet捕获；旧来源不证明原请求未应用，不重提文件。 */
  async verify(acceptCurrent=false):Promise<void>{
   if(this.#busy)throw Error('节点删除正在核验')
   this.#busy=true
   try{this.assertCurrent();if(this.#foreignEdit)throw Error('原删除视图有后续修改，核验不会覆盖它们');if(!this.#databaseConfirmed){if(!this.#databaseCapture)throw Error('缺少原删除捕获');const outcome=await verifyDataSpaceDefinitionCapture(this.input.dataSet,this.#databaseCapture,acceptCurrent);let unchanged=outcome==='accepted-current';if(unchanged)for(const view of this.#views.values()){await view.refresh();this.assertCurrent();if(view.loadingError||view.rows.length!==view.total)throw Error('原范围读取未完成');unchanged=snapshot(view)===this.#initial.get(view)&&unchanged}if(outcome==='not-applied'||unchanged){this.#status='not-applied';throw Error('原删除已确认未生效，不会自动重放')}await this.readbackDatabase()}await this.finishLayout(acceptCurrent)}
   finally{this.#busy=false}
  }
- /** 仅在原文件批次已确认未生效后显式重提布局，数据库删除不会重放。 */
- async retryLayout():Promise<void>{if(this.#busy||!this.#databaseConfirmed||!this.#layoutNotApplied||this.#foreignEdit)throw Error('布局未取得可重提证明');this.#busy=true;try{this.assertCurrent();if(this.#layout.hasUnconfirmedSave){const proof=await this.#layout.verifySourceWriteAttempt();this.assertCurrent();if(proof.state!=='not-applied'||!this.#layout.abandonUnconfirmedSave())throw Error('原布局未生效证明已变化，保留原意图')}if(this.#layoutId)this.#layout.discardPendingChanges([this.#layoutId]);this.#layoutCapture=undefined;this.#layoutNotApplied=false;await this.finishLayout()}finally{this.#busy=false}}
  /** 仅撤销本命令未派发或已确认未生效的删除，不丢弃其他视图编辑。 */
  cancel():void{this.assertCurrent();if(this.#busy||this.#databaseConfirmed||this.#databaseCapture&&this.#status!=='not-applied'||!['ready','staged','not-applied'].includes(this.#status)||this.#foreignEdit)throw Error('原删除已派发或有后续修改，请保留并核验');for(const {view,ids} of this.#selections)view.discardPendingChanges([...ids]);this.#status='cancelled';this.release()}
  private release():void{this.#listeners.splice(0).forEach(off=>off());for(const view of [...this.#views.values(),this.#layout])if(!view.hasUnconfirmedSave&&!view.hasEditingChanges()&&!view.dirtyTracking.hasPendingChanges())view.dataTable?.destroyView(view.viewId)}

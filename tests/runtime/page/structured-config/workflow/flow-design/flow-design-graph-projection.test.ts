@@ -3,7 +3,7 @@ import type {DataView} from '@spark-appworks/spark-data'
 import {buildFlowDesignGraphLayout, parseFlowDesignGraphJson} from '@/lowcode/resources/system/workflow/manage'
 
 function mockView(rows: DataView['rows']): DataView {
-  return {destroyed: false, rows, refresh: vi.fn(), queryContext: {}} as unknown as DataView
+  return {getColumn:(name:string)=>rows.some(row=>Object.hasOwn(row,name))?{name}:undefined,fieldAccess:()=>({read:'visible'}),destroyed: false, rows, refresh: vi.fn(), queryContext: {}} as unknown as DataView
 }
 
 describe('flow design graph projection', () => {
@@ -17,10 +17,10 @@ describe('flow design graph projection', () => {
   })
 
   it('builds renderer graph layout with json positions and grid fallback', () => {
-    const model = mockView([{DesignJson: JSON.stringify({nodes: [{id: 'N1', x: 50, y: 60}], edges: []})}])
+    const documentText = JSON.stringify({nodes: [{id: 'N1', x: 50, y: 60}], edges: []})
     const nodes = mockView([{rowid: 'N1'}, {rowid: 'N2'}])
     const edges = mockView([])
-    const layout = buildFlowDesignGraphLayout({modelView: model, nodeView: nodes, edgeView: edges})
+    const layout = buildFlowDesignGraphLayout({documentText, nodeView: nodes, edgeView: edges})
     expect(layout.nodePositions['N1']).toEqual({x: 50, y: 60})
     expect(layout.nodePositions['N2']).toBeDefined()
   })

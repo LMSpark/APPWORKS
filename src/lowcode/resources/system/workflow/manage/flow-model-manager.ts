@@ -81,7 +81,7 @@ export class WorkflowFlowModelManager {
     this.#assertCurrent()
     const dataSet = this.#view.dataSet
     if (!dataSet) throw new Error('流程模型 DataSet 已失效')
-    const result = await dataSet.saveChanges()
+    const result = await dataSet.saveChanges({views:[{tableName:this.#view.tableName,viewId:this.#view.viewId}]})
     this.#assertCurrent()
     if (!result.success) throw result.error ?? new Error(result.message ?? '保存流程模型失败')
     await this.refresh()
@@ -95,7 +95,7 @@ export class WorkflowFlowModelManager {
     await this.#view.removeRow(id)
     const dataSet = this.#view.dataSet
     if (!dataSet) throw new Error('流程模型 DataSet 已失效')
-    const result = await dataSet.saveChanges()
+    const result = await dataSet.saveChanges({views:[{tableName:this.#view.tableName,viewId:this.#view.viewId}]})
     this.#assertCurrent()
     if (!result.success) throw result.error ?? new Error(result.message ?? '保存流程模型失败')
     await this.refresh()

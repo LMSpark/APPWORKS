@@ -16,6 +16,7 @@ import type { DataViewFilterValueFunction } from '@spark-appworks/spark-data'
 import { DataSpaceInputParameters, type InputParameterRowAdapter } from './data-space-input-parameters.js'
 
 import { LowcodeApiError } from '../../../core/lowcode-api-error.js'
+import {DataSpaceModelNotFoundError} from './data-space-model-not-found-error.js'
 import type { LowcodeModelRelationRecord } from '../data-space.js'
 import { parseNativeDataSpaceResourceType } from '../data-space-resource-type-wire.js'
 
@@ -443,6 +444,7 @@ export class DataSpaceDesignApi {
       ] }), page: { index: 1, size: 2 },
     }, result => {
       const models = result.rows, row = models[0]
+      if (result.total === 0 && models.length === 0) throw new DataSpaceModelNotFoundError(dataSpaceId, metaName)
       if (result.total !== models.length || models.length !== 1 || !row || !formalRowId(row)
         || formalText(row, ['dataSetId', 'DataSetId', 'datasetid']) !== dataSpaceId
         || formalText(row, ['Name', 'name']) !== metaName || !formalText(row, ['MetaName', 'metaName', 'metaname'])) {

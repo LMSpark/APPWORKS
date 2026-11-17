@@ -2,8 +2,8 @@
  * @module app:lowcode/resources/database/catalog/table-view
  * 职责：按正式数据空间 ID（Base_DataSet.rowid = DataSet.scenarioId = x-FormKey）装配库/表/视图目录 DataSet。
  */
-import {DataViewFilter, RequestState, type DataSet} from '@spark-appworks/spark-data'
-import {DATA_SPACE_DESIGN_FORM_KEY, DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import {DataViewFilter, RequestState, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, type DataSet} from '@spark-appworks/spark-data'
+import {AuthenticatedDictionaryResource, DATA_SPACE_DESIGN_FORM_KEY, DataSpaceDesignApi, DataSpaceModelNotFoundError} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {type lowcodeApi, lowcodeHttp} from '../../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../../data-space/lowcode-data-space-assembler'
@@ -15,6 +15,7 @@ import {
   attachViewRegisterCommandView,
 } from '../dataset-extensions'
 import {applyDatabaseCatalogFieldMetadata} from './table/field-metadata'
+import {databaseCatalogFieldTypeOptions} from './table/field-type-options'
 import {applyDatabaseCatalogObjectDesignMetadata} from './object-design-metadata'
 import {attachDatabaseCatalogTablePreviewView, attachDatabaseCatalogViewPreviewView} from './table/preview-view-ops'
 import {type DatabaseCatalogLoadOptions, readDatabaseCatalogScope, resolveDatabaseCatalogDataSpaceId} from './scenario'
@@ -94,7 +95,7 @@ function defaultView(model: Awaited<ReturnType<typeof lowcodeApi.dataSpace.desig
 export class LowcodeDatabaseTableView {
   public static async loadCatalog(scenarioId: string, options: DatabaseCatalogLoadOptions = {}): Promise<DataSet> {
     if (!scenarioId.trim()) throw new Error('表和视图管理入口缺少导航绑定的数据空间 ID（Base_DataSet.rowid）')
-    const {dataSpace, runtime, assertCurrent} = readDatabaseCatalogScope()
+    const {dataSpace, runtime, assertCurrent, readScope} = readDatabaseCatalogScope()
     const dataSpaceId = await resolveDatabaseCatalogDataSpaceId({dataSpace, preferredScenarioId: scenarioId, metaNames: catalogModels, options, assertCurrent})
     const input = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId, assertCurrent}
     const [space, ...models] = await Promise.all([
@@ -110,7 +111,9 @@ export class LowcodeDatabaseTableView {
     for (const metaName of DATABASE_CATALOG_OPTION_META_NAMES) {
       try {
         optionModels.push(await dataSpace.design.readModel({...input, metaName}))
-      } catch {
+      } catch (error) {
+        if (metaName === DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL
+          && !(error instanceof DataSpaceModelNotFoundError && error.dataSpaceId === dataSpaceId && error.metaName === metaName)) throw error
         // 未登记脱敏规则模型时仍装配核心目录模型；字段网格降级为只读 DesenID 列。
       }
     }
@@ -288,6 +291,14 @@ export class LowcodeDatabaseTableView {
       })
       attachDatabaseCatalogTablePreviewView(dataSet, lowcodeHttp, assertCurrent)
       attachDatabaseCatalogViewPreviewView(dataSet, lowcodeHttp, assertCurrent)
+      for (const name of [DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL]) {
+        if (dataSet.getView(name, 'default')) continue
+        const view = ensureDataSetResourceView({dataSet, tableName: name,
+          resource: {resourceType: 'logical-view', resourceId: `authenticated-dictionary:${name}`},
+          columns: [{name: 'rowid', primary: true}, {name: 'val'}, {name: 'txt'}, {name: 'ordIdx', type: 'number'}]})
+        view.queryConfig = {pagination: 'none'}
+        bindDataSetReadonlyCommandQuery(view, databaseCatalogFieldTypeOptions(new AuthenticatedDictionaryResource({http: lowcodeHttp, readScope, name, assertCurrent}).binding(view)))
+      }
       applyDatabaseCatalogFieldMetadata(dataSet)
       applyDatabaseCatalogObjectDesignMetadata(dataSet)
       for (const metaName of DATABASE_CATALOG_OPTION_META_NAMES) {

@@ -9,19 +9,23 @@ import {
 type MockView = {
   destroyed: boolean
   rows: Array<Record<string, unknown>>
-  deleteRowById: ReturnType<typeof vi.fn>
-  addRow: ReturnType<typeof vi.fn>
+  removeRow: ReturnType<typeof vi.fn>
+  deleteActionState:()=>string
+  getPkKey:(row:Record<string,unknown>)=>unknown
+  addRowWithIdentity: ReturnType<typeof vi.fn>
 }
 
 function createView(rows: MockView['rows']): MockView {
   return {
     destroyed: false,
     rows,
-    deleteRowById: vi.fn(id => {
+    deleteActionState:()=> 'enabled',getPkKey:row=>row['rowid'],
+    removeRow: vi.fn(id => {
       const index = rows.findIndex(row => String(row['rowid']) === id)
       if (index >= 0) rows.splice(index, 1)
     }),
-    addRow: vi.fn(async (data: Record<string, unknown>) => {
+    addRowWithIdentity: vi.fn(async (identity:{value:string},data: Record<string, unknown>) => {
+      data={...data,rowid:identity.value}
       rows.push(data)
       return data
     }),
@@ -41,21 +45,21 @@ function createRuntime(nodeView: MockView, edgeView: MockView): PageRuntime {
 }
 
 describe('flow-design-graph-edit', () => {
-  it('removes node and incident edges', () => {
+  it('removes node and incident edges', async () => {
     const nodeView = createView([{rowid: 'N1', FLOWID: 'FM-1', TITLE: 'A'}])
     const edgeView = createView([
-      {rowid: 'E1', FLOWID: 'FM-1', PARENTID: 'N1', CHILDID: 'N2'},
-      {rowid: 'E2', FLOWID: 'FM-1', PARENTID: 'N2', CHILDID: 'N3'},
+      {rowid: 'E1', FLOWID: 'FM-1', UpNodeID: 'N1', NextNodeID: 'N2'},
+      {rowid: 'E2', FLOWID: 'FM-1', UpNodeID: 'N2', NextNodeID: 'N3'},
     ])
     const runtime = createRuntime(nodeView, edgeView)
-    const result = removeFlowDesignGraphSelection({
+    const result = await removeFlowDesignGraphSelection({
       runtime,
       flowModelId: 'FM-1',
       selection: {kind: 'node', id: 'N1'},
       layoutOverride: {nodePositions: {N1: {x: 1, y: 2}}, edgePaths: {E1: [{x: 0, y: 0}, {x: 1, y: 1}]}},
     })
-    expect(nodeView.deleteRowById).toHaveBeenCalledWith('N1')
-    expect(edgeView.deleteRowById).toHaveBeenCalledWith('E1')
+    expect(nodeView.removeRow).toHaveBeenCalledWith('N1')
+    expect(edgeView.removeRow).toHaveBeenCalledWith('E1')
     expect(result.layoutOverride.nodePositions?.['N1']).toBeUndefined()
     expect(result.layoutOverride.edgePaths?.['E1']).toBeUndefined()
   })
@@ -73,7 +77,7 @@ describe('flow-design-graph-edit', () => {
       y: 60,
     })
     expect(result.nodeId).toBe('NEW-NODE-ID')
-    expect(nodeView.addRow).toHaveBeenCalledWith(expect.objectContaining({rowid: 'NEW-NODE-ID', FLOWID: 'FM-1'}))
+    expect(nodeView.addRowWithIdentity).toHaveBeenCalledWith({field:'rowid',value:'NEW-NODE-ID'},expect.objectContaining({FLOWID:'FM-1'}))
     expect(result.layoutOverride.nodePositions?.['NEW-NODE-ID']).toEqual({x: 50, y: 60})
     vi.unstubAllGlobals()
   })
@@ -94,10 +98,9 @@ describe('flow-design-graph-edit', () => {
       layoutOverride: {},
     })
     expect(result.edgeId).toBe('EDGE-1')
-    expect(edgeView.addRow).toHaveBeenCalledWith(expect.objectContaining({
-      rowid: 'EDGE-1',
-      PARENTID: 'N1',
-      CHILDID: 'N2',
+    expect(edgeView.addRowWithIdentity).toHaveBeenCalledWith({field:'rowid',value:'EDGE-1'},expect.objectContaining({
+      UpNodeID: 'N1',
+      NextNodeID: 'N2',
     }))
     vi.unstubAllGlobals()
   })

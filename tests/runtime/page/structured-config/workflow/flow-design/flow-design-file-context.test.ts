@@ -1,44 +1,24 @@
-import {describe, expect, it, vi} from 'vitest'
-import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {FLOW_DESIGN_SCENARIO_ID, resolveFlowDesignFileContext} from '@/lowcode/resources/system/workflow/manage'
-
-type MockView = {
-  destroyed: boolean
-  queryContext: Record<string, string>
-  loadingError: Error | null
-  refresh: ReturnType<typeof vi.fn>
-  rows: Array<Record<string, unknown>>
-}
-
-function createView(rows: MockView['rows']): MockView {
-  return {destroyed: false, queryContext: {}, loadingError: null, refresh: vi.fn(async () => undefined), rows}
-}
-
-describe('resolveFlowDesignFileContext', () => {
-  it('falls back to SysForm when model row has no sysid', async () => {
-    const runtime = {getDataSet: () => undefined} as unknown as PageRuntime
-    const ctx = await resolveFlowDesignFileContext({
-      runtime,
-      flowModelId: 'FM-1',
-      modelRow: {TITLE: '请假'},
-    })
-    expect(ctx).toEqual({customPath: 'SysForm', applicationId: ''})
-  })
-
-  it('reads folderName from Base_NavigationInfo when sysid is present', async () => {
-    const nav = createView([{folderName: 'AppWorksForms'}])
-    const runtime = {
-      getDataSet: (id: string) => id === FLOW_DESIGN_SCENARIO_ID
-        ? {getView: (name: string) => (name === 'Base_NavigationInfo' ? nav : undefined)}
-        : undefined,
-    } as unknown as PageRuntime
-    const ctx = await resolveFlowDesignFileContext({
-      runtime,
-      flowModelId: 'FM-2',
-      modelRow: {sysid: 'APP-1'},
-    })
-    expect(nav.queryContext).toEqual({rowid: 'APP-1'})
-    expect(nav.refresh).toHaveBeenCalledOnce()
-    expect(ctx).toEqual({customPath: 'AppWorksForms', applicationId: 'APP-1'})
-  })
+import {describe,expect,it} from 'vitest'
+import {fixture} from './flow-design-data.fixture'
+import {prepareFlowDesignViews,resolveFlowDesignFileContext} from '@/lowcode/resources/system/workflow/manage'
+describe('formal flow design file context',()=>{
+ it('uses SysForm only from a confirmed empty sysid and rejects an external model copy',async()=>{
+  const {runtime}=await fixture()
+  expect(await resolveFlowDesignFileContext({runtime,flowModelId:'FM-1'})).toEqual({customPath:'SysForm',applicationId:''})
+  await expect(resolveFlowDesignFileContext({runtime,flowModelId:'FM-1',modelRow:{rowid:'FM-1',sysid:''}})).rejects.toThrow('外部模型行')
+ })
+ it('resolves the original navigation once and does not reload it during ordinary save preparation',async()=>{
+  const {runtime,http}=await fixture(false,false)
+  http.records['WFM_FLOW_MODLE']![0]!['sysid']='APP';http.records['Base_NavigationInfo']=[{rowid:'APP',folderName:'AppWorksForms'}]
+  await prepareFlowDesignViews(runtime,'FM-1')
+  const reads=http.reads.filter(read=>read.table==='Base_NavigationInfo').length
+  expect(await resolveFlowDesignFileContext({runtime,flowModelId:'FM-1'})).toEqual({customPath:'AppWorksForms',applicationId:'APP'})
+  expect(http.reads.filter(read=>read.table==='Base_NavigationInfo')).toHaveLength(reads)
+ })
+ it('rejects an unreadable navigation directory instead of writing to SysForm',async()=>{
+  const {runtime,http}=await fixture(false,false)
+  http.records['WFM_FLOW_MODLE']![0]!['sysid']='APP';http.records['Base_NavigationInfo']=[{rowid:'APP',folderName:'Private'}]
+  http.hiddenFields['Base_NavigationInfo']=['folderName']
+  await expect(prepareFlowDesignViews(runtime,'FM-1')).rejects.toThrow('目录不可读')
+ })
 })

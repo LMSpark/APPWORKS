@@ -1,0 +1,410 @@
+{
+  "tableId": "CB8A4A1F4314977E144C9513ED3025F7",
+  "requestId": "62208.40216",
+  "code": 200,
+  "extras": [
+    {
+      "target": "删除失败字段",
+      "message": []
+    },
+    {
+      "target": "更新失败字段",
+      "message": []
+    },
+    {
+      "target": "新增失败字段",
+      "message": []
+    }
+  ],
+  "fields": [
+    {
+      "rowid": "445BC6FD7088AB3FF4B3A34F3F60D33D",
+      "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+      "enname": "value",
+      "cnname": "事实值：按类型保留文本、十进制字符串、日期、人员标识、null和空串",
+      "DataTypeName": "json类型",
+      "IsPKey": "0",
+      "IsNill": "1",
+      "IsUQ": "0"
+    },
+    {
+      "rowid": "3BA9934AD301E414185DD5D2127B0124",
+      "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+      "enname": "source_ids",
+      "cnname": "出处和证明的原版本引用数组",
+      "DataTypeName": "json类型",
+      "IsPKey": "0",
+      "IsNill": "0",
+      "IsUQ": "0"
+    },
+    {
+      "rowid": "64DD2947DB85778939719172BC593E14",
+      "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+      "enname": "scope_ref",
+      "cnname": "企业、主体、项目、标段、轮次和阶段的适用范围引用",
+      "DataTypeName": "json类型",
+      "IsPKey": "0",
+      "IsNill": "0",
+      "IsUQ": "0"
+    },
+    {
+      "rowid": "9B9610C51BCC447B3242C8B7124D12D7",
+      "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+      "enname": "decision_refs",
+      "cnname": "适用核定或批准的原版本引用数组",
+      "DataTypeName": "json类型",
+      "IsPKey": "0",
+      "IsNill": "0",
+      "IsUQ": "0"
+    },
+    {
+      "rowid": "16F2E3EF87621AAB56E8EFA6AEF5859A",
+      "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+      "enname": "dependency_refs",
+      "cnname": "原数据和规则版本的依赖引用数组",
+      "DataTypeName": "json类型",
+      "IsPKey": "0",
+      "IsNill": "0",
+      "IsUQ": "0"
+    },
+    {
+      "rowid": "D666F7D0EAA4EF35B5BDA7E30362621F",
+      "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+      "enname": "promise_terms",
+      "cnname": "承诺的履约方、对象、期间、触发、动作、时限、例外及费用归属",
+      "DataTypeName": "json类型",
+      "IsPKey": "0",
+      "IsNill": "1",
+      "IsUQ": "0"
+    },
+    {
+      "rowid": "6F00DBBD6A7E892F77404AE876D748B0",
+      "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+      "enname": "source_record",
+      "cnname": "解析来源：runId/type/ordinal/recordVersion/recordHash；人工可空",
+      "DataTypeName": "json类型",
+      "IsPKey": "0",
+      "IsNill": "1",
+      "IsUQ": "0"
+    }
+  ],
+  "originalPartialSaveEvidence": "smart-bid-fact-fields-save-20261117.json",
+  "operation": "new batch for only seven confirmed missing fields; original fourteen-field batch not replayed",
+  "coldReadback": {
+    "count": 26,
+    "fields": [
+      {
+        "rowid": "09E1698873DFE5DB97F29F103D51470D",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "unit",
+        "cnname": "事实值单位，保留原单位口径",
+        "DataTypeName": "字符串型",
+        "DataType": "varchar",
+        "DataLen": "64",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "0F8F2846C9604B9E81F3774E508AE784",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "createuser",
+        "cnname": "默认创建人字段，关联 QYVirtualPlat.Base_UserInfo.rowid，新增时由系统自动写入",
+        "DataTypeName": "字符串型",
+        "DataType": "varchar",
+        "DataLen": "100",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "1010666BD3CF46A1B8E9A57219C75563",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "lingma_sys_appid",
+        "cnname": "应用系统标识",
+        "DataTypeName": "字符串型",
+        "DataType": "varchar",
+        "DataLen": "64",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "16F2E3EF87621AAB56E8EFA6AEF5859A",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "dependency_refs",
+        "cnname": "原数据和规则版本的依赖引用数组",
+        "DataTypeName": "json类型",
+        "DataType": "json",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "2D8D1B1BF6F147F585D1FD8DD037DE1C",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "id",
+        "cnname": "默认主键字段，系统自动生成或维护，业务无需手动处理",
+        "DataTypeName": "字符串型",
+        "DataType": "varchar",
+        "DataLen": "32",
+        "IsPKey": 1,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "30EF082E32ADB2DB933059DF6178660F",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "project_id",
+        "cnname": "所属投标项目标识",
+        "DataTypeName": "字符串型",
+        "DataType": "varchar",
+        "DataLen": "32",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "32D5E3B47BA3497A8FE5DEE69AC1CE27",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "flowstate",
+        "cnname": "默认流程状态字段，记录当前流程状态，流程流转时由系统自动维护",
+        "DataTypeName": "整数型",
+        "DataType": "int",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "3BA9934AD301E414185DD5D2127B0124",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "source_ids",
+        "cnname": "出处和证明的原版本引用数组",
+        "DataTypeName": "json类型",
+        "DataType": "json",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "445BC6FD7088AB3FF4B3A34F3F60D33D",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "value",
+        "cnname": "事实值：按类型保留文本、十进制字符串、日期、人员标识、null和空串",
+        "DataTypeName": "json类型",
+        "DataType": "json",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "4A164D7EAE6F4BDA997FEAD98D903D5E",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "updateuser",
+        "cnname": "默认修改人字段，关联 QYVirtualPlat.Base_UserInfo.rowid，修改时由系统自动写入",
+        "DataTypeName": "字符串型",
+        "DataType": "varchar",
+        "DataLen": "100",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "5851DA0768E8402BBD5D8370B7589EDC",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "createtime",
+        "cnname": "默认创建时间字段，新增时由系统自动写入",
+        "DataTypeName": "日期型",
+        "DataType": "datetime",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "59331845F46A4025BE131CDA831F20F4",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "description",
+        "cnname": "默认描述字段，用于记录系统或业务描述信息",
+        "DataTypeName": "文本",
+        "DataType": "text",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "6252A291F51C47C6A3F487F0B9C41EB7",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "lingma_sys_is_delete",
+        "cnname": "默认逻辑删除字段，删除和查询时由系统自动维护",
+        "DataTypeName": "整数型",
+        "DataType": "int",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "64DD2947DB85778939719172BC593E14",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "scope_ref",
+        "cnname": "企业、主体、项目、标段、轮次和阶段的适用范围引用",
+        "DataTypeName": "json类型",
+        "DataType": "json",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "6689C95F55224102BFA4D82F1A1C4D35",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "ReportID",
+        "cnname": "默认报表字段，关联报表 ID，由系统自动维护",
+        "DataTypeName": "字符串型",
+        "DataType": "varchar",
+        "DataLen": "32",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "6F00DBBD6A7E892F77404AE876D748B0",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "source_record",
+        "cnname": "解析来源：runId/type/ordinal/recordVersion/recordHash；人工可空",
+        "DataTypeName": "json类型",
+        "DataType": "json",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "77628FF762544B1C90133BD1F1024FC1",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "updatetime",
+        "cnname": "默认修改时间字段，修改时由系统自动写入",
+        "DataTypeName": "日期型",
+        "DataType": "datetime",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "882B34CF75210B6F5C59B45B50C82E2B",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "version",
+        "cnname": "同事实键的追加版本序号",
+        "DataTypeName": "整数型",
+        "DataType": "int",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "9B9610C51BCC447B3242C8B7124D12D7",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "decision_refs",
+        "cnname": "适用核定或批准的原版本引用数组",
+        "DataTypeName": "json类型",
+        "DataType": "json",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "A0C97AF6B20B4D43BD74D3C9EF8424E2",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "wfid",
+        "cnname": "默认流程实例字段，关联流程实例 ID，流程流转时由系统自动维护",
+        "DataTypeName": "字符串型",
+        "DataType": "varchar",
+        "DataLen": "32",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "A525F8D9456251BA2BB6F230B788ADB4",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "fact_key",
+        "cnname": "事实键：项目内同一确定口径的稳定标识",
+        "DataTypeName": "字符串型",
+        "DataType": "varchar",
+        "DataLen": "256",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "BDC4D2156AAC10EE4A126E405981ECAD",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "kind",
+        "cnname": "事实类别：IDENTITY/PERSON/DURATION/PRICE/PROMISE/OTHER",
+        "DataTypeName": "字符串型",
+        "DataType": "varchar",
+        "DataLen": "32",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "D666F7D0EAA4EF35B5BDA7E30362621F",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "promise_terms",
+        "cnname": "承诺的履约方、对象、期间、触发、动作、时限、例外及费用归属",
+        "DataTypeName": "json类型",
+        "DataType": "json",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "F92EC1F44E9ED80E9080841F90BCDD84",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "claim_id",
+        "cnname": "原批准或主张记录引用，登记事实不新造批准",
+        "DataTypeName": "字符串型",
+        "DataType": "varchar",
+        "DataLen": "64",
+        "IsPKey": 0,
+        "IsNill": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "F98252260D41EF38DCB3A6D05121C37C",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "status",
+        "cnname": "原登记状态：CANDIDATE/ADOPTED/REJECTED，不代表今后用途有效",
+        "DataTypeName": "字符串型",
+        "DataType": "varchar",
+        "DataLen": "16",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "FBA9FED58BEA45EE9B35E442B7DA0078",
+        "tblid": "CB8A4A1F4314977E144C9513ED3025F7",
+        "enname": "lingma_sys_ent",
+        "cnname": "默认租户标识字段，用于多租户数据隔离，新增和查询时由系统自动维护",
+        "DataTypeName": "字符串型",
+        "DataType": "varchar",
+        "DataLen": "50",
+        "IsPKey": 1,
+        "IsNill": 0,
+        "IsUQ": 0
+      }
+    ]
+  }
+}

@@ -19,6 +19,9 @@
       "type": "object",
       "title": "FlowDesignPreparedViews",
       "properties": {
+        "documentViewKey": {
+          "type": "string"
+        },
         "modelTitle": {
           "type": "string"
         },
@@ -36,6 +39,7 @@
         }
       },
       "required": [
+        "documentViewKey",
         "modelTitle",
         "nodeViewKey",
         "edgeViewKey",
@@ -45,23 +49,28 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-15T00:21:49.639Z",
+  "generatedAt": "2026-11-16T21:30:41.913Z",
   "models": {
     "FlowDesignPreparedViews": {
       "name": "FlowDesignPreparedViews",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    modelTitle: string;\n    nodeViewKey: string;\n    edgeViewKey: string;\n    workFormViewKey: string;\n    graphLayout: FlowDesignGraphLayout;\n}>",
+        "declarationTypeText": "Readonly<{\n    documentViewKey: string;\n    modelTitle: string;\n    nodeViewKey: string;\n    edgeViewKey: string;\n    workFormViewKey: string;\n    graphLayout: FlowDesignGraphLayout;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    modelTitle: string;\n    nodeViewKey: string;\n    edgeViewKey: string;\n    workFormViewKey: string;\n    graphLayout: FlowDesignGraphLayout;\n}>",
+            "typeText": "Readonly<{\n    documentViewKey: string;\n    modelTitle: string;\n    nodeViewKey: string;\n    edgeViewKey: string;\n    workFormViewKey: string;\n    graphLayout: FlowDesignGraphLayout;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "documentViewKey",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "modelTitle",
               "readable": true,

@@ -1,6 +1,6 @@
 import {withDefinitionResources} from '../../../auth-nav/data-space/view-design/definition-resource.fixture'
 import {DataSpaceRuntimeApi, DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
-import {ProjectWorkspace, ScenarioViewConfig, type ProjectBlueprintTreeData, type ProjectWorkspaceOptions} from '@spark-appworks/spark-project-model'
+import {ProjectWorkspace, ScenarioViewConfig, type ScenarioSubmissionJournal, type ProjectBlueprintTreeData, type ProjectWorkspaceOptions} from '@spark-appworks/spark-project-model'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {LowcodeModelRelationAdapter} from '@/lowcode/data-space/lowcode-model-relation-adapter'
@@ -61,6 +61,7 @@ const models = [{...baseDataSet, id: '8D1AB14DD8277F3E7017CD38F77B09FDp000',
 
 export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boolean; hidden?: boolean; broken?: boolean; hiddenFieldOwner?: boolean; unmatchedFieldOwner?: boolean; sourceInput?: boolean;
   deferDefinition?: boolean; assemblyGate?: Promise<void>; sharedWorkspace?: boolean; formalSourceInputs?: boolean;
+  submissionJournal?: ScenarioSubmissionJournal;
   readLegacyLayout?: (id: string) => Promise<string | null>; formalProjection?: boolean; formalAllModels?: boolean; sourceFieldPermissions?: {h?: string[]; m?: string[]}; overviewOnly?: boolean;
   projectToolFileExecutor?: Parameters<DataView['bindQueryExecutor']>[0]; blueprint?: ProjectWorkspaceOptions['blueprint'];
   blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>
@@ -465,6 +466,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
     }}))
     const workspace = (options.sharedWorkspace ? workspaces.at(-1) : undefined) ?? new ProjectWorkspace({projectId: 'APP',
       blueprint: options.blueprint ?? {}, scenarioViews: {
+        ...(options.submissionJournal ? {submissionJournal: options.submissionJournal} : {}),
         readScope: () => scope, readText: async id => stored.get(id) ?? null,
         writeText: async (id, text) => {
           stored.set(id, text); fileWrites.push({targetId: id, text})

@@ -108,8 +108,8 @@ export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, 
     const runtime = sparkConsume(PAGE_RUNTIME)
     const edgeView = runtime?.resolveView(prepared.value.edgeViewKey)
     const row = edgeView?.rows.find(item => String(item['rowid'] ?? item['ROWID'] ?? '') === String(event.id))
-    const source = String(row?.['PARENTID'] ?? '')
-    const target = String(row?.['CHILDID'] ?? '')
+    const source = String(row?.['UpNodeID'] ?? '')
+    const target = String(row?.['NextNodeID'] ?? '')
     edgeDialogTitle.value = `${resolveNodeTitle(source)} → ${resolveNodeTitle(target)} - 步骤信息`
     edgeRows.value = stepsOnEdge(stepRows.value, source, target)
     edgeActiveTab.value = 'edge'

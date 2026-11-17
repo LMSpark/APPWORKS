@@ -220,12 +220,6 @@
           "additionalProperties": false
         },
         "method.confirmSubmitted.return": true,
-        "method.confirmNotApplied.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.confirmNotApplied.return": true,
         "method.rejectSaveBeforeApply.params": {
           "type": "object",
           "properties": {
@@ -291,7 +285,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.641Z",
+  "generatedAt": "2026-11-16T22:10:59.193Z",
   "models": {
     "ScenarioViewSubmission": {
       "name": "ScenarioViewSubmission",
@@ -626,14 +620,6 @@
             },
             {
               "name": "confirmSubmitted",
-              "parameters": [],
-              "type": {
-                "type": "intrinsic",
-                "name": "void"
-              }
-            },
-            {
-              "name": "confirmNotApplied",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

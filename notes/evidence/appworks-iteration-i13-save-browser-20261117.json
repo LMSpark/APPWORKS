@@ -1,0 +1,28 @@
+{
+  "iteration": "I13-save",
+  "observedAt": "2026-11-16T20:18:26.354196+00:00",
+  "browserCount": 0,
+  "errors": [
+    "Browsers: Error: The browser access host is unavailable"
+  ],
+  "uiActions": 0,
+  "businessWrites": 0,
+  "credentialInput": false,
+  "boundary": "connection observation only; no live acceptance",
+  "recheckedAt": "2026-11-16T21:37:36.525957+00:00",
+  "recheckBrowserHostAvailable": false,
+  "recheckBrowserCount": 0,
+  "recheckUiActions": 0,
+  "rechecks": [
+    {
+      "observedAt": "2026-11-16T23:40:31.720510+00:00",
+      "browserInventoryCount": 0,
+      "browserInventoryError": "The browser access host is unavailable",
+      "nativeChromeOpened": true,
+      "nativeBrowserControl": "stopped by Computer Use: could not determine current browser URL on Windows with enough confidence to enforce policy",
+      "credentialsEntered": false,
+      "businessActions": 0,
+      "uiSmoke": false
+    }
+  ]
+}

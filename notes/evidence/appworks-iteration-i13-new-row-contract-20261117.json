@@ -1,0 +1,195 @@
+{
+  "observedAt": "2026-11-16T23:39:59.621Z",
+  "scope": "original DataSet workflow directory creation access read only",
+  "businessWrites": 0,
+  "metadataWrites": 0,
+  "fileWrites": 0,
+  "sessionPersisted": false,
+  "uiSmoke": false,
+  "queryLoaded": true,
+  "queryFields": [
+    "rowid",
+    "TITLE",
+    "MEMO",
+    "sysid",
+    "CRTDATE",
+    "createuser"
+  ],
+  "fields": [
+    {
+      "field": "TITLE",
+      "projected": true,
+      "newRow": {
+        "read": "visible",
+        "write": "allowed",
+        "required": false,
+        "component": "editable",
+        "writeMode": "editable"
+      },
+      "noCurrentRow": {
+        "read": "invisible",
+        "write": "denied",
+        "component": "hidden",
+        "required": false,
+        "writeMode": "readonly"
+      }
+    },
+    {
+      "field": "CRTUSER",
+      "projected": true,
+      "newRow": {
+        "read": "visible",
+        "write": "allowed",
+        "required": false,
+        "component": "editable",
+        "writeMode": "editable"
+      },
+      "noCurrentRow": {
+        "read": "invisible",
+        "write": "denied",
+        "component": "hidden",
+        "required": false,
+        "writeMode": "readonly"
+      }
+    },
+    {
+      "field": "CRTDATE",
+      "projected": true,
+      "newRow": {
+        "read": "visible",
+        "write": "allowed",
+        "required": false,
+        "component": "editable",
+        "writeMode": "editable"
+      },
+      "noCurrentRow": {
+        "read": "invisible",
+        "write": "denied",
+        "component": "hidden",
+        "required": false,
+        "writeMode": "readonly"
+      }
+    },
+    {
+      "field": "STATE",
+      "projected": false,
+      "newRow": {
+        "read": "invisible",
+        "write": "denied",
+        "component": "hidden",
+        "required": false,
+        "writeMode": "readonly"
+      },
+      "noCurrentRow": {
+        "read": "invisible",
+        "write": "denied",
+        "component": "hidden",
+        "required": false,
+        "writeMode": "readonly"
+      }
+    },
+    {
+      "field": "BusinessTable",
+      "projected": true,
+      "newRow": {
+        "read": "visible",
+        "write": "allowed",
+        "required": false,
+        "component": "editable",
+        "writeMode": "editable"
+      },
+      "noCurrentRow": {
+        "read": "invisible",
+        "write": "denied",
+        "component": "hidden",
+        "required": false,
+        "writeMode": "readonly"
+      }
+    },
+    {
+      "field": "sysid",
+      "projected": true,
+      "newRow": {
+        "read": "visible",
+        "write": "allowed",
+        "required": false,
+        "component": "editable",
+        "writeMode": "editable"
+      },
+      "noCurrentRow": {
+        "read": "invisible",
+        "write": "denied",
+        "component": "hidden",
+        "required": false,
+        "writeMode": "readonly"
+      }
+    }
+  ],
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetBaseData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/LoginAuthority/UserLoginByEnt",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    }
+  ]
+}

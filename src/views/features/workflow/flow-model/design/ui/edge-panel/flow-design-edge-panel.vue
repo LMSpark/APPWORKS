@@ -41,9 +41,10 @@ function onRowClick(row: Record<string, unknown>): void {
   emitRowId(row)
 }
 const columns: SparkNode[] = [
-  {type: 'r-text', props: {field: 'PARENTID', label: '父节点', readonly: true, minWidth: 140}},
-  {type: 'r-text', props: {field: 'CHILDID', label: '子节点', readonly: true, minWidth: 140}},
+  {type: 'r-text', props: {field: 'UpNodeID', label: '父节点', readonly: true, minWidth: 140}},
+  {type: 'r-text', props: {field: 'NextNodeID', label: '子节点', readonly: true, minWidth: 140}},
   {type: 'r-text', props: {field: 'TITLE', label: '连线标题', minWidth: 160}},
-  {type: 'r-text', props: {field: 'MEMO', label: '条件/备注', minWidth: 200, showOverflowTooltip: true}},
+  {type: 'r-text', props: {field: 'description', label: '备注', minWidth: 160}},
+  {type: 'r-text', props: {field: 'ConditionExpress', label: '条件表达式', minWidth: 200, showOverflowTooltip: true}},
 ]
 </script>

@@ -1,6 +1,6 @@
 /**
  * @module app:lowcode/resources/system/workflow/manage/flow-design-graph-projection
- * 职责：从流程模型 DesignJson 解析节点坐标与连线路径，投影为 RendererGraph 只读布局。
+ * 职责：从正式设计文件解析节点坐标与连线路径，投影为 RendererGraph 布局。
  * 边界：不读写平台文件、不修改节点/连线表；解析失败时按节点行顺序兜底排布。
  */
 import type {DataView} from '@spark-appworks/spark-data'
@@ -11,20 +11,8 @@ export type FlowDesignGraphLayout = Readonly<{
   edgePaths: Readonly<Record<string, ReadonlyArray<{x: number; y: number}>>>
 }>
 
-const DESIGN_JSON_KEYS = ['DesignJson', 'DESIGNJSON', 'designJson', 'DesignJSON'] as const
-
 function normalizeText(value: unknown): string {
   return String(value ?? '').trim()
-}
-
-function readDesignJsonText(modelView: DataView): string {
-  const row = modelView.rows[0]
-  if (!row || typeof row !== 'object') return ''
-  for (const key of DESIGN_JSON_KEYS) {
-    const text = normalizeText(row[key])
-    if (text) return text
-  }
-  return ''
 }
 
 export function parseFlowDesignGraphJson(content: string): Readonly<{
@@ -68,17 +56,15 @@ export type FlowDesignLayoutOverride = Readonly<{
 }>
 
 export type FlowDesignGraphLayoutInput = Readonly<{
-  modelView: DataView
   nodeView: DataView
   edgeView: DataView
-  designJsonOverride?: string
+  documentText: string
   layoutOverride?: FlowDesignLayoutOverride
 }>
 
-/** 将 DesignJson 与当前节点/连线行投影为 RendererGraph 布局参数。 */
+/** 将原设计文件与当前节点/连线行投影为 RendererGraph 布局参数。 */
 export function buildFlowDesignGraphLayout(input: FlowDesignGraphLayoutInput): FlowDesignGraphLayout {
-  const override = normalizeText(input.designJsonOverride)
-  const parsed = parseFlowDesignGraphJson(override || readDesignJsonText(input.modelView))
+  const parsed = parseFlowDesignGraphJson(input.documentText)
   const nodePositions: Record<string, {x: number; y: number}> = {}
   const edgePaths: Record<string, ReadonlyArray<{x: number; y: number}>> = {}
 
@@ -116,30 +102,32 @@ export function buildFlowDesignGraphLayout(input: FlowDesignGraphLayoutInput): F
   return {nodePositions, edgePaths}
 }
 
-/** 将当前布局与节点/边行序列化为 DesignJson 文本（保存用）。 */
+/** 将当前布局与节点/边行序列化为原设计文件文本。 */
 export function serializeFlowDesignGraphJson(input: FlowDesignGraphLayoutInput): string {
   const layout = buildFlowDesignGraphLayout(input)
-  const nodes = input.nodeView.rows
-    .filter(isRecord)
-    .map(row => {
-      const id = normalizeText(row['rowid'] ?? row['ROWID'])
-      if (!id) return null
-      const position = layout.nodePositions[id] ?? {x: 0, y: 0}
-      return {id, type: 'rect', x: position.x, y: position.y, properties: {title: normalizeText(row['TITLE'])}}
-    })
-    .filter((item): item is NonNullable<typeof item> => Boolean(item))
-  const edges = input.edgeView.rows
-    .filter(isRecord)
-    .map(row => {
-      const id = normalizeText(row['rowid'] ?? row['ROWID'])
-      const sourceNodeId = normalizeText(row['PARENTID'])
-      const targetNodeId = normalizeText(row['CHILDID'])
-      if (!id || !sourceNodeId || !targetNodeId) return null
-      const points = layout.edgePaths[id]
-      const edge: Record<string, unknown> = {id, type: 'polyline', sourceNodeId, targetNodeId}
-      if (points && points.length >= 2) edge['pointsList'] = points.map(point => ({x: point.x, y: point.y}))
-      return edge
-    })
-    .filter((item): item is NonNullable<typeof item> => Boolean(item))
-  return JSON.stringify({nodes, edges})
+  const text=normalizeText(input.documentText)
+  let previous:Record<string,unknown>={}
+  if(text){let value:unknown=JSON.parse(text);if(typeof value==='string')value=JSON.parse(value)
+    if(!isRecord(value))throw Error('流程设计原文件不是对象，不能覆盖');previous=value}
+  const oldNodes=Array.isArray(previous['nodes'])?previous['nodes'].filter(isRecord):[]
+  const oldEdges=Array.isArray(previous['edges'])?previous['edges'].filter(isRecord):[]
+  const effective=(view:DataView)=>view.rows.map(row=>{const key=view.getPkKey(row);return key===undefined?row:view.getEditingRow(key)??row})
+  const read=(view:DataView,row:DataView['rows'][number],field:string)=>{if(view.fieldAccess(row,field).read!=='visible')throw Error(`流程图字段不可读: ${field}`);return row[field]}
+  const nodeRows=effective(input.nodeView),edgeRows=effective(input.edgeView)
+  for(const [stored,rows,view] of [[oldNodes,nodeRows,input.nodeView],[oldEdges,edgeRows,input.edgeView]] as const){
+    for(const item of stored){const id=normalizeText(item['id']);if(id&&!rows.some(row=>normalizeText(row['rowid'])===id)&&!view.dirtyTracking.isPendingDelete(id))throw Error('原文件图项未返回正式定义，不能覆盖未知图项')}
+  }
+  const nodes=nodeRows.map(row=>{
+    const id=normalizeText(read(input.nodeView,row,'rowid'));if(!id)throw Error('流程节点缺少正式身份')
+    const old=oldNodes.find(node=>normalizeText(node['id'])===id),position=layout.nodePositions[id]??{x:0,y:0}
+    return {...old,id,type:old?.['type']??'rect',...position,properties:{...(isRecord(old?.['properties'])?old['properties']:{}),...(input.nodeView.fieldAccess(row,'TITLE').read==='visible'?{title:normalizeText(row['TITLE'])}:{})}}
+  })
+  const edges=edgeRows.map(row=>{
+    const id=normalizeText(read(input.edgeView,row,'rowid')),sourceNodeId=normalizeText(read(input.edgeView,row,'UpNodeID')),targetNodeId=normalizeText(read(input.edgeView,row,'NextNodeID'))
+    if(!id||!sourceNodeId||!targetNodeId)throw Error('流程连线缺少正式身份或端点')
+    if(!nodes.some(node=>node.id===sourceNodeId)||!nodes.some(node=>node.id===targetNodeId))throw Error('流程连线端点不属于当前流程')
+    const old=oldEdges.find(edge=>normalizeText(edge['id'])===id),points=layout.edgePaths[id]
+    return {...old,id,type:old?.['type']??'polyline',sourceNodeId,targetNodeId,...(points&&points.length>=2?{pointsList:points.map(point=>({...point}))}:{})}
+  })
+  return JSON.stringify({...previous,nodes,edges})
 }

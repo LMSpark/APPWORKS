@@ -1349,7 +1349,7 @@ describe('ProjectWorkspace scenario files', () => {
   })
 
   it('retains the submitted baseline when remote readback cannot confirm a write', async () => {
-    const { workspace, writeText } = workspaceFixture()
+    const { workspace, writeText, setRemote } = workspaceFixture()
     const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
     file.setText(fixture(30))
     writeText.mockImplementationOnce(async () => {})
@@ -1357,8 +1357,15 @@ describe('ProjectWorkspace scenario files', () => {
     expect(file.isDirty).toBe(true)
     file.undo()
     expect(file.isDirty).toBe(true)
-    expect(await workspace.verifyScenarioViews({ scenarioId: 'UNIT-SCENE' })).toBe('not-applied')
-    expect(file.isDirty).toBe(false)
+    await expect(workspace.verifyScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('不能证明')
+    expect(file.saveStatus).toBe('unknown')
+    await expect(workspace.saveScenarioViews({scenarioId:'UNIT-SCENE'})).rejects.toThrow()
+    expect(writeText).toHaveBeenCalledTimes(1)
+    setRemote(fixture(30))
+    expect(await workspace.verifyScenarioViews({scenarioId:'UNIT-SCENE'})).toBe('confirmed')
+    expect(file.savedText).toBe(fixture(30))
+    expect(file.getText()).toBe(fixture())
+    expect(file.isDirty).toBe(true)
   })
 
   it('rejects another save or forced reload while a save is pending', async () => {

@@ -103,6 +103,8 @@ export { PageRuntime } from './page/runtime-page'
 export type { PageRuntimeOptions, PageRuntimeCall } from './page/runtime-page'
 export {ScenarioViewFile, ScenarioViewWriteNotAppliedError} from './scenario/scenario-view-file'
 export type {ScenarioViewSubmission} from './scenario/scenario-view-file'
+export {createScenarioSubmissionJournal} from './scenario/scenario-submission-journal'
+export type {ScenarioSubmissionCapture, ScenarioSubmissionJournal, ScenarioSubmissionStorage} from './scenario/scenario-submission-journal'
 export { ScenarioViewConfig } from './scenario/scenario-view-config'
 
 export {

@@ -68,7 +68,10 @@ export function planProjectBlueprintReplacement(
   for (const item of target) {
     const before = currentById.get(item.node.nodeId)
     if (!before) {
-      const fields = {...toWireFields(item.node), prowid: item.parentNodeId}
+      const fields: WireFields = {...toWireFields(item.node), prowid: item.parentNodeId}
+      // 新记录未指定的可选整数枚举交由存储默认值处理；空字符串不是合法整数。
+      if (item.node.navigation?.openMode === undefined) delete fields['NavigationType']
+      if (item.node.navigation?.displayMode === undefined) delete fields['NavigationShowType']
       assertAvailableFields(fields, { availableFields: options.availableFields, allowDefaults: true, nodeId: item.node.nodeId })
       creates.push(command({ kind: 'create', item, fields }))
       continue

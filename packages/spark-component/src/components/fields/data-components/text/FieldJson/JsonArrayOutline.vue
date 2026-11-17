@@ -24,7 +24,7 @@ import {isJsonObject, parseJsonDocument, type JsonObject, type JsonPath, type Js
 import {SparkComponentRenderer, DATA_SOURCE, useSparkComponent} from '../../../../internal'
 import FieldTableCellScope from '../../../non-data-components/FieldTableCellScope.vue'
 const props = defineProps<{modelValue:string; children?:SparkNodeChildren | undefined; childrenField?:string | undefined;
-  idField?:string | undefined;parentField?:string | undefined;selectedPath?:JsonPath | null | undefined; height?:number|string | undefined}>()
+  idField?:string | undefined;parentField?:string | undefined;rootValue?:string | number | null | undefined;selectedPath?:JsonPath | null | undefined; height?:number|string | undefined}>()
 const emit=defineEmits<{'select-path':[path:JsonPath|null]}>()
 const {sparkProvide}=useSparkComponent({type:'r-json-outline'})
 const dataSet=shallowRef<DataSet>(), treeRows=shallowRef<DataRow[]>([]), error=ref('')
@@ -43,6 +43,8 @@ function flatTree(value:JsonValue,project:(item:JsonObject,path:JsonPath)=>DataR
   if(!Array.isArray(value))throw new Error('JSON节点必须是对象数组')
   const entries=new Map<string|number,{row:DataRow;parent:JsonValue|undefined;children:DataRow[]}>()
   const identity=(id:unknown)=>typeof id==='string'&&Boolean(id.trim())||typeof id==='number'&&Number.isFinite(id)
+  const root=props.rootValue
+  if(root!==undefined&&root!==null&&!identity(root))throw new Error('JSON平面节点根标记无效')
   for(const [index,item] of value.entries()){
     if(!isJsonObject(item)||Array.isArray(item))throw new Error('JSON节点必须是对象')
     const id=Object.hasOwn(item,idField)?item[idField]:undefined
@@ -51,10 +53,11 @@ function flatTree(value:JsonValue,project:(item:JsonObject,path:JsonPath)=>DataR
     const children:DataRow[]=[],parent=Object.hasOwn(item,parentField)?item[parentField]:undefined
     entries.set(id,{row:{...project(item,[index]),[childKey]:children},parent,children})
   }
+  if(root!==undefined&&root!==null&&entries.has(root))throw new Error('JSON根标记与节点身份冲突')
   const roots:DataRow[]=[],parents=new Map<string|number,string|number>()
   for(const [id,entry] of entries){
     const parent=entry.parent
-    if(parent===undefined||parent===null||parent===''){roots.push(entry.row);continue}
+    if(parent===undefined||parent===null||parent===''||root!==undefined&&parent===root){roots.push(entry.row);continue}
     if(!identity(parent)||typeof parent!=='string'&&typeof parent!=='number')throw new Error('JSON平面节点父项身份无效')
     const target=entries.get(parent);if(!target)throw new Error('JSON平面节点父项不存在')
     parents.set(id,parent);target.children.push(entry.row)
@@ -75,7 +78,7 @@ function rebuild():void {
   dataSet.value=undefined;treeRows.value=[];paths.clear();error.value='';generation.value++
   void nextTick(()=>previous?.destroy())
   try {
-    const flatMode=props.idField!==undefined||props.parentField!==undefined
+    const flatMode=props.idField!==undefined||props.parentField!==undefined||props.rootValue!==undefined
     if(!flatMode&&!props.childrenField?.trim())throw new Error('JSON节点树缺少子数组字段')
     if(fields.value.some(node=>node.props?.['dataViewKey']!==undefined||node.props?.['dataMember']!==undefined||node.props?.['dataField']!==undefined))throw new Error('JSON子字段只绑定对象成员field')
     const roots=parseJsonDocument(props.modelValue),flat:DataRow[]=[]
@@ -105,7 +108,7 @@ function select(row:DataRow):void {
   const path=paths.get(String(row[rowKey]))
   if(path)emit('select-path',[...path])
 }
-watch([()=>props.modelValue,()=>props.childrenField,()=>props.idField,()=>props.parentField,()=>JSON.stringify(fields.value)],rebuild,{immediate:true})
+watch([()=>props.modelValue,()=>props.childrenField,()=>props.idField,()=>props.parentField,()=>props.rootValue,()=>JSON.stringify(fields.value)],rebuild,{immediate:true})
 onBeforeUnmount(()=>{if(props.selectedPath)emit('select-path',null)})
 onUnmounted(()=>dataSet.value?.destroy())
 </script>

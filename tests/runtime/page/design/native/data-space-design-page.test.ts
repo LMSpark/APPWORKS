@@ -2510,18 +2510,24 @@ describe('native graph layout persistence', () => {
     expect(Object.keys(first.metadataDataSet.tables)).toEqual(before)
   })
 
-  it('keeps an unapplied submission staged until an explicit retry', async () => {
+  it('keeps an unknown layout submission staged at the baseline without replay until the original text arrives', async () => {
     const f = fixture(), session = await f.open('A'), editor = new DataSpaceLayoutEdit(session)
     await editor.initialize()
     const original = f.stored.get('A')!
     editor.state(); editor.move({id: 'M1', x: 40, y: 60}); f.loseNextFileResponse()
     await expect(editor.save()).rejects.toThrow()
     f.stored.set('A', original)
-    expect(await editor.verify()).toBe('not-applied')
+    await expect(editor.verify()).rejects.toThrow('SCENARIO_VIEW_RECOVERY_UNRESOLVED:')
     expect(editor.pending).toBe(true); expect(f.fileWrites).toHaveLength(1)
     expect(() => editor.cancel()).toThrow('已暂存')
-    await editor.save()
-    expect(f.fileWrites).toHaveLength(2); expect(editor.pending).toBe(false)
+    await expect(editor.save()).rejects.toThrow('布局提交待核验，不会重复提交')
+    expect(f.fileWrites).toHaveLength(1); expect(editor.pending).toBe(true)
+    const captured = f.workspaces.at(-1)?.getScenarioViews('A')?.submission
+    expect(captured).toBeDefined()
+    if (!captured) throw Error('Original layout submission missing')
+    f.stored.set('A', captured.text)
+    expect(await editor.verify()).toBe('confirmed')
+    expect(f.fileWrites).toHaveLength(1); expect(editor.pending).toBe(false)
     editor.dispose()
   })
 

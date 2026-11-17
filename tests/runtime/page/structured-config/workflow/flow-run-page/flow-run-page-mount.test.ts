@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {DOMWrapper,config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {defineComponent, h, reactive} from 'vue'
 import {PAGE_RUNTIME, RendererDialog, RendererForm, RendererTabs, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
@@ -11,13 +11,10 @@ import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENAR
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
+import {fixture as designFixture} from '../flow-design/flow-design-data.fixture'
 const {reloadRuntime} = vi.hoisted(() => ({reloadRuntime: vi.fn(async () => undefined)}))
 const callbacks = vi.hoisted(() => ({end: vi.fn(async (_payload: unknown) => true), succeeded: vi.fn(async (_payload: unknown) => {}), failed: vi.fn((_payload: unknown) => {})}))
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({
-  lowcodeApi: {readRequestScope: vi.fn(() => ({}))},
-  lowcodeHttp: {},
-}))
 vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => {
   const {ref} = await import('vue')
   return {
@@ -63,13 +60,15 @@ vi.mock('@spark-appworks/spark-component', async importOriginal => {
   return {
     ...actual,
     __v_isRef: false,
-    RendererGraph: {name: 'RendererGraph', template: '<div data-testid="run-chart">图</div>'},
+    RendererGraph: {name: 'RendererGraph', props:['edgeSourceField','edgeTargetField'],template: '<div data-testid="run-chart" :data-source-field="edgeSourceField" :data-target-field="edgeTargetField">图</div>'},
   }
 })
 
 const {default: FlowRunPage} = await import('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue')
 
 type MockView = {
+  getColumn:(name:string)=>{name:string}|undefined
+  fieldAccess:()=>{read:'visible'}
   destroyed: boolean
   queryContext: Record<string, string>
   loadingError: Error | null
@@ -81,6 +80,8 @@ type MockView = {
 function createView(rows: MockView['rows']): MockView {
   const handlers = new Map<string, Array<() => void>>()
   return {
+    getColumn:(name:string)=>rows.some(row=>Object.hasOwn(row,name))?{name}:undefined,
+    fieldAccess:()=>({read:'visible'}),
     destroyed: false,
     queryContext: {},
     loadingError: null,
@@ -104,14 +105,8 @@ function createView(rows: MockView['rows']): MockView {
   }
 }
 
+let designDataSet:DataSet
 function createRuntime(): PageRuntime {
-  const design = {
-    WFM_FLOW_MODLE: createView([{TITLE: '样例', DesignJson: ''}]),
-    WFM_FLOW_NODE: createView([{rowid: 'N1', TITLE: '开始'}]),
-    WFM_NODE_REALATION: createView([]),
-    WFM_WORKFORM: createView([]),
-    Base_NavigationInfo: createView([]),
-  }
   const monitor = {
     View_FlowObjList: createView([{rowid: 'WF-1', TITLE: '实例', WFMID: 'FM-1', BusTblObjID: 'BUS-1'}]),
     WFOBJ_FLOW: createView([{rowid: 'WF-1', WFMID: 'FM-1', TITLE: '实例'}]),
@@ -135,7 +130,7 @@ function createRuntime(): PageRuntime {
   return {
     instanceId: 'flow-run-page-mount',
     getDataSet: (id: string) => {
-      if (id === FLOW_DESIGN_SCENARIO_ID) return {getView: (name: string) => design[name as keyof typeof design]}
+      if (id === FLOW_DESIGN_SCENARIO_ID) return designDataSet
       if (id === FLOW_MONITOR_SCENARIO_ID) return {getView: (name: string) => monitor[name as keyof typeof monitor]}
       if (id === FLOW_WORKBENCH_SCENARIO_ID) return actualWorkbench ?? {getView: (name: string) => workbench[name as keyof typeof workbench]}
       return undefined
@@ -147,8 +142,8 @@ function createRuntime(): PageRuntime {
       if (actual) return actual
       if (key.includes('View_FlowObjList')) return monitor.View_FlowObjList
       if (key.includes('WFOBJ_FLOW_RELATIONLINE_STEP')) return workbench.WFOBJ_FLOW_RELATIONLINE_STEP
-      if (key.includes('WFM_FLOW_NODE')) return design.WFM_FLOW_NODE
-      if (key.includes('WFM_NODE_REALATION')) return design.WFM_NODE_REALATION
+      if (key.includes('WFM_FLOW_NODE')) return designDataSet.getView('WFM_FLOW_NODE')
+      if (key.includes('WFM_NODE_REALATION')) return designDataSet.getView('WFM_NODE_REALATION')
       return null
     },
     dispose: () => undefined,
@@ -171,7 +166,10 @@ const Host = pageInstance.view
 const wrappers: VueWrapper[] = []
 const baselineStubs = {...config.global.stubs}
 
-beforeEach(() => {
+beforeEach(async () => {
+  const prepared=await designFixture(false,false);designDataSet=prepared.ds
+  prepared.http.records['WFM_FLOW_NODE']!.push({rowid:'N2',FLOWID:'FM-1',TITLE:'Next',TYPEID:11})
+  prepared.http.records['WFM_NODE_REALATION']=[{rowid:'E1',FLOWID:'FM-1',UpNodeID:'N1',NextNodeID:'N2'}]
   registerAllRenderers()
   approvalState.hasUnconfirmedSave = false
   originalOptionsView = undefined
@@ -192,6 +190,17 @@ afterEach(() => {
 })
 
 describe('flow run page mount', () => {
+  it('opens its flow chart with the original formal edge endpoints',async()=>{
+    const wrapper=mount(withTestPageService(Host),{global:{plugins:[ElementPlus,Spark.createPlugin()]}})
+    wrappers.push(wrapper);await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='流程图')!.trigger('click');await flushPromises()
+    const graph=new DOMWrapper(document.body).find('[data-testid="run-chart"]'),edge=designDataSet.getView('WFM_NODE_REALATION')!.rows[0]!
+    expect(graph.exists()).toBe(true)
+    const source=graph.attributes('data-source-field'),target=graph.attributes('data-target-field')
+    if(!source||!target)throw Error('流程图必须声明正式连线端点字段')
+    expect(edge[source]).toBe('N1')
+    expect(edge[target]).toBe('N2')
+  })
   it.each(['success', 'unknown', 'callback-error', 'form-switch', 'business-error', 'directory', 'append-input'])('uses original parameter views through the %s outcome', async outcome => {
     const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
     const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})

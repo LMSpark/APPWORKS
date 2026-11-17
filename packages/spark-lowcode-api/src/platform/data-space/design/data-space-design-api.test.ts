@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { LowcodeApi } from '../../../lowcode-api.js'
 import { DataSpaceDesignApi } from './data-space-design-api.js'
+import {DataSpaceModelNotFoundError} from './data-space-model-not-found-error.js'
 import { encodeDataSpaceResourceType, parseDataSpaceResourceType } from '../data-space-resource-type-wire.js'
 
 it('resolves the one remote business source key while preserving the tenant primary flag', () => {
@@ -167,6 +168,22 @@ function formalApi(http: DataSpaceFormalFixtureHttpClient): LowcodeApi {
 
 const formalInput = { designScenarioId: 'DESIGN-1', dataSpaceId: 'SPACE-1', metaName: 'Orders' }
 const formalSpaceInput = { designScenarioId: 'DESIGN-1', dataSpaceId: 'SPACE-1' }
+it.each(['zero', 'incomplete', 'duplicate', 'masked'] as const)('reports model absence only for a complete zero-row query: %s', async mode => {
+  const http = new DataSpaceFormalFixtureHttpClient()
+  const row = formalModel()
+  http.results.push(mode === 'zero' ? formalResult([], 0)
+    : mode === 'incomplete' ? formalResult([], 1)
+      : mode === 'duplicate' ? formalResult([row, row], 2)
+        : formalResult([{...row, lingma_sys_params: {h: ['MetaName']}}]))
+  let failure: unknown
+  try {await formalApi(http).dataSpace.design.readModel(formalInput)} catch (error) {failure = error}
+  expect(failure).toBeInstanceOf(Error)
+  expect(failure instanceof DataSpaceModelNotFoundError).toBe(mode === 'zero')
+  if (failure instanceof DataSpaceModelNotFoundError) {
+    expect(failure.dataSpaceId).toBe(formalInput.dataSpaceId)
+    expect(failure.metaName).toBe(formalInput.metaName)
+  }
+})
 function formalSpaceRow(change: Record<string, unknown> = {}): FormalDesignRow {
   return { rowid: 'SPACE-1', Name: '  薪资正式空间  ', inputParams: '[secret]',
     lingma_sys_key: 'ROW-KEY', lingma_sys_params: { r: ['rowid', 'Name'] }, ...change }

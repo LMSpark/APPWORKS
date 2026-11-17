@@ -7,7 +7,7 @@
     "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-client.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/system/workflow/manage/flow-design-client",
-    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-client\n职责：流程设计聚合读写的 lowcode 入口占位；完整图编辑语义待接 FlowDesign 专用合同。\n边界：页面经本模块访问设计能力，禁止在 Vue 中直接引用 lowcodeApi。",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-client\n职责：声明流程设计正式场景身份并校验调用目标。\n边界：不查询或提交数据，读写由原 DataSet 的模型及文件 DataView 承接。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "FlowDesignClientOptions"
@@ -34,7 +34,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T19:10:56.866Z",
+  "generatedAt": "2026-11-16T21:35:21.419Z",
   "models": {
     "FlowDesignClientOptions": {
       "name": "FlowDesignClientOptions",

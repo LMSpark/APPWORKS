@@ -1,59 +1,18 @@
-import {describe, expect, it, vi} from 'vitest'
+import {describe,expect,it} from 'vitest'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-
-vi.mock('@/lowcode/lowcode-runtime', () => ({
-  lowcodeApi: {design: {readTextFile: vi.fn(async () => '')}},
-}))
-
-const {FLOW_DESIGN_SCENARIO_ID, prepareFlowDesignViews} = await import('@/lowcode/resources/system/workflow/manage')
-
-type MockView = {
-  destroyed: boolean
-  queryContext: Record<string, string>
-  loadingError: Error | null
-  refresh: ReturnType<typeof vi.fn>
-  rows: Array<Record<string, unknown>>
-}
-
-function createView(rows: MockView['rows']): MockView {
-  return {destroyed: false, queryContext: {}, loadingError: null, refresh: vi.fn(async () => undefined), rows}
-}
-
-function createRuntime(views: Record<string, MockView>): PageRuntime {
-  return {
-    getDataSet: (scenarioId: string) => scenarioId === FLOW_DESIGN_SCENARIO_ID
-      ? {getView: (name: string) => views[name]}
-      : undefined,
-  } as unknown as PageRuntime
-}
-
-describe('prepareFlowDesignViews', () => {
-  it('writes FLOWID query context and refreshes design tables', async () => {
-    const model = createView([{TITLE: '请假流程', DesignJson: ''}])
-    const node = createView([{TITLE: '开始'}])
-    const edge = createView([])
-    const workForm = createView([])
-    const runtime = createRuntime({
-      WFM_FLOW_MODLE: model,
-      WFM_FLOW_NODE: node,
-      WFM_NODE_REALATION: edge,
-      WFM_WORKFORM: workForm,
-      Base_NavigationInfo: createView([]),
-    })
-    const result = await prepareFlowDesignViews(runtime, 'flow-key-1')
-    expect(result.modelTitle).toBe('请假流程')
-    expect(model.queryContext).toEqual({FLOWID: 'flow-key-1', rowid: 'flow-key-1'})
-    expect(node.queryContext['FLOWID']).toBe('flow-key-1')
-    expect(model.refresh).toHaveBeenCalledOnce()
-    expect(result.nodeViewKey).toContain('WFM_FLOW_NODE')
-    expect(result.edgeViewKey).toContain('WFM_NODE_REALATION')
-    expect(result.workFormViewKey).toContain('WFM_WORKFORM')
-    expect(workForm.refresh).toHaveBeenCalledOnce()
-    expect(result.graphLayout.nodePositions).toBeDefined()
-  })
-
-  it('rejects missing design dataset', async () => {
-    const runtime = {getDataSet: () => undefined} as unknown as PageRuntime
-    await expect(prepareFlowDesignViews(runtime, 'x')).rejects.toThrow(/设计场景/)
-  })
+import {fixture} from './flow-design-data.fixture'
+import {prepareFlowDesignViews} from '@/lowcode/resources/system/workflow/manage'
+describe('prepareFlowDesignViews',()=>{
+ it('returns full bindings from the selected formal model and the same file DataView',async()=>{
+  const {runtime,ds}=await fixture(true,false),result=await prepareFlowDesignViews(runtime,'FM-1')
+  expect(result.modelTitle).toBe('Flow 1')
+  expect(ds.getView('WFM_FLOW_MODLE')!.rows.map(row=>row['rowid'])).toEqual(['FM-1'])
+  expect(runtime.resolveView(result.documentViewKey)).toBe(ds.getView('FlowDesignDocument','document-FM-1'))
+  expect(result.graphLayout.nodePositions['N1']).toEqual({x:7,y:9})
+  expect(runtime.resolveView(result.workFormViewKey)?.rows.map(row=>row['rowid'])).toEqual(['WF1'])
+ })
+ it('rejects missing design dataset',async()=>{
+  const runtime={getDataSet:()=>undefined} as unknown as PageRuntime
+  await expect(prepareFlowDesignViews(runtime,'x')).rejects.toThrow('设计场景')
+ })
 })

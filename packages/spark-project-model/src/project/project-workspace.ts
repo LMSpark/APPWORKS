@@ -9,6 +9,7 @@
  * 领域状态、事件与投影属于 ProjectBlueprint；谁 new 谁负责生命周期。
  */
 
+import {isFileResourceReadbackConfirmed} from '@spark-appworks/spark-data'
 import type {
   ProjectBlueprintTreeData,
 } from '../blueprint/project-blueprint-node'
@@ -19,6 +20,7 @@ import type {PageTool} from '../page/page-tool'
 import { ProjectBlueprint } from './project-blueprint'
 import {ScenarioViewFile, ScenarioViewWriteNotAppliedError, type ScenarioViewSubmission} from '../scenario/scenario-view-file'
 import { ScenarioViewConfig } from '../scenario/scenario-view-config'
+import type {ScenarioSubmissionCapture, ScenarioSubmissionJournal} from '../scenario/scenario-submission-journal'
 import type {DataSet} from '@spark-appworks/spark-data'
 import {
   ProjectReferenceClient,
@@ -56,6 +58,8 @@ export class ScenarioViewVersionNotAppliedError extends Error {
 }
 
 type ScenarioViewGateway = Readonly<{
+  /** 派发前同步保存原捕获；重开仅核验，不恢复权限凭据或自动写入。 */
+  submissionJournal?: ScenarioSubmissionJournal
   readScope: () => string
   readText: (scenarioId: string) => Promise<string | null>
   /**
@@ -144,6 +148,8 @@ readonly project: ProjectBlueprint
   private readonly scenarioFiles = new Map<string, ScenarioViewFile>()
   private readonly scenarioLoads = new Map<string, Promise<ScenarioViewFile>>()
   private readonly scenarioSaves = new Set<string>()
+  private readonly scenarioSubmissionCaptures = new WeakMap<ScenarioViewFile, ScenarioSubmissionCapture>()
+  private readonly recoveredScenarioSubmissions = new WeakSet<ScenarioViewFile>()
   private readonly scenarioVersionAttempts = new Map<string, ScenarioVersionAttemptRecord>()
   /** 原场景owner仍持有待提交或结果未知的快照attempt时，宿主不得释放该工作区。 */
   get hasPendingScenarioVersionAttempt(): boolean {
@@ -226,6 +232,12 @@ constructor(options: ProjectWorkspaceOptions) {
     return this.scenarioFiles.get(this.requireScenarioId(scenarioId)) ?? null
   }
 
+  /** 只标识由持久捕获恢复的文件owner；不表示提交已生效或允许写入。 */
+  public isScenarioSubmissionRecovered(scenarioId: string): boolean {
+    const file = this.getScenarioViews(scenarioId)
+    return file !== null && file.saveStatus === 'unknown' && this.recoveredScenarioSubmissions.has(file)
+  }
+
   public async loadScenarioViews(command: ScenarioViewLoadCommand): Promise<ScenarioViewFile> {
     const scenarioId = this.requireScenarioId(command.scenarioId)
     const scope = this.currentScenarioScope()
@@ -268,6 +280,16 @@ constructor(options: ProjectWorkspaceOptions) {
   private async readScenarioViews(scenarioId: string, scope: string): Promise<ScenarioViewFile> {
     const text = await this.requireScenarioGateway().readText(scenarioId)
     this.assertScenarioScope(scope)
+    const capture = this.requireScenarioGateway().submissionJournal?.read(scenarioId)
+    if (capture) {
+      const restored = capture.baseline === null ? ScenarioViewFile.createDraft(scenarioId, capture.text) : new ScenarioViewFile(scenarioId, capture.baseline)
+      restored.setText(capture.text)
+      restored.beginSave(capture.text, capture.baseline); restored.markSaveUnknown()
+      this.scenarioSubmissionCaptures.set(restored, capture)
+      this.recoveredScenarioSubmissions.add(restored)
+      this.scenarioFiles.set(scenarioId, restored)
+      return restored
+    }
     if (text === null) throw new Error('SCENARIO_VIEW_FILE_MISSING: 场景视图文件不存在，请显式新建')
     const current = this.scenarioFiles.get(scenarioId)
     if (current?.isDirty === true) throw new Error('SCENARIO_VIEW_UNSAVED: 装载期间产生未保存修改')
@@ -305,6 +327,8 @@ constructor(options: ProjectWorkspaceOptions) {
         this.assertScenarioScope(scope)
         if (preimage !== (file.isPersisted ? file.savedText : null)) throw new Error('SCENARIO_VIEW_CONFLICT: 远端场景配置已改变')
         command.assertCurrent?.()
+        const capture = gateway.submissionJournal?.begin(scenarioId, submitted, preimage)
+        if (capture) this.scenarioSubmissionCaptures.set(file, capture)
         file.beginSave(submitted, preimage)
         const submission = file.submission
         if (!submission) throw new Error('SCENARIO_VIEW_SAVE_STATE: 缺少当前提交身份')
@@ -321,11 +345,18 @@ constructor(options: ProjectWorkspaceOptions) {
         this.assertScenarioScope(scope)
         if (readback !== submitted) throw new Error('SCENARIO_VIEW_SAVE_UNCONFIRMED: 写后原文回读不一致')
       })
+      const capture = this.scenarioSubmissionCaptures.get(file)
+      if (capture) gateway.submissionJournal?.settle(capture, 'confirmed')
       file.confirmSubmitted()
+      this.scenarioSubmissionCaptures.delete(file); this.recoveredScenarioSubmissions.delete(file)
     } catch (error) {
       if (error instanceof ScenarioViewWriteNotAppliedError && rejection.error === error
         && rejection.submission !== undefined && file.submission === rejection.submission) {
+        const capture = this.scenarioSubmissionCaptures.get(file)
+        try {if (capture) gateway.submissionJournal?.settle(capture, 'not-applied')}
+        catch (failure) {file.markSaveUnknownIfPending(); throw failure}
         file.rejectSaveBeforeApply(rejection.submission)
+        this.scenarioSubmissionCaptures.delete(file); this.recoveredScenarioSubmissions.delete(file)
       } else file.markSaveUnknownIfPending()
       throw error
     } finally {
@@ -333,7 +364,7 @@ constructor(options: ProjectWorkspaceOptions) {
     }
   }
 
-  public async verifyScenarioViews(command: ScenarioViewSaveCommand): Promise<'confirmed' | 'not-applied'> {
+  public async verifyScenarioViews(command: ScenarioViewSaveCommand): Promise<'confirmed'> {
     const scenarioId = this.requireScenarioId(command.scenarioId)
     const scope = this.currentScenarioScope()
     const file = this.scenarioFiles.get(scenarioId)
@@ -343,8 +374,17 @@ constructor(options: ProjectWorkspaceOptions) {
     const remote = await this.requireScenarioGateway().readText(scenarioId)
     this.assertScenarioScope(scope)
     if (this.scenarioFiles.get(scenarioId) !== file || file.submission !== submission) throw new Error('SCENARIO_VIEW_SAVE_STATE: 核验目标已变化')
-    if (remote === submission.text) { file.confirmSubmitted(); return 'confirmed' }
-    if (remote === submission.baseline) { file.confirmNotApplied(); return 'not-applied' }
+    command.assertCurrent?.()
+    const capture = this.scenarioSubmissionCaptures.get(file), journal = this.requireScenarioGateway().submissionJournal
+    if (isFileResourceReadbackConfirmed(submission.text,remote===null?null:{text:remote})) {
+      if (capture) journal?.settle(capture, 'confirmed')
+      file.confirmSubmitted()
+      this.scenarioSubmissionCaptures.delete(file); this.recoveredScenarioSubmissions.delete(file)
+      return 'confirmed'
+    }
+    if (remote === submission.baseline) {
+      throw Error('SCENARIO_VIEW_RECOVERY_UNRESOLVED: 当前仍是写前基线，不能证明原请求未应用；保留未知且不重传')
+    }
     throw new Error('SCENARIO_VIEW_CONFLICT: 远端与提交文本及写前基线均不一致')
   }
 
@@ -362,6 +402,7 @@ constructor(options: ProjectWorkspaceOptions) {
     const scope = this.currentScenarioScope()
     const file = this.scenarioFiles.get(scenarioId)
     if (!file) throw new Error('SCENARIO_VIEW_FILE_MISSING: 场景文件尚未加载')
+    if (file.saveStatus === 'unknown' && this.scenarioSubmissionCaptures.has(file)) throw new Error('SCENARIO_VIEW_RECOVERY_UNRESOLVED: 原持久捕获尚未核验，不能采用远端清除核验入口')
     if (file.saveStatus === 'pending' || this.scenarioSaves.has(JSON.stringify([scope, scenarioId]))) throw new Error('SCENARIO_VIEW_SAVE_PENDING: 场景正在写入')
     if (file.revision !== command.expectedRevision) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 本地配置已改变')
     command.assertCurrent?.()

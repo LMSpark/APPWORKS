@@ -1,7 +1,7 @@
 /**
  * @module app:lowcode/resources/system/workflow/manage/flow-design-client
- * 职责：流程设计聚合读写的 lowcode 入口占位；完整图编辑语义待接 FlowDesign 专用合同。
- * 边界：页面经本模块访问设计能力，禁止在 Vue 中直接引用 lowcodeApi。
+ * 职责：声明流程设计正式场景身份并校验调用目标。
+ * 边界：不查询或提交数据，读写由原 DataSet 的模型及文件 DataView 承接。
  */
 export const FLOW_DESIGN_SCENARIO_ID = '6E462C4A39EE0D96F4D1A28FFE887C89'
 

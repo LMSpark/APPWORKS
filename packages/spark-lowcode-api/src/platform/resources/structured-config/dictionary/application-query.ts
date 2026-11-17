@@ -15,9 +15,18 @@ export type ApplicationDictionaryResourceOptions = Readonly<{
   http: HttpClientBase; readScope: () => DataSpaceRequestScope; name: string; assertCurrent?: () => void
 }>
 export function captureApplicationDictionaryQuery(options: ApplicationDictionaryResourceOptions): Readonly<{readRows: () => Promise<readonly Row[]>; assertCurrent: () => void}> {
+  return captureDictionaryQuery(options, true)
+}
+
+/** 企业目录只读字典：由宿主捕获登录身份，不伪造应用头或场景模型。 */
+export function captureAuthenticatedDictionaryQuery(options: ApplicationDictionaryResourceOptions): ReturnType<typeof captureApplicationDictionaryQuery> {
+  return captureDictionaryQuery(options, false)
+}
+
+function captureDictionaryQuery(options: ApplicationDictionaryResourceOptions, applicationRequired: boolean): Readonly<{readRows: () => Promise<readonly Row[]>; assertCurrent: () => void}> {
   options.assertCurrent?.()
   const name = options.name.trim(), scope = options.readScope()
-  if (!name || !scope.token.trim() || !Object.entries(scope.headers).some(([key, value]) => key.toLowerCase() === 'x-appid' && typeof value === 'string' && value.trim().length > 0)) throw Error('SPARK_EXECUTION_SCOPE_REQUIRED: 应用字典需要名称及当前应用身份')
+  if (!name || !scope.token.trim() || applicationRequired && !Object.entries(scope.headers).some(([key, value]) => key.toLowerCase() === 'x-appid' && typeof value === 'string' && value.trim().length > 0)) throw Error('SPARK_EXECUTION_SCOPE_REQUIRED: 应用字典需要名称及当前应用身份')
   const assertCurrent = () => {
     options.assertCurrent?.()
     if (options.readScope().token !== scope.token) throw Error('SPARK_EXECUTION_SCOPE_STALE: 原应用字典查询身份已失效')

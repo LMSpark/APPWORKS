@@ -4,6 +4,7 @@
  * 边界：只汇总各文件资源的正式定义，执行逻辑留在各资源自己的模块。
  * AI用途：数据空间设计或装配需要列出、绑定文件资源时，用本模块定位唯一注册表。
  */
+import {FLOW_DESIGN_DOCUMENT_TABLE,FLOW_DESIGN_DOCUMENT_RESOURCE,FLOW_DESIGN_DOCUMENT_COLUMNS,FLOW_DESIGN_DOCUMENT_VIEWS,FLOW_DESIGN_DOCUMENT_PARAMETERS,createFlowDesignDocumentExecutor} from '../system/workflow/manage/flow-design/flow-design-document-resource'
 import {WORKFLOW_LAYOUT_TABLE,WORKFLOW_LAYOUT_RESOURCE_ID,WORKFLOW_LAYOUT_COLUMNS,WORKFLOW_LAYOUT_VIEWS,WORKFLOW_LAYOUT_QUERY_PARAMETERS,createWorkflowLayoutExecutor} from '../structured-config/workflow-definition/layout/layout-resource'
 import {JSON_DOCUMENT_TABLE,JSON_DOCUMENT_RESOURCE_ID,JSON_DOCUMENT_COLUMNS,JSON_DOCUMENT_VIEWS,JSON_DOCUMENT_QUERY_PARAMETERS,createJsonDocumentExecutor} from '../semi-structured/json-data/document-resource'
 import type {DataColumn, DataView} from '@spark-appworks/spark-data'
@@ -79,6 +80,7 @@ export function createLowcodeFileResourceExecutors(input: LowcodeFileResourceInp
 
 /** Only file resources with a concrete query executor are offered by the data-space designer. */
 export const LOWCODE_FILE_RESOURCE_REGISTRY: readonly LowcodeFileResourceDefinition[] = Object.freeze([
+  Object.freeze({tableName:FLOW_DESIGN_DOCUMENT_TABLE,resourceId:FLOW_DESIGN_DOCUMENT_RESOURCE,label:'流程设计图原文件',columns:FLOW_DESIGN_DOCUMENT_COLUMNS,views:FLOW_DESIGN_DOCUMENT_VIEWS,queryParameters:FLOW_DESIGN_DOCUMENT_PARAMETERS,createExecutor:(input:LowcodeFileResourceInput)=>createFlowDesignDocumentExecutor({...input,fileUpload:input.fileUpload??missingUpload('FLOW_DESIGN_DOCUMENT')})}),
   Object.freeze({tableName:JSON_DOCUMENT_TABLE,resourceId:JSON_DOCUMENT_RESOURCE_ID,label:'JSON文档原文件',columns:JSON_DOCUMENT_COLUMNS,
     views:JSON_DOCUMENT_VIEWS,queryParameters:JSON_DOCUMENT_QUERY_PARAMETERS,
     createExecutor:(input:LowcodeFileResourceInput)=>createJsonDocumentExecutor({api:input.api,assertCurrent:input.assertCurrent,

@@ -27,8 +27,8 @@
       </template>
     </RendererDialog>
     <RendererDialog v-if="designId" :model-value="true" title="流程设计" width="94vw" top="3vh" :append-to-body="true"
-      :destroy-on-close="true" @update:model-value="designId = ''">
-      <FlowDesignPage :flow-model-id="designId" />
+      :destroy-on-close="true" :close-disabled="designCloseDisabled" @update:model-value="designId = ''">
+      <FlowDesignPage :flow-model-id="designId" @close-blocked="designCloseDisabled = $event" />
     </RendererDialog>
   </RendererSection>
 </template>
@@ -60,7 +60,7 @@ const userKey = buildDataViewKey('Base_UserInfo', 'default', scenarioId)
 const manager = shallowRef<WorkflowFlowModelManager>()
 const busy = ref(false), listError = ref(''), createUserWarning = ref('')
 const editing = ref<'add' | 'edit' | null>(null)
-const designId = ref('')
+const designId = ref(''),designCloseDisabled=ref(false)
 let generation = 0
 
 const columns: SparkNode[] = [

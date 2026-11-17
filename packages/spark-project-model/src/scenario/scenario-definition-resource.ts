@@ -4,7 +4,7 @@
  * 边界：不创建DataTable、不维护编辑副本；只转换原DataView捕获的变更并返回存储回执。
  * AI用途：由正式元数据空间装配文件资源，组件和业务只调用DataView/DataSet。
  */
-import {DataViewLocalQuery, DataViewSaveNotAppliedError, type DataColumn, type DataRow, type DataView, type QueryParams, type DataResourceRelation} from '@spark-appworks/spark-data'
+import {DataViewLocalQuery, type DataColumn, type DataRow, type DataView, type QueryParams, type DataResourceRelation} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {ProjectWorkspace} from '../project/project-workspace'
 import type {ScenarioViewFile} from './scenario-view-file'
@@ -51,7 +51,7 @@ export class ScenarioDefinitionResource {
   readonly #endpoints = new WeakMap<ScenarioViewFile, {text: string; rows: readonly DataRow[]}>()
   #saving = false
   #createdFile: ScenarioViewFile | undefined
-  #pending: {file: ScenarioViewFile; command: string; text: string; receipts: Receipt[]; contexts: ReadonlySet<Result>} | undefined
+  #pending: {command: string; receipts: Receipt[]; contexts: ReadonlySet<Result>} | undefined
 
   /** 按实际元空间、目标空间及已授权存储创建资源适配；不会创建表或读取业务行。 */
   constructor(private readonly options: DefinitionResourceOptions) {}
@@ -66,6 +66,7 @@ export class ScenarioDefinitionResource {
 
   /** 同一文件的来源适配；业务通过DataView预览/采用，文件owner只在资源内部执行存储核对。 */
   readonly source: Source & {readonly history: History} = {
+    verifyWriteAttempt: (view, hooks) => this.verifyFileWriteAttempt(view, hooks),
     history: {
       list: async view => {
         this.assertSourceView(view)
@@ -146,6 +147,25 @@ export class ScenarioDefinitionResource {
     if (view.queryContext['dataSpaceId'] !== this.options.targetScenarioId) throw new Error('SCENARIO_DEFINITION_TARGET: 定义来源须明确目标数据空间')
   }
 
+  private async verifyFileWriteAttempt(view: DataView, hooks: Readonly<{assertCurrent(): void}>) {
+    const assertCurrent = () => {this.assertSourceView(view); hooks.assertCurrent()}
+    assertCurrent()
+    if (this.#pending || this.#saving) throw Error('SCENARIO_DEFINITION_PENDING: 原查询提交须通过原DataSet核验')
+    const file = this.options.workspace.getScenarioViews(this.options.targetScenarioId)
+    if (file?.saveStatus !== 'unknown') return {state: 'idle' as const, text: null, message: null}
+    try {
+      const state = await this.options.workspace.verifyScenarioViews({scenarioId: this.options.targetScenarioId, assertCurrent})
+      assertCurrent()
+      return {state, text: file.savedText, message: '原提交文本已回读确认'}
+    } catch (error) {
+      assertCurrent()
+      if (error instanceof Error && error.message.startsWith('SCENARIO_VIEW_RECOVERY_UNRESOLVED:')) {
+        return {state: 'unknown' as const, text: file.submittedText, message: error.message}
+      }
+      throw error
+    }
+  }
+
   /** 通用页面按查询参数定位目标空间；同一提交不可混入不同目标的文件。 */
   static forQueries(options: Omit<DefinitionResourceOptions, 'targetScenarioId'>): Executor {
     const resources = new Map<string, ScenarioDefinitionResource>()
@@ -159,6 +179,7 @@ export class ScenarioDefinitionResource {
     return {
       hasUnconfirmedSave: context => contexts.get(context)?.hasUnconfirmedSave(context) === true,
       source: {
+        verifyWriteAttempt: (view, hooks) => resolve(view.queryContext['dataSpaceId']).verifyFileWriteAttempt(view, hooks),
         history: {
           list: view => resolve(view.queryContext['dataSpaceId']).source.history.list(view),
           preview: (view, version) => resolve(view.queryContext['dataSpaceId']).source.history.preview(view, version),
@@ -239,7 +260,8 @@ export class ScenarioDefinitionResource {
       file = null
     }
     this.assertView(view)
-    if (file && file.saveStatus !== 'idle' || this.#pending) throw new Error('SCENARIO_DEFINITION_PENDING: 请先通过原DataSet保存核验未确认提交')
+    if (file && file.saveStatus !== 'idle' && !this.options.workspace.isScenarioSubmissionRecovered(this.options.targetScenarioId)
+      || this.#pending) throw new Error('SCENARIO_DEFINITION_PENDING: 请先通过原DataSet保存核验未确认提交')
     const endpoints = file ? this.#endpoints.get(file) : undefined
     const source = resource === ScenarioDefinitionRecords.resources.DataResourceRelationDefinition && params.context['definitionProjection'] === 'endpoints'
       && file && endpoints?.text === file.getText() ? endpoints.rows : file ? ScenarioDefinitionRecords.read(file.value, resource, this.legacy(file))
@@ -261,7 +283,7 @@ export class ScenarioDefinitionResource {
 
   private result(context: Context, retained?: readonly DataRow[]): Result {
     const {view, file, resource, params, source} = context
-    const editable = !['endpoints', 'fileModels'].includes(String(params.context?.['definitionProjection']))
+    const editable = (file === null || file.saveStatus === 'idle') && !['endpoints', 'fileModels'].includes(String(params.context?.['definitionProjection']))
     const singleton = resource === ScenarioDefinitionRecords.resources.DataSpaceLayoutDefinition
     const fields = new Set(view.columns.filter(column => column.name !== '_pk' && !column.computeExpression).map(column => column.name))
     const primaryKeys = view.columns.filter(column => column.isPrimaryKey).map(column => column.name)
@@ -358,12 +380,10 @@ export class ScenarioDefinitionResource {
       }
       for (const change of command.changes) change.context.assertIdentity(change.identity)
       const pending = this.#pending
-      const outcome = await this.options.workspace.verifyScenarioViews({scenarioId: this.options.targetScenarioId, assertCurrent})
+      await this.options.workspace.verifyScenarioViews({scenarioId: this.options.targetScenarioId, assertCurrent})
       assertCurrent()
       this.#pending = undefined
-      if (outcome === 'confirmed') return pending.receipts
-      pending.file.setText(pending.file.savedText)
-      throw new DataViewSaveNotAppliedError(command.changes, 'SCENARIO_DEFINITION_NOT_APPLIED: 原提交未应用，草稿保留；请显式重试保存')
+      return pending.receipts
     }
     let file = this.options.workspace.getScenarioViews(this.options.targetScenarioId)
     if (file && (file.saveStatus !== 'idle' || file.isDirty && !(this.ownsCreatedFile(file) && !file.isPersisted))) throw new Error('SCENARIO_DEFINITION_FILE_STATE: 文件仍有另一项未提交操作')
@@ -474,7 +494,7 @@ export class ScenarioDefinitionResource {
         if (submittedFile.getText() !== text) throw new Error('SCENARIO_DEFINITION_STALE: 提交期间文件发生变化')
       }})
     } catch (error) {
-      if (String(file.saveStatus) === 'unknown') this.#pending = {file, command: signature, text, receipts,
+      if (String(file.saveStatus) === 'unknown') this.#pending = {command: signature, receipts,
         contexts: new Set(command.changes.map(change => change.context))}
       else if (file.getText() === text && previousText !== null) file.setText(previousText)
       throw error

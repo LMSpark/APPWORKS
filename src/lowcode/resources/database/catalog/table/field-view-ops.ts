@@ -27,6 +27,23 @@ export function databaseCatalogFieldCanSave(view: DataView): boolean {
   return databaseCatalogStagedViewCanSave(view)
 }
 
+/** 在本次已查询表下准备字段草稿；物理加列仍由原 DataSet 保存处理。 */
+export async function databaseCatalogFieldBeginCreate(input: Readonly<{fields: DataView; tables: DataView}>): Promise<void> {
+  const {fields, tables} = input
+  const selected = tables.getSelectedValues()
+  const table = tables.rows.find(row => tables.getPkKey(row) === selected[0])
+  if (selected.length !== 1 || !table || fields.dataSet !== tables.dataSet
+    || fields.viewId !== 'tableFields' || fields.requestState !== RequestState.Loaded
+    || fields.loadingError || fields.mutating || fields.hasUnconfirmedSave) throw new Error('新增字段目标或查询尚未就绪')
+  if (fields.addActionState() !== 'enabled') throw new Error('当前查询不允许新增字段')
+  const created = await fields.addRow({tblid: selected[0], enname: '', cnname: ''})
+  if ('success' in created) throw new Error('新增字段未生成草稿')
+  const id = fields.getPkKey(created)
+  if (id === undefined) throw new Error('新增字段缺少身份')
+  fields.setCurrentRowById(id)
+  fields.setSelectedRows([created])
+}
+
 export function databaseCatalogDesignCanSave(fieldView: DataView, objectView?: DataView, extraViews: readonly DataView[] = []): boolean {
   if (databaseCatalogStagedViewCanSave(fieldView)) return true
   if (objectView && databaseCatalogStagedViewCanSave(objectView)) return true

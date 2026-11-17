@@ -135,6 +135,12 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "ScenarioViewGateway",
+      "properties": {
+        "submissionJournal": {
+          "$ref": "../scenario/scenario-submission-journal.ts.json#/$defs/ScenarioSubmissionJournal"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "method.readScope.params": {
           "type": "object",
@@ -541,6 +547,18 @@
             }
           ]
         },
+        "method.isScenarioSubmissionRecovered.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isScenarioSubmissionRecovered.return": {
+          "type": "boolean"
+        },
         "method.loadScenarioViews.params": {
           "type": "object",
           "properties": {
@@ -591,7 +609,7 @@
         },
         "method.verifyScenarioViews.return": {
           "type": "object",
-          "title": "Promise<'confirmed' | 'not-applied'>"
+          "title": "Promise<'confirmed'>"
         },
         "method.previewScenarioViewsRemote.params": {
           "type": "object",
@@ -786,7 +804,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.635Z",
+  "generatedAt": "2026-11-16T22:59:18.858Z",
   "models": {
     "ScenarioViewVersionAttempt": {
       "name": "ScenarioViewVersionAttempt",
@@ -950,15 +968,23 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    /**\n     * 写入已加载场景；expectedText 是 ProjectWorkspace 刚捕获并核对的原文，未持久化草稿时为 null。\n     * 仅资源适配器明确证明本次提交尚未应用且资源身份匹配时，才可抛 ScenarioViewWriteNotAppliedError；回读失败或超时必须保持未知。\n     */\n    writeText?: (scenarioId: string, text: string, expectedText?: string | null) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (command: ScenarioViewVersionCreateCommand) => Promise<PageToolFileVersionSummary>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 派发前同步保存原捕获；重开仅核验，不恢复权限凭据或自动写入。 */\n    submissionJournal?: ScenarioSubmissionJournal;\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    /**\n     * 写入已加载场景；expectedText 是 ProjectWorkspace 刚捕获并核对的原文，未持久化草稿时为 null。\n     * 仅资源适配器明确证明本次提交尚未应用且资源身份匹配时，才可抛 ScenarioViewWriteNotAppliedError；回读失败或超时必须保持未知。\n     */\n    writeText?: (scenarioId: string, text: string, expectedText?: string | null) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (command: ScenarioViewVersionCreateCommand) => Promise<PageToolFileVersionSummary>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    /**\n     * 写入已加载场景；expectedText 是 ProjectWorkspace 刚捕获并核对的原文，未持久化草稿时为 null。\n     * 仅资源适配器明确证明本次提交尚未应用且资源身份匹配时，才可抛 ScenarioViewWriteNotAppliedError；回读失败或超时必须保持未知。\n     */\n    writeText?: (scenarioId: string, text: string, expectedText?: string | null) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (command: ScenarioViewVersionCreateCommand) => Promise<PageToolFileVersionSummary>;\n}>",
+            "typeText": "Readonly<{\n    /** 派发前同步保存原捕获；重开仅核验，不恢复权限凭据或自动写入。 */\n    submissionJournal?: ScenarioSubmissionJournal;\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    /**\n     * 写入已加载场景；expectedText 是 ProjectWorkspace 刚捕获并核对的原文，未持久化草稿时为 null。\n     * 仅资源适配器明确证明本次提交尚未应用且资源身份匹配时，才可抛 ScenarioViewWriteNotAppliedError；回读失败或超时必须保持未知。\n     */\n    writeText?: (scenarioId: string, text: string, expectedText?: string | null) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (command: ScenarioViewVersionCreateCommand) => Promise<PageToolFileVersionSummary>;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
+          "attributes": [
+            {
+              "name": "submissionJournal",
+              "jsdoc": "派发前同步保存原捕获；重开仅核验，不恢复权限凭据或自动写入。",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "readScope",
@@ -1636,6 +1662,23 @@
               }
             },
             {
+              "name": "isScenarioSubmissionRecovered",
+              "jsdoc": "只标识由持久捕获恢复的文件owner；不表示提交已生效或允许写入。",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
               "name": "loadScenarioViews",
               "parameters": [
                 {
@@ -1723,17 +1766,8 @@
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "union",
-                    "types": [
-                      {
-                        "type": "literal",
-                        "value": "confirmed"
-                      },
-                      {
-                        "type": "literal",
-                        "value": "not-applied"
-                      }
-                    ]
+                    "type": "literal",
+                    "value": "confirmed"
                   }
                 ]
               }

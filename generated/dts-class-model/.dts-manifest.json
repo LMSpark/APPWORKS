@@ -1429,7 +1429,7 @@
     "packages/spark-component/src/components/containers/runtime/column-auto-field.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/runtime/column-auto-field.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/runtime/column-auto-field.ts.json",
-      "sourceModifiedAt": "2026-10-20T08:37:54.833Z"
+      "sourceModifiedAt": "2026-11-16T20:36:23.628Z"
     },
     "packages/spark-component/src/components/containers/runtime/container-filter.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/runtime/container-filter.ts",
@@ -2224,17 +2224,17 @@
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts.json",
-      "sourceModifiedAt": "2026-11-14T04:39:38.453Z"
+      "sourceModifiedAt": "2026-11-16T22:11:25.874Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue.json",
-      "sourceModifiedAt": "2026-11-14T04:39:48.105Z"
+      "sourceModifiedAt": "2026-11-16T22:11:25.876Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue.json",
-      "sourceModifiedAt": "2026-11-04T15:47:02.541Z"
+      "sourceModifiedAt": "2026-11-16T22:14:02.460Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayRows.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayRows.vue",
@@ -2729,7 +2729,7 @@
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
       "shardFile": "files/packages/spark-data/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-12T20:39:12.646Z"
+      "sourceModifiedAt": "2026-11-16T22:59:18.857Z"
     },
     "packages/spark-data/src/metadata.ts": {
       "sourceFile": "packages/spark-data/src/metadata.ts",
@@ -2794,7 +2794,7 @@
     "packages/spark-data/src/query/file-resource-adapter.ts": {
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "shardFile": "files/packages/spark-data/src/query/file-resource-adapter.ts.json",
-      "sourceModifiedAt": "2026-11-08T07:44:34.692Z"
+      "sourceModifiedAt": "2026-11-16T23:06:16.901Z"
     },
     "packages/spark-data/src/query/file-resource/directory.ts": {
       "sourceFile": "packages/spark-data/src/query/file-resource/directory.ts",
@@ -3129,7 +3129,7 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-16T18:09:26.003Z"
+      "sourceModifiedAt": "2026-11-16T21:14:39.698Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3154,12 +3154,17 @@
     "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json",
-      "sourceModifiedAt": "2026-11-16T18:27:19.161Z"
+      "sourceModifiedAt": "2026-11-16T21:14:39.689Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts.json",
       "sourceModifiedAt": "2026-10-23T07:06:44.664Z"
+    },
+    "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-model-not-found-error.ts.json",
+      "sourceModifiedAt": "2026-11-16T21:14:39.686Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts",
@@ -3349,7 +3354,7 @@
     "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.612Z"
+      "sourceModifiedAt": "2026-11-16T20:04:55.418Z"
     },
     "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
@@ -3414,12 +3419,12 @@
     "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-query.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-query.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-query.ts.json",
-      "sourceModifiedAt": "2026-11-16T18:15:10.310Z"
+      "sourceModifiedAt": "2026-11-16T20:55:15.556Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts.json",
-      "sourceModifiedAt": "2026-11-16T18:13:32.360Z"
+      "sourceModifiedAt": "2026-11-16T20:55:15.557Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts",
@@ -3514,7 +3519,7 @@
     "packages/spark-project-model/src/index.ts": {
       "sourceFile": "packages/spark-project-model/src/index.ts",
       "shardFile": "files/packages/spark-project-model/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.623Z"
+      "sourceModifiedAt": "2026-11-16T21:45:43.366Z"
     },
     "packages/spark-project-model/src/io/http.ts": {
       "sourceFile": "packages/spark-project-model/src/io/http.ts",
@@ -3589,7 +3594,7 @@
     "packages/spark-project-model/src/project/project-workspace.ts": {
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "shardFile": "files/packages/spark-project-model/src/project/project-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.635Z"
+      "sourceModifiedAt": "2026-11-16T22:59:18.858Z"
     },
     "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts",
@@ -3609,7 +3614,12 @@
     "packages/spark-project-model/src/scenario/scenario-definition-resource.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts",
       "shardFile": "files/packages/spark-project-model/src/scenario/scenario-definition-resource.ts.json",
-      "sourceModifiedAt": "2026-11-07T20:42:11.784Z"
+      "sourceModifiedAt": "2026-11-16T22:16:17.877Z"
+    },
+    "packages/spark-project-model/src/scenario/scenario-submission-journal.ts": {
+      "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+      "shardFile": "files/packages/spark-project-model/src/scenario/scenario-submission-journal.ts.json",
+      "sourceModifiedAt": "2026-11-16T22:37:19.810Z"
     },
     "packages/spark-project-model/src/scenario/scenario-view-config.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
@@ -3624,7 +3634,7 @@
     "packages/spark-project-model/src/scenario/scenario-view-file.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
       "shardFile": "files/packages/spark-project-model/src/scenario/scenario-view-file.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.641Z"
+      "sourceModifiedAt": "2026-11-16T22:10:59.193Z"
     },
     "packages/spark-utils/src/ai-model.ts": {
       "sourceFile": "packages/spark-utils/src/ai-model.ts",
@@ -4054,7 +4064,7 @@
     "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "shardFile": "files/src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json",
-      "sourceModifiedAt": "2026-11-09T01:29:22.331Z"
+      "sourceModifiedAt": "2026-11-16T23:00:47.379Z"
     },
     "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts",
@@ -4084,7 +4094,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-16T19:24:39.817Z"
+      "sourceModifiedAt": "2026-11-16T21:58:09.178Z"
     },
     "src/lowcode/resources/application/project-blueprint-document.ts": {
       "sourceFile": "src/lowcode/resources/application/project-blueprint-document.ts",
@@ -4134,12 +4144,12 @@
     "src/lowcode/resources/database/catalog/scenario.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/scenario.ts",
       "shardFile": "files/src/lowcode/resources/database/catalog/scenario.ts.json",
-      "sourceModifiedAt": "2026-11-16T19:47:57.014Z"
+      "sourceModifiedAt": "2026-11-16T20:55:15.559Z"
     },
     "src/lowcode/resources/database/catalog/table-view.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table-view.ts",
       "shardFile": "files/src/lowcode/resources/database/catalog/table-view.ts.json",
-      "sourceModifiedAt": "2026-11-16T18:55:25.905Z"
+      "sourceModifiedAt": "2026-11-16T21:20:07.102Z"
     },
     "src/lowcode/resources/database/catalog/table/copy-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table/copy-view-ops.ts",
@@ -4151,10 +4161,15 @@
       "shardFile": "files/src/lowcode/resources/database/catalog/table/field-metadata.ts.json",
       "sourceModifiedAt": "2026-11-01T14:30:47.390Z"
     },
+    "src/lowcode/resources/database/catalog/table/field-type-options.ts": {
+      "sourceFile": "src/lowcode/resources/database/catalog/table/field-type-options.ts",
+      "shardFile": "files/src/lowcode/resources/database/catalog/table/field-type-options.ts.json",
+      "sourceModifiedAt": "2026-11-16T21:20:07.099Z"
+    },
     "src/lowcode/resources/database/catalog/table/field-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
       "shardFile": "files/src/lowcode/resources/database/catalog/table/field-view-ops.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.762Z"
+      "sourceModifiedAt": "2026-11-16T20:40:04.520Z"
     },
     "src/lowcode/resources/database/catalog/table/preview-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
@@ -4274,7 +4289,7 @@
     "src/lowcode/resources/repository/file-resource-registry.ts": {
       "sourceFile": "src/lowcode/resources/repository/file-resource-registry.ts",
       "shardFile": "files/src/lowcode/resources/repository/file-resource-registry.ts.json",
-      "sourceModifiedAt": "2026-11-11T10:15:13.169Z"
+      "sourceModifiedAt": "2026-11-16T20:05:50.167Z"
     },
     "src/lowcode/resources/repository/project-tool-version-resource.ts": {
       "sourceFile": "src/lowcode/resources/repository/project-tool-version-resource.ts",
@@ -4699,7 +4714,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/node-removal.ts.json",
-      "sourceModifiedAt": "2026-11-10T05:09:56.021Z"
+      "sourceModifiedAt": "2026-11-16T23:22:31.624Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/output/node-output-references.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/node-output-references.ts",
@@ -4844,37 +4859,32 @@
     "src/lowcode/resources/system/workflow/manage/flow-design-client.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-client.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design-client.ts.json",
-      "sourceModifiedAt": "2026-11-16T19:10:56.866Z"
-    },
-    "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts": {
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts",
-      "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design-data-json.ts.json",
-      "sourceModifiedAt": "2026-11-16T19:10:56.867Z"
+      "sourceModifiedAt": "2026-11-16T21:35:21.419Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design-file-context.ts.json",
-      "sourceModifiedAt": "2026-11-16T07:29:57.409Z"
+      "sourceModifiedAt": "2026-11-16T20:35:14.825Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts.json",
-      "sourceModifiedAt": "2026-11-16T07:29:57.413Z"
+      "sourceModifiedAt": "2026-11-16T21:30:40.916Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-15T00:21:49.639Z"
+      "sourceModifiedAt": "2026-11-16T21:30:41.913Z"
     },
-    "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts": {
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts",
-      "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-form-relation.ts.json",
-      "sourceModifiedAt": "2026-11-15T00:29:33.316Z"
+    "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts": {
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
+      "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts.json",
+      "sourceModifiedAt": "2026-11-16T21:28:50.583Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts.json",
-      "sourceModifiedAt": "2026-11-16T07:29:57.413Z"
+      "sourceModifiedAt": "2026-11-16T21:28:50.521Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts",
@@ -4884,22 +4894,17 @@
     "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-save.ts.json",
-      "sourceModifiedAt": "2026-11-16T07:29:57.413Z"
-    },
-    "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts": {
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts",
-      "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-table-sync.ts.json",
-      "sourceModifiedAt": "2026-11-14T18:25:50.396Z"
+      "sourceModifiedAt": "2026-11-16T22:16:17.876Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-design/index.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/index.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design/index.ts.json",
-      "sourceModifiedAt": "2026-11-15T13:45:22.496Z"
+      "sourceModifiedAt": "2026-11-16T20:18:26.352Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-model-manager.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-model-manager.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-model-manager.ts.json",
-      "sourceModifiedAt": "2026-11-16T07:29:57.413Z"
+      "sourceModifiedAt": "2026-11-16T22:16:17.875Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts",
@@ -5014,7 +5019,7 @@
     "src/lowcode/resources/system/workflow/manage/index.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/index.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/index.ts.json",
-      "sourceModifiedAt": "2026-11-16T17:43:53.907Z"
+      "sourceModifiedAt": "2026-11-16T21:30:40.917Z"
     },
     "src/lowcode/system-navigation.ts": {
       "sourceFile": "src/lowcode/system-navigation.ts",
@@ -5119,7 +5124,7 @@
     "src/services/project-planning/project-planning-blueprint-diff.ts": {
       "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
       "shardFile": "files/src/services/project-planning/project-planning-blueprint-diff.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.733Z"
+      "sourceModifiedAt": "2026-11-16T20:08:22.622Z"
     },
     "src/services/project-planning/project-planning-inline-delivery.ts": {
       "sourceFile": "src/services/project-planning/project-planning-inline-delivery.ts",
@@ -5129,7 +5134,7 @@
     "src/services/project/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "shardFile": "files/src/services/project/blueprint-workspace-dataview.ts.json",
-      "sourceModifiedAt": "2026-11-12T21:29:12.909Z"
+      "sourceModifiedAt": "2026-11-16T20:00:51.256Z"
     },
     "src/services/project/enterprise-landing.ts": {
       "sourceFile": "src/services/project/enterprise-landing.ts",
@@ -5160,6 +5165,31 @@
       "sourceFile": "src/services/project/project-shell.ts",
       "shardFile": "files/src/services/project/project-shell.ts.json",
       "sourceModifiedAt": "2026-11-12T21:29:12.910Z"
+    },
+    "src/services/smart-bid/content-placeholders.ts": {
+      "sourceFile": "src/services/smart-bid/content-placeholders.ts",
+      "shardFile": "files/src/services/smart-bid/content-placeholders.ts.json",
+      "sourceModifiedAt": "2026-11-16T20:19:08.793Z"
+    },
+    "src/services/smart-bid/content-reference.ts": {
+      "sourceFile": "src/services/smart-bid/content-reference.ts",
+      "shardFile": "files/src/services/smart-bid/content-reference.ts.json",
+      "sourceModifiedAt": "2026-11-16T20:58:43.386Z"
+    },
+    "src/services/smart-bid/content-tree-draft-editor.ts": {
+      "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
+      "shardFile": "files/src/services/smart-bid/content-tree-draft-editor.ts.json",
+      "sourceModifiedAt": "2026-11-16T22:37:19.812Z"
+    },
+    "src/services/smart-bid/content-tree-editor-layout.ts": {
+      "sourceFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "shardFile": "files/src/services/smart-bid/content-tree-editor-layout.ts.json",
+      "sourceModifiedAt": "2026-11-16T22:37:19.811Z"
+    },
+    "src/services/smart-bid/content-tree-structure.ts": {
+      "sourceFile": "src/services/smart-bid/content-tree-structure.ts",
+      "shardFile": "files/src/services/smart-bid/content-tree-structure.ts.json",
+      "sourceModifiedAt": "2026-11-16T20:18:00.794Z"
     },
     "src/services/sse-events.ts": {
       "sourceFile": "src/services/sse-events.ts",
@@ -5469,7 +5499,7 @@
     "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:56:38.446Z"
+      "sourceModifiedAt": "2026-11-16T22:59:11.554Z"
     },
     "src/views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval.props.ts",
@@ -5544,7 +5574,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-16T07:30:48.256Z"
+      "sourceModifiedAt": "2026-11-16T23:02:18.148Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts",
@@ -5654,7 +5684,7 @@
     "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue.json",
-      "sourceModifiedAt": "2026-11-13T15:30:02.645Z"
+      "sourceModifiedAt": "2026-11-16T22:57:20.246Z"
     },
     "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.props.ts",
@@ -5709,7 +5739,7 @@
     "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue.json",
-      "sourceModifiedAt": "2026-11-08T14:07:46.184Z"
+      "sourceModifiedAt": "2026-11-16T20:40:23.164Z"
     },
     "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
@@ -5944,7 +5974,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue.json",
-      "sourceModifiedAt": "2026-11-04T20:39:25.653Z"
+      "sourceModifiedAt": "2026-11-16T23:22:31.662Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue",
@@ -6154,12 +6184,12 @@
     "src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue",
       "shardFile": "files/src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue.json",
-      "sourceModifiedAt": "2026-11-15T00:44:08.542Z"
+      "sourceModifiedAt": "2026-11-16T21:28:50.525Z"
     },
     "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-model/design/ui/flow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-16T19:22:00.324Z"
+      "sourceModifiedAt": "2026-11-16T21:35:21.418Z"
     },
     "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue",
@@ -6174,7 +6204,7 @@
     "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue",
       "shardFile": "files/src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue.json",
-      "sourceModifiedAt": "2026-11-16T07:28:15.195Z"
+      "sourceModifiedAt": "2026-11-16T21:28:50.524Z"
     },
     "src/views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight.ts": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight.ts",
@@ -6184,7 +6214,7 @@
     "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-model/ui/flow-model-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-16T19:06:04.424Z"
+      "sourceModifiedAt": "2026-11-16T20:11:48.330Z"
     },
     "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue",
@@ -6194,7 +6224,7 @@
     "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue.json",
-      "sourceModifiedAt": "2026-11-15T23:23:49.979Z"
+      "sourceModifiedAt": "2026-11-16T21:28:50.525Z"
     },
     "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue",
@@ -6204,7 +6234,7 @@
     "src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts": {
       "sourceFile": "src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts",
       "shardFile": "files/src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts.json",
-      "sourceModifiedAt": "2026-11-16T19:06:04.422Z"
+      "sourceModifiedAt": "2026-11-16T21:28:50.526Z"
     },
     "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-submit.ts": {
       "sourceFile": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-submit.ts",
@@ -6229,7 +6259,7 @@
     "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue.json",
-      "sourceModifiedAt": "2026-11-16T16:33:23.198Z"
+      "sourceModifiedAt": "2026-11-16T21:35:21.417Z"
     },
     "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue",

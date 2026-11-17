@@ -37,7 +37,16 @@
           "properties": {},
           "additionalProperties": false
         },
-        "method.assertCurrent.return": true
+        "method.assertCurrent.return": true,
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "type": "object",
+          "title": "ReturnType<typeof lowcodeApi.readAuthenticatedRequestScope>"
+        }
       }
     },
     "DatabaseCatalogLoadOptions": {
@@ -114,18 +123,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T19:47:57.014Z",
+  "generatedAt": "2026-11-16T20:55:15.559Z",
   "models": {
     "DatabaseCatalogScope": {
       "name": "DatabaseCatalogScope",
       "jsdoc": "元数据、模型运行与命令均属于同一次目录身份；应用切换后须重新装配。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 本次企业目录或应用范围内的正式元数据入口。 */\n    dataSpace: DataSpaceApi;\n    /** 与本次身份一致的模型查询及保存责任方，继续执行原数据权限守卫。 */\n    runtime: DataSpaceRuntimeApi;\n    /** 本次应用代次和认证上下文的内部比较值；仅用于失效检查，不作业务身份。 */\n    fingerprint: string;\n    /** 复核原应用代次及认证上下文；切换或失效时抛错，中止旧请求。 */\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 本次企业目录或应用范围内的正式元数据入口。 */\n    dataSpace: DataSpaceApi;\n    /** 与本次身份一致的模型查询及保存责任方，继续执行原数据权限守卫。 */\n    runtime: DataSpaceRuntimeApi;\n    /** 本次应用代次和认证上下文的内部比较值；仅用于失效检查，不作业务身份。 */\n    fingerprint: string;\n    /** 复核原应用代次及认证上下文；切换或失效时抛错，中止旧请求。 */\n    assertCurrent: () => void;\n    /** 仅供数据资源适配器捕获本次正式请求范围。 */\n    readScope: () => ReturnType<typeof lowcodeApi.readAuthenticatedRequestScope>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 本次企业目录或应用范围内的正式元数据入口。 */\n    dataSpace: DataSpaceApi;\n    /** 与本次身份一致的模型查询及保存责任方，继续执行原数据权限守卫。 */\n    runtime: DataSpaceRuntimeApi;\n    /** 本次应用代次和认证上下文的内部比较值；仅用于失效检查，不作业务身份。 */\n    fingerprint: string;\n    /** 复核原应用代次及认证上下文；切换或失效时抛错，中止旧请求。 */\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    /** 本次企业目录或应用范围内的正式元数据入口。 */\n    dataSpace: DataSpaceApi;\n    /** 与本次身份一致的模型查询及保存责任方，继续执行原数据权限守卫。 */\n    runtime: DataSpaceRuntimeApi;\n    /** 本次应用代次和认证上下文的内部比较值；仅用于失效检查，不作业务身份。 */\n    fingerprint: string;\n    /** 复核原应用代次及认证上下文；切换或失效时抛错，中止旧请求。 */\n    assertCurrent: () => void;\n    /** 仅供数据资源适配器捕获本次正式请求范围。 */\n    readScope: () => ReturnType<typeof lowcodeApi.readAuthenticatedRequestScope>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -158,6 +167,21 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            },
+            {
+              "name": "readScope",
+              "jsdoc": "仅供数据资源适配器捕获本次正式请求范围。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof lowcodeApi.readAuthenticatedRequestScope"
+                  }
+                ]
               }
             }
           ]

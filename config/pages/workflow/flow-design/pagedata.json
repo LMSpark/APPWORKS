@@ -16,9 +16,35 @@
               "rowid",
               "TITLE",
               "MEMO",
-              "sysid",
-              "DesignJson",
-              "DESIGNJSON"
+              "sysid"
+            ]
+          },
+          "commitMode": "staged",
+          "filterExpression": {
+            "field": "rowid",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "rowid"
+            }
+          }
+        },
+        "fileTarget": {
+          "autoLoad": false,
+          "commitMode": "staged",
+          "pageSize": 1,
+          "filterExpression": {
+            "field": "rowid",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "rowid"
+            }
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "sysid"
             ]
           }
         }
@@ -38,9 +64,20 @@
               "rowid",
               "FLOWID",
               "TITLE",
-              "NODETYPE",
+              "TYPEID",
               "MEMO"
-            ]
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          },
+          "commitMode": "staged",
+          "filterExpression": {
+            "field": "FLOWID",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "FLOWID"
+            }
           }
         }
       }
@@ -58,11 +95,23 @@
             "fields": [
               "rowid",
               "FLOWID",
-              "PARENTID",
-              "CHILDID",
+              "UpNodeID",
+              "NextNodeID",
               "TITLE",
-              "MEMO"
-            ]
+              "ConditionExpress",
+              "description"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          },
+          "commitMode": "staged",
+          "filterExpression": {
+            "field": "FLOWID",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "FLOWID"
+            }
           }
         }
       }
@@ -98,7 +147,7 @@
               "FORMID",
               "FormName",
               "URL",
-              "MobileUrl",
+              "mobileUrl",
               "BusField",
               "TitleField",
               "BusTable",
@@ -107,7 +156,8 @@
               "Height",
               "CnPath"
             ]
-          }
+          },
+          "commitMode": "staged"
         }
       }
     },
@@ -149,10 +199,16 @@
           "queryConfig": {
             "fields": [
               "rowid",
-              "folderName",
-              "FOLDERNAME",
-              "Title"
+              "folderName"
             ]
+          },
+          "filterExpression": {
+            "field": "rowid",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "rowid"
+            }
           }
         }
       }
@@ -170,9 +226,7 @@
             "fields": [
               "rowid",
               "Nodetext",
-              "prowid",
-              "FunCode",
-              "ordidx"
+              "prowid"
             ]
           }
         },
@@ -197,9 +251,7 @@
             "fields": [
               "rowid",
               "Nodetext",
-              "prowid",
-              "FunCode",
-              "ordidx"
+              "prowid"
             ]
           }
         }
@@ -232,7 +284,8 @@
               "QName",
               "valueType"
             ]
-          }
+          },
+          "commitMode": "staged"
         },
         "nodeAuth": {
           "autoLoad": false,
@@ -286,6 +339,36 @@
               "QName",
               "valueType"
             ]
+          },
+          "commitMode": "staged"
+        }
+      }
+    },
+    "FlowDesignDocument": {
+      "resourceType": "file",
+      "resourceId": "workflow-flow:design-document",
+      "columns": [
+        {
+          "name": "fileKey",
+          "type": "string",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "flowModelId",
+          "type": "string"
+        },
+        {
+          "name": "content",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": true,
+          "commitMode": "staged",
+          "queryContext": {
+            "flowModelId": ""
           }
         }
       }

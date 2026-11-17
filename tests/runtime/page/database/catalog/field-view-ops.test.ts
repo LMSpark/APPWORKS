@@ -12,6 +12,7 @@ import {
 import {
   databaseCatalogDesignSavePending,
   databaseCatalogFieldSavePending,
+  databaseCatalogFieldBeginCreate,
   requireDatabaseCatalogFieldView,
 } from '@/lowcode/resources/database/catalog/table/field-view-ops'
 import {
@@ -37,6 +38,33 @@ beforeEach(() => {
 afterEach(() => {sets.splice(0).forEach(ds => ds.destroy()); vi.clearAllMocks()})
 
 describe('database/catalog/table/field-view-ops', () => {
+  it('prepares a field under the selected formal table and cancels without a write', async () => {
+    http.allowAddByModel.add(DATABASE_CATALOG_FIELD_MODEL)
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const db = ds.getView('_base_dbInfo')!, tables = ds.getView(DATABASE_CATALOG_TABLE_MODEL)!
+    await db.refresh(); db.setSelectedRows([db.rows[0]!]); await tables.refresh()
+    const table = tables.rows.find(row => row['tblname'] === 'Orders')!
+    tables.setSelectedRows([table])
+    const fields = requireDatabaseCatalogFieldView(ds, DATABASE_CATALOG_FIELD_TABLE_VIEW)
+    await fields.refresh()
+    const writes = http.requests.filter(request => request.url.includes('BatchTableOperate')).length
+    await databaseCatalogFieldBeginCreate({fields, tables})
+    const created = fields.currentRow!
+    expect(created['tblid']).toBe(tables.getPkKey(table))
+    const id = fields.getPkKey(created)!
+    expect(fields.dirtyTracking.hasPendingChanges(id)).toBe(true)
+    fields.discardPendingChanges([id])
+    expect(http.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(writes)
+  })
+
+  it('rejects field creation without a selected table', async () => {
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    await expect(databaseCatalogFieldBeginCreate({fields: requireDatabaseCatalogFieldView(ds, DATABASE_CATALOG_FIELD_TABLE_VIEW),
+      tables: ds.getView(DATABASE_CATALOG_TABLE_MODEL)!})).rejects.toThrow('尚未就绪')
+  })
+
   it('commits staged field edits through saveChanges on Base_TblField', async () => {
     const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)

@@ -189,6 +189,7 @@ import {
 } from '@/lowcode/resources/database/catalog/table/view-ops'
 import {
   databaseCatalogDesignCanSave,
+  databaseCatalogFieldBeginCreate,
   databaseCatalogDesignSavePending,
 } from '@/lowcode/resources/database/catalog/table/field-view-ops'
 import {databaseCatalogQueryUnregisteredViewNames, databaseCatalogSyncTableMetadata} from '@/lowcode/resources/database/catalog/table/sync-view-ops'
@@ -666,6 +667,14 @@ function buildDesignFieldToolbar(includeSave: boolean): RToolbarProps {
   const tableId = tables?.getSelectedValues()[0]
   const children: RToolbarProps['children'] = []
   if (showSync) {
+    children.push({type: 'r-button', props: {
+      label: '新增字段',
+      disabled: busy.value || !fields || fields.hasUnconfirmedSave || fields.addActionState() !== 'enabled',
+      onClick: () => act(async () => {
+        if (!fields || !tables) throw new Error('字段目录未就绪')
+        await databaseCatalogFieldBeginCreate({fields, tables})
+      }),
+    }})
     children.push({type: 'r-button', props: {
       label: '同步元数据',
       disabled: busy.value || !ds || !db || !fields || typeof tableId !== 'string',

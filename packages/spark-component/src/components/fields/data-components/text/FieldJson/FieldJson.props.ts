@@ -31,6 +31,8 @@ export type RJsonProps = SparkNodeProps & SparkFieldSemanticProps<string> & {
   outlineIdField?: string
   /** outline平面数组的精确父项字段；null、缺失或空字符串表示根，数字0仍是有效父身份。重复身份、缺失父项及循环明确报错，不回退根。仅生成只读呈现，选择路径仍是原数组下标。 */
   outlineParentField?: string
+  /** outline平面树的额外根父项标记；严格区分数字/字符串，须为非空字符串或有限数字，null沿用无父项根。标记不能同时作为数组内节点身份；不补造根节点、不改原父值和选择路径。仅用于只读呈现，业务结构仍由领域合同校验。 */
+  outlineRootValue?: string | number | null
   /** outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。 */
   selectedPath?: JsonPath | null
   /** outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。 */

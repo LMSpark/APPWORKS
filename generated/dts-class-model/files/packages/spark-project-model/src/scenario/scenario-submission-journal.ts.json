@@ -1,0 +1,453 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:scenario/scenario-submission-journal",
+    "sourcePath": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+    "sourceFile": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "scenario/scenario-submission-journal",
+    "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-submission-journal\n职责：保存文件owner在派发前捕获的原文和写前基线，供重开后只读核验。\n边界：本地恢复审计，不是服务器请求回执、权限缓存或业务草稿真源；不重放写入。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ScenarioSubmissionStorage",
+      "ScenarioSubmissionCapture",
+      "ScenarioSubmissionJournal"
+    ]
+  },
+  "$defs": {
+    "ScenarioSubmissionStorage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioSubmissionStorage",
+      "properties": {
+        "length": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.key.params": {
+          "type": "object",
+          "properties": {
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.key.return": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "method.getItem.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getItem.return": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "method.setItem.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setItem.return": true,
+        "method.removeItem.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeItem.return": true
+      }
+    },
+    "ScenarioSubmissionCapture": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioSubmissionCapture",
+      "properties": {
+        "attemptId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "baseline": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "attemptId",
+        "scenarioId",
+        "text",
+        "baseline"
+      ],
+      "additionalProperties": false
+    },
+    "ScenarioSubmissionJournal": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioSubmissionJournal",
+      "$defs": {
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScenarioSubmissionCapture"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.begin.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "baseline": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.begin.return": {
+          "$ref": "#/$defs/ScenarioSubmissionCapture"
+        },
+        "method.settle.params": {
+          "type": "object",
+          "properties": {
+            "capture": {
+              "$ref": "#/$defs/ScenarioSubmissionCapture"
+            },
+            "outcome": {
+              "enum": [
+                "confirmed",
+                "not-applied"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.settle.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-16T22:37:19.810Z",
+  "models": {
+    "ScenarioSubmissionStorage": {
+      "name": "ScenarioSubmissionStorage",
+      "jsdoc": "由宿主按租户、用户、应用划分的存储，不包含凭据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    length: number;\n    key(index: number): string | null;\n    getItem(key: string): string | null;\n    setItem(key: string, value: string): void;\n    removeItem(key: string): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    length: number;\n    key(index: number): string | null;\n    getItem(key: string): string | null;\n    setItem(key: string, value: string): void;\n    removeItem(key: string): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "length",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "key",
+              "parameters": [
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getItem",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "setItem",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "removeItem",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioSubmissionCapture": {
+      "name": "ScenarioSubmissionCapture",
+      "jsdoc": "本地attempt身份只关联原捕获，不能当成服务端幂等键。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    attemptId: string;\n    scenarioId: string;\n    text: string;\n    baseline: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    attemptId: string;\n    scenarioId: string;\n    text: string;\n    baseline: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "attemptId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioSubmissionJournal": {
+      "name": "ScenarioSubmissionJournal",
+      "jsdoc": "文件存储责任层的恢复记录；完成记录保留审计，未决记录不能被下一提交覆盖。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    read(scenarioId: string): ScenarioSubmissionCapture | null;\n    begin(scenarioId: string, text: string, baseline: string | null): ScenarioSubmissionCapture;\n    settle(capture: ScenarioSubmissionCapture, outcome: 'confirmed' | 'not-applied'): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    read(scenarioId: string): ScenarioSubmissionCapture | null;\n    begin(scenarioId: string, text: string, baseline: string | null): ScenarioSubmissionCapture;\n    settle(capture: ScenarioSubmissionCapture, outcome: 'confirmed' | 'not-applied'): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "read",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioSubmissionCapture",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "begin",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "baseline",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ScenarioSubmissionCapture",
+                "sourcePath": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts"
+              }
+            },
+            {
+              "name": "settle",
+              "parameters": [
+                {
+                  "name": "capture",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioSubmissionCapture",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-submission-journal.ts"
+                  }
+                },
+                {
+                  "name": "outcome",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "confirmed"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "not-applied"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

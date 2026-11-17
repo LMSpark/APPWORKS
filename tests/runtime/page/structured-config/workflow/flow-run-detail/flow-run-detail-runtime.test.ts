@@ -1,9 +1,7 @@
 import {describe, expect, it, vi} from 'vitest'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({
-  lowcodeApi: {design: {readTextFile: vi.fn(async () => '')}},
-}))
+import {fixture} from '../flow-design/flow-design-data.fixture'
 
 const {FLOW_DESIGN_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID, prepareFlowRunDetailPage} = await import('@/lowcode/resources/system/workflow/manage')
 
@@ -21,21 +19,15 @@ function createView(rows: MockView['rows']): MockView {
   return {destroyed: false, queryContext: {}, loadingError: null, refresh: vi.fn(async () => undefined), rows}
 }
 
-function createRuntime(): PageRuntime {
-  const design = {
-    WFM_FLOW_MODLE: createView([{TITLE: '测试流程', DesignJson: ''}]),
-    WFM_FLOW_NODE: createView([{rowid: 'N1', TITLE: '开始'}]),
-    WFM_NODE_REALATION: createView([]),
-    WFM_WORKFORM: createView([]),
-    Base_NavigationInfo: createView([]),
-  }
+async function createRuntime(): Promise<PageRuntime> {
+  const {ds:design}=await fixture(false,false)
   const workbench = {
     WFOBJ_FLOW_RELATIONLINE_STEP: createView([{rowid: 'S1', WFOBJID: 'WF-1'}]),
     WFOBJ_FLOW_Waiting: createView([]),
   }
   return {
     getDataSet: (id: string) => {
-      if (id === FLOW_DESIGN_SCENARIO_ID) return {getView: (name: string) => design[name as keyof typeof design]}
+      if (id === FLOW_DESIGN_SCENARIO_ID) return design
       if (id === MONITOR_SCENARIO_ID) return {getView: () => undefined}
       if (id === FLOW_WORKBENCH_SCENARIO_ID) return {getView: (name: string) => workbench[name as keyof typeof workbench]}
       return undefined
@@ -45,7 +37,7 @@ function createRuntime(): PageRuntime {
 
 describe('prepareFlowRunDetailPage', () => {
   it('refreshes step views and returns design graph keys', async () => {
-    const runtime = createRuntime()
+    const runtime = await createRuntime()
     const result = await prepareFlowRunDetailPage({runtime, wfid: 'WF-1', flowid: 'FM-1'})
     expect(result.stepViewKey).toContain('WFOBJ_FLOW_RELATIONLINE_STEP')
     expect(result.waitingViewKey).toContain('WFOBJ_FLOW_Waiting')

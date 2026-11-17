@@ -19,8 +19,8 @@
       </div>
       <RendererGraph v-if="graphReady && prepared" class="flow-run-detail-page__graph"
         :data-view-key="prepared.nodeViewKey" :edge-data-view-key="prepared.edgeViewKey"
-        label-field="TITLE" description-field="MEMO" node-caption-field="NODETYPE"
-        edge-source-field="PARENTID" edge-target-field="CHILDID"
+        label-field="TITLE" description-field="MEMO" node-caption-field="TYPEID"
+        edge-source-field="UpNodeID" edge-target-field="NextNodeID"
         :node-positions="prepared.graphLayout.nodePositions" :edge-paths="prepared.graphLayout.edgePaths"
         :node-badge-rules="nodeBadgeRules" background-pattern="dots" node-appearance="card"
         :viewport-controls="true" :disabled="true" @select="onGraphSelect" />

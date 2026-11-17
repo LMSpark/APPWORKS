@@ -43,8 +43,6 @@ export class DictionaryWorkspace {
   #verificationCaptureLost = false
   #entriesLoaded = false
   #creating: boolean
-  #deleting = false
-  #removed = false
 
   /** 接受正式模型装配的DataSet；业务过滤进入视图配置，分页重查也保留同一范围。 */
   constructor(input: DictionaryWorkspaceInput) {
@@ -74,7 +72,7 @@ export class DictionaryWorkspace {
   /** 提交回执不确定时，禁用再次保存并提供显式重读入口。 */
   get requiresVerification(): boolean { return this.#uncertain }
   /** 删除后重新查询，定义和条目均不再返回；宿主结束本次维护实例。 */
-  get removed(): boolean { return this.#removed }
+  get removed(): boolean { return false }
 
   /** 首次读取；显式重读先核验未知提交，只有无未知提交时才丢弃本地修改。 */
   async load(discard = false): Promise<void> {
@@ -105,15 +103,9 @@ export class DictionaryWorkspace {
       }
       const result = await this.definition.loadFromServer({singleFlight: false})
       if (!result.success) throw new Error(result.message ?? '字典定义读取失败')
-      const absentAfterDelete = this.#deleting && this.definition.rows.length === 0
-      if (!absentAfterDelete && (!this.#creating || this.definition.rows.length > 0)) this.assertScope()
-      if (this.#purpose === 'data' || this.#creating || this.#entriesLoaded || this.#deleting) {
-        await this.loadEntries(this.#purpose === 'design' || this.#creating || this.#deleting)
-      }
-      if (absentAfterDelete) {
-        if (this.entries.rows.length > 0) throw new Error('定义已不再返回，但仍有条目，需核验部分删除结果')
-        this.#removed = true; this.#uncertain = false; this.#deleting = false
-        return
+      if (!this.#creating || this.definition.rows.length > 0) this.assertScope()
+      if (this.#purpose === 'data' || this.#creating || this.#entriesLoaded) {
+        await this.loadEntries(this.#purpose === 'design' || this.#creating)
       }
       if (this.#creating && this.definition.rows.length === 0) {
         if (this.entries.rows.length > 0) throw new Error('新字典身份下已有条目，不能继续创建')
@@ -125,7 +117,6 @@ export class DictionaryWorkspace {
       this.definition.setCurrentRow(this.definition.rows[0] ?? null)
       this.#uncertain = false
       this.#verificationCaptureLost = false
-      this.#deleting = false
     } finally { this.#busy = false }
   }
 
@@ -206,7 +197,7 @@ export class DictionaryWorkspace {
 
   /** 仅提交业务条目，消费已保存的设计；不能顺带保存标题或新建设计。 */
   async saveData(): Promise<void> {
-    if (this.#creating || this.#deleting) throw new Error('请先保存字典设计，再维护业务数据')
+    if (this.#creating) throw new Error('请先保存字典设计，再维护业务数据')
     await this.save(this.entries)
   }
 
@@ -228,7 +219,7 @@ export class DictionaryWorkspace {
   /** 显示可用性与执行共用的无副作用检查；不查询、不修改或保存数据。 */
   private displayedOrderTargets(): Array<{id: string | number; order: number}> | undefined {
     try {
-      if (this.#busy || this.#uncertain || this.#creating || this.#deleting || this.#removed
+      if (this.#busy || this.#uncertain || this.#creating
         || this.#input.dataSet.destroyed || this.definition.destroyed || this.entries.destroyed
         || this.definition.hasUnconfirmedSave || this.entries.hasUnconfirmedSave
         || this.definition.mutating || this.entries.mutating
@@ -270,11 +261,6 @@ export class DictionaryWorkspace {
 
   private async save(target: DataView): Promise<void> {
     if (this.#busy || this.#uncertain) throw new Error('字典提交或结果核验尚未结束')
-    if (this.#deleting) {
-      await this.commit(this.definition)
-      await this.load()
-      return
-    }
     const other = target === this.definition ? this.entries : this.definition
     if (other.hasEditingChanges() || other.dirtyTracking.hasPendingChanges()) throw new Error('设计配置与业务数据必须分别维护和保存，请先取消另一类修改')
     const row = this.definition.getEditingRow(this.#input.dictionaryId)
@@ -328,12 +314,6 @@ export class DictionaryWorkspace {
   private async commit(target: DataView): Promise<void> {
     this.#busy = true
     try {
-      if (this.#deleting) {
-        // DataSet按模型依赖排序；整字典删除显式使用同一owner的逆序批量提交。
-        const receipts = await DataView.saveQueryViews([{view: this.entries}, {view: this.definition}])
-        if (receipts.some(receipt => !receipt.success)) throw new Error('字典删除未完整确认')
-        return
-      }
       const saved = await this.#input.dataSet.saveChanges({views: [{tableName: target.tableName, viewId: target.viewId}]})
       if (!saved.success) throw new Error(saved.message ?? '字典保存未完整确认')
     } catch (error) {
@@ -378,7 +358,7 @@ export class DictionaryWorkspace {
     if (values.length === 0) return []
     this.assertEntryAppendContext()
     if (this.#busy || this.#uncertain) throw new Error('字典提交或结果核验尚未结束')
-    if (this.#creating || this.#deleting || this.#removed) throw new Error('当前字典状态不允许新增条目')
+    if (this.#creating) throw new Error('当前字典状态不允许新增条目')
     if (this.definition.hasEditingChanges() || this.definition.dirtyTracking.hasPendingChanges()) {
       throw new Error('字典定义有未保存修改，不能确认候选条目')
     }

@@ -3,7 +3,7 @@
  * 职责：组合固定候选和预演头的文字片段，检查不重叠后同时生成文字预览。
  * 边界：不改正式节点/响应或绑定；预览坐标不是已采用修订的来源坐标。
  */
-import {readContentTextOwner,verifyContentTextSpan} from './content-text-span'
+import {contentTextRangeConflict,readContentTextOwner,verifyContentTextSpan} from './content-text-span'
 import type {ContentTextOwner,ContentTextSpan,VerifiedContentTextSpan} from './content-text-span'
 
 /** 宿主从固定修订读回的对象，不能用当前屏幕文字代替。 */
@@ -85,9 +85,8 @@ function patch(pairs:readonly Pair[]):ContentTextPatch {
   const {start,end}=pair.target.reference
   if(pair.target.containerText!==before)throw Error('CONTENT_PATCH_HEAD')
   if(previous){
-   const prior=previous.target.reference
-   if(prior.start===prior.end&&start===end&&prior.start===start)throw Error('CONTENT_PATCH_INSERT_ORDER')
-   if(start<prior.end)throw Error('CONTENT_PATCH_OVERLAP')
+   const conflict=contentTextRangeConflict(previous.target.reference,pair.target.reference)
+   if(conflict)throw Error(`CONTENT_PATCH_${conflict}`)
   }
   after+=before.slice(cursor,start)
   const resultStart=after.length

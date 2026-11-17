@@ -23,3 +23,18 @@ it('reuses the original prepared identity when checking recovery',async()=>{
  const changed=await prepareAdoptionRequest({...command,nodeIds:['OTHER']})
  expect(()=>inspectAdoptionRecovery(changed,observation,null)).toThrow('ADOPTION_RECOVERY_REQUEST_MISMATCH')
 })
+it('rejects whole-node overlap and overlapping target parts before capturing the request',async()=>{
+ const reference=(revisionId:string,start:number,end:number)=>({schemaVersion:2,projectId:'P',revisionId,
+  owner:{kind:'NODE',nodeId:'N'},path:'/value',unit:'utf16',textDigest:'a'.repeat(64),start,end})
+ const part=(start:number,end:number)=>({operation:'replace',sourceRef:reference('T',start,end),targetRef:reference('H',start,end)})
+ await expect(prepareAdoptionRequest({...command,selectedParts:[part(0,2)]})).rejects.toThrow('ADOPTION_SELECTION_OVERLAP')
+ await expect(prepareAdoptionRequest({...command,nodeIds:[],selectedParts:[part(0,2),part(1,3)]})).rejects.toThrow('ADOPTION_SELECTION_OVERLAP')
+ expect((await prepareAdoptionRequest({...command,nodeIds:[],selectedParts:[part(0,2),part(2,3)]})).requestDigest).toHaveLength(64)
+ const insert=(start:number,end:number)=>({operation:'insert',sourceRef:reference('T',start,end),targetRef:reference('H',2,2)})
+ await expect(prepareAdoptionRequest({...command,nodeIds:[],selectedParts:[insert(0,1),insert(1,2)]}))
+  .rejects.toThrow('ADOPTION_SELECTION_OVERLAP')
+ const response=(revisionId:string,responseId:string)=>({...reference(revisionId,0,1),path:'/statement',
+  owner:{kind:'RESPONSE',assignmentId:'A',responseId}})
+ await expect(prepareAdoptionRequest({...command,nodeIds:[],responseRefs:[{assignmentId:'A',responseId:'R2'}],
+  selectedParts:[{operation:'replace',sourceRef:response('T','R2'),targetRef:response('H','R1')}] })).rejects.toThrow('ADOPTION_SELECTION_OVERLAP')
+})

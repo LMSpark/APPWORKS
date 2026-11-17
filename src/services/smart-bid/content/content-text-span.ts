@@ -92,17 +92,31 @@ function boundary(text:string,offset:number):void {
  if(left>=0xD800&&left<=0xDBFF&&right>=0xDC00&&right<=0xDFFF)throw Error('CONTENT_SPAN_BOUNDARY')
 }
 
-/** 先捕获全部引用和原串，再异步计算摘要；await后不重读调用方可变对象。 */
-export async function verifyContentTextSpan(command:ContentTextSpanInput):Promise<VerifiedContentTextSpan> {
- const input=object(command),ref=object(input['reference']),expectedOwner=readContentTextOwner(input['owner']),spanOwner=readContentTextOwner(ref['owner'])
+/** 读取 V2 的形状和坐标；原字段、范围和摘要仍须由固定版核对。 */
+export function readContentTextSpanReference(value:unknown):ContentTextSpan{
+ const ref=object(value),owner=readContentTextOwner(ref['owner'])
  const fields=['schemaVersion','projectId','revisionId','owner','path','start','end','unit','textDigest']
  if(Object.keys(ref).length!==fields.length||fields.some(key=>!Object.hasOwn(ref,key))||ref['schemaVersion']!==2||ref['unit']!=='utf16')throw Error('CONTENT_SPAN_SCHEMA')
  const projectId=identity(ref['projectId']),revisionId=identity(ref['revisionId'])
- if(projectId!==identity(input['projectId'])||revisionId!==identity(input['revisionId'])||!sameOwner(spanOwner,expectedOwner))throw Error('CONTENT_SPAN_CONTEXT')
- const path=unicode(ref['path']),start=ref['start'],end=ref['end'],textDigest=unicode(ref['textDigest']),mode=input['mode']
+ const path=unicode(ref['path']),start=ref['start'],end=ref['end'],textDigest=unicode(ref['textDigest'])
  if(!/^[a-f0-9]{64}$/u.test(textDigest))throw Error('CONTENT_SPAN_DIGEST')
- if(typeof start!=='number'||typeof end!=='number'||mode!=='TEXT'&&mode!=='INSERTION')throw Error('CONTENT_SPAN_RANGE')
- const result=await captureContentTextSpan({projectId,revisionId,owner:spanOwner,object:input['object'],path,start,end,mode})
+ if(typeof start!=='number'||typeof end!=='number'||!Number.isSafeInteger(start)||!Number.isSafeInteger(end)||start<0||start>end)throw Error('CONTENT_SPAN_RANGE')
+ return {schemaVersion:2,projectId,revisionId,owner,path,start,end,unit:'utf16',textDigest}
+}
+
+/** 相邻坐标按 start/end 升序传入。 */
+export function contentTextRangeConflict(prior:Pick<ContentTextSpan,'start'|'end'>,next:Pick<ContentTextSpan,'start'|'end'>){
+ if(prior.start===prior.end&&next.start===next.end&&prior.start===next.start)return 'INSERT_ORDER'
+ return next.start<prior.end?'OVERLAP':null
+}
+
+/** 先捕获全部引用和原串，再异步计算摘要；await后不重读调用方可变对象。 */
+export async function verifyContentTextSpan(command:ContentTextSpanInput):Promise<VerifiedContentTextSpan> {
+ const input=object(command),{projectId,revisionId,owner,path,start,end,textDigest}=readContentTextSpanReference(input['reference'])
+ if(projectId!==identity(input['projectId'])||revisionId!==identity(input['revisionId'])||!sameOwner(owner,readContentTextOwner(input['owner'])))throw Error('CONTENT_SPAN_CONTEXT')
+ const mode=input['mode']
+ if(mode!=='TEXT'&&mode!=='INSERTION')throw Error('CONTENT_SPAN_RANGE')
+ const result=await captureContentTextSpan({projectId,revisionId,owner,object:input['object'],path,start,end,mode})
  if(result.reference.textDigest!==textDigest)throw Error('CONTENT_SPAN_DIGEST')
  return result
 }

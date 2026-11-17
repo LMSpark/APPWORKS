@@ -31,14 +31,16 @@
           "type": "array",
           "items": {
             "type": "object",
-            "title": "Record<string, unknown>"
+            "properties": {},
+            "additionalProperties": true
           }
         },
         "after": {
           "type": "array",
           "items": {
             "type": "object",
-            "title": "Record<string, unknown>"
+            "properties": {},
+            "additionalProperties": true
           }
         }
       },

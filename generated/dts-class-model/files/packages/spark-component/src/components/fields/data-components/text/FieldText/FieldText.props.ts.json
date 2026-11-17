@@ -25,7 +25,10 @@
       "title": "RTextProps",
       "properties": {
         "filterTrim": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "filterAlternatives": {
           "type": "array",
@@ -53,7 +56,10 @@
           }
         },
         "showCellControl": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "maxlength": {
           "type": "number"
@@ -62,7 +68,10 @@
           "type": "string"
         },
         "showPassword": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "prefixIcon": {
           "type": "string"

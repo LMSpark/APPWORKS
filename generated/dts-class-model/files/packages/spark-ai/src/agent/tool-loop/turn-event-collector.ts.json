@@ -45,7 +45,7 @@
       "properties": {
         "result": {
           "type": "object",
-          "title": "Promise<AiAgentStreamTurnResult>"
+          "title": "Promise<Readonly<{ text: string; reasoning?: string; toolCalls: readonly AiAgentTransportToolCall[]; assistantMessagePersisted?: boolean; }>>"
         }
       },
       "additionalProperties": false,

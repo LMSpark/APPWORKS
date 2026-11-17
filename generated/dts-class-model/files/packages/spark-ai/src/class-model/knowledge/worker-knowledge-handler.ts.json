@@ -24,7 +24,11 @@
           "title": "DtsBundleClassModelKnowledgeRefreshFunction"
         },
         "refreshPolicy": {
-          "$ref": "dts-bundle-class-model-knowledge-service.ts.json#/$defs/DtsBundleClassModelKnowledgeRefreshPolicy"
+          "enum": [
+            "never",
+            "before-first-load",
+            "always"
+          ]
         }
       },
       "additionalProperties": false,

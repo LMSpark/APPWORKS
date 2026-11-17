@@ -227,7 +227,7 @@
       "properties": {
         "after": {
           "type": "object",
-          "title": "ReturnType<typeof DataSpaceDesignApi.projectModel>"
+          "title": "Model"
         }
       },
       "additionalProperties": false,
@@ -806,19 +806,43 @@
           "properties": {
             "requestType": {
               "enum": [
+                "delete",
                 "add",
-                "edit",
-                "delete"
+                "edit"
               ]
+            },
+            "prepareContract": {
+              "type": "object",
+              "title": "(change: SourceInputTargetChange) => Promise<SourceContractPlan>"
+            },
+            "validateRemovals": {
+              "type": "object",
+              "title": "(ids: readonly string[], change: SourceInputTargetChange) => Promise<() => void>"
             }
           },
           "required": [
-            "requestType"
+            "requestType",
+            "prepareContract",
+            "validateRemovals"
           ],
           "additionalProperties": false
         },
         "inputParameters": {
           "type": "object",
+          "properties": {
+            "read": {
+              "type": "object",
+              "title": "() => Array<{ value: string; label: string; }>"
+            },
+            "validate": {
+              "type": "object",
+              "title": "(input: Readonly<{ name: string; value: string; }>) => void"
+            }
+          },
+          "required": [
+            "read",
+            "validate"
+          ],
           "additionalProperties": false
         }
       },
@@ -1439,7 +1463,20 @@
             "targetName": "NonNullable"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "query",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "prepare",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "Prepared": {
@@ -1455,7 +1492,25 @@
             "targetName": "Awaited"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "model",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "SourceInputTargetChange": {

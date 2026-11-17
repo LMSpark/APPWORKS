@@ -67,7 +67,326 @@
           "title": "AiAgentToolRuntime"
         },
         "inputContract": {
-          "$ref": "business-task.ts.json#/$defs/AiAgentInputContract"
+          "type": "object",
+          "properties": {
+            "paramsSchema": {
+              "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
+            },
+            "identityField": {
+              "type": "object",
+              "properties": {
+                "toString": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "title": "() => string"
+                    },
+                    {
+                      "type": "object",
+                      "title": "((radix?: number) => string) & (() => string)"
+                    },
+                    {
+                      "type": "object",
+                      "title": "(() => string) & (() => string)"
+                    }
+                  ]
+                },
+                "charAt": {
+                  "type": "object",
+                  "title": "(pos: number) => string"
+                },
+                "charCodeAt": {
+                  "type": "object",
+                  "title": "(index: number) => number"
+                },
+                "concat": {
+                  "type": "object",
+                  "title": "(...strings: string[]) => string"
+                },
+                "indexOf": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => number"
+                },
+                "lastIndexOf": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => number"
+                },
+                "localeCompare": {
+                  "type": "object",
+                  "title": "{ (that: string): number; (that: string, locales?: string | string[], options?: Intl.CollatorOptions): number; (that: string, locales?: Intl.LocalesArgument, options?: Intl.CollatorOptions): number; }"
+                },
+                "match": {
+                  "type": "object",
+                  "title": "{ (regexp: string | RegExp): RegExpMatchArray | null; (matcher: { [Symbol.match](string: string): RegExpMatchArray | null; }): RegExpMatchArray | null; }"
+                },
+                "replace": {
+                  "type": "object",
+                  "title": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: s..."
+                },
+                "search": {
+                  "type": "object",
+                  "title": "{ (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }"
+                },
+                "slice": {
+                  "type": "object",
+                  "title": "(start?: number, end?: number) => string"
+                },
+                "split": {
+                  "type": "object",
+                  "title": "{ (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }"
+                },
+                "substring": {
+                  "type": "object",
+                  "title": "(start: number, end?: number) => string"
+                },
+                "toLowerCase": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "toLocaleLowerCase": {
+                  "type": "object",
+                  "title": "{ (locales?: string | string[]): string; (locales?: Intl.LocalesArgument): string; }"
+                },
+                "toUpperCase": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "toLocaleUpperCase": {
+                  "type": "object",
+                  "title": "{ (locales?: string | string[]): string; (locales?: Intl.LocalesArgument): string; }"
+                },
+                "trim": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "length": {
+                  "type": "number"
+                },
+                "substr": {
+                  "type": "object",
+                  "title": "(from: number, length?: number) => string"
+                },
+                "valueOf": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "title": "() => string"
+                    },
+                    {
+                      "type": "object",
+                      "title": "(() => number) & (() => string)"
+                    },
+                    {
+                      "type": "object",
+                      "title": "(() => symbol) & (() => string)"
+                    }
+                  ]
+                },
+                "codePointAt": {
+                  "type": "object",
+                  "title": "(pos: number) => number | undefined"
+                },
+                "includes": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => boolean"
+                },
+                "endsWith": {
+                  "type": "object",
+                  "title": "(searchString: string, endPosition?: number) => boolean"
+                },
+                "normalize": {
+                  "type": "object",
+                  "title": "{ (form: \"NFC\" | \"NFD\" | \"NFKC\" | \"NFKD\"): string; (form?: string): string; }"
+                },
+                "repeat": {
+                  "type": "object",
+                  "title": "(count: number) => string"
+                },
+                "startsWith": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => boolean"
+                },
+                "anchor": {
+                  "type": "object",
+                  "title": "(name: string) => string"
+                },
+                "big": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "blink": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "bold": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "fixed": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "fontcolor": {
+                  "type": "object",
+                  "title": "(color: string) => string"
+                },
+                "fontsize": {
+                  "type": "object",
+                  "title": "{ (size: number): string; (size: string): string; }"
+                },
+                "italics": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "link": {
+                  "type": "object",
+                  "title": "(url: string) => string"
+                },
+                "small": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "strike": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "sub": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "sup": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "padStart": {
+                  "type": "object",
+                  "title": "(maxLength: number, fillString?: string) => string"
+                },
+                "padEnd": {
+                  "type": "object",
+                  "title": "(maxLength: number, fillString?: string) => string"
+                },
+                "trimEnd": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimStart": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimLeft": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimRight": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "matchAll": {
+                  "type": "object",
+                  "title": "(regexp: RegExp) => RegExpStringIterator<RegExpExecArray>"
+                },
+                "replaceAll": {
+                  "type": "object",
+                  "title": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; }"
+                },
+                "at": {
+                  "type": "object",
+                  "title": "(index: number) => string | undefined"
+                },
+                "__@iterator@276710": {
+                  "type": "object",
+                  "title": "() => StringIterator<string>"
+                },
+                "toLocaleString": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "title": "() => string"
+                    },
+                    {
+                      "type": "object",
+                      "title": "{ (locales?: string | string[], options?: Intl.NumberFormatOptions): string; (locales?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions): string; }"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "toString",
+                "charAt",
+                "charCodeAt",
+                "concat",
+                "indexOf",
+                "lastIndexOf",
+                "localeCompare",
+                "match",
+                "replace",
+                "search",
+                "slice",
+                "split",
+                "substring",
+                "toLowerCase",
+                "toLocaleLowerCase",
+                "toUpperCase",
+                "toLocaleUpperCase",
+                "trim",
+                "length",
+                "substr",
+                "valueOf",
+                "codePointAt",
+                "includes",
+                "endsWith",
+                "normalize",
+                "repeat",
+                "startsWith",
+                "anchor",
+                "big",
+                "blink",
+                "bold",
+                "fixed",
+                "fontcolor",
+                "fontsize",
+                "italics",
+                "link",
+                "small",
+                "strike",
+                "sub",
+                "sup",
+                "padStart",
+                "padEnd",
+                "trimEnd",
+                "trimStart",
+                "trimLeft",
+                "trimRight",
+                "matchAll",
+                "replaceAll",
+                "at",
+                "__@iterator@276710",
+                "toLocaleString"
+              ],
+              "additionalProperties": false
+            },
+            "normalize": {
+              "type": "object",
+              "title": "(input: JsonParams) => TInput"
+            },
+            "toScope": {
+              "type": "object",
+              "title": "(normalizedInput: TInput) => AiAgentScope"
+            },
+            "toOrchestration": {
+              "type": "object",
+              "title": "(normalizedInput: TInput) => Readonly<{ userMessage: string; systemPrompt: string; title?: string; readonlySteps?: readonly string[]; }>"
+            }
+          },
+          "required": [
+            "paramsSchema",
+            "identityField",
+            "normalize",
+            "toScope",
+            "toOrchestration"
+          ],
+          "additionalProperties": false
         },
         "sessionStore": {
           "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentSessionStore"

@@ -55,7 +55,46 @@
         },
         "snapshot": {
           "type": "object",
-          "title": "ReturnType<DataSpaceQueryTable['applyResult']>"
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+              }
+            },
+            "total": {
+              "type": "number"
+            },
+            "countReported": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "primaryKey": {
+              "type": "string"
+            },
+            "allowAdd": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "systemKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "rows",
+            "total",
+            "countReported",
+            "primaryKey",
+            "allowAdd",
+            "systemKey"
+          ],
+          "additionalProperties": false
         },
         "node": {
           "$ref": "#/$defs/DataSpaceQueryNestedNode"

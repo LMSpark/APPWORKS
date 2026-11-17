@@ -21,7 +21,19 @@
       "properties": {
         "resource": {
           "type": "object",
-          "title": "Pick<SystemScenarioResource, 'resourceId' | 'scenarioId'>"
+          "properties": {
+            "resourceId": {
+              "type": "string"
+            },
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "resourceId",
+            "scenarioId"
+          ],
+          "additionalProperties": false
         },
         "scope": {
           "type": "string"

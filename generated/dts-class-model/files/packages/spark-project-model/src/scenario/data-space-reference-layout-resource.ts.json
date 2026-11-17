@@ -179,7 +179,85 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Parameters<DataView['bindQueryExecutor']>[0]",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "derivedQueries",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentResults",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "localAggregates",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveIndependently",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "invalidateQueryCache",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "releaseQueryCache",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryColumns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "executeQuery",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "save",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "acknowledgeSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshSavedRowPermissions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appendQueryResult",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "abandonUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "ReferenceLayoutOptions": {

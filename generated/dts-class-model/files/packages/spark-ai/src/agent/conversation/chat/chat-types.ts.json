@@ -307,7 +307,20 @@
             "targetName": "Readonly"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "role",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "AiAgentChatRequest": {

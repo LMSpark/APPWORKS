@@ -51,10 +51,28 @@
       "title": "ApprovalInputCapture",
       "properties": {
         "input": {
-          "$ref": "../../../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          "type": "object",
+          "properties": {
+            "lingma_sys_params": {
+              "$ref": "../../../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+            },
+            "lingma_sys_key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
         },
         "payload": {
-          "$ref": "../../../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          "type": "object",
+          "properties": {
+            "lingma_sys_params": {
+              "$ref": "../../../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+            },
+            "lingma_sys_key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
         }
       },
       "additionalProperties": false,

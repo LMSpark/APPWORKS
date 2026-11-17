@@ -166,7 +166,10 @@
           "$ref": "#/$defs/NodeTargetResourceScope"
         },
         "createTool": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,
@@ -224,7 +227,45 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "hasTreeProjection",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "treeProjection",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "canRead",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "NodeTargetResourceScope": {

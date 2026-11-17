@@ -1,0 +1,31 @@
+{
+  "date":"2026-11-17",
+  "requirement":"authoring-submission-specification.md §2.3 三方比较及动作38",
+  "source":"src/services/smart-bid/content-node-comparison.ts",
+  "test":"tests/app/services/smart-bid/content-node-comparison.test.ts",
+  "implemented":[
+    "同一精确节点身份的B/O/T完整载荷与显式null缺席，拒绝undefined未加载",
+    "复用规范载荷而不信自报hash；内容、精确父引用和index分别比较",
+    "区分单方/相同/不同并发内容、移动、增删与同身份新增冲突",
+    "候选删除未给引用检查为REQUIRED，实际提供空列表与存在引用分别呈现，不自行查询或授权",
+    "索引DIVERGED不直接判完整重排冲突，保留兄弟顺序复核",
+    "明确完整合并快照和当前依据检查仍必需，不产合并稿、头指针或采用许可",
+    "格式修订元数据不进入节点内容比较，原数据和身份不改写"
+  ],
+  "reviewFix":"父引用若只取NFC规范值会吞掉精确引用变化；新增反例先14项2败12过，现保留原parentId/type并用于删除对改动、并发新增与移动判定。独立最终复查无新明确阻断。",
+  "verification":{
+    "related":{"files":2,"tests":31,"seconds":3.54,"exitCode":0},
+    "finalSmartBidServices":{"command":"pnpm exec vitest run tests/app/services/smart-bid --maxWorkers=1","files":13,"tests":164,"seconds":33.17,"exitCode":0},
+    "targetedLintExitCode":0,
+    "targetedAiCodegen":{"files":1,"violations":0,"exitCode":0,"includeRoots":[]}
+  },
+  "remaining":[
+    "完整同级重排与插入组合，以及同位置不同身份插入的人工优先/稳定顺序",
+    "所选句段和字段的预演、原文与占位闭合、来源落点",
+    "完整合并快照结构/引用/绑定及全部适用采纳关卡",
+    "当前查询身份/权限/基线/模板/来源依据及真实持久化",
+    "expectedHead及原请求结果同次留存、正式采用和真实下游验收"
+  ],
+  "boundary":"仅确定性的节点级JSON比较，无生产页面消费者。不是完整动作38、形式上的合并成功或动作39采用；不以此替代I0-I7完整目标。",
+  "integration":"新类型的正式ClassModel、类型与完整门禁/提交交指定集成会话；旧修复文件保持冻结。"
+}

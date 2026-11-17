@@ -99,11 +99,11 @@
         "mode": {
           "enum": [
             "text",
-            "tree",
+            "form",
             "table",
             "rows",
+            "tree",
             "properties",
-            "form",
             "outline"
           ]
         },
@@ -119,23 +119,23 @@
         "outlineRootValue": {
           "anyOf": [
             {
+              "type": "null"
+            },
+            {
               "type": "string"
             },
             {
               "type": "number"
-            },
-            {
-              "type": "null"
             }
           ]
         },
         "selectedPath": {
           "anyOf": [
             {
-              "$ref": "../../../../../../../spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+              "type": "null"
             },
             {
-              "type": "null"
+              "$ref": "../../../../../../../spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
             }
           ]
         },
@@ -149,7 +149,29 @@
           "$ref": "../../../../../../../spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
         },
         "emptyValue": {
-          "$ref": "../../../../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "../../../../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonObject"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+              }
+            }
+          ]
         },
         "schema": {
           "$ref": "../../../../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
@@ -163,31 +185,37 @@
         "height": {
           "anyOf": [
             {
-              "type": "number"
+              "type": "string"
             },
             {
-              "type": "string"
+              "type": "number"
             }
           ]
         },
         "maxHeight": {
           "anyOf": [
             {
-              "type": "number"
+              "type": "string"
             },
             {
-              "type": "string"
+              "type": "number"
             }
           ]
         },
         "includeQueryInfo": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "toolbar": {
           "$ref": "../../../../containers/layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
         },
         "reorderable": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "rowAdapter": {
           "$ref": "#/$defs/JsonArrayRowAdapter"
@@ -197,25 +225,31 @@
         },
         "rowDefaults": {
           "type": "object",
-          "title": "Record<string, JsonValue>"
+          "properties": {},
+          "additionalProperties": {
+            "$ref": "../../../../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+          }
         },
         "emptyArrayAsEmptyText": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "rowOperations": {
           "type": "array",
           "items": {
             "enum": [
+              "delete",
               "create",
-              "edit",
-              "delete"
+              "edit"
             ]
           }
         },
         "rowEditMode": {
           "enum": [
-            "row",
-            "inline"
+            "inline",
+            "row"
           ]
         }
       },

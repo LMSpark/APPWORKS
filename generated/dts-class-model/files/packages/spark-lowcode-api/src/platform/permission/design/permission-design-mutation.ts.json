@@ -351,7 +351,20 @@
             "typeText": "(PermissionDesignMutationBase & Readonly<{\n    capability: 'remove-feature-tag' | 'remove-data-object-policy' | 'remove-object-grant';\n    targetId: string;\n    change: Readonly<{\n        reason: string;\n    }>;\n}>)"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "capability",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "change",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "PermissionDesignMutationCommand": {

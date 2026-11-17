@@ -20,8 +20,14 @@
         "config": {
           "$ref": "../../../../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
         },
-        "http": true,
-        "readScope": true
+        "http": {
+          "type": "object",
+          "title": "import(\"@spark-appworks/spark-utils\").HttpClientBase"
+        },
+        "readScope": {
+          "type": "object",
+          "title": "() => FlowRequestScope"
+        }
       },
       "additionalProperties": false,
       "$defs": {

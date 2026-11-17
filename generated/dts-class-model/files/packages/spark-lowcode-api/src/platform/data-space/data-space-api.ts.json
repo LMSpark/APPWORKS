@@ -68,7 +68,20 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "ConstructorParameters<typeof DataSpaceRuntimeApi>[0]",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "readScope",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "DataSpaceApi": {

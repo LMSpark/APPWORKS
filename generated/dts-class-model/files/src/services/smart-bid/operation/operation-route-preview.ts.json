@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/operation-route-preview",
+    "sourcePath": "src/services/smart-bid/operation/operation-route-preview.ts",
+    "sourceFile": "src/services/smart-bid/operation/operation-route-preview.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/operation-route-preview",
+    "jsdoc": "@module app:services/smart-bid/operation/operation-route-preview\n职责：组合工序规范载荷、平铺树与历史类型校验，预演task的有效分类。\n边界：不执行when，不匹配未给定的工位合同，不发布或运行路线。\nAI用途：编排候选先取得确定的结构问题和分类来源，再交工位及交接核验。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "OperationTaskClasses",
+      "OperationRoutePreview"
+    ]
+  },
+  "$defs": {
+    "OperationTaskClasses": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OperationTaskClasses",
+      "properties": {
+        "taskId": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "classes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "taskId",
+        "sourceId",
+        "classes"
+      ],
+      "additionalProperties": false
+    },
+    "OperationRoutePreview": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OperationRoutePreview",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "taskClasses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OperationTaskClasses"
+          }
+        }
+      },
+      "required": [
+        "errors",
+        "taskClasses"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T09:00:36.541Z",
+  "models": {
+    "OperationTaskClasses": {
+      "name": "OperationTaskClasses",
+      "jsdoc": "task本身或最近phase的分类来源；无phase时不借root或其它容器的类。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    taskId: string;\n    sourceId: string | null;\n    classes: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    taskId: string;\n    sourceId: string | null;\n    classes: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "taskId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "classes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "OperationRoutePreview": {
+      "name": "OperationRoutePreview",
+      "jsdoc": "结构预演；即便errors为空，仍须继续工位、条件、引用、交接和发布核验。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    errors: readonly string[];\n    taskClasses: readonly OperationTaskClasses[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    errors: readonly string[];\n    taskClasses: readonly OperationTaskClasses[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "errors",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "taskClasses",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -46,7 +46,8 @@
         },
         "modelRow": {
           "type": "object",
-          "title": "Record<string, unknown>"
+          "properties": {},
+          "additionalProperties": true
         }
       },
       "additionalProperties": false,

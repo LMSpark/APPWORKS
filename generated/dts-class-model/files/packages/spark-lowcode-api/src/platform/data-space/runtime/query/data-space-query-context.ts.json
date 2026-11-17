@@ -226,25 +226,72 @@
       "title": "DataSpaceQueryContextOptions",
       "properties": {
         "nextPageAvailable": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "identity": {
           "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryIdentity"
         },
         "snapshot": {
           "type": "object",
-          "title": "ReturnType<DataSpaceQueryTable['applyResult']>"
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+              }
+            },
+            "total": {
+              "type": "number"
+            },
+            "countReported": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "primaryKey": {
+              "type": "string"
+            },
+            "allowAdd": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "systemKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "rows",
+            "total",
+            "countReported",
+            "primaryKey",
+            "allowAdd",
+            "systemKey"
+          ],
+          "additionalProperties": false
         },
         "scope": {
           "type": "string"
         },
         "missingAuthPolicy": {
-          "$ref": "../protocol/data-space-permission.ts.json#/$defs/DataSpaceMissingAuthPolicy"
+          "enum": [
+            "allow",
+            "deny",
+            "deny-when-system-key",
+            "visible-readonly"
+          ]
         },
         "resultKind": {
           "enum": [
-            "entity",
             "join",
+            "entity",
             "navigation",
             "hierarchy"
           ]
@@ -798,7 +845,30 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "ReturnType<typeof readDataSpaceSaveReceipt>[number]",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "added",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "changed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "deleted",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "DataSpaceSaveReceiptCommand": {

@@ -19,11 +19,34 @@
       "properties": {
         "api": {
           "type": "object",
-          "title": "Pick<LowcodeDesignApi, 'readTextFile'>"
+          "properties": {
+            "readTextFile": {
+              "type": "object",
+              "title": "(locator: LowcodeFileLocator) => Promise<string>"
+            }
+          },
+          "required": [
+            "readTextFile"
+          ],
+          "additionalProperties": false
         },
         "fileUpload": {
           "type": "object",
-          "title": "Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>"
+          "properties": {
+            "uploadWorkingText": {
+              "type": "object",
+              "title": "(command: LowcodeDesignFileUploadCommand) => Promise<LowcodeDesignFileUploadResult>"
+            },
+            "uploadTextVersion": {
+              "type": "object",
+              "title": "(command: LowcodeDesignFileUploadCommand) => Promise<LowcodeDesignFileUploadResult>"
+            }
+          },
+          "required": [
+            "uploadWorkingText",
+            "uploadTextVersion"
+          ],
+          "additionalProperties": false
         }
       },
       "additionalProperties": false,

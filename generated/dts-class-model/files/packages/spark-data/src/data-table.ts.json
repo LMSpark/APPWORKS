@@ -81,18 +81,20 @@
       "properties": {
         "kind": {
           "enum": [
+            "delete",
             "create",
-            "update",
-            "delete"
+            "update"
           ]
         },
         "values": {
           "type": "object",
-          "title": "Record<string, unknown>"
+          "properties": {},
+          "additionalProperties": true
         },
         "originalValues": {
           "type": "object",
-          "title": "Record<string, unknown>"
+          "properties": {},
+          "additionalProperties": true
         },
         "changedFields": {
           "type": "array",
@@ -124,9 +126,9 @@
           "type": "array",
           "items": {
             "enum": [
+              "delete",
               "create",
-              "update",
-              "delete"
+              "update"
             ]
           }
         },

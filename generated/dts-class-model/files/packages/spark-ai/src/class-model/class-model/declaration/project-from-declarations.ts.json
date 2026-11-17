@@ -46,7 +46,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-10T06:46:30.108Z",
+  "generatedAt": "2026-11-17T08:41:38.655Z",
   "models": {
     "ProjectDtsSourceFileProjectionOptions": {
       "name": "ProjectDtsSourceFileProjectionOptions",

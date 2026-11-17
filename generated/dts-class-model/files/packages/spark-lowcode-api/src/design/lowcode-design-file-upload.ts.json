@@ -371,7 +371,20 @@
             "targetName": "Readonly"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "appType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "customPath",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "LowcodeBinaryFileUploadCommand": {

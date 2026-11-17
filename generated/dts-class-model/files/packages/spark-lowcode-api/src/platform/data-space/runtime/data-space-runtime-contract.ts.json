@@ -75,10 +75,7 @@
           ],
           "additionalProperties": false
         },
-        "owner": {
-          "type": "object",
-          "additionalProperties": true
-        },
+        "owner": true,
         "signature": {
           "type": "string"
         }
@@ -520,7 +517,35 @@
             "targetName": "NonNullable"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "keyField",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parentField",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "hasChildrenField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "DataSpaceQueryValueFunction": {

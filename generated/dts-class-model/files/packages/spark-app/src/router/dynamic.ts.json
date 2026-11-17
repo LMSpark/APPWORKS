@@ -65,7 +65,11 @@
         },
         "componentMap": {
           "type": "object",
-          "title": "Record<string, Component>"
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "title": "Component"
+          }
         },
         "systemPageIdentityCompanions": {
           "type": "array",
@@ -369,7 +373,30 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "instanceId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "componentName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isDirty",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "DynamicRouterOptions": {

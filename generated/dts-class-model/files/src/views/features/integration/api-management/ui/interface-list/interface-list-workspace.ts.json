@@ -22,7 +22,10 @@
       "title": "InterfaceWorkspace",
       "properties": {
         "locked": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "revision": {
           "type": "number"

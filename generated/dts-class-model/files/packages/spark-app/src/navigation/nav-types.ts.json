@@ -29,7 +29,7 @@
         },
         "regionVisibility": {
           "type": "object",
-          "title": "ComputedRef<RuntimeNavigationRegionVisibility>"
+          "title": "ComputedRef<Readonly<{ header: boolean; sidebar: boolean; toolbar: boolean; userMenu: boolean; }>>"
         },
         "moduleContext": {
           "type": "object",

@@ -629,7 +629,45 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Parameters<NonNullable<SourceReader>['prepare']>[0]",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dbid",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "databaseName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "providerId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "Prepared": {
@@ -645,7 +683,25 @@
             "targetName": "Awaited"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "model",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "Candidate": {

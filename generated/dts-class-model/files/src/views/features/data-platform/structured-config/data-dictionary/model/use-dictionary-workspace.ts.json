@@ -23,16 +23,42 @@
         },
         "purpose": {
           "enum": [
-            "design",
-            "data"
+            "data",
+            "design"
           ]
         },
         "open": {
-          "type": "object",
-          "title": "MaybeRefOrGetter<boolean>"
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "object",
+              "title": "import(\"vue\").ComputedRef<boolean>"
+            },
+            {
+              "type": "object",
+              "title": "import(\"vue\").Ref<boolean, boolean>"
+            },
+            {
+              "type": "object",
+              "title": "import(\"vue\").ShallowRef<boolean, boolean>"
+            },
+            {
+              "type": "object",
+              "title": "import(\"vue\").WritableComputedRef<boolean, boolean>"
+            },
+            {
+              "type": "object",
+              "title": "() => boolean"
+            }
+          ]
         },
         "create": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "applicationScenarioId": {
           "type": "object",

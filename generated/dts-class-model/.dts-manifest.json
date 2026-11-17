@@ -284,7 +284,7 @@
     "packages/spark-ai/src/class-model/class-model/declaration/project-from-declarations.ts": {
       "sourceFile": "packages/spark-ai/src/class-model/class-model/declaration/project-from-declarations.ts",
       "shardFile": "files/packages/spark-ai/src/class-model/class-model/declaration/project-from-declarations.ts.json",
-      "sourceModifiedAt": "2026-10-10T06:46:30.108Z"
+      "sourceModifiedAt": "2026-11-17T08:41:38.655Z"
     },
     "packages/spark-ai/src/class-model/class-model/declaration/reflection-connectivity.ts": {
       "sourceFile": "packages/spark-ai/src/class-model/class-model/declaration/reflection-connectivity.ts",
@@ -334,7 +334,7 @@
     "packages/spark-ai/src/class-model/class-model/schema/class-model-schema-projection.ts": {
       "sourceFile": "packages/spark-ai/src/class-model/class-model/schema/class-model-schema-projection.ts",
       "shardFile": "files/packages/spark-ai/src/class-model/class-model/schema/class-model-schema-projection.ts.json",
-      "sourceModifiedAt": "2026-10-07T02:20:17.709Z"
+      "sourceModifiedAt": "2026-11-17T08:41:38.654Z"
     },
     "packages/spark-ai/src/class-model/class-model/schema/class-model-to-json-schema.ts": {
       "sourceFile": "packages/spark-ai/src/class-model/class-model/schema/class-model-to-json-schema.ts",
@@ -349,7 +349,7 @@
     "packages/spark-ai/src/class-model/class-model/schema/json-schema-to-type.ts": {
       "sourceFile": "packages/spark-ai/src/class-model/class-model/schema/json-schema-to-type.ts",
       "shardFile": "files/packages/spark-ai/src/class-model/class-model/schema/json-schema-to-type.ts.json",
-      "sourceModifiedAt": "2026-10-07T02:20:17.710Z"
+      "sourceModifiedAt": "2026-11-17T08:46:48.733Z"
     },
     "packages/spark-ai/src/class-model/class-model/schema/model-json-schema-ref.ts": {
       "sourceFile": "packages/spark-ai/src/class-model/class-model/schema/model-json-schema-ref.ts",
@@ -374,7 +374,7 @@
     "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts": {
       "sourceFile": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts",
       "shardFile": "files/packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts.json",
-      "sourceModifiedAt": "2026-10-10T05:01:01.628Z"
+      "sourceModifiedAt": "2026-11-17T08:46:48.734Z"
     },
     "packages/spark-ai/src/class-model/knowledge/dts-bundle-class-model-knowledge-service.ts": {
       "sourceFile": "packages/spark-ai/src/class-model/knowledge/dts-bundle-class-model-knowledge-service.ts",
@@ -2709,7 +2709,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-17T01:47:55.586Z"
+      "sourceModifiedAt": "2026-11-17T07:50:01.150Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -4909,17 +4909,12 @@
     "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts.json",
-      "sourceModifiedAt": "2026-11-16T07:31:21.107Z"
+      "sourceModifiedAt": "2026-11-17T07:34:43.774Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime.ts.json",
       "sourceModifiedAt": "2026-11-16T07:29:57.413Z"
-    },
-    "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps.ts": {
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps.ts",
-      "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps.ts.json",
-      "sourceModifiedAt": "2026-11-14T16:39:31.978Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
@@ -5019,7 +5014,7 @@
     "src/lowcode/resources/system/workflow/manage/index.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/index.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/index.ts.json",
-      "sourceModifiedAt": "2026-11-16T21:30:40.917Z"
+      "sourceModifiedAt": "2026-11-17T07:34:43.781Z"
     },
     "src/lowcode/system-navigation.ts": {
       "sourceFile": "src/lowcode/system-navigation.ts",
@@ -5171,10 +5166,15 @@
       "shardFile": "files/src/services/smart-bid/content-draft-save-rule.ts.json",
       "sourceModifiedAt": "2026-11-17T00:38:42.358Z"
     },
+    "src/services/smart-bid/content-node-comparison.ts": {
+      "sourceFile": "src/services/smart-bid/content-node-comparison.ts",
+      "shardFile": "files/src/services/smart-bid/content-node-comparison.ts.json",
+      "sourceModifiedAt": "2026-11-17T08:55:00.259Z"
+    },
     "src/services/smart-bid/content-node-hash.ts": {
       "sourceFile": "src/services/smart-bid/content-node-hash.ts",
       "shardFile": "files/src/services/smart-bid/content-node-hash.ts.json",
-      "sourceModifiedAt": "2026-11-17T03:17:22.318Z"
+      "sourceModifiedAt": "2026-11-17T08:39:58.150Z"
     },
     "src/services/smart-bid/content-placeholders.ts": {
       "sourceFile": "src/services/smart-bid/content-placeholders.ts",
@@ -5185,6 +5185,11 @@
       "sourceFile": "src/services/smart-bid/content-reference.ts",
       "shardFile": "files/src/services/smart-bid/content-reference.ts.json",
       "sourceModifiedAt": "2026-11-16T20:58:43.386Z"
+    },
+    "src/services/smart-bid/content-sibling-order.ts": {
+      "sourceFile": "src/services/smart-bid/content-sibling-order.ts",
+      "shardFile": "files/src/services/smart-bid/content-sibling-order.ts.json",
+      "sourceModifiedAt": "2026-11-17T09:01:53.222Z"
     },
     "src/services/smart-bid/content-tree-draft-editor.ts": {
       "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
@@ -5200,6 +5205,21 @@
       "sourceFile": "src/services/smart-bid/content-tree-structure.ts",
       "shardFile": "files/src/services/smart-bid/content-tree-structure.ts.json",
       "sourceModifiedAt": "2026-11-17T05:46:07.663Z"
+    },
+    "src/services/smart-bid/operation/operation-route-candidate.ts": {
+      "sourceFile": "src/services/smart-bid/operation/operation-route-candidate.ts",
+      "shardFile": "files/src/services/smart-bid/operation/operation-route-candidate.ts.json",
+      "sourceModifiedAt": "2026-11-17T09:00:36.539Z"
+    },
+    "src/services/smart-bid/operation/operation-route-preview.ts": {
+      "sourceFile": "src/services/smart-bid/operation/operation-route-preview.ts",
+      "shardFile": "files/src/services/smart-bid/operation/operation-route-preview.ts.json",
+      "sourceModifiedAt": "2026-11-17T09:00:36.541Z"
+    },
+    "src/services/smart-bid/operation/operation-tree-structure.ts": {
+      "sourceFile": "src/services/smart-bid/operation/operation-tree-structure.ts",
+      "shardFile": "files/src/services/smart-bid/operation/operation-tree-structure.ts.json",
+      "sourceModifiedAt": "2026-11-17T09:00:36.541Z"
     },
     "src/services/sse-events.ts": {
       "sourceFile": "src/services/sse-events.ts",
@@ -5505,6 +5525,11 @@
       "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue",
       "shardFile": "files/src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue.json",
       "sourceModifiedAt": "2026-11-16T08:08:16.257Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts.json",
+      "sourceModifiedAt": "2026-11-17T07:38:29.065Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue",
@@ -6234,22 +6259,22 @@
     "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue.json",
-      "sourceModifiedAt": "2026-11-16T19:06:04.416Z"
+      "sourceModifiedAt": "2026-11-17T07:33:38.384Z"
     },
     "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue.json",
-      "sourceModifiedAt": "2026-11-16T21:28:50.525Z"
+      "sourceModifiedAt": "2026-11-17T07:34:43.766Z"
     },
     "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue",
       "shardFile": "files/src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue.json",
-      "sourceModifiedAt": "2026-11-14T16:41:32.669Z"
+      "sourceModifiedAt": "2026-11-17T07:50:01.151Z"
     },
     "src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts": {
       "sourceFile": "src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts",
       "shardFile": "files/src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts.json",
-      "sourceModifiedAt": "2026-11-16T21:28:50.526Z"
+      "sourceModifiedAt": "2026-11-17T08:10:18.737Z"
     },
     "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-submit.ts": {
       "sourceFile": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-submit.ts",

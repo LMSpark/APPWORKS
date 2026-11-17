@@ -128,7 +128,105 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "typeof sparkAgUi",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "createSparkAgUiCustomEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiReasoningEndEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiReasoningMessageContentEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiReasoningMessageEndEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiReasoningMessageStartEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiReasoningStartEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiRunErrorEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiRunFinishedEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiRunStartedEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiStreamCustomEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiTextMessageContentEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiTextMessageEndEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiTextMessageStartEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiToolCallEvents",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "stringifySparkAgUiPayload",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toSparkAgUiAssistantMessageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toSparkAgUiReasoningMessageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toSparkAgUiTool",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toSparkAgUiTools",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     }
   }

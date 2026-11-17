@@ -44,6 +44,7 @@ import {
 } from './dts-type-schema'
 import { enumMemberConstSchema } from './dts-enum-schema'
 import { ClassModelDeclarationSchema } from '../schema/class-model-declaration-schema'
+import {projectCommonObjectProperties} from '../schema/class-model-schema-projection'
 import {
   buildStandaloneTypeSchema,
   finalizeDraft2020SchemaDocument,
@@ -542,7 +543,7 @@ function projectTypeAliasDeclaration(
   const site = projectionSite(context, sourceFile, name)
   const attributes = attributesFromObjectSchema({
     site,
-    schema: typeNodeToJsonSchema(node.type, sourceFile),
+    schema: objectSchema,
     typeNode: node.type,
   })
   const methods = methodsFromTypeNode({
@@ -739,7 +740,11 @@ function attributesFromObjectSchema(command: ObjectSchemaAttributesCommand): Att
   const { site, schema, typeNode } = command
   const { context, sourceFile, className } = site
   const syntaxAttributes = typeNodeAttributes({ site, typeNode })
-  if (syntaxAttributes.length > 0) return syntaxAttributes
+  const properties = projectCommonObjectProperties(schema)
+  if (syntaxAttributes.length > 0) return syntaxAttributes.map(attribute => {
+    const property = properties[attribute.name]
+    return property === undefined ? attribute : {...attribute, schema: property}
+  })
   if (methodsFromTypeNode({ site, typeNode }).length > 0) return []
 
   if (schema === true || schema === false || typeof schema !== 'object' || Array.isArray(schema)) {
@@ -771,6 +776,7 @@ function attributesFromObjectSchema(command: ObjectSchemaAttributesCommand): Att
 
 function typeNodeAttributes(command: TypeNodeAttributesCommand): AttributeMeta[] {
   const { site, typeNode } = command
+  if (ts.isParenthesizedTypeNode(typeNode)) return typeNodeAttributes({site, typeNode: typeNode.type})
   if (ts.isTypeLiteralNode(typeNode)) {
     return typeLiteralAttributes({ site, typeNode })
   }
@@ -790,6 +796,15 @@ function typeNodeAttributes(command: TypeNodeAttributesCommand): AttributeMeta[]
       }
     }
     return attributes
+  }
+  if (ts.isUnionTypeNode(typeNode)) {
+    const branches = typeNode.types.map(child => typeNodeAttributes({site, typeNode: child}))
+    return (branches[0] ?? []).flatMap(attribute => {
+      const members = branches.map(branch => branch.find(member => member.name === attribute.name))
+      if (!members.every((member): member is AttributeMeta => member !== undefined)) return []
+      return [{...attribute, readable: members.every(member => member.readable), writable: members.every(member => member.writable),
+        schema: {anyOf: members.map(member => member.schema ?? true)}}]
+    })
   }
   return []
 }

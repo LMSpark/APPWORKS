@@ -18,7 +18,7 @@
       "title": "LoadPublicScenarioInput",
       "properties": {
         "name": {
-          "$ref": "../../registries/system-scenario-registry.ts.json#/$defs/PublicScenarioName"
+          "const": "platformLogin"
         },
         "scenarioId": {
           "type": "string"

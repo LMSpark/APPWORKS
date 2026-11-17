@@ -618,7 +618,25 @@
             "typeText": "{\n    type: 'runtime.changed';\n    projectId: string;\n    revision: number;\n    pageId?: string;\n}"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "ProjectBlueprintEventListener": {
@@ -921,7 +939,15 @@
             "targetName": "Readonly"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "ok",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "ProjectInfo": {

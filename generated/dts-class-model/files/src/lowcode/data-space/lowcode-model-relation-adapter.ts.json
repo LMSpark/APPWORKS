@@ -316,7 +316,65 @@
             "targetName": "Awaited"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceType",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "businessMain",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceInputBindings",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "Relation": {

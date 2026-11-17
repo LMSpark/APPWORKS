@@ -553,13 +553,13 @@
               "value": {
                 "anyOf": [
                   {
+                    "type": "boolean"
+                  },
+                  {
                     "type": "string"
                   },
                   {
                     "type": "number"
-                  },
-                  {
-                    "type": "boolean"
                   }
                 ]
               },
@@ -568,11 +568,11 @@
               },
               "tone": {
                 "enum": [
-                  "primary",
-                  "success",
+                  "info",
                   "warning",
+                  "success",
                   "danger",
-                  "info"
+                  "primary"
                 ]
               }
             },
@@ -585,7 +585,10 @@
           }
         },
         "viewportControls": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "edgeSourceField": {
           "type": "string"
@@ -595,11 +598,37 @@
         },
         "edgeNodeKeys": {
           "type": "object",
-          "title": "Record<string, string | number>"
+          "properties": {},
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
         },
         "nodePositions": {
           "type": "object",
-          "title": "Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>"
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ],
+            "additionalProperties": false
+          }
         },
         "hiddenNodeKeys": {
           "type": "array",
@@ -616,7 +645,13 @@
         },
         "edgePaths": {
           "type": "object",
-          "title": "Record<string, readonly GraphCanvasPoint[]>"
+          "properties": {},
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "GraphCanvas.types.ts.json#/$defs/GraphCanvasPoint"
+            }
+          }
         },
         "draggableKeys": {
           "type": "array",
@@ -689,7 +724,10 @@
           "additionalProperties": false
         },
         "disabled": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "required": [

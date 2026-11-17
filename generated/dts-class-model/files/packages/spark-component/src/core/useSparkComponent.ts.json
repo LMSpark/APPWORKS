@@ -25,13 +25,30 @@
       "properties": {
         "provider": {
           "type": "object",
+          "properties": {
+            "nearestCapabilityProvider": {
+              "type": "object",
+              "title": "<T>(name: CapabilityKey<T>) => CapabilityContext | null"
+            },
+            "nearestCapabilityProviderByKeys": {
+              "type": "object",
+              "title": "(keys: ReadonlyArray<CapabilityKey<unknown>>) => CapabilityContext | null"
+            }
+          },
+          "required": [
+            "nearestCapabilityProvider",
+            "nearestCapabilityProviderByKeys"
+          ],
           "additionalProperties": false
         },
         "isVisible": {
           "type": "object",
           "properties": {
             "value": {
-              "type": "boolean"
+              "enum": [
+                false,
+                true
+              ]
             }
           },
           "required": [
@@ -43,7 +60,10 @@
           "type": "object",
           "properties": {
             "value": {
-              "type": "boolean"
+              "enum": [
+                false,
+                true
+              ]
             }
           },
           "required": [
@@ -56,7 +76,8 @@
           "properties": {
             "value": {
               "type": "object",
-              "title": "Record<string, unknown>"
+              "properties": {},
+              "additionalProperties": true
             }
           },
           "required": [
@@ -66,7 +87,7 @@
         },
         "sparkProvide": {
           "type": "object",
-          "additionalProperties": false
+          "title": "<T>(name: CapabilityKey<T>, implementation: T) => void"
         },
         "sparkConsume": {
           "type": "object",
@@ -116,13 +137,30 @@
       "properties": {
         "provider": {
           "type": "object",
+          "properties": {
+            "nearestCapabilityProvider": {
+              "type": "object",
+              "title": "<T>(name: CapabilityKey<T>) => CapabilityContext | null"
+            },
+            "nearestCapabilityProviderByKeys": {
+              "type": "object",
+              "title": "(keys: ReadonlyArray<CapabilityKey<unknown>>) => CapabilityContext | null"
+            }
+          },
+          "required": [
+            "nearestCapabilityProvider",
+            "nearestCapabilityProviderByKeys"
+          ],
           "additionalProperties": false
         },
         "isVisible": {
           "type": "object",
           "properties": {
             "value": {
-              "type": "boolean"
+              "enum": [
+                false,
+                true
+              ]
             }
           },
           "required": [
@@ -134,7 +172,10 @@
           "type": "object",
           "properties": {
             "value": {
-              "type": "boolean"
+              "enum": [
+                false,
+                true
+              ]
             }
           },
           "required": [
@@ -147,7 +188,8 @@
           "properties": {
             "value": {
               "type": "object",
-              "title": "Record<string, unknown>"
+              "properties": {},
+              "additionalProperties": true
             }
           },
           "required": [
@@ -157,7 +199,7 @@
         },
         "sparkProvide": {
           "type": "object",
-          "additionalProperties": false
+          "title": "<T>(name: CapabilityKey<T>, implementation: T) => void"
         },
         "sparkConsume": {
           "type": "object",

@@ -1,0 +1,17 @@
+{
+  "date":"2026-11-17",
+  "source":"src/services/smart-bid/operation-route-preview.ts",
+  "test":"tests/app/services/smart-bid/operation-route-preview.test.ts",
+  "implemented":"复用工序规范载荷及历史/结构校验，按index前序输出task有效分类与来源；自身分类优先，否则仅取最近phase，即使最近phase为空也不穿透。",
+  "identity":"原精确id及parentId保留，class复用共享NFC去重及码点排序，不改变输入。",
+  "failure":"任一载荷或结构问题不返回可用taskClasses；不执行条件、调用或发布。",
+  "verification":{
+    "command":"pnpm exec vitest run tests/app/services/smart-bid/operation-route-preview.test.ts tests/app/services/smart-bid/operation-tree-structure.test.ts tests/app/services/smart-bid/operation-node-hash.test.ts --maxWorkers=1",
+    "exitCode":0,"files":3,"tests":36,"seconds":3.99,
+    "targetedLintExitCode":0,
+    "fixtureCorrection":"each数组行会展开参数，已改对象包装；包括历史[null]和坏条目数组，确保实际送入验证。"
+  },
+  "review":"独立只读审阅未发现明确阻断；未运行额外测试或改源。",
+  "remaining":"工序data/when/fits/输入输出交接/发布/运行、真实页面消费者及正式ClassModel整合。",
+  "businessOutput":"结构化JSON模型结果；不形成Markdown业务文档或呈现样式。"
+}

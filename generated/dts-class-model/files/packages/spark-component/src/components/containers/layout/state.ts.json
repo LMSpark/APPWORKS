@@ -25,10 +25,7 @@
         "value": {
           "$ref": "../../shared-types.ts.json#/$defs/ValueRef"
         },
-        "fallbackValue": {
-          "type": "object",
-          "title": "TValue"
-        },
+        "fallbackValue": true,
         "debounceMs": {
           "type": "number"
         }

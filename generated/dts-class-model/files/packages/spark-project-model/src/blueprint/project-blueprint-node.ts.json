@@ -864,7 +864,40 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "navigation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "capability",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataSpace",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prototype",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "ProjectBlueprintImplGate": {

@@ -94,27 +94,118 @@
           "$ref": "#/$defs/PageRoute"
         },
         "$page": {
-          "allOf": [
-            {
-              "$ref": "app-services.ts.json#/$defs/PageServiceCapability"
-            },
-            {
+          "type": "object",
+          "properties": {
+            "copyText": {
               "type": "object",
-              "title": "Pick<PageRuntime, 'getDataSet' | 'resolveView'>"
+              "title": "(text: string) => Promise<void>"
+            },
+            "showMessage": {
+              "type": "object",
+              "title": "(message: string, type?: PageMessageType) => void"
+            },
+            "showConfirm": {
+              "type": "object",
+              "title": "(message: string, title?: string, options?: { confirmText?: string; cancelText?: string; type?: PageMessageType; }) => Promise<boolean>"
+            },
+            "showPrompt": {
+              "type": "object",
+              "title": "(message: string, title?: string, options?: { placeholder?: string; defaultValue?: string; }) => Promise<string | null>"
+            },
+            "showAlert": {
+              "type": "object",
+              "title": "(message: string, title?: string, options?: { type?: PageMessageType; }) => Promise<void>"
+            },
+            "showDialog": {
+              "type": "object",
+              "title": "(options: PageDialogOptions) => Promise<PageDialogResult>"
+            },
+            "selectEntities": {
+              "type": "object",
+              "title": "(options: PageSelectEntitiesOptions) => Promise<PageSelectorOption[]>"
+            },
+            "browseFiles": {
+              "type": "object",
+              "title": "(options?: PageBrowseFilesOptions) => Promise<PageSelectedFile[]>"
+            },
+            "uploadFiles": {
+              "type": "object",
+              "title": "(options: PageUploadFilesOptions) => Promise<PageUploadedFile[]>"
+            },
+            "showLoading": {
+              "type": "object",
+              "title": "(show: boolean, text?: string) => void"
+            },
+            "navigate": {
+              "type": "object",
+              "title": "(path: string, params?: Record<string, unknown>) => void"
+            },
+            "getDataSet": {
+              "type": "object",
+              "title": "(scenarioId: string) => DataSet | undefined"
+            },
+            "resolveView": {
+              "type": "object",
+              "title": "(binding: string) => DataView | undefined"
             }
-          ]
+          },
+          "required": [
+            "copyText",
+            "showMessage",
+            "showConfirm",
+            "showPrompt",
+            "showAlert",
+            "showDialog",
+            "selectEntities",
+            "browseFiles",
+            "uploadFiles",
+            "showLoading",
+            "navigate",
+            "getDataSet",
+            "resolveView"
+          ],
+          "additionalProperties": false
         },
         "console": {
           "type": "object",
-          "title": "Pick<Console, 'log' | 'info' | 'warn' | 'error' | 'debug'>"
+          "properties": {
+            "debug": {
+              "type": "object",
+              "title": "(...data: any[]) => void"
+            },
+            "info": {
+              "type": "object",
+              "title": "(...data: any[]) => void"
+            },
+            "warn": {
+              "type": "object",
+              "title": "(...data: any[]) => void"
+            },
+            "error": {
+              "type": "object",
+              "title": "(...data: any[]) => void"
+            },
+            "log": {
+              "type": "object",
+              "title": "(...data: any[]) => void"
+            }
+          },
+          "required": [
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "log"
+          ],
+          "additionalProperties": false
         },
         "$moduleContext": {
           "anyOf": [
             {
-              "$ref": "../../../spark-utils/src/script-types.ts.json#/$defs/ContextSnapshot"
+              "type": "null"
             },
             {
-              "type": "null"
+              "$ref": "../../../spark-utils/src/script-types.ts.json#/$defs/ContextSnapshot"
             }
           ]
         }

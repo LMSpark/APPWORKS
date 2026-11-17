@@ -30,7 +30,7 @@
         },
         "pageContainer": {
           "type": "object",
-          "title": "Ref<HTMLElement | null>"
+          "title": "Ref<HTMLElement | null, HTMLElement | null>"
         },
         "pageService": {
           "type": "object",

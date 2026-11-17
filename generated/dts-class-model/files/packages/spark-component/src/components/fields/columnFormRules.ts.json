@@ -20,7 +20,10 @@
       "title": "FormItemRule",
       "properties": {
         "required": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "message": {
           "type": "string"

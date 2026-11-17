@@ -21,15 +21,21 @@
           "type": "object",
           "title": "Router"
         },
-        "sparkProvide": true,
-        "sparkConsume": true,
+        "sparkProvide": {
+          "type": "object",
+          "title": "<T>(name: CapabilityKey<T>, implementation: T) => void"
+        },
+        "sparkConsume": {
+          "type": "object",
+          "title": "SparkCapabilityConsumer"
+        },
         "loading": {
           "type": "object",
-          "title": "Ref<boolean>"
+          "title": "Ref<boolean, boolean>"
         },
         "error": {
           "type": "object",
-          "title": "Ref<string>"
+          "title": "Ref<string, string>"
         },
         "componentRegistry": {
           "$ref": "../../core/capability-keys.ts.json#/$defs/PageComponentRegistry"

@@ -1326,7 +1326,520 @@
             "targetName": "ReturnType"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectPicker",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "treeData",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "childCreateActionState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintLoading",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintSaving",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintDirty",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectedNode",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintDraft",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintNodeFieldAccess",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintNodeFieldsWritable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintNodeSectionWritable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "persistedDataSpaceId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sceneBindingPending",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintEmpty",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageFileNames",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "activePageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageIoBusy",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "allSaving",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectRevision",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "externalDataViewRevision",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageDataError",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioDefinitionDocument",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioDefinitionRevision",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadSelectedScenarioViews",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSelectedScenarioViews",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "writeScenarioViewText",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveScenarioViewText",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "listScenarioVersions",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "previewScenarioVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createScenarioVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "restoreScenarioVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageDataDirty",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageList",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "statusMessages",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageDesignAiRunning",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "aiToolApprovalPending",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectPlanningDocumentImportDialogVisible",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectPlanningDocumentUploading",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectPlanningAiRunning",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectPlanningDocumentFileName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectPlanningAttachmentRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectPlanningAiTimeline",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "hasAnyFileDirty",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isPageToolFileDirty",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "hasAnyDirty",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "hasPendingBlueprintWrite",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "registerExternalDataViewSession",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "notifyExternalDataViewChanged",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "moveBlueprintNodeInDataView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "moveBlueprintNodeRelative",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadBlueprintTreeFromDataView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadBlueprintLazyTreeFromDataView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadBlueprintChildrenFromDataView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "locateBlueprintNodeFromDataView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "refreshBlueprintTreeProjection",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintWorkspaceDataView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintPageRuntime",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadBlueprintWorkspaceDataView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "savePageToolFile",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getPageToolFileDataView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadPageToolFileDataView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "readPageToolFileDataViewText",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageToolFileDataViewState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "stagePageToolFileDataView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "restorePageToolVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadNavigationDictionaryOptions",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "editor",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "project",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "addStatus",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "openEditingProject",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "openProjectPickerScope",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadBlueprint",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "clearActivePageContext",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectPage",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createPageForSelectedNode",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadNodeToForm",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "markBlueprintDirty",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveNodeChanges",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveAll",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "runPageDesignAi",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "approveAiTool",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rejectAiTool",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "abortAiTool",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectNode",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectNodeById",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "handlePathChange",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "addRootNode",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "addChildNode",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "addChildNodeById",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "addBlueprintModuleNode",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "listReferenceProjects",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "listReferenceProjectPages",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removeNodeFromTree",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removeNodeById",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removeNodeByIdAndWait",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "moveNodeInTree",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "openProjectPlanningDocumentImportDialog",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "closeProjectPlanningDocumentImportDialog",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "handleProjectPlanningDocumentFileSelected",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "runProjectPlanningDocumentImportAi",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "initialize",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     }
   }

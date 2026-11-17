@@ -212,6 +212,10 @@ public attributeGuide(input: ClassModelAttributeGuideInput): string {
       const model = readSurfaceModel(this.backend.surface, input.kind)
       const attribute = knowledgeAttributes(model).find(candidate => candidate.name === input.attributeName)
       if (attribute === undefined) throw new Error(`DtsTypeDeclarationModel attribute not found: ${input.kind}.${input.attributeName}`)
+      const alias = renderTypeAliasDeclaration(model)
+      if (alias !== undefined) return [renderComponentProfile(model), renderDeclarationRelations(model), model.jsdoc.trim(), alias,
+        'Member index (projected type; the complete declaration above retains branch constraints):',
+        renderSurfaceAttribute(attribute)].filter(line => line.length > 0).join('\n')
       return [
         renderComponentProfile(model),
         model.jsdoc.trim(),
@@ -360,6 +364,11 @@ function collectSchemaTypeRefs(
 }
 
 function renderSurfaceClassModel(model: DtsTypeDeclarationModel): string {
+  const alias = renderTypeAliasDeclaration(model)
+  if (alias !== undefined) return [renderComponentProfile(model), renderDeclarationRelations(model), model.jsdoc.trim(), alias,
+    'Member index (projected types; the complete declaration above retains branch constraints):',
+    ...knowledgeAttributes(model).map(renderSurfaceAttribute), ...knowledgeMethods(model).map(renderSurfaceMethod)]
+    .filter(line => line.length > 0).join('\n')
   const constructorMeta = knowledgeConstructor(model)
   const parts = [
     renderComponentProfile(model),
@@ -378,17 +387,24 @@ function renderSurfaceClassModel(model: DtsTypeDeclarationModel): string {
 
 function declarationRelationsProperty(
   model: DtsTypeDeclarationModel,
-): { declarationRelations?: DeclarationRelationQueryRecord[] } {
+): { declarationTypeText?: string; declarationRelations?: DeclarationRelationQueryRecord[] } {
   const relations = knowledgeDeclarationRelations(model)
-  return relations.length === 0
-    ? {}
-    : {
-        declarationRelations: relations.map(relation => ({
-          kind: relation.kind,
-          typeText: relation.typeText,
-          ...(relation.targetName === undefined ? {} : { targetName: relation.targetName }),
-        })),
-      }
+  const declarationTypeText = knowledgeDeclarationTypeText(model)
+  return {
+    ...(declarationTypeText === undefined ? {} : { declarationTypeText }),
+    ...(relations.length === 0 ? {} : {
+      declarationRelations: relations.map(relation => ({
+        kind: relation.kind,
+        typeText: relation.typeText,
+        ...(relation.targetName === undefined ? {} : { targetName: relation.targetName }),
+      })),
+    }),
+  }
+}
+
+function renderTypeAliasDeclaration(model: DtsTypeDeclarationModel): string | undefined {
+  const declaration = knowledgeDeclarationTypeText(model)
+  return declaration === undefined ? undefined : `type ${model.name} = ${declaration}`
 }
 
 type DeclarationRelationQueryRecord = Readonly<{

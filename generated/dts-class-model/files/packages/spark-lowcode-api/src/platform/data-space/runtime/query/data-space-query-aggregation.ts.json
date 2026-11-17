@@ -95,7 +95,25 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "canonicalName",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "DataSpaceQueryAggregation": {

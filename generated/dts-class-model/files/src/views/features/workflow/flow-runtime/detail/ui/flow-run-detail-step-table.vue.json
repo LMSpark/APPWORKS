@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue",
     "packageName": "app",
     "modulePath": "views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table",
-    "jsdoc": "@module app:views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table\n职责：运行详情钻取弹窗内的步骤子集表格（内存行，不另开 DataView）。",
+    "jsdoc": "@module app:views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table\n职责：按需派生原步骤查询视图，标准表格消费原生过滤、请求状态及字段权限。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-14T16:41:32.669Z",
+  "generatedAt": "2026-11-17T07:50:01.151Z",
   "models": {}
 }

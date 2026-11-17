@@ -172,7 +172,15 @@
             "targetName": "Readonly"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "Type",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "DataViewFilterCodec": {

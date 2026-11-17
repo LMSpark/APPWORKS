@@ -634,7 +634,15 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "forceRefresh",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "TransformedFileLoader": {

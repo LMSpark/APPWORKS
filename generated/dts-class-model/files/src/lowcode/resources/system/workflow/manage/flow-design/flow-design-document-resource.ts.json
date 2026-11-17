@@ -22,11 +22,34 @@
         },
         "api": {
           "type": "object",
-          "title": "Pick<LowcodeDesignApi, 'readTextFile' | 'removeFile'>"
+          "properties": {
+            "readTextFile": {
+              "type": "object",
+              "title": "(locator: LowcodeFileLocator) => Promise<string>"
+            },
+            "removeFile": {
+              "type": "object",
+              "title": "(locator: LowcodeFileLocator) => Promise<void>"
+            }
+          },
+          "required": [
+            "readTextFile",
+            "removeFile"
+          ],
+          "additionalProperties": false
         },
         "fileUpload": {
           "type": "object",
-          "title": "Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>"
+          "properties": {
+            "uploadWorkingText": {
+              "type": "object",
+              "title": "(command: LowcodeDesignFileUploadCommand) => Promise<LowcodeDesignFileUploadResult>"
+            }
+          },
+          "required": [
+            "uploadWorkingText"
+          ],
+          "additionalProperties": false
         }
       },
       "additionalProperties": false,

@@ -71,7 +71,7 @@
       "properties": {
         "viewportRef": {
           "type": "object",
-          "title": "Ref<VirtualCardViewportExpose | null>"
+          "title": "Ref<VirtualCardViewportExpose | null, VirtualCardViewportExpose | null>"
         },
         "resolvedView": {
           "type": "object",

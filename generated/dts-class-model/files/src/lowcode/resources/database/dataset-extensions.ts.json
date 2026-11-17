@@ -869,7 +869,125 @@
             "targetName": "SparkData.DataColumn"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowDBNull",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isPrimaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "autoIncrement",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowAIAdd",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isComputed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "required",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minLength",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxLength",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "min",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "max",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pattern",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "patternMessage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "trim",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unique",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "immutable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionsView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueFunction",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "computeExpression",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enumOptions",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "DataSetCommandScopeGuard": {
@@ -901,7 +1019,490 @@
             "targetName": "SparkData.DataSet"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSetName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "tables",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resourceRelations",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewCascades",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "schemaVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveChangesConfig",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "layout",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_sharedHttpClient",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "_appServices",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "_pageRoute",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "_childCascadeIdx",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_parentCascadeIdx",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_fieldCascadeRuntime",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_optionFillRuntime",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_fieldCascadeListeners",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_resourceChildRelationIdx",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_resourceParentRelationIdx",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_activeViewSubs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_activeOnSubs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "initAutoSelection",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "setSharedHttpClient",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "setAppServices",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "setPageRoute",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getRequestTemplateParams",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "on",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "onAnyViewChange",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_subscribeViewChange",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_subscribeOnView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_subscribeNewView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_unsubscribeView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_rebindActiveSubscriptions",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "triggerAutoLoad",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getChildCascades",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getParentCascades",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resolveCascadeFilter",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getResourceChildRelations",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getResourceParentRelations",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_buildViewCascadeIndex",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_buildResourceRelationIndex",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_rebuildDataLinks",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_createTablesFromMetadata",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_applyNormalizedMetadata",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "replaceFromJson",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "listSnapshots",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getSnapshot",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "commitSnapshot",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "restoreSnapshot",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "addTable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "addTableFromJson",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_assertNotDestroyed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_attachNewTable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCanRemoveTable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removeTable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertRemovableTable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_relationReferencesTable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_resolveResourceRelationIndex",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_relationHasField",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_resolveCascadeIndex",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getCascade",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "addResourceRelation",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "updateResourceRelation",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removeResourceRelation",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_assertCascadeShape",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "addCascade",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "updateCascade",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removeCascade",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getFieldCascadeState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "refreshFieldCascade",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "onFieldCascadeChange",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "destroy",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_destroyed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "destroyed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getTable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_peerResolver",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "bindPeerDataSets",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resolveOptionView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveChanges",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveChangesInPhases",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resolveUnconfirmedSaves",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "abandonUnconfirmedSaves",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "discardAndReload",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertScenarioSaveTargets",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "withCascadeSuspended",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveChangesInTransaction",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resolveSaveChangesTransaction",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "collectTransactionOperations",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "buildTransactionOperationId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "applySuccessfulTransactionOperations",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "syncTransactionCreatedRow",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resolveSaveChangesTargets",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getSaveChangesTableOrder",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toJson",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "DatabaseCommandAttachInput": {

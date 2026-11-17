@@ -111,6 +111,38 @@
       "properties": {
         "history": {
           "type": "object",
+          "properties": {
+            "assertCanCreate": {
+              "type": "object",
+              "title": "(target: FileResourceTarget) => void | Promise<void>"
+            },
+            "isDefiniteRejection": {
+              "type": "object",
+              "title": "(error: unknown) => boolean"
+            },
+            "list": {
+              "type": "object",
+              "title": "(target: FileResourceTarget) => Promise<ReadonlyArray<Readonly<{ version: string | number; fileName: string; lastModified: number | null; }>>>"
+            },
+            "preview": {
+              "type": "object",
+              "title": "(target: FileResourceTarget, version: string | number) => Promise<string>"
+            },
+            "create": {
+              "type": "object",
+              "title": "(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void) => Promise<void>"
+            },
+            "verify": {
+              "type": "object",
+              "title": "(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string) => Promise<boolean>"
+            }
+          },
+          "required": [
+            "list",
+            "preview",
+            "create",
+            "verify"
+          ],
           "additionalProperties": false
         }
       },

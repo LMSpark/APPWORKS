@@ -1,0 +1,264 @@
+{
+  "scope": "Workflow run detail standard components and original DataView drilldown",
+  "status": "implemented; integration gates incomplete",
+  "baseline": "e108b2344710fdcc04447fe3928a88c346b228e7",
+  "semanticContract": [
+    "Keep received, sent, all and edge step scopes within the original workflow-instance query",
+    "Keep the original excluded step type and original field visibility",
+    "Show voided records only when explicitly requested",
+    "Bind standard table field children to a native DataView; do not pass row arrays",
+    "Preserve lazy business-route tabs, tab identities and missing-route empty states",
+    "Withdraw old drilldown on original-source replacement, disposal or page teardown"
+  ],
+  "classModelEvidence": "cache/i14-standard-workflow-guides.json",
+  "publicAbilitiesUsed": [
+    "DataView.captureReadResult",
+    "DataView.createQueryView",
+    "DataView.executeFilter",
+    "DataTable.destroyView",
+    "RendererTable",
+    "FieldCheckbox",
+    "RendererTabs",
+    "RendererTabPane",
+    "DisplayEmpty"
+  ],
+  "removedPaths": [
+    "src/lowcode/resources/system/workflow/manage/flow-run-detail/flow-run-detail-steps.ts",
+    "tests/runtime/page/structured-config/workflow/flow-run-detail/flow-run-detail-steps.test.ts"
+  ],
+  "removedLogic": "Four page-owned step arrays, their display filters and unused waiting-step copy were removed; graph badge domain types remain with their existing consumer",
+  "publicDataGapFixed": {
+    "contract": "Whole queryContext replacement notifies native configuration consumers without automatic querying or clearing rows, editing, permissions or unknown outcomes",
+    "equalInputRule": "Keep the assigned object and suppress notifications for the same existing JSON input signature, preserving deferred refresh intent",
+    "inPlaceMutation": "Not made observable; the existing Readonly type remains and legacy in-place changes still need explicit refresh"
+  },
+  "verification": {
+    "initialBindingRed": "cache/i14-step-view-red.log",
+    "sourceRetargetRed": "cache/i14-source-retarget-red.log",
+    "sourceDisposalRed": "cache/i14-source-lifetime-red.log",
+    "queryInputNotificationRed": "cache/i14-query-input-event-red.log",
+    "equalInputPendingRefreshRed": "cache/i14-equal-input-refresh-red.log",
+    "unavailableLoadingRed": "cache/i14-loading-invalid-red.log",
+    "unmountLoadingRed": "cache/i14-loading-unmount-red.log",
+    "nativeWorkflowDirectory": {
+      "files": 6,
+      "tests": 21,
+      "passed": true,
+      "log": "cache/i14-standard-flow-final.log"
+    },
+    "nativeInputLifecycle": {
+      "files": 2,
+      "tests": 63,
+      "passed": true,
+      "log": "cache/i14-input-lifecycle-green.log"
+    },
+    "formalClassModelSeconds": 63.844,
+    "lowcodeContracts": {
+      "endpoints": 611,
+      "consumers": 248
+    },
+    "dataPackage": {
+      "files": 60,
+      "tests": 1393,
+      "passed": true,
+      "seconds": 84.48,
+      "log": "cache/i14-data-regression.log",
+      "exit": 0
+    },
+    "targetedLint": {
+      "initialExit": 1,
+      "initialErrors": 3,
+      "file": "src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts",
+      "correctedFileExit": 0,
+      "log": "cache/i14-targeted-lint-fixed.log"
+    },
+    "integrationAttempts": [
+      {
+        "status": "stopped before build/root/packages",
+        "typecheckExit": 2,
+        "failure": "Delivered SmartBid content-authoring-host.test.ts line 105 mutates Readonly queryContext; exact owner handoff recorded in the shared ledger"
+      },
+      {
+        "status": "typecheck and lint passed; verify stopped at two AI codegen violations before build/root/packages",
+        "log": "cache/i14-static2-verify.log",
+        "exit": 1
+      },
+      {
+        "status": "minimal encoding fixes passed targeted tests and AI codegen; fresh formal generation and global gates still required",
+        "files": 4,
+        "tests": 58,
+        "seconds": 5.12,
+        "log": "cache/i14-delivered-operation-codegen-green.log",
+        "codegenLog": "cache/i14-codegen-fixed.log",
+        "exit": 0
+      },
+      {
+        "status": "interrupted after source drift during global verification; no current root/package/build acceptance",
+        "session": 20264,
+        "terminalExit": 1,
+        "generationExit": 0,
+        "contractsExit": 0,
+        "sourceDrift": [
+          "src/services/smart-bid/content-node-comparison.ts",
+          "tests/app/services/smart-bid/content-node-comparison.test.ts"
+        ],
+        "snapshot": "cache/i14-integrated-final-before.json",
+        "log": "cache/i14-integrated-final-verify.log"
+      },
+      {
+        "session": 33769,
+        "prefix": "cache/i14-frozen2-",
+        "exit": 1,
+        "failure": "directory limits: SmartBid service 11/10 and test 13/10 files",
+        "classModelSubset": {
+          "files": 4,
+          "tests": 50,
+          "passed": true
+        },
+        "buildRootPackagesRun": false
+      }
+    ],
+    "businessImportAudit": {
+      "scope": "src/views static script module references parsed with existing repository TypeScript visitor",
+      "files": 226,
+      "findings": [],
+      "externalSpecifiers": [
+        "vue",
+        "vue-router"
+      ],
+      "indirectDependenciesAudited": false,
+      "runtimeComponentsAudited": false
+    }
+  },
+  "cleanup": {
+    "worktreeInventory": "Only D:/SPARK_AppWorks; main repository preserved",
+    "retiredTemporaryScriptsRemoved": 11,
+    "retiredScriptChecks": "All owned isolated-model cleanup receipts confirmed first, no live node/python use, every absolute target inside main cache, literal nonrecursive deletion verified",
+    "supersededPlansRemoved": [
+      "notes/plan-batch5-6-workflow-migration.md",
+      "notes/plan-workflow-round2-deepening.md",
+      "notes/plan-workflow-round3-graph-runtime.md",
+      "notes/plan-workflow-r16-signoff.md"
+    ],
+    "preserved": "Current and parallel work, recovery evidence, active guides/tests and unresolved service blockers",
+    "r16Preservation": "Six formal key gaps and four SPA acceptance items remain in the single ledger; old --pk-only script may proceed to G0 writes and must not be automatically resumed.",
+    "retiredCompletedGateScriptsRemoved": [
+      "cache/i14-standard-workflow-gates.ps1",
+      "cache/i13-save-invalidation-gates.ps1"
+    ],
+    "newPendingGateScript": "cache/i14-integrated-final-gates.ps1"
+  },
+  "independentReview": {
+    "model": "gpt-6-astra",
+    "result": "code review Ready; not runtime acceptance"
+  },
+  "actualServiceWrites": 0,
+  "uiSmoke": false,
+  "graphSave500Resolved": false,
+  "newOwner": false,
+  "nodeServiceStarted": false,
+  "backendJavaChanged": false,
+  "fullMigrationComplete": false,
+  "committed": false,
+  "pushed": false,
+  "uiSmokeBlocker": {
+    "observed": "2026-11-17 current continuation",
+    "browserInventory": [],
+    "error": "The browser access host is unavailable",
+    "uiActions": 0,
+    "credentialsEntered": false
+  },
+  "pendingIntegration": {
+    "session": 79099,
+    "prefix": "cache/i14-frozen3-",
+    "status": "all check commands exited zero; overall script exited one at final source freeze guard",
+    "formalGenerationExit": 0,
+    "contractsExit": 0,
+    "verifyExit": 0,
+    "buildExit": 0,
+    "sourceGuardPassedBetweenCompletedStages": true,
+    "root": {
+      "files": 607,
+      "tests": 10389,
+      "seconds": 805.82,
+      "exit": 0,
+      "log": "cache/i14-frozen3-root.log"
+    },
+    "packagesExit": 0,
+    "packages": [
+      {
+        "package": "spark-utils",
+        "files": 5,
+        "tests": 45
+      },
+      {
+        "package": "spark-data",
+        "files": 60,
+        "tests": 1393
+      },
+      {
+        "package": "spark-json-document",
+        "files": 5,
+        "tests": 25
+      },
+      {
+        "package": "spark-ai",
+        "files": 28,
+        "tests": 186
+      },
+      {
+        "package": "spark-lowcode-api",
+        "files": 53,
+        "tests": 1597
+      },
+      {
+        "package": "spark-project-model",
+        "files": 6,
+        "tests": 286
+      },
+      {
+        "package": "spark-component",
+        "files": 28,
+        "tests": 225
+      },
+      {
+        "package": "spark-app",
+        "files": 13,
+        "tests": 83
+      }
+    ],
+    "sourceFreezeGuard": {
+      "passed": false,
+      "scriptExit": 1,
+      "drift": {
+        "added": [
+          "src\\services\\smart-bid\\content-tree-comparison.ts",
+          "src\\services\\smart-bid\\content\\content-node-links.ts",
+          "tests\\app\\services\\smart-bid\\content\\content-node-links.test.ts",
+          "tests\\app\\services\\smart-bid\\content\\content-tree-comparison.test.ts"
+        ],
+        "removed": [],
+        "changed": []
+      },
+      "previousSnapshotFilesUnchanged": 2217
+    },
+    "acceptance": "Root 607 files/10389 tests proves only the frozen input; all files listed as added in sourceFreezeGuard.drift are outside that frozen root result. No commit or push."
+  },
+  "directoryIntegrationFix": {
+    "sourceDirectory": "src/services/smart-bid/operation",
+    "testDirectory": "tests/app/services/smart-bid/operation",
+    "sourceFilesMoved": 3,
+    "testFilesMoved": 4,
+    "compatibilityShellsAdded": false,
+    "businessLogicChanged": false,
+    "directoryVerifierExit": 0,
+    "targetedLintExit": 0,
+    "serviceRegression": {
+      "files": 13,
+      "tests": 164,
+      "seconds": 30.3,
+      "exit": 0,
+      "log": "cache/i14-domain-directory-green.log"
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "catalog": {
+    "rootKind": "OperationRouteCandidate",
+    "models": [
+      {
+        "kind": "OperationRouteCandidate",
+        "name": "OperationRouteCandidate",
+        "jsdoc": "工艺编排的候选JSON输出。版本、hash及发布效力由正式办理生成，不由模型输出。",
+        "summary": "工艺编排的候选JSON输出。版本、hash及发布效力由正式办理生成，不由模型输出。",
+        "declarationTypeText": "Readonly<{\n    nodes: readonly OperationCandidateNode[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodes: readonly OperationCandidateNode[];\n}>",
+            "targetName": "Readonly"
+          }
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "rootKind": "OperationRouteCandidate",
+    "models": [
+      {
+        "kind": "OperationCandidateNode",
+        "name": "OperationCandidateNode",
+        "jsdoc": "工序节点输出，不含排版、文件格式、子树缓存或模型自报摘要。",
+        "summary": "工序节点输出，不含排版、文件格式、子树缓存或模型自报摘要。",
+        "declarationTypeText": "Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    class: readonly string[];\n    value: string;\n}> & (Readonly<{\n    type: 'route';\n    data: Readonly<Record<string, never>>;\n}> | Readonly<{\n    type: Exclude<OperationNodeType, 'route' | 'call' | 'task'>;\n    data: ControlData;\n}> | Readonly<{\n    type: 'call';\n    data: ControlData & Readonly<{\n        routeRef: OperationDataValue;\n    }>;\n}> | Readonly<{\n    type: 'task';\n    data: ControlData & Readonly<{\n        stationRef: string;\n        maxTimes?: string;\n    }>;\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    class: readonly string[];\n    value: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    type: 'route';\n    data: Readonly<Record<string, never>>;\n}> | Readonly<{\n    type: Exclude<OperationNodeType, 'route' | 'call' | 'task'>;\n    data: ControlData;\n}> | Readonly<{\n    type: 'call';\n    data: ControlData & Readonly<{\n        routeRef: OperationDataValue;\n    }>;\n}> | Readonly<{\n    type: 'task';\n    data: ControlData & Readonly<{\n        stationRef: string;\n        maxTimes?: string;\n    }>;\n}>)"
+          }
+        ],
+        "attributes": [
+          {
+            "name": "id",
+            "jsdoc": "",
+            "summary": "",
+            "typeText": "string"
+          },
+          {
+            "name": "parentId",
+            "jsdoc": "",
+            "summary": "",
+            "typeText": "null | string"
+          },
+          {
+            "name": "index",
+            "jsdoc": "",
+            "summary": "",
+            "typeText": "number"
+          },
+          {
+            "name": "class",
+            "jsdoc": "",
+            "summary": "",
+            "typeText": "string[]"
+          },
+          {
+            "name": "value",
+            "jsdoc": "",
+            "summary": "",
+            "typeText": "string"
+          },
+          {
+            "name": "type",
+            "jsdoc": "",
+            "summary": "",
+            "typeText": "\"route\" | \"phase\" | \"sequence\" | \"parallel\" | \"choice\" | \"call\" | \"task\""
+          },
+          {
+            "name": "data",
+            "jsdoc": "",
+            "summary": "",
+            "typeText": "Record<string, never> | ControlData | { when?: boolean | null | string | OperationDataValue[] | Record<string, OperationDataValue>; required?: false | true; routeRef: OperationDataValue } | { when?: boolean | null | string | OperationDataValue[] | Record<string, OperationDataValue>; required?: false | true; stationRef: string; maxTimes?: string }"
+          }
+        ],
+        "methods": []
+      }
+    ]
+  },
+  "root": "/**\n * DTS declaration: OperationRouteCandidate = Readonly<{\n    nodes: readonly OperationCandidateNode[];\n}>\n * DTS relation: alias Readonly<{\n    nodes: readonly OperationCandidateNode[];\n}>\n */\n工艺编排的候选JSON输出。版本、hash及发布效力由正式办理生成，不由模型输出。\ntype OperationRouteCandidate = Readonly<{\n    nodes: readonly OperationCandidateNode[];\n}>\nMember index (projected types; the complete declaration above retains branch constraints):\nreadonly nodes: OperationCandidateNode[]",
+  "node": "/**\n * DTS declaration: OperationCandidateNode = Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    class: readonly string[];\n    value: string;\n}> & (Readonly<{\n    type: 'route';\n    data: Readonly<Record<string, never>>;\n}> | Readonly<{\n    type: Exclude<OperationNodeType, 'route' | 'call' | 'task'>;\n    data: ControlData;\n}> | Readonly<{\n    type: 'call';\n    data: ControlData & Readonly<{\n        routeRef: OperationDataValue;\n    }>;\n}> | Readonly<{\n    type: 'task';\n    data: ControlData & Readonly<{\n        stationRef: string;\n        maxTimes?: string;\n    }>;\n}>)\n * DTS relation: intersection Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    class: readonly string[];\n    value: string;\n}>\n * DTS relation: intersection (Readonly<{\n    type: 'route';\n    data: Readonly<Record<string, never>>;\n}> | Readonly<{\n    type: Exclude<OperationNodeType, 'route' | 'call' | 'task'>;\n    data: ControlData;\n}> | Readonly<{\n    type: 'call';\n    data: ControlData & Readonly<{\n        routeRef: OperationDataValue;\n    }>;\n}> | Readonly<{\n    type: 'task';\n    data: ControlData & Readonly<{\n        stationRef: string;\n        maxTimes?: string;\n    }>;\n}>)\n */\n工序节点输出，不含排版、文件格式、子树缓存或模型自报摘要。\ntype OperationCandidateNode = Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    class: readonly string[];\n    value: string;\n}> & (Readonly<{\n    type: 'route';\n    data: Readonly<Record<string, never>>;\n}> | Readonly<{\n    type: Exclude<OperationNodeType, 'route' | 'call' | 'task'>;\n    data: ControlData;\n}> | Readonly<{\n    type: 'call';\n    data: ControlData & Readonly<{\n        routeRef: OperationDataValue;\n    }>;\n}> | Readonly<{\n    type: 'task';\n    data: ControlData & Readonly<{\n        stationRef: string;\n        maxTimes?: string;\n    }>;\n}>)\nMember index (projected types; the complete declaration above retains branch constraints):\nreadonly id: string\nreadonly parentId: null | string\nreadonly index: number\nreadonly class: string[]\nreadonly value: string\nreadonly type: \"route\" | \"phase\" | \"sequence\" | \"parallel\" | \"choice\" | \"call\" | \"task\"\nreadonly data: Record<string, never> | ControlData | { when?: boolean | null | string | OperationDataValue[] | Record<string, OperationDataValue>; required?: false | true; routeRef: OperationDataValue } | { when?: boolean | null | string | OperationDataValue[] | Record<string, OperationDataValue>; required?: false | true; stationRef: string; maxTimes?: string }",
+  "type": "/**\n * DTS declaration: OperationCandidateNode = Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    class: readonly string[];\n    value: string;\n}> & (Readonly<{\n    type: 'route';\n    data: Readonly<Record<string, never>>;\n}> | Readonly<{\n    type: Exclude<OperationNodeType, 'route' | 'call' | 'task'>;\n    data: ControlData;\n}> | Readonly<{\n    type: 'call';\n    data: ControlData & Readonly<{\n        routeRef: OperationDataValue;\n    }>;\n}> | Readonly<{\n    type: 'task';\n    data: ControlData & Readonly<{\n        stationRef: string;\n        maxTimes?: string;\n    }>;\n}>)\n * DTS relation: intersection Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    class: readonly string[];\n    value: string;\n}>\n * DTS relation: intersection (Readonly<{\n    type: 'route';\n    data: Readonly<Record<string, never>>;\n}> | Readonly<{\n    type: Exclude<OperationNodeType, 'route' | 'call' | 'task'>;\n    data: ControlData;\n}> | Readonly<{\n    type: 'call';\n    data: ControlData & Readonly<{\n        routeRef: OperationDataValue;\n    }>;\n}> | Readonly<{\n    type: 'task';\n    data: ControlData & Readonly<{\n        stationRef: string;\n        maxTimes?: string;\n    }>;\n}>)\n */\n工序节点输出，不含排版、文件格式、子树缓存或模型自报摘要。\ntype OperationCandidateNode = Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    class: readonly string[];\n    value: string;\n}> & (Readonly<{\n    type: 'route';\n    data: Readonly<Record<string, never>>;\n}> | Readonly<{\n    type: Exclude<OperationNodeType, 'route' | 'call' | 'task'>;\n    data: ControlData;\n}> | Readonly<{\n    type: 'call';\n    data: ControlData & Readonly<{\n        routeRef: OperationDataValue;\n    }>;\n}> | Readonly<{\n    type: 'task';\n    data: ControlData & Readonly<{\n        stationRef: string;\n        maxTimes?: string;\n    }>;\n}>)\nMember index (projected type; the complete declaration above retains branch constraints):\nreadonly type: \"route\" | \"phase\" | \"sequence\" | \"parallel\" | \"choice\" | \"call\" | \"task\"",
+  "data": "/**\n * DTS declaration: OperationCandidateNode = Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    class: readonly string[];\n    value: string;\n}> & (Readonly<{\n    type: 'route';\n    data: Readonly<Record<string, never>>;\n}> | Readonly<{\n    type: Exclude<OperationNodeType, 'route' | 'call' | 'task'>;\n    data: ControlData;\n}> | Readonly<{\n    type: 'call';\n    data: ControlData & Readonly<{\n        routeRef: OperationDataValue;\n    }>;\n}> | Readonly<{\n    type: 'task';\n    data: ControlData & Readonly<{\n        stationRef: string;\n        maxTimes?: string;\n    }>;\n}>)\n * DTS relation: intersection Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    class: readonly string[];\n    value: string;\n}>\n * DTS relation: intersection (Readonly<{\n    type: 'route';\n    data: Readonly<Record<string, never>>;\n}> | Readonly<{\n    type: Exclude<OperationNodeType, 'route' | 'call' | 'task'>;\n    data: ControlData;\n}> | Readonly<{\n    type: 'call';\n    data: ControlData & Readonly<{\n        routeRef: OperationDataValue;\n    }>;\n}> | Readonly<{\n    type: 'task';\n    data: ControlData & Readonly<{\n        stationRef: string;\n        maxTimes?: string;\n    }>;\n}>)\n */\n工序节点输出，不含排版、文件格式、子树缓存或模型自报摘要。\ntype OperationCandidateNode = Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    class: readonly string[];\n    value: string;\n}> & (Readonly<{\n    type: 'route';\n    data: Readonly<Record<string, never>>;\n}> | Readonly<{\n    type: Exclude<OperationNodeType, 'route' | 'call' | 'task'>;\n    data: ControlData;\n}> | Readonly<{\n    type: 'call';\n    data: ControlData & Readonly<{\n        routeRef: OperationDataValue;\n    }>;\n}> | Readonly<{\n    type: 'task';\n    data: ControlData & Readonly<{\n        stationRef: string;\n        maxTimes?: string;\n    }>;\n}>)\nMember index (projected type; the complete declaration above retains branch constraints):\nreadonly data: Record<string, never> | ControlData | { when?: boolean | null | string | OperationDataValue[] | Record<string, OperationDataValue>; required?: false | true; routeRef: OperationDataValue } | { when?: boolean | null | string | OperationDataValue[] | Record<string, OperationDataValue>; required?: false | true; stationRef: string; maxTimes?: string }",
+  "control": "/**\n * DTS declaration: ControlData = Readonly<{\n    when?: OperationDataValue;\n    required?: boolean;\n}>\n * DTS relation: alias Readonly<{\n    when?: OperationDataValue;\n    required?: boolean;\n}>\n */\n条件只留声明数据；其表达式、证据与适用性另由正式条件合同核验。\ntype ControlData = Readonly<{\n    when?: OperationDataValue;\n    required?: boolean;\n}>\nMember index (projected types; the complete declaration above retains branch constraints):\nreadonly when: boolean | null | string | OperationDataValue[] | Record<string, OperationDataValue>\nreadonly required: false | true"
+}

@@ -397,7 +397,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@276067": {
+            "__@iterator@276710": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -452,7 +452,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@276067"
+            "__@iterator@276710"
           ],
           "additionalProperties": false
         },
@@ -1029,7 +1029,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@276067": {
+            "__@iterator@276710": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1084,7 +1084,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@276067"
+            "__@iterator@276710"
           ],
           "additionalProperties": false
         },
@@ -1310,7 +1310,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@276067": {
+            "__@iterator@276710": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1365,7 +1365,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@276067"
+            "__@iterator@276710"
           ],
           "additionalProperties": false
         },
@@ -1603,7 +1603,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@276067": {
+                "__@iterator@276710": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1658,7 +1658,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@276067"
+                "__@iterator@276710"
               ],
               "additionalProperties": false
             },
@@ -1888,7 +1888,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@276067": {
+                "__@iterator@276710": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1943,7 +1943,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@276067"
+                "__@iterator@276710"
               ],
               "additionalProperties": false
             },
@@ -2879,7 +2879,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@276067": {
+                "__@iterator@276710": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2934,7 +2934,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@276067"
+                "__@iterator@276710"
               ],
               "additionalProperties": false
             },
@@ -3164,7 +3164,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@276067": {
+                "__@iterator@276710": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3219,7 +3219,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@276067"
+                "__@iterator@276710"
               ],
               "additionalProperties": false
             },
@@ -4736,15 +4736,21 @@
           "type": "string"
         },
         "requestState": {
-          "$ref": "#/$defs/RequestState"
+          "enum": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
         },
         "currentRow": {
           "anyOf": [
             {
-              "$ref": "#/$defs/DataRow"
+              "type": "null"
             },
             {
-              "type": "null"
+              "$ref": "#/$defs/DataRow"
             }
           ]
         },
@@ -4768,20 +4774,42 @@
             "null",
             "object"
           ],
-          "title": "Error"
+          "title": "ErrorDefault"
         },
         "computedAggregateError": {
           "type": [
             "null",
             "object"
           ],
-          "title": "Error"
+          "title": "ErrorDefault"
         },
         "aggregateResult": {
-          "$ref": "#/$defs/AggregateResultRow"
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
         },
         "selectionAggregateResult": {
-          "$ref": "#/$defs/AggregateResultRow"
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
         },
         "value": {
           "type": "string"
@@ -5146,7 +5174,10 @@
         },
         "tables": {
           "type": "object",
-          "title": "Record<string, DataTable>"
+          "properties": {},
+          "additionalProperties": {
+            "$ref": "data-table.ts.json#/$defs/DataTable"
+          }
         },
         "resourceRelations": {
           "type": "array",
@@ -5170,7 +5201,10 @@
           "type": "string"
         },
         "destroyed": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,
@@ -6301,7 +6335,10 @@
           "type": "number"
         },
         "validateData": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,
@@ -8622,7 +8659,35 @@
             "targetName": "Readonly"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "cascadeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentViewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childViewId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "RequestState": {

@@ -171,7 +171,24 @@
         "dataViewKey": {
           "type": "string"
         },
-        "dataMember": true,
+        "dataMember": {
+          "enum": [
+            "page",
+            "columns",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
         "dataField": {
           "type": "string"
         },
@@ -182,25 +199,28 @@
           "type": "number"
         },
         "showOverflowTooltip": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "header": {
           "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "clearable": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
-        "modelValue": {
-          "type": "object",
-          "title": "TValue"
-        },
-        "value": {
-          "type": "object",
-          "title": "TValue"
-        },
+        "modelValue": true,
+        "value": true,
         "field": {
           "type": "string"
         },
@@ -208,13 +228,22 @@
           "type": "string"
         },
         "readonly": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "editOnDblclick": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "saveOnCellExit": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "placeholder": {
           "type": "string"
@@ -222,15 +251,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "center",
-            "right"
+            "right",
+            "center"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "center",
-            "right"
+            "right",
+            "center"
           ]
         },
         "headerCellClassName": {
@@ -246,13 +275,10 @@
           "type": "string"
         },
         "sortable": {
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "const": "custom"
-            }
+          "enum": [
+            false,
+            true,
+            "custom"
           ]
         }
       },
@@ -3042,7 +3068,140 @@
             "targetName": "SparkMultilineRowsProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minWidth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resizable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clearable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonly",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveOnCellExit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onChange",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "SparkNumericMaxProps": {
@@ -3110,7 +3269,140 @@
             "targetName": "SparkNumericMaxProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minWidth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resizable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clearable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonly",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveOnCellExit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onChange",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "max",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "SparkBoundedFieldProps": {
@@ -3131,7 +3423,145 @@
             "targetName": "SparkNumericBoundsProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minWidth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resizable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clearable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonly",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveOnCellExit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onChange",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "max",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "min",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "SparkRangeNumericFieldProps": {
@@ -3152,7 +3582,150 @@
             "targetName": "SparkRangeFilterProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minWidth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resizable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clearable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonly",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveOnCellExit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onChange",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "max",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "min",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterMode",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "SparkFileFieldProps": {
@@ -3242,7 +3815,160 @@
             "targetName": "SparkFileUploadActionProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minWidth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resizable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clearable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonly",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveOnCellExit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onChange",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "buttonText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "accept",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "separator",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonlyButtonText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "action",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "SparkFilePickerFieldProps": {
@@ -3362,7 +4088,160 @@
             "targetName": "SparkRangeFilterProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minWidth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resizable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clearable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonly",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveOnCellExit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onChange",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "format",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "startPlaceholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "endPlaceholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rangeSeparator",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterMode",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "SparkOptionButtonStyleProps": {
@@ -3548,7 +4427,230 @@
             "targetName": "SparkOptionButtonStyleProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minWidth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resizable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clearable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonly",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveOnCellExit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onChange",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionLabelField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionValueField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionDisabledField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionChildrenField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionDataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionLabelFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionLabelJoiner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionDataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionDataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unmatchedText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueSeparator",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textSeparator",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textStorageField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "multiple",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "buttonStyle",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "SparkHierarchicalOptionFieldProps": {
@@ -3569,7 +4671,230 @@
             "targetName": "SparkHierarchicalSelectionProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minWidth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resizable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clearable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonly",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveOnCellExit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onChange",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionLabelField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionValueField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionDisabledField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionChildrenField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionDataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionLabelFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionLabelJoiner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionDataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionDataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unmatchedText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueSeparator",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textSeparator",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textStorageField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "multiple",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "checkStrictly",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "SparkOptionSourceProps": {
@@ -3830,7 +5155,60 @@
             "targetName": "SparkCrudEventProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showDataViewMeta",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showAggregateSummary",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showSelectionSummary",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onAddRow",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onEditRow",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onRemoveRow",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "SparkInteractiveDataContainerProps": {
@@ -3851,7 +5229,75 @@
             "targetName": "SparkRowInteractionEventProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showDataViewMeta",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showAggregateSummary",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showSelectionSummary",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onAddRow",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onEditRow",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onRemoveRow",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onRowClick",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onSelectionChange",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onCurrentChange",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "SparkVisibilityEventProps": {

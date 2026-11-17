@@ -38,39 +38,49 @@
         },
         "rootKind": {
           "enum": [
-            "document",
-            "value"
+            "value",
+            "document"
           ]
         },
         "documentValue": {
           "anyOf": [
             {
-              "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonDocument"
+              "type": "null"
             },
             {
-              "type": "null"
+              "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonObject"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+              }
             }
           ]
         },
         "height": {
           "anyOf": [
             {
-              "type": "number"
+              "type": "string"
             },
             {
-              "type": "string"
+              "type": "number"
             }
           ]
         },
         "readOnly": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "schema": {
           "type": [
             "null",
             "object"
           ],
-          "additionalProperties": false
+          "properties": {},
+          "additionalProperties": true
         },
         "filterPlaceholder": {
           "type": "string"

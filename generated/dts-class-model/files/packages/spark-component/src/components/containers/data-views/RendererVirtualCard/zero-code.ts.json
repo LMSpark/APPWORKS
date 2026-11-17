@@ -24,7 +24,8 @@
       "properties": {
         "props": {
           "type": "object",
-          "title": "Record<string, unknown>"
+          "properties": {},
+          "additionalProperties": true
         },
         "resolvedView": {
           "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"

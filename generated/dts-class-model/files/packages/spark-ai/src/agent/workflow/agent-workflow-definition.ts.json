@@ -2350,7 +2350,30 @@
             "targetName": "AgentWorkflowGraphNodeBase"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "AgentWorkflowOutputNode": {
@@ -2366,7 +2389,30 @@
             "targetName": "AgentWorkflowGraphNodeBase"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "AgentWorkflowBusinessNode": {
@@ -2382,7 +2428,30 @@
             "targetName": "AgentWorkflowGraphNodeBase"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "AgentWorkflowGraphNode": {

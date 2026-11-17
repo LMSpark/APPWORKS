@@ -62,7 +62,31 @@
         },
         "fileUpload": {
           "type": "object",
-          "title": "Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion' | 'uploadBinaryVersion' | 'verifyBinaryVersion'>"
+          "properties": {
+            "uploadWorkingText": {
+              "type": "object",
+              "title": "(command: LowcodeDesignFileUploadCommand) => Promise<LowcodeDesignFileUploadResult>"
+            },
+            "uploadTextVersion": {
+              "type": "object",
+              "title": "(command: LowcodeDesignFileUploadCommand) => Promise<LowcodeDesignFileUploadResult>"
+            },
+            "uploadBinaryVersion": {
+              "type": "object",
+              "title": "(command: LowcodeBinaryFileUploadCommand) => Promise<LowcodeBinaryFileUploadReceipt>"
+            },
+            "verifyBinaryVersion": {
+              "type": "object",
+              "title": "(command: Readonly<{ receipt: LowcodeBinaryFileUploadReceipt; file: File; }>) => Promise<void>"
+            }
+          },
+          "required": [
+            "uploadWorkingText",
+            "uploadTextVersion",
+            "uploadBinaryVersion",
+            "verifyBinaryVersion"
+          ],
+          "additionalProperties": false
         }
       },
       "additionalProperties": false,
@@ -98,11 +122,44 @@
         },
         "views": {
           "type": "object",
-          "title": "Record<string, Readonly<Record<string, unknown>>>"
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
         },
         "queryParameters": {
           "type": "object",
-          "title": "Record<string, ReadonlyArray<Readonly<{\n        name: string;\n        type: string;\n        label?: string;\n        required?: boolean;\n    }>>>"
+          "properties": {},
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "required": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "type"
+              ],
+              "additionalProperties": false
+            }
+          }
         },
         "executorGroup": {
           "type": "string"
@@ -213,7 +270,35 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "listFiles",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "readTextFile",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "readFileBytes",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "listFileVersions",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removeFile",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "LowcodeFileResourceInput": {
@@ -358,7 +443,85 @@
             "targetName": "ReturnType"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "derivedQueries",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentResults",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "localAggregates",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveIndependently",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "invalidateQueryCache",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "releaseQueryCache",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryColumns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "executeQuery",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "save",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "acknowledgeSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshSavedRowPermissions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appendQueryResult",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "abandonUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     }
   }

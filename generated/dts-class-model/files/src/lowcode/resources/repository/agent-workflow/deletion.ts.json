@@ -25,7 +25,26 @@
         },
         "api": {
           "type": "object",
-          "title": "Pick<LowcodeDesignApi, 'listFiles' | 'removeFile' | 'readTextFile'>"
+          "properties": {
+            "listFiles": {
+              "type": "object",
+              "title": "(directory: LowcodeFileDirectory) => Promise<readonly LowcodeFileEntry[]>"
+            },
+            "readTextFile": {
+              "type": "object",
+              "title": "(locator: LowcodeFileLocator) => Promise<string>"
+            },
+            "removeFile": {
+              "type": "object",
+              "title": "(locator: LowcodeFileLocator) => Promise<void>"
+            }
+          },
+          "required": [
+            "listFiles",
+            "readTextFile",
+            "removeFile"
+          ],
+          "additionalProperties": false
         }
       },
       "additionalProperties": false,

@@ -242,7 +242,50 @@
             "targetName": "Awaited"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "save",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "preview",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "setName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "discard",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "verify",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "abandonNotApplied",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "discardLocalChanges",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "WorkflowNodeModelBinding": {

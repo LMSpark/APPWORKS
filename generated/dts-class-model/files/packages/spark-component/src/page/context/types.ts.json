@@ -94,10 +94,235 @@
       "title": "PageContext",
       "properties": {
         "$components": {
-          "$ref": "#/$defs/PageComponentAccessApi"
+          "type": "object",
+          "properties": {
+            "get": {
+              "type": "object",
+              "title": "((id: string) => ComponentInstanceSnapshot | null) & ((id: string) => ComponentInstanceSnapshot | null)"
+            },
+            "list": {
+              "type": "object",
+              "title": "((type?: string) => ComponentInstanceSnapshot[]) & ((type?: string) => ComponentInstanceSnapshot[])"
+            },
+            "getApi": {
+              "type": "object",
+              "title": "(<T = unknown>(id: string) => T | null) & (<T = unknown>(id: string) => T | null)"
+            },
+            "getApisByType": {
+              "type": "object",
+              "title": "(<T = unknown>(type: string) => T[]) & (<T = unknown>(type: string) => T[])"
+            }
+          },
+          "required": [
+            "get",
+            "list",
+            "getApi",
+            "getApisByType"
+          ],
+          "additionalProperties": false
         },
-        "SparkData": true,
-        "h": true
+        "SparkData": {
+          "type": "object",
+          "properties": {
+            "DataViewFilterCodec": {
+              "type": "object",
+              "title": "typeof import(\"@spark-appworks/spark-data\").DataViewFilterCodec"
+            },
+            "createDataSet": {
+              "type": "object",
+              "title": "(meta: DataSetMetadata) => DataSet"
+            },
+            "fromJson": {
+              "type": "object",
+              "title": "(json: DataSetMetadata | Record<string, unknown> | string) => DataSet"
+            },
+            "createTreeManager": {
+              "type": "object",
+              "title": "(config: TreeConfig, initialNodes?: FlatTreeNode[]) => TreeManager"
+            },
+            "createDataTable": {
+              "type": "object",
+              "title": "(meta: TableMetadata) => DataTable"
+            },
+            "createDatabaseCrudApi": {
+              "type": "object",
+              "title": "(tableName: string) => CrudApi"
+            },
+            "createDataView": {
+              "type": "object",
+              "title": "(tableName: string, meta?: ViewMetadata) => DataView"
+            },
+            "createDataSetCrudTool": {
+              "type": "object",
+              "title": "(dataSetName: string) => DataSetCrudTool"
+            },
+            "listDataSetSnapshots": {
+              "type": "object",
+              "title": "(scope: DataSetHistoryScope, options?: DataSetHistoryListOptions) => DataSetHistorySnapshot[]"
+            },
+            "getDataSetSnapshot": {
+              "type": "object",
+              "title": "(scope: DataSetHistoryScope, selector: DataSetSnapshotSelector, options?: DataSetHistoryListOptions) => DataSetHistorySnapshot | null"
+            },
+            "commitDataSetSnapshot": {
+              "type": "object",
+              "title": "(dataSetOrSnapshot: DataSetContract | DataSetMetadata, options?: DataSetSnapshotCommitOptions) => DataSetHistorySnapshot | null"
+            },
+            "createLocalStorageHistoryAdapter": {
+              "type": "object",
+              "title": "(storage?: Pick<Storage, \"getItem\" | \"setItem\" | \"removeItem\">) => DataSetHistoryStorageAdapter | null"
+            },
+            "formatPageDataSnapshot": {
+              "type": "object",
+              "title": "(entry: DataSetHistorySnapshot, indentation?: number) => string"
+            },
+            "DataMember": {
+              "type": "object",
+              "properties": {
+                "Value": {
+                  "const": "value"
+                },
+                "Rows": {
+                  "const": "rows"
+                },
+                "Columns": {
+                  "const": "columns"
+                },
+                "CurrentRow": {
+                  "const": "currentRow"
+                },
+                "SelectedRows": {
+                  "const": "selectedRows"
+                },
+                "AggregateResult": {
+                  "const": "aggregateResult"
+                },
+                "SelectionAggregateResult": {
+                  "const": "selectionAggregateResult"
+                },
+                "Total": {
+                  "const": "total"
+                },
+                "Page": {
+                  "const": "page"
+                },
+                "PageSize": {
+                  "const": "pageSize"
+                },
+                "RequestState": {
+                  "const": "requestState"
+                },
+                "Mutating": {
+                  "const": "mutating"
+                },
+                "LoadingError": {
+                  "const": "loadingError"
+                },
+                "MutatingError": {
+                  "const": "mutatingError"
+                }
+              },
+              "required": [
+                "Value",
+                "Rows",
+                "Columns",
+                "CurrentRow",
+                "SelectedRows",
+                "AggregateResult",
+                "SelectionAggregateResult",
+                "Total",
+                "Page",
+                "PageSize",
+                "RequestState",
+                "Mutating",
+                "LoadingError",
+                "MutatingError"
+              ],
+              "additionalProperties": false
+            },
+            "isDataViewKey": {
+              "type": "object",
+              "title": "(dataViewKey: string) => boolean"
+            },
+            "parseDataViewKey": {
+              "type": "object",
+              "title": "(dataViewKey: string) => DataViewKeyDescriptor | null"
+            },
+            "diagnoseDataViewKey": {
+              "type": "object",
+              "title": "(rawKey: string, dataSet: DataSetContract | null | undefined) => DataViewKeyDiagnostic"
+            },
+            "resolveDataViewKey": {
+              "type": "object",
+              "title": "(dataViewKey: string | undefined, dataSet: DataSetContract | null | undefined) => DataView | undefined"
+            },
+            "buildDataViewKey": {
+              "type": "object",
+              "title": "(tableName: string, viewId?: string, scope?: string) => string"
+            },
+            "resolveDataViewMember": {
+              "type": "object",
+              "title": "(input: DataViewMemberInput, dataSet: DataSetContract | null | undefined) => DataViewMemberValue"
+            },
+            "diagnoseDataViewMember": {
+              "type": "object",
+              "title": "(input: DataViewMemberInput, dataSet: DataSetContract | null | undefined) => DataViewMemberDiagnostic"
+            },
+            "resolveDataViewMemberBinding": {
+              "type": "object",
+              "title": "(input: DataViewMemberInput, dataSet: DataSetContract | null | undefined) => DataViewMemberBinding | null"
+            },
+            "getDataViewIdentity": {
+              "type": "object",
+              "title": "(descriptor: DataViewKeyDescriptor) => string"
+            },
+            "resolveDataViewCapabilities": {
+              "type": "object",
+              "title": "(input: Partial<DataViewMemberInput>, dataSet: DataSetContract | null | undefined) => ResolvedDataViewCapabilities"
+            },
+            "extractColumnRules": {
+              "type": "object",
+              "title": "(column: DataColumn) => ColumnValidationRule[]"
+            },
+            "isColumnRequired": {
+              "type": "object",
+              "title": "(column: DataColumn) => boolean"
+            }
+          },
+          "required": [
+            "DataViewFilterCodec",
+            "createDataSet",
+            "fromJson",
+            "createTreeManager",
+            "createDataTable",
+            "createDatabaseCrudApi",
+            "createDataView",
+            "createDataSetCrudTool",
+            "listDataSetSnapshots",
+            "getDataSetSnapshot",
+            "commitDataSetSnapshot",
+            "createLocalStorageHistoryAdapter",
+            "formatPageDataSnapshot",
+            "DataMember",
+            "isDataViewKey",
+            "parseDataViewKey",
+            "diagnoseDataViewKey",
+            "resolveDataViewKey",
+            "buildDataViewKey",
+            "resolveDataViewMember",
+            "diagnoseDataViewMember",
+            "resolveDataViewMemberBinding",
+            "getDataViewIdentity",
+            "resolveDataViewCapabilities",
+            "extractColumnRules",
+            "isColumnRequired"
+          ],
+          "additionalProperties": false
+        },
+        "h": {
+          "type": "object",
+          "title": "{ <K extends keyof HTMLElementTagNameMap>(type: K, children?: RawChildren): VNode; <K extends keyof HTMLElementTagNameMap>(type: K, props?: (RawProps & HTMLElementEventHandler) | null, children?: RawChildren | RawSlots): VNode; (type: string, children?: RawChildren): VNode; (type: string, props?: RawProps | null, ch..."
+        }
       },
       "required": [
         "$components",

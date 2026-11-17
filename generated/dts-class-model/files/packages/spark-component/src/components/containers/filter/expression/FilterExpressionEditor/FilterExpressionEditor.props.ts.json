@@ -31,8 +31,8 @@
         },
         "displayMode": {
           "enum": [
-            "box",
-            "inline"
+            "inline",
+            "box"
           ]
         },
         "placeholder": {
@@ -42,7 +42,10 @@
           "type": "string"
         },
         "clearable": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "dialogWidth": {
           "anyOf": [
@@ -58,13 +61,20 @@
           "type": "number"
         },
         "modelValue": {
-          "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+          "anyOf": [
+            {
+              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+            },
+            {
+              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+            }
+          ]
         },
         "columns": {
           "type": "array",
           "items": {
             "type": "object",
-            "title": "Data.DataColumn"
+            "title": "DataColumn"
           }
         },
         "allowedOperators": {
@@ -83,10 +93,16 @@
           "type": "number"
         },
         "disabled": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "readonly": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "applyError": {
           "type": [
@@ -664,7 +680,15 @@
             "typeText": "{\n    ok: false;\n    issues: readonly Data.DataViewFilterIssue[];\n}"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "ok",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "FilterExpressionEditorDraft": {

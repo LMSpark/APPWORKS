@@ -1,0 +1,310 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/content-authoring-host",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/content-authoring-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-authoring-host\n职责：以当前认证作者及明确项目装配正文编制的原生运行实例。\n边界：仅编排原 PageRuntime/DataView；不复制草稿、不提交CRUD、不替代服务端授权或权威保存。\nAI用途：导航宿主已核实页面身份后，打开正文工作区并将原实例交正文组件。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentAuthoringTarget",
+      "ContentAuthoringBinding",
+      "ContentAuthoringHost"
+    ]
+  },
+  "$defs": {
+    "ContentAuthoringTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentAuthoringTarget",
+      "properties": {
+        "applicationId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "draftId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "applicationId",
+        "pageId",
+        "scenarioId",
+        "projectId",
+        "draftId"
+      ],
+      "additionalProperties": false
+    },
+    "ContentAuthoringBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentAuthoringBinding",
+      "properties": {
+        "runtime": {
+          "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "draftId": {
+          "type": "string"
+        },
+        "actorUserId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.setPending.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setPending.return": true
+      }
+    },
+    "ContentAuthoringHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentAuthoringHost",
+      "properties": {
+        "binding": {
+          "$ref": "#/$defs/ContentAuthoringBinding"
+        },
+        "hasPending": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.open.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ContentAuthoringTarget"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.return": {
+          "type": "object",
+          "title": "Promise<ContentAuthoringBinding>"
+        },
+        "method.close.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.close.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-17T07:38:29.065Z",
+  "models": {
+    "ContentAuthoringTarget": {
+      "name": "ContentAuthoringTarget",
+      "jsdoc": "导航宿主核实的应用、页面和数据空间，以及本次明确选中的业务目标。作者不由调用参数提供。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    applicationId: string;\n    pageId: string;\n    scenarioId: string;\n    projectId: string;\n    draftId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    applicationId: string;\n    pageId: string;\n    scenarioId: string;\n    projectId: string;\n    draftId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "applicationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draftId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentAuthoringBinding": {
+      "name": "ContentAuthoringBinding",
+      "jsdoc": "直接交给正文组件的原实例绑定；pending只表示尚未写回字段的交互，不保存业务数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draftId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actorUserId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setPending",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ContentAuthoringHost": {
+      "name": "ContentAuthoringHost",
+      "jsdoc": "一次正文编制宿主；未保存输入/原视图编辑均阻止换目标，过期装配不能发布新绑定。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "一次正文编制宿主；未保存输入/原视图编辑均阻止换目标，过期装配不能发布新绑定。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "binding",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPending",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "open",
+              "jsdoc": "装配正式空间并只查询本次项目与作者的视图；目标或认证代次变化创建新实例。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentAuthoringTarget",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentAuthoringBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "close",
+              "jsdoc": "正常离页前调用；未保存编辑必须先通过原组件取消或正式保存，不能隐式丢弃。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

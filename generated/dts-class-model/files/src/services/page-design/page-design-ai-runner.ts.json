@@ -127,7 +127,10 @@
           "type": "string"
         },
         "saveDirtyFilesAfterRun": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "deliverySaveFileNames": {
           "type": "array",

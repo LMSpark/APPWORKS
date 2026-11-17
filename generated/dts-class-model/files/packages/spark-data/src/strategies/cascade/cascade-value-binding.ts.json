@@ -106,7 +106,25 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "DataViewCascadeValueBinding": {

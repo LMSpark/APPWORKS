@@ -160,7 +160,20 @@
             "typeText": "{\n    type: 'pattern';\n    message: string;\n    value: string;\n}"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     }
   }

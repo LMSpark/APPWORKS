@@ -65,7 +65,10 @@
           "$ref": "../ai/ai-delivery-port.ts.json#/$defs/AiDeliveryMode"
         },
         "shouldSave": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "saveFileNames": {
           "type": "array",
@@ -132,7 +135,10 @@
           "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
         },
         "autoSave": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,
@@ -333,7 +339,20 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "saveFileNames",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowedOperations",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "PageDesignInlineDeliveryOptions": {

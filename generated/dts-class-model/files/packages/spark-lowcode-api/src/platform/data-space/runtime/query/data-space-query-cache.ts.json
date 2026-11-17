@@ -19,10 +19,7 @@
       "type": "object",
       "title": "ResultCacheRequest",
       "properties": {
-        "page": {
-          "type": "object",
-          "additionalProperties": true
-        },
+        "page": true,
         "definition": true
       },
       "additionalProperties": false,
@@ -234,7 +231,20 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "ConstructorParameters<typeof DataSpaceQueryResource>[0]",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "readScope",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "DataSpaceQueryCacheQueryInput": {

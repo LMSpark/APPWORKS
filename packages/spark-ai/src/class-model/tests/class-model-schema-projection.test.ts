@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { JsonSchemaObject } from '@spark-appworks/spark-json-document'
 
 import type { AttributeMeta, DtsTypeDeclarationModel, ConstructorMeta, MethodMeta } from '../class-model/types'
 import {
@@ -54,6 +55,39 @@ function makeInterfaceModel(): Extract<DtsTypeDeclarationModel, { declarationKin
 }
 
 describe('class-model-schema-projection', () => {
+  it('restores common union member types without changing the correlated root schema', () => {
+    const jsonSchema = {anyOf: [
+      {type: 'object', properties: {id: {type: 'string'}, type: {const: 'empty'}, data: {type: 'object', properties: {}, additionalProperties: false}}, required: ['id', 'type', 'data'], additionalProperties: false},
+      {type: 'object', properties: {id: {type: 'string'}, type: {const: 'task'}, data: {type: 'object', properties: {station: {type: 'string'}}, required: ['station'], additionalProperties: false}}, required: ['id', 'type', 'data'], additionalProperties: false},
+    ]} satisfies JsonSchemaObject
+    const model: DtsTypeDeclarationModel = {name: 'Node', jsdoc: '', declarationKind: 'typeAlias', jsonSchema,
+      typeAlias: {declarationTypeText: 'Common & (Empty | Task)',
+        members: {attributes: ['id', 'type', 'data'].map(name => ({name, readable: true, writable: false, jsdoc: ''})), methods: []}}}
+    const original = structuredClone(jsonSchema)
+    const hydrated = hydrateModelSchemasFromJsonSchema(model)
+    if (hydrated.declarationKind !== 'typeAlias') throw new Error('expected type alias')
+    const attributes = hydrated.typeAlias.members.attributes
+    expect.soft(attributes.find(item => item.name === 'id')?.schema).toEqual({type: 'string'})
+    expect.soft(attributes.find(item => item.name === 'type')?.schema).toEqual({anyOf: [{const: 'empty'}, {const: 'task'}]})
+    expect.soft(attributes.find(item => item.name === 'data')?.schema).toEqual({anyOf: jsonSchema.anyOf.map(branch => branch.properties.data)})
+    expect(attributes.every(item => !item.writable)).toBe(true)
+    expect(hydrated.jsonSchema).toEqual(original)
+    expect(model.jsonSchema).toEqual(original)
+  })
+
+  it('intersects repeated property constraints and does not invent union-only members', () => {
+    const model: DtsTypeDeclarationModel = {name: 'Node', jsdoc: '', declarationKind: 'typeAlias',
+      jsonSchema: {allOf: [{type: 'object', properties: {id: {type: 'string'}}},
+        {anyOf: [{type: 'object', properties: {id: {const: 'a'}, onlyA: {type: 'string'}}},
+          {type: 'object', properties: {id: {const: 'b'}}}]}]},
+      typeAlias: {declarationTypeText: 'Common & (A | B)',
+        members: {attributes: ['id', 'onlyA'].map(name => ({name, readable: true, writable: true, jsdoc: ''})), methods: []}}}
+    const hydrated = hydrateModelSchemasFromJsonSchema(model)
+    if (hydrated.declarationKind !== 'typeAlias') throw new Error('expected type alias')
+    expect(hydrated.typeAlias.members.attributes[0]?.schema).toEqual({allOf: [{type: 'string'}, {anyOf: [{const: 'a'}, {const: 'b'}]}]})
+    expect(hydrated.typeAlias.members.attributes[1]?.schema).toBeUndefined()
+  })
+
   it('strips attribute schemas and hydrates them from jsonSchema on read', () => {
     const withJsonSchema = attachModelJsonSchemas({ Demo: makeInterfaceModel() })['Demo']!
     const stripped = stripRedundantModelSchemas(withJsonSchema)

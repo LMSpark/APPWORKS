@@ -130,7 +130,15 @@
             "targetName": "Partial"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "ShellNavRootListener": {

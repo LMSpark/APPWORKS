@@ -240,7 +240,35 @@
             "targetName": "CapabilityKey"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "reader",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "token",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "read",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toString",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "SparkCapabilityConsumer": {

@@ -26,10 +26,7 @@
         "fieldType": {
           "type": "string"
         },
-        "fallbackValue": {
-          "type": "object",
-          "title": "TValue"
-        }
+        "fallbackValue": true
       },
       "required": [
         "props",

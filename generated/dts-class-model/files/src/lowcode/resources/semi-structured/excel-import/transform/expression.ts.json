@@ -24,7 +24,10 @@
           "type": "string"
         },
         "objectRoot": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,

@@ -62,10 +62,61 @@
           "title": "PageRoute"
         },
         "enableCssScope": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
-        "messageService": true,
-        "confirmService": true
+        "messageService": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "object",
+              "title": "(msg: string) => void"
+            },
+            "warning": {
+              "type": "object",
+              "title": "(msg: string) => void"
+            },
+            "error": {
+              "type": "object",
+              "title": "(msg: string) => void"
+            },
+            "info": {
+              "type": "object",
+              "title": "(msg: string) => void"
+            }
+          },
+          "required": [
+            "success",
+            "warning",
+            "error",
+            "info"
+          ],
+          "additionalProperties": false
+        },
+        "confirmService": {
+          "type": "object",
+          "properties": {
+            "confirm": {
+              "type": "object",
+              "title": "(msg: string, title?: string) => Promise<unknown>"
+            },
+            "alert": {
+              "type": "object",
+              "title": "(msg: string, title?: string) => Promise<unknown>"
+            },
+            "prompt": {
+              "type": "object",
+              "title": "(msg: string, title?: string) => Promise<string | null>"
+            }
+          },
+          "required": [
+            "confirm",
+            "alert"
+          ],
+          "additionalProperties": false
+        }
       },
       "required": [
         "pageRuntime",

@@ -25,18 +25,45 @@
           "title": "DataSet"
         },
         "node": {
-          "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          "type": "object",
+          "properties": {
+            "lingma_sys_params": {
+              "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+            },
+            "lingma_sys_key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
         },
         "before": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            "type": "object",
+            "properties": {
+              "lingma_sys_params": {
+                "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+              },
+              "lingma_sys_key": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
           }
         },
         "after": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            "type": "object",
+            "properties": {
+              "lingma_sys_params": {
+                "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+              },
+              "lingma_sys_key": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
           }
         },
         "outputFields": {

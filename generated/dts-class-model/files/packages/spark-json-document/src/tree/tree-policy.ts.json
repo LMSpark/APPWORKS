@@ -92,7 +92,65 @@
             "targetName": "Required"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "rootLabel",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isProtected",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "canEditKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "canEditType",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "canAddChild",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "suggestChildKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createDefaultArrayItem",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createDefaultObjectValue",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getValueOptions",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getValueLabels",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "getAutoPopulate",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     }
   }

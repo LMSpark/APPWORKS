@@ -41,10 +41,10 @@
         "selectedPath": {
           "anyOf": [
             {
-              "$ref": "../../../packages/spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+              "type": "null"
             },
             {
-              "type": "null"
+              "$ref": "../../../packages/spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
             }
           ]
         }

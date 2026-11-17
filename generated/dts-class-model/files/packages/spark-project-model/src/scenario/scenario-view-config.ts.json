@@ -350,7 +350,40 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "relationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRelationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relationName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentTable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "childTable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "cascadeUpdate",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "ScenarioRelationDependency": {

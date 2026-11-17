@@ -574,7 +574,20 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "sourceName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceType",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "DataSpaceRuntimeApi": {

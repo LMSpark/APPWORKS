@@ -239,7 +239,11 @@
         },
         "fileResourceExecutors": {
           "type": "object",
-          "title": "Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>"
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "title": "Executor"
+          }
         },
         "modelSources": {
           "type": "object",
@@ -417,7 +421,10 @@
       "title": "SessionLoadOptions",
       "properties": {
         "deferDefinition": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,
@@ -1432,7 +1439,65 @@
             "targetName": "Awaited"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceType",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "businessMain",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceInputBindings",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "PageDataSpaceViewState": {
@@ -1820,7 +1885,30 @@
             "targetName": "Omit"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelName",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "NativeViewSelection": {

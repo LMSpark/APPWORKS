@@ -125,7 +125,30 @@
             "targetName": "Partial"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "delete",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "create",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "update",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "list",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "FormalTableRequestConfig": {

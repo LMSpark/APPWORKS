@@ -33,7 +33,10 @@
         "http": {
           "$ref": "../../../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
         },
-        "readScope": true
+        "readScope": {
+          "type": "object",
+          "title": "() => Readonly<{ token: string; headers: Readonly<Record<string, string>>; }>"
+        }
       },
       "additionalProperties": false,
       "$defs": {

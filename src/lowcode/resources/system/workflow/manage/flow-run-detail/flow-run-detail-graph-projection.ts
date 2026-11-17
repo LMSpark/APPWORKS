@@ -4,7 +4,8 @@
  */
 import type {DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
-import type {FlowRunDetailStepRow, FlowRunDetailWaitingRow} from './flow-run-detail-steps'
+type FlowRunDetailStepRow = Readonly<Record<string, unknown>>
+type FlowRunDetailWaitingRow = Readonly<Record<string, unknown>>
 
 const NODE_BADGE_FIELD = 'runGraphBadge'
 

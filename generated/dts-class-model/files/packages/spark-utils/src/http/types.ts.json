@@ -581,8 +581,8 @@
         },
         "storage": {
           "enum": [
-            "localStorage",
             "sessionStorage",
+            "localStorage",
             "memory"
           ]
         },
@@ -597,10 +597,16 @@
         },
         "headers": {
           "type": "object",
-          "title": "Record<string, string>"
+          "properties": {},
+          "additionalProperties": {
+            "type": "string"
+          }
         },
         "fallbackToCache": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "expirationTiers": {
           "type": "array",
@@ -1440,7 +1446,95 @@
             "targetName": "Partial"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "url",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "method",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headers",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "params",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timeout",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responseType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baseURL",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cache",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cacheKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cacheExpiry",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "retry",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "retryDelay",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signal",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "withCredentials",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "meta",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "keepalive",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "CacheExpirationTier": {

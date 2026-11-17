@@ -56,13 +56,22 @@
           "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "border": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "stripe": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "highlightCurrentRow": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "rowKey": {
           "type": "string"
@@ -86,24 +95,36 @@
           "additionalProperties": false
         },
         "resizable": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "autoColumns": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "showRowIndex": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "showPagination": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "maxHeight": {
           "anyOf": [
             {
-              "type": "number"
+              "type": "string"
             },
             {
-              "type": "string"
+              "type": "number"
             }
           ]
         },
@@ -117,7 +138,10 @@
               }
             },
             "showJumper": {
-              "type": "boolean"
+              "enum": [
+                false,
+                true
+              ]
             }
           },
           "additionalProperties": false
@@ -140,15 +164,18 @@
             "width": {
               "anyOf": [
                 {
-                  "type": "number"
+                  "type": "string"
                 },
                 {
-                  "type": "string"
+                  "type": "number"
                 }
               ]
             },
             "fixed": {
-              "type": "boolean"
+              "enum": [
+                false,
+                true
+              ]
             }
           },
           "additionalProperties": false

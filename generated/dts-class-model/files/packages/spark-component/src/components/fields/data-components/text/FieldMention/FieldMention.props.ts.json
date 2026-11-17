@@ -76,7 +76,10 @@
                 "type": "string"
               },
               "searchable": {
-                "type": "boolean"
+                "enum": [
+                  false,
+                  true
+                ]
               },
               "options": {
                 "type": "object",
@@ -116,16 +119,25 @@
           ]
         },
         "showArrow": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "offset": {
           "type": "number"
         },
         "whole": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "loading": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "inputType": {
           "enum": [

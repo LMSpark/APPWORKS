@@ -83,13 +83,22 @@
           "title": "CSSProperties"
         },
         "showHeader": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "showHud": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "showPageMeta": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "onItemClick": {
           "type": "object",

@@ -93,6 +93,20 @@ describe('query column ownership', () => {
 })
 
 describe('requested refresh lifecycle', () => {
+  it('preserves a deferred refresh when query inputs are replaced with the same values', async () => {
+    const f = fixture()
+    try {
+      await f.view.refresh(); f.view.updateEditingValue('1', 'text', 'draft')
+      await f.view.requestRefresh()
+      const sameInputs = {...f.view.queryContext}
+      f.view.queryContext = sameInputs
+      expect(f.view.queryContext).toBe(sameInputs)
+      expect(f.view.refreshPending).toBe(true)
+      f.stored('persisted'); f.view.discardPendingChanges()
+      await vi.waitFor(() => expect(f.view.rows[0]?.['text']).toBe('persisted'))
+      expect(f.executor.executeQuery).toHaveBeenCalledTimes(2)
+    } finally {f.ds.destroy()}
+  })
   it.each(['editing', 'staged'] as const)('coalesces refresh requests while %s changes remain and refreshes after cancellation', async mode => {
     const f = fixture()
     try {

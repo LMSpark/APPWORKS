@@ -56,11 +56,11 @@
         },
         "kind": {
           "enum": [
-            "text",
-            "textarea",
             "number",
             "select",
             "radio",
+            "text",
+            "textarea",
             "switch"
           ]
         },
@@ -86,10 +86,16 @@
           "type": "string"
         },
         "required": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "readonly": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,

@@ -71,7 +71,35 @@
             "targetName": "FieldComposableProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     }
   }

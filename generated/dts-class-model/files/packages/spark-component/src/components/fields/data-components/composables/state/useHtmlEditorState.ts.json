@@ -24,7 +24,7 @@
       "properties": {
         "editorRef": {
           "type": "object",
-          "title": "Ref<HTMLElement | null>"
+          "title": "Ref<HTMLElement | null, HTMLElement | null>"
         },
         "fieldValue": {
           "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"

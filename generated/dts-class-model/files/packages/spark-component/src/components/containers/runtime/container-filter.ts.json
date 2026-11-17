@@ -38,13 +38,17 @@
       "title": "FilterPanelDataView",
       "properties": {
         "supportsQueryFiltering": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "rows": {
           "type": "array",
           "items": {
             "type": "object",
-            "title": "Record<string, unknown>"
+            "properties": {},
+            "additionalProperties": true
           }
         },
         "columns": {
@@ -52,7 +56,14 @@
           "items": true
         },
         "filterExpression": {
-          "$ref": "../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+          "anyOf": [
+            {
+              "$ref": "../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+            },
+            {
+              "$ref": "../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+            }
+          ]
         },
         "dataTable": {
           "type": [
@@ -211,7 +222,8 @@
       "properties": {
         "filterModel": {
           "type": "object",
-          "title": "Record<string, unknown>"
+          "properties": {},
+          "additionalProperties": true
         },
         "filterConfigs": {
           "type": "object",
@@ -227,7 +239,22 @@
         },
         "filterError": {
           "type": "object",
-          "title": "Ref<string | null>"
+          "properties": {
+            "value": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "__@RefSymbol@279302": {
+              "const": true
+            }
+          },
+          "required": [
+            "value",
+            "__@RefSymbol@279302"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [

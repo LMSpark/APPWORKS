@@ -972,7 +972,25 @@
             "targetName": "Omit"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "designScenarioId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "DataSpaceFormalBatchReadInput": {

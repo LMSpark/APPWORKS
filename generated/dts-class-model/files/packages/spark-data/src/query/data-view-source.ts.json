@@ -230,8 +230,7 @@
       "title": "DataViewSourceAdapter",
       "properties": {
         "history": {
-          "type": "object",
-          "additionalProperties": false
+          "$ref": "../../../spark-project-model/src/scenario/scenario-definition-resource.ts.json#/$defs/History"
         }
       },
       "additionalProperties": false,

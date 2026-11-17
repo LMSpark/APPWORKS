@@ -73,7 +73,10 @@
           "title": "ts.CompilerHost"
         },
         "exportedOnly": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "progressInterval": {
           "type": "number"

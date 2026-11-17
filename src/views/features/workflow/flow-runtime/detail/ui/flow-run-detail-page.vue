@@ -28,27 +28,27 @@
         title="运行图尚未加载。" />
     </RendererSection>
     <RendererDialog v-model="nodeDialogOpen" :title="nodeDialogTitle" :width="960" :append-to-body="true" :destroy-on-close="true">
-      <el-checkbox v-model="nodeShowVoided" class="flow-run-detail-page__voided">显示作废信息</el-checkbox>
+      <FieldCheckbox v-model="nodeShowVoided" checkbox-text="显示作废信息" class="flow-run-detail-page__voided" />
       <RendererTabs v-model="nodeActiveTab">
-        <RendererTabPane name="received" label="提交到当前节点" :index="0">
-          <FlowRunDetailStepTable :rows="nodeReceivedDisplay" />
+        <RendererTabPane name="received" label="提交到当前节点" :index="0" lazy>
+          <FlowRunDetailStepTable v-if="nodeDialogOpen && prepared" :view-key="prepared.stepViewKey" :received-node-id="selectedNodeId" :show-voided="nodeShowVoided" />
         </RendererTabPane>
-        <RendererTabPane name="sent" label="当前节点提交的" :index="1">
-          <FlowRunDetailStepTable :rows="nodeSentDisplay" />
+        <RendererTabPane name="sent" label="当前节点提交的" :index="1" lazy>
+          <FlowRunDetailStepTable v-if="nodeDialogOpen && prepared" :view-key="prepared.stepViewKey" :sent-node-id="selectedNodeId" :show-voided="nodeShowVoided" />
         </RendererTabPane>
-        <RendererTabPane name="all" label="所有信息" :index="2">
-          <FlowRunDetailStepTable :rows="nodeAllDisplay" />
+        <RendererTabPane name="all" label="所有信息" :index="2" lazy>
+          <FlowRunDetailStepTable v-if="nodeDialogOpen && prepared" :view-key="prepared.stepViewKey" :show-voided="nodeShowVoided" />
         </RendererTabPane>
       </RendererTabs>
     </RendererDialog>
     <RendererDialog v-model="edgeDialogOpen" :title="edgeDialogTitle" :width="960" :append-to-body="true" :destroy-on-close="true">
-      <el-checkbox v-model="edgeShowVoided" class="flow-run-detail-page__voided">显示作废信息</el-checkbox>
+      <FieldCheckbox v-model="edgeShowVoided" checkbox-text="显示作废信息" class="flow-run-detail-page__voided" />
       <RendererTabs v-model="edgeActiveTab">
-        <RendererTabPane name="edge" label="连线步骤" :index="0">
-          <FlowRunDetailStepTable :rows="edgeDisplay" />
+        <RendererTabPane name="edge" label="连线步骤" :index="0" lazy>
+          <FlowRunDetailStepTable v-if="edgeDialogOpen && prepared" :view-key="prepared.stepViewKey" :sent-node-id="edgeSourceId" :received-node-id="edgeTargetId" :show-voided="edgeShowVoided" />
         </RendererTabPane>
-        <RendererTabPane name="all" label="所有信息" :index="1">
-          <FlowRunDetailStepTable :rows="edgeAllDisplay" />
+        <RendererTabPane name="all" label="所有信息" :index="1" lazy>
+          <FlowRunDetailStepTable v-if="edgeDialogOpen && prepared" :view-key="prepared.stepViewKey" :show-voided="edgeShowVoided" />
         </RendererTabPane>
       </RendererTabs>
     </RendererDialog>
@@ -64,6 +64,7 @@ import * as SparkComponent from '@spark-appworks/spark-component'
 const {
   DisplayAlert,
   DisplayText,
+  FieldCheckbox,
   RendererButton,
   RendererDialog,
   RendererGraph,
@@ -123,7 +124,7 @@ const {viewKey, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime
 const {
   prepared, graphLoading, graphError, graphReady, nodeBadgeRules, nodeDialogOpen, edgeDialogOpen,
   nodeShowVoided, edgeShowVoided, nodeDialogTitle, edgeDialogTitle, nodeActiveTab, edgeActiveTab,
-  nodeReceivedDisplay, nodeSentDisplay, nodeAllDisplay, edgeDisplay, edgeAllDisplay, onGraphSelect, reloadGraph,
+  selectedNodeId, edgeSourceId, edgeTargetId, onGraphSelect, reloadGraph,
 } = useFlowRunDetailPage(() => routeQuery.value, () => ready.value)
 
 const stateKey = buildDataViewKey('Dict_state', 'default', scenarioId)

@@ -61,8 +61,8 @@
         },
         "valueFormat": {
           "enum": [
-            "native",
-            "text"
+            "text",
+            "native"
           ]
         },
         "format": {
@@ -80,8 +80,8 @@
         },
         "displayMode": {
           "enum": [
-            "box",
-            "inline"
+            "inline",
+            "box"
           ]
         },
         "columns": {
@@ -103,10 +103,10 @@
         "columnTable": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FilterColumnTable"
+              "type": "null"
             },
             {
-              "type": "null"
+              "$ref": "#/$defs/FilterColumnTable"
             }
           ]
         },
@@ -123,10 +123,16 @@
           "type": "number"
         },
         "disabled": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "readonly": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "required": [
@@ -203,7 +209,20 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "RFilterExpressionProps": {

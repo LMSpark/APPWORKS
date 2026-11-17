@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/operation-tree-structure",
+    "sourcePath": "src/services/smart-bid/operation/operation-tree-structure.ts",
+    "sourceFile": "src/services/smart-bid/operation/operation-tree-structure.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/operation-tree-structure",
+    "jsdoc": "@module app:services/smart-bid/operation/operation-tree-structure\n职责：按投标规格6.1校验路线的平铺工序树和稳定类型。\n边界：不执行条件、工位或脚本，不解析发布引用，不替代服务端路线发布校验。\nAI用途：路线候选在进入工位、输入输出及发布核验前检查闭合结构。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "OperationStructureNode",
+      "OperationNodeType",
+      "OperationTreeStructureInput"
+    ]
+  },
+  "$defs": {
+    "OperationStructureNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OperationStructureNode",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "index": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "parentId",
+        "index",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "OperationNodeType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "OperationNodeType",
+      "enum": [
+        "route",
+        "phase",
+        "sequence",
+        "parallel",
+        "choice",
+        "call",
+        "task"
+      ]
+    },
+    "OperationTreeStructureInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OperationTreeStructureInput",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OperationStructureNode"
+          }
+        },
+        "previousNodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "id"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "nodes"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T09:00:36.541Z",
+  "models": {
+    "OperationStructureNode": {
+      "name": "OperationStructureNode",
+      "jsdoc": "工序节点的结构投影；根有自己的稳定id，parentId为null。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    type: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    type: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "OperationNodeType": {
+      "name": "OperationNodeType",
+      "jsdoc": "路线允许的结构分类；企业分类不能增加结构类型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof OPERATION_NODE_TYPES[number]",
+        "members": {}
+      }
+    },
+    "OperationTreeStructureInput": {
+      "name": "OperationTreeStructureInput",
+      "jsdoc": "工序结构检查输入；历史身份与当前候选分别提供。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodes: readonly OperationStructureNode[];\n    /** 已取得的历史身份与类型；不能用当前候选冒充历史真源。 */\n    previousNodes?: ReadonlyArray<Pick<OperationStructureNode, 'id' | 'type'>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodes: readonly OperationStructureNode[];\n    /** 已取得的历史身份与类型；不能用当前候选冒充历史真源。 */\n    previousNodes?: ReadonlyArray<Pick<OperationStructureNode, 'id' | 'type'>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previousNodes",
+              "jsdoc": "已取得的历史身份与类型；不能用当前候选冒充历史真源。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

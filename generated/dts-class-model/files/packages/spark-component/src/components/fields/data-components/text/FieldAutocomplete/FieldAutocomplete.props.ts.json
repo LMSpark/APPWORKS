@@ -26,10 +26,16 @@
       "title": "RAutocompleteProps",
       "properties": {
         "triggerOnFocus": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "highlightFirstItem": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "valueKey": {
           "type": "string"

@@ -296,22 +296,139 @@
       "title": "UseOptionFieldOptions",
       "properties": {
         "props": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/FieldOptionProps"
+          "type": "object",
+          "properties": {
+            "dataViewKey": {
+              "type": "string"
             },
-            {
-              "$ref": "../context/useFieldPermission.ts.json#/$defs/FieldPermissionProps"
+            "dataMember": {
+              "enum": [
+                "page",
+                "columns",
+                "rows",
+                "total",
+                "requestState",
+                "value",
+                "currentRow",
+                "selectedRows",
+                "aggregateResult",
+                "selectionAggregateResult",
+                "pageSize",
+                "mutating",
+                "loadingError",
+                "mutatingError"
+              ]
+            },
+            "dataField": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "options": {
+              "type": "array",
+              "items": true
+            },
+            "optionLabelField": {
+              "type": "string"
+            },
+            "optionLabelFields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "optionLabelJoiner": {
+              "type": "string"
+            },
+            "optionValueField": {
+              "type": "string"
+            },
+            "optionDisabledField": {
+              "type": "string"
+            },
+            "optionChildrenField": {
+              "type": "string"
+            },
+            "optionDataViewKey": {
+              "type": "string"
+            },
+            "optionDataMember": {
+              "enum": [
+                "page",
+                "columns",
+                "rows",
+                "total",
+                "requestState",
+                "value",
+                "currentRow",
+                "selectedRows",
+                "aggregateResult",
+                "selectionAggregateResult",
+                "pageSize",
+                "mutating",
+                "loadingError",
+                "mutatingError"
+              ]
+            },
+            "optionDataField": {
+              "type": "string"
+            },
+            "unmatchedText": {
+              "type": "string"
+            },
+            "valueSeparator": {
+              "type": "string"
+            },
+            "valueMode": {
+              "enum": [
+                "array",
+                "auto",
+                "separated-string"
+              ]
+            },
+            "multiple": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "optionValueTrim": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "label": {
+              "type": "string"
+            },
+            "readonly": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "editOnDblclick": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "modelValue": true,
+            "value": true,
+            "displayFallbackFields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
-          ]
+          },
+          "additionalProperties": false
         },
         "type": {
           "type": "string"
         },
-        "fallbackValue": {
-          "type": "object",
-          "title": "TValue"
-        }
+        "fallbackValue": true
       },
       "required": [
         "props",

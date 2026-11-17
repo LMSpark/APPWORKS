@@ -90,7 +90,11 @@
           "title": "DtsBundleClassModelKnowledgeRefreshFunction"
         },
         "refreshPolicy": {
-          "$ref": "#/$defs/DtsBundleClassModelKnowledgeRefreshPolicy"
+          "enum": [
+            "never",
+            "before-first-load",
+            "always"
+          ]
         }
       },
       "additionalProperties": false,

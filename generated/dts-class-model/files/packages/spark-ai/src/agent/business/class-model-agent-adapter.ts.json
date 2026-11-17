@@ -578,17 +578,17 @@
         "moduleId": {
           "type": "string"
         },
-        "instance": {
-          "type": "object",
-          "title": "T"
-        },
+        "instance": true,
         "constructArgs": {
           "type": "array",
           "items": true
         },
         "jsonSchemaDefs": {
           "type": "object",
-          "title": "Record<string, JsonSchemaObject>"
+          "properties": {},
+          "additionalProperties": {
+            "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
+          }
         },
         "dtsClassModelManifestUrl": {
           "type": "string"
@@ -601,7 +601,35 @@
           "title": "ClassModelKnowledgeProvider"
         },
         "inputContract": {
-          "$ref": "business-task.ts.json#/$defs/AiAgentInputContract"
+          "type": "object",
+          "properties": {
+            "paramsSchema": {
+              "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
+            },
+            "identityField": {
+              "type": "string"
+            },
+            "normalize": {
+              "type": "object",
+              "title": "(input: JsonParams) => Readonly<Record<string, JsonValue>>"
+            },
+            "toScope": {
+              "type": "object",
+              "title": "(normalizedInput: Readonly<Record<string, JsonValue>>) => AiAgentScope"
+            },
+            "toOrchestration": {
+              "type": "object",
+              "title": "(normalizedInput: Readonly<Record<string, JsonValue>>) => Readonly<{ userMessage: string; systemPrompt: string; title?: string; readonlySteps?: readonly string[]; }>"
+            }
+          },
+          "required": [
+            "paramsSchema",
+            "identityField",
+            "normalize",
+            "toScope",
+            "toOrchestration"
+          ],
+          "additionalProperties": false
         },
         "sessionStore": {
           "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentSessionStore"

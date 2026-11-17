@@ -29,6 +29,16 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "DataViewRecordEditingInput",
+      "properties": {
+        "mode": {
+          "enum": [
+            "edit",
+            "delete",
+            "pending"
+          ]
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "method.runtime.params": {
           "type": "object",
@@ -114,7 +124,16 @@
           ]
         },
         "originalRow": {
-          "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+          "type": "object",
+          "properties": {
+            "lingma_sys_params": {
+              "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+            },
+            "lingma_sys_key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
         },
         "current": {
           "type": "object",
@@ -226,6 +245,14 @@
           }
         ],
         "members": {
+          "attributes": [
+            {
+              "name": "mode",
+              "jsdoc": "编辑原行，创建可恢复的字段检查点。",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "runtime",

@@ -98,7 +98,10 @@
         "target": {
           "$ref": "view-support.ts.json#/$defs/DimensionSourceTarget"
         },
-        "readModels": true
+        "readModels": {
+          "type": "object",
+          "title": "(input: DataSpaceFormalScenarioReadInput) => Promise<readonly Readonly<{ id: string; metaName: string; name: string; sourceName: string; ... 6 more ...; sourceInputBindings?: readonly DataSpaceSourceInputBinding[]; }>[]>"
+        }
       },
       "additionalProperties": false,
       "$defs": {

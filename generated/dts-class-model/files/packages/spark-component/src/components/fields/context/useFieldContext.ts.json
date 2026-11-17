@@ -26,23 +26,32 @@
           "type": "string"
         },
         "editOnDblclick": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "saveOnCellExit": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "editingContextRow": {
           "anyOf": [
             {
-              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+              "type": "null"
             },
             {
-              "type": "null"
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
             }
           ]
         },
         "isCurrentFieldEditable": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "displayLabel": {
           "type": "string"
@@ -57,26 +66,32 @@
           "type": "number"
         },
         "showOverflowTooltip": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "header": {
           "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "titleAlign": {
           "enum": [
             "left",
-            "center",
-            "right"
+            "right",
+            "center"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "center",
-            "right"
+            "right",
+            "center"
           ]
         },
         "headerCellClassName": {
@@ -92,13 +107,10 @@
           "type": "string"
         },
         "sortable": {
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "const": "custom"
-            }
+          "enum": [
+            false,
+            true,
+            "custom"
           ]
         },
         "mergedChildren": {
@@ -108,10 +120,16 @@
           }
         },
         "isCurrentFieldHidden": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "shouldRenderCurrentField": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "currentDisplayValue": {
           "type": "string"

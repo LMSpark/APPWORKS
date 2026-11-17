@@ -244,7 +244,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@276067": {
+                "__@iterator@276710": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -299,7 +299,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@276067"
+                "__@iterator@276710"
               ],
               "additionalProperties": false
             },
@@ -691,23 +691,20 @@
       "title": "BindCommandSubmitOptions",
       "properties": {
         "resource": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/DataSetCommandResourceIdentity"
+          "type": "object",
+          "properties": {
+            "resourceType": {
+              "const": "command"
             },
-            {
-              "type": "object",
-              "properties": {
-                "resourceType": {
-                  "const": "command"
-                }
-              },
-              "required": [
-                "resourceType"
-              ],
-              "additionalProperties": false
+            "resourceId": {
+              "type": "string"
             }
-          ]
+          },
+          "required": [
+            "resourceType",
+            "resourceId"
+          ],
+          "additionalProperties": false
         },
         "guard": {
           "type": "object",
@@ -720,10 +717,16 @@
           }
         },
         "allowAbandonUnconfirmed": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "retainConfirmedOnRefresh": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,
@@ -857,7 +860,135 @@
             "targetName": "Awaited"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "undefinedChanges",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "countReported",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nextPageAvailable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingSavedRowPermissions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pendingSavedRowIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultKind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reportedPrimaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultPrimaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childResult",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertIdentity",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rowKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "prepareNewRow",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "newRowFieldAccess",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prepareNewRowWithIdentity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isFieldReadOnly",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldAccess",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "readFieldAccess",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "addActionState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "editActionState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "deleteActionState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createChildActionState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewActionState",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "DataSetCommandRowsLoader": {

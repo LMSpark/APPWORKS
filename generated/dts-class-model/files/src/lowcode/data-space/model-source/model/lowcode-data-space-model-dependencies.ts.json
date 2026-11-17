@@ -60,7 +60,10 @@
               }
             },
             "allowPending": {
-              "type": "boolean"
+              "enum": [
+                false,
+                true
+              ]
             }
           },
           "required": [

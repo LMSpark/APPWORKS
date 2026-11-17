@@ -28,8 +28,31 @@
           "title": "MaybeRefOrGetter<string>"
         },
         "viewId": {
-          "type": "object",
-          "title": "MaybeRefOrGetter<string>"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "title": "import(\"vue\").ComputedRef<string>"
+            },
+            {
+              "type": "object",
+              "title": "Ref<string, string>"
+            },
+            {
+              "type": "object",
+              "title": "import(\"vue\").ShallowRef<string, string>"
+            },
+            {
+              "type": "object",
+              "title": "import(\"vue\").WritableComputedRef<string, string>"
+            },
+            {
+              "type": "object",
+              "title": "() => string"
+            }
+          ]
         },
         "componentType": {
           "type": "string"

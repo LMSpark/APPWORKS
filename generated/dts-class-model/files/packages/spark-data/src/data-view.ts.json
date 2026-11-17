@@ -510,13 +510,22 @@
           "const": "clear"
         },
         "countReported": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "nextPageAvailable": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "hasPendingSavedRowPermissions": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "pendingSavedRowIds": {
           "type": "array",
@@ -524,8 +533,8 @@
         },
         "resultKind": {
           "enum": [
-            "entity",
             "join",
+            "entity",
             "navigation",
             "hierarchy",
             "aggregate"
@@ -752,13 +761,22 @@
           "const": "bound-view-only"
         },
         "parentResults": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "localAggregates": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "saveIndependently": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "source": {
           "$ref": "query/data-view-source.ts.json#/$defs/DataViewSourceAdapter"
@@ -3307,7 +3325,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T01:47:55.586Z",
+  "generatedAt": "2026-11-17T07:50:01.150Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -4984,7 +5002,7 @@
             },
             {
               "name": "queryContext",
-              "jsdoc": "每次查询的输入参数；与私有的结果权限上下文分离。",
+              "jsdoc": "每次查询的输入参数；整体替换通知配置消费者，不自动查询或清除编辑/未知提交。原地修改仍须显式刷新。",
               "readable": true,
               "writable": true
             },

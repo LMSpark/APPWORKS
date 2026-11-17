@@ -172,14 +172,8 @@
         "alias": {
           "type": "string"
         },
-        "input": {
-          "type": "object",
-          "title": "TInput"
-        },
-        "runInput": {
-          "type": "object",
-          "title": "SparkAgent.RunAgentInput"
-        },
+        "input": true,
+        "runInput": true,
         "threadId": {
           "type": "string"
         },

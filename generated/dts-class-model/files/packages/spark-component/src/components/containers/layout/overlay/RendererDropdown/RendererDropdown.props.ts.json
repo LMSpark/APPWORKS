@@ -65,13 +65,16 @@
         },
         "trigger": {
           "enum": [
-            "hover",
             "click",
-            "contextmenu"
+            "contextmenu",
+            "hover"
           ]
         },
         "hideOnClick": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "showTimeout": {
           "type": "number"
@@ -80,15 +83,18 @@
           "type": "number"
         },
         "splitButton": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "maxHeight": {
           "anyOf": [
             {
-              "type": "number"
+              "type": "string"
             },
             {
-              "type": "string"
+              "type": "number"
             }
           ]
         }

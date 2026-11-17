@@ -21,23 +21,62 @@
       "properties": {
         "selectedNodeId": {
           "type": "object",
-          "title": "Ref<string>"
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "__@RefSymbol@279302": {
+              "const": true
+            }
+          },
+          "required": [
+            "value",
+            "__@RefSymbol@279302"
+          ],
+          "additionalProperties": false
         },
         "active": {
           "type": "object",
-          "title": "Ref<boolean>"
+          "properties": {
+            "value": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "__@RefSymbol@279302": {
+              "const": true
+            }
+          },
+          "required": [
+            "value",
+            "__@RefSymbol@279302"
+          ],
+          "additionalProperties": false
         },
         "revision": {
           "type": "object",
-          "title": "Ref<number>"
+          "properties": {
+            "value": {
+              "type": "number"
+            },
+            "__@RefSymbol@279302": {
+              "const": true
+            }
+          },
+          "required": [
+            "value",
+            "__@RefSymbol@279302"
+          ],
+          "additionalProperties": false
         },
         "error": {
           "type": "object",
-          "title": "Ref<string>"
+          "title": "Ref<string, string>"
         },
         "notice": {
           "type": "object",
-          "title": "Ref<string>"
+          "title": "Ref<string, string>"
         }
       },
       "additionalProperties": false,

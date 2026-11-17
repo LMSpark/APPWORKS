@@ -65,7 +65,8 @@
         },
         "defaultOptions": {
           "type": "object",
-          "title": "Record<string, unknown>"
+          "properties": {},
+          "additionalProperties": true
         },
         "description": {
           "type": "string"

@@ -19,10 +19,7 @@
       "type": "object",
       "title": "DtsNativeScriptRunCommand",
       "properties": {
-        "instance": {
-          "type": "object",
-          "title": "TInstance"
-        },
+        "instance": true,
         "manifestUrl": {
           "type": "string"
         },

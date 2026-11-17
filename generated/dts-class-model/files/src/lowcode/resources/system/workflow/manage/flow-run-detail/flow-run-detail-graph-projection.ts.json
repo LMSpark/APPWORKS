@@ -15,6 +15,20 @@
     ]
   },
   "$defs": {
+    "FlowRunDetailStepRow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunDetailStepRow",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "FlowRunDetailWaitingRow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunDetailWaitingRow",
+      "properties": {},
+      "additionalProperties": true
+    },
     "FlowRunNodeBadge": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "FlowRunNodeBadge",
@@ -33,8 +47,40 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T07:31:21.107Z",
+  "generatedAt": "2026-11-17T07:34:43.774Z",
   "models": {
+    "FlowRunDetailStepRow": {
+      "name": "FlowRunDetailStepRow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FlowRunDetailWaitingRow": {
+      "name": "FlowRunDetailWaitingRow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
     "FlowRunNodeBadge": {
       "name": "FlowRunNodeBadge",
       "jsdoc": "",

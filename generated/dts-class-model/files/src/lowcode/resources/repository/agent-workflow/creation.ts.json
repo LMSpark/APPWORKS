@@ -25,11 +25,34 @@
         },
         "api": {
           "type": "object",
-          "title": "Pick<LowcodeDesignApi, 'readTextFile' | 'readFileBytes'>"
+          "properties": {
+            "readTextFile": {
+              "type": "object",
+              "title": "(locator: LowcodeFileLocator) => Promise<string>"
+            },
+            "readFileBytes": {
+              "type": "object",
+              "title": "(locator: LowcodeFileLocator) => Promise<Uint8Array>"
+            }
+          },
+          "required": [
+            "readTextFile",
+            "readFileBytes"
+          ],
+          "additionalProperties": false
         },
         "fileUpload": {
           "type": "object",
-          "title": "Pick<LowcodeDesignFileUpload, 'uploadTextVersion'>"
+          "properties": {
+            "uploadTextVersion": {
+              "type": "object",
+              "title": "(command: LowcodeDesignFileUploadCommand) => Promise<LowcodeDesignFileUploadResult>"
+            }
+          },
+          "required": [
+            "uploadTextVersion"
+          ],
+          "additionalProperties": false
         }
       },
       "additionalProperties": false,

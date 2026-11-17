@@ -46,14 +46,35 @@
           "title": "PageFileReader"
         },
         "pageComponent": {
-          "type": "object",
-          "title": "Component"
+          "anyOf": [
+            {
+              "type": "object",
+              "title": "import(\"vue\").ComponentOptions<any, any, any, import(\"vue\").ComputedOptions, import(\"vue\").MethodOptions, any, any, any, string, {}, {}, string, {}, {}, {}, string, import(\"vue\").ComponentProvideOptions>"
+            },
+            {
+              "type": "object",
+              "title": "import(\"vue\").FunctionalComponent<any, {}, any, {}>"
+            },
+            {
+              "type": "object",
+              "title": "{ new (...args: any[]): any; __isFragment?: never; __isTeleport?: never; __isSuspense?: never; }"
+            }
+          ]
         },
         "componentMap": {
           "type": "object",
-          "title": "Record<string, Component>"
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "title": "Component"
+          }
         },
-        "systemPageIdentityCompanions": true,
+        "systemPageIdentityCompanions": {
+          "type": "array",
+          "items": {
+            "$ref": "../router/dynamic.ts.json#/$defs/SystemPageIdentityCompanion"
+          }
+        },
         "applicationPathPrefix": {
           "type": "string"
         },
@@ -63,7 +84,10 @@
         "preAuthNavTree": {
           "$ref": "../navigation/runtime-navigation.ts.json#/$defs/RuntimeNavigation"
         },
-        "loadScenario": true
+        "loadScenario": {
+          "type": "object",
+          "title": "(command: RuntimeScenarioLoadCommand) => Promise<DataSet>"
+        }
       },
       "required": [
         "readPageFile"
@@ -117,8 +141,8 @@
         },
         "routerMode": {
           "enum": [
-            "history",
-            "hash"
+            "hash",
+            "history"
           ]
         },
         "mountTarget": {

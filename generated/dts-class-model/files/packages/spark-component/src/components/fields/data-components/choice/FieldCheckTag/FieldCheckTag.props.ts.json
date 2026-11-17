@@ -197,7 +197,155 @@
             "targetName": "SparkFieldSemanticProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permissionDeniedMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minWidth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resizable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clearable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonly",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveOnCellExit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onChange",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     }
   }

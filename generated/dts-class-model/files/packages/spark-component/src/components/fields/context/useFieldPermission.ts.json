@@ -80,7 +80,88 @@
       "properties": {
         "binding": {
           "type": "object",
-          "title": "ReturnType<typeof useActiveFieldRow>"
+          "properties": {
+            "revision": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "number"
+                },
+                "__@RefSymbol@279302": {
+                  "const": true
+                }
+              },
+              "required": [
+                "value",
+                "__@RefSymbol@279302"
+              ],
+              "additionalProperties": false
+            },
+            "contextData": {
+              "type": "object",
+              "title": "import(\"vue\").ComputedRef<DataRow | null>"
+            },
+            "dataSource": {
+              "type": "object",
+              "title": "import(\"vue\").ComputedRef<DataView | null>"
+            },
+            "activeRow": {
+              "type": "object",
+              "title": "import(\"vue\").ComputedRef<DataRow | null>"
+            },
+            "activeSelectedRows": {
+              "type": "object",
+              "title": "import(\"vue\").ComputedRef<DataRow[]>"
+            },
+            "fieldName": {
+              "type": "object",
+              "title": "import(\"vue\").ComputedRef<string>"
+            },
+            "member": {
+              "type": "object",
+              "title": "import(\"vue\").ComputedRef<\"page\" | \"columns\" | \"rows\" | \"total\" | \"requestState\" | import(\"@spark-appworks/spark-data\").DataMember | \"value\" | \"pageSize\" | \"currentRow\" | \"selectedRows\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"mutating\" | \"loadingError\" | \"mutatingError\">"
+            },
+            "fieldMember": {
+              "type": "object",
+              "title": "import(\"vue\").ComputedRef<boolean>"
+            },
+            "memberValue": {
+              "type": "object",
+              "title": "import(\"vue\").ComputedRef<import(\"@spark-appworks/spark-data\").DataViewMemberValue>"
+            },
+            "memberError": {
+              "type": "object",
+              "title": "import(\"vue\").ComputedRef<Error | null>"
+            },
+            "explicit": {
+              "type": "object",
+              "title": "import(\"vue\").ComputedRef<boolean>"
+            },
+            "captureWriteGuard": {
+              "type": "object",
+              "title": "() => () => boolean"
+            },
+            "resolveEditingRow": {
+              "type": "object",
+              "title": "(row: DataRow | null) => DataRow | null"
+            }
+          },
+          "required": [
+            "revision",
+            "contextData",
+            "dataSource",
+            "activeRow",
+            "activeSelectedRows",
+            "fieldName",
+            "member",
+            "fieldMember",
+            "memberValue",
+            "memberError",
+            "explicit",
+            "captureWriteGuard",
+            "resolveEditingRow"
+          ],
+          "additionalProperties": false
         },
         "props": {
           "$ref": "#/$defs/FieldPermissionProps"
@@ -88,10 +169,7 @@
         "type": {
           "type": "string"
         },
-        "fallbackValue": {
-          "type": "object",
-          "title": "TValue"
-        }
+        "fallbackValue": true
       },
       "required": [
         "props",
@@ -377,7 +455,20 @@
             "targetName": "Readonly"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "valuePath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueFormat",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     }
   }

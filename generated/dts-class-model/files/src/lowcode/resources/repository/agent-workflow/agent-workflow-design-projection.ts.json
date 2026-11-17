@@ -176,7 +176,35 @@
             "targetName": "Readonly"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "AgentWorkflowDesign",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "AgentWorkflowNodes",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "AgentWorkflowLines",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "AgentWorkflowVariables",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "AgentWorkflowCapabilities",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "AgentWorkflowDesignTableChanges": {
@@ -229,7 +257,35 @@
             "targetName": "Readonly"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "AgentWorkflowDesign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AgentWorkflowNodes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AgentWorkflowLines",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AgentWorkflowVariables",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AgentWorkflowCapabilities",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "Json": {

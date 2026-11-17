@@ -184,7 +184,12 @@
           "type": "string"
         },
         "minLevel": {
-          "$ref": "../../../spark-utils/src/logger.ts.json#/$defs/LogLevel"
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error"
+          ]
         },
         "batchSize": {
           "type": "number"

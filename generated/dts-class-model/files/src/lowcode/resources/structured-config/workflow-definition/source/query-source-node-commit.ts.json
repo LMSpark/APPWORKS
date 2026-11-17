@@ -80,19 +80,37 @@
         },
         "operation": {
           "enum": [
-            "add",
-            "edit",
+            "copy",
             "delete",
-            "copy"
+            "add",
+            "edit"
           ]
         },
         "nodeBefore": {
-          "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          "type": "object",
+          "properties": {
+            "lingma_sys_params": {
+              "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+            },
+            "lingma_sys_key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
         },
         "fieldsBefore": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            "type": "object",
+            "properties": {
+              "lingma_sys_params": {
+                "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+              },
+              "lingma_sys_key": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
           }
         },
         "fieldIds": {

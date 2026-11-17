@@ -76,7 +76,10 @@
           ]
         },
         "modelValue": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "title": {
           "type": "string"
@@ -95,7 +98,10 @@
           "type": "string"
         },
         "appendToBody": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,

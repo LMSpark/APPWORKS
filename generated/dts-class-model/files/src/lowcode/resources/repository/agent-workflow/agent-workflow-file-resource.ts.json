@@ -656,7 +656,15 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "uploadWorkingText",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "AgentWorkflowFileScope": {
@@ -713,7 +721,85 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Parameters<DataView['bindQueryExecutor']>[0]",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "derivedQueries",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentResults",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "localAggregates",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveIndependently",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "invalidateQueryCache",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "releaseQueryCache",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryColumns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "executeQuery",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "save",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "acknowledgeSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshSavedRowPermissions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appendQueryResult",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "abandonUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "FileSaveCommand": {
@@ -722,7 +808,15 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Parameters<NonNullable<FileQueryExecutor['save']>>[0]",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "changes",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "FileSaveReceipt": {
@@ -731,7 +825,40 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Awaited<ReturnType<NonNullable<FileQueryExecutor['save']>>>[number]",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "added",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "changed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "deleted",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "changedFields",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "context",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "FileQueryResult": {
@@ -747,7 +874,135 @@
             "targetName": "Awaited"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "undefinedChanges",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "countReported",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nextPageAvailable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingSavedRowPermissions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pendingSavedRowIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultKind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reportedPrimaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultPrimaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childResult",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertIdentity",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rowKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "prepareNewRow",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "newRowFieldAccess",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prepareNewRowWithIdentity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isFieldReadOnly",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldAccess",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "readFieldAccess",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "addActionState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "editActionState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "deleteActionState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createChildActionState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewActionState",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "AgentWorkflowFileCommitCommand": {

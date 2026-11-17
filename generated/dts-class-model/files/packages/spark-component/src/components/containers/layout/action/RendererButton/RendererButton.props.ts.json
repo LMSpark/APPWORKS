@@ -26,18 +26,38 @@
       "properties": {
         "permAction": {
           "enum": [
+            "delete",
             "create",
             "edit",
-            "delete",
             "create-child"
           ]
         },
         "disabled": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "action": {
-          "type": "object",
-          "title": "BuiltinActionName"
+          "enum": [
+            "append-row",
+            "message-row",
+            "refresh",
+            "clear-rows",
+            "submit-current-form",
+            "save-dataset",
+            "prompt-append",
+            "prompt-edit",
+            "move-row",
+            "move-current",
+            "delete-row",
+            "delete-current",
+            "delete-selected",
+            "patch-row",
+            "patch-current",
+            "patch-selected",
+            "message-current"
+          ]
         },
         "dataViewKey": {
           "type": "string"
@@ -47,7 +67,8 @@
         },
         "appendPayload": {
           "type": "object",
-          "title": "Record<string, unknown>"
+          "properties": {},
+          "additionalProperties": true
         },
         "inheritFields": {
           "type": "array",
@@ -57,22 +78,74 @@
         },
         "inheritFieldMap": {
           "type": "object",
-          "title": "Record<string, string>"
+          "properties": {},
+          "additionalProperties": {
+            "type": "string"
+          }
         },
         "setCurrentRowOnSuccess": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "patch": {
           "type": "object",
-          "title": "Record<string, unknown>"
+          "properties": {},
+          "additionalProperties": true
         },
         "field": {
           "type": "string"
         },
         "value": true,
         "then": {
-          "type": "object",
-          "title": "ActionDescriptor"
+          "anyOf": [
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/ShowMessageAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/ShowConfirmAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/ShowAlertAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/NavigateAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/OpenAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/SetFieldAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/AppendRowAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/DeleteAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/PatchAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/MoveAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/MessageRowAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/RefreshAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/ClearRowsAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/SubmitCurrentFormAction"
+            },
+            {
+              "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/SaveDataSetAction"
+            }
+          ]
         },
         "successMessage": {
           "type": "string"
@@ -99,11 +172,15 @@
           "type": "string"
         },
         "silent": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "disabledWhenRow": {
           "type": "object",
-          "title": "Record<string, unknown>"
+          "properties": {},
+          "additionalProperties": true
         },
         "template": {
           "type": "string"
@@ -118,37 +195,64 @@
           "type": "string"
         },
         "plain": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "text": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "bg": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "link": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "round": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "circle": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "loading": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "icon": {
           "type": "string"
         },
         "autoInsertSpace": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "color": {
           "type": "string"
         },
         "dark": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,

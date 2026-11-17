@@ -20,6 +20,8 @@ export function jsonSchemaToTypeText(schema: JsonSchema | undefined): string {
   const ref = schema['$ref']
   if (typeof ref === 'string') return refName(ref)
 
+  if (Object.hasOwn(schema, 'const')) return JSON.stringify(schema['const'])
+
   const enumValues = schema['enum']
   if (Array.isArray(enumValues) && enumValues.length > 0) {
     return enumValues.map(value => JSON.stringify(value)).join(' | ')
@@ -33,6 +35,14 @@ export function jsonSchemaToTypeText(schema: JsonSchema | undefined): string {
   const oneOf = schema['oneOf']
   if (Array.isArray(oneOf) && oneOf.length > 0) {
     return unique(oneOf.map(item => jsonSchemaToTypeText(readJsonSchema(item)))).join(' | ')
+  }
+
+  const allOf = schema['allOf']
+  if (Array.isArray(allOf) && allOf.length > 0) {
+    return unique(allOf.map(item => {
+      const text = jsonSchemaToTypeText(readJsonSchema(item))
+      return text.includes(' | ') ? `(${text})` : text
+    })).join(' & ')
   }
 
   const type = schema['type']
@@ -64,7 +74,9 @@ function objectTypeText(schema: JsonRecord): string {
     const optional = required.has(name) ? '' : '?'
     return `${quotePropertyName(name)}${optional}: ${jsonSchemaToTypeText(readJsonSchema(child))}`
   })
-  return parts.length === 0 ? 'Record<string, unknown>' : `{ ${parts.join('; ')} }`
+  if (parts.length > 0) return `{ ${parts.join('; ')} }`
+  const additional = schema['additionalProperties']
+  return `Record<string, ${additional === false ? 'never' : jsonSchemaToTypeText(readJsonSchema(additional))}>`
 }
 
 function refName(ref: string): string {

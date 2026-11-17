@@ -537,7 +537,95 @@
             "targetName": "FieldComposableProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minWidth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resizable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveOnCellExit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onChange",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "UseFieldControlStateOptions": {

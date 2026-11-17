@@ -40,37 +40,64 @@
           "type": "string"
         },
         "busy": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "hasUnconfirmedSave": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "blocksWorkspace": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "pending": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "error": {
           "type": "string"
         },
         "canStart": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "canRefresh": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "canCancel": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "canConfirm": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "confirmationError": {
           "type": "string"
         },
         "shouldAutoRefresh": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,

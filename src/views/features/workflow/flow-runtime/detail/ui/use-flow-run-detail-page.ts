@@ -2,19 +2,12 @@
  * @module app:views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page
  * 职责：运行详情只读图加载与节点/连线步骤钻取弹窗状态。
  */
-import {computed, ref, shallowRef, watch} from 'vue'
+import {onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import type {GraphSelection} from '@spark-appworks/spark-component'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
-import {isRecord} from '@spark-appworks/spark-utils'
 import {
   FLOW_RUN_GRAPH_NODE_BADGE_FIELD,
-  buildWaitingStepIdSet,
-  filterVoidedSteps,
-  isWaitingStep,
   prepareFlowRunDetailPage,
-  stepsOnEdge,
-  stepsReceivedAtNode,
-  stepsSentFromNode,
   type FlowRunDetailPreparedPage,
 } from '@/lowcode/resources/system/workflow/manage'
 
@@ -39,21 +32,13 @@ export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, 
   const edgeDialogTitle = ref('')
   const nodeActiveTab = ref<'received' | 'sent' | 'all'>('received')
   const edgeActiveTab = ref<'edge' | 'all'>('edge')
-  const nodeReceivedRows = ref<ReadonlyArray<Record<string, unknown>>>([])
-  const nodeSentRows = ref<ReadonlyArray<Record<string, unknown>>>([])
-  const edgeRows = ref<ReadonlyArray<Record<string, unknown>>>([])
-  const stepRows = ref<ReadonlyArray<Record<string, unknown>>>([])
-  const waitingStepIds = ref<ReadonlySet<string>>(new Set())
+  const selectedNodeId = ref(''), edgeSourceId = ref(''), edgeTargetId = ref('')
   let generation = 0
-
-  const nodeReceivedDisplay = computed(() => filterVoidedSteps(nodeReceivedRows.value, nodeShowVoided.value))
-  const nodeSentDisplay = computed(() => filterVoidedSteps(nodeSentRows.value, nodeShowVoided.value))
-  const nodeAllDisplay = computed(() => filterVoidedSteps(stepRows.value, nodeShowVoided.value))
-  const edgeDisplay = computed(() => filterVoidedSteps(edgeRows.value, edgeShowVoided.value))
-  const edgeAllDisplay = computed(() => filterVoidedSteps(stepRows.value, edgeShowVoided.value))
+  const withdraw = () => {generation++; prepared.value = undefined; graphReady.value = false; graphLoading.value = false; graphError.value = ''; nodeDialogOpen.value = false; edgeDialogOpen.value = false}
 
   async function loadGraph(): Promise<void> {
     const own = ++generation
+    nodeDialogOpen.value = false; edgeDialogOpen.value = false
     graphReady.value = false
     graphLoading.value = true
     graphError.value = ''
@@ -71,12 +56,6 @@ export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, 
       })
       if (own !== generation) return
       prepared.value = next
-      const stepView = runtime.resolveView(next.stepViewKey)
-      stepRows.value = stepView && !stepView.destroyed ? stepView.rows.filter(isRecord) : []
-      const waitingView = runtime.resolveView(next.waitingViewKey)
-      waitingStepIds.value = buildWaitingStepIdSet(
-        waitingView && !waitingView.destroyed ? waitingView.rows.filter(isRecord) : [],
-      )
       graphReady.value = true
     } catch (cause) {
       if (own === generation) graphError.value = cause instanceof Error ? cause.message : String(cause)
@@ -89,7 +68,7 @@ export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, 
     const runtime = sparkConsume(PAGE_RUNTIME)
     const view = prepared.value && runtime ? runtime.resolveView(prepared.value.nodeViewKey) : null
     const row = view?.rows.find(item => String(item['rowid'] ?? '') === nodeId)
-    const title = row?.['TITLE']
+    const title = row && view?.fieldAccess(row, 'TITLE').read === 'visible' ? row['TITLE'] : undefined
     return typeof title === 'string' && title.trim() ? title.trim() : nodeId
   }
 
@@ -98,8 +77,7 @@ export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, 
     if (event.kind === 'node') {
       const nodeId = String(event.id)
       nodeDialogTitle.value = `${resolveNodeTitle(nodeId)} - 步骤信息`
-      nodeReceivedRows.value = stepsReceivedAtNode(stepRows.value, nodeId)
-      nodeSentRows.value = stepsSentFromNode(stepRows.value, nodeId)
+      selectedNodeId.value = nodeId
       nodeActiveTab.value = 'received'
       nodeShowVoided.value = false
       nodeDialogOpen.value = true
@@ -108,10 +86,11 @@ export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, 
     const runtime = sparkConsume(PAGE_RUNTIME)
     const edgeView = runtime?.resolveView(prepared.value.edgeViewKey)
     const row = edgeView?.rows.find(item => String(item['rowid'] ?? item['ROWID'] ?? '') === String(event.id))
-    const source = String(row?.['UpNodeID'] ?? '')
-    const target = String(row?.['NextNodeID'] ?? '')
+    if (!row || edgeView?.fieldAccess(row, 'UpNodeID').read !== 'visible' || edgeView.fieldAccess(row, 'NextNodeID').read !== 'visible') return
+    const source = String(row['UpNodeID'] ?? '')
+    const target = String(row['NextNodeID'] ?? '')
     edgeDialogTitle.value = `${resolveNodeTitle(source)} → ${resolveNodeTitle(target)} - 步骤信息`
-    edgeRows.value = stepsOnEdge(stepRows.value, source, target)
+    edgeSourceId.value = source; edgeTargetId.value = target
     edgeActiveTab.value = 'edge'
     edgeShowVoided.value = false
     edgeDialogOpen.value = true
@@ -119,7 +98,9 @@ export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, 
 
   watch(() => [runtimeReady(), routeQuery().wfid, routeQuery().flowid] as const, () => {
     if (runtimeReady()) void loadGraph()
+    else withdraw()
   }, {immediate: true})
+  onBeforeUnmount(withdraw)
 
   return {
     prepared,
@@ -135,13 +116,8 @@ export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, 
     edgeDialogTitle,
     nodeActiveTab,
     edgeActiveTab,
-    nodeReceivedDisplay,
-    nodeSentDisplay,
-    nodeAllDisplay,
-    edgeDisplay,
-    edgeAllDisplay,
+    selectedNodeId, edgeSourceId, edgeTargetId,
     onGraphSelect,
-    isWaitingStep: (rowid: unknown) => isWaitingStep(rowid, waitingStepIds.value),
     reloadGraph: loadGraph,
   }
 }

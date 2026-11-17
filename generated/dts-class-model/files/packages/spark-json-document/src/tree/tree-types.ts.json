@@ -229,7 +229,7 @@
           "type": "object",
           "title": "() => MapIterator<JsonTreeNode>"
         },
-        "__@iterator@276067": {
+        "__@iterator@276710": {
           "type": "object",
           "title": "() => MapIterator<[string, JsonTreeNode]>"
         }
@@ -242,7 +242,7 @@
         "entries",
         "keys",
         "values",
-        "__@iterator@276067"
+        "__@iterator@276710"
       ],
       "additionalProperties": false
     },
@@ -809,7 +809,50 @@
             "targetName": "ReadonlyMap"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "forEach",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "get",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "has",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "size",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "entries",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "keys",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "values",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "__@iterator@276710",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "MutationResult": {

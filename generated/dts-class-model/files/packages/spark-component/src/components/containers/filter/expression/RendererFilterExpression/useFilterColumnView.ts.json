@@ -52,7 +52,30 @@
             "targetName": "FieldComposableProps"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columnDataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columnTypeField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columnTypeMap",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     }
   }

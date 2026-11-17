@@ -197,7 +197,20 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "api",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "crudConfig",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "DataSpaceRequestConfigInput": {

@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os'
 import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { describe, expect, it } from 'vitest'
+import {JsonSchemaValidator} from '@spark-appworks/spark-json-document'
 
 import {
   DTS_CLASS_MODEL_BUNDLE_PROTOCOL,
@@ -18,6 +19,7 @@ import {
   readDtsFileProjectionDocument,
 } from '../class-model/bundle/read-dts-class-model-bundle-json'
 import { sourceFileFromEmitPath } from '../class-model/bundle/class-model-emit-path'
+import {ClassModelRuntimeSchema} from '../class-model/schema/class-model-runtime-schema'
 import type { DtsTypeDeclarationModel } from '../class-model/types'
 
 const removedReturnTypeField = ['return', 'Type'].join('')
@@ -45,6 +47,87 @@ function expectTypeAliasModel(model: DtsTypeDeclarationModel | undefined, name: 
 }
 
 describe('readDtsClassModelBundleJson', () => {
+  it('keeps common readonly union members and branch correlations through bundle knowledge', async () => {
+    const tempRoot = resolve(tmpdir(), `spark-dts-union-guide-${String(process.pid)}-${String(Date.now())}`)
+    const absolutePath = resolve(tempRoot, 'class-model-emit/union-guide.d.ts')
+    const outputDir = resolve(tempRoot, 'bundle')
+    try {
+      mkdirSync(dirname(absolutePath), {recursive: true})
+      writeFileSync(absolutePath, `
+        type Kind = 'route' | 'phase' | 'sequence' | 'parallel' | 'choice' | 'call' | 'task'
+        type Control = Readonly<{when?: string; required?: boolean}>
+        export type PartialMembers = Readonly<{kind: 'a'; shared: string; onlyA?: string}>
+          | Readonly<{kind: 'b'; shared: string}>
+        export type Candidate = Readonly<{
+          id: string; parentId: string | null; index: number; class: readonly string[]; value: string
+        }> & (
+          | Readonly<{type: 'route'; data: Readonly<Record<string, never>>}>
+          | Readonly<{type: Exclude<Kind, 'route' | 'call' | 'task'>; data: Control}>
+          | Readonly<{type: 'call'; data: Control & Readonly<{routeRef: string}>}>
+          | Readonly<{type: 'task'; data: Control & Readonly<{stationRef: string; maxTimes?: string}>}>
+        )
+      `)
+      const projection = projectDtsFileProjection({repoRoot: tempRoot, absolutePath})
+      const projected = expectTypeAliasModel(projection.models['Candidate'], 'Candidate')
+      expect.soft(projected.typeAlias.members.attributes.map(item => item.name)).toEqual(['id', 'parentId', 'index', 'class', 'value', 'type', 'data'])
+      expect.soft(projected.typeAlias.members.attributes.every(item => !item.writable)).toBe(true)
+      expect(expectTypeAliasModel(projection.models['PartialMembers'], 'PartialMembers').typeAlias.members.attributes.map(item => item.name))
+        .toEqual(['kind', 'shared'])
+      const result = buildDtsClassModelBundle({repoRoot: tempRoot, rootFiles: [absolutePath], outputDir})
+      const entry = Object.values(result.manifest.files)[0]
+      if (!entry) throw new Error('missing union shard')
+      const raw: unknown = JSON.parse(readFileSync(resolve(outputDir, entry.file), 'utf8'))
+      for (const index of projected.typeAlias.members.attributes.keys()) {
+        expect(raw).not.toHaveProperty(`models.Candidate.typeAlias.members.attributes.${String(index)}.schema`)
+        expect(raw).not.toHaveProperty(`models.Candidate.typeAlias.members.attributes.${String(index)}.typeText`)
+      }
+      const rootSchema = readDtsFileProjectionDocument(raw).models['Candidate']?.jsonSchema
+      if (rootSchema === undefined) throw new Error('missing candidate root schema')
+      expect(rootSchema.anyOf).toHaveLength(4)
+      const fetchJson = async (url: string): Promise<unknown> => JSON.parse(readFileSync(fileURLToPath(url), 'utf8'))
+      const loader = new DtsClassModelBundleLoader({manifestUrl: pathToFileURL(result.manifestPath).href,
+        fetchJson})
+      await loader.ensureReachableClosure('Candidate')
+      const schema = new ClassModelRuntimeSchema(loader.buildLoadedSurface()).bind(rootSchema)
+      const common = {id: 'N', parentId: null, index: 0, class: [], value: ''}
+      for (const branch of [{type: 'route', data: {}}, {type: 'phase', data: {}},
+        {type: 'call', data: {routeRef: 'R'}}, {type: 'task', data: {stationRef: 'S'}}]) {
+        expect(JsonSchemaValidator.validateJsonValue({...common, ...branch}, schema)).toMatchObject({ok: true})
+      }
+      for (const branch of [{type: 'route', data: {stationRef: 'S'}}, {type: 'task', data: {routeRef: 'R'}}, {type: 'call', data: {}}]) {
+        expect(JsonSchemaValidator.validateJsonValue({...common, ...branch}, schema).ok).toBe(false)
+      }
+      const provider = createDtsBundleClassModelKnowledgeProvider({dtsClassModelManifestUrl: pathToFileURL(result.manifestPath).href,
+        rootClassName: 'Candidate', fetchJson})
+      await provider.init()
+      const query = await provider.query({kind: 'Candidate', includeMembers: true})
+      for (const [name, typeText] of Object.entries({id: 'string', index: 'number', class: 'string[]', value: 'string'})) {
+        expect.soft(query).toHaveProperty('models.0.attributes', expect.arrayContaining([expect.objectContaining({name, typeText})]))
+      }
+      expect.soft(query).toHaveProperty('models.0.attributes', expect.arrayContaining([
+        expect.objectContaining({name: 'parentId', typeText: expect.stringMatching(/^(?:null \| string|string \| null)$/u)}),
+        expect.objectContaining({name: 'type', typeText: expect.stringContaining('"route"')}),
+      ]))
+      expect.soft(query).toHaveProperty('models.0.declarationTypeText', expect.stringContaining("type: 'task'"))
+      const guide = await provider.modelGuide({kind: 'Candidate'})
+      expect.soft(guide).toContain('type Candidate = Readonly<')
+      expect.soft(guide).not.toContain('type Candidate {')
+      expect.soft(guide).not.toContain(': unknown')
+      for (const attributeName of ['id', 'parentId', 'index', 'class', 'value', 'type', 'data']) {
+        const memberGuide = await provider.attributeGuide({kind: 'Candidate', attributeName})
+        expect(memberGuide).not.toContain(': unknown')
+        if (attributeName === 'type' || attributeName === 'data') {
+          expect(memberGuide).toContain('type Candidate = Readonly<')
+          expect(memberGuide).toContain("type: 'task'; data: Control & Readonly<{stationRef: string; maxTimes?: string}>")
+          expect(memberGuide).toContain("type: 'call'; data: Control & Readonly<{routeRef: string}>")
+        }
+      }
+    } finally {
+      if (dirname(tempRoot) !== resolve(tmpdir())) throw new Error('unsafe test cleanup path')
+      rmSync(tempRoot, {recursive: true, force: true})
+    }
+  })
+
   it('parses generated manifest with structural validation', () => {
     const tempRoot = resolve(tmpdir(), `spark-dts-class-model-manifest-${String(process.pid)}-${String(Date.now())}`)
     try {
@@ -419,7 +502,9 @@ describe('readDtsClassModelBundleJson', () => {
         '/** FieldText component props. */',
         'export type RTextProps = {',
         '  /** Bound field name. */',
-        '  field?: string',
+        '  readonly field?: string',
+        '  /** Replaces the displayed text. */',
+        '  replace(text: string): void',
         '}',
       ].join('\n'), 'utf8')
 
@@ -504,7 +589,14 @@ describe('readDtsClassModelBundleJson', () => {
       }
       const indexedModel = indexedPayload.models?.find(item => item.kind === 'RTextProps')
       expect(indexedModel?.component).toEqual(expectedComponent)
-      await expect(provider.modelGuide({ kind: 'RTextProps' })).resolves.toContain('SPARK component type=r-text')
+      const guide = await provider.modelGuide({ kind: 'RTextProps' })
+      for (const text of ['SPARK component type=r-text', 'FieldText component props.', 'type RTextProps = {',
+        'Bound field name.', 'readonly field: string', 'Replaces the displayed text.', 'replace(text: string): void']) {
+        expect(guide).toContain(text)
+      }
+      const fieldGuide = await provider.attributeGuide({kind: 'RTextProps', attributeName: 'field'})
+      for (const text of ['SPARK component type=r-text', 'FieldText component props.', 'type RTextProps = {',
+        'Bound field name.', 'readonly field: string']) expect(fieldGuide).toContain(text)
     } finally {
       rmSync(tempRoot, { recursive: true, force: true })
     }

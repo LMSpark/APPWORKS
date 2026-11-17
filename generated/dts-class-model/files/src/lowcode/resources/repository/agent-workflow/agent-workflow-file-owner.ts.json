@@ -270,7 +270,20 @@
             "targetName": "ReturnType"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "token",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "headers",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "AgentWorkflowFileDataViewOwner": {

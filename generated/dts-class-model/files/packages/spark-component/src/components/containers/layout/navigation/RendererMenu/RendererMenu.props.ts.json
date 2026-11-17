@@ -111,18 +111,24 @@
           ]
         },
         "collapse": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "activeIndex": {
           "type": "string"
         },
         "ellipsis": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "menuTrigger": {
           "enum": [
-            "hover",
-            "click"
+            "click",
+            "hover"
           ]
         },
         "showTimeout": {

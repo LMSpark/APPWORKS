@@ -35,7 +35,10 @@
         "http": {
           "$ref": "../../../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
         },
-        "readScope": true
+        "readScope": {
+          "type": "object",
+          "title": "() => DataSpaceRequestScope"
+        }
       },
       "additionalProperties": false,
       "$defs": {

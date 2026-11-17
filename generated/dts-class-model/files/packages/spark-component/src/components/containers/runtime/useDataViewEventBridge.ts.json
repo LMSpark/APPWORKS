@@ -320,10 +320,10 @@
             "value": {
               "anyOf": [
                 {
-                  "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+                  "type": "null"
                 },
                 {
-                  "type": "null"
+                  "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
                 }
               ]
             }
@@ -337,7 +337,10 @@
           "type": "string"
         },
         "enabled": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "required": [

@@ -224,7 +224,7 @@
       "properties": {
         "app": {
           "type": "object",
-          "title": "App"
+          "title": "App<any>"
         },
         "router": {
           "type": "object",

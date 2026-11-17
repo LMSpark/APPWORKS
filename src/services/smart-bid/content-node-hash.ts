@@ -23,6 +23,23 @@ function codePointOrder(left: string, right: string): number {
   return a.length - b.length
 }
 
+function arrayValues(value: readonly unknown[]): unknown[] {
+  if (Reflect.ownKeys(value).length !== value.length + 1) throw new Error('NON_JSON_ARRAY')
+  const items: unknown[] = []
+  for (let index = 0; index < value.length; index++) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, String(index))
+    if (!descriptor || !Object.hasOwn(descriptor, 'value')) throw new Error('NON_JSON_ARRAY')
+    items.push(descriptor.value)
+  }
+  return items
+}
+
+function payloadValue(input: Record<string, unknown>, key: string): unknown {
+  const descriptor = Object.getOwnPropertyDescriptor(input, key)
+  if (descriptor?.enumerable !== true || !Object.hasOwn(descriptor, 'value')) throw new Error('INVALID_NODE_PAYLOAD')
+  return descriptor.value
+}
+
 function canonical(value: unknown, ancestors: Set<object>): string {
   if (typeof value === 'string') return JSON.stringify(normalized(value))
   if (value === null || typeof value === 'boolean') return JSON.stringify(value)
@@ -31,14 +48,7 @@ function canonical(value: unknown, ancestors: Set<object>): string {
   ancestors.add(value)
   try {
     if (Array.isArray(value)) {
-      if (Reflect.ownKeys(value).length !== value.length + 1) throw new Error('NON_JSON_ARRAY')
-      const items: string[] = []
-      for (let index = 0; index < value.length; index++) {
-        const descriptor = Object.getOwnPropertyDescriptor(value, String(index))
-        if (!descriptor || !Object.hasOwn(descriptor, 'value')) throw new Error('NON_JSON_ARRAY')
-        items.push(canonical(descriptor.value, ancestors))
-      }
-      return `[${items.join(',')}]`
+      return `[${arrayValues(value).map(item => canonical(item, ancestors)).join(',')}]`
     }
     if (Object.getPrototypeOf(value) !== Object.prototype && Object.getPrototypeOf(value) !== null) throw new Error('NON_JSON_OBJECT')
     if (Object.getOwnPropertySymbols(value).length > 0) throw new Error('NON_JSON_OBJECT')
@@ -56,20 +66,23 @@ function canonical(value: unknown, ancestors: Set<object>): string {
 
 function canonicalNodePayload(input: unknown, kind: 'content' | 'operation'): string {
   if (!isRecord(input)) throw new Error('INVALID_NODE_PAYLOAD')
-  const id = input[kind === 'content' ? 'nodeId' : 'id'], parent = input['parentId']
+  const id = payloadValue(input, kind === 'content' ? 'nodeId' : 'id'), parent = payloadValue(input, 'parentId')
+  const type = payloadValue(input, 'type'), value = payloadValue(input, 'value'), index = payloadValue(input, 'index')
+  const rawClasses = payloadValue(input, 'class'), data = payloadValue(input, 'data')
+  const classValues = Array.isArray(rawClasses) ? arrayValues(rawClasses) : null
   const validParent = typeof parent === 'string' && parent.trim().length > 0 || kind === 'operation' && parent === null
   if (typeof id !== 'string' || !id.trim() || !validParent
-    || typeof input['type'] !== 'string' || !input['type'].trim() || typeof input['value'] !== 'string'
-    || typeof input['index'] !== 'number' || !Number.isSafeInteger(input['index']) || input['index'] < 0
-    || !Array.isArray(input['class']) || !input['class'].every(item => typeof item === 'string')
-    || !isRecord(input['data'])) throw new Error('INVALID_NODE_PAYLOAD')
-  const classes = [...new Set(input['class'].map(item => normalized(item)))].sort(codePointOrder)
+    || typeof type !== 'string' || !type.trim() || typeof value !== 'string'
+    || typeof index !== 'number' || !Number.isSafeInteger(index) || index < 0
+    || classValues === null || !classValues.every((item): item is string => typeof item === 'string')
+    || !isRecord(data)) throw new Error('INVALID_NODE_PAYLOAD')
+  const classes = [...new Set(classValues.map(item => normalized(item)))].sort(codePointOrder)
   // index是唯一数值字段；data中的业务数字不接受JS浮点值。
   const fields = new Map<string, string>([
     ['id', canonical(id, new Set())], ['parentId', canonical(parent, new Set())],
-    ['index', JSON.stringify(input['index'])], ['type', canonical(input['type'], new Set())],
-    ['class', canonical(classes, new Set())], ['value', canonical(input['value'], new Set())],
-    ['data', canonical(input['data'], new Set())],
+    ['index', JSON.stringify(index)], ['type', canonical(type, new Set())],
+    ['class', canonical(classes, new Set())], ['value', canonical(value, new Set())],
+    ['data', canonical(data, new Set())],
   ])
   return `{${[...fields.keys()].sort().map(key => `${JSON.stringify(key)}:${fields.get(key)}`).join(',')}}`
 }

@@ -130,7 +130,10 @@
       "title": "ExternalDirtySource",
       "properties": {
         "isDirty": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,

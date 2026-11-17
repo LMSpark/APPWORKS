@@ -55,10 +55,16 @@
           }
         },
         "locked": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "addBlocked": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,
@@ -91,7 +97,15 @@
             "targetName": "Pick"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "showMessage",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "FeatureTableAction": {

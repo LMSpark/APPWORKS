@@ -28,7 +28,16 @@
         },
         "client": {
           "type": "object",
-          "title": "Pick<CodeInitializationClient, 'read'>"
+          "properties": {
+            "read": {
+              "type": "object",
+              "title": "(input: CodeInitializationInput) => Promise<ReadonlyArray<Readonly<Record<string, unknown>>>>"
+            }
+          },
+          "required": [
+            "read"
+          ],
+          "additionalProperties": false
         }
       },
       "additionalProperties": false,

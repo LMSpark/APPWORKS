@@ -49,7 +49,10 @@
           "$ref": "#/$defs/ThemeMode"
         },
         "isDark": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,

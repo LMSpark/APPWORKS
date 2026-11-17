@@ -30,7 +30,10 @@
           "type": "string"
         },
         "operation": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "sources": {
           "$ref": "../../../../data-space/model-source/lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceReader"

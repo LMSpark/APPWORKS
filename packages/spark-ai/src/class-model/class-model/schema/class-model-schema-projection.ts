@@ -150,7 +150,7 @@ function hydrateTypeAliasModel(model: DtsTypeDeclarationModel, jsonSchema: JsonS
 }
 
 function hydrateObjectModel(model: DtsTypeDeclarationModel, jsonSchema: JsonSchemaObject): DtsTypeDeclarationModel {
-  const properties = jsonSchema.properties ?? {}
+  const properties = projectCommonObjectProperties(jsonSchema)
   const defs = readSchemaDefs(jsonSchema)
   if (model.declarationKind === 'class') {
     return {
@@ -195,6 +195,40 @@ function hydrateObjectModel(model: DtsTypeDeclarationModel, jsonSchema: JsonSche
     }
   }
   return model
+}
+
+/**
+ * 投影已展开对象组合中共同声明的属性类型；成员索引不替代根schema的分支关联。
+ * @param schema 原声明schema；引用和未展开分支不猜测属性，不修改原schema。
+ */
+export function projectCommonObjectProperties(schema: JsonSchema): Readonly<Record<string, JsonSchema>> {
+  if (typeof schema === 'boolean') return {}
+  const properties: Record<string, JsonSchema> = {...schema.properties}
+  const intersect = (incoming: Readonly<Record<string, JsonSchema>>): void => {
+    for (const [name, value] of Object.entries(incoming)) {
+      const original = properties[name]
+      properties[name] = original === undefined ? value : combinePropertySchemas('allOf', [original, value])
+    }
+  }
+  for (const child of schema.allOf ?? []) intersect(projectCommonObjectProperties(child))
+  for (const alternatives of [schema.anyOf, schema.oneOf]) {
+    if (!alternatives?.length) continue
+    const branches = alternatives.map(projectCommonObjectProperties)
+    const common: Record<string, JsonSchema> = {}
+    for (const name of Object.keys(branches[0] ?? {})) {
+      const values = branches.map(branch => branch[name])
+      if (values.every((value): value is JsonSchema => value !== undefined)) {
+        common[name] = combinePropertySchemas('anyOf', values)
+      }
+    }
+    intersect(common)
+  }
+  return properties
+}
+
+function combinePropertySchemas(kind: 'anyOf' | 'allOf', schemas: readonly JsonSchema[]): JsonSchema {
+  const unique = [...new Map(schemas.map(schema => [JSON.stringify(schema), schema])).values()]
+  return unique.length === 1 ? unique[0] ?? true : {[kind]: unique}
 }
 
 function hydrateAttributes(

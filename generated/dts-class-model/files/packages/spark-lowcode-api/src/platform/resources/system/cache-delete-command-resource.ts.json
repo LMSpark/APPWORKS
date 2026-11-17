@@ -27,7 +27,16 @@
         },
         "runtime": {
           "type": "object",
-          "title": "Pick<DataSpaceRuntimeApi, 'executeModelCommand'>"
+          "properties": {
+            "executeModelCommand": {
+              "type": "object",
+              "title": "(view: DataView, sourceInputs: Readonly<Record<string, unknown>>) => Promise<DataSpaceQueryContext>"
+            }
+          },
+          "required": [
+            "executeModelCommand"
+          ],
+          "additionalProperties": false
         },
         "resourceId": {
           "type": "string"

@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content-sibling-order",
+    "sourcePath": "src/services/smart-bid/content-sibling-order.ts",
+    "sourceFile": "src/services/smart-bid/content-sibling-order.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content-sibling-order",
+    "jsdoc": "@module app:services/smart-bid/content-sibling-order\n职责：比较固定三版同一父节点下共同成员的相对顺序，单列成员变化。\n边界：不猜插入落点，不判缺席即删除，不生成完整合并稿或采用许可。\nAI用途：先识别单方/相同/冲突重排，再交生命周期及插入位置预演接续。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ContentSiblingOrderInput",
+      "ContentSiblingOrderComparison"
+    ]
+  },
+  "$defs": {
+    "ContentSiblingOrderInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentSiblingOrderInput",
+      "properties": {
+        "parentId": {
+          "type": "string"
+        },
+        "basis": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "current": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "candidate": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "parentId",
+        "basis",
+        "current",
+        "candidate"
+      ],
+      "additionalProperties": false
+    },
+    "ContentSiblingOrderComparison": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentSiblingOrderComparison",
+      "properties": {
+        "parentId": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "UNCHANGED",
+            "CURRENT_ORDER",
+            "CANDIDATE_ORDER",
+            "SAME_ORDER",
+            "CONFLICT"
+          ]
+        },
+        "resolvedCommonOrder": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "currentNewAtParent": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "candidateNewAtParent": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "currentMissing": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "candidateMissing": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiresPresenceResolution": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "requiresCurrentBasisChecks": {
+          "const": true
+        },
+        "requiresFullSnapshotValidation": {
+          "const": true
+        }
+      },
+      "required": [
+        "parentId",
+        "status",
+        "resolvedCommonOrder",
+        "currentNewAtParent",
+        "candidateNewAtParent",
+        "currentMissing",
+        "candidateMissing",
+        "requiresPresenceResolution",
+        "requiresCurrentBasisChecks",
+        "requiresFullSnapshotValidation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T09:01:53.222Z",
+  "models": {
+    "ContentSiblingOrderInput": {
+      "name": "ContentSiblingOrderInput",
+      "jsdoc": "顺序必须来自明确已取得的同一父节点快照，空数组与未加载不同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    parentId: string;\n    basis: readonly string[];\n    current: readonly string[];\n    candidate: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    parentId: string;\n    basis: readonly string[];\n    current: readonly string[];\n    candidate: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "parentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "basis",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "current",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidate",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentSiblingOrderComparison": {
+      "name": "ContentSiblingOrderComparison",
+      "jsdoc": "共同成员顺序结果；有新到或缺席成员时仍须解析其生命周期与落点。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    parentId: string;\n    status: 'UNCHANGED' | 'CURRENT_ORDER' | 'CANDIDATE_ORDER' | 'SAME_ORDER' | 'CONFLICT';\n    resolvedCommonOrder: readonly string[] | null;\n    currentNewAtParent: readonly string[];\n    candidateNewAtParent: readonly string[];\n    currentMissing: readonly string[];\n    candidateMissing: readonly string[];\n    requiresPresenceResolution: boolean;\n    requiresCurrentBasisChecks: true;\n    requiresFullSnapshotValidation: true;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    parentId: string;\n    status: 'UNCHANGED' | 'CURRENT_ORDER' | 'CANDIDATE_ORDER' | 'SAME_ORDER' | 'CONFLICT';\n    resolvedCommonOrder: readonly string[] | null;\n    currentNewAtParent: readonly string[];\n    candidateNewAtParent: readonly string[];\n    currentMissing: readonly string[];\n    candidateMissing: readonly string[];\n    requiresPresenceResolution: boolean;\n    requiresCurrentBasisChecks: true;\n    requiresFullSnapshotValidation: true;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "parentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resolvedCommonOrder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentNewAtParent",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidateNewAtParent",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentMissing",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidateMissing",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresPresenceResolution",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresCurrentBasisChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresFullSnapshotValidation",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

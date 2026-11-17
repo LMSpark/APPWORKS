@@ -121,11 +121,19 @@
       "properties": {
         "executableRegistry": {
           "type": "object",
-          "title": "Record<string, AgentWorkflowModuleConstructor<TInstance>>"
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "title": "AgentWorkflowModuleConstructor<TInstance>"
+          }
         },
         "editorGetterRegistry": {
           "type": "object",
-          "title": "Record<string, (context: AiAgentRuntimeContext) => TInstance>"
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "title": "(context: AiAgentRuntimeContext) => TInstance"
+          }
         }
       },
       "additionalProperties": false,

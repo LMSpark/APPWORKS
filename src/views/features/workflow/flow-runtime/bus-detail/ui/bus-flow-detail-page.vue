@@ -12,14 +12,14 @@
   <p v-if="prepared" class="bus-flow-detail-page__title">{{ prepared.instanceTitle }}</p>
     <RendererTable v-if="prepared && instanceViewKey" :data-view-key="instanceViewKey" :children="summaryColumns"
       :stripe="true" :show-data-view-meta="false" />
-    <el-empty v-if="prepared && businessTabs.length === 0" description="未查询到业务表单" />
-    <el-tabs v-else-if="prepared" v-model="activeFormId" class="bus-flow-detail-page__tabs">
-      <el-tab-pane v-for="tab in businessTabs" :key="tab.tabKey" :label="tab.label" :name="tab.tabKey" lazy>
-        <el-empty v-if="!tab.routeFound" :description="tab.routeError" />
+    <DisplayEmpty v-if="prepared && businessTabs.length === 0" description="未查询到业务表单" />
+    <RendererTabs v-else-if="prepared" v-model="activeFormId" class="bus-flow-detail-page__tabs">
+      <RendererTabPane v-for="(tab, index) in businessTabs" :key="tab.tabKey" :label="tab.label" :name="tab.tabKey" :index="index" lazy>
+        <DisplayEmpty v-if="!tab.routeFound" :description="tab.routeError" />
         <FlowRunRouteRenderer v-else-if="tab.routeLocation" :route="tab.routeLocation" :cache-key="tab.cacheKey"
           :tab-key="tab.tabKey" :registry="businessRegistry" />
-      </el-tab-pane>
-    </el-tabs>
+      </RendererTabPane>
+    </RendererTabs>
   </RendererSection>
 </template>
 
@@ -27,7 +27,7 @@
 import {computed, ref, shallowRef, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME, RendererButton, RendererSection, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
+import {DisplayEmpty, PAGE_RUNTIME, RendererButton, RendererSection, RendererTable, RendererTabs, RendererTabPane, useSparkComponent} from '@spark-appworks/spark-component'
 import {
   FLOW_DESIGN_SCENARIO_ID,
   FLOW_MONITOR_SCENARIO_ID,

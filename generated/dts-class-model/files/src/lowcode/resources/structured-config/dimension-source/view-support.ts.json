@@ -280,7 +280,65 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Awaited<ReturnType<DataSpaceDesignApi['readModels']>>[number]",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceType",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "businessMain",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceInputBindings",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "FormalField": {
@@ -289,7 +347,75 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "FormalModel['fields'][number]",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "canonicalName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "output",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "computed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "orderType",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "allowAIAdd",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "FieldKind": {

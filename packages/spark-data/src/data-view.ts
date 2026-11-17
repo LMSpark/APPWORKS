@@ -499,8 +499,17 @@ viewId: string
   /** 当前模型视图对 DataTable 资源字段的稳定投影。 */
   fieldProjection: readonly DataViewFieldProjection[] = []
 
-  /** 每次查询的输入参数；与私有的结果权限上下文分离。 */
-  queryContext: DataViewQueryContext = {}
+  private _queryContext: DataViewQueryContext = {}
+
+  /** 每次查询的输入参数；整体替换通知配置消费者，不自动查询或清除编辑/未知提交。原地修改仍须显式刷新。 */
+  get queryContext(): DataViewQueryContext {return this._queryContext}
+  set queryContext(value: DataViewQueryContext) {
+    if (value === this._queryContext) return
+    let changed = true
+    try {changed = JSON.stringify(value) !== JSON.stringify(this._queryContext)} catch { /* 非JSON输入仍保留原赋值语义，由查询入口校验。 */ }
+    this._queryContext = value
+    if (changed) this.emitConfigChanged()
+  }
 
   private _queryConfig: NonNullable<ViewMetadata['queryConfig']> = Object.freeze({})
   private _newRowFields: readonly string[] | undefined

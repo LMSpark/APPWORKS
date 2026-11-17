@@ -249,7 +249,40 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Parameters<PageDataSpaceModelSourceReader['query']>[0]",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "keyword",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "page",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "PageDataSpaceModelSource": {
@@ -258,7 +291,45 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Parameters<PageDataSpaceModelSourceReader['prepare']>[0]",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dbid",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "databaseName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "providerId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "PageDataSpaceModelSourcePrepared": {
@@ -274,7 +345,25 @@
             "targetName": "Awaited"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "model",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "LowcodeDataSpaceModelSourceReader": {

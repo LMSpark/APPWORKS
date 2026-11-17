@@ -1,0 +1,27 @@
+{
+  "date":"2026-11-17",
+  "source":"src/services/smart-bid/operation-route-candidate.ts",
+  "test":"tests/app/services/smart-bid/operation-route-candidate.test.ts",
+  "models":["OperationDataValue","OperationCandidateNode","OperationRouteCandidate"],
+  "sharedVocabulary":"operation-tree-structure.ts OPERATION_NODE_TYPES / OperationNodeType",
+  "input":"公共AI层已经解析的普通JSON值；不在标书层另造文本/Markdown修复器。",
+  "rules":[
+    "候选根只含nodes，节点只含七项工序载荷",
+    "data按工序类型限制成员；task要求stationRef，required为boolean，maxTimes为正整数字符串",
+    "拒绝MD/代码围栏/序列化文本充当业务模型、旧blocks/children、格式字段及根报告字段",
+    "拒绝根/节点/data字段访问器；nodes/class读取前核连续自有数据索引及精确own keys",
+    "复用完整载荷、历史结构和分类预演；返回独立快照并保留原身份，不自报版本/摘要/发布成功"
+  ],
+  "verification":{
+    "command":"pnpm exec vitest run tests/app/services/smart-bid/operation-route-candidate.test.ts tests/app/services/smart-bid/operation-route-preview.test.ts tests/app/services/smart-bid/operation-tree-structure.test.ts tests/app/services/smart-bid/operation-node-hash.test.ts --maxWorkers=1",
+    "exitCode":0,"files":4,"tests":58,"seconds":7.46,"targetedLintExitCode":0,
+    "red":"数组绕过新增两反例先2败20过，修复后getter读取次数均为0。"
+  },
+  "review":"独立只读审阅数组绕过已修复，普通已解析JSON输入合同下无新明确阻断。",
+  "remaining":[
+    "正式ClassModel生成及同版指南后接工艺提示词",
+    "when语义、工位fits/上限、routeRef发布引用及成果交接核验",
+    "公共AI层实际输出解析接线、真实Agent/SSE、发布及运行验收"
+  ],
+  "boundary":"确定模型的候选JSON边界，不代表条件/引用有效、路线可执行或已发布；没有业务写入或后端修改。"
+}

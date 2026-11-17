@@ -85,7 +85,10 @@
           "type": "string"
         },
         "typeChanged": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,

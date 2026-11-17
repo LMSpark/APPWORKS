@@ -21,11 +21,23 @@
       "properties": {
         "selectedNodeId": {
           "type": "object",
-          "title": "Ref<string>"
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "__@RefSymbol@279302": {
+              "const": true
+            }
+          },
+          "required": [
+            "value",
+            "__@RefSymbol@279302"
+          ],
+          "additionalProperties": false
         },
         "notice": {
           "type": "object",
-          "title": "Ref<string>"
+          "title": "Ref<string, string>"
         }
       },
       "additionalProperties": false,

@@ -1,0 +1,25 @@
+{
+  "date":"2026-11-17",
+  "requirement":"authoring-submission-specification.md §6.1 工序平铺树；平台受阻时优先独立领域实现",
+  "source":"src/services/smart-bid/operation-tree-structure.ts",
+  "tests":"tests/app/services/smart-bid/operation-tree-structure.test.ts",
+  "implemented":[
+    "闭合route/phase/sequence/parallel/choice/call/task类型",
+    "唯一route根、null父引用、根index为0",
+    "容器非空、call和task为叶、禁止嵌套route",
+    "同级连续安全整数索引、精确父引用、连通无环",
+    "NFC重复身份拒绝、输入及原始ID不改写",
+    "已取得历史投影的类型不可变；同身份同类型历史版本可重复、冲突不可覆盖",
+    "异常当前/历史投影返回错误，迭代遍历不套用正文章节深度限制"
+  ],
+  "redEvidence":"历史冲突及坏历史投影新增反例先5败18过；修复后通过",
+  "relatedVerification":{
+    "command":"pnpm exec vitest run tests/app/services/smart-bid/operation-tree-structure.test.ts tests/app/services/smart-bid/operation-node-hash.test.ts --maxWorkers=1",
+    "exitCode":0,"files":2,"tests":26,"seconds":3.70
+  },
+  "review":"独立只读审阅历史覆盖问题已修复；最终复查无新明确阻断",
+  "targetedLintExitCode":0,
+  "boundary":"仅纯结构及已提供历史投影，不负责工序data、条件求值、工位fits、产出衔接、引用闭包、正式发布或执行。暂无生产动作消费者。",
+  "platformTask":"已向01a1e32b-67ea-7771-93b9-2990d8cd4356下发权威草稿CAS、原请求同次留存与恢复、可信作者的公共能力任务；未修改后端或自建服务。",
+  "remaining":["契约化工艺data与站位/输入输出核验","正式发布与运行接线","ClassModel正式生成及统一门禁/提交"]
+}

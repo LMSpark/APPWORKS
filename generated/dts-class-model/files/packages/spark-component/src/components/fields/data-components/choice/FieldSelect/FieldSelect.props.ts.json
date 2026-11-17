@@ -25,10 +25,16 @@
       "title": "RSelectProps",
       "properties": {
         "optionValueTrim": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "allowCreate": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "presentation": {
           "enum": [
@@ -37,11 +43,17 @@
           ]
         },
         "showCellControl": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "valueTagTypes": {
           "type": "object",
-          "title": "Record<string, TagType>"
+          "properties": {},
+          "additionalProperties": {
+            "$ref": "../../../../display/data-components/value/DisplayTag/DisplayTag.props.ts.json#/$defs/TagType"
+          }
         },
         "cellTitleField": {
           "type": "string"

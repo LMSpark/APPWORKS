@@ -26,19 +26,67 @@
         "designScenarioId": {
           "type": "string"
         },
-        "config": true,
+        "config": {
+          "$ref": "../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
         "modelScope": {
           "type": "string"
         },
-        "fileExecutors": true,
-        "projectionBindings": true,
-        "commandBindings": true,
-        "modelAdapters": true,
+        "fileExecutors": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "title": "Executor"
+          }
+        },
+        "projectionBindings": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "title": "(view: DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]"
+          }
+        },
+        "commandBindings": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "title": "(view: DataView) => BindCommandSubmitOptions"
+          }
+        },
+        "modelAdapters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts.json#/$defs/DataSpaceModelReadAdapter"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "command"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
         "metadataDataSet": {
           "type": "object",
           "title": "DataSet"
         },
-        "getPage": true,
+        "getPage": {
+          "type": "object",
+          "title": "() => PageRuntime | undefined"
+        },
         "dataSpace": {
           "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts.json#/$defs/DataSpaceApi"
         }
@@ -67,7 +115,10 @@
         "config": {
           "$ref": "../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
         },
-        "getPage": true,
+        "getPage": {
+          "type": "object",
+          "title": "() => PageRuntime | undefined"
+        },
         "owner": {
           "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
         }

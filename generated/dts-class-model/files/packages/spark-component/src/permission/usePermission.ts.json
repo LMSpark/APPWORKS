@@ -21,10 +21,14 @@
       "title": "UsePermissionReturn",
       "properties": {
         "permissionMode": {
-          "$ref": "../../../spark-utils/src/contract/permission-mode.ts.json#/$defs/PermissionMode"
+          "enum": [
+            "none",
+            "masked",
+            "invisible"
+          ]
         },
         "subtreeFieldPolicy": {
-          "$ref": "../core/capability-keys.ts.json#/$defs/SubtreeFieldPolicy"
+          "const": "unrestricted"
         }
       },
       "additionalProperties": false,

@@ -125,7 +125,10 @@
           "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
         },
         "browseWritesValue": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "getBrowseValue": {
           "type": "object",

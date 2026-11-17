@@ -12,6 +12,18 @@ import { DataView, RequestState, SparkData, type CrudResult } from '@spark-appwo
 import { setMember } from '../test-type-helpers'
 
 describe('query completion lifecycle', () => {
+  it('notifies native consumers when query inputs are replaced without dispatching a query', () => {
+    const view = DataView.fromJson({}, 'Items', 'inputs'), changed = vi.fn()
+    view.events.on('configChanged', changed)
+    try {
+      view.queryContext = {WFOBJID: 'WF-2'}
+      expect(changed).toHaveBeenCalledTimes(1)
+      expect(view.queryContext).toEqual({WFOBJID: 'WF-2'})
+      expect(view.requestState).toBe(RequestState.Idle)
+      view.queryContext = view.queryContext
+      expect(changed).toHaveBeenCalledTimes(1)
+    } finally {view.destroy()}
+  })
   function fixture() {
     const ds = SparkData.createDataSet({scenarioId: 'S', dataSetName: 'Completion', tables: {Items: {
       tableName: 'Items', columns: [{name: 'id', type: 'number', isPrimaryKey: true}],

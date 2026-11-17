@@ -1,0 +1,165 @@
+{
+  "scope": "Shared declaration, compressed bundle hydration and knowledge guides for correlated object unions",
+  "status": "targeted implementation and formal guide readback confirmed; unified gates interrupted because parallel source changed",
+  "reviewModel": "gpt-6-astra",
+  "rootCauses": [
+    "AST member indexing did not unwrap parentheses or retain common union members",
+    "Hydration restored only root properties and lost types under object combinations",
+    "Type text widened const, closed empty objects and typed dictionaries; intersections became unknown",
+    "Object-like guide rendering could conceal discriminator and payload correlations"
+  ],
+  "productionFiles": [
+    "packages/spark-ai/src/class-model/class-model/declaration/project-from-declarations.ts",
+    "packages/spark-ai/src/class-model/class-model/schema/class-model-schema-projection.ts",
+    "packages/spark-ai/src/class-model/class-model/schema/json-schema-to-type.ts",
+    "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+  ],
+  "preserved": [
+    "Root JSON Schema, discriminator branches and validation constraints",
+    "Member schemas remain stripped on disk and restored from the same authoritative schema",
+    "Existing declaration expression, component profile, relations, JSDoc and readonly metadata",
+    "Business declarations and validation semantics"
+  ],
+  "targetedEvidenceReportedByImplementer": {
+    "correctedEndToEndRed": {
+      "failed": 1,
+      "skipped": 24
+    },
+    "intersectionTextRed": {
+      "failed": 1,
+      "passed": 6
+    },
+    "green": {
+      "files": 11,
+      "tests": 81,
+      "exit": 0,
+      "session": 26353
+    },
+    "finalTestOnlyCleanupRecheck": {
+      "files": 1,
+      "tests": 25,
+      "exit": 0,
+      "session": 79862
+    },
+    "typecheckAndFinalTestLint": {
+      "exit": 0,
+      "session": 8766
+    }
+  },
+  "mainThreadReview": "Actual production and regression diffs inspected; independent current formal generation and global verification in session 20264 are still required",
+  "coverage": [
+    "Actual declaration to compiled schema to compressed bundle to provider query and guides",
+    "Four legal discriminator branches and cross-branch invalid payloads",
+    "Common readonly members, union-only member exclusion and intersected constraints",
+    "Plain object component Props, component metadata, field and method JSDoc"
+  ],
+  "limitations": [
+    "No new generic parameter projection or recursive reference expansion",
+    "Common-member type text is an index; full declaration retains branch correlations",
+    "Formal business artifacts and runtime/UI acceptance are not proven by targeted fixtures"
+  ],
+  "businessWrites": 0,
+  "nodeServiceStarted": false,
+  "backendJavaChanged": false,
+  "fullMigrationComplete": false,
+  "committed": false,
+  "pushed": false,
+  "currentFormalArtifactReadback": {
+    "guide": "cache/smart-bid-operation-candidate-guides-20261117.json",
+    "memberNames": [
+      "id",
+      "parentId",
+      "index",
+      "class",
+      "value",
+      "type",
+      "data"
+    ],
+    "unknownMemberText": false,
+    "fullDeclarationAndBranchesPresent": true,
+    "definitionsComparedToPreFixPromptDraft": 4,
+    "missingDefinitions": [],
+    "changedDefinitions": [],
+    "lowcodeContracts": {
+      "endpoints": 611,
+      "consumers": 248
+    },
+    "globalGates": "interrupted after unrelated parallel source drift; not accepted"
+  },
+  "pendingIntegration": {
+    "session": 79099,
+    "prefix": "cache/i14-frozen3-",
+    "status": "all check commands exited zero; overall script exited one at final source freeze guard",
+    "formalGenerationExit": 0,
+    "contractsExit": 0,
+    "verifyExit": 0,
+    "buildExit": 0,
+    "sourceGuardPassedBetweenCompletedStages": true,
+    "root": {
+      "files": 607,
+      "tests": 10389,
+      "seconds": 805.82,
+      "exit": 0,
+      "log": "cache/i14-frozen3-root.log"
+    },
+    "packagesExit": 0,
+    "packages": [
+      {
+        "package": "spark-utils",
+        "files": 5,
+        "tests": 45
+      },
+      {
+        "package": "spark-data",
+        "files": 60,
+        "tests": 1393
+      },
+      {
+        "package": "spark-json-document",
+        "files": 5,
+        "tests": 25
+      },
+      {
+        "package": "spark-ai",
+        "files": 28,
+        "tests": 186
+      },
+      {
+        "package": "spark-lowcode-api",
+        "files": 53,
+        "tests": 1597
+      },
+      {
+        "package": "spark-project-model",
+        "files": 6,
+        "tests": 286
+      },
+      {
+        "package": "spark-component",
+        "files": 28,
+        "tests": 225
+      },
+      {
+        "package": "spark-app",
+        "files": 13,
+        "tests": 83
+      }
+    ],
+    "sourceFreezeGuard": {
+      "passed": false,
+      "scriptExit": 1,
+      "drift": {
+        "added": [
+          "src\\services\\smart-bid\\content-tree-comparison.ts",
+          "src\\services\\smart-bid\\content\\content-node-links.ts",
+          "tests\\app\\services\\smart-bid\\content\\content-node-links.test.ts",
+          "tests\\app\\services\\smart-bid\\content\\content-tree-comparison.test.ts"
+        ],
+        "removed": [],
+        "changed": []
+      },
+      "previousSnapshotFilesUnchanged": 2217
+    },
+    "acceptance": "Root 607 files/10389 tests proves only the frozen input; all files listed as added in sourceFreezeGuard.drift are outside that frozen root result. No commit or push."
+  }
+}

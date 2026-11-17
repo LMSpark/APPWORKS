@@ -211,7 +211,35 @@
             "targetName": "ReturnType"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "read",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "write",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "component",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "required",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "writeMode",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     }
   }

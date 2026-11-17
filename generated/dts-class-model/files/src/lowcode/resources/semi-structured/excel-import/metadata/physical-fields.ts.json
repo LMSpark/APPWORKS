@@ -28,7 +28,10 @@
           "type": "string"
         },
         "allowView": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,

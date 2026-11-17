@@ -49,7 +49,10 @@
           "$ref": "../../types.ts.json#/$defs/CrudResult"
         },
         "cancelled": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "required": [

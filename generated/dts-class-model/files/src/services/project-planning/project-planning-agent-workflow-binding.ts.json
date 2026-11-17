@@ -293,17 +293,37 @@
         "projectId": {
           "type": "string"
         },
-        "blueprintTree": true,
+        "blueprintTree": {
+          "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        },
         "flatRows": {
           "type": "array",
           "items": true
         },
-        "readProjectPlanningInput": true,
-        "readBlueprintPlanningInputs": true,
-        "readBlueprintNodePlanningInput": true,
-        "readPlanningProjection": true,
-        "completeProjectPlanning": true,
-        "replaceBlueprintChildren": true
+        "readProjectPlanningInput": {
+          "type": "object",
+          "title": "() => ProjectPlanningInput"
+        },
+        "readBlueprintPlanningInputs": {
+          "type": "object",
+          "title": "() => readonly BlueprintPlanningInput[]"
+        },
+        "readBlueprintNodePlanningInput": {
+          "type": "object",
+          "title": "(nodeId: string) => BlueprintPlanningInput"
+        },
+        "readPlanningProjection": {
+          "type": "object",
+          "title": "() => ProjectPageNodeSummary[]"
+        },
+        "completeProjectPlanning": {
+          "type": "object",
+          "title": "(input?: ProjectPlanningCompletionInput) => ProjectPlanningCompletionResult"
+        },
+        "replaceBlueprintChildren": {
+          "type": "object",
+          "title": "(input: ProjectBlueprintTreeNodeData[] | Readonly<{ children: ProjectBlueprintTreeNodeData[]; }>) => ProjectBlueprintTreeData"
+        }
       },
       "additionalProperties": false,
       "$defs": {
@@ -628,7 +648,30 @@
             "targetName": "FilterBlueprintPlanningNodesOptions"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "requirementOverride",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "planningAttachmentRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeNodeIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "includeEmptyRequirement",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "ProjectPlanningAgentWorkflowBindingOptions": {

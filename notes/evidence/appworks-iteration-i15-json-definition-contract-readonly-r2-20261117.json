@@ -1,0 +1,121 @@
+{
+  "scope": "B11 formal JSON and model-reference definitions only",
+  "businessWrites": 0,
+  "fileWrites": 0,
+  "commandInvocations": 0,
+  "sessionPersisted": false,
+  "models": [
+    {
+      "dataSpaceId": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+      "metaName": "Base_JsonData",
+      "id": "FFDEF2AED3E19A38C0FCDDC748CF939Bp000",
+      "sourceType": "数据库表",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "name": "rowid",
+          "outputName": "rowid",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": true
+        },
+        {
+          "name": "name",
+          "outputName": "name",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "path",
+          "outputName": "path",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false
+        }
+      ]
+    },
+    {
+      "dataSpaceId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_DataModel",
+      "id": "8D1AB14DD8277F3E7017CD38F77B09FDp001",
+      "sourceType": "数据库表",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "name": "Type",
+          "outputName": "Type",
+          "type": "VARCHAR",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "dataSetId",
+          "outputName": "dataSetId",
+          "type": "VARCHAR",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "DbId",
+          "outputName": "DbId",
+          "type": "VARCHAR",
+          "output": true,
+          "primaryKey": false
+        },
+        {
+          "name": "rowid",
+          "outputName": "rowid",
+          "type": "VARCHAR",
+          "output": true,
+          "primaryKey": true
+        }
+      ]
+    }
+  ],
+  "requests": [
+    {
+      "kind": "enterprise-catalog-read"
+    },
+    {
+      "kind": "authorized-login"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "Base_DataModel"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "Base_DataModel_Field"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "View_TblList"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "Base_TblField"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "Base_DataModel"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "Base_DataModel_Field"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "View_TblList"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "Base_TblField"
+    }
+  ],
+  "blocked": 0,
+  "enterpriseDisplayNameResolvedUniquely": true,
+  "authorizedIdentityVerified": true,
+  "status": "formal definitions read; row delete permission, concrete file locator, shared reference completeness and service concurrency protection still unverified",
+  "observedAt": "2026-11-17T09:38:42.326Z"
+}

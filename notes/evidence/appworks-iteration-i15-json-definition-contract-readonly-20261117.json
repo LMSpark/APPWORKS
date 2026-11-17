@@ -1,0 +1,19 @@
+{
+  "scope": "B11 formal JSON and model-reference definitions only",
+  "businessWrites": 0,
+  "fileWrites": 0,
+  "commandInvocations": 0,
+  "sessionPersisted": false,
+  "models": [],
+  "requests": [
+    {
+      "kind": "authorized-login"
+    }
+  ],
+  "blocked": 0,
+  "status": "blocked",
+  "phase": "login",
+  "errorName": "LowcodeApiError",
+  "errorCode": 1003,
+  "observedAt": "2026-11-17T09:36:31.621Z"
+}

@@ -901,7 +901,160 @@
             "targetName": "DataViewRequestAndAggregateState"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "treeConfig",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "currentRow",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectedRows",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "editingRows",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isMultiSelect",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "labels",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "queryUnavailable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "aggregateError",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "aggregateResult",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionAggregateResult",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "countReported",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nextPageAvailable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "page",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "paginated",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "supportsQuerySorting",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "supportsQueryFiltering",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mutating",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mutatingError",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadingError",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resultReplacementBlocked",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "ContainerDataViewContextState": {
@@ -956,7 +1109,170 @@
             "targetName": "ContainerDataViewContextState"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "treeConfig",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "currentRow",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectedRows",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "editingRows",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isMultiSelect",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "labels",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "queryUnavailable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "aggregateError",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "aggregateResult",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionAggregateResult",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "countReported",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nextPageAvailable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "page",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "paginated",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "supportsQuerySorting",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "supportsQueryFiltering",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mutating",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mutatingError",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadingError",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resultReplacementBlocked",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resolvedView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resolvedDataRow",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "AggregateResultState": {

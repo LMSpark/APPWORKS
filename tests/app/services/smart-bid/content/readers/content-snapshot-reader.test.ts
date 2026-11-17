@@ -1,6 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey} from '@spark-appworks/spark-data'
 import {readContentSnapshotIndex} from '@/views/features/application/smart-bid/authoring/model/content-snapshot-reader'
+import {readAdoptionSnapshot} from '@/views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -12,17 +13,40 @@ async function fixture(options:{count?:number|null;hidden?:boolean;wrongProject?
  const hash=options.wrongHash?'a'.repeat(64):await hashRevisionSnapshot(manifest)
  const ds=DataSet.fromJson({scenarioId:'S',tables:{RevisionSnapshot:{modelBinding:{modelId:'SM',modelName:'RevisionSnapshot'},
   columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'snapshotHash'},{name:'manifest',type:'object'}],views:{default:{},
-   ...Object.fromEntries(['selectedSnapshot','selectedBasisSnapshot','selectedHeadSnapshot'].map(key=>[key,{commitMode:'staged',
-    scopeFilter:{logic:'and',filters:['projectId','snapshotHash'].map(field=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName:field}}))}}]))}}}})
+   ...Object.fromEntries(['selectedSnapshot','selectedBasisSnapshot','selectedHeadSnapshot','selectedAdoptionSnapshot'].map(key=>[key,{commitMode:'staged',
+    scopeFilter:{logic:'and',filters:['projectId','snapshotHash'].map(field=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName:field}}))}}]))}},
+  ContentRevision:{modelBinding:{modelId:'RM',modelName:'ContentRevision'},
+   columns:['id','projectId','snapshotHash','baselineId','stageRef','templateRefs'].map(name=>({name,isPrimaryKey:name==='id'})),
+   views:{default:{},selectedAdoptionRevision:{commitMode:'staged'}}},
+ }})
  const view=ds.getView('RevisionSnapshot','selectedSnapshot')!,save=vi.fn(async()=>{throw Error('NO_WRITE')})
  const query=vi.fn(async()=>new DataSpaceQueryContext({identity:q.identity,scope:'q',readScope:()=> 'q',snapshot:q.applyResult({Result:{primaryKeyField:'id',data:{
   ...(options.count===null?{}:{Count:options.count??1}),Items:[{id:'ROW',projectId:'P',snapshotHash:hash,manifest,lingma_sys_params:{r:[],e:[],h:options.hidden?['manifest']:[],m:[],d:false}}]}}})}))
  for(const configured of Object.values(ds.tables['RevisionSnapshot']!.views))configured.bindQueryExecutor({executeQuery:query,save})
+ const mergeView=ds.getView('ContentRevision','selectedAdoptionRevision')!,mergeTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContentRevision'})
+ mergeView.bindQueryExecutor({save,executeQuery:async()=>new DataSpaceQueryContext({identity:mergeTable.identity,scope:'q',readScope:()=> 'q',
+  snapshot:mergeTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[{id:'R',projectId:'P',snapshotHash:hash,
+   baselineId:'BASE',stageRef:manifest.stageRef,templateRefs:[],lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}})})})
  let current=true
  const host={runtime:{resolveView:(key:string)=>{const k=parseDataViewKey(key);return k?ds.getView(k.tableName,k.viewId):undefined}},scenarioId:'S',projectId:'P',
   assertCurrent:()=>{if(!current)throw Error('HOST_STALE')}}
- return {ds,host,view,hash,query,save,expire:()=>{current=false}}
+ return {ds,host,view,hash,query,save,mergeView,expire:()=>{current=false}}
 }
+it('reopens a historical merge snapshot independently of candidate reads',async()=>{
+ const f=await fixture()
+ try{
+  const candidate=await readContentSnapshotIndex(f.host,{snapshotHash:f.hash})
+  await f.mergeView.refresh()
+  const assertCurrent=f.mergeView.captureReadResult()
+  const merge=await readAdoptionSnapshot(f.host,{dataViewKey:'S@ContentRevision@selectedAdoptionRevision',assertCurrent})
+  expect(merge.snapshot.dataViewKey).toBe('S@RevisionSnapshot@selectedAdoptionSnapshot')
+  expect(merge.nodes.dataViewKey).toBeNull()
+  merge.assertCurrent();candidate.assertCurrent()
+  await f.mergeView.refresh()
+  expect(()=>merge.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  candidate.assertCurrent()
+ }finally{f.ds.destroy()}
+})
 it('keeps basis, current head and candidate snapshot proofs independent',async()=>{
  const f=await fixture()
  try{

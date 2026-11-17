@@ -1,22 +1,30 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
+import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {readContentAdoption} from '@/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 const request={candidateRevisionId:'C',requestKey:'K',requestDigest:'D',previewRef:'PV'}
 function fixture(options:{count?:number;requestDigest?:string}={}){
+ const manifest={hashContract:'spark-bid.revision-snapshot/1',projectId:'P',stageRef:{id:'ST'},baselineId:'B',
+  templateRefs:[],nodes:[],requirementPins:[],responseAssignments:[],responses:[],qualificationReviews:[],sensitiveRefs:[]}
+ const hash=hashRevisionSnapshot(manifest)
  const record={id:'A',projectId:'P',...request,mergeRevisionId:'R',commitCheckRef:null,requestDigest:options.requestDigest??request.requestDigest}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ContentAdoption:{modelBinding:{modelId:'M',modelName:'ContentAdoption'},
   columns:Object.keys(record).map(name=>({name,isPrimaryKey:name==='id'})),views:{default:{},selectedAdoption:{commitMode:'staged',
    scopeFilter:{logic:'and',filters:['projectId','candidateRevisionId','requestKey'].map(field=>({field,operator:'eq',
     value:{Type:'GetInputParam',ParamName:field}}))}}}},
-  ContentRevision:{modelBinding:{modelId:'RM',modelName:'ContentRevision'},columns:['id','projectId','status','snapshotHash'].map(name=>({name,isPrimaryKey:name==='id'})),
+  ContentRevision:{modelBinding:{modelId:'RM',modelName:'ContentRevision'},columns:['id','projectId','status','snapshotHash','stageRef','baselineId','templateRefs'].map(name=>({name,isPrimaryKey:name==='id'})),
    views:{default:{},selectedAdoptionRevision:{commitMode:'staged',scopeFilter:{logic:'and',filters:[
     {field:'projectId',operator:'eq',value:{Type:'GetInputParam',ParamName:'projectId'}},
     {field:'id',operator:'eq',value:{Type:'GetInputParam',ParamName:'mergeRevisionId'}},
     {field:'status',operator:'eq',value:'ADOPTED'},
-   ]}}}}}})
+   ]}}}},
+  RevisionSnapshot:{modelBinding:{modelId:'SM',modelName:'RevisionSnapshot'},columns:['id','projectId','snapshotHash','manifest'].map(name=>({name,isPrimaryKey:name==='id'})),
+   views:{default:{},selectedAdoptionSnapshot:{commitMode:'staged',scopeFilter:{logic:'and',filters:['projectId','snapshotHash'].map(field=>({
+    field,operator:'eq',value:{Type:'GetInputParam',ParamName:field}}))}}}},
+ }})
  const view=ds.getView('ContentAdoption','selectedAdoption')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContentAdoption'})
  const save=vi.fn(async()=>{throw Error('NO_WRITE')})
  const query=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',
@@ -26,12 +34,20 @@ function fixture(options:{count?:number;requestDigest?:string}={}){
  const revision=ds.getView('ContentRevision','selectedAdoptionRevision')!,revisionTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContentRevision'})
  const revisionQuery=vi.fn(async()=>new DataSpaceQueryContext({identity:revisionTable.identity,scope:'q',readScope:()=> 'q',
   snapshot:revisionTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[
-   {id:'R',projectId:'P',status:'ADOPTED',snapshotHash:'DIGEST',lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}},
+   {id:'R',projectId:'P',status:'ADOPTED',snapshotHash:await hash,baselineId:'B',stageRef:manifest.stageRef,templateRefs:[],
+    lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}},
   ]}}})}))
  revision.bindQueryExecutor({executeQuery:revisionQuery,save})
+ const snapshot=ds.getView('RevisionSnapshot','selectedAdoptionSnapshot')!,snapshotTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'RevisionSnapshot'})
+ const snapshotQuery=vi.fn(async()=>new DataSpaceQueryContext({identity:snapshotTable.identity,scope:'q',readScope:()=> 'q',
+  snapshot:snapshotTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[
+   {id:'SN',projectId:'P',snapshotHash:await hash,manifest,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}},
+  ]}}})}))
+ snapshot.bindQueryExecutor({executeQuery:snapshotQuery,save})
  const host={scenarioId:'S',projectId:'P',assertCurrent:()=>{},runtime:{resolveView:(key:string)=>
-  key==='S@ContentAdoption@selectedAdoption'?view:key==='S@ContentRevision@selectedAdoptionRevision'?revision:undefined}}
- return {host,view,ds,query,revision,revisionQuery,save}
+  key==='S@ContentAdoption@selectedAdoption'?view:key==='S@ContentRevision@selectedAdoptionRevision'?revision:
+   key==='S@RevisionSnapshot@selectedAdoptionSnapshot'?snapshot:undefined}}
+ return {host,view,ds,query,revision,revisionQuery,snapshotQuery,save}
 }
 it('reads the adopted merge revision by the original record and invalidates it when that record is refreshed',async()=>{
  const f=fixture()
@@ -43,7 +59,13 @@ it('reads the adopted merge revision by the original record and invalidates it w
   expect(f.revision.queryContext).toMatchObject({projectId:'P',mergeRevisionId:'R'})
   expect(f.revisionQuery).toHaveBeenCalledTimes(1)
   merge.assertCurrent()
+  const original=await merge.readSnapshot()
+  expect(original.snapshot.dataViewKey).toBe('S@RevisionSnapshot@selectedAdoptionSnapshot')
+  expect(f.revisionQuery).toHaveBeenCalledTimes(1)
+  expect(f.snapshotQuery).toHaveBeenCalledTimes(1)
+  original.assertCurrent()
   await f.view.refresh()
+  expect(()=>original.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(()=>merge.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   await expect(adoption.readMergeRevision()).rejects.toThrow('DATA_VIEW_READ_RESULT')
   expect(f.revisionQuery).toHaveBeenCalledTimes(1)

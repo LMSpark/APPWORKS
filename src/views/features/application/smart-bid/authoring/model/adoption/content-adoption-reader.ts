@@ -6,6 +6,7 @@
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,readAdoptedContentRevision,type ContentRevisionReadHost} from '../content-revision-reader'
+import {readAdoptionSnapshot} from './content-adoption-snapshot-reader'
 
 export type ContentAdoptionSelection=Readonly<{candidateRevisionId:string;requestKey:string;requestDigest:string;previewRef:string}>
 const parameters=['projectId','candidateRevisionId','requestKey'] as const
@@ -43,6 +44,10 @@ export async function readContentAdoption(host:ContentRevisionReadHost,input:Con
  if(parameters.some(field=>row[field]!==expected[field])||row['requestDigest']!==requestDigest||row['previewRef']!==previewRef||
   !identity(row['id'])||!identity(mergeRevisionId))throw Error('CONTENT_ADOPTION_REQUEST_MISMATCH')
  const assertCurrent=()=>{assertScope();assertResult();assertRow()}
+ const boundHost={...host,assertCurrent}
  return Object.freeze({dataViewKey,recordFound:true,requiresOriginalResultEvidence:true,assertCurrent,
-  readMergeRevision:()=>readAdoptedContentRevision({...host,assertCurrent},{kind:'merge',revisionId:mergeRevisionId})})
+  async readMergeRevision(){
+   const merge=await readAdoptedContentRevision(boundHost,{kind:'merge',revisionId:mergeRevisionId})
+   return Object.freeze({...merge,readSnapshot:()=>readAdoptionSnapshot(boundHost,merge)})
+  }})
 }

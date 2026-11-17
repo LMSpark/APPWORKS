@@ -4,13 +4,12 @@
  * 边界：仅返回原视图绑定与证明；不缓存载荷、不采用、不冒充完整业务闭包或三版预演。
  * AI用途：候选内容先核固定依据一致，再交后续业务检查；JSON内容与模板引用分别核对。
  */
-import {canonicalRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {assertRevisionTemplateBindings} from '@/services/smart-bid/content/revision-template-bindings'
 import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
 import {assertRevisionResponseText} from '@/services/smart-bid/content/references/revision-response-text'
 import {hasCompleteSingleContentResult,readContentRevisionBasis,readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
 import {assertContentNodeVersionPayload} from './content-node-version-reader'
-import {readContentSnapshotIndex,type ContentSnapshotIndexBinding,type ContentSnapshotRole} from './content-snapshot-reader'
+import {assertRevisionManifest,readContentSnapshotIndex,type ContentSnapshotIndexBinding,type ContentSnapshotRole} from './content-snapshot-reader'
 import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './content-snapshot-nodes'
 import {readContentBaselineFact,readContentBaselineRequirement,readContentBaselineRequirementPins,readContentBaselineTenderRecord,type ContentBaselineFactBinding,type ContentBaselineRequirementPinsBinding} from './content-baseline-reader'
 import type {RevisionRequirementPin} from '@/services/smart-bid/content/references/revision-requirement-pins'
@@ -43,13 +42,6 @@ type PreviewVersionSession=PreviewVersions&Readonly<{
  previewNodeTextChange:(change:NodeTextChange)=>Promise<TextPreviewBinding>
 }>
 
-function assertRevisionManifest(manifest:unknown,row:Readonly<Record<string,unknown>>):asserts manifest is object{
- if(typeof manifest!=='object'||manifest===null||Array.isArray(manifest))throw Error('CONTENT_CANDIDATE_MANIFEST_REQUIRED')
- const original=canonicalRevisionSnapshot(manifest)
- const withRevision=canonicalRevisionSnapshot({...manifest,projectId:row['projectId'],baselineId:row['baselineId'],
-  stageRef:row['stageRef'],templateRefs:row['templateRefs']})
- if(original!==withRevision)throw Error('CONTENT_CANDIDATE_REVISION_MISMATCH')
-}
 
 /** 候选链保留各原视图证明；其它业务分组、当前依据、rootHash和采用必须继续核验。 */
 export type ContentCandidateBinding=Readonly<{

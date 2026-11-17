@@ -14,7 +14,8 @@ import {assertContentNodeVersionPayload} from './content-node-version-reader'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
 import type {ContentSnapshotIndexBinding,ContentSnapshotRole} from './content-snapshot-reader'
 
-const memberViews:Record<ContentSnapshotRole,string>={basis:'basisSnapshotMembers',head:'headSnapshotMembers',candidate:'snapshotMembers'}
+const memberViews:Record<ContentSnapshotRole,string>={basis:'basisSnapshotMembers',head:'headSnapshotMembers',
+ candidate:'snapshotMembers',adoption:'adoptionSnapshotMembers'}
 
 /** 整批原成员绑定；空节点清单不绑定旧视图，也不发空IN查询。 */
 export type ContentSnapshotNodesBinding=Readonly<{

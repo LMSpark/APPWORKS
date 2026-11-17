@@ -6,13 +6,21 @@
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {readSnapshotNodeIndex,type RevisionSnapshotNodeIndex} from '@/services/smart-bid/content/revision-snapshot-index'
-import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
+import {canonicalRevisionSnapshot,hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
 
 /** 精确快照键；必须来自所选修订或冻结首稿，不能由草稿哈希冒充。 */
 export type ContentSnapshotSelection=Readonly<{snapshotHash:string}>
-export type ContentSnapshotRole='basis'|'head'|'candidate'
-const snapshotViews={basis:'selectedBasisSnapshot',head:'selectedHeadSnapshot',candidate:'selectedSnapshot'} as const
+export type ContentSnapshotRole='basis'|'head'|'candidate'|'adoption'
+const snapshotViews={basis:'selectedBasisSnapshot',head:'selectedHeadSnapshot',candidate:'selectedSnapshot',adoption:'selectedAdoptionSnapshot'} as const
+/** 按规范 JSON 对照同版修订携带的项目、基线、阶段和模板。 */
+export function assertRevisionManifest(manifest:unknown,row:Readonly<Record<string,unknown>>):asserts manifest is object{
+ if(typeof manifest!=='object'||manifest===null||Array.isArray(manifest))throw Error('CONTENT_CANDIDATE_MANIFEST_REQUIRED')
+ const original=canonicalRevisionSnapshot(manifest)
+ const withRevision=canonicalRevisionSnapshot({...manifest,projectId:row['projectId'],baselineId:row['baselineId'],
+  stageRef:row['stageRef'],templateRefs:row['templateRefs']})
+ if(original!==withRevision)throw Error('CONTENT_CANDIDATE_REVISION_MISMATCH')
+}
 /** 原清单绑定和索引；修订阶段/模板/基线匹配及完整校验另核。 */
 export type ContentSnapshotIndexBinding=Readonly<{
  dataViewKey:string;role:ContentSnapshotRole;index:RevisionSnapshotNodeIndex;manifestHashVerified:true;requiresRevisionMatchCheck:true;assertCurrent:()=>void

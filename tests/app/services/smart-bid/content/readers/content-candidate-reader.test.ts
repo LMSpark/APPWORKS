@@ -4,6 +4,24 @@ import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/co
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
 
+it('queries fixed facts from selected original candidate nodes only',async()=>{
+ const f=await fixture('fact')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const before=f.query.mock.calls.length
+  await expect(candidate.readNodeEffectiveFacts(['missing'])).rejects.toThrow('CONTENT_SNAPSHOT_FACT_SCOPE')
+  expect(f.query).toHaveBeenCalledTimes(before)
+  const chapter=await candidate.readNodeEffectiveFacts(['C'])
+  expect(chapter.displayHashes).toEqual([])
+  expect(f.query).toHaveBeenCalledTimes(before+1)
+  const heading=await candidate.readNodeEffectiveFacts(['H'])
+  expect(heading.displayHashes.map(item=>item.factId)).toEqual(['PRICE'])
+  await f.ds.getView('ContentNodeVersion','snapshotMembers')!.refresh()
+  expect(()=>heading.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
+
 it('checks the source hash against the candidate baseline and revokes proof when the candidate snapshot changes',async()=>{
  const f=await fixture()
  const ref={runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}

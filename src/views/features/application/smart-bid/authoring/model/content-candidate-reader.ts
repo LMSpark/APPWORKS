@@ -6,7 +6,7 @@
  */
 import {assertRevisionTemplateBindings} from '@/services/smart-bid/content/revision-template-bindings'
 import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
-import {assertRevisionResponseText} from '@/services/smart-bid/content/references/revision-response-text'
+import {assertRevisionResponseText,readIndependentResponseFactIds,type IndependentResponseFactTarget} from '@/services/smart-bid/content/references/revision-response-text'
 import {hasCompleteSingleContentResult,readContentRevisionBasis,readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
 import {assertContentNodeVersionPayload} from './content-node-version-reader'
 import {assertRevisionManifest,readContentSnapshotIndex,type ContentSnapshotIndexBinding,type ContentSnapshotRole} from './content-snapshot-reader'
@@ -18,6 +18,7 @@ import {snapshotReferenceFields,snapshotReferenceRecord,visitSnapshotReferences}
 import {readTenderRecordReference} from '@/services/smart-bid/content/references/baseline-tender-records'
 import {readContentTenderRecord} from './content-tender-record-reader'
 import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/services/smart-bid/content/content-scoped-preview'
+import {readEffectiveFactDependencies} from './hashes/effective-fact-reader'
 import {previewContentTextSnapshot,type ContentResponseTextSnapshot,type ContentTextSnapshotPreview} from '@/services/smart-bid/content/content-text-snapshot-preview'
 import {captureContentTextSpan,type ContentTextSelection,type VerifiedContentTextSpan} from '@/services/smart-bid/content/content-text-span'
 
@@ -51,6 +52,8 @@ type PreviewVersionSession=PreviewVersions&Readonly<{
 export type ContentCandidateBinding=Readonly<{
  runtime:ContentRevisionReadHost['runtime']
  readFixedFact:(selection:Readonly<{factId:string;version?:number}>,assertConsumer?:()=>void)=>Promise<ContentCandidateFactBinding>
+ readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>ReturnType<typeof readEffectiveFactDependencies>
+ readEffectiveFacts:(scope:Readonly<{nodeIds:readonly string[];responses:readonly IndependentResponseFactTarget[]}>,assertConsumer?:()=>void)=>ReturnType<typeof readEffectiveFactDependencies>
  readRequirementPinIssues:(assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementPinsBinding>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
@@ -100,6 +103,14 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
  assertRevisionResponseAnchors(responses,requirementPins,payloads)
  assertRevisionResponseText(responses,payloads.map(payload=>payload.nodeId))
  assertCurrent()
+ const readEffectiveFacts:ContentCandidateBinding['readEffectiveFacts']=async(scope,assertConsumer)=>{
+  const assertContext=()=>{assertCurrent();assertConsumer?.()}
+  assertContext()
+  const baselineId=row['baselineId']
+  if(typeof baselineId!=='string')throw Error('CONTENT_CANDIDATE_BASELINE_REQUIRED')
+  const usedFactIds=[...nodes.readFactIds(scope.nodeIds),...readIndependentResponseFactIds(responses,scope.responses)]
+  return readEffectiveFactDependencies({...host,assertCurrent:assertContext},{baselineId,stageRef:row['stageRef'],usedFactIds})
+ }
  const readFixedFact=async(factSelection:Readonly<{factId:string;version?:number}>,assertConsumer?:()=>void):Promise<ContentCandidateFactBinding>=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}
   assertContext()
@@ -269,7 +280,9 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   if(capturedInput.role==='head')return (await readPreviewVersions(assertConsumer)).captureNodeTextSelection(capturedInput)
   return captureNodeSelection(capturedInput,{snapshot,nodes},()=>{assertCurrent();assertConsumer?.()})
  }
- return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+ return Object.freeze({runtime:host.runtime,readFixedFact,readEffectiveFacts,
+  readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readEffectiveFacts({nodeIds,responses:[]},assertConsumer),
+  readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   verifyRootHash:(contract:string)=>verifyReadableRevisionRoot({host:{...host,assertCurrent},revisionDataViewKey:revisions.candidateDataViewKey,snapshot,contract}),
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,

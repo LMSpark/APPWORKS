@@ -8,7 +8,7 @@ import {buildDataViewKey,type DataView,type DataViewFilterTree,type TreeConfig} 
 import {isRecord} from '@spark-appworks/spark-utils'
 import {hashContentNode} from '@/services/smart-bid/content-node-hash'
 import {validateContentTreeStructure} from '@/services/smart-bid/content-tree-structure'
-import {readContentNodeLinks} from '@/services/smart-bid/content/content-node-links'
+import {readContentNodeFactIds,readContentNodeLinks} from '@/services/smart-bid/content/content-node-links'
 import {hashContentSubtrees,SUBTREE_HASH_CONTRACT,type ContentSubtreeHash} from '@/services/smart-bid/content/hashes/content-subtree-hash'
 import {assertContentNodeVersionPayload} from './content-node-version-reader'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
@@ -21,6 +21,7 @@ const memberViews:Record<ContentSnapshotRole,string>={basis:'basisSnapshotMember
 export type ContentSnapshotNodesBinding=Readonly<{
  dataViewKey:string|null;nodeMembershipVerified:true;requiresBusinessSectionChecks:true;assertCurrent:()=>void
  subtreeHashContract:typeof SUBTREE_HASH_CONTRACT;subtreeHashes:readonly ContentSubtreeHash[]
+ readFactIds:(nodeIds:readonly string[])=>readonly string[]
 }>
 function validScope(view:DataView):boolean {
  const hashScope=(node:DataViewFilterTree):boolean=>{
@@ -45,7 +46,11 @@ export async function readContentSnapshotNodes(host:ContentRevisionReadHost,snap
  if(snapshot.index.projectId!==projectId)throw Error('CONTENT_SNAPSHOT_NODES_PROJECT')
  const members=snapshot.index.nodes
  if(!members.length)return Object.freeze({dataViewKey:null,nodeMembershipVerified:true,requiresBusinessSectionChecks:true,assertCurrent:assertOwners,
-  subtreeHashContract:SUBTREE_HASH_CONTRACT,subtreeHashes:Object.freeze([])})
+  subtreeHashContract:SUBTREE_HASH_CONTRACT,subtreeHashes:Object.freeze([]),readFactIds:(nodeIds:readonly string[])=>{
+   assertOwners()
+   if(nodeIds.length)throw Error('CONTENT_SNAPSHOT_FACT_SCOPE')
+   return Object.freeze([])
+  }})
  const dataViewKey=buildDataViewKey('ContentNodeVersion',memberViews[snapshot.role],scenarioId),view=runtime.resolveView(dataViewKey)
  if(!view||!validScope(view))throw Error('CONTENT_SNAPSHOT_NODES_SCOPE_REQUIRED')
  if(view.hasEditingChanges())throw Error('CONTENT_SNAPSHOT_NODES_EDITING')
@@ -87,6 +92,14 @@ export async function readContentSnapshotNodes(host:ContentRevisionReadHost,snap
  const subtreeHashes=await hashContentSubtrees({projectId,nodes:prepared.map(({payload,hash})=>({
   nodeId:payload.nodeId,parentId:payload.parentId,index:payload.index,type:payload.type,nodeHash:hash}))})
  assertCurrent()
+ const readFactIds=(nodeIds:readonly string[])=>{
+  assertCurrent()
+  const selected=new Set(nodeIds)
+  if(selected.size!==nodeIds.length||nodeIds.some(id=>!expected.has(id)))throw Error('CONTENT_SNAPSHOT_FACT_SCOPE')
+  const payloads=prepared.map(item=>item.payload).filter(item=>selected.has(item.nodeId))
+  payloads.sort((a,b)=>a.nodeId<b.nodeId?-1:a.nodeId>b.nodeId?1:0)
+  return Object.freeze([...new Set(payloads.flatMap(readContentNodeFactIds))])
+ }
  return Object.freeze({dataViewKey,nodeMembershipVerified:true,requiresBusinessSectionChecks:true,assertCurrent,
-  subtreeHashContract:SUBTREE_HASH_CONTRACT,subtreeHashes})
+  subtreeHashContract:SUBTREE_HASH_CONTRACT,subtreeHashes,readFactIds})
 }

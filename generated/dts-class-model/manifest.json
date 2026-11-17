@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1272,
+  "scannedFileCount": 1282,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -16990,6 +16990,19 @@
         ]
       }
     },
+    "src/services/project/navigation/project-management-target.ts": {
+      "file": "files/src/services/project/navigation/project-management-target.ts.json",
+      "module": {
+        "name": "app:services/project/navigation/project-management-target",
+        "sourcePath": "src/services/project/navigation/project-management-target.ts",
+        "sourceFile": "src/services/project/navigation/project-management-target.ts",
+        "packageName": "app",
+        "modulePath": "services/project/navigation/project-management-target",
+        "jsdoc": "@module app:services/project/navigation/project-management-target\n职责：项目管理系统页的唯一导航身份及蓝图来源节点路由。\n边界：仅构造路由；应用选择、未保存保护及节点归属由现有路由守卫和目标宿主处理。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/project/navigation/project-navigation-guard.ts": {
       "file": "files/src/services/project/navigation/project-navigation-guard.ts.json",
       "module": {
@@ -17152,6 +17165,24 @@
         ]
       }
     },
+    "src/services/smart-bid/content-tree-comparison.ts": {
+      "file": "files/src/services/smart-bid/content-tree-comparison.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content-tree-comparison",
+        "sourcePath": "src/services/smart-bid/content-tree-comparison.ts",
+        "sourceFile": "src/services/smart-bid/content-tree-comparison.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content-tree-comparison",
+        "jsdoc": "@module app:services/smart-bid/content-tree-comparison\n职责：对完整B/O/T内容树执行结构、身份、节点生命周期及同级顺序比较。\n边界：输出确定JSON诊断，不合并/保存，不核独立响应、外部引用、模板或采用授权。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentTreeLinkCheck",
+          "ContentTreeGeneratorCheck",
+          "ContentTreeComparisonInput",
+          "ContentTreeComparison"
+        ]
+      }
+    },
     "src/services/smart-bid/content-tree-draft-editor.ts": {
       "file": "files/src/services/smart-bid/content-tree-draft-editor.ts.json",
       "module": {
@@ -17194,6 +17225,133 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ContentStructureNode"
+        ]
+      }
+    },
+    "src/services/smart-bid/content/content-node-links.ts": {
+      "file": "files/src/services/smart-bid/content/content-node-links.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/content-node-links",
+        "sourcePath": "src/services/smart-bid/content/content-node-links.ts",
+        "sourceFile": "src/services/smart-bid/content/content-node-links.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/content-node-links",
+        "jsdoc": "@module app:services/smart-bid/content/content-node-links\n职责：按节点及表格格子的正式引用合同读取page/xref节点链接。\n边界：不解引用、不查询或保存；不覆盖独立响应、挂接、模板和来源引用。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentNodeLink",
+          "ContentNodeLinks"
+        ]
+      }
+    },
+    "src/services/smart-bid/content/content-scoped-preview.ts": {
+      "file": "files/src/services/smart-bid/content/content-scoped-preview.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/content-scoped-preview",
+        "sourcePath": "src/services/smart-bid/content/content-scoped-preview.ts",
+        "sourceFile": "src/services/smart-bid/content/content-scoped-preview.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/content-scoped-preview",
+        "jsdoc": "@module app:services/smart-bid/content/content-scoped-preview\n职责：组合完整三版比较与V2目标解析，核候选相对基准的实际差异是否越界。\n边界：纯JSON诊断，不合并/保存；响应仅核宿主提供的身份投影，载荷和当前授权仍另核。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentResponseChangeIdentity",
+          "ScopedContentPreviewInput",
+          "ContentScopeViolation",
+          "ScopedContentPreview"
+        ]
+      }
+    },
+    "src/services/smart-bid/content/content-target-scope.ts": {
+      "file": "files/src/services/smart-bid/content/content-target-scope.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/content-target-scope",
+        "sourcePath": "src/services/smart-bid/content/content-target-scope.ts",
+        "sourceFile": "src/services/smart-bid/content/content-target-scope.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/content-target-scope",
+        "jsdoc": "@module app:services/smart-bid/content/content-target-scope\n职责：解析V2内容目标，在固定基准树及独立作答清单上核归属与范围不重叠。\n边界：不查询、不授予权限；新增/移动差异、当前头及正式采用仍另行实核。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentTarget",
+          "ContentTargetScope",
+          "ContentScopeResponse",
+          "ContentTargetScopeInput",
+          "ResolvedContentTargetScope"
+        ]
+      }
+    },
+    "src/services/smart-bid/content/content-text-patch.ts": {
+      "file": "files/src/services/smart-bid/content/content-text-patch.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/content-text-patch",
+        "sourcePath": "src/services/smart-bid/content/content-text-patch.ts",
+        "sourceFile": "src/services/smart-bid/content/content-text-patch.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/content-text-patch",
+        "jsdoc": "@module app:services/smart-bid/content/content-text-patch\n职责：组合固定候选和预演头的文字片段，检查不重叠后同时生成文字预览。\n边界：不改正式节点/响应或绑定；预览坐标不是已采用修订的来源坐标。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentTextPatchObject",
+          "ContentTextPatchInput",
+          "ContentTextPatchPart",
+          "ContentTextPatch",
+          "ContentTextPatchPreview"
+        ]
+      }
+    },
+    "src/services/smart-bid/content/content-text-snapshot-preview.ts": {
+      "file": "files/src/services/smart-bid/content/content-text-snapshot-preview.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/content-text-snapshot-preview",
+        "sourcePath": "src/services/smart-bid/content/content-text-snapshot-preview.ts",
+        "sourceFile": "src/services/smart-bid/content/content-text-snapshot-preview.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/content-text-snapshot-preview",
+        "jsdoc": "@module app:services/smart-bid/content/content-text-snapshot-preview\n职责：把已定位文字差异临时物化到当前快照，复核完整内容树与未改绑定。\n边界：仅纯预演；响应只核文字投影，不创建新响应版或写入DataView。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentResponseTextSnapshot",
+          "ContentTextSnapshotInput",
+          "CheckedResponseText",
+          "ContentTextSnapshotPreview"
+        ]
+      }
+    },
+    "src/services/smart-bid/content/content-text-span.ts": {
+      "file": "files/src/services/smart-bid/content/content-text-span.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/content-text-span",
+        "sourcePath": "src/services/smart-bid/content/content-text-span.ts",
+        "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/content-text-span",
+        "jsdoc": "@module app:services/smart-bid/content/content-text-span\n职责：从固定版对象核V2原文片段坐标和原始UTF-8摘要，不重新搜索同文。\n边界：不改文字/绑定，不核权限或最终句意；仅供正式预演继续组合差异。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentTextOwner",
+          "ContentTextSpan",
+          "ContentTextSpanInput",
+          "VerifiedContentTextSpan"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/operation-choice-decision.ts": {
+      "file": "files/src/services/smart-bid/operation/operation-choice-decision.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/operation-choice-decision",
+        "sourcePath": "src/services/smart-bid/operation/operation-choice-decision.ts",
+        "sourceFile": "src/services/smart-bid/operation/operation-choice-decision.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/operation-choice-decision",
+        "jsdoc": "@module app:services/smart-bid/operation/operation-choice-decision\n职责：按同一次运行、目标和成果版本的条件取证裁决排他分支。\n边界：不解释when、不执行脚本、不查询或写入；不证明证据真实或授予业务决定权。\nAI用途：运行负责人交已核条件记录后，确定执行、待核、冲突或必办项阻断。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "OperationChoiceContext",
+          "OperationConditionEvaluation",
+          "OperationChoiceBranch",
+          "OperationChoiceInput",
+          "OperationChoiceDecision"
         ]
       }
     },
@@ -18122,6 +18280,23 @@
           "ContentAuthoringTarget",
           "ContentAuthoringBinding",
           "ContentAuthoringHost"
+        ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/content-revision-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/content-revision-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-revision-reader\n职责：在正文宿主的原运行实例内读取精确候选和当前头修订索引。\n边界：只查询原DataView，不复制修订、读取快照载荷或执行保存/采用；不提供并发提交保证。\nAI用途：正文预演先核项目头及精确索引，再沿snapshotHash读取已验证的完整快照资源。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentRevisionReadHost",
+          "ContentRevisionSelection",
+          "ContentRevisionReadBinding"
         ]
       }
     },
@@ -21805,6 +21980,10 @@
       "sourcePath": "packages/spark-component/src/components/fields/data-components/choice/FieldCheckboxGroup/FieldCheckboxGroup.props.ts",
       "file": "files/packages/spark-component/src/components/fields/data-components/choice/FieldCheckboxGroup/FieldCheckboxGroup.props.ts.json"
     },
+    "CheckedResponseText": {
+      "sourcePath": "src/services/smart-bid/content/content-text-snapshot-preview.ts",
+      "file": "files/src/services/smart-bid/content/content-text-snapshot-preview.ts.json"
+    },
     "ClassDeclarationMembers": {
       "sourcePath": "packages/spark-ai/src/class-model/class-model/types.ts",
       "file": "files/packages/spark-ai/src/class-model/class-model/types.ts.json"
@@ -22161,9 +22340,45 @@
       "sourcePath": "src/services/smart-bid/content-node-comparison.ts",
       "file": "files/src/services/smart-bid/content-node-comparison.ts.json"
     },
+    "ContentNodeLink": {
+      "sourcePath": "src/services/smart-bid/content/content-node-links.ts",
+      "file": "files/src/services/smart-bid/content/content-node-links.ts.json"
+    },
+    "ContentNodeLinks": {
+      "sourcePath": "src/services/smart-bid/content/content-node-links.ts",
+      "file": "files/src/services/smart-bid/content/content-node-links.ts.json"
+    },
     "ContentNodePresence": {
       "sourcePath": "src/services/smart-bid/content-node-comparison.ts",
       "file": "files/src/services/smart-bid/content-node-comparison.ts.json"
+    },
+    "ContentResponseChangeIdentity": {
+      "sourcePath": "src/services/smart-bid/content/content-scoped-preview.ts",
+      "file": "files/src/services/smart-bid/content/content-scoped-preview.ts.json"
+    },
+    "ContentResponseTextSnapshot": {
+      "sourcePath": "src/services/smart-bid/content/content-text-snapshot-preview.ts",
+      "file": "files/src/services/smart-bid/content/content-text-snapshot-preview.ts.json"
+    },
+    "ContentRevisionReadBinding": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts.json"
+    },
+    "ContentRevisionReadHost": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts.json"
+    },
+    "ContentRevisionSelection": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts.json"
+    },
+    "ContentScopeResponse": {
+      "sourcePath": "src/services/smart-bid/content/content-target-scope.ts",
+      "file": "files/src/services/smart-bid/content/content-target-scope.ts.json"
+    },
+    "ContentScopeViolation": {
+      "sourcePath": "src/services/smart-bid/content/content-scoped-preview.ts",
+      "file": "files/src/services/smart-bid/content/content-scoped-preview.ts.json"
     },
     "ContentSiblingOrderComparison": {
       "sourcePath": "src/services/smart-bid/content-sibling-order.ts",
@@ -22177,6 +22392,66 @@
       "sourcePath": "src/services/smart-bid/content-tree-structure.ts",
       "file": "files/src/services/smart-bid/content-tree-structure.ts.json"
     },
+    "ContentTarget": {
+      "sourcePath": "src/services/smart-bid/content/content-target-scope.ts",
+      "file": "files/src/services/smart-bid/content/content-target-scope.ts.json"
+    },
+    "ContentTargetScope": {
+      "sourcePath": "src/services/smart-bid/content/content-target-scope.ts",
+      "file": "files/src/services/smart-bid/content/content-target-scope.ts.json"
+    },
+    "ContentTargetScopeInput": {
+      "sourcePath": "src/services/smart-bid/content/content-target-scope.ts",
+      "file": "files/src/services/smart-bid/content/content-target-scope.ts.json"
+    },
+    "ContentTextOwner": {
+      "sourcePath": "src/services/smart-bid/content/content-text-span.ts",
+      "file": "files/src/services/smart-bid/content/content-text-span.ts.json"
+    },
+    "ContentTextPatch": {
+      "sourcePath": "src/services/smart-bid/content/content-text-patch.ts",
+      "file": "files/src/services/smart-bid/content/content-text-patch.ts.json"
+    },
+    "ContentTextPatchInput": {
+      "sourcePath": "src/services/smart-bid/content/content-text-patch.ts",
+      "file": "files/src/services/smart-bid/content/content-text-patch.ts.json"
+    },
+    "ContentTextPatchObject": {
+      "sourcePath": "src/services/smart-bid/content/content-text-patch.ts",
+      "file": "files/src/services/smart-bid/content/content-text-patch.ts.json"
+    },
+    "ContentTextPatchPart": {
+      "sourcePath": "src/services/smart-bid/content/content-text-patch.ts",
+      "file": "files/src/services/smart-bid/content/content-text-patch.ts.json"
+    },
+    "ContentTextPatchPreview": {
+      "sourcePath": "src/services/smart-bid/content/content-text-patch.ts",
+      "file": "files/src/services/smart-bid/content/content-text-patch.ts.json"
+    },
+    "ContentTextSnapshotInput": {
+      "sourcePath": "src/services/smart-bid/content/content-text-snapshot-preview.ts",
+      "file": "files/src/services/smart-bid/content/content-text-snapshot-preview.ts.json"
+    },
+    "ContentTextSnapshotPreview": {
+      "sourcePath": "src/services/smart-bid/content/content-text-snapshot-preview.ts",
+      "file": "files/src/services/smart-bid/content/content-text-snapshot-preview.ts.json"
+    },
+    "ContentTextSpan": {
+      "sourcePath": "src/services/smart-bid/content/content-text-span.ts",
+      "file": "files/src/services/smart-bid/content/content-text-span.ts.json"
+    },
+    "ContentTextSpanInput": {
+      "sourcePath": "src/services/smart-bid/content/content-text-span.ts",
+      "file": "files/src/services/smart-bid/content/content-text-span.ts.json"
+    },
+    "ContentTreeComparison": {
+      "sourcePath": "src/services/smart-bid/content-tree-comparison.ts",
+      "file": "files/src/services/smart-bid/content-tree-comparison.ts.json"
+    },
+    "ContentTreeComparisonInput": {
+      "sourcePath": "src/services/smart-bid/content-tree-comparison.ts",
+      "file": "files/src/services/smart-bid/content-tree-comparison.ts.json"
+    },
     "ContentTreeDraftEditor": {
       "sourcePath": "src/services/smart-bid/content-tree-draft-editor.ts",
       "file": "files/src/services/smart-bid/content-tree-draft-editor.ts.json"
@@ -22184,6 +22459,14 @@
     "ContentTreeEditorLayoutInput": {
       "sourcePath": "src/services/smart-bid/content-tree-editor-layout.ts",
       "file": "files/src/services/smart-bid/content-tree-editor-layout.ts.json"
+    },
+    "ContentTreeGeneratorCheck": {
+      "sourcePath": "src/services/smart-bid/content-tree-comparison.ts",
+      "file": "files/src/services/smart-bid/content-tree-comparison.ts.json"
+    },
+    "ContentTreeLinkCheck": {
+      "sourcePath": "src/services/smart-bid/content-tree-comparison.ts",
+      "file": "files/src/services/smart-bid/content-tree-comparison.ts.json"
     },
     "ContentVersionDelta": {
       "sourcePath": "src/services/smart-bid/content-node-comparison.ts",
@@ -25385,6 +25668,26 @@
       "sourcePath": "src/services/smart-bid/operation/operation-route-candidate.ts",
       "file": "files/src/services/smart-bid/operation/operation-route-candidate.ts.json"
     },
+    "OperationChoiceBranch": {
+      "sourcePath": "src/services/smart-bid/operation/operation-choice-decision.ts",
+      "file": "files/src/services/smart-bid/operation/operation-choice-decision.ts.json"
+    },
+    "OperationChoiceContext": {
+      "sourcePath": "src/services/smart-bid/operation/operation-choice-decision.ts",
+      "file": "files/src/services/smart-bid/operation/operation-choice-decision.ts.json"
+    },
+    "OperationChoiceDecision": {
+      "sourcePath": "src/services/smart-bid/operation/operation-choice-decision.ts",
+      "file": "files/src/services/smart-bid/operation/operation-choice-decision.ts.json"
+    },
+    "OperationChoiceInput": {
+      "sourcePath": "src/services/smart-bid/operation/operation-choice-decision.ts",
+      "file": "files/src/services/smart-bid/operation/operation-choice-decision.ts.json"
+    },
+    "OperationConditionEvaluation": {
+      "sourcePath": "src/services/smart-bid/operation/operation-choice-decision.ts",
+      "file": "files/src/services/smart-bid/operation/operation-choice-decision.ts.json"
+    },
     "OperationDataValue": {
       "sourcePath": "src/services/smart-bid/operation/operation-route-candidate.ts",
       "file": "files/src/services/smart-bid/operation/operation-route-candidate.ts.json"
@@ -26361,6 +26664,10 @@
       "sourcePath": "packages/spark-component/src/page/actions/button-templates.ts",
       "file": "files/packages/spark-component/src/page/actions/button-templates.ts.json"
     },
+    "ResolvedContentTargetScope": {
+      "sourcePath": "src/services/smart-bid/content/content-target-scope.ts",
+      "file": "files/src/services/smart-bid/content/content-target-scope.ts.json"
+    },
     "ResolvedDataViewCapabilities": {
       "sourcePath": "packages/spark-data/src/core/data-view-key.ts",
       "file": "files/packages/spark-data/src/core/data-view-key.ts.json"
@@ -26780,6 +27087,14 @@
     "ScenarioViewWriteNotAppliedError": {
       "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
       "file": "files/packages/spark-project-model/src/scenario/scenario-view-file.ts.json"
+    },
+    "ScopedContentPreview": {
+      "sourcePath": "src/services/smart-bid/content/content-scoped-preview.ts",
+      "file": "files/src/services/smart-bid/content/content-scoped-preview.ts.json"
+    },
+    "ScopedContentPreviewInput": {
+      "sourcePath": "src/services/smart-bid/content/content-scoped-preview.ts",
+      "file": "files/src/services/smart-bid/content/content-scoped-preview.ts.json"
     },
     "ScriptContext": {
       "sourcePath": "packages/spark-component/src/runtime/script-context-types.ts",
@@ -27612,6 +27927,10 @@
     "ValueRef": {
       "sourcePath": "packages/spark-component/src/components/shared-types.ts",
       "file": "files/packages/spark-component/src/components/shared-types.ts.json"
+    },
+    "VerifiedContentTextSpan": {
+      "sourcePath": "src/services/smart-bid/content/content-text-span.ts",
+      "file": "files/src/services/smart-bid/content/content-text-span.ts.json"
     },
     "ViewChangeHandlers": {
       "sourcePath": "packages/spark-data/src/types.ts",

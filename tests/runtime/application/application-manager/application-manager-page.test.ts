@@ -366,12 +366,22 @@ describe('application manager restored with standard components and formal DataV
     expect(http.saves).toHaveLength(0)
   })
 
-  it('enters the application and its project management page through the project switch', async () => {
+  it('enters project management through the guarded application route', async () => {
     const {wrapper, router, switchAndReload} = await open()
     rowButtonFor(wrapper, 'needle description', '项目管理').click(); await settle()
-    expect(switchAndReload).toHaveBeenCalledWith('APP-1')
+    expect(switchAndReload).not.toHaveBeenCalled()
     expect(router.currentRoute.value.path).toBe('/apps/APP-1/features/application/application-function-management/ui/application-function-page')
     expect(Object.values(router.currentRoute.value.query)).toContain('7AB874097A1E8711A42FD845939A6E05')
+    expect(http.saves).toHaveLength(0)
+  })
+  it('does not preselect another application when project navigation is cancelled', async () => {
+    const {wrapper, router, switchAndReload} = await open()
+    const original = router.currentRoute.value.fullPath
+    router.beforeEach(() => false)
+    rowButtonFor(wrapper, 'needle description', '项目管理').click(); await settle()
+    expect(switchAndReload).not.toHaveBeenCalled()
+    expect(router.currentRoute.value.fullPath).toBe(original)
+    expect(pageUi.showMessage).toHaveBeenCalledWith(expect.stringContaining('导航未完成'), 'error')
     expect(http.saves).toHaveLength(0)
   })
 

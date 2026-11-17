@@ -126,6 +126,32 @@ function deferred<T>(): Readonly<{
 }
 
 describe('LowcodePlatformApi', () => {
+  it('rejects a changed host condition before saving the selected application', async () => {
+    const api = authenticatedFileApi(new FixtureHttpClient({}))
+    const gate = deferred<string>()
+    api.navigationRootReader.mockImplementation(() => gate.promise)
+    const previous = api.application.get(), revision = api.application.revision
+    const save = vi.spyOn(api.application, 'save')
+    let dirty = false
+    const selection = api.platform.activateApplication('APP-B', undefined, () => {
+      if (dirty) throw new Error('pending edits')
+    })
+    await vi.waitFor(() => expect(api.navigationRootReader).toHaveBeenCalledOnce())
+    dirty = true
+    gate.resolve('ROOT-B')
+    await expect(selection).rejects.toThrow('pending edits')
+    expect(save).not.toHaveBeenCalled()
+    expect(api.application.get()).toEqual(previous)
+    expect(api.application.revision).toBe(revision)
+  })
+  it('rechecks selection intent after the synchronous host condition', async () => {
+    const api = authenticatedFileApi(new FixtureHttpClient({}))
+    const save = vi.spyOn(api.application, 'save')
+    await expect(api.platform.activateApplication('APP-B', undefined, () => {
+      api.platform.cancelPendingApplicationSelection()
+    })).rejects.toThrow()
+    expect(save).not.toHaveBeenCalled()
+  })
   it('uses the host-injected navigation-root DataView reader during object selection', async () => {
     const http = new FixtureHttpClient({Code: 200, Result: {Items: [{rowid: 'LEGACY-ROOT'}]}})
     const readNavigationRootId = vi.fn(async (systemId: string, assertCurrent: () => void) => {

@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/content-node-links",
+    "sourcePath": "src/services/smart-bid/content/content-node-links.ts",
+    "sourceFile": "src/services/smart-bid/content/content-node-links.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/content-node-links",
+    "jsdoc": "@module app:services/smart-bid/content/content-node-links\n职责：按节点及表格格子的正式引用合同读取page/xref节点链接。\n边界：不解引用、不查询或保存；不覆盖独立响应、挂接、模板和来源引用。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentNodeLink",
+      "ContentNodeLinks"
+    ]
+  },
+  "$defs": {
+    "ContentNodeLink": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentNodeLink",
+      "properties": {
+        "ownerNodeId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "kind": {
+          "enum": [
+            "page",
+            "xref"
+          ]
+        },
+        "targetNodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ownerNodeId",
+        "path",
+        "kind",
+        "targetNodeId"
+      ],
+      "additionalProperties": false
+    },
+    "ContentNodeLinks": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentNodeLinks",
+      "properties": {
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentNodeLink"
+          }
+        },
+        "requiresTableGeneratorCheck": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "links",
+        "requiresTableGeneratorCheck"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T09:28:06.655Z",
+  "models": {
+    "ContentNodeLink": {
+      "name": "ContentNodeLink",
+      "jsdoc": "原节点身份和JSON路径；保留精确目标身份，不用NFC替换引用对象。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    ownerNodeId: string;\n    path: readonly string[];\n    kind: 'page' | 'xref';\n    targetNodeId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    ownerNodeId: string;\n    path: readonly string[];\n    kind: 'page' | 'xref';\n    targetNodeId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "ownerNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetNodeId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentNodeLinks": {
+      "name": "ContentNodeLinks",
+      "jsdoc": "空计算表须另核模板类；没有链接不等于所有领域引用已核。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    links: readonly ContentNodeLink[];\n    requiresTableGeneratorCheck: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    links: readonly ContentNodeLink[];\n    requiresTableGeneratorCheck: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "links",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresTableGeneratorCheck",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

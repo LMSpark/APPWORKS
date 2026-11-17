@@ -1,0 +1,387 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/operation-choice-decision",
+    "sourcePath": "src/services/smart-bid/operation/operation-choice-decision.ts",
+    "sourceFile": "src/services/smart-bid/operation/operation-choice-decision.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/operation-choice-decision",
+    "jsdoc": "@module app:services/smart-bid/operation/operation-choice-decision\n职责：按同一次运行、目标和成果版本的条件取证裁决排他分支。\n边界：不解释when、不执行脚本、不查询或写入；不证明证据真实或授予业务决定权。\nAI用途：运行负责人交已核条件记录后，确定执行、待核、冲突或必办项阻断。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "OperationChoiceContext",
+      "OperationConditionEvaluation",
+      "OperationChoiceBranch",
+      "OperationChoiceInput",
+      "OperationChoiceDecision"
+    ]
+  },
+  "$defs": {
+    "OperationChoiceContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OperationChoiceContext",
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "artifactHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "runId",
+        "targetId",
+        "artifactHash"
+      ],
+      "additionalProperties": false
+    },
+    "OperationConditionEvaluation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OperationConditionEvaluation",
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "artifactHash": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "CURRENT",
+            "PENDING",
+            "MISSING",
+            "STALE"
+          ]
+        },
+        "value": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "runId",
+        "targetId",
+        "artifactHash",
+        "state",
+        "value",
+        "evidenceRefs"
+      ],
+      "additionalProperties": false
+    },
+    "OperationChoiceBranch": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OperationChoiceBranch",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "required": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "evaluation": {
+          "$ref": "#/$defs/OperationConditionEvaluation"
+        }
+      },
+      "required": [
+        "id",
+        "required",
+        "evaluation"
+      ],
+      "additionalProperties": false
+    },
+    "OperationChoiceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OperationChoiceInput",
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "artifactHash": {
+          "type": "string"
+        },
+        "branches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OperationChoiceBranch"
+          }
+        }
+      },
+      "required": [
+        "runId",
+        "targetId",
+        "artifactHash",
+        "branches"
+      ],
+      "additionalProperties": false
+    },
+    "OperationChoiceDecision": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "OperationChoiceDecision",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "const": "EXECUTE"
+            },
+            "selectedBranchId": {
+              "type": "string"
+            },
+            "skippedBranchIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "status",
+            "selectedBranchId",
+            "skippedBranchIds"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "const": "SKIP"
+            },
+            "skippedBranchIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "status",
+            "skippedBranchIds"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": [
+                "REQUIRED",
+                "CONFLICT",
+                "WAIT"
+              ]
+            },
+            "branchIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "status",
+            "branchIds"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-17T11:31:03.696Z",
+  "models": {
+    "OperationChoiceContext": {
+      "name": "OperationChoiceContext",
+      "jsdoc": "运行条件的固定使用对象；artifactHash属于本次稿，不借用历史检查。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    runId: string;\n    targetId: string;\n    artifactHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    runId: string;\n    targetId: string;\n    artifactHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "artifactHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "OperationConditionEvaluation": {
+      "name": "OperationConditionEvaluation",
+      "jsdoc": "条件解释器或检查责任方的结果；未知不转成false，引用仍须由正式记录解析。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "OperationChoiceContext & Readonly<{\n    state: 'CURRENT' | 'PENDING' | 'MISSING' | 'STALE';\n    value: boolean | null;\n    evidenceRefs: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "OperationChoiceContext",
+            "targetName": "OperationChoiceContext"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    state: 'CURRENT' | 'PENDING' | 'MISSING' | 'STALE';\n    value: boolean | null;\n    evidenceRefs: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "evidenceRefs",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "OperationChoiceBranch": {
+      "name": "OperationChoiceBranch",
+      "jsdoc": "required表示本次子树存在必办义务，须由路线及本次适用性核定，不只看容器自身。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    required: boolean;\n    evaluation: OperationConditionEvaluation;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    required: boolean;\n    evaluation: OperationConditionEvaluation;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "required",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "evaluation",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "OperationChoiceInput": {
+      "name": "OperationChoiceInput",
+      "jsdoc": "branches顺序是已核路线index顺序，不按字母或证据时间另排。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "OperationChoiceContext & Readonly<{\n    branches: readonly OperationChoiceBranch[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "OperationChoiceContext",
+            "targetName": "OperationChoiceContext"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    branches: readonly OperationChoiceBranch[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "branches",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "OperationChoiceDecision": {
+      "name": "OperationChoiceDecision",
+      "jsdoc": "纯裁决结果；EXECUTE仍须由运行负责人核交接并派发，不是已执行凭据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    status: 'EXECUTE';\n    selectedBranchId: string;\n    skippedBranchIds: readonly string[];\n}> | Readonly<{\n    status: 'SKIP';\n    skippedBranchIds: readonly string[];\n}> | Readonly<{\n    status: 'WAIT' | 'CONFLICT' | 'REQUIRED';\n    branchIds: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    status: 'EXECUTE';\n    selectedBranchId: string;\n    skippedBranchIds: readonly string[];\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    status: 'SKIP';\n    skippedBranchIds: readonly string[];\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    status: 'WAIT' | 'CONFLICT' | 'REQUIRED';\n    branchIds: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

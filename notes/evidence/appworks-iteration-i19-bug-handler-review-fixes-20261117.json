@@ -1,0 +1,31 @@
+{
+  "scope": "I19 reviewer corrections",
+  "previous": "appworks-iteration-i19-bug-handler-read-proof-20261117.json",
+  "fixes": [
+    "Use local interaction error ref plus read-only combined error display",
+    "Returning to original handler restores original readable name with original row proof"
+  ],
+  "checks": {
+    "tests": {
+      "files": 2,
+      "tests": 31,
+      "exit": 0,
+      "log": "cache/i19-final-r2.log"
+    },
+    "lint": 0,
+    "typecheck": 0
+  },
+  "priorTypecheckFailure": "TS2540 readonly error value; corrected without cast",
+  "sourceHashes": [
+    {
+      "path": "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue",
+      "sha256": "d8a2fabf6453f7fc9ab8a37326b5abd1feeec456aebc07ca8247c7cdeac4ad55"
+    },
+    {
+      "path": "tests/runtime/application/bug/bug-detail-dialog.test.ts",
+      "sha256": "0cd494c7031e71a015d3a13691f467b3d1993daf0aa0d6268b5ccfd266eab12e"
+    }
+  ],
+  "browserSmoke": false,
+  "commitPending": true
+}

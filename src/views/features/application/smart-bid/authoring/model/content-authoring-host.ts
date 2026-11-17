@@ -10,6 +10,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
+import {readContentRevisions,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
 
 /** 导航宿主核实的应用、页面和数据空间，以及本次明确选中的业务目标。作者不由调用参数提供。 */
 export type ContentAuthoringTarget = Readonly<{
@@ -19,6 +20,8 @@ export type ContentAuthoringTarget = Readonly<{
 export type ContentAuthoringBinding = Readonly<{
  runtime:PageRuntime; dataViewKey:string; projectId:string; draftId:string; actorUserId:string
  assertCurrent:()=>void; setPending:(value:boolean)=>void
+ /** 查询原候选/头修订索引；完整快照与采用另核。 */
+ readRevisions:(selection:ContentRevisionSelection)=>Promise<ContentRevisionReadBinding>
 }>
 
 function scoped(view:DataView, field:string, parameter:string):boolean {
@@ -34,6 +37,10 @@ function validScope(project:DataView,draft:DataView):boolean {
  return project.dataTable?.modelBinding?.modelName==='ContentProject'
   && draft.dataTable?.modelBinding?.modelName==='WorkingDraft' && draft.commitMode==='staged'
   && scoped(project,'projectId','projectId') && scoped(draft,'projectId','projectId') && scoped(draft,'userId','currentUserId')
+}
+function readableProject(view:DataView,projectId:string):boolean {
+ const row=view.rows[0]
+ return view.rows.length===1&&row?.['projectId']===projectId&&view.fieldAccess(row,'projectId').read==='visible'
 }
 
 /** 一次正文编制宿主；未保存输入/原视图编辑均阻止换目标，过期装配不能发布新绑定。 */
@@ -67,14 +74,15 @@ export class ContentAuthoringHost {
    const runtime=this.#session.acquire({pageId:target.pageId,scenarioIds:[target.scenarioId],targetId:key,
     scenarioInputs:{[target.scenarioId]:{projectId:target.projectId,currentUserId:actorUserId}},
     loadScenario:scenarioId=>loadLowcodeRuntimeScenario({projectId:target.applicationId,scenarioId})})
-   let views:DataView[]=[]
+   let views:DataView[]=[],loaded=false
    const assertCurrent=()=>{
     const current=lowcodeApi.readRequestScope()
     const [project,draft]=views
     if(own!==this.#generation||!this.#session.isCurrent(runtime)||current.token!==scope.token
      ||current.headers['X-AppId']!==target.applicationId||lowcodeApi.session.get()?.identity.userId!==actorUserId
      ||views.some(view=>view.queryContext['projectId']!==target.projectId||view.queryContext['currentUserId']!==actorUserId)
-     ||views.length>0 && (!project||!draft||!validScope(project,draft)))
+     ||views.length>0 && (!project||!draft||!validScope(project,draft))
+     ||loaded && (!project||!readableProject(project,target.projectId)))
      throw Error('CONTENT_AUTHORING_STALE: 正文编制的会话或目标已失效')
    }
    await runtime.load();assertCurrent()
@@ -87,13 +95,15 @@ export class ContentAuthoringHost {
    const failed=views.find(view=>view.loadingError)
    if(failed?.loadingError)throw failed.loadingError
    const row=draft.getEditingRow(target.draftId)
-   if(project.rows.length!==1||project.rows[0]?.['projectId']!==target.projectId
+   if(!readableProject(project,target.projectId)
     ||row?.['projectId']!==target.projectId||row['userId']!==actorUserId
     ||draft.fieldAccess(row,'projectId').read!=='visible'||draft.fieldAccess(row,'userId').read!=='visible')
     throw Error('CONTENT_AUTHORING_TARGET_UNAVAILABLE: 本项目或当前作者的指定草稿不可读取')
+   loaded=true
    const binding:ContentAuthoringBinding=Object.freeze({runtime,
     dataViewKey:buildDataViewKey('WorkingDraft','personalDraft',target.scenarioId),
     projectId:target.projectId,draftId:target.draftId,actorUserId,assertCurrent,
+    readRevisions:selection=>readContentRevisions({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
     setPending:(value:boolean)=>{
      if(own!==this.#generation||!this.#session.isCurrent(runtime))return
      // 失效只能保留未写回输入的保护；旧回调不能清除它并放行销毁。

@@ -1,8 +1,8 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
-import ElementPlus from 'element-plus'
+import ElementPlus, {ElButton, ElTable, ElTableColumn} from 'element-plus'
 import {RequestState} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {RendererButton, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
@@ -25,6 +25,7 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
 
 const {default: DimensionDesignPage} = await import('@/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue')
 const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = []
+const originalStubs = {...config.global.stubs}
 beforeEach(() => {
   registerAllRenderers()
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
@@ -35,9 +36,11 @@ afterEach(() => {
   state.runtime = undefined
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
+  config.global.stubs = {...originalStubs}
 })
 
 type OpenOptions = Readonly<{
+  realRender?: boolean
   existing?: boolean
   preload?: boolean
   tab?: string
@@ -65,11 +68,18 @@ async function open(options: OpenOptions = {}) {
     ]}), componentMap: {'/dimension': DimensionDesignPage, '/clean': clean}})
   await dynamic.registerRoutes()
   await router.push('/dimension')
+  if (options.realRender) {
+    const stubs = {...originalStubs}
+    for (const name of ['el-table', 'el-table-column', 'el-button', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[name]
+    config.global.stubs = stubs
+  }
   const wrapper = mount(defineComponent({setup: () => {
     provideTestPageService(router)
     return () => h(RouterView)
   }}), {
-    attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]},
+    attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()],
+      ...(options.realRender ? {stubs: {'el-table': ElTable, 'el-table-column': ElTableColumn, 'el-button': ElButton,
+        SparkComponentRenderer: false, 'spark-component-renderer': false}} : {})},
   })
   wrappers.push(wrapper)
   await flushPromises()
@@ -95,6 +105,71 @@ async function open(options: OpenOptions = {}) {
 }
 
 describe('维度规则页面入口与生命周期', () => {
+  it('实际标准表行按钮传递原生行并打开事件锚点所属应用节点', async () => {
+    vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
+    const f = await open({realRender: true, preload: false, tab: '事件合同', prepare: fixture => {
+      fixture.http.records['Bil_Dimension_Source_Binding'] = [
+        {id: 'A', binding_code: '事件锚点', event_code: 'expense', source_application_id: 'APP-B', source_node_id: 'SAME-NODE'},
+      ]
+    }})
+    f.events.setCurrentRowById('EVENT1')
+    const eventBindings = f.dataSet.getView('Bil_Dimension_Source_Binding', 'byEvent')
+    await vi.waitFor(() => expect(eventBindings?.rows).toHaveLength(1))
+    const push = vi.spyOn(f.router, 'push').mockResolvedValue(undefined)
+    const button = f.wrapper.findAll('button').find(item => item.text().includes('打开节点'))
+    if (!button) throw new Error(`标准行按钮缺失；来源明细=${eventBindings?.rows.length}`)
+    await button.trigger('click')
+    await flushPromises()
+    expect(push).toHaveBeenCalledWith({
+      path: '/apps/APP-B/features/application/application-function-management/ui/application-function-page',
+      query: {__sparkNavigationId: '7AB874097A1E8711A42FD845939A6E05', nodeId: 'SAME-NODE', blueprintTab: 'dataSpace'},
+    })
+    expect(f.http.saves).toHaveLength(0)
+  })
+  it.each(['hidden', 'missing', 'copy', 'stale', 'path'] as const)('来源身份%s时不派发导航', async kind => {
+    const f = await open({preload: false, tab: '来源锚点', prepare: fixture => {
+      if (kind === 'hidden') fixture.http.hiddenFields['Bil_Dimension_Source_Binding'] = ['source_application_id']
+      fixture.http.records['Bil_Dimension_Source_Binding'] = [
+        {id: 'A', source_application_id: kind === 'path' ? 'APP/OTHER' : 'APP-A', source_node_id: kind === 'missing' ? '' : 'NODE-A'},
+      ]
+    }})
+    const table = f.wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey') === keys.binding)
+    const original = f.bindings.rows[0]
+    const action = table?.props('actions')?.children?.find(item => typeof item === 'object' && item !== null && item.props?.['label'] === '打开节点')
+    if (!original || !action || typeof action !== 'object' || typeof action.props?.['onClick'] !== 'function') throw new Error('来源节点入口缺失')
+    if (kind === 'stale') await f.bindings.refresh()
+    const push = vi.spyOn(f.router, 'push').mockResolvedValue(undefined)
+    action.props['onClick'](kind === 'copy' ? {...original} : original)
+    await flushPromises()
+    expect(push).not.toHaveBeenCalled()
+    expect(f.wrapper.text()).toContain('打开来源节点失败')
+    expect(f.http.saves).toHaveLength(0)
+  })
+  it('来源锚点按原查询的应用与节点进入正式蓝图数据空间', async () => {
+    const f = await open({preload: false, tab: '来源锚点', prepare: fixture => {
+      fixture.http.records['Bil_Dimension_Source_Binding'] = [
+        {id: 'A', binding_code: '锚点', source_application_id: 'APP-A', source_node_id: 'NODE-A'},
+      ]
+    }})
+    const table = f.wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey') === keys.binding)
+    const row = f.bindings.rows[0]
+    const action = table?.props('actions')?.children?.find(item => typeof item === 'object' && item !== null && item.props?.['label'] === '打开节点')
+    if (!row || !action || typeof action !== 'object' || typeof action.props?.['onClick'] !== 'function') throw new Error('来源节点入口缺失')
+    const push = vi.spyOn(f.router, 'push').mockResolvedValue(undefined)
+    action.props['onClick'](row)
+    await flushPromises()
+    expect(push).toHaveBeenCalledWith({
+      path: '/apps/APP-A/features/application/application-function-management/ui/application-function-page',
+      query: {__sparkNavigationId: '7AB874097A1E8711A42FD845939A6E05', nodeId: 'NODE-A', blueprintTab: 'dataSpace'},
+    })
+    expect(f.http.saves).toHaveLength(0)
+    push.mockClear()
+    await f.bindings.refresh()
+    action.props['onClick'](row)
+    await flushPromises()
+    expect(push).not.toHaveBeenCalled()
+  })
+
   it('新规则和结果在一个编辑器提交，草稿期间阻止路由切换', async () => {
     const f = await open()
     await f.click('新增规则')
@@ -161,6 +236,24 @@ describe('维度规则页面入口与生命周期', () => {
     expect(f.http.saves).toHaveLength(3)
   })
 })
+  it('来源节点导航取消保留原行且不写数据', async () => {
+    const f = await open({preload: false, tab: '来源锚点', prepare: fixture => {
+      fixture.http.records['Bil_Dimension_Source_Binding'] = [
+        {id: 'A', binding_code: '锚点', source_application_id: 'APP-A', source_node_id: 'NODE-A'},
+      ]
+    }})
+    const original = f.bindings.rows[0]
+    vi.spyOn(f.router, 'push').mockRejectedValue(new Error('导航取消'))
+    const table = f.wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey') === keys.binding)
+    const action = table?.props('actions')?.children?.find(item => typeof item === 'object' && item !== null && item.props?.['label'] === '打开节点')
+    if (!original || !action || typeof action !== 'object' || typeof action.props?.['onClick'] !== 'function') throw new Error('来源节点入口缺失')
+    action.props['onClick'](original)
+    await flushPromises()
+    expect(f.wrapper.text()).toContain('导航取消')
+    expect(f.bindings.rows[0]).toBe(original)
+    expect(f.http.saves).toHaveLength(0)
+    expect(f.router.currentRoute.value.path).toBe('/dimension')
+  })
 
 describe('维度工作区查询与主从身份', () => {
   it('首开只读来源锚点，访问工作区才加载所需视图', async () => {

@@ -23,6 +23,7 @@
   </RendererDialog>
 </template>
 <script setup lang="ts">
+import {computed,ref} from 'vue'
 import * as Components from '@spark-appworks/spark-component'
 import type {DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
 const {PAGE_RUNTIME,RendererDialog,RendererForm,RendererButton,FieldText,FieldSelect,FieldRadio,FieldHtmlEditor,useSparkComponent,useDataViewRecordEditing}=Components
@@ -30,17 +31,38 @@ const props=defineProps<{dataViewKey:string;recordId:string|number;systemKey:str
 const emit=defineEmits<{close:[result:DataViewRecordEditingFinish]}>()
 const {sparkConsume}=useSparkComponent({type:'bug-detail-dialog'})
 const runtime=()=>sparkConsume(PAGE_RUNTIME)
-const {view,row,busy,current,locked,error,ownUnconfirmed,foreignRecovery,recoveryEnded,hasStaged,save,cancel}=useDataViewRecordEditing({mode:'edit',runtime,dataViewKey:()=>props.dataViewKey,recordId:()=>props.recordId,
+const {view,row,busy,current,locked,error:recordError,ownUnconfirmed,foreignRecovery,recoveryEnded,hasStaged,save,cancel}=useDataViewRecordEditing({mode:'edit',runtime,dataViewKey:()=>props.dataViewKey,recordId:()=>props.recordId,
   editableFields:['Title','SystemID','FkType','CompleteUserID','CompleteUserName','State','FormPath','Content'],onFinish:result=>emit('close',result)})
+const submitError=ref('')
+const error=computed(()=>submitError.value||recordError.value)
 
 // 原数据把处理人姓名冗余在CompleteUserName，保存前按所选用户行同步。
 async function submit():Promise<void>{
-  if(!ownUnconfirmed.value&&current.value){
-    const selected=row.value?.['CompleteUserID'],users=runtime()?.resolveView(props.userKey)
-    const user=selected===undefined||selected===null||selected===''?undefined:users?.rows.find(item=>String(item['ID'])===String(selected))
-    const name=user?user['UserName']:selected?undefined:''
-    if(name!==undefined&&name!==row.value?.['CompleteUserName'])view.updateEditingValue(props.recordId,'CompleteUserName',name)
-  }
-  await save()
+  submitError.value=''
+  try{
+    if(!ownUnconfirmed.value&&current.value){
+      const selected=row.value?.['CompleteUserID']
+      const original=view.rows.find(item=>view.getPkKey(item)===props.recordId)
+      if(original&&selected===original['CompleteUserID']&&row.value?.['CompleteUserName']!==original['CompleteUserName']){
+        view.captureReadRow(original,['CompleteUserID','CompleteUserName'])()
+        view.updateEditingValue(props.recordId,'CompleteUserName',original['CompleteUserName'])
+      }
+      if(selected!==original?.['CompleteUserID']){
+        let name:unknown=''
+        if(selected!==undefined&&selected!==null&&selected!==''){
+          const users=runtime()?.resolveView(props.userKey)
+          const matches=users?.rows.filter(item=>item['ID']===selected)??[]
+          if(!users||matches.length!==1)throw new Error('处理人选项已变化，请重新查询并选择')
+          const user=matches[0]!
+          const assertCurrent=users.captureReadRow(user,['ID','UserName'])
+          name=user['UserName']
+          if(typeof name!=='string')throw new Error('处理人姓名缺失或无效')
+          assertCurrent()
+        }
+        if(name!==row.value?.['CompleteUserName'])view.updateEditingValue(props.recordId,'CompleteUserName',name)
+      }
+    }
+    await save()
+  }catch(cause){submitError.value=cause instanceof Error?cause.message:String(cause)}
 }
 </script>

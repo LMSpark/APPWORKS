@@ -553,6 +553,10 @@
             "signal": {
               "type": "object",
               "title": "AbortSignal"
+            },
+            "beforeCommit": {
+              "type": "object",
+              "title": "() => void"
             }
           },
           "additionalProperties": false
@@ -578,7 +582,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-13T03:37:29.042Z",
+  "generatedAt": "2026-11-17T11:23:46.711Z",
   "models": {
     "LowcodeLoginCredentials": {
       "name": "LowcodeLoginCredentials",
@@ -1384,7 +1388,7 @@
             },
             {
               "name": "activateApplication",
-              "jsdoc": "拉取目录、解析唯一应用并提交应用+导航根；receipt用于await恢复后的同步复核。",
+              "jsdoc": "拉取目录、解析唯一应用并提交应用+导航根；receipt用于await恢复后的同步复核。\n@param beforeCommit 所有异步读取完成后、保存应用会话前同步复核宿主条件；抛错则不保存，不能传异步函数。",
               "parameters": [
                 {
                   "name": "applicationId",
@@ -1398,6 +1402,26 @@
                   "type": {
                     "type": "reference",
                     "name": "AbortSignal"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "beforeCommit",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
                   },
                   "flags": {
                     "isOptional": true

@@ -392,15 +392,21 @@ const projectSwitchService: ProjectSwitchService = {
 
 async function commitProjectSelection(projectId: string, intent: number): Promise<LowcodeApplicationSelectionReceipt> {
   const dynamic = getDynamicRouter()
+  const beforeCommit = (): void => {
+    if (intent !== projectSwitchIntent) throw new Error('APP_PROJECT_SWITCH_STALE: 项目切换已失效，请重新选择。')
+    dynamic?.assertPageRuntimesClean()
+  }
+  beforeCommit()
   const ownerReceipt = projectId === APPLICATION_CATALOG_PROJECT_ID
     ? enterLowcodeApplicationCatalog()
-    : await activateLowcodeApplication(projectId)
+    : await activateLowcodeApplication(projectId, undefined, beforeCommit)
   const assertCurrent = (): void => {
     if (intent !== projectSwitchIntent) throw new Error('APP_PROJECT_SWITCH_STALE: 项目切换已失效，请重新选择。')
     ownerReceipt.assertCurrent()
   }
   const receipt: LowcodeApplicationSelectionReceipt = Object.freeze({ assertCurrent })
   receipt.assertCurrent()
+  dynamic?.assertPageRuntimesClean()
   dynamic?.resetSystemPageInstances()
   dynamic?.disposePageRuntimes()
   activeProjectId.value = projectId

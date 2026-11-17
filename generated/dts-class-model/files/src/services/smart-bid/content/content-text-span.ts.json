@@ -1,0 +1,376 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/content-text-span",
+    "sourcePath": "src/services/smart-bid/content/content-text-span.ts",
+    "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/content-text-span",
+    "jsdoc": "@module app:services/smart-bid/content/content-text-span\n职责：从固定版对象核V2原文片段坐标和原始UTF-8摘要，不重新搜索同文。\n边界：不改文字/绑定，不核权限或最终句意；仅供正式预演继续组合差异。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentTextOwner",
+      "ContentTextSpan",
+      "ContentTextSpanInput",
+      "VerifiedContentTextSpan"
+    ]
+  },
+  "$defs": {
+    "ContentTextOwner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ContentTextOwner",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "NODE"
+            },
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "nodeId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "RESPONSE"
+            },
+            "assignmentId": {
+              "type": "string"
+            },
+            "responseId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "assignmentId",
+            "responseId"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ContentTextSpan": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTextSpan",
+      "properties": {
+        "schemaVersion": {
+          "const": 2
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "owner": {
+          "$ref": "#/$defs/ContentTextOwner"
+        },
+        "path": {
+          "type": "string"
+        },
+        "start": {
+          "type": "number"
+        },
+        "end": {
+          "type": "number"
+        },
+        "unit": {
+          "const": "utf16"
+        },
+        "textDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "projectId",
+        "revisionId",
+        "owner",
+        "path",
+        "start",
+        "end",
+        "unit",
+        "textDigest"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTextSpanInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTextSpanInput",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "owner": {
+          "$ref": "#/$defs/ContentTextOwner"
+        },
+        "object": true,
+        "reference": true,
+        "mode": {
+          "enum": [
+            "TEXT",
+            "INSERTION"
+          ]
+        }
+      },
+      "required": [
+        "projectId",
+        "revisionId",
+        "owner",
+        "object",
+        "reference",
+        "mode"
+      ],
+      "additionalProperties": false
+    },
+    "VerifiedContentTextSpan": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "VerifiedContentTextSpan",
+      "properties": {
+        "reference": {
+          "$ref": "#/$defs/ContentTextSpan"
+        },
+        "text": {
+          "type": "string"
+        },
+        "containerText": {
+          "type": "string"
+        },
+        "containsPlaceholders": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "requiresFieldBindingChecks": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "requiresCurrentAuthorityChecks": {
+          "const": true
+        }
+      },
+      "required": [
+        "reference",
+        "text",
+        "containerText",
+        "containsPlaceholders",
+        "requiresFieldBindingChecks",
+        "requiresCurrentAuthorityChecks"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T09:51:01.629Z",
+  "models": {
+    "ContentTextOwner": {
+      "name": "ContentTextOwner",
+      "jsdoc": "内容坐标与原件fragmentRef分开，响应不能冒充正文节点。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'NODE';\n    nodeId: string;\n}> | Readonly<{\n    kind: 'RESPONSE';\n    assignmentId: string;\n    responseId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'NODE';\n    nodeId: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'RESPONSE';\n    assignmentId: string;\n    responseId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTextSpan": {
+      "name": "ContentTextSpan",
+      "jsdoc": "同一固定版本内的原串坐标；摘要不进行NFC、去空白或换行转换。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    schemaVersion: 2;\n    projectId: string;\n    revisionId: string;\n    owner: ContentTextOwner;\n    path: string;\n    start: number;\n    end: number;\n    unit: 'utf16';\n    textDigest: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    schemaVersion: 2;\n    projectId: string;\n    revisionId: string;\n    owner: ContentTextOwner;\n    path: string;\n    start: number;\n    end: number;\n    unit: 'utf16';\n    textDigest: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "schemaVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "owner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "start",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "end",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textDigest",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTextSpanInput": {
+      "name": "ContentTextSpanInput",
+      "jsdoc": "对象须由宿主从指定修订回读；模式由source/target的实际操作语义决定。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    revisionId: string;\n    owner: ContentTextOwner;\n    object: unknown;\n    reference: unknown;\n    mode: 'TEXT' | 'INSERTION';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    revisionId: string;\n    owner: ContentTextOwner;\n    object: unknown;\n    reference: unknown;\n    mode: 'TEXT' | 'INSERTION';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "owner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "object",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reference",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "VerifiedContentTextSpan": {
+      "name": "VerifiedContentTextSpan",
+      "jsdoc": "只证明此版本此位置的原文，完整占位仍须核当前字段引用及事实键。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    reference: ContentTextSpan;\n    text: string;\n    containerText: string;\n    containsPlaceholders: boolean;\n    requiresFieldBindingChecks: boolean;\n    requiresCurrentAuthorityChecks: true;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    reference: ContentTextSpan;\n    text: string;\n    containerText: string;\n    containsPlaceholders: boolean;\n    requiresFieldBindingChecks: boolean;\n    requiresCurrentAuthorityChecks: true;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "reference",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "containerText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "containsPlaceholders",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresFieldBindingChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresCurrentAuthorityChecks",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

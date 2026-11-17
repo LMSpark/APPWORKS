@@ -1,0 +1,418 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/content-target-scope",
+    "sourcePath": "src/services/smart-bid/content/content-target-scope.ts",
+    "sourceFile": "src/services/smart-bid/content/content-target-scope.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/content-target-scope",
+    "jsdoc": "@module app:services/smart-bid/content/content-target-scope\n职责：解析V2内容目标，在固定基准树及独立作答清单上核归属与范围不重叠。\n边界：不查询、不授予权限；新增/移动差异、当前头及正式采用仍另行实核。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentTarget",
+      "ContentTargetScope",
+      "ContentScopeResponse",
+      "ContentTargetScopeInput",
+      "ResolvedContentTargetScope"
+    ]
+  },
+  "$defs": {
+    "ContentTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ContentTarget",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "PROJECT"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "NODE"
+            },
+            "nodeId": {
+              "type": "string"
+            },
+            "extent": {
+              "enum": [
+                "NODE",
+                "SUBTREE"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "nodeId",
+            "extent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "RESPONSE"
+            },
+            "assignmentId": {
+              "type": "string"
+            },
+            "responseId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "assignmentId",
+            "responseId"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ContentTargetScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTargetScope",
+      "properties": {
+        "schemaVersion": {
+          "const": 2
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentTarget"
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "projectId",
+        "targets"
+      ],
+      "additionalProperties": false
+    },
+    "ContentScopeResponse": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentScopeResponse",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "assignmentId": {
+          "type": "string"
+        },
+        "responseId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "projectId",
+        "assignmentId",
+        "responseId"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTargetScopeInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTargetScopeInput",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "scope": true,
+        "basisNodes": {
+          "type": "array",
+          "items": {
+            "$ref": "../content-tree-structure.ts.json#/$defs/ContentStructureNode"
+          }
+        },
+        "responses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentScopeResponse"
+          }
+        }
+      },
+      "required": [
+        "projectId",
+        "scope",
+        "basisNodes",
+        "responses"
+      ],
+      "additionalProperties": false
+    },
+    "ResolvedContentTargetScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolvedContentTargetScope",
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/ContentTargetScope"
+        },
+        "projectWide": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "nodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "responseTargets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "assignmentId": {
+                "type": "string"
+              },
+              "responseId": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            },
+            "required": [
+              "assignmentId",
+              "responseId"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "requiresCurrentAuthorityChecks": {
+          "const": true
+        },
+        "requiresAdditionScopeChecks": {
+          "const": true
+        }
+      },
+      "required": [
+        "scope",
+        "projectWide",
+        "nodeIds",
+        "responseTargets",
+        "requiresCurrentAuthorityChecks",
+        "requiresAdditionScopeChecks"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T09:34:15.900Z",
+  "models": {
+    "ContentTarget": {
+      "name": "ContentTarget",
+      "jsdoc": "节点范围须显式选择，首个独立答复以null明确表示基准中无版。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'PROJECT';\n}> | Readonly<{\n    kind: 'NODE';\n    nodeId: string;\n    extent: 'NODE' | 'SUBTREE';\n}> | Readonly<{\n    kind: 'RESPONSE';\n    assignmentId: string;\n    responseId: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'PROJECT';\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'NODE';\n    nodeId: string;\n    extent: 'NODE' | 'SUBTREE';\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'RESPONSE';\n    assignmentId: string;\n    responseId: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTargetScope": {
+      "name": "ContentTargetScope",
+      "jsdoc": "新业务V2正式目标；不承接旧节点专用签名或默认范围。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    schemaVersion: 2;\n    projectId: string;\n    targets: readonly ContentTarget[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    schemaVersion: 2;\n    projectId: string;\n    targets: readonly ContentTarget[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "schemaVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targets",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentScopeResponse": {
+      "name": "ContentScopeResponse",
+      "jsdoc": "宿主从固定基准取得的分工及响应身份投影；不是可由候选提供的归属证明。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    assignmentId: string;\n    responseId: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    assignmentId: string;\n    responseId: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responseId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTargetScopeInput": {
+      "name": "ContentTargetScopeInput",
+      "jsdoc": "基准必须完整取得；空树与未加载不同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    scope: unknown;\n    basisNodes: readonly ContentStructureNode[];\n    responses: readonly ContentScopeResponse[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    scope: unknown;\n    basisNodes: readonly ContentStructureNode[];\n    responses: readonly ContentScopeResponse[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "basisNodes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responses",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResolvedContentTargetScope": {
+      "name": "ResolvedContentTargetScope",
+      "jsdoc": "仅固定基准中的目标，不是变更授权，也不包含拟新增节点。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scope: ContentTargetScope;\n    projectWide: boolean;\n    nodeIds: readonly string[];\n    responseTargets: ReadonlyArray<Readonly<{\n        assignmentId: string;\n        responseId: string | null;\n    }>>;\n    requiresCurrentAuthorityChecks: true;\n    requiresAdditionScopeChecks: true;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scope: ContentTargetScope;\n    projectWide: boolean;\n    nodeIds: readonly string[];\n    responseTargets: ReadonlyArray<Readonly<{\n        assignmentId: string;\n        responseId: string | null;\n    }>>;\n    requiresCurrentAuthorityChecks: true;\n    requiresAdditionScopeChecks: true;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectWide",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responseTargets",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresCurrentAuthorityChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresAdditionScopeChecks",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

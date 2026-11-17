@@ -3304,7 +3304,7 @@
     "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json",
-      "sourceModifiedAt": "2026-11-13T03:37:29.042Z"
+      "sourceModifiedAt": "2026-11-17T11:23:46.711Z"
     },
     "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
@@ -3759,7 +3759,7 @@
     "src/App.vue": {
       "sourceFile": "src/App.vue",
       "shardFile": "files/src/App.vue.json",
-      "sourceModifiedAt": "2026-11-14T07:21:19.596Z"
+      "sourceModifiedAt": "2026-11-17T11:22:02.921Z"
     },
     "src/components/ErrorFallback.vue": {
       "sourceFile": "src/components/ErrorFallback.vue",
@@ -4094,7 +4094,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-16T21:58:09.178Z"
+      "sourceModifiedAt": "2026-11-17T11:23:46.713Z"
     },
     "src/lowcode/resources/application/project-blueprint-document.ts": {
       "sourceFile": "src/lowcode/resources/application/project-blueprint-document.ts",
@@ -5136,10 +5136,15 @@
       "shardFile": "files/src/services/project/enterprise-landing.ts.json",
       "sourceModifiedAt": "2026-11-14T06:54:50.208Z"
     },
+    "src/services/project/navigation/project-management-target.ts": {
+      "sourceFile": "src/services/project/navigation/project-management-target.ts",
+      "shardFile": "files/src/services/project/navigation/project-management-target.ts.json",
+      "sourceModifiedAt": "2026-11-17T11:05:06.000Z"
+    },
     "src/services/project/navigation/project-navigation-guard.ts": {
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
       "shardFile": "files/src/services/project/navigation/project-navigation-guard.ts.json",
-      "sourceModifiedAt": "2026-11-13T04:46:11.253Z"
+      "sourceModifiedAt": "2026-11-17T11:22:02.920Z"
     },
     "src/services/project/page-tool-file-dataview.ts": {
       "sourceFile": "src/services/project/page-tool-file-dataview.ts",
@@ -5191,6 +5196,11 @@
       "shardFile": "files/src/services/smart-bid/content-sibling-order.ts.json",
       "sourceModifiedAt": "2026-11-17T09:01:53.222Z"
     },
+    "src/services/smart-bid/content-tree-comparison.ts": {
+      "sourceFile": "src/services/smart-bid/content-tree-comparison.ts",
+      "shardFile": "files/src/services/smart-bid/content-tree-comparison.ts.json",
+      "sourceModifiedAt": "2026-11-17T09:28:06.656Z"
+    },
     "src/services/smart-bid/content-tree-draft-editor.ts": {
       "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
       "shardFile": "files/src/services/smart-bid/content-tree-draft-editor.ts.json",
@@ -5205,6 +5215,41 @@
       "sourceFile": "src/services/smart-bid/content-tree-structure.ts",
       "shardFile": "files/src/services/smart-bid/content-tree-structure.ts.json",
       "sourceModifiedAt": "2026-11-17T05:46:07.663Z"
+    },
+    "src/services/smart-bid/content/content-node-links.ts": {
+      "sourceFile": "src/services/smart-bid/content/content-node-links.ts",
+      "shardFile": "files/src/services/smart-bid/content/content-node-links.ts.json",
+      "sourceModifiedAt": "2026-11-17T09:28:06.655Z"
+    },
+    "src/services/smart-bid/content/content-scoped-preview.ts": {
+      "sourceFile": "src/services/smart-bid/content/content-scoped-preview.ts",
+      "shardFile": "files/src/services/smart-bid/content/content-scoped-preview.ts.json",
+      "sourceModifiedAt": "2026-11-17T09:41:59.683Z"
+    },
+    "src/services/smart-bid/content/content-target-scope.ts": {
+      "sourceFile": "src/services/smart-bid/content/content-target-scope.ts",
+      "shardFile": "files/src/services/smart-bid/content/content-target-scope.ts.json",
+      "sourceModifiedAt": "2026-11-17T09:34:15.900Z"
+    },
+    "src/services/smart-bid/content/content-text-patch.ts": {
+      "sourceFile": "src/services/smart-bid/content/content-text-patch.ts",
+      "shardFile": "files/src/services/smart-bid/content/content-text-patch.ts.json",
+      "sourceModifiedAt": "2026-11-17T09:53:07.625Z"
+    },
+    "src/services/smart-bid/content/content-text-snapshot-preview.ts": {
+      "sourceFile": "src/services/smart-bid/content/content-text-snapshot-preview.ts",
+      "shardFile": "files/src/services/smart-bid/content/content-text-snapshot-preview.ts.json",
+      "sourceModifiedAt": "2026-11-17T10:00:24.094Z"
+    },
+    "src/services/smart-bid/content/content-text-span.ts": {
+      "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
+      "shardFile": "files/src/services/smart-bid/content/content-text-span.ts.json",
+      "sourceModifiedAt": "2026-11-17T09:51:01.629Z"
+    },
+    "src/services/smart-bid/operation/operation-choice-decision.ts": {
+      "sourceFile": "src/services/smart-bid/operation/operation-choice-decision.ts",
+      "shardFile": "files/src/services/smart-bid/operation/operation-choice-decision.ts.json",
+      "sourceModifiedAt": "2026-11-17T11:31:03.696Z"
     },
     "src/services/smart-bid/operation/operation-route-candidate.ts": {
       "sourceFile": "src/services/smart-bid/operation/operation-route-candidate.ts",
@@ -5454,7 +5499,7 @@
     "src/views/features/application/application-manager/ui/application-manager-page.vue": {
       "sourceFile": "src/views/features/application/application-manager/ui/application-manager-page.vue",
       "shardFile": "files/src/views/features/application/application-manager/ui/application-manager-page.vue.json",
-      "sourceModifiedAt": "2026-11-16T08:08:16.256Z"
+      "sourceModifiedAt": "2026-11-17T11:28:18.888Z"
     },
     "src/views/features/application/application-manager/ui/application-relation-dialogs.vue": {
       "sourceFile": "src/views/features/application/application-manager/ui/application-relation-dialogs.vue",
@@ -5529,7 +5574,12 @@
     "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts.json",
-      "sourceModifiedAt": "2026-11-17T07:38:29.065Z"
+      "sourceModifiedAt": "2026-11-17T11:23:59.632Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts.json",
+      "sourceModifiedAt": "2026-11-17T11:26:42.335Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue",
@@ -5944,7 +5994,7 @@
     "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-15T07:56:14.647Z"
+      "sourceModifiedAt": "2026-11-17T11:02:41.689Z"
     },
     "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts": {
       "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts",
@@ -6184,7 +6234,7 @@
     "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue": {
       "sourceFile": "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue",
       "shardFile": "files/src/views/features/system/bug-manage/ui/bug-detail-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-11T06:20:07.634Z"
+      "sourceModifiedAt": "2026-11-17T11:44:30.408Z"
     },
     "src/views/features/system/bug-manage/ui/bug-manage-page.vue": {
       "sourceFile": "src/views/features/system/bug-manage/ui/bug-manage-page.vue",

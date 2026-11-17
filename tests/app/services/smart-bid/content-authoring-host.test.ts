@@ -24,7 +24,7 @@ const originalStubs={...config.global.stubs}
 let wrapper:VueWrapper|undefined
 beforeEach(()=>{auth.token='session-1';auth.userId='U';auth.appId='APP';load.mockReset()})
 afterEach(()=>{wrapper?.unmount();wrapper=undefined;config.global.stubs=originalStubs})
-function fixture(scoped=true) {
+function fixture(scoped=true,hiddenProject:boolean|(()=>boolean)=false) {
  const ds=DataSet.fromJson({scenarioId:'SPACE',tables:{
   ContentProject:{modelBinding:{modelId:'PM',modelName:'ContentProject'},columns:[{name:'projectId',type:'string',isPrimaryKey:true}],
    views:{default:{},selectedProject:{...(scoped?{scopeFilter:projectScope}:{}),commitMode:'staged'}}},
@@ -39,7 +39,7 @@ function fixture(scoped=true) {
    {draftId:'D',projectId:params.context!['projectId'],userId:params.context!['currentUserId'],draft:{nodes:[],responseChanges:[]}}]
   return new DataSpaceQueryContext({identity:query.identity,scope:'original',readScope:()=> 'original',snapshot:query.applyResult({Result:{
    primaryKeyField:model==='ContentProject'?'projectId':'draftId',data:{Count:rows.length,Items:rows.map(row=>({...row,
-    lingma_sys_params:{r:[],e:['draft'],h:[],m:[],d:false}}))}}})})
+    lingma_sys_params:{r:[],e:['draft'],h:model==='ContentProject'&&(typeof hiddenProject==='function'?hiddenProject():hiddenProject)?['projectId']:[],m:[],d:false}}))}}})})
  })
  const save=vi.fn(async()=>{throw Error('UNEXPECTED_REMOTE_WRITE')})
  for(const table of Object.values(ds.tables))for(const view of Object.values(table.views))view.bindQueryExecutor({executeQuery:queries,save})
@@ -65,6 +65,29 @@ it('rejects missing identity and unscoped definitions before any business query'
  auth.userId=''
  await expect(host.open(target)).rejects.toThrow('CONTENT_AUTHORING_IDENTITY_REQUIRED')
  expect(load).toHaveBeenCalledTimes(1)
+})
+it('connects revision reads to the same host guard and refuses incomplete selections before queries',async()=>{
+ const f=fixture(),host=new ContentAuthoringHost(),binding=await host.open(target)
+ await expect(binding.readRevisions({candidateRevisionId:'',expectedHead:null})).rejects.toThrow('CONTENT_REVISION_IDENTITY_REQUIRED')
+ expect(f.queries).toHaveBeenCalledTimes(2)
+ host.close()
+ await expect(binding.readRevisions({candidateRevisionId:'C',expectedHead:null})).rejects.toThrow('CONTENT_AUTHORING_STALE')
+ expect(f.queries).toHaveBeenCalledTimes(2)
+})
+it('refuses a project whose identity is hidden even when its raw value matches the selected project',async()=>{
+ const f=fixture(true,true),host=new ContentAuthoringHost()
+ await expect(host.open(target)).rejects.toThrow('CONTENT_AUTHORING_TARGET_UNAVAILABLE')
+ expect(host.binding).toBeUndefined()
+ expect(f.save).not.toHaveBeenCalled()
+})
+it('invalidates the binding when a refreshed project identity is no longer readable',async()=>{
+ let hidden=false
+ const f=fixture(true,()=>hidden),host=new ContentAuthoringHost(),binding=await host.open(target)
+ hidden=true
+ await f.ds.getView('ContentProject','selectedProject')!.refresh()
+ expect(()=>binding.assertCurrent()).toThrow('CONTENT_AUTHORING_STALE')
+ expect(f.save).not.toHaveBeenCalled()
+ host.close()
 })
 it('rejects OR scope and a route-supplied author cannot replace the authenticated author',async()=>{
  const f=fixture(),view=f.ds.getView('WorkingDraft','personalDraft')!

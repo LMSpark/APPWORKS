@@ -15,7 +15,7 @@ type GuardTestState = {
   principal: GuardPrincipal | null
   receiptError: Error | null
   cancelPendingSelection: () => void
-  activation: (applicationId: string, signal?: AbortSignal) => Promise<LowcodeApplicationSelectionReceipt>
+  activation: (applicationId: string, signal?: AbortSignal, beforeCommit?: () => void) => Promise<LowcodeApplicationSelectionReceipt>
   catalog: () => LowcodeApplicationSelectionReceipt
   makeReceipt: () => LowcodeApplicationSelectionReceipt
 }
@@ -28,8 +28,9 @@ const testState = vi.hoisted((): GuardTestState => ({
   makeReceipt: () => ({ assertCurrent() {
     if (testState.receiptError !== null) throw testState.receiptError
   } }),
-  activation: async (applicationId, signal) => {
+  activation: async (applicationId, signal, beforeCommit) => {
     signal?.throwIfAborted()
+    beforeCommit?.()
     testState.principal = { enterpriseName: 'acme', applicationId }
     return testState.makeReceipt()
   },
@@ -41,7 +42,9 @@ const testState = vi.hoisted((): GuardTestState => ({
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeApi: { platform: { cancelPendingApplicationSelection: () => testState.cancelPendingSelection() } },
-  activateLowcodeApplication: vi.fn((applicationId: string, signal?: AbortSignal) => testState.activation(applicationId, signal)),
+  activateLowcodeApplication: vi.fn(async (applicationId: string, signal?: AbortSignal, beforeCommit?: () => void) => {
+    return testState.activation(applicationId, signal, beforeCommit)
+  }),
   enterLowcodeApplicationCatalog: vi.fn(() => testState.catalog()),
   hasLowcodeSession: () => testState.loggedIn,
   readLowcodePrincipal: () => testState.principal,
@@ -113,8 +116,9 @@ afterEach(() => {
   testState.loggedIn = true
   testState.principal = { enterpriseName: 'acme', applicationId: 'APP-A' }
   testState.receiptError = null
-  testState.activation = async (applicationId, signal) => {
+  testState.activation = async (applicationId, signal, beforeCommit) => {
     signal?.throwIfAborted()
+    beforeCommit?.()
     testState.principal = { enterpriseName: 'acme', applicationId }
     return testState.makeReceipt()
   }
@@ -403,6 +407,25 @@ describe('ProjectNavigationGuard', () => {
     expect(clean).toHaveBeenCalledOnce()
     expect(reset).not.toHaveBeenCalled()
     expect(vi.mocked(activateLowcodeApplication)).not.toHaveBeenCalled()
+  })
+  it('preserves edits made while application activation is pending', async () => {
+    const {router, dynamic} = await createGuardRouter()
+    const gate = deferred<LowcodeApplicationSelectionReceipt>()
+    testState.activation = async (_id, _signal, beforeCommit) => {
+      const receipt = await gate.promise
+      beforeCommit?.()
+      return receipt
+    }
+    const clean = vi.spyOn(dynamic, 'assertPageRuntimesClean')
+    const reset = vi.spyOn(dynamic, 'resetSystemPageInstances')
+    const dispose = vi.spyOn(dynamic, 'disposePageRuntimes')
+    const navigation = router.push('/apps/APP-B/dashboard')
+    await vi.waitFor(() => expect(activateLowcodeApplication).toHaveBeenCalledOnce())
+    clean.mockImplementation(() => {throw new Error('new pending edits')})
+    gate.resolve(testState.makeReceipt())
+    await expect(navigation).rejects.toThrow('new pending edits')
+    expect(reset).not.toHaveBeenCalled()
+    expect(dispose).not.toHaveBeenCalled()
   })
 })
 

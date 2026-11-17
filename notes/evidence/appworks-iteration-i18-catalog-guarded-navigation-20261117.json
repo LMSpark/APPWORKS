@@ -1,0 +1,33 @@
+{
+  "scope": "I18 application catalog guarded navigation",
+  "checks": {
+    "classModelGeneration": 0,
+    "codegen": {
+      "exit": 0,
+      "files": 2002
+    },
+    "typecheck": 0,
+    "regression": {
+      "files": 3,
+      "log": "cache/i18-route-green.log",
+      "tests": 57,
+      "exit": 0
+    },
+    "lint": 0,
+    "fullVerify": "running session45055"
+  },
+  "behavior": "Route cancellation retains current route; no advance switchAndReload; original DataView rowid proof",
+  "red": "two prior route tests failed as expected",
+  "browserSmoke": false,
+  "commitPending": true,
+  "files": [
+    {
+      "path": "src/views/features/application/application-manager/ui/application-manager-page.vue",
+      "sha256": "2b1a41234f63e03db4654ff2bee80238321804af8c18bee0bd6371eb907f8261"
+    },
+    {
+      "path": "tests/runtime/application/application-manager/application-manager-page.test.ts",
+      "sha256": "0af3424da84b7e66f788c5733c15c510bbff5413f23e206cd5bb5ae11870404e"
+    }
+  ]
+}

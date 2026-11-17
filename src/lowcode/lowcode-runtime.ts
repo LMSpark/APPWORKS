@@ -726,14 +726,15 @@ export function createPageToolFilesIo(projectId:string){
   }
 }
 
-/** 选择低代码应用并返回平台当前性凭据；异步恢复后须先检查凭据再执行后续副作用。 */
+/** 选择应用并返回当前性凭据；beforeCommit在应用会话保存前同步核宿主条件，异步恢复后仍须检查凭据。 */
 export async function activateLowcodeApplication(
   applicationId: string,
   signal?: AbortSignal,
+  beforeCommit?: () => void,
 ): Promise<LowcodePlatform.LowcodeApplicationSelectionReceipt> {
   const normalizedId = applicationId.trim()
   if (!normalizedId) throw new Error('应用 ID 不能为空')
-  const activation = await lowcodeApi.platform.activateApplication(normalizedId, signal)
+  const activation = await lowcodeApi.platform.activateApplication(normalizedId, signal, beforeCommit)
   activation.assertCurrent()
   return activation
 }

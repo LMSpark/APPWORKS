@@ -428,8 +428,11 @@ export class LowcodePlatformApi {
     }
   }
 
-  /** 拉取目录、解析唯一应用并提交应用+导航根；receipt用于await恢复后的同步复核。 */
-  public async activateApplication(applicationId: string, signal?: AbortSignal): Promise<LowcodeApplicationActivation> {
+  /**
+   * 拉取目录、解析唯一应用并提交应用+导航根；receipt用于await恢复后的同步复核。
+   * @param beforeCommit 所有异步读取完成后、保存应用会话前同步复核宿主条件；抛错则不保存，不能传异步函数。
+   */
+  public async activateApplication(applicationId: string, signal?: AbortSignal, beforeCommit?: () => void): Promise<LowcodeApplicationActivation> {
     const fence = this.beginApplicationSelection(signal)
     try {
       const normalizedId = applicationId.trim()
@@ -454,7 +457,7 @@ export class LowcodePlatformApi {
       }
       let activation: LowcodeApplicationActivation
       try {
-        activation = await this.commitApplicationSelection(application, fence)
+        activation = await this.commitApplicationSelection(application, fence, beforeCommit)
       } catch (error: unknown) {
         this.assertApplicationSelectionCurrent(fence)
         throw error
@@ -520,6 +523,7 @@ export class LowcodePlatformApi {
   private async commitApplicationSelection(
     application: LowcodeApplication,
     fence: ApplicationSelectionFence,
+    beforeCommit?: () => void,
   ): Promise<LowcodeApplicationActivation> {
     const selectedApplication: LowcodeApplication = Object.freeze({
       id: application.id,
@@ -549,6 +553,8 @@ export class LowcodePlatformApi {
       this.assertApplicationSelectionCurrent(fence)
       throw error
     }
+    this.assertApplicationSelectionCurrent(fence)
+    beforeCommit?.()
     this.assertApplicationSelectionCurrent(fence)
     this.application.save({ application: selectedApplication, navigationRootId })
     const currentReceipt = this.createApplicationSelectionReceipt(fence, {

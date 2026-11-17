@@ -70,9 +70,10 @@ export class ProjectNavigationGuard {
     const isCurrent = (): boolean => !controller.signal.aborted
     const receipt = projectId === APPLICATION_CATALOG_PROJECT_ID
       ? enterLowcodeApplicationCatalog()
-      : await activateLowcodeApplication(projectId, controller.signal)
+      : await activateLowcodeApplication(projectId, controller.signal, () => dynamic.assertPageRuntimesClean())
     if (!isCurrent()) return false
     receipt.assertCurrent()
+    dynamic.assertPageRuntimesClean()
     dynamic.resetSystemPageInstances()
     dynamic.disposePageRuntimes()
     await refreshRoutes()

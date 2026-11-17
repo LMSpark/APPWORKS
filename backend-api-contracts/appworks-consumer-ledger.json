@@ -805,49 +805,49 @@
     {
       "expression": "/api/LoginAuthority/UserLoginByEnt",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 904,
+      "sourceLine": 930,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetBaseData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 948,
+      "sourceLine": 974,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/refresh",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1002,
+      "sourceLine": 1028,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/UserLogoutByEnt",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1045,
+      "sourceLine": 1071,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/refresh",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1134,
+      "sourceLine": 1160,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/content/text",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1141,
+      "sourceLine": 1167,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/register",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1193,
+      "sourceLine": 1219,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/Ent/AddEnterprise",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1228,
+      "sourceLine": 1254,
       "scope": "publishable-lowcode-api"
     },
     {

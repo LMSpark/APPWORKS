@@ -21,7 +21,7 @@ AI用途：恢复应用管理入口时复用本地正式场景、标准组件与
 </template>
 
 <script setup lang="ts">
-import {computed, inject, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
+import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRouter} from 'vue-router'
 import {getNavHomePath, SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
@@ -29,7 +29,7 @@ import {RendererButton, RendererSection, RendererTable, useSparkComponent, type 
 import {readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
 import {submitBlueprintDocument} from '@/lowcode/resources/application/project-blueprint-document'
 import {buildApplicationPath} from '@/services/application-scope'
-import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
+import {PROJECT_MANAGEMENT_PATH, PROJECT_MANAGEMENT_NODE_ID} from '@/services/project/navigation/project-management-target'
 import {EnterpriseDefaultApplication} from '@/services/project/enterprise-landing'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import * as Model from '../model/application-manager-model'
@@ -51,10 +51,7 @@ const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePa
 const statusViewKey = buildDataViewKey('应用系统状态', 'default', scenarioId)
 const userViewKey = buildDataViewKey('Base_UserInfo', 'default', Model.PERSON_SCENARIO)
 /** 项目管理进入目标应用的应用功能管理页，导航身份为该页正式节点。 */
-const PROJECT_MANAGEMENT_PATH = '/features/application/application-function-management/ui/application-function-page'
-const PROJECT_MANAGEMENT_NODE_ID = '7AB874097A1E8711A42FD845939A6E05'
 const router = useRouter()
-const projectSwitch = inject(PROJECT_SWITCH_KEY)
 const record = shallowRef<Model.ApplicationManagerRecord | null>(null)
 const relationTarget = ref<{id: string; title: string} | null>(null)
 const busy = ref(false), message = ref(''), documentSubmitting = ref(false)
@@ -231,16 +228,14 @@ async function saveDefaultApplication(row: DataRow | null): Promise<void> {
   }
 }
 
-/** 切换到目标应用后进入其页面；切换回执失效即中止导航。 */
+/** 由正式路由守卫核未保存状态并切换应用，取消导航不会预先更换应用会话。 */
 async function enterApplication(row: DataRow, target: ApplicationTarget): Promise<void> {
-  const projectId = readApplicationId(row, pageView())
+  const source = pageView(), assertCurrent = source.captureReadRow(row, ['rowid'])
+  const projectId = readApplicationId(row, source)
   if (!projectId) throw new Error('应用目录缺少可读的应用身份')
   if (!readLowcodePrincipal()) throw new Error('未登录，无法切换应用')
-  if (!projectSwitch) throw new Error('应用管理页缺少项目切换服务')
-  const receipt = await projectSwitch.switchAndReload(projectId)
-  receipt.assertCurrent()
+  assertCurrent()
   const failed = await router.push({path: buildApplicationPath({projectId}, target.path), ...(target.query ? {query: target.query} : {})})
-  receipt.assertCurrent()
   if (failed) throw new Error('应用页面导航未完成')
 }
 async function openApplication(row: DataRow): Promise<void> {

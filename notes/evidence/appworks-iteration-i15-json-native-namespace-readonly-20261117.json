@@ -1,0 +1,91 @@
+{
+  "scope": "B11 same-target native JSON document and namespace read",
+  "businessWrites": 0,
+  "fileWrites": 0,
+  "commandInvocations": 0,
+  "sessionPersisted": false,
+  "wholeDefinitionDeleteAllowed": false,
+  "globalReferenceCompleteness": false,
+  "requests": [
+    {
+      "kind": "enterprise-catalog-read"
+    },
+    {
+      "kind": "authorized-login"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "Base_DataModel_Relation"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "Base_DataSet"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "Base_DataModel"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "Base_DataModel_Field"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "View_TblList"
+    },
+    {
+      "kind": "formal-metadata-read",
+      "model": "Base_TblField"
+    },
+    {
+      "kind": "native-catalog-query",
+      "model": "Base_JsonData"
+    },
+    {
+      "kind": "native-json-file-read"
+    },
+    {
+      "kind": "same-namespace-file-list"
+    }
+  ],
+  "blocked": 0,
+  "authorizedIdentityVerified": true,
+  "targetJsonId": "2BEB4E7D71B54E998BA42E162496070A",
+  "referenceReadIsIndependentAndNonAtomic": true,
+  "catalog": {
+    "rows": 1,
+    "total": 1,
+    "primaryKey": "rowid",
+    "exactTargetFilter": true
+  },
+  "directoryDeleteActionState": "enabled",
+  "nativeLocator": {
+    "appType": "jsondatapath",
+    "customPathEmpty": true,
+    "crossEnterprise": false,
+    "fileNameNotPersisted": true
+  },
+  "fileLoadingErrorName": "LowcodeApiError",
+  "fileLoadingErrorCode": 404,
+  "fileFailureFlags": {
+    "missing": true,
+    "permission": false
+  },
+  "namespace": {
+    "appType": "jsondatapath",
+    "folderPathEmpty": true,
+    "listedAt": "2026-11-17T10:44:07.965Z",
+    "entriesReported": 22,
+    "targetEntryPresent": false,
+    "targetEntryRegularFileUnknown": true,
+    "recursive": false,
+    "globalAbsenceProven": false,
+    "readsAtomic": false,
+    "fileNameDigest": "c7dd13bdf33415f0435234eaee82a4d11a098732314c082f25936b15b4263cb5",
+    "storedPathDigest": "442c022f8fbf8c46cc0cb22f699a35fa4862e57ce24764d5ab95ebbabce1bea2",
+    "storedPathSegments": 3,
+    "rawNamesAndPathsPersisted": false
+  },
+  "status": "original content read failed; same-namespace listing observed without changing locator; no global absence or deletion conclusion",
+  "observedAt": "2026-11-17T10:44:08.013Z"
+}

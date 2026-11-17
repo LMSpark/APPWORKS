@@ -84,7 +84,20 @@
           },
           "additionalProperties": false
         },
-        "method.setPending.return": true
+        "method.setPending.return": true,
+        "method.readRevisions.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "content-revision-reader.ts.json#/$defs/ContentRevisionSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readRevisions.return": {
+          "type": "object",
+          "title": "Promise<ContentRevisionReadBinding>"
+        }
       }
     },
     "ContentAuthoringHost": {
@@ -128,7 +141,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T07:38:29.065Z",
+  "generatedAt": "2026-11-17T11:23:59.632Z",
   "models": {
     "ContentAuthoringTarget": {
       "name": "ContentAuthoringTarget",
@@ -179,11 +192,11 @@
       "jsdoc": "直接交给正文组件的原实例绑定；pending只表示尚未写回字段的交互，不保存业务数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n}>",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -238,6 +251,31 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            },
+            {
+              "name": "readRevisions",
+              "jsdoc": "查询原候选/头修订索引；完整快照与采用另核。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentRevisionSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentRevisionReadBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts"
+                  }
+                ]
               }
             }
           ]

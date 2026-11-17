@@ -1,0 +1,380 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/content-text-snapshot-preview",
+    "sourcePath": "src/services/smart-bid/content/content-text-snapshot-preview.ts",
+    "sourceFile": "src/services/smart-bid/content/content-text-snapshot-preview.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/content-text-snapshot-preview",
+    "jsdoc": "@module app:services/smart-bid/content/content-text-snapshot-preview\n职责：把已定位文字差异临时物化到当前快照，复核完整内容树与未改绑定。\n边界：仅纯预演；响应只核文字投影，不创建新响应版或写入DataView。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentResponseTextSnapshot",
+      "ContentTextSnapshotInput",
+      "CheckedResponseText",
+      "ContentTextSnapshotPreview"
+    ]
+  },
+  "$defs": {
+    "ContentResponseTextSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentResponseTextSnapshot",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "assignmentId": {
+          "type": "string"
+        },
+        "responseId": {
+          "type": "string"
+        },
+        "statement": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "projectId",
+        "assignmentId",
+        "responseId",
+        "statement",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTextSnapshotInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTextSnapshotInput",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "candidateRevisionId": {
+          "type": "string"
+        },
+        "expectedHead": {
+          "type": "string"
+        },
+        "candidateNodes": true,
+        "currentNodes": true,
+        "candidateResponses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentResponseTextSnapshot"
+          }
+        },
+        "currentResponses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentResponseTextSnapshot"
+          }
+        },
+        "targetScope": true,
+        "changes": true
+      },
+      "required": [
+        "projectId",
+        "candidateRevisionId",
+        "expectedHead",
+        "candidateNodes",
+        "currentNodes",
+        "candidateResponses",
+        "currentResponses",
+        "targetScope",
+        "changes"
+      ],
+      "additionalProperties": false
+    },
+    "CheckedResponseText": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CheckedResponseText",
+      "properties": {
+        "assignmentId": {
+          "type": "string"
+        },
+        "responseId": {
+          "type": "string"
+        },
+        "before": {
+          "type": "string"
+        },
+        "after": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "assignmentId",
+        "responseId",
+        "before",
+        "after"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTextSnapshotPreview": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTextSnapshotPreview",
+      "properties": {
+        "textPreview": {
+          "$ref": "content-text-patch.ts.json#/$defs/ContentTextPatchPreview"
+        },
+        "nodeScopePreview": {
+          "$ref": "content-scoped-preview.ts.json#/$defs/ScopedContentPreview"
+        },
+        "checkedResponseTexts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CheckedResponseText"
+          }
+        },
+        "requiresResponsePayloadChecks": {
+          "const": true
+        },
+        "requiresNewResponseVersionAllocation": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "requiresCurrentAuthorityChecks": {
+          "const": true
+        },
+        "requiresMeaningChecks": {
+          "const": true
+        },
+        "requiresExternalReferenceChecks": {
+          "const": true
+        }
+      },
+      "required": [
+        "textPreview",
+        "nodeScopePreview",
+        "checkedResponseTexts",
+        "requiresResponsePayloadChecks",
+        "requiresNewResponseVersionAllocation",
+        "requiresCurrentAuthorityChecks",
+        "requiresMeaningChecks",
+        "requiresExternalReferenceChecks"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T10:00:24.094Z",
+  "models": {
+    "ContentResponseTextSnapshot": {
+      "name": "ContentResponseTextSnapshot",
+      "jsdoc": "从指定版回读的独立响应文字投影，不代替完整Response业务模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    assignmentId: string;\n    responseId: string;\n    statement: string;\n    data: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    assignmentId: string;\n    responseId: string;\n    statement: string;\n    data: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "statement",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTextSnapshotInput": {
+      "name": "ContentTextSnapshotInput",
+      "jsdoc": "两份完整内容树及响应文字投影来自宿主固定版，变更仍用V2 sourceRef/targetRef。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    candidateRevisionId: string;\n    expectedHead: string;\n    candidateNodes: unknown;\n    currentNodes: unknown;\n    candidateResponses: readonly ContentResponseTextSnapshot[];\n    currentResponses: readonly ContentResponseTextSnapshot[];\n    targetScope: unknown;\n    changes: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    candidateRevisionId: string;\n    expectedHead: string;\n    candidateNodes: unknown;\n    currentNodes: unknown;\n    candidateResponses: readonly ContentResponseTextSnapshot[];\n    currentResponses: readonly ContentResponseTextSnapshot[];\n    targetScope: unknown;\n    changes: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidateRevisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedHead",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidateNodes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentNodes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidateResponses",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentResponses",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetScope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CheckedResponseText": {
+      "name": "CheckedResponseText",
+      "jsdoc": "旧响应身份只定位预演头；正式采用必须分配实际新响应版，不能原地覆盖。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assignmentId: string;\n    responseId: string;\n    before: string;\n    after: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assignmentId: string;\n    responseId: string;\n    before: string;\n    after: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "before",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "after",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTextSnapshotPreview": {
+      "name": "ContentTextSnapshotPreview",
+      "jsdoc": "已检查树结构/引用形状/占位一致性，不代表外部依赖、句意或正式采用通过。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    textPreview: ContentTextPatchPreview;\n    nodeScopePreview: ScopedContentPreview;\n    checkedResponseTexts: readonly CheckedResponseText[];\n    requiresResponsePayloadChecks: true;\n    requiresNewResponseVersionAllocation: boolean;\n    requiresCurrentAuthorityChecks: true;\n    requiresMeaningChecks: true;\n    requiresExternalReferenceChecks: true;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    textPreview: ContentTextPatchPreview;\n    nodeScopePreview: ScopedContentPreview;\n    checkedResponseTexts: readonly CheckedResponseText[];\n    requiresResponsePayloadChecks: true;\n    requiresNewResponseVersionAllocation: boolean;\n    requiresCurrentAuthorityChecks: true;\n    requiresMeaningChecks: true;\n    requiresExternalReferenceChecks: true;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "textPreview",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeScopePreview",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "checkedResponseTexts",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresResponsePayloadChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresNewResponseVersionAllocation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresCurrentAuthorityChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresMeaningChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresExternalReferenceChecks",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

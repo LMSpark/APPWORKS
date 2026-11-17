@@ -23,7 +23,7 @@ AI用途：迁移参考仓 integration/dimension 页面时，核对规则启用�
     <RendererTabs v-if="ready" v-model="tab">
       <RendererTabPane label="来源锚点" name="binding" :index="0" :lazy="true">
         <RendererTable :data-view-key="bindingKeyRef" :children="bindingColumns" :current-page-search="search('binding_code', 'source_model_meta_name', 'event_code')" :highlight-current-row="true"
-          :show-data-view-meta="false" />
+          :actions="bindingActions(bindingKey())" :show-data-view-meta="false" />
         <template v-if="selectedBinding">
           <h2>映射明细：{{ selectedBinding }}</h2>
           <template v-if="detailError(mappingKey)">
@@ -42,7 +42,7 @@ AI用途：迁移参考仓 integration/dimension 页面时，核对规则启用�
             <p role="alert">{{ detailError(eventBindingKey) }}</p>
             <RendererButton label="重试明细" :disabled="busy || !!dialog || !!ruleDialog || !!deletion" @click="retryDetail(eventBindingKey)" />
           </template>
-          <RendererTable v-else :data-view-key="eventBindingKey" :children="bindingColumns" :show-data-view-meta="false" />
+          <RendererTable v-else :data-view-key="eventBindingKey" :children="bindingColumns" :actions="bindingActions(eventBindingKey)" :show-data-view-meta="false" />
         </template>
       </RendererTabPane>
       <RendererTabPane label="规则治理" name="rule" :index="2" :lazy="true">
@@ -83,7 +83,7 @@ AI用途：迁移参考仓 integration/dimension 页面时，核对规则启用�
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
-import {onBeforeRouteLeave, onBeforeRouteUpdate} from 'vue-router'
+import {onBeforeRouteLeave, onBeforeRouteUpdate, useRouter} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {RequestState, buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
@@ -97,8 +97,10 @@ import DimensionRuleEditor from './dimension-rule-editor.vue'
 import {abandonRuleDeletion, retryRuleDeletionReadback, settleRuleDeletion, stageRuleDeletion, submitRuleDeletion,
   verifyRuleDeletion, type DimensionRuleDeletion} from './dimension-rule-deletion'
 import {CATEGORY_SPECS, DEFINITION_SPECS, FLAG_DISPLAY, YES_NO_DISPLAY, text} from './dimension-field-spec'
+import {buildBlueprintNodeTarget} from '@/services/project/navigation/project-management-target'
 
 const scenarioId = '88A4D51B01702C3856F4632E234BF34B'
+const router = useRouter()
 const key = (model: string, view = 'default') => buildDataViewKey(`Bil_Dimension_${model}`, view, scenarioId)
 const {sparkConsume} = useSparkComponent({type: 'dimension-design-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'dimension-design-page')
@@ -213,6 +215,28 @@ const ruleActions = computed<RToolbarProps>(() => ({children: [
   {type: 'r-button', props: {label: '编辑', disabled: busy.value || !!dialog.value || !!ruleDialog.value || !!deletion.value, onClick: (row: DataRow) => void editRule(row)}},
   {type: 'r-button', props: {label: '删除', disabled: busy.value || !!dialog.value || !!ruleDialog.value || !!deletion.value, onClick: (row: DataRow) => void removeRule(row)}},
 ]}))
+function bindingActions(viewKey: string): RToolbarProps {
+  return {children: [{type: 'r-button', props: {label: '打开节点',
+    disabled: busy.value || !!dialog.value || !!ruleDialog.value || !!deletion.value,
+    onClick: (row: DataRow) => void openBlueprintNode(viewKey, row),
+  }}]}
+}
+async function openBlueprintNode(viewKey: string, row: DataRow): Promise<void> {
+  if (hasPending() || dialog.value) {message.value = '请先完成或取消当前编辑，再打开来源节点'; return}
+  const owner = session.runtime
+  try {
+    const targetView = view(viewKey)
+    const assertCurrent = targetView.captureReadRow(row, ['source_application_id', 'source_node_id'])
+    const projectId = row['source_application_id'], nodeId = row['source_node_id']
+    if (typeof projectId !== 'string' || typeof nodeId !== 'string') throw new Error('来源应用或节点身份缺失或无效')
+    const target = buildBlueprintNodeTarget(projectId, nodeId)
+    assertCurrent()
+    const failed = await router.push(target)
+    if (failed && session.runtime === owner) message.value = '来源节点导航未完成，当前编辑和数据已保留'
+  } catch (cause) {
+    if (session.runtime === owner && ready.value) message.value = `打开来源节点失败：${failure(cause)}`
+  }
+}
 function childActions(viewKey: string): RToolbarProps {
   return {children: [
     {type: 'r-button', props: {label: '编辑', disabled: busy.value || !!dialog.value || !!ruleDialog.value || !!deletion.value, onClick: (row: DataRow) => edit(viewKey, row)}},

@@ -6,6 +6,7 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {Spark,registerAllRenderers} from '@spark-appworks/spark-component'
 import {RendererButton} from '@spark-appworks/spark-component'
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
+import {previewScopedRevisionChanges} from '@/services/smart-bid/content/content-scoped-preview'
 import ContentCandidateWorkspace from '@/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue'
 import {createCandidateReadFixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
 
@@ -177,5 +178,22 @@ it('runs the three-version comparison from the candidate workspace and withdraws
  expect(f.wrapper.text()).not.toContain('3 个新增节点待确认')
  await f.ds.getView('RevisionSnapshot','selectedSnapshot')!.refresh();await flushPromises()
  expect(f.wrapper.text()).not.toContain('三版比对结果')
+ expect(f.save).not.toHaveBeenCalled()
+})
+it('shows the reference owner when comparing a candidate that deletes its target',async()=>{
+ const f=await fixture('populated')
+ const payloads=f.ds.getView('ContentNodeVersion','snapshotMembers')!.rows.map(row=>row['payload'])
+ const node=(nodeId:string,index:number)=>({nodeId,parentId:'C',index,type:'paragraph',class:[],value:'正文',data:{}})
+ const source=node('source',1),target=node('target',2)
+ const basis=[...payloads,source,target]
+ const current=[...payloads,{...source,value:'见{{后文}}',data:{后文:{type:'page',nodeId:'target'}}},target]
+ const candidates=[...payloads,source]
+ const manifest=f.ds.getView('RevisionSnapshot','selectedSnapshot')!.rows[0]?.['manifest']
+ const result=previewScopedRevisionChanges({projectId:'P',basis,current,candidate:candidates,declaredAddedNodeIds:[],
+  targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]}},{basis:manifest,current:manifest,candidate:manifest})
+ await f.wrapper.setProps({binding:{...f.binding,previewScope:async()=>({...result,assertCurrent:f.binding.assertCurrent})}})
+ const button=f.wrapper.findAll('button').find(item=>item.text()==='比对三版')!
+ await button.trigger('click');await flushPromises()
+ expect(f.wrapper.text()).toContain('待删节点 target 仍被引用：source')
  expect(f.save).not.toHaveBeenCalled()
 })

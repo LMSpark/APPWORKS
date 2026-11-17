@@ -12,6 +12,8 @@ AI用途：正文宿主读取候选后传入同次绑定；采用须另完成完
     <RendererSection v-if="comparisonState" title="三版比对结果" :status="comparisonState.status">
       <RendererSection v-if="comparisonState.added.length" :title="`新增节点：${comparisonState.added.join('、')}`" />
       <RendererSection v-if="comparisonState.conflicts.length" :title="`冲突节点：${comparisonState.conflicts.join('、')}`" />
+      <RendererSection v-for="deletion in comparisonState.referencedDeletions" :key="deletion.nodeId"
+        :title="`待删节点 ${deletion.nodeId} 仍被引用：${deletion.referencedBy.join('、')}`" />
       <RendererSection v-if="comparisonState.orderConflicts.length" :title="`顺序冲突所在父节点：${comparisonState.orderConflicts.join('、')}`" />
       <RendererSection v-if="comparisonState.responseConflicts.length" :title="`冲突分工：${comparisonState.responseConflicts.join('、')}`" />
       <RendererButton v-if="comparisonState.undeclared && state.revisionKey" :data-view-key="state.revisionKey"
@@ -53,6 +55,7 @@ const comparisonState=computed(()=>{
  try{result.assertCurrent()}catch{return undefined}
  const undeclared=result.violations.filter(item=>item.code==='UNDECLARED_ADDITION').length
  const conflicts=result.comparison.nodes.flatMap(item=>item.nodeId!==null&&item.conflicts.length?[item.nodeId]:[])
+ const referencedDeletions=result.comparison.nodes.filter(item=>item.deletionReferenceCheck==='REFERENCED')
  const orderConflicts=result.comparison.siblings.filter(item=>item.status==='CONFLICT').map(item=>item.parentId)
  const responseConflicts=result.responseComparison.filter(item=>item.delta==='DIVERGED').map(item=>item.assignmentId)
  const added=result.addedNodeIds
@@ -64,7 +67,7 @@ const comparisonState=computed(()=>{
   try{result.assertCurrent()}catch{return}
   await compareVersions(added)
  }
- return {status,added,undeclared,conflicts,orderConflicts,responseConflicts,confirmAdditions}
+ return {status,added,undeclared,conflicts,referencedDeletions,orderConflicts,responseConflicts,confirmAdditions}
 })
 let nodeSelectionVersion=0
 const referenceLoading=ref(false)

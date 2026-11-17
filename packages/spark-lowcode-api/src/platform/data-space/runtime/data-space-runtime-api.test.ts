@@ -1144,7 +1144,7 @@ describe('DataView original query execution boundary', () => {
     } finally {ds.destroy()}
   })
   it('leaves an older pending row unchanged when a later add obtains its own permissions', async () => {
-    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    const http = new DataSpaceFixtureHttpClient(), {api, ds, view} = connectedView(http)
     try {
       await view.loadFromServer()
       await view.addRowWithIdentity({field: 'rowid', value: 'A'}, {salary: 200})
@@ -1163,6 +1163,13 @@ describe('DataView original query execution boundary', () => {
       expect(view.fieldAccess(findRow(view, 'A'), 'salary').write).toBe('denied')
       expect(view.fieldAccess(findRow(view, 'B'), 'salary').write).toBe('allowed')
       expect(http.saveRequests).toHaveLength(2)
+      const application = api.application.get()
+      if (!application) throw new Error('fixture application missing')
+      api.application.save({...application, application: {...application.application, id: 'APP-B'}})
+      expect(view.hasPendingSavedRowPermissions).toBe(true)
+      const queryCount = http.queryRequests.length
+      await expect(view.refreshSavedRowPermissions()).rejects.toThrow('SPARK_QUERY_CONTEXT_STALE')
+      expect(http.queryRequests).toHaveLength(queryCount)
     } finally {ds.destroy()}
   })
   it('recovers confirmed new-row permissions with reads while preserving another dirty row and a later overlay', async () => {

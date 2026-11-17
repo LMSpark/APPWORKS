@@ -418,3 +418,4 @@ I1 缺少权威能力时，明确登记平台缺口；可并行推进人工编�
 - 2026-11-18 实服TenderRecord只读空结果烟测：从已保存selectedTenderRecord打开标准查询预览，仅本次输入合成projectId/runId、FORMAT、ordinal数字0、版本字符串002及64零摘要；选择完整结果后只执行原命名视图查询一次，界面Loaded、明示总数0/返回0行。CDP未取得可归因响应事件，不声明HTTP/body回执。未写业务行或默认参数，此证据不作正记录读取/候选链/用途验收。截图smart-bid-tender-record-empty-query-20261118.png。
 - 2026-11-18 实服Requirement只读空结果烟测：从已保存selectedRequirement走标准查询预览，本次输入合成projectId/lineageId及版本字符串002，选完整结果，单次命名视图查询Loaded、总数0/返回0行。未写业务行或默认参数，未证明正记录回读/采用。截图smart-bid-requirement-empty-query-20261118.png。
 - 2026-11-18 页11蓝图再核：同APP进入正式项目蓝图初失败为旧动态分片，整页reload恢复；展开只见应用根，选中确认根ID D8490EC99436A8B9AFDE205BE3153802、模块，新增子级disabled、新增根模块enabled，无正式页11身份。保持历史根模块Code500请求未重放，已交平台原请求核验及正式入口接线。截图smart-bid-page11-blueprint-cold-20261118.png，本轮零蓝图写入。
+- 2026-11-18 标书要求来源基线校验：通过原 Baseline 和 Requirement 的 SPARK DataView，要求引用来源时核对同一基线中完整来源身份、版本和摘要，并保留 tenderRecords 字段的有效性证明。专项 9 文件 111 项通过，覆盖摘要不匹配、原字段变动失效及基线只查一次。页11正式导航仍待平台会话发布。

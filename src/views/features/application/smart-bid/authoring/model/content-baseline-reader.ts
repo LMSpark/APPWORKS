@@ -80,7 +80,7 @@ async function readOriginalBaseline(host:ContentRevisionReadHost,input:Readonly<
  if(stage(row['stageRef'])!==expectedStage)throw Error('CONTENT_BASELINE_STAGE_MISMATCH')
  const assertCurrent=()=>{assertScope();assertResult();assertRow()}
  assertCurrent()
- return {key:baselineDataViewKey,row,assertCurrent}
+ return {key:baselineDataViewKey,view,row,assertCurrent}
 }
 /** 证明原基线固定了这条完整来源引用，原核定记录内容和准用另核。 */
 export async function readContentBaselineTenderRecord(
@@ -113,7 +113,14 @@ export async function readContentBaselineRequirement(
  const baseline=await readOriginalBaseline(host,input,'requirementVersions')
  const member=selectBaselineRequirementMember(baseline.row['requirementVersions'],{lineageId,version})
  const requirement=await readContentRequirement({...host,assertCurrent:baseline.assertCurrent},member)
- const assertCurrent=()=>{baseline.assertCurrent();requirement.assertCurrent()}
+ requirement.assertCurrent()
+ const sourceRecord=host.runtime.resolveView(requirement.dataViewKey)?.rows[0]?.['sourceRecord']
+ let assertSource:(()=>void)|undefined
+ if(sourceRecord!==null&&sourceRecord!==undefined){
+  assertSource=baseline.view.captureReadRow(baseline.row,['tenderRecords'])
+  assertBaselineTenderRecordMember(baseline.row['tenderRecords'],sourceRecord)
+ }
+ const assertCurrent=()=>{baseline.assertCurrent();requirement.assertCurrent();assertSource?.()}
  assertCurrent()
  return Object.freeze({baselineDataViewKey:baseline.key,requirementDataViewKey:requirement.dataViewKey,
   baselineMembershipVerified:true,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent})

@@ -5,7 +5,7 @@ import {readContentBaselineFact,readContentBaselineRequirementPins,readContentBa
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
-function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,unknown>;count?:number;hidden?:string}={}){
+function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,unknown>;requirementSource?:unknown;count?:number;hidden?:string}={}){
  const baseline={id:'B',projectId:'P',stageRef:{decisionId:'STAGE'},factVersions:[{factId:'PRICE',version:2}],requirementVersions:[{lineageId:'L',version:'R2'}],...options.baseline}
  const fact={id:'FV2',projectId:'P',key:'PRICE',version:2,kind:'PRICE',value:'0.00',unit:'元',sourceIds:[],claimId:null,
   scopeRef:null,decisionRefs:[],dependencyRefs:[],promiseTerms:null,sourceRecord:null,status:'ADOPTED',...options.fact}
@@ -13,7 +13,7 @@ function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,u
   {name:'FactVersion',view:'selectedFactVersion',record:fact,params:{projectId:'projectId',key:'key',version:'version'}},
   {name:'Requirement',view:'selectedRequirement',params:{projectId:'projectId',lineageId:'lineageId',version:'version'},
    record:{id:'REQ',projectId:'P',lineageId:'L',version:'R2',kind:'FORMAT',text:'原文',score:null,sourceSpan:null,
-    supportingSpans:[],sourceRecord:null,parseQuality:'TEXT_ONLY',checks:[],constraint:null,applicability:{},status:'ADOPTED'}}]
+    supportingSpans:[],sourceRecord:options.requirementSource??null,parseQuality:'TEXT_ONLY',checks:[],constraint:null,applicability:{},status:'ADOPTED'}}]
  const ds=DataSet.fromJson({scenarioId:'S',tables:Object.fromEntries(definitions.map(d=>[d.name,{
   modelBinding:{modelId:d.name,modelName:d.name},columns:Object.keys(d.record).map(name=>({name,isPrimaryKey:name==='id',...(d.name==='FactVersion'&&name==='version'?{type:'number' as const}:{})})),
   views:{default:{},[d.view]:{commitMode:'staged',scopeFilter:{logic:'and',filters:Object.entries(d.params).map(([field,ParamName])=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName}}))}}}}]))})
@@ -28,6 +28,21 @@ function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,u
  return {ds,host,queries,save,expire:()=>{active=false}}
 }
 const input={baselineId:'B',stageRef:{decisionId:'STAGE'},factId:'PRICE',version:2}
+it('requires the requirement source to match the same original baseline and keeps its field proof',async()=>{
+ const ref={runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}
+ const selection={baselineId:'B',stageRef:input.stageRef,lineageId:'L',version:'R2'}
+ const wrong=fixture({requirementSource:ref,baseline:{tenderRecords:[{...ref,recordHash:'b'.repeat(64)}]}})
+ const exact=fixture({requirementSource:ref,baseline:{tenderRecords:[ref]}})
+ try{
+  await expect(readContentBaselineRequirement(wrong.host,selection)).rejects.toThrow('BASELINE_TENDER_RECORD_MISSING')
+  const result=await readContentBaselineRequirement(exact.host,selection)
+  result.assertCurrent()
+  const view=exact.ds.getView('Baseline','selectedBaseline')!
+  Object.defineProperty(view.rows[0]!,'tenderRecords',{value:[],enumerable:true})
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_ROW')
+  expect(exact.queries[0]).toHaveBeenCalledTimes(1)
+ }finally{wrong.ds.destroy();exact.ds.destroy()}
+})
 it('proves only the complete original tender record reference and withdraws it on baseline refresh',async()=>{
  const ref={runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}
  const f=fixture({baseline:{tenderRecords:[ref]}})

@@ -27,7 +27,7 @@ export type ContentCandidateRequirementPinsBinding=Omit<ContentBaselineRequireme
 export type ContentCandidateRequirementBinding=Omit<Awaited<ReturnType<typeof readContentBaselineRequirement>>,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
 type PreviewVersion=Readonly<{snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding}>
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
-type PreviewScopeInput=Pick<ScopedContentPreviewInput,'responses'|'declaredAddedNodeIds'>
+type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>
 type CandidateScopePreview=Readonly<ReturnType<typeof previewScopedRevisionChanges>&{assertCurrent:()=>void}>
 
 function assertRevisionManifest(manifest:unknown,row:Readonly<Record<string,unknown>>):asserts manifest is object{
@@ -156,7 +156,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
  const previewScope=async(input:PreviewScopeInput,assertConsumer?:()=>void):Promise<CandidateScopePreview>=>{
   assertCurrent();assertConsumer?.()
   const assertTargetScope=candidate.captureReadRow(row,['targetScope'])
-  const {responses:scopeResponses,declaredAddedNodeIds}=structuredClone(input)
+  const {declaredAddedNodeIds}=structuredClone(input)
   const versions=await readPreviewVersions(assertConsumer)
   const assertPreview=()=>{versions.assertCurrent();assertTargetScope()}
   assertPreview()
@@ -170,7 +170,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const readManifest=(version:PreviewVersion|null)=>version===null?null:
    host.runtime.resolveView(version.snapshot.dataViewKey)?.rows[0]?.['manifest']
   const result=previewScopedRevisionChanges({projectId:host.projectId,basis:readNodes(versions.basis),
-   current:readNodes(versions.head),candidate:readNodes(versions.candidate),targetScope:row['targetScope'],responses:scopeResponses,declaredAddedNodeIds},
+   current:readNodes(versions.head),candidate:readNodes(versions.candidate),targetScope:row['targetScope'],declaredAddedNodeIds},
   {basis:readManifest(versions.basis),current:readManifest(versions.head),candidate:readManifest(versions.candidate)})
   assertPreview()
   return Object.freeze({...result,assertCurrent:assertPreview})

@@ -40,6 +40,8 @@ it('derives candidate response scope from the three manifests even with an empty
   .toThrow('CONTENT_SCOPE_ASSIGNMENT_BASIS')
  const fixedAssignment={...manifest([]),responseAssignments:[{id:'Q'}]}
  expect(previewScopedRevisionChanges(unfilled,{basis:fixedAssignment,current:fixedAssignment,candidate:manifest([newResponse])}).scopeCheckPassed).toBe(true)
+ const {responses:_responses,...fromFixed}=unfilled
+ expect(previewScopedRevisionChanges(fromFixed,{basis:fixedAssignment,current:fixedAssignment,candidate:manifest([newResponse])}).scopeCheckPassed).toBe(true)
 })
 it('accepts selected node content while retaining current-only edits and pending authority checks',()=>{
  const candidate=basis().map(n=>n.nodeId==='a'?{...n,value:'候选'}:n)

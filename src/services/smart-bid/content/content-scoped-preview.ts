@@ -157,23 +157,26 @@ export function previewScopedContentTree(command:ScopedContentPreviewInput):Scop
 
 /** 从三份固定清单提取响应变更，避免以调用方的空变更清单绕过范围核验。 */
 export function previewScopedRevisionChanges(
- command:Omit<ScopedContentPreviewInput,'responseChanges'>,
+ command:Omit<ScopedContentPreviewInput,'responseChanges'|'responses'>&Partial<Pick<ScopedContentPreviewInput,'responses'>>,
  manifests:Readonly<{basis:unknown;current:unknown;candidate:unknown}>,
 ){
  const responseComparison=compareRevisionResponses(manifests.basis,manifests.current,manifests.candidate,command.projectId)
- const responses=responseBasis(command.responses),projected=new Map(responses.map(row=>[row.assignmentId,row.responseId]))
- if(responses.some(row=>row.responseId===null)){
-  const error='CONTENT_SCOPE_ASSIGNMENT_BASIS'
+ const error='CONTENT_SCOPE_ASSIGNMENT_BASIS',assignments=new Set<string>()
+ if(manifests.basis!==null){
   const basis=snapshotReferenceRecord(manifests.basis,error)
-  const assignments=new Set<string>()
   visitSnapshotReferences(basis['responseAssignments'],value=>{
    const assignmentId=snapshotReferenceRecord(value,error)['id']
    if(!snapshotReferenceIdentity(assignmentId)||assignments.has(assignmentId))throw Error(error)
    assignments.add(assignmentId)
   },error)
-  if(responses.some(row=>row.responseId===null&&!assignments.has(row.assignmentId)))throw Error(error)
  }
- const basisIds=new Map(responseComparison.map(row=>[row.assignmentId,row.basisResponseId]))
+ const basisIds=new Map<string,string|null>([...assignments].map(assignmentId=>[assignmentId,null]))
+ for(const row of responseComparison)if(row.basisResponseId!==null)basisIds.set(row.assignmentId,row.basisResponseId)
+ const responses=command.responses===undefined
+  ?[...basisIds].map(([assignmentId,responseId])=>({projectId:command.projectId,assignmentId,responseId}))
+  :responseBasis(command.responses)
+ const projected=new Map(responses.map(row=>[row.assignmentId,row.responseId]))
+ if(responses.some(row=>row.responseId===null&&!assignments.has(row.assignmentId)))throw Error(error)
  if(responses.some(row=>row.responseId!==null&&basisIds.get(row.assignmentId)!==row.responseId))
   throw Error('CONTENT_SCOPE_RESPONSE_BASIS')
  for(const row of responseComparison){

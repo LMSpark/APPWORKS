@@ -29,10 +29,16 @@ export async function createCandidateReadFixture(mode='normal'){
  const snapshotHash=await hashRevisionSnapshot(manifest)
  const requirement={id:'REQ',projectId:'P',lineageId:'L',version:'R2',kind:'FORMAT',text:'原文',score:null,sourceSpan:null,
   supportingSpans:[],sourceRecord:null,parseQuality:'TEXT_ONLY',checks:[],constraint:null,applicability:{},status:'ADOPTED'}
+ const tender={id:'TR',projectId:'P',runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64),
+  payload:{text:'核定原文'},sourceSpan:{page:1},parseQuality:'LOCATED',confirmStatus:'CONFIRMED'}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{
+  TenderRecord:{modelBinding:{modelId:'TENDER_MODEL',modelName:'TenderRecord'},
+   columns:Object.keys(tender).map(name=>({name,isPrimaryKey:name==='id',...(name==='ordinal'?{type:'number' as const}:{})})),
+   views:{default:{},selectedTenderRecord:{commitMode:'staged',scopeFilter:{logic:'and',
+    filters:['projectId','runId','type','ordinal','recordVersion','recordHash'].map(field=>eq(field))}}}},
   Requirement:{modelBinding:{modelId:'REQ_MODEL',modelName:'Requirement'},columns:Object.keys(requirement).map(name=>({name,isPrimaryKey:name==='id'})),
    views:{default:{},selectedRequirement:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('lineageId'),eq('version')]}}}},
-  Baseline:{modelBinding:{modelId:'BM',modelName:'Baseline'},columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'stageRef',type:'object'},{name:'factVersions',type:'object'},{name:'requirementVersions',type:'object'}],
+  Baseline:{modelBinding:{modelId:'BM',modelName:'Baseline'},columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'stageRef',type:'object'},{name:'factVersions',type:'object'},{name:'requirementVersions',type:'object'},{name:'tenderRecords',type:'object'}],
    views:{default:{},selectedBaseline:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','baselineId')]}}}},
   FactVersion:{modelBinding:{modelId:'FM',modelName:'FactVersion'},columns:['id','projectId','key','version','kind','value','unit','sourceIds','claimId','scopeRef','decisionRefs','dependencyRefs','promiseTerms','sourceRecord','status'].map(name=>({name,isPrimaryKey:name==='id',type:name==='version'?'number':['value','sourceIds','scopeRef','decisionRefs','dependencyRefs','promiseTerms','sourceRecord'].includes(name)?'object':'string'})),
    views:{default:{},selectedFactVersion:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('key'),eq('version')]}}}},
@@ -52,7 +58,8 @@ export async function createCandidateReadFixture(mode='normal'){
   templateRefs:mode==='template'?[{documentId:'D',key:'T',version:'2',hash:'a'.repeat(64)}]:templateRefs}
  const query=vi.fn(async(view:DataView)=>{
   const model=view.dataTable!.tableName,q=new DataSpaceQueryTable({scenarioId:'S',metaName:model})
-  const rows=model==='Requirement'?[requirement]:model==='Baseline'?[{id:mode==='wrong-fact-baseline'?'OTHER':'B',projectId:'P',stageRef:{id:'ST',version:'1'},factVersions:[{factId:'PRICE',version:2}],requirementVersions:[{lineageId:'L',version:'R2'}]}]:
+  const rows=model==='TenderRecord'?[tender]:model==='Requirement'?[requirement]:model==='Baseline'?[{id:mode==='wrong-fact-baseline'?'OTHER':'B',projectId:'P',stageRef:{id:'ST',version:'1'},factVersions:[{factId:'PRICE',version:2}],requirementVersions:[{lineageId:'L',version:'R2'}],
+   tenderRecords:[{runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}]}]:
    model==='FactVersion'?[{id:'FV2',projectId:'P',key:'PRICE',version:2,kind:'PRICE',value:'0.00',unit:'元',sourceIds:[],claimId:null,scopeRef:null,decisionRefs:[],dependencyRefs:[],promiseTerms:null,sourceRecord:null,status:'ADOPTED'}]:
    model==='ContentProject'?[{projectId:'P',headRevisionId:null}]:model==='ContentRevision'?[candidate]:
    model==='ContentNodeVersion'?(mode==='sibling-tree'?[...members].sort((a,b)=>a.nodeId<b.nodeId?-1:1):members)

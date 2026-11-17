@@ -12,9 +12,11 @@ import {readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSe
 import {assertContentNodeVersionPayload,hasCompleteSingleContentResult} from './content-node-version-reader'
 import {readContentSnapshotIndex,type ContentSnapshotIndexBinding} from './content-snapshot-reader'
 import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './content-snapshot-nodes'
-import {readContentBaselineFact,readContentBaselineRequirement,readContentBaselineRequirementPins,type ContentBaselineFactBinding,type ContentBaselineRequirementPinsBinding} from './content-baseline-reader'
+import {readContentBaselineFact,readContentBaselineRequirement,readContentBaselineRequirementPins,readContentBaselineTenderRecord,type ContentBaselineFactBinding,type ContentBaselineRequirementPinsBinding} from './content-baseline-reader'
 import type {RevisionRequirementPin} from '@/services/smart-bid/content/references/revision-requirement-pins'
 import {snapshotReferenceFields} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {readTenderRecordReference} from '@/services/smart-bid/content/references/baseline-tender-records'
+import {readContentTenderRecord} from './content-tender-record-reader'
 
 /** 原候选及同版清单已证明基线身份；冻结和用途许可仍不在读取层推断。 */
 export type ContentCandidateFactBinding=Omit<ContentBaselineFactBinding,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
@@ -29,6 +31,7 @@ export type ContentCandidateBinding=Readonly<{
  readFixedFact:(selection:Readonly<{factId:string;version?:number}>,assertConsumer?:()=>void)=>Promise<ContentCandidateFactBinding>
  readRequirementPinIssues:(assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementPinsBinding>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
+ readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
  revisions:ContentRevisionReadBinding;snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding
  revisionMatchVerified:true;templateBindingsVerified:true;requirementBindingsVerified:true;responseAnchorsVerified:true;responseTextVerified:true
  requiresResponseReferenceChecks:true;requiresResponsePayloadChecks:true;requiresTemplateResourceChecks:true;requiresRequirementVersionChecks:true;requiresBusinessSectionChecks:true;assertCurrent:()=>void
@@ -109,7 +112,16 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   result.assertCurrent()
   return Object.freeze({...result,requiresRevisionMatchCheck:false})
  }
- return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+ const readFixedTenderRecord=async(reference:unknown,assertConsumer?:()=>void)=>{
+  const assertContext=()=>{assertCurrent();assertConsumer?.()}
+  assertContext()
+  const fixedReference=readTenderRecordReference(reference)
+  const baselineId=row['baselineId']
+  if(typeof baselineId!=='string')throw Error('CONTENT_CANDIDATE_BASELINE_REQUIRED')
+  const baseline=await readContentBaselineTenderRecord({...host,assertCurrent:assertContext},{baselineId,stageRef:row['stageRef']},fixedReference)
+  return readContentTenderRecord({...host,assertCurrent:baseline.assertCurrent},fixedReference)
+ }
+ return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,
   requiresBusinessSectionChecks:true,assertCurrent})

@@ -14,6 +14,7 @@ import {snapshotReferenceIdentity,snapshotReferenceRecord,visitSnapshotReference
 import type {ContentStructureNode} from '@/services/smart-bid/content-tree-structure'
 import {assessBaselineRequirementPins,selectBaselineRequirementMember,type BaselineRequirementPinIssue} from '@/services/smart-bid/content/references/baseline-requirement-members'
 import {readContentRequirement,type ContentRequirementSelection} from './content-requirement-reader'
+import {assertBaselineTenderRecordMember} from '@/services/smart-bid/content/references/baseline-tender-records'
 
 /** 原基线挂接诊断；不是要求原记录或当前用途证明。 */
 export type ContentBaselineRequirementPinsBinding=Readonly<{
@@ -55,7 +56,7 @@ function valid(view:DataView):boolean {
   &&hasContentScopeCondition(view,'id',{Type:'GetInputParam',ParamName:'baselineId'})
 }
 /** 两种成员消费共用原查询、阶段和字段证明，不复制查询/保存责任。 */
-async function readOriginalBaseline(host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown}>,memberField:'factVersions'|'requirementVersions'){
+async function readOriginalBaseline(host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown}>,memberField:'factVersions'|'requirementVersions'|'tenderRecords'){
  const {runtime,scenarioId,projectId}=host,{baselineId}=input
  host.assertCurrent()
  if(!snapshotReferenceIdentity(scenarioId)||!snapshotReferenceIdentity(projectId)||!snapshotReferenceIdentity(baselineId)
@@ -80,6 +81,15 @@ async function readOriginalBaseline(host:ContentRevisionReadHost,input:Readonly<
  const assertCurrent=()=>{assertScope();assertResult();assertRow()}
  assertCurrent()
  return {key:baselineDataViewKey,row,assertCurrent}
+}
+/** 证明原基线固定了这条完整来源引用，原核定记录内容和准用另核。 */
+export async function readContentBaselineTenderRecord(
+ host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown}>,selection:unknown,
+):Promise<Readonly<{baselineDataViewKey:string;assertCurrent:()=>void}>>{
+ const baseline=await readOriginalBaseline(host,input,'tenderRecords')
+ assertBaselineTenderRecordMember(baseline.row['tenderRecords'],selection)
+ baseline.assertCurrent()
+ return Object.freeze({baselineDataViewKey:baseline.key,assertCurrent:baseline.assertCurrent})
 }
 /** 原基线和事实证明组合；后续任何重查、编辑或宿主替换都会撤销该绑定。 */
 export async function readContentBaselineFact(host:ContentRevisionReadHost,input:ContentBaselineFactSelection):Promise<ContentBaselineFactBinding>{

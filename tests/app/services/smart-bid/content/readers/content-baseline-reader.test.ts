@@ -1,5 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey} from '@spark-appworks/spark-data'
+import {readContentBaselineTenderRecord} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
 import {readContentBaselineFact,readContentBaselineRequirementPins,readContentBaselineRequirement} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -27,6 +28,20 @@ function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,u
  return {ds,host,queries,save,expire:()=>{active=false}}
 }
 const input={baselineId:'B',stageRef:{decisionId:'STAGE'},factId:'PRICE',version:2}
+it('proves only the complete original tender record reference and withdraws it on baseline refresh',async()=>{
+ const ref={runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}
+ const f=fixture({baseline:{tenderRecords:[ref]}})
+ try{
+  await expect(readContentBaselineTenderRecord(f.host,input,{...ref,recordVersion:'2'})).rejects.toThrow('BASELINE_TENDER_RECORD_MISSING')
+  const result=await readContentBaselineTenderRecord(f.host,input,ref)
+  expect(result.baselineDataViewKey).toBe('S@Baseline@selectedBaseline')
+  result.assertCurrent()
+  await f.ds.getView('Baseline','selectedBaseline')!.refresh()
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  expect(f.queries[1]).not.toHaveBeenCalled()
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
 it('opens only the confirmed baseline requirement and revokes its proof when baseline changes',async()=>{
  const f=fixture()
  const selected={baselineId:'B',stageRef:input.stageRef,lineageId:'L',version:'R2'}

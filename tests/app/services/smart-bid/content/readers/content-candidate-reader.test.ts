@@ -2,6 +2,23 @@ import {expect,it} from 'vitest'
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
 
+it('checks the source hash against the candidate baseline and revokes proof when the candidate snapshot changes',async()=>{
+ const f=await fixture()
+ const ref={runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  await expect(candidate.readFixedTenderRecord({...ref,recordHash:'b'.repeat(64)})).rejects.toThrow('BASELINE_TENDER_RECORD_MISSING')
+  expect(f.query.mock.calls.some(([view])=>view.dataTable?.tableName==='TenderRecord')).toBe(false)
+  const binding=await candidate.readFixedTenderRecord(ref)
+  expect(binding.dataViewKey).toBe('S@TenderRecord@selectedTenderRecord')
+  expect(f.ds.getView('TenderRecord','selectedTenderRecord')!.rows[0]?.['payload']).toEqual({text:'核定原文'})
+  binding.assertCurrent()
+  await f.ds.getView('RevisionSnapshot','selectedSnapshot')!.refresh()
+  expect(()=>binding.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
+
 it('checks original candidate pins against its fixed baseline and invalidates the report after snapshot refresh',async()=>{
  const f=await fixture('valid-pin')
  try{
@@ -13,6 +30,25 @@ it('checks original candidate pins against its fixed baseline and invalidates th
   expect(f.ds.getView('Baseline','selectedBaseline')!.queryContext).toMatchObject({projectId:'P',baselineId:'B'})
   await f.ds.getView('RevisionSnapshot','selectedSnapshot')!.refresh()
   expect(()=>report.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT');expect(f.save).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
+it.each(['Baseline','TenderRecord'])('drops original tender evidence when the consumer leaves during %s query',async model=>{
+ const f=await fixture()
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const execute=f.query.getMockImplementation()!
+  let current=true
+  f.query.mockImplementation(async view=>{
+   const result=await execute(view)
+   if(view.dataTable?.tableName===model)current=false
+   return result
+  })
+  await expect(candidate.readFixedTenderRecord({
+   runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64),
+  },()=>{if(!current)throw Error('CONSUMER_STALE')})).rejects.toThrow('CONSUMER_STALE')
+  const requested=f.query.mock.calls.map(([view])=>view.dataTable?.tableName)
+  expect(requested.filter(name=>name==='TenderRecord')).toHaveLength(model==='Baseline'?0:1)
+  expect(f.save).not.toHaveBeenCalled()
  }finally{f.ds.destroy()}
 })
 it('checks the consumer before dispatch and after an in-flight fixed requirement baseline read',async()=>{

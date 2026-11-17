@@ -484,10 +484,10 @@
         "control": {
           "enum": [
             "text",
-            "json",
             "select",
             "password",
             "textarea",
+            "json",
             "checkbox"
           ]
         },

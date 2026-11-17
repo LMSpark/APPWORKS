@@ -5296,6 +5296,11 @@
       "shardFile": "files/src/services/smart-bid/content/references/baseline-requirement-members.ts.json",
       "sourceModifiedAt": "2026-11-17T18:12:55.096Z"
     },
+    "src/services/smart-bid/content/references/baseline-tender-records.ts": {
+      "sourceFile": "src/services/smart-bid/content/references/baseline-tender-records.ts",
+      "shardFile": "files/src/services/smart-bid/content/references/baseline-tender-records.ts.json",
+      "sourceModifiedAt": "2026-11-17T19:27:24.390Z"
+    },
     "src/services/smart-bid/content/references/content-reference-editor-schema.ts": {
       "sourceFile": "src/services/smart-bid/content/references/content-reference-editor-schema.ts",
       "shardFile": "files/src/services/smart-bid/content/references/content-reference-editor-schema.ts.json",
@@ -5694,12 +5699,12 @@
     "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T18:33:10.151Z"
+      "sourceModifiedAt": "2026-11-17T19:22:12.729Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T18:35:11.280Z"
+      "sourceModifiedAt": "2026-11-17T19:29:27.995Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts",
@@ -5730,6 +5735,11 @@
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts.json",
       "sourceModifiedAt": "2026-11-17T12:24:36.171Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts.json",
+      "sourceModifiedAt": "2026-11-17T19:27:24.392Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",

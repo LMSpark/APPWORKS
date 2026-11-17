@@ -10920,3 +10920,7 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - 2026-11-18 招标来源固定基线读取：复用原Baseline@selectedBaseline常驻项目/基线与阶段证明，捕获tenderRecords正式字段，完整匹配运行/类别/序号/版本/摘要，不回退到同序号其它版。基线重查撤销证明。两文件25项通过，原核定记录查询及用途仍待。
 - 2026-11-18 候选来源引用证明接入：verifyFixedTenderRecord沿原候选固定baselineId/stageRef、原快照与消费者证明核tenderRecords，拒绝同一序号及版号但不同摘要，快照重查撤销原证明；候选/基线两文件39项通过。只证明基线成员，不查询TenderParse原载荷或代替用途核定。
 - 工艺组合入口与字段依赖诊断收口：整仓类型、专项lint、正式生成、8文件144项通过。工艺草案待真实发布目录及宿主，ValueFun原字段及现场保存回执待核。
+- 2026-11-18 原核定来源读取：新增TenderRecord@selectedTenderRecord消费者，复用完整引用解析，要求projectId与五引用字段常驻精确范围及staged，唯一正式结果需CONFIRMED且LOCATED/TEXT_ONLY，错误摘要/版本、拒绝或不可用均失败，返回原DataView及重查失效证明。两个专项11项通过。正式资源与组合候选调用仍待。独立ls-remote确认工艺/平台诊断批4132d5aa0已推送，诊断并非ValueFun保存修复。
+- 2026-11-18 候选原核定记录闭合到正式视图合同：readFixedTenderRecord替代未提交的仅成员证明入口，冻结同一次输入的五字段引用，先核固定基线再查TenderRecord原视图，错摘要不派发TenderRecord查询。实际DataView夹具读出核定原文，候选快照重查撤销组合证明。实服模型/视图/业务样本与准用待验。
+- 2026-11-18 招标证据竞态验证：消费者在Baseline与TenderRecord各自查询返回前失效，两处都撤销结果；Baseline阶段失效时不向TenderRecord发请求。候选和原记录两文件27项通过。新增的是回归证据，实服仍待。
+- 固定招标来源批已收口：候选同一引用先核基线成员及摘要，再沿原TenderRecord DataView读取；快照重查撤销旧结果。reader/reference 15文件176项、整仓类型、专项lint与正式生成通过。正式模型/视图和实服业务记录仍待核。

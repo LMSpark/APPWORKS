@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1313,
+  "scannedFileCount": 1315,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17501,6 +17501,19 @@
         ]
       }
     },
+    "src/services/smart-bid/content/references/baseline-tender-records.ts": {
+      "file": "files/src/services/smart-bid/content/references/baseline-tender-records.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/baseline-tender-records",
+        "sourcePath": "src/services/smart-bid/content/references/baseline-tender-records.ts",
+        "sourceFile": "src/services/smart-bid/content/references/baseline-tender-records.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/baseline-tender-records",
+        "jsdoc": "@module app:services/smart-bid/content/references/baseline-tender-records\n职责：校验基线固定的核定记录引用。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/references/content-reference-editor-schema.ts": {
       "file": "files/src/services/smart-bid/content/references/content-reference-editor-schema.ts.json",
       "module": {
@@ -18761,6 +18774,19 @@
           "ContentSnapshotSelection",
           "ContentSnapshotIndexBinding"
         ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/content-tender-record-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/content-tender-record-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-tender-record-reader\n职责：按固定引用读取同项目已核定的原文解析记录。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
       }
     },
     "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue": {

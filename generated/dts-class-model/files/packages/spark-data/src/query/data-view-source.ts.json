@@ -230,45 +230,7 @@
       "title": "DataViewSourceAdapter",
       "properties": {
         "history": {
-          "type": "object",
-          "properties": {
-            "list": {
-              "type": "object",
-              "title": "(view: DataView) => Promise<readonly DataViewSourceVersion[]>"
-            },
-            "preview": {
-              "type": "object",
-              "title": "(view: DataView, version: string | number) => Promise<string>"
-            },
-            "status": {
-              "type": "object",
-              "title": "(view: DataView) => DataViewSourceHistoryStatus"
-            },
-            "verify": {
-              "type": "object",
-              "title": "(view: DataView, hooks: Readonly<{ assertCurrent(): void; }>) => Promise<DataViewSourceHistoryStatus>"
-            },
-            "isDeliveryPending": {
-              "type": "object",
-              "title": "(view: DataView) => boolean"
-            },
-            "acknowledge": {
-              "type": "object",
-              "title": "(view: DataView) => void"
-            },
-            "create": {
-              "type": "object",
-              "title": "(view: DataView, hooks: Readonly<{ assertCurrent(): void; onAttempt(attempt: DataViewSourceHistoryAttempt): void; }>) => Promise<void>"
-            }
-          },
-          "required": [
-            "list",
-            "preview",
-            "status",
-            "verify",
-            "create"
-          ],
-          "additionalProperties": false
+          "$ref": "../../../spark-project-model/src/scenario/scenario-definition-resource.ts.json#/$defs/History"
         }
       },
       "additionalProperties": false,

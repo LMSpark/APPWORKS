@@ -60,11 +60,11 @@
       "properties": {
         "state": {
           "enum": [
-            "idle",
-            "unknown",
-            "pending",
             "confirmed",
-            "not-applied"
+            "not-applied",
+            "unknown",
+            "idle",
+            "pending"
           ]
         },
         "version": {

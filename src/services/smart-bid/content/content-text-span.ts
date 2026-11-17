@@ -18,6 +18,8 @@ export type ContentTextSpan=Readonly<{
 export type ContentTextSpanInput=Readonly<{
  projectId:string;revisionId:string;owner:ContentTextOwner;object:unknown;reference:unknown;mode:'TEXT'|'INSERTION'
 }>
+/** 由固定版原字段和用户选区生成 V2 引用。 */
+export type ContentTextSelection=Omit<ContentTextSpanInput,'reference'>&Readonly<{path:string;start:number;end:number}>
 /** 只证明此版本此位置的原文，完整占位仍须核当前字段引用及事实键。 */
 export type VerifiedContentTextSpan=Readonly<{
  reference:ContentTextSpan;text:string;containerText:string;containsPlaceholders:boolean;requiresFieldBindingChecks:boolean
@@ -95,6 +97,16 @@ export async function verifyContentTextSpan(command:ContentTextSpanInput):Promis
  if(projectId!==identity(input['projectId'])||revisionId!==identity(input['revisionId'])||!sameOwner(spanOwner,expectedOwner))throw Error('CONTENT_SPAN_CONTEXT')
  const path=unicode(ref['path']),start=ref['start'],end=ref['end'],textDigest=unicode(ref['textDigest']),mode=input['mode']
  if(!/^[a-f0-9]{64}$/u.test(textDigest))throw Error('CONTENT_SPAN_DIGEST')
+ if(typeof start!=='number'||typeof end!=='number'||mode!=='TEXT'&&mode!=='INSERTION')throw Error('CONTENT_SPAN_RANGE')
+ const result=await captureContentTextSpan({projectId,revisionId,owner:spanOwner,object:input['object'],path,start,end,mode})
+ if(result.reference.textDigest!==textDigest)throw Error('CONTENT_SPAN_DIGEST')
+ return result
+}
+
+/** 不接受调用方提供原串或摘要，从固定版字段切出原文并计算摘要。 */
+export async function captureContentTextSpan(command:ContentTextSelection):Promise<VerifiedContentTextSpan>{
+ const input=object(command),projectId=identity(input['projectId']),revisionId=identity(input['revisionId'])
+ const spanOwner=readContentTextOwner(input['owner']),path=unicode(input['path']),start=input['start'],end=input['end'],mode=input['mode']
  const source=stringAt({source:input['object'],owner:spanOwner,path}),full=source.text
  if(typeof start!=='number'||typeof end!=='number'||!Number.isSafeInteger(start)||!Number.isSafeInteger(end)
   ||start<0||end>full.length||start>end||mode!=='TEXT'&&mode!=='INSERTION'
@@ -110,8 +122,7 @@ export async function verifyContentTextSpan(command:ContentTextSpanInput):Promis
  }
  const text=full.slice(start,end),bytes=new TextEncoder().encode(text)
  const hash=await globalThis.crypto.subtle.digest('SHA-256',bytes)
- const actual=Array.from(new Uint8Array(hash),byte=>byte.toString(16).padStart(2,'0')).join('')
- if(actual!==textDigest)throw Error('CONTENT_SPAN_DIGEST')
+ const textDigest=Array.from(new Uint8Array(hash),byte=>byte.toString(16).padStart(2,'0')).join('')
  return {reference:{schemaVersion:2,projectId,revisionId,owner:spanOwner,path,start,end,unit:'utf16',textDigest},text,containerText:full,
   containsPlaceholders,requiresFieldBindingChecks:containsPlaceholders,requiresCurrentAuthorityChecks:true}
 }

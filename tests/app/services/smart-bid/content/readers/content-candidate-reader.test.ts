@@ -215,7 +215,16 @@ it('previews selected text against the verified current head without modifying i
   path:'/value',start:0,end:text.length,unit:'utf16',textDigest:createHash('sha256').update(text).digest('hex')})
  try{
   const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:'V2'})
-  const result=await candidate.previewText([{operation:'replace',sourceRef:span('C','标'),targetRef:span('V2','标题')}])
+  const captured=await candidate.captureNodeTextSelection({role:'candidate',nodeId:'H',path:'/value',start:0,end:1,mode:'TEXT'})
+  expect(captured.reference).toEqual(span('C','标'))
+  captured.assertCurrent()
+  const versions=await candidate.readPreviewVersions()
+  const queries=f.query.mock.calls.length
+  const target=await versions.captureNodeTextSelection({role:'head',nodeId:'H',path:'/value',start:0,end:2,mode:'TEXT'})
+  expect(target.reference).toEqual(span('V2','标题'))
+  const result=await versions.previewText([{operation:'replace',sourceRef:captured.reference,targetRef:target.reference}])
+  expect(f.query).toHaveBeenCalledTimes(queries)
+  target.assertCurrent()
   expect(result.textPreview.patches[0]?.after).toBe('标{{册名}}')
   expect(result.requiresMeaningChecks).toBe(true)
   expect(f.save).not.toHaveBeenCalled()

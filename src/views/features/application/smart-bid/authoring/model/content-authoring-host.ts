@@ -88,8 +88,10 @@ export class ContentAuthoringHost {
  #key:string|undefined
  #tool:PageTool|undefined
  #pending=false
+ /** 由导航实例池传入时，运行实例继续由实例池负责装载和释放。 */
+ constructor(private readonly borrowedRuntime?:PageRuntime){}
  get binding():ContentAuthoringBinding|undefined{return this.#binding}
- get hasPending():boolean{return this.#pending || this.#session.runtime?.isDirty===true}
+ get hasPending():boolean{return this.#pending || (this.borrowedRuntime??this.#session.runtime)?.isDirty===true}
 
  /** 装配正式空间并只查询本次项目与作者的视图；目标或认证代次变化创建新实例。 */
  async open(input:ContentAuthoringTarget,tool?:PageTool):Promise<ContentAuthoringBinding> {
@@ -102,29 +104,40 @@ export class ContentAuthoringHost {
   if(tool&&(tool.pageId!==target.pageId||!tool.isLoaded))throw Error('CONTENT_AUTHORING_TOOL_IDENTITY_REQUIRED')
   const session = captureContentAuthoringSession(target)
   const {actorUserId} = session
+  const borrowed=this.borrowedRuntime
+  const borrowedInputs=borrowed?.call.scenarioInputs?.[target.scenarioId]
+  if(borrowed&&(!borrowed.isLoaded||borrowed.pageId!==target.pageId
+   ||borrowed.call.scenarioIds.length!==1||borrowed.call.scenarioIds[0]!==target.scenarioId
+   ||borrowedInputs?.['projectId']!==target.projectId||borrowedInputs['currentUserId']!==actorUserId
+   ||tool!==undefined&&borrowed.tool!==tool))
+   throw Error('CONTENT_AUTHORING_RUNTIME_IDENTITY_REQUIRED')
   const key=JSON.stringify([target.applicationId,target.pageId,target.scenarioId,target.projectId,target.draftId,lowcodeApi.readRequestScope().token,actorUserId])
   if(this.#key===key && this.#binding&&this.#tool===tool){this.#binding.assertCurrent();return this.#binding}
   if(this.hasPending)throw Error('CONTENT_AUTHORING_PENDING: 请先处理原项目的未保存编辑')
   const own=++this.#generation
   this.#binding=undefined;this.#key=undefined;this.#tool=undefined;this.#pending=false
   try {
-   const runtime=this.#session.acquire({...(tool?{tool}:{pageId:target.pageId}),scenarioIds:[target.scenarioId],targetId:key,
+   const runtime=borrowed??this.#session.acquire({...(tool?{tool}:{pageId:target.pageId}),scenarioIds:[target.scenarioId],targetId:key,
     scenarioInputs:session.scenarioInputs,
     loadScenario:scenarioId=>loadLowcodeRuntimeScenario({projectId:target.applicationId,scenarioId})})
+   if(!borrowed)await runtime.load()
+   const generation=runtime.generation
+   const runtimeCurrent=()=>runtime.isLoaded&&runtime.generation===generation
+    &&(borrowed!==undefined||this.#session.isCurrent(runtime))
    const projectKey=buildDataViewKey('ContentProject','selectedProject',target.scenarioId)
    const draftKey=buildDataViewKey('WorkingDraft','personalDraft',target.scenarioId)
    let views:DataView[]=[],loaded=false
    const assertCurrent=()=>{
     session.assertCurrent()
     const [project,draft]=views
-    if(own!==this.#generation||!this.#session.isCurrent(runtime)
+    if(own!==this.#generation||!runtimeCurrent()
      ||views.some(view=>view.queryContext['projectId']!==target.projectId||view.queryContext['currentUserId']!==actorUserId)
      ||views.length>0 && (!project||!draft||runtime.resolveView(projectKey)!==project
       ||runtime.resolveView(draftKey)!==draft||!validScope(project,draft))
      ||loaded && (!project||!readableProject(project,target.projectId)))
      throw Error('CONTENT_AUTHORING_STALE: 正文编制的会话或目标已失效')
    }
-   await runtime.load();assertCurrent()
+   assertCurrent()
    const project=runtime.resolveView(projectKey)
    const draft=runtime.resolveView(draftKey)
    if(!project||!draft||!validScope(project,draft))
@@ -150,7 +163,7 @@ export class ContentAuthoringHost {
     readFactVersion:selection=>readContentFactVersion({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
     readBaselineFact:selection=>readContentBaselineFact({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
     setPending:(value:boolean)=>{
-     if(own!==this.#generation||!this.#session.isCurrent(runtime))return
+     if(own!==this.#generation||!runtimeCurrent())return
      // 失效只能保留未写回输入的保护；旧回调不能清除它并放行销毁。
      if(value){this.#pending=true;return}
      try{assertCurrent();this.#pending=false}catch{/* 保留当前未保存输入。 */}

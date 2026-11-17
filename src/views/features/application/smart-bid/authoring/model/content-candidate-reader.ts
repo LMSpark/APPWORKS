@@ -19,6 +19,7 @@ import {readTenderRecordReference} from '@/services/smart-bid/content/references
 import {readContentTenderRecord} from './content-tender-record-reader'
 import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/services/smart-bid/content/content-scoped-preview'
 import {previewContentTextSnapshot,type ContentResponseTextSnapshot,type ContentTextSnapshotPreview} from '@/services/smart-bid/content/content-text-snapshot-preview'
+import {captureContentTextSpan,type ContentTextSelection,type VerifiedContentTextSpan} from '@/services/smart-bid/content/content-text-span'
 
 /** 原候选及同版清单已证明基线身份；冻结和用途许可仍不在读取层推断。 */
 export type ContentCandidateFactBinding=Omit<ContentBaselineFactBinding,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
@@ -30,6 +31,7 @@ type PreviewVersion=Readonly<{snapshot:ContentSnapshotIndexBinding;nodes:Content
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
 type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>
 type CandidateScopePreview=Readonly<ReturnType<typeof previewScopedRevisionChanges>&{assertCurrent:()=>void}>
+type CandidateNodeSelection=Pick<ContentTextSelection,'path'|'start'|'end'|'mode'>&Readonly<{role:'candidate'|'head';nodeId:string}>
 
 function assertRevisionManifest(manifest:unknown,row:Readonly<Record<string,unknown>>):asserts manifest is object{
  if(typeof manifest!=='object'||manifest===null||Array.isArray(manifest))throw Error('CONTENT_CANDIDATE_MANIFEST_REQUIRED')
@@ -49,6 +51,7 @@ export type ContentCandidateBinding=Readonly<{
  readPreviewVersions:(assertConsumer?:()=>void)=>Promise<PreviewVersions>
  previewScope:(input:PreviewScopeInput,assertConsumer?:()=>void)=>Promise<CandidateScopePreview>
  previewText:(changes:unknown,assertConsumer?:()=>void)=>Promise<Readonly<ContentTextSnapshotPreview&{assertCurrent:()=>void}>>
+ captureNodeTextSelection:(input:CandidateNodeSelection,assertConsumer?:()=>void)=>Promise<Readonly<VerifiedContentTextSpan&{assertCurrent:()=>void}>>
  revisions:ContentRevisionReadBinding;snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding
  revisionMatchVerified:true;templateBindingsVerified:true;requirementBindingsVerified:true;responseAnchorsVerified:true;responseTextVerified:true
  requiresResponseReferenceChecks:true;requiresResponsePayloadChecks:true;requiresTemplateResourceChecks:true;requiresRequirementVersionChecks:true;requiresBusinessSectionChecks:true;assertCurrent:()=>void
@@ -205,7 +208,25 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertPreview()
   return Object.freeze({...result,assertCurrent:assertPreview})
  }
- return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+ const captureNodeTextSelection=async(input:CandidateNodeSelection,assertConsumer?:()=>void)=>{
+  const {role,nodeId,path,start,end,mode}=input
+  const assertContext=()=>{assertCurrent();assertConsumer?.()}
+  assertContext()
+  const revisionId=role==='candidate'?candidateRevisionId:expectedHead
+  if(revisionId===null)throw Error('CONTENT_TEXT_HEAD_REQUIRED')
+  const version=role==='candidate'?{snapshot,nodes}:(await readPreviewVersions(assertConsumer)).head
+  const key=version?.nodes.dataViewKey
+  if(!key)throw Error('CONTENT_CANDIDATE_NODE_REQUIRED')
+  const assertSelection=()=>{assertContext();version.nodes.assertCurrent()}
+  assertSelection()
+  const selected=host.runtime.resolveView(key)?.rows.find(member=>member['nodeId']===nodeId)
+  if(!selected)throw Error('CONTENT_CANDIDATE_NODE_REQUIRED')
+  const result=await captureContentTextSpan({projectId:host.projectId,revisionId,owner:{kind:'NODE',nodeId},
+   object:selected['payload'],path,start,end,mode})
+  assertSelection()
+  return Object.freeze({...result,assertCurrent:assertSelection})
+ }
+ return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,
   requiresBusinessSectionChecks:true,assertCurrent})

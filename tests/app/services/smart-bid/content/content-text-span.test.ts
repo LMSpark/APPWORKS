@@ -80,3 +80,12 @@ it('keeps the captured reference and original string while hashing asynchronousl
  expect(result.reference.revisionId).toBe('R')
  expect(result.reference.start).toBe(0)
 })
+it('creates a V2 reference directly from a fixed text selection',async()=>{
+ const {captureContentTextSpan}=await import('@/services/smart-bid/content/content-text-span')
+ const payload={nodeId:'N',parentId:'C',index:1,type:'paragraph',value:'甲😀乙',class:[],data:{}}
+ const selection={projectId:'P',revisionId:'V',owner:{kind:'NODE' as const,nodeId:'N'},object:payload,path:'/value',start:1,end:3,mode:'TEXT' as const}
+ const result=await captureContentTextSpan(selection)
+ expect(result.text).toBe('😀')
+ expect(result.reference).toMatchObject({start:1,end:3,unit:'utf16',revisionId:'V'})
+ await expect(captureContentTextSpan({...selection,end:2})).rejects.toThrow('CONTENT_SPAN_BOUNDARY')
+})

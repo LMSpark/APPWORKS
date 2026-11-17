@@ -3,8 +3,8 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {DataSet, type DataView, type QueryParams, type DataViewFilterTree} from '@spark-appworks/spark-data'
-import {PageTool} from '@spark-appworks/spark-project-model'
-import {ContentAuthoringHost, type ContentAuthoringTarget} from '@/views/features/application/smart-bid/authoring/model/content-authoring-host'
+import {PageRuntime,PageTool} from '@spark-appworks/spark-project-model'
+import {captureContentAuthoringSession,ContentAuthoringHost, type ContentAuthoringTarget} from '@/views/features/application/smart-bid/authoring/model/content-authoring-host'
 import ContentDraftWorkspace from '@/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue'
 import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -58,6 +58,21 @@ it('loads the original views with fixed project and trusted session-author input
  expect(filters.join(' ')).toContain('projectId')
  expect(filters.join(' ')).toContain('userId')
  binding.assertCurrent();host.close()
+})
+it('binds the supplied runtime without taking ownership of it',async()=>{
+ const {ds}=fixture()
+ const runtime=new PageRuntime({pageId:target.pageId,scenarioIds:[target.scenarioId],
+  scenarioInputs:captureContentAuthoringSession(target).scenarioInputs,loadScenario:async()=>ds})
+ await runtime.load()
+ const host=new ContentAuthoringHost(runtime)
+ try{
+  const binding=await host.open(target)
+  expect(binding.runtime).toBe(runtime)
+  expect(load).not.toHaveBeenCalled()
+  host.close()
+  expect(runtime.isLoaded).toBe(true)
+  expect(()=>binding.assertCurrent()).toThrow('CONTENT_AUTHORING_STALE')
+ }finally{runtime.dispose()}
 })
 it('invalidates the binding when the runtime no longer resolves the original draft view',async()=>{
  fixture()

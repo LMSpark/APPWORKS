@@ -185,8 +185,8 @@ export class LowcodeDatabaseTableView {
           relationFieldsView['sortExpression'] = fieldSort
           return [name, {modelBinding: {modelId: model.id, modelName: model.metaName}, views: {
             default: {...fieldView},
-            [DATABASE_CATALOG_FIELD_TABLE_VIEW]: {...fieldView},
-            [DATABASE_CATALOG_FIELD_VIEW_VIEW]: {...fieldView},
+            [DATABASE_CATALOG_FIELD_TABLE_VIEW]: {...fieldView, queryConfig: {allPages: false, autoQuery: false}},
+            [DATABASE_CATALOG_FIELD_VIEW_VIEW]: {...fieldView, queryConfig: {allPages: false, autoQuery: false}},
             [DATABASE_CATALOG_RELATION_FIELD_VIEW]: {...relationFieldsView},
           }}]
         }

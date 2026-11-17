@@ -65,6 +65,23 @@ describe('database/catalog/table/field-view-ops', () => {
       tables: ds.getView(DATABASE_CATALOG_TABLE_MODEL)!})).rejects.toThrow('尚未就绪')
   })
 
+  it('requires a fresh field query after switching to another table', async () => {
+    http.allowAddByModel.add(DATABASE_CATALOG_FIELD_MODEL)
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const db = ds.getView('_base_dbInfo')!, tables = ds.getView(DATABASE_CATALOG_TABLE_MODEL)!
+    const fields = requireDatabaseCatalogFieldView(ds, DATABASE_CATALOG_FIELD_TABLE_VIEW)
+    await db.refresh(); db.setSelectedRows([db.rows[0]!]); await tables.refresh()
+    tables.setSelectedRows([tables.rows.find(row => row['tblname'] === 'Orders')!]); await fields.refresh()
+    tables.setSelectedRows([tables.rows.find(row => row['tblname'] === 'LineItems')!])
+    await expect(databaseCatalogFieldBeginCreate({fields, tables})).rejects.toThrow()
+    expect(fields.dirtyTracking.hasPendingChanges()).toBe(false)
+    await fields.refresh()
+    await databaseCatalogFieldBeginCreate({fields, tables})
+    expect(fields.currentRow?.['tblid']).toBe('T3')
+    expect(http.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(0)
+  })
+
   it('commits staged field edits through saveChanges on Base_TblField', async () => {
     const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)

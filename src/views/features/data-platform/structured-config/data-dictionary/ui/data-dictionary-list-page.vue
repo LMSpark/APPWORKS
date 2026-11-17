@@ -26,7 +26,7 @@ AI用途：恢复专题目录时复用正式数据空间和标准组件，分别
       :close-disabled="workspaceDirty" @update:model-value="close">
       <DictionarySetting v-if="editingId && workspaceKind === 'design'" :key="`${workspaceKind}:${editingId}`" :dictionary-id="editingId"
         :application-scenario-id="scenarioId" :create="creating"
-        @pending="editorPending = $event" @saved="refresh" @deleted="deleted" @cancelled="cancelled" />
+        @pending="editorPending = $event" @saved="refresh" @cancelled="cancelled" />
       <template #footer>
         <RendererButton label="关闭" :disabled="workspaceDirty" @click="close" />
       </template>
@@ -134,7 +134,6 @@ async function refresh(): Promise<void> {
   await view.value?.refresh()
   error.value = view.value?.loadingError?.message ?? ''
 }
-async function deleted(): Promise<void> {editorPending.value = false; editingId.value = ''; await refresh()}
 watch(scenarioId, async id => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''; editingId.value = ''

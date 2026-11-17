@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-17",
+  "specification": "authoring-submission-specification.md §6.1 runtime choice/when",
+  "source": "src/services/smart-bid/operation/operation-choice-decision.ts",
+  "tests": "tests/app/services/smart-bid/operation/operation-choice-decision.test.ts",
+  "contract": [
+    "JSON context runId/targetId/artifactHash; explicit evidence state/value/references",
+    "Unknown, stale, missing, cross-context or unreferenced outcomes WAIT",
+    "One true EXECUTE; multiple true CONFLICT; all false SKIP only when no required skipped branch",
+    "Malformed JSON/accessors/duplicate identities rejected without coercion"
+  ],
+  "verification": {
+    "aiCodegenViolations": 0,
+    "tests": 39,
+    "seconds": 4.54,
+    "exitCode": 0,
+    "lintExitCode": 0,
+    "files": 3
+  },
+  "limits": [
+    "First red was missing module, not behavioral failure",
+    "New explicit implementation model; formal generated ClassModel not refreshed in this task",
+    "No when grammar/interpreter or evidence producer; caller must derive required for entire subtree",
+    "No production runner/page/persistent operation record or published execution acceptance"
+  ]
+}

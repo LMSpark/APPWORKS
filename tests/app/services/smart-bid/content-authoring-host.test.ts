@@ -69,9 +69,11 @@ it('rejects missing identity and unscoped definitions before any business query'
 it('connects revision reads to the same host guard and refuses incomplete selections before queries',async()=>{
  const f=fixture(),host=new ContentAuthoringHost(),binding=await host.open(target)
  await expect(binding.readRevisions({candidateRevisionId:'',expectedHead:null})).rejects.toThrow('CONTENT_REVISION_IDENTITY_REQUIRED')
+ await expect(binding.readNodeVersion({nodeId:'N',nodeHash:''})).rejects.toThrow('CONTENT_NODE_VERSION_IDENTITY_REQUIRED')
  expect(f.queries).toHaveBeenCalledTimes(2)
  host.close()
  await expect(binding.readRevisions({candidateRevisionId:'C',expectedHead:null})).rejects.toThrow('CONTENT_AUTHORING_STALE')
+ await expect(binding.readNodeVersion({nodeId:'N',nodeHash:'a'.repeat(64)})).rejects.toThrow('CONTENT_AUTHORING_STALE')
  expect(f.queries).toHaveBeenCalledTimes(2)
 })
 it('refuses a project whose identity is hidden even when its raw value matches the selected project',async()=>{

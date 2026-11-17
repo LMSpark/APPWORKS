@@ -1,0 +1,41 @@
+{
+  "scope": "PDF formal rule creation field contract",
+  "writes": 0,
+  "sessionPersisted": false,
+  "modelId": "6d177477-0ecb-41c2-9299-ff037935066d",
+  "primaryKey": "id",
+  "fields": [
+    {
+      "id": "2AEAC31BAEF076F200898774CE3F6CFE",
+      "name": "description",
+      "type": "TEXT",
+      "output": true
+    },
+    {
+      "id": "4754D2328E0A0DB7915E8EDC0560117E",
+      "name": "id",
+      "type": "VARCHAR",
+      "output": true
+    },
+    {
+      "id": "87E3175EDAA032E8DF4AF8087F3C2F2F",
+      "name": "name",
+      "type": "VARCHAR",
+      "output": true
+    },
+    {
+      "id": "B6BE6203C1B54F9A6CD3C28E62279EAC",
+      "name": "enabled",
+      "type": "INT",
+      "output": true
+    },
+    {
+      "id": "BEC0010C559AF01BD3E079557409293C",
+      "name": "rule_config",
+      "type": "TEXT",
+      "output": true
+    }
+  ],
+  "requests": 6,
+  "blocked": 0
+}

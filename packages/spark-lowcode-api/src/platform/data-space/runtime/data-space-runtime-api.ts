@@ -222,8 +222,9 @@ export class DataSpaceRuntimeApi {
     if (tree) {
       fields.add(tree.idField ?? 'id')
       if (tree.parentIdField !== undefined || formalFields.has('parentId')) {
-        fields.add(tree.parentIdField ?? 'parentId')
+        fields.add(SparkData.DataTreeField.source(tree.parentIdField ?? 'parentId'))
       }
+      if (tree.orderField !== undefined) fields.add(SparkData.DataTreeField.source(tree.orderField))
       const textField = tree.textField ?? 'name'
       if ((tree.textField !== undefined || formalFields.has(textField))
         && !view.dataTable?.columns.some(column => column.name === textField && Boolean(column.computeExpression))) {

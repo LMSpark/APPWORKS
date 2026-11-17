@@ -4,7 +4,7 @@
  * 边界：模型结构与视图输出分别处理，不推导数据权限或改变原配置。
  * AI用途：按需字段目录、设计暂存与运行装配共用原生字段合同。
  */
-import {DataTable, DataViewQuery, type DataColumn, type DataView, type DataViewFieldProjection} from '@spark-appworks/spark-data'
+import {DataTable, DataTreeField, DataViewQuery, type DataColumn, type DataView, type DataViewFieldProjection} from '@spark-appworks/spark-data'
 import {DataSpaceDesignApi, DataSpaceRuntimeApi, DataSpaceQueryAggregation} from '@spark-appworks/spark-lowcode-api'
 import {isRecord} from '@spark-appworks/spark-utils'
 
@@ -154,8 +154,8 @@ export class LowcodeDataSpaceViewFields {
       if (isRecord(item)) check(item['field'], `sortExpression[${index}].field`)
     })
     const tree = view['treeConfig']
-    if (isRecord(tree)) for (const key of ['idField', 'parentIdField', 'textField']) {
-      if (tree[key] !== undefined) check(tree[key], `treeConfig.${key}`, key === 'textField')
+    if (isRecord(tree)) for (const key of ['idField', 'parentIdField', 'textField','orderField']) {
+      if (tree[key] !== undefined) check(DataTreeField.source(DataTreeField.parse(tree[key])), `treeConfig.${key}`, key === 'textField')
     }
     const aggregates = view['aggregates']
     if (isRecord(aggregates)) for (const [name, value] of Object.entries(aggregates)) {

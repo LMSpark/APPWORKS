@@ -13,6 +13,7 @@
       "DataSetCommandColumnSpec",
       "DataSetCommandScopeGuard",
       "DataSetCommandRowsLoader",
+      "DataSetCommandPageLoader",
       "DataSetCommandResourceIdentity",
       "BindReadonlyCommandQueryOptions",
       "EnsureDataSetResourceViewInput",
@@ -244,7 +245,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@278152": {
+                "__@iterator@280161": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -299,7 +300,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@278152"
+                "__@iterator@280161"
               ],
               "additionalProperties": false
             },
@@ -617,8 +618,22 @@
           "title": "DataSetCommandScopeGuard"
         },
         "loadRows": {
-          "type": "object",
-          "title": "DataSetCommandRowsLoader"
+          "anyOf": [
+            {
+              "type": "object",
+              "title": "DataSetCommandRowsLoader"
+            },
+            false
+          ]
+        },
+        "loadPage": {
+          "anyOf": [
+            false,
+            {
+              "type": "object",
+              "title": "DataSetCommandPageLoader"
+            }
+          ]
         }
       },
       "additionalProperties": false,
@@ -807,7 +822,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-08T03:25:06.134Z",
+  "generatedAt": "2026-11-17T13:13:33.786Z",
   "models": {
     "DataSetCommandColumnSpec": {
       "name": "DataSetCommandColumnSpec",
@@ -1000,6 +1015,15 @@
         "members": {}
       }
     },
+    "DataSetCommandPageLoader": {
+      "name": "DataSetCommandPageLoader",
+      "jsdoc": "服务已执行查询与分页；只读包装仅投影字段，保留服务总数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(view: DataView, params: Readonly<QueryParams>) => Promise<Readonly<{\n    rows: readonly DataRow[];\n    total: number;\n}>>",
+        "members": {}
+      }
+    },
     "DataSetCommandResourceIdentity": {
       "name": "DataSetCommandResourceIdentity",
       "jsdoc": "真实资源身份；file仅用于文件，服务命令、查询及应用投影声明自身语义类型，不伪造文件或后端模型。",
@@ -1034,11 +1058,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 显式探测只允许原绑定视图调用，不可作为选项来源或隐式克隆；普通只读资源省略。 */\n    derivedQueries?: 'bound-view-only';\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    /** 每次实际查询派发时捕获输入，params与loadRows共享同一隔离快照；返回校验守护结果及后续上下文。准备/预检不调用。 */\n    captureQueryInputs?: (view: DataView, params: Readonly<QueryParams>) => DataSetCommandScopeGuard;\n    loadRows: DataSetCommandRowsLoader;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 显式探测只允许原绑定视图调用，不可作为选项来源或隐式克隆；普通只读资源省略。 */\n    derivedQueries?: 'bound-view-only';\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    /** 每次实际查询派发时捕获输入，两个loader共享同一隔离参数快照；准备/预检不调用。 */\n    captureQueryInputs?: (view: DataView, params: Readonly<QueryParams>) => DataSetCommandScopeGuard;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n} & ({\n    loadRows: DataSetCommandRowsLoader;\n    loadPage?: never;\n} | {\n    loadPage: DataSetCommandPageLoader;\n    loadRows?: never;\n})>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 显式探测只允许原绑定视图调用，不可作为选项来源或隐式克隆；普通只读资源省略。 */\n    derivedQueries?: 'bound-view-only';\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    /** 每次实际查询派发时捕获输入，params与loadRows共享同一隔离快照；返回校验守护结果及后续上下文。准备/预检不调用。 */\n    captureQueryInputs?: (view: DataView, params: Readonly<QueryParams>) => DataSetCommandScopeGuard;\n    loadRows: DataSetCommandRowsLoader;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n}>",
+            "typeText": "Readonly<{\n    /** 显式探测只允许原绑定视图调用，不可作为选项来源或隐式克隆；普通只读资源省略。 */\n    derivedQueries?: 'bound-view-only';\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    /** 每次实际查询派发时捕获输入，两个loader共享同一隔离参数快照；准备/预检不调用。 */\n    captureQueryInputs?: (view: DataView, params: Readonly<QueryParams>) => DataSetCommandScopeGuard;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n} & ({\n    loadRows: DataSetCommandRowsLoader;\n    loadPage?: never;\n} | {\n    loadPage: DataSetCommandPageLoader;\n    loadRows?: never;\n})>",
             "targetName": "Readonly"
           }
         ],
@@ -1064,12 +1088,17 @@
               "name": "loadRows",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "loadPage",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
             {
               "name": "captureQueryInputs",
-              "jsdoc": "每次实际查询派发时捕获输入，params与loadRows共享同一隔离快照；返回校验守护结果及后续上下文。准备/预检不调用。",
+              "jsdoc": "每次实际查询派发时捕获输入，两个loader共享同一隔离参数快照；准备/预检不调用。",
               "parameters": [
                 {
                   "name": "view",

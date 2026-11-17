@@ -10,6 +10,12 @@ const fieldsByType: Readonly<Record<string, readonly string[]>> = {
   fact: ['factId'], number: ['number', 'unit'], date: ['date'], bool: ['bool'],
   page: ['nodeId'], xref: ['nodeId', 'show'], resource: ['resourceVersionId'], sensitive: ['ownerRef', 'field'],
 }
+/** 编辑器和校验共用的闭合引用种类，不返回可修改的规则真源。 */
+export function contentReferenceTypes():readonly string[] {return Object.freeze(Object.keys(fieldsByType))}
+/** 指定种类的正式业务成员；不包含呈现属性，不替调用方选择默认类型。 */
+export function contentReferenceFields(type:string):readonly string[] {
+  return Object.freeze(Object.hasOwn(fieldsByType,type)?[...fieldsByType[type]??[]]:[])
+}
 
 /** 返回引用形状错误；保留零和false，不转换原值或猜默认值。 */
 export function validateContentReference(value: unknown): string[] {

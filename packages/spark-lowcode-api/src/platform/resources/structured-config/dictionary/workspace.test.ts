@@ -551,7 +551,7 @@ describe('Dictionary resource through formal DataViews', () => {
     try {
       await workspace.load()
       expect(workspace.canRemoveDefinition).toBe(false)
-      await expect(workspace.removeDefinition()).rejects.toThrow(/数据库、配置和代码消费者/)
+      await expect(workspace.removeDefinition()).rejects.toThrow(/持久引用及定义、条目结果合同/)
       expect(workspace.pending).toBe(false)
       expect(workspace.definition.rows).toHaveLength(1)
       expect(workspace.entries.rows).toHaveLength(1)
@@ -577,7 +577,7 @@ describe('Dictionary resource through formal DataViews', () => {
         }
 
         expect(workspace.canRemoveDefinition).toBe(false)
-        await expect(workspace.removeDefinition()).rejects.toThrow(/数据库、配置和代码消费者/)
+        await expect(workspace.removeDefinition()).rejects.toThrow(/持久引用及定义、条目结果合同/)
         expect(definition.hasEditingChanges()).toBe(false)
         expect(entries.hasEditingChanges()).toBe(false)
         expect(definition.dirtyTracking.hasPendingChanges()).toBe(false)

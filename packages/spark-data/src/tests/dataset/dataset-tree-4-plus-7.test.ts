@@ -131,6 +131,40 @@ function createScopedRelativeTreeDataSet(mockHttpClient: HttpClientBase): DataSe
 }
 
 describe('DataSet Tree 4+7 interfaces', () => {
+  it('does not dispatch legacy endpoints or mutate cached members for a local JSON tree',async()=>{
+    const get=vi.fn(),post=vi.fn(),put=vi.fn(),http=createTreeHttpClient({get,post,put})
+    const endpoint={url:NAV_BASE,method:'GET' as const}
+    const tree=new TreeManager({config:{idField:'id',parentIdField:{field:'payload',path:['parentId'],format:'native'},
+      orderField:{field:'payload',path:['index'],format:'native'}},httpClient:http,
+      api:{children:endpoint,path:endpoint,subtree:endpoint,move:{...endpoint,method:'PUT'},nestedSearch:endpoint,nested:endpoint},
+      initialNodes:[{id:'NODE',name:'Original',parentId:null,payload:{parentId:null,index:2}}]})
+    const original=tree.getNode('NODE')
+    for(const run of [()=>tree.fetchChildren(null),()=>tree.fetchPath('NODE'),()=>tree.expandToNode('NODE'),
+      ()=>tree.moveNode('NODE',null,0),()=>tree.fetchNestedSearch('Original'),()=>tree.fetchNested()]){
+      await expect(run()).rejects.toThrow('TREE_LOCAL_PROJECTION_ONLY')
+    }
+    expect(get).not.toHaveBeenCalled();expect(post).not.toHaveBeenCalled();expect(put).not.toHaveBeenCalled()
+    expect(tree.getNode('NODE')).toBe(original)
+  })
+  it('rejects an old children receipt after switching to a JSON member tree without replacing version ids',async()=>{
+    let release:(value:unknown)=>void=()=>{}
+    const get=vi.fn(()=>new Promise<unknown>(resolve=>{release=resolve}))
+    const ds=DataSet.fromJson({dataSetName:'Versions',tables:{Nodes:{resourceType:'static-data',
+      columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'nodeId',type:'string'},{name:'parentId',type:'string'},{name:'name',type:'string'},{name:'payload',type:'json'}],
+      api:{children:{url:NAV_BASE,method:'GET'}},views:{default:{rows:[{id:'VERSION',nodeId:'NODE',parentId:null,name:'Original',payload:{parentId:null,index:2}}],
+        treeConfig:{idField:'nodeId',parentIdField:'parentId',textField:'name'}}}}}})
+    ds.setSharedHttpClient(createTreeHttpClient({get}))
+    try {
+      const view=ds.getView('Nodes')!;await view.refresh();const original=view.rows[0]
+      const pending=view.loadTreeChildren('NODE')
+      await vi.waitFor(()=>expect(get).toHaveBeenCalledOnce())
+      view.setTreeConfig({idField:'nodeId',parentIdField:{field:'payload',path:['parentId'],format:'native'},
+        orderField:{field:'payload',path:['index'],format:'native'},textField:'name'})
+      release([{id:'OLD',parentId:'NODE',name:'Old child'}])
+      await expect(pending).rejects.toThrow('TREE_RESULT_STALE')
+      expect(view.rows).toHaveLength(1);expect(view.rows[0]).toBe(original);expect(view.rows[0]?.['id']).toBe('VERSION')
+    } finally {ds.destroy()}
+  })
   describe('5 remote interfaces (DataView delegates)', () => {
     it('loadFromServer should call list endpoint for first-screen data and keep treeMode as query signal', async () => {
       const get = vi.fn().mockResolvedValue([

@@ -45,6 +45,31 @@ function childRow(view:DataView):DataRow|undefined {
  view.visitRowsDeep(row=>{if(row['label']==='Child')result=row})
  return result
 }
+it.each([['tree',false],['table',false],['table',true],['tree',true]] as const)('binds %s JSON parents and numeric sibling order while actions consume original version rows; nested=%s',async(kind,nested)=>{
+ const stubs={...config.global.stubs};for(const name of ['el-tree','el-table','el-table-column','el-button','SparkComponentRenderer','spark-component-renderer'])delete stubs[name];config.global.stubs=stubs
+ vi.stubGlobal('ResizeObserver',class{observe(){}unobserve(){}disconnect(){}})
+ const records=[{id:'VB',nodeId:'B',label:'Second',payload:{parentId:'PROJECT',index:10}},
+   {id:'VA',nodeId:'A',label:'First',payload:{parentId:'PROJECT',index:2}}]
+ const rows=nested?records.map(row=>({...row,children:row.nodeId==='A'?[{id:'VC',nodeId:'C',label:'Child',payload:{parentId:'A',index:0}}]:[]})):records
+ const ds=DataSet.fromJson({scenarioId:'SCENE',tables:{Rows:{resourceType:'static-data',resourceId:'member-tree',columns:[{name:'id',type:'string',isPrimaryKey:true},...['nodeId','label'].map(name=>({name,type:'string'})),{name:'payload',type:'json'}],views:{default:{autoLoad:false,rows,treeConfig:{idField:'nodeId',parentIdField:{field:'payload',path:['parentId'],format:'native'},...(nested&&kind==='tree'?{}:{orderField:{field:'payload',path:['index'],format:'native' as const}}),textField:'label',rootParentValue:'PROJECT'}}}}}})
+ const view=ds.getView('Rows')!;await view.refresh();const original=view.rows[1]!
+ if(nested&&kind==='tree')view.configure({sortExpression:[{field:'label',direction:'asc'}]})
+ const runtime=new PageRuntime({pageId:'member-tree',scenarioIds:['SCENE'],loadScenario:async()=>ds});await runtime.load()
+ const registry=Spark.createRegistry();registry.register({type:'r-button',component:RendererButton});registry.register({type:'r-toolbar',component:RendererToolbar});registry.register({type:'r-text',component:FieldText})
+ const click=vi.fn(),actions={children:[{type:'r-button',props:{label:'Run',onClick:click}}]}
+ const Host=defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'member-tree-host'});sparkProvide(PAGE_RUNTIME,runtime);return()=>kind==='tree'?h(RendererTree,{dataViewKey:'SCENE@Rows@default',actions,showDataViewMeta:false}):h(RendererTable,{dataViewKey:'SCENE@Rows@default',actions,showPagination:false,showDataViewMeta:false,children:[{type:'r-text',props:{field:'label',label:'Name'}}]})}})
+ const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry})]}});cleanups.push(()=>runtime.dispose(),()=>wrapper.unmount());await flushPromises()
+ const labels=kind==='tree'?wrapper.findAll('.custom-tree-node').map(item=>item.text()):wrapper.findAll('.el-table__row').filter(item=>item.isVisible()).map(item=>item.text())
+ expect(labels[0]).toContain('First');expect(labels[1]).toContain('Second')
+ await wrapper.findAll('button').find(item=>item.text()==='Run')!.trigger('click')
+ expect(click.mock.calls[0]?.[0]).toBe(original)
+ if(nested&&kind==='table'){
+   await wrapper.get('.el-table__expand-icon').trigger('click');await flushPromises()
+   await wrapper.findAll('.el-table__row').find(row=>row.text().includes('Child'))!.get('button').trigger('click')
+   expect(click.mock.calls[1]?.[0]).toBe(childRow(view))
+ }
+ if(kind==='tree'){await wrapper.findAll('.el-tree-node__content')[0]!.trigger('click');await flushPromises();expect(view.currentRow).toBe(original)}
+})
 it('rejects duplicate display keys without invoking a business click callback',async()=>{
  const stubs={...config.global.stubs};delete stubs['el-tree'];config.global.stubs=stubs
  const ds=DataSet.fromJson({scenarioId:'SCENE',tables:{Rows:{columns:['id','nodeId','label'].map(name=>({name,type:'string',...(name==='id'?{isPrimaryKey:true}:{})})),views:{default:{autoLoad:false,rows:[{id:'A',nodeId:'N',label:'Alpha'},{id:'B',nodeId:'N',label:'Beta'}]}}}}})

@@ -1,0 +1,333 @@
+{
+  "date": "2026-11-17",
+  "databaseId": "8C0FC2087F5D4103987A0D1FC6C3045B",
+  "database": "spark_bid",
+  "table": "bid_baseline",
+  "tableId": "799A87ECA16C82EFFCBFED41C5A11C59",
+  "preflight": "Original registered directory contained six existing tables; refreshed unregistered physical-table list was empty.",
+  "create": {
+    "requestId": "19840.2088",
+    "code": 200,
+    "extras": ""
+  },
+  "registry": [
+    {
+      "requestId": "19840.2089",
+      "code": 200,
+      "rowid": "799A87ECA16C82EFFCBFED41C5A11C59",
+      "dbid": "8C0FC2087F5D4103987A0D1FC6C3045B",
+      "tblname": "bid_baseline",
+      "tbldesc": "投标依据基线"
+    },
+    {
+      "requestId": "19840.2090",
+      "code": 200,
+      "rowid": "799A87ECA16C82EFFCBFED41C5A11C59",
+      "dbid": "8C0FC2087F5D4103987A0D1FC6C3045B",
+      "tblname": "bid_baseline",
+      "tbldesc": "投标依据基线"
+    }
+  ],
+  "fieldSave": {
+    "requestId": "19840.2094",
+    "code": 200,
+    "extras": [
+      {
+        "target": "删除失败字段",
+        "message": []
+      },
+      {
+        "target": "更新失败字段",
+        "message": []
+      },
+      {
+        "target": "新增失败字段",
+        "message": []
+      },
+      {
+        "target": "删除失败字段",
+        "message": []
+      },
+      {
+        "target": "更新失败字段",
+        "message": []
+      },
+      {
+        "target": "新增失败字段",
+        "message": []
+      }
+    ],
+    "newFields": [
+      {
+        "rowid": "1F587A6E963E6743E0810CD65897BC29",
+        "enname": "tender_records",
+        "DataType": "json",
+        "DataTypeName": "json类型",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "2B4A2383D732456F6555CDC60E604E5D",
+        "enname": "fact_versions",
+        "DataType": "json",
+        "DataTypeName": "json类型",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "70A50DABF4F458944BCFF34768B07F35",
+        "enname": "stage_ref",
+        "DataType": "json",
+        "DataTypeName": "json类型",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "97ACC9730ABDE760C5194A5385BC2AF5",
+        "enname": "requirement_versions",
+        "DataType": "json",
+        "DataTypeName": "json类型",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "E5611EB31D060012652EC186C03D3D9D",
+        "enname": "composition_records",
+        "DataType": "json",
+        "DataTypeName": "json类型",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "E882A865EC915FCDF6F337A017908FA7",
+        "enname": "submission_records",
+        "DataType": "json",
+        "DataTypeName": "json类型",
+        "DataLen": "",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "FAE9B9057B7D61221FB56BFEC29D41EE",
+        "enname": "project_id",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "DataLen": "256",
+        "IsPKey": 0,
+        "IsNill": 0,
+        "IsUQ": 0
+      }
+    ]
+  },
+  "coldRead": {
+    "pageReloaded": true,
+    "proof": [
+      {
+        "requestId": "19840.2184",
+        "code": 200,
+        "table": {
+          "rowid": "799A87ECA16C82EFFCBFED41C5A11C59",
+          "dbid": "8C0FC2087F5D4103987A0D1FC6C3045B",
+          "tblname": "bid_baseline"
+        }
+      },
+      {
+        "requestId": "19840.2186",
+        "code": 200,
+        "count": 19,
+        "fields": [
+          {
+            "rowid": "1C659F12C53047FC911665A270683FF0",
+            "enname": "createtime",
+            "DataType": "datetime",
+            "DataLen": "",
+            "IsPKey": 0,
+            "IsNill": 1,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "1F587A6E963E6743E0810CD65897BC29",
+            "enname": "tender_records",
+            "DataType": "json",
+            "DataLen": "",
+            "IsPKey": 0,
+            "IsNill": 0,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "2B4A2383D732456F6555CDC60E604E5D",
+            "enname": "fact_versions",
+            "DataType": "json",
+            "DataLen": "",
+            "IsPKey": 0,
+            "IsNill": 0,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "33591B70456E4D51B41DB1C1603511B0",
+            "enname": "flowstate",
+            "DataType": "int",
+            "DataLen": "",
+            "IsPKey": 0,
+            "IsNill": 1,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "33E750857C4D48D7BF273131CEEC824E",
+            "enname": "updateuser",
+            "DataType": "varchar",
+            "DataLen": "100",
+            "IsPKey": 0,
+            "IsNill": 1,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "37B56DCC73264976A5A97472DAB70F63",
+            "enname": "description",
+            "DataType": "text",
+            "DataLen": "",
+            "IsPKey": 0,
+            "IsNill": 1,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "70A50DABF4F458944BCFF34768B07F35",
+            "enname": "stage_ref",
+            "DataType": "json",
+            "DataLen": "",
+            "IsPKey": 0,
+            "IsNill": 0,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "77BC705062444E4189DFBD84D08DE817",
+            "enname": "wfid",
+            "DataType": "varchar",
+            "DataLen": "32",
+            "IsPKey": 0,
+            "IsNill": 1,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "79F9644DDDD4417BA41060CFCD2CA5FE",
+            "enname": "lingma_sys_appid",
+            "DataType": "varchar",
+            "DataLen": "64",
+            "IsPKey": 0,
+            "IsNill": 1,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "97A6F4A3185B4F89A42DFD25366A0D85",
+            "enname": "updatetime",
+            "DataType": "datetime",
+            "DataLen": "",
+            "IsPKey": 0,
+            "IsNill": 1,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "97ACC9730ABDE760C5194A5385BC2AF5",
+            "enname": "requirement_versions",
+            "DataType": "json",
+            "DataLen": "",
+            "IsPKey": 0,
+            "IsNill": 0,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "B8F7FCBCB75B420788260E0DBB1A7428",
+            "enname": "ReportID",
+            "DataType": "varchar",
+            "DataLen": "32",
+            "IsPKey": 0,
+            "IsNill": 1,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "C571CA755A75406AABF3041B0F27DD6E",
+            "enname": "id",
+            "DataType": "varchar",
+            "DataLen": "32",
+            "IsPKey": 1,
+            "IsNill": 0,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "C5C754A1FAA24C918E6240AF7886C7F8",
+            "enname": "lingma_sys_ent",
+            "DataType": "varchar",
+            "DataLen": "50",
+            "IsPKey": 1,
+            "IsNill": 0,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "DDA2B846CE6640888C1F671DE932D634",
+            "enname": "lingma_sys_is_delete",
+            "DataType": "int",
+            "DataLen": "",
+            "IsPKey": 0,
+            "IsNill": 1,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "E1F205CA86FB4D4F97146A5567B49789",
+            "enname": "createuser",
+            "DataType": "varchar",
+            "DataLen": "100",
+            "IsPKey": 0,
+            "IsNill": 1,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "E5611EB31D060012652EC186C03D3D9D",
+            "enname": "composition_records",
+            "DataType": "json",
+            "DataLen": "",
+            "IsPKey": 0,
+            "IsNill": 0,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "E882A865EC915FCDF6F337A017908FA7",
+            "enname": "submission_records",
+            "DataType": "json",
+            "DataLen": "",
+            "IsPKey": 0,
+            "IsNill": 0,
+            "IsUQ": 0
+          },
+          {
+            "rowid": "FAE9B9057B7D61221FB56BFEC29D41EE",
+            "enname": "project_id",
+            "DataType": "varchar",
+            "DataLen": "256",
+            "IsPKey": 0,
+            "IsNill": 0,
+            "IsUQ": 0
+          }
+        ]
+      }
+    ],
+    "newFieldDefinitionsMatch": true
+  },
+  "mappingNext": "Register Baseline from this exact physical resource. Output default id and createtime as id/createdAt; map seven business fields to formal camelCase. No extra business created-at source.",
+  "limits": [
+    "Physical schema only; formal model, named views and business reads are not yet registered.",
+    "No frozen baseline business row or approved fact member created.",
+    "Insert-only semantics, authoritative freeze/source checks, current-use permission and activation/adoption are not proven by generic table CRUD.",
+    "JSON columns retain version references; no fact values, source document bodies or presentation content are copied."
+  ]
+}

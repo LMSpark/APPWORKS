@@ -70,7 +70,11 @@ export class LowcodeDataSpaceArrayConfiguration {
           if(Array.isArray(view[key]))view[key]=view[key].map(value=>reference(value,tableName))
           else property(view,key,tableName)
         }
-        if(isRecord(view['treeConfig']))for(const key of ['idField','parentIdField','textField'])property(view['treeConfig'],key,tableName)
+        if(isRecord(view['treeConfig']))for(const key of ['idField','parentIdField','textField','orderField']){
+          const value=view['treeConfig'][key]
+          if(isRecord(value))property(value,'field',tableName)
+          else property(view['treeConfig'],key,tableName)
+        }
         const query=view['queryConfig']
         if(isRecord(query)&&Array.isArray(query['fields']))query['fields']=query['fields'].map(value=>reference(value,tableName))
         if(isRecord(query)&&Array.isArray(query['filterLookups']))for(const lookup of query['filterLookups'])if(isRecord(lookup)){

@@ -8,10 +8,12 @@ AI用途：业务宿主已加载正式空间时，绑定本次个人草稿并消
   <RendererSection title="正文编制" v-bind="state.view ? {dataViewKey} : {}" :grid-columns="1" :error="state.error || presentation.error || actionError"
     status="远端保存待建；当前编辑保留在本页，尚未形成正式修订。">
     <template v-if="state.view" #header-actions>
+      <RendererForm v-if="presentation.actions" :key="formGeneration" v-bind="presentation.actions" />
       <RendererButton :data-view-key="dataViewKey" label="取消本次草稿编辑" data-action="cancel-content-draft"
-        :disabled="!state.view.hasEditingChanges(draftId)" @click="cancel" />
+        :disabled="!state.view.hasEditingChanges(draftId) && !editing" @click="cancel" />
     </template>
     <RendererForm v-if="presentation.layout" :key="formGeneration" v-bind="presentation.layout" />
+    <ContentCandidateWorkspace v-if="candidate" :runtime="runtime" :binding="candidate" />
   </RendererSection>
 </template>
 
@@ -21,8 +23,10 @@ import {parseDataViewKey, type DataTable, type DataView} from '@spark-appworks/s
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type {JsonPath} from '@spark-appworks/spark-json-document'
 import {PAGE_RUNTIME, RendererButton, RendererForm, RendererSection, useSparkComponent} from '@spark-appworks/spark-component'
-import {contentTreeEditorLayout} from '@/services/smart-bid/content-tree-editor-layout'
+import {contentTreeDraftActionLayout,contentTreeEditorLayout,type ContentTreeEditorLayoutInput} from '@/services/smart-bid/content-tree-editor-layout'
 import {contentDraftSaveRule} from '@/services/smart-bid/content-draft-save-rule'
+import type {ContentCandidateBinding} from '../model/content-candidate-reader'
+import ContentCandidateWorkspace from './content-candidate-workspace.vue'
 
 const props = defineProps<{
   runtime: PageRuntime
@@ -33,6 +37,8 @@ const props = defineProps<{
   actorUserId: string
   /** 每次呈现及取消均核验当前应用、会话和本次运行实例。 */
   assertCurrent: () => void
+  /** 本次原宿主读取的候选；不从草稿复制候选内容。 */
+  candidate?: ContentCandidateBinding
 }>()
 const {sparkProvide, sparkRemove} = useSparkComponent({type:'content-draft-workspace'})
 /** 宿主据此阻止带未保存输入的离页/目标切换；失效时仍报告原视图的未保存编辑。 */
@@ -41,6 +47,8 @@ const revision = ref(0), selectedPath = ref<JsonPath | null>(null), editing = re
 const formGeneration = ref(0)
 const editorBinding = shallowRef<{view: DataView; id: string | number}>()
 let unsubscribe: (() => void) | undefined
+let workspaceActive=true
+function assertWorkspaceOpen():void {if(!workspaceActive)throw Error('正文工作区已关闭')}
 const guardedTables = new WeakSet<DataTable>()
 watch(() => {
   revision.value
@@ -49,6 +57,7 @@ watch(() => {
 const state = computed<{view?: DataView; error: string}>(() => {
   revision.value
   try {
+    assertWorkspaceOpen()
     props.assertCurrent()
     const binding = parseDataViewKey(props.dataViewKey)
     if (!binding?.scope || binding.tableName !== 'WorkingDraft') throw Error('正文编制必须绑定完整WorkingDraft视图')
@@ -65,18 +74,27 @@ const presentation = computed(() => {
   try {
     const original={runtime:toRaw(props.runtime),key:props.dataViewKey,projectId:props.projectId,draftId:props.draftId,
       actorUserId:props.actorUserId,assertCurrent:props.assertCurrent}
+    const originalSelection=selectedPath.value
     const beforeWrite=()=>{
       try {
+        assertWorkspaceOpen()
         original.assertCurrent()
         if(toRaw(props.runtime)!==original.runtime||props.dataViewKey!==original.key||props.projectId!==original.projectId
           ||props.draftId!==original.draftId||props.actorUserId!==original.actorUserId||state.value.view!==view)throw Error('当前编制目标已变化')
       } catch(cause){revision.value++;throw cause}
     }
-    const layout=contentTreeEditorLayout({view,dataViewKey:props.dataViewKey,projectId:props.projectId,draftId:props.draftId,
+    const input:ContentTreeEditorLayoutInput={view,dataViewKey:props.dataViewKey,projectId:props.projectId,draftId:props.draftId,
       selectedPath:selectedPath.value,onSelectedPathChange:path=>{if(!editing.value)selectedPath.value=path},
-      onEditingChange:value=>{editing.value=value}})
+      onEditingChange:value=>{editing.value=value}}
+    const layout=contentTreeEditorLayout(input)
+    const actions=contentTreeDraftActionLayout(input,{pending:editing.value,beforeChange:()=>{
+      beforeWrite();if(editing.value)throw Error('请先确认或取消当前文字输入')
+      if(selectedPath.value!==originalSelection)throw Error('所选内容已变化，请重新选择后操作')
+    },afterChange:()=>{selectedPath.value=null;editing.value=false;actionError.value='';formGeneration.value++},
+    onError:cause=>{const message=cause instanceof Error?cause.message:String(cause)
+      actionError.value=message.startsWith('DATA_VIEW_READ_RESULT')?'草稿内容已更新，请重新选择后操作':message}})
     // 标准JSON字段的change先于默认写回；这里只核宿主证明，实际值仍由原字段绑定提交。
-    return {error:'',layout:{...layout,...(layout.children ? {children:layout.children.map(node=>typeof node==='object'
+    return {error:'',actions,layout:{...layout,...(layout.children ? {children:layout.children.map(node=>typeof node==='object'
       ? {...node,props:{...node.props,onChange:beforeWrite}} : node)} : {})}}
   } catch (cause) {return {error:cause instanceof Error ? cause.message : String(cause)}}
 })
@@ -111,11 +129,12 @@ watch(() => [state.value.view,props.draftId] as const, ([view,draftId]) => {
 function cancel(): void {
   actionError.value=''
   try {
+    assertWorkspaceOpen()
     props.assertCurrent()
     const view=state.value.view
     if(!view)throw Error(state.value.error)
     view.discardEditingRows([props.draftId]);selectedPath.value=null;editing.value=false
   } catch(cause){actionError.value=cause instanceof Error?cause.message:String(cause)}
 }
-onBeforeUnmount(()=>{unsubscribe?.();sparkRemove(PAGE_RUNTIME)})
+onBeforeUnmount(()=>{workspaceActive=false;unsubscribe?.();sparkRemove(PAGE_RUNTIME)})
 </script>

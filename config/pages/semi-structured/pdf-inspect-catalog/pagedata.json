@@ -7,6 +7,10 @@
         "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
         "queryConfig": {"fields": ["id", "name", "description", "enabled", "createtime", "updatetime"]},
         "sortExpression": [{"field": "createtime", "direction": "desc"}, {"field": "id", "direction": "asc"}]
+      }, "creation": {
+        "autoLoad": false, "autoCurrentFirst": true, "commitMode": "staged",
+        "queryConfig": {"fields": ["id", "name", "description", "enabled", "rule_config"]},
+        "filterExpression": {"field": "id", "operator": "is-null"}
       }, "definition": {
         "autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
         "queryContext": {"ruleId": ""},

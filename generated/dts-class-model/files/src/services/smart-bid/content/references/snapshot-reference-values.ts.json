@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/snapshot-reference-values",
+    "sourcePath": "src/services/smart-bid/content/references/snapshot-reference-values.ts",
+    "sourceFile": "src/services/smart-bid/content/references/snapshot-reference-values.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/snapshot-reference-values",
+    "jsdoc": "@module app:services/smart-bid/content/references/snapshot-reference-values\n职责：共用固定快照引用的精确身份、闭合记录与密集列表读取。\n边界：仅检查JSON值描述符，不补字段、不查询、不选择版本或保存第二份业务数据。\nAI用途：分册模板和章节挂接复用同一安全读取，业务归属仍在各自合同核验。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-17T13:32:07.664Z",
+  "models": {}
+}

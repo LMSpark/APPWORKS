@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-17",
+  "status": "LOCAL_REFERENCE_EDITING_FOUNDATION_VERIFIED_FACT_SELECTION_PENDING",
+  "implementation": "content-reference-editor-schema plus original content-tree-editor-layout r-json form",
+  "semantics": "One standard original-node editor now exposes value,class,data. Exact placeholder names and existing bindings produce nested reference controls. Metadata comes from the same reference kinds/fields used by validation. Existing unused binding keys remain visible for explicit removal. No defaults, value expansion, new draft owner or business HTTP.",
+  "editingOrder": "Confirm body text first so newly introduced placeholder names become reference fields, then complete bindings. Intermediate draft may be incomplete; these edits are not a single atomic valid business response or formal adoption. Changing reference type uses a stable schema and retains other unconfirmed text and existing fields; incompatible old fields require explicit cleanup and remain subject to business validation.",
+  "dataFormatBoundary": "Semantic classes and structured fact/number/bool/etc references only. Decimal values remain strings, bool false stays boolean. Typography, width, pagination and output format remain outside the node editor. Synthetic FACT_PRICE_REFERENCE is only an identifier in a fixture, not proof of an approved fact.",
+  "classModel": "RJsonProps formal generated guide was newer than its declaration and confirms nested Schema form, exact native valuePath, enum controls and unified editing-change behavior. Public TreeConfig generated artifact was older than current source and lacked TreeFieldSelector/DataTreeField; it was audited for drift and not used as a new tree contract.",
+  "verification": {
+    "red": "New actual UI test failed on missing class/reference controls while eighteen prior tests passed.",
+    "fixtureCorrections": "ElSelect aria-label is a consumed ariaLabel prop, not the component wrapper attribute; boolean Schema uses the standard choice control. Corrected test targeting based on actual component contracts.",
+    "relatedFiles": 7,
+    "relatedTests": 88,
+    "durationSeconds": 25.60,
+    "exitCode": 0,
+    "cases": "Original body without placeholders -> confirm new placeholder -> enter fact reference/class -> cancel; false/0.00 retained; type switch keeps unconfirmed body; remove placeholder then explicitly remove old binding; exact Unicode parser/immutable metadata; original layout and content/reference/response validators.",
+    "eslint": "Seven changed source/test files, exit 0.",
+    "aiCodegen": "Four changed business source files, zero violations."
+  },
+  "pending": "Original FactVersion scoped view and actual picker, read-only target baseline/approved version context, cross-book same-fact verification, responsibility-page handoff for price/authority changes, real draft persistence/reopen and all formal preview/adoption acceptance. This is not complete manual step three. Full I0-I7 remains open; no public generation/full gates/index/staging/commit/push by this task."
+}

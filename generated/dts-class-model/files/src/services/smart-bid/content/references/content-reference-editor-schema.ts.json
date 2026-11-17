@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/content-reference-editor-schema",
+    "sourcePath": "src/services/smart-bid/content/references/content-reference-editor-schema.ts",
+    "sourceFile": "src/services/smart-bid/content/references/content-reference-editor-schema.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/content-reference-editor-schema",
+    "jsdoc": "@module app:services/smart-bid/content/references/content-reference-editor-schema\n职责：以正文占位与已有原绑定生成标准JSON表单Schema。\n边界：只生成显示合同，不复制或填充绑定，不确认事实/资源/敏感字段的版本与授权。\nAI用途：同一原节点编辑实例维护正文、分类和字段引用；呈现属性不进入内容。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-17T14:22:35.757Z",
+  "models": {}
+}

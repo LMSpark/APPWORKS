@@ -1,0 +1,267 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/init-resource",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/semi-structured/pdf-inspect/init-resource",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/init-resource\n职责：将固定PDF核验请求接入原DataSet命令提交及未知结果核验。\n边界：不上传、不查询配置、不保留第二草稿；恢复不重新要求原规则仍启用。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PdfInspectionInitResourceInput",
+      "PdfInspectionInitResource"
+    ]
+  },
+  "$defs": {
+    "Prepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Prepared",
+      "properties": {
+        "input": {
+          "$ref": "task-api.ts.json#/$defs/PdfInspectionInitInput"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertReady.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertReady.return": true
+      }
+    },
+    "PdfInspectionInitResourceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionInitResourceInput",
+      "properties": {
+        "api": {
+          "type": "object",
+          "properties": {
+            "init": {
+              "type": "object",
+              "title": "(input: PdfInspectionInitInput) => Promise<PdfInspectionInitReceipt>"
+            },
+            "recover": {
+              "type": "object",
+              "title": "(requestId: string) => Promise<PdfInspectionJob>"
+            }
+          },
+          "required": [
+            "init",
+            "recover"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "row": {
+              "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "$ref": "#/$defs/Prepared"
+        }
+      }
+    },
+    "PdfInspectionInitResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionInitResource",
+      "properties": {
+        "resourceId": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PdfInspectionInitResourceInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.return": {
+          "$ref": "../../../../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-17T12:54:29.941Z",
+  "models": {
+    "Prepared": {
+      "name": "Prepared",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    input: PdfInspectionInitInput;\n    assertReady: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    input: PdfInspectionInitInput;\n    assertReady: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "input",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertReady",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectionInitResourceInput": {
+      "name": "PdfInspectionInitResourceInput",
+      "jsdoc": "prepare同步核原配置/上传ACK及已持久化的requestId书签；不得派发或返回替代行。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    api: Pick<PdfInspectionApi, 'init' | 'recover'>;\n    assertCurrent: () => void;\n    prepare: (view: DataView, row: Readonly<DataRow>) => Prepared;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    api: Pick<PdfInspectionApi, 'init' | 'recover'>;\n    assertCurrent: () => void;\n    prepare: (view: DataView, row: Readonly<DataRow>) => Prepared;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "api",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "prepare",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Prepared",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectionInitResource": {
+      "name": "PdfInspectionInitResource",
+      "jsdoc": "每个绑定视图持有本次不可变命令证明，编辑仍由DataView负责。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: PdfInspectionInitResourceInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "PdfInspectionInitResourceInput",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "binding",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindCommandSubmitOptions"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

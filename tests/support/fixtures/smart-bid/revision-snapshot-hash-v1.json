@@ -1,0 +1,85 @@
+{
+  "contract": "spark-bid.revision-snapshot/1",
+  "oracle": "Python hashlib and explicit UTF16 object ordering; vector values avoid ambiguous numeric formatting",
+  "vectors": [
+    {
+      "name": "base",
+      "input": {
+        "hashContract": "spark-bid.revision-snapshot/1",
+        "projectId": "P",
+        "stageRef": {
+          "decisionId": "STAGE"
+        },
+        "baselineId": "BASE",
+        "templateRefs": [],
+        "nodes": [
+          {
+            "nodeId": "A",
+            "nodeHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "requirementPins": [],
+        "responseAssignments": [],
+        "responses": [],
+        "qualificationReviews": [],
+        "sensitiveRefs": []
+      },
+      "canonical": "{\"baselineId\":\"BASE\",\"hashContract\":\"spark-bid.revision-snapshot/1\",\"nodes\":[{\"nodeHash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"nodeId\":\"A\"}],\"projectId\":\"P\",\"qualificationReviews\":[],\"requirementPins\":[],\"responseAssignments\":[],\"responses\":[],\"sensitiveRefs\":[],\"stageRef\":{\"decisionId\":\"STAGE\"},\"templateRefs\":[]}",
+      "utf8Bytes": 345,
+      "sha256": "13e53342b766da48baa2d3ff2307ab82c8b156b69a2b5d0a4d63a9770b5525f6"
+    },
+    {
+      "name": "raw-unicode-newline",
+      "input": {
+        "hashContract": "spark-bid.revision-snapshot/1",
+        "projectId": "P",
+        "stageRef": {
+          "decisionId": "é\r\n阶段"
+        },
+        "baselineId": "BASE",
+        "templateRefs": [],
+        "nodes": [
+          {
+            "nodeId": "A",
+            "nodeHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "requirementPins": [],
+        "responseAssignments": [],
+        "responses": [],
+        "qualificationReviews": [],
+        "sensitiveRefs": []
+      },
+      "canonical": "{\"baselineId\":\"BASE\",\"hashContract\":\"spark-bid.revision-snapshot/1\",\"nodes\":[{\"nodeHash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"nodeId\":\"A\"}],\"projectId\":\"P\",\"qualificationReviews\":[],\"requirementPins\":[],\"responseAssignments\":[],\"responses\":[],\"sensitiveRefs\":[],\"stageRef\":{\"decisionId\":\"é\\r\\n阶段\"},\"templateRefs\":[]}",
+      "utf8Bytes": 353,
+      "sha256": "b2ff3695c8adc28c42b7c42e87546dbd3e2ed74608683b6783990ddbda4c1179"
+    },
+    {
+      "name": "utf16-key-order",
+      "input": {
+        "hashContract": "spark-bid.revision-snapshot/1",
+        "projectId": "P",
+        "stageRef": {
+          "": "BMP",
+          "𐀀": "astral"
+        },
+        "baselineId": "BASE",
+        "templateRefs": [],
+        "nodes": [
+          {
+            "nodeId": "A",
+            "nodeHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "requirementPins": [],
+        "responseAssignments": [],
+        "responses": [],
+        "qualificationReviews": [],
+        "sensitiveRefs": []
+      },
+      "canonical": "{\"baselineId\":\"BASE\",\"hashContract\":\"spark-bid.revision-snapshot/1\",\"nodes\":[{\"nodeHash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"nodeId\":\"A\"}],\"projectId\":\"P\",\"qualificationReviews\":[],\"requirementPins\":[],\"responseAssignments\":[],\"responses\":[],\"sensitiveRefs\":[],\"stageRef\":{\"𐀀\":\"astral\",\"\":\"BMP\"},\"templateRefs\":[]}",
+      "utf8Bytes": 352,
+      "sha256": "3998d9fbd8cfea010c004f0902d9240fce4487b6a95b382ac997dbdfeb42ba2a"
+    }
+  ]
+}

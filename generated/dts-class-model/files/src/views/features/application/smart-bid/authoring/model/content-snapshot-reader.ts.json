@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/content-snapshot-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/content-snapshot-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-snapshot-reader\n职责：从正文宿主原RevisionSnapshot视图读取固定清单、复核同版摘要并取得节点版本索引。\n边界：不写入或缓存快照，不把摘要和索引通过等同业务闭包/rootHash或采用通过。\nAI用途：先取得原清单读取证明，再按完整成员集合装配节点及其它固定业务记录。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentSnapshotSelection",
+      "ContentSnapshotIndexBinding"
+    ]
+  },
+  "$defs": {
+    "ContentSnapshotSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentSnapshotSelection",
+      "properties": {
+        "snapshotHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "snapshotHash"
+      ],
+      "additionalProperties": false
+    },
+    "ContentSnapshotIndexBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentSnapshotIndexBinding",
+      "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "index": {
+          "$ref": "../../../../../../services/smart-bid/content/revision-snapshot-index.ts.json#/$defs/RevisionSnapshotNodeIndex"
+        },
+        "manifestHashVerified": {
+          "const": true
+        },
+        "requiresRevisionMatchCheck": {
+          "const": true
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-17T12:24:36.171Z",
+  "models": {
+    "ContentSnapshotSelection": {
+      "name": "ContentSnapshotSelection",
+      "jsdoc": "精确快照键；必须来自所选修订或冻结首稿，不能由草稿哈希冒充。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    snapshotHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    snapshotHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "snapshotHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentSnapshotIndexBinding": {
+      "name": "ContentSnapshotIndexBinding",
+      "jsdoc": "原清单绑定和索引；修订阶段/模板/基线匹配及完整校验另核。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataViewKey: string;\n    index: RevisionSnapshotNodeIndex;\n    manifestHashVerified: true;\n    requiresRevisionMatchCheck: true;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataViewKey: string;\n    index: RevisionSnapshotNodeIndex;\n    manifestHashVerified: true;\n    requiresRevisionMatchCheck: true;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "manifestHashVerified",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresRevisionMatchCheck",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

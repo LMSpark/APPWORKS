@@ -36,6 +36,29 @@
       ],
       "additionalProperties": false
     },
+    "ParagraphInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ParagraphInput",
+      "properties": {
+        "paragraphId": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "paragraphId",
+        "value"
+      ],
+      "additionalProperties": false
+    },
     "ContentTreeDraftEditor": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -138,6 +161,122 @@
           "additionalProperties": false
         },
         "method.addParagraph.return": true,
+        "method.addList.params": {
+          "type": "object",
+          "properties": {
+            "parentId": {
+              "type": "string"
+            },
+            "input": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ParagraphInput"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "listId": {
+                      "type": "string"
+                    },
+                    "itemId": {
+                      "type": "string"
+                    },
+                    "ordered": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "listId",
+                    "itemId"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addList.return": true,
+        "method.addListItem.params": {
+          "type": "object",
+          "properties": {
+            "listId": {
+              "type": "string"
+            },
+            "input": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ParagraphInput"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "itemId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "itemId"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addListItem.return": true,
+        "method.addQuote.params": {
+          "type": "object",
+          "properties": {
+            "parentId": {
+              "type": "string"
+            },
+            "input": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ParagraphInput"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "quoteId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "quoteId"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addQuote.return": true,
+        "method.addTableOfContents.params": {
+          "type": "object",
+          "properties": {
+            "documentId": {
+              "type": "string"
+            },
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addTableOfContents.return": true,
         "method.updateText.params": {
           "type": "object",
           "properties": {
@@ -184,7 +323,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T00:38:42.360Z",
+  "generatedAt": "2026-11-17T15:03:03.413Z",
   "models": {
     "ChapterInput": {
       "name": "ChapterInput",
@@ -213,6 +352,40 @@
             },
             {
               "name": "title",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ParagraphInput": {
+      "name": "ParagraphInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    paragraphId: string;\n    value: string;\n    data?: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    paragraphId: string;\n    value: string;\n    data?: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "paragraphId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
               "readable": true,
               "writable": false
             }
@@ -362,6 +535,180 @@
                   },
                   "flags": {
                     "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addList",
+              "jsdoc": "新建完整非空列表；ordered仅为语义类，编号和布局仍交模板。",
+              "parameters": [
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intersection",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ParagraphInput",
+                        "sourcePath": "src/services/smart-bid/content-tree-draft-editor.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Readonly",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "{\n        listId: string;\n        itemId: string;\n        ordered?: boolean;\n    }"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addListItem",
+              "jsdoc": "在原列表中插入带首段的条目；不产生空容器或另一份条目正文。",
+              "parameters": [
+                {
+                  "name": "listId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intersection",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ParagraphInput",
+                        "sourcePath": "src/services/smart-bid/content-tree-draft-editor.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Readonly",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "{\n        itemId: string;\n    }"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addQuote",
+              "jsdoc": "引文按quote及其原段落表达，文字不转换为Markdown引用块。",
+              "parameters": [
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intersection",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ParagraphInput",
+                        "sourcePath": "src/services/smart-bid/content-tree-draft-editor.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Readonly",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "{\n        quoteId: string;\n    }"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addTableOfContents",
+              "jsdoc": "册首唯一目录要求；目录项由标题派生，不写入节点数据。",
+              "parameters": [
+                {
+                  "name": "documentId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
                   }
                 }
               ],

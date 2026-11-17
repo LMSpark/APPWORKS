@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-17",
+  "source": "src/services/smart-bid/content-tree-comparison.ts",
+  "test": "tests/app/services/smart-bid/content/content-tree-comparison.test.ts",
+  "implemented": "完整B/O/T内容树先核规范载荷和结构，再按精确稳定身份逐节点及逐父节点比较；跨版NFC别名拒绝，引用未核不当无引用。",
+  "verification": {
+    "initialRed": "新增测试首次运行因目标模块尚不存在而失败；不是行为断言红测。",
+    "command": "pnpm exec vitest run tests/app/services/smart-bid/content/content-tree-comparison.test.ts tests/app/services/smart-bid/content-node-comparison.test.ts tests/app/services/smart-bid/content-sibling-order.test.ts tests/app/services/smart-bid/content-tree-structure.test.ts --maxWorkers=1",
+    "files": 4,
+    "tests": 47,
+    "newTests": 11,
+    "seconds": 5.34,
+    "exitCode": 0,
+    "targetedLintExitCode": 0,
+    "targetedAiCodegen": "includeRoots=[]; includeFiles仅新业务源码；1文件0违规"
+  },
+  "review": "独立只读审阅源及最初8用例无明确阻断，之后补3用例未改源码。",
+  "directoryLimit": "业务源码根10文件；新测试位于content子目录，未增加测试根文件数。",
+  "boundary": "仅完整内容树的结构和差异诊断，不等于完整RevisionSnapshot语义校验。无生产页面消费者、无合并稿/采用许可/持久写入。",
+  "remaining": "插入落点待用户确认；引用闭包及当前引用读取、目标范围、独立响应、最终合并快照、片段、基线/模板/来源/授权复核、真实持久化与原子采用仍待实施。"
+}

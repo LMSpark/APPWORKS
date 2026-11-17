@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-17",
+  "applicationId": "D8490EC99436A8B9AFDE205BE3153802",
+  "databaseId": "8C0FC2087F5D4103987A0D1FC6C3045B",
+  "database": "spark_bid",
+  "schema": "spark_bid",
+  "table": "bid_content_revision",
+  "description": "投标内容修订",
+  "actorUserId": "U00031",
+  "createTimeFromDirectory": "2026-11-17T18:13:40",
+  "tableRegistryId": null,
+  "workflow": "正式表和视图管理导航A8FB2B2B161125A16FD15ED9581CD15B，标准组件经既有DataSet入口",
+  "before": {"registeredTables": ["bid_project", "bid_fact_version", "bid_working_draft"], "total": 3, "unregisteredPhysicalNamesMessage": "该数据库下没有未登记的物理表名"},
+  "submission": {"count": 1, "databaseIdExplicitlyDisplayed": true, "schemaChangedFromDboToSparkBid": true, "uiResult": "数据表已新增", "directoryTotalAfter": 4, "rawResponseCodeCaptured": false},
+  "coldRead": {
+    "newTab": true,
+    "separateLogin": true,
+    "selectedDatabase": "spark_bid",
+    "directoryTotal": 4,
+    "tableNameDescriptionCreatorTimeMatched": true,
+    "defaultFieldCount": 12,
+    "defaultFields": ["createtime", "lingma_sys_appid", "createuser", "updatetime", "lingma_sys_ent", "updateuser", "id", "description", "wfid", "ReportID", "lingma_sys_is_delete", "flowstate"],
+    "idField": {"length": 32, "primaryKeyShown": true},
+    "screenshot": "notes/evidence/smart-bid-content-revision-table-cold-20261117.png"
+  },
+  "otherReadback": "新APP蓝图仍只有应用根，内容空间冷读仍3正式模型。探查新增模型生成的本地待配置节点已标准取消布局，显示已取消本地布局修改，没有保存该节点。",
+  "boundary": "仅基础物理表及默认字段创建/冷读，不是ContentRevision完整模型、候选记录或不可变写入保证。未取得表注册稳定ID，未捕获原HTTP回执Code，不补造。未插入正式业务修订/项目/草稿行。",
+  "next": "按规格补明确业务字段和正式ContentRevision模型/查询视图，再连接真实固定候选/预演头到宿主。追加不可变、状态前进、expectedHead原子采用、请求恢复仍须权威能力验证，不由通用CRUD代替。"
+}

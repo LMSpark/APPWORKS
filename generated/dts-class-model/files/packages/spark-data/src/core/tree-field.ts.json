@@ -1,0 +1,263 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:core/tree-field",
+    "sourcePath": "packages/spark-data/src/core/tree-field.ts",
+    "sourceFile": "packages/spark-data/src/core/tree-field.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "core/tree-field",
+    "jsdoc": "@module @spark-appworks/spark-data:core/tree-field\n职责：复用字段成员读取，将原行投影为树种子并按同父数值顺序排列。\n边界：不查询、不维护行副本真源；调用方须核源字段权限，树ID不代表正式记录主键。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataTreeField"
+    ]
+  },
+  "$defs": {
+    "DataTreeField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataTreeField",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.parse.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.parse.return": {
+          "$ref": "../types.ts.json#/$defs/TreeFieldSelector"
+        },
+        "method.source.params": {
+          "type": "object",
+          "properties": {
+            "selector": {
+              "$ref": "../types.ts.json#/$defs/TreeFieldSelector"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.source.return": {
+          "type": "string"
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            },
+            "selector": {
+              "$ref": "../types.ts.json#/$defs/TreeFieldSelector"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": true,
+        "method.project.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            },
+            "config": {
+              "$ref": "../types.ts.json#/$defs/TreeConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.project.return": {
+          "anyOf": [
+            {
+              "$ref": "../types.ts.json#/$defs/FlatTreeNode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.sort.params": {
+          "type": "object",
+          "properties": {
+            "nodes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "T"
+              }
+            },
+            "selector": {
+              "$ref": "../types.ts.json#/$defs/TreeFieldSelector"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.sort.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "T"
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-17T15:17:48.407Z",
+  "models": {
+    "DataTreeField": {
+      "name": "DataTreeField",
+      "jsdoc": "树字段的定位和本地投影；字符串从不隐式解释为JSON路径。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "树字段的定位和本地投影；字符串从不隐式解释为JSON路径。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "parse",
+              "jsdoc": "校验显式字段定位；保留点号字面字段，路径不隐式推断。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "TreeFieldSelector",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "source",
+              "jsdoc": "返回顶层源字段名，供正式输出、字段权限和定义引用检查；不返回成员值。",
+              "parameters": [
+                {
+                  "name": "selector",
+                  "type": {
+                    "type": "reference",
+                    "name": "TreeFieldSelector",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "read",
+              "jsdoc": "纯字段读取，成员复用DataFieldMember；不查询或授予权限，调用方先核源字段可见。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                },
+                {
+                  "name": "selector",
+                  "type": {
+                    "type": "reference",
+                    "name": "TreeFieldSelector",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            },
+            {
+              "name": "project",
+              "jsdoc": "仅投影树寻址字段；原行、原主键及JSON成员保持不变。调用方先核源字段读取权限。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "TreeConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "FlatTreeNode",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "sort",
+              "jsdoc": "调用方传入同一父节点的集合；排序不修改缓存或原行，未配置时保持既有顺序。",
+              "parameters": [
+                {
+                  "name": "nodes",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "T",
+                      "refersToTypeParameter": true
+                    }
+                  }
+                },
+                {
+                  "name": "selector",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "TreeFieldSelector",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "T",
+                  "refersToTypeParameter": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -70,6 +70,21 @@ function mountOptionProbe(dataSet: ReturnType<typeof SparkData.createDataSet>, s
 }
 
 describe('选项字段应继承 DataView facets', () => {
+  it.each([false,true])('restores version primary keys after sorting a JSON member tree; nested=%s',async nested=>{
+    const input=[{id:'VB',nodeId:'B',label:'Second',payload:{parentId:'PROJECT',index:10}},
+      {id:'VA',nodeId:'A',label:'First',payload:{parentId:'PROJECT',index:2}},
+      {id:'VC',nodeId:'C',label:'Child',payload:{parentId:'A',index:0}}]
+    const records=nested?input.slice(0,2).map(row=>({...row,children:row.nodeId==='A'?[input[2]!]:[]})):input
+    const ds=SparkData.createDataSet({dataSetName:'Versions',tables:{Nodes:{tableName:'Nodes',resourceType:'static-data',
+      columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'nodeId',type:'string'},{name:'label',type:'string'},{name:'payload',type:'json'}],
+      views:{default:{valueField:'id',labelField:'label',treeConfig:{idField:'nodeId',parentIdField:{field:'payload',path:['parentId'],format:'native'},
+        orderField:{field:'payload',path:['index'],format:'native'},rootParentValue:'PROJECT'},rows:records}}}}})
+    try {
+      const view=ds.getView('Nodes')!;await view.refresh()
+      const rows=buildOptionSourceFromView(view,{valueField:'id',labelField:'label',childrenField:'children'})
+      expect(rows).toMatchObject([{id:'VA',nodeId:'A',children:[{id:'VC',nodeId:'C'}]},{id:'VB',nodeId:'B'}])
+    } finally {ds.destroy()}
+  })
   it('uses explicit label alternatives without falling through a masked label or unreadable key', () => {
     const ds=SparkData.createDataSet({dataSetName:'Labels',tables:{Apps:{tableName:'Apps',resourceType:'static-data',
       columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'title',type:'string'},{name:'name',type:'string'}],

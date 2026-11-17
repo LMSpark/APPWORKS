@@ -11,6 +11,11 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {readContentRevisions,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
+import {readContentNodeVersion,type ContentNodeVersionSelection,type ContentNodeVersionBinding} from './content-node-version-reader'
+import {readContentSnapshotIndex,type ContentSnapshotSelection,type ContentSnapshotIndexBinding} from './content-snapshot-reader'
+import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './content-snapshot-nodes'
+import {readCandidateContent,type ContentCandidateBinding} from './content-candidate-reader'
+import {readContentFactVersion,type ContentFactVersionSelection,type ContentFactVersionBinding} from './content-fact-version-reader'
 
 /** 导航宿主核实的应用、页面和数据空间，以及本次明确选中的业务目标。作者不由调用参数提供。 */
 export type ContentAuthoringTarget = Readonly<{
@@ -22,6 +27,16 @@ export type ContentAuthoringBinding = Readonly<{
  assertCurrent:()=>void; setPending:(value:boolean)=>void
  /** 查询原候选/头修订索引；完整快照与采用另核。 */
  readRevisions:(selection:ContentRevisionSelection)=>Promise<ContentRevisionReadBinding>
+ /** 原节点版本读取；完整快照成员关系仍由快照装配核对。 */
+ readNodeVersion:(selection:ContentNodeVersionSelection)=>Promise<ContentNodeVersionBinding>
+ /** 读取并核同版清单摘要；业务闭包及修订匹配仍另核。 */
+ readSnapshotIndex:(selection:ContentSnapshotSelection)=>Promise<ContentSnapshotIndexBinding>
+ /** 沿完整成员视图装配本次已核清单节点；其它分组和采用另核。 */
+ readSnapshotNodes:(snapshot:ContentSnapshotIndexBinding)=>Promise<ContentSnapshotNodesBinding>
+ /** 候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。 */
+ readCandidateContent:(selection:ContentRevisionSelection)=>Promise<ContentCandidateBinding>
+ /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */
+ readFactVersion:(selection:ContentFactVersionSelection)=>Promise<ContentFactVersionBinding>
 }>
 
 function scoped(view:DataView, field:string, parameter:string):boolean {
@@ -104,6 +119,11 @@ export class ContentAuthoringHost {
     dataViewKey:buildDataViewKey('WorkingDraft','personalDraft',target.scenarioId),
     projectId:target.projectId,draftId:target.draftId,actorUserId,assertCurrent,
     readRevisions:selection=>readContentRevisions({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
+    readNodeVersion:selection=>readContentNodeVersion({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
+    readSnapshotIndex:selection=>readContentSnapshotIndex({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
+    readSnapshotNodes:snapshot=>readContentSnapshotNodes({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},snapshot),
+    readCandidateContent:selection=>readCandidateContent({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
+    readFactVersion:selection=>readContentFactVersion({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
     setPending:(value:boolean)=>{
      if(own!==this.#generation||!this.#session.isCurrent(runtime))return
      // 失效只能保留未写回输入的保护；旧回调不能清除它并放行销毁。

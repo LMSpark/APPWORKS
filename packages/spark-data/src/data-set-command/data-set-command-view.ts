@@ -20,6 +20,8 @@ type QueryResult = Awaited<ReturnType<NonNullable<Parameters<DataView['bindQuery
 
 /** 返回当次输入的完整资源集合；分页和输出由公共查询链执行，不以已加载业务页冒全集。 */
 export type DataSetCommandRowsLoader = (view: DataView, params: Readonly<QueryParams>) => Promise<readonly DataRow[]>
+/** 服务已执行查询与分页；只读包装仅投影字段，保留服务总数。 */
+export type DataSetCommandPageLoader=(view:DataView,params:Readonly<QueryParams>)=>Promise<Readonly<{rows:readonly DataRow[];total:number}>>
 
 /** 真实资源身份；file仅用于文件，服务命令、查询及应用投影声明自身语义类型，不伪造文件或后端模型。 */
 export type DataSetCommandResourceIdentity = Readonly<{resourceType: string; resourceId: string}>
@@ -29,11 +31,10 @@ export type BindReadonlyCommandQueryOptions = Readonly<{
   derivedQueries?: 'bound-view-only'
   resource: DataSetCommandResourceIdentity
   guard: DataSetCommandScopeGuard
-  /** 每次实际查询派发时捕获输入，params与loadRows共享同一隔离快照；返回校验守护结果及后续上下文。准备/预检不调用。 */
+  /** 每次实际查询派发时捕获输入，两个loader共享同一隔离参数快照；准备/预检不调用。 */
   captureQueryInputs?: (view: DataView, params: Readonly<QueryParams>) => DataSetCommandScopeGuard
-  loadRows: DataSetCommandRowsLoader
   queryColumns?: (view: DataView) => readonly DataColumn[]
-}>
+}&({loadRows:DataSetCommandRowsLoader;loadPage?:never}|{loadPage:DataSetCommandPageLoader;loadRows?:never})>
 
 function columnDefs(columns: readonly DataSetCommandColumnSpec[]) {
   return columns.map(({primary, ...column}) => ({
@@ -145,26 +146,27 @@ function readonlyQueryFields(columns: readonly DataColumn[]): ReadonlySet<string
   return new Set(columns.filter(column => column.name !== '_pk' && !column.computeExpression).map(column => column.name))
 }
 
-function readonlyRowsQueryResult(input: Readonly<{view: DataView; rows: readonly DataRow[]; guard: DataSetCommandScopeGuard; fields: ReadonlySet<string>; primaryKey: string; params: QueryParams}>): Promise<QueryResult> {
+function readonlyRowsQueryResult(input: Readonly<{view: DataView; rows: readonly DataRow[]; guard: DataSetCommandScopeGuard; fields: ReadonlySet<string>; primaryKey: string; params: QueryParams;serverTotal?:number}>): Promise<QueryResult> {
   const {view, rows, guard, fields, primaryKey, params} = input
   const assertCurrent = () => {
     guard()
     if (view.primaryKey !== primaryKey) throw new Error('DATA_SET_READONLY_QUERY_IDENTITY: 本次查询主键已变化')
   }
   assertCurrent()
+  if(input.serverTotal!==undefined&&(!Number.isSafeInteger(input.serverTotal)||input.serverTotal<rows.length))throw Error('DATA_SET_READONLY_PAGE: 服务总数无效')
   if (primaryKey && !fields.has(primaryKey)) throw new Error('DATA_SET_READONLY_QUERY_FIELDS: 主键不在本次来源字段范围')
   const {rows: outputRows, total, output} = DataViewLocalQuery.select({
     rows: [...rows],
     fields,
     primaryKeys: primaryKey ? [primaryKey] : [],
-    params,
+    params:input.serverTotal===undefined?params:{...(params.fields?{fields:params.fields}:{}),allPages:true,treeMode:'flat'},
   })
   const rowKey = (row: Readonly<DataRow>) => {assertCurrent(); return primaryKey ? row[primaryKey] : undefined}
   const keys = new Set(outputRows.map(rowKey))
   const allowed = (key: unknown, field: string) => key !== undefined && keys.has(key) && output.has(field)
   return Promise.resolve({
     rows: outputRows,
-    total,
+    total:input.serverTotal??total,
     rowKey,
     assertIdentity: assertCurrent,
     fieldAccess: (key, field) => ({
@@ -366,6 +368,10 @@ export function prepareDataSetReadonlyCommandQuery(view: DataView, options: Bind
         if (target.primaryKey !== primaryKey) throw new Error('DATA_SET_READONLY_QUERY_IDENTITY: 本次查询主键已变化')
       }
       assertCurrent()
+      if(options.loadPage!==undefined){
+        const page=await options.loadPage(target,captured)
+        return readonlyRowsQueryResult({view:target,rows:page.rows,guard:assertCurrent,fields,primaryKey,params:captured,serverTotal:page.total})
+      }
       const rows = await options.loadRows(target, captured)
       return readonlyRowsQueryResult({view: target, rows, guard: assertCurrent, fields, primaryKey, params: captured})
     },

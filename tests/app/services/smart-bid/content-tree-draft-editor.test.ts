@@ -97,3 +97,92 @@ it.each(['permission', 'scope', 'project'])('rejects %s changes through the orig
     expect(view.hasEditingChanges()).toBe(false)
   } finally {ds.destroy()}
 })
+
+it('authors nested semantic lists with stable item and paragraph identities in the original draft', async () => {
+  const {ds, view, editor} = await fixture()
+  try {
+    editor.addDocument({documentId: 'B', chapterId: 'C', headingId: 'H', title: '实施方案'})
+    editor.addList('C', {listId: 'L', itemId: 'I', paragraphId: 'N', value: '核对来件', ordered: true})
+    editor.addListItem('L', {itemId: 'I2', paragraphId: 'N2', value: '记录出处'}, 0)
+    editor.addList('I', {listId: 'SUB', itemId: 'SUB_I', paragraphId: 'SUB_N', value: '保留原版'})
+    const draft = view.getEditingRow('D')?.['draft'] as {nodes: Array<Record<string, unknown>>; responseChanges: unknown[]}
+    expect(draft.nodes.map(node => [node['nodeId'], node['parentId'], node['index'], node['type']])).toEqual([
+      ['B', 'P', 0, 'document'], ['C', 'B', 0, 'chapter'], ['H', 'C', 0, 'heading'], ['L', 'C', 1, 'list'],
+      ['I2', 'L', 0, 'item'], ['N2', 'I2', 0, 'paragraph'], ['I', 'L', 1, 'item'], ['N', 'I', 0, 'paragraph'],
+      ['SUB', 'I', 1, 'list'], ['SUB_I', 'SUB', 0, 'item'], ['SUB_N', 'SUB_I', 0, 'paragraph'],
+    ])
+    expect(draft.nodes.find(node => node['nodeId'] === 'L')).toMatchObject({class: ['ordered'], value: '', data: {}})
+    expect(draft.nodes.find(node => node['nodeId'] === 'SUB')).toMatchObject({class: [], value: '', data: {}})
+    expect(draft.responseChanges).toEqual([{id: 'R'}])
+    expect(view.rows[0]?.['draft']).toEqual({nodes: [], responseChanges: [{id: 'R'}]})
+    view.discardEditingRows(); expect(view.hasEditingChanges()).toBe(false)
+  } finally {ds.destroy()}
+})
+
+it('creates an explicit quote paragraph and a derived table of contents at the book beginning', async () => {
+  const {ds, view, editor} = await fixture()
+  try {
+    editor.addDocument({documentId: 'B', chapterId: 'C', headingId: 'H', title: '实施方案'})
+    editor.addQuote('C', {quoteId: 'Q', paragraphId: 'QN', value: '原文规定 {{期限}}', data: {期限: {type: 'fact', factId: 'PERIOD'}}})
+    editor.addTableOfContents('B', 'TOC')
+    const draft = view.getEditingRow('D')?.['draft'] as {nodes: Array<Record<string, unknown>>}
+    expect(draft.nodes.map(node => node['nodeId'])).toEqual(['B', 'TOC', 'C', 'H', 'Q', 'QN'])
+    expect(draft.nodes[1]).toEqual({nodeId: 'TOC', parentId: 'B', index: 0, type: 'toc', class: [], value: '', data: {}})
+    expect(draft.nodes[2]?.['index']).toBe(1)
+    expect(draft.nodes[5]).toMatchObject({parentId: 'Q', type: 'paragraph', value: '原文规定 {{期限}}', data: {期限: {type: 'fact', factId: 'PERIOD'}}})
+    const before = structuredClone(view.getEditingRow('D')?.['draft'])
+    expect(() => editor.addTableOfContents('B', 'TOC2')).toThrow('DOCUMENT:B')
+    expect(view.getEditingRow('D')?.['draft']).toEqual(before)
+  } finally {ds.destroy()}
+})
+
+it('rejects malformed new containers atomically instead of leaving an empty list or an orphan child', async () => {
+  const {ds, view, editor} = await fixture()
+  try {
+    editor.addDocument({documentId: 'B', chapterId: 'C', headingId: 'H', title: '实施方案'})
+    const before = structuredClone(view.getEditingRow('D')?.['draft'])
+    for (const invalid of [
+      () => editor.addList('B', {listId: 'L', itemId: 'I', paragraphId: 'N', value: ''}),
+      () => editor.addList('C', {listId: 'L', itemId: 'L', paragraphId: 'N', value: ''}),
+      () => editor.addListItem('C', {itemId: 'I', paragraphId: 'N', value: ''}),
+      () => editor.addQuote('C', {quoteId: 'Q', paragraphId: 'H', value: ''}),
+      () => editor.addTableOfContents('C', 'TOC'),
+    ]) {
+      expect(invalid).toThrow()
+      expect(view.getEditingRow('D')?.['draft']).toEqual(before)
+    }
+  } finally {ds.destroy()}
+})
+
+it('preserves the last list item and quote paragraph until their whole container is removed', async () => {
+  const {ds, view, editor} = await fixture()
+  try {
+    editor.addDocument({documentId: 'B', chapterId: 'C', headingId: 'H', title: '实施方案'})
+    editor.addList('C', {listId: 'L', itemId: 'I', paragraphId: 'N', value: '列表原文'})
+    editor.addQuote('C', {quoteId: 'Q', paragraphId: 'QN', value: '引文'})
+    const before = structuredClone(view.getEditingRow('D')?.['draft'])
+    for (const id of ['I', 'N', 'QN']) {
+      expect(() => editor.remove(id)).toThrow('EMPTY_CONTAINER:')
+      expect(view.getEditingRow('D')?.['draft']).toEqual(before)
+    }
+    editor.remove('L'); editor.remove('Q')
+    expect((view.getEditingRow('D')?.['draft'] as {nodes: Array<{nodeId: string}>}).nodes.map(node => node.nodeId)).toEqual(['B', 'C', 'H'])
+  } finally {ds.destroy()}
+})
+
+it.each(['permission', 'scope', 'project'])('blocks all new container actions after %s changes', async mode => {
+  const {ds, view, editor, invalidate} = await fixture(mode !== 'permission')
+  try {
+    if (mode === 'scope') invalidate()
+    const target = mode === 'project' ? new ContentTreeDraftEditor(view, 'D', 'OTHER') : editor
+    for (const action of [
+      () => target.addList('C', {listId: 'L', itemId: 'I', paragraphId: 'N', value: ''}),
+      () => target.addListItem('L', {itemId: 'I', paragraphId: 'N', value: ''}),
+      () => target.addQuote('C', {quoteId: 'Q', paragraphId: 'N', value: ''}),
+      () => target.addTableOfContents('B', 'TOC'),
+    ]) {
+      expect(action).toThrow()
+      expect(view.hasEditingChanges()).toBe(false)
+    }
+  } finally {ds.destroy()}
+})

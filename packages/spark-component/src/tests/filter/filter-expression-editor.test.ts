@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount, DOMWrapper, flushPromises } from '@vue/test-utils'
-import { defineComponent, h, ref } from 'vue'
-import ElementPlus, { ElButton, ElOption, ElSelect, ElInput, ElInputNumber, ElDatePicker, ElRadioGroup, ElTabs } from 'element-plus'
+import { defineComponent, h, ref, type ComponentPublicInstance } from 'vue'
+import ElementPlus, { ElOption, ElSelect, ElInput, ElInputNumber, ElDatePicker, ElRadioGroup, ElTabs } from 'element-plus'
 import { DataViewFilter, SparkData } from '@spark-appworks/spark-data'
 import { useSparkComponent, DATA_SOURCE } from '../../core'
 import RendererFilter from '../../components/containers/zones/RendererFilter.vue'
@@ -18,9 +18,7 @@ import JsonTreeEditor from '../../components/editors/JsonTreeEditor.vue'
 const fields = [{ name: 'Name', type: 'text' }, { name: 'Amount', type: 'number' }] as const
 const wrappers: ReturnType<typeof mount>[] = []
 function functionConfirm(wrapper: ReturnType<typeof mount>) {
-  const button = wrapper.findAllComponents(ElButton).find(item => Object.hasOwn(item.attributes(), 'data-function-confirm'))
-  if (!button) throw new Error('Missing function confirm component')
-  return button
+  return wrapper.getComponent<ComponentPublicInstance>('[data-function-confirm]')
 }
 afterEach(() => { wrappers.splice(0).forEach(wrapper => wrapper.unmount()) })
 

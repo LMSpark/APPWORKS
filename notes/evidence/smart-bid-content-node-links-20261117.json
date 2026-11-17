@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-17",
+  "sources": ["src/services/smart-bid/content/content-node-links.ts", "src/services/smart-bid/content-tree-comparison.ts"],
+  "implementation": "正文与表格正式字段中page/xref链接保留精确身份及JSON路径，分B/O/T检查本版目标存在性；空表须核模板生成器，外部引用仍待核。",
+  "verification": {
+    "initialNewModuleFailure": "测试首次因模块不存在失败，不是行为红测",
+    "integrationRed": {"tests": 13, "failed": 2, "passed": 11, "reason": "整树尚无linkChecks"},
+    "relatedRegression": {"command": "pnpm exec vitest run tests/app/services/smart-bid/content --maxWorkers=1", "files": 12, "tests": 138, "seconds": 26.26, "exitCode": 0, "scope": "Vitest路径过滤同时匹配既有content-*测试，不是仅子目录或全仓"},
+    "finalTargeted": {"files": 2, "tests": 27, "seconds": 3.50, "exitCode": 0},
+    "static": "初次lint4项和AI-codegen参数数量1项已按具名参数修正，最终四文件lint0、两业务源explicit includeRoots=[]专项AI-codegen0违规"
+  },
+  "review": "独立只读审阅未发现明确阻断；随后仅消除静态违规并补测试。",
+  "importantCases": ["正文及表格引用路径", "精确分解Unicode身份", "删除后候选悬空", "同时撤掉绑定不误报", "非法占位与引用拒绝", "列内数据格/词句格一致", "hidden getter不执行", "__proto__普通字段", "敏感owner中nodeId不被猜为内容引用"],
+  "boundary": "没有生产页面消费者或数据库写入。只证明内容节点引用形状和本版节点存在性；不证明xref目标业务适用、事实/资源/独立响应/挂接/模板/来源闭包、字面业务数字分类或采用授权。",
+  "remaining": "完整RevisionSnapshot语义、最终合并、插入落点、独立响应及引用、实际当前引用查询和原子采用仍待。deletionReferenceCheck保持REQUIRED。"
+}

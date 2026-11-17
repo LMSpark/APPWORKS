@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/revision-snapshot-index",
+    "sourcePath": "src/services/smart-bid/content/revision-snapshot-index.ts",
+    "sourceFile": "src/services/smart-bid/content/revision-snapshot-index.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/revision-snapshot-index",
+    "jsdoc": "@module app:services/smart-bid/content/revision-snapshot-index\n职责：从固定修订清单读取项目、基线和排序节点版本索引。\n边界：只核清单外形及节点索引，不计算完整清单摘要或证明各业务分组有效，不代完整快照。\nAI用途：正式快照读取后取得完整节点成员清单，继续由原视图装配并核业务引用。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SnapshotNodeVersion",
+      "RevisionSnapshotNodeIndex"
+    ]
+  },
+  "$defs": {
+    "SnapshotNodeVersion": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SnapshotNodeVersion",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "nodeHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nodeId",
+        "nodeHash"
+      ],
+      "additionalProperties": false
+    },
+    "RevisionSnapshotNodeIndex": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RevisionSnapshotNodeIndex",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SnapshotNodeVersion"
+          }
+        },
+        "hashContract": {
+          "const": "spark-bid.revision-snapshot/1"
+        },
+        "requiresBusinessSectionChecks": {
+          "const": true
+        }
+      },
+      "required": [
+        "projectId",
+        "baselineId",
+        "nodes",
+        "hashContract",
+        "requiresBusinessSectionChecks"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T12:23:20.715Z",
+  "models": {
+    "SnapshotNodeVersion": {
+      "name": "SnapshotNodeVersion",
+      "jsdoc": "快照中的节点版本引用；nodeId保留精确身份，nodeHash指向独立版本载荷。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    nodeHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    nodeHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RevisionSnapshotNodeIndex": {
+      "name": "RevisionSnapshotNodeIndex",
+      "jsdoc": "仅清单索引投影；业务分组待核不能被用于放行采用或交付。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n    nodes: readonly SnapshotNodeVersion[];\n    hashContract: typeof SNAPSHOT_HASH_CONTRACT;\n    requiresBusinessSectionChecks: true;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n    nodes: readonly SnapshotNodeVersion[];\n    hashContract: typeof SNAPSHOT_HASH_CONTRACT;\n    requiresBusinessSectionChecks: true;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hashContract",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresBusinessSectionChecks",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

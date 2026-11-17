@@ -31,6 +31,7 @@
 
 import type { DataViewFilterFunctionCapability, DataViewFilterTree } from './query/filter/data-view-filter-contract'
 import type { DataTable } from './data-table'
+import type {DataFieldMemberRef} from './core/data-field-member'
 import type { DataView } from './data-view'
 import type { LoggerApi, Method } from '@spark-appworks/spark-utils'
 
@@ -792,6 +793,9 @@ export type ViewMetadata = {
 // 树形态由视图层组织，模型层始终存储平铺数据。
 // ═══════════════════════════════════════════════════════
 
+/** 平面字段名保持字面含义；JSON成员须显式声明源字段和路径。 */
+export type TreeFieldSelector = string | DataFieldMemberRef
+
 /**
  * 树结构字段配置（属于视图层，固化在 DataView）。
  *
@@ -801,7 +805,9 @@ export type TreeConfig = {
   /** 节点 ID 字段名 */
   idField?: string
   /** 父节点 ID 字段名 */
-  parentIdField?: string
+  parentIdField?: TreeFieldSelector
+  /** 本地同父节点数值升序；必须为有限number，相等保持来源顺序，不发送服务端。 */
+  orderField?: TreeFieldSelector
   /** 根节点的父字段值；省略按null/undefined根处理。保留0和空字符串，不把其他孤立节点当根。只影响本地树组织，不改写记录或服务端查询参数。 */
   rootParentValue?: string | number
   /** 精确匹配的多个本地根父字段值；null 同时包含 null 与 undefined。不可与 rootParentValue 同时声明，也不发送到服务端。 */

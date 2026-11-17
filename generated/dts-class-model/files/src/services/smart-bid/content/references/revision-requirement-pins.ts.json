@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/revision-requirement-pins",
+    "sourcePath": "src/services/smart-bid/content/references/revision-requirement-pins.ts",
+    "sourceFile": "src/services/smart-bid/content/references/revision-requirement-pins.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/revision-requirement-pins",
+    "jsdoc": "@module app:services/smart-bid/content/references/revision-requirement-pins\n职责：核快照章节挂接的确定JSON模型及本版责任章归属。\n边界：不选择基线要求、不确认采纳状态、不删除旧挂接或放行响应/交付。\nAI用途：完整节点装配后核本地挂接，再沿固定基线核被引要求版本和待处置事项。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RevisionRequirementPin"
+    ]
+  },
+  "$defs": {
+    "RevisionRequirementPin": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RevisionRequirementPin",
+      "properties": {
+        "chapterId": {
+          "type": "string"
+        },
+        "lineageId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "chapterId",
+        "lineageId",
+        "version"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T13:21:45.434Z",
+  "models": {
+    "RevisionRequirementPin": {
+      "name": "RevisionRequirementPin",
+      "jsdoc": "新清单按精确版本字符串引用要求，不存原文/格式副本。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    chapterId: string;\n    lineageId: string;\n    version: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    chapterId: string;\n    lineageId: string;\n    version: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "chapterId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lineageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

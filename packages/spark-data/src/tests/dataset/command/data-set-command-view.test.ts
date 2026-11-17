@@ -261,4 +261,29 @@ describe('DataSet command view helper', () => {
     expect(first).toBe(second)
     expect(dataSet.getTable('Once')).toBeTruthy()
   })
+  it('retains server total and does not paginate the returned page a second time',async()=>{
+    const ds=DataSet.fromJson({scenarioId:'PAGE',tables:{}})
+    const resource={resourceType:'service-query',resourceId:'paged'}
+    const view=ensureDataSetResourceView({dataSet:ds,tableName:'History',resource,columns:[{name:'id',primary:true},{name:'caption'},{name:'private'}]})
+    view.page=2;view.pageSize=20;view.queryConfig={fields:['id','caption']}
+    bindDataSetReadonlyCommandQuery(view,{resource,guard:()=>{},loadPage:async(_target,params)=>{
+      expect(params.page).toBe(2);return{rows:Array.from({length:20},(_,i)=>({id:String(i+20),caption:'page2',private:'omitted'})),total:45}
+    }})
+    await view.refresh()
+    expect(view.rows).toHaveLength(20);expect(view.total).toBe(45)
+    expect(view.rows[0]).not.toHaveProperty('private')
+    expect(view.fieldAccess(view.rows[0]!,'caption').write).toBe('denied')
+    ds.destroy()
+  })
+  it('rejects a server page when the original scope changed while loading',async()=>{
+    const ds=DataSet.fromJson({scenarioId:'PAGE',tables:{}}),resource={resourceType:'service-query',resourceId:'paged'}
+    const view=ensureDataSetResourceView({dataSet:ds,tableName:'History',resource,columns:[{name:'id',primary:true}]})
+    let current=true
+    bindDataSetReadonlyCommandQuery(view,{resource,guard:()=>{if(!current)throw Error('scope changed')},loadPage:async()=>{
+      current=false;return{rows:[{id:'old'}],total:1}
+    }})
+    await view.refresh()
+    expect(view.rows).toHaveLength(0);expect(view.loadingError?.message).toContain('scope changed')
+    ds.destroy()
+  })
 })

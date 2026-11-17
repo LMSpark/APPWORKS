@@ -12,6 +12,7 @@
       <RendererForm :data-view-key="definitionKey" :auto-columns="false" :show-data-view-meta="false">
         <FieldText field="name" label="规则名称" :readonly="busy || unconfirmed" />
         <FieldText field="description" label="描述" :readonly="busy || unconfirmed" />
+        <FieldRadio field="enabled" label="启用" :options="[{value:0,label:'停用'},{value:1,label:'启用'}]" :readonly="busy || unconfirmed" />
         <FieldJson field="rule_config" label="规则 JSON" mode="text" :readonly="busy || unconfirmed" :on-change="validateRule" :on-editing-change="editing => pendingInput = editing" />
       </RendererForm>
       <RendererButton :label="unconfirmed ? '核验保存结果' : '保存规则'" button-type="primary" :disabled="busy || pendingInput" @click="save" />
@@ -26,8 +27,9 @@ import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {buildDataViewKey, type DataSet} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
-import {PAGE_RUNTIME, FieldText, FieldJson, RendererForm, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, FieldText, FieldJson, FieldRadio, RendererForm, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
 import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
+import {validatePdfRuleConfig} from '@/lowcode/resources/semi-structured/pdf-inspect/rule-config'
 
 const route = useRoute()
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
@@ -79,6 +81,10 @@ async function save(): Promise<void> {
   if (!dataSet.value || busy.value || pendingInput.value || !hasDefinition.value) return
   const own = generation; busy.value = true; error.value = ''
   try {
+    const view=definition.value,original=view?.currentRow,id=original&&view?.getPkKey(original)
+    const edited=id===undefined||id===null?undefined:view?.getEditingRow(id)
+    if(!unconfirmed.value&&original&&edited&&(edited['rule_config']!==original['rule_config']
+      ||edited['enabled']===1&&original['enabled']!==1))validatePdfRuleConfig(edited['rule_config'])
     const result = await dataSet.value.saveChanges({views: [{tableName: LowcodePdfInspect.catalogMetaName, viewId: 'definition'}]})
     if (!result.success) throw new Error(result.message ?? '规则保存未完整确认')
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}

@@ -1,0 +1,14 @@
+{
+  "scope": "I22 owned temporary PDF rule CRUD",
+  "taskSubmissions": 0,
+  "fileWrites": 0,
+  "sessionPersisted": false,
+  "stages": [],
+  "ownedRuleId": "D6573D4032B70DE4498D5377F21A090E",
+  "requests": 8,
+  "blocked": 0,
+  "success": false,
+  "failedStage": "create-save",
+  "errorType": "DataSetSavePreflightError",
+  "captureHeldInProcess": false
+}

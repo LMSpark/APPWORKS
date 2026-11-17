@@ -19,6 +19,20 @@ const validProjection = { fieldId: 'MODEL-FIELD-1', source: 'resource', resource
   resourceField: 'id', viewField: 'id', type: '', label: '', output: true, sortOrder: 0,
   sortDirection: null, group: 0, distinct: false, primaryKey: true, value: '', valueFunction: '', expression: '' }
 
+describe('explicit tree member configuration',()=>{
+  const config=(selector:unknown)=>new ScenarioViewConfig('S',JSON.stringify({scenarioId:'S',tables:{Nodes:{
+    modelBinding:{modelId:'MODEL',modelName:'Nodes'},views:{default:{treeConfig:{idField:'nodeId',parentIdField:selector,
+      orderField:{field:'payload',path:['index'],format:'native'},rootParentValue:'PROJECT'}}}}}}))
+  it('accepts an explicit source and preserves literal dot field names',()=>{
+    expect(()=>config({field:'payload',path:['parentId'],format:'native'})).not.toThrow()
+    expect(()=>config('payload.parentId')).not.toThrow()
+  })
+  it.each([{field:'payload',path:[]},{field:'payload',path:[-1]},{field:'payload',path:['parentId'],format:'automatic'},
+    {field:'payload',path:['parentId'],owner:'other'}])('rejects invalid member configuration %j',selector=>{
+    expect(()=>config(selector)).toThrow('TREE_FIELD')
+  })
+})
+
 describe('first native relationship conversion validation', () => {
   const source = {scenarioId:'S',tables:{
     Parent:{modelBinding:{modelId:'P',modelName:'Parent'},views:{default:{},bad:{sortExpression:[{field:'missing',direction:'asc'}]}}},

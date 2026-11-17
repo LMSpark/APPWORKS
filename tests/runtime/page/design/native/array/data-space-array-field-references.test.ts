@@ -21,6 +21,19 @@ async function setup(options:Parameters<typeof dataSpacePageFixture>[0]={}) {
   return{f,session,owner,rename,writes:()=>f.requests.filter(r=>r.url?.includes('BatchTableOperate'))}
 }
 describe('array field references follow formal field identity',()=>{
+  it('renames only JSON member source fields, leaving member paths unchanged',()=>{
+    const model={rowid:'M1',Name:'Orders',MetaName:'ArraySource',Type:'数组',PrimaryKeyFields:'code'}
+    const rows=[{rowid:'F1',dataModelId:'M1',Name:'code',IsPKey:1,IsOutput:1,type:'dataModel',FieldType:'string'},
+      {rowid:'F2',dataModelId:'M1',Name:'payload',IsPKey:0,IsOutput:1,type:'dataModel',FieldType:'string'}]
+    const original=DataSpaceDesignApi.projectModel(model,rows,''),candidate=DataSpaceDesignApi.projectModel(model,rows.map(row=>({...row,Name:row.rowid==='F2'?'body':row.Name})),'')
+    const treeConfig={idField:'code',parentIdField:{field:'payload',path:['payload'],format:'text'},orderField:{field:'payload',path:['index'],format:'text'}}
+    const config=new ScenarioViewConfig('A',JSON.stringify({scenarioId:'A',tables:{Orders:{
+      modelBinding:{modelId:'M1',modelName:'Orders'},views:{default:{treeConfig}},
+    }}}))
+    const actual=LowcodeDataSpaceArrayConfiguration.rewrite(config,{original,candidate,changes:[],removals:[],references:[]}).toJSON()
+    expect(actual).toMatchObject({tables:{Orders:{views:{default:{treeConfig:{parentIdField:{field:'body',path:['payload'],format:'text'},orderField:{field:'body',path:['index'],format:'text'}}}}}}})
+    expect(config.toJSON()).toMatchObject({tables:{Orders:{views:{default:{treeConfig:{parentIdField:{field:'payload'}}}}}}})
+  })
   it('renames the single child foreign field by stable ID while leaving the other model untouched',async()=>{
     const {f,writes}=await setup({allowSourceEdit:true});f.setModelValues({ForeignKeyFields:'code'});const otherBefore=structuredClone(f.modelRow('M2'))
     const fresh=await f.open('A'),current=fresh.getArrayEdit('M1'),draft=current.beginHeaders();draft.beginHeaders()

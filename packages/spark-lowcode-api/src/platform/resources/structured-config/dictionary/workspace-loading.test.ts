@@ -1,4 +1,4 @@
-import {afterEach, describe, expect, it} from 'vitest'
+import {describe, expect, it} from 'vitest'
 import {DictionaryWorkspace} from './workspace'
 import {fixture} from './tests/workspace.fixture'
 

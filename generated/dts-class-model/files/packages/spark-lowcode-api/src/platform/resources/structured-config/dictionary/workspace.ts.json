@@ -229,7 +229,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-11T02:43:35.470Z",
+  "generatedAt": "2026-11-17T12:00:26.083Z",
   "models": {
     "DictionaryWorkspaceInput": {
       "name": "DictionaryWorkspaceInput",
@@ -333,7 +333,7 @@
             },
             {
               "name": "canRemoveDefinition",
-              "jsdoc": "删除前必须证明数据库、配置与代码消费者均已完成引用核验；当前无此全局合同。",
+              "jsdoc": "删除前核实领域实际持久引用及定义、条目结果合同；当前尚未闭合。",
               "readable": true,
               "writable": false
             }
@@ -566,7 +566,7 @@
             },
             {
               "name": "removeDefinition",
-              "jsdoc": "全局引用覆盖尚不可证明时，拒绝删除而不暂存任何DataView变更。",
+              "jsdoc": "实际持久引用和删除结果合同未核实时，拒绝删除且不暂存变更。",
               "parameters": [],
               "type": {
                 "type": "reference",

@@ -1,7 +1,12 @@
 import {describe, expect, it} from 'vitest'
-import {validateContentPlaceholders} from '@/services/smart-bid/content-placeholders'
+import {inspectContentPlaceholders,validateContentPlaceholders} from '@/services/smart-bid/content-placeholders'
 
 describe('bidding content placeholders', () => {
+  it('exposes exact unique names for the editor without rewriting Unicode or hiding syntax errors',()=>{
+    const parsed=inspectContentPlaceholders('{{e\u0301}} {{é}} {{e\u0301}} {{ bad}}')
+    expect(parsed.names).toEqual(['e\u0301','é']);expect(parsed.errors).toEqual(['INVALID_PLACEHOLDER'])
+    expect(Object.isFrozen(parsed.names)).toBe(true);expect(Object.isFrozen(parsed.errors)).toBe(true)
+  })
   it('accepts repeated references and preserves false or zero as present data', () => {
     expect(validateContentPlaceholders({value: '{{工期}} / {{工期}} {{符合}}', data: {工期: 0, 符合: false}})).toEqual([])
   })

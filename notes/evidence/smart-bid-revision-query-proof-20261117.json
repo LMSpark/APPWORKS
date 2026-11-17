@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-17",
+  "status": "SOURCE_FIXTURE_VERIFIED",
+  "defect": "Revision reader compared visible row values and scopes but did not retain original project/candidate/head query proofs. Same-valued refresh left earlier bindings valid.",
+  "red": "Three original-view refresh cases failed because assertCurrent did not throw; existing ten tests passed.",
+  "fix": "Capture original project result/row before revision queries, assert them after async work, and retain original result/row proofs for each selected revision. Continue existing host, scope, readable value and pending-edit guards.",
+  "tests": {
+    "files": 2,
+    "passed": 21,
+    "durationSeconds": 4.42,
+    "exitCode": 0,
+    "coverage": "Project, candidate and head same-valued refresh; project replacement during candidate query; existing reader and candidate composition cases.",
+    "eslint": "Changed reader and test exit 0 before final additional in-flight test; production source unchanged afterwards.",
+    "aiCodegen": "Changed business source, zero violations."
+  },
+  "boundary": "Original SPARK data proof consumption only. No new data owner, page design, writes, adoption, runtime acceptance, full gates or commits. Full I0-I7 remains open."
+}

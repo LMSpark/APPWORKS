@@ -1,0 +1,67 @@
+/**
+ * @module app:views/features/application/smart-bid/authoring/model/content-candidate-reader
+ * 职责：在原正文运行实例串联候选修订、同版清单及完整节点成员。
+ * 边界：仅返回原视图绑定与证明；不缓存载荷、不采用、不冒充完整业务闭包或三版预演。
+ * AI用途：候选内容先核固定依据一致，再交后续业务检查；JSON内容与模板引用分别核对。
+ */
+import {canonicalRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
+import {assertRevisionTemplateBindings} from '@/services/smart-bid/content/revision-template-bindings'
+import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
+import {assertRevisionResponseText} from '@/services/smart-bid/content/references/revision-response-text'
+import {readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
+import {assertContentNodeVersionPayload,hasCompleteSingleContentResult} from './content-node-version-reader'
+import {readContentSnapshotIndex,type ContentSnapshotIndexBinding} from './content-snapshot-reader'
+import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './content-snapshot-nodes'
+
+/** 候选链保留各原视图证明；其它业务分组、当前依据、rootHash和采用必须继续核验。 */
+export type ContentCandidateBinding=Readonly<{
+ runtime:ContentRevisionReadHost['runtime']
+ revisions:ContentRevisionReadBinding;snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding
+ revisionMatchVerified:true;templateBindingsVerified:true;requirementBindingsVerified:true;responseAnchorsVerified:true;responseTextVerified:true
+ requiresResponseReferenceChecks:true;requiresResponsePayloadChecks:true;requiresTemplateResourceChecks:true;requiresRequirementVersionChecks:true;requiresBusinessSectionChecks:true;assertCurrent:()=>void
+}>
+
+/** 只装配候选；头/基准须另用正式角色视图，不能覆盖本次单个快照视图后沿用旧证明。 */
+export async function readCandidateContent(host:ContentRevisionReadHost,selection:ContentRevisionSelection):Promise<ContentCandidateBinding>{
+ const revisions=await readContentRevisions(host,selection)
+ const candidate=host.runtime.resolveView(revisions.candidateDataViewKey)
+ if(!candidate||!hasCompleteSingleContentResult(candidate))throw Error('CONTENT_CANDIDATE_NOT_UNIQUE')
+ const row=candidate.rows[0]
+ if(!row)throw Error('CONTENT_CANDIDATE_UNAVAILABLE')
+ const assertResult=candidate.captureReadResult()
+ const assertRow=candidate.captureReadRow(row,['id','projectId','status','snapshotHash','baselineId','stageRef','templateRefs'])
+ const assertCandidate=()=>{host.assertCurrent();revisions.assertCurrent();assertResult();assertRow()}
+ assertCandidate()
+ const snapshotHash=row['snapshotHash']
+ if(typeof snapshotHash!=='string')throw Error('CONTENT_CANDIDATE_SNAPSHOT_REQUIRED')
+ const snapshot=await readContentSnapshotIndex(host,{snapshotHash})
+ assertCandidate();snapshot.assertCurrent()
+ const snapshotView=host.runtime.resolveView(snapshot.dataViewKey),manifest=snapshotView?.rows[0]?.['manifest']
+ // 同一规范编码保留精确引用身份；临时比较值不是另一份可编辑或保存的业务真源。
+ const original=canonicalRevisionSnapshot(manifest)
+ if(typeof manifest!=='object'||manifest===null||Array.isArray(manifest))throw Error('CONTENT_CANDIDATE_MANIFEST_REQUIRED')
+ const withRevision=canonicalRevisionSnapshot({...manifest,projectId:row['projectId'],baselineId:row['baselineId'],
+  stageRef:row['stageRef'],templateRefs:row['templateRefs']})
+ if(original!==withRevision)throw Error('CONTENT_CANDIDATE_REVISION_MISMATCH')
+ const nodes=await readContentSnapshotNodes(host,snapshot)
+ const assertCurrent=()=>{assertCandidate();snapshot.assertCurrent();nodes.assertCurrent()}
+ assertCurrent()
+ const payloads=(nodes.dataViewKey?host.runtime.resolveView(nodes.dataViewKey)?.rows:[])?.map(member=>{
+  const nodeId=member['nodeId'],payload=member['payload']
+  if(typeof nodeId!=='string')throw Error('CONTENT_CANDIDATE_NODE_REQUIRED')
+  assertContentNodeVersionPayload(payload,nodeId)
+  return payload
+ })
+ if(!payloads)throw Error('CONTENT_CANDIDATE_NODE_REQUIRED')
+ const templateRefs:unknown=Object.getOwnPropertyDescriptor(manifest,'templateRefs')?.value
+ assertRevisionTemplateBindings(templateRefs,payloads)
+ const requirementPins:unknown=Object.getOwnPropertyDescriptor(manifest,'requirementPins')?.value
+ const responses:unknown=Object.getOwnPropertyDescriptor(manifest,'responses')?.value
+ assertRevisionResponseAnchors(responses,requirementPins,payloads)
+ assertRevisionResponseText(responses,payloads.map(payload=>payload.nodeId))
+ assertCurrent()
+ return Object.freeze({runtime:host.runtime,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+  responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
+  requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,
+  requiresBusinessSectionChecks:true,assertCurrent})
+}

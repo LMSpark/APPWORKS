@@ -1,0 +1,19 @@
+{
+  "scope": "I22 owned temporary PDF rule CRUD",
+  "taskSubmissions": 0,
+  "fileWrites": 0,
+  "sessionPersisted": false,
+  "stages": [
+    "create-confirmed",
+    "independent-create-readback",
+    "enable-confirmed",
+    "independent-enabled-readback"
+  ],
+  "ownedRuleId": "9D29F4F264B41F4AA6361F171B3DEBC1",
+  "requests": 14,
+  "blocked": 0,
+  "success": false,
+  "failedStage": "cleanup-read",
+  "errorType": "Error",
+  "captureHeldInProcess": false
+}

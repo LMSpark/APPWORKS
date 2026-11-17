@@ -816,8 +816,9 @@ export class ScenarioViewConfig {
     }
     if ('treeConfig' in view) {
       const tree = record(view['treeConfig'], `${path}.treeConfig`)
-      keys(tree, ['idField', 'parentIdField', 'rootParentValue', 'rootParentValues', 'textField', 'depthLimit', 'lazy', 'treeMode', 'serverPaginationMode', 'filterMode'], `${path}.treeConfig`)
-      for (const key of ['idField', 'parentIdField', 'textField']) if (key in tree) name(tree[key], `${path}.treeConfig.${key}`)
+      keys(tree, ['idField', 'parentIdField', 'orderField', 'rootParentValue', 'rootParentValues', 'textField', 'depthLimit', 'lazy', 'treeMode', 'serverPaginationMode', 'filterMode'], `${path}.treeConfig`)
+      for (const key of ['idField', 'textField']) if (key in tree) name(tree[key], `${path}.treeConfig.${key}`)
+      for (const key of ['parentIdField','orderField']) if (key in tree) SparkData.DataTreeField.parse(tree[key])
       const rootParent = tree['rootParentValue']
       if ('rootParentValue' in tree && typeof rootParent !== 'string'
         && !(typeof rootParent === 'number' && Number.isFinite(rootParent))) throw new Error(`${path}.treeConfig.rootParentValue 必须是字符串或有限数值`)

@@ -218,7 +218,12 @@ describe('App project selection owner', () => {
     const receipt = await service.switchAndReload('APP-A')
 
     expect(receipt).toEqual(expect.objectContaining({ assertCurrent: expect.any(Function) }))
-    expect(clean).toHaveBeenCalledOnce()
+    expect(clean).toHaveBeenCalled()
+    const activationOrder=vi.mocked(activateLowcodeApplication).mock.invocationCallOrder[0]
+    const resetOrder=reset.mock.invocationCallOrder[0]
+    if(activationOrder===undefined||resetOrder===undefined)throw new Error('Missing activation or cleanup')
+    expect(clean.mock.invocationCallOrder.some(order=>order<activationOrder)).toBe(true)
+    expect(clean.mock.invocationCallOrder.some(order=>order>activationOrder&&order<resetOrder)).toBe(true)
     expect(reset).toHaveBeenCalledOnce()
     expect(dispose).toHaveBeenCalledOnce()
     expect(shellState.reload).toHaveBeenCalledOnce()

@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-17",
+  "source": "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts",
+  "consumer": "ContentAuthoringBinding.readSnapshotNodes",
+  "viewContract": {
+    "memberScope": "nodeHash in GetInputParam(nodeHashes)",
+    "view": "snapshotMembers",
+    "maxRows": "memberCount+1",
+    "projectScope": "projectId eq GetInputParam(projectId)",
+    "model": "ContentNodeVersion",
+    "allPages": true,
+    "pagination": "paged",
+    "commitMode": "staged"
+  },
+  "behavior": [
+    "One original view for exact complete member set; original snapshot and row/result proofs retained",
+    "Explicit empty node list skips query and leaves original snapshot proof active",
+    "Reported full count and exact nodeId/hash set reject missing/duplicate/extra/equal-size replacements",
+    "Per-node payload/hash, full tree structure and internal page/xref target closure checked",
+    "No source copies, save or adoption; other business sections and rootHash pending"
+  ],
+  "verification": {
+    "aiCodegenViolations": 0,
+    "finalQueryArgumentTests": 9,
+    "tests": 57,
+    "files": 6,
+    "lintExitCode": 0,
+    "seconds": 20.7,
+    "finalQueryArgumentTestFiles": 1,
+    "exitCode": 0
+  },
+  "red": [
+    "Initial red was absent module, not behavioral failure",
+    "Internal dangling xref accepted: 1 failed/8 passed; fixed by same-manifest target closure"
+  ],
+  "limits": [
+    "snapshotMembers formal saved view not yet created; production method fails closed until configured",
+    "Query fixture via original DataView, no real snapshot/node row acceptance",
+    "Full ClassModel/type/repository gates and push remain integration owner responsibility"
+  ]
+}

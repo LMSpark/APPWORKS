@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-17",
+  "mode": "read-only browser UI audit",
+  "applicationId": "D8490EC99436A8B9AFDE205BE3153802",
+  "dataSpaceId": "D3BBA1F0780056C837AC35E9825CAD5A",
+  "modelId": "A29690B8AB3630C6C8C943A10835E0AA",
+  "modelName": "FactVersion",
+  "source": "spark_bid.bid_fact_version",
+  "observed": {
+    "spaceModelCount": 6,
+    "namedViewPage": "请选择一个数据视图，或在当前模型下新增视图，再配置请求。",
+    "visibleNamedViews": [],
+    "jsonFields": ["value", "sourceIds", "scopeRef", "decisionRefs", "dependencyRefs", "promiseTerms", "sourceRecord"],
+    "visibleBusinessOutputsChecked": true,
+    "visibleValueFunctionsEmpty": true,
+    "visibleAliases": {"project_id": "projectId", "fact_key": "key", "claim_id": "claimId"}
+  },
+  "writes": [],
+  "limits": [
+    "No business fact rows queried or inserted.",
+    "The old default-view save outcome remains unknown; it was not replayed.",
+    "No Baseline model is present among the six observed models.",
+    "No fixed-baseline membership, current-use approval or adoption has been proven."
+  ],
+  "userDirection": "Reference sparkproject customer craft and prompts; adapt them to determined JSON models and keep content data separate from formatting."
+}

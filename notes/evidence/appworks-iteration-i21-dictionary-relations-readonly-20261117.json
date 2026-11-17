@@ -1,0 +1,52 @@
+{
+  "scope": "I21 dictionary registered table and relation contract read only",
+  "writes": 0,
+  "sessionPersisted": false,
+  "models": [
+    {
+      "name": "_Base_TblList",
+      "primaryKey": "rowid",
+      "fields": [
+        "tblname",
+        "SchemaName",
+        "IsReferenceSelf",
+        "hasDefaultFields",
+        "ReferenceKey",
+        "dbid",
+        "rowid",
+        "functiondesc",
+        "multiTenancy",
+        "lingma_sys_ent",
+        "createtime",
+        "createuser",
+        "tbldesc",
+        "ReferenceParentKey"
+      ]
+    },
+    {
+      "name": "Base_TblRln",
+      "primaryKey": "rowid",
+      "fields": [
+        "pkdbid",
+        "rlname",
+        "createtime",
+        "createuser",
+        "fkdbid",
+        "pktbid",
+        "lingma_sys_ent",
+        "rowid",
+        "fktbid",
+        "RelshipExp",
+        "IsCascadeDeletion",
+        "fktable",
+        "pktable"
+      ]
+    }
+  ],
+  "failure": {
+    "type": "Error"
+  },
+  "requests": 10,
+  "blocked": 0,
+  "observedAt": "2026-11-17T11:58:06.925Z"
+}

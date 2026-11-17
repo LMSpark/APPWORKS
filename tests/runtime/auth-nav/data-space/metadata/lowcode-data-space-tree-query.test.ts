@@ -82,6 +82,35 @@ function treeRows(view: ReturnType<typeof fixture>['view']) {
 }
 
 describe('formal tree view query projection', () => {
+  it.each([undefined,'hidden','masked'] as const)('uses member source fields and original row identity with payload access %s',async restriction=>{
+    const payloadField={...model.fields[3]!,id:'PAYLOAD',name:'payload',canonicalName:'payload',type:'json'}
+    const formal={...model,fields:[...model.fields,payloadField]}
+    const {dataSet,view,http}=fixture({idField:'extra',parentIdField:{field:'payload',path:['parentId'],format:'native'},
+      orderField:{field:'payload',path:['index'],format:'native'},textField:'caption',rootParentValue:'PROJECT'},formal)
+    http.data=[{nodeKey:'VERSION-B',extra:'B',caption:'Second',payload:{parentId:'PROJECT',index:10}},
+      {nodeKey:'VERSION-A',extra:'A',caption:'First',payload:{parentId:'PROJECT',index:2}}]
+    if(restriction)http.problem={field:'payload',kind:restriction}
+    try {
+      await view.refresh()
+      const wire=JSON.stringify(http.requests.map(request=>request.data))
+      expect(wire).not.toContain('"orderField"')
+      expect(wire).not.toContain('"parentIdField":{')
+      expect(wire).not.toContain('payload.parentId')
+      expect(wire).toContain('"Name":"payload"')
+      if(restriction){expect(view.loadingError).toBeTruthy();expect(treeRows(view)).toEqual([])}
+      else {
+        expect(view.loadingError).toBeFalsy()
+        expect(http.requests[0]?.data).toMatchObject({Table:[{Fields:expect.arrayContaining([expect.objectContaining({Name:'payload'})])}]})
+        const wire=JSON.stringify(http.requests.map(request=>request.data))
+        expect(wire).not.toContain('payload.parentId')
+        expect(wire).not.toContain('"orderField"')
+        expect(wire).not.toContain('"parentIdField":{')
+        const rows=treeRows(view)
+        expect(rows.map(row=>row['extra'])).toEqual(['A','B'])
+        expect(view.rows.map(row=>view.getPkKey(row))).toEqual(['VERSION-B','VERSION-A'])
+      }
+    } finally {dataSet.destroy()}
+  })
   it('consumes JSON source node records as a complete typed collection through the same formal DataView', async () => {
     const nodes = [
       {id: 'settings', pid: null, name: 'settings', type: 'object', haschild: true, value: null},

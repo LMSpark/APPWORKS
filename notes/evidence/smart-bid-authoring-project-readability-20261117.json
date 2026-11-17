@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-17",
+  "scope": "ContentAuthoringHost project identity readability",
+  "source": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
+  "tests": "tests/app/services/smart-bid/content-authoring-host.test.ts",
+  "red": [
+    "Initial hidden project identity: expected rejection but open resolved; 1 failed / 12 passed",
+    "After refresh hides project identity: expected stale binding rejection but did not throw; 1 failed / 13 passed"
+  ],
+  "green": {
+    "exitCode": 0,
+    "files": 2,
+    "tests": 21,
+    "durationSeconds": 13.08
+  },
+  "lintExitCode": 0,
+  "aiCodegenViolations": 0,
+  "limits": [
+    "Fixture query responses through original DataView permission chain; no real alternate-account revocation smoke test",
+    "No full RevisionSnapshot binding, immutable persistence or adoption acceptance",
+    "Unified generation, typecheck, repository gates and submission remain integration owner responsibility"
+  ]
+}

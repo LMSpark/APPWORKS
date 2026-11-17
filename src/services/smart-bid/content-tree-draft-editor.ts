@@ -9,6 +9,7 @@ import {validateContentDraftPayload} from './content-draft-save-rule'
 
 type Node = {nodeId: string; parentId: string; index: number; type: string; class: string[]; value: string; data: Record<string, unknown>}
 type ChapterInput = Readonly<{chapterId: string; headingId: string; title: string}>
+type ParagraphInput = Readonly<{paragraphId: string; value: string; data?: Readonly<Record<string, unknown>>}>
 function node(input: Readonly<{nodeId: string; parentId: string; type: string; value?: string}>): Node {
   return {...input, index: 0, class: [], value: input.value ?? '', data: {}}
 }
@@ -21,6 +22,9 @@ function insert(nodes: Node[], next: Node, at?: number): void {
   if (!Number.isSafeInteger(index) || index < 0 || index > siblings.length) throw Error('内容插入位置无效')
   siblings.slice(index).forEach(item => {item.index++})
   next.index = index; nodes.push(next)
+}
+function paragraph(parentId: string, input: ParagraphInput): Node {
+  return {...node({nodeId: input.paragraphId, parentId, type: 'paragraph', value: input.value}), data: structuredClone(input.data ?? {})}
 }
 
 /** 对指定项目和草稿行执行语义动作；每次操作重新读取原视图编辑覆盖和当前字段权限。 */
@@ -76,6 +80,37 @@ export class ContentTreeDraftEditor {
   /** 新增正文段落；字段引用留在同一节点data，不展开成另份正文。 */
   addParagraph(parentId: string, input: Readonly<{nodeId: string; value: string; data?: Readonly<Record<string, unknown>>}>, index?: number): void {
     this.edit(nodes => insert(nodes, {...node({nodeId: input.nodeId, parentId, type: 'paragraph', value: input.value}), data: structuredClone(input.data ?? {})}, index))
+  }
+
+  /** 新建完整非空列表；ordered仅为语义类，编号和布局仍交模板。 */
+  addList(parentId: string, input: ParagraphInput & Readonly<{listId: string; itemId: string; ordered?: boolean}>, index?: number): void {
+    this.edit(nodes => {
+      const list = node({nodeId: input.listId, parentId, type: 'list'})
+      if (input.ordered === true) list.class = ['ordered']
+      insert(nodes, list, index)
+      nodes.push(node({nodeId: input.itemId, parentId: input.listId, type: 'item'}), paragraph(input.itemId, input))
+    })
+  }
+
+  /** 在原列表中插入带首段的条目；不产生空容器或另一份条目正文。 */
+  addListItem(listId: string, input: ParagraphInput & Readonly<{itemId: string}>, index?: number): void {
+    this.edit(nodes => {
+      insert(nodes, node({nodeId: input.itemId, parentId: listId, type: 'item'}), index)
+      nodes.push(paragraph(input.itemId, input))
+    })
+  }
+
+  /** 引文按quote及其原段落表达，文字不转换为Markdown引用块。 */
+  addQuote(parentId: string, input: ParagraphInput & Readonly<{quoteId: string}>, index?: number): void {
+    this.edit(nodes => {
+      insert(nodes, node({nodeId: input.quoteId, parentId, type: 'quote'}), index)
+      nodes.push(paragraph(input.quoteId, input))
+    })
+  }
+
+  /** 册首唯一目录要求；目录项由标题派生，不写入节点数据。 */
+  addTableOfContents(documentId: string, nodeId: string): void {
+    this.edit(nodes => insert(nodes, node({nodeId, parentId: documentId, type: 'toc'}), 0))
   }
 
   /** 编辑标题、正文或题注；语义类型和稳定身份不变，正式引用/交付校验另行执行。 */

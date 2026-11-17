@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-17",
+  "status": "ORIGINAL_VIEW_HIERARCHY_COMPONENT_VERIFIED_NOT_LIVE_ACCEPTANCE",
+  "source": "content-snapshot-nodes.ts and content-candidate-workspace.vue",
+  "binding": "Original ContentNodeVersion@snapshotMembers. Before its single original refresh, setTreeConfig configures idField=nodeId, native payload.parentId, native payload.index orderField, rootParentValue=projectId, textField=nodeId, lazy=false, treeMode=flat. No server nested-tree protocol, payload copy or manual page tree owner introduced.",
+  "consumer": "Standard RendererTree with readonly standard field children, original DataView row selection and original payload detail form. Native projection only; original flat rows remain untouched. Actual version-row primary key is distinct from nodeId and is preserved when selecting tree nodes.",
+  "proof": "Original query/row/host proofs remain; local tree configuration signature is additionally checked because hierarchy changes must invalidate the derived binding even without a new query. Empty candidate never renders retained old member rows.",
+  "classModel": {
+    "catalog": "generated/dts-class-model/manifest.json TreeConfig, TreeFieldSelector, DataTreeField, DataFieldMemberRef, DataView.setTreeConfig and existing RTreeProps",
+    "provenance": "Types declaration 2026-11-17T14:02:50Z and tree-field declaration 14:25:16Z precede refreshed generated guides at 14:28:07/08Z. Queried new schemas/guides before implementation; no independent generator run here.",
+    "contract": "Parent/order accept explicit field/path/format; id/text remain string columns. Used that exact narrowed contract and original source-field permission chain. This does not assert public full-suite gates passed."
+  },
+  "verification": {
+    "red": "Two actual UI cases failed because the hierarchy and tree selection entry did not exist; three earlier cases passed.",
+    "fixtureCorrection": "Installed native ElTree does not emit the assumed aria-level attribute. Replaced that fixture assumption with actual nested DOM ancestry checks; no public component change.",
+    "relatedFiles": 3,
+    "relatedTests": 30,
+    "durationSeconds": 16.35,
+    "exitCode": 0,
+    "cases": "D/C/H hierarchy; five nodes returned by nodeId order A,C,D,H,Z display as D/C/H/Z/A by sibling index; original rows unchanged; click A selects original ROW_A; whole original payload fields still readable; stale query/foreign runtime/empty candidate withdraw; changed tree config invalidates original binding.",
+    "eslint": "Five changed source/test/fixture files, exit 0.",
+    "aiCodegen": "Two business source files, zero violations."
+  },
+  "pending": "Actual business page/navigation, real candidate/revision/node data and cold UI readback; full compare/preview/adoption, FactVersion/baseline/approval integration, formal generated application API and full repository gates. Full I0-I7 remains active. No public source changes, generation, full gates, staging, commit or push by this task."
+}

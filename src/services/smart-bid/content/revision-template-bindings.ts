@@ -1,0 +1,33 @@
+/**
+ * @module app:services/smart-bid/content/revision-template-bindings
+ * 职责：核固定清单中的分册模板引用结构及本版逻辑册归属。
+ * 边界：不读取模板实体、不选择默认模板、不证明发布/适用或交付通过，不修改内容哈希。
+ * AI用途：节点完整装配后核模板绑定；模板格式与业务内容分离，实体摘要及发布证据另查。
+ */
+import type {ContentStructureNode} from '../content-tree-structure'
+import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from './references/snapshot-reference-values'
+
+/** 新清单的固定模板引用；版本是精确字符串标识，不作版本号大小比较。 */
+export type RevisionTemplateRef=Readonly<{documentId:string;key:string;version:string;hash:string}>
+function reference(value:unknown):RevisionTemplateRef {
+ const fields=snapshotReferenceFields(value,['documentId','key','version','hash'],'SNAPSHOT_TEMPLATE_MODEL')
+ const documentId=fields['documentId'],key=fields['key'],version=fields['version'],hash=fields['hash']
+ if(!snapshotReferenceIdentity(documentId))throw Error('SNAPSHOT_TEMPLATE_DOCUMENT')
+ if(!snapshotReferenceIdentity(key)||!snapshotReferenceIdentity(version)||typeof hash!=='string'||!/^[a-f0-9]{64}$/u.test(hash))throw Error('SNAPSHOT_TEMPLATE_MODEL')
+ return {documentId,key,version,hash}
+}
+
+/** 未选模板仍可编辑内容树；显式引用必须唯一指向本版document，不能指标题或已删册。 */
+export function assertRevisionTemplateBindings(value:unknown,nodes:ReadonlyArray<Pick<ContentStructureNode,'nodeId'|'type'>>):void {
+ const documents=new Set(nodes.filter(node=>node.type==='document').map(node=>node.nodeId)),bound=new Set<string>()
+ const versions=new Map<string,Map<string,string>>()
+ visitSnapshotReferences(value,item=>{
+  const ref=reference(item)
+  if(!documents.has(ref.documentId))throw Error('SNAPSHOT_TEMPLATE_DOCUMENT')
+  if(bound.has(ref.documentId))throw Error('SNAPSHOT_TEMPLATE_DUPLICATE')
+  bound.add(ref.documentId)
+  const byVersion=versions.get(ref.key)??new Map<string,string>(),previous=byVersion.get(ref.version)
+  if(previous!==undefined&&previous!==ref.hash)throw Error('SNAPSHOT_TEMPLATE_VERSION')
+  byVersion.set(ref.version,ref.hash);versions.set(ref.key,byVersion)
+ },'SNAPSHOT_TEMPLATE_MODEL')
+}

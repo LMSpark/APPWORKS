@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/content-snapshot-nodes",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/content-snapshot-nodes",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-snapshot-nodes\n职责：在原完整成员视图中装配固定清单节点，核精确集合、结构和逐项摘要。\n边界：不复制节点真源或逐节点重查，不保存/采用；其它业务分组、外部引用和rootHash仍另核。\nAI用途：已核快照索引交完整成员绑定，标准组件继续消费同一DataView。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentSnapshotNodesBinding"
+    ]
+  },
+  "$defs": {
+    "ContentSnapshotNodesBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentSnapshotNodesBinding",
+      "properties": {
+        "dataViewKey": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "nodeMembershipVerified": {
+          "const": true
+        },
+        "requiresBusinessSectionChecks": {
+          "const": true
+        },
+        "subtreeHashContract": {
+          "const": "spark-bid.content-subtree/1"
+        },
+        "subtreeHashes": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../services/smart-bid/content/hashes/content-subtree-hash.ts.json#/$defs/ContentSubtreeHash"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-17T14:36:06.896Z",
+  "models": {
+    "ContentSnapshotNodesBinding": {
+      "name": "ContentSnapshotNodesBinding",
+      "jsdoc": "整批原成员绑定；空节点清单不绑定旧视图，也不发空IN查询。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataViewKey: string | null;\n    nodeMembershipVerified: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n    subtreeHashContract: typeof SUBTREE_HASH_CONTRACT;\n    subtreeHashes: readonly ContentSubtreeHash[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataViewKey: string | null;\n    nodeMembershipVerified: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n    subtreeHashContract: typeof SUBTREE_HASH_CONTRACT;\n    subtreeHashes: readonly ContentSubtreeHash[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeMembershipVerified",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresBusinessSectionChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subtreeHashContract",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subtreeHashes",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -67,10 +67,6 @@
               "type": "object",
               "title": "(command: LowcodeDesignFileUploadCommand) => Promise<LowcodeDesignFileUploadResult>"
             },
-            "uploadTextVersion": {
-              "type": "object",
-              "title": "(command: LowcodeDesignFileUploadCommand) => Promise<LowcodeDesignFileUploadResult>"
-            },
             "uploadBinaryVersion": {
               "type": "object",
               "title": "(command: LowcodeBinaryFileUploadCommand) => Promise<LowcodeBinaryFileUploadReceipt>"
@@ -78,13 +74,17 @@
             "verifyBinaryVersion": {
               "type": "object",
               "title": "(command: Readonly<{ receipt: LowcodeBinaryFileUploadReceipt; file: File; }>) => Promise<void>"
+            },
+            "uploadTextVersion": {
+              "type": "object",
+              "title": "(command: LowcodeDesignFileUploadCommand) => Promise<LowcodeDesignFileUploadResult>"
             }
           },
           "required": [
             "uploadWorkingText",
-            "uploadTextVersion",
             "uploadBinaryVersion",
-            "verifyBinaryVersion"
+            "verifyBinaryVersion",
+            "uploadTextVersion"
           ],
           "additionalProperties": false
         }

@@ -1,0 +1,241 @@
+{
+  "date": "2026-11-17",
+  "databaseId": "8C0FC2087F5D4103987A0D1FC6C3045B",
+  "database": "spark_bid",
+  "schema": "spark_bid",
+  "table": "bid_revision_snapshot",
+  "tableId": "B304777543306DC764A7A86875E03BE8",
+  "create": {
+    "requestId": "19840.1261",
+    "Code": 200,
+    "submissions": 1,
+    "registryRead": {
+      "requestId": "19840.1262",
+      "Code": 200,
+      "records": [
+        {
+          "rowid": "B304777543306DC764A7A86875E03BE8",
+          "dbid": "8C0FC2087F5D4103987A0D1FC6C3045B",
+          "tblname": "bid_revision_snapshot",
+          "tbldesc": "投标修订快照清单",
+          "createtime": "2026-11-17T20:00:12"
+        }
+      ]
+    }
+  },
+  "fieldsSave": {
+    "requestId": "19840.1267",
+    "Code": 200,
+    "submissions": 1,
+    "records": [
+      {
+        "rowid": "618950ABD80B5979B7F3D6930F3ABD75",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "project_id",
+        "DataTypeName": "字符串型",
+        "DataLen": "256",
+        "IsNill": "0",
+        "IsPKey": "0",
+        "IsUQ": "0"
+      },
+      {
+        "rowid": "B17942759DAFA9232B9A5D8EDE774D0A",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "snapshot_hash",
+        "DataTypeName": "字符串型",
+        "DataLen": "64",
+        "IsNill": "0",
+        "IsPKey": "0",
+        "IsUQ": "0"
+      },
+      {
+        "rowid": "63CEC50A636FF0581C60BD5487333B50",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "manifest",
+        "DataTypeName": "json类型",
+        "IsNill": "0",
+        "IsPKey": "0",
+        "IsUQ": "0"
+      }
+    ]
+  },
+  "coldRead": {
+    "pageReloaded": true,
+    "requestId": "19840.1359",
+    "Code": 200,
+    "Count": 15,
+    "records": [
+      {
+        "rowid": "0910EF8A24D04EBB8E98FBFEC1F1F6A8",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "flowstate",
+        "DataType": "int",
+        "DataTypeName": "整数型",
+        "DataLen": "",
+        "IsNill": 1,
+        "IsPKey": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "1E046C4AD84947418CB238397AE91248",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "updateuser",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "DataLen": "100",
+        "IsNill": 1,
+        "IsPKey": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "20831F53E9214070B415AF4EB85D3CBF",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "updatetime",
+        "DataType": "datetime",
+        "DataTypeName": "日期型",
+        "DataLen": "",
+        "IsNill": 1,
+        "IsPKey": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "618950ABD80B5979B7F3D6930F3ABD75",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "project_id",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "DataLen": "256",
+        "IsNill": 0,
+        "IsPKey": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "63CEC50A636FF0581C60BD5487333B50",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "manifest",
+        "DataType": "json",
+        "DataTypeName": "json类型",
+        "DataLen": "",
+        "IsNill": 0,
+        "IsPKey": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "643579D208BD43F48EB094069EEAC98E",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "createtime",
+        "DataType": "datetime",
+        "DataTypeName": "日期型",
+        "DataLen": "",
+        "IsNill": 1,
+        "IsPKey": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "89CE424A09E745B4A1C8C23B240E02CD",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "lingma_sys_ent",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "DataLen": "50",
+        "IsNill": 0,
+        "IsPKey": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "9092476DD6CD4DE19539998DB04AA14E",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "id",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "DataLen": "32",
+        "IsNill": 0,
+        "IsPKey": 1,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "9C2643A242F94A2FBDD778315B9FEC77",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "wfid",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "DataLen": "32",
+        "IsNill": 1,
+        "IsPKey": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "B17942759DAFA9232B9A5D8EDE774D0A",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "snapshot_hash",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "DataLen": "64",
+        "IsNill": 0,
+        "IsPKey": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "B18FD9D26A874BC7A252153941DCA269",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "description",
+        "DataType": "text",
+        "DataTypeName": "文本",
+        "DataLen": "",
+        "IsNill": 1,
+        "IsPKey": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "C3ED6D6919EF4C57BA8B4A4B9CCF3C17",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "ReportID",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "DataLen": "32",
+        "IsNill": 1,
+        "IsPKey": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "C95C3E262B9D4A588A1FE7A4B25717A0",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "lingma_sys_is_delete",
+        "DataType": "int",
+        "DataTypeName": "整数型",
+        "DataLen": "",
+        "IsNill": 1,
+        "IsPKey": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "D64C5BFE62844AE8B1EE010359628389",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "lingma_sys_appid",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "DataLen": "64",
+        "IsNill": 1,
+        "IsPKey": 0,
+        "IsUQ": 0
+      },
+      {
+        "rowid": "F1837BB021D54E46925940CBBB3A8C1C",
+        "tblid": "B304777543306DC764A7A86875E03BE8",
+        "enname": "createuser",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "DataLen": "100",
+        "IsNill": 1,
+        "IsPKey": 0,
+        "IsUQ": 0
+      }
+    ]
+  },
+  "storage": "Structured manifest references separately stored node payload versions; no presentation or controlled sensitive values.",
+  "limits": [
+    "Resource definitions only; no snapshot business content inserted",
+    "No formal model/view yet",
+    "Manifest contract, capacity, digest integrity, completeness, append-only, atomic adoption and recovery not yet verified"
+  ]
+}

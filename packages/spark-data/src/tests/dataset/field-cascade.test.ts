@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { DataSet } from '../../dataset'
-import type { DataRow, DataViewFieldCascade, QueryParams } from '../../types'
+import type { DataRow, DataViewFieldCascade, QueryParams,TreeConfig } from '../../types'
 
 function result(tableName: string, rows: DataRow[], access?: { hidden?: string; targetWritable?: boolean }) {
   return {
@@ -24,7 +24,7 @@ function result(tableName: string, rows: DataRow[], access?: { hidden?: string; 
 
 async function fixture(input?: { policy?: DataViewFieldCascade['valuePolicy']; rows?: DataRow[];
   format?: DataViewFieldCascade['valueFormat']; parents?: DataViewFieldCascade['parents']; options?: DataRow[];
-  valueField?: string | string[]; delimiter?: string;
+  valueField?: string | string[]; delimiter?: string; treeConfig?:TreeConfig;
   access?: { hidden?: string; targetWritable?: boolean } }) {
   const policy = input?.policy ?? { mode: 'retain-valid', clearValue: null }
   const rows = input?.rows ?? [{ id: 1, country: 'A', province: 0, city: 'OLD' }]
@@ -34,8 +34,10 @@ async function fixture(input?: { policy?: DataViewFieldCascade['valuePolicy']; r
         { name: 'province', type: 'number' }, { name: 'city', type: 'string' }],
       views: { default: {}, edit: {}, selected: { autoSelectFirst: false, valueField: 'country' } } },
     Cities: { tableName: 'Cities', modelBinding: { modelId: 'CITY', modelName: 'Cities' },
-      columns: [{ name: 'id', type: 'string', isPrimaryKey: true }, { name: 'caption', type: 'string' }, { name: 'code', type: 'string' }],
-      views: { default: {}, choices: { valueField: input?.valueField ?? 'id', labelField: 'caption', selectionDelimiter: input?.delimiter ?? '|' } } },
+      columns: [{ name: 'id', type: 'string', isPrimaryKey: true }, { name: 'caption', type: 'string' }, { name: 'code', type: 'string' },
+        ...(input?.treeConfig?[{name:'nodeId',type:'string' as const},{name:'payload',type:'json' as const}]:[])],
+      views: { default: {}, choices: { valueField: input?.valueField ?? 'id', labelField: 'caption', selectionDelimiter: input?.delimiter ?? '|',
+        ...(input?.treeConfig?{treeConfig:input.treeConfig}:{}) } } },
   }, viewCascades: [{ kind: 'field', cascadeId: 'city-by-region', tableName: 'Orders', viewId: 'edit',
     valueFormat: input?.format ?? 'native', targetField: 'city',
     parents: input?.parents ?? [{ tableName: 'Orders', viewId: 'edit', field: 'country', parameter: 'countryId' }, { tableName: 'Orders', viewId: 'edit', field: 'province', parameter: 'provinceId' }],
@@ -61,6 +63,47 @@ async function fixture(input?: { policy?: DataViewFieldCascade['valuePolicy']; r
 function address() { return { tableName: 'Orders', viewId: 'edit', field: 'city' } }
 
 describe('DataSet field input cascades', () => {
+  it('keeps the scalar option value while querying its native JSON parent and order members',async()=>{
+    const {dataSet,target,options}=await fixture({rows:[{id:1,country:'A',province:0,city:'VERSION'}],
+      options:[{id:'VERSION',nodeId:'NODE',caption:'Original',payload:{parentId:null,index:2}}],
+      treeConfig:{idField:'nodeId',parentIdField:{field:'payload',path:['parentId'],format:'native'},
+        orderField:{field:'payload',path:['index'],format:'native'},textField:'caption'}})
+    try {
+      target.updateEditingValue(1,'country','B')
+      await vi.waitFor(()=>expect(dataSet.getFieldCascadeState(address()).status).toBe('ready'))
+      expect(target.getEditingPatch(1)).toEqual({country:'B'})
+      const rows=await options.queryOptionRows({fields:['id','nodeId','caption','payload']})
+      expect(rows).toEqual([{id:'VERSION',nodeId:'NODE',caption:'Original',payload:{parentId:null,index:2}}])
+    } finally {dataSet.destroy()}
+  })
+  it.each(['idField','textField'] as const)('rejects a JSON member source that also serves as scalar tree %s',async role=>{
+    const {dataSet,options}=await fixture({options:[{id:'VERSION',nodeId:'NODE',caption:'Original',payload:{parentId:null,index:2}}],
+      treeConfig:{idField:role==='idField'?'payload':'nodeId',textField:role==='textField'?'payload':'caption',
+        parentIdField:{field:'payload',path:['parentId'],format:'native'},orderField:{field:'payload',path:['index'],format:'native'}}})
+    try {await expect(options.queryOptionRows({fields:['id','nodeId','caption','payload']})).rejects.toThrow('DATA_VIEW_OPTIONS_VALUE')}
+    finally {dataSet.destroy()}
+  })
+  it('rejects an unreadable JSON member source before parsing it',async()=>{
+    const {dataSet,options,setOptionQuery}=await fixture({treeConfig:{idField:'nodeId',textField:'caption',parentIdField:{field:'payload',path:['parentId'],format:'native'}}})
+    setOptionQuery(async()=>result('Cities',[{id:'VERSION',nodeId:'NODE',caption:'Original',payload:'not native JSON'}],{hidden:'payload'}))
+    try {await expect(options.queryOptionRows({fields:['id','nodeId','caption','payload']})).rejects.toThrow('DATA_VIEW_OPTIONS_FIELD')}
+    finally {dataSet.destroy()}
+  })
+  it('rejects an option receipt when its JSON member path changed while loading',async()=>{
+    const config:TreeConfig={idField:'nodeId',textField:'caption',parentIdField:{field:'payload',path:['parentId'],format:'native'}}
+    const {dataSet,options,setOptionQuery}=await fixture({treeConfig:config})
+    let release:(value:ReturnType<typeof result>)=>void=()=>{}
+    const started=vi.fn()
+    setOptionQuery(()=>{started();return new Promise(resolve=>{release=resolve})})
+    try {
+      const pending=options.queryOptionRows({fields:['id','nodeId','caption','payload']})
+      await vi.waitFor(()=>expect(started).toHaveBeenCalledOnce())
+      options.setTreeConfig({...config,parentIdField:{field:'payload',path:['otherParent'],format:'native'}})
+      release(result('Cities',[{id:'VERSION',nodeId:'NODE',caption:'Original',payload:{parentId:null}}]))
+      await expect(pending).rejects.toThrow('DATA_VIEW_OPTIONS_STALE')
+      expect(options.rows).toEqual([])
+    } finally {dataSet.destroy()}
+  })
   it('queries using selected primary key arrays from another view, including an empty selection', async () => {
     const { dataSet, source, contexts } = await fixture({ parents: [{ tableName: 'Orders', viewId: 'selected', parameter: 'ids' }],
       policy: { mode: 'retain' }, rows: [{ id: 0, country: 'A', province: 0, city: null },

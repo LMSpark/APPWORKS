@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-17",
+  "scenarioId": "D3BBA1F0780056C837AC35E9825CAD5A",
+  "modelId": "A29690B8AB3630C6C8C943A10835E0AA",
+  "modelName": "FactVersion",
+  "parameterDeclaration": {
+    "before": "Input parameter editor showed no records.",
+    "added": [
+      {"Name": "projectId", "Description": "本次明确投标编制项目标识", "IsBusParam": false},
+      {"Name": "key", "Description": "项目内同一确定口径的稳定事实键", "IsBusParam": false},
+      {"Name": "version", "Description": "显式指定的原事实追加版本序号，不自动取最新", "IsBusParam": false}
+    ],
+    "receipt": "输入参数已保存并回读确认",
+    "coldRead": "Entire page reload, same original space opened from directory: all three names and descriptions match.",
+    "types": "The current parameter editor exposes names, descriptions and IsBusParam only; no parameter type or default was set."
+  },
+  "view": {
+    "name": "selectedFactVersion",
+    "queryOutputType": "Table",
+    "pagination": "paged",
+    "allPages": false,
+    "autoQuery": false,
+    "cache": "none",
+    "commitMode": "staged",
+    "scopeFilter": {"logic": "and", "filters": [
+      {"field": "projectId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "projectId"}},
+      {"field": "key", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "key"}},
+      {"field": "version", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "version"}}
+    ]},
+    "filterExpression": "empty; redundant temporary conditions explicitly cleared before save",
+    "receipt": "视图配置已保存并回读确认",
+    "coldRead": "Closed model and entire designer; reopened same space, FactVersion and selectedFactVersion. Full scopeFilter, Table/paged/allPages=false/autoQuery=false/cache=none and staged match."
+  },
+  "priorRejection": "With formal input declarations present, the function editor exposes GetInputParam and all three conditions apply successfully. This reproduction does not require weaker validation.",
+  "screenshots": ["smart-bid-fact-input-parameters-cold-20261117.png", "smart-bid-fact-selected-version-cold-20261117.png"],
+  "limits": [
+    "No business fact rows inserted or queried; no fixed-baseline membership or current-use permission proven.",
+    "Other named-view inputs still need their own formal declaration audit.",
+    "The old default-view save outcome remains unknown. A new save producing an empty default view does not prove the old request outcome.",
+    "No HTTP status or request ID captured for this UI-only evidence; none is inferred."
+  ]
+}

@@ -4,6 +4,7 @@ import type { DataView } from '../../data-view'
 import { RequestState } from '../../types'
 import type { DataRow, DataViewEditingFieldChangeEvent, DataViewFieldCascade } from '../../types'
 import { DataViewSelectionValue } from '../selection/data-view-selection-value'
+import {DataTreeField} from '../../core/tree-field'
 
 type ValueSource = DataViewFieldCascade['parents'][number]
 type Scalar = string | number | boolean | null
@@ -99,7 +100,8 @@ export class DataViewFieldCascadeBinding {
       try { return this.dataSet.resolveOptionView(reference) === view } catch { return false }
     }
     if (view.treeConfig) {
-      fields.push(view.treeConfig.idField ?? view.primaryKey, view.treeConfig.parentIdField ?? 'parentId')
+      fields.push(view.treeConfig.idField ?? view.primaryKey, DataTreeField.source(view.treeConfig.parentIdField ?? 'parentId'))
+      if (view.treeConfig.orderField !== undefined) fields.push(DataTreeField.source(view.treeConfig.orderField))
       if (view.treeConfig.textField !== undefined) fields.push(view.treeConfig.textField)
     }
     const delimiter = view.selectionDelimiter

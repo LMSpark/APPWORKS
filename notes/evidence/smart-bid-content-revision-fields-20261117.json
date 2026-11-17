@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-17",
+  "databaseId": "8C0FC2087F5D4103987A0D1FC6C3045B",
+  "database": "spark_bid",
+  "tableId": "5133AF01DC392438DB0BC021C6E605C4",
+  "table": "bid_content_revision",
+  "registryReadback": {"requestId": "19840.162", "Code": 200, "dbid": "8C0FC2087F5D4103987A0D1FC6C3045B", "tblname": "bid_content_revision", "tbldesc": "投标内容修订"},
+  "save": {"requestId": "19840.166", "Code": 200, "submissions": 1, "added": 14, "nonemptyFailureMessages": [], "saveButtonDisabledAfter": true},
+  "coldRead": {"pageReloaded": true, "requests": [{"requestId": "19840.258", "Code": 200, "fields": 20}, {"requestId": "19840.259", "Code": 200, "fields": 6}], "uniqueFields": 26, "allSavedFieldIdsMatched": true, "directoryScreenshot": "notes/evidence/smart-bid-content-revision-fields-cold-20261117.png", "fieldPage2Screenshot": "notes/evidence/smart-bid-content-revision-fields-page2-cold-20261117.png", "screenshotScope": "前图只有所选表目录，不证明字段。后图实际展示字段第二页（stage_ref/basis_revision_id等）和Total26。全部14字段类型/长度/空约束的依据是两页正式查询白名单及匹配的稳定字段ID，不以截图名称代替证据。"},
+  "businessFields": [
+    {"name":"project_id","id":"BECD62741971762231505322306E845C","type":"varchar","length":"256","nullable":false},
+    {"name":"root_hash","id":"BC7D058F26CA99E37CF3B0EA956524CC","type":"varchar","length":"64","nullable":false},
+    {"name":"parent_revision_ids","id":"644AAA79538D413573540BB2339EA2BC","type":"json","length":"","nullable":false},
+    {"name":"basis_revision_id","id":"FFB9DC707048F655FB3D7F26AF4D6D68","type":"varchar","length":"256","nullable":true},
+    {"name":"baseline_id","id":"13C22FB55331CFD25CB16EFCE4221802","type":"varchar","length":"256","nullable":false},
+    {"name":"stage_ref","id":"CDBEA5EF13F32DBE15421DE1F06FF966","type":"json","length":"","nullable":false},
+    {"name":"snapshot_hash","id":"18489312A900DF8EC7587B0FFD69D7D1","type":"varchar","length":"64","nullable":false},
+    {"name":"template_refs","id":"C8B18D0DE9DD66404535F2FC375B237E","type":"json","length":"","nullable":false},
+    {"name":"source","id":"B9D010532DF6CA880D98948C1BA507CF","type":"varchar","length":"32","nullable":false},
+    {"name":"status","id":"870CB47989DB3BA21140672502066467","type":"varchar","length":"32","nullable":false},
+    {"name":"target_scope","id":"1307295879B6E608AAC3D8B9950ED380","type":"json","length":"","nullable":false},
+    {"name":"generation_run_id","id":"59F8804A15649D871F6B254556011F2A","type":"varchar","length":"256","nullable":true},
+    {"name":"author_id","id":"B6C5748C9B17C216568D0937CE78DB34","type":"varchar","length":"256","nullable":false},
+    {"name":"classification","id":"21BD1BE8CCBB11D9EE0FA75A7E83993C","type":"varchar","length":"32","nullable":true}
+  ],
+  "mappingNext": "复用默认id和createtime，正式模型输出映射id及createdAt；其它业务字段按规格映射camelCase。模型注册/查询视图尚未完成。",
+  "storageBoundary": "stage_ref等JSON仅承接原引用，不在物理字段层猜其内部结构。父数组和目标需领域校验；字符串source/status/classification的闭合枚举、状态只前进及条件必填也须领域命令执行，DDL本身不保证。",
+  "uiObservation": "自增长列未提供编辑器，未强行绕过；字段名/描述/类型/长度/主键/可空/唯一通过标准编辑器。只提交字段定义，无正式业务修订行。",
+  "remaining": "ContentRevision正式模型/输出映射/查询视图和生产预演宿主仍待。只插入、不可变快照、可信作者、状态前进、expectedHead原子采用和原请求恢复未获权威验收。"
+}

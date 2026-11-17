@@ -195,7 +195,7 @@ describe('DataView resident scope filter', () => {
     try {
       await view.refresh()
       const row = await view.addRow({ status: 'PENDING' })
-      expect(row['ent']).toBe('E1')
+      expect(row).toMatchObject({ent: 'E1'})
       const copy = DataView.fromJson(view.toJson(), 'Auth', 'default')
       expect(copy.scopeFilter).toEqual(view.scopeFilter)
       expect(copy.filterExpression).toBeUndefined()

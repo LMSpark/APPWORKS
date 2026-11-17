@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1282,
+  "scannedFileCount": 1302,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -9312,6 +9312,21 @@
         ]
       }
     },
+    "packages/spark-data/src/core/tree-field.ts": {
+      "file": "files/packages/spark-data/src/core/tree-field.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:core/tree-field",
+        "sourcePath": "packages/spark-data/src/core/tree-field.ts",
+        "sourceFile": "packages/spark-data/src/core/tree-field.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "core/tree-field",
+        "jsdoc": "@module @spark-appworks/spark-data:core/tree-field\n职责：复用字段成员读取，将原行投影为树种子并按同父数值顺序排列。\n边界：不查询、不维护行副本真源；调用方须核源字段权限，树ID不代表正式记录主键。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "DataTreeField"
+        ]
+      }
+    },
     "packages/spark-data/src/core/url-template.ts": {
       "file": "files/packages/spark-data/src/core/url-template.ts.json",
       "module": {
@@ -9354,6 +9369,7 @@
           "DataSetCommandColumnSpec",
           "DataSetCommandScopeGuard",
           "DataSetCommandRowsLoader",
+          "DataSetCommandPageLoader",
           "DataSetCommandResourceIdentity",
           "BindReadonlyCommandQueryOptions",
           "EnsureDataSetResourceViewInput",
@@ -10206,6 +10222,7 @@
           "DataViewQueryContext",
           "DataViewFilterLookupConfig",
           "ViewMetadata",
+          "TreeFieldSelector",
           "TreeConfig",
           "FlatTreeNode",
           "NestedTreeNode",
@@ -11610,6 +11627,59 @@
           "PreparedExcelTemplateUpload",
           "ExcelTemplateUploadResourceInput",
           "ExcelTemplateUploadResource"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/init-resource",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/semi-structured/pdf-inspect/init-resource",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/init-resource\n职责：将固定PDF核验请求接入原DataSet命令提交及未知结果核验。\n边界：不上传、不查询配置、不保留第二草稿；恢复不重新要求原规则仍启用。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "PdfInspectionInitResourceInput",
+          "PdfInspectionInitResource"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/task-api",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/semi-structured/pdf-inspect/task-api",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/task-api\n职责：PDF核验v2正式任务请求及回执身份校验。\n边界：存储适配使用；不上传、不自动重试、不生成requestId、不把恢复未命中解释为未提交。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "PdfInspectionFileInput",
+          "PdfInspectionInitInput",
+          "PdfInspectionInitReceipt",
+          "PdfInspectionLimits",
+          "PdfInspectionHistory",
+          "PdfInspectionJob",
+          "PdfInspectionApi"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/upload-resource.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/upload-resource.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/upload-resource",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/upload-resource.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/upload-resource.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/semi-structured/pdf-inspect/upload-resource",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/upload-resource\n职责：PDF/ZIP原File通过DataSet命令上传并核验原ACK字节。\n边界：File与ACK只留本次存储适配；未知只核原ACK，不重传、不从展示路径重建ACK。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "PdfInspectionUploadResourceInput",
+          "PdfInspectionUploadResource"
         ]
       }
     },
@@ -14995,6 +15065,19 @@
         ]
       }
     },
+    "src/lowcode/resources/semi-structured/pdf-inspect/rule-config.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/pdf-inspect/rule-config.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/pdf-inspect/rule-config",
+        "sourcePath": "src/lowcode/resources/semi-structured/pdf-inspect/rule-config.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/rule-config.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/pdf-inspect/rule-config",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/pdf-inspect/rule-config\n职责：PDF核验规则保存前的版本、身份及分支结构检查。\n边界：不执行正则、数据库条件或核验引擎；正式执行仍由服务验证完整规则。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/lowcode/resources/shared/ai-data-entry-host.ts": {
       "file": "files/src/lowcode/resources/shared/ai-data-entry-host.ts.json",
       "module": {
@@ -17209,7 +17292,8 @@
         "jsdoc": "@module app:services/smart-bid/content-tree-editor-layout\n职责：以标准表单和JSON字段配置表达人工内容树及选中正文。\n边界：只读取原视图决定呈现；不查询、不持有草稿、不保存，选择由宿主管理。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "ContentTreeEditorLayoutInput"
+          "ContentTreeEditorLayoutInput",
+          "ContentTreeDraftActionHooks"
         ]
       }
     },
@@ -17333,6 +17417,133 @@
           "ContentTextSpan",
           "ContentTextSpanInput",
           "VerifiedContentTextSpan"
+        ]
+      }
+    },
+    "src/services/smart-bid/content/hashes/content-subtree-hash.ts": {
+      "file": "files/src/services/smart-bid/content/hashes/content-subtree-hash.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/hashes/content-subtree-hash",
+        "sourcePath": "src/services/smart-bid/content/hashes/content-subtree-hash.ts",
+        "sourceFile": "src/services/smart-bid/content/hashes/content-subtree-hash.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/hashes/content-subtree-hash",
+        "jsdoc": "@module app:services/smart-bid/content/hashes/content-subtree-hash\n职责：按本版完整树的同级index组合已核nodeHash，计算可重建的子树摘要。\n边界：不证明输入nodeHash载荷，不计算rootHash/effectiveHash、不保存投影或授权。\nAI用途：原完整节点读取器验证载荷后调用；摘要仅随原视图证明有效。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ContentSubtreeInput",
+          "ContentSubtreeHash"
+        ]
+      }
+    },
+    "src/services/smart-bid/content/references/content-reference-editor-schema.ts": {
+      "file": "files/src/services/smart-bid/content/references/content-reference-editor-schema.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/content-reference-editor-schema",
+        "sourcePath": "src/services/smart-bid/content/references/content-reference-editor-schema.ts",
+        "sourceFile": "src/services/smart-bid/content/references/content-reference-editor-schema.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/content-reference-editor-schema",
+        "jsdoc": "@module app:services/smart-bid/content/references/content-reference-editor-schema\n职责：以正文占位与已有原绑定生成标准JSON表单Schema。\n边界：只生成显示合同，不复制或填充绑定，不确认事实/资源/敏感字段的版本与授权。\nAI用途：同一原节点编辑实例维护正文、分类和字段引用；呈现属性不进入内容。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/revision-requirement-pins.ts": {
+      "file": "files/src/services/smart-bid/content/references/revision-requirement-pins.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/revision-requirement-pins",
+        "sourcePath": "src/services/smart-bid/content/references/revision-requirement-pins.ts",
+        "sourceFile": "src/services/smart-bid/content/references/revision-requirement-pins.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/revision-requirement-pins",
+        "jsdoc": "@module app:services/smart-bid/content/references/revision-requirement-pins\n职责：核快照章节挂接的确定JSON模型及本版责任章归属。\n边界：不选择基线要求、不确认采纳状态、不删除旧挂接或放行响应/交付。\nAI用途：完整节点装配后核本地挂接，再沿固定基线核被引要求版本和待处置事项。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "RevisionRequirementPin"
+        ]
+      }
+    },
+    "src/services/smart-bid/content/references/revision-response-anchors.ts": {
+      "file": "files/src/services/smart-bid/content/references/revision-response-anchors.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/revision-response-anchors",
+        "sourcePath": "src/services/smart-bid/content/references/revision-response-anchors.ts",
+        "sourceFile": "src/services/smart-bid/content/references/revision-response-anchors.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/revision-response-anchors",
+        "jsdoc": "@module app:services/smart-bid/content/references/revision-response-anchors\n职责：核固定响应版本身份、章内锚点及同版要求挂接。\n边界：只检查定位投影，不代完整Response模型、分工、承诺、证明、句意与核定授权。\nAI用途：原快照完整节点和挂接通过后检查响应落点；独立答复不造虚假章或正文锚点。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/revision-response-text.ts": {
+      "file": "files/src/services/smart-bid/content/references/revision-response-text.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/revision-response-text",
+        "sourcePath": "src/services/smart-bid/content/references/revision-response-text.ts",
+        "sourceFile": "src/services/smart-bid/content/references/revision-response-text.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/revision-response-text",
+        "jsdoc": "@module app:services/smart-bid/content/references/revision-response-text\n职责：核独立答复原文、占位绑定及内部节点链接，禁止章内响应复制第二份正文。\n边界：不展开显示、不读最新事实、不核外部资源版本/权限，不代完整响应及作答分工。\nAI用途：原响应定位通过后复用正文的占位和引用规则；数据与呈现格式分别处理。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/snapshot-reference-values.ts": {
+      "file": "files/src/services/smart-bid/content/references/snapshot-reference-values.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/snapshot-reference-values",
+        "sourcePath": "src/services/smart-bid/content/references/snapshot-reference-values.ts",
+        "sourceFile": "src/services/smart-bid/content/references/snapshot-reference-values.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/snapshot-reference-values",
+        "jsdoc": "@module app:services/smart-bid/content/references/snapshot-reference-values\n职责：共用固定快照引用的精确身份、闭合记录与密集列表读取。\n边界：仅检查JSON值描述符，不补字段、不查询、不选择版本或保存第二份业务数据。\nAI用途：分册模板和章节挂接复用同一安全读取，业务归属仍在各自合同核验。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/revision-snapshot-hash.ts": {
+      "file": "files/src/services/smart-bid/content/revision-snapshot-hash.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/revision-snapshot-hash",
+        "sourcePath": "src/services/smart-bid/content/revision-snapshot-hash.ts",
+        "sourceFile": "src/services/smart-bid/content/revision-snapshot-hash.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/revision-snapshot-hash",
+        "jsdoc": "@module app:services/smart-bid/content/revision-snapshot-hash\n职责：按持久版本合同规范编码新快照完整清单并计算UTF8 SHA256。\n边界：不改节点哈希、不改写旧清单或历史摘要，不代业务闭包/rootHash/权限和采用校验。\nAI用途：新清单登记前及精确读取后用同版规范核完整清单摘要。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/revision-snapshot-index.ts": {
+      "file": "files/src/services/smart-bid/content/revision-snapshot-index.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/revision-snapshot-index",
+        "sourcePath": "src/services/smart-bid/content/revision-snapshot-index.ts",
+        "sourceFile": "src/services/smart-bid/content/revision-snapshot-index.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/revision-snapshot-index",
+        "jsdoc": "@module app:services/smart-bid/content/revision-snapshot-index\n职责：从固定修订清单读取项目、基线和排序节点版本索引。\n边界：只核清单外形及节点索引，不计算完整清单摘要或证明各业务分组有效，不代完整快照。\nAI用途：正式快照读取后取得完整节点成员清单，继续由原视图装配并核业务引用。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "SnapshotNodeVersion",
+          "RevisionSnapshotNodeIndex"
+        ]
+      }
+    },
+    "src/services/smart-bid/content/revision-template-bindings.ts": {
+      "file": "files/src/services/smart-bid/content/revision-template-bindings.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/revision-template-bindings",
+        "sourcePath": "src/services/smart-bid/content/revision-template-bindings.ts",
+        "sourceFile": "src/services/smart-bid/content/revision-template-bindings.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/revision-template-bindings",
+        "jsdoc": "@module app:services/smart-bid/content/revision-template-bindings\n职责：核固定清单中的分册模板引用结构及本版逻辑册归属。\n边界：不读取模板实体、不选择默认模板、不证明发布/适用或交付通过，不修改内容哈希。\nAI用途：节点完整装配后核模板绑定；模板格式与业务内容分离，实体摘要及发布证据另查。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "RevisionTemplateRef"
         ]
       }
     },
@@ -18283,6 +18494,53 @@
         ]
       }
     },
+    "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/content-candidate-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/content-candidate-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-candidate-reader\n职责：在原正文运行实例串联候选修订、同版清单及完整节点成员。\n边界：仅返回原视图绑定与证明；不缓存载荷、不采用、不冒充完整业务闭包或三版预演。\nAI用途：候选内容先核固定依据一致，再交后续业务检查；JSON内容与模板引用分别核对。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentCandidateBinding"
+        ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/content-fact-version-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/content-fact-version-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-fact-version-reader\n职责：在正文宿主原DataView读取精确事实键及版本，保留原事实和来源决定引用。\n边界：不选择最新版本、不证明基线成员或本次用途许可、不扩展字段、不保存。\nAI用途：基线成员确定后消费原版本；未接通基线时只能作为待核原记录展示。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentFactVersionSelection",
+          "ContentFactVersionBinding"
+        ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/content-node-version-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/content-node-version-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-node-version-reader\n职责：通过正文宿主原视图读取精确节点版本，复核查询唯一性及载荷摘要。\n边界：不保存、不复制节点真源、不读取完整快照或授予采用权；清单成员另核。\nAI用途：固定快照给定nodeId/nodeHash后取得原字段绑定，供完整清单组装消费。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ContentNodeVersionSelection",
+          "ContentNodeVersionBinding"
+        ]
+      }
+    },
     "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts": {
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts.json",
       "module": {
@@ -18292,12 +18550,56 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/content-revision-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-revision-reader\n职责：在正文宿主的原运行实例内读取精确候选和当前头修订索引。\n边界：只查询原DataView，不复制修订、读取快照载荷或执行保存/采用；不提供并发提交保证。\nAI用途：正文预演先核项目头及精确索引，再沿snapshotHash读取已验证的完整快照资源。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ContentRevisionReadHost",
           "ContentRevisionSelection",
           "ContentRevisionReadBinding"
         ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/content-snapshot-nodes",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/content-snapshot-nodes",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-snapshot-nodes\n职责：在原完整成员视图中装配固定清单节点，核精确集合、结构和逐项摘要。\n边界：不复制节点真源或逐节点重查，不保存/采用；其它业务分组、外部引用和rootHash仍另核。\nAI用途：已核快照索引交完整成员绑定，标准组件继续消费同一DataView。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentSnapshotNodesBinding"
+        ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/content-snapshot-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/content-snapshot-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-snapshot-reader\n职责：从正文宿主原RevisionSnapshot视图读取固定清单、复核同版摘要并取得节点版本索引。\n边界：不写入或缓存快照，不把摘要和索引通过等同业务闭包/rootHash或采用通过。\nAI用途：先取得原清单读取证明，再按完整成员集合装配节点及其它固定业务记录。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentSnapshotSelection",
+          "ContentSnapshotIndexBinding"
+        ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/content-candidate-workspace",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/content-candidate-workspace",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/content-candidate-workspace\n职责：通过标准组件只读呈现已核候选的原修订及节点视图。\n边界：不查询、不复制候选、不修改行或生成预演；任一原证明失效即撤下内容。\nAI用途：正文宿主读取候选后传入同次绑定；采用须另完成完整比对、预演与权威提交。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
       }
     },
     "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue": {
@@ -22328,6 +22630,18 @@
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts.json"
     },
+    "ContentCandidateBinding": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json"
+    },
+    "ContentFactVersionBinding": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts.json"
+    },
+    "ContentFactVersionSelection": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts.json"
+    },
     "ContentNodeComparison": {
       "sourcePath": "src/services/smart-bid/content-node-comparison.ts",
       "file": "files/src/services/smart-bid/content-node-comparison.ts.json"
@@ -22351,6 +22665,14 @@
     "ContentNodePresence": {
       "sourcePath": "src/services/smart-bid/content-node-comparison.ts",
       "file": "files/src/services/smart-bid/content-node-comparison.ts.json"
+    },
+    "ContentNodeVersionBinding": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts.json"
+    },
+    "ContentNodeVersionSelection": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts.json"
     },
     "ContentResponseChangeIdentity": {
       "sourcePath": "src/services/smart-bid/content/content-scoped-preview.ts",
@@ -22388,9 +22710,29 @@
       "sourcePath": "src/services/smart-bid/content-sibling-order.ts",
       "file": "files/src/services/smart-bid/content-sibling-order.ts.json"
     },
+    "ContentSnapshotIndexBinding": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts.json"
+    },
+    "ContentSnapshotNodesBinding": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts.json"
+    },
+    "ContentSnapshotSelection": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts.json"
+    },
     "ContentStructureNode": {
       "sourcePath": "src/services/smart-bid/content-tree-structure.ts",
       "file": "files/src/services/smart-bid/content-tree-structure.ts.json"
+    },
+    "ContentSubtreeHash": {
+      "sourcePath": "src/services/smart-bid/content/hashes/content-subtree-hash.ts",
+      "file": "files/src/services/smart-bid/content/hashes/content-subtree-hash.ts.json"
+    },
+    "ContentSubtreeInput": {
+      "sourcePath": "src/services/smart-bid/content/hashes/content-subtree-hash.ts",
+      "file": "files/src/services/smart-bid/content/hashes/content-subtree-hash.ts.json"
     },
     "ContentTarget": {
       "sourcePath": "src/services/smart-bid/content/content-target-scope.ts",
@@ -22451,6 +22793,10 @@
     "ContentTreeComparisonInput": {
       "sourcePath": "src/services/smart-bid/content-tree-comparison.ts",
       "file": "files/src/services/smart-bid/content-tree-comparison.ts.json"
+    },
+    "ContentTreeDraftActionHooks": {
+      "sourcePath": "src/services/smart-bid/content-tree-editor-layout.ts",
+      "file": "files/src/services/smart-bid/content-tree-editor-layout.ts.json"
     },
     "ContentTreeDraftEditor": {
       "sourcePath": "src/services/smart-bid/content-tree-draft-editor.ts",
@@ -22721,6 +23067,10 @@
       "file": "files/packages/spark-data/src/types.ts.json"
     },
     "DataSetCommandColumnSpec": {
+      "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+      "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
+    },
+    "DataSetCommandPageLoader": {
       "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
     },
@@ -23123,6 +23473,10 @@
     "DataTableQuerySaveRuleInput": {
       "sourcePath": "packages/spark-data/src/data-table.ts",
       "file": "files/packages/spark-data/src/data-table.ts.json"
+    },
+    "DataTreeField": {
+      "sourcePath": "packages/spark-data/src/core/tree-field.ts",
+      "file": "files/packages/spark-data/src/core/tree-field.ts.json"
     },
     "DataValidator": {
       "sourcePath": "packages/spark-data/src/validation/validation.ts",
@@ -26004,6 +26358,50 @@
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
     },
+    "PdfInspectionApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts.json"
+    },
+    "PdfInspectionFileInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts.json"
+    },
+    "PdfInspectionHistory": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts.json"
+    },
+    "PdfInspectionInitInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts.json"
+    },
+    "PdfInspectionInitReceipt": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts.json"
+    },
+    "PdfInspectionInitResource": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts.json"
+    },
+    "PdfInspectionInitResourceInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/init-resource.ts.json"
+    },
+    "PdfInspectionJob": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts.json"
+    },
+    "PdfInspectionLimits": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts.json"
+    },
+    "PdfInspectionUploadResource": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/upload-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/upload-resource.ts.json"
+    },
+    "PdfInspectionUploadResourceInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/upload-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/upload-resource.ts.json"
+    },
     "PermissionActionContext": {
       "sourcePath": "packages/spark-data/src/script-types.ts",
       "file": "files/packages/spark-data/src/script-types.ts.json"
@@ -26712,6 +27110,18 @@
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
     },
+    "RevisionRequirementPin": {
+      "sourcePath": "src/services/smart-bid/content/references/revision-requirement-pins.ts",
+      "file": "files/src/services/smart-bid/content/references/revision-requirement-pins.ts.json"
+    },
+    "RevisionSnapshotNodeIndex": {
+      "sourcePath": "src/services/smart-bid/content/revision-snapshot-index.ts",
+      "file": "files/src/services/smart-bid/content/revision-snapshot-index.ts.json"
+    },
+    "RevisionTemplateRef": {
+      "sourcePath": "src/services/smart-bid/content/revision-template-bindings.ts",
+      "file": "files/src/services/smart-bid/content/revision-template-bindings.ts.json"
+    },
     "RFileBrowserProps": {
       "sourcePath": "packages/spark-component/src/components/fields/data-components/file/FieldFileBrowser/FieldFileBrowser.props.ts",
       "file": "files/packages/spark-component/src/components/fields/data-components/file/FieldFileBrowser/FieldFileBrowser.props.ts.json"
@@ -27191,6 +27601,10 @@
     "SnapshotHistory": {
       "sourcePath": "packages/spark-utils/src/snapshot-history.ts",
       "file": "files/packages/spark-utils/src/snapshot-history.ts.json"
+    },
+    "SnapshotNodeVersion": {
+      "sourcePath": "src/services/smart-bid/content/revision-snapshot-index.ts",
+      "file": "files/src/services/smart-bid/content/revision-snapshot-index.ts.json"
     },
     "SortDirection": {
       "sourcePath": "packages/spark-data/src/types.ts",
@@ -27807,6 +28221,10 @@
     "TreeEventHandler": {
       "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts",
       "file": "files/packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts.json"
+    },
+    "TreeFieldSelector": {
+      "sourcePath": "packages/spark-data/src/types.ts",
+      "file": "files/packages/spark-data/src/types.ts.json"
     },
     "TreeManager": {
       "sourcePath": "packages/spark-data/src/node-tree/tree-manager.ts",

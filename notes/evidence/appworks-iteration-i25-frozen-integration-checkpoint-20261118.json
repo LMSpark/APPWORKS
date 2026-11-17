@@ -1,0 +1,161 @@
+{
+  "scope": "I21-I25 frozen integration checkpoint; not the continuously changing workspace or full twenty-package acceptance",
+  "observedAt": "2026-11-17T16:33:46.011557+00:00",
+  "sourceSnapshotSha256": "28dbbdedc4ccde2d69f80cc0a7e52dd7604aa744e36b5cc34c485eefac5d51a3",
+  "indexSourceAudit": {
+    "frozenInputCount": 2286,
+    "matched": 2286,
+    "problems": [],
+    "newlineNormalizationMatches": 119,
+    "laterWorkspaceChangesRetained": [
+      "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
+      "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "tests/app/services/smart-bid/content/readers/content-candidate-reader.test.ts",
+      "tests/support/fixtures/smart-bid/content-candidate-fixture.ts"
+    ]
+  },
+  "verification": [
+    {
+      "name": "classModel",
+      "command": "pnpm run generate:class-model-surface",
+      "exitCode": 0,
+      "log": "cache/i25-typefix-classmodel.log",
+      "logSha256": "1d282fe382387a7e76f3a379746e77df5f00aba5842a5c306a91f018795e390d"
+    },
+    {
+      "name": "build",
+      "command": "pnpm run build",
+      "exitCode": 0,
+      "log": "cache/i25-final-build.log",
+      "logSha256": "106698e70ee23e7ee79863b422fe6a3ddbd40391514c4d65100d8af7eb3db761"
+    },
+    {
+      "name": "verify",
+      "command": "pnpm run verify",
+      "exitCode": 0,
+      "log": "cache/i25-verify-r2.log",
+      "logSha256": "8e4457b072e2210e96228a22f4b79b24855231f30291f4cc7b44b7f4812463ae"
+    },
+    {
+      "name": "nativePackages",
+      "command": "pnpm run test:packages:run",
+      "exitCode": 0,
+      "log": "cache/i25-package-tests.log",
+      "logSha256": "31971d5ef5567b6b2b88395df11e0e4b29360f97d669d97d4a3ecc1d1471626d"
+    },
+    {
+      "name": "rootFull",
+      "command": "pnpm run test:run --maxWorkers=8",
+      "exitCode": 1,
+      "log": "cache/i25-root-tests-r2.log",
+      "logSha256": "359551dba1331e3f6fc736c3acdbda3e2b5d0b5f28f23cb92ad3ee4573a6b989"
+    },
+    {
+      "name": "originalTimeoutFile",
+      "command": "pnpm exec vitest run tests/runtime/page/design/native/data-space-view-parameter-input.test.ts --maxWorkers=1",
+      "exitCode": 0,
+      "log": "cache/i25-parameter-isolated.log",
+      "logSha256": "59351aee3b77a23b84390b78e3897b7b646710d54afcdc819c1737f4509460cf"
+    }
+  ],
+  "rootFullResult": {
+    "files": 632,
+    "passedFiles": 631,
+    "tests": 10719,
+    "passedTests": 10718,
+    "failures": 1,
+    "reason": "One original 15000ms timeout; no assertion failure in r2",
+    "unchangedTimeoutIsolatedResult": {
+      "files": 1,
+      "tests": 5,
+      "passed": 5,
+      "timeoutChanged": false
+    }
+  },
+  "nativePackageResults": [
+    {
+      "package": "spark-utils",
+      "files": 5,
+      "tests": 45
+    },
+    {
+      "package": "spark-data",
+      "files": 60,
+      "tests": 1410
+    },
+    {
+      "package": "spark-json-document",
+      "files": 5,
+      "tests": 25
+    },
+    {
+      "package": "spark-ai",
+      "files": 28,
+      "tests": 186
+    },
+    {
+      "package": "spark-lowcode-api",
+      "files": 57,
+      "tests": 1617
+    },
+    {
+      "package": "spark-project-model",
+      "files": 6,
+      "tests": 291
+    },
+    {
+      "package": "spark-component",
+      "files": 28,
+      "tests": 225
+    },
+    {
+      "package": "spark-app",
+      "files": 13,
+      "tests": 83
+    }
+  ],
+  "countsAreNotAdditive": true,
+  "publicTree": {
+    "parentMember": true,
+    "numericSiblingOrder": true,
+    "originalSourceRowIdentity": true,
+    "remoteJsonTreeProtocolIntroduced": false,
+    "liveQueryRows": 0,
+    "liveBusinessTreeAcceptance": false
+  },
+  "pdf": {
+    "configurationCrudVerified": true,
+    "ownedTemporaryRuleCleanupVerified": true,
+    "taskExecutionUiImplemented": false,
+    "liveTaskExecutionVerified": false
+  },
+  "parallelIncrementExcluded": [
+    "Baseline member/reader and new host API",
+    "candidate fixed-fact consumer",
+    "workspace ClassModel regeneration containing these later sources"
+  ],
+  "rootR3": "Started while parallel additions were still being authored; mixed snapshot, not acceptance for this index",
+  "browserUiAcceptance": "No browser host was available in this root tool session",
+  "credentialsPersisted": false,
+  "nodeServiceStarted": false,
+  "javaModifiedStartedOrDeployed": false,
+  "fullTwentyPackageAcceptance": false,
+  "indexClosureReview": {
+    "stagedFiles": 244,
+    "relativeAndAliasReferencesResolved": 386,
+    "sourceManifestEntries": 1302,
+    "shards": 1302,
+    "classIndexEntriesResolved": 1934,
+    "missingReferences": 0,
+    "laterBaselineBusinessSourcesStaged": false
+  },
+  "stagedCredentialAudit": {
+    "matches": 0,
+    "forbiddenPaths": 0
+  },
+  "documentationCheck": {
+    "command": "pnpm run verify:docs",
+    "exitCode": 0,
+    "files": 596
+  }
+}

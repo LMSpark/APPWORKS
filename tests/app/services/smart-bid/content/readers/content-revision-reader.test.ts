@@ -1,8 +1,8 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey,type DataView,type QueryParams} from '@spark-appworks/spark-data'
 import {readContentRevisions} from '@/views/features/application/smart-bid/authoring/model/content-revision-reader'
-import {DataSpaceQueryTable} from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 const param=(name:string)=>({Type:'GetInputParam',ParamName:name})
 function fixture(head:string|null='H') {
@@ -41,6 +41,22 @@ it('reads exact named revision views from the original runtime without writes or
 it('uses an explicit null head for a first candidate and never queries the head view',async()=>{
  const f=fixture(null),result=await readContentRevisions(f.input,{candidateRevisionId:'C',expectedHead:null})
  expect(result.headDataViewKey).toBeNull();expect(f.query).toHaveBeenCalledTimes(2)
+})
+it.each([{table:'ContentProject',view:'selectedProject'},{table:'ContentRevision',view:'selectedCandidate'},{table:'ContentRevision',view:'selectedHead'}])(
+ 'invalidates original revision evidence after same-valued refresh of $table@$view',async({table,view})=>{
+ const f=fixture(),result=await readContentRevisions(f.input,{candidateRevisionId:'C',expectedHead:'H'})
+ await f.ds.getView(table,view)!.refresh()
+ expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+ expect(f.save).not.toHaveBeenCalled()
+})
+it('refuses a project proof replaced while candidate queries are in flight',async()=>{
+ const f=fixture(),execute=f.query.getMockImplementation()!
+ f.query.mockImplementation(async(view,params)=>{
+  if(view.viewId==='selectedCandidate')await f.ds.getView('ContentProject','selectedProject')!.refresh()
+  return execute(view,params)
+ })
+ await expect(readContentRevisions(f.input,{candidateRevisionId:'C',expectedHead:'H'})).rejects.toThrow('DATA_VIEW_READ_RESULT')
+ expect(f.save).not.toHaveBeenCalled()
 })
 it('refuses a changed project head before dispatching revision queries',async()=>{
  const f=fixture('NEXT')

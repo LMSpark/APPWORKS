@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-17",
+  "status": "LOCAL_MANUAL_AUTHORING_COMPONENT_FLOW_VERIFIED",
+  "sources": [
+    "src/services/smart-bid/content-tree-editor-layout.ts",
+    "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue"
+  ],
+  "semantics": "Standard action form binds the original exact WorkingDraft row. Standard edit buttons invoke existing ContentTreeDraftEditor addDocument/addChapter/addParagraph/remove; each command rechecks host/target, original query proof and native draft field permission. Fresh UUIDs identify local business nodes. New book includes required first chapter/heading; placeholder heading is editable draft text. Changed nodes remain only in original DataView editing overlay; cancel restores the original row.",
+  "guards": "Unconfirmed JSON text disables structure commands and remains guarded against old callback invocation. Cancel can discard unconfirmed current input. Same-valued query refresh and host change invalidate captured commands. Workspace-local active proof is revoked before unmount cleanup; captured field write, structure and cancel callbacks cannot affect a still-live original view after unmount. Invalid deletion of the only chapter makes no partial edit.",
+  "classModel": {
+    "catalog": "generated/dts-class-model/manifest.json RButtonProps and ContentTreeDraftEditor",
+    "guides": "RButtonProps dataViewKey,permAction,disabled,onClick; ContentTreeDraftEditor constructor/addDocument/addChapter/addParagraph/remove; existing RForm contextRowId/children binding",
+    "provenance": "Button declaration 2026-11-07, editor declaration 2026-11-17T00:38:42Z; queried generated guides 2026-11-17T13:37:03/05Z. Source implementation unchanged before query; new layout API awaits unified formal generation."
+  },
+  "verification": {
+    "entryRed": "One failed new UI flow and seven prior passes because action entry did not exist.",
+    "unmountRed": "Three failures and twelve prior passes: old structure callback edited, old field guard remained valid, old cancel discarded retained edits. Red output captured in cache/smart-bid-draft-actions-unmount-red.log; shell final code was the subsequent log read, so the test failures are evidenced by log, not that wrapper exit code.",
+    "relatedFiles": 4,
+    "relatedTests": 32,
+    "durationSeconds": 24.69,
+    "exitCode": 0,
+    "cases": "Empty draft -> book/chapter/paragraph -> second chapter -> subtree deletion -> cancel; query/host staleness; unconfirmed input protection/cancel; invalid only-chapter deletion; three unmount callbacks; existing layout/editor/candidate workspace regressions.",
+    "eslint": "Three changed source/test files exit 0.",
+    "aiCodegen": "Two changed business source files, zero violations."
+  },
+  "pending": "Actual business navigation and project/draft rows, authoritative draft save and cold reopen, richer content structures/field binding UI/moves, hierarchy in candidate member view, complete preview/adoption and full I0-I7 acceptance. No business HTTP/write, public generation/full gates/index/staging/commit/push performed."
+}

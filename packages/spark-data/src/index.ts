@@ -55,6 +55,7 @@ export type {
   DataSetCommandColumnSpec,
   DataSetCommandResourceIdentity,
   DataSetCommandRowsLoader,
+  DataSetCommandPageLoader,
   DataSetCommandScopeGuard,
   DataSetReadonlyCommandBinding,
   EnsureDataSetResourceViewInput,
@@ -71,6 +72,8 @@ export {
 } from './query/filter/data-view-filter-catalog'
 export { isDataRow } from './core/data-row-guards'
 export { DataFieldMember } from './core/data-field-member'
+export { DataTreeField } from './core/tree-field'
+export type {TreeFieldSelector} from './types'
 export type { DataFieldMemberEdit, DataFieldMemberFormat, DataFieldMemberPath, DataFieldMemberRef } from './core/data-field-member'
 
 export type { FieldRenderState, PermissionActionContext } from './script-types'

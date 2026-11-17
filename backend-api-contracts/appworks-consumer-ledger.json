@@ -7,8 +7,8 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 248,
-  "directUnmatchedCount": 132,
+  "consumerCount": 252,
+  "directUnmatchedCount": 133,
   "consumers": [
     {
       "expression": "/api/v1",
@@ -91,7 +91,7 @@
     {
       "expression": "/api/users",
       "sourceFile": "packages/spark-data/dist/types.d.ts",
-      "sourceLine": 427,
+      "sourceLine": 428,
       "scope": "tooling"
     },
     {
@@ -457,7 +457,7 @@
     {
       "expression": "/api/users",
       "sourceFile": "packages/spark-data/src/types.ts",
-      "sourceLine": 534,
+      "sourceLine": 535,
       "scope": "tooling"
     },
     {
@@ -1055,6 +1055,30 @@
       "scope": "publishable-lowcode-api"
     },
     {
+      "expression": "/api/File/inspect/init",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.test.ts",
+      "sourceLine": 15,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/inspect/recover",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.test.ts",
+      "sourceLine": 21,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/inspect/limits",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts",
+      "sourceLine": 58,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/inspect/{dynamic}",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts",
+      "sourceLine": 77,
+      "scope": "publishable-lowcode-api"
+    },
+    {
       "expression": "/api/Codeing/CodeInitDataList",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts",
       "sourceLine": 20,
@@ -1309,25 +1333,25 @@
     {
       "expression": "/api/query",
       "sourceFile": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
-      "sourceLine": 192,
+      "sourceLine": 206,
       "scope": "tooling"
     },
     {
       "expression": "/api/query",
       "sourceFile": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
-      "sourceLine": 199,
+      "sourceLine": 213,
       "scope": "tooling"
     },
     {
       "expression": "/api/query",
       "sourceFile": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
-      "sourceLine": 202,
+      "sourceLine": 216,
       "scope": "tooling"
     },
     {
       "expression": "/api/query",
       "sourceFile": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
-      "sourceLine": 738,
+      "sourceLine": 752,
       "scope": "tooling"
     },
     {

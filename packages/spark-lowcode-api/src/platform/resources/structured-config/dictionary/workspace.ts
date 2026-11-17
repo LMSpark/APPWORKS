@@ -317,12 +317,12 @@ export class DictionaryWorkspace {
     await this.load()
   }
 
-  /** 删除前必须证明数据库、配置与代码消费者均已完成引用核验；当前无此全局合同。 */
+  /** 删除前核实领域实际持久引用及定义、条目结果合同；当前尚未闭合。 */
   get canRemoveDefinition(): boolean { return false }
 
-  /** 全局引用覆盖尚不可证明时，拒绝删除而不暂存任何DataView变更。 */
+  /** 实际持久引用和删除结果合同未核实时，拒绝删除且不暂存变更。 */
   removeDefinition(): Promise<void> {
-    return Promise.reject(new Error('尚无覆盖数据库、配置和代码消费者的全局引用检查，暂不允许删除字典资源。'))
+    return Promise.reject(new Error('整字典删除的持久引用及定义、条目结果合同尚未核实，暂不允许删除字典资源。'))
   }
 
   private async commit(target: DataView): Promise<void> {

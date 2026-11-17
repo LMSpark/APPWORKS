@@ -97,6 +97,71 @@
         "method.readRevisions.return": {
           "type": "object",
           "title": "Promise<ContentRevisionReadBinding>"
+        },
+        "method.readNodeVersion.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "content-node-version-reader.ts.json#/$defs/ContentNodeVersionSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readNodeVersion.return": {
+          "type": "object",
+          "title": "Promise<ContentNodeVersionBinding>"
+        },
+        "method.readSnapshotIndex.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "content-snapshot-reader.ts.json#/$defs/ContentSnapshotSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readSnapshotIndex.return": {
+          "type": "object",
+          "title": "Promise<ContentSnapshotIndexBinding>"
+        },
+        "method.readSnapshotNodes.params": {
+          "type": "object",
+          "properties": {
+            "snapshot": {
+              "$ref": "content-snapshot-reader.ts.json#/$defs/ContentSnapshotIndexBinding"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readSnapshotNodes.return": {
+          "type": "object",
+          "title": "Promise<ContentSnapshotNodesBinding>"
+        },
+        "method.readCandidateContent.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "content-revision-reader.ts.json#/$defs/ContentRevisionSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readCandidateContent.return": {
+          "type": "object",
+          "title": "Promise<ContentCandidateBinding>"
+        },
+        "method.readFactVersion.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "content-fact-version-reader.ts.json#/$defs/ContentFactVersionSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFactVersion.return": {
+          "type": "object",
+          "title": "Promise<ContentFactVersionBinding>"
         }
       }
     },
@@ -141,7 +206,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T11:23:59.632Z",
+  "generatedAt": "2026-11-17T15:08:56.515Z",
   "models": {
     "ContentAuthoringTarget": {
       "name": "ContentAuthoringTarget",
@@ -192,11 +257,11 @@
       "jsdoc": "直接交给正文组件的原实例绑定；pending只表示尚未写回字段的交互，不保存业务数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n}>",
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n    /** 原节点版本读取；完整快照成员关系仍由快照装配核对。 */\n    readNodeVersion: (selection: ContentNodeVersionSelection) => Promise<ContentNodeVersionBinding>;\n    /** 读取并核同版清单摘要；业务闭包及修订匹配仍另核。 */\n    readSnapshotIndex: (selection: ContentSnapshotSelection) => Promise<ContentSnapshotIndexBinding>;\n    /** 沿完整成员视图装配本次已核清单节点；其它分组和采用另核。 */\n    readSnapshotNodes: (snapshot: ContentSnapshotIndexBinding) => Promise<ContentSnapshotNodesBinding>;\n    /** 候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。 */\n    readCandidateContent: (selection: ContentRevisionSelection) => Promise<ContentCandidateBinding>;\n    /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */\n    readFactVersion: (selection: ContentFactVersionSelection) => Promise<ContentFactVersionBinding>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n}>",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n    /** 原节点版本读取；完整快照成员关系仍由快照装配核对。 */\n    readNodeVersion: (selection: ContentNodeVersionSelection) => Promise<ContentNodeVersionBinding>;\n    /** 读取并核同版清单摘要；业务闭包及修订匹配仍另核。 */\n    readSnapshotIndex: (selection: ContentSnapshotSelection) => Promise<ContentSnapshotIndexBinding>;\n    /** 沿完整成员视图装配本次已核清单节点；其它分组和采用另核。 */\n    readSnapshotNodes: (snapshot: ContentSnapshotIndexBinding) => Promise<ContentSnapshotNodesBinding>;\n    /** 候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。 */\n    readCandidateContent: (selection: ContentRevisionSelection) => Promise<ContentCandidateBinding>;\n    /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */\n    readFactVersion: (selection: ContentFactVersionSelection) => Promise<ContentFactVersionBinding>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -274,6 +339,131 @@
                     "type": "reference",
                     "name": "ContentRevisionReadBinding",
                     "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readNodeVersion",
+              "jsdoc": "原节点版本读取；完整快照成员关系仍由快照装配核对。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentNodeVersionSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentNodeVersionBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readSnapshotIndex",
+              "jsdoc": "读取并核同版清单摘要；业务闭包及修订匹配仍另核。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentSnapshotSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentSnapshotIndexBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readSnapshotNodes",
+              "jsdoc": "沿完整成员视图装配本次已核清单节点；其它分组和采用另核。",
+              "parameters": [
+                {
+                  "name": "snapshot",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentSnapshotIndexBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentSnapshotNodesBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readCandidateContent",
+              "jsdoc": "候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentRevisionSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentCandidateBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readFactVersion",
+              "jsdoc": "只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentFactVersionSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentFactVersionBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts"
                   }
                 ]
               }

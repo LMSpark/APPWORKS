@@ -8,7 +8,7 @@
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/authoring/model/content-revision-reader",
     "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-revision-reader\n职责：在正文宿主的原运行实例内读取精确候选和当前头修订索引。\n边界：只查询原DataView，不复制修订、读取快照载荷或执行保存/采用；不提供并发提交保证。\nAI用途：正文预演先核项目头及精确索引，再沿snapshotHash读取已验证的完整快照资源。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ContentRevisionReadHost",
       "ContentRevisionSelection",
@@ -98,7 +98,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T11:26:42.335Z",
+  "generatedAt": "2026-11-17T12:55:34.788Z",
   "models": {
     "ContentRevisionReadHost": {
       "name": "ContentRevisionReadHost",

@@ -1,7 +1,12 @@
 import {describe, expect, it} from 'vitest'
-import {validateContentReference} from '@/services/smart-bid/content-reference'
+import {contentReferenceTypes,contentReferenceFields,validateContentReference} from '@/services/smart-bid/content-reference'
 
 describe('bidding typed content references', () => {
+  it('shares immutable reference metadata without exposing inherited types or mutable validation rules',()=>{
+    expect(contentReferenceTypes()).toContain('fact');expect(Object.isFrozen(contentReferenceTypes())).toBe(true)
+    expect(contentReferenceFields('fact')).toEqual(['factId']);expect(Object.isFrozen(contentReferenceFields('fact'))).toBe(true)
+    expect(contentReferenceFields('__proto__')).toEqual([])
+  })
   it.each([
     {type: 'fact', factId: 'F'}, {type: 'number', number: '0', unit: '元'},
     {type: 'date', date: '2024-02-29'}, {type: 'bool', bool: false},

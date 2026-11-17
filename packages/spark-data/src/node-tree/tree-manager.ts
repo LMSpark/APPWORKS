@@ -20,6 +20,7 @@ import type {
   TreePath
 } from '../types'
 import { resolveUrlTemplate } from '../core/url-template'
+import {DataTreeField} from '../core/tree-field'
 
 import { Logger, isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 
@@ -157,7 +158,7 @@ export class TreeManager {
       parentIdField: 'parentId',
       textField: 'name',
       lazy: true,
-      ...config,
+      ...structuredClone(config),
       ...(config.rootParentValues === undefined ? {} : {rootParentValues: config.rootParentValues.map(value => value)}),
     }
     if (api) this.api = api
@@ -181,6 +182,7 @@ export class TreeManager {
    * 调用树端点（自动替换 URL 路径参数，剩余参数作为 query/body）
    */
   private _callEndpoint<T>(endpoint: HttpEndpoint, params: Record<string, unknown> = {}): Promise<T> {
+    this.assertRemoteTreeOperation()
     const contextParams = this.endpointContextProvider?.() ?? {}
     const { url: resolvedUrl, rest } = resolveUrlTemplate(endpoint.url, { ...contextParams, ...params })
     const url = resolvedUrl
@@ -205,12 +207,18 @@ export class TreeManager {
 
   // ===== 配置和缓存访问 =====
 
+  private assertRemoteTreeOperation():void {
+    if(typeof this.config.parentIdField==='object'||this.config.orderField!==undefined){
+      throw new Error('TREE_LOCAL_PROJECTION_ONLY: 成员父级或显式本地排序未接入远端树操作；请消费原DataView查询并由原定义视图编辑')
+    }
+  }
+
   /**
    * 获取树配置
    * @returns 树配置副本
    */
   getConfig(): TreeConfig {
-    return { ...this.config }
+    return structuredClone(this.config)
   }
 
   // ===== 缓存管理 =====
@@ -301,7 +309,7 @@ export class TreeManager {
       const node = this.cache[id]
       if (node) result.push(node)
     }
-    return result
+    return DataTreeField.sort(result, this.config.orderField)
   }
 
   /**
@@ -396,6 +404,7 @@ export class TreeManager {
 
     /** 执行 move Node 操作。 */
 async moveNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<FlatTreeNode> {
+    this.assertRemoteTreeOperation()
     const existing = this.cache[nodeId]
     if (!existing) throw new Error(`[TreeManager] 节点不存在: ${String(nodeId)}`)
 

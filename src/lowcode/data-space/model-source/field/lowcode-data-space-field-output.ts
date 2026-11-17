@@ -228,7 +228,10 @@ export class LowcodeDataSpaceFieldOutput {
           if (Array.isArray(value)) value.forEach((item, index) => reference(item, tableName, {path: `${path}.${key}[${index}]`}))
           else reference(value, tableName, {path: `${path}.${key}`})
         }
-        if (isRecord(view['treeConfig'])) for (const key of ['idField', 'parentIdField', 'textField']) reference(view['treeConfig'][key], tableName, {path: `${path}.treeConfig.${key}`})
+        if (isRecord(view['treeConfig'])) for (const key of ['idField', 'parentIdField', 'textField','orderField']) {
+          const value=view['treeConfig'][key]
+          reference(isRecord(value)?value['field']:value, tableName, {path: `${path}.treeConfig.${key}`})
+        }
         const query = view['queryConfig']
         if (isRecord(query) && isRecord(query['tree'])) for (const key of ['keyField', 'parentField', 'hasChildrenField']) {
           reference(query['tree'][key], tableName, {path: `${path}.queryConfig.tree.${key}`})

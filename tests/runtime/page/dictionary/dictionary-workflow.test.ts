@@ -433,7 +433,7 @@ describe('Dictionary independent design and data pages', () => {
     await button(design, '取消设计修改并重读').trigger('click'); await flushPromises()
     expect((field(design, '第五文本标题').get('input').element as HTMLInputElement).value).toBe('说明')
     expect(button(design, '删除字典资源…').attributes('disabled')).toBeDefined()
-    expect(design.get('[role="status"]').text()).toContain('全局引用检查')
+    expect(design.get('[role="status"]').text()).toContain('持久引用及定义、条目结果合同')
     expect(http.saves).toHaveLength(0)
   })
   it('rebinds a clean target switch to the new identity and saves only its entries', async () => {
@@ -730,13 +730,13 @@ describe('Dictionary independent design and data pages', () => {
     http.denyDeleteIds = ['E1']
     const design = await open('design')
     expect(button(design, '删除字典资源…').attributes('disabled')).toBeDefined()
-    expect(design.get('[role="status"]').text()).toContain('数据库、配置和代码消费者')
+    expect(design.get('[role="status"]').text()).toContain('持久引用及定义、条目结果合同')
     expect(http.saves).toHaveLength(0)
   })
   it('keeps resource removal disabled without complete database, configuration, and code reference coverage', async () => {
     const design = await open('design')
     expect(button(design, '删除字典资源…').attributes('disabled')).toBeDefined()
-    expect(design.text()).toContain('尚无覆盖数据库、配置和代码消费者的全局引用检查')
+    expect(design.text()).toContain('整字典删除的持久引用及定义、条目结果合同尚未核实')
     expect(design.findAllComponents(RendererButton).some(item => item.props('label') === '确认删除')).toBe(false)
     expect(http.saves).toHaveLength(0)
     expect(http.records['_Base_DictType']).toHaveLength(1)

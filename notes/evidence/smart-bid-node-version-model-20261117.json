@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-17",
+  "spaceId": "D3BBA1F0780056C837AC35E9825CAD5A",
+  "modelId": "AF8567125BF2701D642F9418F40E00FB",
+  "modelName": "ContentNodeVersion",
+  "databaseId": "8C0FC2087F5D4103987A0D1FC6C3045B",
+  "source": "spark_bid.bid_content_node_version",
+  "creation": {
+    "requestId": "19840.1072",
+    "Code": 200,
+    "fields": 16
+  },
+  "rename": {
+    "requestId": "19840.1095",
+    "Code": 200
+  },
+  "fieldSave": {
+    "requestId": "19840.1107",
+    "Code": 200,
+    "fields": [
+      {
+        "Name": "project_id",
+        "AsName": "projectId",
+        "rowid": "49B53902C5FD6DB507F07CBC377694B2"
+      },
+      {
+        "Name": "node_id",
+        "AsName": "nodeId",
+        "rowid": "DD3E98F00CB05FBF50363E5C2B869ADC"
+      },
+      {
+        "Name": "node_hash",
+        "AsName": "nodeHash",
+        "rowid": "3BFD576E6F1536072CB10E2F8786A4D2"
+      },
+      {
+        "Name": "payload",
+        "AsName": "payload",
+        "rowid": "CE84EC5E10810A8D6C38503DD1AE1D00"
+      }
+    ],
+    "allOutput": true,
+    "allValueFunctionsEmpty": true
+  },
+  "fieldColdRead": {
+    "requestId": "19840.1129",
+    "Code": 200,
+    "count": 16,
+    "aliasesVerifiedInNewDesignInstance": true,
+    "payloadType": "json"
+  },
+  "view": {
+    "key": "D3BBA1F0780056C837AC35E9825CAD5A@ContentNodeVersion@selectedVersion",
+    "saveReceipt": "视图配置已保存并回读确认",
+    "coldRead": [
+      "\t\t\t\t\t\t\t\t\t\t420 text 当前值：\"Table\"",
+      "\t\t\t\t\t\t\t\t\t\t490 text 不分页保留后端总数是否报告的语义，并按结果上限拒绝超限。 当前值：\"paged\" 读取完整集合",
+      "\t\t\t\t\t\t\t\t\t\t499 text 省略时沿用默认查询；自引用结果不分页。 当前值：false 完整集合上限（行）",
+      "\t\t\t\t\t\t\t\t\t\t527 text 页面缓存随本次页面释放；浏览器缓存仅当前会话内复用，刷新浏览器、退出或切换身份清除。显式刷新和保存清除结果。 当前值：\"none\"",
+      "\t\t\t\t\t\t\t\t\t\t572 text scopeFilter 常驻范围",
+      "\t\t\t\t\t\t\t\t\t\t573 text {\"logic\":\"and\",\"filters\":[{\"field\":\"projectId\",\"operator\":\"eq\",\"value\":{\"Type\":\"GetInputParam\",\"ParamName\":\"projectId\"}},{\"field\":\"nodeId\",\"operator\":\"eq\",\"value\":{\"Type\":\"GetInputParam\",\"ParamName\":\"nodeId\"}},{\"field\":\"nodeHash\",\"operator\":\"eq\",\"value\":{\"Type\":\"GetInputParam\",\"ParamName\":\"nodeHash\"}}]}",
+      "\t\t\t\t\t\t\t\t\t\t614 text commitMode",
+      "\t\t\t\t\t\t\t\t\t\t\t618 text 暂存后提交"
+    ]
+  },
+  "recovery": "Control runtime timed out during last ParamName local edit; same tab recovered, no view save had been issued. Completed local value then saved once.",
+  "limits": [
+    "Configuration only; no business nodes written or exact-row query smoke test",
+    "No append-only, hash integrity, manifest completeness, capacity or adoption guarantee"
+  ]
+}

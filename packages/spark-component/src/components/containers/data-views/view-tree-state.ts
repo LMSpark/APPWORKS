@@ -8,16 +8,17 @@ import { computed, shallowRef, toRaw } from 'vue'
 import type { ComputedRef } from 'vue'
 import {
   SparkData,
+  DataTreeField,
   type DataView,
   type DataRow,
   type TreeConfig,
+  type TreeFieldSelector,
   sortDataRowsByExpression,
 } from '@spark-appworks/spark-data'
 import type { RendererTreeNode } from './RendererTree/zero-code'
 import type { DataViewState } from './view-runtime-state.js'
 import {syncReactiveRow, resolveReactiveRow, resolveDataViewRow} from '../support/scope/row-mirror-sync'
 import {
-  resolveTreeNodeText,
   toDataRecord,
   toMutableRows,
 } from './data-row-utils.js'
@@ -42,8 +43,9 @@ type TreeManagerSeedNode = Record<string, unknown> & {
 
 type TreeFieldNames = {
   idField: string
-  parentIdField: string
-  textField: string}
+  parentIdField: TreeFieldSelector
+  textField: string
+  orderField?: TreeFieldSelector}
 type TreeRowOrigins = {view: DataView | null | undefined; field: string; invalid: boolean; rows: ReadonlyMap<string | number, DataRow | null>}
 
 /** 仅在本次投影构造时关联原对象；重复树键不产生可执行行身份。 */
@@ -110,12 +112,6 @@ function toDataRows(records: ReadonlyArray<Record<string, unknown>>): DataRow[] 
   return records.map(toDataRow)
 }
 
-function resolveParentId(rawParentId: unknown): string | number | null {
-  if (typeof rawParentId === 'string' || typeof rawParentId === 'number') return rawParentId
-  if (rawParentId === null || rawParentId === undefined) return null
-  return String(rawParentId)
-}
-
 /** 表格原生嵌套行判定；呈现及不支持树的交互共用，不以缺少treeConfig推断平面结果。 */
 export function isAlreadyNested(rows: readonly unknown[]): boolean {
   return rows.some(row => {
@@ -135,32 +131,47 @@ function resolveTreeFieldNames(
     idField: idFieldRaw,
     parentIdField: treeConfig.parentIdField ?? 'parentId',
     textField: treeConfig.textField ?? 'label',
+    ...(treeConfig.orderField === undefined ? {} : {orderField: treeConfig.orderField}),
   }
 }
 
-function buildTreeSeedNodes(rows: readonly DataRow[], fields: TreeFieldNames): TreeSeedBuildResult {
+function buildTreeSeedNodes(rows: readonly DataRow[], fields: TreeFieldNames, view?:DataView|null): TreeSeedBuildResult {
   const seedNodes: TreeManagerSeedNode[] = []
   let hasParentLink = false
 
   for (const row of rows) {
     const record = toDataRecord(row)
     if (!record) continue
+    const protectedFields = [typeof fields.parentIdField === 'object' ? fields.parentIdField : undefined, fields.orderField]
+      .filter((field):field is TreeFieldSelector=>field!==undefined)
+    if (protectedFields.length) {
+      const source = resolveDataViewRow(view,row)
+      if (!view || !source || protectedFields.some(field=>view.fieldAccess(source,DataTreeField.source(field)).read!=='visible')) continue
+    }
 
-    const rawId = record[fields.idField]
-    if (typeof rawId !== 'string' && typeof rawId !== 'number') continue
-
-    const parentId = resolveParentId(record[fields.parentIdField])
-    if (parentId !== null) hasParentLink = true
-
-    seedNodes.push({
-      ...record,
-      id: rawId,
-      parentId,
-      name: resolveTreeNodeText(record, fields.textField, String(record[fields.textField] ?? rawId)),
-    })
+    const node = DataTreeField.project(record, fields)
+    if (!node) continue
+    if (node.parentId !== null) hasParentLink = true
+    seedNodes.push(node)
   }
 
   return { seedNodes, hasParentLink }
+}
+
+/** 已嵌套的原行仅排序同父集合；新成员来源不可读时不解析、不回退为可选平表。 */
+function sortSourceTreeRows(view:DataView|null|undefined,rows:readonly DataRow[],config:TreeConfig):DataRow[] {
+  const protectedFields=[typeof config.parentIdField==='object'?config.parentIdField:undefined,config.orderField]
+    .filter((field):field is TreeFieldSelector=>field!==undefined)
+  const result:DataRow[]=[]
+  for(const row of rows){
+    const source=resolveDataViewRow(view,row)
+    if(protectedFields.length&&(!view||!source||protectedFields.some(field=>view.fieldAccess(source,DataTreeField.source(field)).read!=='visible')))continue
+    const copy:DataRow={},children=row['children']
+    syncReactiveRow(copy,row,{sourceRow:source})
+    if(Array.isArray(children))copy['children']=sortSourceTreeRows(view,children.map(toDataRecord).filter((child):child is DataRow=>child!==null),config)
+    result.push(copy)
+  }
+  return DataTreeField.sort(result,config.orderField)
 }
 
 function buildNestedTreeRows(
@@ -184,6 +195,7 @@ function sortTreeProjectionRows(
   origins: TreeRowOrigins,
 ): DataRow[] {
   const expression = view.sortExpression
+  if (view.treeConfig?.orderField !== undefined) return rows.map(toDataRow)
   if (!expression?.length || origins.invalid) return rows.map(toDataRow)
   const canReadExpression = rows.every(row => {
     const formalRow = resolveTreeOrigin(row, origins)
@@ -216,7 +228,8 @@ export type TreeTableRowsInput = Readonly<{
 export function buildTreeTableRows(input: TreeTableRowsInput): DataRow[] {
   const { view, rows, treeConfig, primaryKey } = input
   if (rows.length === 0) return []
-  if (isAlreadyNested(rows)) return toMutableRows(rows)
+  if (isAlreadyNested(rows)) return treeConfig?.orderField!==undefined||typeof treeConfig?.parentIdField==='object'
+    ? sortSourceTreeRows(view,rows,treeConfig) : toMutableRows(rows)
   if (!treeConfig) return toMutableRows(rows)
 
   if (view?.treeManager) {
@@ -227,8 +240,9 @@ export function buildTreeTableRows(input: TreeTableRowsInput): DataRow[] {
   const fields = resolveTreeFieldNames(treeConfig, primaryKey)
   if (!fields) return toMutableRows(rows)
 
-  const { seedNodes, hasParentLink } = buildTreeSeedNodes(rows, fields)
-  if (seedNodes.length === 0 || !hasParentLink) return toMutableRows(rows)
+  const { seedNodes, hasParentLink } = buildTreeSeedNodes(rows, fields, view)
+  if (seedNodes.length === 0) return typeof treeConfig.parentIdField==='object'||treeConfig.orderField!==undefined?[]:toMutableRows(rows)
+  if (!hasParentLink && treeConfig.orderField===undefined) return toMutableRows(rows)
 
   return toTreeRows(buildNestedTreeRows(fields, seedNodes, treeConfig), collectTreeOrigins(view, fields.idField))
 }
@@ -268,6 +282,10 @@ export function useRendererTreeViewState(options: RendererTreeViewStateOptions):
     const resolvedRows = toTreeRows(sourceRows, origins)
     if (resolvedRows.length === 0) return []
     if (isAlreadyNested(resolvedRows)) {
+      if(treeConfig.value&&(treeConfig.value.orderField!==undefined||typeof treeConfig.value.parentIdField==='object')){
+        const memberRows=sortSourceTreeRows(view,resolvedRows,treeConfig.value)
+        return toTreeRows(view?sortTreeProjectionRows(view,memberRows,origins):memberRows,origins)
+      }
       const sorted = view ? sortTreeProjectionRows(view, resolvedRows.map(toDataRow), origins) : resolvedRows
       return toTreeRows(sorted, origins)
     }
@@ -283,7 +301,7 @@ export function useRendererTreeViewState(options: RendererTreeViewStateOptions):
     const fields = resolveTreeFieldNames(treeConfig.value, treeIdField.value)
     if (!fields) return toTreeRows(resolvedRows, origins)
 
-    const { seedNodes } = buildTreeSeedNodes(resolvedRows, fields)
+    const { seedNodes } = buildTreeSeedNodes(resolvedRows, fields, view)
     const nestedRows = buildNestedTreeRows(fields, seedNodes, treeConfig.value)
     const orderedRows = view ? sortTreeProjectionRows(view, nestedRows, origins) : nestedRows
     return toTreeRows(orderedRows, origins)

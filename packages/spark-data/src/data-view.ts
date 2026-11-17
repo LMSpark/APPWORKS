@@ -13,6 +13,7 @@
  */
 
 import { parseViewMetadataInput } from './metadata'
+import {DataTreeField} from './core/tree-field'
 import type {
   DataRow, ViewMetadata, SortExpression,
   QueryParams, DataColumn, DataViewQueryCascade,
@@ -20,7 +21,7 @@ import type {
   DataSource,
   AggregateResultRow,
   FlatTreeNode, TreePath, NestedTreeSearchResult, NestedTreeNode,
-  TreeConfig, AggregateColumnConfig, CrudApi,
+  TreeConfig, TreeFieldSelector, AggregateColumnConfig, CrudApi,
   CommitMode, RetrieveRecordOptions,
   SparkEventEmitter,
   DataViewEditingFieldChangeEvent, DataViewApplyEditingRowsResult,
@@ -739,6 +740,11 @@ rows: DataRow[] = []
       if (!declared.has(field)) throw new Error(`DATA_VIEW_OPTIONS_FIELD: 字段未声明或未投影 ${field}`)
     }
     const config = structuredClone(this.toJson())
+    const memberFields = [config.treeConfig?.parentIdField, config.treeConfig?.orderField]
+      .filter((field): field is DataFieldMemberRef => typeof field === 'object')
+    const scalarFields = new Set([...this.effectivePkFields, ...(Array.isArray(config.valueField) ? config.valueField : config.valueField === undefined ? [] : [config.valueField]),
+      ...(config.labelField === undefined ? [] : [config.labelField]),
+      ...(config.treeConfig?[config.treeConfig.idField??this.primaryKey,config.treeConfig.textField??config.labelField??'label']:[])])
     const optionFilter = this._mergeRemoteFilters(config.filterExpression, options.filter)
     const computedDefinition = this._optionContextSignature(this._computedDelegate.context)
     const computedContext = structuredClone(this._computedDelegate.context)
@@ -784,11 +790,14 @@ rows: DataRow[] = []
             throw new Error(`DATA_VIEW_OPTIONS_FIELD: 字段缺失或不可读 ${field}`)
           }
           const value = row[field]
+          const members = memberFields.filter(member => member.field === field)
+          for (const member of members) DataTreeField.read(row, member)
           if (value !== null && typeof value !== 'string' && typeof value !== 'boolean'
-            && !(typeof value === 'number' && Number.isFinite(value))) {
+            && !(typeof value === 'number' && Number.isFinite(value))
+            && (members.length === 0 || scalarFields.has(field))) {
             throw new Error(`DATA_VIEW_OPTIONS_VALUE: 字段不是标量 ${field}`)
           }
-          Object.defineProperty(option, field, { value, enumerable: true, writable: true, configurable: true })
+          Object.defineProperty(option, field, { value: members.length ? structuredClone(value) : value, enumerable: true, writable: true, configurable: true })
         }
         return option
       })
@@ -1862,34 +1871,18 @@ treeManager?: TreeManager | undefined
   }
 
   private collectTreeSeedRowsFromRows(): FlatTreeNode[] {
-    if (!this.treeConfig) return []
+    const config = this.treeConfig
+    if (!config) return []
 
-    const idField = this.treeConfig.idField ?? 'id'
-    const parentIdField = this.treeConfig.parentIdField ?? 'parentId'
-    const textField = this.treeConfig.textField ?? 'name'
+    const parentIdField = config.parentIdField ?? 'parentId'
     const result: FlatTreeNode[] = []
+    const required = [typeof parentIdField === 'object' ? parentIdField : undefined, config.orderField]
+      .filter((field):field is TreeFieldSelector=>field!==undefined)
 
     this.visitRowsDeep(row => {
-      const rawId = row[idField]
-      if (typeof rawId !== 'string' && typeof rawId !== 'number') return
-      const rawParentId = row[parentIdField]
-      const textValue = row[textField]
-      result.push({
-        ...row,
-        id: rawId,
-        parentId: typeof rawParentId === 'string' || typeof rawParentId === 'number'
-          ? rawParentId
-          : rawParentId === null || rawParentId === undefined
-            ? null
-            : String(rawParentId),
-        name: typeof textValue === 'string'
-          ? textValue
-          : typeof row['name'] === 'string'
-            ? row['name']
-            : typeof row['label'] === 'string'
-              ? row['label']
-              : String(rawId),
-      })
+      if (required.some(field => this.fieldAccess(row, DataTreeField.source(field)).read !== 'visible')) return
+      const node = DataTreeField.project(row, config)
+      if (node) result.push(node)
     })
 
     return result
@@ -1905,6 +1898,20 @@ treeManager?: TreeManager | undefined
     const treeManager = this._ensureTreeManager()
     treeManager.clear()
     treeManager.addNodesToCache(this.collectTreeSeedRowsFromRows())
+  }
+
+  private replaceTreeConfig(treeConfig:TreeConfig):void {
+    const previousConfig=this.treeConfig,previousManager=this.treeManager
+    try {
+      this.treeConfig=structuredClone(treeConfig)
+      this.treeManager=undefined
+      if(previousManager||this.currentQueryResult())this.syncTreeManagerFromRows()
+    } catch(error) {
+      if(previousConfig===undefined)delete this.treeConfig
+      else this.treeConfig=previousConfig
+      this.treeManager=previousManager
+      throw error
+    }
   }
 
   private syncRowsFromTreeManager(): void {
@@ -2483,6 +2490,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     try {
       const treeManager: TreeManager = this._ensureTreeManager()
       const rows = await treeManager.fetchNested({ rootId, limit, depthLimit, treeMode: 'nested' })
+      this.assertTreeManagerCurrent(treeManager)
 
       if (requestId !== this.currentLoadRequestId) {
         this.logger.debug(`loadTreeNested 请求 ${requestId} 被更新的请求 ${this.currentLoadRequestId} 替代，忽略响应`)
@@ -4474,6 +4482,10 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     return this.treeManager
   }
 
+  private assertTreeManagerCurrent(manager:TreeManager):void {
+    if(this.destroyed||this.treeManager!==manager)throw new Error('TREE_RESULT_STALE: 树视图或配置已失效')
+  }
+
   /**
    * 拉取直接子节点并写入缓存（对应 /tree/children）。
    *
@@ -4481,7 +4493,9 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * @param limit 最大返回子节点数。
    */
   loadTreeChildren(parentId: string | number | null, limit?: number): Promise<FlatTreeNode[]> {
-    return this._ensureTreeManager().fetchChildren(parentId, limit).then(rows => {
+    const manager=this._ensureTreeManager()
+    return manager.fetchChildren(parentId, limit).then(rows => {
+      this.assertTreeManagerCurrent(manager)
       this.syncRowsFromTreeManager()
       return rows
     })
@@ -4493,7 +4507,8 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * @param id 目标节点 ID。
    */
   loadTreePath(id: string | number): Promise<TreePath> {
-    return this._ensureTreeManager().fetchPath(id)
+    const manager=this._ensureTreeManager()
+    return manager.fetchPath(id).then(path=>{this.assertTreeManagerCurrent(manager);return path})
   }
 
   /**
@@ -4502,7 +4517,9 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * @param targetId 目标节点 ID。
    */
   expandTreeToNode(targetId: string | number): Promise<void> {
-    return this._ensureTreeManager().expandToNode(targetId).then(() => {
+    const manager=this._ensureTreeManager()
+    return manager.expandToNode(targetId).then(() => {
+      this.assertTreeManagerCurrent(manager)
       this.syncRowsFromTreeManager()
     })
   }
@@ -4511,7 +4528,9 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     /** 执行 move Tree Node 操作。 */
 async moveTreeNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<DataRow | null> {
     this.assertResultWritable()
-    return this._ensureTreeManager().moveNode(nodeId, newParentId, index).then(() => {
+    const manager=this._ensureTreeManager()
+    return manager.moveNode(nodeId, newParentId, index).then(() => {
+      this.assertTreeManagerCurrent(manager)
       this.syncRowsFromTreeManager()
       return this.getRowById(nodeId)
     })
@@ -4524,7 +4543,8 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
    * @param limit 最大返回匹配节点数。
    */
   searchTreeNested(keyword: string, limit?: number): Promise<NestedTreeSearchResult[]> {
-    return this._ensureTreeManager().fetchNestedSearch(keyword, limit)
+    const manager=this._ensureTreeManager()
+    return manager.fetchNestedSearch(keyword, limit).then(rows=>{this.assertTreeManagerCurrent(manager);return rows})
   }
 
   // ─────────────────────────────────────────────
@@ -4623,7 +4643,9 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
       const remoteTreeConfig = { ...this.treeConfig }
       delete remoteTreeConfig.rootParentValue
       delete remoteTreeConfig.rootParentValues
-      if (Object.keys(remoteTreeConfig).length > 0) config.treeConfig = remoteTreeConfig
+      delete remoteTreeConfig.orderField
+      if (typeof remoteTreeConfig.parentIdField === 'object') delete remoteTreeConfig.parentIdField
+      if (typeof this.treeConfig.parentIdField !== 'object' && Object.keys(remoteTreeConfig).length > 0) config.treeConfig = remoteTreeConfig
     }
     if (this.valueField !== undefined) config.valueField = this.valueField
     if (this.labelField !== undefined) config.labelField = this.labelField
@@ -4854,7 +4876,9 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
     if (vc.sortExpression !== undefined) this.sortExpression = vc.sortExpression
     if (vc.autoCurrentFirst !== undefined) this.autoCurrentFirst = vc.autoCurrentFirst
     if (vc.autoSelectFirst !== undefined) this.autoSelectFirst = vc.autoSelectFirst
-    if (vc.treeConfig !== undefined) this.treeConfig = vc.treeConfig
+    if (vc.treeConfig !== undefined) {
+      this.replaceTreeConfig(vc.treeConfig)
+    }
     if (vc.autoLoad !== undefined) {
       this.autoLoad = vc.autoLoad
       this.autoLoadConfigured = true
@@ -4907,15 +4931,20 @@ setTreeConfig(treeConfig: TreeConfig): void {
     const table = this.checkDataTableAttached()
     const columnNames = new Set(table.columns.map((column) => column.name))
     const { idField, parentIdField } = treeConfig
+    if (parentIdField !== undefined) DataTreeField.parse(parentIdField)
+    if (treeConfig.orderField !== undefined) {
+      const source = DataTreeField.source(DataTreeField.parse(treeConfig.orderField))
+      if (!columnNames.has(source)) throw new Error(`Tree orderField "${source}" not found`)
+    }
 
     if (idField === undefined || !columnNames.has(idField)) {
       throw new Error(`Tree idField "${idField ?? ''}" not found`)
     }
-    if (parentIdField === undefined || !columnNames.has(parentIdField)) {
+    if (parentIdField === undefined || !columnNames.has(DataTreeField.source(parentIdField))) {
       throw new Error(`Tree parentIdField "${parentIdField ?? ''}" not found`)
     }
 
-    this.treeConfig = treeConfig
+    this.replaceTreeConfig(treeConfig)
     this.emitConfigChanged()
   }
 

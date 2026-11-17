@@ -10962,3 +10962,7 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - 49e9985e2 根 typecheck 退出 0。selectedRequirement 截图可见 projectId、lineageId、version 三个等值参数条件；这次实服回读来自原 JSON 树。9bba87533 的标准条件编辑入口仍须独立实服验证。
 - 包07事件锚点续验环境：已有前端入口 127.0.0.1:5273 本轮浏览器连接被拒，系统核对无该端口监听且原前端 PID 已消失。按既定约束未重启服务，事件锚点独立实服覆盖待可用入口；此前来源行跨应用成功证据继续有效。根双 worker 及设计器专项原测试进程仍运行。
 - 5d5fbb0fa 设计器全文件回归：tests/runtime/page/design/native/data-space-design-page.test.ts 单 worker 379 项通过，含常驻范围写入、保存重开，耗时 380.05 秒。此结果是设计器夹具全文件，实服入口停止监听仍单独登记。
+- 728cc749a spark-data 包级复核：独立配置单 worker 60 文件、1410 项全部通过（88.89 秒），覆盖当前 DataView 新增行权限状态层修复的公共数据回归。与根测试采集可能重叠，不累计总数。根双 worker 原进程仍运行。
+- 2026-11-18 selectedTenderRecord实服配置闭合：原空间保留projectId等声明，补runId/type/ordinal/recordVersion/recordHash五项无默认非主业务，已保存并回读。原TenderRecord无同名视图后新增；Table/paged/完整集合false/过滤自动查询false/cache none/staged，以6个eq GetInputParam组成AND常驻范围。单次保存UI已保存并回读；关模型重开精确视图再核六项与运行选项一致，截图smart-bid-tender-record-view-readback-20261118.png。无核定业务行写入或实际端到端读取。
+- 包06 清理 48af2439a：整字典删除显式拒绝，内部 #deleting 从未置真；删除死分支、旁路批量提交和虚假的已删除状态推进。保留现公开查询状态与零写拒绝、普通设计/条目 DataSet 保存及未知结果原捕获核验。字典 workspace 97 项及专项 lint 通过；整删正式服务合同仍待。
+- 根双 worker 复跑退出 0：646 个文件、10865 项全部通过，1235.08 秒。运行从 6f6770976 启动，过程中工作区有后续提交，不将汇总认定为最新 HEAD 的冻结快照。后续改动的对应专项见上。backend-api-contracts 未找到独立整字典删除入口，仍需正式定义/条目及持久依赖合同。

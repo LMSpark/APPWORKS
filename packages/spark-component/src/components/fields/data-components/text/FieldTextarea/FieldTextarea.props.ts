@@ -4,13 +4,16 @@
  * 边界：只描述 field-level/data-field 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。
  * AI用途：生成或修订页面配置时，用本模块判断 field textarea 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
  */
-import type { SparkMultilineFieldProps, SparkNodeProps } from '../../../../shared-types'
+import type { SparkFieldMemberProps, SparkMultilineFieldProps, SparkNodeProps } from '../../../../shared-types'
 
 /** RTextarea Props 的属性契约。 */
-export type RTextareaProps = SparkNodeProps & SparkMultilineFieldProps<string> & {
+export type RTextareaProps = SparkNodeProps & SparkMultilineFieldProps<string> & SparkFieldMemberProps & {
   /** 是否根据内容自动伸缩高度。 */
     autosize?: boolean | { minRows?: number; maxRows?: number }
     /** 最大输入长度。 */
     maxlength?: number
     /** 是否显示字数统计。 */
-    showWordLimit?: boolean}
+    showWordLimit?: boolean
+  /** 只读、可见文本的选区回调。start 含、end 不含，均为原文 UTF-16 偏移。两者相等时表示光标。 */
+  onTextSelection?: (selection: Readonly<{start: number; end: number}>) => void
+}

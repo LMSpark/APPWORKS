@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h, nextTick, reactive } from 'vue'
-import { FieldText, FieldCheckbox, FieldSlider, FieldRate, FieldColor, FieldMention, FieldNumber } from '@spark-appworks/spark-component'
+import { FieldText, FieldTextarea, FieldCheckbox, FieldSlider, FieldRate, FieldColor, FieldMention, FieldNumber } from '@spark-appworks/spark-component'
 import { DATA_ROW, DATA_SOURCE, SPARK_REGISTRY_KEY, Spark, useSparkComponent } from '@spark-appworks/spark-component'
 import { SUBTREE_FIELD_POLICY } from '../../../../packages/spark-component/src/permission'
 import { SparkData, type DataView } from '@spark-appworks/spark-data'
@@ -10,6 +10,28 @@ import ElementPlus, { ElForm, ElInputNumber } from 'element-plus'
 import { DataSpaceQueryTable } from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import { DataSpaceQueryContext } from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import { DataSpaceDesignApi } from '../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api'
+
+it('reports original UTF-16 coordinates for readonly textarea text selection', async () => {
+  const selections: unknown[] = []
+  const wrapper = mountFieldInContext({
+    component: FieldTextarea, type: 'r-textarea', model: { payload: { value: '甲\r\n😀乙' } }, fieldName: 'payload',
+    componentProps: { readonly: true, valuePath: ['value'], valueFormat: 'native',
+      onTextSelection: (selection: unknown) => selections.push(selection) },
+    global: { plugins: [ElementPlus], stubs: { ElInput: false } },
+  })
+  try {
+    const textarea = wrapper.get('textarea').element
+    expect(textarea.readOnly).toBe(true)
+    expect(textarea.disabled).toBe(false)
+    expect(textarea.value).toBe('甲\n😀乙')
+    textarea.setSelectionRange(2, 4)
+    await wrapper.get('textarea').trigger('select')
+    expect(selections).toEqual([{ start: 3, end: 5 }])
+    textarea.setSelectionRange(4, 4)
+    await wrapper.get('textarea').trigger('click')
+    expect(selections).toEqual([{ start: 3, end: 5 }, { start: 5, end: 5 }])
+  } finally { wrapper.unmount() }
+})
 
 const ElFormItemStub = defineComponent({
   props: ['label', 'prop', 'rules'],

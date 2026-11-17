@@ -18,7 +18,11 @@ AI用途：需要理解 field textarea 的实际渲染结构、slot/toolbar/状�
         :maxlength="maxlength"
         :show-word-limit="showWordLimit"
         :placeholder="placeholder"
-        :disabled="!isCurrentFieldEditable"
+        :readonly="canSelectText"
+        :disabled="!isCurrentFieldEditable && !canSelectText"
+        @select="handleTextSelection"
+        @click="handleTextSelection"
+        @keyup="handleTextSelection"
         @update:model-value="handleChange"
       />
     </template>
@@ -39,9 +43,11 @@ AI用途：需要理解 field textarea 的实际渲染结构、slot/toolbar/状�
  * @description 多行文本字段，绑定 string 值，支持自动高度和字数限制。
  */
 import { useBasicFieldState } from '../../composables/state/useBasicFieldState'
+import { computed } from 'vue'
 import { emitFieldValueUpdate, type FieldValueUpdateEmits } from '../../composables/value/useControlledFieldChange'
 import { coerceStringValue } from '../../composables/value/fieldValueCoercion'
 import FieldContextRenderer from '../../../non-data-components/FieldContextRenderer.vue'
+import { fieldMemberFromProps } from '../../../context/useFieldPermission'
 import type { RTextareaProps } from './FieldTextarea.props'
 
 const props = withDefaults(defineProps<RTextareaProps>(), {
@@ -57,12 +63,32 @@ const emit = defineEmits<FieldValueUpdateEmits<string>>()
 const { permission, fieldCtx, handleControlledChange } = useBasicFieldState<string>({
   props,
   fieldType: 'r-textarea',
+  member: fieldMemberFromProps(props),
   fallbackValue: '',
   coerce: coerceStringValue,
   emitUpdate: value => emitFieldValueUpdate(emit, value),
 })
 
-const { fieldValue, isCurrentFieldEditable, currentDisplayValue } = permission
+const { fieldValue, isCurrentFieldEditable, currentDisplayValue,
+  isCurrentFieldReadable, isCurrentFieldMasked, isCurrentFieldHidden } = permission
+const canSelectText = computed(() => props.readonly === true && typeof props.onTextSelection === 'function'
+  && isCurrentFieldReadable.value && !isCurrentFieldMasked.value && !isCurrentFieldHidden.value)
+
+function handleTextSelection(event: Event): void {
+  const input = event.target
+  if (!canSelectText.value || !(input instanceof HTMLTextAreaElement) || input.disabled || !input.readOnly) return
+  const source = fieldValue.value
+  const { selectionStart, selectionEnd } = input
+  if ((event.type !== 'select' && selectionStart !== selectionEnd) || source.replace(/\r\n?/g, '\n') !== input.value) return
+  // textarea normalizes CRLF to LF. Translate its offsets back to the original value.
+  let start = 0
+  let end = 0
+  for (let offset = 0; offset < selectionEnd; offset++) {
+    end += source.startsWith('\r\n', end) ? 2 : 1
+    if (offset + 1 === selectionStart) start = end
+  }
+  props.onTextSelection?.({start, end})
+}
 
 async function handleChange(value: string): Promise<void> {
   await handleControlledChange(value)

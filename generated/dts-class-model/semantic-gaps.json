@@ -1,5 +1,5 @@
 {
-  "gapCount": 6342,
+  "gapCount": 6344,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -21420,9 +21420,9 @@
     {
       "kind": "attribute",
       "className": "TreeModel",
-      "memberName": "__@iterator@163420",
+      "memberName": "__@iterator@163440",
       "reason": "missing-jsdoc",
-      "chainBreak": "TreeModel.__@iterator@163420 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "TreeModel.__@iterator@163440 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-json-document/src/tree/tree-types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-json-document/src/tree/tree-types.ts",
       "declarationLine": 50,
@@ -73681,6 +73681,29 @@
       "declarationKind": "typeAlias"
     },
     {
+      "kind": "constructor",
+      "className": "ContentAuthoringHost",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentAuthoringHost.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
+      "declarationLine": 51,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "model",
+      "className": "ContentAuthoringHost",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentAuthoringHost 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
+      "declarationLine": 51,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
+      "declarationKind": "class"
+    },
+    {
       "kind": "attribute",
       "className": "ContentAuthoringHost",
       "memberName": "binding",
@@ -73688,7 +73711,7 @@
       "chainBreak": "ContentAuthoringHost.binding 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 43,
+      "declarationLine": 53,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "class"
     },
@@ -73700,7 +73723,7 @@
       "chainBreak": "ContentAuthoringHost.hasPending 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 44,
+      "declarationLine": 54,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "class"
     },

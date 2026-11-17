@@ -61,6 +61,26 @@ function readableProject(view:DataView,projectId:string):boolean {
 }
 
 /** 一次正文编制宿主；未保存输入/原视图编辑均阻止换目标，过期装配不能发布新绑定。 */
+export function captureContentAuthoringSession(target: ContentAuthoringTarget) {
+ const actorUserId = lowcodeApi.session.get()?.identity.userId
+ const scope = lowcodeApi.readRequestScope()
+ if (!actorUserId?.trim() || scope.headers['X-AppId'] !== target.applicationId) {
+  throw Error('CONTENT_AUTHORING_IDENTITY_REQUIRED: 当前作者或应用与目标不符')
+ }
+ const applicationId = target.applicationId
+ return {
+  actorUserId,
+  scenarioInputs: {[target.scenarioId]: {projectId: target.projectId, currentUserId: actorUserId}},
+  assertCurrent() {
+   const current = lowcodeApi.readRequestScope()
+   if (current.token !== scope.token || current.headers['X-AppId'] !== applicationId
+    || lowcodeApi.session.get()?.identity.userId !== actorUserId) {
+    throw Error('CONTENT_AUTHORING_STALE: 正文编制的会话或目标已失效')
+   }
+  },
+ }
+}
+
 export class ContentAuthoringHost {
  readonly #session=new NativePageRuntimeSession()
  #generation=0
@@ -80,25 +100,22 @@ export class ContentAuthoringHost {
   }))
    throw Error('CONTENT_AUTHORING_IDENTITY_REQUIRED: 缺少明确的编制目标')
   if(tool&&(tool.pageId!==target.pageId||!tool.isLoaded))throw Error('CONTENT_AUTHORING_TOOL_IDENTITY_REQUIRED')
-  const actorUserId=lowcodeApi.session.get()?.identity.userId
-  const scope=lowcodeApi.readRequestScope()
-  if(!actorUserId?.trim()||scope.headers['X-AppId']!==target.applicationId)
-   throw Error('CONTENT_AUTHORING_IDENTITY_REQUIRED: 当前作者或应用与目标不符')
-  const key=JSON.stringify([target.applicationId,target.pageId,target.scenarioId,target.projectId,target.draftId,scope.token,actorUserId])
+  const session = captureContentAuthoringSession(target)
+  const {actorUserId} = session
+  const key=JSON.stringify([target.applicationId,target.pageId,target.scenarioId,target.projectId,target.draftId,lowcodeApi.readRequestScope().token,actorUserId])
   if(this.#key===key && this.#binding&&this.#tool===tool){this.#binding.assertCurrent();return this.#binding}
   if(this.hasPending)throw Error('CONTENT_AUTHORING_PENDING: 请先处理原项目的未保存编辑')
   const own=++this.#generation
   this.#binding=undefined;this.#key=undefined;this.#tool=undefined;this.#pending=false
   try {
    const runtime=this.#session.acquire({...(tool?{tool}:{pageId:target.pageId}),scenarioIds:[target.scenarioId],targetId:key,
-    scenarioInputs:{[target.scenarioId]:{projectId:target.projectId,currentUserId:actorUserId}},
+    scenarioInputs:session.scenarioInputs,
     loadScenario:scenarioId=>loadLowcodeRuntimeScenario({projectId:target.applicationId,scenarioId})})
    let views:DataView[]=[],loaded=false
    const assertCurrent=()=>{
-    const current=lowcodeApi.readRequestScope()
+    session.assertCurrent()
     const [project,draft]=views
-    if(own!==this.#generation||!this.#session.isCurrent(runtime)||current.token!==scope.token
-     ||current.headers['X-AppId']!==target.applicationId||lowcodeApi.session.get()?.identity.userId!==actorUserId
+    if(own!==this.#generation||!this.#session.isCurrent(runtime)
      ||views.some(view=>view.queryContext['projectId']!==target.projectId||view.queryContext['currentUserId']!==actorUserId)
      ||views.length>0 && (!project||!draft||!validScope(project,draft))
      ||loaded && (!project||!readableProject(project,target.projectId)))

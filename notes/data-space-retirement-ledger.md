@@ -10906,3 +10906,5 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - 路由池已把原 PageRuntime 交给宿主工厂并绑定到标准渲染器，拒绝不同实例；路由测试证实正式配置脚本实际发出宿主命令。并入已交付的基线要求精确读取，整仓类型复验通过、9文件102项通过、正式生成通过。尚缺真实页11发布节点绑定与真实Requirement模型、视图和现场烟测。
 - 2026-11-18 实服 MySQL spark_bid.bid_requirement（E9F98F995293C2B4F073FD319618A38F）补齐14业务字段。恢复原草稿确认kind/requirement_text/score已在，仅新增余8；一次保存，界面已保存；整页重载后重选同库同表，独立表设计两页核全14项（第2页含source_record和lineage_id），冷读截图 smart-bid-requirement-table-cold-20261118.png 与 smart-bid-requirement-table-cold-page2-20261118.png。仅物理表字段设计，无业务记录，Requirement正式模型和selectedRequirement视图仍待登记。
 - 页11生产入口匹配函数已加入：使用回读的正式节点及工具双身份，拒绝同节点换绑工具及额外场景；目标专项17项、lint、正式生成通过。现场节点/工具回读与生产安装仍待完成。
+- 2026-11-18 实服 Requirement 正式模型登记：在新投标APP原投标项目与内容空间（D3BBA1F0780056C837AC35E9825CAD5A）确认原7模型无Requirement。来源搜索发现两个bid_requirement，明确选择spark_bid的投标要求版本，未选smart_bid_demo来源。选择来源一次后UI确认模型与布局创建并回读；同一 Base_DataModel ID 6602EE05F1FF9D62A2BFDD9787BC1A08 单次正式改名为Requirement，预览仅Name变动且无配置工具，确认后UI报告注册名与引用已保存并回读，画布显示Requirement。截图smart-bid-requirement-model-20261118.png。字段别名、selectedRequirement命名视图及正式业务记录查询尚待接入。
+- 页11正式路由准备改为与原编制宿主共用认证会话捕获，可信作者和项目进入场景参数，复核登录与应用切换；读取原发布身份仍待现场。宿主/目标34项、专项lint及正式生成通过。

@@ -4,7 +4,7 @@
  * 边界：不授予权限、不查询、不从URL取得作者、不选择活动项目或默认草稿。
  * AI用途：真实原生入口在打开原ContentAuthoringHost前核对绑定身份。
  */
-import type {ContentAuthoringTarget} from '../model/content-authoring-host'
+import {captureContentAuthoringSession, type ContentAuthoringTarget} from '../model/content-authoring-host'
 import {resolveExecutionProjectId} from '@/services/application-scope'
 import {isRecord} from '@spark-appworks/spark-utils'
 
@@ -16,6 +16,12 @@ export type ContentAuthoringRoute=Readonly<{path:string;meta:Readonly<Record<str
 
 /** Published IDs captured from the authorized blueprint readback. */
 export type ContentAuthoringPublishedEntry = Readonly<{nodeId:string; pageId:string}>
+
+/** Prepare the published route with the session inputs expected by the runtime pool. */
+export function preparePublishedContentAuthoringCall(route:ContentAuthoringRoute, entry:ContentAuthoringPublishedEntry) {
+ const target = resolvePublishedContentAuthoringTarget(route, entry)
+ return target ? captureContentAuthoringSession(target) : undefined
+}
 
 /** Select only the registered tool before preparing its authenticated runtime inputs. */
 export function resolvePublishedContentAuthoringTarget(

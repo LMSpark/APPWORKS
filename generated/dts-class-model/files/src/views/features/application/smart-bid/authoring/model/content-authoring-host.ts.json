@@ -222,7 +222,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T17:21:49.530Z",
+  "generatedAt": "2026-11-17T18:55:56.467Z",
   "models": {
     "ContentAuthoringTarget": {
       "name": "ContentAuthoringTarget",
@@ -514,11 +514,10 @@
     },
     "ContentAuthoringHost": {
       "name": "ContentAuthoringHost",
-      "jsdoc": "一次正文编制宿主；未保存输入/原视图编辑均阻止换目标，过期装配不能发布新绑定。",
+      "jsdoc": "",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "一次正文编制宿主；未保存输入/原视图编辑均阻止换目标，过期装配不能发布新绑定。",
           "signatureText": "constructor()",
           "parameters": []
         },

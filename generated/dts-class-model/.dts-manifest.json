@@ -5674,7 +5674,7 @@
     "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts.json",
-      "sourceModifiedAt": "2026-11-17T18:49:33.233Z"
+      "sourceModifiedAt": "2026-11-17T18:56:54.422Z"
     },
     "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts",
@@ -5684,7 +5684,7 @@
     "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts.json",
-      "sourceModifiedAt": "2026-11-17T17:21:49.530Z"
+      "sourceModifiedAt": "2026-11-17T18:55:56.467Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",

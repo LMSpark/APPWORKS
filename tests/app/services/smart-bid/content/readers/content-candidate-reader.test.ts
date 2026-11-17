@@ -1,4 +1,5 @@
 import {expect,it} from 'vitest'
+import {createHash} from 'node:crypto'
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
 
@@ -205,6 +206,20 @@ it('compares verified first-candidate versions under the original target scope',
   expect(result.addedNodeIds).toEqual(['C','D','H'])
   expect(result.requiresCurrentAuthorityChecks).toBe(true)
   await f.ds.getView('ContentNodeVersion','snapshotMembers')!.refresh()
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+ }finally{f.ds.destroy()}
+})
+it('previews selected text against the verified current head without modifying its view',async()=>{
+ const f=await fixture('populated',{threeVersions:true})
+ const span=(revisionId:string,text:string)=>({schemaVersion:2,projectId:'P',revisionId,owner:{kind:'NODE',nodeId:'H'},
+  path:'/value',start:0,end:text.length,unit:'utf16',textDigest:createHash('sha256').update(text).digest('hex')})
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:'V2'})
+  const result=await candidate.previewText([{operation:'replace',sourceRef:span('C','标'),targetRef:span('V2','标题')}])
+  expect(result.textPreview.patches[0]?.after).toBe('标{{册名}}')
+  expect(result.requiresMeaningChecks).toBe(true)
+  expect(f.save).not.toHaveBeenCalled()
+  await f.ds.getView('ContentNodeVersion','headSnapshotMembers')!.refresh()
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
  }finally{f.ds.destroy()}
 })

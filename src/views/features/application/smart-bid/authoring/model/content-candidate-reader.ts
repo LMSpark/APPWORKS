@@ -14,10 +14,11 @@ import {readContentSnapshotIndex,type ContentSnapshotIndexBinding,type ContentSn
 import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './content-snapshot-nodes'
 import {readContentBaselineFact,readContentBaselineRequirement,readContentBaselineRequirementPins,readContentBaselineTenderRecord,type ContentBaselineFactBinding,type ContentBaselineRequirementPinsBinding} from './content-baseline-reader'
 import type {RevisionRequirementPin} from '@/services/smart-bid/content/references/revision-requirement-pins'
-import {snapshotReferenceFields} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {snapshotReferenceFields,snapshotReferenceRecord,visitSnapshotReferences} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readTenderRecordReference} from '@/services/smart-bid/content/references/baseline-tender-records'
 import {readContentTenderRecord} from './content-tender-record-reader'
 import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/services/smart-bid/content/content-scoped-preview'
+import {previewContentTextSnapshot,type ContentResponseTextSnapshot,type ContentTextSnapshotPreview} from '@/services/smart-bid/content/content-text-snapshot-preview'
 
 /** 原候选及同版清单已证明基线身份；冻结和用途许可仍不在读取层推断。 */
 export type ContentCandidateFactBinding=Omit<ContentBaselineFactBinding,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
@@ -47,6 +48,7 @@ export type ContentCandidateBinding=Readonly<{
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
  readPreviewVersions:(assertConsumer?:()=>void)=>Promise<PreviewVersions>
  previewScope:(input:PreviewScopeInput,assertConsumer?:()=>void)=>Promise<CandidateScopePreview>
+ previewText:(changes:unknown,assertConsumer?:()=>void)=>Promise<Readonly<ContentTextSnapshotPreview&{assertCurrent:()=>void}>>
  revisions:ContentRevisionReadBinding;snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding
  revisionMatchVerified:true;templateBindingsVerified:true;requirementBindingsVerified:true;responseAnchorsVerified:true;responseTextVerified:true
  requiresResponseReferenceChecks:true;requiresResponsePayloadChecks:true;requiresTemplateResourceChecks:true;requiresRequirementVersionChecks:true;requiresBusinessSectionChecks:true;assertCurrent:()=>void
@@ -54,7 +56,8 @@ export type ContentCandidateBinding=Readonly<{
 
 /** 只装配候选；头/基准须另用正式角色视图，不能覆盖本次单个快照视图后沿用旧证明。 */
 export async function readCandidateContent(host:ContentRevisionReadHost,selection:ContentRevisionSelection):Promise<ContentCandidateBinding>{
- const revisions=await readContentRevisions(host,selection)
+ const {candidateRevisionId,expectedHead}=selection
+ const revisions=await readContentRevisions(host,{candidateRevisionId,expectedHead})
  const candidate=host.runtime.resolveView(revisions.candidateDataViewKey)
  if(!candidate||!hasCompleteSingleContentResult(candidate))throw Error('CONTENT_CANDIDATE_NOT_UNIQUE')
  const row=candidate.rows[0]
@@ -153,6 +156,15 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertPreview()
   return Object.freeze({basis,head,candidate:Object.freeze({snapshot,nodes}),assertCurrent:assertPreview})
  }
+ const readNodes=(version:PreviewVersion|null)=>{
+   const key=version?.nodes.dataViewKey
+   if(!key)return []
+   const view=host.runtime.resolveView(key)
+   if(!view)throw Error('CONTENT_CANDIDATE_NODE_REQUIRED')
+   return view.rows.map(member=>member['payload'])
+ }
+ const readManifest=(version:PreviewVersion|null)=>version===null?null:
+   host.runtime.resolveView(version.snapshot.dataViewKey)?.rows[0]?.['manifest']
  const previewScope=async(input:PreviewScopeInput,assertConsumer?:()=>void):Promise<CandidateScopePreview>=>{
   assertCurrent();assertConsumer?.()
   const assertTargetScope=candidate.captureReadRow(row,['targetScope'])
@@ -160,22 +172,40 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const versions=await readPreviewVersions(assertConsumer)
   const assertPreview=()=>{versions.assertCurrent();assertTargetScope()}
   assertPreview()
-  const readNodes=(version:PreviewVersion|null)=>{
-   const key=version?.nodes.dataViewKey
-   if(!key)return []
-   const view=host.runtime.resolveView(key)
-   if(!view)throw Error('CONTENT_CANDIDATE_NODE_REQUIRED')
-   return view.rows.map(member=>member['payload'])
-  }
-  const readManifest=(version:PreviewVersion|null)=>version===null?null:
-   host.runtime.resolveView(version.snapshot.dataViewKey)?.rows[0]?.['manifest']
   const result=previewScopedRevisionChanges({projectId:host.projectId,basis:readNodes(versions.basis),
    current:readNodes(versions.head),candidate:readNodes(versions.candidate),targetScope:row['targetScope'],declaredAddedNodeIds},
   {basis:readManifest(versions.basis),current:readManifest(versions.head),candidate:readManifest(versions.candidate)})
   assertPreview()
   return Object.freeze({...result,assertCurrent:assertPreview})
  }
- return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+ const previewText=async(changes:unknown,assertConsumer?:()=>void)=>{
+  assertCurrent();assertConsumer?.()
+  if(expectedHead===null)throw Error('CONTENT_TEXT_HEAD_REQUIRED')
+  const assertTargetScope=candidate.captureReadRow(row,['targetScope'])
+  const capturedChanges=structuredClone(changes)
+  const versions=await readPreviewVersions(assertConsumer)
+  const assertPreview=()=>{versions.assertCurrent();assertTargetScope()}
+  assertPreview()
+  const readResponses=(version:PreviewVersion|null)=>{
+   const error='CONTENT_TEXT_RESPONSE_SNAPSHOT',values:ContentResponseTextSnapshot[]=[]
+   const versionManifest=snapshotReferenceRecord(readManifest(version),error)
+   visitSnapshotReferences(versionManifest['responses'],value=>{
+    const response=snapshotReferenceRecord(value,error)
+    if(Object.hasOwn(response,'chapterId'))return
+    const {id,assignmentId,statement,data}=response
+    if(typeof id!=='string'||typeof assignmentId!=='string'||typeof statement!=='string')throw Error(error)
+    values.push({projectId:host.projectId,responseId:id,assignmentId,statement,data:snapshotReferenceRecord(data,error)})
+   },error)
+   return values
+  }
+  const result=await previewContentTextSnapshot({projectId:host.projectId,candidateRevisionId,
+   expectedHead,targetScope:row['targetScope'],changes:capturedChanges,
+   candidateNodes:readNodes(versions.candidate),currentNodes:readNodes(versions.head),
+   candidateResponses:readResponses(versions.candidate),currentResponses:readResponses(versions.head)})
+  assertPreview()
+  return Object.freeze({...result,assertCurrent:assertPreview})
+ }
+ return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,
   requiresBusinessSectionChecks:true,assertCurrent})

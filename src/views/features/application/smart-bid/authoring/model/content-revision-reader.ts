@@ -50,10 +50,12 @@ export async function readContentRevisions(host:ContentRevisionReadHost,input:Co
  assertHost()
  if(!identity(scenarioId)||!identity(projectId)||!identity(candidateRevisionId)||expectedHead!==null&&!identity(expectedHead))
   throw Error('CONTENT_REVISION_IDENTITY_REQUIRED')
- const project=runtime.resolveView(buildDataViewKey('ContentProject','selectedProject',scenarioId))
+ const projectDataViewKey=buildDataViewKey('ContentProject','selectedProject',scenarioId)
+ const project=runtime.resolveView(projectDataViewKey)
  if(!project||project.dataTable?.modelBinding?.modelName!=='ContentProject'||project.queryContext['projectId']!==projectId
   ||!hasContentScopeCondition(project,'projectId',{Type:'GetInputParam',ParamName:'projectId'}))throw Error('CONTENT_REVISION_PROJECT_REQUIRED')
  await project.refresh();assertHost()
+ if(runtime.resolveView(projectDataViewKey)!==project)throw Error('CONTENT_REVISION_STALE')
  const matchesHead=()=>{
   const row=project.rows[0]
   return !project.loadingError&&!project.hasEditingChanges()&&project.queryContext['projectId']===projectId
@@ -71,14 +73,16 @@ export async function readContentRevisions(host:ContentRevisionReadHost,input:Co
  const candidate=runtime.resolveView(candidateDataViewKey),head=headDataViewKey?runtime.resolveView(headDataViewKey):undefined
  if(!candidate||!valid(candidate,'candidateRevisionId','CANDIDATE')||expectedHead!==null&&(!head||!valid(head,'expectedHead','ADOPTED')))
   throw Error('CONTENT_REVISION_SCOPE_REQUIRED')
- const entries=[{view:candidate,id:candidateRevisionId,parameter:'candidateRevisionId',status:'CANDIDATE'},
-  ...(head&&expectedHead!==null?[{view:head,id:expectedHead,parameter:'expectedHead',status:'ADOPTED'}]:[])]
+ const entries=[{key:candidateDataViewKey,view:candidate,id:candidateRevisionId,parameter:'candidateRevisionId',status:'CANDIDATE'},
+  ...(headDataViewKey&&head&&expectedHead!==null?[{key:headDataViewKey,view:head,id:expectedHead,parameter:'expectedHead',status:'ADOPTED'}]:[])]
  for(const item of entries){
   if(item.view.hasEditingChanges())throw Error('CONTENT_REVISION_UNAVAILABLE')
   item.view.queryContext={...item.view.queryContext,projectId,[item.parameter]:item.id}
  }
  const assertScope=()=>{
   assertHost()
+  if(runtime.resolveView(projectDataViewKey)!==project||entries.some(item=>runtime.resolveView(item.key)!==item.view))
+   throw Error('CONTENT_REVISION_STALE')
   assertProjectResult();assertProjectRow()
   if(!matchesHead()||entries.some(item=>!valid(item.view,item.parameter,item.status)
    ||item.view.queryContext['projectId']!==projectId||item.view.queryContext[item.parameter]!==item.id))

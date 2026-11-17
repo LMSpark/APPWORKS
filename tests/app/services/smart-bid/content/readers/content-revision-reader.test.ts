@@ -58,6 +58,16 @@ it('refuses a project proof replaced while candidate queries are in flight',asyn
  await expect(readContentRevisions(f.input,{candidateRevisionId:'C',expectedHead:'H'})).rejects.toThrow('DATA_VIEW_READ_RESULT')
  expect(f.save).not.toHaveBeenCalled()
 })
+it.each(['S@ContentProject@selectedProject','S@ContentRevision@selectedCandidate','S@ContentRevision@selectedHead'])(
+ 'withdraws the revision proof when the runtime detaches %s',async key=>{
+ const f=fixture()
+ try{
+  const result=await readContentRevisions(f.input,{candidateRevisionId:'C',expectedHead:'H'})
+  const resolveView=f.input.runtime.resolveView
+  f.input.runtime.resolveView=value=>value===key?undefined:resolveView(value)
+  expect(()=>result.assertCurrent()).toThrow('CONTENT_REVISION_STALE')
+ }finally{f.ds.destroy()}
+})
 it('refuses a changed project head before dispatching revision queries',async()=>{
  const f=fixture('NEXT')
  await expect(readContentRevisions(f.input,{candidateRevisionId:'C',expectedHead:'H'})).rejects.toThrow('CONTENT_REVISION_HEAD_CHANGED')

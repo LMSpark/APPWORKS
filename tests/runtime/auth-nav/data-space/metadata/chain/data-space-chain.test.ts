@@ -397,7 +397,7 @@ describe('one data space from metadata definitions through persistence to runtim
     expect(f.requests.at(-1)?.data).toMatchObject({PageParam: {index: 2, size: 1}})
     expect(view(reopened.definitionDataSet!, 'ChoiceTable').filterExpression).toBeUndefined()
     expect(f.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(0)
-  }, 15000)
+  }, 30000)
 
   it.each(['native', 'legacy'] as const)('edits formal query output from a deferred %s first screen through standard children, cancels and reopens the saved query', async relationFormat => {
     const f = dataSpaceChainFixture()

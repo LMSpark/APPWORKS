@@ -1,12 +1,15 @@
 <!--
 @module app:views/features/application/smart-bid/authoring/ui/content-candidate-workspace
 职责：通过标准组件只读呈现已核候选的原修订及节点视图。
-边界：只通过原候选绑定读取固定事实和要求，不复制候选、不修改行或生成预演；原证明失效即撤下内容。
+边界：通过原候选绑定读取固定事实和要求及三版比对，不写入候选或采用；原证明失效即撤下内容。
 AI用途：正文宿主读取候选后传入同次绑定；采用须另完成完整比对、预演与权威提交。
 -->
 <template>
   <RendererSection title="候选内容" :error="state.error" :status="state.error ? '' : '待比对与预演'" :grid-columns="1">
     <RendererForm v-if="state.revisionKey && state.revisionRowId !== undefined" :data-view-key="state.revisionKey" :context-row-id="state.revisionRowId" :auto-columns="false" :children="revisionFields" />
+    <RendererButton v-if="state.revisionKey" :data-view-key="state.revisionKey" label="比对三版" :disabled="comparisonLoading" :on-click="compareVersions" />
+    <RendererSection v-if="comparisonError && !state.error" title="三版比对失败" :error="comparisonError" />
+    <RendererSection v-if="comparisonState" title="三版比对结果" :status="comparisonState" />
     <RendererTree v-if="state.nodesKey" :data-view-key="state.nodesKey" node-key="nodeId" :tree-props="treeProps" :children="nodeFields" />
     <RendererSection v-else-if="!state.error" title="本候选尚无正文节点" />
     <RendererSection v-if="state.nodesKey" title="节点详情" :status="state.selectedNode ? '' : '选择节点查看原稿与数据引用'">
@@ -34,6 +37,21 @@ import {validateContentReference} from '@/services/smart-bid/content-reference'
 const props=defineProps<{runtime:PageRuntime;binding:ContentCandidateBinding}>()
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'content-candidate-workspace'})
 const revision=ref(0)
+const comparisonLoading=ref(false),comparisonError=ref('')
+const comparison=shallowRef<Awaited<ReturnType<ContentCandidateBinding['previewScope']>>>()
+const comparisonState=computed(()=>{
+ revision.value
+ const result=comparison.value
+ if(!result)return ''
+ try{result.assertCurrent()}catch{return ''}
+ const undeclared=result.violations.filter(item=>item.code==='UNDECLARED_ADDITION').length
+ const conflicts=result.comparison.nodes.filter(item=>item.conflicts.length>0).length
+ const orderConflicts=result.comparison.siblings.filter(item=>item.status==='CONFLICT').length
+ const divergent=result.responseComparison.filter(item=>item.delta==='DIVERGED').length
+ return [`${result.changedNodeIds.length} 个候选节点变化`,`${conflicts} 个节点冲突`,`${orderConflicts} 处顺序冲突`,`${divergent} 个响应冲突`,
+  ...(undeclared?[`${undeclared} 个新增节点待确认`]:[]),
+  ...(result.violations.length>undeclared?['存在超出范围或需要复核的变更']:[]),'待复核采用依据'].join('，')
+})
 let nodeSelectionVersion=0
 const referenceLoading=ref(false)
 type ReferenceKind='事实'|'要求'
@@ -160,8 +178,23 @@ const state=computed<{revisionKey?:string;revisionRowId?:string|number;nodesKey?
   return {error:message==='候选运行实例不匹配'?message:'候选读取已失效，请重新读取'}
  }
 })
+async function compareVersions():Promise<void>{
+ if(comparisonLoading.value||state.value.error)return
+ const binding=toRaw(props.binding),runtime=toRaw(props.runtime)
+ const isCurrent=()=>active&&toRaw(props.runtime)===runtime&&toRaw(props.binding)===binding
+ const assertCurrent=()=>{if(!isCurrent())throw Error('候选比对上下文已变化')}
+ comparisonLoading.value=true;comparisonError.value='';comparison.value=undefined
+ try{
+  const result=await binding.previewScope({declaredAddedNodeIds:[]},assertCurrent)
+  result.assertCurrent()
+  comparison.value=result
+ }catch(cause){
+  if(isCurrent())comparisonError.value=cause instanceof Error?cause.message:String(cause)
+ }finally{comparisonLoading.value=false}
+}
 watch(()=>[props.runtime,props.binding] as const,()=>{
  referenceResult.value=undefined;referenceFailure.value=undefined
+ comparison.value=undefined;comparisonError.value=''
  unsubscribe?.();unsubscribe=undefined;sparkRemove(PAGE_RUNTIME)
  const runtime=toRaw(props.runtime)
  sparkProvide(PAGE_RUNTIME,runtime)

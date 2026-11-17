@@ -12,7 +12,8 @@ import {hasCompleteSingleContentResult} from './content-node-version-reader'
 import {selectBaselineFactMember} from '@/services/smart-bid/content/references/baseline-fact-members'
 import {snapshotReferenceIdentity,snapshotReferenceRecord,visitSnapshotReferences} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import type {ContentStructureNode} from '@/services/smart-bid/content-tree-structure'
-import {assessBaselineRequirementPins,type BaselineRequirementPinIssue} from '@/services/smart-bid/content/references/baseline-requirement-members'
+import {assessBaselineRequirementPins,selectBaselineRequirementMember,type BaselineRequirementPinIssue} from '@/services/smart-bid/content/references/baseline-requirement-members'
+import {readContentRequirement,type ContentRequirementSelection} from './content-requirement-reader'
 
 /** 原基线挂接诊断；不是要求原记录或当前用途证明。 */
 export type ContentBaselineRequirementPinsBinding=Readonly<{
@@ -88,4 +89,22 @@ export async function readContentBaselineFact(host:ContentRevisionReadHost,input
  const assertCurrent=()=>{baseline.assertCurrent();fact.assertCurrent()}
  assertCurrent()
  return Object.freeze({baselineDataViewKey:baseline.key,factDataViewKey:fact.dataViewKey,baselineMembershipVerified:true,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent})
+}
+
+/** 基线成员与要求原记录的组合证明，当前用途仍须核定。 */
+export async function readContentBaselineRequirement(
+ host:ContentRevisionReadHost,
+ input:ContentRequirementSelection&Readonly<{baselineId:string;stageRef:unknown}>,
+):Promise<Readonly<{
+ baselineDataViewKey:string;requirementDataViewKey:string;baselineMembershipVerified:true
+ requiresRevisionMatchCheck:true;requiresUseCheck:true;assertCurrent:()=>void
+}>>{
+ const {lineageId,version}=input
+ const baseline=await readOriginalBaseline(host,input,'requirementVersions')
+ const member=selectBaselineRequirementMember(baseline.row['requirementVersions'],{lineageId,version})
+ const requirement=await readContentRequirement({...host,assertCurrent:baseline.assertCurrent},member)
+ const assertCurrent=()=>{baseline.assertCurrent();requirement.assertCurrent()}
+ assertCurrent()
+ return Object.freeze({baselineDataViewKey:baseline.key,requirementDataViewKey:requirement.dataViewKey,
+  baselineMembershipVerified:true,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent})
 }

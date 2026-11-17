@@ -12,18 +12,23 @@ import {readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSe
 import {assertContentNodeVersionPayload,hasCompleteSingleContentResult} from './content-node-version-reader'
 import {readContentSnapshotIndex,type ContentSnapshotIndexBinding} from './content-snapshot-reader'
 import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './content-snapshot-nodes'
-import {readContentBaselineFact,readContentBaselineRequirementPins,type ContentBaselineFactBinding,type ContentBaselineRequirementPinsBinding} from './content-baseline-reader'
+import {readContentBaselineFact,readContentBaselineRequirement,readContentBaselineRequirementPins,type ContentBaselineFactBinding,type ContentBaselineRequirementPinsBinding} from './content-baseline-reader'
+import type {RevisionRequirementPin} from '@/services/smart-bid/content/references/revision-requirement-pins'
+import {snapshotReferenceFields} from '@/services/smart-bid/content/references/snapshot-reference-values'
 
 /** 原候选及同版清单已证明基线身份；冻结和用途许可仍不在读取层推断。 */
 export type ContentCandidateFactBinding=Omit<ContentBaselineFactBinding,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
 /** 候选固定基线的挂接诊断；要求原记录及准用另核。 */
 export type ContentCandidateRequirementPinsBinding=Omit<ContentBaselineRequirementPinsBinding,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
+/** 候选章节、固定基线和原要求记录已匹配；用途另核。 */
+export type ContentCandidateRequirementBinding=Omit<Awaited<ReturnType<typeof readContentBaselineRequirement>>,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
 
 /** 候选链保留各原视图证明；其它业务分组、当前依据、rootHash和采用必须继续核验。 */
 export type ContentCandidateBinding=Readonly<{
  runtime:ContentRevisionReadHost['runtime']
  readFixedFact:(selection:Readonly<{factId:string;version?:number}>,assertConsumer?:()=>void)=>Promise<ContentCandidateFactBinding>
  readRequirementPinIssues:(assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementPinsBinding>
+ readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  revisions:ContentRevisionReadBinding;snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding
  revisionMatchVerified:true;templateBindingsVerified:true;requirementBindingsVerified:true;responseAnchorsVerified:true;responseTextVerified:true
  requiresResponseReferenceChecks:true;requiresResponsePayloadChecks:true;requiresTemplateResourceChecks:true;requiresRequirementVersionChecks:true;requiresBusinessSectionChecks:true;assertCurrent:()=>void
@@ -89,7 +94,22 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertReport()
   return Object.freeze({...report,requiresRevisionMatchCheck:false,assertCurrent:assertReport})
  }
- return Object.freeze({runtime:host.runtime,readFixedFact,readRequirementPinIssues,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+ const readFixedRequirement=async(pin:RevisionRequirementPin,assertConsumer?:()=>void):Promise<ContentCandidateRequirementBinding>=>{
+  const assertContext=()=>{assertCurrent();assertConsumer?.()}
+  assertContext()
+  const baselineId=row['baselineId']
+  if(typeof baselineId!=='string')throw Error('CONTENT_CANDIDATE_BASELINE_REQUIRED')
+  const {chapterId,lineageId,version}=pin
+  const matched=Array.isArray(requirementPins)&&requirementPins.some((item:unknown)=>{
+   const originalPin=snapshotReferenceFields(item,['chapterId','lineageId','version'],'CONTENT_CANDIDATE_REQUIREMENT_PIN')
+   return originalPin['chapterId']===chapterId&&originalPin['lineageId']===lineageId&&originalPin['version']===version
+  })
+  if(!matched)throw Error('CONTENT_CANDIDATE_REQUIREMENT_PIN')
+  const result=await readContentBaselineRequirement({...host,assertCurrent:assertContext},{baselineId,stageRef:row['stageRef'],lineageId,version})
+  result.assertCurrent()
+  return Object.freeze({...result,requiresRevisionMatchCheck:false})
+ }
+ return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,
   requiresBusinessSectionChecks:true,assertCurrent})

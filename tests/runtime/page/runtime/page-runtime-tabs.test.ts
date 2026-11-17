@@ -11,23 +11,26 @@ import { SparkData } from '@spark-appworks/spark-data'
 describe('page call tabs and retained renderer instances', () => {
   it('keeps distinct calls across native pages and twelve tabs, rejects dirty closes, and preserves aborted navigation', async () => {
     const mounted = vi.fn()
-    const Page = defineComponent({ name: 'CallBody', props: ['pageRuntime', 'routeSnapshot'], setup(props) {
+    const invoke = vi.fn()
+    const Page = defineComponent({ name: 'CallBody', props: ['pageRuntime', 'routeSnapshot', 'host'], setup(props) {
       const count = ref(0)
       onMounted(mounted)
-      return () => h('div', [h(SparkPageRenderer, { pageRuntime: props.pageRuntime, routeSnapshot: props.routeSnapshot }),
+      return () => h('div', [h(SparkPageRenderer, { pageRuntime: props.pageRuntime, routeSnapshot: props.routeSnapshot, host: props.host }),
         h('button', { onClick: () => { count.value++ } }, `count:${count.value}`)])
     } })
     const router = createRouter({ history: createMemoryHistory(), routes: [
       { path: '/native', component: { render: () => h('p', 'native') }, meta: { title: 'Native', type: 'system-page' } },
     ] })
     const readPageFiles = vi.fn(async (commands: readonly {fileName: string}[]) =>
-      commands.map(({fileName}) => fileName === 'rule.json' ? '[]' : ''))
+      commands.map(({fileName}) => fileName === 'rule.json' ? '[]'
+        : fileName === 'script.js' ? "async function __init__(){await $page.invokeHostCommand('connect')}" : ''))
     let sessionCurrent = true
     const owner = createDynamicRouter({ router, pageComponent: Page,
       readPageFiles,
       preparePageCall: () => ({
         scenarioInputs: {SCENE: {actor: 'trusted'}},
         assertCurrent() {if (!sessionCurrent) throw Error('SESSION_STALE')},
+        createHost: runtime => ({runtime, invoke, assertCurrent() {if (!sessionCurrent) throw Error('SESSION_STALE')}}),
       }),
       loadScenario: async ({ scenarioId }) => SparkData.createDataSet({ dataSetName: 'PageData', scenarioId, tables: {
         Users: { tableName: 'Users', columns: [{ name: 'id', type: 'string' }, { name: 'name', type: 'string' }],
@@ -56,6 +59,7 @@ describe('page call tabs and retained renderer instances', () => {
     if (!first || !controls) throw new Error('missing call controls')
     expect(first.call.scenarioIds).toEqual(['SCENE'])
     await first.load()
+    expect(invoke).toHaveBeenCalledExactlyOnceWith('connect', undefined, expect.any(AbortSignal))
     expect(readPageFiles).toHaveBeenCalledOnce()
     expect(readPageFiles.mock.calls[0]?.[0].map(command => command.fileName).sort())
       .toEqual(['rule.json', 'script.js', 'style.css'])

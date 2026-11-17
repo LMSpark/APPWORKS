@@ -82,8 +82,8 @@
         "openMode": {
           "enum": [
             "embedded",
-            "current",
             "subsystem",
+            "current",
             "new-window",
             "modal"
           ]

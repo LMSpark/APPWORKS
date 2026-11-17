@@ -1,6 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey} from '@spark-appworks/spark-data'
-import {readContentBaselineFact,readContentBaselineRequirementPins} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
+import {readContentBaselineFact,readContentBaselineRequirementPins,readContentBaselineRequirement} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -9,9 +9,12 @@ function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,u
  const fact={id:'FV2',projectId:'P',key:'PRICE',version:2,kind:'PRICE',value:'0.00',unit:'元',sourceIds:[],claimId:null,
   scopeRef:null,decisionRefs:[],dependencyRefs:[],promiseTerms:null,sourceRecord:null,status:'ADOPTED',...options.fact}
  const definitions=[{name:'Baseline',view:'selectedBaseline',record:baseline,params:{projectId:'projectId',id:'baselineId'}},
-  {name:'FactVersion',view:'selectedFactVersion',record:fact,params:{projectId:'projectId',key:'key',version:'version'}}]
+  {name:'FactVersion',view:'selectedFactVersion',record:fact,params:{projectId:'projectId',key:'key',version:'version'}},
+  {name:'Requirement',view:'selectedRequirement',params:{projectId:'projectId',lineageId:'lineageId',version:'version'},
+   record:{id:'REQ',projectId:'P',lineageId:'L',version:'R2',kind:'FORMAT',text:'原文',score:null,sourceSpan:null,
+    supportingSpans:[],sourceRecord:null,parseQuality:'TEXT_ONLY',checks:[],constraint:null,applicability:{},status:'ADOPTED'}}]
  const ds=DataSet.fromJson({scenarioId:'S',tables:Object.fromEntries(definitions.map(d=>[d.name,{
-  modelBinding:{modelId:d.name,modelName:d.name},columns:Object.keys(d.record).map(name=>({name,isPrimaryKey:name==='id',...(name==='version'?{type:'number' as const}:{})})),
+  modelBinding:{modelId:d.name,modelName:d.name},columns:Object.keys(d.record).map(name=>({name,isPrimaryKey:name==='id',...(d.name==='FactVersion'&&name==='version'?{type:'number' as const}:{})})),
   views:{default:{},[d.view]:{commitMode:'staged',scopeFilter:{logic:'and',filters:Object.entries(d.params).map(([field,ParamName])=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName}}))}}}}]))})
  const save=vi.fn(async()=>{throw Error('NO_WRITE')}),queries=definitions.map(d=>{
   const table=new DataSpaceQueryTable({scenarioId:'S',metaName:d.name})
@@ -24,6 +27,22 @@ function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,u
  return {ds,host,queries,save,expire:()=>{active=false}}
 }
 const input={baselineId:'B',stageRef:{decisionId:'STAGE'},factId:'PRICE',version:2}
+it('opens only the confirmed baseline requirement and revokes its proof when baseline changes',async()=>{
+ const f=fixture()
+ const selected={baselineId:'B',stageRef:input.stageRef,lineageId:'L',version:'R2'}
+ try{
+  await expect(readContentBaselineRequirement(f.host,{...selected,version:'R1'})).rejects.toThrow('BASELINE_REQUIREMENT_MEMBER_MISSING')
+  expect(f.queries[2]).not.toHaveBeenCalled()
+  const result=await readContentBaselineRequirement(f.host,selected)
+  expect(result.requirementDataViewKey).toBe('S@Requirement@selectedRequirement')
+  expect(result.requiresUseCheck).toBe(true)
+  expect(result.baselineMembershipVerified).toBe(true)
+  result.assertCurrent()
+  await f.ds.getView('Baseline','selectedBaseline')!.refresh()
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
 const requirementInput={baselineId:'B',stageRef:{decisionId:'STAGE'},nodes:[{nodeId:'CH',type:'chapter'}],
  pins:[{chapterId:'CH',lineageId:'L',version:'R1'},{chapterId:'CH',lineageId:'ABSENT',version:'R0'}]}
 it('reads fixed requirement members from the original baseline and keeps version issues as diagnostics',async()=>{

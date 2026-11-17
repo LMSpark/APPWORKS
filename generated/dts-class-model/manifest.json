@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1311,
+  "scannedFileCount": 1312,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -18648,6 +18648,7 @@
         "symbols": [
           "ContentCandidateFactBinding",
           "ContentCandidateRequirementPinsBinding",
+          "ContentCandidateRequirementBinding",
           "ContentCandidateBinding"
         ]
       }
@@ -18681,6 +18682,22 @@
         "symbols": [
           "ContentNodeVersionSelection",
           "ContentNodeVersionBinding"
+        ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/content-requirement-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/content-requirement-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-requirement-reader\n职责：读取项目内指定谱系及版本的要求原记录。\n边界：只返回原DataView证明，基线成员与用途许可由上层确认。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentRequirementSelection",
+          "ContentRequirementBinding"
         ]
       }
     },
@@ -22821,6 +22838,10 @@
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json"
     },
+    "ContentCandidateRequirementBinding": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json"
+    },
     "ContentCandidateRequirementPinsBinding": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json"
@@ -22864,6 +22885,14 @@
     "ContentNodeVersionSelection": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts.json"
+    },
+    "ContentRequirementBinding": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts.json"
+    },
+    "ContentRequirementSelection": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts.json"
     },
     "ContentResponseChangeIdentity": {
       "sourcePath": "src/services/smart-bid/content/content-scoped-preview.ts",

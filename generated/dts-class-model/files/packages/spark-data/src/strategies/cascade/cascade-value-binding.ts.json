@@ -19,13 +19,13 @@
       "type": "object",
       "title": "ValueSource",
       "properties": {
-        "field": {
-          "type": "string"
-        },
         "tableName": {
           "type": "string"
         },
         "viewId": {
+          "type": "string"
+        },
+        "field": {
           "type": "string"
         }
       },
@@ -109,11 +109,6 @@
         "members": {
           "attributes": [
             {
-              "name": "field",
-              "readable": true,
-              "writable": false
-            },
-            {
               "name": "tableName",
               "readable": true,
               "writable": true
@@ -122,6 +117,11 @@
               "name": "viewId",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
             }
           ]
         }

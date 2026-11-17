@@ -114,3 +114,21 @@ it('resolves a node fact key through the fixed baseline instead of asking the pa
  expect(f.ds.getView('FactVersion','selectedFactVersion')!.queryContext).toMatchObject({key:'PRICE',version:2})
  expect(f.save).not.toHaveBeenCalled()
 })
+it('opens the original requirement only for an exact chapter pin in the candidate',async()=>{
+ const f=await fixture('fixed-pin')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const pin={chapterId:'C',lineageId:'L',version:'R2'}
+  const before=f.query.mock.calls.length
+  await expect(candidate.readFixedRequirement({...pin,chapterId:'H'})).rejects.toThrow('CONTENT_CANDIDATE_REQUIREMENT_PIN')
+  expect(f.query).toHaveBeenCalledTimes(before)
+  const result=await candidate.readFixedRequirement(pin)
+  expect(result.requirementDataViewKey).toBe('S@Requirement@selectedRequirement')
+  expect(result.requiresRevisionMatchCheck).toBe(false)
+  expect(result.requiresUseCheck).toBe(true)
+  result.assertCurrent()
+  await f.ds.getView('RevisionSnapshot','selectedSnapshot')!.refresh()
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})

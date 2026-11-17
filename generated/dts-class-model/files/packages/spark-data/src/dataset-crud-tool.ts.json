@@ -219,7 +219,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@117437": {
+                "__@iterator@32279": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -274,7 +274,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@117437"
+                "__@iterator@32279"
               ],
               "additionalProperties": false
             },
@@ -504,7 +504,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@117437": {
+                "__@iterator@32279": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -559,7 +559,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@117437"
+                "__@iterator@32279"
               ],
               "additionalProperties": false
             },
@@ -854,7 +854,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@117437": {
+                    "__@iterator@32279": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -909,7 +909,7 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@117437"
+                    "__@iterator@32279"
                   ],
                   "additionalProperties": false
                 },
@@ -1299,7 +1299,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@117437": {
+                "__@iterator@32279": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1354,7 +1354,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@117437"
+                "__@iterator@32279"
               ],
               "additionalProperties": false
             },
@@ -1587,7 +1587,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@117437": {
+                "__@iterator@32279": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1642,7 +1642,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@117437"
+                "__@iterator@32279"
               ],
               "additionalProperties": false
             },
@@ -2001,7 +2001,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@117437": {
+                    "__@iterator@32279": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -2056,7 +2056,7 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@117437"
+                    "__@iterator@32279"
                   ],
                   "additionalProperties": false
                 },
@@ -2472,7 +2472,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@117437": {
+                "__@iterator@32279": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2527,7 +2527,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@117437"
+                "__@iterator@32279"
               ],
               "additionalProperties": false
             },
@@ -2760,7 +2760,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@117437": {
+                "__@iterator@32279": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2815,7 +2815,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@117437"
+                "__@iterator@32279"
               ],
               "additionalProperties": false
             },
@@ -2939,6 +2939,31 @@
             "queryConfig": {
               "type": "object",
               "properties": {
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "parentResult": {
+                  "type": "object",
+                  "properties": {
+                    "dataViewKey": {
+                      "type": "string"
+                    },
+                    "childModelName": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "dataViewKey",
+                    "childModelName"
+                  ],
+                  "additionalProperties": false
+                },
+                "outputType": {
+                  "type": "string"
+                },
                 "tree": {
                   "type": "object",
                   "properties": {
@@ -2968,37 +2993,6 @@
                   ],
                   "additionalProperties": false
                 },
-                "children": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "types.ts.json#/$defs/DataViewQueryChild"
-                  }
-                },
-                "fields": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "parentResult": {
-                  "type": "object",
-                  "properties": {
-                    "dataViewKey": {
-                      "type": "string"
-                    },
-                    "childModelName": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "dataViewKey",
-                    "childModelName"
-                  ],
-                  "additionalProperties": false
-                },
-                "outputType": {
-                  "type": "string"
-                },
                 "pagination": {
                   "enum": [
                     "none",
@@ -3019,6 +3013,12 @@
                 },
                 "maxRows": {
                   "type": "number"
+                },
+                "children": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "types.ts.json#/$defs/DataViewQueryChild"
+                  }
                 },
                 "sourceInputMode": {
                   "enum": [

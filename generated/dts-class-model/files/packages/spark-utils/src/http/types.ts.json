@@ -77,10 +77,10 @@
           "enum": [
             "formdata",
             "text",
-            "document",
             "json",
             "arraybuffer",
-            "blob"
+            "blob",
+            "document"
           ]
         },
         "baseURL": {
@@ -499,10 +499,10 @@
           "enum": [
             "formdata",
             "text",
-            "document",
             "json",
             "arraybuffer",
-            "blob"
+            "blob",
+            "document"
           ]
         },
         "baseURL": {

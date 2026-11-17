@@ -32,6 +32,11 @@ export type PageRuntimePoolOptions = Readonly<{
   preparePageCall?: (route: RouteLocationNormalizedLoaded) => Readonly<{
     scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>
     assertCurrent(): void
+    createHost?: (runtime: PageRuntime) => Readonly<{
+      runtime: PageRuntime
+      assertCurrent(): void
+      invoke(name: string, input: unknown, signal: AbortSignal): unknown
+    }>
   }> | undefined
   /** 装配页面调用所需场景；未注入时场景加载显式失败。 */
   loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined
@@ -156,7 +161,12 @@ export class PageRuntimePool {
           if (typeof reload !== 'function') throw new Error('页面渲染器缺少 reload 能力')
           await Reflect.apply(reload, renderer.value, [])
         } })
-        return () => h(this.options.pageComponent, { ref: renderer, pageRuntime: runtime, routeSnapshot: snapshot })
+        const host = prepared?.createHost?.(runtime)
+        if (host && host.runtime !== runtime) throw new Error('PAGE_HOST_RUNTIME_MISMATCH')
+        return () => h(this.options.pageComponent, {
+          ref: renderer, pageRuntime: runtime, routeSnapshot: snapshot,
+          ...(host ? {host} : {}),
+        })
       } }))
     this.pageInstances.set(key, { runtime, view, route: snapshot, nodeId: String(route.meta['nodeId']), key,
       ...(prepared ? {assertCurrent: () => prepared.assertCurrent()} : {}) })

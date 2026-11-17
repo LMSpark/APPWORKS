@@ -634,7 +634,7 @@
     "packages/spark-app/src/router/page-runtime-pool.ts": {
       "sourceFile": "packages/spark-app/src/router/page-runtime-pool.ts",
       "shardFile": "files/packages/spark-app/src/router/page-runtime-pool.ts.json",
-      "sourceModifiedAt": "2026-11-17T18:32:04.009Z"
+      "sourceModifiedAt": "2026-11-17T18:36:17.664Z"
     },
     "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts": {
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts",
@@ -5705,6 +5705,11 @@
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts.json",
       "sourceModifiedAt": "2026-11-17T12:33:14.060Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts.json",
+      "sourceModifiedAt": "2026-11-17T18:31:35.888Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts",

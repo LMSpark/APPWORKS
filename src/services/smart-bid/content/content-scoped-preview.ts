@@ -160,7 +160,15 @@ export function previewScopedRevisionChanges(
  manifests:Readonly<{basis:unknown;current:unknown;candidate:unknown}>,
 ){
  const responseComparison=compareRevisionResponses(manifests.basis,manifests.current,manifests.candidate,command.projectId)
+ const responses=responseBasis(command.responses),projected=new Map(responses.map(row=>[row.assignmentId,row.responseId]))
+ const basisIds=new Map(responseComparison.map(row=>[row.assignmentId,row.basisResponseId]))
+ if(responses.some(row=>row.responseId!==null&&basisIds.get(row.assignmentId)!==row.responseId))
+  throw Error('CONTENT_SCOPE_RESPONSE_BASIS')
+ for(const row of responseComparison){
+  if(row.basisResponseId!==null&&projected.get(row.assignmentId)!==row.basisResponseId)
+   throw Error('CONTENT_SCOPE_RESPONSE_BASIS')
+ }
  const responseChanges=responseComparison.filter(row=>row.basisResponseId!==row.candidateResponseId)
   .map(row=>({assignmentId:row.assignmentId,basisResponseId:row.basisResponseId,responseId:row.candidateResponseId}))
- return {...previewScopedContentTree({...command,responseChanges}),responseComparison}
+ return {...previewScopedContentTree({...command,responses,responseChanges}),responseComparison}
 }

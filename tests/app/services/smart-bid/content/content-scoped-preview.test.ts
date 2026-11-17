@@ -27,6 +27,10 @@ it('derives candidate response scope from the three manifests even with an empty
  expect(conflict.scopeCheckPassed).toBe(true)
  expect(conflict.responseComparison[0]?.delta).toBe('DIVERGED')
  expect(conflict.requiresCurrentAuthorityChecks).toBe(true)
+ expect(()=>previewScopedRevisionChanges({...command,responses:[{projectId:'P',assignmentId:'Q',responseId:'OTHER'}]},
+  {basis:manifest([row]),current:manifest([row]),candidate:manifest([row])})).toThrow('CONTENT_SCOPE_RESPONSE_BASIS')
+ expect(()=>previewScopedRevisionChanges({...command,responses:[]},
+  {basis:manifest([row]),current:manifest([row]),candidate:manifest([row])})).toThrow('CONTENT_SCOPE_RESPONSE_BASIS')
  expect(()=>previewScopedRevisionChanges(command,{basis:{...manifest([row]),projectId:'OTHER'},
   current:{...manifest([]),projectId:'OTHER'},candidate:{...manifest([]),projectId:'OTHER'}})).toThrow('RESPONSE_COMPARISON_PROJECT')
 })

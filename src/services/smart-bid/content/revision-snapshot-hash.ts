@@ -36,13 +36,18 @@ function canonical(value:unknown,ancestors:Set<object>):string {
  }finally{ancestors.delete(value)}
 }
 
+/** 规范编码固定快照中的 JSON 值，保留原字符串和数组顺序。 */
+export function canonicalSnapshotValue(value:unknown):string {
+ return canonical(value,new Set())
+}
+
 /** 完整清单版本和索引外形先核；保留原字符串与数组顺序，不修复数据或归一引用身份。 */
 export function canonicalRevisionSnapshot(value:unknown):string {
  if(value===null||typeof value!=='object')throw Error('SNAPSHOT_MANIFEST_MODEL')
  const projectId=own(value,'projectId')
  if(typeof projectId!=='string')throw Error('SNAPSHOT_MANIFEST_PROJECT')
  readSnapshotNodeIndex(value,projectId)
- return canonical(value,new Set())
+ return canonicalSnapshotValue(value)
 }
 /** 规范文本在await前捕获；使用WebCrypto，不降级摘要也不改写原清单。 */
 export async function hashRevisionSnapshot(value:unknown):Promise<string> {

@@ -20,10 +20,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "CrudOperation",
       "enum": [
-        "delete",
         "retrieve",
         "create",
         "update",
+        "delete",
         "batchCreate",
         "batchUpdate",
         "batchDelete",

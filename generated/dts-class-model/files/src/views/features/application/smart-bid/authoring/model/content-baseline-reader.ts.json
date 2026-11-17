@@ -10,11 +10,43 @@
     "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-baseline-reader\n职责：从原基线视图核项目、阶段及固定事实成员，再读取原事实版本。\n边界：不冻结、不选择活动基线或最新事实，不证明当前用途许可，不写数据。\nAI用途：目标修订提供固定baselineId和stageRef，正文绑定沿原查询证明消费。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "ContentBaselineRequirementPinsBinding",
       "ContentBaselineFactSelection",
       "ContentBaselineFactBinding"
     ]
   },
   "$defs": {
+    "ContentBaselineRequirementPinsBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentBaselineRequirementPinsBinding",
+      "properties": {
+        "baselineDataViewKey": {
+          "type": "string"
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../services/smart-bid/content/references/baseline-requirement-members.ts.json#/$defs/BaselineRequirementPinIssue"
+          }
+        },
+        "requiresRevisionMatchCheck": {
+          "const": true
+        },
+        "requiresUseCheck": {
+          "const": true
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
     "ContentBaselineFactSelection": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -70,8 +102,57 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T16:32:24.147Z",
+  "generatedAt": "2026-11-17T18:10:13.774Z",
   "models": {
+    "ContentBaselineRequirementPinsBinding": {
+      "name": "ContentBaselineRequirementPinsBinding",
+      "jsdoc": "原基线挂接诊断；不是要求原记录或当前用途证明。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    baselineDataViewKey: string;\n    issues: readonly BaselineRequirementPinIssue[];\n    requiresRevisionMatchCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    baselineDataViewKey: string;\n    issues: readonly BaselineRequirementPinIssue[];\n    requiresRevisionMatchCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "baselineDataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "issues",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresRevisionMatchCheck",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresUseCheck",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
     "ContentBaselineFactSelection": {
       "name": "ContentBaselineFactSelection",
       "jsdoc": "阶段引用来自目标修订；不是权限或冻结证明。",

@@ -11,6 +11,22 @@ import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {hasCompleteSingleContentResult} from './content-node-version-reader'
 import {selectBaselineFactMember} from '@/services/smart-bid/content/references/baseline-fact-members'
 import {snapshotReferenceIdentity,snapshotReferenceRecord,visitSnapshotReferences} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import type {ContentStructureNode} from '@/services/smart-bid/content-tree-structure'
+import {assessBaselineRequirementPins,type BaselineRequirementPinIssue} from '@/services/smart-bid/content/references/baseline-requirement-members'
+
+/** 原基线挂接诊断；不是要求原记录或当前用途证明。 */
+export type ContentBaselineRequirementPinsBinding=Readonly<{
+ baselineDataViewKey:string;issues:readonly BaselineRequirementPinIssue[];requiresRevisionMatchCheck:true;requiresUseCheck:true;assertCurrent:()=>void
+}>
+/** 固定基线成员与调用方的章节挂接比较。 */
+export async function readContentBaselineRequirementPins(host:ContentRevisionReadHost,input:Readonly<{
+ baselineId:string;stageRef:unknown;pins:unknown;nodes:ReadonlyArray<Pick<ContentStructureNode,'nodeId'|'type'>>
+}>):Promise<ContentBaselineRequirementPinsBinding>{
+ const baseline=await readOriginalBaseline(host,input,'requirementVersions')
+ const issues=assessBaselineRequirementPins(baseline.row['requirementVersions'],input.pins,input.nodes)
+ baseline.assertCurrent()
+ return Object.freeze({baselineDataViewKey:baseline.key,issues,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent:baseline.assertCurrent})
+}
 
 /** 阶段引用来自目标修订；不是权限或冻结证明。 */
 export type ContentBaselineFactSelection=Readonly<{factId:string;version?:number;baselineId:string;stageRef:unknown}>
@@ -37,9 +53,9 @@ function valid(view:DataView):boolean {
   &&hasContentScopeCondition(view,'projectId',{Type:'GetInputParam',ParamName:'projectId'})
   &&hasContentScopeCondition(view,'id',{Type:'GetInputParam',ParamName:'baselineId'})
 }
-/** 原基线和事实证明组合；后续任何重查、编辑或宿主替换都会撤销该绑定。 */
-export async function readContentBaselineFact(host:ContentRevisionReadHost,input:ContentBaselineFactSelection):Promise<ContentBaselineFactBinding>{
- const {runtime,scenarioId,projectId}=host,{baselineId,factId}=input
+/** 两种成员消费共用原查询、阶段和字段证明，不复制查询/保存责任。 */
+async function readOriginalBaseline(host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown}>,memberField:'factVersions'|'requirementVersions'){
+ const {runtime,scenarioId,projectId}=host,{baselineId}=input
  host.assertCurrent()
  if(!snapshotReferenceIdentity(scenarioId)||!snapshotReferenceIdentity(projectId)||!snapshotReferenceIdentity(baselineId)
   ||input.stageRef===null||typeof input.stageRef!=='string'&&typeof input.stageRef!=='object')throw Error('CONTENT_BASELINE_IDENTITY_REQUIRED')
@@ -58,12 +74,18 @@ export async function readContentBaselineFact(host:ContentRevisionReadHost,input
  if(!hasCompleteSingleContentResult(view))throw Error('CONTENT_BASELINE_NOT_UNIQUE')
  const row=view.rows[0]
  if(row?.['id']!==baselineId||row['projectId']!==projectId)throw Error('CONTENT_BASELINE_UNAVAILABLE')
- const assertRow=view.captureReadRow(row,['id','projectId','stageRef','factVersions'])
+ const assertRow=view.captureReadRow(row,['id','projectId','stageRef',memberField])
  if(stage(row['stageRef'])!==expectedStage)throw Error('CONTENT_BASELINE_STAGE_MISMATCH')
- const member=selectBaselineFactMember(row['factVersions'],{factId,...(Object.hasOwn(input,'version')?{version:input.version}:{})})
- const assertBaseline=()=>{assertScope();assertResult();assertRow()}
- const fact=await readContentFactVersion({...host,assertCurrent:assertBaseline},member)
- const assertCurrent=()=>{assertBaseline();fact.assertCurrent()}
+ const assertCurrent=()=>{assertScope();assertResult();assertRow()}
  assertCurrent()
- return Object.freeze({baselineDataViewKey,factDataViewKey:fact.dataViewKey,baselineMembershipVerified:true,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent})
+ return {key:baselineDataViewKey,row,assertCurrent}
+}
+/** 原基线和事实证明组合；后续任何重查、编辑或宿主替换都会撤销该绑定。 */
+export async function readContentBaselineFact(host:ContentRevisionReadHost,input:ContentBaselineFactSelection):Promise<ContentBaselineFactBinding>{
+ const baseline=await readOriginalBaseline(host,input,'factVersions')
+ const member=selectBaselineFactMember(baseline.row['factVersions'],{factId:input.factId,...(Object.hasOwn(input,'version')?{version:input.version}:{})})
+ const fact=await readContentFactVersion({...host,assertCurrent:baseline.assertCurrent},member)
+ const assertCurrent=()=>{baseline.assertCurrent();fact.assertCurrent()}
+ assertCurrent()
+ return Object.freeze({baselineDataViewKey:baseline.key,factDataViewKey:fact.dataViewKey,baselineMembershipVerified:true,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent})
 }

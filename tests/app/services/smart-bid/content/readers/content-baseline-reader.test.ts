@@ -1,11 +1,11 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey} from '@spark-appworks/spark-data'
-import {readContentBaselineFact} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
+import {readContentBaselineFact,readContentBaselineRequirementPins} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,unknown>;count?:number;hidden?:string}={}){
- const baseline={id:'B',projectId:'P',stageRef:{decisionId:'STAGE'},factVersions:[{factId:'PRICE',version:2}],...options.baseline}
+ const baseline={id:'B',projectId:'P',stageRef:{decisionId:'STAGE'},factVersions:[{factId:'PRICE',version:2}],requirementVersions:[{lineageId:'L',version:'R2'}],...options.baseline}
  const fact={id:'FV2',projectId:'P',key:'PRICE',version:2,kind:'PRICE',value:'0.00',unit:'元',sourceIds:[],claimId:null,
   scopeRef:null,decisionRefs:[],dependencyRefs:[],promiseTerms:null,sourceRecord:null,status:'ADOPTED',...options.fact}
  const definitions=[{name:'Baseline',view:'selectedBaseline',record:baseline,params:{projectId:'projectId',id:'baselineId'}},
@@ -24,6 +24,26 @@ function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,u
  return {ds,host,queries,save,expire:()=>{active=false}}
 }
 const input={baselineId:'B',stageRef:{decisionId:'STAGE'},factId:'PRICE',version:2}
+const requirementInput={baselineId:'B',stageRef:{decisionId:'STAGE'},nodes:[{nodeId:'CH',type:'chapter'}],
+ pins:[{chapterId:'CH',lineageId:'L',version:'R1'},{chapterId:'CH',lineageId:'ABSENT',version:'R0'}]}
+it('reads fixed requirement members from the original baseline and keeps version issues as diagnostics',async()=>{
+ const f=fixture()
+ try{
+  const result=await readContentBaselineRequirementPins(f.host,requirementInput)
+  expect(result.issues).toEqual([{chapterId:'CH',lineageId:'L',version:'R1',reason:'VERSION_CHANGED',selectedVersion:'R2'},
+   {chapterId:'CH',lineageId:'ABSENT',version:'R0',reason:'NOT_IN_BASELINE'}])
+  expect(result.requiresRevisionMatchCheck).toBe(true);expect(result.requiresUseCheck).toBe(true)
+  expect(result.baselineDataViewKey).toBe('S@Baseline@selectedBaseline');result.assertCurrent()
+  expect(f.queries[0]).toHaveBeenCalledTimes(1);expect(f.queries[1]).not.toHaveBeenCalled();expect(f.save).not.toHaveBeenCalled()
+  await f.ds.getView('Baseline','selectedBaseline')!.refresh()
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+ }finally{f.ds.destroy()}
+})
+it.each([{hidden:'requirementVersions'},{baseline:{stageRef:{decisionId:'WRONG'}}},
+ {baseline:{requirementVersions:[{lineageId:'L',version:'R2'},{lineageId:'L',version:'R3'}]}}])('refuses unreadable, wrong-stage or ambiguous original requirement selection %j',async options=>{
+ const f=fixture(options)
+ try{await expect(readContentBaselineRequirementPins(f.host,requirementInput)).rejects.toThrow();expect(f.save).not.toHaveBeenCalled()}finally{f.ds.destroy()}
+})
 it('reads the original baseline and exact fact without creating a data copy or use permission',async()=>{
  const f=fixture()
  try{const result=await readContentBaselineFact(f.host,input)

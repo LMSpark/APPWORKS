@@ -126,7 +126,10 @@ export type ScriptContext = {
    *
    * 类型直接来自 page-config 的 runtime service contract，渲染层注入对应实现。
    */
-  $page: PageServiceCapability & Pick<PageRuntime, 'getDataSet' | 'resolveView'>
+  $page: PageServiceCapability & Pick<PageRuntime, 'getDataSet' | 'resolveView'> & {
+    /** 调用由当前渲染宿主显式提供的业务命令。宿主负责参数及权限校验。 */
+    invokeHostCommand(name: string, input?: unknown): Promise<unknown>
+  }
   /**
    * 脚本日志接口（已桥接到框架 Logger 传输链）。
    *

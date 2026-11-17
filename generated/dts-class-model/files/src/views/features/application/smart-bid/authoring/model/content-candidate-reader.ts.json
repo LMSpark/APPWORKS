@@ -11,6 +11,7 @@
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "ContentCandidateFactBinding",
+      "ContentCandidateRequirementPinsBinding",
       "ContentCandidateBinding"
     ]
   },
@@ -20,10 +21,6 @@
       "type": "object",
       "title": "ContentCandidateFactBinding",
       "properties": {
-        "assertCurrent": {
-          "type": "object",
-          "title": "() => void"
-        },
         "baselineDataViewKey": {
           "type": "string"
         },
@@ -36,16 +33,54 @@
         "requiresUseCheck": {
           "const": true
         },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
         "requiresRevisionMatchCheck": {
           "const": false
         }
       },
       "required": [
-        "assertCurrent",
         "baselineDataViewKey",
         "factDataViewKey",
         "baselineMembershipVerified",
         "requiresUseCheck",
+        "assertCurrent",
+        "requiresRevisionMatchCheck"
+      ],
+      "additionalProperties": false
+    },
+    "ContentCandidateRequirementPinsBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentCandidateRequirementPinsBinding",
+      "properties": {
+        "baselineDataViewKey": {
+          "type": "string"
+        },
+        "requiresUseCheck": {
+          "const": true
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../services/smart-bid/content/references/baseline-requirement-members.ts.json#/$defs/BaselineRequirementPinIssue"
+          }
+        },
+        "requiresRevisionMatchCheck": {
+          "const": false
+        }
+      },
+      "required": [
+        "baselineDataViewKey",
+        "requiresUseCheck",
+        "assertCurrent",
+        "issues",
         "requiresRevisionMatchCheck"
       ],
       "additionalProperties": false
@@ -139,6 +174,20 @@
           "type": "object",
           "title": "Promise<ContentCandidateFactBinding>"
         },
+        "method.readRequirementPinIssues.params": {
+          "type": "object",
+          "properties": {
+            "assertConsumer": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readRequirementPinIssues.return": {
+          "type": "object",
+          "title": "Promise<ContentCandidateRequirementPinsBinding>"
+        },
         "method.assertCurrent.params": {
           "type": "object",
           "properties": {},
@@ -148,7 +197,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T16:39:52.198Z",
+  "generatedAt": "2026-11-17T18:11:34.417Z",
   "models": {
     "ContentCandidateFactBinding": {
       "name": "ContentCandidateFactBinding",
@@ -179,16 +228,45 @@
         }
       }
     },
+    "ContentCandidateRequirementPinsBinding": {
+      "name": "ContentCandidateRequirementPinsBinding",
+      "jsdoc": "候选固定基线的挂接诊断；要求原记录及准用另核。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<ContentBaselineRequirementPinsBinding, 'requiresRevisionMatchCheck'> & Readonly<{\n    requiresRevisionMatchCheck: false;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<ContentBaselineRequirementPinsBinding, 'requiresRevisionMatchCheck'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    requiresRevisionMatchCheck: false;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requiresRevisionMatchCheck",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "ContentCandidateBinding": {
       "name": "ContentCandidateBinding",
       "jsdoc": "候选链保留各原视图证明；其它业务分组、当前依据、rootHash和采用必须继续核验。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readRequirementPinIssues: (assertConsumer?: () => void) => Promise<ContentCandidateRequirementPinsBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readRequirementPinIssues: (assertConsumer?: () => void) => Promise<ContentCandidateRequirementPinsBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -310,6 +388,42 @@
                   {
                     "type": "reference",
                     "name": "ContentCandidateFactBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readRequirementPinIssues",
+              "parameters": [
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentCandidateRequirementPinsBinding",
                     "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
                   }
                 ]

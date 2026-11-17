@@ -12,15 +12,18 @@ import {readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSe
 import {assertContentNodeVersionPayload,hasCompleteSingleContentResult} from './content-node-version-reader'
 import {readContentSnapshotIndex,type ContentSnapshotIndexBinding} from './content-snapshot-reader'
 import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './content-snapshot-nodes'
-import {readContentBaselineFact,type ContentBaselineFactBinding} from './content-baseline-reader'
+import {readContentBaselineFact,readContentBaselineRequirementPins,type ContentBaselineFactBinding,type ContentBaselineRequirementPinsBinding} from './content-baseline-reader'
 
 /** 原候选及同版清单已证明基线身份；冻结和用途许可仍不在读取层推断。 */
 export type ContentCandidateFactBinding=Omit<ContentBaselineFactBinding,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
+/** 候选固定基线的挂接诊断；要求原记录及准用另核。 */
+export type ContentCandidateRequirementPinsBinding=Omit<ContentBaselineRequirementPinsBinding,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
 
 /** 候选链保留各原视图证明；其它业务分组、当前依据、rootHash和采用必须继续核验。 */
 export type ContentCandidateBinding=Readonly<{
  runtime:ContentRevisionReadHost['runtime']
  readFixedFact:(selection:Readonly<{factId:string;version?:number}>,assertConsumer?:()=>void)=>Promise<ContentCandidateFactBinding>
+ readRequirementPinIssues:(assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementPinsBinding>
  revisions:ContentRevisionReadBinding;snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding
  revisionMatchVerified:true;templateBindingsVerified:true;requirementBindingsVerified:true;responseAnchorsVerified:true;responseTextVerified:true
  requiresResponseReferenceChecks:true;requiresResponsePayloadChecks:true;requiresTemplateResourceChecks:true;requiresRequirementVersionChecks:true;requiresBusinessSectionChecks:true;assertCurrent:()=>void
@@ -75,7 +78,18 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertFact()
   return Object.freeze({...fact,requiresRevisionMatchCheck:false,assertCurrent:assertFact})
  }
- return Object.freeze({runtime:host.runtime,readFixedFact,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+ const readRequirementPinIssues=async(assertConsumer?:()=>void):Promise<ContentCandidateRequirementPinsBinding>=>{
+  const assertContext=()=>{assertCurrent();assertConsumer?.()}
+  assertContext()
+  const baselineId=row['baselineId']
+  if(typeof baselineId!=='string')throw Error('CONTENT_CANDIDATE_BASELINE_REQUIRED')
+  const report=await readContentBaselineRequirementPins({...host,assertCurrent:assertContext},
+   {baselineId,stageRef:row['stageRef'],pins:requirementPins,nodes:payloads})
+  const assertReport=()=>{assertContext();report.assertCurrent()}
+  assertReport()
+  return Object.freeze({...report,requiresRevisionMatchCheck:false,assertCurrent:assertReport})
+ }
+ return Object.freeze({runtime:host.runtime,readFixedFact,readRequirementPinIssues,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,
   requiresBusinessSectionChecks:true,assertCurrent})

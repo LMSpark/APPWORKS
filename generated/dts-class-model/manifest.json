@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1306,
+  "scannedFileCount": 1307,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17485,6 +17485,22 @@
         ]
       }
     },
+    "src/services/smart-bid/content/references/baseline-requirement-members.ts": {
+      "file": "files/src/services/smart-bid/content/references/baseline-requirement-members.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/baseline-requirement-members",
+        "sourcePath": "src/services/smart-bid/content/references/baseline-requirement-members.ts",
+        "sourceFile": "src/services/smart-bid/content/references/baseline-requirement-members.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/baseline-requirement-members",
+        "jsdoc": "@module app:services/smart-bid/content/references/baseline-requirement-members\n职责：核固定基线要求选版与章节挂接的待处置差异。\n边界：不查询、不改旧挂接，不推断撤回或授予采用/交付许可。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "BaselineRequirementMember",
+          "BaselineRequirementPinIssue"
+        ]
+      }
+    },
     "src/services/smart-bid/content/references/content-reference-editor-schema.ts": {
       "file": "files/src/services/smart-bid/content/references/content-reference-editor-schema.ts.json",
       "module": {
@@ -18554,6 +18570,7 @@
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-baseline-reader\n职责：从原基线视图核项目、阶段及固定事实成员，再读取原事实版本。\n边界：不冻结、不选择活动基线或最新事实，不证明当前用途许可，不写数据。\nAI用途：目标修订提供固定baselineId和stageRef，正文绑定沿原查询证明消费。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
+          "ContentBaselineRequirementPinsBinding",
           "ContentBaselineFactSelection",
           "ContentBaselineFactBinding"
         ]
@@ -18571,6 +18588,7 @@
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "ContentCandidateFactBinding",
+          "ContentCandidateRequirementPinsBinding",
           "ContentCandidateBinding"
         ]
       }
@@ -22112,6 +22130,14 @@
       "sourcePath": "src/services/smart-bid/content/references/baseline-fact-members.ts",
       "file": "files/src/services/smart-bid/content/references/baseline-fact-members.ts.json"
     },
+    "BaselineRequirementMember": {
+      "sourcePath": "src/services/smart-bid/content/references/baseline-requirement-members.ts",
+      "file": "files/src/services/smart-bid/content/references/baseline-requirement-members.ts.json"
+    },
+    "BaselineRequirementPinIssue": {
+      "sourcePath": "src/services/smart-bid/content/references/baseline-requirement-members.ts",
+      "file": "files/src/services/smart-bid/content/references/baseline-requirement-members.ts.json"
+    },
     "BaseScopeContext": {
       "sourcePath": "packages/spark-component/src/components/containers/support/scope/scopeFactories.ts",
       "file": "files/packages/spark-component/src/components/containers/support/scope/scopeFactories.ts.json"
@@ -22708,11 +22734,19 @@
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts.json"
     },
+    "ContentBaselineRequirementPinsBinding": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts.json"
+    },
     "ContentCandidateBinding": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json"
     },
     "ContentCandidateFactBinding": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json"
+    },
+    "ContentCandidateRequirementPinsBinding": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json"
     },

@@ -2559,7 +2559,7 @@
     "packages/spark-component/src/page/context/buildPageContext.ts": {
       "sourceFile": "packages/spark-component/src/page/context/buildPageContext.ts",
       "shardFile": "files/packages/spark-component/src/page/context/buildPageContext.ts.json",
-      "sourceModifiedAt": "2026-10-13T21:23:19.773Z"
+      "sourceModifiedAt": "2026-11-17T18:10:43.441Z"
     },
     "packages/spark-component/src/page/context/page-component-registry.ts": {
       "sourceFile": "packages/spark-component/src/page/context/page-component-registry.ts",
@@ -2589,7 +2589,7 @@
     "packages/spark-component/src/page/renderer/SparkPageRenderer.vue": {
       "sourceFile": "packages/spark-component/src/page/renderer/SparkPageRenderer.vue",
       "shardFile": "files/packages/spark-component/src/page/renderer/SparkPageRenderer.vue.json",
-      "sourceModifiedAt": "2026-10-15T05:29:25.427Z"
+      "sourceModifiedAt": "2026-11-17T18:09:55.923Z"
     },
     "packages/spark-component/src/page/renderer/useCssScope.ts": {
       "sourceFile": "packages/spark-component/src/page/renderer/useCssScope.ts",
@@ -2654,7 +2654,7 @@
     "packages/spark-component/src/runtime/script-context-types.ts": {
       "sourceFile": "packages/spark-component/src/runtime/script-context-types.ts",
       "shardFile": "files/packages/spark-component/src/runtime/script-context-types.ts.json",
-      "sourceModifiedAt": "2026-10-13T21:23:19.774Z"
+      "sourceModifiedAt": "2026-11-17T18:09:37.376Z"
     },
     "packages/spark-data/src/core/data-field-member.ts": {
       "sourceFile": "packages/spark-data/src/core/data-field-member.ts",
@@ -5291,6 +5291,11 @@
       "shardFile": "files/src/services/smart-bid/content/references/baseline-fact-members.ts.json",
       "sourceModifiedAt": "2026-11-17T16:32:24.146Z"
     },
+    "src/services/smart-bid/content/references/baseline-requirement-members.ts": {
+      "sourceFile": "src/services/smart-bid/content/references/baseline-requirement-members.ts",
+      "shardFile": "files/src/services/smart-bid/content/references/baseline-requirement-members.ts.json",
+      "sourceModifiedAt": "2026-11-17T18:12:55.096Z"
+    },
     "src/services/smart-bid/content/references/content-reference-editor-schema.ts": {
       "sourceFile": "src/services/smart-bid/content/references/content-reference-editor-schema.ts",
       "shardFile": "files/src/services/smart-bid/content/references/content-reference-editor-schema.ts.json",
@@ -5664,12 +5669,12 @@
     "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T16:32:24.147Z"
+      "sourceModifiedAt": "2026-11-17T18:10:13.774Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T16:39:52.198Z"
+      "sourceModifiedAt": "2026-11-17T18:11:34.417Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts",

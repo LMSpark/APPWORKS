@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/baseline-requirement-members",
+    "sourcePath": "src/services/smart-bid/content/references/baseline-requirement-members.ts",
+    "sourceFile": "src/services/smart-bid/content/references/baseline-requirement-members.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/baseline-requirement-members",
+    "jsdoc": "@module app:services/smart-bid/content/references/baseline-requirement-members\n职责：核固定基线要求选版与章节挂接的待处置差异。\n边界：不查询、不改旧挂接，不推断撤回或授予采用/交付许可。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "BaselineRequirementMember",
+      "BaselineRequirementPinIssue"
+    ]
+  },
+  "$defs": {
+    "BaselineRequirementMember": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BaselineRequirementMember",
+      "properties": {
+        "lineageId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "lineageId",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "BaselineRequirementPinIssue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "BaselineRequirementPinIssue",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "chapterId": {
+              "type": "string"
+            },
+            "lineageId": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "reason": {
+              "const": "VERSION_CHANGED"
+            },
+            "selectedVersion": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "chapterId",
+            "lineageId",
+            "version",
+            "reason",
+            "selectedVersion"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "chapterId": {
+              "type": "string"
+            },
+            "lineageId": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "reason": {
+              "const": "NOT_IN_BASELINE"
+            }
+          },
+          "required": [
+            "chapterId",
+            "lineageId",
+            "version",
+            "reason"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-17T18:12:55.096Z",
+  "models": {
+    "BaselineRequirementMember": {
+      "name": "BaselineRequirementMember",
+      "jsdoc": "基线成员只引用谱系及精确版本字符串。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    lineageId: string;\n    version: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    lineageId: string;\n    version: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "lineageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BaselineRequirementPinIssue": {
+      "name": "BaselineRequirementPinIssue",
+      "jsdoc": "诊断只带引用，未入基线不等于已有撤回决定。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "RevisionRequirementPin & Readonly<{\n    reason: 'VERSION_CHANGED';\n    selectedVersion: string;\n} | {\n    reason: 'NOT_IN_BASELINE';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "RevisionRequirementPin",
+            "targetName": "RevisionRequirementPin"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    reason: 'VERSION_CHANGED';\n    selectedVersion: string;\n} | {\n    reason: 'NOT_IN_BASELINE';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "reason",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

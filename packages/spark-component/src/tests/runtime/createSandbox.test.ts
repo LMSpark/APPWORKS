@@ -30,6 +30,7 @@ function createMockPageService(): PageContext['$page'] {
   return {
     copyText: vi.fn(async () => {}),
     getDataSet: vi.fn(() => undefined), resolveView: vi.fn(() => undefined),
+    invokeHostCommand: vi.fn(async () => undefined),
     showDialog: vi.fn(async () => 'confirm' as const),
     selectEntities: vi.fn(async () => []),
     browseFiles: vi.fn(async () => []),

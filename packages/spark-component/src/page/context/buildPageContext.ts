@@ -35,6 +35,11 @@ function createScriptConsole(): Pick<Console, 'log' | 'info' | 'warn' | 'error' 
 type PageContextDeps = {
   /** 当前页面调用及其场景数据 owner。 */
   pageRuntime: PageRuntime
+  host?: Readonly<{
+    runtime: PageRuntime
+    assertCurrent(): void
+    invoke(name: string, input: unknown, signal: AbortSignal): unknown
+  }>
   signal: AbortSignal
     /** page Route 字段。 */
 pageRoute: PageRoute
@@ -108,6 +113,19 @@ export function buildPageContext(deps: PageContextDeps): PageContext {
       navigate(...args) { assertCurrent(); pageService.navigate(...args) },
       getDataSet(scenarioId: string) { assertCurrent(); return pageRuntime.getDataSet(scenarioId) },
       resolveView(binding: string) { assertCurrent(); return pageRuntime.resolveView(binding) },
+      async invokeHostCommand(name, input) {
+        const host = deps.host
+        const assertHost = () => {
+          assertCurrent()
+          if (host?.runtime !== pageRuntime) throw new Error('PAGE_HOST_COMMAND_UNAVAILABLE')
+          host.assertCurrent()
+          return host
+        }
+        const current = assertHost()
+        const result = await current.invoke(name, input, deps.signal)
+        assertHost()
+        return result
+      },
     },
     console: scriptConsole,
     SparkData,

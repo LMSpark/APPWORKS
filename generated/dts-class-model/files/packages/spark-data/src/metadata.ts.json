@@ -23,20 +23,6 @@
             "$ref": "types.ts.json#/$defs/DataColumn"
           }
         },
-        "views": {
-          "type": "object",
-          "properties": {
-            "default": {
-              "$ref": "types.ts.json#/$defs/ViewMetadata"
-            }
-          },
-          "required": [
-            "default"
-          ],
-          "additionalProperties": {
-            "$ref": "types.ts.json#/$defs/ViewMetadata"
-          }
-        },
         "resourceType": {
           "anyOf": [
             {
@@ -237,7 +223,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@162823": {
+                "__@iterator@24422": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -292,7 +278,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@162823"
+                "__@iterator@24422"
               ],
               "additionalProperties": false
             },
@@ -522,7 +508,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@162823": {
+                "__@iterator@24422": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -577,7 +563,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@162823"
+                "__@iterator@24422"
               ],
               "additionalProperties": false
             },
@@ -607,6 +593,20 @@
         },
         "crudConfig": {
           "$ref": "types.ts.json#/$defs/CrudOperationConfig"
+        },
+        "views": {
+          "type": "object",
+          "properties": {
+            "default": {
+              "$ref": "types.ts.json#/$defs/ViewMetadata"
+            }
+          },
+          "required": [
+            "default"
+          ],
+          "additionalProperties": {
+            "$ref": "types.ts.json#/$defs/ViewMetadata"
+          }
         },
         "tableName": {
           "type": "string"

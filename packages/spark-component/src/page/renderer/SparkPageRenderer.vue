@@ -55,6 +55,7 @@ type PageRuntimeErrorPayload = { phase: PageRuntimeErrorPhase; message: string; 
 /** 渲染器调用输入；运行实例与路由快照必须由宿主提供，回调用于装载和错误呈现。 */
 type Props = {
  pageRuntime: PageRuntime
+ host?: NonNullable<Parameters<typeof buildPageContext>[0]['host']>
  routeSnapshot: PageRoute
  enableCssScope?: boolean
  messageService?: PageServiceOverrides['messageService']
@@ -221,7 +222,16 @@ async function loadConfig():Promise<void> {
    ds.setAppServices(pageRuntimeServices);ds.setPageRoute(route)
   }
   sparkProvide(PAGE_RUNTIME,runtime)
-  pageContext=buildPageContext({pageRuntime:runtime,signal,pageRoute:route,pageContainer,pageService,getComponentRegistry:()=>componentRegistry,getModuleContext:()=>moduleContext?.getCurrent() ?? null})
+  const host = props.host ? toRaw(props.host) : undefined
+  pageContext=buildPageContext({pageRuntime:runtime,signal,pageRoute:route,pageContainer,pageService,
+   ...(host ? {host:{
+    runtime: toRaw(host.runtime),
+    assertCurrent() {
+     if (!current() || !props.host || toRaw(props.host) !== host) throw new Error('PAGE_RUNTIME_STALE: 页面宿主已失效')
+     host.assertCurrent()
+    },
+    invoke: (name,input,commandSignal) => host.invoke(name,input,commandSignal),
+   }} : {}),getComponentRegistry:()=>componentRegistry,getModuleContext:()=>moduleContext?.getCurrent() ?? null})
   setScopedCss(runtime.instanceId,definition.css ?? '')
   try {functions=compileFunctions(definition.script ?? '',pageContext)}
   catch(errorLike){report('script-compile',runtime,errorLike);throw errorLike}

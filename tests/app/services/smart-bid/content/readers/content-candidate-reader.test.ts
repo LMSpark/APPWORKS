@@ -2,6 +2,33 @@ import {expect,it} from 'vitest'
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
 
+it('checks original candidate pins against its fixed baseline and invalidates the report after snapshot refresh',async()=>{
+ const f=await fixture('valid-pin')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const report=await candidate.readRequirementPinIssues()
+  expect(report.issues).toEqual([{chapterId:'C',lineageId:'L',version:'R1',reason:'VERSION_CHANGED',selectedVersion:'R2'}])
+  expect(report.requiresRevisionMatchCheck).toBe(false);expect(report.requiresUseCheck).toBe(true)
+  report.assertCurrent()
+  expect(f.ds.getView('Baseline','selectedBaseline')!.queryContext).toMatchObject({projectId:'P',baselineId:'B'})
+  await f.ds.getView('RevisionSnapshot','selectedSnapshot')!.refresh()
+  expect(()=>report.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT');expect(f.save).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
+it('checks the consumer before dispatch and after an in-flight fixed requirement baseline read',async()=>{
+ const f=await fixture('valid-pin')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null}),before=f.query.mock.calls.length
+  await expect(candidate.readRequirementPinIssues(()=>{throw Error('CONSUMER_STALE')})).rejects.toThrow('CONSUMER_STALE')
+  expect(f.query).toHaveBeenCalledTimes(before)
+  let current=true
+  const execute=f.query.getMockImplementation()!
+  f.query.mockImplementationOnce(async view=>{const result=await execute(view);current=false;return result})
+  await expect(candidate.readRequirementPinIssues(()=>{if(!current)throw Error('CONSUMER_STALE')})).rejects.toThrow('CONSUMER_STALE')
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
+
 it('composes the original revision and verified empty snapshot without manufacturing node queries',async()=>{
  const f=await fixture(),result=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
  expect(result.revisions.candidateDataViewKey).toBe('S@ContentRevision@selectedCandidate')

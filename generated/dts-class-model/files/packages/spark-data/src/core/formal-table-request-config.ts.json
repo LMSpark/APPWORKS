@@ -29,13 +29,13 @@
       "type": "object",
       "title": "FormalTableRequestEndpoints",
       "properties": {
-        "delete": {
-          "$ref": "../types.ts.json#/$defs/HttpEndpoint"
-        },
         "create": {
           "$ref": "../types.ts.json#/$defs/HttpEndpoint"
         },
         "update": {
+          "$ref": "../types.ts.json#/$defs/HttpEndpoint"
+        },
+        "delete": {
           "$ref": "../types.ts.json#/$defs/HttpEndpoint"
         },
         "list": {
@@ -128,17 +128,17 @@
         "members": {
           "attributes": [
             {
-              "name": "delete",
-              "readable": true,
-              "writable": false
-            },
-            {
               "name": "create",
               "readable": true,
               "writable": false
             },
             {
               "name": "update",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "delete",
               "readable": true,
               "writable": false
             },

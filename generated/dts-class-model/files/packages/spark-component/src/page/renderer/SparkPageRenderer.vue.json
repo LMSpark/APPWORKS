@@ -57,6 +57,28 @@
         "pageRuntime": {
           "$ref": "../../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
         },
+        "host": {
+          "type": "object",
+          "properties": {
+            "runtime": {
+              "$ref": "../../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "invoke": {
+              "type": "object",
+              "title": "(name: string, input: unknown, signal: AbortSignal) => unknown"
+            }
+          },
+          "required": [
+            "runtime",
+            "assertCurrent",
+            "invoke"
+          ],
+          "additionalProperties": false
+        },
         "routeSnapshot": {
           "type": "object",
           "title": "PageRoute"
@@ -174,7 +196,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-15T05:29:25.427Z",
+  "generatedAt": "2026-11-17T18:09:55.923Z",
   "models": {
     "PageRuntimeErrorPhase": {
       "name": "PageRuntimeErrorPhase",
@@ -244,13 +266,18 @@
       "jsdoc": "渲染器调用输入；运行实例与路由快照必须由宿主提供，回调用于装载和错误呈现。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    pageRuntime: PageRuntime;\n    routeSnapshot: PageRoute;\n    enableCssScope?: boolean;\n    messageService?: PageServiceOverrides['messageService'];\n    confirmService?: PageServiceOverrides['confirmService'];\n    beforeLoad?: (pageId: string) => void | Promise<void>;\n    afterLoad?: (state: PageToolDefinition) => void | Promise<void>;\n    onError?: (error: Error) => void;\n    onRuntimeError?: (payload: PageRuntimeErrorPayload) => void;\n}",
+        "declarationTypeText": "{\n    pageRuntime: PageRuntime;\n    host?: NonNullable<Parameters<typeof buildPageContext>[0]['host']>;\n    routeSnapshot: PageRoute;\n    enableCssScope?: boolean;\n    messageService?: PageServiceOverrides['messageService'];\n    confirmService?: PageServiceOverrides['confirmService'];\n    beforeLoad?: (pageId: string) => void | Promise<void>;\n    afterLoad?: (state: PageToolDefinition) => void | Promise<void>;\n    onError?: (error: Error) => void;\n    onRuntimeError?: (payload: PageRuntimeErrorPayload) => void;\n}",
         "members": {
           "attributes": [
             {
               "name": "pageRuntime",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "host",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "routeSnapshot",

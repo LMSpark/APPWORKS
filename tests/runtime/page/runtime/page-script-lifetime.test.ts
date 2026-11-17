@@ -12,6 +12,25 @@ const service: PageServiceCapability = {
  selectEntities:async()=>[], browseFiles:async()=>[], uploadFiles:async()=>[], showLoading() {}, navigate() {},
 }
 describe('page script call lifetime', () => {
+ it('checks the authenticated host before dispatch and after asynchronous completion', async () => {
+  const runtime = new PageRuntime({pageId:'P',scenarioIds:[],loadScenario:async()=>{throw Error('unexpected')}})
+  const controller = new AbortController()
+  let authenticated = true
+  let finish: ((value: string) => void) | undefined
+  const invoke = vi.fn(() => new Promise<string>(resolve => {finish = resolve}))
+  const context = buildPageContext({pageRuntime:runtime,signal:controller.signal,
+   pageRoute:{path:'/',fullPath:'/',name:null,params:{},query:{},hash:''},pageContainer:ref(null),pageService:service,
+   host:{runtime,invoke,assertCurrent(){if (!authenticated) throw Error('HOST_STALE')}}})
+  try {
+   const pending = context.$page.invokeHostCommand('edit', {id:'draft'})
+   expect(invoke).toHaveBeenCalledWith('edit',{id:'draft'},controller.signal)
+   authenticated = false
+   finish?.('saved')
+   await expect(pending).rejects.toThrow('HOST_STALE')
+   await expect(context.$page.invokeHostCommand('edit')).rejects.toThrow('HOST_STALE')
+   expect(invoke).toHaveBeenCalledOnce()
+  } finally {runtime.dispose()}
+ })
  it('exposes data operations through the runtime DataSet instead of separate design storage methods', async () => {
   const tool = new PageTool({pageId: 'P'})
   tool.hydrateFileText('rule.json', '[]'); tool.hydrateFileText('script.js', ''); tool.hydrateFileText('style.css', ''); tool.markLoaded()
@@ -23,7 +42,8 @@ describe('page script call lifetime', () => {
    pageRoute: {path: '/', fullPath: '/', name: null, params: {}, query: {}, hash: ''}, pageContainer: ref(null), pageService: service})
   try {
    expect(context.$page.getDataSet('DESIGN')).toBe(dataSet)
-   expect(Object.keys(context.$page).sort()).toEqual([...Object.keys(service), 'getDataSet', 'resolveView'].sort())
+   expect(Object.keys(context.$page).sort()).toEqual([...Object.keys(service), 'getDataSet', 'resolveView', 'invokeHostCommand'].sort())
+   await expect(context.$page.invokeHostCommand('edit')).rejects.toThrow('PAGE_HOST_COMMAND_UNAVAILABLE')
    controller.abort()
    expect(() => context.$page.getDataSet('DESIGN')).toThrow('PAGE_RUNTIME_STALE')
   } finally { runtime.dispose() }

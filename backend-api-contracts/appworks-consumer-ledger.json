@@ -1423,13 +1423,13 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
-      "sourceLine": 216,
+      "sourceLine": 219,
       "scope": "app-composition"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
-      "sourceLine": 243,
+      "sourceLine": 245,
       "scope": "app-composition"
     },
     {

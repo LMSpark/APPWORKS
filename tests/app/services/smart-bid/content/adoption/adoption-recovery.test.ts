@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {inspectAdoptionRecovery} from '@/services/smart-bid/content/adoption-recovery'
+import {inspectAdoptionRecovery} from '@/services/smart-bid/content/adoption/adoption-recovery'
 
 const request={projectId:'P',candidateRevisionId:'T',requestKey:'K',requestDigest:'D',previewRef:'PV'}
 const committed={...request,effect:'COMMITTED' as const,resultEvidenceRef:'E'}

@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {compareAdoptionBasisChecks} from '@/services/smart-bid/content/adoption-basis-checks'
+import {compareAdoptionBasisChecks} from '@/services/smart-bid/content/adoption/adoption-basis-checks'
 
 const check={owner:'招标来源',scopeRef:{projectId:'P',stage:'投标'},scopeVersion:'002',recordRefs:['原件']}
 it('requires a new preview when the responsible scope changes despite an unchanged head',()=>{

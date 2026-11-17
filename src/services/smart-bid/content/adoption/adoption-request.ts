@@ -1,11 +1,11 @@
 /**
- * @module app:services/smart-bid/content/adoption-request
+ * @module app:services/smart-bid/content/adoption/adoption-request
  * 职责：捕获采用准备的原请求身份和确定 JSON 内容。
  * 边界：本地准备，原请求持久记录、范围复核及正式提交仍待权威服务。
  */
-import {canonicalSnapshotValue,hashCanonicalSnapshotText} from './revision-snapshot-hash'
-import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from './references/snapshot-reference-values'
-import {contentTextRangeConflict,readContentTextSpanReference,type ContentTextOwner,type ContentTextSpan} from './content-text-span'
+import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '../revision-snapshot-hash'
+import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from '../references/snapshot-reference-values'
+import {contentTextRangeConflict,readContentTextSpanReference,type ContentTextOwner,type ContentTextSpan} from '../content-text-span'
 
 const previewIdentityFields=['projectId','candidateRevisionId','expectedHead','previewRef'] as const
 const selectionFields=['nodeIds','responseRefs','selectedParts'] as const

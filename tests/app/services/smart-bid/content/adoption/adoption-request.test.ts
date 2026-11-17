@@ -1,6 +1,6 @@
 import {expect,it} from 'vitest'
-import {prepareAdoptionFromApprovedPreview,prepareAdoptionRequest} from '@/services/smart-bid/content/adoption-request'
-import {inspectAdoptionRecovery} from '@/services/smart-bid/content/adoption-recovery'
+import {prepareAdoptionFromApprovedPreview,prepareAdoptionRequest} from '@/services/smart-bid/content/adoption/adoption-request'
+import {inspectAdoptionRecovery} from '@/services/smart-bid/content/adoption/adoption-recovery'
 
 const command={projectId:'P',candidateRevisionId:'T',expectedHead:'H',previewRef:'PV',requestKey:'K',
  nodeIds:['N'],responseRefs:[],selectedParts:[],decisionTraceRef:'DEC',reason:'核准所选段落'}

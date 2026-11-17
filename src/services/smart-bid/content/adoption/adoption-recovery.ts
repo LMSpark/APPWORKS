@@ -1,9 +1,9 @@
 /**
- * @module app:services/smart-bid/content/adoption-recovery
+ * @module app:services/smart-bid/content/adoption/adoption-recovery
  * 职责：将原采用请求、结果观察及原责任域凭据配对。
  * 边界：纯核对，不查询、不写入。观察与凭据应由同一权威业务域读取。
  */
-import {snapshotReferenceIdentity} from './references/snapshot-reference-values'
+import {snapshotReferenceIdentity} from '../references/snapshot-reference-values'
 
 type AdoptionRequest=Readonly<{
  projectId:string;candidateRevisionId:string;requestKey:string;requestDigest:string;previewRef:string

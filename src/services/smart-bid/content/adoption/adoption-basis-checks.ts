@@ -1,10 +1,10 @@
 /**
- * @module app:services/smart-bid/content/adoption-basis-checks
+ * @module app:services/smart-bid/content/adoption/adoption-basis-checks
  * 职责：比较动作38预演固定的依据和原责任域的观察结果。
  * 边界：仅诊断待重核的依据；正式提交同次检查、授权时限和原子写入由权威执行端完成。
  */
-import {canonicalSnapshotValue} from './revision-snapshot-hash'
-import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from './references/snapshot-reference-values'
+import {canonicalSnapshotValue} from '../revision-snapshot-hash'
+import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from '../references/snapshot-reference-values'
 
 type BasisEntry=Readonly<{owner:string;scopeRef:unknown;scopeVersion:string;records:readonly string[]}>
 type BasisIssue=Readonly<{

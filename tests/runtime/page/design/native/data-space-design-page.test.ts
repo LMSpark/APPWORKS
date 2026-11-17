@@ -970,8 +970,8 @@ describe('layout rebuild entry', () => {
     expect(f.fileWrites).toHaveLength(0); expect(writes(f)).toHaveLength(0)
   })
 
-  it('binds the named view scope to the standard condition editor', async () => {
-    fixture()
+  it('saves and reopens a named view scope through the standard condition editor', async () => {
+    const f = fixture()
     const {wrapper} = await page(); await select(wrapper, 'shared')
     const editor = wrapper.getComponent(DataSpaceViewEditor)
     await openViewProperties(editor)
@@ -980,6 +980,16 @@ describe('layout rebuild entry', () => {
     expect(scope.props('field')).toBe('scopeFilter')
     expect(scope.props('dataViewKey')).toBe('META@DataViewDefinition@default')
     expect(scope.props('columns')?.map(column => column.name)).toContain('rowid')
+    const tree = {logic: 'and', filters: [{field: 'rowid', operator: 'eq', value: 'scope-a'}]}
+    scope.getComponent(FilterExpressionEditor).vm.$emit('update:modelValue', tree); await flushPromises()
+    await editor.get('[data-action="finish-view-property"]').trigger('click'); await flushPromises()
+    await editor.get('[data-action="save-views"]').trigger('click'); await flushPromises()
+    expect(f.fileWrites).toHaveLength(1)
+    expect(writes(f)).toHaveLength(0)
+    const reopened = await f.open('A')
+    expect(reopened.definitionDataSet?.getView('OrdersAlias', 'shared')?.scopeFilter).toEqual(tree)
+    expect(reopened.definitionDataSet?.getView('OrdersAlias', 'shared')?.filterExpression).toBeUndefined()
+    expect(reopened.definitionDataSet?.getView('OrdersAlias', 'default')?.scopeFilter).toBeUndefined()
   })
 
   it('selects a direct source parameter in the view filter and executes it after save and reopen', async () => {

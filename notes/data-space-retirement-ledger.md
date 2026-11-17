@@ -10960,3 +10960,5 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - 常驻范围保存重开补验 49e9985e2：标准编辑器确认过滤树，原定义 DataView 保存一次共享场景文件，无数据库写入；冷打开同名视图读回 scopeFilter，普通 filterExpression 和默认视图未受影响。定向用例及专项 lint 通过；实服配置仍单独核。
 - 2026-11-18 selectedRequirement实服闭合：原Cua原生点击、ctrl+a、typeText、Tab成功提交JSON树键和值，前Playwright fill接纳失败不作平台缺陷。原草稿完成三AND常驻eq GetInputParam(projectId/lineageId/version)，Table/paged/完整集合false/过滤自动查询false/cache none/staged；一次保存获已保存并回读，关模型重开同视图核合同一致。截图smart-bid-requirement-view-readback-20261118.png。无业务行查询或用途/采用验收。
 - 49e9985e2 根 typecheck 退出 0。selectedRequirement 截图可见 projectId、lineageId、version 三个等值参数条件；这次实服回读来自原 JSON 树。9bba87533 的标准条件编辑入口仍须独立实服验证。
+- 包07事件锚点续验环境：已有前端入口 127.0.0.1:5273 本轮浏览器连接被拒，系统核对无该端口监听且原前端 PID 已消失。按既定约束未重启服务，事件锚点独立实服覆盖待可用入口；此前来源行跨应用成功证据继续有效。根双 worker 及设计器专项原测试进程仍运行。
+- 5d5fbb0fa 设计器全文件回归：tests/runtime/page/design/native/data-space-design-page.test.ts 单 worker 379 项通过，含常驻范围写入、保存重开，耗时 380.05 秒。此结果是设计器夹具全文件，实服入口停止监听仍单独登记。

@@ -35,7 +35,8 @@ AI用途：正文宿主读取候选后传入同次绑定；采用须另完成完
         <RendererButton v-for="action in textActions" :key="action.label" :data-view-key="state.nodesKey" :label="action.label"
           :disabled="textPreviewLoading" :on-click="action.run" />
         <RendererSection v-if="textPreviewState" title="句段预演" :status="textPreviewState.status ?? ''" :error="textPreviewState.error ?? ''">
-          <RendererSection v-if="textPreviewState.after !== undefined" title="改后正文" :status="textPreviewState.after" />
+          <RendererSection v-if="textPreviewState.before !== undefined" class="preview-original-text" title="改前正文" :status="textPreviewState.before" />
+          <RendererSection v-if="textPreviewState.after !== undefined" class="preview-original-text" title="改后正文" :status="textPreviewState.after" />
         </RendererSection>
       </RendererSection>
     </RendererSection>
@@ -103,11 +104,11 @@ type TextSide='candidate'|'head'
 type TextOperation='replace'|'insert'|'delete'
 type NodeTextTarget={key:string;rowId:string|number;fields:ReturnType<typeof nodeTextFields>}
 type NodeTextState={candidate?:NodeTextTarget;head?:NodeTextTarget;error?:string;assertCurrent:()=>void;
- previewChange?:(operation:TextOperation,target:TextOffsets,source?:TextOffsets)=>Promise<Readonly<{after:string;scopeCheckPassed:boolean;assertCurrent:()=>void}>>}
+ previewChange?:(operation:TextOperation,target:TextOffsets,source?:TextOffsets)=>Promise<Readonly<{before:string;after:string;scopeCheckPassed:boolean;assertCurrent:()=>void}>>}
 const nodeTextLoading=ref(false),nodeText=shallowRef<NodeTextState>()
 const textSelections=shallowRef<Partial<Record<TextSide,TextOffsets>>>({})
 const textPreviewLoading=ref(false)
-const textPreview=shallowRef<{after?:string;status?:string;error?:string;assertCurrent:()=>void}>()
+const textPreview=shallowRef<{before?:string;after?:string;status?:string;error?:string;assertCurrent:()=>void}>()
 const nodeTextState=computed(()=>{
  revision.value
  try{nodeText.value?.assertCurrent();return nodeText.value}catch{return undefined}
@@ -129,7 +130,8 @@ const textActions=computed(()=>{
   try{
    const result=await preview(operation,target,source)
    if(nodeTextState.value!==context||textSelections.value.candidate!==source||textSelections.value.head!==target)return
-   textPreview.value={after:result.after,status:result.scopeCheckPassed?'待复核改后句意及采用依据':'所选位置超出候选范围',assertCurrent:result.assertCurrent}
+   textPreview.value={before:result.before,after:result.after,
+    status:result.scopeCheckPassed?'待复核改后句意及采用依据':'所选位置超出候选范围',assertCurrent:result.assertCurrent}
   }catch(cause){
    if(nodeTextState.value===context&&textSelections.value.candidate===source&&textSelections.value.head===target)
     textPreview.value={error:cause instanceof Error?cause.message:String(cause),assertCurrent:context.assertCurrent}
@@ -308,9 +310,9 @@ const nodeTextAction=computed(()=>{
      if(operation!=='delete'&&!source)throw Error('请选择候选稿片段')
      const result=await versions.previewNodeTextChange(operation==='delete'?{operation,target:targetCoordinates}:
       {operation,target:targetCoordinates,source:{nodeId,path:'/value',...source!}})
-     const after=result.textPreview.patches[0]?.after
-     if(after===undefined)throw Error('没有可显示的句段预演')
-     return {after,scopeCheckPassed:result.nodeScopePreview.scopeCheckPassed,assertCurrent:result.assertCurrent}
+     const patch=result.textPreview.patches[0]
+     if(!patch)throw Error('没有可显示的句段预演')
+     return {before:patch.before,after:patch.after,scopeCheckPassed:result.nodeScopePreview.scopeCheckPassed,assertCurrent:result.assertCurrent}
     },
    }
   }catch(cause){
@@ -352,3 +354,10 @@ watch(()=>[props.runtime,props.binding] as const,()=>{
 },{immediate:true})
 onBeforeUnmount(()=>{active=false;unsubscribe?.();sparkRemove(PAGE_RUNTIME)})
 </script>
+
+<style scoped>
+.preview-original-text :deep(.renderer-section-status) {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+</style>

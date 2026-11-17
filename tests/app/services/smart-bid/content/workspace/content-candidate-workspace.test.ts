@@ -215,6 +215,7 @@ it('opens matching node text from both fixed views and closes it when the head v
  const replace=f.wrapper.findAll('button').find(item=>item.text()==='预演替换选中片段')
  expect(replace).toBeDefined();await replace!.trigger('click')
  await vi.waitFor(()=>expect(f.wrapper.text()).toContain('改后正文'))
+ expect(f.wrapper.text()).toContain('改前正文标题\n{{册名}}')
  expect(f.wrapper.text()).toContain('标\n{{册名}}')
  const remove=f.wrapper.findAll('button').find(item=>item.text()==='预演删除当前稿选区')!
  await remove.trigger('click')

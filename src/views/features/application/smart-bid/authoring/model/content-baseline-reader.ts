@@ -82,6 +82,12 @@ async function readOriginalBaseline(host:ContentRevisionReadHost,input:Readonly<
  assertCurrent()
  return {key:baselineDataViewKey,view,row,assertCurrent}
 }
+
+/** 为固定修订根摘要提供原基线事实成员绑定。 */
+export async function readContentBaselineFactIndex(host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown}>){
+ const baseline=await readOriginalBaseline(host,input,'factVersions')
+ return Object.freeze({dataViewKey:baseline.key,assertCurrent:baseline.assertCurrent})
+}
 /** 证明原基线固定了这条完整来源引用，原核定记录内容和准用另核。 */
 export async function readContentBaselineTenderRecord(
  host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown}>,selection:unknown,

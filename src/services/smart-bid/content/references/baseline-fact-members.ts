@@ -8,10 +8,9 @@ import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReference
 
 /** 项目及阶段归基线原记录；成员只引用事实键和显式原版本。 */
 export type BaselineFactMember=Readonly<{factId:string;version:number}>
-/** 整组先核唯一性，再确认目标存在；不以同额、状态或列表顺序代替选版。 */
-export function selectBaselineFactMember(members:unknown,selection:Readonly<{factId:string;version?:number}>):BaselineFactMember {
- const validVersion=(value:unknown):value is number=>typeof value==='number'&&Number.isSafeInteger(value)&&value>=0
- if(!snapshotReferenceIdentity(selection.factId)||Object.hasOwn(selection,'version')&&!validVersion(selection.version))throw Error('BASELINE_FACT_SELECTION')
+function validVersion(value:unknown):value is number{return typeof value==='number'&&Number.isSafeInteger(value)&&value>=0}
+/** 读取完整固定版本索引，缺失或重复成员均拒绝。 */
+export function readBaselineFactMembers(members:unknown):ReadonlyMap<string,number>{
  const versions=new Map<string,number>()
  visitSnapshotReferences(members,item=>{
   const row=snapshotReferenceFields(item,['factId','version'],'BASELINE_FACT_MEMBER_MODEL')
@@ -20,6 +19,12 @@ export function selectBaselineFactMember(members:unknown,selection:Readonly<{fac
   if(versions.has(factId))throw Error('BASELINE_FACT_MEMBER_DUPLICATE')
   versions.set(factId,version)
  },'BASELINE_FACT_MEMBER_MODEL')
+ return versions
+}
+/** 整组先核唯一性，再确认目标存在；不以同额、状态或列表顺序代替选版。 */
+export function selectBaselineFactMember(members:unknown,selection:Readonly<{factId:string;version?:number}>):BaselineFactMember {
+ if(!snapshotReferenceIdentity(selection.factId)||Object.hasOwn(selection,'version')&&!validVersion(selection.version))throw Error('BASELINE_FACT_SELECTION')
+ const versions=readBaselineFactMembers(members)
  const version=versions.get(selection.factId)
  if(version===undefined||Object.hasOwn(selection,'version')&&version!==selection.version)throw Error('BASELINE_FACT_MEMBER_MISSING')
  return Object.freeze({factId:selection.factId,version})

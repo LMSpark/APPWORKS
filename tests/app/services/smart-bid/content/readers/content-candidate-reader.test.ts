@@ -1,5 +1,6 @@
 import {expect,it} from 'vitest'
 import {createHash} from 'node:crypto'
+import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/content-root-hash'
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
 
@@ -241,5 +242,19 @@ it('previews selected text against the verified current head without modifying i
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   await expect(versions.previewNodeTextChange({operation:'delete',target:{nodeId:'H',path:'/value',start:0,end:1}}))
    .rejects.toThrow('DATA_VIEW_READ_RESULT')
+ }finally{f.ds.destroy()}
+})
+it('checks the candidate root against its original baseline without substituting current data',async()=>{
+ const f=await fixture('populated',{computeRoot:true})
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const reads=f.query.mock.calls.length
+  await expect(candidate.verifyRootHash('unknown')).rejects.toThrow('CONTENT_ROOT_HASH_CONTRACT_REQUIRED')
+  expect(f.query).toHaveBeenCalledTimes(reads)
+  const verified=await candidate.verifyRootHash(CONTENT_ROOT_HASH_CONTRACT)
+  expect(verified.rootHashVerified).toBe(true)
+  expect(f.ds.getView('Baseline','selectedBaseline')!.queryContext).toMatchObject({projectId:'P',baselineId:'B'})
+  await f.ds.getView('Baseline','selectedBaseline')!.refresh()
+  expect(()=>verified.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
  }finally{f.ds.destroy()}
 })

@@ -2,10 +2,11 @@ import {vi} from 'vitest'
 import {DataSet,parseDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {hashContentNode} from '@/services/smart-bid/content-node-hash'
+import {hashRevisionContentRoot} from '@/services/smart-bid/content/hashes/revision-content-root'
 import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
-export async function createCandidateReadFixture(mode='normal',options:{tenderConfirmStatus?:'CONFIRMED'|'REJECTED';threeVersions?:boolean;headingText?:string}={}){
+export async function createCandidateReadFixture(mode='normal',options:{tenderConfirmStatus?:'CONFIRMED'|'REJECTED';threeVersions?:boolean;headingText?:string;computeRoot?:boolean}={}){
  const param=(name:string)=>({Type:'GetInputParam',ParamName:name})
  const eq=(field:string,name=field)=>({field,operator:'eq' as const,value:param(name)})
  const payloads=[{nodeId:'D',parentId:'P',index:0,type:'document',class:[],value:'',data:{}},
@@ -27,6 +28,8 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
    mode==='bad-response-text'?[{id:'I',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',statement:'报价{{金额}}元',data:{}}]:[],
   qualificationReviews:[],sensitiveRefs:[]}
  const snapshotHash=await hashRevisionSnapshot(manifest)
+ const rootHash=options.computeRoot?await hashRevisionContentRoot({manifest,
+  baseline:{id:'B',projectId:'P',stageRef:manifest.stageRef,factVersions:[{factId:'PRICE',version:2}]}}):null
  const tenderReference={runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}
  const requirement={id:'REQ',projectId:'P',lineageId:'L',version:'R2',kind:'FORMAT',text:'原文',score:null,sourceSpan:null,
   supportingSpans:[],sourceRecord:mode==='fixed-pin'?tenderReference:null,parseQuality:'TEXT_ONLY',checks:[],constraint:null,applicability:{},status:'ADOPTED'}
@@ -46,7 +49,7 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   ContentProject:{modelBinding:{modelId:'PM',modelName:'ContentProject'},columns:[{name:'projectId',type:'string',isPrimaryKey:true},{name:'headRevisionId',type:'string'}],
    views:{default:{},selectedProject:{scopeFilter:eq('projectId')}}},
   ContentRevision:{modelBinding:{modelId:'RM',modelName:'ContentRevision'},columns:[{name:'id',type:'string',isPrimaryKey:true},
-   ...['projectId','status','snapshotHash','baselineId','basisRevisionId'].map(name=>({name,type:'string'})),{name:'stageRef',type:'object'},{name:'templateRefs',type:'object'},{name:'targetScope',type:'object'}],
+   ...['projectId','status','snapshotHash','rootHash','baselineId','basisRevisionId'].map(name=>({name,type:'string'})),{name:'stageRef',type:'object'},{name:'templateRefs',type:'object'},{name:'targetScope',type:'object'}],
    views:{default:{},selectedCandidate:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','candidateRevisionId'),{field:'status',operator:'eq',value:'CANDIDATE'}]}},
     selectedBasis:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','basisRevisionId'),{field:'status',operator:'eq',value:'ADOPTED'}]}},
     selectedHead:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','expectedHead'),{field:'status',operator:'eq',value:'ADOPTED'}]}}}},
@@ -58,7 +61,7 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
     ...Object.fromEntries(['snapshotMembers','basisSnapshotMembers','headSnapshotMembers'].map(key=>[key,{commitMode:'staged',queryConfig:{allPages:true,pagination:'paged'},
      scopeFilter:{logic:'and',filters:[eq('projectId'),{field:'nodeHash',operator:'in',value:param('nodeHashes')}]}}]))}}
  }})
- const candidate={id:'C',projectId:'P',status:'CANDIDATE',snapshotHash,basisRevisionId:options.threeVersions?'V1':null,baselineId:mode==='baseline'?'OTHER':'B',
+ const candidate={id:'C',projectId:'P',status:'CANDIDATE',snapshotHash,rootHash,basisRevisionId:options.threeVersions?'V1':null,baselineId:mode==='baseline'?'OTHER':'B',
   targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]},
   stageRef:mode==='stage'?{id:'ST',version:'2'}:{version:'1',id:'ST'},
   templateRefs:mode==='template'?[{documentId:'D',key:'T',version:'2',hash:'a'.repeat(64)}]:templateRefs}

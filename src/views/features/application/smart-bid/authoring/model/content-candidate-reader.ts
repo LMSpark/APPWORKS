@@ -11,6 +11,7 @@ import {hasCompleteSingleContentResult,readContentRevisionBasis,readContentRevis
 import {assertContentNodeVersionPayload} from './content-node-version-reader'
 import {assertRevisionManifest,readContentSnapshotIndex,type ContentSnapshotIndexBinding,type ContentSnapshotRole} from './content-snapshot-reader'
 import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './content-snapshot-nodes'
+import {verifyReadableRevisionRoot} from './hashes/content-revision-root-reader'
 import {readContentBaselineFact,readContentBaselineRequirement,readContentBaselineRequirementPins,readContentBaselineTenderRecord,type ContentBaselineFactBinding,type ContentBaselineRequirementPinsBinding} from './content-baseline-reader'
 import type {RevisionRequirementPin} from '@/services/smart-bid/content/references/revision-requirement-pins'
 import {snapshotReferenceFields,snapshotReferenceRecord,visitSnapshotReferences} from '@/services/smart-bid/content/references/snapshot-reference-values'
@@ -51,6 +52,7 @@ export type ContentCandidateBinding=Readonly<{
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
  readPreviewVersions:(assertConsumer?:()=>void)=>Promise<PreviewVersionSession>
+ verifyRootHash:(contract:string)=>ReturnType<typeof verifyReadableRevisionRoot>
  previewScope:(input:PreviewScopeInput,assertConsumer?:()=>void)=>Promise<CandidateScopePreview>
  previewText:(changes:unknown,assertConsumer?:()=>void)=>Promise<TextPreviewBinding>
  captureNodeTextSelection:(input:CandidateNodeSelection,assertConsumer?:()=>void)=>Promise<TextSelectionBinding>
@@ -252,6 +254,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   return captureNodeSelection(capturedInput,{snapshot,nodes},()=>{assertCurrent();assertConsumer?.()})
  }
  return Object.freeze({runtime:host.runtime,readFixedFact,readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+  verifyRootHash:(contract:string)=>verifyReadableRevisionRoot({host:{...host,assertCurrent},revisionDataViewKey:revisions.candidateDataViewKey,snapshot,contract}),
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,
   requiresBusinessSectionChecks:true,assertCurrent})

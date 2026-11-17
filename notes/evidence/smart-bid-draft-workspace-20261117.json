@@ -42,7 +42,7 @@
     "业务导航/页面宿主入口未挂载此组件",
     "可信当前会话输入、项目/作者常驻查询范围和真实目标切换/离页保护仍由实际宿主接通验收",
     "远端草稿命令的CAS、原请求同次留存与恢复、正式采用仍待权威能力",
-    "检查点精确暂存、提交推送及独立远端核对正在办理"
+    "ContentProject正式模型/视图及真实业务入口仍待接通，完整I0–I7目标继续"
   ],
   "finalGate": {
     "session": 12632,
@@ -118,7 +118,7 @@
     "fullGate": "final4 currently live; do not infer passed from historical final3 logs"
   },
   "finalIntegratedVerification": {
-    "recordedAt": "2026-11-17T05:30:33.836123+00:00",
+    "recordedAt": "2026-11-17T13:30:33.836123+08:00",
     "pipeline": "cache/smart-bid-draft-workspace-final4-gates.ps1",
     "formalClassModelAndLowcodeGeneration": "passed",
     "verify": "passed",
@@ -177,5 +177,18 @@
     "rootAndPackageCountsAreNotAdded": true,
     "uiSmoke": false,
     "fullMigrationComplete": false
+  },
+  "checkpoint": {
+    "codeCommit": "cf5b4b116f204dd5dd8f63e3b9c688dd9ed229f5",
+    "remoteReceiptCommit": "89477e39b06c7a8de70a091c1d803485a8be1f46",
+    "branch": "codex/spark-data-s1-command-safety",
+    "remote": "origin",
+    "remoteIndependentlyVerified": true,
+    "integration": "shared owner unified checkpoint, 37 files including all 17 owned paths; this task did not repeat or rewrite that commit",
+    "ownedPathsIncluded": 17,
+    "sensitiveMatches": 0,
+    "referencedClassModelShards": 1267,
+    "missingShards": 0,
+    "laterChanges": "Uncommitted workflow graph editor/save tests and generated products are later work, not covered by the checkpoint claim"
   }
 }

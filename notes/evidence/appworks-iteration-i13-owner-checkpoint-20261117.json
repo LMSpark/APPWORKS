@@ -74,5 +74,9 @@
     "browser UI smoke unavailable",
     "full 20-package migration and four-file business acceptance"
   ],
-  "credentialsPersisted": false
+  "credentialsPersisted": false,
+  "codeCommit": "b1acaa644366ecce5dea8f9ede125daefa524fd0",
+  "remoteBranch": "codex/spark-data-s1-command-safety",
+  "codeCommitRemoteVerified": true,
+  "remoteVerifiedAt": "2026-11-17T00:02:48.636214+00:00"
 }

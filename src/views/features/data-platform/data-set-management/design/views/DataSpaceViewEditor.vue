@@ -161,11 +161,11 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
       </RendererSection>
       <div v-if="activeProperty" class="complex-editor" :data-complex-property="activeProperty">
         <h3>{{ label(activeProperty) }}</h3>
-        <template v-if="activeProperty === 'filterExpression'">
+        <template v-if="activeProperty === 'filterExpression' || activeProperty === 'scopeFilter'">
           <p v-if="columnState.error" :role="columnState.pending ? 'status' : 'alert'">{{ columnState.error }}</p>
           <p v-if="parameterCatalog.warning" role="status">{{ parameterCatalog.warning }}</p>
           <p v-if="functionCatalogError" role="alert">{{ functionCatalogError }}</p>
-          <RendererFilterExpression v-if="!columnState.error" :data-view-key="definitionViewKey" data-member="currentRow" field="filterExpression"
+          <RendererFilterExpression v-if="!columnState.error" :key="activeProperty" :data-view-key="definitionViewKey" data-member="currentRow" :field="activeProperty"
             :columns="columnState.columns" :disabled="blocked || propertyPending" display="inline" :function-context="filterFunctionContext"
             :on-editing-change="filterEditingChanged" />
         </template>
@@ -584,7 +584,7 @@ async function initializeQueryOutput(): Promise<void> {
 }
 async function editProperty(name: string): Promise<void> {
   if (blocked.value || activeProperty.value || filterPending.value || propertyPending.value) return
-  if (!['sortExpression', 'filterExpression', 'queryConfig', 'queryContext'].includes(name)) {activeProperty.value = name; return}
+  if (!['sortExpression', 'filterExpression', 'scopeFilter', 'queryConfig', 'queryContext'].includes(name)) {activeProperty.value = name; return}
   const open = () => {
     if (!active) return
     if (name === 'sortExpression') sortEditorMode.value = 'rows'

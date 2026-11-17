@@ -970,6 +970,18 @@ describe('layout rebuild entry', () => {
     expect(f.fileWrites).toHaveLength(0); expect(writes(f)).toHaveLength(0)
   })
 
+  it('binds the named view scope to the standard condition editor', async () => {
+    fixture()
+    const {wrapper} = await page(); await select(wrapper, 'shared')
+    const editor = wrapper.getComponent(DataSpaceViewEditor)
+    await openViewProperties(editor)
+    await editor.get('[data-edit-property="scopeFilter"]').trigger('click'); await flushPromises()
+    const scope = editor.get('[data-complex-property="scopeFilter"]').getComponent(RendererFilterExpression)
+    expect(scope.props('field')).toBe('scopeFilter')
+    expect(scope.props('dataViewKey')).toBe('META@DataViewDefinition@default')
+    expect(scope.props('columns')?.map(column => column.name)).toContain('rowid')
+  })
+
   it('selects a direct source parameter in the view filter and executes it after save and reopen', async () => {
     const f = fixture({sourceInput: true, businessRows: {Orders: [{rowid: 'C1'}, {rowid: 'C2'}]}})
     f.stored.set('A', JSON.stringify({scenarioId: 'A', tables: {OrdersAlias: {modelBinding: {modelId: 'M1', modelName: 'Orders'}, views: {

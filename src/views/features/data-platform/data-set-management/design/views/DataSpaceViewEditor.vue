@@ -396,7 +396,7 @@ const properties = computed(() => {props.revision; tick.value
     try {return view.value?.fieldAccess(view.value.currentRow, column.name).read === 'visible'} catch {return false}
   })
 })
-const requestProperties = new Set(['fieldProjection', 'queryContext', 'queryConfig', 'filterExpression', 'sortExpression', 'page', 'pageSize', 'autoLoad'])
+const requestProperties = new Set(['fieldProjection', 'queryContext', 'queryConfig', 'scopeFilter', 'filterExpression', 'sortExpression', 'page', 'pageSize', 'autoLoad'])
 const propertyGroups = computed(() => [
   {title: '请求设置', request: true, properties: properties.value.filter(column => requestProperties.has(column.name))},
   {title: '结果组织与编辑', request: false, properties: properties.value.filter(column => !requestProperties.has(column.name))},

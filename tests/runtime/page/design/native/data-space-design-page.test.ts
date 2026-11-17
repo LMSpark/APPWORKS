@@ -974,7 +974,7 @@ describe('layout rebuild entry', () => {
     const f = fixture()
     const {wrapper} = await page(); await select(wrapper, 'shared')
     const editor = wrapper.getComponent(DataSpaceViewEditor)
-    await openViewProperties(editor)
+    await openViewProperties(editor, '其他请求配置与完整编辑')
     await editor.get('[data-edit-property="scopeFilter"]').trigger('click'); await flushPromises()
     const scope = editor.get('[data-complex-property="scopeFilter"]').getComponent(RendererFilterExpression)
     expect(scope.props('field')).toBe('scopeFilter')

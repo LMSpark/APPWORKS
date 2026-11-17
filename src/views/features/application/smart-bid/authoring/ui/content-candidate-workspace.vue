@@ -31,6 +31,7 @@ import {validateContentReference} from '@/services/smart-bid/content-reference'
 const props=defineProps<{runtime:PageRuntime;binding:ContentCandidateBinding}>()
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'content-candidate-workspace'})
 const revision=ref(0)
+let nodeSelectionVersion=0
 const factLoading=ref(false)
 const factFailure=shallowRef<{message:string;assertSelected:()=>void}>()
 const factError=computed(()=>{
@@ -62,8 +63,9 @@ const factReferences=computed(()=>{
  if(!view||!row)return []
  if(!isRecord(payload)||!isRecord(payload['data']))return []
  const assertRow=view.captureReadRow(row,['id','nodeId','payload'])
+ const selectionVersion=nodeSelectionVersion
  const assertOrigin=()=>{
-  if(!active||toRaw(props.runtime)!==runtime||toRaw(props.binding)!==binding||view.currentRow!==row)throw Error('事实引用已失效')
+  if(!active||toRaw(props.runtime)!==runtime||toRaw(props.binding)!==binding||view.currentRow!==row||nodeSelectionVersion!==selectionVersion)throw Error('事实引用已失效')
   binding.assertCurrent();assertRow()
  }
  return Object.entries(payload['data']).flatMap(([name,value])=>isRecord(value)&&value['type']==='fact'
@@ -120,8 +122,12 @@ watch(()=>[props.runtime,props.binding] as const,()=>{
  const runtime=toRaw(props.runtime)
  sparkProvide(PAGE_RUNTIME,runtime)
  const view=runtime.resolveView(props.binding.revisions.candidateDataViewKey)
+ const nodesKey=props.binding.nodes.dataViewKey,nodes=nodesKey?runtime.resolveView(nodesKey):undefined
  const changed=()=>{revision.value++}
- unsubscribe=view?.dataSet?.onAnyViewChange({currentRowChanged:changed,rowsChanged:changed,editingChanged:changed,requestStateChanged:changed,configChanged:changed,mutatingChanged:changed})
+ unsubscribe=view?.dataSet?.onAnyViewChange({currentRowChanged:(tableName,viewId)=>{
+  if(nodes&&view.dataSet?.getView(tableName,viewId)===nodes)nodeSelectionVersion++
+  changed()
+ },rowsChanged:changed,editingChanged:changed,requestStateChanged:changed,configChanged:changed,mutatingChanged:changed})
  revision.value++
 },{immediate:true})
 onBeforeUnmount(()=>{active=false;unsubscribe?.();sparkRemove(PAGE_RUNTIME)})

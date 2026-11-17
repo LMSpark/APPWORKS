@@ -108,7 +108,7 @@ it('does not execute an old fact button after selecting a node with no such refe
  expect(f.query).toHaveBeenCalledTimes(calls)
  expect(f.wrapper.text()).not.toContain('固定事实原记录')
 })
-it.each(['selection','unmount'])('withdraws a late fact read after %s changes',async mode=>{
+it.each(['selection','reselection','unmount'])('withdraws a late fact read after %s changes',async mode=>{
  const f=await fixture('fact')
  await f.wrapper.findAll('.el-tree-node__content')[2]!.trigger('click');await flushPromises()
  let release!:()=>void
@@ -116,10 +116,11 @@ it.each(['selection','unmount'])('withdraws a late fact read after %s changes',a
  f.query.mockImplementationOnce(async view=>{await gate;return execute(view)})
  const old=f.wrapper.findComponent(RendererButton).props('onClick')!,pending=old()
  await flushPromises()
- if(mode==='selection')await f.wrapper.findAll('.el-tree-node__content')[0]!.trigger('click')
+ if(mode!=='unmount')await f.wrapper.findAll('.el-tree-node__content')[0]!.trigger('click')
  else f.wrapper.unmount()
+ if(mode==='reselection')await f.wrapper.findAll('.el-tree-node__content')[2]!.trigger('click')
  release();await pending;await flushPromises()
- if(mode==='selection'){
+ if(mode!=='unmount'){
   expect(f.wrapper.text()).not.toContain('固定事实原记录')
   expect(f.wrapper.text()).not.toContain('事实读取失败')
  }

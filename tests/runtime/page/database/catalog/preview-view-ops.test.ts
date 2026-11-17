@@ -142,7 +142,9 @@ describe('database/catalog/table/preview-view-ops', () => {
 
     const request = http.requests.filter(item => item.url === '/api/DataOperation/GetData'
       && (item.data as {Table?: Array<Record<string, unknown>>}).Table?.[0]?.['Type'] === '数据库表').slice(-1)[0]
-    expect((request?.data as {Table?: Array<Record<string, unknown>>}).Table?.[0]?.['Fields']).toEqual([])
+    const descriptor = (request?.data as {Table?: Array<Record<string, unknown>>}).Table?.[0]
+    expect(descriptor?.['Fields']).toEqual([])
+    expect(descriptor).not.toHaveProperty('PrimaryKeyFields')
   })
 
   it('loads database view preview through GetData readonly command view', async () => {

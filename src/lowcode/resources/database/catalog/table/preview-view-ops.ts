@@ -122,10 +122,13 @@ export function applyDatabaseCatalogPreviewColumns(view: SparkData.DataView, col
   table.addColumns(columns.map(column => ({name: column.name, type: 'string' as const, label: column.label})))
 }
 
-function resolvePrimaryKey(dataSet: SparkData.DataSet, tblid: string): string {
+function resolvePrimaryKey(dataSet: SparkData.DataSet, tblid: string): string | undefined {
   const fieldView = dataSet.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)
-  const primary = fieldView?.rows.find(row => scalar(row['tblid']) === tblid && scalar(row['enname']) !== '' && isPrimaryKey(row['IsPKey']))
-  return primary ? scalar(primary['enname']) : 'rowid'
+  if (!fieldView?.countReported || fieldView.rows.length !== fieldView.total) return undefined
+  if (fieldView.rows.some(row => scalar(row['tblid']) !== tblid
+    || ['tblid', 'enname', 'IsPKey'].some(field => fieldView.fieldAccess(row, field).read !== 'visible'))) return undefined
+  const keys = fieldView.rows.filter(row => isPrimaryKey(row['IsPKey'])).map(row => scalar(row['enname']))
+  return keys.length === 1 && keys[0] ? keys[0] : undefined
 }
 
 type ReadonlyQueryResultInput = Readonly<{view: SparkData.DataView; page: PreviewPage; guard: SparkData.DataSetCommandScopeGuard}>
@@ -185,7 +188,7 @@ async function fetchPhysicalPreviewPage(fetch: FetchPhysicalPreviewPageInput): P
       DbName: dbId,
       DbId: dbId,
       OutputType: 'Table',
-      PrimaryKeyFields: primaryKey,
+      ...(primaryKey === undefined ? {} : {PrimaryKeyFields: primaryKey}),
       Filter: null,
       Fields: fields,
     }],
@@ -201,7 +204,7 @@ type PhysicalPreviewDescriptor = Readonly<{
   DbName: string
   DbId: string
   OutputType: string
-  PrimaryKeyFields: string
+  PrimaryKeyFields?: string
   Filter: null
   Fields: readonly PreviewFieldWire[]
 }>
@@ -237,7 +240,6 @@ async function fetchViewPreviewPage(fetch: FetchViewPreviewPageInput): Promise<P
     DbName: dbId,
     DbId: dbId,
     OutputType: 'Table',
-    PrimaryKeyFields: 'rowid',
     Filter: null,
   }
   const response = await http.post<unknown>('/api/DataOperation/GetData', {

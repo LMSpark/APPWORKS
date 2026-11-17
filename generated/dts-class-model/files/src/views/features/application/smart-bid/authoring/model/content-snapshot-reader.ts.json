@@ -11,6 +11,7 @@
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "ContentSnapshotSelection",
+      "ContentSnapshotRole",
       "ContentSnapshotIndexBinding"
     ]
   },
@@ -29,6 +30,15 @@
       ],
       "additionalProperties": false
     },
+    "ContentSnapshotRole": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ContentSnapshotRole",
+      "enum": [
+        "head",
+        "basis",
+        "candidate"
+      ]
+    },
     "ContentSnapshotIndexBinding": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -36,6 +46,9 @@
       "properties": {
         "dataViewKey": {
           "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/ContentSnapshotRole"
         },
         "index": {
           "$ref": "../../../../../../services/smart-bid/content/revision-snapshot-index.ts.json#/$defs/RevisionSnapshotNodeIndex"
@@ -58,7 +71,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T12:24:36.171Z",
+  "generatedAt": "2026-11-17T21:17:10.837Z",
   "models": {
     "ContentSnapshotSelection": {
       "name": "ContentSnapshotSelection",
@@ -84,16 +97,39 @@
         }
       }
     },
+    "ContentSnapshotRole": {
+      "name": "ContentSnapshotRole",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'basis' | 'head' | 'candidate'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'basis'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'head'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'candidate'"
+          }
+        ],
+        "members": {}
+      }
+    },
     "ContentSnapshotIndexBinding": {
       "name": "ContentSnapshotIndexBinding",
       "jsdoc": "原清单绑定和索引；修订阶段/模板/基线匹配及完整校验另核。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataViewKey: string;\n    index: RevisionSnapshotNodeIndex;\n    manifestHashVerified: true;\n    requiresRevisionMatchCheck: true;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    dataViewKey: string;\n    role: ContentSnapshotRole;\n    index: RevisionSnapshotNodeIndex;\n    manifestHashVerified: true;\n    requiresRevisionMatchCheck: true;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataViewKey: string;\n    index: RevisionSnapshotNodeIndex;\n    manifestHashVerified: true;\n    requiresRevisionMatchCheck: true;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    dataViewKey: string;\n    role: ContentSnapshotRole;\n    index: RevisionSnapshotNodeIndex;\n    manifestHashVerified: true;\n    requiresRevisionMatchCheck: true;\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -101,6 +137,11 @@
           "attributes": [
             {
               "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "role",
               "readable": true,
               "writable": false
             },

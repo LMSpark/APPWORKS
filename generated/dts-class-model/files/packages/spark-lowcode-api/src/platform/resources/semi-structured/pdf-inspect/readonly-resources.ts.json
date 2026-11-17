@@ -18,8 +18,8 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "PdfInspectionReadonlyKind",
       "enum": [
-        "limits",
         "history",
+        "limits",
         "result",
         "recover"
       ]

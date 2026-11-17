@@ -1,5 +1,5 @@
 {
-  "gapCount": 6348,
+  "gapCount": 6396,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -21420,9 +21420,9 @@
     {
       "kind": "attribute",
       "className": "TreeModel",
-      "memberName": "__@iterator@163440",
+      "memberName": "__@iterator@282558",
       "reason": "missing-jsdoc",
-      "chainBreak": "TreeModel.__@iterator@163440 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "TreeModel.__@iterator@282558 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-json-document/src/tree/tree-types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-json-document/src/tree/tree-types.ts",
       "declarationLine": 50,
@@ -33814,17 +33814,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "model",
-      "className": "PageContentState",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PageContentState 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/page/content/runtime-content.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "@spark-appworks/spark-project-model:page/content/runtime-content",
       "moduleName": "@spark-appworks/spark-project-model:page/content/runtime-content",
@@ -33834,6 +33823,17 @@
       "declarationFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
       "declarationLine": 1,
       "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts"
+    },
+    {
+      "kind": "model",
+      "className": "PageContentState",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageContentState 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/page/content/runtime-content.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -43716,17 +43716,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "model",
-      "className": "Row",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition",
       "moduleName": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition",
@@ -43736,6 +43725,17 @@
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
       "declarationLine": 1,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Row",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "model",
@@ -43833,17 +43833,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "model",
-      "className": "Row",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph",
       "moduleName": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph",
@@ -43853,6 +43842,17 @@
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
       "declarationLine": 1,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Row",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "model",
@@ -59416,17 +59416,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Row",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:lowcode/resources/structured-config/workflow-definition/output/operation-output",
       "moduleName": "app:lowcode/resources/structured-config/workflow-definition/output/operation-output",
@@ -59436,6 +59425,17 @@
       "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts",
       "declarationLine": 1,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Row",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "model",
@@ -59626,17 +59626,6 @@
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/output-fields.ts"
     },
     {
-      "kind": "model",
-      "className": "Row",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:lowcode/resources/structured-config/workflow-definition/output/query-output",
       "moduleName": "app:lowcode/resources/structured-config/workflow-definition/output/query-output",
@@ -59646,6 +59635,17 @@
       "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts",
       "declarationLine": 1,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Row",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -62818,17 +62818,6 @@
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit.ts"
     },
     {
-      "kind": "model",
-      "className": "FlowRunExecUsers",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowRunExecUsers 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
       "moduleName": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
@@ -62838,6 +62827,17 @@
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
       "declarationLine": 1,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts"
+    },
+    {
+      "kind": "model",
+      "className": "FlowRunExecUsers",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowRunExecUsers 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -62900,17 +62900,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "FlowRunHandleNodeOption",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowRunHandleNodeOption 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
       "moduleName": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
@@ -62920,6 +62909,17 @@
       "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
       "declarationLine": 1,
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts"
+    },
+    {
+      "kind": "model",
+      "className": "FlowRunHandleNodeOption",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowRunHandleNodeOption 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -68556,13 +68556,49 @@
     },
     {
       "kind": "attribute",
+      "className": "ContentTextSelection",
+      "memberName": "path",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTextSelection.path 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/content-text-span.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/content-text-span.ts",
+      "declarationLine": 33,
+      "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentTextSelection",
+      "memberName": "start",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTextSelection.start 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/content-text-span.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/content-text-span.ts",
+      "declarationLine": 34,
+      "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentTextSelection",
+      "memberName": "end",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentTextSelection.end 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/content-text-span.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/content-text-span.ts",
+      "declarationLine": 35,
+      "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
       "className": "VerifiedContentTextSpan",
       "memberName": "reference",
       "reason": "missing-jsdoc",
       "chainBreak": "VerifiedContentTextSpan.reference 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/smart-bid/content/content-text-span.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/smart-bid/content/content-text-span.ts",
-      "declarationLine": 33,
+      "declarationLine": 39,
       "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
       "declarationKind": "interface"
     },
@@ -68574,7 +68610,7 @@
       "chainBreak": "VerifiedContentTextSpan.text 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/smart-bid/content/content-text-span.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/smart-bid/content/content-text-span.ts",
-      "declarationLine": 34,
+      "declarationLine": 40,
       "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
       "declarationKind": "interface"
     },
@@ -68586,7 +68622,7 @@
       "chainBreak": "VerifiedContentTextSpan.containerText 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/smart-bid/content/content-text-span.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/smart-bid/content/content-text-span.ts",
-      "declarationLine": 35,
+      "declarationLine": 41,
       "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
       "declarationKind": "interface"
     },
@@ -68598,7 +68634,7 @@
       "chainBreak": "VerifiedContentTextSpan.containsPlaceholders 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/smart-bid/content/content-text-span.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/smart-bid/content/content-text-span.ts",
-      "declarationLine": 36,
+      "declarationLine": 42,
       "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
       "declarationKind": "interface"
     },
@@ -68610,7 +68646,7 @@
       "chainBreak": "VerifiedContentTextSpan.requiresFieldBindingChecks 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/smart-bid/content/content-text-span.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/smart-bid/content/content-text-span.ts",
-      "declarationLine": 37,
+      "declarationLine": 43,
       "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
       "declarationKind": "interface"
     },
@@ -68622,7 +68658,7 @@
       "chainBreak": "VerifiedContentTextSpan.requiresCurrentAuthorityChecks 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/smart-bid/content/content-text-span.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/smart-bid/content/content-text-span.ts",
-      "declarationLine": 38,
+      "declarationLine": 44,
       "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
       "declarationKind": "interface"
     },
@@ -68838,6 +68874,100 @@
       "declarationLine": 8,
       "sourceFile": "src/services/smart-bid/content/references/revision-response-anchors.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/revision-response-comparison",
+      "moduleName": "app:services/smart-bid/content/revision-response-comparison",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/revision-response-comparison 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/revision-response-comparison.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts"
+    },
+    {
+      "kind": "model",
+      "className": "RevisionResponseComparison",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RevisionResponseComparison 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/revision-response-comparison.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RevisionResponseComparison",
+      "memberName": "assignmentId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RevisionResponseComparison.assignmentId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/revision-response-comparison.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationLine": 8,
+      "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "RevisionResponseComparison",
+      "memberName": "basisResponseId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RevisionResponseComparison.basisResponseId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/revision-response-comparison.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationLine": 9,
+      "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "RevisionResponseComparison",
+      "memberName": "currentResponseId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RevisionResponseComparison.currentResponseId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/revision-response-comparison.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "RevisionResponseComparison",
+      "memberName": "candidateResponseId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RevisionResponseComparison.candidateResponseId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/revision-response-comparison.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "RevisionResponseComparison",
+      "memberName": "delta",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RevisionResponseComparison.delta 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/revision-response-comparison.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationLine": 12,
+      "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "RevisionResponseComparison",
+      "memberName": "requiresCurrentBasisChecks",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RevisionResponseComparison.requiresCurrentBasisChecks 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/revision-response-comparison.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "declarationKind": "interface"
     },
     {
       "kind": "attribute",
@@ -73315,7 +73445,7 @@
       "chainBreak": "Binding.actorUserId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73327,7 +73457,7 @@
       "chainBreak": "Binding.assertCurrent 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73339,7 +73469,7 @@
       "chainBreak": "Binding.dataViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73351,7 +73481,7 @@
       "chainBreak": "Binding.draftId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73363,7 +73493,7 @@
       "chainBreak": "Binding.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73375,7 +73505,7 @@
       "chainBreak": "Binding.runtime 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73387,7 +73517,7 @@
       "chainBreak": "Binding.setPending 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73398,7 +73528,7 @@
       "chainBreak": "Binding 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73410,7 +73540,7 @@
       "chainBreak": "ContentAuthoringScriptSession.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 12,
+      "declarationLine": 19,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73422,7 +73552,7 @@
       "chainBreak": "ContentAuthoringScriptSession.select 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 13,
+      "declarationLine": 20,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73434,7 +73564,7 @@
       "chainBreak": "ContentAuthoringScriptSession.cancel 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 14,
+      "declarationLine": 21,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73446,7 +73576,7 @@
       "chainBreak": "ContentAuthoringScriptSession.setInputPending 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 15,
+      "declarationLine": 22,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73458,7 +73588,7 @@
       "chainBreak": "ContentAuthoringScriptSession.canLeave 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 16,
+      "declarationLine": 23,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "interface"
     },
@@ -73470,7 +73600,7 @@
       "chainBreak": "ContentAuthoringScriptSession.actionProps 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 17,
+      "declarationLine": 24,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73482,7 +73612,7 @@
       "chainBreak": "ContentAuthoringScriptSession.editorProps 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "declarationLine": 21,
+      "declarationLine": 28,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -73494,7 +73624,7 @@
       "chainBreak": "ContentAuthoringRoute.path 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
-      "declarationLine": 10,
+      "declarationLine": 11,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
       "declarationKind": "interface"
     },
@@ -73506,7 +73636,7 @@
       "chainBreak": "ContentAuthoringRoute.meta 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
-      "declarationLine": 11,
+      "declarationLine": 12,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
       "declarationKind": "interface"
     },
@@ -73518,7 +73648,7 @@
       "chainBreak": "ContentAuthoringRoute.query 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
-      "declarationLine": 12,
+      "declarationLine": 13,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
       "declarationKind": "interface"
     },
@@ -73530,7 +73660,7 @@
       "chainBreak": "ContentAuthoringPublishedEntry.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
-      "declarationLine": 16,
+      "declarationLine": 17,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
       "declarationKind": "interface"
     },
@@ -73542,7 +73672,7 @@
       "chainBreak": "ContentAuthoringPublishedEntry.pageId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
-      "declarationLine": 17,
+      "declarationLine": 18,
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
       "declarationKind": "interface"
     },
@@ -73703,18 +73833,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "constructor",
-      "className": "ContentAuthoringHost",
-      "memberName": "constructor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ContentAuthoringHost.constructor 的构造语义链断开：构造签名没有 JSDoc。",
-      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 51,
-      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationKind": "class"
-    },
-    {
       "kind": "model",
       "className": "ContentAuthoringHost",
       "reason": "missing-jsdoc",
@@ -73733,7 +73851,7 @@
       "chainBreak": "ContentAuthoringHost.binding 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 53,
+      "declarationLine": 56,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "class"
     },
@@ -73745,7 +73863,7 @@
       "chainBreak": "ContentAuthoringHost.hasPending 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
-      "declarationLine": 54,
+      "declarationLine": 57,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "declarationKind": "class"
     },
@@ -73884,12 +74002,24 @@
     {
       "kind": "attribute",
       "className": "ContentBaselineFactBinding",
+      "memberName": "sourceDataViewKey",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentBaselineFactBinding.sourceDataViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationLine": 37,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentBaselineFactBinding",
       "memberName": "baselineMembershipVerified",
       "reason": "missing-jsdoc",
       "chainBreak": "ContentBaselineFactBinding.baselineMembershipVerified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
-      "declarationLine": 37,
+      "declarationLine": 38,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
       "declarationKind": "interface"
     },
@@ -73901,7 +74031,7 @@
       "chainBreak": "ContentBaselineFactBinding.requiresRevisionMatchCheck 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
-      "declarationLine": 38,
+      "declarationLine": 39,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
       "declarationKind": "interface"
     },
@@ -73913,7 +74043,7 @@
       "chainBreak": "ContentBaselineFactBinding.requiresUseCheck 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
-      "declarationLine": 39,
+      "declarationLine": 40,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
       "declarationKind": "interface"
     },
@@ -73925,7 +74055,7 @@
       "chainBreak": "ContentBaselineFactBinding.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
-      "declarationLine": 40,
+      "declarationLine": 41,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
       "declarationKind": "typeAlias"
     },
@@ -73937,7 +74067,7 @@
       "chainBreak": "ContentCandidateFactBinding.requiresRevisionMatchCheck 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 9,
+      "declarationLine": 12,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -73949,7 +74079,7 @@
       "chainBreak": "ContentCandidateRequirementPinsBinding.requiresRevisionMatchCheck 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 13,
+      "declarationLine": 16,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -73961,9 +74091,371 @@
       "chainBreak": "ContentCandidateRequirementBinding.requiresRevisionMatchCheck 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 17,
+      "declarationLine": 20,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "PreviewVersion",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewVersion 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 22,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "PreviewVersion",
+      "memberName": "snapshot",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewVersion.snapshot 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 23,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PreviewVersion",
+      "memberName": "nodes",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewVersion.nodes 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 24,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "PreviewVersions",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewVersions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 26,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "PreviewVersions",
+      "memberName": "basis",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewVersions.basis 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 27,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PreviewVersions",
+      "memberName": "head",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewVersions.head 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 28,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PreviewVersions",
+      "memberName": "candidate",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewVersions.candidate 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 29,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "PreviewVersions",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewVersions.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 30,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "PreviewScopeInput",
+      "memberName": "declaredAddedNodeIds",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewScopeInput.declaredAddedNodeIds 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 32,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "PreviewScopeInput",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewScopeInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 32,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "CandidateScopePreview",
+      "reason": "missing-jsdoc",
+      "chainBreak": "CandidateScopePreview 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 33,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "CandidateScopePreview",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "CandidateScopePreview.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 34,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "CandidateNodeSelection",
+      "reason": "missing-jsdoc",
+      "chainBreak": "CandidateNodeSelection 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 36,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "CandidateNodeSelection",
+      "memberName": "role",
+      "reason": "missing-jsdoc",
+      "chainBreak": "CandidateNodeSelection.role 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 37,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "CandidateNodeSelection",
+      "memberName": "nodeId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "CandidateNodeSelection.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 38,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "NodeTextCoordinates",
+      "memberName": "end",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NodeTextCoordinates.end 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 40,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "NodeTextCoordinates",
+      "memberName": "nodeId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NodeTextCoordinates.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 40,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "NodeTextCoordinates",
+      "memberName": "path",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NodeTextCoordinates.path 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 40,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "NodeTextCoordinates",
+      "memberName": "start",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NodeTextCoordinates.start 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 40,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "NodeTextCoordinates",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NodeTextCoordinates 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 40,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "NodeTextChange",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NodeTextChange 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 41,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "NodeTextChange",
+      "memberName": "operation",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NodeTextChange.operation 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 42,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "NodeTextChange",
+      "memberName": "target",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NodeTextChange.target 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 43,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "TextPreviewBinding",
+      "reason": "missing-jsdoc",
+      "chainBreak": "TextPreviewBinding 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 49,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "TextPreviewBinding",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "TextPreviewBinding.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 50,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "TextSelectionBinding",
+      "reason": "missing-jsdoc",
+      "chainBreak": "TextSelectionBinding 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 52,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "TextSelectionBinding",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "TextSelectionBinding.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 53,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "PreviewVersionSession",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewVersionSession 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 55,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "PreviewVersionSession",
+      "memberName": "previewText",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewVersionSession.previewText 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 56,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "PreviewVersionSession",
+      "memberName": "captureNodeTextSelection",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewVersionSession.captureNodeTextSelection 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 57,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "PreviewVersionSession",
+      "memberName": "previewNodeTextChange",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreviewVersionSession.previewNodeTextChange 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 58,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -73973,7 +74465,7 @@
       "chainBreak": "ContentCandidateBinding.runtime 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 21,
+      "declarationLine": 62,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -73985,7 +74477,7 @@
       "chainBreak": "ContentCandidateBinding.readFixedFact 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 22,
+      "declarationLine": 63,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "typeAlias"
     },
@@ -73997,7 +74489,7 @@
       "chainBreak": "ContentCandidateBinding.readRequirementPinIssues 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 26,
+      "declarationLine": 67,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "typeAlias"
     },
@@ -74009,7 +74501,7 @@
       "chainBreak": "ContentCandidateBinding.readFixedRequirement 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 27,
+      "declarationLine": 68,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "typeAlias"
     },
@@ -74021,7 +74513,55 @@
       "chainBreak": "ContentCandidateBinding.readFixedTenderRecord 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 28,
+      "declarationLine": 69,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "ContentCandidateBinding",
+      "memberName": "readPreviewVersions",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentCandidateBinding.readPreviewVersions 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 70,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "ContentCandidateBinding",
+      "memberName": "previewScope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentCandidateBinding.previewScope 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 71,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "ContentCandidateBinding",
+      "memberName": "previewText",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentCandidateBinding.previewText 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 72,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "ContentCandidateBinding",
+      "memberName": "captureNodeTextSelection",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentCandidateBinding.captureNodeTextSelection 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
+      "declarationLine": 73,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "typeAlias"
     },
@@ -74033,7 +74573,7 @@
       "chainBreak": "ContentCandidateBinding.revisions 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 29,
+      "declarationLine": 74,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -74045,7 +74585,7 @@
       "chainBreak": "ContentCandidateBinding.snapshot 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 30,
+      "declarationLine": 75,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -74057,7 +74597,7 @@
       "chainBreak": "ContentCandidateBinding.nodes 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 31,
+      "declarationLine": 76,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -74069,7 +74609,7 @@
       "chainBreak": "ContentCandidateBinding.revisionMatchVerified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 32,
+      "declarationLine": 77,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -74081,7 +74621,7 @@
       "chainBreak": "ContentCandidateBinding.templateBindingsVerified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 33,
+      "declarationLine": 78,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -74093,7 +74633,7 @@
       "chainBreak": "ContentCandidateBinding.requirementBindingsVerified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 34,
+      "declarationLine": 79,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -74105,7 +74645,7 @@
       "chainBreak": "ContentCandidateBinding.responseAnchorsVerified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 35,
+      "declarationLine": 80,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -74117,7 +74657,7 @@
       "chainBreak": "ContentCandidateBinding.responseTextVerified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 36,
+      "declarationLine": 81,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -74129,7 +74669,7 @@
       "chainBreak": "ContentCandidateBinding.requiresResponseReferenceChecks 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 37,
+      "declarationLine": 82,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -74141,7 +74681,7 @@
       "chainBreak": "ContentCandidateBinding.requiresResponsePayloadChecks 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 38,
+      "declarationLine": 83,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -74153,7 +74693,7 @@
       "chainBreak": "ContentCandidateBinding.requiresTemplateResourceChecks 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 39,
+      "declarationLine": 84,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -74165,7 +74705,7 @@
       "chainBreak": "ContentCandidateBinding.requiresRequirementVersionChecks 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 40,
+      "declarationLine": 85,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -74177,7 +74717,7 @@
       "chainBreak": "ContentCandidateBinding.requiresBusinessSectionChecks 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 41,
+      "declarationLine": 86,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "interface"
     },
@@ -74189,7 +74729,7 @@
       "chainBreak": "ContentCandidateBinding.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
-      "declarationLine": 42,
+      "declarationLine": 87,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "declarationKind": "typeAlias"
     },
@@ -74273,7 +74813,7 @@
       "chainBreak": "ContentNodeVersionSelection.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
-      "declarationLine": 12,
+      "declarationLine": 5,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
       "declarationKind": "interface"
     },
@@ -74285,7 +74825,7 @@
       "chainBreak": "ContentNodeVersionSelection.nodeHash 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
-      "declarationLine": 13,
+      "declarationLine": 6,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
       "declarationKind": "interface"
     },
@@ -74297,7 +74837,7 @@
       "chainBreak": "ContentNodeVersionBinding.dataViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
-      "declarationLine": 17,
+      "declarationLine": 10,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
       "declarationKind": "interface"
     },
@@ -74309,7 +74849,7 @@
       "chainBreak": "ContentNodeVersionBinding.requiresSnapshotMembershipCheck 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
-      "declarationLine": 18,
+      "declarationLine": 11,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
       "declarationKind": "interface"
     },
@@ -74321,7 +74861,7 @@
       "chainBreak": "ContentNodeVersionBinding.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
-      "declarationLine": 19,
+      "declarationLine": 12,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
       "declarationKind": "typeAlias"
     },
@@ -74612,6 +75152,17 @@
       "declarationKind": "interface"
     },
     {
+      "kind": "model",
+      "className": "ContentSnapshotRole",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentSnapshotRole 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
       "kind": "attribute",
       "className": "ContentSnapshotIndexBinding",
       "memberName": "dataViewKey",
@@ -74619,7 +75170,19 @@
       "chainBreak": "ContentSnapshotIndexBinding.dataViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ContentSnapshotIndexBinding",
+      "memberName": "role",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ContentSnapshotIndexBinding.role 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
+      "declarationLine": 11,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
       "declarationKind": "interface"
     },
@@ -74631,7 +75194,7 @@
       "chainBreak": "ContentSnapshotIndexBinding.index 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
-      "declarationLine": 10,
+      "declarationLine": 12,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
       "declarationKind": "interface"
     },
@@ -74643,7 +75206,7 @@
       "chainBreak": "ContentSnapshotIndexBinding.manifestHashVerified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
-      "declarationLine": 11,
+      "declarationLine": 13,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
       "declarationKind": "interface"
     },
@@ -74655,7 +75218,7 @@
       "chainBreak": "ContentSnapshotIndexBinding.requiresRevisionMatchCheck 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
-      "declarationLine": 12,
+      "declarationLine": 14,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
       "declarationKind": "interface"
     },
@@ -74667,7 +75230,7 @@
       "chainBreak": "ContentSnapshotIndexBinding.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
-      "declarationLine": 13,
+      "declarationLine": 15,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
       "declarationKind": "typeAlias"
     },
@@ -74730,6 +75293,17 @@
       "declarationKind": "interface"
     },
     {
+      "kind": "module",
+      "className": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
+      "moduleName": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts"
+    },
+    {
       "kind": "model",
       "className": "DataSpaceParametersEditorProps",
       "reason": "missing-jsdoc",
@@ -74740,17 +75314,6 @@
       "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
       "componentName": "DataSpaceParametersEditor",
       "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "module",
-      "className": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
-      "moduleName": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts"
     },
     {
       "kind": "attribute",
@@ -74875,17 +75438,6 @@
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue"
     },
     {
-      "kind": "model",
-      "className": "RegisterObjectType",
-      "reason": "missing-jsdoc",
-      "chainBreak": "RegisterObjectType 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
       "moduleName": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
@@ -74895,6 +75447,17 @@
       "declarationFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue"
+    },
+    {
+      "kind": "model",
+      "className": "RegisterObjectType",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RegisterObjectType 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "module",
@@ -75166,17 +75729,6 @@
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue"
     },
     {
-      "kind": "model",
-      "className": "RuleTarget",
-      "reason": "missing-jsdoc",
-      "chainBreak": "RuleTarget 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
       "moduleName": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
@@ -75186,6 +75738,17 @@
       "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts"
+    },
+    {
+      "kind": "model",
+      "className": "RuleTarget",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RuleTarget 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -75467,17 +76030,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Id",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Id 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
       "moduleName": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
@@ -75487,6 +76039,17 @@
       "declarationFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue"
+    },
+    {
+      "kind": "model",
+      "className": "Id",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Id 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "module",

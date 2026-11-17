@@ -299,7 +299,8 @@
         "columns": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
+            "type": "object",
+            "title": "DataColumn"
           }
         },
         "newRowFields": {
@@ -373,7 +374,8 @@
         "columns": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
+            "type": "object",
+            "title": "DataColumn"
           }
         },
         "resultPrimaryKey": {
@@ -712,7 +714,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T01:47:55.589Z",
+  "generatedAt": "2026-11-17T20:19:28.329Z",
   "models": {
     "DataSpaceActionState": {
       "name": "DataSpaceActionState",
@@ -1079,7 +1081,7 @@
           "attributes": [
             {
               "name": "hasPendingSavedRowPermissions",
-              "jsdoc": "已确认新增但尚未获得正式行查询权限；不是写入结果未知。",
+              "jsdoc": "新增行待回读的生命周期标记，作用域切换后仍供原实例释放守卫判断。",
               "readable": true,
               "writable": false
             },

@@ -604,7 +604,8 @@
               "$ref": "#/$defs/DataSpaceFormalScenarioReadInput"
             },
             "metadata": {
-              "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "DataSet"
             }
           },
           "additionalProperties": false
@@ -633,7 +634,8 @@
               "$ref": "#/$defs/DataSpaceFormalReadInput"
             },
             "metadata": {
-              "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "DataSet"
             }
           },
           "additionalProperties": false
@@ -649,7 +651,8 @@
               "$ref": "#/$defs/DataSpaceFormalBatchReadInput"
             },
             "metadata": {
-              "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "DataSet"
             }
           },
           "additionalProperties": false
@@ -683,7 +686,8 @@
               "$ref": "#/$defs/DataSpaceFormalScenarioReadInput"
             },
             "metadata": {
-              "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "DataSet"
             }
           },
           "additionalProperties": false

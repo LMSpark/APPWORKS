@@ -81,6 +81,9 @@
         "factDataViewKey": {
           "type": "string"
         },
+        "sourceDataViewKey": {
+          "type": "string"
+        },
         "baselineMembershipVerified": {
           "const": true
         },
@@ -102,7 +105,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T19:22:12.729Z",
+  "generatedAt": "2026-11-17T21:11:12.255Z",
   "models": {
     "ContentBaselineRequirementPinsBinding": {
       "name": "ContentBaselineRequirementPinsBinding",
@@ -197,11 +200,11 @@
       "jsdoc": "仅原基线成员和原事实版本读取成立；准用继续由责任域核验。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    baselineDataViewKey: string;\n    factDataViewKey: string;\n    baselineMembershipVerified: true;\n    requiresRevisionMatchCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    baselineDataViewKey: string;\n    factDataViewKey: string;\n    sourceDataViewKey?: string;\n    baselineMembershipVerified: true;\n    requiresRevisionMatchCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    baselineDataViewKey: string;\n    factDataViewKey: string;\n    baselineMembershipVerified: true;\n    requiresRevisionMatchCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    baselineDataViewKey: string;\n    factDataViewKey: string;\n    sourceDataViewKey?: string;\n    baselineMembershipVerified: true;\n    requiresRevisionMatchCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -214,6 +217,11 @@
             },
             {
               "name": "factDataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceDataViewKey",
               "readable": true,
               "writable": false
             },

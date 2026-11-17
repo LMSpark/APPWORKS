@@ -66,9 +66,9 @@
         "placement": {
           "enum": [
             "parent",
-            "top",
             "left",
             "right",
+            "top",
             "tabs",
             "popup"
           ]
@@ -82,8 +82,8 @@
         "openMode": {
           "enum": [
             "embedded",
-            "subsystem",
             "current",
+            "subsystem",
             "new-window",
             "modal"
           ]

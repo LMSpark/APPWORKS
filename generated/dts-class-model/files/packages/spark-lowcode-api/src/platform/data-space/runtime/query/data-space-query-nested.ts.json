@@ -21,12 +21,14 @@
       "title": "DataSpaceQueryNestedNode",
       "properties": {
         "model": {
-          "$ref": "data-space-query-graph.ts.json#/$defs/Model"
+          "type": "object",
+          "title": "Model"
         },
         "columns": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
+            "type": "object",
+            "title": "DataColumn"
           }
         },
         "children": {

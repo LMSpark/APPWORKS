@@ -28,7 +28,8 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "SparkData.DataSet"
             },
             "workflowId": {
               "type": "string"
@@ -54,7 +55,8 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "SparkData.DataSet"
             },
             "workflowId": {
               "type": "string"
@@ -75,14 +77,16 @@
         "method.columns.return": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+            "type": "object",
+            "title": "SparkData.DataColumn"
           }
         },
         "method.presentation.params": {
           "type": "object",
           "properties": {
             "dataSet": {
-              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "SparkData.DataSet"
             },
             "workflowId": {
               "type": "string"
@@ -109,7 +113,8 @@
             "columns": {
               "type": "array",
               "items": {
-                "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+                "type": "object",
+                "title": "SparkData.DataColumn"
               }
             },
             "outputError": {
@@ -198,7 +203,8 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "SparkData.DataSet"
             },
             "workflowId": {
               "type": "string"
@@ -224,7 +230,8 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "SparkData.DataSet"
             },
             "workflowId": {
               "type": "string"

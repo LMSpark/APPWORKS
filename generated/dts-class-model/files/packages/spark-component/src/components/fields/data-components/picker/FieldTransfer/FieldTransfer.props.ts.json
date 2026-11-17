@@ -277,9 +277,9 @@
         },
         "targetOrder": {
           "enum": [
+            "original",
             "push",
-            "unshift",
-            "original"
+            "unshift"
           ]
         }
       },

@@ -30,8 +30,7 @@
           "title": "() => void"
         },
         "runtime": {
-          "type": "object",
-          "title": "import(\"@spark-appworks/spark-project-model\").PageRuntime"
+          "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
         },
         "draftId": {
           "type": "string"
@@ -149,7 +148,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T18:24:17.273Z",
+  "generatedAt": "2026-11-17T21:51:19.434Z",
   "models": {
     "Binding": {
       "name": "Binding",

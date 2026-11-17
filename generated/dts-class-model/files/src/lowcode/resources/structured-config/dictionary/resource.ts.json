@@ -34,7 +34,8 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "DataSet"
             },
             "workspace": {
               "$ref": "../../../../../packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts.json#/$defs/DictionaryWorkspace"

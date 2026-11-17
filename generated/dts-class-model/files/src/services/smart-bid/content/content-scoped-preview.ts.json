@@ -32,7 +32,10 @@
           ]
         },
         "responseId": {
-          "type": "string"
+          "type": [
+            "null",
+            "string"
+          ]
         }
       },
       "required": [
@@ -182,18 +185,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T09:41:59.683Z",
+  "generatedAt": "2026-11-17T21:28:28.899Z",
   "models": {
     "ContentResponseChangeIdentity": {
       "name": "ContentResponseChangeIdentity",
       "jsdoc": "由宿主从实际响应变更提取，不得由AI另交一份无关的“通过清单”。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    assignmentId: string;\n    basisResponseId: string | null;\n    responseId: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    assignmentId: string;\n    basisResponseId: string | null;\n    responseId: string | null;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    assignmentId: string;\n    basisResponseId: string | null;\n    responseId: string;\n}>",
+            "typeText": "Readonly<{\n    assignmentId: string;\n    basisResponseId: string | null;\n    responseId: string | null;\n}>",
             "targetName": "Readonly"
           }
         ],

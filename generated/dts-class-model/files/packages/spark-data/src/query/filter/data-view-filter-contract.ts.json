@@ -219,10 +219,10 @@
           "enum": [
             "number",
             "boolean",
-            "text",
+            "select",
             "date",
-            "datetime",
-            "select"
+            "text",
+            "datetime"
           ]
         },
         "operators": {
@@ -389,10 +389,7 @@
       "title": "DataViewFilterFunctionContext",
       "properties": {
         "tables": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/DataViewFilterFunctionTable"
-          }
+          "$ref": "../../../../spark-component/src/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.props.ts.json#/$defs/FilterFunctionTables"
         },
         "relatedFields": {
           "type": "array",
@@ -483,12 +480,12 @@
         },
         "control": {
           "enum": [
-            "text",
             "select",
+            "checkbox",
             "password",
+            "text",
             "textarea",
-            "json",
-            "checkbox"
+            "json"
           ]
         },
         "required": {

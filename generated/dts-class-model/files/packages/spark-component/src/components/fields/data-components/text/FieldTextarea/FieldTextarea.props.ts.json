@@ -24,145 +24,6 @@
       "type": "object",
       "title": "RTextareaProps",
       "properties": {
-        "type": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "children": {
-          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
-        },
-        "permissionDeniedMode": {
-          "enum": [
-            "disable",
-            "hide"
-          ]
-        },
-        "dataViewKey": {
-          "type": "string"
-        },
-        "dataMember": {
-          "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
-            "value",
-            "currentRow",
-            "selectedRows",
-            "aggregateResult",
-            "selectionAggregateResult",
-            "pageSize",
-            "mutating",
-            "loadingError",
-            "mutatingError"
-          ]
-        },
-        "dataField": {
-          "type": "string"
-        },
-        "width": {
-          "type": "number"
-        },
-        "minWidth": {
-          "type": "number"
-        },
-        "showOverflowTooltip": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "header": {
-          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
-        },
-        "resizable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "clearable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "modelValue": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string"
-        },
-        "field": {
-          "type": "string"
-        },
-        "label": {
-          "type": "string"
-        },
-        "readonly": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "editOnDblclick": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "saveOnCellExit": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "placeholder": {
-          "type": "string"
-        },
-        "onChange": {
-          "type": "object",
-          "title": "(...args: unknown[]) => void | Promise<void>"
-        },
-        "titleAlign": {
-          "enum": [
-            "left",
-            "right",
-            "center"
-          ]
-        },
-        "valueAlign": {
-          "enum": [
-            "left",
-            "right",
-            "center"
-          ]
-        },
-        "headerCellClassName": {
-          "type": "string"
-        },
-        "cellClassName": {
-          "type": "string"
-        },
-        "titleClassName": {
-          "type": "string"
-        },
-        "valueClassName": {
-          "type": "string"
-        },
-        "sortable": {
-          "enum": [
-            false,
-            true,
-            "custom"
-          ]
-        },
-        "rows": {
-          "type": "number"
-        },
         "autosize": {
           "anyOf": [
             {
@@ -192,10 +53,35 @@
           ]
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.onTextSelection.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "type": "number"
+                },
+                "end": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "start",
+                "end"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onTextSelection.return": true
+      }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.155Z",
+  "generatedAt": "2026-11-17T22:02:03.858Z",
   "models": {
     "RTextareaProps": {
       "name": "RTextareaProps",
@@ -209,7 +95,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkMultilineFieldProps<string> & {\n    /** 是否根据内容自动伸缩高度。 */\n    autosize?: boolean | {\n        minRows?: number;\n        maxRows?: number;\n    };\n    /** 最大输入长度。 */\n    maxlength?: number;\n    /** 是否显示字数统计。 */\n    showWordLimit?: boolean;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkMultilineFieldProps<string> & SparkFieldMemberProps & {\n    /** 是否根据内容自动伸缩高度。 */\n    autosize?: boolean | {\n        minRows?: number;\n        maxRows?: number;\n    };\n    /** 最大输入长度。 */\n    maxlength?: number;\n    /** 是否显示字数统计。 */\n    showWordLimit?: boolean;\n    /** 只读、可见文本的选区回调。start 含、end 不含，均为原文 UTF-16 偏移。两者相等时表示光标。 */\n    onTextSelection?: (selection: Readonly<{\n        start: number;\n        end: number;\n    }>) => void;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -223,7 +109,12 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 是否根据内容自动伸缩高度。 */\n    autosize?: boolean | {\n        minRows?: number;\n        maxRows?: number;\n    };\n    /** 最大输入长度。 */\n    maxlength?: number;\n    /** 是否显示字数统计。 */\n    showWordLimit?: boolean;\n}"
+            "typeText": "SparkFieldMemberProps",
+            "targetName": "SparkFieldMemberProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 是否根据内容自动伸缩高度。 */\n    autosize?: boolean | {\n        minRows?: number;\n        maxRows?: number;\n    };\n    /** 最大输入长度。 */\n    maxlength?: number;\n    /** 是否显示字数统计。 */\n    showWordLimit?: boolean;\n    /** 只读、可见文本的选区回调。start 含、end 不含，均为原文 UTF-16 偏移。两者相等时表示光标。 */\n    onTextSelection?: (selection: Readonly<{\n        start: number;\n        end: number;\n    }>) => void;\n}"
           }
         ],
         "members": {
@@ -245,6 +136,31 @@
               "jsdoc": "是否显示字数统计。",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onTextSelection",
+              "jsdoc": "只读、可见文本的选区回调。start 含、end 不含，均为原文 UTF-16 偏移。两者相等时表示光标。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        start: number;\n        end: number;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

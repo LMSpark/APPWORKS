@@ -70,14 +70,14 @@
         },
         "state": {
           "enum": [
-            "confirmed",
+            "unknown",
             "not-applied",
-            "unknown"
+            "confirmed"
           ]
         },
         "error": {
           "type": "object",
-          "title": "Error"
+          "title": "ErrorDefault"
         }
       },
       "required": [
@@ -95,9 +95,9 @@
         "state": {
           "enum": [
             "none",
-            "confirmed",
-            "not-applied",
             "unknown",
+            "not-applied",
+            "confirmed",
             "partial"
           ]
         },
@@ -208,13 +208,7 @@
           "items": false,
           "prefixItems": [
             {
-              "enum": [
-                0,
-                1,
-                2,
-                3,
-                4
-              ]
+              "$ref": "../../spark-component/src/components/containers/runtime/useDataViewEventBridge.ts.json#/$defs/DataViewRequestState"
             }
           ]
         },
@@ -3331,7 +3325,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T15:39:11.936Z",
+  "generatedAt": "2026-11-17T20:21:37.177Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",

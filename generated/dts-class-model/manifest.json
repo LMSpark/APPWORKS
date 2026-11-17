@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1315,
+  "scannedFileCount": 1316,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17450,6 +17450,7 @@
           "ContentTextOwner",
           "ContentTextSpan",
           "ContentTextSpanInput",
+          "ContentTextSelection",
           "VerifiedContentTextSpan"
         ]
       }
@@ -17579,6 +17580,21 @@
         "jsdoc": "@module app:services/smart-bid/content/references/snapshot-reference-values\n职责：共用固定快照引用的精确身份、闭合记录与密集列表读取。\n边界：仅检查JSON值描述符，不补字段、不查询、不选择版本或保存第二份业务数据。\nAI用途：分册模板和章节挂接复用同一安全读取，业务归属仍在各自合同核验。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/revision-response-comparison.ts": {
+      "file": "files/src/services/smart-bid/content/revision-response-comparison.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/revision-response-comparison",
+        "sourcePath": "src/services/smart-bid/content/revision-response-comparison.ts",
+        "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/revision-response-comparison",
+        "jsdoc": "@module app:services/smart-bid/content/revision-response-comparison\n职责：按三版清单的作答分工比较固定响应内容。\n边界：只计算差异；调用方仍须证明清单摘要、完整分工、当前依据和采用权限。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "RevisionResponseComparison"
+        ]
       }
     },
     "src/services/smart-bid/content/revision-snapshot-hash.ts": {
@@ -18705,7 +18721,7 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/content-node-version-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-node-version-reader\n职责：通过正文宿主原视图读取精确节点版本，复核查询唯一性及载荷摘要。\n边界：不保存、不复制节点真源、不读取完整快照或授予采用权；清单成员另核。\nAI用途：固定快照给定nodeId/nodeHash后取得原字段绑定，供完整清单组装消费。",
-        "jsdocSource": "leading-jsdoc",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "ContentNodeVersionSelection",
           "ContentNodeVersionBinding"
@@ -18772,6 +18788,7 @@
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "ContentSnapshotSelection",
+          "ContentSnapshotRole",
           "ContentSnapshotIndexBinding"
         ]
       }
@@ -18797,7 +18814,7 @@
         "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/ui/content-candidate-workspace",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/content-candidate-workspace\n职责：通过标准组件只读呈现已核候选的原修订及节点视图。\n边界：只通过原候选绑定读取固定事实，不复制候选、不修改行或生成预演；原证明失效即撤下内容。\nAI用途：正文宿主读取候选后传入同次绑定；采用须另完成完整比对、预演与权威提交。",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/content-candidate-workspace\n职责：通过标准组件只读呈现已核候选的原修订及节点视图。\n边界：通过原候选绑定读取固定事实和要求及三版比对，不写入候选或采用；原证明失效即撤下内容。\nAI用途：正文宿主读取候选后传入同次绑定；采用须另完成完整比对、预演与权威提交。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -22982,6 +22999,10 @@
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts.json"
     },
+    "ContentSnapshotRole": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts.json"
+    },
     "ContentSnapshotSelection": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts.json"
@@ -23037,6 +23058,10 @@
     "ContentTextPatchPreview": {
       "sourcePath": "src/services/smart-bid/content/content-text-patch.ts",
       "file": "files/src/services/smart-bid/content/content-text-patch.ts.json"
+    },
+    "ContentTextSelection": {
+      "sourcePath": "src/services/smart-bid/content/content-text-span.ts",
+      "file": "files/src/services/smart-bid/content/content-text-span.ts.json"
     },
     "ContentTextSnapshotInput": {
       "sourcePath": "src/services/smart-bid/content/content-text-snapshot-preview.ts",
@@ -27401,6 +27426,10 @@
     "RevisionRequirementPin": {
       "sourcePath": "src/services/smart-bid/content/references/revision-requirement-pins.ts",
       "file": "files/src/services/smart-bid/content/references/revision-requirement-pins.ts.json"
+    },
+    "RevisionResponseComparison": {
+      "sourcePath": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "file": "files/src/services/smart-bid/content/revision-response-comparison.ts.json"
     },
     "RevisionSnapshotNodeIndex": {
       "sourcePath": "src/services/smart-bid/content/revision-snapshot-index.ts",

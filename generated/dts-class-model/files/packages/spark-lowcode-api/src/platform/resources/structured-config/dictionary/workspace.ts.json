@@ -20,7 +20,8 @@
       "title": "DictionaryWorkspaceInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "dictionaryId": {
           "type": "string"
@@ -228,7 +229,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T12:00:26.083Z",
+  "generatedAt": "2026-11-17T20:36:58.446Z",
   "models": {
     "DictionaryWorkspaceInput": {
       "name": "DictionaryWorkspaceInput",

@@ -22,10 +22,17 @@
       "type": "object",
       "title": "ContentCandidateFactBinding",
       "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
         "baselineDataViewKey": {
           "type": "string"
         },
         "factDataViewKey": {
+          "type": "string"
+        },
+        "sourceDataViewKey": {
           "type": "string"
         },
         "baselineMembershipVerified": {
@@ -34,20 +41,16 @@
         "requiresUseCheck": {
           "const": true
         },
-        "assertCurrent": {
-          "type": "object",
-          "title": "() => void"
-        },
         "requiresRevisionMatchCheck": {
           "const": false
         }
       },
       "required": [
+        "assertCurrent",
         "baselineDataViewKey",
         "factDataViewKey",
         "baselineMembershipVerified",
         "requiresUseCheck",
-        "assertCurrent",
         "requiresRevisionMatchCheck"
       ],
       "additionalProperties": false
@@ -57,15 +60,15 @@
       "type": "object",
       "title": "ContentCandidateRequirementPinsBinding",
       "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
         "baselineDataViewKey": {
           "type": "string"
         },
         "requiresUseCheck": {
           "const": true
-        },
-        "assertCurrent": {
-          "type": "object",
-          "title": "() => void"
         },
         "issues": {
           "type": "array",
@@ -78,9 +81,9 @@
         }
       },
       "required": [
+        "assertCurrent",
         "baselineDataViewKey",
         "requiresUseCheck",
-        "assertCurrent",
         "issues",
         "requiresRevisionMatchCheck"
       ],
@@ -91,7 +94,14 @@
       "type": "object",
       "title": "ContentCandidateRequirementBinding",
       "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
         "baselineDataViewKey": {
+          "type": "string"
+        },
+        "sourceDataViewKey": {
           "type": "string"
         },
         "baselineMembershipVerified": {
@@ -99,10 +109,6 @@
         },
         "requiresUseCheck": {
           "const": true
-        },
-        "assertCurrent": {
-          "type": "object",
-          "title": "() => void"
         },
         "requirementDataViewKey": {
           "type": "string"
@@ -112,13 +118,302 @@
         }
       },
       "required": [
+        "assertCurrent",
         "baselineDataViewKey",
         "baselineMembershipVerified",
         "requiresUseCheck",
-        "assertCurrent",
         "requirementDataViewKey",
         "requiresRevisionMatchCheck"
       ],
+      "additionalProperties": false
+    },
+    "PreviewVersion": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PreviewVersion",
+      "properties": {
+        "snapshot": {
+          "$ref": "content-snapshot-reader.ts.json#/$defs/ContentSnapshotIndexBinding"
+        },
+        "nodes": {
+          "$ref": "content-snapshot-nodes.ts.json#/$defs/ContentSnapshotNodesBinding"
+        }
+      },
+      "required": [
+        "snapshot",
+        "nodes"
+      ],
+      "additionalProperties": false
+    },
+    "PreviewVersions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PreviewVersions",
+      "properties": {
+        "basis": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/PreviewVersion"
+            }
+          ]
+        },
+        "head": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/PreviewVersion"
+            }
+          ]
+        },
+        "candidate": {
+          "$ref": "#/$defs/PreviewVersion"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "PreviewScopeInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PreviewScopeInput",
+      "properties": {
+        "declaredAddedNodeIds": true
+      },
+      "required": [
+        "declaredAddedNodeIds"
+      ],
+      "additionalProperties": false
+    },
+    "CandidateScopePreview": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CandidateScopePreview",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "CandidateNodeSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CandidateNodeSelection",
+      "properties": {
+        "start": {
+          "type": "number"
+        },
+        "mode": {
+          "enum": [
+            "TEXT",
+            "INSERTION"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "end": {
+          "type": "number"
+        },
+        "role": {
+          "enum": [
+            "head",
+            "candidate"
+          ]
+        },
+        "nodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "mode",
+        "path",
+        "end",
+        "role",
+        "nodeId"
+      ],
+      "additionalProperties": false
+    },
+    "NodeTextCoordinates": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NodeTextCoordinates",
+      "properties": {
+        "start": {
+          "type": "number"
+        },
+        "path": {
+          "type": "string"
+        },
+        "end": {
+          "type": "number"
+        },
+        "nodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "path",
+        "end",
+        "nodeId"
+      ],
+      "additionalProperties": false
+    },
+    "NodeTextChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "NodeTextChange",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "operation": {
+              "const": "delete"
+            },
+            "target": {
+              "$ref": "#/$defs/NodeTextCoordinates"
+            }
+          },
+          "required": [
+            "operation",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "operation": {
+              "enum": [
+                "replace",
+                "insert"
+              ]
+            },
+            "source": {
+              "$ref": "#/$defs/NodeTextCoordinates"
+            },
+            "target": {
+              "$ref": "#/$defs/NodeTextCoordinates"
+            }
+          },
+          "required": [
+            "operation",
+            "source",
+            "target"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "TextPreviewBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TextPreviewBinding",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "TextSelectionBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TextSelectionBinding",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "PreviewVersionSession": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PreviewVersionSession",
+      "$defs": {
+        "method.previewText.params": {
+          "type": "object",
+          "properties": {
+            "changes": true
+          },
+          "additionalProperties": false
+        },
+        "method.previewText.return": {
+          "type": "object",
+          "title": "Promise<TextPreviewBinding>"
+        },
+        "method.captureNodeTextSelection.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/CandidateNodeSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.captureNodeTextSelection.return": {
+          "type": "object",
+          "title": "Promise<TextSelectionBinding>"
+        },
+        "method.previewNodeTextChange.params": {
+          "type": "object",
+          "properties": {
+            "change": {
+              "$ref": "#/$defs/NodeTextChange"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previewNodeTextChange.return": {
+          "type": "object",
+          "title": "Promise<TextPreviewBinding>"
+        }
+      },
+      "properties": {
+        "basis": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/PreviewVersion"
+            }
+          ]
+        },
+        "head": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/PreviewVersion"
+            }
+          ]
+        },
+        "candidate": {
+          "$ref": "#/$defs/PreviewVersion"
+        }
+      },
       "additionalProperties": false
     },
     "ContentCandidateBinding": {
@@ -256,6 +551,69 @@
           "type": "object",
           "title": "ReturnType<typeof readContentTenderRecord>"
         },
+        "method.readPreviewVersions.params": {
+          "type": "object",
+          "properties": {
+            "assertConsumer": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readPreviewVersions.return": {
+          "type": "object",
+          "title": "Promise<PreviewVersionSession>"
+        },
+        "method.previewScope.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PreviewScopeInput"
+            },
+            "assertConsumer": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previewScope.return": {
+          "type": "object",
+          "title": "Promise<CandidateScopePreview>"
+        },
+        "method.previewText.params": {
+          "type": "object",
+          "properties": {
+            "changes": true,
+            "assertConsumer": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previewText.return": {
+          "type": "object",
+          "title": "Promise<TextPreviewBinding>"
+        },
+        "method.captureNodeTextSelection.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/CandidateNodeSelection"
+            },
+            "assertConsumer": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.captureNodeTextSelection.return": {
+          "type": "object",
+          "title": "Promise<TextSelectionBinding>"
+        },
         "method.assertCurrent.params": {
           "type": "object",
           "properties": {},
@@ -265,7 +623,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T19:29:27.995Z",
+  "generatedAt": "2026-11-17T21:56:55.533Z",
   "models": {
     "ContentCandidateFactBinding": {
       "name": "ContentCandidateFactBinding",
@@ -354,16 +712,396 @@
         }
       }
     },
+    "PreviewVersion": {
+      "name": "PreviewVersion",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "snapshot",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PreviewVersions": {
+      "name": "PreviewVersions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    basis: PreviewVersion | null;\n    head: PreviewVersion | null;\n    candidate: PreviewVersion;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    basis: PreviewVersion | null;\n    head: PreviewVersion | null;\n    candidate: PreviewVersion;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "basis",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "head",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidate",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PreviewScopeInput": {
+      "name": "PreviewScopeInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<ScopedContentPreviewInput, 'declaredAddedNodeIds'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<ScopedContentPreviewInput, 'declaredAddedNodeIds'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "declaredAddedNodeIds",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "CandidateScopePreview": {
+      "name": "CandidateScopePreview",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<ReturnType<typeof previewScopedRevisionChanges> & {\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<ReturnType<typeof previewScopedRevisionChanges> & {\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CandidateNodeSelection": {
+      "name": "CandidateNodeSelection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<ContentTextSelection, 'path' | 'start' | 'end' | 'mode'> & Readonly<{\n    role: 'candidate' | 'head';\n    nodeId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Pick<ContentTextSelection, 'path' | 'start' | 'end' | 'mode'>",
+            "targetName": "Pick"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    role: 'candidate' | 'head';\n    nodeId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "role",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "NodeTextCoordinates": {
+      "name": "NodeTextCoordinates",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<CandidateNodeSelection, 'role' | 'mode'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Omit<CandidateNodeSelection, 'role' | 'mode'>",
+            "targetName": "Omit"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "start",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "path",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "end",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "NodeTextChange": {
+      "name": "NodeTextChange",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    operation: 'delete';\n    target: NodeTextCoordinates;\n}> | Readonly<{\n    operation: 'insert' | 'replace';\n    source: NodeTextCoordinates;\n    target: NodeTextCoordinates;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    operation: 'delete';\n    target: NodeTextCoordinates;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    operation: 'insert' | 'replace';\n    source: NodeTextCoordinates;\n    target: NodeTextCoordinates;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "operation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "TextPreviewBinding": {
+      "name": "TextPreviewBinding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<ContentTextSnapshotPreview & {\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<ContentTextSnapshotPreview & {\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "TextSelectionBinding": {
+      "name": "TextSelectionBinding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<VerifiedContentTextSpan & {\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<VerifiedContentTextSpan & {\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PreviewVersionSession": {
+      "name": "PreviewVersionSession",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PreviewVersions & Readonly<{\n    previewText: (changes: unknown) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection) => Promise<TextSelectionBinding>;\n    previewNodeTextChange: (change: NodeTextChange) => Promise<TextPreviewBinding>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PreviewVersions",
+            "targetName": "PreviewVersions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    previewText: (changes: unknown) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection) => Promise<TextSelectionBinding>;\n    previewNodeTextChange: (change: NodeTextChange) => Promise<TextPreviewBinding>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "previewText",
+              "parameters": [
+                {
+                  "name": "changes",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "TextPreviewBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "captureNodeTextSelection",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "CandidateNodeSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "TextSelectionBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewNodeTextChange",
+              "parameters": [
+                {
+                  "name": "change",
+                  "type": {
+                    "type": "reference",
+                    "name": "NodeTextChange",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "TextPreviewBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
     "ContentCandidateBinding": {
       "name": "ContentCandidateBinding",
       "jsdoc": "候选链保留各原视图证明；其它业务分组、当前依据、rootHash和采用必须继续核验。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readRequirementPinIssues: (assertConsumer?: () => void) => Promise<ContentCandidateRequirementPinsBinding>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readRequirementPinIssues: (assertConsumer?: () => void) => Promise<ContentCandidateRequirementPinsBinding>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readRequirementPinIssues: (assertConsumer?: () => void) => Promise<ContentCandidateRequirementPinsBinding>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readRequirementPinIssues: (assertConsumer?: () => void) => Promise<ContentCandidateRequirementPinsBinding>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -607,6 +1345,173 @@
                   {
                     "type": "unknown",
                     "name": "typeof readContentTenderRecord"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readPreviewVersions",
+              "parameters": [
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PreviewVersionSession",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewScope",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PreviewScopeInput",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                },
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CandidateScopePreview",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewText",
+              "parameters": [
+                {
+                  "name": "changes",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "TextPreviewBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "captureNodeTextSelection",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "CandidateNodeSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                },
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "TextSelectionBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
                   }
                 ]
               }

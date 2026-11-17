@@ -20,7 +20,8 @@
       "title": "ApiDefinitionQuery",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "modelName": {
           "type": "string"

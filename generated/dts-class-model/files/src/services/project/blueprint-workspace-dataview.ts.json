@@ -273,7 +273,8 @@
       "title": "BlueprintWorkspaceDataView",
       "properties": {
         "dataSet": {
-          "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "view": {
           "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
@@ -327,7 +328,8 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "DataSet"
             },
             "projectId": {
               "type": "string"

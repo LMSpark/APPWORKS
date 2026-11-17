@@ -18,7 +18,8 @@
       "title": "Options",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "runtime": {
           "$ref": "../../../data-space/runtime/data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeApi"

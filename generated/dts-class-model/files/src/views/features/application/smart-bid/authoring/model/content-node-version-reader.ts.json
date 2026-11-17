@@ -8,7 +8,7 @@
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/authoring/model/content-node-version-reader",
     "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-node-version-reader\n职责：通过正文宿主原视图读取精确节点版本，复核查询唯一性及载荷摘要。\n边界：不保存、不复制节点真源、不读取完整快照或授予采用权；清单成员另核。\nAI用途：固定快照给定nodeId/nodeHash后取得原字段绑定，供完整清单组装消费。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "ContentNodeVersionSelection",
       "ContentNodeVersionBinding"
@@ -56,7 +56,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T12:33:14.060Z",
+  "generatedAt": "2026-11-17T21:11:12.257Z",
   "models": {
     "ContentNodeVersionSelection": {
       "name": "ContentNodeVersionSelection",

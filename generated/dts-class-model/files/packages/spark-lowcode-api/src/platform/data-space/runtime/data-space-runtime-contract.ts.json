@@ -52,7 +52,8 @@
         "columns": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
+            "type": "object",
+            "title": "DataColumn"
           }
         },
         "nested": {
@@ -238,8 +239,8 @@
         },
         "direction": {
           "enum": [
-            "asc",
-            "desc"
+            "desc",
+            "asc"
           ]
         }
       },

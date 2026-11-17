@@ -87,7 +87,8 @@
         "columns": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
+            "type": "object",
+            "title": "DataColumn"
           }
         },
         "columnDataViewKey": {

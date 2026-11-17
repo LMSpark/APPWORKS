@@ -194,7 +194,11 @@
       "$defs": {
         "constructor.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "borrowedRuntime": {
+              "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+            }
+          },
           "additionalProperties": false
         },
         "method.open.params": {
@@ -222,7 +226,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T18:55:56.467Z",
+  "generatedAt": "2026-11-17T21:48:35.092Z",
   "models": {
     "ContentAuthoringTarget": {
       "name": "ContentAuthoringTarget",
@@ -518,8 +522,23 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor()",
-          "parameters": []
+          "jsdoc": "由导航实例池传入时，运行实例继续由实例池负责装载和释放。",
+          "signatureText": "constructor(borrowedRuntime?: PageRuntime | undefined)",
+          "parameters": [
+            {
+              "name": "borrowedRuntime",
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "PageRuntime"
+                }
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
         },
         "members": {
           "attributes": [

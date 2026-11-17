@@ -21,7 +21,8 @@
       "title": "AiDataEntryHostInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         }
       },
       "additionalProperties": false,

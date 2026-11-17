@@ -134,8 +134,7 @@
           "type": "string"
         },
         "prepared": {
-          "type": "object",
-          "title": "PageDataSpaceModelSourcePrepared"
+          "$ref": "#/$defs/Prepared"
         }
       },
       "required": [
@@ -177,12 +176,12 @@
       "title": "ModelCreateStatus",
       "enum": [
         "idle",
-        "previewing",
-        "ready",
-        "saving",
         "unsubmitted",
         "unknown",
         "readback",
+        "previewing",
+        "ready",
+        "saving",
         "different"
       ]
     },
@@ -402,7 +401,8 @@
           "type": "string"
         },
         "dataSet": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"
@@ -438,7 +438,8 @@
       "title": "ModelCreateHostInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"

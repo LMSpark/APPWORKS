@@ -20,7 +20,8 @@
       "title": "PageFileOperationScope",
       "properties": {
         "dataSet": {
-          "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "appId": {
           "type": "string"

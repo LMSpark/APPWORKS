@@ -294,7 +294,8 @@
         "method.queryColumns.return": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
+            "type": "object",
+            "title": "SparkData.DataColumn"
           }
         },
         "method.executeQuery.params": {
@@ -334,7 +335,8 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "SparkData.DataSet"
             }
           },
           "additionalProperties": false

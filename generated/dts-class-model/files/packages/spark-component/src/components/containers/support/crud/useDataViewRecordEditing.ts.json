@@ -107,7 +107,8 @@
           "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "dataSet": {
-          "$ref": "../../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "dataViewKey": {
           "type": "string"

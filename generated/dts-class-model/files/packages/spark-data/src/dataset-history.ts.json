@@ -222,6 +222,15 @@
       "type": "object",
       "title": "DataSetCommitSnapshotOptions",
       "properties": {
+        "label": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "number"
+        },
         "dataSetName": {
           "type": "string"
         },
@@ -244,19 +253,10 @@
         "maxEntries": {
           "type": "number"
         },
-        "label": {
-          "type": "string"
-        },
-        "summary": {
-          "type": "string"
-        },
         "sourceData": {
           "type": "object",
           "properties": {},
           "additionalProperties": true
-        },
-        "timestamp": {
-          "type": "number"
         },
         "bumpVersion": {
           "enum": [

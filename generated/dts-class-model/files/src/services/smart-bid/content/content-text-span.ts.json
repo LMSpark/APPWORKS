@@ -13,6 +13,7 @@
       "ContentTextOwner",
       "ContentTextSpan",
       "ContentTextSpanInput",
+      "ContentTextSelection",
       "VerifiedContentTextSpan"
     ]
   },
@@ -138,6 +139,49 @@
       ],
       "additionalProperties": false
     },
+    "ContentTextSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTextSelection",
+      "properties": {
+        "object": true,
+        "mode": {
+          "enum": [
+            "TEXT",
+            "INSERTION"
+          ]
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "owner": {
+          "$ref": "#/$defs/ContentTextOwner"
+        },
+        "path": {
+          "type": "string"
+        },
+        "start": {
+          "type": "number"
+        },
+        "end": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "object",
+        "mode",
+        "projectId",
+        "revisionId",
+        "owner",
+        "path",
+        "start",
+        "end"
+      ],
+      "additionalProperties": false
+    },
     "VerifiedContentTextSpan": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -179,7 +223,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T09:51:01.629Z",
+  "generatedAt": "2026-11-17T21:54:32.195Z",
   "models": {
     "ContentTextOwner": {
       "name": "ContentTextOwner",
@@ -316,6 +360,45 @@
             },
             {
               "name": "mode",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTextSelection": {
+      "name": "ContentTextSelection",
+      "jsdoc": "由固定版原字段和用户选区生成 V2 引用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<ContentTextSpanInput, 'reference'> & Readonly<{\n    path: string;\n    start: number;\n    end: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<ContentTextSpanInput, 'reference'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    path: string;\n    start: number;\n    end: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "start",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "end",
               "readable": true,
               "writable": false
             }

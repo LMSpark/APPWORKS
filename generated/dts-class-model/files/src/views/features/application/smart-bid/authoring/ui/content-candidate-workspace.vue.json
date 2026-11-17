@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/authoring/ui/content-candidate-workspace",
-    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/content-candidate-workspace\n职责：通过标准组件只读呈现已核候选的原修订及节点视图。\n边界：只通过原候选绑定读取固定事实，不复制候选、不修改行或生成预演；原证明失效即撤下内容。\nAI用途：正文宿主读取候选后传入同次绑定；采用须另完成完整比对、预演与权威提交。",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/content-candidate-workspace\n职责：通过标准组件只读呈现已核候选的原修订及节点视图。\n边界：通过原候选绑定读取固定事实和要求及三版比对，不写入候选或采用；原证明失效即撤下内容。\nAI用途：正文宿主读取候选后传入同次绑定；采用须另完成完整比对、预演与权威提交。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-17T16:39:52.199Z",
+  "generatedAt": "2026-11-17T22:03:58.103Z",
   "models": {}
 }

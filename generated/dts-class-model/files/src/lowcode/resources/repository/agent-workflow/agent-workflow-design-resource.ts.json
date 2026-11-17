@@ -66,7 +66,8 @@
         "columns": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+            "type": "object",
+            "title": "DataColumn"
           }
         },
         "views": {
@@ -283,7 +284,8 @@
         "columns": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+            "type": "object",
+            "title": "DataColumn"
           }
         },
         "resultPrimaryKey": {

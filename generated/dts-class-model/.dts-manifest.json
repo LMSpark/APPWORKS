@@ -2284,12 +2284,12 @@
     "packages/spark-component/src/components/fields/data-components/text/FieldTextarea/FieldTextarea.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldTextarea/FieldTextarea.props.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldTextarea/FieldTextarea.props.ts.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.155Z"
+      "sourceModifiedAt": "2026-11-17T22:02:03.858Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldTextarea/FieldTextarea.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldTextarea/FieldTextarea.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldTextarea/FieldTextarea.vue.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.156Z"
+      "sourceModifiedAt": "2026-11-17T22:02:03.871Z"
     },
     "packages/spark-component/src/components/fields/data-components/value/FieldColor/FieldColor.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/value/FieldColor/FieldColor.props.ts",
@@ -2714,7 +2714,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-17T15:39:11.936Z"
+      "sourceModifiedAt": "2026-11-17T20:21:37.177Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -3239,7 +3239,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts.json",
-      "sourceModifiedAt": "2026-11-17T01:47:55.589Z"
+      "sourceModifiedAt": "2026-11-17T20:19:28.329Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts",
@@ -3464,7 +3464,7 @@
     "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts.json",
-      "sourceModifiedAt": "2026-11-17T12:00:26.083Z"
+      "sourceModifiedAt": "2026-11-17T20:36:58.446Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
@@ -3954,7 +3954,7 @@
     "src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts.json",
-      "sourceModifiedAt": "2026-10-30T20:12:39.406Z"
+      "sourceModifiedAt": "2026-11-17T19:42:24.479Z"
     },
     "src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts",
@@ -4094,7 +4094,7 @@
     "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "shardFile": "files/src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json",
-      "sourceModifiedAt": "2026-11-16T23:00:47.379Z"
+      "sourceModifiedAt": "2026-11-17T19:39:59.265Z"
     },
     "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts",
@@ -4179,7 +4179,7 @@
     "src/lowcode/resources/database/catalog/table-view.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table-view.ts",
       "shardFile": "files/src/lowcode/resources/database/catalog/table-view.ts.json",
-      "sourceModifiedAt": "2026-11-16T21:20:07.102Z"
+      "sourceModifiedAt": "2026-11-17T20:50:42.279Z"
     },
     "src/lowcode/resources/database/catalog/table/copy-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table/copy-view-ops.ts",
@@ -4204,7 +4204,7 @@
     "src/lowcode/resources/database/catalog/table/preview-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
       "shardFile": "files/src/lowcode/resources/database/catalog/table/preview-view-ops.ts.json",
-      "sourceModifiedAt": "2026-11-08T01:20:14.568Z"
+      "sourceModifiedAt": "2026-11-17T20:59:47.451Z"
     },
     "src/lowcode/resources/database/catalog/table/register-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table/register-view-ops.ts",
@@ -5234,7 +5234,7 @@
     "src/services/smart-bid/content-tree-comparison.ts": {
       "sourceFile": "src/services/smart-bid/content-tree-comparison.ts",
       "shardFile": "files/src/services/smart-bid/content-tree-comparison.ts.json",
-      "sourceModifiedAt": "2026-11-17T09:28:06.656Z"
+      "sourceModifiedAt": "2026-11-17T21:37:39.573Z"
     },
     "src/services/smart-bid/content-tree-draft-editor.ts": {
       "sourceFile": "src/services/smart-bid/content-tree-draft-editor.ts",
@@ -5259,7 +5259,7 @@
     "src/services/smart-bid/content/content-scoped-preview.ts": {
       "sourceFile": "src/services/smart-bid/content/content-scoped-preview.ts",
       "shardFile": "files/src/services/smart-bid/content/content-scoped-preview.ts.json",
-      "sourceModifiedAt": "2026-11-17T09:41:59.683Z"
+      "sourceModifiedAt": "2026-11-17T21:28:28.899Z"
     },
     "src/services/smart-bid/content/content-target-scope.ts": {
       "sourceFile": "src/services/smart-bid/content/content-target-scope.ts",
@@ -5279,7 +5279,7 @@
     "src/services/smart-bid/content/content-text-span.ts": {
       "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
       "shardFile": "files/src/services/smart-bid/content/content-text-span.ts.json",
-      "sourceModifiedAt": "2026-11-17T09:51:01.629Z"
+      "sourceModifiedAt": "2026-11-17T21:54:32.195Z"
     },
     "src/services/smart-bid/content/hashes/content-subtree-hash.ts": {
       "sourceFile": "src/services/smart-bid/content/hashes/content-subtree-hash.ts",
@@ -5325,6 +5325,11 @@
       "sourceFile": "src/services/smart-bid/content/references/snapshot-reference-values.ts",
       "shardFile": "files/src/services/smart-bid/content/references/snapshot-reference-values.ts.json",
       "sourceModifiedAt": "2026-11-17T13:32:07.664Z"
+    },
+    "src/services/smart-bid/content/revision-response-comparison.ts": {
+      "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+      "shardFile": "files/src/services/smart-bid/content/revision-response-comparison.ts.json",
+      "sourceModifiedAt": "2026-11-17T21:23:50.823Z"
     },
     "src/services/smart-bid/content/revision-snapshot-hash.ts": {
       "sourceFile": "src/services/smart-bid/content/revision-snapshot-hash.ts",
@@ -5679,12 +5684,12 @@
     "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-17T18:24:17.273Z"
+      "sourceModifiedAt": "2026-11-17T21:51:19.434Z"
     },
     "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts.json",
-      "sourceModifiedAt": "2026-11-17T18:56:54.422Z"
+      "sourceModifiedAt": "2026-11-17T21:51:19.445Z"
     },
     "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts",
@@ -5694,57 +5699,57 @@
     "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts.json",
-      "sourceModifiedAt": "2026-11-17T18:55:56.467Z"
+      "sourceModifiedAt": "2026-11-17T21:48:35.092Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T19:22:12.729Z"
+      "sourceModifiedAt": "2026-11-17T21:11:12.255Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T19:29:27.995Z"
+      "sourceModifiedAt": "2026-11-17T21:56:55.533Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T15:08:33.519Z"
+      "sourceModifiedAt": "2026-11-17T21:11:12.256Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T12:33:14.060Z"
+      "sourceModifiedAt": "2026-11-17T21:11:12.257Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T18:31:35.888Z"
+      "sourceModifiedAt": "2026-11-17T21:11:12.258Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T12:55:34.788Z"
+      "sourceModifiedAt": "2026-11-17T21:19:43.564Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts.json",
-      "sourceModifiedAt": "2026-11-17T14:36:06.896Z"
+      "sourceModifiedAt": "2026-11-17T21:17:10.849Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T12:24:36.171Z"
+      "sourceModifiedAt": "2026-11-17T21:17:10.837Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T19:27:24.392Z"
+      "sourceModifiedAt": "2026-11-17T21:11:12.259Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue.json",
-      "sourceModifiedAt": "2026-11-17T16:39:52.199Z"
+      "sourceModifiedAt": "2026-11-17T22:03:58.103Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue",
@@ -5939,7 +5944,7 @@
     "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue.json",
-      "sourceModifiedAt": "2026-11-16T22:57:20.246Z"
+      "sourceModifiedAt": "2026-11-17T20:24:30.690Z"
     },
     "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.props.ts",
@@ -5994,7 +5999,7 @@
     "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue.json",
-      "sourceModifiedAt": "2026-11-17T01:34:41.798Z"
+      "sourceModifiedAt": "2026-11-17T20:55:58.568Z"
     },
     "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
@@ -6144,7 +6149,7 @@
     "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-14T12:09:11.796Z"
+      "sourceModifiedAt": "2026-11-17T20:38:17.547Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
@@ -6154,12 +6159,12 @@
     "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue.json",
-      "sourceModifiedAt": "2026-11-17T12:00:26.088Z"
+      "sourceModifiedAt": "2026-11-17T20:38:43.909Z"
     },
     "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-17T11:02:41.689Z"
+      "sourceModifiedAt": "2026-11-17T20:21:52.704Z"
     },
     "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts": {
       "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-field-spec.ts",

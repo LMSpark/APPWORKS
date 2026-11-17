@@ -43,7 +43,9 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   Requirement:{modelBinding:{modelId:'REQ_MODEL',modelName:'Requirement'},columns:Object.keys(requirement).map(name=>({name,isPrimaryKey:name==='id',type:['sourceSpan','supportingSpans','sourceRecord','checks','constraint','applicability'].includes(name)?'object':name==='score'?'number':'string'})),
    views:{default:{},selectedRequirement:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('lineageId'),eq('version')]}}}},
   Baseline:{modelBinding:{modelId:'BM',modelName:'Baseline'},columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'stageRef',type:'object'},{name:'factVersions',type:'object'},{name:'requirementVersions',type:'object'},{name:'tenderRecords',type:'object'}],
-   views:{default:{},selectedBaseline:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','baselineId')]}}}},
+   views:{default:{},...Object.fromEntries(['selectedBaseline','selectedBasisBaseline','selectedHeadBaseline'].map(key=>[
+    key,{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','baselineId')]}},
+   ]))}},
   FactVersion:{modelBinding:{modelId:'FM',modelName:'FactVersion'},columns:['id','projectId','key','version','kind','value','unit','sourceIds','claimId','scopeRef','decisionRefs','dependencyRefs','promiseTerms','sourceRecord','status'].map(name=>({name,isPrimaryKey:name==='id',type:name==='version'?'number':['value','sourceIds','scopeRef','decisionRefs','dependencyRefs','promiseTerms','sourceRecord'].includes(name)?'object':'string'})),
    views:{default:{},selectedFactVersion:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('key'),eq('version')]}}}},
   ContentProject:{modelBinding:{modelId:'PM',modelName:'ContentProject'},columns:[{name:'projectId',type:'string',isPrimaryKey:true},{name:'headRevisionId',type:'string'}],

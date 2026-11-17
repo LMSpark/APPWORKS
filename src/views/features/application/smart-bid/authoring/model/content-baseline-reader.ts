@@ -56,12 +56,12 @@ function valid(view:DataView):boolean {
   &&hasContentScopeCondition(view,'id',{Type:'GetInputParam',ParamName:'baselineId'})
 }
 /** 两种成员消费共用原查询、阶段和字段证明，不复制查询/保存责任。 */
-async function readOriginalBaseline(host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown}>,memberField:'factVersions'|'requirementVersions'|'tenderRecords'){
+async function readOriginalBaseline(host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown;viewName?:string}>,memberField:'factVersions'|'requirementVersions'|'tenderRecords'){
  const {runtime,scenarioId,projectId}=host,{baselineId}=input
  host.assertCurrent()
  if(!snapshotReferenceIdentity(scenarioId)||!snapshotReferenceIdentity(projectId)||!snapshotReferenceIdentity(baselineId)
   ||input.stageRef===null||typeof input.stageRef!=='string'&&typeof input.stageRef!=='object')throw Error('CONTENT_BASELINE_IDENTITY_REQUIRED')
- const expectedStage=stage(input.stageRef),baselineDataViewKey=buildDataViewKey('Baseline','selectedBaseline',scenarioId)
+ const expectedStage=stage(input.stageRef),baselineDataViewKey=buildDataViewKey('Baseline',input.viewName??'selectedBaseline',scenarioId)
  const view=runtime.resolveView(baselineDataViewKey)
  if(!view||!valid(view))throw Error('CONTENT_BASELINE_SCOPE_REQUIRED')
  if(view.hasEditingChanges())throw Error('CONTENT_BASELINE_EDITING')
@@ -84,8 +84,9 @@ async function readOriginalBaseline(host:ContentRevisionReadHost,input:Readonly<
 }
 
 /** 为固定修订根摘要提供原基线事实成员绑定。 */
-export async function readContentBaselineFactIndex(host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown}>){
- const baseline=await readOriginalBaseline(host,input,'factVersions')
+export async function readContentBaselineFactIndex(host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown;role:'candidate'|'basis'|'head'|'adoption'}>){
+ const viewName=input.role==='basis'?'selectedBasisBaseline':input.role==='head'?'selectedHeadBaseline':'selectedBaseline'
+ const baseline=await readOriginalBaseline(host,{baselineId:input.baselineId,stageRef:input.stageRef,viewName},'factVersions')
  return Object.freeze({dataViewKey:baseline.key,assertCurrent:baseline.assertCurrent})
 }
 /** 证明原基线固定了这条完整来源引用，原核定记录内容和准用另核。 */

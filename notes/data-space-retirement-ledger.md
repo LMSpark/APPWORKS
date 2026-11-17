@@ -11064,3 +11064,4 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - 2026-11-18 实服节点成员视图：ContentNodeVersion 新增 basisSnapshotMembers、headSnapshotMembers、adoptionSnapshotMembers；三条分别保存并回读成功。整页重开后逐条确认常驻 AND(projectId eq GetInputParam(projectId),nodeHash in GetInputParam(nodeHashes))，paged、allPages=true、staged。未查或写业务行，ContentAdoption 和正式导航仍待。根摘要组合及历史合并根核验另独立复验7文件47项与 ESLint 通过；并行候选根新用例在未接源码时有1项预期失败，未混收。
 - 2026-11-18 候选复用固定根摘要核验：候选和历史合并共用原修订/快照身份、已核成员、固定基线及编码合同；未知编码在查询基线前停止。读取与摘要14文件148项，最后守卫调整后两文件37项及 ESLint通过。此为显式核验入口，当前头和基准双角色核验、实服编码仍待。
 - 2026-11-18 根摘要读取器归入模型 hashes 子目录。SmartBid 正文专项 51 文件 565 项通过，移动后读取专项 10 文件 136 项、ESLint 和目录门禁通过。正式编码与历史记录回读仍需实服验证。
+- 2026-11-18 三版根摘要一次核验：候选、基准、当前头分别固定原修订、快照及对应基线视图。基准/头命名视图 selectedBasisBaseline/selectedHeadBaseline 与候选 selectedBaseline 隔离；重查其中一项撤销组合且其它独立证明仍可核。首稿空版本不发查询。14文件149项和 ESLint通过；实服命名视图及编码待配置验收。

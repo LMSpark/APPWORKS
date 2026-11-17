@@ -258,3 +258,19 @@ it('checks the candidate root against its original baseline without substituting
   expect(()=>verified.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
  }finally{f.ds.destroy()}
 })
+it('verifies three revision roots without invalidating another role baseline proof',async()=>{
+ const f=await fixture('populated',{computeRoot:true,threeVersions:true})
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:'V2'})
+  const versions=await candidate.readPreviewVersions()
+  const results=await versions.verifyRootHashes(CONTENT_ROOT_HASH_CONTRACT)
+  expect(results.candidate.rootHash).toBe(results.head?.rootHash)
+  expect(results.candidate.rootHash).toBe(results.basis?.rootHash)
+  results.assertCurrent()
+  const views=f.query.mock.calls.map(([view])=>view.viewId)
+  expect(views).toEqual(expect.arrayContaining(['selectedBaseline','selectedBasisBaseline','selectedHeadBaseline']))
+  await f.ds.getView('Baseline','selectedHeadBaseline')!.refresh()
+  expect(()=>results.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  results.candidate.assertCurrent();results.basis?.assertCurrent()
+ }finally{f.ds.destroy()}
+})

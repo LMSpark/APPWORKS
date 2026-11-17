@@ -23,7 +23,7 @@ export async function verifyReadableRevisionRoot(input:Readonly<{
  if(typeof expected!=='string'||!/^[a-f0-9]{64}$/u.test(expected))throw Error('CONTENT_ROOT_HASH_REQUIRED')
  const assertSnapshot=()=>{host.assertCurrent();snapshot.assertCurrent();assertRoot()}
  const baseline=await readContentBaselineFactIndex({...host,assertCurrent:assertSnapshot},
-  {baselineId:snapshot.index.baselineId,stageRef:row['stageRef']})
+  {baselineId:snapshot.index.baselineId,stageRef:row['stageRef'],role:snapshot.role})
  const assertCurrent=()=>{assertSnapshot();baseline.assertCurrent()}
  assertCurrent()
  const source=runtime.resolveView(baseline.dataViewKey)?.rows[0]

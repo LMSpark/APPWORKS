@@ -37,10 +37,13 @@ type NodeTextChange=Readonly<{operation:'delete';target:NodeTextCoordinates}>
  |Readonly<{operation:'insert'|'replace';source:NodeTextCoordinates;target:NodeTextCoordinates}>
 type TextPreviewBinding=Readonly<ContentTextSnapshotPreview&{assertCurrent:()=>void}>
 type TextSelectionBinding=Readonly<VerifiedContentTextSpan&{assertCurrent:()=>void}>
+type RevisionRootProof=Awaited<ReturnType<typeof verifyReadableRevisionRoot>>
+type PreviewRootProofs=Readonly<{candidate:RevisionRootProof;basis:RevisionRootProof|null;head:RevisionRootProof|null;assertCurrent:()=>void}>
 type PreviewVersionSession=PreviewVersions&Readonly<{
  previewText:(changes:unknown)=>Promise<TextPreviewBinding>
  captureNodeTextSelection:(input:CandidateNodeSelection)=>Promise<TextSelectionBinding>
  previewNodeTextChange:(change:NodeTextChange)=>Promise<TextPreviewBinding>
+ verifyRootHashes:(contract:string)=>Promise<PreviewRootProofs>
 }>
 
 
@@ -164,6 +167,19 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const versions={basis,head,candidate:Object.freeze({snapshot,nodes}),assertCurrent:assertPreview}
   const captureSelection=(input:CandidateNodeSelection)=>captureNodeSelection(input,input.role==='candidate'?versions.candidate:head,assertPreview)
   return Object.freeze({...versions,
+   async verifyRootHashes(contract:string){
+    const verify=(revisionDataViewKey:string,snapshotIndex:ContentSnapshotIndexBinding)=>verifyReadableRevisionRoot({
+     host:{...host,assertCurrent:assertPreview},revisionDataViewKey,snapshot:snapshotIndex,contract,
+    })
+    const [candidateRoot,basisRoot,headRoot]=await Promise.all([
+     verify(revisions.candidateDataViewKey,snapshot),
+     basis&&basisRevision.dataViewKey?verify(basisRevision.dataViewKey,basis.snapshot):null,
+     head&&revisions.headDataViewKey?verify(revisions.headDataViewKey,head.snapshot):null,
+    ])
+    const assertRoots=()=>{candidateRoot.assertCurrent();basisRoot?.assertCurrent();headRoot?.assertCurrent()}
+    assertRoots()
+    return Object.freeze({candidate:candidateRoot,basis:basisRoot,head:headRoot,assertCurrent:assertRoots})
+   },
    previewText:(changes:unknown)=>previewTextFromVersions(versions,changes),
    captureNodeTextSelection:captureSelection,
    previewNodeTextChange:async(change:NodeTextChange)=>{

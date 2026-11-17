@@ -4884,7 +4884,7 @@
     "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts.json",
-      "sourceModifiedAt": "2026-11-16T21:28:50.521Z"
+      "sourceModifiedAt": "2026-11-17T05:34:47.892Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts",

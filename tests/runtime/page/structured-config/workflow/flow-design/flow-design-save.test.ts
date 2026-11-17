@@ -1,8 +1,28 @@
 import {describe,expect,it} from 'vitest'
 import {fixture,storage} from './flow-design-data.fixture'
-import {saveFlowDesignInfo,addFlowDesignNode,removeFlowDesignGraphSelection,stageFlowDesignGraph,cancelFlowDesignChanges,prepareFlowDesignViews,WorkflowFlowModelManager} from '@/lowcode/resources/system/workflow/manage'
+import {saveFlowDesignInfo,addFlowDesignNode,addFlowDesignEdge,removeFlowDesignGraphSelection,stageFlowDesignGraph,cancelFlowDesignChanges,prepareFlowDesignViews,WorkflowFlowModelManager} from '@/lowcode/resources/system/workflow/manage'
 
 describe('flow design saves through its original data workspace',()=>{
+ it('persists a newly connected node and form through the same DataSet and rereads their graph',async()=>{
+  const {runtime,ds,http,nodes,forms}=await fixture()
+  const command={runtime,flowModelId:'FM-1'}
+  const created=await addFlowDesignNode({...command,layoutOverride:{},x:300,y:200})
+  const connected=await addFlowDesignEdge({...command,parentId:'N1',childId:created.nodeId,layoutOverride:created.layoutOverride})
+  await forms.addRowWithIdentity({field:'rowid',value:'WF2'},{FlowID:'FM-1',FORMID:'FORM2',FormName:'Second form'})
+  await stageFlowDesignGraph({...command,layoutOverride:connected.layoutOverride})
+  expect(http.saves).toHaveLength(0)
+  expect((await saveFlowDesignInfo(command)).complete).toBe(true)
+  expect(http.records['WFM_FLOW_NODE']).toEqual(expect.arrayContaining([expect.objectContaining({rowid:created.nodeId,FLOWID:'FM-1'})]))
+  expect(http.records['WFM_NODE_REALATION']).toEqual([expect.objectContaining({rowid:connected.edgeId,UpNodeID:'N1',NextNodeID:created.nodeId})])
+  expect(http.records['WFM_WORKFORM']).toEqual(expect.arrayContaining([expect.objectContaining({rowid:'WF2',FORMID:'FORM2'})]))
+  const graph=JSON.parse(storage.text)
+  expect(graph.nodes).toEqual(expect.arrayContaining([expect.objectContaining({id:created.nodeId,x:300,y:200})]))
+  expect(graph.edges).toEqual(expect.arrayContaining([expect.objectContaining({id:connected.edgeId})]))
+  await Promise.all([nodes.refresh(),forms.refresh(),ds.getView('WFM_NODE_REALATION')!.refresh()])
+  expect(nodes.rows.some(row=>row['rowid']===created.nodeId)).toBe(true)
+  expect(forms.rows.some(row=>row['rowid']==='WF2')).toBe(true)
+  expect(storage.writes).toBe(1)
+ })
  it('uses current new-row access for model creation when no row is current and rejects stale query access',async()=>{
   const {ds}=await fixture(),model=ds.getView('WFM_FLOW_MODLE')!,manager=new WorkflowFlowModelManager(model)
   model.setCurrentRow(null)

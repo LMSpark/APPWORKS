@@ -103,7 +103,7 @@ export async function addFlowDesignNode(command: AddFlowDesignNodeCommand): Prom
   await nodeView.addRowWithIdentity({field:'rowid',value:nodeId},{
     FLOWID: flowModelId,
     TITLE: '新节点',
-    TYPEID: 11,
+    TYPEID: '11',
   })
   return {
     nodeId,

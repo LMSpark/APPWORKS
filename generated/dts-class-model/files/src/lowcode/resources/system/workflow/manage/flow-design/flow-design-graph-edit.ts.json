@@ -170,7 +170,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-16T21:28:50.521Z",
+  "generatedAt": "2026-11-17T05:34:47.892Z",
   "models": {
     "RemoveFlowDesignGraphSelectionCommand": {
       "name": "RemoveFlowDesignGraphSelectionCommand",

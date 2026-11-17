@@ -141,8 +141,8 @@
   "browserEvidence": "notes/evidence/appworks-iteration-i13-directory-browser-20261117.json",
   "uiSmoke": false,
   "full20PackageMigrationComplete": false,
-  "committed": false,
-  "pushed": false,
+  "committed": true,
+  "pushed": true,
   "afterFullRootChanges": {
     "sourceAndTests": [
       "src/services/smart-bid/content-node-hash.ts",
@@ -151,5 +151,9 @@
     ],
     "generatedArtifacts": "refreshed through official compiler after private implementation fix; no handwritten products"
   },
-  "publicationStatus": "prepared; actual commit and push recorded after verification"
+  "publicationStatus": "code checkpoint pushed and remote verified; receipt documentation recorded separately",
+  "codeCommit": "f93032cdbfe9b7cc7ea6c98f5d810a436726c472",
+  "remoteVerifiedCodeCommit": "f93032cdbfe9b7cc7ea6c98f5d810a436726c472",
+  "branch": "codex/spark-data-s1-command-safety",
+  "pushVerifiedAt": "2026-11-17T03:29:48.158837+00:00"
 }

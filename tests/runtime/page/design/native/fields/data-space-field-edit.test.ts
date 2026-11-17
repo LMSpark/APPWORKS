@@ -615,12 +615,14 @@ describe('formal field configuration maintenance', () => {
   })
 
   it('enables all model outputs then saves once and reopens the native field metadata', async () => {
-    const f = fixture({editableFieldProperties: ['IsOutput'], sourceFields: originalFields.map(row => row.rowid === 'PK' ? row : {...row, IsOutput: 0})})
+    const f = fixture({editableFieldProperties: ['IsOutput', 'ValueFun'], sourceFields: originalFields.map(row => row.rowid === 'PK' ? row : {...row, IsOutput: 0})})
     const wrapper = await page(); await select(wrapper, 'Orders')
     await wrapper.find('.node-panel-tabs').getComponent(RendererTabs).get('#tab-fields').trigger('click'); await flushPromises()
     const control = wrapper.find('[data-action="enable-field-output"]')
     expect(control.exists()).toBe(true)
     await control.trigger('click'); await flushPromises()
+    const fields = f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
+    expect(fields.getEditingPatch('AMOUNT')).toEqual({IsOutput: 1})
     await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
     expect(wrapper.text()).toContain('批量保存')
     expect(f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1)
@@ -891,7 +893,7 @@ describe('formal field configuration maintenance', () => {
   })
 
   it('binds output controls to the formal DataView without implicit edits and cancels the alias draft', async () => {
-    const f = fixture({editableFieldProperties: ['AsName', 'IsOutput']}), wrapper = await page()
+    const f = fixture({editableFieldProperties: ['AsName', 'IsOutput', 'ValueFun']}), wrapper = await page()
     await select(wrapper, 'amount')
     const fields = f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'default')!
     const alias = wrapper.findAllComponents(FieldText).find(item => item.props('field') === 'AsName')
@@ -900,7 +902,8 @@ describe('formal field configuration maintenance', () => {
     expect(alias!.props('modelValue')).toBeUndefined(); expect(output!.props('modelValue')).toBeUndefined()
     expect(fields.hasEditingChanges()).toBe(false)
     await alias!.get('input').setValue('draftAlias'); await flushPromises()
-    expect(fields.getEditingRow('AMOUNT')?.['AsName']).toBe('draftAlias')
+    expect(fields.getEditingPatch('AMOUNT')).toEqual({AsName: 'draftAlias'})
+    expect(fields.getEditingRow('AMOUNT')?.['ValueFun']).toBe(originalFields[2]!.ValueFun)
     await wrapper.get('[data-action="cancel-field"]').trigger('click'); await flushPromises()
     expect(fields.hasEditingChanges()).toBe(false)
     expect(f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(0)

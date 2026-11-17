@@ -73,6 +73,7 @@ temp-catalog-per-comp/
 
 # AI / e2e 本地运行产物（报告、联调日志等，不提交）
 artifacts/
+/cache/
 
 # TypeScript incremental build cache
 *.tsbuildinfo

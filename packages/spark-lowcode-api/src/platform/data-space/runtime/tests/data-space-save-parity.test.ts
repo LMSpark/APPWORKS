@@ -1,10 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { snapshotDataSpaceSaveActionOrder } from '../save/data-space-save-order'
 import { assertDataSpaceSaveSuccess, readDataSpaceSaveReceipt } from '../save/data-space-save-result'
 import { requireDataSpaceMutationInput, failDataSpaceMutationWithoutEffect } from '../save/data-space-save-guard'
 import { DataSpaceQueryContext } from '../query/data-space-query-context'
 import { DataSpaceQueryTable } from '../protocol/data-space-query-table'
-import { DataSpaceRequest } from '../protocol/data-space-request'
+import { DataSpaceRequest, DataSpaceSaveUnconfirmedError } from '../protocol/data-space-request'
+import { DataSpaceRuntimeApi } from '../data-space-runtime-api'
 import { HttpClientBase } from '@spark-appworks/spark-utils'
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 
@@ -18,6 +19,100 @@ class DataSpaceSaveFixtureHttp extends HttpClientBase {
     return { data: this.response, status: 200, statusText: 'OK', headers: {} }
   }
 }
+
+describe('original save recovery after post-dispatch invalidation', () => {
+  it.each(['scope', 'abort', 'ordinary-read-error'] as const)('preserves both original models when the second added-row permission read encounters %s', async mode => {
+    const controller = new AbortController()
+    let scope = 'original', queries = 0, writes = 0
+    class AddedPermissionsHttp extends HttpClientBase {
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        let data: unknown
+        if (config.url === '/api/DataOperation/GetData') {
+          queries++
+          if (queries === 4) {
+            if (mode === 'scope') scope = 'other'
+            else if (mode === 'abort') controller.abort()
+            else throw Error('Fixture permission read unavailable')
+          }
+          const name = (config.data as {Table: Array<{Name: string}>}).Table[0]!.Name
+          const row = {rowid: name === 'OrdersA' ? 'NEW-A' : 'NEW-B', salary: 120,
+            lingma_sys_key: 'fixture-row', lingma_sys_params: {r: ['salary'], e: ['salary'], d: true}}
+          data = {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd: true, lingma_sys_key: 'fixture-table',
+            data: {Items: writes ? [row] : [], Count: writes ? 1 : 0}}}
+        } else if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
+          writes++
+          data = {Code: 200, Result: {maplistadd: [
+            {physicalA: [{rowid: 'NEW-A', salary: 120}]}, {physicalB: [{rowid: 'NEW-B', salary: 120}]},
+          ]}}
+        } else throw Error('Unexpected fixture endpoint')
+        return {data, status: 200, statusText: 'OK', headers: {}}
+      }
+    }
+    const api = new DataSpaceRuntimeApi({http: new AddedPermissionsHttp({retry: 0}), readScope: () => ({token: scope, headers: {}})})
+    const identities = ['OrdersA', 'OrdersB'].map(metaName => ({scenarioId: 'SCENE', metaName}))
+    const contexts = await Promise.all(identities.map(identity => api.query(identity, {fields: ['rowid', 'salary']})))
+    const changes = identities.map((identity, index) => ({identity, context: contexts[index]!,
+      changes: {added: [{rowid: index === 0 ? 'NEW-A' : 'NEW-B', salary: 120}]}}))
+    if (mode === 'ordinary-read-error') {
+      const accepted = await api.save({changes, signal: controller.signal})
+      expect(accepted.map(receipt => receipt.context.hasPendingSavedRowPermissions)).toEqual([false, true])
+      expect(contexts.map(context => api.hasUnconfirmedSave(context))).toEqual([false, false])
+    } else {
+      await expect(api.save({changes, signal: controller.signal})).rejects.toBeInstanceOf(DataSpaceSaveUnconfirmedError)
+      expect(contexts.map(context => api.hasUnconfirmedSave(context))).toEqual([true, true])
+      expect(queries).toBe(4)
+      scope = 'original'
+      const verified = await api.save({changes})
+      expect(verified.map(receipt => receipt.context.hasPendingSavedRowPermissions)).toEqual([false, false])
+      expect(contexts.map(context => api.hasUnconfirmedSave(context))).toEqual([false, false])
+      expect(queries).toBe(6)
+    }
+    expect(writes).toBe(1)
+  })
+
+  it.each(['abort', 'late-scope'] as const)('retains the original %s outcome and verifies without a second write', async mode => {
+    const controller = new AbortController()
+    let scope = 'original', writes = 0, queries = 0, stored = 100
+    class AppliedSaveHttp extends HttpClientBase {
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        let data: unknown
+        if (config.url === '/api/DataOperation/GetData') {
+          queries++
+          data = {Code: 200, Result: {primaryKeyField: 'rowid', data: {Items: [{rowid: 'ROW-1', salary: stored,
+            lingma_sys_key: 'fixture-row', lingma_sys_params: {r: ['salary'], e: ['salary'], d: true}}], Count: 1}}}
+        } else if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
+          writes++; stored = 120
+          if (writes === 1) {
+            if (mode === 'abort') controller.abort()
+          }
+          data = {Code: 200, Result: {maplistedit: [{physical: [{rowid: 'ROW-1', salary: stored}]}]}}
+        } else throw Error('Unexpected fixture endpoint')
+        return {data, status: 200, statusText: 'OK', headers: {}}
+      }
+    }
+    const api = new DataSpaceRuntimeApi({http: new AppliedSaveHttp(), readScope: () => ({token: scope, headers: {}})})
+    const identity = {scenarioId: 'SCENE', metaName: 'Orders'}, context = await api.query(identity)
+    const changes = [{identity, context, changes: {changed: [{rowid: 'ROW-1', salary: 120}]}}]
+    const originalSave = DataSpaceRequest.prototype.save
+    const handoff = mode === 'late-scope' ? vi.spyOn(DataSpaceRequest.prototype, 'save').mockImplementation(async function (this: DataSpaceRequest, command) {
+      const receipts = await originalSave.call(this, command)
+      scope = 'other'
+      return receipts
+    }) : undefined
+    try {
+      const outcome = api.save({changes, signal: controller.signal})
+      await expect(outcome).rejects.toBeInstanceOf(DataSpaceSaveUnconfirmedError)
+      await expect(outcome).rejects.toThrow(mode === 'late-scope' ? '保存回执返回后原执行域失效' : '保存请求已发出但未取得可确认的响应')
+    } finally {handoff?.mockRestore()}
+    expect(api.hasUnconfirmedSave(context)).toBe(true)
+    expect(writes).toBe(1)
+    scope = 'original'
+    await api.save({changes})
+    expect(writes).toBe(1)
+    expect(queries).toBe(2)
+    expect(api.hasUnconfirmedSave(context)).toBe(false)
+  })
+})
 
 describe('SPARK same-scenario save request', () => {
   function fixture() {
@@ -123,7 +218,7 @@ describe('SPARK same-scenario save request', () => {
       else if (mode === 'dispose') request.dispose()
       else controller.abort()
     }
-    await expect(request.save({ changes: [change()], signal: controller.signal })).rejects.toThrow()
+    await expect(request.save({ changes: [change()], signal: controller.signal })).rejects.toBeInstanceOf(DataSpaceSaveUnconfirmedError)
     expect(http.calls).toHaveLength(1)
   })
 
@@ -163,7 +258,7 @@ describe('SPARK same-scenario save request', () => {
     const { http, request, change } = fixture()
     const first = change()
     http.afterRequest = () => first.context.invalidate()
-    await expect(request.save({ changes: [first] })).rejects.toThrow('SPARK_QUERY_CONTEXT_STALE')
+    await expect(request.save({ changes: [first] })).rejects.toBeInstanceOf(DataSpaceSaveUnconfirmedError)
     expect(http.calls).toHaveLength(1)
   })
 

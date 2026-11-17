@@ -12,6 +12,26 @@ describe('bidding content tree structure', () => {
     expect(validateContentTreeStructure({projectId: 'project', nodes: []})).toEqual([])
     expect(validateContentTreeStructure({projectId: 'project', nodes})).toEqual([])
   })
+  it('rejects node identities that collide after the hash contract NFC normalization', () => {
+    const tree = [...nodes, {nodeId: '\u00e9', parentId: 'chapter', index: 2, type: 'paragraph'},
+      {nodeId: 'e\u0301', parentId: 'chapter', index: 3, type: 'paragraph'}]
+    const before = structuredClone(tree)
+    expect(validateContentTreeStructure({projectId: 'project', nodes: tree})).toContain('NODE_ID:e\u0301')
+    expect(tree).toEqual(before)
+  })
+  it('rejects a node that aliases the normalized project root identity', () => {
+    const tree = nodes.map(node => ({...node, parentId: node.parentId === 'project' ? '\u00e9' : node.parentId}))
+    tree.push({nodeId: 'e\u0301', parentId: 'chapter', index: 2, type: 'paragraph'})
+    expect(validateContentTreeStructure({projectId: '\u00e9', nodes: tree})).toContain('NODE_ID:e\u0301')
+  })
+  it('preserves a unique decomposed identity with exact original parent references', () => {
+    const tree = nodes.map(node => ({...node,
+      nodeId: node.nodeId === 'chapter' ? 'e\u0301' : node.nodeId,
+      parentId: node.parentId === 'chapter' ? 'e\u0301' : node.parentId}))
+    const before = structuredClone(tree)
+    expect(validateContentTreeStructure({projectId: 'project', nodes: tree})).toEqual([])
+    expect(tree).toEqual(before)
+  })
   it('rejects a missing parent, duplicate identity and discontinuous order', () => {
     expect(validateContentTreeStructure({projectId: 'project', nodes: [...nodes, {...nodes[3]!, parentId: 'missing', index: 4}]}).length).toBeGreaterThan(0)
   })

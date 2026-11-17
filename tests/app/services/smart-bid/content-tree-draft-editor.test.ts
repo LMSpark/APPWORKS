@@ -39,6 +39,18 @@ it('rejects noncanonical payloads before changing native draft editing state', a
   } finally {ds.destroy()}
 })
 
+it('rejects normalized identity aliases without changing the native draft or its order', async () => {
+  const {ds, view, editor} = await fixture()
+  try {
+    editor.addDocument({documentId: 'B', chapterId: 'C', headingId: 'H', title: '实施方案'})
+    editor.addParagraph('C', {nodeId: '\u00e9', value: '保留的正文'})
+    const before = structuredClone(view.getEditingRow('D')?.['draft'])
+    expect(() => editor.addParagraph('C', {nodeId: 'e\u0301', value: '不得写入'}, 1)).toThrow('NODE_ID:e\u0301')
+    expect(view.getEditingRow('D')?.['draft']).toEqual(before)
+    expect(view.rows[0]?.['draft']).toEqual({nodes: [], responseChanges: [{id: 'R'}]})
+  } finally {ds.destroy()}
+})
+
 it('edits logical books and paragraphs in the original DataView and cancels with native editing state', async () => {
   const {ds, view, editor} = await fixture()
   try {

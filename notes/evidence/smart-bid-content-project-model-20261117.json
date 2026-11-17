@@ -1,0 +1,345 @@
+{
+  "at": "2026-11-17T06:24:33.009Z",
+  "appId": "D8490EC99436A8B9AFDE205BE3153802",
+  "spaceId": "D3BBA1F0780056C837AC35E9825CAD5A",
+  "modelId": "D9216521EBC78CAD08849665C06B05EE",
+  "modelName": "ContentProject",
+  "physicalTableId": "8DD459C23B68F1F5548413AF8F3FAABE",
+  "databaseId": "8C0FC2087F5D4103987A0D1FC6C3045B",
+  "databaseName": "spark_bid",
+  "sourceSelection": "Explicit row bid_project / 投标编制项目 / spark_bid; legacy smart_bid_demo candidates were not selected",
+  "create": {
+    "requestId": "31980.1008",
+    "uiConfirmed": true,
+    "tables": [
+      {
+        "table": "Base_DataModel_Field",
+        "added": [
+          {
+            "rowid": "C546357972315769A0E9FD33A373F1C0",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "schema_version",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "int"
+          },
+          {
+            "rowid": "19BD0FE0C4EF04C6EFD85D6A3A9C1D61",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "id",
+            "AsName": "",
+            "IsOutput": 1,
+            "IsPKey": 1,
+            "FieldType": "varchar"
+          },
+          {
+            "rowid": "BBC8389156DDF3676A2E61D5910AA664",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "head_revision_id",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "varchar"
+          },
+          {
+            "rowid": "9143747CE5B0EF5A8608A1AC1DC749EF",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "lingma_sys_ent",
+            "AsName": "",
+            "IsOutput": 1,
+            "IsPKey": 1,
+            "FieldType": "varchar"
+          },
+          {
+            "rowid": "DBBCA1713ECE0BDF774BE1A66CED01E3",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "description",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "text"
+          },
+          {
+            "rowid": "2352AC15D0C9F3E30FD26202996F63BE",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "active_baseline_id",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "varchar"
+          },
+          {
+            "rowid": "1DDD17687557E966EC2DB0F0DA2F4B96",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "lingma_sys_is_delete",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "int"
+          },
+          {
+            "rowid": "641553F64EA09596DDEBEEBAC5894199",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "createuser",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "varchar"
+          },
+          {
+            "rowid": "7DDB2E55E4DA4D1C1CB9537BD225C48C",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "wfid",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "varchar"
+          },
+          {
+            "rowid": "5B61239CE07C3EB13C23552B31470F0D",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "lingma_sys_appid",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "varchar"
+          },
+          {
+            "rowid": "6A6375B53DD4059F6A9C46A34AE9F07B",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "flowstate",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "int"
+          },
+          {
+            "rowid": "38C9CC5FE817CFCA426AC3AC4EF676ED",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "updatetime",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "datetime"
+          },
+          {
+            "rowid": "552451E17A33762212A259595485B0F5",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "updateuser",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "varchar"
+          },
+          {
+            "rowid": "BC2F2DECBD733EAE79BCE8F2A7609CDA",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "ReportID",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "varchar"
+          },
+          {
+            "rowid": "BDB3AD178A325DADD30D333B735EE3C7",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "stage_refs",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "json"
+          },
+          {
+            "rowid": "1F9F22A951096E160A100E9F130A335E",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "dataModelId": "D9216521EBC78CAD08849665C06B05EE",
+            "Name": "createtime",
+            "AsName": "",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "FieldType": "datetime"
+          }
+        ],
+        "changed": 0,
+        "deleted": 0
+      },
+      {
+        "table": "Base_DataModel",
+        "added": [
+          {
+            "rowid": "D9216521EBC78CAD08849665C06B05EE",
+            "dataSetId": "D3BBA1F0780056C837AC35E9825CAD5A",
+            "Name": "bid_project",
+            "MetaName": "bid_project",
+            "DbId": "8C0FC2087F5D4103987A0D1FC6C3045B",
+            "DbName": "spark_bid",
+            "Type": "数据库表"
+          }
+        ],
+        "changed": 0,
+        "deleted": 0
+      }
+    ]
+  },
+  "aliasSave": {
+    "requestId": "31980.1043",
+    "uiConfirmed": true,
+    "tables": [
+      {
+        "table": "Base_DataModel_Field",
+        "added": 0,
+        "changed": [
+          {
+            "rowid": "19BD0FE0C4EF04C6EFD85D6A3A9C1D61",
+            "AsName": "projectId"
+          },
+          {
+            "rowid": "2352AC15D0C9F3E30FD26202996F63BE",
+            "AsName": "activeBaselineId",
+            "IsOutput": 1
+          },
+          {
+            "rowid": "BBC8389156DDF3676A2E61D5910AA664",
+            "AsName": "headRevisionId",
+            "IsOutput": 1
+          },
+          {
+            "rowid": "BDB3AD178A325DADD30D333B735EE3C7",
+            "AsName": "stageRefs",
+            "IsOutput": 1
+          },
+          {
+            "rowid": "C546357972315769A0E9FD33A373F1C0",
+            "AsName": "schemaVersion",
+            "IsOutput": 1
+          }
+        ],
+        "deleted": 0
+      }
+    ]
+  },
+  "browserInterruption": {
+    "oldTab": 6,
+    "newTab": 7,
+    "originalBodiesUnavailable": true,
+    "capturedRequestsRetainedWhitelisted": true,
+    "mutationsReplayed": 0,
+    "normalLoginRestored": true
+  },
+  "coldRead": {
+    "newBrowserSession": true,
+    "nodeKey": "[\"Base_DataModel\",\"D9216521EBC78CAD08849665C06B05EE\"]",
+    "aliases": [
+      {
+        "name": "id",
+        "expected": "projectId",
+        "actual": "projectId",
+        "output": true
+      },
+      {
+        "name": "head_revision_id",
+        "expected": "headRevisionId",
+        "actual": "headRevisionId",
+        "output": true
+      },
+      {
+        "name": "active_baseline_id",
+        "expected": "activeBaselineId",
+        "actual": "activeBaselineId",
+        "output": true
+      },
+      {
+        "name": "stage_refs",
+        "expected": "stageRefs",
+        "actual": "stageRefs",
+        "output": true
+      },
+      {
+        "name": "schema_version",
+        "expected": "schemaVersion",
+        "actual": "schemaVersion",
+        "output": true
+      }
+    ],
+    "allMatch": true
+  },
+  "query": {
+    "requestId": "32280.268",
+    "Code": 200,
+    "Count": 0,
+    "items": 0,
+    "primaryKeyField": "id",
+    "tables": [
+      {
+        "Name": "ContentProject",
+        "OutputType": "Table",
+        "Fields": [
+          {
+            "Name": "id",
+            "IsOutput": true,
+            "Group": 0,
+            "Order": 0,
+            "OrderType": null
+          },
+          {
+            "Name": "active_baseline_id",
+            "IsOutput": true,
+            "Group": 0,
+            "Order": 0,
+            "OrderType": null
+          },
+          {
+            "Name": "lingma_sys_ent",
+            "IsOutput": true,
+            "Group": 0,
+            "Order": 0,
+            "OrderType": null
+          },
+          {
+            "Name": "head_revision_id",
+            "IsOutput": true,
+            "Group": 0,
+            "Order": 0,
+            "OrderType": null
+          },
+          {
+            "Name": "stage_refs",
+            "IsOutput": true,
+            "Group": 0,
+            "Order": 0,
+            "OrderType": null
+          },
+          {
+            "Name": "schema_version",
+            "IsOutput": true,
+            "Group": 0,
+            "Order": 0,
+            "OrderType": null
+          }
+        ]
+      }
+    ]
+  },
+  "businessWrites": 0,
+  "remaining": [
+    "持久化场景模型/视图绑定与页面消费",
+    "真实范围关联、项目办理及权威头/基线移动",
+    "CAS与原请求结果留存、采用及完整I0–I7验收"
+  ]
+}

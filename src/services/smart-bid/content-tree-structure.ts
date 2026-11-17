@@ -25,9 +25,12 @@ const childrenAllowed: Readonly<Record<string, readonly string[]>> = {
 /** 返回结构缺项；空数组只证明结构成立，不证明正文可交付或正式采用成功。 */
 export function validateContentTreeStructure(input: Readonly<{projectId: string; nodes: readonly ContentStructureNode[]}>): string[] {
   const errors: string[] = [], byId = new Map<string, ContentStructureNode>(), groups = new Map<string, ContentStructureNode[]>()
+  const normalizedIds = new Set<string>(), projectIdentity = input.projectId.normalize('NFC')
   if (!input.projectId.trim()) errors.push('PROJECT_ID')
   for (const node of input.nodes) {
-    if (!node.nodeId.trim() || node.nodeId === input.projectId || byId.has(node.nodeId)) errors.push(`NODE_ID:${node.nodeId}`)
+    const identity = node.nodeId.normalize('NFC')
+    if (!node.nodeId.trim() || identity === projectIdentity || normalizedIds.has(identity)) errors.push(`NODE_ID:${node.nodeId}`)
+    normalizedIds.add(identity)
     byId.set(node.nodeId, node)
     const siblings = groups.get(node.parentId) ?? []
     siblings.push(node); groups.set(node.parentId, siblings)

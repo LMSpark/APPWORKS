@@ -214,7 +214,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-11T06:51:23.729Z",
+  "generatedAt": "2026-11-17T06:23:53.717Z",
   "models": {
     "DataSpaceSaveUnconfirmedError": {
       "name": "DataSpaceSaveUnconfirmedError",

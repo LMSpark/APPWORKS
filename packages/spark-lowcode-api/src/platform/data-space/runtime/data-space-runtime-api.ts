@@ -528,34 +528,41 @@ export class DataSpaceRuntimeApi {
       changes.forEach(change => this.assertContextOwner(scope, change))
       this.invalidateQueryCache()
       let receipts: DataSpaceRuntimeSaveResult
-      try {receipts = await this.#saveRequest.save({ changes, config, ...(signal === undefined ? {} : { signal }) })}
-      catch (error) {
+      let responseAccepted = false
+      try {
+        receipts = await this.#saveRequest.save({ changes, config, ...(signal === undefined ? {} : { signal }) })
+        responseAccepted = true
+        this.assertScope(scope)
+        for (const [index, receipt] of receipts.entries()) {
+          const change = changes[index]
+          if (change === undefined) throw new Error('SPARK 保存缺少基线目标')
+          this.#contexts.set(receipt.context, this.resourceKey(scope, change.identity))
+          const origin = this.#queryOrigins.get(change.context)
+          if (origin) this.#queryOrigins.set(receipt.context, origin)
+          if (receipt.added.length && receipt.context.hasPendingSavedRowPermissions) {
+            try {
+              const context = await this.refreshSavedPermissions({context:receipt.context,identity:change.identity,scope,heldMutationKeys:new Set(keys),targetIds:receipt.added.map(row => receipt.context.rowKey(row))})
+              receipts[index] = {...receipt, context, added: receipt.added.map(row => context.rows.find(queried =>
+                Object.is(context.rowKey(queried), receipt.context.rowKey(row))) ?? row)}
+            }
+            catch {this.assertScope(scope)} // 写回执已确认；行权限读取失败保留只读待恢复状态，不重新提交。
+          }
+        }
+        this.assertScope(scope)
+        signal?.throwIfAborted()
+        changes.forEach(change => this.assertContextOwner(scope, change))
+        changes.forEach(change => this.#contexts.delete(change.context))
+        return receipts
+      } catch (cause) {
+        const error = responseAccepted && !(cause instanceof DataSpaceSaveUnconfirmedError)
+          ? new DataSpaceSaveUnconfirmedError('保存回执返回后原执行域失效', cause) : cause
         if (error instanceof DataSpaceSaveUnconfirmedError) {
           const record = Object.freeze({signature, contexts: new Set(changes.map(change => change.context))})
           for (const change of changes) this.#unconfirmed.set(change.context, record)
         }
         throw error
-      }
-      finally {this.invalidateQueryCache()}
-      this.assertScope(scope)
-      for (const [index, receipt] of receipts.entries()) {
-        const change = changes[index]
-        if (change === undefined) throw new Error('SPARK 保存缺少基线目标')
-        this.#contexts.delete(change.context)
-        this.#contexts.set(receipt.context, this.resourceKey(scope, change.identity))
-        const origin = this.#queryOrigins.get(change.context)
-        if (origin) this.#queryOrigins.set(receipt.context, origin)
-        if (receipt.added.length && receipt.context.hasPendingSavedRowPermissions) {
-          try {
-            const context = await this.refreshSavedPermissions({context:receipt.context,identity:change.identity,scope,heldMutationKeys:new Set(keys),targetIds:receipt.added.map(row => receipt.context.rowKey(row))})
-            receipts[index] = {...receipt, context, added: receipt.added.map(row => context.rows.find(queried =>
-              Object.is(context.rowKey(queried), receipt.context.rowKey(row))) ?? row)}
-          }
-          catch {this.assertScope(scope)} // 写回执已确认；行权限读取失败保留只读待恢复状态，不重新提交。
-        }
-      }
-      return receipts
-    }).finally(() => this.assertScope(scope))
+      } finally {this.invalidateQueryCache()}
+    })
     const tail = run.then(() => undefined, () => undefined)
     keys.forEach(key => this.#mutationFlights.set(key, tail))
     return run.finally(() => {

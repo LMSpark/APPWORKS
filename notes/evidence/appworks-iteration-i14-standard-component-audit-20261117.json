@@ -1,0 +1,45 @@
+{
+  "scope": "Read-only direct third-party template scan of src/views Vue business pages",
+  "status": "confirmed migration gaps; no implementation in this audit",
+  "scan": {
+    "pattern": "<(el-|a-|n-|van-|VueFlow|VueDraggable|vxe-)",
+    "matchedOpeningTagLines": 10,
+    "completeThirdPartyOrBehaviorAudit": false,
+    "importRegexUsedAcrossTemplatesWasDiscarded": "The initial broad from-regex matched template text; it is not an import-compliance conclusion"
+  },
+  "findings": [
+    {
+      "file": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue",
+      "line": 6,
+      "directComponents": ["el-table", "el-table-column"],
+      "dataGap": "Business component accepts rows and copies them into tableRows instead of binding a DataView",
+      "requiredOutcome": "Use standard RendererTable with standard field children and an actual runtime DataView, preserving original step read permissions and drilldown semantics"
+    },
+    {
+      "file": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
+      "line": 31,
+      "directComponents": ["el-checkbox"],
+      "relatedSource": "src/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page.ts",
+      "dataGap": "stepRows, nodeReceivedRows, nodeSentRows and edgeRows are separately stored arrays and passed into the step table",
+      "requiredOutcome": "Use standard controls and the same DataView chain; retain received/sent/all/edge and voided-step behavior without a second row state"
+    },
+    {
+      "file": "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue",
+      "line": 15,
+      "directComponents": ["el-empty", "el-tabs", "el-tab-pane"],
+      "requiredOutcome": "Use standard empty-state and tab components while preserving lazy business-route rendering, tab identities and original runtime"
+    }
+  ],
+  "implementationOrder": [
+    "Allow the current original save-invalidation gate to finish and integrate its stable checkpoint",
+    "Read current ClassModel directory, member summaries and guides before choosing standard replacements",
+    "Trace original formal step fields and all drilldown consumers",
+    "Write negative cases for exact DataView binding, target changes, original field visibility and voided-step filtering",
+    "Replace the duplicate array path and direct components together, then run native mounting and actual smoke"
+  ],
+  "noProductionSourceChanged": true,
+  "nodeServiceStarted": false,
+  "backendJavaChanged": false,
+  "uiSmoke": false,
+  "fullMigrationComplete": false
+}

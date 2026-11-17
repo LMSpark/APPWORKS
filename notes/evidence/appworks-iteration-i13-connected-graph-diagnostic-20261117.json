@@ -1,0 +1,167 @@
+{
+  "observedAt": "2026-11-17T06:11:54.064Z",
+  "scope": "isolated native workflow nodes, edge and file lifecycle; work forms and approval execution not exercised",
+  "flowModelId": "3f7134f575f24441869ad972c79eb630",
+  "fileName": "3f7134f575f24441869ad972c79eb630EJ2.json",
+  "sessionPersisted": false,
+  "uiSmoke": false,
+  "metadataWrites": 0,
+  "stages": [
+    {
+      "stage": "isolated-model-create",
+      "status": "confirmed",
+      "unconfirmed": false
+    }
+  ],
+  "currentStage": "connected-graph-create",
+  "customPath": "DataSchemaManage",
+  "nodeIds": [
+    "0b9189c5-841f-48ff-b9f6-3784eddfb17a",
+    "c4f5f50f-5b07-4942-ac59-2cbb9cea97bc"
+  ],
+  "edgeId": "66272cc1-8df9-4fb7-88d4-4a1717cd1f24",
+  "success": false,
+  "errorType": "LowcodeApiError",
+  "errorCode": 500,
+  "unconfirmed": false,
+  "diagnosticSignals": {
+    "signals": [],
+    "fields": [],
+    "messageLength": 211
+  },
+  "dbWrites": 2,
+  "fileWrites": 0,
+  "fileDeletes": 0,
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetBaseData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/LoginAuthority/UserLoginByEnt",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/File/content/text",
+      "httpStatus": 200,
+      "code": 404,
+      "diagnostic": {
+        "signals": [],
+        "fields": [],
+        "messageLength": 11
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "httpStatus": 200,
+      "code": 500,
+      "diagnostic": {
+        "signals": [],
+        "fields": [],
+        "messageLength": 211
+      }
+    }
+  ]
+}

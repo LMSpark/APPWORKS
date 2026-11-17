@@ -169,36 +169,34 @@ export class DataSpaceRequest {
     const config = command.config ?? DataSpaceRequestConfig.resolveSave([])
     const headers = config.mergeHeaders(this.scenarioHeaders(scope, scenarioId))
     this.assertCurrent(captured)
+    let response: unknown
     try {
-      let response: unknown
-      try {
-        response = await this.#http.request<unknown>({
-          ...config.endpoint, method: 'POST', data, headers,
-          ...(config.timeout === undefined ? {} : {timeout: config.timeout}),
-          retry: 0, cache: false, meta: { rawEnvelope: true },
-          ...(command.signal === undefined ? {} : { signal: command.signal }),
-        })
-        this.assertCurrent(captured)
-      } catch (cause) {throw new DataSpaceSaveUnconfirmedError('保存请求已发出但未取得可确认的响应', cause)}
-      try {
-        const decoded = decodeEnvelope(response, '保存')
-        assertDataSpaceSaveSuccess(decoded)
-        const receipts = readDataSpaceSaveReceipt(decoded, groups)
-        return prepared.map((target, index) => {
-          const receipt = receipts[index]
-          if (receipt === undefined) throw new Error('SPARK 保存缺少模型回执')
-          return target.context.acceptSaveReceipt({ requested: target.changes, receipt })
-        })
-      } catch (cause) {
-        // A non-zero AjaxResult code is a definitive rejection. Preserve it so
-        // callers can leave the draft editable; only ambiguous/malformed
-        // responses require an original-attempt verification flow.
-        if (cause instanceof LowcodeApiError && cause.code !== 0) throw cause
-        throw new DataSpaceSaveUnconfirmedError('服务端已返回但保存结果无法确认', cause)
-      }
-    } finally {
+      response = await this.#http.request<unknown>({
+        ...config.endpoint, method: 'POST', data, headers,
+        ...(config.timeout === undefined ? {} : {timeout: config.timeout}),
+        retry: 0, cache: false, meta: { rawEnvelope: true },
+        ...(command.signal === undefined ? {} : { signal: command.signal }),
+      })
+      this.assertCurrent(captured)
+    } catch (cause) {throw new DataSpaceSaveUnconfirmedError('保存请求已发出但未取得可确认的响应', cause)}
+    try {
+      const decoded = decodeEnvelope(response, '保存')
+      assertDataSpaceSaveSuccess(decoded)
+      const receipts = readDataSpaceSaveReceipt(decoded, groups)
+      const accepted = prepared.map((target, index) => {
+        const receipt = receipts[index]
+        if (receipt === undefined) throw new Error('SPARK 保存缺少模型回执')
+        return target.context.acceptSaveReceipt({ requested: target.changes, receipt })
+      })
       this.assertCurrent(captured)
       targets.forEach(target => target.context.assertIdentity(target.identity))
+      return accepted
+    } catch (cause) {
+      // A non-zero AjaxResult code is a definitive rejection. Preserve it so
+      // callers can leave the draft editable; only ambiguous/malformed
+      // responses require an original-attempt verification flow.
+      if (cause instanceof LowcodeApiError && cause.code !== 0) throw cause
+      throw new DataSpaceSaveUnconfirmedError('服务端已返回但保存结果无法确认', cause)
     }
   }
 

@@ -2,6 +2,8 @@
 
 > 执行方式：按 executing-plans 逐项实施；只在 `D:/SPARK_AppWorks` 工作。状态以实际代码、配置、现场结果和提交为准，不能以勾选代替证据。
 
+> 协作分工（用户要求，2026-11-17）：本会话仅负责标书完整 I0–I7 的业务、模型、页面、工艺、AI 与定向验收；“提交并推送代码”会话 `01a1e32b-67ea-7771-93b9-2990d8cd4356` 负责共享平台、工作流迁移、全仓/8包门禁、生成产物整合与统一暂存、提交、推送。本会话不再自行并跑全量或操作共享暂存区；公共缺口携带反例和影响范围交对方协调。对方已接受，并承诺不再直接修改标书源码/测试。
+
 日期：2026-11-17。当前阶段：I0；独立MySQL与新APP已创建并冷回读，现显示名“领码投标全生命周期平台”；完整蓝图和业务仍待建。用户要求全部重做、避免与旧平台重名。
 
 ## 依据和架构决定
@@ -170,3 +172,11 @@ I1 缺少权威能力时，明确登记平台缺口；可并行推进人工编�
 - SmartBid工作区最终门禁12632自然exit0：正式ClassModel34.295s、正式消费者合同、完整verify、build（前端4.29s）、根599文件/10,268项全过（773.67s）、8包各maxWorkers1全过，最终源码SHA256前后完全一致。包分别utils5/45、data60/1391、json5/25、ai27/176、lowcode-api53/1592、project-model6/286、component28/225、app13/83，与根有重叠不相加。独立复审两个P2已关闭，当前准备仅本任务17项文件/部分台账和生成索引暂存，不夹入I13流程文件生命周期源码/测试/证据或对应生成更新。提交/推送结果仍待实际回执；当前全目标与实服页面验收未完成。
 - SmartBid ContentProject资源前置落位：先读同spark_bid目录仅FactVersion/WorkingDraft两表，项目当前头及活动基线不能混入事实版本或个人稿记录，故登记bid_project（8DD459C23B68F1F5548413AF8F3FAABE），不是按逻辑对象数量批量建表。原生标准表单一次697 Code200，字段一次703 Code200 Added4/Changed0/Deleted0；12默认字段及租户复合键保留，新增head_revision_id、active_baseline_id（可空、字符串256）、stage_refs（JSON非空）、schema_version（整数非空），不猜业务默认值、不移动指针。原生页面整体reload后793目录Count3/同表ID，795字段Count16，四项ID/名称/类型/PK/可空/唯一一致，两字符串长度一致；JSON/整数DataLen由0回空属非长度类型归一。证据content-project-table JSON及冷字段JPG；只证元数据保存冷读，未作业务SQL查询或业务写入，正式ContentProject模型/输出/视图、范围决定关联、权威版本与原请求仍待建。原根新增和FactVersion视图历史未知提交未重发。
 - SmartBid检查点独立核实：共享任务统一提交cf5b4b116f204dd5dd8f63e3b9c688dd9ed229f5共37文件，完整包含本任务17项工作区/测试/生成索引/实服证据；实际远端origin分支为其后回执提交89477e39b06c7a8de70a091c1d803485a8be1f46，git ls-remote独立一致。本任务没有重复提交或改写共享提交。17项敏感模式0命中、1267正式分片引用闭包无缺失；共享任务随后继续修改流程图和保存测试，这两文件的已提交版本按实际CRLF还原后与final4验证快照一致，后续未提交版本不沿用检查点绿灯。当前继续点：复用bid_project既有表8DD459C23B68F1F5548413AF8F3FAABE注册ContentProject模型及五项正式输出，再接项目范围与页面；WorkingDraft真实宿主、权威保存/原结果/正式采用和完整I0–I7仍未交付。
+- SmartBid协作分工已按用户要求协商并获对方接受：本会话仅负责完整标书I0–I7业务/模型/页面/工艺/AI及定向验收；提交并推送代码会话01a1e32b-67ea-7771-93b9-2990d8cd4356负责公共底座、工作流迁移、全仓/8包门禁、生成整合及统一暂存提交推送。本会话停止自行启动全仓/8包门禁或操作共享index；公共缺口带反例/影响交对方协调，对方不再直接修改标书源码/测试。已收到分工前的NFC身份修正交接（content-tree-structure及两测试），保留待本会话审阅，不将对方历史绿灯直接当本次接收结论。
+- SmartBid ContentProject正式模型已注册：同APP/空间D3BBA1F0780056C837AC35E9825CAD5A，绑定新spark_bid的bid_project表8DD459C23B68F1F5548413AF8F3FAABE。候选中有旧smart_bid_demo同名表，已明确只选独立库来源；模型D9216521EBC78CAD08849665C06B05EE。原生1008创建一模型及16字段，1043保存五项输出映射；均见原生保存/回读确认，浏览器旧tab6随后丢失，原响应体已不可再取，未补造Code或重发写入。恢复正常登录的tab7独立空间/模型冷读，DOM正式模型ID一致，id→projectId、head_revision_id→headRevisionId、active_baseline_id→activeBaselineId、stage_refs→stageRefs、schema_version→schemaVersion五项输出全部一致。新查询32280.268实际Code200/Count0/Items0，primaryKeyField=id，证明正式模型可执行所选输出的SQL查询，不证明项目办理/权威指针/CAS/原结果。证据content-project-model JSON及cold/query JPG；业务写0。下一步原生持久化场景视图、项目范围和页面接线，历史根新增/FactVersion未知未重发。没有启动全量/提交或修改公共底座。
+
+- 2026-11-17 分工接收补记：已审阅接收 content-tree-structure.ts 及两项测试的 NFC 身份冲突修正，保留原 ID 和精确父引用；定向 cache/smart-bid-nfc-handoff-related.log 自然 exit0，8 文件 79 项通过（24.48s）。已交统一集成会话，不启动全仓门禁或操作共享 index。当前 ContentProject 的数据视图页确认尚无命名视图；projects 目录视图、项目/作者范围与页面宿主接线仍待完成，不作已保存或业务验收结论。
+
+- 2026-11-17 ContentProject 命名视图 projects 已由原生数据视图编辑保存，界面明确“视图配置已保存并回读确认”；配置单表查询、分页、读取完整集合否、暂存后提交。正式键 D3BBA1F0780056C837AC35E9825CAD5A@ContentProject@projects；原生查询预览执行后显示总数0、当前返回0行，无业务行写入。截图 notes/evidence/smart-bid-content-project-view-query-20261117.jpg。当前仅目录视图，不包含选定项目/当前作者范围，不证明草稿保存、CAS、正式采用或完整页面；本次未获取原响应Code及文件差异，不补造结论。下一步独立重开核持久配置及现存WorkingDraft绑定，再实现明确身份范围。未改公共源码、未启动全量、未操作共享index。
+
+- 2026-11-17 独立冷重开验收：关闭查询预览、模型配置及整个数据集设计，再由目录原行设计创建新实例。ContentProject 下 projects 与 default 均在；projects 的单表查询/分页/读取完整集合否均 checked，展开结果组织后提交方式为暂存后提交、正式模型绑定 ContentProject，保存按钮 disabled（无本地变更）。WorkingDraft 下 personalDraft 与 default 仍在，personalDraft 同样单表/分页/否，无未提交改动。冷读截图 smart-bid-content-project-view-cold-20261117.jpg。仅证明已观察绑定与选项保留，不声称文件全部字段差异核验。范围合同源码核实：spark-data/types.ts 的 scopeFilter 仅配置可改，每次与临时过滤 AND，GetInputParam 取本视图 queryContext；data-view-filter-expression.test.ts 有远端带上下文示例。后续应以正式范围过滤及宿主可信身份接线，不能靠临时 setFilter 或首行定位代替。

@@ -3179,7 +3179,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
-      "sourceModifiedAt": "2026-11-17T01:47:55.588Z"
+      "sourceModifiedAt": "2026-11-17T06:23:53.718Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
@@ -3209,7 +3209,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts.json",
-      "sourceModifiedAt": "2026-11-11T06:51:23.729Z"
+      "sourceModifiedAt": "2026-11-17T06:23:53.717Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-value-function.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-value-function.ts",
@@ -5199,7 +5199,7 @@
     "src/services/smart-bid/content-tree-structure.ts": {
       "sourceFile": "src/services/smart-bid/content-tree-structure.ts",
       "shardFile": "files/src/services/smart-bid/content-tree-structure.ts.json",
-      "sourceModifiedAt": "2026-11-16T20:18:00.794Z"
+      "sourceModifiedAt": "2026-11-17T05:46:07.663Z"
     },
     "src/services/sse-events.ts": {
       "sourceFile": "src/services/sse-events.ts",

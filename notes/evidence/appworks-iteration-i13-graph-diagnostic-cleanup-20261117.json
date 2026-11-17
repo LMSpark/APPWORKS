@@ -1,0 +1,142 @@
+{
+  "observedAt": "2026-11-17T06:14:01.917Z",
+  "scope": "Distinct cleanup of confirmed isolated model after explicit native business rejection; no graph save replay",
+  "flowModelId": "3f7134f575f24441869ad972c79eb630",
+  "fileName": "3f7134f575f24441869ad972c79eb630EJ2.json",
+  "sessionPersisted": false,
+  "uiSmoke": false,
+  "metadataWrites": 0,
+  "stages": [
+    {
+      "stage": "isolated-rejected-model-cleanup",
+      "status": "confirmed",
+      "unconfirmed": false
+    }
+  ],
+  "originalFailureEvidence": "notes/evidence/appworks-iteration-i13-connected-graph-diagnostic-20261117.json",
+  "independentInspection": "notes/evidence/appworks-iteration-i13-graph-trial-inspection-20261117.json",
+  "definitiveErrorContract": "data-space-request.ts rethrows nonzero LowcodeApiError; runtime only captures DataSpaceSaveUnconfirmedError",
+  "modelCleaned": true,
+  "dependenciesColdVerifiedEmpty": true,
+  "success": true,
+  "dbWrites": 1,
+  "fileWrites": 0,
+  "fileDeletes": 0,
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetBaseData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/LoginAuthority/UserLoginByEnt",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/File/content/text",
+      "httpStatus": 200,
+      "code": 404
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    }
+  ]
+}

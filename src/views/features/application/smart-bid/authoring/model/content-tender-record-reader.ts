@@ -38,6 +38,7 @@ export async function readContentTenderRecord(host:ContentRevisionReadHost,refer
  if(!hasCompleteSingleContentResult(view))throw Error('CONTENT_TENDER_RECORD_NOT_UNIQUE')
  const row=view.rows[0]
  if(!row||!snapshotReferenceIdentity(row['id'])||!entries.every(([key,value])=>row[key]===value)
+  ||row['sourceSpan']===null||row['sourceSpan']===undefined
   ||row['confirmStatus']!=='CONFIRMED'||!['LOCATED','TEXT_ONLY'].some(quality=>quality===row['parseQuality']))
   throw Error('CONTENT_TENDER_RECORD_UNAVAILABLE')
  const assertRow=view.captureReadRow(row,['id',...keys,'payload','sourceSpan','parseQuality','confirmStatus'])

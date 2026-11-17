@@ -38,3 +38,7 @@ it.each([{confirmStatus:'REJECTED'},{recordVersion:'2'},{recordHash:'b'.repeat(6
  const f=fixture(override)
  try{await expect(readContentTenderRecord(f.host,ref)).rejects.toThrow('CONTENT_TENDER_RECORD_UNAVAILABLE')}finally{f.ds.destroy()}
 })
+it.each(['LOCATED','TEXT_ONLY'])('rejects confirmed %s records without a source location',async parseQuality=>{
+ const f=fixture({parseQuality,sourceSpan:null})
+ try{await expect(readContentTenderRecord(f.host,ref)).rejects.toThrow('CONTENT_TENDER_RECORD_UNAVAILABLE')}finally{f.ds.destroy()}
+})

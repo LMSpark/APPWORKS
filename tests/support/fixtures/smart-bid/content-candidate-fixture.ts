@@ -27,16 +27,17 @@ export async function createCandidateReadFixture(mode='normal'){
    mode==='bad-response-text'?[{id:'I',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',statement:'报价{{金额}}元',data:{}}]:[],
   qualificationReviews:[],sensitiveRefs:[]}
  const snapshotHash=await hashRevisionSnapshot(manifest)
+ const tenderReference={runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}
  const requirement={id:'REQ',projectId:'P',lineageId:'L',version:'R2',kind:'FORMAT',text:'原文',score:null,sourceSpan:null,
-  supportingSpans:[],sourceRecord:null,parseQuality:'TEXT_ONLY',checks:[],constraint:null,applicability:{},status:'ADOPTED'}
- const tender={id:'TR',projectId:'P',runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64),
+  supportingSpans:[],sourceRecord:mode==='fixed-pin'?tenderReference:null,parseQuality:'TEXT_ONLY',checks:[],constraint:null,applicability:{},status:'ADOPTED'}
+ const tender={id:'TR',projectId:'P',...tenderReference,
   payload:{text:'核定原文'},sourceSpan:{page:1},parseQuality:'LOCATED',confirmStatus:'CONFIRMED'}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{
   TenderRecord:{modelBinding:{modelId:'TENDER_MODEL',modelName:'TenderRecord'},
-   columns:Object.keys(tender).map(name=>({name,isPrimaryKey:name==='id',...(name==='ordinal'?{type:'number' as const}:{})})),
+   columns:Object.keys(tender).map(name=>({name,isPrimaryKey:name==='id',type:name==='ordinal'?'number':name==='payload'||name==='sourceSpan'?'object':'string'})),
    views:{default:{},selectedTenderRecord:{commitMode:'staged',scopeFilter:{logic:'and',
     filters:['projectId','runId','type','ordinal','recordVersion','recordHash'].map(field=>eq(field))}}}},
-  Requirement:{modelBinding:{modelId:'REQ_MODEL',modelName:'Requirement'},columns:Object.keys(requirement).map(name=>({name,isPrimaryKey:name==='id'})),
+  Requirement:{modelBinding:{modelId:'REQ_MODEL',modelName:'Requirement'},columns:Object.keys(requirement).map(name=>({name,isPrimaryKey:name==='id',type:['sourceSpan','supportingSpans','sourceRecord','checks','constraint','applicability'].includes(name)?'object':name==='score'?'number':'string'})),
    views:{default:{},selectedRequirement:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('lineageId'),eq('version')]}}}},
   Baseline:{modelBinding:{modelId:'BM',modelName:'Baseline'},columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'stageRef',type:'object'},{name:'factVersions',type:'object'},{name:'requirementVersions',type:'object'},{name:'tenderRecords',type:'object'}],
    views:{default:{},selectedBaseline:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','baselineId')]}}}},

@@ -362,6 +362,7 @@ describe('DataSpaceRuntimeApi', () => {
     const application = api.application.get()
     if (!application) throw new Error('fixture application missing')
     api.application.save({ ...application, application: { ...application.application, id: 'APP-B' } })
+    expect(context.hasPendingSavedRowPermissions).toBe(false)
     expect(() => context.rows).toThrow('SPARK_QUERY_CONTEXT_STALE')
     expect(() => context.fieldAccess('ROW-1', 'salary')).toThrow('SPARK_QUERY_CONTEXT_STALE')
     const next = await api.dataSpace.runtime.query(identity)

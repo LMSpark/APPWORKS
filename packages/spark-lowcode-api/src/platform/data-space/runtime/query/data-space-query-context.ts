@@ -186,8 +186,8 @@ export class DataSpaceQueryContext {
     }
   }
 
-  /** 已确认新增但尚未获得正式行查询权限；不是写入结果未知。 */
-  public get hasPendingSavedRowPermissions(): boolean {this.assertCurrent(); return this.#pendingSavedRowKeys.size > 0}
+  /** 新增行待回读的生命周期标记，作用域切换后仍供原实例释放守卫判断。 */
+  public get hasPendingSavedRowPermissions(): boolean {return this.#pendingSavedRowKeys.size > 0}
 
   /** 本次只读页已确认的下一页状态；读取仍核原查询scope。 */
   public get nextPageAvailable(): boolean | undefined {this.assertCurrent(); return this.#nextPageAvailable}

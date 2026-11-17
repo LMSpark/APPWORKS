@@ -485,6 +485,29 @@ describe('原查询字段双通道呈现', () => {
     })
   }
 
+  it('does not expose selection on masked or hidden readonly textarea fields', async () => {
+    const view = await fixture()
+    try {
+      for (const fieldName of ['phone', 'secret']) {
+        const selections: unknown[] = []
+        const wrapper = mountFieldInContext({
+          component: FieldTextarea, type: 'r-textarea', model: view.currentRow!, fieldName, dataSource: view,
+          componentProps: { readonly: true, onTextSelection: (selection: unknown) => selections.push(selection) },
+          global: { plugins: [ElementPlus], stubs: { ElInput: false } },
+        })
+        try {
+          const textarea = wrapper.find('textarea')
+          if (textarea.exists()) {
+            expect(textarea.element.disabled).toBe(true)
+            await textarea.trigger('select')
+            await textarea.trigger('click')
+          }
+          expect(selections).toEqual([])
+        } finally { wrapper.unmount() }
+      }
+    } finally { view.destroy() }
+  })
+
   it.each(['name', 'phone'])('renders protected but writable %s as a blank input', async (fieldName) => {
     const view = await fixture()
     const wrapper = mountBoundText(view, fieldName)

@@ -1211,7 +1211,13 @@ export class LowcodeDataSpaceDesignSession {
       const field = formal.fields.find(item => item.id === original['rowid'])
       if (!field || field.raw['ValueFun'] !== original['ValueFun']) throw new Error('字段值函数原文已变化，请重新核验')
       if (modelPatch && Object.hasOwn(modelPatch, 'PrimaryKeyFields') ? field.name === modelPatch['PrimaryKeyFields'] : field.primaryKey) throw new Error('正式主键不能修改取值定义')
-      const expression = DataSpaceDesignApi.parseValueFunction(String(patch['ValueFun']))
+      let expression: ReturnType<typeof DataSpaceDesignApi.parseValueFunction>
+      try {
+        expression = DataSpaceDesignApi.parseValueFunction(String(patch['ValueFun']))
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : '无法解析值函数'
+        throw new Error(`模型 ${formal.id} 字段 ${field.id} 的待保存值函数无效：${reason}`, {cause: error})
+      }
       const resource = DataSpaceDesignApi.resolveTableResource(formal).resourceType
       if (['database-table', 'database-view'].includes(resource) && !['引用', '计算字段'].includes(String(field.raw['FieldType']))
         && expression?.Type === 'GetConstValue' && expression['Value'] !== null && typeof expression['Value'] !== 'string') {

@@ -25,8 +25,8 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "InlineAlign",
       "enum": [
-        "end",
         "start",
+        "end",
         "center",
         "stretch"
       ]
@@ -35,8 +35,8 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "InlineJustify",
       "enum": [
-        "end",
         "start",
+        "end",
         "center",
         "space-between"
       ]
@@ -149,16 +149,16 @@
         },
         "align": {
           "enum": [
-            "end",
             "start",
+            "end",
             "center",
             "stretch"
           ]
         },
         "justify": {
           "enum": [
-            "end",
             "start",
+            "end",
             "center",
             "space-between"
           ]

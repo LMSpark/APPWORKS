@@ -24,8 +24,8 @@
         "number",
         "boolean",
         "object",
-        "array",
         "null",
+        "array",
         "integer"
       ]
     },
@@ -64,10 +64,10 @@
               "const": "object"
             },
             {
-              "const": "array"
+              "const": "null"
             },
             {
-              "const": "null"
+              "const": "array"
             },
             {
               "const": "integer"

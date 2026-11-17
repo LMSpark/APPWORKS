@@ -43,8 +43,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         },
         "title": {

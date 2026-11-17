@@ -52,22 +52,22 @@
           "enum": [
             "",
             "info",
-            "success",
             "warning",
+            "success",
             "danger",
-            "primary",
-            "default"
+            "default",
+            "primary"
           ]
         },
         "cancelButtonType": {
           "enum": [
             "",
             "info",
-            "success",
             "warning",
+            "success",
             "danger",
-            "primary",
-            "default"
+            "default",
+            "primary"
           ]
         },
         "icon": {

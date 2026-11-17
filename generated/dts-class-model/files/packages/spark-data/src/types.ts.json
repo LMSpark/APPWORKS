@@ -198,16 +198,7 @@
           "const": "array"
         },
         {
-          "const": "decimal"
-        },
-        {
-          "const": "date"
-        },
-        {
-          "const": "text"
-        },
-        {
-          "const": "time"
+          "const": "integer"
         },
         {
           "type": "object",
@@ -407,7 +398,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@32279": {
+            "__@iterator@163420": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -462,18 +453,30 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@32279"
+            "__@iterator@163420"
           ],
           "additionalProperties": false
+        },
+        {
+          "const": "enum"
+        },
+        {
+          "const": "decimal"
+        },
+        {
+          "const": "date"
+        },
+        {
+          "const": "text"
+        },
+        {
+          "const": "time"
         },
         {
           "const": "int"
         },
         {
           "const": "bool"
-        },
-        {
-          "const": "integer"
         },
         {
           "const": "float"
@@ -486,9 +489,6 @@
         },
         {
           "const": "datetime"
-        },
-        {
-          "const": "enum"
         }
       ]
     },
@@ -1030,7 +1030,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@32279": {
+            "__@iterator@163420": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1085,7 +1085,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@32279"
+            "__@iterator@163420"
           ],
           "additionalProperties": false
         },
@@ -1311,7 +1311,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@32279": {
+            "__@iterator@163420": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1366,7 +1366,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@32279"
+            "__@iterator@163420"
           ],
           "additionalProperties": false
         },
@@ -1604,7 +1604,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@32279": {
+                "__@iterator@163420": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1659,7 +1659,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@32279"
+                "__@iterator@163420"
               ],
               "additionalProperties": false
             },
@@ -1889,7 +1889,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@32279": {
+                "__@iterator@163420": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1944,7 +1944,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@32279"
+                "__@iterator@163420"
               ],
               "additionalProperties": false
             },
@@ -2880,7 +2880,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@32279": {
+                "__@iterator@163420": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2935,7 +2935,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@32279"
+                "__@iterator@163420"
               ],
               "additionalProperties": false
             },
@@ -3165,7 +3165,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@32279": {
+                "__@iterator@163420": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3220,7 +3220,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@32279"
+                "__@iterator@163420"
               ],
               "additionalProperties": false
             },
@@ -3524,6 +3524,15 @@
         "queryConfig": {
           "type": "object",
           "properties": {
+            "tree": {
+              "$ref": "../../spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryTree"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataViewQueryChild"
+              }
+            },
             "fields": {
               "type": "array",
               "items": {
@@ -3549,35 +3558,6 @@
             "outputType": {
               "type": "string"
             },
-            "tree": {
-              "type": "object",
-              "properties": {
-                "keyField": {
-                  "type": "string"
-                },
-                "parentField": {
-                  "type": "string"
-                },
-                "nodeId": {
-                  "type": "string"
-                },
-                "hasChildrenField": {
-                  "type": "string"
-                },
-                "mode": {
-                  "enum": [
-                    "parent",
-                    "child"
-                  ]
-                }
-              },
-              "required": [
-                "keyField",
-                "parentField",
-                "nodeId"
-              ],
-              "additionalProperties": false
-            },
             "pagination": {
               "enum": [
                 "none",
@@ -3598,12 +3578,6 @@
             },
             "maxRows": {
               "type": "number"
-            },
-            "children": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/DataViewQueryChild"
-              }
             },
             "sourceInputMode": {
               "enum": [
@@ -4494,8 +4468,8 @@
           "enum": [
             "error",
             "idle",
-            "loading",
-            "ready"
+            "ready",
+            "loading"
           ]
         },
         "options": {
@@ -4506,9 +4480,9 @@
         },
         "valueStatus": {
           "enum": [
+            "valid",
             "invalid",
             "empty",
-            "valid",
             "unverified"
           ]
         },
@@ -6257,33 +6231,7 @@
           ]
         },
         "tree": {
-          "type": "object",
-          "properties": {
-            "keyField": {
-              "type": "string"
-            },
-            "parentField": {
-              "type": "string"
-            },
-            "nodeId": {
-              "type": "string"
-            },
-            "hasChildrenField": {
-              "type": "string"
-            },
-            "mode": {
-              "enum": [
-                "parent",
-                "child"
-              ]
-            }
-          },
-          "required": [
-            "keyField",
-            "parentField",
-            "nodeId"
-          ],
-          "additionalProperties": false
+          "$ref": "../../spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryTree"
         },
         "sort": {
           "type": "string"

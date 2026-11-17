@@ -46,11 +46,11 @@
           "enum": [
             "",
             "info",
-            "success",
             "warning",
+            "success",
             "danger",
-            "primary",
-            "default"
+            "default",
+            "primary"
           ]
         },
         "underline": {

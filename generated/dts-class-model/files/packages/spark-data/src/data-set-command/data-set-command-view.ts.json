@@ -45,16 +45,7 @@
               "const": "array"
             },
             {
-              "const": "decimal"
-            },
-            {
-              "const": "date"
-            },
-            {
-              "const": "text"
-            },
-            {
-              "const": "time"
+              "const": "integer"
             },
             {
               "type": "object",
@@ -254,7 +245,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@32279": {
+                "__@iterator@163420": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -309,18 +300,30 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@32279"
+                "__@iterator@163420"
               ],
               "additionalProperties": false
+            },
+            {
+              "const": "enum"
+            },
+            {
+              "const": "decimal"
+            },
+            {
+              "const": "date"
+            },
+            {
+              "const": "text"
+            },
+            {
+              "const": "time"
             },
             {
               "const": "int"
             },
             {
               "const": "bool"
-            },
-            {
-              "const": "integer"
             },
             {
               "const": "float"
@@ -333,9 +336,6 @@
             },
             {
               "const": "datetime"
-            },
-            {
-              "const": "enum"
             }
           ]
         },

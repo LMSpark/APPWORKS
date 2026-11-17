@@ -71,10 +71,10 @@
               "const": "object"
             },
             {
-              "const": "array"
+              "const": "null"
             },
             {
-              "const": "null"
+              "const": "array"
             },
             {
               "const": "integer"

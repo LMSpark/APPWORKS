@@ -78,9 +78,9 @@
             "formdata",
             "text",
             "json",
+            "document",
             "arraybuffer",
-            "blob",
-            "document"
+            "blob"
           ]
         },
         "baseURL": {
@@ -500,9 +500,9 @@
             "formdata",
             "text",
             "json",
+            "document",
             "arraybuffer",
-            "blob",
-            "document"
+            "blob"
           ]
         },
         "baseURL": {
@@ -581,8 +581,8 @@
         },
         "storage": {
           "enum": [
-            "localStorage",
             "sessionStorage",
+            "localStorage",
             "memory"
           ]
         },

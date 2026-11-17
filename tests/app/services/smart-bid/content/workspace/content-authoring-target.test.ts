@@ -1,9 +1,17 @@
 import {expect,it} from 'vitest'
-import {resolveContentAuthoringTarget,type ContentAuthoringRoute} from '@/views/features/application/smart-bid/authoring/entry/content-authoring-target'
+import {resolveContentAuthoringTarget,resolvePublishedContentAuthoringTarget,type ContentAuthoringRoute} from '@/views/features/application/smart-bid/authoring/entry/content-authoring-target'
 
 const app='D8490EC99436A8B9AFDE205BE3153802',space='D3BBA1F0780056C837AC35E9825CAD5A'
 const route=():ContentAuthoringRoute=>({path:`/apps/${app}/features/application/smart-bid/authoring/entry/content-authoring-page`,
  meta:{type:'config-page',nodeId:'NAV11',pageId:'TOOL11',tool:{projectId:app,pageId:'TOOL11'}},query:{scenarioId:space,projectId:'P',draftId:'D'}})
+it('dispatches only the published node and tool pair in the declared space',()=>{
+ const entry={nodeId:'NAV11',pageId:'TOOL11'}
+ expect(resolvePublishedContentAuthoringTarget(route(),entry)?.draftId).toBe('D')
+ expect(resolvePublishedContentAuthoringTarget(route(),{...entry,nodeId:'OTHER'})).toBeUndefined()
+ expect(()=>resolvePublishedContentAuthoringTarget(route(),{...entry,pageId:'OTHER'})).toThrow('PUBLICATION_IDENTITY_CONFLICT')
+ expect(()=>resolvePublishedContentAuthoringTarget({...route(),query:{...route().query,additionalScenarioIds:'OTHER'}},entry))
+  .toThrow('PUBLICATION_IDENTITY_CONFLICT')
+})
 it('takes page and space identity from resolved navigation while keeping explicit project/draft',()=>{
  const target=resolveContentAuthoringTarget(route())
  expect(target).toEqual({applicationId:app,pageId:'TOOL11',scenarioId:space,projectId:'P',draftId:'D'})

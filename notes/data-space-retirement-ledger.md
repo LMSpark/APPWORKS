@@ -10904,3 +10904,5 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - 2026-11-18 候选要求原记录读取已接：readFixedRequirement从已核候选清单精确匹配chapterId/lineageId/version，错误章节在查询前拒绝，沿候选固定baselineId与stageRef调用原基线和Requirement DataView，原快照重查撤销组合证明，准用待核。候选/基线/要求三文件41项通过。夹具未代替实服模型注册、视图发布和页面验收。
 - 宿主调用准备已验证：正式路由测试确认可信入参进入原DataView，认证失效后拒绝复用旧实例。路由2项、spark-app类型、专项lint和正式生成通过。实际页11发布身份与生产宿主仍待接。
 - 路由池已把原 PageRuntime 交给宿主工厂并绑定到标准渲染器，拒绝不同实例；路由测试证实正式配置脚本实际发出宿主命令。并入已交付的基线要求精确读取，整仓类型复验通过、9文件102项通过、正式生成通过。尚缺真实页11发布节点绑定与真实Requirement模型、视图和现场烟测。
+- 2026-11-18 实服 MySQL spark_bid.bid_requirement（E9F98F995293C2B4F073FD319618A38F）补齐14业务字段。恢复原草稿确认kind/requirement_text/score已在，仅新增余8；一次保存，界面已保存；整页重载后重选同库同表，独立表设计两页核全14项（第2页含source_record和lineage_id），冷读截图 smart-bid-requirement-table-cold-20261118.png 与 smart-bid-requirement-table-cold-page2-20261118.png。仅物理表字段设计，无业务记录，Requirement正式模型和selectedRequirement视图仍待登记。
+- 页11生产入口匹配函数已加入：使用回读的正式节点及工具双身份，拒绝同节点换绑工具及额外场景；目标专项17项、lint、正式生成通过。现场节点/工具回读与生产安装仍待完成。

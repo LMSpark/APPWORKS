@@ -112,8 +112,8 @@
         },
         "tourType": {
           "enum": [
-            "primary",
-            "default"
+            "default",
+            "primary"
           ]
         },
         "closeOnPressEscape": {

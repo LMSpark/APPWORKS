@@ -389,10 +389,7 @@
       "title": "DataViewFilterFunctionContext",
       "properties": {
         "tables": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/DataViewFilterFunctionTable"
-          }
+          "$ref": "../../../../spark-component/src/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.props.ts.json#/$defs/FilterFunctionTables"
         },
         "relatedFields": {
           "type": "array",

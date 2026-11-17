@@ -18584,7 +18584,8 @@
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-authoring-target\n职责：从正式导航解析结果和明确项目草稿参数确定正文入口目标。\n边界：不授予权限、不查询、不从URL取得作者、不选择活动项目或默认草稿。\nAI用途：真实原生入口在打开原ContentAuthoringHost前核对绑定身份。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "ContentAuthoringRoute"
+          "ContentAuthoringRoute",
+          "ContentAuthoringPublishedEntry"
         ]
       }
     },
@@ -22805,6 +22806,10 @@
     "ContentAuthoringHost": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts.json"
+    },
+    "ContentAuthoringPublishedEntry": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts.json"
     },
     "ContentAuthoringRoute": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",

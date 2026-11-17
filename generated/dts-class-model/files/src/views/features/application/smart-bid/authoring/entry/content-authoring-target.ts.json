@@ -10,7 +10,8 @@
     "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-authoring-target\n职责：从正式导航解析结果和明确项目草稿参数确定正文入口目标。\n边界：不授予权限、不查询、不从URL取得作者、不选择活动项目或默认草稿。\nAI用途：真实原生入口在打开原ContentAuthoringHost前核对绑定身份。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "ContentAuthoringRoute"
+      "ContentAuthoringRoute",
+      "ContentAuthoringPublishedEntry"
     ]
   },
   "$defs": {
@@ -39,9 +40,27 @@
         "query"
       ],
       "additionalProperties": false
+    },
+    "ContentAuthoringPublishedEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentAuthoringPublishedEntry",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nodeId",
+        "pageId"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T17:44:47.060Z",
+  "generatedAt": "2026-11-17T18:49:33.233Z",
   "models": {
     "ContentAuthoringRoute": {
       "name": "ContentAuthoringRoute",
@@ -70,6 +89,35 @@
             },
             {
               "name": "query",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentAuthoringPublishedEntry": {
+      "name": "ContentAuthoringPublishedEntry",
+      "jsdoc": "Published IDs captured from the authorized blueprint readback.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    pageId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    pageId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
               "readable": true,
               "writable": false
             }

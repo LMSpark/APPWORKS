@@ -25,8 +25,8 @@
       "title": "TagType",
       "enum": [
         "info",
-        "success",
         "warning",
+        "success",
         "danger"
       ]
     },
@@ -87,8 +87,8 @@
           "enum": [
             "",
             "info",
-            "success",
             "warning",
+            "success",
             "danger"
           ]
         },
@@ -99,8 +99,8 @@
             "enum": [
               "",
               "info",
-              "success",
               "warning",
+              "success",
               "danger"
             ]
           }

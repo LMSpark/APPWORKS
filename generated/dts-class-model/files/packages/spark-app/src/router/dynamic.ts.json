@@ -65,7 +65,7 @@
         },
         "preparePageCall": {
           "type": "object",
-          "title": "(route: RouteLocationNormalizedLoaded) => Readonly<{ scenarioInputs: NonNullable<PageRuntimeOptions[\"scenarioInputs\"]>; assertCurrent(): void; }> | undefined"
+          "title": "(route: RouteLocationNormalizedLoaded) => Readonly<{ scenarioInputs: NonNullable<PageRuntimeOptions[\"scenarioInputs\"]>; assertCurrent(): void; createHost?: (runtime: PageRuntime) => Readonly<{ runtime: PageRuntime; assertCurrent(): void; invoke(name: string, input: unknown, signal: AbortSignal): unknown; }>; }> | un..."
         },
         "pageComponent": {
           "type": "object",

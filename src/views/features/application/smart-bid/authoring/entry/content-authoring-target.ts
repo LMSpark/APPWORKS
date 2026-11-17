@@ -13,6 +13,22 @@ function identity(value:unknown):value is string {return typeof value==='string'
 
 /** 消费正式工具导航元信息；调用场景由正式工具运行时同样读取的query明确声明。 */
 export type ContentAuthoringRoute=Readonly<{path:string;meta:Readonly<Record<string,unknown>>;query:Readonly<Record<string,unknown>>}>
+
+/** Published IDs captured from the authorized blueprint readback. */
+export type ContentAuthoringPublishedEntry = Readonly<{nodeId:string; pageId:string}>
+
+/** Select only the registered tool before preparing its authenticated runtime inputs. */
+export function resolvePublishedContentAuthoringTarget(
+ route:ContentAuthoringRoute, entry:ContentAuthoringPublishedEntry,
+):ContentAuthoringTarget | undefined {
+ if (!identity(entry.nodeId) || !identity(entry.pageId)) throw Error('CONTENT_AUTHORING_PUBLICATION_IDENTITY_REQUIRED')
+ if (resolveExecutionProjectId(route.path) !== applicationId || route.meta['nodeId'] !== entry.nodeId) return undefined
+ const target = resolveContentAuthoringTarget(route)
+ if (target.pageId !== entry.pageId || route.query['additionalScenarioIds'] !== undefined) {
+  throw Error('CONTENT_AUTHORING_PUBLICATION_IDENTITY_CONFLICT')
+ }
+ return target
+}
 /** 空缺或冲突身份在任何查询前拒绝。 */
 export function resolveContentAuthoringTarget(route:ContentAuthoringRoute):ContentAuthoringTarget {
  const tool=route.meta['tool'],nodeId=route.meta['nodeId'],projectId=route.query['projectId'],draftId=route.query['draftId']

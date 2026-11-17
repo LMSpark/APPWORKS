@@ -87,13 +87,13 @@
                 "value": {
                   "type": "number"
                 },
-                "__@RefSymbol@119457": {
+                "__@RefSymbol@165993": {
                   "const": true
                 }
               },
               "required": [
                 "value",
-                "__@RefSymbol@119457"
+                "__@RefSymbol@165993"
               ],
               "additionalProperties": false
             },
@@ -119,7 +119,7 @@
             },
             "member": {
               "type": "object",
-              "title": "import(\"vue\").ComputedRef<\"page\" | \"columns\" | \"rows\" | \"total\" | \"requestState\" | import(\"@spark-appworks/spark-data\").DataMember | \"value\" | \"currentRow\" | \"selectedRows\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"pageSize\" | \"mutating\" | \"loadingError\" | \"mutatingError\">"
+              "title": "import(\"vue\").ComputedRef<\"page\" | \"columns\" | \"rows\" | \"total\" | \"requestState\" | import(\"@spark-appworks/spark-data\").DataMember | \"value\" | \"pageSize\" | \"currentRow\" | \"selectedRows\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"mutating\" | \"loadingError\" | \"mutatingError\">"
             },
             "fieldMember": {
               "type": "object",

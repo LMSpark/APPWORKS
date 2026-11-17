@@ -71,8 +71,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         },
         "disabledWhenRow": {
@@ -360,8 +360,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         }
       },
@@ -444,8 +444,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         },
         "onConfirm": {
@@ -973,8 +973,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         },
         "disabledWhenRow": {
@@ -1112,8 +1112,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         },
         "disabledWhenRow": {
@@ -1228,8 +1228,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         },
         "disabledWhenRow": {
@@ -1356,8 +1356,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         },
         "disabledWhenRow": {
@@ -1500,8 +1500,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         },
         "disabledWhenRow": {
@@ -1531,8 +1531,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         }
       },
@@ -1633,8 +1633,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         },
         "disabledWhenRow": {
@@ -1742,8 +1742,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         },
         "disabledWhenRow": {
@@ -1851,8 +1851,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         },
         "disabledWhenRow": {
@@ -1966,8 +1966,8 @@
           "enum": [
             "info",
             "error",
-            "success",
-            "warning"
+            "warning",
+            "success"
           ]
         },
         "disabledWhenRow": {

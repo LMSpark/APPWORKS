@@ -59,6 +59,15 @@ it('loads the original views with fixed project and trusted session-author input
  expect(filters.join(' ')).toContain('userId')
  binding.assertCurrent();host.close()
 })
+it('invalidates the binding when the runtime no longer resolves the original draft view',async()=>{
+ fixture()
+ const host=new ContentAuthoringHost(),binding=await host.open(target)
+ const resolve=binding.runtime.resolveView.bind(binding.runtime)
+ const lookup=vi.spyOn(binding.runtime,'resolveView').mockImplementation(key=>
+  key===binding.dataViewKey?undefined:resolve(key))
+ try{expect(()=>binding.assertCurrent()).toThrow('CONTENT_AUTHORING_STALE')}
+ finally{lookup.mockRestore();host.close()}
+})
 it('materializes the explicit three-file tool in the same authenticated runtime and rejects a mismatched tool identity',async()=>{
  const f=fixture(),host=new ContentAuthoringHost(),tool=new PageTool({pageId:target.pageId})
  tool.hydrateFileText('rule.json',JSON.stringify([{type:'r-form',props:{dataViewKey:'SPACE@WorkingDraft@personalDraft'}}]))

@@ -111,19 +111,22 @@ export class ContentAuthoringHost {
    const runtime=this.#session.acquire({...(tool?{tool}:{pageId:target.pageId}),scenarioIds:[target.scenarioId],targetId:key,
     scenarioInputs:session.scenarioInputs,
     loadScenario:scenarioId=>loadLowcodeRuntimeScenario({projectId:target.applicationId,scenarioId})})
+   const projectKey=buildDataViewKey('ContentProject','selectedProject',target.scenarioId)
+   const draftKey=buildDataViewKey('WorkingDraft','personalDraft',target.scenarioId)
    let views:DataView[]=[],loaded=false
    const assertCurrent=()=>{
     session.assertCurrent()
     const [project,draft]=views
     if(own!==this.#generation||!this.#session.isCurrent(runtime)
      ||views.some(view=>view.queryContext['projectId']!==target.projectId||view.queryContext['currentUserId']!==actorUserId)
-     ||views.length>0 && (!project||!draft||!validScope(project,draft))
+     ||views.length>0 && (!project||!draft||runtime.resolveView(projectKey)!==project
+      ||runtime.resolveView(draftKey)!==draft||!validScope(project,draft))
      ||loaded && (!project||!readableProject(project,target.projectId)))
      throw Error('CONTENT_AUTHORING_STALE: 正文编制的会话或目标已失效')
    }
    await runtime.load();assertCurrent()
-   const project=runtime.resolveView(buildDataViewKey('ContentProject','selectedProject',target.scenarioId))
-   const draft=runtime.resolveView(buildDataViewKey('WorkingDraft','personalDraft',target.scenarioId))
+   const project=runtime.resolveView(projectKey)
+   const draft=runtime.resolveView(draftKey)
    if(!project||!draft||!validScope(project,draft))
     throw Error('CONTENT_AUTHORING_SCOPE_REQUIRED: 缺少项目或当前作者的正式常驻范围')
    views=[project,draft];assertCurrent()
@@ -137,7 +140,7 @@ export class ContentAuthoringHost {
     throw Error('CONTENT_AUTHORING_TARGET_UNAVAILABLE: 本项目或当前作者的指定草稿不可读取')
    loaded=true
    const binding:ContentAuthoringBinding=Object.freeze({runtime,
-    dataViewKey:buildDataViewKey('WorkingDraft','personalDraft',target.scenarioId),
+    dataViewKey:draftKey,
     projectId:target.projectId,draftId:target.draftId,actorUserId,assertCurrent,
     readRevisions:selection=>readContentRevisions({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),
     readNodeVersion:selection=>readContentNodeVersion({runtime,scenarioId:target.scenarioId,projectId:target.projectId,assertCurrent},selection),

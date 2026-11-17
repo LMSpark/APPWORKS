@@ -51,7 +51,11 @@ export function canonicalRevisionSnapshot(value:unknown):string {
 }
 /** 规范文本在await前捕获；使用WebCrypto，不降级摘要也不改写原清单。 */
 export async function hashRevisionSnapshot(value:unknown):Promise<string> {
- const text=canonicalRevisionSnapshot(value),bytes=new TextEncoder().encode(text)
+ return hashCanonicalSnapshotText(canonicalRevisionSnapshot(value))
+}
+/** 对已规范编码的原文计算 UTF-8 SHA-256。 */
+export async function hashCanonicalSnapshotText(text:string):Promise<string>{
+ const bytes=new TextEncoder().encode(text)
  const digest=await globalThis.crypto.subtle.digest('SHA-256',bytes)
  return Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('')
 }

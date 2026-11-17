@@ -1,5 +1,7 @@
 # spark-project-model
 
+本包与 `spark-app` 对应同一应用领域。这里定义项目蓝图、页面工具、场景配置和单次页面运行实例的数据模型与生命周期。`spark-app` 消费这些模型，负责应用启动、导航、路由和实例池。应用宿主负责提供认证上下文与存储适配，业务数据的查询和写入统一由 SPARK Data 承接。
+
 `ProjectBlueprint` = 设计 + 编辑会话根 class。模型 = class + API（事件）；谁 `new` 谁负责生命周期。
 
 ## 出口

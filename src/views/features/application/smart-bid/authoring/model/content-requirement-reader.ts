@@ -4,8 +4,7 @@
  */
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
-import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
-import {hasCompleteSingleContentResult} from './content-node-version-reader'
+import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
 
 export type ContentRequirementSelection=Readonly<{lineageId:string;version:string}>
 /** 原版本可读证明；两个待核标志不因status=ADOPTED而消失。 */

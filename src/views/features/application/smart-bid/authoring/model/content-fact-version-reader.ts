@@ -5,8 +5,7 @@
  * AI用途：基线成员确定后消费原版本；未接通基线时只能作为待核原记录展示。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
-import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
-import {hasCompleteSingleContentResult} from './content-node-version-reader'
+import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
 
 /** factId为项目内事实键；version是显式原版本，不从状态或当前项目指针推导。 */
 export type ContentFactVersionSelection=Readonly<{factId:string;version:number}>

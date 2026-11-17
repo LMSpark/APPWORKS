@@ -7,8 +7,7 @@
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {readSnapshotNodeIndex,type RevisionSnapshotNodeIndex} from '@/services/smart-bid/content/revision-snapshot-index'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
-import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
-import {hasCompleteSingleContentResult} from './content-node-version-reader'
+import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
 
 /** 精确快照键；必须来自所选修订或冻结首稿，不能由草稿哈希冒充。 */
 export type ContentSnapshotSelection=Readonly<{snapshotHash:string}>

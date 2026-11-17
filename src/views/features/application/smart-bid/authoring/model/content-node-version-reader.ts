@@ -9,7 +9,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {canonicalContentNode,hashContentNode} from '@/services/smart-bid/content-node-hash'
 import {readContentNodeLinks} from '@/services/smart-bid/content/content-node-links'
 import type {ContentStructureNode} from '@/services/smart-bid/content-tree-structure'
-import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
+import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
 
 /** 固定快照交出的精确节点版本；节点稳定身份不按NFC另找替代行。 */
 export type ContentNodeVersionSelection=Readonly<{nodeId:string;nodeHash:string}>
@@ -24,10 +24,6 @@ function identity(value:unknown):value is string {
 function validScope(view:DataView):boolean {
  return view.dataTable?.modelBinding?.modelName==='ContentNodeVersion'&&view.commitMode==='staged'
   &&['projectId','nodeId','nodeHash'].every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
-}
-/** 来源明确报告完整单项匹配；不把物理主键或已加载一行当语义唯一约束。 */
-export function hasCompleteSingleContentResult(view:DataView):boolean {
- return view.countReported===true&&view.total===1&&view.rows.length===1&&view.nextPageAvailable!==true
 }
 /** 核单节点确定载荷及引用形状；完整树和外部引用另核。 */
 export function assertContentNodeVersionPayload(payload:unknown,nodeId:string):asserts payload is ContentStructureNode {

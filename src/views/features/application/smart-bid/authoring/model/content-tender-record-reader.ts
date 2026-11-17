@@ -4,8 +4,7 @@
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {readTenderRecordReference} from '@/services/smart-bid/content/references/baseline-tender-records'
 import {snapshotReferenceIdentity} from '@/services/smart-bid/content/references/snapshot-reference-values'
-import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
-import {hasCompleteSingleContentResult} from './content-node-version-reader'
+import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
 
 const keys=['projectId','runId','type','ordinal','recordVersion','recordHash']
 function scoped(view:DataView):boolean {

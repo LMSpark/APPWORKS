@@ -5,7 +5,7 @@ import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 const param=(name:string)=>({Type:'GetInputParam',ParamName:name})
-function fixture(head:string|null='H') {
+function fixture(head:string|null='H',incompleteView?:string) {
  const scope=(name:string,status:string)=>({logic:'and' as const,filters:[
   {field:'projectId',operator:'eq' as const,value:param('projectId')},
   {field:'id',operator:'eq' as const,value:param(name)},
@@ -22,7 +22,7 @@ function fixture(head:string|null='H') {
    status:candidate?'CANDIDATE':'ADOPTED',snapshotHash:'digest'}]
   const q=new DataSpaceQueryTable({scenarioId:'S',metaName:isProject?'ContentProject':'ContentRevision'})
   return new DataSpaceQueryContext({identity:q.identity,scope:'q',readScope:()=> 'q',snapshot:q.applyResult({Result:{
-   primaryKeyField:isProject?'projectId':'id',data:{Count:1,Items:rows.map(row=>({...row,lingma_sys_params:{r:[],e:isProject?['headRevisionId']:[],h:hidden?['snapshotHash']:[],m:[],d:false}}))}}})})
+   primaryKeyField:isProject?'projectId':'id',data:{Count:view.viewId===incompleteView?2:1,Items:rows.map(row=>({...row,lingma_sys_params:{r:[],e:isProject?['headRevisionId']:[],h:hidden?['snapshotHash']:[],m:[],d:false}}))}}})})
  })
  const save=vi.fn(async()=>{throw Error('NO_WRITE')})
  for(const table of Object.values(ds.tables))for(const view of Object.values(table.views))view.bindQueryExecutor({executeQuery:query,save})
@@ -41,6 +41,14 @@ it('reads exact named revision views from the original runtime without writes or
 it('uses an explicit null head for a first candidate and never queries the head view',async()=>{
  const f=fixture(null),result=await readContentRevisions(f.input,{candidateRevisionId:'C',expectedHead:null})
  expect(result.headDataViewKey).toBeNull();expect(f.query).toHaveBeenCalledTimes(2)
+})
+it.each(['selectedProject','selectedCandidate','selectedHead'])('rejects a partial result for %s even if one row matches',async viewId=>{
+ const f=fixture('H',viewId)
+ try{
+  await expect(readContentRevisions(f.input,{candidateRevisionId:'C',expectedHead:'H'}))
+   .rejects.toThrow(viewId==='selectedProject'?'CONTENT_REVISION_HEAD_CHANGED':'CONTENT_REVISION_UNAVAILABLE')
+  if(viewId==='selectedProject')expect(f.query).toHaveBeenCalledTimes(1)
+ }finally{f.ds.destroy()}
 })
 it.each([{table:'ContentProject',view:'selectedProject'},{table:'ContentRevision',view:'selectedCandidate'},{table:'ContentRevision',view:'selectedHead'}])(
  'invalidates original revision evidence after same-valued refresh of $table@$view',async({table,view})=>{

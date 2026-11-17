@@ -5,10 +5,9 @@
  * AI用途：目标修订提供固定baselineId和stageRef，正文绑定沿原查询证明消费。
  */
 import type {ContentRevisionReadHost} from './content-revision-reader'
-import {hasContentScopeCondition} from './content-revision-reader'
+import {hasCompleteSingleContentResult,hasContentScopeCondition} from './content-revision-reader'
 import {readContentFactVersion} from './content-fact-version-reader'
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
-import {hasCompleteSingleContentResult} from './content-node-version-reader'
 import {selectBaselineFactMember} from '@/services/smart-bid/content/references/baseline-fact-members'
 import {snapshotReferenceIdentity,snapshotReferenceRecord,visitSnapshotReferences} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import type {ContentStructureNode} from '@/services/smart-bid/content-tree-structure'

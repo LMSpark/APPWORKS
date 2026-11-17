@@ -35,10 +35,14 @@ function valid(view:DataView,parameter:string,status:string):boolean {
   &&hasContentScopeCondition(view,'id',{Type:'GetInputParam',ParamName:parameter})&&hasContentScopeCondition(view,'status',status)
 }
 function identity(value:unknown):value is string{return typeof value==='string'&&value.length>0&&value.trim()===value}
+/** 正式查询已报告完整且唯一的匹配结果。 */
+export function hasCompleteSingleContentResult(view:DataView):boolean {
+ return view.countReported===true&&view.total===1&&view.rows.length===1&&view.nextPageAvailable!==true
+}
 function available(view:DataView,target:{projectId:string;id:string;status:string}):boolean {
  const {projectId,id,status}=target
  const row=view.rows[0]
- return !view.loadingError&&!view.hasEditingChanges()&&view.rows.length===1&&row?.['id']===id&&row['projectId']===projectId
+ return !view.loadingError&&!view.hasEditingChanges()&&hasCompleteSingleContentResult(view)&&row?.['id']===id&&row['projectId']===projectId
   &&row['status']===status&&identity(row['snapshotHash'])
   &&['id','projectId','status','snapshotHash'].every(field=>view.fieldAccess(row,field).read==='visible')
 }
@@ -60,7 +64,7 @@ export async function readContentRevisions(host:ContentRevisionReadHost,input:Co
   const row=project.rows[0]
   return !project.loadingError&&!project.hasEditingChanges()&&project.queryContext['projectId']===projectId
    &&hasContentScopeCondition(project,'projectId',{Type:'GetInputParam',ParamName:'projectId'})
-   &&project.rows.length===1&&row?.['projectId']===projectId&&row['headRevisionId']===expectedHead
+   &&hasCompleteSingleContentResult(project)&&row?.['projectId']===projectId&&row['headRevisionId']===expectedHead
    &&['projectId','headRevisionId'].every(field=>project.fieldAccess(row,field).read==='visible')
  }
  if(!matchesHead())throw Error('CONTENT_REVISION_HEAD_CHANGED')

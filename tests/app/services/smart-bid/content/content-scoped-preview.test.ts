@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {previewScopedContentTree} from '@/services/smart-bid/content/content-scoped-preview'
+import {previewScopedContentTree,previewScopedRevisionChanges} from '@/services/smart-bid/content/content-scoped-preview'
 
 const node=(nodeId:string,parentId:string,index:number,type:string,value='')=>({nodeId,parentId,index,type,class:[],value,data:{}})
 const basis=()=>[node('book','P',0,'document'),node('one','book',0,'chapter'),node('h1','one',0,'heading','一'),
@@ -8,6 +8,28 @@ const target=(nodeId='one',extent='SUBTREE')=>({kind:'NODE',nodeId,extent})
 const input=(candidate:unknown[],targets:unknown[]=[target()])=>({projectId:'P',basis:basis(),current:basis(),candidate,
  targetScope:{schemaVersion:2,projectId:'P',targets},responses:[{projectId:'P',assignmentId:'Q',responseId:'R'}],
  declaredAddedNodeIds:[],responseChanges:[]})
+it('derives candidate response scope from the three manifests even with an empty caller declaration',()=>{
+ const row={id:'R',assignmentId:'Q',revisionId:'B',lineageId:'L',version:'1',statement:'原响应',data:{}}
+ const manifest=(responses:unknown[])=>({hashContract:'spark-bid.revision-snapshot/1',projectId:'P',baselineId:'B',stageRef:'ST',
+  templateRefs:[],nodes:[],requirementPins:[],responseAssignments:[],responses,qualificationReviews:[],sensitiveRefs:[]})
+ const command=input(basis())
+ const result=previewScopedRevisionChanges(command,{basis:manifest([row]),current:manifest([row]),candidate:manifest([])})
+ expect(result.scopeCheckPassed).toBe(false)
+ expect(result.violations).toContainEqual({code:'RESPONSE_OUTSIDE_SCOPE',ownerKind:'RESPONSE',ownerId:'Q',relatedId:null})
+ expect(result.responseComparison[0]?.delta).toBe('CANDIDATE_ONLY')
+ const replaced=previewScopedRevisionChanges(command,{basis:manifest([row]),current:manifest([row]),
+  candidate:manifest([{...row,id:'R2',revisionId:'T'}])})
+ expect(replaced.scopeCheckPassed).toBe(false)
+ expect(replaced.responseComparison[0]?.delta).toBe('UNCHANGED')
+ const selected=input(basis(),[{kind:'RESPONSE',assignmentId:'Q',responseId:'R'}])
+ const conflict=previewScopedRevisionChanges(selected,{basis:manifest([row]),
+  current:manifest([{...row,id:'R2',revisionId:'O',statement:'当前修改'}]),candidate:manifest([])})
+ expect(conflict.scopeCheckPassed).toBe(true)
+ expect(conflict.responseComparison[0]?.delta).toBe('DIVERGED')
+ expect(conflict.requiresCurrentAuthorityChecks).toBe(true)
+ expect(()=>previewScopedRevisionChanges(command,{basis:{...manifest([row]),projectId:'OTHER'},
+  current:{...manifest([]),projectId:'OTHER'},candidate:{...manifest([]),projectId:'OTHER'}})).toThrow('RESPONSE_COMPARISON_PROJECT')
+})
 it('accepts selected node content while retaining current-only edits and pending authority checks',()=>{
  const candidate=basis().map(n=>n.nodeId==='a'?{...n,value:'候选'}:n)
  const result=previewScopedContentTree({...input(candidate,[target('a','NODE')]),current:basis().map(n=>n.nodeId==='b'?{...n,value:'他人新改'}:n)})

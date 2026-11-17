@@ -9,9 +9,10 @@ import type {ContentTreeComparison} from '../content-tree-comparison'
 import type {ContentStructureNode} from '../content-tree-structure'
 import {resolveContentTargetScope} from './content-target-scope'
 import type {ContentScopeResponse,ContentTargetScope} from './content-target-scope'
+import {compareRevisionResponses} from './revision-response-comparison'
 
 /** 由宿主从实际响应变更提取，不得由AI另交一份无关的“通过清单”。 */
-export type ContentResponseChangeIdentity=Readonly<{assignmentId:string;basisResponseId:string|null;responseId:string}>
+export type ContentResponseChangeIdentity=Readonly<{assignmentId:string;basisResponseId:string|null;responseId:string|null}>
 /** 完整树及变更清单都须显式取得，空数组与缺失不同。 */
 export type ScopedContentPreviewInput=Readonly<{
  projectId:string;basis:unknown;current:unknown;candidate:unknown;targetScope:unknown
@@ -74,7 +75,9 @@ function changes(value:unknown):ContentResponseChangeIdentity[] {
  return array(value).map(item=>{
   const row=object(item)
   if(Object.keys(row).length!==3||!['assignmentId','basisResponseId','responseId'].every(key=>Object.hasOwn(row,key)))throw Error('CONTENT_SCOPE_RESPONSE_INPUT')
-  const assignmentId=id(row['assignmentId']),basisResponseId=row['basisResponseId']===null?null:id(row['basisResponseId']),responseId=id(row['responseId'])
+  const assignmentId=id(row['assignmentId']),basisResponseId=row['basisResponseId']===null?null:id(row['basisResponseId'])
+  const responseId=row['responseId']===null?null:id(row['responseId'])
+  if(responseId===null&&basisResponseId===null)throw Error('CONTENT_SCOPE_RESPONSE_INPUT')
   if(seen.has(assignmentId))throw Error('CONTENT_SCOPE_RESPONSE_DUPLICATE')
   seen.add(assignmentId);return {assignmentId,basisResponseId,responseId}
  })
@@ -142,9 +145,22 @@ export function previewScopedContentTree(command:ScopedContentPreviewInput):Scop
   if(!selectedResponses.has(change.assignmentId))responseViolation('RESPONSE_OUTSIDE_SCOPE')
   if(!basisResponses.has(change.assignmentId)||basisResponses.get(change.assignmentId)!==change.basisResponseId
    ||selectedResponses.has(change.assignmentId)&&selectedResponses.get(change.assignmentId)!==change.basisResponseId)responseViolation('RESPONSE_BASIS_MISMATCH')
-  if(usedResponseIds.has(change.responseId))responseViolation('RESPONSE_ID_REUSE')
-  usedResponseIds.add(change.responseId)
+  if(change.responseId!==null){
+   if(usedResponseIds.has(change.responseId))responseViolation('RESPONSE_ID_REUSE')
+   usedResponseIds.add(change.responseId)
+  }
  }
  return {targetScope:resolution.scope,comparison,scopeCheckPassed:violations.length===0,violations,changedNodeIds,addedNodeIds,responseChanges,
   requiresCurrentAuthorityChecks:true,requiresResponsePayloadChecks:true,requiresMergedSnapshotValidation:true}
+}
+
+/** 从三份固定清单提取响应变更，避免以调用方的空变更清单绕过范围核验。 */
+export function previewScopedRevisionChanges(
+ command:Omit<ScopedContentPreviewInput,'responseChanges'>,
+ manifests:Readonly<{basis:unknown;current:unknown;candidate:unknown}>,
+){
+ const responseComparison=compareRevisionResponses(manifests.basis,manifests.current,manifests.candidate,command.projectId)
+ const responseChanges=responseComparison.filter(row=>row.basisResponseId!==row.candidateResponseId)
+  .map(row=>({assignmentId:row.assignmentId,basisResponseId:row.basisResponseId,responseId:row.candidateResponseId}))
+ return {...previewScopedContentTree({...command,responseChanges}),responseComparison}
 }

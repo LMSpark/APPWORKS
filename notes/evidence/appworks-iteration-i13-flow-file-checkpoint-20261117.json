@@ -1,0 +1,182 @@
+{
+  "iteration": "I13-flow-file-lifecycle",
+  "recordedAt": "2026-11-17T04:20:17.681952+00:00",
+  "baseCommit": "04818c448564ee3098c9954eb214ad6da70aed8d",
+  "scope": "original FlowDesignDocument resource adapter; native file lifecycle, not complete workflow-model deletion",
+  "architecture": {
+    "queryEditCancelSave": "original DataSet/DataView",
+    "storage": "existing file-resource-adapter plus original LowcodeDesignApi.removeFile",
+    "deletePermission": "original fileTarget model DataView.deleteActionState",
+    "newBusinessOwner": false,
+    "nodeServiceStarted": false,
+    "javaChanged": false
+  },
+  "checks": {
+    "nativeWorkflowDirectory": {
+      "files": 10,
+      "tests": 40,
+      "status": "passed",
+      "log": "cache/i13-flow-file-final-regression.log"
+    },
+    "fileSdk": {
+      "files": 2,
+      "tests": 84,
+      "status": "passed",
+      "log": "cache/i13-flow-file-sdk-regression.log"
+    },
+    "classModel": {
+      "status": "official compiler passed",
+      "seconds": 41.599,
+      "log": "cache/i13-flow-file-class-model.log"
+    },
+    "verify": {
+      "status": "passed",
+      "log": "cache/i13-flow-file-verify.log"
+    },
+    "finalTargetedLint": {
+      "status": "passed",
+      "log": "cache/i13-flow-file-final-lint.log"
+    },
+    "frontendBuild": {
+      "status": "passed",
+      "seconds": 7.37,
+      "log": "cache/i13-flow-file-build.log"
+    },
+    "consumerContracts": {
+      "endpoints": 611,
+      "consumers": 244,
+      "status": "generated and verified"
+    }
+  },
+  "regressionEvidence": [
+    "staged delete cancellation sends no removal",
+    "editable model with denied deletion cannot remove file",
+    "lost delete receipt keeps native capture and original verification does not remove again",
+    "retargeted original model query rejects stale removal",
+    "missing file creation, source reread, edit cancellation and deletion use original views",
+    "file save scope leaves unrelated database drafts untouched"
+  ],
+  "review": {
+    "result": "local Ready",
+    "mode": "independent read-only source review",
+    "notIndependentLiveTest": true
+  },
+  "liveEvidence": "notes/evidence/appworks-iteration-i13-flow-file-live-20261117.json",
+  "liveResult": {
+    "dbWrites": 2,
+    "fileWrites": 2,
+    "fileDeletes": 1,
+    "independentColdReads": true,
+    "cancelVerified": true,
+    "fileCleaned": true,
+    "modelCleaned": true
+  },
+  "diagnosticFailure": {
+    "archive": "notes/evidence/appworks-iteration-i13-flow-file-preflight-20261117.json",
+    "cause": "diagnostic harness registered file executor by resource ID rather than table name",
+    "productionRegistryAffected": false,
+    "repeatedModelCreate": false,
+    "fileDispatchesBeforeCorrection": 0,
+    "resolution": "same confirmed model reread with exact identity before continuing; final cleanup verified"
+  },
+  "limitations": [
+    "UI smoke remains unverified",
+    "does not prove full node/edge/form configuration save and running approval flow",
+    "does not prove whole-model cascade or historic-reference deletion",
+    "prior 10256 root tests belong to the previous checkpoint, not this changed file adapter"
+  ],
+  "uiSmoke": false,
+  "full20PackageMigrationComplete": false,
+  "committed": false,
+  "pushed": false,
+  "integration": {
+    "recordedAt": "2026-11-17T05:19:56.738075+00:00",
+    "parallelDraftComponent": "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue",
+    "staleCallbackRed": "cache/i13-smart-bid-stale-callback-red.log",
+    "staleCallbackGreen": {
+      "files": 8,
+      "tests": 73,
+      "log": "cache/i13-smart-bid-stale-callback-green.log",
+      "result": "passed"
+    },
+    "review": "P2 closed, local Ready",
+    "latestStandaloneTypecheck": "cache/i13-flow-file-and-draft-typecheck.log; exit 0",
+    "earlierTypeFailures": "configuration children union/optional typing fixed without casts",
+    "currentFormalValidation": "parallel final4 gate; fresh generation, full verify and build completed before its live root",
+    "gateScript": "cache/smart-bid-draft-workspace-final4-gates.ps1",
+    "rootLog": "cache/smart-bid-draft-workspace-final4-root.log",
+    "packagesLog": "cache/smart-bid-draft-workspace-final4-packages.log",
+    "sourceSnapshot": "cache/smart-bid-draft-workspace-final4-source-snapshot.json",
+    "mainProcess": 59480,
+    "rootProcess": 56524,
+    "fourChangedFilesMatchBaseline": true,
+    "status": "await actual root/package completion and final unchanged-source proof; not committed"
+  },
+  "browserRecheck": {
+    "date": "2026-11-17",
+    "tool": "CUA listBrowsers",
+    "result": "browser access host unavailable",
+    "credentialsEntered": false
+  },
+  "finalIntegratedVerification": {
+    "recordedAt": "2026-11-17T05:30:33.836123+00:00",
+    "pipeline": "cache/smart-bid-draft-workspace-final4-gates.ps1",
+    "formalClassModelAndLowcodeGeneration": "passed",
+    "verify": "passed",
+    "build": "passed",
+    "root": {
+      "files": 599,
+      "tests": 10268,
+      "passed": true,
+      "seconds": 773.67
+    },
+    "packages": [
+      {
+        "files": 5,
+        "tests": 45,
+        "passed": true
+      },
+      {
+        "files": 60,
+        "tests": 1391,
+        "passed": true
+      },
+      {
+        "files": 5,
+        "tests": 25,
+        "passed": true
+      },
+      {
+        "files": 27,
+        "tests": 176,
+        "passed": true
+      },
+      {
+        "files": 53,
+        "tests": 1592,
+        "passed": true
+      },
+      {
+        "files": 6,
+        "tests": 286,
+        "passed": true
+      },
+      {
+        "files": 28,
+        "tests": 225,
+        "passed": true
+      },
+      {
+        "files": 13,
+        "tests": 83,
+        "passed": true
+      }
+    ],
+    "sourceSnapshotEntries": 2204,
+    "beforeAfterEqual": true,
+    "currentSourceMatchesFinalSnapshot": true,
+    "rootAndPackageCountsAreNotAdded": true,
+    "uiSmoke": false,
+    "fullMigrationComplete": false
+  }
+}

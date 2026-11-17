@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1266,
+  "scannedFileCount": 1267,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -18035,6 +18035,19 @@
         "packageName": "app",
         "modulePath": "views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page",
         "jsdoc": "@module app:views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page\n职责：平台级入驻管理：按 5914 正式场景筛选企业，提供应用授权、审核、超管密码与企业配置入口。\n边界：读写均经同一PageRuntime的DataView与命令视图；审核按钮只依据本行CheckState写权限，不按身份放行。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/content-draft-workspace",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/content-draft-workspace",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/content-draft-workspace\n职责：在宿主本次运行实例内呈现个人内容草稿与正文，并取消指定草稿的本地编辑。\n边界：宿主提供当前会话作者及有效性核验；不加载空间、不复制草稿、不执行通用远端保存或正式采用。\nAI用途：业务宿主已加载正式空间时，绑定本次个人草稿并消费pending事件保护离页及目标切换。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

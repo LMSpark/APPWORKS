@@ -51,5 +51,81 @@
     ],
     "actions": "Read source only. No routine was created or invoked, no guessed request protocol was added, no database/Java/service mutation was performed.",
     "conclusion": "Do not infer that all server-side transactional arrangements are absent from generic CRUD limitations. This is a candidate for further contract verification, not an implemented or authorized adoption path."
+  },
+  "batchTransactionAndCasProbe": {
+    "date": "2026-11-17",
+    "sourceOnly": true,
+    "deployedBehaviorVerified": false,
+    "findings": [
+      {
+        "source": "E:/lowcode-jdk17/lowcode-mainbody/src/main/java/com/htong/controller/BasicFunController.java",
+        "line": 158,
+        "finding": "SDK使用的BatchTableOperateRequestByCRUD转入BatchOperateTableByCRUD；不是未调用的另一个批量方法。"
+      },
+      {
+        "source": "E:/lowcode-jdk17/lowcode-mainbody/src/main/java/com/htong/service/impl/BasicFunServiceImpl.java",
+        "line": 745,
+        "finding": "普通业务请求循环位于TransactionManager.start/commit/rollback内；系统表后续另处理，不能概括全部来源具有原子性。"
+      },
+      {
+        "source": "E:/lowcode-jdk17/lowcode-framework/lowcode-common-data/src/main/java/com/htong/vo/CrudModel.java",
+        "line": 20,
+        "finding": "正式变更模型只有Added/Changed/Deleted，没有expectedVersion或条件更新字段。"
+      },
+      {
+        "source": "E:/lowcode-jdk17/lowcode-mainbody/src/main/java/com/htong/service/impl/BasicFunServiceImpl.java",
+        "line": 1071,
+        "finding": "Changed先读取主键存在性，随后以主键eq更新，未把原版加入SQL条件；忽略crudService.update返回行数后appendChanged。"
+      },
+      {
+        "source": "E:/lowcode-jdk17/lowcode-framework/lowcode-anyline/src/main/java/com/htong/service/CrudServiceImpl.java",
+        "line": 2886,
+        "finding": "底层BoundUpdates返回long，但该批量上层未据0行触发冲突或回滚；底层另加租户及应用条件，不构成业务版本比较。"
+      },
+      {
+        "source": "E:/lowcode-jdk17/lowcode-mainbody/src/main/java/com/htong/service/impl/BasicFunServiceImpl.java",
+        "line": 3057,
+        "finding": "CallProcedure从RequestContext取企业用于数据库路由；输入仍按客户端数组Value/ValueFun.Value透传，没有在该入口覆盖可信草稿作者。"
+      }
+    ],
+    "conclusions": [
+      "不将前端先查后写或增加version字段当CAS；不能只开放SDK transaction标志解决。",
+      "不可变版本+唯一前驱/原请求约束是可继续核定的存储方案：仍须证明约束与不可变性可正式发布、可信作者、授权和请求结果同次生效；本轮未建表/约束/过程验证此方案。",
+      "现网通用查询已通过；权威草稿保存与采用仍需要独立正反例和并发、丢回执恢复验收，源码不能代替现网。"
+    ],
+    "writes": 0,
+    "backendChanges": 0,
+    "routineInvocations": 0
+  },
+  "valueFunctionClarification": {
+    "at": "2026-11-17T05:03:10.0081450Z",
+    "sourceOnly": true,
+    "deployedVerified": false,
+    "correction": "FieldParam.ValueFun为com.htong.value.ValueFun多态实例，getValue()可执行注册的服务端值函数，不应概括为字面Value透传。",
+    "sources": [
+      {
+        "file": "E:/lowcode-jdk17/lowcode-framework/lowcode-data-operation/src/main/java/com/htong/vo/FieldParam.java",
+        "line": 4,
+        "finding": "ValueFun字段引用可执行的com.htong.value.ValueFun。"
+      },
+      {
+        "file": "E:/lowcode-jdk17/lowcode-framework/lowcode-common-data/src/main/java/com/htong/valueFun/SystemData.java",
+        "line": 67,
+        "finding": "Type=SystemData且ParamName=UserID时从RequestContext.getUserInfo().getRowId()取当前用户。"
+      },
+      {
+        "file": "E:/lowcode-jdk17/lowcode-mainbody/src/main/java/com/htong/config/JacksonConfig.java",
+        "line": 49,
+        "finding": "主服务注册SystemData等值函数子类型。"
+      },
+      {
+        "file": "E:/lowcode-jdk17/lowcode-mainbody/src/main/java/com/htong/vo/valueFun/GetCodeValue.java",
+        "line": 40,
+        "finding": "GetCodeValue按CodeDesignId生成业务编码，不是执行任意脚本的通道。"
+      }
+    ],
+    "consequence": "可继续研究正式服务端配置固定SystemData用户的调用路径；单用客户端选择的SystemData参数并不能证明作者不可伪造，因为CallProcedure仍优先接收Value，亦可换成常量值函数。实际可信命令及过程发布、并发和原结果同次留存均未验收。",
+    "routineInvocations": 0,
+    "backendChanges": 0
   }
 }

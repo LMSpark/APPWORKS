@@ -1,0 +1,181 @@
+{
+  "at": "2026-11-17T04:19:29.1565581Z",
+  "source": "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue",
+  "test": "tests/app/services/smart-bid/content-draft-workspace.test.ts",
+  "contract": "docs/smart-bid/authoring-submission-specification.md#bid-draft-save",
+  "classModel": {
+    "generation": "cache/smart-bid-draft-host-class-model.log",
+    "catalogSummaryGuides": "cache/smart-bid-draft-workspace-guides.json",
+    "kinds": [
+      "RSectionProps",
+      "RButtonProps",
+      "RFormProps",
+      "PageRuntime",
+      "DataView",
+      "DataSet"
+    ],
+    "finalRegeneration": "running in 93502"
+  },
+  "implemented": [
+    "标准RendererSection/RendererButton/RendererForm消费宿主原PageRuntime；原contentTreeEditorLayout配置r-json/r-text。",
+    "完整空间@WorkingDraft@视图绑定与正式模型名核对；项目/作者值及原查询字段可读性同时核对，不引入角色或放行规则。",
+    "正文写入原DataView编辑覆盖；取消只调用discardEditingRows([draftId])，不丢弃其他草稿。",
+    "宿主assertCurrent失效时撤下编辑器并保留原覆盖；pending事件继续报告该草稿未保存输入。",
+    "在同模型原生保存规则中保留已有规则并增加远端保存待建拒绝，测试证明首写前停止；不把通用CRUD冒充版本保存。"
+  ],
+  "validation": {
+    "nativeFixture": true,
+    "liveBackend": false,
+    "serviceDirectoryFiles": 8,
+    "serviceDirectoryTests": 75,
+    "result": "passed",
+    "log": "cache/smart-bid-draft-workspace-target-pending-green2.log",
+    "targetedLint": "passed",
+    "redStages": [
+      "missing component import, no tests executed",
+      "three mounted tests exposed raw PageRuntime proxy/absent context boundary"
+    ],
+    "correction": "toRaw保持宿主原实例；无有效视图时不传显式数据绑定给错误提示容器。",
+    "review": "review_draft_workspace: two P2 findings reproduced/fixed; final read-only review no new blocker"
+  },
+  "remaining": [
+    "业务导航/页面宿主入口未挂载此组件",
+    "可信当前会话输入、项目/作者常驻查询范围和真实目标切换/离页保护仍由实际宿主接通验收",
+    "远端草稿命令的CAS、原请求同次留存与恢复、正式采用仍待权威能力",
+    "检查点精确暂存、提交推送及独立远端核对正在办理"
+  ],
+  "finalGate": {
+    "session": 12632,
+    "script": "cache/smart-bid-draft-workspace-final4-gates.ps1",
+    "status": "passed with unchanged source snapshot",
+    "sourceSnapshots": "SHA256 before/after src packages tests config scripts tools and root manifests",
+    "rootWorkers": 4,
+    "packageWorkers": 1,
+    "parallelFullRuns": 0,
+    "exitCode": 0,
+    "root": {
+      "files": 599,
+      "tests": 10268,
+      "seconds": 773.67,
+      "passed": true,
+      "log": "cache/smart-bid-draft-workspace-final4-root.log"
+    },
+    "packages": "8 packages passed serially, maxWorkers=1; individual counts in final4-packages.log; overlapping tests are not summed",
+    "sourceChangedPaths": [],
+    "build": "passed; frontend 4.29s"
+  },
+  "gateCorrections": [
+    {
+      "session": 93502,
+      "exit": 1,
+      "reason": "temporary cache guides.ts outside TS project",
+      "correction": "removed completed temporary script, preserved guides JSON, no lint exclusion",
+      "rootRan": false
+    },
+    {
+      "session": 18887,
+      "exit": 1,
+      "reason": "features directory 8 subdirectories exceeds 7",
+      "correction": "moved new workspace under existing application/smart-bid, updated import/module path, removed only verified empty old directories, no limit change",
+      "rootRan": false
+    },
+    {
+      "session": 31813,
+      "verify": "passed",
+      "build": "passed, frontend 4.44s",
+      "root": "running",
+      "locationTest": "1 file/4 tests passed",
+      "directoryLimits": "passed"
+    }
+  ],
+  "priorFinal3Result": {
+    "session": 31813,
+    "exit": 1,
+    "rootFiles": 599,
+    "rootTests": 10265,
+    "rootResult": "passed",
+    "rootSeconds": 780.17,
+    "packageResult": "8 packages passed, original counts preserved in package log",
+    "terminalReason": "final SHA256 mismatch",
+    "changedPaths": [
+      "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue",
+      "tests/app/services/smart-bid/content-draft-workspace.test.ts"
+    ],
+    "componentModification": "12:43:43+08, after root terminal",
+    "testModification": "12:38:18+08",
+    "notCurrentProof": true
+  },
+  "currentSource": "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue",
+  "integrationReview": {
+    "recordedAt": "2026-11-17T13:19:56.743109+08:00",
+    "issue": "late text change could mutate an old draft after host invalidation without a view event",
+    "resolution": "standard JSON-field change callback verifies original host and exact binding before default native write; no alternate writer",
+    "red": "cache/i13-smart-bid-stale-callback-red.log",
+    "green": "cache/i13-smart-bid-stale-callback-green.log",
+    "serviceDirectoryFiles": 8,
+    "serviceDirectoryTests": 73,
+    "independentSourceReview": "P2 closed, local Ready",
+    "fullGate": "final4 currently live; do not infer passed from historical final3 logs"
+  },
+  "finalIntegratedVerification": {
+    "recordedAt": "2026-11-17T05:30:33.836123+00:00",
+    "pipeline": "cache/smart-bid-draft-workspace-final4-gates.ps1",
+    "formalClassModelAndLowcodeGeneration": "passed",
+    "verify": "passed",
+    "build": "passed",
+    "root": {
+      "files": 599,
+      "tests": 10268,
+      "passed": true,
+      "seconds": 773.67
+    },
+    "packages": [
+      {
+        "files": 5,
+        "tests": 45,
+        "passed": true
+      },
+      {
+        "files": 60,
+        "tests": 1391,
+        "passed": true
+      },
+      {
+        "files": 5,
+        "tests": 25,
+        "passed": true
+      },
+      {
+        "files": 27,
+        "tests": 176,
+        "passed": true
+      },
+      {
+        "files": 53,
+        "tests": 1592,
+        "passed": true
+      },
+      {
+        "files": 6,
+        "tests": 286,
+        "passed": true
+      },
+      {
+        "files": 28,
+        "tests": 225,
+        "passed": true
+      },
+      {
+        "files": 13,
+        "tests": 83,
+        "passed": true
+      }
+    ],
+    "sourceSnapshotEntries": 2204,
+    "beforeAfterEqual": true,
+    "currentSourceMatchesFinalSnapshot": true,
+    "rootAndPackageCountsAreNotAdded": true,
+    "uiSmoke": false,
+    "fullMigrationComplete": false
+  }
+}

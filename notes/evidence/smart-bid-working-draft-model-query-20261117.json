@@ -1,0 +1,113 @@
+{
+  "at": "2026-11-17T03:42:51.097Z",
+  "requestId": "31980.580",
+  "appId": "D8490EC99436A8B9AFDE205BE3153802",
+  "spaceId": "D3BBA1F0780056C837AC35E9825CAD5A",
+  "modelId": "2400E931FDF798EC2201C11D6482633C",
+  "table": [
+    {
+      "Name": "WorkingDraft",
+      "OutputType": "Table",
+      "Fields": [
+        {
+          "Name": "lingma_sys_ent",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "project_id",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "id",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "draft_version",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "last_save_request_key",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "draft",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "updated_at",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "request_digest",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "user_id",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "target_scope",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "base_revision_id",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "baseline_id",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        }
+      ]
+    }
+  ],
+  "PageParam": {
+    "index": 1,
+    "size": 10
+  },
+  "response": {
+    "Code": 200,
+    "Message": "操作成功",
+    "primaryKeyField": "id",
+    "allowAdd": true,
+    "Count": 0,
+    "items": 0
+  },
+  "mutationCount": 0,
+  "boundary": "正式模型原生预览经SPARK data；未验证业务保存、CAS或原请求恢复"
+}

@@ -13,7 +13,7 @@ export const FLOW_DESIGN_DOCUMENT_RESOURCE='workflow-flow:design-document'
 export const FLOW_DESIGN_DOCUMENT_COLUMNS:readonly DataColumn[]=Object.freeze([{name:'fileKey',type:'string',isPrimaryKey:true},{name:'flowModelId',type:'string'},{name:'content',type:'string'}])
 export const FLOW_DESIGN_DOCUMENT_VIEWS=Object.freeze({default:Object.freeze({autoLoad:false,autoCurrentFirst:true,commitMode:'staged',queryContext:Object.freeze({flowModelId:''})})})
 export const FLOW_DESIGN_DOCUMENT_PARAMETERS=Object.freeze({default:Object.freeze([{name:'flowModelId',type:'string',label:'流程模型ID',required:true}])})
-type Options=Readonly<{applicationId:string;api:Pick<LowcodeDesignApi,'readTextFile'>;fileUpload:Pick<LowcodeDesignFileUpload,'uploadWorkingText'>;assertCurrent():void}>
+type Options=Readonly<{applicationId:string;api:Pick<LowcodeDesignApi,'readTextFile'|'removeFile'>;fileUpload:Pick<LowcodeDesignFileUpload,'uploadWorkingText'>;assertCurrent():void}>
 /** 独立目标用原文件模板派生，禁止将已打开视图重新指向另一模型。 */
 export function openFlowDesignDocumentView(dataSet:DataSet,flowModelId:string):DataView{
  captureFlowDesignModel(dataSet,flowModelId)
@@ -43,7 +43,8 @@ export function createFlowDesignDocumentExecutor(options:Options):Parameters<Dat
  }
  return createFileResourceAdapterExecutor({resourceId:FLOW_DESIGN_DOCUMENT_RESOURCE,contentField:'content',
   target:view=>{const context=locate(view.dataSet,view.queryContext['flowModelId']);return {key:context.key,fields:{flowModelId:context.flowModelId}}},
-  canWrite:target=>{const context=capture(target),model=captureFlowDesignModel(context.dataSet,context.flowModelId,'fileTarget');return model.view.editActionState(model.row)==='enabled'},canDelete:()=>false,
+  canWrite:target=>{const context=capture(target),model=captureFlowDesignModel(context.dataSet,context.flowModelId,'fileTarget');return model.view.editActionState(model.row)==='enabled'},
+  canDelete:target=>{const context=capture(target),model=captureFlowDesignModel(context.dataSet,context.flowModelId,'fileTarget');return model.view.deleteActionState(model.row)==='enabled'},
   assertCurrent:target=>{if(target)capture(target);else options.assertCurrent()},
   transport:{
    read:async target=>{const context=capture(target);try{const text=await options.api.readTextFile({appType:'designfile',customPath:context.customPath,fileName:context.fileName});options.assertCurrent();context.assertCurrent();return {text,revision:null}}catch(error){options.assertCurrent();context.assertCurrent();if(error instanceof LowcodeApiError&&error.code===404)return null;throw error}},
@@ -51,6 +52,7 @@ export function createFlowDesignDocumentExecutor(options:Options):Parameters<Dat
     try{parsed=JSON.parse(text)}catch{throw new SyntaxError('流程设计文件不是JSON')}
     if(!isRecord(parsed)||!Array.isArray(parsed['nodes'])||!Array.isArray(parsed['edges']))throw new SyntaxError('流程设计文件必须包含节点和连线')
     await options.fileUpload.uploadWorkingText({appType:'designfile',customPath:context.customPath,fileName:context.fileName,text});options.assertCurrent();context.assertCurrent()},
+   remove:async({target})=>{const context=capture(target);await options.api.removeFile({appType:'designfile',customPath:context.customPath,fileName:context.fileName});options.assertCurrent();context.assertCurrent()},
    isUnknown:error=>!(error instanceof SyntaxError)&&!(error instanceof LowcodeApiError&&error.code>=400&&error.code<500&&error.code!==408),
   },
  })

@@ -4879,7 +4879,7 @@
     "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts",
       "shardFile": "files/src/lowcode/resources/system/workflow/manage/flow-design/flow-design-document-resource.ts.json",
-      "sourceModifiedAt": "2026-11-16T21:28:50.583Z"
+      "sourceModifiedAt": "2026-11-17T03:44:34.048Z"
     },
     "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts": {
       "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts",
@@ -5505,6 +5505,11 @@
       "sourceFile": "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue",
       "shardFile": "files/src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue.json",
       "sourceModifiedAt": "2026-11-16T08:08:16.257Z"
+    },
+    "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue.json",
+      "sourceModifiedAt": "2026-11-17T04:58:56.076Z"
     },
     "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts",

@@ -22,7 +22,7 @@
         },
         "api": {
           "type": "object",
-          "title": "Pick<LowcodeDesignApi, 'readTextFile'>"
+          "title": "Pick<LowcodeDesignApi, 'readTextFile' | 'removeFile'>"
         },
         "fileUpload": {
           "type": "object",
@@ -40,18 +40,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T21:28:50.583Z",
+  "generatedAt": "2026-11-17T03:44:34.048Z",
   "models": {
     "Options": {
       "name": "Options",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    applicationId: string;\n    api: Pick<LowcodeDesignApi, 'readTextFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>;\n    assertCurrent(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    applicationId: string;\n    api: Pick<LowcodeDesignApi, 'readTextFile' | 'removeFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>;\n    assertCurrent(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    applicationId: string;\n    api: Pick<LowcodeDesignApi, 'readTextFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>;\n    assertCurrent(): void;\n}>",
+            "typeText": "Readonly<{\n    applicationId: string;\n    api: Pick<LowcodeDesignApi, 'readTextFile' | 'removeFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>;\n    assertCurrent(): void;\n}>",
             "targetName": "Readonly"
           }
         ],

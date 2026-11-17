@@ -1,0 +1,92 @@
+{
+  "observedAt": "2026-11-17T04:06:28.827Z",
+  "scope": "isolated native workflow design file lifecycle; no existing model/file writes",
+  "flowModelId": "467ef1acce7c4081ba95ff3df9a1dc7d",
+  "fileName": "467ef1acce7c4081ba95ff3df9a1dc7dEJ2.json",
+  "sessionPersisted": false,
+  "uiSmoke": false,
+  "metadataWrites": 0,
+  "stages": [
+    {
+      "stage": "isolated-model-create",
+      "status": "confirmed",
+      "unconfirmed": false
+    }
+  ],
+  "currentStage": "open-file-workspace",
+  "success": false,
+  "errorType": "Error",
+  "errorCode": null,
+  "modelCleanupPending": true,
+  "fileConfirmed": false,
+  "dbWrites": 1,
+  "fileWrites": 0,
+  "fileDeletes": 0,
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetBaseData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/LoginAuthority/UserLoginByEnt",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "httpStatus": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200
+    }
+  ]
+}

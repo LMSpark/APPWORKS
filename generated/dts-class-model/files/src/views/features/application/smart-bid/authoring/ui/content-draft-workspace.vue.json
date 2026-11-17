@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/ui/content-draft-workspace",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/ui/content-draft-workspace",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/content-draft-workspace\n职责：在宿主本次运行实例内呈现个人内容草稿与正文，并取消指定草稿的本地编辑。\n边界：宿主提供当前会话作者及有效性核验；不加载空间、不复制草稿、不执行通用远端保存或正式采用。\nAI用途：业务宿主已加载正式空间时，绑定本次个人草稿并消费pending事件保护离页及目标切换。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-17T04:58:56.076Z",
+  "models": {}
+}

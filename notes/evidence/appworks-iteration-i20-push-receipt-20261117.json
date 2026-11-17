@@ -1,0 +1,17 @@
+{
+  "commit": "fade59bc5b8ecb2fe77afd14f8c3acd40e2a6d28",
+  "remoteVerified": true,
+  "branch": "codex/spark-data-s1-command-safety",
+  "files": 92,
+  "verify": 0,
+  "build": 0,
+  "regression": {
+    "files": 48,
+    "tests": 704
+  },
+  "sdkTests": 59,
+  "scope": "I16-I19 fixes and tested generated dependencies; no complete migration claim",
+  "browserSmoke": false,
+  "worktree": "Parallel SmartBid plan/evidence and cache preserved",
+  "postTestChange": "Only trailing blank lines removed from the new BUG test before commit"
+}

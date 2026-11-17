@@ -52,7 +52,7 @@
     },
     "fullGate": {
       "status": "passed",
-      "recordedAt": "2026-11-17T06:58:22.721511+00:00",
+      "recordedAt": "2026-11-17T14:58:22.721511+08:00",
       "root": {
         "files": 599,
         "tests": 10278,
@@ -126,6 +126,11 @@
   "nodeServiceStarted": false,
   "backendJavaChanged": false,
   "fullMigrationComplete": false,
-  "committed": false,
-  "pushed": false
+  "committed": true,
+  "pushed": true,
+  "publishedCheckpoint": {
+    "commit": "aeec21902adb84879e0de3bb10a5f23beb4d2a08",
+    "branch": "codex/spark-data-s1-command-safety",
+    "remoteHashVerified": true
+  }
 }

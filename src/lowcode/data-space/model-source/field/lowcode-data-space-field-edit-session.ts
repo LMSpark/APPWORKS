@@ -276,12 +276,15 @@ export class FieldEditSession {
           || matches.length !== 1 || ['rowid', 'name'].some(key => rules.fieldAccess(rule, key).read !== 'visible')) throw new Error('脱敏规则不存在或当前不可读取')
       }
     }
-    if (field === 'ValueFun') new LowcodeDataSpaceFieldValue({
-      dataSet: this.dataSet,
-      targetId: this.targetId,
-      modelId: String(row['dataModelId']),
-      viewId: this.viewId === 'modelFields' ? 'modelFields' : 'default',
-    }).validate(value)
+    if (field === 'ValueFun') {
+      const modelId = String(row['dataModelId'])
+      try {
+        new LowcodeDataSpaceFieldValue({dataSet: this.dataSet, targetId: this.targetId, modelId, viewId: this.viewId}).validate(value)
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : '无法验证值函数'
+        throw new Error(`模型 ${modelId} 字段 ${this.fieldId} 的待保存值函数无效：${reason}`, {cause: error})
+      }
+    }
     if (field === 'OrderType' && (typeof value !== 'string' || !['', 'ascending', 'descending'].includes(value))) throw new Error('排序方向必须是未配置、升序或降序')
     if ((field === 'Order' || field === 'Group') && (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0)) {
       throw new Error('排序及分组顺序必须是非负安全整数')

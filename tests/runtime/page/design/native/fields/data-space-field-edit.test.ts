@@ -860,6 +860,17 @@ describe('formal field configuration maintenance', () => {
     expect(view.getEditingRow('AMOUNT')?.['ValueFun']).toBe(originalFields[2]!.ValueFun)
   })
 
+  it('identifies a malformed value-function draft without dispatching the field write', async () => {
+    const {f, owner, fields, writes} = await setup({editableFieldProperties: ['ValueFun', 'AsName']})
+    fields.updateEditingValue('AMOUNT', 'AsName', 'totalAmount')
+    fields.updateEditingValue('AMOUNT', 'ValueFun', '{')
+
+    await expect(owner.save()).rejects.toThrow('模型 M1 字段 AMOUNT 的待保存值函数无效')
+    expect(fields.getEditingPatch('AMOUNT')).toEqual({AsName: 'totalAmount', ValueFun: '{'})
+    expect(writes()).toHaveLength(0)
+    expect(f.fileWrites).toHaveLength(0)
+  })
+
   it('persists an output alias and flag through the original field owner and reconstructs native columns', async () => {
     const {f, owner, fields, writes} = await setup({editableFieldProperties: ['AsName', 'IsOutput']})
     const originalFile = f.stored.get('A')

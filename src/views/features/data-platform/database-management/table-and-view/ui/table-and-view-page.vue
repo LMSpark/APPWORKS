@@ -15,7 +15,7 @@
           <h2>数据库列表</h2>
           <div :inert="busy || !!tableEdit">
             <RendererTable :data-view-key="dbKey" :children="DATABASE_CATALOG_DB_LIST_FIELDS" :toolbar="dbToolbar" :filter="dbListFilter" :stripe="true"
-              :on-current-change="guardDatabaseCurrentChange" :on-row-click="chooseDatabase"
+              :on-current-change="guardCatalogCurrentChange" :on-row-click="chooseDatabase"
               :highlight-current-row="true" :show-pagination="true" :show-data-view-meta="false" />
           </div>
         </section>
@@ -24,12 +24,12 @@
             <RendererTabPane name="tables" label="表" :index="0">
               <p v-if="tableListError" role="alert">{{ tableListError }}</p>
               <RendererTable :data-view-key="tableKey" :children="DATABASE_CATALOG_TABLE_LIST_FIELDS" :toolbar="tableToolbar" :filter="tableListFilter" :stripe="true" :show-pagination="true" :show-data-view-meta="false"
-                :on-row-click="chooseTable" :highlight-current-row="true" />
+                :on-current-change="guardCatalogCurrentChange" :on-row-click="chooseTable" :highlight-current-row="true" />
             </RendererTabPane>
             <RendererTabPane name="views" label="视图" :index="1" :lazy="true">
               <p v-if="viewListError" role="alert">{{ viewListError }}</p>
               <RendererTable :data-view-key="viewKey" :children="DATABASE_CATALOG_VIEW_LIST_FIELDS" :toolbar="viewToolbar" :filter="viewListFilter" :stripe="true" :show-pagination="true" :show-data-view-meta="false"
-                :on-row-click="chooseView" :highlight-current-row="true" />
+                :on-current-change="guardCatalogCurrentChange" :on-row-click="chooseView" :highlight-current-row="true" />
             </RendererTabPane>
           </RendererTabs>
           <section v-if="resourceSelected" class="table-and-view-fields">
@@ -1502,7 +1502,7 @@ function assertDatabaseSelectionReplaceable(): void {
   }
 }
 
-const guardDatabaseCurrentChange: NonNullable<RTableProps['onCurrentChange']> = (_row, _previous, control) => {
+const guardCatalogCurrentChange: NonNullable<RTableProps['onCurrentChange']> = (_row, _previous, control) => {
   try {
     assertDatabaseSelectionReplaceable()
   } catch (cause) {
@@ -1565,6 +1565,8 @@ const chooseTable: NonNullable<RTableProps['onRowClick']> = async (...args) => {
   const view = tableView.value
   const original = toRaw(row)
   if (!view?.rows.includes(original)) {control.cancel = true; return}
+  guardCatalogCurrentChange(original, view.currentRow, control)
+  if (control.cancel) return
   const ds = dataSet.value
   const own = ++selectionGeneration
   const current = () => active && own === selectionGeneration && dataSet.value === ds
@@ -1586,6 +1588,8 @@ const chooseView: NonNullable<RTableProps['onRowClick']> = async (...args) => {
   const view = viewView.value
   const original = toRaw(row)
   if (!view?.rows.includes(original)) {control.cancel = true; return}
+  guardCatalogCurrentChange(original, view.currentRow, control)
+  if (control.cancel) return
   const ds = dataSet.value
   const own = ++selectionGeneration
   const current = () => active && own === selectionGeneration && dataSet.value === ds

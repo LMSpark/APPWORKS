@@ -488,6 +488,13 @@ describe('table-and-view-page', () => {
       expect(databaseTable.findAll('.el-table__body-wrapper tbody tr')[1]!.classes()).not.toContain('current-row')
       expect(http.requests.filter(request => request.url === '/api/DataOperation/GetData'
         && (request.data as {Table?: Array<{Name?: string}>}).Table?.some(table => table.Name === DATABASE_CATALOG_DB_MODEL))).toHaveLength(databaseQueriesBefore)
+
+      const nextTableRow = wrapper.findAllComponents(RendererTable)[1]!.findAll('.el-table__body-wrapper tbody tr')
+        .find(row => row.text().includes('LineItems'))!
+      await nextTableRow.trigger('click'); await flushPromises()
+      expect(tableView!.currentRow?.['rowid']).toBe(previousTableCurrent?.['rowid'])
+      expect(tableView!.getSelectedValues()).toEqual(['T1'])
+      expect(fields!.getEditingRow(fields!.getPkKey(fieldRow!))?.['cnname']).toBe('保留的字段草稿')
   })
 
   it('preserves the selected database after an unknown field save and verifies the original capture without resubmitting', async () => {

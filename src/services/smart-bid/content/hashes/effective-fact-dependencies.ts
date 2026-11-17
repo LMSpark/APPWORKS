@@ -7,7 +7,7 @@ import {readBaselineFactMembers} from '../references/baseline-fact-members'
 import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from '../references/snapshot-reference-values'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '../revision-snapshot-hash'
 
-const fields=['id','projectId','key','version','kind','value','unit','sourceIds','claimId','scopeRef',
+export const EFFECTIVE_FACT_FIELDS=['id','projectId','key','version','kind','value','unit','sourceIds','claimId','scopeRef',
  'decisionRefs','dependencyRefs','promiseTerms','sourceRecord','status'] as const
 
 /** 事实记录必须精确对应固定基线；显示与采用依据分别纳入摘要。 */
@@ -21,7 +21,7 @@ export async function hashEffectiveFactDependencies(input:unknown){
   used.add(key)
  },error)
  visitSnapshotReferences(records,item=>{
-  const row=snapshotReferenceFields(item,fields,error),key=row['key']
+  const row=snapshotReferenceFields(item,EFFECTIVE_FACT_FIELDS,error),key=row['key']
   if(!snapshotReferenceIdentity(key)||!used.has(key)||row['projectId']!==projectId)throw Error('EFFECTIVE_FACT_SCOPE')
   if(!snapshotReferenceIdentity(row['id'])||!snapshotReferenceIdentity(row['kind'])||row['status']!=='ADOPTED')throw Error(error)
   if(versions.get(key)!==row['version'])throw Error('EFFECTIVE_FACT_VERSION')

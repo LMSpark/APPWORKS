@@ -6,6 +6,8 @@
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
+import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
+import type {prepareApprovedCommitmentFacts} from '@/services/smart-bid/content/references/commercial/commitment-approval-coverage'
 
 /** factId为项目内事实键；version是显式原版本，不从状态或当前项目指针推导。 */
 export type ContentFactVersionSelection=Readonly<{factId:string;version:number}>
@@ -47,4 +49,27 @@ export async function readContentFactVersion(host:ContentRevisionReadHost,input:
   assertScope();assertResult();assertRow()
   if(!hasCompleteSingleContentResult(view))throw Error('CONTENT_FACT_VERSION_NOT_UNIQUE')
  }})
+}
+
+/** 独立回读一个已登记事实，逐字段核原请求内容及回执指向的行身份。 */
+export async function verifyRegisteredCommitmentFact(
+ host:ContentRevisionReadHost,
+ target:Readonly<{
+  expected:ReturnType<typeof prepareApprovedCommitmentFacts>['facts'][number]
+  receipt:Readonly<{key:string;id:string;version:number}>
+  assertReceiptCurrent:()=>void
+ }>,
+){
+ const {expected,receipt,assertReceiptCurrent}=target
+ assertReceiptCurrent()
+ if(expected.projectId!==host.projectId||expected.key!==receipt.key||!identity(receipt.id))
+  throw Error('BID_FACT_REGISTERED_SCOPE')
+ const binding=await readContentFactVersion({...host,assertCurrent:()=>{host.assertCurrent();assertReceiptCurrent()}},
+  {factId:receipt.key,version:receipt.version})
+ binding.assertCurrent()
+ const row=host.runtime.resolveView(binding.dataViewKey)?.rows[0]
+ if(row?.['id']!==receipt.id||row['status']!=='ADOPTED'||Object.entries(expected).some(([key,value])=>
+  canonicalSnapshotValue(row[key])!==canonicalSnapshotValue(value)))
+  throw Error('BID_FACT_REGISTERED_MISMATCH')
+ return Object.freeze({...binding,registrationVerified:true as const})
 }

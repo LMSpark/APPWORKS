@@ -4,8 +4,8 @@ import {readContentBaselineTenderRecord} from '@/views/features/application/smar
 import {readContentBaselineFact,readContentBaselineFactUse,readContentBaselineRequirementPins,readContentBaselineRequirement} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
-import {createBidResponseScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/response-script-host'
-import script from '@/views/features/application/smart-bid/authoring/page10/script.js?raw'
+import {createBidResponseScriptHost} from '@/views/features/application/smart-bid/response/ui/entry/response-script-host'
+import script from '@/views/features/application/smart-bid/response/page10/script.js?raw'
 import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
 import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 
@@ -36,7 +36,7 @@ function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,u
 }
 const input={baselineId:'B',stageRef:{decisionId:'STAGE'},factId:'PRICE',version:2}
 it('checks current use against the fixed fact row and its original decision references',async()=>{
- const scoped=fixture({fact:{scopeRef:{lot:'LOT',phase:'BID'},decisionRefs:['APPROVAL']}})
+ const scoped=fixture({fact:{scopeRef:{lot:'LOT',phase:'BID'},decisionRefs:[{id:'APPROVAL',version:'V1'}]}})
  try{
   const request={...input,scopeRef:{phase:'BID',lot:'LOT'},purposeRef:'SUBMIT',useAt:10}
   type ReadUse=Parameters<typeof readContentBaselineFactUse>[2]

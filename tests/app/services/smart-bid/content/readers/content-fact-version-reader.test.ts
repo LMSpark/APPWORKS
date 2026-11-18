@@ -1,13 +1,13 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey} from '@spark-appworks/spark-data'
-import {readContentFactVersion} from '@/views/features/application/smart-bid/authoring/model/content-fact-version-reader'
+import {readContentFactVersion,verifyRegisteredCommitmentFact} from '@/views/features/application/smart-bid/authoring/model/content-fact-version-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
-async function fixture(options:{value?:unknown;status?:string;count?:number|null;wrong?:string;hidden?:string}={}){
+async function fixture(options:{value?:unknown;status?:string;count?:number|null;wrong?:string;hidden?:string;record?:Record<string,unknown>}={}){
  const record={id:'FV_ORIGINAL',projectId:'P',key:'PRICE',version:2,kind:'PRICE',value:Object.hasOwn(options,'value')?options.value:'0.00',
   unit:'元',sourceIds:[{id:'SOURCE',version:'original'}],claimId:'CLAIM_ORIGINAL',scopeRef:{projectId:'P',stage:'BID'},
-  decisionRefs:[{id:'APPROVAL',version:'A1'}],dependencyRefs:[],promiseTerms:null,sourceRecord:null,status:options.status??'ADOPTED'}
+  decisionRefs:[{id:'APPROVAL',version:'A1'}],dependencyRefs:[],promiseTerms:null,sourceRecord:null,status:options.status??'ADOPTED',...options.record}
  const scope={logic:'and' as const,filters:['projectId','key','version'].map(field=>({field,operator:'eq' as const,value:{Type:'GetInputParam',ParamName:field}}))}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{FactVersion:{modelBinding:{modelId:'M',modelName:'FactVersion'},
   columns:Object.keys(record).map(name=>({name,isPrimaryKey:name==='id',...(name==='version'?{type:'number' as const}:{})})),
@@ -22,6 +22,21 @@ async function fixture(options:{value?:unknown;status?:string;count?:number|null
  const host={scenarioId:'S',projectId:'P',runtime:{resolveView:(key:string)=>{const k=parseDataViewKey(key);return k?ds.getView(k.tableName,k.viewId):undefined}},assertCurrent:()=>{if(!current)throw Error('HOST_STALE')}}
  return {ds,host,view,save,query,expire:()=>{current=false}}
 }
+
+it('independently verifies every prepared field against the version and identity in the receipt',async()=>{
+ const expected={projectId:'P',scopeRef:'LOT',key:'PRICE',kind:'PRICE' as const,value:'0.00',unit:'元',
+  claimId:'CLAIM',sourceIds:['SOURCE'],decisionRefs:['APPROVAL'],dependencyRefs:['A1']}
+ const f=await fixture({record:expected})
+ try{
+  const target={expected,receipt:{key:'PRICE',id:'FV_ORIGINAL',version:2},assertReceiptCurrent:()=>{}}
+  const result=await verifyRegisteredCommitmentFact(f.host,target)
+  expect(result).toMatchObject({registrationVerified:true,requiresUseCheck:true})
+  await expect(verifyRegisteredCommitmentFact(f.host,{...target,expected:{...expected,decisionRefs:['OTHER']}}))
+   .rejects.toThrow('BID_FACT_REGISTERED_MISMATCH')
+  expect(()=>result.assertCurrent()).toThrow()
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
 
 it.each(['0.00',0,false,null,''])('preserves the exact original value %j without granting baseline membership or current use',async value=>{
  const f=await fixture({value})

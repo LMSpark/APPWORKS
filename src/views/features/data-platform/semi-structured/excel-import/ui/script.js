@@ -13,6 +13,10 @@ function bindCatalogSection() {
   }
 }
 
+function bindRetainedScheme() {
+  return {visible:catalog?.creationRetained() === true}
+}
+
 function bindMaintenanceAction() {
   return {visible: catalog?.editable === true, disabled: catalog?.locked() !== false}
 }

@@ -3,6 +3,7 @@
     "type": "r-section",
     "props": {"title": "Excel 导入配置", "class": "excel-import-catalog", "bordered": false, "gridColumns": 1, "onBeforeRender":"bindCatalogSection"},
     "children": [
+      {"type":"r-section","props":{"bordered":false,"status":"方案已保留；编码处理未标记完成，请核查正式结果。","onBeforeRender":"bindRetainedScheme"}},
       {
         "type": "r-table",
         "props": {

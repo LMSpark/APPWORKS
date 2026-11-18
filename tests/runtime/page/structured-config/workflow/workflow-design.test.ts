@@ -934,7 +934,12 @@ it.each(['pending','receipt','unknown','changed-declaration','inflight'] as cons
     expect(document.body.textContent).toContain('测试参数声明已变化')
     expect(wrapper.findAllComponents(FieldJson).filter(field=>field.props('field')==='input').every(field=>field.props('readonly'))).toBe(true)
    }
-   if(kind==='unknown')expect(document.body.textContent).toContain('执行结果未知')
+   if(kind==='unknown'){
+    expect(document.body.textContent).toContain('执行结果未知')
+    const controls=wrapper.findAllComponents(RendererButton)
+    expect(controls.find(button=>button.props('label')==='关闭测试')?.props('disabled')).toBe(true)
+    expect(controls.some(button=>button.props('label')?.startsWith('开始新的'))).toBe(false)
+   }
    if(kind==='inflight'){
     expect(f.view.mutating).toBe(true)
     expect(wrapper.findAllComponents(RendererButton).filter(button=>['执行测试','取消测试输入','关闭测试'].includes(button.props('label')??'')).every(button=>button.props('disabled'))).toBe(true)

@@ -11685,3 +11685,4 @@ flowchart TD
 - 工作流物理表只读定位：历史正式编码规则 E06753D019382D5E479264B70258ADE0 给出 BusTableRowid=F73ED4B293524AD7A251D37DEE659CCF、BusTableName=Base_WorkflowDefinition、KeyFields=rowid。可按该物理表身份在授权字段目录取证，仍待当前读回 IsNill/DefaultValue，未发起服务写入。
 - 第10包执行专项复跑：workflow-execution-runtime/contract 两文件27项通过，覆盖派发后身份变化仍保留未知、原命令不重放。实服六节点整流执行与实际调度证据仍待。
 - 工作流执行面板使用 hasUnconfirmedSave 锁定新测试、取消和关闭，并提示缺少按原请求核验接口。保留原请求的证据限当前实例，未证跨实例恢复或服务终态。
+- 工作流执行面板定向回归补充：当前运行实例重挂面板后，未知结果仍显示，关闭按钮禁用，且无新测试按钮。定向1项通过；跨运行实例恢复仍属缺口。

@@ -4,10 +4,12 @@
  * 边界：实例身份固定，数据集独占，代次失效必须销毁。
  * AI用途：装配明确场景、物化绑定及刷新干净实例。
  */
-import { deepClone, isRecord } from '@spark-appworks/spark-utils'
+import { deepClone, isRecord, Logger } from '@spark-appworks/spark-utils'
 import { buildDataViewKey, parseDataViewKey, resolveDataViewKey, visitSparkNodeDataViewBindings, type DataSet, type DataView, type DataViewQueryContext } from '@spark-appworks/spark-data'
 import type { PageTool, PageToolDefinition } from './page-tool'
 import { PageContentRuntime } from './content/runtime-content'
+
+const logger=Logger('PageRuntime')
 
 /** 按本次声明空间 ID 分组的业务查询输入；空间参数名称保留原样。 */
 type PageScenarioInputs = Readonly<Record<string, DataViewQueryContext>>
@@ -207,7 +209,10 @@ export class PageRuntime {
       if(alreadyOwned || ds.scenarioId!==id || ds.destroyed)throw new Error('场景装配返回错误的数据空间身份')
       this.#applyScenarioInputs(id,ds);this.#bindPeers(ds);this.#dataSets.set(id,ds)
     } catch(error) {if(!alreadyOwned)ds.destroy();throw error}
-    for(const listener of this.#scenarioLoadedListeners)listener(ds)
+    for(const listener of this.#scenarioLoadedListeners){
+      try{listener(ds)}
+      catch{logger.warn('按需场景已装配，但页面场景订阅回调失败')}
+    }
     return ds
   }
   /** Observes deferred scenarios after the runtime has registered their identities and peers. */

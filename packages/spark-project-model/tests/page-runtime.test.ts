@@ -27,6 +27,18 @@ describe('PageRuntime deferred declared scenarios', () => {
     for (const deferredScenarioIds of [['b', 'b'], ['other'], ['']]) expect(() => new PageRuntime({pageId: 'editor',
       scenarioIds: ['a', 'b'], deferredScenarioIds, loadScenario: async id => data(id)})).toThrow('延后')
   })
+  it('keeps an attached scenario available when one observer fails', async()=>{
+    const runtime=new PageRuntime({pageId:'editor',scenarioIds:['a','b'],deferredScenarioIds:['b'],loadScenario:async id=>data(id)})
+    const observer=vi.fn()
+    const release=runtime.onDeferredScenarioLoaded(()=>{throw new Error('observer failed')})
+    runtime.onDeferredScenarioLoaded(observer)
+    try{
+      const [first,second]=await Promise.all([runtime.ensureScenarioLoaded('b'),runtime.ensureScenarioLoaded('b')])
+      expect(first).toBe(second)
+      expect(runtime.getDataSet('b')).toBe(first)
+      expect(observer).toHaveBeenCalledExactlyOnceWith(first)
+    }finally{release();runtime.dispose()}
+  })
   it('destroys a late source after the page owner is disposed', async () => {
     let finish: (ds: DataSet) => void = () => {}, started = false
     const runtime = new PageRuntime({pageId: 'editor', scenarioIds: ['a', 'b'], deferredScenarioIds: ['b'],

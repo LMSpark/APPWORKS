@@ -51,3 +51,19 @@ async function openHandoffComparison() {
     $page.showMessage('移交清单差异无法核验', 'warning')
   }
 }
+
+async function openBidProjectScope() {
+  try {
+    const result = await $page.invokeHostCommand('bid.project.readScope', {})
+    result.assertCurrent()
+    const lines = result.state === 'REGISTERED' ? [
+      `编制项目 ${result.projectId}`,
+      `阶段引用 ${result.stageRefs.join('、') || '待补'}`,
+      `原正文头 ${result.headRevisionId ?? '尚未形成'}`,
+      `激活基线 ${result.activeBaselineId ?? '尚未形成'}`,
+    ] : ['当前项目范围登记待确认']
+    await $page.showAlert(lines.join('\n'), '原编制项目范围')
+  } catch {
+    $page.showMessage('原编制项目范围无法核验', 'warning')
+  }
+}

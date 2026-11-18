@@ -1,5 +1,5 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/entry/content-review-script-host
+ * @module app:views/features/application/smart-bid/authoring/ui/entry/content-review-script-host
  * 职责：为页12同次运行实例提供实填观察和审定覆盖证据。
  * 边界：只读取原选择与证据，批准及写入仍由正式办理方负责。
  * AI用途：核对页12脚本命令、审定范围和证据失效条件。
@@ -7,10 +7,10 @@
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
-import {readContentReviewWorkspace} from '../model/review/content-review-workspace'
-import {readPlatformFieldObservation} from '../model/review/content-platform-field-review'
-import {compareApprovedFileAnswer,readRegisteredFileAnswer} from '../model/review/content-file-answer-reader'
-import {readRegisteredPaperAnswer} from '../model/review/content-paper-answer-reader'
+import {readContentReviewWorkspace} from '../../model/review/content-review-workspace'
+import {readPlatformFieldObservation} from '../../model/review/content-platform-field-review'
+import {compareApprovedFileAnswer,readRegisteredFileAnswer} from '../../model/review/content-file-answer-reader'
+import {readRegisteredPaperAnswer} from '../../model/review/content-paper-answer-reader'
 
 /** 审定覆盖工作区的宿主、固定范围与证据读取合同。 */
 type Review=Parameters<typeof readContentReviewWorkspace>

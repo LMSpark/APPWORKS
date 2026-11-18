@@ -9,6 +9,10 @@ type Disposition=ObjectScope&Readonly<{eventRef:string;issuerRef:string;eventAt:
  Readonly<{stage:'OPENING';state:'OPENED'|'OPEN_FAILED'}>|
  Readonly<{stage:'ADMISSIBILITY';state:'ADMITTED'|'EXCLUDED'}>
 )
+const stageStates={
+ OPENING:['OPENED','OPEN_FAILED'],
+ ADMISSIBILITY:['ADMITTED','EXCLUDED'],
+} satisfies Record<Disposition['stage'],readonly string[]>
 const time=(value:string)=>{
  const parsed=Date.parse(value)
  if(!Number.isFinite(parsed)||!/(?:Z|[+-]\d{2}:\d{2})$/u.test(value))throw Error('SUBMISSION_DISPOSITION_TIME')
@@ -29,7 +33,11 @@ export function projectSubmissionOpeningDisposition(scope:ObjectScope,source:Rea
   if(fields.some(key=>record[key]!==scope[key])||!identity(record.eventRef)||!identity(record.issuerRef)||seen.has(record.eventRef))
    throw Error('SUBMISSION_DISPOSITION_SCOPE')
   seen.add(record.eventRef)
-  if(time(record.eventAt)<=known&&time(record.knownAt)<=known)visible.push(record)
+  const states:readonly string[]|undefined=Object.hasOwn(stageStates,record.stage)?stageStates[record.stage]:undefined
+  if(!states?.includes(record.state))throw Error('SUBMISSION_DISPOSITION_STAGE')
+  const eventAt=time(record.eventAt),knownAt=time(record.knownAt)
+  if(knownAt<eventAt)throw Error('SUBMISSION_DISPOSITION_TIME')
+  if(knownAt<=known)visible.push(record)
  }
  const project=(stage:Disposition['stage'])=>{
   const evidence=visible.filter(record=>record.stage===stage)

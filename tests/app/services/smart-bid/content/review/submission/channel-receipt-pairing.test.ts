@@ -35,6 +35,12 @@ it('keeps an ambiguous receipt pending and retains sources when exact evidence p
  const withdrawalRead={...exact,eventRef:'WITHDRAW',kind:'WITHDRAWAL_CONFIRMED' as const,
   eventAt:withdrawAt,knownAt:withdrawAt,operationRef:'OP-W'}
  const withdrawalOperation={...scope,attemptRef:'W',operationRef:'OP-W',objectRef:exact.objectRef,withdrawalTargetRef:'B'}
+ expect(pairOriginalChannelReceipt(scope,[{...withdrawalRead,operationRef:exact.operationRef}],attempts))
+  .toMatchObject({state:'PENDING_PAIR',attemptRef:null,withdrawalTargetRef:null})
+ expect(pairOriginalChannelReceipt(scope,[{...withdrawalRead,operationRef:null}],[...attempts,withdrawalOperation]))
+  .toMatchObject({state:'PAIRED',attemptRef:'W',withdrawalTargetRef:'B'})
+ expect(()=>pairOriginalChannelReceipt(scope,[withdrawalRead],[{...withdrawalOperation,withdrawalTargetRef:'W'}]))
+  .toThrow('CHANNEL_RECEIPT_SCOPE')
  const withdrawal=pairOriginalChannelReceipt(scope,[withdrawalRead],[...attempts,withdrawalOperation])
  const withdrawalSource={...source,receipts:[matched,withdrawal],decisions:[decision,
   {...decision,kind:'WITHDRAWN' as const,eventRef:'WITHDRAW',effectiveAt:withdrawAt,knownAt:withdrawAt}]}

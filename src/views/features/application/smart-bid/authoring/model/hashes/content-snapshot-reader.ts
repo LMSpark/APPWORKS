@@ -1,5 +1,5 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/model/content-snapshot-reader
+ * @module app:views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader
  * 职责：从正文宿主原RevisionSnapshot视图读取固定清单、复核同版摘要并取得节点版本索引。
  * 边界：不写入或缓存快照，不把摘要和索引通过等同业务闭包/rootHash或采用通过。
  * AI用途：先取得原清单读取证明，再按完整成员集合装配节点及其它固定业务记录。
@@ -7,7 +7,7 @@
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {readSnapshotNodeIndex,type RevisionSnapshotNodeIndex} from '@/services/smart-bid/content/revision-snapshot-index'
 import {canonicalRevisionSnapshot,hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
-import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
+import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 
 /** 精确快照键；必须来自所选修订或冻结首稿，不能由草稿哈希冒充。 */
 export type ContentSnapshotSelection=Readonly<{snapshotHash:string}>

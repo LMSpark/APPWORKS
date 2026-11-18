@@ -14,6 +14,11 @@ function time(value:string):number{
  return result
 }
 
+function sameEffect(left:Effect,right:Effect):boolean{
+ return left.kind===right.kind&&left.attemptRef===right.attemptRef&&
+  (left.kind!=='REPLACED'||right.kind==='REPLACED'&&left.priorAttemptRef===right.priorAttemptRef)
+}
+
 /** 空证据保持待核，撤回以后的失败新件不能恢复旧件。 */
 export function reconcileSubmissionDeadline(input:Readonly<{
  cutoffAt:string;knownAt:string;obligationIds:readonly string[];effects:readonly Effect[]
@@ -33,12 +38,17 @@ export function reconcileSubmissionDeadline(input:Readonly<{
  }
  const items=input.obligationIds.map(obligationId=>{
   const events=(byObligation.get(obligationId)??[]).sort((a,b)=>a.effective-b.effective)
-  let current:string|null=null,previousTime:number|undefined,needsResolution=false
+  let current:string|null=null,previous:typeof events[number]|undefined,needsResolution=false
   const retiredAttempts=new Set<string>()
   let effectiveWithdrawal=false
-  for(const {event,effective} of events){
-   if(effective===previousTime){needsResolution=true;break}
-   previousTime=effective
+  for(const entry of events){
+   const {event,effective}=entry
+   if(previous?.effective===effective){
+    if(sameEffect(previous.event,event))continue
+    needsResolution=true
+    break
+   }
+   previous=entry
    if(event.kind==='RECEIVED'){
     if(retiredAttempts.has(event.attemptRef)||(current!==null&&current!==event.attemptRef)){needsResolution=true;break}
     current=event.attemptRef

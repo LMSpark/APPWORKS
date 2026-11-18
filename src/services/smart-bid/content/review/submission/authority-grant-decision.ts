@@ -40,3 +40,41 @@ export async function prepareAuthorityGrantDecision(request:Request,source:Decis
  source.assertCurrent()
  return Object.freeze({record,requestDigest,assertCurrent:()=>source.assertCurrent()})
 }
+
+type Prepared=Awaited<ReturnType<typeof prepareAuthorityGrantDecision>>
+type RegistrationIdentity=GrantScope&Readonly<{requestKey:string;requestDigest:string}>
+type RegistrationResult=RegistrationIdentity&Readonly<{assertCurrent:()=>void}>&(
+ Readonly<{status:'REGISTERED';versionId:string;record:Prepared['record']}>|
+ Readonly<{status:'REJECTED';decisionRef:string}>|
+ Readonly<{status:'UNKNOWN'}>
+)
+
+/** 丢失回执后只查原请求，已登记结果须能复算同一决定摘要。 */
+export async function readOriginalAuthorityGrantRegistration(input:RegistrationIdentity,source:Readonly<{
+ lookup:(request:RegistrationIdentity)=>Promise<RegistrationResult|undefined>;assertCurrent:()=>void
+}>){
+ source.assertCurrent()
+ const {enterpriseId,grantId,requestKey,requestDigest}=input
+ const request=Object.freeze({enterpriseId,grantId,requestKey,requestDigest})
+ const error='AUTHORITY_GRANT_REGISTRATION_SCOPE'
+ if(![enterpriseId,grantId,requestKey].every(identity)||!/^[a-f0-9]{64}$/u.test(requestDigest))throw Error(error)
+ const result=await source.lookup(request)
+ const assertCurrent=()=>{source.assertCurrent();result?.assertCurrent()}
+ assertCurrent()
+ if(!result)return Object.freeze({status:'UNKNOWN' as const,assertCurrent})
+ if(result.enterpriseId!==enterpriseId||result.grantId!==grantId||result.requestKey!==requestKey||result.requestDigest!==requestDigest)
+  throw Error(error)
+ if(result.status==='UNKNOWN')return Object.freeze({status:result.status,assertCurrent})
+ if(result.status==='REJECTED'){
+  if(!identity(result.decisionRef))throw Error(error)
+  return Object.freeze({status:result.status,decisionRef:result.decisionRef,assertCurrent})
+ }
+ const {versionId}=result
+ const record=structuredClone(result.record)
+ if(!identity(versionId)||versionId===record.expectedVersion||
+  record.enterpriseId!==enterpriseId||record.grantId!==grantId||record.requestKey!==requestKey)throw Error(error)
+ const recovered=await prepareAuthorityGrantDecision(record,{...record,assertCurrent})
+ if(recovered.requestDigest!==requestDigest||canonicalSnapshotValue(record)!==canonicalSnapshotValue(recovered.record))throw Error(error)
+ assertCurrent()
+ return Object.freeze({status:result.status,versionId,record:recovered.record,assertCurrent})
+}

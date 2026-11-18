@@ -2,7 +2,7 @@ import {expect,it} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {readRegisteredChannelReceiptPairing} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader'
-import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-submission-script-host'
+import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
 import script from '@/views/features/application/smart-bid/authoring/page14/script.js?raw'
 import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
 import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
@@ -14,7 +14,7 @@ it('pairs only readable receipt evidence with one exact original operation',asyn
  const time='2026-11-18T12:00:00+08:00'
  const row={...scope,id:'REC',eventRef:'EVENT',eventKind:'RECEIVED',eventAt:time,operationRef:'OP',objectRef:'PACKAGE',
   sources:[{sourceRef:'SOURCE',knownAt:time}]}
- const candidateRow={...scope,id:'A',operationRef:'OP',actualObjectRef:'PACKAGE',withdrawalTargetRef:null}
+ const candidateRow={...scope,id:'A',operationRef:'OP',actualObjectRef:'PACKAGE',withdrawalTargetRef:null as string|null}
  const pageViews=contentSubmissionScenarioViews({SubmissionAttempt:'id',ChannelReceipt:'id',SubmissionReconciliation:'id',TenderOutcome:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ChannelReceipt:{
   modelBinding:{modelId:'M',modelName:'ChannelReceipt'},
@@ -66,6 +66,12 @@ it('pairs only readable receipt evidence with one exact original operation',asyn
   }))).resolves.toMatchObject({state:'PENDING_PAIR',attemptRef:null})
   expect(()=>paired.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(bindOriginalReceipt()).toEqual({error:'接收凭据查询已失效'})
+  row.eventKind='WITHDRAWAL_CONFIRMED'
+  await __init__()
+  expect(bindOriginalReceipt()).toEqual({status:'凭据 REC，待配对原批次'})
+  candidateRow.withdrawalTargetRef='OLD'
+  await __init__()
+  expect(bindOriginalReceipt()).toEqual({status:'撤回确认凭据 REC，办理批次 A，被撤回批次 OLD，截止效力待核'})
   candidateCount=2
   await expect(page.invoke('content.submission.readReceipt',{receiptRef:'REC'},signal)).rejects.toThrow('CHANNEL_RECEIPT_CANDIDATE_INCOMPLETE')
   hidden=true

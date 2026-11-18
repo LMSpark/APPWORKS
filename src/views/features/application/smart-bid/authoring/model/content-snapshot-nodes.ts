@@ -12,7 +12,7 @@ import {readContentNodeFactIds,readContentNodeLinks,readContentNodeResourceVersi
 import {hashContentSubtrees,SUBTREE_HASH_CONTRACT,type ContentSubtreeHash} from '@/services/smart-bid/content/hashes/content-subtree-hash'
 import {assertContentNodeVersionPayload} from './content-node-version-reader'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
-import type {ContentSnapshotIndexBinding,ContentSnapshotRole} from './content-snapshot-reader'
+import type {ContentSnapshotIndexBinding,ContentSnapshotRole} from './hashes/content-snapshot-reader'
 
 const memberViews:Record<ContentSnapshotRole,string>={basis:'basisSnapshotMembers',head:'headSnapshotMembers',
  candidate:'snapshotMembers',adoption:'adoptionSnapshotMembers'}

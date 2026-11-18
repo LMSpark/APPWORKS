@@ -1,16 +1,16 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/entry/content-authoring-script-host
+ * @module app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host
  * 职责：将同次正文宿主的业务能力交页11脚本消费。
  * 边界：不创建运行实例、不查询/保存、不持有业务草稿或全局命令表。
  */
-import {ContentAuthoringHost,type ContentAuthoringBinding,type ContentAuthoringTarget} from '../model/content-authoring-host'
+import {ContentAuthoringHost,type ContentAuthoringBinding,type ContentAuthoringTarget} from '../../model/content-authoring-host'
 import {ContentAuthoringCommands} from './content-authoring-commands'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type {JsonPath} from '@spark-appworks/spark-json-document'
 import {contentTreeDraftActionLayout,contentTreeEditorLayout,type ContentTreeEditorLayoutInput} from '@/services/smart-bid/content-tree-editor-layout'
 import {isCallable,isRecord} from '@spark-appworks/spark-utils'
 import {parseDataViewKey} from '@spark-appworks/spark-data'
-import {readRegisteredOriginalContentDraftSave} from '../model/content-draft-save-reader'
+import {readRegisteredOriginalContentDraftSave} from '../../model/content-draft-save-reader'
 import {reconcileSavedContentDraft} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
 type Binding=Pick<ContentAuthoringBinding,'runtime'|'dataViewKey'|'projectId'|'draftId'|'actorUserId'|'assertCurrent'|'setPending'>
 /** 定位原保存办理的请求和内容摘要。 */

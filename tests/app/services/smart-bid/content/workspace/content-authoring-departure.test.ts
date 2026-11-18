@@ -2,7 +2,7 @@ import {afterEach,expect,it,vi} from 'vitest'
 import {defineComponent,h} from 'vue'
 import {mount,flushPromises,type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory,createRouter,RouterView} from 'vue-router'
-import {useContentAuthoringDeparture} from '@/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure'
+import {useContentAuthoringDeparture} from '@/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure'
 
 const state=vi.hoisted(()=>({source:undefined as {readonly isDirty:boolean}|undefined}))
 vi.mock('@spark-appworks/spark-app',()=>({useSystemPageDirtySource:(source:{readonly isDirty:boolean})=>{state.source=source}}))

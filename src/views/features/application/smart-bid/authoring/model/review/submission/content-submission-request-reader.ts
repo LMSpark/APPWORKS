@@ -48,12 +48,13 @@ export async function readRegisteredSubmissionRequest(host:ContentRevisionReadHo
  const payload=structuredClone(row['requestPayload'])
  if(!isRecord(payload)||payload['projectId']!==projectId||payload['attemptRef']!==attemptRef||payload['requestKey']!==requestKey)
   throw Error('SUBMISSION_REQUEST_READ_CONFLICT')
- const {enterpriseId,objectRef,channelId,priorAttemptRef}=payload
- if(!identity(enterpriseId)||!identity(objectRef)||!identity(channelId)||(priorAttemptRef!==null&&!identity(priorAttemptRef)))
+ const {enterpriseId,objectRef,channelId,priorAttemptRef,combinedWithdrawalTarget=null}=payload
+ if(!identity(enterpriseId)||!identity(objectRef)||!identity(channelId)||(priorAttemptRef!==null&&!identity(priorAttemptRef))||
+  (combinedWithdrawalTarget!==null&&(!identity(combinedWithdrawalTarget)||combinedWithdrawalTarget===attemptRef)))
   throw Error('SUBMISSION_REQUEST_READ_CONFLICT')
  const encoded=canonicalSnapshotValue(['spark-bid.submission-request/1',payload])
  if(await hashCanonicalSnapshotText(encoded)!==requestDigest)throw Error('SUBMISSION_REQUEST_READ_CONFLICT')
  assertCurrent()
  return Object.freeze({state:'REGISTERED' as const,...context,requestDigest,
-  lotId:objectRef,subjectId:enterpriseId,channelId,priorAttemptRef,assertCurrent})
+  lotId:objectRef,subjectId:enterpriseId,channelId,priorAttemptRef,combinedWithdrawalTarget,assertCurrent})
 }

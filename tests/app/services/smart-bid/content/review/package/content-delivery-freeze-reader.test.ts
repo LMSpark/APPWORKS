@@ -4,9 +4,10 @@ import {BlobWriter,TextReader,ZipWriter} from '@zip.js/zip.js'
 import {createHash} from 'node:crypto'
 import {computeDeliverySelectionDigests} from '@/services/smart-bid/content/review/delivery-selection-digest'
 import {reviewRegisteredDeliveryZipPackage} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-review'
-import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-submission-script-host'
+import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
 import {prepareRegisteredDeliveryZipPackage} from '@/views/features/application/smart-bid/authoring/model/review/package/content-delivery-package-preparation'
 import {readRegisteredDeliveryFreeze} from '@/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader'
+import {contentDeliveryPackageScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -16,17 +17,13 @@ it('preserves unknown on a complete empty original read and requires readable te
  const original={...request,id:'FREEZE',projectId:'P',status:'NOT_EFFECTIVE',terminalRef:'STOP',frozenResult:null}
  const packageColumns=['id','projectId','packingRequestRef','format','packageHash','resourceVersionId',
   'selectionId','selectionVersion','selectionHash','requiredPositions','packed']
+ const {DeliveryManifest,SubmissionPackage}=contentDeliveryPackageScenarioViews({DeliveryManifest:'id',SubmissionPackage:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{DeliveryManifest:{
   modelBinding:{modelId:'M',modelName:'DeliveryManifest'},columns:Object.keys(original).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalFreeze:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',
-   filters:['projectId','requestKey','requestDigest'].map(field=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName:field}})),
-  }}},
+  views:{default:{},originalFreeze:DeliveryManifest.originalFreeze},
  },SubmissionPackage:{
   modelBinding:{modelId:'PKG-M',modelName:'SubmissionPackage'},columns:packageColumns.map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalPackedZip:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters:[
-   {field:'id',operator:'eq',value:{Type:'GetInputParam',ParamName:'packageId'}},
-   ...['projectId','packingRequestRef'].map(field=>({field,operator:'eq' as const,value:{Type:'GetInputParam',ParamName:field}})),
-  ]}}},
+  views:{default:{},originalPackedZip:SubmissionPackage.originalPackedZip},
  }}})
  const view=ds.getView('DeliveryManifest','originalFreeze')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'DeliveryManifest'})
  let items:Array<Omit<typeof original,'frozenResult'>&{frozenResult:unknown}>=[],hidden=false
@@ -74,14 +71,21 @@ it('preserves unknown on a complete empty original read and requires readable te
   expect(executePackage).not.toHaveBeenCalled()
   expect(openAuthorized).not.toHaveBeenCalled()
   items=[{...original,status:'FROZEN',frozenResult:{...frozen,...hashes}}]
+  const requirements=[{kind:'SELECTION_USE',targetId:'USE'},{kind:'APPROVAL',targetId:'APPROVAL'}] as const
+  const releaseScope={projectId:'P',packageId:'PKG',packageHash:pack.packageHash,selectionHash:hashes.selectionHash}
+  const readPackageRelease=vi.fn(async()=>({rules:{...releaseScope,requirements,assertCurrent:host.assertCurrent},
+   evidence:requirements.map(requirement=>({...releaseScope,...requirement,evidenceRef:requirement.targetId,
+    accepted:true,assertCurrent:host.assertCurrent}))}))
   const page=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
    readPackageSelection:async()=>({request,options:reviewOptions,assertCurrent:host.assertCurrent}),
+   readPackageRelease,
   })
   const signal=new AbortController().signal
   await expect(page.invoke('content.submission.reviewPackage',{...reviewOptions.package,packingRequestRef:'OTHER'},signal))
    .rejects.toThrow('SUBMISSION_PAGE_PACKAGE_SCOPE')
   const checked=await page.invoke('content.submission.reviewPackage',reviewOptions.package,signal)
-  expect(checked).toMatchObject({status:'FROZEN',proof:{membershipMatches:true}})
+  expect(checked).toMatchObject({status:'FROZEN',proof:{membershipMatches:true},release:{deliverable:true}})
+  expect(readPackageRelease).toHaveBeenCalledExactlyOnceWith(releaseScope,signal)
   expect(openAuthorized).toHaveBeenCalledWith({projectId:'P',packageId:'PKG',packingRequestRef:'PACKING',resourceVersionId:'RESOURCE'})
   await view.refresh()
   expect(()=>checked.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')

@@ -1,5 +1,5 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/entry/content-authoring-commands
+ * @module app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands
  * 职责：为页11同次宿主编排原草稿编辑命令及未保存输入守卫。
  * 边界：不另存草稿、不查询/保存、不建立全局命令注册或权限规则。
  * AI用途：正式页面脚本桥调用此实例；旧代次、未确认输入或原查询失效必须拒绝。
@@ -8,7 +8,7 @@ import {ContentTreeDraftEditor} from '@/services/smart-bid/content-tree-draft-ed
 import {contentDraftSaveRule} from '@/services/smart-bid/content-draft-save-rule'
 import {prepareContentDraftSaveRequest} from '@/services/smart-bid/content/draft/content-draft-save-request'
 import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
-import type {ContentAuthoringBinding} from '../model/content-authoring-host'
+import type {ContentAuthoringBinding} from '../../model/content-authoring-host'
 import {parseDataViewKey,resolveDataViewKey,type DataView} from '@spark-appworks/spark-data'
 
 type Binding=Pick<ContentAuthoringBinding,'runtime'|'dataViewKey'|'projectId'|'draftId'|'actorUserId'|'assertCurrent'|'setPending'>

@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {resolvePublishedContentOperationTarget} from '@/views/features/application/smart-bid/authoring/entry/content-operation-target'
+import {resolvePublishedContentOperationTarget} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-target'
 
 it('keeps the published navigation, page, scenario and selected project together',()=>{
  const entry={applicationId:'APP',pageId:'TOOL',nodeId:'NODE',scenarioId:'SPACE'}

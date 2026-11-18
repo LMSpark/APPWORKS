@@ -36,10 +36,11 @@ export function pairOriginalChannelReceipt(scope:Scope,receiptReads:readonly Rec
  const seen=new Set<string>()
  const compatible=attempts.filter(attempt=>{
   if(!matchesScope(attempt)||!identity(attempt.attemptRef)||seen.has(attempt.attemptRef)||
-   attempt.withdrawalTargetRef!==undefined&&!identity(attempt.withdrawalTargetRef)||
+   attempt.withdrawalTargetRef!==undefined&&(!identity(attempt.withdrawalTargetRef)||attempt.withdrawalTargetRef===attempt.attemptRef)||
    [attempt.operationRef,attempt.objectRef].some(value=>value!==null&&!identity(value)))throw Error('CHANNEL_RECEIPT_SCOPE')
   seen.add(attempt.attemptRef)
-  return (first.operationRef!==null||first.objectRef!==null)&&
+  return (first.kind!=='WITHDRAWAL_CONFIRMED'||attempt.withdrawalTargetRef!==undefined)&&
+   (first.operationRef!==null||first.objectRef!==null)&&
    (first.operationRef===null||first.operationRef===attempt.operationRef)&&
    (first.objectRef===null||first.objectRef===attempt.objectRef)
  })

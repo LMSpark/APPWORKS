@@ -5,7 +5,7 @@
  */
 import {readContentBaselineFactIndex} from '../content-baseline-reader'
 import type {ContentRevisionReadHost} from '../content-revision-reader'
-import type {ContentSnapshotIndexBinding} from '../content-snapshot-reader'
+import type {ContentSnapshotIndexBinding} from './content-snapshot-reader'
 import {hashRevisionContentRoot} from '@/services/smart-bid/content/hashes/revision-content-root'
 import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/content-root-hash'
 

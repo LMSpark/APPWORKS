@@ -51,7 +51,8 @@ it('verifies the sealed bytes before enumerating and compares independently read
   sourceRef:'ISSUER',eventAt:at,knownAt:at,kind:'RECEIVED'}],[{...scope,attemptRef:'SEND',operationRef:'OP',objectRef:'PKG'}])
  const receiptSource={scope,receipts:[receipt],decisions:[{eventRef:'REC',attemptRef:'SEND',kind:'RECEIVED' as const,
   obligationId:'O',ruleRef:'RULE',effectiveAt:at,knownAt:at,assertCurrent:()=>{}}],assertCurrent:()=>{}}
- const checked=reconcileDeadlineDelivery({cutoffAt:at,knownAt:at,obligationIds:['O']},receiptSource,{contents:combinedSource,proofs:{packages:[extra],batches:[]}})
+ const checked=reconcileDeadlineDelivery({cutoffAt:at,knownAt:at,obligationIds:['O'],roundId:'R'},receiptSource,
+  {contents:combinedSource,proofs:{packages:[extra],batches:[]}})
  expect(checked.items[0]).toMatchObject({attemptRef:'SEND',contentState:'MATCHED'})
  expect(checked.evidence).toMatchObject([{eventRef:'REC',ruleRef:'RULE'}])
  expect(checked.packageChecks).toEqual(actual.packageChecks)
@@ -65,6 +66,9 @@ it('verifies the sealed bytes before enumerating and compares independently read
  expect(linked).toMatchObject({delivery:{knownAt:at,items:[{state:'EFFECTIVE_ATTEMPT'}]},
   disposition:{knownAt:later,opening:{state:'OPEN_FAILED'},admissibility:{state:'PENDING'}}})
  expect(()=>attachDeadlinePackageDisposition(checked,{...binding,attemptRef:'OTHER'},dispositionSource))
+  .toThrow('SUBMISSION_DEADLINE_DISPOSITION_SCOPE')
+ expect(()=>attachDeadlinePackageDisposition(checked,{...binding,roundId:'OTHER_ROUND'},
+  {...dispositionSource,records:dispositionSource.records.map(record=>({...record,roundId:'OTHER_ROUND'}))}))
   .toThrow('SUBMISSION_DEADLINE_DISPOSITION_SCOPE')
  expect(actual.items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',contentState:'MATCHED'})
  expect(actual.packageChecks).toMatchObject([{attemptRef:'SEND',packageId:'PKG',membershipMatches:false,

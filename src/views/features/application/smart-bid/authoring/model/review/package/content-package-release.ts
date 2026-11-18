@@ -1,26 +1,27 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/model/review/content-package-release
+ * @module app:views/features/application/smart-bid/authoring/model/review/package/content-package-release
  * 职责：第50项按当次要求核放行证据，供第51项绑定最终待发包。
  */
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
-import type {readFrozenDeliveryZipPackageMembers} from './package/content-package-review'
-
-type PackageProof=Awaited<ReturnType<typeof readFrozenDeliveryZipPackageMembers>>
-type Scope=Pick<PackageProof,'projectId'|'packageId'|'packageHash'|'selectionHash'>
+/** Identity of the registered original package and its frozen selection. */
+type Scope=Readonly<{projectId:string;packageId:string;packageHash:string;selectionHash:string}>
+/** Current member comparison from an independently observed final package. */
+type PackageProof=Scope&Readonly<{membershipMatches:boolean;assertCurrent:()=>void}>
 type Requirement=Readonly<{kind:'SELECTION_USE'|'APPROVAL'|'SIGNATURE';targetId:string}>
 type Evidence=Scope&Requirement&Readonly<{evidenceRef:string;accepted:boolean;assertCurrent:()=>void}>
 const key=({kind,targetId}:Requirement)=>JSON.stringify([kind,targetId])
 
 /** 成员匹配后仍须验证当次选件适用、批准覆盖及规则要求的签署。 */
-export function assessSubmissionPackageRelease(pack:PackageProof,rules:Readonly<{
- projectId:string;selectionHash:string;requirements:readonly Requirement[];assertCurrent:()=>void
+export function assessSubmissionPackageRelease(pack:PackageProof,rules:Scope&Readonly<{
+ requirements:readonly Requirement[];assertCurrent:()=>void
 }>,evidence:readonly Evidence[]){
  const proofs=[...evidence]
  const assertCurrent=()=>{pack.assertCurrent();rules.assertCurrent();for(const proof of proofs)proof.assertCurrent()}
  assertCurrent()
  const {projectId,packageId,packageHash,selectionHash}=pack
  const requirements=new Map(rules.requirements.map(requirement=>[key(requirement),requirement]))
- if(rules.projectId!==projectId||rules.selectionHash!==selectionHash||requirements.size!==rules.requirements.length||
+ if(rules.projectId!==projectId||rules.packageId!==packageId||rules.packageHash!==packageHash||
+  rules.selectionHash!==selectionHash||requirements.size!==rules.requirements.length||
   !rules.requirements.some(item=>item.kind==='SELECTION_USE')||!rules.requirements.some(item=>item.kind==='APPROVAL')||
   rules.requirements.some(({kind,targetId})=>!['SELECTION_USE','APPROVAL','SIGNATURE'].includes(kind)||!identity(targetId)))
   throw Error('SUBMISSION_PACKAGE_RELEASE_SCOPE')

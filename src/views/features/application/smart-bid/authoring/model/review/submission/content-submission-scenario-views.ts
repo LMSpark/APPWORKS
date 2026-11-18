@@ -29,6 +29,27 @@ function view(primaryKey:string,keys:readonly Key[],options:Readonly<{
    ...(allPages?{allPages:true}:{pagination:'none'})}}
 }
 
+/** 页13按原装封请求读取冻结结果及同次纸包或电子包登记。 */
+export function contentDeliveryPackageScenarioViews(primaryKeys:Readonly<Record<'DeliveryManifest'|'SubmissionPackage',string>>){
+ const {DeliveryManifest,SubmissionPackage}=primaryKeys
+ const packageKeys:readonly Key[]=['projectId',['id','packageId'],'packingRequestRef']
+ return {
+  DeliveryManifest:{
+   originalFreeze:view(DeliveryManifest,['projectId','requestKey','requestDigest'],{
+    fields:['groupScope','status','terminalRef','frozenResult'],
+   }),
+  },
+  SubmissionPackage:{
+   originalPackedZip:view(SubmissionPackage,packageKeys,{
+    fields:['format','packageHash','resourceVersionId','selectionId','selectionVersion','selectionHash','requiredPositions','packed'],
+   }),
+   originalPackedPaper:view(SubmissionPackage,packageKeys,{
+    fields:['format','sealRef','packageHash','selectionHash','packingRef','packed'],
+   }),
+  },
+ }
+}
+
 /** 仅生成视图定义，已登记模型、主键及服务授权仍由正式场景提供。 */
 export function contentSubmissionScenarioViews(primaryKeys:Readonly<Record<
  'SubmissionAttempt'|'ChannelReceipt'|'SubmissionReconciliation'|'TenderOutcome',string

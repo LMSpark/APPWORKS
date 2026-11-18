@@ -7,7 +7,7 @@ import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
-import {readPlatformSubmissionReceipt} from './content-submission-receipt-reader'
+import {readPlatformSubmissionReceipt} from './submission/content-submission-receipt-reader'
 
 type FieldSelection=Readonly<{projectId:string;revisionId:string;assignmentId:string;fieldId:string}>
 type ProposedField=FieldSelection&Readonly<{

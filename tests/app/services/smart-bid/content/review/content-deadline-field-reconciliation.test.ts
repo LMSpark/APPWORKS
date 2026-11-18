@@ -1,5 +1,5 @@
 import {expect,it,vi} from 'vitest'
-import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-submission-script-host'
+import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
 import {pairOriginalChannelReceipt} from '@/services/smart-bid/content/review/submission/channel-receipt-pairing'
 import script from '@/views/features/application/smart-bid/authoring/page14/script.js?raw'
 import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
@@ -36,11 +36,16 @@ it('retains deadline reception while leaving nonmatching attempts and missing fi
 it('shows the deadline batch separately from pending content and retains receipt proof',async()=>{
  const time='2026-11-18T10:00:00+08:00',scope={projectId:'P',lotId:'LOT',subjectId:'ENT',channelId:'PORTAL'}
  let receiptCurrent=true
+ let includeDisposition=false
  const current=()=>{}
  const receipt={...pairOriginalChannelReceipt(scope,[{...scope,eventRef:'EVENT',sourceRef:'SOURCE',kind:'RECEIVED',
   eventAt:time,knownAt:time,operationRef:'OP',objectRef:null}],[{...scope,attemptRef:'A',operationRef:'OP',objectRef:null}]),
  assertCurrent:()=>{if(!receiptCurrent)throw Error('RECEIPT_STALE')}}
  const row={...scope,id:'DL',roundId:'R',stageId:'STAGE',cutoffAt:time,knownAt:time,obligationIds:['O']}
+ const packageHash='a'.repeat(64),later='2026-11-18T11:00:00+08:00'
+ const binding={...scope,roundId:'R',attemptRef:'A',objectRef:'PKG',packageHash,assertCurrent:current}
+ const disposition={binding,source:{knownAt:later,assertCurrent:current,records:[{...binding,eventRef:'OPEN',
+  issuerRef:'ISSUER',eventAt:later,knownAt:later,stage:'OPENING' as const,state:'OPEN_FAILED' as const}]}}
  const pageViews=contentSubmissionScenarioViews({SubmissionAttempt:'id',ChannelReceipt:'id',SubmissionReconciliation:'id',TenderOutcome:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{SubmissionReconciliation:{
   modelBinding:{modelId:'M',modelName:'SubmissionReconciliation'},
@@ -58,9 +63,13 @@ it('shows the deadline batch separately from pending content and retains receipt
   generation:1,isLoaded:true,destroyed:false},{scenarioId:'S',projectId:'P',assertCurrent:current},{readDeadline:async record=>{
   expect(record).toMatchObject({scope,roundId:'R',stageId:'STAGE',input:{cutoffAt:time,knownAt:time,obligationIds:['O']}})
   return {
+   ...(includeDisposition?{dispositions:[disposition]}:{}),
    receipts:{scope,receipts:[receipt],decisions:[{kind:'RECEIVED',eventRef:'EVENT',obligationId:'O',attemptRef:'A',
     knownAt:time,effectiveAt:time,ruleRef:'RULE',assertCurrent:current}],assertCurrent:current},
-   options:{contents:{projectId:'P',requiredMembers:[],links:[],requiredFields:[],assertCurrent:current},proofs:{packages:[],batches:[]}},
+   options:{contents:{projectId:'P',requiredMembers:[{obligationId:'O',position:'商务册'}],
+    links:includeDisposition?[{obligationId:'O',position:'商务册',attemptRef:'A',packageId:'PKG',packageHash,assertCurrent:current}]:[],
+    requiredFields:[{obligationId:'O',assignmentId:'ASSIGN',fieldId:'PRICE'}],assertCurrent:current},
+   proofs:{packages:includeDisposition?[{projectId:'P',packageId:'PKG',packageHash,membershipMatches:false,members:[],assertCurrent:current}]:[],batches:[]}},
   }
  }})
  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
@@ -71,7 +80,17 @@ it('shows the deadline batch separately from pending content and retains receipt
  }} as unknown as PageContext)
  if(!openDeadline)throw Error('TEST_DEADLINE_HANDLER_REQUIRED')
  await openDeadline()
- expect(showAlert).toHaveBeenCalledExactlyOnceWith(`截止 ${time} · 证据截至 ${time}\nO · 有有效批次 A · 内容待核`,'截止有效组合')
+ expect(showAlert).toHaveBeenCalledExactlyOnceWith([
+  `截止 ${time} · 证据截至 ${time}`,'O · 有有效批次 A · 内容待核',
+  `  接收 A · 事件 EVENT · 规则 RULE · 生效 ${time} · 获知 ${time} · 来源 SOURCE`,
+  '  文件位置 商务册 · 待核','  平台栏 ASSIGN / PRICE · 待核',
+ ].join('\n'),'截止有效组合')
+ includeDisposition=true
+ await openDeadline()
+ expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining([
+  `后续处置 · 实包 PKG · 批次 A · 证据截至 ${later}`,'  开启 · 开启失败',
+  `    开启失败 · 事件 OPEN · 出具方 ISSUER · ${later}`,'  准入 · 待核',
+ ].join('\n')),'截止有效组合')
  receiptCurrent=false
  await openDeadline()
  expect(showMessage).toHaveBeenCalledExactlyOnceWith('截止有效组合无法核验','warning')

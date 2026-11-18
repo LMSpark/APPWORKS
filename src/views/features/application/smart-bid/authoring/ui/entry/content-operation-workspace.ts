@@ -1,5 +1,5 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/entry/content-operation-workspace
+ * @module app:views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace
  * 职责：页18在当前 PageRuntime 和 ClassModel 根中办理发现、回读、验证与退回准备。
  * 边界：组织工艺工作区调用和原证据，按本次运行实例检查会话有效性。
  * AI用途：追踪页18从目录发现到原试次回查的操作顺序。
@@ -9,12 +9,12 @@ import type {ClassModelRuntime} from '@spark-appworks/spark-ai/class-model'
 import {readDiscoveredOperationGuide} from '@/services/smart-bid/operation/guides/operation-guide-discovery'
 import {freezeOperationRouteContext} from '@/services/smart-bid/operation/operation-route-context'
 import {dispatchOperationRouteAgentTask} from '@/services/smart-bid/operation/operation-route-agent-task'
-import {discoverRegisteredOperationGuides} from '../model/operation/content-operation-guide-reader'
-import {readRegisteredOperationDispatch} from '../model/operation/content-operation-dispatch-reader'
-import {readRegisteredFrozenOperationContext} from '../model/operation/content-operation-frozen-reader'
-import {readRegisteredOriginalOperationGuide} from '../model/operation/content-operation-original-guide-reader'
-import {recoverRegisteredOperationRouteAttempt} from '../model/operation/content-operation-result-reader'
-import {prepareRegisteredOperationStepRework} from '../model/operation/content-operation-rework-reader'
+import {discoverRegisteredOperationGuides} from '../../model/operation/content-operation-guide-reader'
+import {readRegisteredOperationDispatch} from '../../model/operation/content-operation-dispatch-reader'
+import {readRegisteredFrozenOperationContext} from '../../model/operation/content-operation-frozen-reader'
+import {readRegisteredOriginalOperationGuide} from '../../model/operation/content-operation-original-guide-reader'
+import {recoverRegisteredOperationRouteAttempt} from '../../model/operation/content-operation-result-reader'
+import {prepareRegisteredOperationStepRework} from '../../model/operation/content-operation-rework-reader'
 
 /** 待回查试次固定的原调用清单。 */
 type OriginalManifest=NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>>

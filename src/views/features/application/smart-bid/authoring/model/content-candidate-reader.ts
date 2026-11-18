@@ -11,7 +11,7 @@ import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/refere
 import {assertRevisionResponseText,readIndependentResponseFactOccurrences,type IndependentResponseFactTarget} from '@/services/smart-bid/content/references/revision-response-text'
 import {hasCompleteSingleContentResult,readContentRevisionBasis,readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
 import {assertContentNodeVersionPayload} from './content-node-version-reader'
-import {assertRevisionManifest,readContentSnapshotIndex,type ContentSnapshotIndexBinding,type ContentSnapshotRole} from './content-snapshot-reader'
+import {assertRevisionManifest,readContentSnapshotIndex,type ContentSnapshotIndexBinding,type ContentSnapshotRole} from './hashes/content-snapshot-reader'
 import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './content-snapshot-nodes'
 import {verifyReadableRevisionRoot} from './hashes/content-revision-root-reader'
 import {readContentBaselineFact,readContentBaselineRequirement,readContentBaselineRequirementPins,readContentBaselineTenderRecord,readContentReviewBaseline,type ContentBaselineFactBinding,type ContentBaselineRequirementPinsBinding} from './content-baseline-reader'

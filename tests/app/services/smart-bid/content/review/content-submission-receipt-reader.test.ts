@@ -1,6 +1,6 @@
 import {expect,it} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {readPlatformSubmissionReceipt} from '@/views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader'
+import {readPlatformSubmissionReceipt} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-receipt-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 

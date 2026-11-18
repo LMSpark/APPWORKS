@@ -28,3 +28,14 @@ it('requires a proved replacement relation and does not resurrect what was withd
  const withoutPrior=reconcileSubmissionDeadline({...input,knownAt:at('14'),effects:[received,withdrawn,proposed]})
  expect(withoutPrior.items[0]).toMatchObject({state:'PENDING_EFFECT',attemptRef:null})
 })
+
+it('retains corroborating same-time events and leaves incompatible effects pending',()=>{
+ const corroborated={...received,eventRef:'SECOND'}
+ const reconcile=(effects:typeof received[])=>reconcileSubmissionDeadline({...input,effects}).items[0]
+ expect(reconcile([received,corroborated])).toMatchObject({
+  state:'EFFECTIVE_ATTEMPT',attemptRef:'OLD',eventRefs:['E1','SECOND'],
+ })
+ expect(reconcile([{...corroborated,attemptRef:'OTHER'},received])).toMatchObject({
+  state:'PENDING_EFFECT',attemptRef:null,eventRefs:['SECOND','E1'],
+ })
+})

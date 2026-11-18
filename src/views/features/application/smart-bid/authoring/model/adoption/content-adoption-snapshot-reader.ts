@@ -5,7 +5,7 @@
  */
 import {buildDataViewKey} from '@spark-appworks/spark-data'
 import type {ContentRevisionReadHost,readAdoptedContentRevision} from '../content-revision-reader'
-import {assertRevisionManifest,readContentSnapshotIndex} from '../content-snapshot-reader'
+import {assertRevisionManifest,readContentSnapshotIndex} from '../hashes/content-snapshot-reader'
 import {readContentSnapshotNodes} from '../content-snapshot-nodes'
 import {verifyReadableRevisionRoot} from '../hashes/content-revision-root-reader'
 

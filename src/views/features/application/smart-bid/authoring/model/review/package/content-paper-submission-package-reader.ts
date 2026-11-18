@@ -17,7 +17,7 @@ type Source=Review[1]
 /** 原装封明细中的一笔纸件和份数。 */
 type Member=Source['packed']['members'][number]
 const keys=[['id','packageId'],['projectId','projectId'],['packingRequestRef','packingRequestRef']] as const
-const fields=['id','projectId','packingRequestRef','format','sealRef','selectionHash','packingRef','packed']
+const fields=['id','projectId','packingRequestRef','format','sealRef','packageHash','selectionHash','packingRef','packed']
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='SubmissionPackage'&&
  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&keys.every(([field,ParamName])=>
   hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
@@ -47,9 +47,10 @@ export async function reviewRegisteredPaperSubmissionPackage(host:ContentRevisio
  if(!row||!hasCompleteSingleContentResult(view))throw Error('PAPER_SUBMISSION_ORIGINAL_NOT_UNIQUE')
  const assertRead=view.captureReadResult(),assertRow=view.captureReadRow(row,fields)
  const assertCurrent=()=>{assertScope();assertRead();assertRow()}
- const {format,sealRef,selectionHash,packingRef,packed}=row
+ const {format,sealRef,packageHash,selectionHash,packingRef,packed}=row
  if(row['id']!==packageId||row['projectId']!==projectId||row['packingRequestRef']!==packingRequestRef||format!=='PAPER'||
-  !identity(sealRef)||!identity(packingRef)||!identity(selectionHash)||!/^[a-f0-9]{64}$/u.test(selectionHash)||!Array.isArray(packed))
+  !identity(sealRef)||!identity(packingRef)||!identity(packageHash)||!/^[a-f0-9]{64}$/u.test(packageHash)||
+  !identity(selectionHash)||!/^[a-f0-9]{64}$/u.test(selectionHash)||!Array.isArray(packed))
   throw Error(error)
  const members=packed.map((entry:unknown):Member=>{
   if(!isRecord(entry)||!identity(entry['position'])||!identity(entry['paperRef'])||!identity(entry['versionRef'])||
@@ -59,5 +60,6 @@ export async function reviewRegisteredPaperSubmissionPackage(host:ContentRevisio
  const scope=Object.freeze({projectId,packageId,sealRef,selectionHash})
  const [frozen,observed]=await Promise.all([sources.readFrozen(scope),sources.readWitness(scope)])
  assertCurrent()
- return reviewPaperSubmissionPackage(scope,{frozen,packed:{...scope,packingRef,members,assertCurrent},observed})
+ const report=reviewPaperSubmissionPackage(scope,{frozen,packed:{...scope,packingRef,members,assertCurrent},observed})
+ return Object.freeze({...report,packageHash})
 }

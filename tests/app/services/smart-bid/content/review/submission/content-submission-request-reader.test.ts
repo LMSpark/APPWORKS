@@ -3,17 +3,21 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {readRegisteredSubmissionRequest} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader'
-import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-submission-script-host'
+import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
+import page13 from '@/views/features/application/smart-bid/authoring/page13/script.js?raw'
+import page14 from '@/views/features/application/smart-bid/authoring/page14/script.js?raw'
+import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
+import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 it('reads a fixed original request and rejects payload drift despite an unchanged stored digest',async()=>{
- const payload={projectId:'P',attemptRef:'A',requestKey:'Q',channelId:'PORTAL',enterpriseId:'ENT',objectRef:'LOT',priorAttemptRef:null}
+ const payload={projectId:'P',attemptRef:'A',requestKey:'Q',channelId:'PORTAL',enterpriseId:'ENT',objectRef:'LOT',priorAttemptRef:'OLD'}
  const requestDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.submission-request/1',payload]))
  const row={id:'A',projectId:'P',requestKey:'Q',requestDigest,requestPayload:payload}
  const exact={projectId:'P',attemptRef:'A',lotId:'LOT',subjectId:'ENT',channelId:'PORTAL',requestDigest}
  const event={...exact,kind:'DISPATCHED',eventRef:'EVENT',actualObjectRef:'PACKAGE'}
- const originalEvents={...exact,id:'A',events:[event],combinedWithdrawalTarget:null}
+ const originalEvents={...exact,id:'A',events:[event],combinedWithdrawalTarget:null as string|null}
  const pageViews=contentSubmissionScenarioViews({SubmissionAttempt:'id',ChannelReceipt:'id',SubmissionReconciliation:'id',TenderOutcome:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{SubmissionAttempt:{
   modelBinding:{modelId:'M',modelName:'SubmissionAttempt'},columns:Object.keys({...row,...originalEvents}).map(name=>({name,isPrimaryKey:name==='id'})),
@@ -51,11 +55,31 @@ it('reads a fixed original request and rejects payload drift despite an unchange
   expect(projected).toMatchObject({status:'DISPATCHED',registered:true,evidenceRef:'EVENT'})
   expect(executeEvents).toHaveBeenCalledOnce()
   expect(eventView.queryContext).toMatchObject(exact)
+  originalEvents.combinedWithdrawalTarget='OLD'
+  await expect(readPage()).rejects.toThrow('SUBMISSION_PAGE_WITHDRAWAL_SCOPE')
+  originalEvents.combinedWithdrawalTarget=null
   event.channelId='OTHER'
   await expect(readPage()).rejects.toThrow('SUBMISSION_EVENTS_EVIDENCE')
   rows=[{...row,requestPayload:{...payload,channelId:'OTHER'}}]
   await expect(readRegisteredSubmissionRequest(host,original)).rejects.toThrow('SUBMISSION_REQUEST_READ_CONFLICT')
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(()=>projected.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  const combinedPayload={...payload,combinedWithdrawalTarget:'WITHDRAW_TARGET'}
+  const combinedDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.submission-request/1',combinedPayload]))
+  rows=[{...row,requestDigest:combinedDigest,requestPayload:combinedPayload}]
+  originalEvents.requestDigest=combinedDigest
+  Object.assign(event,{channelId:'PORTAL',requestDigest:combinedDigest})
+  originalEvents.combinedWithdrawalTarget=combinedPayload.combinedWithdrawalTarget
+  const readCombined=()=>page.invoke('content.submission.readOriginal',{...original,requestDigest:combinedDigest},signal)
+  await expect(readCombined()).resolves.toMatchObject({status:'PARTIAL',newDelivery:{evidenceRef:'EVENT'},oldWithdrawal:null})
+  for(const script of [page13,page14]){
+   const {__init__,bindOriginalSubmission}=compileFunctions(script,{$route:{query:{...original,requestDigest:combinedDigest}},
+    $page:{invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal)}} as unknown as PageContext)
+   if(!__init__||!bindOriginalSubmission)throw Error('TEST_ORIGINAL_SUBMISSION_HANDLERS_REQUIRED')
+   await __init__()
+   expect(bindOriginalSubmission()).toEqual({status:'部分办理待查；新件 PACKAGE · 实发凭据 EVENT；撤回 WITHDRAW_TARGET · 实发待查'})
+  }
+  originalEvents.combinedWithdrawalTarget=null
+  await expect(readCombined()).rejects.toThrow('SUBMISSION_PAGE_WITHDRAWAL_SCOPE')
  }finally{ds.destroy()}
 })

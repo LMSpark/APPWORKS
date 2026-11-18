@@ -1,5 +1,5 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/entry/content-operation-script-host
+ * @module app:views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host
  * 职责：把本次页18工作区的目录查询与同版指南交给四文件脚本。
  * 边界：把本次 PageRuntime 的工艺能力交给脚本，读写仍由原绑定负责。
  * AI用途：核对页18脚本能够调用哪些当前实例能力。

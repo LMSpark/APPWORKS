@@ -7,6 +7,7 @@ import {reconcileDeadlineFieldValues} from './content-deadline-field-reconciliat
 import {reconcileDeadlinePackageMembers} from './content-deadline-package-reconciliation'
 import {reconcileSubmissionReceiptEffects} from '@/services/smart-bid/content/review/submission/submission-receipt-effects'
 import {projectSubmissionOpeningDisposition} from '@/services/smart-bid/content/review/submission/submission-opening-disposition'
+import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 
 type FieldSource=Parameters<typeof reconcileDeadlineFieldValues>[0]
 type PackageSource=Parameters<typeof reconcileDeadlinePackageMembers>[0]
@@ -18,7 +19,7 @@ export function attachDeadlinePackageDisposition(delivery:ReturnType<typeof reco
  delivery.assertCurrent()
  binding.assertCurrent()
  const {projectId,lotId,roundId,attemptRef,objectRef,packageHash}=binding
- if(projectId!==delivery.scope.projectId||lotId!==delivery.scope.lotId||
+ if(projectId!==delivery.scope.projectId||lotId!==delivery.scope.lotId||roundId!==delivery.roundId||
   !delivery.packageChecks.some(pack=>pack.attemptRef===attemptRef&&pack.packageId===objectRef&&pack.packageHash===packageHash))
   throw Error('SUBMISSION_DEADLINE_DISPOSITION_SCOPE')
  const disposition=projectSubmissionOpeningDisposition({projectId,lotId,roundId,attemptRef,objectRef},source)
@@ -28,16 +29,16 @@ export function attachDeadlinePackageDisposition(delivery:ReturnType<typeof reco
 }
 
 /** 用同一次规则核验所得的截止结论选择内容证据，保留结论所用原回执。 */
-export function reconcileDeadlineDelivery(input:Parameters<typeof reconcileSubmissionReceiptEffects>[0],
+export function reconcileDeadlineDelivery(input:Parameters<typeof reconcileSubmissionReceiptEffects>[0]&Readonly<{roundId:string}>,
  receipts:Parameters<typeof reconcileSubmissionReceiptEffects>[1],
  options:Readonly<{contents:Omit<FieldSource&PackageSource,'deadline'>;proofs:Parameters<typeof reconcileDeadlineContents>[1]}>){
  const {contents,proofs}=options
  contents.assertCurrent()
- if(contents.projectId!==receipts.scope.projectId)throw Error('SUBMISSION_DEADLINE_CONTENT_SCOPE')
+ if(contents.projectId!==receipts.scope.projectId||!identity(input.roundId))throw Error('SUBMISSION_DEADLINE_CONTENT_SCOPE')
  const deadline=reconcileSubmissionReceiptEffects(input,receipts)
  const assertCurrent=()=>{contents.assertCurrent();deadline.assertCurrent()}
  const result=reconcileDeadlineContents({...contents,deadline,assertCurrent},proofs)
- return Object.freeze({...result,scope:deadline.scope,evidence:deadline.evidence})
+ return Object.freeze({...result,scope:deadline.scope,roundId:input.roundId,evidence:deadline.evidence})
 }
 
 /** 文件或平台栏任一应交落点未核实，整项内容仍待核。 */

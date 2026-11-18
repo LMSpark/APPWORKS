@@ -1,6 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-review-script-host'
+import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
 import {readRegisteredPaperAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader'
 import script from '@/views/features/application/smart-bid/authoring/page12/script.js?raw'
 import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'

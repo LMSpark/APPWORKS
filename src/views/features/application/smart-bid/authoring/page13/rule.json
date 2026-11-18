@@ -5,6 +5,14 @@
     "props": {"title": "签署与递交", "onBeforeRender": "bindOriginalSubmission"}
   },
   {
+    "id": "submission-preparation",
+    "type": "r-section",
+    "props": {"title": "递交前核验", "onBeforeRender": "bindSubmissionPreparation"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核验并生成待发请求", "onClick": "openSubmissionPreparation"}}
+    ]
+  },
+  {
     "id": "submission-package-members",
     "type": "r-section",
     "props": {"title": "实包成员核对", "onBeforeRender": "bindPackage"},

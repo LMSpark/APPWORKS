@@ -1,10 +1,10 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/entry/content-authoring-target
+ * @module app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-target
  * 职责：从正式导航解析结果和明确项目草稿参数确定正文入口目标。
  * 边界：不授予权限、不查询、不从URL取得作者、不选择活动项目或默认草稿。
  * AI用途：真实原生入口在打开原ContentAuthoringHost前核对绑定身份。
  */
-import {captureContentAuthoringSession, type ContentAuthoringTarget} from '../model/content-authoring-host'
+import {captureContentAuthoringSession, type ContentAuthoringTarget} from '../../model/content-authoring-host'
 import {resolveExecutionProjectId} from '@/services/application-scope'
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'

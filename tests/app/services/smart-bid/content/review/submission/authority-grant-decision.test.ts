@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {prepareAuthorityGrantDecision} from '@/services/smart-bid/content/review/submission/authority-grant-decision'
+import {prepareAuthorityGrantDecision,readOriginalAuthorityGrantRegistration} from '@/services/smart-bid/content/review/submission/authority-grant-decision'
 import {checkRegisteredAuthorityGrant} from '@/services/smart-bid/content/review/submission/authority-grant-coverage'
 
 it('binds a revocation to its authority, affected scope and original version',async()=>{
@@ -26,6 +26,18 @@ it('binds a revocation to its authority, affected scope and original version',as
  expect(checkRegisteredAuthorityGrant({...scope,actionAt:source.knownAt},evidence)).toMatchObject({state:'REVOKED',versionId:'V2'})
  expect(checkRegisteredAuthorityGrant({...scope,action:'SIGN'},evidence)).toMatchObject({state:'OUTSIDE_SCOPE'})
  expect(()=>checkRegisteredAuthorityGrant(scope,{...evidence,versions:versions.slice(1)})).toThrow('AUTHORITY_GRANT_VERSION_CHAIN')
+ const original={enterpriseId:request.enterpriseId,grantId:request.grantId,requestKey:request.requestKey,requestDigest:prepared.requestDigest}
+ const result={...original,status:'REGISTERED' as const,versionId:'V2',record:prepared.record,assertCurrent:prepared.assertCurrent}
+ type Response=Awaited<ReturnType<Parameters<typeof readOriginalAuthorityGrantRegistration>[1]['lookup']>>
+ const lookup=(response?:Response)=>
+  readOriginalAuthorityGrantRegistration(original,{lookup:async input=>{expect(input).toEqual(original);return response},assertCurrent:()=>{}})
+ await expect(lookup()).resolves.toMatchObject({status:'UNKNOWN'})
+ await expect(lookup({...original,status:'REJECTED',decisionRef:'REJECT',assertCurrent:()=>{}}))
+  .resolves.toMatchObject({status:'REJECTED',decisionRef:'REJECT'})
+ await expect(lookup({...result,record:{...result.record,representativeId:'OTHER'}})).rejects.toThrow('AUTHORITY_GRANT_REGISTRATION_SCOPE')
+ const recovered=await lookup(result)
+ expect(recovered).toMatchObject({status:'REGISTERED',versionId:'V2',record:prepared.record})
  current=false
  expect(()=>prepared.assertCurrent()).toThrow('AUTH_STALE')
+ expect(()=>recovered.assertCurrent()).toThrow('AUTH_STALE')
 })

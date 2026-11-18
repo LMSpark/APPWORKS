@@ -1,5 +1,5 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/entry/content-operation-target
+ * @module app:views/features/application/smart-bid/authoring/ui/entry/content-operation-target
  * 职责：仅从正式发布导航和可信业务根准备页18工具实例。
  * 边界：只消费发布导航和当前会话，工作区装配交给本次 PageRuntime。
  * AI用途：排查入口是否缺少授权节点、工具或场景身份。
@@ -8,7 +8,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {resolveExecutionProjectId} from '@/services/application-scope'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
-import {captureContentAuthoringSession} from '../model/content-authoring-host'
+import {captureContentAuthoringSession} from '../../model/content-authoring-host'
 import type {ContentAuthoringRoute} from './content-authoring-target'
 import {createContentOperationScriptHost} from './content-operation-script-host'
 

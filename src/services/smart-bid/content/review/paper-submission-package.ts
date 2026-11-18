@@ -47,8 +47,9 @@ export function reviewPaperSubmissionPackage(scope:Scope,source:Readonly<{
   if(!record)issues.push('PACKING_RECORD_MISSING')
   if(!seen)issues.push(observed.complete?'MEMBER_MISSING':'COUNT_PENDING')
   if(plan&&record&&(!sameVersion(plan,record)||plan.copies!==record.copies))issues.push('PACKING_MISMATCH')
-  if(record&&seen&&!sameVersion(record,seen))issues.push('OBSERVED_VERSION_MISMATCH')
-  if(record&&seen&&record.copies!==seen.copies)issues.push('COPY_COUNT_MISMATCH')
+  const comparison=record??plan
+  if(comparison&&seen&&!sameVersion(comparison,seen))issues.push('OBSERVED_VERSION_MISMATCH')
+  if(comparison&&seen&&comparison.copies!==seen.copies)issues.push('COPY_COUNT_MISMATCH')
   return Object.freeze({position,expected:plan?Object.freeze({...plan}):null,packed:record?Object.freeze({...record}):null,
    observed:seen?Object.freeze({...seen}):null,issues:Object.freeze(issues)})
  })

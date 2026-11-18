@@ -1,6 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey} from '@spark-appworks/spark-data'
-import {readContentSnapshotIndex} from '@/views/features/application/smart-bid/authoring/model/content-snapshot-reader'
+import {readContentSnapshotIndex} from '@/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader'
 import {readAdoptionSnapshot} from '@/views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {hashRevisionContentRoot} from '@/services/smart-bid/content/hashes/revision-content-root'

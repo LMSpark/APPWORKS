@@ -14,4 +14,9 @@ it('keeps opening and admissibility independent and binds each to the original o
   .toMatchObject({opening:{state:'OPENED'},admissibility:{state:'EXCLUDED'}})
  expect(()=>projectSubmissionOpeningDisposition(scope,{knownAt:at('14'),records:[{...opening,objectRef:'OTHER'}],assertCurrent}))
   .toThrow('SUBMISSION_DISPOSITION_SCOPE')
+ const wrongStage={...opening,state:'EXCLUDED'} as unknown as typeof opening
+ expect(()=>projectSubmissionOpeningDisposition(scope,{knownAt:at('14'),records:[wrongStage],assertCurrent}))
+  .toThrow('SUBMISSION_DISPOSITION_STAGE')
+ expect(()=>projectSubmissionOpeningDisposition(scope,{knownAt:at('14'),records:[{...opening,knownAt:at('09')}],assertCurrent}))
+  .toThrow('SUBMISSION_DISPOSITION_TIME')
 })

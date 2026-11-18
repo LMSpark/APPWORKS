@@ -30,6 +30,7 @@ export function pairOriginalChannelReceipt(scope:Scope,receiptReads:readonly Rec
    [receipt.operationRef,receipt.objectRef].some(value=>value!==null&&!identity(value)))throw Error('CHANNEL_RECEIPT_SCOPE')
   if(receipt.kind!==first.kind||time(receipt.eventAt)!==eventTime||receipt.operationRef!==first.operationRef||receipt.objectRef!==first.objectRef)
    throw Error('CHANNEL_RECEIPT_CONFLICT')
+  if(known<eventTime)throw Error('CHANNEL_RECEIPT_TIME')
   const earlier=sources.get(receipt.sourceRef)
   if(earlier===undefined||known<time(earlier))sources.set(receipt.sourceRef,receipt.knownAt)
  }

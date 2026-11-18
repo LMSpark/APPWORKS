@@ -31,6 +31,11 @@ it('keeps an ambiguous receipt pending and retains sources when exact evidence p
   .toThrow('SUBMISSION_RECEIPT_EFFECT_SCOPE')
  expect(()=>reconcileSubmissionReceiptEffects(deadline,{...source,receipts:[pairOriginalChannelReceipt(scope,[first],attempts)]}))
   .toThrow('SUBMISSION_RECEIPT_EFFECT_SCOPE')
+ const beforeEvent='2026-11-18T08:59:59+08:00'
+ expect(()=>pairOriginalChannelReceipt(scope,[{...exact,knownAt:beforeEvent}],attempts)).toThrow('CHANNEL_RECEIPT_TIME')
+ expect(()=>reconcileSubmissionReceiptEffects(deadline,{...source,receipts:[{...matched,
+  sources:[...matched.sources,{sourceRef:'INVALID',knownAt:beforeEvent}],
+ }]})).toThrow('SUBMISSION_RECONCILIATION_TIME')
  const withdrawAt='2026-11-18T09:30:00+08:00'
  const withdrawalRead={...exact,eventRef:'WITHDRAW',kind:'WITHDRAWAL_CONFIRMED' as const,
   eventAt:withdrawAt,knownAt:withdrawAt,operationRef:'OP-W'}

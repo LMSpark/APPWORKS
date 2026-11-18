@@ -39,6 +39,8 @@ export function reconcileSubmissionReceiptEffects(input:Omit<DeadlineInput,'effe
    !identity(decision.ruleRef))throw Error(error)
   const earliest=receipt.sources[0]
   if(!earliest)throw Error(error)
+  const eventAt=time(receipt.eventAt)
+  if(receipt.sources.some(item=>time(item.knownAt)<eventAt))throw Error('SUBMISSION_RECONCILIATION_TIME')
   const first=receipt.sources.reduce((earlier,item)=>time(item.knownAt)<time(earlier)?item.knownAt:earlier,earliest.knownAt)
   const knownAt=time(first)>time(decision.knownAt)?first:decision.knownAt
   const base={eventRef:decision.eventRef,obligationId:decision.obligationId,attemptRef:decision.attemptRef,

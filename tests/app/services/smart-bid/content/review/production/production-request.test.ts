@@ -3,12 +3,31 @@ import {prepareProductionRequest} from '@/services/smart-bid/content/review/prod
 import {prepareExportRegistration} from '@/services/smart-bid/content/review/production/production-output-registration'
 import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {prepareSignedOutputRegistration} from '@/services/smart-bid/content/review/production/signed-output-registration'
+import {prepareNativePriceRegistration} from '@/services/smart-bid/content/review/production/native-price-registration'
+import {recalculatePriceLines} from '@/services/smart-bid/content/references/commercial/price-sheet-recalculation'
 
 const scope={projectId:'P',documentId:'D',revisionId:'R',baselineId:'B'}
 const version={...scope,state:'ADOPTED' as const,rootHash:'a'.repeat(64),assertCurrent:()=>{}}
 const evidence={...scope,templateVersionRef:'T1',ruleVersionRef:'RULE',factRefs:['F1'],
  formRequired:true,formVersionRef:'FORM-V1',requiredAttachmentRefs:['ATT-V1'],attachmentRefs:['ATT-V1'],assertCurrent:()=>{}}
 const input={...scope,requestKey:'Q',purpose:'FORMAL' as const,toolVersionRef:'TOOL',outputOptions:{format:'DOCX'}}
+
+it('keeps a native price file attached to its original approved calculation version',async()=>{
+ const bytes=new TextEncoder().encode('native price file').buffer
+ const fileHash=await hashContentBytes(bytes),assertCurrent=()=>{}
+ const source={projectId:'P',scopeRef:'LOT',pricingVersion:'PRICE-V1',importRef:'IMPORT',resourceVersionId:'FILE',fileHash,assertCurrent}
+ const approval={scopeRef:'LOT',pricingVersion:'PRICE-V1',approvalRef:'APPROVAL',version:'1',detailRef:'DETAIL',
+  value:'2.00',unit:'CNY',assertCurrent}
+ const calculation=recalculatePriceLines({pricingVersion:'PRICE-V1',currency:'CNY',precision:2,rounding:'HALF_UP',
+  lines:[{lineRef:'1',unit:'项',sourceRef:'IMPORT',quantity:'2',unitPrice:'1',reportedAmount:'2'}],assertCurrent})
+ const open=async()=>({projectId:'P',resourceVersionId:'FILE',bytes,assertCurrent})
+ const result=await prepareNativePriceRegistration(source,approval,calculation,open)
+ expect(result.record).toMatchObject({importRef:'IMPORT',pricingVersion:'PRICE-V1',approvalRef:'APPROVAL',fileHash})
+ await expect(prepareNativePriceRegistration(source,{...approval,pricingVersion:'PRICE-V2'},calculation,open))
+  .rejects.toThrow('BID_NATIVE_PRICE_REGISTRATION_SCOPE')
+ await expect(prepareNativePriceRegistration(source,{...approval,value:'3.00'},calculation,open))
+  .rejects.toThrow('BID_NATIVE_PRICE_REGISTRATION_APPROVAL')
+})
 
 it('keeps a signed file attached to its original file and signing operation',async()=>{
  const bytes=new TextEncoder().encode('signed file').buffer

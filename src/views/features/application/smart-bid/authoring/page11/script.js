@@ -58,6 +58,7 @@ async function openDraftCandidate() {
       CONTENT_DRAFT_CANDIDATE_UNRESOLVED_LINK: '候选中存在找不到目标的正文引用，请核对引用或恢复目标节点',
       CONTENT_DRAFT_CANDIDATE_NODE_TYPE_CHANGED: '候选改变了既有节点的类型，请核对节点身份',
       CONTENT_DRAFT_CANDIDATE_TARGET_MISMATCH: '候选含范围外改动或未声明的新增节点',
+      CONTENT_DRAFT_CANDIDATE_FACT_NOT_FROZEN: '草稿引用的事实尚未列入冻结基线，请先核定并冻结事实版本',
     }
     const code = cause?.message
     $page.showMessage(typeof code === 'string' && Object.hasOwn(messages, code) ? messages[code] :

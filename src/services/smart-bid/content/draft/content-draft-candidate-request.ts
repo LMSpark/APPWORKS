@@ -8,6 +8,8 @@ import {resolveContentTargetScope} from '../content-target-scope'
 import {previewScopedContentTree} from '../content-scoped-preview'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '../revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '../references/snapshot-reference-values'
+import {readContentNodeFactIds} from '../content-node-links'
+import {readBaselineFactMembers,type BaselineFactMember} from '../references/baseline-fact-members'
 
 type Draft=Readonly<{
  projectId:string;draftId:string;actorUserId:string;draftVersion:string;baseRevisionId:string|null
@@ -15,7 +17,7 @@ type Draft=Readonly<{
 }>
 type Basis=Readonly<Omit<Parameters<typeof resolveContentTargetScope>[0],'scope'>&{
  revisionId:string|null;baselineId:string;stageRef:unknown;inputSnapshotHash?:string;batchId?:string;lockHash?:string
- nodePayloads:readonly unknown[];assertCurrent:()=>void
+ nodePayloads:readonly unknown[];factVersions:readonly BaselineFactMember[];assertCurrent:()=>void
 }>
 
 /** 请求只引用已保存草稿；独立答复合并和原子登记按正式执行证据办理。 */
@@ -48,6 +50,12 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
   throw Error('CONTENT_DRAFT_CANDIDATE_UNRESOLVED_LINK')
  if(preview.comparison.nodes.some(node=>node.conflicts.includes('TYPE_CHANGED')))
   throw Error('CONTENT_DRAFT_CANDIDATE_NODE_TYPE_CHANGED')
+ const fixedFacts=readBaselineFactMembers(basis.factVersions)
+ const referencedFacts=[...new Set(snapshot['nodes'].flatMap(readContentNodeFactIds))].sort().map(factId=>{
+  const version=fixedFacts.get(factId)
+  if(version===undefined)throw Error('CONTENT_DRAFT_CANDIDATE_FACT_NOT_FROZEN')
+  return {factId,version}
+ })
  const targetScope:unknown=JSON.parse(canonicalSnapshotValue(scope))
  const capturedStage:unknown=JSON.parse(canonicalSnapshotValue(stageRef))
  const [nodes,actualDigest]=await Promise.all([Promise.all(snapshot['nodes'].map(async(node:unknown)=>{
@@ -58,7 +66,7 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
  nodes.sort((left,right)=>left.nodeId<right.nodeId?-1:left.nodeId>right.nodeId?1:0)
  const requestJson=canonicalSnapshotValue({projectId,draftId,actorUserId,draftVersion,baseRevisionId,baselineId,
   stageRef:capturedStage,targetScope,requestKey,contentDigest,nodes,responseChanges:preview.responseChanges,
-  declaredAddedNodeIds:preview.addedNodeIds,
+  declaredAddedNodeIds:preview.addedNodeIds,factVersions:referencedFacts,
   ...(inputSnapshotHash?{inputSnapshotHash,batchId,lockHash}:{})})
  const requestDigest=await hashCanonicalSnapshotText(`["spark-bid.draft-candidate/1",${requestJson}]`)
  assertCurrent()

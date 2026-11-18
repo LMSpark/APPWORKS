@@ -59,7 +59,8 @@ it('captures the saved draft for candidacy and withdraws it when edits start',as
   const captured=await f.commands.captureCandidateDraft(f.commands.epoch)
   expect(captured).toMatchObject({projectId:'P',draftId:'D',actorUserId:'U',draftVersion:'V1',baseRevisionId:'BASE',
    draftJson:'{"nodes":[],"responseChanges":[]}',contentDigest:expect.stringMatching(/^[a-f0-9]{64}$/u)})
-  const basis={projectId:'P',revisionId:'BASE',baselineId:'B',stageRef:'ST',basisNodes:[],nodePayloads:[],responses:[],assertCurrent:()=>{}}
+  const basis={projectId:'P',revisionId:'BASE',baselineId:'B',stageRef:'ST',basisNodes:[],nodePayloads:[],responses:[],
+   factVersions:[],assertCurrent:()=>{}}
   const input={requestKey:'CANDIDATE',targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]}}
   const candidate=await prepareDraftCandidateRequest(captured,basis,input)
   expect(candidate).toMatchObject({draftVersion:'V1',baseRevisionId:'BASE',baselineId:'B',
@@ -95,6 +96,12 @@ it('captures the saved draft for candidacy and withdraws it when edits start',as
    value:'见{{后文}}',data:{后文:{type:'xref',nodeId:'MISSING',show:'title'}}}],responseChanges:[]})
   await expect(prepareDraftCandidateRequest({...edited,draftJson:unresolved,contentDigest:await hashCanonicalSnapshotText(unresolved)},
    previous,input)).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_UNRESOLVED_LINK')
+  const factDraft=canonicalSnapshotValue({nodes:[...nodePayloads.slice(0,2),{...headline,
+   value:'报价{{金额}}',data:{金额:{type:'fact',factId:'PRICE'}}}],responseChanges:[]})
+  const withFact={...edited,draftJson:factDraft,contentDigest:await hashCanonicalSnapshotText(factDraft)}
+  await expect(prepareDraftCandidateRequest(withFact,previous,input)).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_FACT_NOT_FROZEN')
+  expect((await prepareDraftCandidateRequest(withFact,{...previous,factVersions:[{factId:'PRICE',version:2}]},input)).requestJson)
+   .toContain('"factVersions":[{"factId":"PRICE","version":2}]')
   const changedType=canonicalSnapshotValue({nodes:[...nodePayloads.slice(0,2),{...headline,nodeId:'NEW-HEADING'},
    {...headline,index:1,type:'paragraph'}],responseChanges:[]})
   await expect(prepareDraftCandidateRequest({...edited,draftJson:changedType,contentDigest:await hashCanonicalSnapshotText(changedType)},

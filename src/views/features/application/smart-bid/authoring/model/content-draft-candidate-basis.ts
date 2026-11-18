@@ -72,9 +72,10 @@ async function readBasisMembers(host:ContentRevisionReadHost,snapshot:Awaited<Re
   responses:Object.freeze(responses),factIds:Object.freeze([...factIds]),assertCurrent:nodes.assertCurrent})
 }
 
-function assertBasisFacts(factIds:readonly string[],members:unknown){
+function readCandidateBasisFactVersions(factIds:readonly string[],members:unknown){
  const versions=readBaselineFactMembers(members)
  if(factIds.some(id=>!versions.has(id)))throw Error('CONTENT_DRAFT_CANDIDATE_BASIS_FACT')
+ return Object.freeze([...versions].map(([factId,version])=>Object.freeze({factId,version})))
 }
 
 /** 首版须由调用方已核空头；已有基版沿原修订保留固定基线。 */
@@ -114,9 +115,9 @@ export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selec
    throw Error(error)
   const members=await readBasisMembers(scopedHost,snapshot,manifest)
   assertBasisRequirementVersions(manifest,members.basisNodes,frozen.requirements)
-  assertBasisFacts(members.factIds,frozen.facts)
+  const factVersions=readCandidateBasisFactVersions(members.factIds,frozen.facts)
   members.assertCurrent()
-  return Object.freeze({...members,projectId,revisionId,baselineId:frozen.baselineId,stageRef:frozen.stageRef,
+  return Object.freeze({...members,projectId,revisionId,baselineId:frozen.baselineId,stageRef:frozen.stageRef,factVersions,
    inputSnapshotHash,batchId:firstBatchId,lockHash,targetScope:registeredTargetScope})
  }
  const revision=await readAdoptedContentRevision(host,{kind:'basis',revisionId})
@@ -136,8 +137,8 @@ export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selec
  ])
  const assertCurrent=()=>{nodes.assertCurrent();frozen.assertCurrent()}
  assertBasisRequirementVersions(manifest,nodes.basisNodes,frozen.requirementVersions)
- assertBasisFacts(nodes.factIds,frozen.factVersions)
+ const factVersions=readCandidateBasisFactVersions(nodes.factIds,frozen.factVersions)
  assertCurrent()
- return Object.freeze({projectId,revisionId,baselineId,stageRef:structuredClone(stageRef),
+ return Object.freeze({projectId,revisionId,baselineId,stageRef:structuredClone(stageRef),factVersions,
   basisNodes:nodes.basisNodes,nodePayloads:nodes.nodePayloads,responses:nodes.responses,assertCurrent})
 }

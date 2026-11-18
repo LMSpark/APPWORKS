@@ -2,6 +2,7 @@
  * @module app:lowcode/resources/semi-structured/excel-import/resource
  */
 import type {DataSet} from '@spark-appworks/spark-data'
+import type {APPLICATION_CATALOG_PROJECT_ID} from '@/services/application-scope'
 import {lowcodeApi} from '../../../lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '../../../data-space/lowcode-data-space-runtime'
 import {validateExcelTransformRule} from './transform/validation'
@@ -19,9 +20,9 @@ export class LowcodeExcelImport {
   static readonly referenceScenarioId = '34BDBE645F461A3D83282A941D6037F4'
 
   /** 按本次执行应用装配正式方案目录，身份不匹配时拒绝，不使用备用目录。 */
-  static async loadCatalog(scenarioId: string): Promise<DataSet> {
+  static async loadCatalog(scenarioId: string, catalogProjectId?: typeof APPLICATION_CATALOG_PROJECT_ID): Promise<DataSet> {
     if (scenarioId !== this.navigationScenarioId) throw new Error('Excel目录场景身份不匹配')
-    const projectId = lowcodeApi.readRequestScope().headers['X-AppId']
+    const projectId = catalogProjectId ?? lowcodeApi.readRequestScope().headers['X-AppId']
     if (!projectId) throw new Error('请先选择执行应用')
     return loadLowcodeRuntimeScenario({projectId, scenarioId})
   }

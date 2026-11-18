@@ -11600,3 +11600,4 @@ flowchart TD
 - 2026-11-18 主页授权菜单 JSON 数据复验：从已能列出规则的 PDF 页面切换到 JSON 数据，JSON 文件数据管理显示 SPARK_EXECUTION_SCOPE_REQUIRED。LowcodeJsonData.loadCatalog 强制读取当前应用请求域；所属 pagedata 声明 Base_JsonData、Base_UserInfo 与可编辑 JsonDocumentFile。主页目录与应用内文件读写的合同须分别核对，尚未执行文件操作。
 - JSON 企业主页目录已沿统一场景装配读取 Base_JsonData；目录表按只读字段显示，人员选项和文件编辑仅在应用内使用。JSON 页面挂载回归 28/28，新增用例断言仅查询目录、无文件读取及零写入，实际授权目录记录待重新登录后复验。
 - 2026-11-18 JSON 主页实服复验：修复 3a0e4247b 后重新登录，从应用列表进入半结构化数据，正式 JSON 导航节点 FFDEF2AED3E19A38C0FCDDC748CF939B 显示目录总数 11，并提示进入已授权应用维护文件。此次只读，应用内文件读写和整体四文件验收另计。
+- 2026-11-18 Excel 企业主页实服复验：从授权半结构化数据菜单打开 Excel 导入，修复前报 SPARK_EXECUTION_SCOPE_REQUIRED。仅装配 Base_Import_solution 后首次重开明确报 EXCEL_CREATION_BINDING，确认目录误走领码命令装配；将新增命令限定于应用域，再构建并冷重开，实服目录总数 58，显示进入已授权应用后维护方案，未编辑方案或执行导入。

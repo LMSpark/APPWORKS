@@ -31,7 +31,7 @@ import {createAgentWorkflowPublicationBindings} from '../resources/repository/ag
 import {createAgentWorkflowDeletionBindings} from '../resources/repository/agent-workflow/deletion'
 import {createLogicViewDesignExecutor, LOGIC_VIEW_DESIGN_RESOURCE_ID, LOGIC_VIEW_DESIGN_VIEW} from '../resources/structured-config/logic-view/design-ops'
 import {createExcelCatalogBindings} from '../resources/semi-structured/excel-import/catalog/creation'
-import {createPdfInspectionProjectionBindings,PDF_INSPECTION_SCENARIO_ID} from '../resources/semi-structured/pdf-inspect/runtime-bindings'
+import {createPdfInspectionProjectionBindings} from '../resources/semi-structured/pdf-inspect/runtime-bindings'
 import {createPdfInspectionUploadBindings} from '../resources/semi-structured/pdf-inspect/upload-command'
 import {createPdfInspectionInitBindings} from '../resources/semi-structured/pdf-inspect/init-command'
 
@@ -188,7 +188,7 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
  const cacheBindings = createCacheScenarioBindings({config,runtime:dataSpace.runtime,assertCurrent})
  const approvalBindings = createApprovalCommandBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const workflowBindings = createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope,assertCurrent})
- const excelBindings = createExcelCatalogBindings({config,http:lowcodeHttp,readScope,assertCurrent})
+ const excelBindings = projectId === APPLICATION_CATALOG_PROJECT_ID ? {} : createExcelCatalogBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const recoveryBindings = createDataRecoveryScenarioBindings({config,assertCurrent})
  const enterpriseBindings = createEnterpriseRegistrationBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const apiInterfaceBindings = createApiInterfaceBindings({config,http:lowcodeHttp,readScope,assertCurrent})
@@ -273,8 +273,11 @@ async function loadCatalogRuntimeScenario(command: Readonly<{ projectId: string;
  assertCurrent()
  const declared = new ScenarioViewConfig(scenarioId, text)
  // 平台目录只加载列表消费的模型，文件与执行资源由应用内场景装配。
- const config = scenarioId === PDF_INSPECTION_SCENARIO_ID ? declared.selectModelScope('Base_FileInspectConfig', [])
-  : resource.name === 'jsonDataCatalog' ? declared.selectModelScope('Base_JsonData', []) : declared
+ const directoryModels: Partial<Record<typeof resource.name, string>> = {
+  pdfInspectCatalog: 'Base_FileInspectConfig', jsonDataCatalog: 'Base_JsonData', excelImportCatalog: 'Base_Import_solution',
+ }
+ const model = directoryModels[resource.name]
+ const config = model ? declared.selectModelScope(model, []) : declared
  return assembleLowcodeRuntimeScenario({projectId, scenarioId, config, assertCurrent,
   ...(command.getPage?{getPage:command.getPage}:{})})
 }

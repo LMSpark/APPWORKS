@@ -8,7 +8,8 @@
     <p v-if="error" role="alert">{{ error }}</p>
     <p v-if="creation?.phase === 'retained'" role="status">方案已保留；编码处理未标记完成，请核查正式结果。</p>
     <template v-if="ready">
-      <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :actions="actions" :filter="filter" :stripe="true"
+      <p v-if="catalogScope" role="status">请进入已授权应用后维护导入方案。</p>
+      <RendererTable :data-view-key="catalogKey" :children="fields" v-bind="catalogScope ? {} : {toolbar, actions}" :filter="filter" :stripe="true"
         :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
       <RendererDialog v-if="editingId !== undefined" :data-view-key="catalogKey" :model-value="true" :title="creating ? '新增方案' : '编辑方案'"
         :width="760" :destroy-on-close="true" :close-disabled="acting || pending || unconfirmed || creationSaved || templatePending" @update:model-value="closeEdit">
@@ -47,6 +48,7 @@ import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
 import {buildDataViewKey,RequestState,type DataRow,type DataView,type SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import type {RToolbarProps,RFilterProps} from '@spark-appworks/spark-component'
+import {APPLICATION_CATALOG_PROJECT_ID, resolveExecutionProjectId} from '@/services/application-scope'
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
 import {startExcelSchemeCreation,saveExcelSchemeCreation,cancelExcelSchemeCreation,readExcelSchemeCreation,endExcelSchemeCreation} from '@/lowcode/resources/semi-structured/excel-import/catalog/creation'
 import {selectExcelTemplate,cancelExcelTemplate,saveExcelTemplate,readExcelTemplate,retainExcelTemplate} from '@/lowcode/resources/semi-structured/excel-import/catalog/template'
@@ -86,6 +88,7 @@ const selected = computed(() => {
   const id = row && view.value?.selectedRows.length === 1 ? view.value.getPkKey(row) : undefined
   return typeof id === 'string' || typeof id === 'number' ? String(id) : ''
 })
+const catalogScope = computed(() => resolveExecutionProjectId(route.path) === APPLICATION_CATALOG_PROJECT_ID)
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodeExcelImport.catalogMetaName, 'default', scenarioId.value))
 const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
@@ -105,10 +108,10 @@ const filter=computed<RFilterProps>(()=>({autoQuery:false,children:[
 const fields = computed<SparkNode[]>(() => [
   {type: 'r-text', props: {field: 'coding', label: '方案编码', width: 180}},
   {type: 'r-text', props: {field: 'solutionName', label: '方案名称', width: 240}},
-  {type: 'r-select', props: {field: 'dataSetId', label: '数据空间', width: 200,
+  catalogScope.value ? {type:'r-text',props:{field:'dataSetId',label:'数据空间 ID',readonly:true}} : {type: 'r-select', props: {field: 'dataSetId', label: '数据空间', width: 200,
     optionDataViewKey: buildDataViewKey('Base_DataSet', 'default', scenarioId.value)}},
   {type: 'r-text', props: {field: 'description', label: '描述', width: 300}},
-  {type: 'r-select', props: {field: 'createuser', label: '创建人', width: 150,
+  catalogScope.value ? {type:'r-text',props:{field:'createuser',label:'创建人 ID',readonly:true}} : {type: 'r-select', props: {field: 'createuser', label: '创建人', width: 150,
     optionDataViewKey: buildDataViewKey('Base_UserInfo', 'default', scenarioId.value)}},
   {type:'r-text',props:{field:'createtime',label:'创建时间',width:140}},
 ])
@@ -199,7 +202,7 @@ function discardDesign(): void {
   if (designPage.value?.busy || designPage.value?.unconfirmed) return
   if (designPage.value?.discardChanges() === true) closeDesign(false)
 }
-watch(scenarioId, async id => {
+watch([scenarioId, catalogScope], async ([id, inCatalog]) => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
   editingId.value=undefined;acting.value=false;designTarget.value=''
@@ -207,7 +210,7 @@ watch(scenarioId, async id => {
   session.dispose()
   try {
     if (!id) throw new Error('Excel 导入入口缺少导航绑定的数据空间ID')
-    const dataSet = await LowcodeExcelImport.loadCatalog(id)
+    const dataSet = await LowcodeExcelImport.loadCatalog(id, inCatalog ? APPLICATION_CATALOG_PROJECT_ID : undefined)
     if (!active || own !== generation) {dataSet.destroy(); return}
     const current = session.acquire({pageId: 'excel-import-list-page', scenarioIds: [id], targetId: id,
       loadScenario: async () => dataSet})

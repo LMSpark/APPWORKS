@@ -74,7 +74,8 @@ const tableTabs = {
   accounts: {viewKey: accountKey, actions: ['add', 'remove', 'save', 'cancel']},
 } satisfies Record<Exclude<TabName, 'jwt'>, {viewKey: string; actions: FeatureTableAction[]}>
 
-function selectTab(name: string | number): void {
+function selectTab(name: unknown): void {
+  if (typeof name !== 'string') return
   if (!isTab(name)) return
   tab.value = name
   void loadTab(name)
@@ -82,7 +83,7 @@ function selectTab(name: string | number): void {
 function bindTabs(tabs: SparkNode): SparkNode {
   return {
     ...tabs,
-    props: {...tabs.props, modelValue: tab.value, on: {'update:modelValue': selectTab}},
+    props: {...tabs.props, modelValue: tab.value},
     children: getSparkNodeChildren(tabs.children).map(pane => {
       const name = nodeId(pane)
       if (name === undefined || !isTab(name)) throw new Error('服务商配置包含未知页签')
@@ -127,15 +128,13 @@ const dialogConfig = computed<SparkNode>(() => {
   })
   return {
     ...props.config,
-    props: {...props.config.props, closeDisabled: busy.value || unconfirmed.value || pendingTabs.size > 0,
-      on: {'update:modelValue': close}},
+    props: {...props.config.props, closeDisabled: busy.value || unconfirmed.value || pendingTabs.size > 0},
     children: [{
       ...section,
       props: {...section.props, header: {...header, children: actions},
         status: selectedTabLoading.value ? '正在读取服务提供商配置…' : '',
         error: selectedTabError.value || error.value,
-        retryable: Boolean(selectedTabError.value) && !selectedTabLoading.value,
-        on: {retry: () => loadTab(tab.value)}},
+        retryable: Boolean(selectedTabError.value) && !selectedTabLoading.value},
       children,
     }],
   }
@@ -169,7 +168,7 @@ function verifyOriginalSaves(): Promise<void> {
     }
   })
 }
-defineExpose({saveAuthentication, verifyOriginalSaves})
+defineExpose({saveAuthentication, verifyOriginalSaves, selectTab, retryTab: () => loadTab(tab.value), close})
 async function close(): Promise<void> {
   if (busy.value || unconfirmed.value || pendingTabs.size > 0) return
   if (dirty.value) {

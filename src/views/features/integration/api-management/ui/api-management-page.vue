@@ -118,6 +118,9 @@ const host=computed(()=>{
       if (command === 'providers.configInterfaces') return openConfigInterfaces()
       if (command === 'providers.configSave') return await config?.saveAuthentication()
       if (command === 'providers.configVerify') return await config?.verifyOriginalSaves()
+      if (command === 'providers.configTab') return config?.selectTab(input)
+      if (command === 'providers.configRetry') return await config?.retryTab()
+      if (command === 'providers.configClose') return await config?.close()
     }
     if(command==='providers.connect')return {
       blocked:()=>blocked.value,unresolved:()=>unresolvedModifier.value,

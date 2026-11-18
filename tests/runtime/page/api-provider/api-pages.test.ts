@@ -531,6 +531,9 @@ describe('external API pages assembled through the standard scenario entry', () 
     await vi.waitFor(() => expect(wrapper.text()).toContain('用户名'))
     expect(http.reads.slice(previousReadCount).map(read => read.table)).toEqual([accountTable])
     expect(http.saves).toHaveLength(0)
+    const dialog = wrapper.findAllComponents(RendererDialog).find(item => item.props('width') === 1180)!
+    dialog.vm.$emit('update:modelValue', false)
+    await vi.waitFor(() => expect(wrapper.text()).not.toContain('配置信息设置'))
   })
 
   it('opens the interface scheme for one provider with no child definition loaded before a selection', async () => {

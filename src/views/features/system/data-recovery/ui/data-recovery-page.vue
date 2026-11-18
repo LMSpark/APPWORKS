@@ -117,14 +117,18 @@ async function loadAll(): Promise<void> {
   await view(allKey).refresh().catch(() => undefined)
 }
 
-/** 原数据身份是来源表物理主键；正式字段元数据未标识主键，只接受唯一存在的rowid或id。 */
-function dataId(row: DataRow): string {
-  const ids = ['rowid', 'id'].map(field => value(row, field)).filter(Boolean)
-  return ids.length === 1 ? ids[0] ?? '' : ''
+/** 只接受正式查询声明并由 DataView 识别的单字段主键。 */
+function dataIdentity(source: DataView, row: DataRow) {
+  const [field] = source.effectivePkFields
+  if (!source.requiresExplicitIdentitySubmission || source.effectivePkFields.length !== 1 || !field
+    || !source.rows.includes(row) || source.fieldAccess(row, field).read !== 'visible') return undefined
+  const id = source.getPkKey(row)
+  if (id === undefined || id === '') return undefined
+  return {field, id}
 }
 const recoveredView = () => view(recoveredKey)
 function recoverBlocker(row: DataRow): string {
-  if (!dataId(row)) return '该数据缺少唯一的rowid或id，无法确定来源主键'
+  if (!dataIdentity(view(deletedKey), row)) return '正式查询未返回可读取的唯一来源主键'
   const target = recoveredView()
   if (target.addActionState() !== 'enabled') return '当前无恢复记录新增权限'
   const denied = ['data_id', 'table_id', 'db_id', 'sys_id'].find(field => target.newRowFieldAccess(field).write !== 'allowed')
@@ -158,15 +162,26 @@ async function commit({target, id, discard, done}: RecoveryCommit): Promise<void
 }
 
 async function recover(row: DataRow): Promise<void> {
-  const current = table.value, blocker = recoverBlocker(row)
-  if (busy.value || !current) return
+  if (busy.value || !table.value) return
+  const blocker = recoverBlocker(row)
   if (blocker) { message.value = `无法恢复：${blocker}`; return }
-  if (!await confirm('确认恢复该条数据吗？')) return
-  const db = view(dbKey).currentRow, app = view(appKey).currentRow, target = recoveredView()
   busy.value = true; message.value = ''; notice.value = ''
   try {
-    if (!value(db, 'conid') || !value(app, 'rowid')) throw new Error('恢复缺少当前应用系统或数据库')
-    const created = await target.addRow({data_id: dataId(row), table_id: current.rowid, db_id: value(db, 'conid'), sys_id: value(app, 'rowid')})
+    const source = view(deletedKey), identity = dataIdentity(source, row), target = recoveredView()
+    const owners = [view(tableKey), view(dbKey), view(appKey)] as const
+    const [selectedTable, db, app] = owners.map(owner => owner.currentRow)
+    const tableId = value(selectedTable, 'rowid'), dbId = value(db, 'conid'), appId = value(app, 'rowid')
+    if (!identity || !selectedTable || !db || !app || !tableId || !dbId || !appId) throw new Error('恢复缺少当前来源身份')
+    const checks = [source.captureReadRow(row, [identity.field]), owners[0].captureReadRow(selectedTable, ['rowid']),
+      owners[1].captureReadRow(db, ['conid']), owners[2].captureReadRow(app, ['rowid'])]
+    if (!await confirm('确认恢复该条数据吗？')) return
+    checks.forEach(check => check())
+    if (owners[0].currentRow !== selectedTable || owners[1].currentRow !== db || owners[2].currentRow !== app || recoveredView() !== target) {
+      throw new Error('恢复对象已变化，请重新选择')
+    }
+    const currentBlocker = recoverBlocker(row)
+    if (currentBlocker) throw new Error(currentBlocker)
+    const created = await target.addRow({data_id: String(identity.id), table_id: tableId, db_id: dbId, sys_id: appId})
     const pk = target.getPkKey(created)
     if (pk === undefined) throw new Error('恢复记录新增缺少正式行身份')
     await commit({target, id: pk, discard: () => target.discardPendingChanges([pk]), done: '恢复成功'})
@@ -178,9 +193,14 @@ async function undo(row: DataRow): Promise<void> {
   if (busy.value || id === undefined) return
   const blocker = undoBlocker(row)
   if (blocker) { message.value = `无法撤销恢复：${blocker}`; return }
-  if (!await confirm('撤销恢复后，原数据将重新进入回收站。确认继续吗？')) return
   busy.value = true; message.value = ''; notice.value = ''
   try {
+    const original = target.captureReadRow(row, ['status'])
+    if (!await confirm('撤销恢复后，原数据将重新进入回收站。确认继续吗？')) return
+    original()
+    if (recoveredView() !== target) throw new Error('恢复记录视图已变化，请重新选择')
+    const currentBlocker = undoBlocker(row)
+    if (currentBlocker) throw new Error(currentBlocker)
     target.updateEditingValue(id, 'status', 1)
     await commit({target, id, discard: () => target.discardEditingRows([id]), done: '撤销恢复成功'})
   } catch (cause) { message.value = `撤销恢复失败：${failure(cause)}` } finally { busy.value = false }

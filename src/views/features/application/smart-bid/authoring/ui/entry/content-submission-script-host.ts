@@ -36,6 +36,14 @@ type PackageRelease=Parameters<typeof assessSubmissionPackageRelease>
 type FreezePreparation=Parameters<typeof prepareDeliveryFreezeSelection>
 type PackingPreparation=Parameters<typeof prepareRegisteredDeliveryZipPackage>
 type PackingVerification=Parameters<typeof verifyRegisteredPackingCandidate>
+type PackingSelection=Readonly<{
+ selectionRef:string;request:PackingPreparation[1];assertCurrent:()=>void
+}>&(
+ Readonly<{state:'PREPARE';options:PackingPreparation[2]}>|
+ Readonly<{state:'REGISTRATION_UNKNOWN'}>|
+ Readonly<{state:'REGISTERED';target:PackingVerification[1];candidate:PackingVerification[2];
+  openAuthorized:PackingVerification[3]}>
+)
 /** 读取原截止记录对应的回执和核对证据。 */
 type ReadDeadline=(record:Awaited<ReturnType<typeof readRegisteredDeadlineRecord>>,signal:AbortSignal)=>Promise<Readonly<{
  options:Deadline[2]
@@ -70,11 +78,7 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
   readFreezeSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
    selectionRef:string;selection:FreezePreparation[0];uses:FreezePreparation[1];assertCurrent:()=>void
   }>>
-  readPackingSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
-   selectionRef:string;request:PackingPreparation[1];options:PackingPreparation[2];assertCurrent:()=>void
-   registration?:Readonly<{target:PackingVerification[1];candidate:PackingVerification[2];
-    openAuthorized:PackingVerification[3];assertCurrent:()=>void}>
-  }>>
+  readPackingSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<PackingSelection>
  }>={}){
  async function readRelease(proof:PackageRelease[0],signal:AbortSignal){
   proof.assertCurrent()
@@ -102,11 +106,11 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     if(selected.selectionRef!==selectionRef||selected.request.groupScope.projectId!==projectId)
      throw Error('SUBMISSION_PAGE_PACKING_SCOPE')
     const scopedHost={...host,assertCurrent:assertSelection}
-    if(!selected.registration)return prepareRegisteredDeliveryZipPackage(scopedHost,selected.request,selected.options)
-    const {target,candidate,openAuthorized,assertCurrent:assertRegistration}=selected.registration
-    const verified=await verifyRegisteredPackingCandidate({...scopedHost,assertCurrent:()=>{
-     assertSelection();assertRegistration()
-    }},target,candidate,openAuthorized)
+    if(selected.state==='REGISTRATION_UNKNOWN')
+     return Object.freeze({status:selected.state,assertCurrent:assertSelection})
+    if(selected.state==='PREPARE')return prepareRegisteredDeliveryZipPackage(scopedHost,selected.request,selected.options)
+    const {target,candidate,openAuthorized}=selected
+    const verified=await verifyRegisteredPackingCandidate(scopedHost,target,candidate,openAuthorized)
     return Object.freeze({status:'REGISTRATION_VERIFIED' as const,verified,assertCurrent:verified.assertCurrent})
    }
    if(name==='content.submission.prepareFreeze'&&sources.readFreezeSelection){

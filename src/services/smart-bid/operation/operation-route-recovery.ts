@@ -14,13 +14,14 @@ type Result=Parameters<typeof verifyDispatchedOperationRouteReturn>[1]
 export async function recoverOperationRouteAttempt(manifest:Manifest,source:Readonly<{
  readDispatch:(input:Manifest['scope'])=>Promise<Dispatch|undefined>
  readResult:(input:Manifest['scope'])=>Promise<Result|undefined>
- guide:Parameters<typeof verifyDispatchedOperationRouteReturn>[2]
+ guide:Parameters<typeof verifyDispatchedOperationRouteReturn>[2]&Readonly<{guideDigest:string}>
  assertCurrent:()=>void
 }>){
  const assertCurrent=()=>{manifest.assertCurrent();source.assertCurrent()}
  assertCurrent()
  if(!manifest.usable||manifest.inputDigest===null)throw Error('OPERATION_ROUTE_RECOVERY_CONTEXT_REQUIRED')
- if(manifest.guideRef!==source.guide.guideRef)throw Error('OPERATION_ROUTE_RETURN_GUIDE_SCOPE')
+ if(manifest.guideRef!==source.guide.guideRef||manifest.guideDigest!==source.guide.guideDigest)
+  throw Error('OPERATION_ROUTE_RETURN_GUIDE_SCOPE')
  const {scope}=manifest
  const sent=await source.readDispatch(scope)
  assertCurrent()

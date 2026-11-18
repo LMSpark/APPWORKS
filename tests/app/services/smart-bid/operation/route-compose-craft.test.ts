@@ -9,6 +9,7 @@ import {verifyOriginalOperationRouteDispatch} from '@/services/smart-bid/operati
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {freezeOperationRouteContext} from '@/services/smart-bid/operation/operation-route-context'
 import {recoverOperationRouteAttempt} from '@/services/smart-bid/operation/operation-route-recovery'
+import {readOperationActionGuide} from '@/services/smart-bid/operation/guides/operation-action-guide'
 
 it('accepts only the original complete attempt and the JSON candidate that fits its catalog',async()=>{
  const scope={runId:'RUN',attemptRef:'TRY',requestKey:'Q',projectId:'P',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}
@@ -23,8 +24,12 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
  await expect(verifyOperationRouteReturn(scope,{...receipt,state:'COMPLETE',output:'## 编制路线'},source))
   .rejects.toThrow('OPERATION_ROUTE_JSON_MODEL')
  const actualInputDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(craft.inputExample))
- const manifestGuide={guideRef:'GUIDE',createdAt:'2026-11-18T10:00:00+08:00',
-  slots:Object.keys(craft.inputExample).map(slotId=>({slotId,required:true})),assertCurrent:source.assertCurrent}
+ const guideDigest=await hashCanonicalSnapshotText('原工艺指南')
+ const action=await readOperationActionGuide({executeTool:async name=>name==='model_query'?
+  {ok:true,data:{rootKind:'ROOT',models:[{kind:'ROUTE',methods:[{name:'compose'}]}]}}:{ok:true,data:'原工艺指南'}},
+ {rootKind:'ROOT',kind:'ROUTE',actionName:'compose',guideRef:'GUIDE',guideDigest,assertCurrent:source.assertCurrent})
+ const manifestGuide={action,createdAt:'2026-11-18T10:00:00+08:00',
+  slots:Object.keys(craft.inputExample).map(slotId=>({slotId,required:true}))}
  const provenance=Object.entries(craft.inputExample).map(([slotId,value])=>({slotId,value,state:'ALLOWED' as const,
   sourceRef:'SOURCE',versionRef:'V1',useRef:'USE',assertCurrent:source.assertCurrent}))
  const manifest=await freezeOperationRouteContext(scope,manifestGuide,provenance)
@@ -42,7 +47,7 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
   .rejects.toThrow('OPERATION_ROUTE_DISPATCH_SCOPE')
  const dispatch=await verifyOriginalOperationRouteDispatch(scope,sent,evidence)
  const response={...receipt,state:'COMPLETE' as const,output:craft.outputExample}
- const guide={...source,guideRef:'GUIDE',configurationLockHash:scope.configurationLockHash,assertGuideCurrent:()=>{}}
+ const guide={...source,guideRef:'GUIDE',guideDigest,configurationLockHash:scope.configurationLockHash,assertGuideCurrent:action.assertCurrent}
  expect(await verifyDispatchedOperationRouteReturn(dispatch,response,guide))
   .toMatchObject({state:'VERIFIED_CANDIDATE',dispatchRef:'SENT',guideRef:'GUIDE',actualInputDigest})
  const mismatch=await verifyOriginalOperationRouteDispatch(scope,sent,{...evidence,expectedInputDigest:'0'.repeat(64)})
@@ -57,6 +62,8 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
  expect(await recoverOperationRouteAttempt(manifest,recovery)).toMatchObject({state:'VERIFIED_CANDIDATE',
   result:{dispatchRef:'SENT',guideRef:'GUIDE'}})
  expect(readResult).toHaveBeenCalledWith(scope)
+ await expect(recoverOperationRouteAttempt(manifest,{...recovery,guide:{...guide,guideDigest:'0'.repeat(64)}}))
+  .rejects.toThrow('OPERATION_ROUTE_RETURN_GUIDE_SCOPE')
 })
 
 it('keeps a draft prompt, exact slots and sample tied to the existing native JSON model',()=>{

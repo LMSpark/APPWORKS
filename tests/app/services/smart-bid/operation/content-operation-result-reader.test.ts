@@ -9,8 +9,9 @@ import {DataSpaceQueryContext} from '../../../../../packages/spark-lowcode-api/s
 it('reads the original result only for the selected attempt and verifies the returned field permissions',async()=>{
  const scope={projectId:'P',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'Q',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}
  const original={...scope,id:'ROW',receiptRef:'RECEIPT',state:'COMPLETE',output:craft.outputExample}
- const manifest=await freezeOperationRouteContext(scope,{guideRef:'GUIDE',createdAt:'2026-11-18T10:00:00+08:00',
-  slots:[{slotId:'target',required:true}],assertCurrent:()=>{}},[
+ const guideDigest='c'.repeat(64)
+ const manifest=await freezeOperationRouteContext(scope,{action:{guideRef:'GUIDE',guideDigest,assertCurrent:()=>{}},
+  createdAt:'2026-11-18T10:00:00+08:00',slots:[{slotId:'target',required:true}]},[
   {slotId:'target',state:'ALLOWED',sourceRef:'SOURCE',versionRef:'V1',useRef:'USE',value:craft.inputExample.targetScope,assertCurrent:()=>{}},
  ])
  const dispatch={...scope,id:'DISPATCH-ROW',dispatchRef:'DISPATCH',actualInputDigest:manifest.inputDigest}
@@ -40,7 +41,7 @@ it('reads the original result only for the selected attempt and verifies the ret
  try{
   const result=await readRegisteredOperationResult(host,scope)
   expect(result).toMatchObject({state:'COMPLETE',receiptRef:'RECEIPT',output:craft.outputExample})
-  const verified=await recoverRegisteredOperationRouteAttempt(host,manifest,{guideRef:'GUIDE',configurationLockHash:scope.configurationLockHash,
+  const verified=await recoverRegisteredOperationRouteAttempt(host,manifest,{guideRef:'GUIDE',guideDigest,configurationLockHash:scope.configurationLockHash,
    catalog:{stationRefs:craft.inputExample.stationCatalog.map(station=>station.ref),routeRefs:[]},match:()=>true,
    assertCurrent:host.assertCurrent,assertGuideCurrent:host.assertCurrent})
   expect(verified).toMatchObject({state:'VERIFIED_CANDIDATE',dispatch:{dispatchRef:'DISPATCH'},result:{receiptRef:'RECEIPT'}})

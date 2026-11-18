@@ -5,6 +5,7 @@
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '../content/revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '../content/references/snapshot-reference-values'
 import type {verifyOperationRouteReturn} from './operation-route-return'
+import type {readOperationActionGuide} from './guides/operation-action-guide'
 
 type Scope=Parameters<typeof verifyOperationRouteReturn>[0]
 type Slot=Readonly<{slotId:string;required:boolean}>
@@ -15,16 +16,18 @@ type Source=Readonly<{slotId:string;assertCurrent:()=>void}>&(
 
 /** 缺必需字段只交待补清单，不计算可派发输入。 */
 export async function freezeOperationRouteContext(scope:Scope,guide:Readonly<{
- guideRef:string;createdAt:string;slots:readonly Slot[];assertCurrent:()=>void
+ action:Pick<Awaited<ReturnType<typeof readOperationActionGuide>>,'guideRef'|'guideDigest'|'assertCurrent'>
+ createdAt:string;slots:readonly Slot[]
 }>,sources:readonly Source[]){
  const evidence=[...sources]
- const assertCurrent=()=>{guide.assertCurrent();for(const item of evidence)item.assertCurrent()}
+ const {action,createdAt}=guide
+ const assertCurrent=()=>{action.assertCurrent();for(const item of evidence)item.assertCurrent()}
  assertCurrent()
  const {runId,attemptRef,requestKey,projectId,targetDigest,configurationLockHash}=scope
- const {guideRef,createdAt}=guide
+ const {guideRef,guideDigest}=action
  const error='OPERATION_ROUTE_CONTEXT_SCOPE'
  if(![runId,attemptRef,requestKey,projectId,guideRef].every(identity)||
-  ![targetDigest,configurationLockHash].every(value=>/^[a-f0-9]{64}$/u.test(value))||
+  ![targetDigest,configurationLockHash,guideDigest].every(value=>/^[a-f0-9]{64}$/u.test(value))||
   !Number.isFinite(Date.parse(createdAt))||!/(?:Z|[+-]\d{2}:\d{2})$/u.test(createdAt))throw Error(error)
  const slots=new Set(guide.slots.map(slot=>slot.slotId))
  const bySlot=new Map(evidence.map(item=>[item.slotId,item]))
@@ -46,11 +49,11 @@ export async function freezeOperationRouteContext(scope:Scope,guide:Readonly<{
  const usable=!items.some(item=>item.required&&item.state!=='ALLOWED')
  const inputJson=usable?canonicalSnapshotValue(Object.fromEntries(entries)):null
  const manifestJson=canonicalSnapshotValue({runId,attemptRef,requestKey,projectId,targetDigest,configurationLockHash,
-  guideRef,createdAt,items,inputJson})
+  guideRef,guideDigest,createdAt,items,inputJson})
  const [manifestDigest,inputDigest]=await Promise.all([
   hashCanonicalSnapshotText(manifestJson),inputJson===null?null:hashCanonicalSnapshotText(inputJson),
  ])
  assertCurrent()
  return Object.freeze({scope:Object.freeze({runId,attemptRef,requestKey,projectId,targetDigest,configurationLockHash}),
-  guideRef,usable,manifestJson,manifestDigest,inputJson,inputDigest,assertCurrent})
+  guideRef,guideDigest,usable,manifestJson,manifestDigest,inputJson,inputDigest,assertCurrent})
 }

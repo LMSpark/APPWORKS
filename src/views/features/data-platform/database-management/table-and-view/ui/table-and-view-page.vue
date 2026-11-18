@@ -70,7 +70,7 @@
         :workflow-error="workflowListError" :workflow-query="workflowQuery"
         :preview-key="previewKey" :preview-children="previewChildren" :preview-error="previewFailure"
         :toolbar="tableDesignFieldToolbar" :save-disabled="designSaveDisabled"
-        :busy="busy" :error="fieldListError" :on-relation-row-click="chooseRelation" @close="closeTableDesign"
+        :busy="busy || !!workflowDesignId" :error="fieldListError" :on-relation-row-click="chooseRelation" @close="closeTableDesign"
         @save="saveDesignFields"
         @open-preview="() => { void act(() => refreshTablePreview()) }" @open-workflow="refreshTableWorkflows"
         @apply-workflow-filter="applyTableWorkflowFilter" @update:workflow-query="applyWorkflowQueryUpdate" />

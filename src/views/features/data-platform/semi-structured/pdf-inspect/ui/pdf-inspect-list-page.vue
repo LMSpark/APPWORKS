@@ -5,12 +5,13 @@
   <RendererSection class="pdf-inspect-catalog" title="PDF 识别规则" :bordered="false" :grid-columns="1" :grid-gap="16"
     :status="loading ? '正在读取规则目录…' : ''" :error="error">
     <template v-if="ready" #header-actions>
-      <RendererButton label="新增规则" :disabled="loading || adding || !!creationId" @click="createRule" />
-      <RendererButton label="打开设计" icon="Setting" :disabled="loading || !selected" @click="openEditor" />
+      <RendererButton v-if="!catalogScope" label="新增规则" :disabled="loading || adding || !!creationId" @click="createRule" />
+      <RendererButton v-if="!catalogScope" label="打开设计" icon="Setting" :disabled="loading || !selected" @click="openEditor" />
       <RendererButton v-if="executionAvailable" label="核验准备" :disabled="loading || !selected || preparing || pendingExecution()" @click="prepareInspection" />
       <RendererButton label="刷新" icon="Refresh" :disabled="loading" @click="refreshCatalog" />
       <RendererButton v-if="historyAvailable" label="核验历史" :disabled="loading || historyLoading" @click="openHistory" />
     </template>
+    <p v-if="ready && catalogScope" role="status">请进入已授权应用后设计规则或发起核验。</p>
     <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :stripe="true" :border="true"
       :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
     <FeatureRecordDialog v-if="creationId !== undefined" :data-view-key="creationKey" :record-id="creationId"
@@ -70,7 +71,7 @@ import {PDF_INSPECTION_HISTORY_TABLE} from '@/lowcode/resources/semi-structured/
 import {readPdfExecutionRule} from '@/lowcode/resources/semi-structured/pdf-inspect/execution-rule'
 import {cancelPdfInspectionFile, PDF_INSPECTION_UPLOAD_TABLE, stagePdfInspectionFile} from '@/lowcode/resources/semi-structured/pdf-inspect/upload-command'
 import {PDF_INSPECTION_INIT_TABLE, settlePdfInspectionTask, stagePdfInspectionTask} from '@/lowcode/resources/semi-structured/pdf-inspect/init-command'
-import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
+import {APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath, parseApplicationPathScope, resolveExecutionProjectId} from '@/services/application-scope'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import {validatePdfRuleConfig} from '@/lowcode/resources/semi-structured/pdf-inspect/rule-config'
@@ -122,6 +123,7 @@ const selected = computed(() => {
   return typeof id === 'string' || typeof id === 'number' ? String(id) : ''
 })
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
+const catalogScope = computed(() => resolveExecutionProjectId(route.path) === APPLICATION_CATALOG_PROJECT_ID)
 const catalogKey = computed(() => buildDataViewKey(LowcodePdfInspect.catalogMetaName, 'default', scenarioId.value))
 const historyKey = computed(() => buildDataViewKey(PDF_INSPECTION_HISTORY_TABLE, 'default', scenarioId.value))
 const limitsKey = computed(() => buildDataViewKey('PdfInspectionLimits', 'default', scenarioId.value))
@@ -369,7 +371,7 @@ async function openEditor(): Promise<void> {
   const path = scope ? buildApplicationPath(scope, editorPath) : editorPath
   await router.push({path, query: {ruleId: selected.value}})
 }
-watch(scenarioId, async id => {
+watch([scenarioId, catalogScope], async ([id, inCatalog]) => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
   historyAvailable.value = false; historyOpen.value = false; historyLoading.value = false; historyError.value = ''
@@ -381,7 +383,7 @@ watch(scenarioId, async id => {
   session.dispose()
   try {
     if (!id) throw new Error('PDF 识别入口缺少导航绑定的数据空间ID')
-    const dataSet = await LowcodePdfInspect.loadCatalog(id)
+    const dataSet = await LowcodePdfInspect.loadCatalog(id, inCatalog ? APPLICATION_CATALOG_PROJECT_ID : undefined)
     if (!active || own !== generation) {dataSet.destroy(); return}
     const current = session.acquire({pageId: 'pdf-inspect-list-page', scenarioIds: [id], targetId: id,
       loadScenario: async () => dataSet})

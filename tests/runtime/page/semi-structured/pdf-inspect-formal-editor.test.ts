@@ -1,4 +1,5 @@
 import {readFileSync} from 'node:fs'
+import {createHash} from 'node:crypto'
 import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
@@ -17,11 +18,17 @@ import {provideTestPageService} from '../../../support/helpers/page-service-host
 import PdfEditor from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue'
 import {ApiBackend} from '../api-provider/api-provider.fixture'
 import {PDF, topicModels, topicTexts} from '../structured-config/catalog/formal-topic.fixture'
-const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runtime: undefined as unknown as DataSpaceRuntimeApi}))
+const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runtime: undefined as unknown as DataSpaceRuntimeApi,
+  catalogRuntime: undefined as unknown as DataSpaceRuntimeApi}))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return state.http}, lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
+  lowcodeCatalogDataSpace: {get runtime() {return state.catalogRuntime}, design: {
+    readSpaceDefinition: async ({dataSpaceId}: {dataSpaceId: string}) => ({dataSpaceId,name:'PDF'}),
+    readModelBatch: async ({dataSpaceId}: {dataSpaceId: string}) => topicModels(dataSpaceId), readRelations: async () => [],
+  }},
   createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => topicTexts[id] ?? null}}),
   lowcodeApi: {session: {get: () => ({enterprise: {id: 'COMPANY', shortName: 'company'}, identity: {userId: 'USER'}})},
+   application: {get: () => null}, readAuthenticatedRequestScope: () => ({token:'scope',headers:{}}),
    readRequestScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}}), dataSpace: {
     get runtime() {return state.runtime}, design: {
       readSpaceDefinition: async ({dataSpaceId}: {dataSpaceId: string}) => ({dataSpaceId, name: 'PDF'}),
@@ -38,17 +45,19 @@ beforeEach(() => {
     {id: 'P2', name: '其他规则', rule_config: '{"other":true}'},
   ]}
   state.runtime = new DataSpaceRuntimeApi({http: state.http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}})})
+  state.catalogRuntime = new DataSpaceRuntimeApi({http:state.http,readScope:()=>({token:'scope',headers:{}})})
 })
 afterEach(() => wrappers.splice(0).forEach(wrapper => wrapper.unmount()))
-async function open(ruleId = 'P1',catalog=false,recoveryRequestId?:string|string[],file?:File) {
+async function open(ruleId = 'P1',catalog:boolean|string=false,recoveryRequestId?:string|string[],file?:File) {
+  const path=typeof catalog==='string'?catalog:'/catalog'
   const router = createRouter({history: createMemoryHistory(), routes: [{path: '/editor', component: PdfEditor, meta: {blueprintScenarioId: PDF}}, {path: '/other', component: {template: '<div>other</div>'}}]})
   if(catalog){
-    const dynamic=createDynamicRouter({router,pageComponent:PdfList,loadNavigation:async()=>({id:'root',title:'Root',childPlacement:'header',items:[{id:PDF,title:'PDF',path:'/catalog',itemKind:'system-page',blueprintScenarioId:PDF}]}),componentMap:{'/catalog':PdfList}})
+    const dynamic=createDynamicRouter({router,pageComponent:PdfList,loadNavigation:async()=>({id:'root',title:'Root',childPlacement:'header',items:[{id:PDF,title:'PDF',path,itemKind:'system-page',blueprintScenarioId:PDF}]}),componentMap:{[path]:PdfList}})
     await dynamic.registerRoutes()
-    const record=router.getRoutes().find(item=>item.path==='/catalog')
+    const record=router.getRoutes().find(item=>item.path===path)
     if(record)record.meta['blueprintScenarioId']=PDF
   }
-  await router.push({path:catalog?'/catalog':'/editor',query:catalog?{pdfInspectionRequestId:recoveryRequestId}:{ruleId}}); await router.isReady()
+  await router.push({path:catalog?path:'/editor',query:catalog?{pdfInspectionRequestId:recoveryRequestId}:{ruleId}}); await router.isReady()
   const copied: string[] = []
   const wrapper = mount(defineComponent({setup: () => {
     const service = provideTestPageService(router)
@@ -61,6 +70,22 @@ async function open(ruleId = 'P1',catalog=false,recoveryRequestId?:string|string
   return {wrapper, click, router, copied}
 }
 describe('formal PDF rule editor', () => {
+  it('reads the registered platform PDF directory without choosing an execution application', async () => {
+    const path='/apps/homepage/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page'
+    const text=topicTexts[PDF]!,resourceId=`repository:scenario-view:${PDF}`
+    const fetchScenario=vi.spyOn(globalThis,'fetch').mockImplementation(async url=>{
+      expect(url).toBe(`/__spark/repository-scenarios?resourceId=${encodeURIComponent(resourceId)}`)
+      return Response.json({resourceId,scenarioId:PDF,text,sourceRevision:createHash('sha256').update(text).digest('hex')})
+    })
+    try {
+      const {wrapper}=await open('P1',path)
+      await vi.waitFor(()=>expect(wrapper.text()).toContain('请进入已授权应用'))
+      expect(state.http.reads.map(read=>read.table)).toContain('Base_FileInspectConfig')
+      expect(wrapper.findAll('button').map(button=>button.text())).not.toContain('新增规则')
+      expect(wrapper.findAll('button').map(button=>button.text())).not.toContain('核验准备')
+      expect(state.http.saves).toHaveLength(0)
+    } finally {fetchScenario.mockRestore()}
+  })
   it.each([false,true])('selects without writes and starts one formal task even if its reply is lost (%s)', async lostReply => {
     const backend = new class extends ApiBackend {
       initCalls: RequestConfig[] = []

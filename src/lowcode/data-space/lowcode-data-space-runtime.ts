@@ -31,7 +31,7 @@ import {createAgentWorkflowPublicationBindings} from '../resources/repository/ag
 import {createAgentWorkflowDeletionBindings} from '../resources/repository/agent-workflow/deletion'
 import {createLogicViewDesignExecutor, LOGIC_VIEW_DESIGN_RESOURCE_ID, LOGIC_VIEW_DESIGN_VIEW} from '../resources/structured-config/logic-view/design-ops'
 import {createExcelCatalogBindings} from '../resources/semi-structured/excel-import/catalog/creation'
-import {createPdfInspectionProjectionBindings} from '../resources/semi-structured/pdf-inspect/runtime-bindings'
+import {createPdfInspectionProjectionBindings,PDF_INSPECTION_SCENARIO_ID} from '../resources/semi-structured/pdf-inspect/runtime-bindings'
 import {createPdfInspectionUploadBindings} from '../resources/semi-structured/pdf-inspect/upload-command'
 import {createPdfInspectionInitBindings} from '../resources/semi-structured/pdf-inspect/init-command'
 
@@ -271,7 +271,10 @@ async function loadCatalogRuntimeScenario(command: Readonly<{ projectId: string;
  assertCurrent()
  const text = await readRepositoryScenarioText(resource, assertCurrent)
  assertCurrent()
- return assembleLowcodeRuntimeScenario({projectId, scenarioId, config: new ScenarioViewConfig(scenarioId, text), assertCurrent,
+ const declared = new ScenarioViewConfig(scenarioId, text)
+ // The platform directory has no execution application. Only the formal PDF rule model is available here.
+ const config = scenarioId === PDF_INSPECTION_SCENARIO_ID ? declared.selectModelScope('Base_FileInspectConfig', []) : declared
+ return assembleLowcodeRuntimeScenario({projectId, scenarioId, config, assertCurrent,
   ...(command.getPage?{getPage:command.getPage}:{})})
 }
 

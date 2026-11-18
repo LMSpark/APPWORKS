@@ -53,21 +53,23 @@ export async function comparePlatformFieldObservation(approved:ApprovedField,exp
   approved.fieldId!==observation.fieldId||approved.assignmentId!==observation.assignmentId||
   !identity(expected.attemptRef)||observation.attemptRef!==expected.attemptRef||!identity(observation.observationRef))
   throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
+ const {observationRef,fieldId,attemptRef,stage:observedStage,unit}=observation
+ if(unit!==null&&!identity(unit))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
+ const observedValueJson=canonicalSnapshotValue(observation.value)
+ const evidence={observationRef,fieldId,attemptRef,observedStage,expectedStage:expected.stage,observedValueJson,unit,assertCurrent}
  if(observation.stage!==expected.stage)
-  return Object.freeze({state:'STAGE_REQUIRED' as const,observationRef:observation.observationRef,assertCurrent})
+  return Object.freeze({...evidence,state:'STAGE_REQUIRED' as const})
  if(expected.stage==='SUBMITTED'){
-  if(!submission)return Object.freeze({state:'RECEIPT_REQUIRED' as const,observationRef:observation.observationRef,assertCurrent})
+  if(!submission)return Object.freeze({...evidence,state:'RECEIPT_REQUIRED' as const})
   if(submission.projectId!==approved.projectId||submission.revisionId!==approved.revisionId||submission.attemptRef!==expected.attemptRef||
    !identity(submission.receiptRef)||!submission.observationRefs.includes(observation.observationRef))
    throw Error('CONTENT_PLATFORM_FIELD_RECEIPT_SCOPE')
  }
- if(observation.unit!==null&&!identity(observation.unit))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
- const observedValueJson=canonicalSnapshotValue(observation.value),unit=observation.unit
  const observedValueHash=await hashFieldValue(observation.value,unit)
  assertCurrent()
  const state=observedValueHash===approved.valueHash?'MATCHED':'MISMATCHED'
- return Object.freeze({state,observationRef:observation.observationRef,observedValueHash,observedValueJson,unit,
-  ...(submission?{receiptRef:submission.receiptRef}:{}),assertCurrent})
+ return Object.freeze({...evidence,state,observedValueHash,approvalRef:approved.approvalRef,
+  ...(submission?{receiptRef:submission.receiptRef}:{})})
 }
 
 const observationFields=['id','projectId','revisionId','assignmentId','fieldId','attemptRef','stage','value','unit']

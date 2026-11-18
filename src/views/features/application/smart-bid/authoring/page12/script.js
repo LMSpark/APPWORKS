@@ -155,8 +155,15 @@ async function openObservation() {
     result.assertCurrent()
     const labels = {MATCHED: '与本版批准值一致', MISMATCHED: '与本版批准值不一致',
       STAGE_REQUIRED: '本次记录缺所需平台状态', RECEIPT_REQUIRED: '缺同次提交回执'}
-    const value = result.observedValueJson === undefined ? '' : `\n原实填值 ${result.observedValueJson}${result.unit ? ` ${result.unit}` : ''}`
-    await $page.showAlert(`${result.observationRef} · ${labels[result.state]}${value}`, '平台实填回读')
+    const stages = {DRAFT: '草稿', SAVED: '已保存', SUBMITTED: '提交观察'}
+    const lines = [
+      `观察 ${result.observationRef} · 办理 ${result.attemptRef} · 栏位 ${result.fieldId}`,
+      `原记录状态 ${stages[result.observedStage]} · ${labels[result.state]}`,
+      `原观察值 ${result.observedValueJson}${result.unit ? ` ${result.unit}` : ''}`,
+    ]
+    if (result.approvalRef) lines.push(`批准依据 ${result.approvalRef}`)
+    if (result.receiptRef) lines.push(`同次提交回执 ${result.receiptRef}`)
+    await $page.showAlert(lines.join('\n'), '平台实填回读')
   } catch {
     $page.showMessage('平台实填证据无法核验', 'warning')
   }

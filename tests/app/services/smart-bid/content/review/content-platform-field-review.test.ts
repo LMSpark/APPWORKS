@@ -1,5 +1,8 @@
-import {expect,it} from 'vitest'
+import {expect,it,vi} from 'vitest'
 import {comparePlatformFieldObservation,platformObservationView,readPlatformFieldObservation,readPlatformFieldReviewVersion,readSubmittedPlatformField,readSubmittedPlatformFields} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
+import script from '@/views/features/application/smart-bid/authoring/page12/script.js?raw'
+import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
+import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
@@ -19,7 +22,7 @@ it('pins approved proposed value to the exact adopted response and platform fiel
  await expect(readPlatformFieldReviewVersion(selection,async()=>({...original,revisionId:'OTHER'})))
   .rejects.toThrow('CONTENT_PLATFORM_FIELD_SCOPE')
  const observation={...selection,stage:'SAVED' as const,attemptRef:'SEND',observationRef:'OBS',value:false,unit:null,assertCurrent:()=>{}}
- expect((await comparePlatformFieldObservation(version,{stage:'SUBMITTED',attemptRef:'SEND'},observation)).state).toBe('STAGE_REQUIRED')
+ expect((await comparePlatformFieldObservation(version,{stage:'SUBMITTED',attemptRef:'SEND'},observation))).toMatchObject({state:'STAGE_REQUIRED',observedStage:'SAVED',observedValueJson:'false'})
  const saved=await comparePlatformFieldObservation(version,{stage:'SAVED',attemptRef:'SEND'},observation)
  expect(saved.state).toBe('MATCHED')
  const submitted={...observation,stage:'SUBMITTED' as const}
@@ -96,7 +99,18 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   row.stage='SUBMITTED'
   const request={observationId:'OBS',receiptRef:'REC',attemptRef:'SEND'}
+  const showAlert=vi.fn(async()=>{})
+  const {openObservation}=compileFunctions(script,{$route:{query:{platformObservationRef:'OBS'}},
+   $page:{showAlert,invokeHostCommand:(name:string,params:unknown)=>page.invoke(name,params,signal)}} as unknown as PageContext)
+  if(!openObservation)throw Error('TEST_OBSERVATION_HANDLER_REQUIRED')
+  observationInput={...input,stage:'SUBMITTED'}
+  await openObservation()
+  expect(showAlert).toHaveBeenLastCalledWith(
+   '观察 OBS · 办理 SEND · 栏位 F\n原记录状态 提交观察 · 缺同次提交回执\n原观察值 false','平台实填回读')
   observationInput={...request,stage:'SUBMITTED'}
+  await openObservation()
+  expect(showAlert).toHaveBeenLastCalledWith(
+   '观察 OBS · 办理 SEND · 栏位 F\n原记录状态 提交观察 · 与本版批准值一致\n原观察值 false\n批准依据 APP\n同次提交回执 REC','平台实填回读')
   const submitted=await page.invoke('content.review.readPlatformObservation',{selectionRef:'OBS'},signal)
   expect(submitted).toMatchObject({state:'MATCHED',receiptRef:'REC'})
   receiptRow.observationRefs=['OTHER']

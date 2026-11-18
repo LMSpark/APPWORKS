@@ -21,7 +21,8 @@ import {readContentTenderRecord} from './content-tender-record-reader'
 import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/services/smart-bid/content/content-scoped-preview'
 import {readEffectiveFactDependencies} from './hashes/effective-fact-reader'
 import {hashCalculationInputs} from '@/services/smart-bid/content/hashes/calculation-inputs-hash'
-import {readBuiltInCalculationGenerator} from '@/services/smart-bid/content/calculation-table-registry'
+import {expandBuiltInCalculationTable,readBuiltInCalculationGenerator} from '@/services/smart-bid/content/calculation-table-registry'
+import {ATTACHMENT_INDEX_GENERATOR} from '@/services/smart-bid/content/attachment-index-generator'
 import {previewContentTextSnapshot,type ContentResponseTextSnapshot,type ContentTextSnapshotPreview} from '@/services/smart-bid/content/content-text-snapshot-preview'
 import {captureContentTextSpan,type ContentTextSelection,type VerifiedContentTextSpan} from '@/services/smart-bid/content/content-text-span'
 
@@ -66,6 +67,8 @@ export type ContentCandidateBinding=Readonly<{
  hashNodeCalculationInputs:(nodeIds:readonly string[],tables:unknown,sources:CalculationSources)=>
   Promise<Awaited<ReturnType<typeof hashCalculationInputs>>&Readonly<{assertCurrent:()=>void}>>
  readCalculationTemplates:(nodeIds:readonly string[])=>ReturnType<typeof readCalculationTableTemplateRefs>
+ expandAttachmentIndex:(nodeId:string,source:Readonly<{entries:unknown;assertCurrent:()=>void}>,readTemplate:ReadFixedCalculationTemplate)=>
+  Promise<Readonly<{table:ReturnType<typeof expandBuiltInCalculationTable>;calculationInputsHash:string;assertCurrent:()=>void}>>
  resolveCalculationGenerators:(nodeIds:readonly string[],readTemplate:ReadFixedCalculationTemplate)=>Promise<Readonly<{
   tables:ReadonlyArray<Readonly<{nodeId:string;generatorKey:string}>>;assertCurrent:()=>void
  }>>
@@ -162,6 +165,22 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const result=await hashCalculationInputs({expectedNodeIds:[...generatorVersions.keys()],tables,generatorVersions})
   assertInputs()
   return Object.freeze({...result,assertCurrent:assertInputs})
+ }
+ const expandAttachmentIndex:ContentCandidateBinding['expandAttachmentIndex']=async(nodeId,source,readTemplate)=>{
+  assertCurrent();source.assertCurrent()
+  const entries:unknown=structuredClone(source.entries)
+  const resolution=await resolveCalculationGenerators([nodeId],readTemplate)
+  const {key,version}=ATTACHMENT_INDEX_GENERATOR
+  if(resolution.tables[0]?.generatorKey!==key)throw Error('CONTENT_CALCULATION_GENERATOR_REQUIRED')
+  const assertInputs=()=>{resolution.assertCurrent();source.assertCurrent()}
+  assertInputs()
+  const digest=await hashCalculationInputs({expectedNodeIds:[nodeId],tables:[{nodeId,generatorVersion:version,
+   formInstructionRefs:[],requirementVersions:[],confirmedResponses:[],factVersions:[],resourceVersions:entries}]})
+  const inputHash=digest.tables[0]?.inputHash
+  if(!inputHash)throw Error('CONTENT_CALCULATION_INPUT_SCOPE')
+  const table=expandBuiltInCalculationTable({placeholder:payloads.find(node=>node.nodeId===nodeId),
+   generatorKey:key,generatorVersion:version,inputHash,nodeIds:new Set(payloads.map(node=>node.nodeId)),entries,assertCurrent:assertInputs})
+  return Object.freeze({table,calculationInputsHash:digest.calculationInputsHash,assertCurrent:assertInputs})
  }
  const readEffectiveFacts:ContentCandidateBinding['readEffectiveFacts']=async(scope,assertConsumer)=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}
@@ -340,7 +359,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   if(capturedInput.role==='head')return (await readPreviewVersions(assertConsumer)).captureNodeTextSelection(capturedInput)
   return captureNodeSelection(capturedInput,{snapshot,nodes},()=>{assertCurrent();assertConsumer?.()})
  }
- return Object.freeze({runtime:host.runtime,readFixedFact,readEffectiveFacts,hashNodeCalculationInputs,readCalculationTemplates,resolveCalculationGenerators,
+ return Object.freeze({runtime:host.runtime,readFixedFact,readEffectiveFacts,hashNodeCalculationInputs,readCalculationTemplates,resolveCalculationGenerators,expandAttachmentIndex,
   readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readEffectiveFacts({nodeIds,responses:[]},assertConsumer),
   readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   verifyRootHash:(contract:string)=>verifyReadableRevisionRoot({host:{...host,assertCurrent},revisionDataViewKey:revisions.candidateDataViewKey,snapshot,contract}),

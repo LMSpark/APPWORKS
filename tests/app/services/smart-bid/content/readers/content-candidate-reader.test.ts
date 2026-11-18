@@ -43,10 +43,19 @@ it('requires calculation inputs for exactly the original selected table placehol
    ]}),
   })
   expect(builtIn.tables.map(item=>item.nodeId)).toEqual(['T'])
+  const readAttachmentTemplate=async (ref:Parameters<typeof readTemplate>[0])=>({...await readTemplate(ref),
+   classes:[{name:'deviation',elements:['table'],generatorKey:'attachment-index'}]})
+  const entries=[{resourceVersionId:'ATTACHMENT-2',nodeId:'H'}]
+  const expanded=await candidate.expandAttachmentIndex('T',{entries,assertCurrent:assertInputs},readAttachmentTemplate)
+  expect(expanded.table.data['rows']).toMatchObject([[{data:{附件:{resourceVersionId:'ATTACHMENT-2'}}},{data:{页码:{nodeId:'H'}}}]])
+  entries[0]!.resourceVersionId='ATTACHMENT-3'
+  const changed=await candidate.expandAttachmentIndex('T',{entries,assertCurrent:assertInputs},readAttachmentTemplate)
+  expect(changed.table.inputHash).not.toBe(expanded.table.inputHash)
   registryCurrent=false;expect(()=>result.assertCurrent()).toThrow('GENERATOR_STALE')
   registryCurrent=true
   current=false;expect(()=>result.assertCurrent()).toThrow('CALCULATION_INPUT_STALE')
   expect(()=>generators.assertCurrent()).toThrow('CALCULATION_INPUT_STALE')
+  expect(()=>expanded.assertCurrent()).toThrow('CALCULATION_INPUT_STALE')
   current=true;await f.ds.getView('ContentNodeVersion','snapshotMembers')!.refresh()
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(()=>candidate.readCalculationTemplates(['T'])).toThrow('DATA_VIEW_READ_RESULT')

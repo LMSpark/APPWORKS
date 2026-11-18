@@ -11,7 +11,8 @@ export type BaselineRequirementMember=Readonly<{lineageId:string;version:string}
 /** 诊断只带引用，未入基线不等于已有撤回决定。 */
 export type BaselineRequirementPinIssue=RevisionRequirementPin&Readonly<
  {reason:'VERSION_CHANGED';selectedVersion:string}|{reason:'NOT_IN_BASELINE'}>
-function selectedVersions(members:unknown):Map<string,string>{
+/** 读取完整的固定要求谱系和版本索引。 */
+export function readBaselineRequirementMembers(members:unknown):ReadonlyMap<string,string>{
  const versions=new Map<string,string>()
  visitSnapshotReferences(members,item=>{
   const row=snapshotReferenceFields(item,['lineageId','version'],'BASELINE_REQUIREMENT_MEMBER_MODEL')
@@ -28,13 +29,13 @@ export function selectBaselineRequirementMember(members:unknown,selection:Readon
  const row=snapshotReferenceFields(selection,hasVersion?['lineageId','version']:['lineageId'],'BASELINE_REQUIREMENT_SELECTION')
  const lineageId=row['lineageId'],requestedVersion=row['version']
  if(!snapshotReferenceIdentity(lineageId)||hasVersion&&!snapshotReferenceIdentity(requestedVersion))throw Error('BASELINE_REQUIREMENT_SELECTION')
- const version=selectedVersions(members).get(lineageId)
+ const version=readBaselineRequirementMembers(members).get(lineageId)
  if(version===undefined||hasVersion&&version!==requestedVersion)throw Error('BASELINE_REQUIREMENT_MEMBER_MISSING')
  return Object.freeze({lineageId,version})
 }
 /** 只报告换版/未入基线；删除条款须另有原决定。 */
 export function assessBaselineRequirementPins(members:unknown,pins:unknown,nodes:ReadonlyArray<Pick<ContentStructureNode,'nodeId'|'type'>>):readonly BaselineRequirementPinIssue[]{
- const versions=selectedVersions(members),issues:BaselineRequirementPinIssue[]=[]
+ const versions=readBaselineRequirementMembers(members),issues:BaselineRequirementPinIssue[]=[]
  assertRevisionRequirementPins(pins,nodes)
  visitSnapshotReferences(pins,item=>{
   const row=snapshotReferenceFields(item,['chapterId','lineageId','version'],'SNAPSHOT_REQUIREMENT_PIN_MODEL')

@@ -7,6 +7,12 @@ import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snap
 import {isRecord} from '@spark-appworks/spark-utils'
 import {originalRegistrationView,readOriginalRegistrationView} from '../../authority/original-registration-view'
 
+import {readBaselineFactMembers} from '@/services/smart-bid/content/references/baseline-fact-members'
+import {readBaselineRequirementMembers} from '@/services/smart-bid/content/references/baseline-requirement-members'
+import {assertBaselineTenderRecords} from '@/services/smart-bid/content/references/baseline-tender-records'
+
+const frozenView='originalFrozenBaseline'
+const frozenFields=['stageRef','factVersions','requirementVersions','tenderRecords']
 const fields=['stageRefs','headRevisionId','activeBaselineId']
 const fixedBaselineView='originalHeadBaseline'
 const targets={
@@ -22,7 +28,8 @@ export function bidProjectScopeScenarioViews(primaryKeys:Readonly<Record<'Conten
   ContentProject:{originalProjectScope:bidProjectScopeView(primaryKeys.ContentProject)},
   ContentRevision:{originalProjectHead:originalRegistrationView(primaryKeys.ContentRevision,keys,targets.ContentRevision.fields)},
   Baseline:{originalProjectBaseline:originalRegistrationView(primaryKeys.Baseline,keys,targets.Baseline.fields),
-   [fixedBaselineView]:originalRegistrationView(primaryKeys.Baseline,keys,targets.Baseline.fields)},
+   [fixedBaselineView]:originalRegistrationView(primaryKeys.Baseline,keys,targets.Baseline.fields),
+   [frozenView]:originalRegistrationView(primaryKeys.Baseline,keys,frozenFields)},
  }
 }
 
@@ -80,4 +87,21 @@ export async function readBidProjectScope(host:Host){
   headRevisionId,activeBaselineId,headState:head.state,baselineState:baseline.state,
   headStage:head.state==='VERIFIED'?head.stageText:null,baselineStage:baseline.state==='VERIFIED'?baseline.stageText:null,
   headBaselineId,headBaselineState:fixedState,assertCurrent})
+}
+
+/** 按明确版本回读冻结引用。来源准用和正式激活仍沿各自办理。 */
+export async function readBidFrozenBaseline(host:Host,id:string){
+ const {projectId}=host
+ const read=await readOriginalRegistrationView(host,{model:'Baseline',viewName:frozenView},{projectId,id})
+ if(!read.row)return Object.freeze({state:'UNKNOWN' as const,assertCurrent:read.assertCurrent})
+ const assertCurrent=read.captureFields(frozenFields)
+ assertCurrent()
+ const {stageRef,factVersions,requirementVersions,tenderRecords}=read.row
+ if(!identity(stageRef)&&!isRecord(stageRef))throw Error('BID_PROJECT_SCOPE_POINTER')
+ const facts=readBaselineFactMembers(factVersions)
+ const requirements=readBaselineRequirementMembers(requirementVersions)
+ assertBaselineTenderRecords(tenderRecords)
+ return Object.freeze({state:'REGISTERED' as const,baselineId:id,
+  stage:identity(stageRef)?stageRef:canonicalSnapshotValue(stageRef),facts:facts.size,requirements:requirements.size,
+  assertCurrent})
 }

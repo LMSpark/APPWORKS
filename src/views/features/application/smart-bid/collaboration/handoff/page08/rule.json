@@ -22,5 +22,13 @@
     "children": [
       {"type": "r-button", "props": {"label": "核对移交差异", "onClick": "openHandoffComparison"}}
     ]
+  },
+  {
+    "id": "bid-project-frozen-baseline",
+    "type": "r-section",
+    "props": {"title": "冻结依据回查", "onBeforeRender": "bindFrozenBaseline"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查询指定基线", "onClick": "openFrozenBaseline"}}
+    ]
   }
 ]

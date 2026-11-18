@@ -48,7 +48,8 @@ it('keeps responsibility with the original assignee until the current version is
  }))).toThrow('BID_HANDOFF_VERSION_DRIFT')
  const row={...scope,id:'ROW',handoffId:'H',items:[item]}
  const projectRow={id:'P',projectId:'P',stageRefs:['STAGE-1'],headRevisionId:null as string|null,activeBaselineId:'BASELINE'}
- const baselineRow={id:'BASELINE',projectId:'P',stageRef:'STAGE-1'}
+ const baselineRow={id:'BASELINE',projectId:'P',stageRef:'STAGE-1',
+  factVersions:[{factId:'FACT',version:1}],requirementVersions:[{lineageId:'CLAUSE',version:'V1'}],tenderRecords:[]}
  const headRow={id:'HEAD',projectId:'P',status:'ADOPTED',snapshotHash:'a'.repeat(64),stageRef:'PREVIOUS-STAGE',baselineId:'PREVIOUS-BASELINE'}
  const scopeViews=bidProjectScopeScenarioViews({ContentProject:'id',ContentRevision:'id',Baseline:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{BidHandoff:{
@@ -116,9 +117,20 @@ it('keeps responsibility with the original assignee until the current version is
    return new DataSpaceQueryContext({identity:headTable.identity,scope:'head',readScope:()=> 'head',
     snapshot:headTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[{...headRow,lingma_sys_params:proof}]}}})})
   }})
+  const frozenBaseline=ds.getView('Baseline','originalFrozenBaseline')
+  if(!frozenBaseline)throw Error('TEST_FROZEN_BASELINE_VIEW_REQUIRED')
+  const frozenTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'Baseline'})
+  let duplicateFact=false
+  frozenBaseline.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+   identity:frozenTable.identity,scope:'frozen',readScope:()=> 'frozen',
+   snapshot:frozenTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[{...baselineRow,
+    factVersions:duplicateFact?[...baselineRow.factVersions,...baselineRow.factVersions]:baselineRow.factVersions,
+    lingma_sys_params:proof}]}}}),
+  })})
   const host={scenarioId:'S',projectId:'P',runtime:{resolveView:(key:string)=>key==='S@BidHandoff@originalHandoff'?view:
    key==='S@BidHandoff@previousHandoff'?previousView:key==='S@ContentProject@originalProjectScope'?projectView:
-    key==='S@Baseline@originalProjectBaseline'?baseline:key==='S@ContentRevision@originalProjectHead'?head:key==='S@Baseline@originalHeadBaseline'?fixedBaseline:undefined},
+    key==='S@Baseline@originalProjectBaseline'?baseline:key==='S@ContentRevision@originalProjectHead'?head:key==='S@Baseline@originalHeadBaseline'?fixedBaseline:
+    key==='S@Baseline@originalFrozenBaseline'?frozenBaseline:undefined},
    assertCurrent}
   let hasCurrentReceipt=true
   const readReceipts=vi.fn(async()=>({receipts:hasCurrentReceipt?[old,current]:[old],
@@ -132,10 +144,10 @@ it('keeps responsibility with the original assignee until the current version is
   receiptCurrent=true
   const page=createBidHandoffScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{selection,readReceipts})
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
-  const {openBidHandoff,openHandoffComparison,openBidProjectScope}=compileFunctions(script,{$route:{query:{handoffId:'H',previousHandoffId:'H1'}},$page:{
+  const {openBidHandoff,openHandoffComparison,openBidProjectScope,openFrozenBaseline}=compileFunctions(script,{$route:{query:{handoffId:'H',previousHandoffId:'H1',frozenBaselineId:'BASELINE'}},$page:{
    invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,
   }} as unknown as PageContext)
-  if(!openBidHandoff||!openHandoffComparison||!openBidProjectScope)throw Error('TEST_HANDOFF_PAGE_HANDLER_REQUIRED')
+  if(!openBidHandoff||!openHandoffComparison||!openBidProjectScope||!openFrozenBaseline)throw Error('TEST_HANDOFF_PAGE_HANDLER_REQUIRED')
   await openBidHandoff()
   expect(showAlert).toHaveBeenLastCalledWith([
    '移交 H · 所列事项均已签收','GUARANTEE · 版本 V2 · 已签收 · 跟踪人 FINANCE','  原任务凭据 RECEIPT-2',
@@ -164,6 +176,10 @@ it('keeps responsibility with the original assignee until the current version is
   expect(recovered).toMatchObject({headBaselineState:'VERIFIED'})
   await fixedBaseline.refresh()
   expect(()=>recovered.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  await openFrozenBaseline()
+  expect(showAlert).toHaveBeenLastCalledWith('基线 BASELINE · 阶段 STAGE-1\n固定事实 1 项 · 固定要求 1 项','冻结依据回查')
+  duplicateFact=true
+  await expect(page.invoke('bid.project.readFrozenBaseline',{baselineId:'BASELINE'},signal)).rejects.toThrow('BASELINE_FACT_MEMBER_DUPLICATE')
   headUnavailable=true
   await openBidProjectScope()
   expect(showAlert).toHaveBeenLastCalledWith(

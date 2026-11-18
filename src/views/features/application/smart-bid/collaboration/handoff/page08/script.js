@@ -72,3 +72,22 @@ async function openBidProjectScope() {
     $page.showMessage('原编制项目范围无法核验', 'warning')
   }
 }
+
+function bindFrozenBaseline() {
+  const {frozenBaselineId} = $route.query
+  return {visible: typeof frozenBaselineId === 'string' && !!frozenBaselineId && frozenBaselineId.trim() === frozenBaselineId}
+}
+
+async function openFrozenBaseline() {
+  if (!bindFrozenBaseline().visible) return
+  try {
+    const result = await $page.invokeHostCommand('bid.project.readFrozenBaseline', {baselineId: $route.query.frozenBaselineId})
+    result.assertCurrent()
+    const detail = result.state === 'REGISTERED'
+      ? `基线 ${result.baselineId} · 阶段 ${result.stage}\n固定事实 ${result.facts} 项 · 固定要求 ${result.requirements} 项`
+      : '所选基线登记待确认'
+    await $page.showAlert(detail, '冻结依据回查')
+  } catch {
+    $page.showMessage('原基线或固定引用无法核验', 'warning')
+  }
+}

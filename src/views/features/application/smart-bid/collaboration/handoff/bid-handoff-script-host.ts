@@ -6,7 +6,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {compareBidHandoffVersions} from '@/services/smart-bid/content/review/submission/bid-handoff-evidence'
-import {readBidProjectScope} from './bid-project-scope-reader'
+import {readBidFrozenBaseline,readBidProjectScope} from './bid-project-scope-reader'
 import {readRegisteredBidHandoff} from './bid-handoff-reader'
 
 type Read=Parameters<typeof readRegisteredBidHandoff>
@@ -25,6 +25,8 @@ export function createBidHandoffScriptHost<Runtime extends Pick<PageRuntime,'res
    host.assertCurrent()
    if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)throw Error('BID_HANDOFF_PAGE_STALE')
   }
+  if(name==='bid.project.readFrozenBaseline'&&Object.keys(input).length===1&&identity(input['baselineId']))
+   return readBidFrozenBaseline({...host,runtime,assertCurrent},input['baselineId'])
   if(name==='bid.project.readScope'&&Object.keys(input).length===0)
    return readBidProjectScope({...host,runtime,assertCurrent})
   if(!identity(input['handoffId']))throw Error(error)

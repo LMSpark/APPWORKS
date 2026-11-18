@@ -40,8 +40,8 @@ export function contentDeliveryPackageScenarioViews(primaryKeys:Readonly<Record<
    }),
   },
   SubmissionPackage:{
-   originalPackedZipByRequest:view(SubmissionPackage,['projectId','packingRequestRef'],{fields:['id','format']}),
-   originalPackedPaperByRequest:view(SubmissionPackage,['projectId','packingRequestRef'],{fields:['id','format']}),
+   originalPackedZipByRequest:view(SubmissionPackage,['projectId','packingRequestRef','format'],{fields:['id']}),
+   originalPackedPaperByRequest:view(SubmissionPackage,['projectId','packingRequestRef','format'],{fields:['id']}),
    originalPackedZip:view(SubmissionPackage,packageKeys,{
     fields:['format','packageHash','resourceVersionId','selectionId','selectionVersion','selectionHash','requiredPositions','packed'],
    }),

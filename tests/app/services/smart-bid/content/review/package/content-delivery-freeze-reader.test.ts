@@ -69,10 +69,12 @@ it('preserves unknown on a complete empty original read and requires readable te
     data:{Count:1,Items:[{...pack,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
   }))
   packageView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:executePackage})
-  let registrationMode:'EMPTY'|'FOUND'|'DUPLICATE'|'HIDDEN'='EMPTY'
+  let registrationMode:'EMPTY'|'FOUND'|'DUPLICATE'|'HIDDEN'|'WRONG_FORMAT'='EMPTY'
   packageRequestView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>{
+   expect(packageRequestView.queryContext).toMatchObject({projectId:'P',packingRequestRef:pack.packingRequestRef,format:'ZIP'})
    const requestTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'SubmissionPackage'})
-   const registeredRow={...pack,lingma_sys_params:{r:[],e:[],h:registrationMode==='HIDDEN'?['packingRequestRef']:[],m:[],d:false}}
+   const registeredRow={...pack,format:registrationMode==='WRONG_FORMAT'?'PAPER':pack.format,
+    lingma_sys_params:{r:[],e:[],h:registrationMode==='HIDDEN'?['packingRequestRef']:[],m:[],d:false}}
    const registrations=registrationMode==='EMPTY'?[]:registrationMode==='DUPLICATE'?
     [registeredRow,{...registeredRow,id:'DUPLICATE'}]:[registeredRow]
    return new DataSpaceQueryContext({identity:requestTable.identity,scope:'pkg-request',readScope:()=> 'pkg-request',
@@ -159,6 +161,9 @@ it('preserves unknown on a complete empty original read and requires readable te
   registrationMode='HIDDEN'
   await expect(registeredPage.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal))
    .rejects.toThrow('DATA_VIEW_READ_ROW')
+  registrationMode='WRONG_FORMAT'
+  await expect(registeredPage.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal))
+   .rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_SCOPE')
   expect(openAuthorized).toHaveBeenCalledTimes(zipOpenCount)
   expect(openOriginal).toHaveBeenCalledTimes(2)
   await expect(verifyRegisteredPackingCandidate(host,registered,latest.candidate,openAuthorized))

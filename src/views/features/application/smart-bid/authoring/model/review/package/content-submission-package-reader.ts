@@ -28,7 +28,7 @@ export async function readPackingRegistrationIdentity(host:ContentRevisionReadHo
  host.assertCurrent()
  if(![scenarioId,projectId,packingRequestRef].every(identity))throw Error(error)
  const key=buildDataViewKey('SubmissionPackage',format==='ZIP'?'originalPackedZipByRequest':'originalPackedPaperByRequest',scenarioId)
- const view=runtime.resolveView(key),context={projectId,packingRequestRef}
+ const view=runtime.resolveView(key),context={projectId,packingRequestRef,format}
  const isRequestView=(target:DataView)=>target.dataTable?.modelBinding?.modelName==='SubmissionPackage'&&
   target.commitMode==='staged'&&target.queryConfig.autoQuery===false&&Object.keys(context).every(field=>
    hasContentScopeCondition(target,field,{Type:'GetInputParam',ParamName:field}))

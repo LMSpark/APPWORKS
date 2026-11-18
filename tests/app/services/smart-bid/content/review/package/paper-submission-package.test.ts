@@ -62,10 +62,13 @@ it('opens the original paper packing record before asking for same-seal witness 
    data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:hidden?['packed']:[],m:[],d:false}}]}}}),
  })})
  let found=false
- requestView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+ requestView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>{
+  expect(requestView.queryContext).toMatchObject({projectId:'P',packingRequestRef:'Q',format:'PAPER'})
+  return new DataSpaceQueryContext({
   identity:table.identity,scope:'paper-request',readScope:()=> 'paper-request',snapshot:table.applyResult({Result:{primaryKeyField:'id',
    data:{Count:found?1:0,Items:found?[{...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]:[]}}}),
- })})
+  })
+ }})
  const host={runtime:{resolveView:(key:string)=>key==='S@SubmissionPackage@originalPackedPaper'?view:
   key==='S@SubmissionPackage@originalPackedPaperByRequest'?requestView:undefined},
   scenarioId:'S',projectId:'P',assertCurrent:()=>{}}

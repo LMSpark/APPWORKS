@@ -5,12 +5,12 @@ import {mount,flushPromises,config} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {defineComponent,h,reactive} from 'vue'
 import {DataSet,bindDataSetCommandSubmit,type DataRow} from '@spark-appworks/spark-data'
-import {Spark,RendererTable,RendererButton,RendererToolbar,FieldText,type RToolbarProps} from '@spark-appworks/spark-component'
+import {Spark,RendererSection,RendererTable,RendererButton,RendererToolbar,FieldText,type RToolbarProps} from '@spark-appworks/spark-component'
 import {isRecord} from '@spark-appworks/spark-utils'
 import Page from '@/views/features/system/cache-management/ui/cache-management-page.vue'
 
 const mocks=vi.hoisted(()=>({load:vi.fn(),route:{path:'/apps/APP/features/system/cache-management/ui/cache-management-page',meta:{blueprintScenarioId:'348D1C50B204C779AABBE2489C5E2FDF',nodeId:'CACHE_NODE',systemPageIdentityState:'resolved'}}}))
-vi.mock('vue-router',()=>({useRoute:()=>route}))
+vi.mock('vue-router',async importOriginal=>({...(await importOriginal<typeof import('vue-router')>()),useRoute:()=>route,useRouter:()=>undefined}))
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',()=>({loadLowcodeRuntimeScenario:mocks.load}))
 vi.mock('@spark-appworks/spark-app',async()=>{
  const {NativePageRuntimeSession}=await import('../../../packages/spark-app/src/router/native-page-runtime-session')
@@ -45,13 +45,15 @@ async function fixture(realTable=false,keyless=false,commandReadFailure=false){
  const ButtonStub=defineComponent({name:'RendererButton',props:['label','disabled'],emits:['click'],setup:(props,{emit})=>()=>h('button',{disabled:props['disabled'],onClick:()=>emit('click')},String(props['label']))})
  const DialogStub=defineComponent({name:'RendererDialog',setup:(_,{slots})=>()=>h('div',[slots['default']?.(),slots['footer']?.()])})
  const registry=Spark.createRegistry()
+ registry.register({type:'r-section',component:RendererSection});registry.register({type:'r-table',component:RendererTable})
  registry.register({type:'r-text',component:FieldText});registry.register({type:'r-button',component:RendererButton});registry.register({type:'r-toolbar',component:RendererToolbar})
+ const stubs={...config.global.stubs}
+ for(const name of ['SparkComponentRenderer','spark-component-renderer'])delete stubs[name]
  if(realTable){
-  const stubs={...config.global.stubs}
-  for(const name of ['el-table','el-table-column','el-button','SparkComponentRenderer','spark-component-renderer'])delete stubs[name]
-  config.global.stubs=stubs
+  for(const name of ['el-table','el-table-column','el-button'])delete stubs[name]
   vi.stubGlobal('ResizeObserver',class{observe(){}unobserve(){}disconnect(){}})
  }
+ config.global.stubs=stubs
  const wrapper=mount(Page,{global:{plugins:[ElementPlus,Spark.createPlugin({registry})],stubs:{RendererTable:realTable?false:TableStub,RendererButton:realTable?false:ButtonStub,RendererDialog:DialogStub,RendererForm:true,FieldText:!realTable}}})
  cleanups.push(()=>wrapper.unmount());await flushPromises()
  return{wrapper,...data}

@@ -8,30 +8,26 @@
   :status="loading ? '正在读取缓存类型…' : needsSwitch ? '当前仍显示原导航的缓存工作区，请先处理原删除命令。' : ''"
   :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
   <RendererButton v-if="needsSwitch" label="切换到当前导航" :disabled="busy || pending || !!session" @click="loadCurrentRoute" />
-  <div v-if="ready" class="cache-manager-page">
-   <RendererSection class="cache-manager-page__sidebar" title="缓存类型" :grid-columns="1">
-    <RendererTable :data-view-key="categoryKey" :children="categoryFields" :show-pagination="false" :show-data-view-meta="false" :highlight-current-row="true" />
-   </RendererSection>
-   <RendererSection class="cache-manager-page__content" title="缓存信息" :grid-columns="1">
-    <RendererTable :data-view-key="listKey" :children="listFields" :actions="actions" :show-data-view-meta="false"
-     :current-page-search="{fields:['cacheKey'],placeholder:'搜索当前页缓存键'}" :pagination="{pageSizes:[20,50,100],showJumper:false}" />
-   </RendererSection>
-   <CacheDeleteConfirmation v-if="session" :key="session.epoch" :data-view-key="commandKey" :record-id="session.id" @close="finish" />
-  </div>
+  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false" />
+  <CacheDeleteConfirmation v-if="ready && session" :key="session.epoch" :data-view-key="commandKey" :record-id="session.id" @close="finish" />
  </RendererSection>
 </template>
 <script setup lang="ts">
 import {computed,onBeforeUnmount,ref,watch} from 'vue'
 import {useRoute} from 'vue-router'
+import {PageTool} from '@spark-appworks/spark-project-model'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey,type DataSet,type DataRow,type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME,RendererSection,RendererTable,RendererButton,useSparkComponent,type RToolbarProps,type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
+import {buildDataViewKey,type DataSet,type DataRow} from '@spark-appworks/spark-data'
+import {PAGE_RUNTIME,RendererSection,SparkPageRenderer,RendererButton,useSparkComponent,type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import CacheDeleteConfirmation from './cache-delete-confirmation.vue'
+import rule from './tool/rule.json?raw'
+import script from './tool/script.js?raw'
+import style from './tool/style.css?raw'
 
 const scenarioId='348D1C50B204C779AABBE2489C5E2FDF',route=useRoute()
-const categoryKey=buildDataViewKey('缓存过滤条件','default',scenarioId),listKey=buildDataViewKey('获取缓存信息','default',scenarioId),commandKey=buildDataViewKey('CacheDeleteRequest','default',scenarioId)
+const commandKey=buildDataViewKey('CacheDeleteRequest','default',scenarioId)
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'cache-management-page'})
 const runtimeSession=new NativePageRuntimeSession({
   provide:()=>undefined,
@@ -43,9 +39,22 @@ const openedIdentity=ref(''),needsSwitch=computed(()=>ready.value&&openedIdentit
 let ds:DataSet|undefined,stop:(()=>void)|undefined,generation=0,epoch=0,active=true
 const pending=computed(()=>{revision.value;const view=ds?.getView('CacheDeleteRequest');return !!view&&(view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())})
 useSystemPageDirtySource({get isDirty(){return busy.value||pending.value||!!session.value}})
-const categoryFields:SparkNode[]=[{type:'r-text',props:{field:'txt',label:'缓存类型',readonly:true}}]
-const listFields:SparkNode[]=[{type:'r-text',props:{field:'cacheKey',label:'键',readonly:true}},{type:'r-text',props:{field:'cacheValue',label:'值',readonly:true}}]
-const actions=computed<RToolbarProps>(()=>({children:[{type:'r-button',props:{label:'删除',buttonType:'danger',permAction:'delete',disabled:busy.value||pending.value||!!session.value,onClick:beginDelete}}]}))
+const runtime=computed(()=>ready.value?runtimeSession.runtime:undefined)
+const routeSnapshot=computed(()=>{
+ const {path,fullPath,name,params,query,hash}=route
+ return {path,fullPath,name:name??null,params,query,hash}
+})
+const host=computed(()=>{
+ const current=runtime.value
+ if(!current)return undefined
+ const assertCurrent=()=>{if(!active||!runtimeSession.isCurrent(current))throw Error('缓存工作区运行实例已失效')}
+ return {runtime:current,assertCurrent,async invoke(command:string,input:unknown){
+  assertCurrent()
+  if(command==='cache.connect')return {deleteDisabled:()=>busy.value||pending.value||!!session.value}
+  if(command==='cache.delete'&&input&&typeof input==='object')await beginDelete(input as DataRow)
+  return undefined
+ }}
+})
 async function beginDelete(row:DataRow):Promise<void>{
  if(busy.value||pending.value||session.value)return
  busy.value=true;error.value=''
@@ -77,7 +86,12 @@ async function loadCurrentRoute():Promise<void>{
  let current:ReturnType<NativePageRuntimeSession['acquire']>|undefined
  try{
   if(typeof projectId!=='string'||!projectId||scene!==scenarioId||typeof nodeId!=='string'||!nodeId||state!=='resolved')throw Error('缓存管理入口缺少正式导航身份或数据空间绑定')
-  current=runtimeSession.acquire({pageId:nodeId,scenarioIds:[scenarioId],targetId:`${projectId}:${nodeId}`,
+  const tool=new PageTool({pageId:nodeId})
+  tool.hydrateFileText('rule.json',rule)
+  tool.hydrateFileText('script.js',script)
+  tool.hydrateFileText('style.css',style)
+  tool.markLoaded()
+  current=runtimeSession.acquire({tool,scenarioIds:[scenarioId],targetId:`${projectId}:${nodeId}`,
     loadScenario:id=>loadLowcodeRuntimeScenario({projectId,scenarioId:id})})
   await current.load()
   if(!active||own!==generation||!runtimeSession.isCurrent(current))return
@@ -101,8 +115,4 @@ onBeforeUnmount(()=>{active=false;generation++;stop?.();runtimeSession.dispose()
 </script>
 <style scoped>
 .cache-manager{padding:8px}
-.cache-manager-page{display:flex;gap:16px;min-height:0}
-.cache-manager-page__sidebar{width:300px;flex:none}
-.cache-manager-page__content{flex:1;min-width:0}
-@media(max-width:1200px){.cache-manager-page{flex-direction:column}.cache-manager-page__sidebar{width:100%}}
 </style>

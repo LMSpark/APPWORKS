@@ -1,0 +1,7 @@
+.cache-manager-page {display: flex !important; gap: 16px; min-height: 0}
+.cache-manager-page > :first-child {width: 300px; flex: none}
+.cache-manager-page > :last-child {flex: 1; min-width: 0}
+@media (max-width: 1200px) {
+  .cache-manager-page {flex-direction: column}
+  .cache-manager-page > :first-child {width: 100%}
+}

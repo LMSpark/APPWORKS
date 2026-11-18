@@ -2,10 +2,34 @@ import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/content-root-hash'
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
+import {prepareBidVolumePlan} from '@/services/smart-bid/content/references/response/bid-volume-plan'
+import {compareAdoptionBasisChecks} from '@/services/smart-bid/content/adoption/adoption-basis-checks'
 import {prepareResponseDraft} from '@/services/smart-bid/content/references/response/response-draft'
 import {readReviewedResponseForCandidate,reviewResponseDraft} from '@/services/smart-bid/content/references/response/response-review'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
+
+it('checks the planned volume against the actual candidate tree and revokes the proof on refresh',async()=>{
+ const f=await fixture('populated')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const scope={projectId:'P',baselineId:'B'}
+  const obligation={kind:'DOCUMENT' as const,obligationRef:'DOC'}
+  const source={...scope,obligations:[{...obligation,required:true,allowedDisclosureRefs:[]}],assertCurrent:()=>{}}
+  const targets={...obligation,targetRef:'C',disclosureRefs:[]}
+  const plan=prepareBidVolumePlan({...scope,destinations:[{...targets,documentId:'D'}]},source)
+  const wrong=prepareBidVolumePlan({...scope,destinations:[{...targets,documentId:'OTHER'}]},source)
+  const proof=candidate.verifyVolumePlan(plan)
+  expect(proof.documentIds).toEqual(['D'])
+  const updated=prepareBidVolumePlan({...scope,destinations:[{...targets,documentId:'D',targetRef:'H'}]},source)
+  expect(compareAdoptionBasisChecks([proof.basisCheck],[candidate.verifyVolumePlan(updated).basisCheck])).toMatchObject({
+   matches:false,issues:[{owner:'BidVolume',code:'SCOPE_EVIDENCE_CHANGED'}],
+  })
+  expect(()=>candidate.verifyVolumePlan(wrong)).toThrow('BID_VOLUME_PLAN_PLACEMENT')
+  await f.ds.getView('ContentNodeVersion','snapshotMembers')?.refresh()
+  expect(()=>proof.assertCurrent()).toThrow()
+ }finally{f.ds.destroy()}
+})
 
 it.each(['response-fact','scoped-response'] as const)('matches reviewed response content against the actual candidate manifest (%s)',async mode=>{
  const f=await fixture(mode)

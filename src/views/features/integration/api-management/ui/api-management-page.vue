@@ -10,9 +10,9 @@ AI用途：恢复外部服务入口时复用标准外壳、通用记录对话框
     <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false">
       <template #content="{children}">
         <template v-for="(child, index) in children" :key="nodeId(child) ?? index">
-          <ApiConfigPage v-if="nodeId(child) === 'api-provider-jwt' && ready && dialog?.kind === 'config'"
-            :key="dialog.epoch" :provider-id="dialog.id" :jwt-config="child" @close="dialog = null" @interfaces="openConfigInterfaces" />
-          <SparkComponentRenderer v-else-if="nodeId(child) !== 'api-provider-jwt'" :config="child" />
+          <ApiConfigPage v-if="nodeId(child) === 'api-provider-config' && ready && dialog?.kind === 'config'"
+            :key="dialog.epoch" :provider-id="dialog.id" :config="child" @close="dialog = null" @interfaces="openConfigInterfaces" />
+          <SparkComponentRenderer v-else-if="nodeId(child) !== 'api-provider-config'" :config="child" />
         </template>
       </template>
     </SparkPageRenderer>

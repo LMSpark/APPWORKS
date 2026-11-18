@@ -10,5 +10,5 @@ import type {SparkNode} from '@spark-appworks/spark-data'
 export type ApiConfigPageProps = Readonly<{
   /** 正式服务商 rowid，用于限定配置视图的查询。 */
   providerId: string
-  jwtConfig: SparkNode
+  config: SparkNode
 }>

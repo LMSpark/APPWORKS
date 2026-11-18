@@ -26,164 +26,183 @@
       {"type":"r-text","props":{"field":"updatetime","label":"修改时间","width":140,"readonly":true,"showOverflowTooltip":true,"onBeforeRender":"bindDate"}}
     ]
   },
-  {
-    "id": "api-provider-jwt",
-    "type": "r-section",
-    "props": {
-      "bordered": false,
-      "gridColumns": 1
-    },
-    "children": [
-      {
-        "type": "r-form",
+  {"id":"api-provider-config","type":"r-section","props":{"gridColumns":1},"children":[
+    {
+        "id": "jwt",
+        "type": "r-section",
         "props": {
-          "dataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication",
-          "gridColumns": 2,
-          "labelWidth": "130px",
-          "showDataViewMeta": false,
-          "autoColumns": false
+          "bordered": false,
+          "gridColumns": 1
         },
         "children": [
           {
-            "type": "r-text",
+            "type": "r-form",
             "props": {
-              "field": "Name",
-              "label": "提供商名称",
-              "readonly": true
-            }
+              "dataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication",
+              "gridColumns": 2,
+              "labelWidth": "130px",
+              "showDataViewMeta": false,
+              "autoColumns": false
+            },
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "Name",
+                  "label": "提供商名称",
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "BaseURL",
+                  "label": "API 基础 URL",
+                  "readonly": true
+                }
+              }
+            ]
           },
           {
-            "type": "r-text",
+            "type": "r-section",
             "props": {
-              "field": "BaseURL",
-              "label": "API 基础 URL",
-              "readonly": true
-            }
-          }
-        ]
-      },
-      {
-        "type": "r-section",
-        "props": {
-          "title": "认证设置",
-          "bordered": true,
-          "gridColumns": 1
-        },
-        "children": [
-          {
-            "type": "r-form",
-            "props": {
-              "dataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication",
-              "gridColumns": 2,
-              "labelWidth": "130px",
-              "showDataViewMeta": false,
-              "autoColumns": false
+              "title": "认证设置",
+              "bordered": true,
+              "gridColumns": 1
             },
             "children": [
               {
-                "type": "r-select",
+                "type": "r-form",
                 "props": {
-                  "field": "loginApiName",
-                  "label": "认证接口",
-                  "clearable": true,
-                  "filterable": true,
-                  "optionDataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_DataServiceInterface@default"
-                }
-              },
+                  "dataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication",
+                  "gridColumns": 2,
+                  "labelWidth": "130px",
+                  "showDataViewMeta": false,
+                  "autoColumns": false
+                },
+                "children": [
+                  {
+                    "type": "r-select",
+                    "props": {
+                      "field": "loginApiName",
+                      "label": "认证接口",
+                      "clearable": true,
+                      "filterable": true,
+                      "optionDataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_DataServiceInterface@default"
+                    }
+                  },
+                  {
+                    "type": "r-text",
+                    "props": {
+                      "field": "TokenPrefix",
+                      "label": "令牌前缀"
+                    }
+                  },
+                  {
+                    "type": "r-select",
+                    "props": {
+                      "field": "TokenField",
+                      "label": "从响应中提取的令牌字段名",
+                      "clearable": true,
+                      "filterable": true,
+                      "optionDataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"
+                    }
+                  },
+                  {
+                    "type": "r-select",
+                    "props": {
+                      "field": "refreshTokenField",
+                      "label": "刷新令牌提取",
+                      "clearable": true,
+                      "filterable": true,
+                      "optionDataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"
+                    }
+                  },
+                  {
+                    "type": "r-select",
+                    "props": {
+                      "field": "expireTimeField",
+                      "label": "过期时间提取",
+                      "clearable": true,
+                      "filterable": true,
+                      "optionDataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"
+                    }
+                  },
+                  {
+                    "type": "r-select",
+                    "props": {
+                      "field": "expireRefreshTokenField",
+                      "label": "刷新令牌过期时间字段",
+                      "clearable": true,
+                      "filterable": true,
+                      "optionDataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "r-section",
+            "props": {
+              "title": "令牌过期刷新",
+              "bordered": true,
+              "gridColumns": 1
+            },
+            "children": [
               {
-                "type": "r-text",
+                "type": "r-form",
                 "props": {
-                  "field": "TokenPrefix",
-                  "label": "令牌前缀"
-                }
-              },
-              {
-                "type": "r-select",
-                "props": {
-                  "field": "TokenField",
-                  "label": "从响应中提取的令牌字段名",
-                  "clearable": true,
-                  "filterable": true,
-                  "optionDataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"
-                }
-              },
-              {
-                "type": "r-select",
-                "props": {
-                  "field": "refreshTokenField",
-                  "label": "刷新令牌提取",
-                  "clearable": true,
-                  "filterable": true,
-                  "optionDataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"
-                }
-              },
-              {
-                "type": "r-select",
-                "props": {
-                  "field": "expireTimeField",
-                  "label": "过期时间提取",
-                  "clearable": true,
-                  "filterable": true,
-                  "optionDataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"
-                }
-              },
-              {
-                "type": "r-select",
-                "props": {
-                  "field": "expireRefreshTokenField",
-                  "label": "刷新令牌过期时间字段",
-                  "clearable": true,
-                  "filterable": true,
-                  "optionDataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"
-                }
+                  "dataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication",
+                  "gridColumns": 2,
+                  "labelWidth": "130px",
+                  "showDataViewMeta": false,
+                  "autoColumns": false
+                },
+                "children": [
+                  {
+                    "type": "r-text",
+                    "props": {
+                      "field": "tokenHeaderField",
+                      "label": "Header提取令牌属性"
+                    }
+                  },
+                  {
+                    "type": "r-text",
+                    "props": {
+                      "field": "refreshTokenHeaderField",
+                      "label": "Header提取刷新令牌属性"
+                    }
+                  },
+                  {
+                    "type": "r-text",
+                    "props": {
+                      "field": "expireTimeHeaderField",
+                      "label": "Header提取过期时间属性"
+                    }
+                  }
+                ]
               }
             ]
           }
         ]
       },
-      {
-        "type": "r-section",
-        "props": {
-          "title": "令牌过期刷新",
-          "bordered": true,
-          "gridColumns": 1
-        },
-        "children": [
-          {
-            "type": "r-form",
-            "props": {
-              "dataViewKey": "446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication",
-              "gridColumns": 2,
-              "labelWidth": "130px",
-              "showDataViewMeta": false,
-              "autoColumns": false
-            },
-            "children": [
-              {
-                "type": "r-text",
-                "props": {
-                  "field": "tokenHeaderField",
-                  "label": "Header提取令牌属性"
-                }
-              },
-              {
-                "type": "r-text",
-                "props": {
-                  "field": "refreshTokenHeaderField",
-                  "label": "Header提取刷新令牌属性"
-                }
-              },
-              {
-                "type": "r-text",
-                "props": {
-                  "field": "expireTimeHeaderField",
-                  "label": "Header提取过期时间属性"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
+    {"id":"headers","type":"r-table","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider_Headers@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
+      {"type":"r-text","props":{"field":"paramName","label":"参数名称","minWidth":240,"showCellControl":true,"sortable":false}},
+      {"type":"r-value-function","props":{"field":"paramValue","label":"值函数","minWidth":280,"publicParameterDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_Interface_PublicParam@references","functionContext":{"capabilities":["huoshan"]}}},
+      {"type":"r-select","props":{"field":"type","label":"使用场景","minWidth":220,"showCellControl":true,"sortable":false,"clearable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@接口公共头部信息使用类型@default"}}
+    ]},
+    {"id":"publicParams","type":"r-table","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_Interface_PublicParam@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
+      {"type":"r-text","props":{"field":"paramName","label":"参数名称","minWidth":180,"showCellControl":true,"sortable":false}},
+      {"type":"r-text","props":{"field":"desc","label":"参数描述","minWidth":180,"showCellControl":true,"sortable":false}},
+      {"id":"outputfield","type":"r-select","props":{"field":"outputfield","label":"输出字段","minWidth":180,"showCellControl":true,"sortable":false,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@default"}},
+      {"type":"r-select","props":{"field":"interfaceId","label":"接口名称","minWidth":180,"showCellControl":true,"sortable":false,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_DataServiceInterface@default"}},
+      {"type":"r-text","props":{"field":"accessPath","label":"接口路径","minWidth":220,"readonly":true,"sortable":false,"showOverflowTooltip":true}}
+    ]},
+    {"id":"accounts","type":"r-table","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider_Account@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
+      {"type":"r-text","props":{"field":"UserName","label":"用户名","minWidth":220,"showCellControl":true,"sortable":false}},
+      {"type":"r-text","props":{"field":"Password","label":"密码","minWidth":240,"showCellControl":true,"sortable":false,"showPassword":true}},
+      {"type":"r-text","props":{"field":"description","label":"备注","minWidth":240,"showCellControl":true,"sortable":false}}
+    ]}
+  ]}
 ]

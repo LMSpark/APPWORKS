@@ -5436,6 +5436,11 @@
       "shardFile": "files/src/services/smart-bid/content/references/template-content-rules.ts.json",
       "sourceModifiedAt": "2026-11-18T01:24:49.889Z"
     },
+    "src/services/smart-bid/content/review/delivery-selection-digest.ts": {
+      "sourceFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts",
+      "shardFile": "files/src/services/smart-bid/content/review/delivery-selection-digest.ts.json",
+      "sourceModifiedAt": "2026-11-18T03:48:27.227Z"
+    },
     "src/services/smart-bid/content/review/review-check-evidence.ts": {
       "sourceFile": "src/services/smart-bid/content/review/review-check-evidence.ts",
       "shardFile": "files/src/services/smart-bid/content/review/review-check-evidence.ts.json",
@@ -5444,7 +5449,7 @@
     "src/services/smart-bid/content/review/review-coverage.ts": {
       "sourceFile": "src/services/smart-bid/content/review/review-coverage.ts",
       "shardFile": "files/src/services/smart-bid/content/review/review-coverage.ts.json",
-      "sourceModifiedAt": "2026-11-18T02:10:37.664Z"
+      "sourceModifiedAt": "2026-11-18T03:46:59.601Z"
     },
     "src/services/smart-bid/content/review/submission-package-members.ts": {
       "sourceFile": "src/services/smart-bid/content/review/submission-package-members.ts",
@@ -5454,7 +5459,12 @@
     "src/services/smart-bid/content/review/submission-reconciliation.ts": {
       "sourceFile": "src/services/smart-bid/content/review/submission-reconciliation.ts",
       "shardFile": "files/src/services/smart-bid/content/review/submission-reconciliation.ts.json",
-      "sourceModifiedAt": "2026-11-18T02:59:45.464Z"
+      "sourceModifiedAt": "2026-11-18T03:29:47.283Z"
+    },
+    "src/services/smart-bid/content/review/submission-zip-inventory.ts": {
+      "sourceFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
+      "shardFile": "files/src/services/smart-bid/content/review/submission-zip-inventory.ts.json",
+      "sourceModifiedAt": "2026-11-18T03:36:00.561Z"
     },
     "src/services/smart-bid/content/revision-response-comparison.ts": {
       "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
@@ -5684,7 +5694,7 @@
     "src/views/features/application/application-function-management/ui/page-design/use-page-design.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/use-page-design.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/page-design/use-page-design.ts.json",
-      "sourceModifiedAt": "2026-11-12T21:29:12.932Z"
+      "sourceModifiedAt": "2026-11-18T03:35:18.251Z"
     },
     "src/views/features/application/application-function-management/ui/page-design/useDevFileEditor.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/useDevFileEditor.ts",
@@ -5904,12 +5914,12 @@
     "src/views/features/application/smart-bid/authoring/model/review/content-approval-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-approval-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-approval-reader.ts.json",
-      "sourceModifiedAt": "2026-11-18T01:51:09.178Z"
+      "sourceModifiedAt": "2026-11-18T03:47:54.477Z"
     },
     "src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts.json",
-      "sourceModifiedAt": "2026-11-18T03:14:26.540Z"
+      "sourceModifiedAt": "2026-11-18T03:50:16.188Z"
     },
     "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
@@ -5919,7 +5929,7 @@
     "src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts.json",
-      "sourceModifiedAt": "2026-11-18T03:13:53.319Z"
+      "sourceModifiedAt": "2026-11-18T03:42:39.933Z"
     },
     "src/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader.ts",
@@ -5936,6 +5946,11 @@
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-review-versions.ts.json",
       "sourceModifiedAt": "2026-11-18T02:21:54.838Z"
     },
+    "src/views/features/application/smart-bid/authoring/model/review/content-review-workspace.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-workspace.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-review-workspace.ts.json",
+      "sourceModifiedAt": "2026-11-18T03:42:47.636Z"
+    },
     "src/views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader.ts.json",
@@ -5949,12 +5964,12 @@
     "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation.ts.json",
-      "sourceModifiedAt": "2026-11-18T03:24:18.593Z"
+      "sourceModifiedAt": "2026-11-18T03:31:56.215Z"
     },
     "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation.ts.json",
-      "sourceModifiedAt": "2026-11-18T03:25:44.341Z"
+      "sourceModifiedAt": "2026-11-18T03:31:56.231Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",

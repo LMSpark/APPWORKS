@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1358,
+  "scannedFileCount": 1361,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17880,6 +17880,19 @@
         "symbols": []
       }
     },
+    "src/services/smart-bid/content/review/delivery-selection-digest.ts": {
+      "file": "files/src/services/smart-bid/content/review/delivery-selection-digest.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/delivery-selection-digest",
+        "sourcePath": "src/services/smart-bid/content/review/delivery-selection-digest.ts",
+        "sourceFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/delivery-selection-digest",
+        "jsdoc": "@module app:services/smart-bid/content/review/delivery-selection-digest\n职责：按第48项合同计算固定跨册成员摘要与完整选件摘要。\n边界：由权威冻结入口核依赖及并发；此处也供第49、50项独立回读校验。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/review/review-check-evidence.ts": {
       "file": "files/src/services/smart-bid/content/review/review-check-evidence.ts.json",
       "module": {
@@ -17928,6 +17941,19 @@
         "packageName": "app",
         "modulePath": "services/smart-bid/content/review/submission-reconciliation",
         "jsdoc": "@module app:services/smart-bid/content/review/submission-reconciliation\n职责：按动作54指定截止与获知时点，逐项归并已经核定效力的渠道事件。\n边界：事件的生效条件由原规则和渠道证据核定；本函数不认定开启、准入或审批值相符。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/submission-zip-inventory.ts": {
+      "file": "files/src/services/smart-bid/content/review/submission-zip-inventory.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/submission-zip-inventory",
+        "sourcePath": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
+        "sourceFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/submission-zip-inventory",
+        "jsdoc": "@module app:services/smart-bid/content/review/submission-zip-inventory\n职责：在内存中读取递交原包的 ZIP 成员，按调用方批准的核验预算限制枚举。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -19311,6 +19337,19 @@
         "modulePath": "views/features/application/smart-bid/authoring/model/review/content-review-versions",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-review-versions\n职责：为本轮固定审定清单绑定逐件实件及逐栏拟填版本的原读取证明。\n边界：旧实件沿用决定由审定清单负责；字段必须来自当前修订的已采用答复。",
         "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/content-review-workspace.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-review-workspace.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/content-review-workspace",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-review-workspace.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-workspace.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-review-workspace",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-review-workspace\n职责：按动作45固定清单读取实件、拟填栏、原批准及检查结果。",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },

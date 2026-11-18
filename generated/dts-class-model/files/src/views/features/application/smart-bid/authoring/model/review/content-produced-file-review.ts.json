@@ -81,9 +81,27 @@
         "producedFileId",
         "productionRequestRef"
       ]
+    },
+    "FileTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileTarget",
+      "properties": {
+        "producedFileId": {
+          "type": "string"
+        },
+        "productionRequestRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "producedFileId",
+        "productionRequestRef"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T03:13:53.319Z",
+  "generatedAt": "2026-11-18T03:42:39.933Z",
   "models": {
     "FileSelection": {
       "name": "FileSelection",
@@ -180,6 +198,44 @@
             }
           ]
         }
+      }
+    },
+    "FileTarget": {
+      "name": "FileTarget",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<FileSelection, 'projectId'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Omit<FileSelection, 'projectId'>",
+            "targetName": "Omit"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "producedFileId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "productionRequestRef",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "OpenAuthorized": {
+      "name": "OpenAuthorized",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(input: FileSelection & Readonly<{\n    resourceVersionId: string;\n}>) => Promise<Readonly<{\n    projectId: string;\n    resourceVersionId: string;\n    bytes: ArrayBuffer;\n    assertCurrent: () => void;\n}>>",
+        "members": {}
       }
     }
   }

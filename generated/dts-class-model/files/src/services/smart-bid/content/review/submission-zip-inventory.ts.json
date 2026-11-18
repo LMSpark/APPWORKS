@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/submission-zip-inventory",
+    "sourcePath": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
+    "sourceFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/submission-zip-inventory",
+    "jsdoc": "@module app:services/smart-bid/content/review/submission-zip-inventory\n职责：在内存中读取递交原包的 ZIP 成员，按调用方批准的核验预算限制枚举。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "ZipInventoryLimits": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ZipInventoryLimits",
+      "properties": {
+        "maxEntries": {
+          "type": "number"
+        },
+        "maxExpandedBytes": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "maxEntries",
+        "maxExpandedBytes"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T03:36:00.561Z",
+  "models": {
+    "ZipInventoryLimits": {
+      "name": "ZipInventoryLimits",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    maxEntries: number;\n    maxExpandedBytes: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    maxEntries: number;\n    maxExpandedBytes: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "maxEntries",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxExpandedBytes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

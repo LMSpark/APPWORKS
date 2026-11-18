@@ -1,0 +1,235 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/content-review-workspace",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-review-workspace.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-workspace.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/content-review-workspace",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-review-workspace\n职责：按动作45固定清单读取实件、拟填栏、原批准及检查结果。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "ReviewSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReviewSelection",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "ReviewTarget"
+          }
+        }
+      },
+      "required": [
+        "projectId",
+        "assertCurrent",
+        "revisionId",
+        "targets"
+      ],
+      "additionalProperties": false
+    },
+    "FileTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileTarget",
+      "properties": {
+        "producedFileId": {
+          "type": "string"
+        },
+        "productionRequestRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "producedFileId",
+        "productionRequestRef"
+      ],
+      "additionalProperties": false
+    },
+    "FieldProof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldProof",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "assignmentId": {
+          "type": "string"
+        },
+        "fieldId": {
+          "type": "string"
+        },
+        "responseId": {
+          "type": "string"
+        },
+        "fieldRuleRef": {
+          "type": "string"
+        },
+        "approvalRef": {
+          "type": "string"
+        },
+        "versionHash": {
+          "type": "string"
+        },
+        "valueHash": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "projectId",
+        "revisionId",
+        "assignmentId",
+        "fieldId",
+        "responseId",
+        "fieldRuleRef",
+        "approvalRef",
+        "versionHash",
+        "valueHash",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T03:42:47.636Z",
+  "models": {
+    "ReviewSelection": {
+      "name": "ReviewSelection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof bindReviewVersions>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targets",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FileTarget": {
+      "name": "FileTarget",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readRegisteredProducedFileReviewVersions>[1][number]",
+        "members": {
+          "attributes": [
+            {
+              "name": "producedFileId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "productionRequestRef",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FieldProof": {
+      "name": "FieldProof",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Extract<Parameters<typeof bindReviewVersions>[1][number], {\n    kind: 'FIELD';\n}>['source']",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "responseId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldRuleRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "approvalRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "versionHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "valueHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -33,9 +33,10 @@
               },
               "state": {
                 "enum": [
+                  "WITHDRAWN",
                   "PENDING_EFFECT",
-                  "PENDING_DELIVERY",
-                  "EFFECTIVE_ATTEMPT"
+                  "EFFECTIVE_ATTEMPT",
+                  "PENDING_DELIVERY"
                 ]
               },
               "attemptRef": {
@@ -210,7 +211,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T03:24:18.593Z",
+  "generatedAt": "2026-11-18T03:31:56.215Z",
   "models": {
     "Deadline": {
       "name": "Deadline",

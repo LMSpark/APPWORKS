@@ -33,9 +33,10 @@
               },
               "state": {
                 "enum": [
+                  "WITHDRAWN",
                   "PENDING_EFFECT",
-                  "PENDING_DELIVERY",
-                  "EFFECTIVE_ATTEMPT"
+                  "EFFECTIVE_ATTEMPT",
+                  "PENDING_DELIVERY"
                 ]
               },
               "attemptRef": {

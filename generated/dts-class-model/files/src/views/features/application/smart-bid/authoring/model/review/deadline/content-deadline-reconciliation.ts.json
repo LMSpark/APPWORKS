@@ -82,7 +82,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T03:25:44.341Z",
+  "generatedAt": "2026-11-18T03:31:56.231Z",
   "models": {
     "FieldSource": {
       "name": "FieldSource",

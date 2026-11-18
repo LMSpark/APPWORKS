@@ -1,12 +1,16 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
+import {AiAgentRegistration,AiAgentToolResult,DefaultAiAgentSessionStore,createSimpleInputContract} from '@spark-appworks/spark-ai/agent'
 import {discoverRegisteredOperationGuides} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader'
+import {openContentOperationWorkspace} from '@/views/features/application/smart-bid/authoring/entry/content-operation-workspace'
+import {hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 it('discovers only the complete scoped directory and retains the original publication and permission proof',async()=>{
+ const guideText='### 核路线候选',guideDigest=await hashCanonicalSnapshotText(guideText)
  const row={id:'G',projectId:'P',directoryRef:'DIR',state:'EFFECTIVE',source:'PUBLIC',publicationRef:'PUB',
-  guideRef:'GUIDE',versionRef:'V1',guideDigest:'a'.repeat(64),kind:'OperationRoute',actionName:'verify',
+  guideRef:'GUIDE',versionRef:'V1',guideDigest,kind:'OperationRoute',actionName:'verify',
   pathRefs:['DIR'],materialRefs:['MATERIAL']}
  const filters=['projectId','directoryRef'].map(field=>({field,operator:'eq' as const,
   value:{Type:'GetInputParam',ParamName:field}}))
@@ -44,5 +48,56 @@ it('discovers only the complete scoped directory and retains the original public
   projectId='OTHER'
   await expect(discover()).rejects.toThrow('OPERATION_GUIDE_DIRECTORY_SCOPE')
   expect(executeTool).toHaveBeenCalledTimes(1)
+  projectId='P'
+  const controller=new AbortController()
+  const workspace=openContentOperationWorkspace({...host.runtime,generation:1,destroyed:false,isLoaded:true},
+   {executeTool:async(name)=>name==='model_action_guide'?{ok:true,data:guideText}:executeTool()},
+   {...host,rootKind:'OperationRoute',signal:controller.signal})
+  const discovery=await workspace.discover('DIR'),guide=await workspace.readGuide(discovery,row)
+  const attempt={projectId:'P',runId:'R',attemptRef:'A',requestKey:'Q',targetDigest:'b'.repeat(64),configurationLockHash:'c'.repeat(64)}
+  const definition={versionRef:'V1',guideDigest,configurationLockHash:attempt.configurationLockHash,
+   createdAt:'2026-11-18T10:00:00+08:00',slots:[{slotId:'target',required:true}],assertCurrent:host.assertCurrent}
+  await expect(workspace.freeze(attempt,{...guide},{definition,sources:[]})).rejects.toThrow('OPERATION_WORKSPACE_GUIDE_SCOPE')
+  await expect(workspace.freeze(attempt,guide,{definition:{...definition,versionRef:'OTHER'},sources:[]})).rejects.toThrow('OPERATION_WORKSPACE_GUIDE_SCOPE')
+  const incomplete=await workspace.freeze(attempt,guide,{definition,sources:[]})
+  expect(incomplete).toMatchObject({usable:false,inputDigest:null})
+  const frozen=await workspace.freeze(attempt,guide,{definition,sources:[{slotId:'target',state:'ALLOWED',
+   sourceRef:'REF',versionRef:'V',useRef:'USE',value:'TARGET',assertCurrent:host.assertCurrent}]})
+  expect(frozen).toMatchObject({usable:true,inputJson:'{"target":"TARGET"}',guideDigest})
+  const get=vi.fn(()=>undefined),claimOriginalTurn=vi.fn(()=>{throw Error('UNEXPECTED_CLAIM')})
+  const options={registry:{get},turnCallbacks:{executeTurn:async()=>({text:'',toolCalls:[]}),appendMessages:async()=>{}}}
+  const time=definition.createdAt
+  const dispatch={registrationId:'REG',businessInstanceId:'B',runtimeInstanceId:'R',publishedVersionRef:'V1',
+   turn:{turnId:'TURN',seq:1,baseRevision:0,queuedAt:time,startedAt:time,maxParallelTurns:1},
+   claimOriginalTurn,assertCurrent:host.assertCurrent}
+  await expect(workspace.dispatch(options,{...dispatch,manifest:{...frozen}})).rejects.toThrow('OPERATION_WORKSPACE_MANIFEST_SCOPE')
+  await expect(workspace.dispatch(options,{...dispatch,manifest:incomplete})).rejects.toThrow('OPERATION_ROUTE_AGENT_INPUT_REQUIRED')
+  expect(get).not.toHaveBeenCalled()
+  expect(claimOriginalTurn).not.toHaveBeenCalled()
+  const registration=new AiAgentRegistration({
+   moduleId:'REG',name:'路线编排',description:'生成路线候选',
+   runtime:{getTools:()=>[],executeTool:async()=>AiAgentToolResult.ok({}),
+    projectKnowledge:()=>({promptSnapshot:'路线工艺'}),
+    inspect:()=>({status:'ok',rootKinds:['OperationRoute'],moduleCount:1,findings:[]})},
+   inputContract:createSimpleInputContract({businessId:'REG',identityField:'target',messageField:'target',
+    paramsSchema:{type:'object',properties:{target:{type:'string'}},required:['target'],additionalProperties:false},
+    systemPrompt:'只返回路线候选 JSON'}),
+   sessionStore:new DefaultAiAgentSessionStore(),
+  })
+  const executeTurn=vi.fn(async()=>({text:'{"nodes":[]}',toolCalls:[]}))
+  const registered={registry:{get:(key:string)=>key==='REG'?registration:undefined},
+   turnCallbacks:{...options.turnCallbacks,executeTurn}}
+  const claim=vi.fn<Parameters<typeof workspace.dispatch>[1]['claimOriginalTurn']>()
+   .mockImplementationOnce(async input=>({...input,state:'CLAIMED',assertCurrent:host.assertCurrent}))
+   .mockImplementation(async input=>({...input,state:'EXISTING',assertCurrent:host.assertCurrent}))
+  const ready={...dispatch,businessInstanceId:'TARGET',runtimeInstanceId:'TARGET',manifest:frozen,claimOriginalTurn:claim}
+  await expect(workspace.dispatch(registered,ready)).resolves.toMatchObject({state:'CHECK_ORIGINAL',observation:'SEND_RETURNED'})
+  await expect(workspace.dispatch(registered,ready)).resolves.toMatchObject({state:'CHECK_ORIGINAL',observation:'CLAIM_UNAVAILABLE'})
+  expect(claim).toHaveBeenCalledWith(expect.objectContaining({...attempt,manifestDigest:frozen.manifestDigest,
+   inputDigest:frozen.inputDigest,publishedVersionRef:'V1',guideRef:'GUIDE',guideDigest}))
+  expect(executeTurn).toHaveBeenCalledOnce()
+  controller.abort()
+  await expect(workspace.dispatch(options,{...dispatch,manifest:frozen})).rejects.toThrow('OPERATION_WORKSPACE_STALE')
+  expect(()=>frozen.assertCurrent()).toThrow('OPERATION_WORKSPACE_STALE')
  }finally{ds.destroy()}
 })

@@ -31,7 +31,7 @@ it('prepares rework only from a visible, complete original attempt projection',a
   const controller=new AbortController()
   const workspace=openContentOperationWorkspace({...host.runtime,generation:1,destroyed:false,isLoaded:true},
    {executeTool:async()=>{throw Error('UNEXPECTED_CLASS_MODEL_CALL')}},
-   {...host,rootKind:'OperationRoute'},controller.signal)
+   {...host,rootKind:'OperationRoute',signal:controller.signal})
   const prepared=await workspace.prepareRework({...scope,reason:'撤回结果未知'})
   expect(prepared).toMatchObject({...scope,firstCallRef:'CALL',handoffs:[{destination:'ORIGINAL_CALL'}],
    originalOperations:[{destination:'52',ownerRef:'REP'}]})

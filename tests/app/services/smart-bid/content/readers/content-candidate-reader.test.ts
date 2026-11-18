@@ -4,6 +4,30 @@ import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/co
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
 
+it('reads scoped qualification evidence with the original snapshot proof',async()=>{
+ const f=await fixture('qualification')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const result=await candidate.readQualificationHash(['Q'])
+  expect(result.qualificationHash).not.toBe((await candidate.readQualificationHash([])).qualificationHash)
+  expect(result.requiresUseCheck).toBe(true)
+  await f.ds.getView('RevisionSnapshot','selectedSnapshot')!.refresh()
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+ }finally{f.ds.destroy()}
+})
+
+it('includes a fixed anchored response only within its chapter or anchor scope',async()=>{
+ const f=await fixture('scoped-response')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const document=await candidate.readReviewDependencies({nodeIds:['D'],responses:[]})
+  const chapter=await candidate.readReviewDependencies({nodeIds:['C'],responses:[]})
+  const anchor=await candidate.readReviewDependencies({nodeIds:['H'],responses:[]})
+  expect(chapter.responseDependencyHash).not.toBe(document.responseDependencyHash)
+  expect(anchor.responseDependencyHash).toBe(chapter.responseDependencyHash)
+ }finally{f.ds.destroy()}
+})
+
 it('retains simultaneous fact and requirement proofs from one original baseline query',async()=>{
  const f=await fixture('fixed-pin')
  try{
@@ -124,8 +148,13 @@ it('reads only explicitly selected independent response facts with exact assignm
    responseId:'I',assignmentId:'A',occurrence,displayHash:result.displayHashes[0]?.displayHash,
   })))
   const empty=await candidate.readReviewDependencies({nodeIds:[],responses:[]})
+  const unanswered=await candidate.readReviewDependencies({nodeIds:[],responses:[{assignmentId:'UNANSWERED',responseId:null}]})
+  expect(unanswered.responseDependencyHash).not.toBe(empty.responseDependencyHash)
+  expect(unanswered.facts.responseDisplayRefs).toEqual([])
+  await expect(candidate.readReviewDependencies({nodeIds:[],responses:[{assignmentId:'A',responseId:null}]}))
+   .rejects.toThrow('CONTENT_EFFECTIVE_RESPONSE_SCOPE')
   const scoped=await candidate.readReviewDependencies({nodeIds:[],responses:[{assignmentId:'A',responseId:'I'}]})
-  expect(scoped.independentResponseDependencyHash).not.toBe(empty.independentResponseDependencyHash)
+  expect(scoped.responseDependencyHash).not.toBe(empty.responseDependencyHash)
   scoped.assertCurrent()
   await f.ds.getView('RevisionSnapshot','selectedSnapshot')!.refresh()
   expect(()=>scoped.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')

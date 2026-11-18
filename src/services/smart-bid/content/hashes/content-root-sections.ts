@@ -5,7 +5,9 @@
  */
 import {canonicalRevisionSnapshot,canonicalSnapshotValue,hashCanonicalSnapshotText} from '../revision-snapshot-hash'
 import {snapshotReferenceFields,snapshotReferenceIdentity,snapshotReferenceRecord,visitSnapshotReferences} from '../references/snapshot-reference-values'
-import type {IndependentResponseFactTarget} from '../references/revision-response-text'
+
+/** 空答复保留原分工，只适用于尚无答复的任务。 */
+export type ScopedResponseTarget=Readonly<{assignmentId:string;responseId:string|null}>
 
 function compare(left:string,right:string):number{return left<right?-1:left>right?1:0}
 function requirementPins(value:unknown){
@@ -33,19 +35,37 @@ function ordered(records:ReadonlyMap<string,Record<string,unknown>>){
  return [...records].sort(([left],[right])=>compare(left,right)).map(([,record])=>record)
 }
 
-/** 从固定快照取显式选中的独立答复及其完整原分工，不推断其它规定落点。 */
-export async function hashSelectedIndependentResponses(manifest:unknown,targets:readonly IndependentResponseFactTarget[]){
+/** 从固定快照取范围内章或锚点的响应，以及显式选中的独立答复。 */
+export async function hashScopedResponses(manifest:unknown,nodeIds:readonly string[],targets:readonly ScopedResponseTarget[]){
  const source=snapshotReferenceRecord(manifest,'CONTENT_ROOT_SNAPSHOT_MODEL')
  const assignments=indexedRecords(source['responseAssignments']),responses=indexedRecords(source['responses'])
  const selectedAssignments=new Map<string,Record<string,unknown>>(),selectedResponses=new Map<string,Record<string,unknown>>()
+ const answeredAssignments=new Set([...responses.values()].map(response=>response['assignmentId']))
  for(const {assignmentId,responseId} of targets){
-  const assignment=assignments.get(assignmentId),response=responses.get(responseId)
-  if(!assignment||response?.['assignmentId']!==assignmentId||Object.hasOwn(response,'chapterId')||selectedResponses.has(responseId))
+  const assignment=assignments.get(assignmentId)
+  if(!assignment||selectedAssignments.has(assignmentId))throw Error('CONTENT_EFFECTIVE_RESPONSE_SCOPE')
+  if(responseId===null){
+   if(answeredAssignments.has(assignmentId))throw Error('CONTENT_EFFECTIVE_RESPONSE_SCOPE')
+   selectedAssignments.set(assignmentId,assignment)
+   continue
+  }
+  const response=responses.get(responseId)
+  if(response?.['assignmentId']!==assignmentId||Object.hasOwn(response,'chapterId')||selectedResponses.has(responseId))
    throw Error('CONTENT_EFFECTIVE_RESPONSE_SCOPE')
   selectedAssignments.set(assignmentId,assignment)
   selectedResponses.set(responseId,response)
  }
- return hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.selected-independent-responses/1',
+ const selectedNodes=new Set(nodeIds)
+ for(const [id,response] of responses){
+  const {chapterId,anchorNodeId,assignmentId}=response
+  if(!snapshotReferenceIdentity(chapterId)||!snapshotReferenceIdentity(anchorNodeId)||
+   !selectedNodes.has(chapterId)&&!selectedNodes.has(anchorNodeId))continue
+  const assignment=snapshotReferenceIdentity(assignmentId)?assignments.get(assignmentId):undefined
+  if(!assignment||typeof assignmentId!=='string')throw Error('CONTENT_EFFECTIVE_RESPONSE_SCOPE')
+  selectedAssignments.set(assignmentId,assignment)
+  selectedResponses.set(id,response)
+ }
+ return hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.scoped-responses/1',
   ordered(selectedAssignments),ordered(selectedResponses)]))
 }
 

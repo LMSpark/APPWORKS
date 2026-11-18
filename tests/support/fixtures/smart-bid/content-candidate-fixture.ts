@@ -22,17 +22,19 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
  if(mode==='calculation')payloads.push({nodeId:'T',parentId:'C',index:1,type:'table',class:['deviation'],value:'',
   data:{header:[],rows:[]}})
  const members=await Promise.all(payloads.map(async payload=>({nodeId:payload.nodeId,nodeHash:await hashContentNode(payload),payload})))
- const populated=['populated','bad-template','bad-pin','valid-pin','fixed-pin','bad-response','sibling-tree','fact','calculation'].includes(mode)
+ const populated=['populated','bad-template','bad-pin','valid-pin','fixed-pin','bad-response','scoped-response','sibling-tree','fact','calculation'].includes(mode)
  const templateRefs=populated?[{documentId:mode==='bad-template'?'H':'D',key:'T',version:'1',hash:'a'.repeat(64)}]:[]
  const manifest={hashContract:'spark-bid.revision-snapshot/1',projectId:'P',baselineId:'B',stageRef:{id:'ST',version:'1'},
   templateRefs,nodes:populated?members.map(({nodeId,nodeHash})=>({nodeId,nodeHash})).sort((a,b)=>a.nodeId<b.nodeId?-1:1):[],
-  requirementPins:['bad-pin','valid-pin','fixed-pin','bad-response'].includes(mode)?[{chapterId:mode==='bad-pin'?'H':'C',lineageId:'L',version:mode==='fixed-pin'?'R2':'R1'}]:[],
-  responseAssignments:mode==='response-fact'?[{id:'A',lineageId:'L',version:'R1'}]:[],
-  responses:mode==='bad-response'?[{id:'R',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',chapterId:'C',anchorNodeId:'D'}]:
+  requirementPins:['bad-pin','valid-pin','fixed-pin','bad-response','scoped-response'].includes(mode)?[{chapterId:mode==='bad-pin'?'H':'C',lineageId:'L',version:['fixed-pin','scoped-response'].includes(mode)?'R2':'R1'}]:[],
+  responseAssignments:mode==='response-fact'?[{id:'A',lineageId:'L',version:'R1'},{id:'UNANSWERED',lineageId:'L',version:'R1'}]:
+   mode==='scoped-response'?[{id:'A',lineageId:'L',version:'R2'}]:[],
+  responses:['bad-response','scoped-response'].includes(mode)?[{id:'R',assignmentId:'A',lineageId:'L',
+   version:mode==='scoped-response'?'R2':'R1',revisionId:'ORIGINAL',chapterId:'C',anchorNodeId:mode==='scoped-response'?'H':'D'}]:
    ['bad-response-text','response-fact'].includes(mode)?[{id:'I',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',
     statement:mode==='response-fact'?'报价{{金额}}元，再确认{{金额}}元':'报价{{金额}}元',
     data:mode==='response-fact'?{金额:{type:'fact',factId:'PRICE'}}:{}}]:[],
-  qualificationReviews:[],sensitiveRefs:[]}
+  qualificationReviews:mode==='qualification'?[{id:'Q',conclusion:'CONFIRMED',materialVersion:'M1'}]:[],sensitiveRefs:[]}
  const snapshotHash=await hashRevisionSnapshot(manifest)
  const rootHash=options.computeRoot?await hashRevisionContentRoot({manifest,
   baseline:{id:'B',projectId:'P',stageRef:manifest.stageRef,factVersions:[{factId:'PRICE',version:2}]}}):null

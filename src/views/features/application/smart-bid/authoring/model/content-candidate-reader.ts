@@ -23,7 +23,8 @@ import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/ser
 import {readEffectiveFactDependencies,readEffectiveFactsFromBaseline} from './hashes/effective-fact-reader'
 import {hashCalculationInputs} from '@/services/smart-bid/content/hashes/calculation-inputs-hash'
 import {hashRequirementBindings} from '@/services/smart-bid/content/hashes/requirement-binding-hash'
-import {hashSelectedIndependentResponses} from '@/services/smart-bid/content/hashes/content-root-sections'
+import {hashQualificationReviews} from '@/services/smart-bid/content/hashes/qualification-review-hash'
+import {hashScopedResponses,type ScopedResponseTarget} from '@/services/smart-bid/content/hashes/content-root-sections'
 import {hashEffectiveResponseDependencies} from '@/services/smart-bid/content/hashes/content-effective-hash'
 import {readEffectiveRequirementVersions} from './content-requirement-reader'
 import {projectFactDisplayOccurrences,projectResponseFactDisplayOccurrences} from '@/services/smart-bid/content/hashes/fact-display-occurrences'
@@ -53,7 +54,7 @@ type EffectiveFactsWithDisplays=Awaited<ReturnType<typeof readEffectiveFactDepen
  responseDisplayRefs:ReturnType<typeof projectResponseFactDisplayOccurrences>
 }>
 type ReviewBaseline=Awaited<ReturnType<typeof readContentReviewBaseline>>
-type ReviewScope=Readonly<{nodeIds:readonly string[];responses:readonly IndependentResponseFactTarget[]}>
+type ReviewScope=Readonly<{nodeIds:readonly string[];responses:readonly ScopedResponseTarget[]}>
 type RequirementBindingDigest=Readonly<{requirementBindingHash:string;requiresUseCheck:true;assertCurrent:()=>void}>
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
 type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>
@@ -96,8 +97,11 @@ export type ContentCandidateBinding=Readonly<{
  readEffectiveFacts:(scope:ReviewScope,assertConsumer?:()=>void)=>Promise<EffectiveFactsWithDisplays>
  readRequirementPinIssues:(assertConsumer?:()=>void,nodeIds?:readonly string[])=>Promise<ContentCandidateRequirementPinsBinding>
  readRequirementBindingHash:(nodeIds:readonly string[],assertConsumer?:()=>void)=>Promise<RequirementBindingDigest>
+ readQualificationHash:(reviewIds:readonly string[],assertConsumer?:()=>void)=>Promise<Readonly<{
+  qualificationHash:string;requiresUseCheck:true;assertCurrent:()=>void
+ }>>
  readReviewDependencies:(scope:ReviewScope,assertConsumer?:()=>void)=>Promise<Readonly<{
-  facts:EffectiveFactsWithDisplays;requirements:RequirementBindingDigest;independentResponseDependencyHash:string;assertCurrent:()=>void
+  facts:EffectiveFactsWithDisplays;requirements:RequirementBindingDigest;responseDependencyHash:string;assertCurrent:()=>void
  }>>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
@@ -227,7 +231,8 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertContext()
   const baselineId=row['baselineId']
   if(typeof baselineId!=='string')throw Error('CONTENT_CANDIDATE_BASELINE_REQUIRED')
-  const responseOccurrences=readIndependentResponseFactOccurrences(responses,scope.responses)
+  const answered=scope.responses.filter((target):target is IndependentResponseFactTarget=>target.responseId!==null)
+  const responseOccurrences=readIndependentResponseFactOccurrences(responses,answered)
   const usedFactIds=[...nodes.readFactIds(scope.nodeIds),...responseOccurrences.map(item=>item.factId)]
   const selectedNodeIds=new Set(scope.nodeIds)
   const readHost={...host,assertCurrent:assertContext}
@@ -299,14 +304,23 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const baselineId=row['baselineId']
   if(typeof baselineId!=='string')throw Error('CONTENT_CANDIDATE_BASELINE_REQUIRED')
   const captured=structuredClone(scope)
+  const responseHash=await hashScopedResponses(manifest,captured.nodeIds,captured.responses)
+  assertContext()
   const baseline=await readContentReviewBaseline({...host,assertCurrent:assertContext},{baselineId,stageRef:row['stageRef']})
   const facts=await readEffectiveFacts(captured,assertConsumer,baseline)
   const requirements=await readRequirementBindingHash(captured.nodeIds,assertConsumer,baseline)
-  const responseHash=await hashSelectedIndependentResponses(manifest,captured.responses)
-  const independentResponseDependencyHash=await hashEffectiveResponseDependencies(responseHash,facts.responseDisplayRefs)
+  const responseDependencyHash=await hashEffectiveResponseDependencies(responseHash,facts.responseDisplayRefs)
   const assertDependencies=()=>{facts.assertCurrent();requirements.assertCurrent()}
   assertDependencies()
-  return Object.freeze({facts,requirements,independentResponseDependencyHash,assertCurrent:assertDependencies})
+  return Object.freeze({facts,requirements,responseDependencyHash,assertCurrent:assertDependencies})
+ }
+ const readQualificationHash:ContentCandidateBinding['readQualificationHash']=async(reviewIds,assertConsumer)=>{
+  const assertContext=()=>{assertCurrent();assertConsumer?.()}
+  assertContext()
+  const reviews:unknown=Object.getOwnPropertyDescriptor(manifest,'qualificationReviews')?.value
+  const qualificationHash=await hashQualificationReviews(reviews,reviewIds)
+  assertContext()
+  return Object.freeze({qualificationHash,requiresUseCheck:true,assertCurrent:assertContext})
  }
  const readFixedRequirement=async(pin:RevisionRequirementPin,assertConsumer?:()=>void):Promise<ContentCandidateRequirementBinding>=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}
@@ -462,7 +476,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readEffectiveFacts({nodeIds,responses:[]},assertConsumer),
   readFixedRequirement,readRequirementPinIssues,
   readRequirementBindingHash:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readRequirementBindingHash(nodeIds,assertConsumer),
-  readReviewDependencies,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+  readReviewDependencies,readQualificationHash,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   verifyRootHash:(contract:string)=>verifyReadableRevisionRoot({host:{...host,assertCurrent},revisionDataViewKey:revisions.candidateDataViewKey,snapshot,contract}),
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,

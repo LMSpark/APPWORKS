@@ -31,7 +31,7 @@
   {
     "id":"excel-node-basic",
     "type":"r-form",
-    "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":3},
+    "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":3,"class":"excel-node-form"},
     "children":[
       {"type":"r-text","props":{"field":"sheetName","label":"工作表名称","onBeforeRender":"bindNodeField"}},
       {"type":"r-number","props":{"field":"sheet","label":"工作表索引","onBeforeRender":"bindNodeField"}},
@@ -50,6 +50,25 @@
     "props":{"title":"导出过滤条件","bordered":false,"gridColumns":1,"onBeforeRender":"bindFilterSection"},
     "children":[
       {"type":"r-filter-expression","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","dataMember":"currentRow","field":"filters","format":"spark-json","title":"导出过滤条件","onBeforeRender":"bindFilterEditor"}}
+    ]
+  },
+  {
+    "id":"excel-node-sort",
+    "type":"r-section",
+    "props":{"title":"导出排序","bordered":false,"gridColumns":1,"onBeforeRender":"bindSortSection"},
+    "children":[
+      {"type":"r-button","props":{"label":"完整JSON编辑","onBeforeRender":"bindSortToggle","onClick":"toggleSort"}},
+      {
+        "type":"r-form",
+        "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","autoColumns":false,"showDataViewMeta":false},
+        "children":[
+          {"type":"r-json","props":{"field":"sorted","label":"排序规则","emptyArrayAsEmptyText":true,"rowDefaults":{"Type":"ascending"},"onBeforeRender":"bindSortEditor"},
+            "children":[
+              {"type":"r-select","props":{"field":"Field","label":"字段","filterable":true,"clearable":false,"optionLabelFields":["cnname","enname"],"onBeforeRender":"bindSortOptions"}},
+              {"type":"r-select","props":{"field":"Type","label":"排序类型","clearable":false,"options":[{"value":"ascending","label":"升序"},{"value":"descending","label":"降序"}]}}
+            ]}
+        ]
+      }
     ]
   }
 ]

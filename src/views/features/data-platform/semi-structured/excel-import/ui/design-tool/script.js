@@ -46,6 +46,28 @@ function bindFilterEditor() {
   }
 }
 
+function bindSortSection() {
+  return {status:tree?.sort().error || ''}
+}
+
+function bindSortToggle() {
+  const sort = tree?.sort()
+  return {label:sort?.mode === 'text' ? '返回排序表' : '完整JSON编辑',disabled:sort?.blocked !== false}
+}
+
+function bindSortEditor() {
+  const sort = tree?.sort()
+  return {mode:sort?.mode || 'rows',readonly:tree?.locked() !== false || sort?.mode === 'rows' && !sort.ready,
+    onChange:tree?.validateSorted,onEditingChange:tree?.setSortPending}
+}
+
+function bindSortOptions() {
+  const sort = tree?.sort()
+  return {optionDataViewKey:sort?.ready ? sort.options : undefined}
+}
+
+async function toggleSort() { await $page.invokeHostCommand('excel.design.toggleSort') }
+
 async function addRoot() { await $page.invokeHostCommand('excel.design.addRoot') }
 async function addSibling() { await $page.invokeHostCommand('excel.design.addSibling') }
 async function addChild() { await $page.invokeHostCommand('excel.design.addChild') }

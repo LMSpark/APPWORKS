@@ -33,16 +33,8 @@
             <RendererTabPane name="basic" label="基本信息" :index="0" :data-view-key="nodesKey">
               <template v-if="selectedNode">
           <SparkComponentRenderer :config="designRegion(children,'excel-node-basic')" />
-          <RendererForm class="excel-node-form" :data-view-key="nodesKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="3">
-            <SparkComponentRenderer :config="designRegion(children,'excel-node-filter')" />
-            <section class="excel-filter-definition">
-              <h3>导出排序</h3>
-              <p v-if="sortState.error" role="status">{{ sortState.error }}</p>
-              <RendererButton :label="sortMode==='rows'?'完整JSON编辑':'返回排序表'" :disabled="busy || pendingPart('nodes')" @click="sortMode=sortMode==='rows'?'text':'rows'" />
-              <FieldJson field="sorted" label="排序规则" :mode="sortMode" :children="sortChildren" :row-defaults="{Type:'ascending'}" :empty-array-as-empty-text="true"
-                :readonly="locked || sortMode==='rows' && !sortState.ready" :on-change="validateSorted" :on-editing-change="value => pending('nodes.sorted',value)" />
-            </section>
-          </RendererForm>
+          <SparkComponentRenderer :config="designRegion(children,'excel-node-filter')" />
+          <SparkComponentRenderer :config="designRegion(children,'excel-node-sort')" />
           <RendererButton :data-view-key="nodesKey" label="选择目标数据" perm-action="edit" :disabled="locked || !!targetChange || !targetAllowed" @click="openTarget" />
               </template>
               <p v-else role="status">请选择左侧节点后再编辑</p>
@@ -130,7 +122,7 @@ import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
 import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
 import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
-const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTable, RendererForm, RendererButton, RendererDialog, RendererTabs, RendererTabPane, FieldText, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTable, RendererForm, RendererButton, RendererDialog, RendererTabs, RendererTabPane, FieldText, FieldCheckbox, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
@@ -184,10 +176,6 @@ const hasPending = computed(() => {revision.value; return acting.value || !!targ
 useSystemPageDirtySource({get isDirty() {return opening.value || hasPending.value}})
 const selectedNode = computed(() => {revision.value; return view(nodesTable)?.currentRow ?? null})
 const sortState=computed(()=>{revision.value;return {ready:sortDirectory.value?.ready===true,error:sortDirectory.value?.error??''}})
-const sortChildren=computed<SparkNode[]>(()=>[
-  {type:'r-select',props:{field:'Field',label:'字段',filterable:true,clearable:false,...(sortState.value.ready?{optionDataViewKey:sortDirectory.value?.dataViewKey,optionLabelFields:['cnname','enname']}: {})}},
-  {type:'r-select',props:{field:'Type',label:'排序类型',clearable:false,options:[{value:'ascending',label:'升序'},{value:'descending',label:'降序'}]}},
-])
 watch([()=>sortDirectory.value,()=>selectedNode.value,()=>{
   revision.value
   try{
@@ -279,6 +267,13 @@ function makeTreeHost(runtime:PageRuntime){
       association:()=>association.value ? associationHandlers.value : undefined,
       filter:()=>({readOnly:filterReadOnly.value,table:filterTable.value}),
       setFilterPending:(editing:boolean)=>{if(active&&session.isCurrent(runtime))pending('nodes.filters',editing)},
+      sort:()=>({mode:sortMode.value,...sortState.value,options:sortDirectory.value?.dataViewKey,blocked:busy.value||pendingPart('nodes')}),
+      setSortPending:(editing:boolean)=>{if(active&&session.isCurrent(runtime))pending('nodes.sorted',editing)},
+      validateSorted,
+    }
+    if(command==='excel.design.toggleSort'){
+      if(!busy.value&&!pendingPart('nodes'))sortMode.value=sortMode.value==='rows'?'text':'rows'
+      return undefined
     }
     if(locked.value)return undefined
     if(command==='excel.design.addRoot')await addNode('root')
@@ -464,8 +459,6 @@ onBeforeUnmount(()=>{active=false;generation++;unsubscribers.forEach(off=>off())
 .structured-editor-page { display: grid; gap: 12px; padding: 24px; }
 .excel-workspaces {display:grid;grid-template-columns:280px minmax(0,1fr);gap:20px;min-width:0;}
 .excel-workspaces main {min-width:0;display:grid;gap:12px;}
-.excel-filter-definition {grid-column:1/-1;min-width:0;}
-.excel-filter-definition h3 {margin:0 0 8px;}
 .excel-workspaces aside,.excel-workspace-header {min-width:0;}
 .excel-workspace-header h1 {margin:0;}
 .excel-workspace-actions {display:flex;flex-wrap:wrap;gap:8px;align-items:center;}

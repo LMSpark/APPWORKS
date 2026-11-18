@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1377,
+  "scannedFileCount": 1379,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17810,6 +17810,19 @@
         "symbols": []
       }
     },
+    "src/services/smart-bid/content/references/followup/tender-followup-notice.ts": {
+      "file": "files/src/services/smart-bid/content/references/followup/tender-followup-notice.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/followup/tender-followup-notice",
+        "sourcePath": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts",
+        "sourceFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/followup/tender-followup-notice",
+        "jsdoc": "@module app:services/smart-bid/content/references/followup/tender-followup-notice\n职责：第57项固定正式后续通知及其已证边界，供下游分派和期限跟踪。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts": {
       "file": "files/src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts.json",
       "module": {
@@ -18084,6 +18097,19 @@
         "packageName": "app",
         "modulePath": "services/smart-bid/content/review/submission/submission-receipt-effects",
         "jsdoc": "@module app:services/smart-bid/content/review/submission/submission-receipt-effects\n职责：将第53项已配对事件及适用规则判定交给第54项截止对账。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/submission/tender-outcome-evidence.ts": {
+      "file": "files/src/services/smart-bid/content/review/submission/tender-outcome-evidence.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/submission/tender-outcome-evidence",
+        "sourcePath": "src/services/smart-bid/content/review/submission/tender-outcome-evidence.ts",
+        "sourceFile": "src/services/smart-bid/content/review/submission/tender-outcome-evidence.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/submission/tender-outcome-evidence",
+        "jsdoc": "@module app:services/smart-bid/content/review/submission/tender-outcome-evidence\n职责：第58项按主体和轮次固定可证的正式阶段结果，保留更正前的原记录。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

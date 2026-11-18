@@ -89,7 +89,8 @@
               "$ref": "#/$defs/TabsClickEvent"
             },
             "event": {
-              "$ref": "../../../../../../../../src/services/smart-bid/content/review/submission-attempt-recovery.ts.json#/$defs/Event"
+              "type": "object",
+              "title": "Event"
             }
           },
           "additionalProperties": false

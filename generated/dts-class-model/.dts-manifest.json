@@ -5411,6 +5411,11 @@
       "shardFile": "files/src/services/smart-bid/content/references/content-reference-editor-schema.ts.json",
       "sourceModifiedAt": "2026-11-17T16:52:00.148Z"
     },
+    "src/services/smart-bid/content/references/followup/tender-followup-notice.ts": {
+      "sourceFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts",
+      "shardFile": "files/src/services/smart-bid/content/references/followup/tender-followup-notice.ts.json",
+      "sourceModifiedAt": "2026-11-18T04:54:27.213Z"
+    },
     "src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts": {
       "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts",
       "shardFile": "files/src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts.json",
@@ -5515,6 +5520,11 @@
       "sourceFile": "src/services/smart-bid/content/review/submission/submission-receipt-effects.ts",
       "shardFile": "files/src/services/smart-bid/content/review/submission/submission-receipt-effects.ts.json",
       "sourceModifiedAt": "2026-11-18T04:23:52.860Z"
+    },
+    "src/services/smart-bid/content/review/submission/tender-outcome-evidence.ts": {
+      "sourceFile": "src/services/smart-bid/content/review/submission/tender-outcome-evidence.ts",
+      "shardFile": "files/src/services/smart-bid/content/review/submission/tender-outcome-evidence.ts.json",
+      "sourceModifiedAt": "2026-11-18T04:55:58.305Z"
     },
     "src/services/smart-bid/content/revision-response-comparison.ts": {
       "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",

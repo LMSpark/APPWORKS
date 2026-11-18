@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "app:views/features/application/smart-bid/authoring/model/review/content-package-review",
-    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts",
-    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts",
+    "name": "app:views/features/application/smart-bid/authoring/model/review/package/content-package-review",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/package/content-package-review.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-package-review.ts",
     "packageName": "app",
-    "modulePath": "views/features/application/smart-bid/authoring/model/review/content-package-review",
-    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-package-review\n职责：重开登记电子包，用同一次原始字节及全量解包逐件核对。\n边界：原包授权读取、格式适配和全量枚举由调用方负责，不判签审覆盖。",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/package/content-package-review",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/package/content-package-review\n职责：重开登记电子包，用同一次原始字节及全量解包逐件核对。\n边界：原包授权读取、格式适配和全量枚举由调用方负责，不判签审覆盖。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
@@ -20,19 +20,19 @@
         "expected": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../../services/smart-bid/content/review/submission-package-members.ts.json#/$defs/RegisteredMember"
+            "$ref": "../../../../../../../../services/smart-bid/content/review/submission-package-members.ts.json#/$defs/RegisteredMember"
           }
         },
         "packed": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../../services/smart-bid/content/review/submission-package-members.ts.json#/$defs/RegisteredMember"
+            "$ref": "../../../../../../../../services/smart-bid/content/review/submission-package-members.ts.json#/$defs/RegisteredMember"
           }
         },
         "observed": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../../services/smart-bid/content/review/submission-package-members.ts.json#/$defs/ObservedMember"
+            "$ref": "../../../../../../../../services/smart-bid/content/review/submission-package-members.ts.json#/$defs/ObservedMember"
           }
         }
       },
@@ -60,13 +60,13 @@
         "expected": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../../services/smart-bid/content/review/submission-package-members.ts.json#/$defs/RegisteredMember"
+            "$ref": "../../../../../../../../services/smart-bid/content/review/submission-package-members.ts.json#/$defs/RegisteredMember"
           }
         },
         "packed": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../../services/smart-bid/content/review/submission-package-members.ts.json#/$defs/RegisteredMember"
+            "$ref": "../../../../../../../../services/smart-bid/content/review/submission-package-members.ts.json#/$defs/RegisteredMember"
           }
         }
       },
@@ -90,7 +90,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T03:50:16.188Z",
+  "generatedAt": "2026-11-18T04:05:16.411Z",
   "models": {
     "Members": {
       "name": "Members",

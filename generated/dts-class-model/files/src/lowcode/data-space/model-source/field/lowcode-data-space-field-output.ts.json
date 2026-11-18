@@ -247,8 +247,7 @@
                         "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
                       },
                       "patch": {
-                        "type": "object",
-                        "title": "Record<string, unknown>"
+                        "$ref": "../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
                       },
                       "creating": {
                         "type": "boolean"

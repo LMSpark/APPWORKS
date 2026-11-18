@@ -219,7 +219,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@287171": {
+                "__@iterator@287747": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -274,7 +274,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@287171"
+                "__@iterator@287747"
               ],
               "additionalProperties": false
             },
@@ -504,7 +504,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@287171": {
+                "__@iterator@287747": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -559,7 +559,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@287171"
+                "__@iterator@287747"
               ],
               "additionalProperties": false
             },
@@ -845,7 +845,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@287171": {
+                    "__@iterator@287747": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -900,7 +900,7 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@287171"
+                    "__@iterator@287747"
                   ],
                   "additionalProperties": false
                 },
@@ -1299,7 +1299,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@287171": {
+                "__@iterator@287747": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1354,7 +1354,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@287171"
+                "__@iterator@287747"
               ],
               "additionalProperties": false
             },
@@ -1587,7 +1587,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@287171": {
+                "__@iterator@287747": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1642,7 +1642,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@287171"
+                "__@iterator@287747"
               ],
               "additionalProperties": false
             },
@@ -1992,7 +1992,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@287171": {
+                    "__@iterator@287747": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -2047,7 +2047,7 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@287171"
+                    "__@iterator@287747"
                   ],
                   "additionalProperties": false
                 },
@@ -2472,7 +2472,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@287171": {
+                "__@iterator@287747": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2527,7 +2527,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@287171"
+                "__@iterator@287747"
               ],
               "additionalProperties": false
             },
@@ -2760,7 +2760,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@287171": {
+                "__@iterator@287747": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2815,7 +2815,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@287171"
+                "__@iterator@287747"
               ],
               "additionalProperties": false
             },
@@ -4114,8 +4114,7 @@
                   "$ref": "dataset.ts.json#/$defs/DataSet"
                 },
                 {
-                  "type": "object",
-                  "title": "Record<string, unknown>"
+                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
                 },
                 {
                   "type": "string"
@@ -4137,8 +4136,7 @@
                   "$ref": "types.ts.json#/$defs/DataSetMetadata"
                 },
                 {
-                  "type": "object",
-                  "title": "Record<string, unknown>"
+                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
                 },
                 {
                   "type": "string"
@@ -4160,8 +4158,7 @@
                   "$ref": "types.ts.json#/$defs/DataSetMetadata"
                 },
                 {
-                  "type": "object",
-                  "title": "Record<string, unknown>"
+                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
                 },
                 {
                   "type": "string"
@@ -4249,8 +4246,7 @@
                   "$ref": "types.ts.json#/$defs/DataSetMetadata"
                 },
                 {
-                  "type": "object",
-                  "title": "Record<string, unknown>"
+                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
                 },
                 {
                   "type": "string"
@@ -4505,8 +4501,7 @@
           "additionalProperties": false
         },
         "method.listAggregates.return": {
-          "type": "object",
-          "title": "Record<string, AggregateColumnConfig>"
+          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "method.getAggregate.params": {
           "type": "object",

@@ -603,8 +603,7 @@
               "type": "string"
             },
             "params": {
-              "type": "object",
-              "title": "Record<string, unknown>"
+              "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
             }
           },
           "additionalProperties": false
@@ -639,8 +638,7 @@
                       "type": "string"
                     },
                     "query": {
-                      "type": "object",
-                      "title": "Record<string, unknown>"
+                      "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
                     }
                   },
                   "required": [
@@ -672,8 +670,7 @@
                       "type": "string"
                     },
                     "query": {
-                      "type": "object",
-                      "title": "Record<string, unknown>"
+                      "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
                     }
                   },
                   "required": [

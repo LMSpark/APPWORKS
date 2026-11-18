@@ -1,0 +1,290 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/delivery-freeze-recovery",
+    "sourcePath": "src/services/smart-bid/content/review/delivery-freeze-recovery.ts",
+    "sourceFile": "src/services/smart-bid/content/review/delivery-freeze-recovery.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/delivery-freeze-recovery",
+    "jsdoc": "@module app:services/smart-bid/content/review/delivery-freeze-recovery\n职责：核对第48项原冻结结果，随原读取权限和记录版本失效。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Record": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Record",
+      "properties": {
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "selectionId": {
+          "type": "string"
+        },
+        "selectionVersion": {
+          "type": "string"
+        },
+        "expectedSelectionVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "groupScope": {
+          "$ref": "delivery-selection-digest.ts.json#/$defs/GroupScope"
+        },
+        "targetBasisRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Member"
+          }
+        },
+        "compatibilityRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "checkedStateRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "memberSetHash": {
+          "type": "string"
+        },
+        "selectionHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "requestKey",
+        "requestDigest",
+        "selectionId",
+        "selectionVersion",
+        "expectedSelectionVersion",
+        "groupScope",
+        "targetBasisRefs",
+        "members",
+        "compatibilityRefs",
+        "checkedStateRefs",
+        "memberSetHash",
+        "selectionHash"
+      ],
+      "additionalProperties": false
+    },
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "properties": {
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "groupScope": {
+          "$ref": "delivery-selection-digest.ts.json#/$defs/GroupScope"
+        }
+      },
+      "required": [
+        "requestKey",
+        "requestDigest",
+        "groupScope"
+      ],
+      "additionalProperties": false
+    },
+    "AuthorityResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AuthorityResult",
+      "properties": {
+        "request": {
+          "$ref": "#/$defs/Request"
+        },
+        "status": {
+          "enum": [
+            "FROZEN",
+            "NOT_EFFECTIVE",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T03:52:40.305Z",
+  "models": {
+    "Record": {
+      "name": "Record",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof verifyDeliverySelectionDigests>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expectedSelectionVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "groupScope",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetBasisRefs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "members",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "compatibilityRefs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "checkedStateRefs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "memberSetHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionHash",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Request": {
+      "name": "Request",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Record, 'groupScope' | 'requestKey' | 'requestDigest'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<Record, 'groupScope' | 'requestKey' | 'requestDigest'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "groupScope",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "AuthorityResult": {
+      "name": "AuthorityResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    request: Request;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    status: 'FROZEN';\n    record: Record;\n}> | Readonly<{\n    status: 'NOT_EFFECTIVE';\n    terminalRef: string;\n}> | Readonly<{\n    status: 'UNKNOWN';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    request: Request;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    status: 'FROZEN';\n    record: Record;\n}> | Readonly<{\n    status: 'NOT_EFFECTIVE';\n    terminalRef: string;\n}> | Readonly<{\n    status: 'UNKNOWN';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "request",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

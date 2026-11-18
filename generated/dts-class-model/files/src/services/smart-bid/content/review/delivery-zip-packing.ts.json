@@ -1,0 +1,301 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/delivery-zip-packing",
+    "sourcePath": "src/services/smart-bid/content/review/delivery-zip-packing.ts",
+    "sourceFile": "src/services/smart-bid/content/review/delivery-zip-packing.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/delivery-zip-packing",
+    "jsdoc": "@module app:services/smart-bid/content/review/delivery-zip-packing\n职责：第49项按固定选件和本包指定位置封装电子待核包。\n边界：原文件读取方负责授权；生成后另行登记、复核和签署。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "FrozenSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FrozenSelection",
+      "properties": {
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "selectionId": {
+          "type": "string"
+        },
+        "selectionVersion": {
+          "type": "string"
+        },
+        "expectedSelectionVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "groupScope": {
+          "$ref": "delivery-selection-digest.ts.json#/$defs/GroupScope"
+        },
+        "targetBasisRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Member"
+          }
+        },
+        "compatibilityRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "checkedStateRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "memberSetHash": {
+          "type": "string"
+        },
+        "selectionHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "requestKey",
+        "requestDigest",
+        "selectionId",
+        "selectionVersion",
+        "expectedSelectionVersion",
+        "groupScope",
+        "targetBasisRefs",
+        "members",
+        "compatibilityRefs",
+        "checkedStateRefs",
+        "memberSetHash",
+        "selectionHash"
+      ],
+      "additionalProperties": false
+    },
+    "Member": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Member",
+      "properties": {
+        "manifestId": {
+          "type": "string"
+        },
+        "manifestVersion": {
+          "type": "string"
+        },
+        "position": {
+          "type": "string"
+        },
+        "fileVersionId": {
+          "type": "string"
+        },
+        "fileHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "manifestId",
+        "manifestVersion",
+        "position",
+        "fileVersionId",
+        "fileHash"
+      ],
+      "additionalProperties": false
+    },
+    "OriginalFile": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OriginalFile",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "fileVersionId": {
+          "type": "string"
+        },
+        "bytes": {
+          "type": "object",
+          "title": "ArrayBuffer"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T03:59:04.727Z",
+  "models": {
+    "FrozenSelection": {
+      "name": "FrozenSelection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof verifyDeliverySelectionDigests>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expectedSelectionVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "groupScope",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetBasisRefs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "members",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "compatibilityRefs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "checkedStateRefs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "memberSetHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionHash",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Member": {
+      "name": "Member",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FrozenSelection['members'][number]",
+        "members": {
+          "attributes": [
+            {
+              "name": "manifestId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "manifestVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "position",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fileVersionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fileHash",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "OriginalFile": {
+      "name": "OriginalFile",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    fileVersionId: string;\n    bytes: ArrayBuffer;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    fileVersionId: string;\n    bytes: ArrayBuffer;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileVersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "bytes",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

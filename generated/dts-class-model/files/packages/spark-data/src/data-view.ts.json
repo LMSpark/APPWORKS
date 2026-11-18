@@ -616,8 +616,7 @@
           "additionalProperties": false
         },
         "method.prepareNewRow.return": {
-          "type": "object",
-          "title": "Record<string, unknown>"
+          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "method.newRowFieldAccess.params": {
           "type": "object",
@@ -645,8 +644,7 @@
           "additionalProperties": false
         },
         "method.prepareNewRowWithIdentity.return": {
-          "type": "object",
-          "title": "Record<string, unknown>"
+          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "method.isFieldReadOnly.params": {
           "type": "object",
@@ -1419,12 +1417,10 @@
           "type": "boolean"
         },
         "fieldOptions": {
-          "type": "object",
-          "title": "Record<string, DataColumnOptionsView>"
+          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "aggregates": {
-          "type": "object",
-          "title": "Record<string, AggregateColumnConfig>"
+          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "treeMode": {
           "enum": [
@@ -2188,8 +2184,7 @@
           "type": "object",
           "properties": {
             "ctx": {
-              "type": "object",
-              "title": "Record<string, unknown>"
+              "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
             }
           },
           "additionalProperties": false
@@ -2299,8 +2294,7 @@
           "additionalProperties": false
         },
         "method.buildServerPk.return": {
-          "type": "object",
-          "title": "Record<string, unknown>"
+          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "method.requestData.params": {
           "type": "object",
@@ -2328,8 +2322,7 @@
           "type": "object",
           "properties": {
             "pk": {
-              "type": "object",
-              "title": "Record<string, unknown>"
+              "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
             },
             "options": {
               "$ref": "types.ts.json#/$defs/RetrieveRecordOptions"
@@ -3262,8 +3255,7 @@
           "type": "object",
           "properties": {
             "aggregates": {
-              "type": "object",
-              "title": "Record<string, AggregateColumnConfig>"
+              "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
             }
           },
           "additionalProperties": false
@@ -3302,8 +3294,7 @@
                   "$ref": "types.ts.json#/$defs/ViewMetadata"
                 },
                 {
-                  "type": "object",
-                  "title": "Record<string, unknown>"
+                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
                 },
                 {
                   "type": "string"

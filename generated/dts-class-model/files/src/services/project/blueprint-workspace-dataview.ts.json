@@ -535,8 +535,7 @@
           "type": "object",
           "properties": {
             "fields": {
-              "type": "object",
-              "title": "Record<string, unknown>"
+              "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
             }
           },
           "additionalProperties": false
@@ -635,15 +634,13 @@
               "type": "string"
             },
             "input": {
-              "type": "object",
-              "title": "Record<string, unknown>"
+              "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
             }
           },
           "additionalProperties": false
         },
         "method.preflightChildNode.return": {
-          "type": "object",
-          "title": "Record<string, unknown>"
+          "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "method.addChildNode.params": {
           "type": "object",
@@ -652,8 +649,7 @@
               "type": "string"
             },
             "input": {
-              "type": "object",
-              "title": "Record<string, unknown>"
+              "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
             },
             "explicitNodeId": {
               "type": "string"
@@ -672,8 +668,7 @@
               "type": "string"
             },
             "fields": {
-              "type": "object",
-              "title": "Record<string, unknown>"
+              "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
             }
           },
           "additionalProperties": false
@@ -700,8 +695,7 @@
           "additionalProperties": false
         },
         "method.preflightNodeData.return": {
-          "type": "object",
-          "title": "Record<string, unknown>"
+          "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "method.updateNodeData.params": {
           "type": "object",

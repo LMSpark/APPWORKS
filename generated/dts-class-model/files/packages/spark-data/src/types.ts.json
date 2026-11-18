@@ -398,7 +398,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@287171": {
+            "__@iterator@287747": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -453,7 +453,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@287171"
+            "__@iterator@287747"
           ],
           "additionalProperties": false
         },
@@ -1030,7 +1030,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@287171": {
+            "__@iterator@287747": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1085,7 +1085,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@287171"
+            "__@iterator@287747"
           ],
           "additionalProperties": false
         },
@@ -1311,7 +1311,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@287171": {
+            "__@iterator@287747": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1366,7 +1366,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@287171"
+            "__@iterator@287747"
           ],
           "additionalProperties": false
         },
@@ -1604,7 +1604,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@287171": {
+                "__@iterator@287747": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1659,7 +1659,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@287171"
+                "__@iterator@287747"
               ],
               "additionalProperties": false
             },
@@ -1889,7 +1889,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@287171": {
+                "__@iterator@287747": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1944,7 +1944,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@287171"
+                "__@iterator@287747"
               ],
               "additionalProperties": false
             },
@@ -2880,7 +2880,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@287171": {
+                "__@iterator@287747": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2935,7 +2935,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@287171"
+                "__@iterator@287747"
               ],
               "additionalProperties": false
             },
@@ -3165,7 +3165,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@287171": {
+                "__@iterator@287747": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3220,7 +3220,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@287171"
+                "__@iterator@287747"
               ],
               "additionalProperties": false
             },
@@ -5595,8 +5595,7 @@
           "additionalProperties": false
         },
         "method.getRequestTemplateParams.return": {
-          "type": "object",
-          "title": "Record<string, unknown>"
+          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "method.toJson.params": {
           "type": "object",

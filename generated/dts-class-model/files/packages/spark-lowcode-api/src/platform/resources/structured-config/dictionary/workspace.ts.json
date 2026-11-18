@@ -112,8 +112,7 @@
             "values": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "Record<string, unknown>"
+                "$ref": "../../../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
               }
             }
           },
@@ -128,8 +127,7 @@
             "values": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "Record<string, unknown>"
+                "$ref": "../../../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
               }
             }
           },

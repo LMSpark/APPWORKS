@@ -100,8 +100,7 @@
           "type": "object",
           "properties": {
             "table": {
-              "type": "object",
-              "title": "Record<string, unknown>"
+              "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
             }
           },
           "additionalProperties": false

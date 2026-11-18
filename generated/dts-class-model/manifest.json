@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1361,
+  "scannedFileCount": 1367,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17880,6 +17880,19 @@
         "symbols": []
       }
     },
+    "src/services/smart-bid/content/review/delivery-freeze-recovery.ts": {
+      "file": "files/src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/delivery-freeze-recovery",
+        "sourcePath": "src/services/smart-bid/content/review/delivery-freeze-recovery.ts",
+        "sourceFile": "src/services/smart-bid/content/review/delivery-freeze-recovery.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/delivery-freeze-recovery",
+        "jsdoc": "@module app:services/smart-bid/content/review/delivery-freeze-recovery\n职责：核对第48项原冻结结果，随原读取权限和记录版本失效。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/review/delivery-selection-digest.ts": {
       "file": "files/src/services/smart-bid/content/review/delivery-selection-digest.ts.json",
       "module": {
@@ -17889,6 +17902,19 @@
         "packageName": "app",
         "modulePath": "services/smart-bid/content/review/delivery-selection-digest",
         "jsdoc": "@module app:services/smart-bid/content/review/delivery-selection-digest\n职责：按第48项合同计算固定跨册成员摘要与完整选件摘要。\n边界：由权威冻结入口核依赖及并发；此处也供第49、50项独立回读校验。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/delivery-zip-packing.ts": {
+      "file": "files/src/services/smart-bid/content/review/delivery-zip-packing.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/delivery-zip-packing",
+        "sourcePath": "src/services/smart-bid/content/review/delivery-zip-packing.ts",
+        "sourceFile": "src/services/smart-bid/content/review/delivery-zip-packing.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/delivery-zip-packing",
+        "jsdoc": "@module app:services/smart-bid/content/review/delivery-zip-packing\n职责：第49项按固定选件和本包指定位置封装电子待核包。\n边界：原文件读取方负责授权；生成后另行登记、复核和签署。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -19262,15 +19288,15 @@
         "symbols": []
       }
     },
-    "src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts.json",
+    "src/views/features/application/smart-bid/authoring/model/review/content-package-release.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-package-release.ts.json",
       "module": {
-        "name": "app:views/features/application/smart-bid/authoring/model/review/content-package-review",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts",
+        "name": "app:views/features/application/smart-bid/authoring/model/review/content-package-release",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-package-release.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-package-release.ts",
         "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-package-review",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-package-review\n职责：重开登记电子包，用同一次原始字节及全量解包逐件核对。\n边界：原包授权读取、格式适配和全量枚举由调用方负责，不判签审覆盖。",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-package-release",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-package-release\n职责：第50项按当次要求核放行证据，供第51项绑定最终待发包。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -19402,6 +19428,58 @@
         "modulePath": "views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation\n职责：动作54在同一截止判断中逐义务合并同批文件和平台栏。\n边界：只读原证据，不据内容一致推断送达、开启或准入，不持久化。",
         "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader\n职责：通过指定 DataView 查询原冻结，不读取当前选件指针。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-package-preparation.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-package-preparation.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/package/content-delivery-package-preparation",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-package-preparation.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-package-preparation.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/package/content-delivery-package-preparation",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/package/content-delivery-package-preparation\n职责：第49项在获得本次用途和封装范围证明后，从原冻结读回制待核包。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/package/content-package-review.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-package-review.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/package/content-package-review",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/package/content-package-review.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-package-review.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/package/content-package-review",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/package/content-package-review\n职责：重开登记电子包，用同一次原始字节及全量解包逐件核对。\n边界：原包授权读取、格式适配和全量枚举由调用方负责，不判签审覆盖。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader\n职责：由 SPARK data 的原装封记录定位第50项应重开的固定原包。",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },

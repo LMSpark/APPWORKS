@@ -25,13 +25,13 @@
             "value": {
               "type": "string"
             },
-            "__@RefSymbol@289763": {
+            "__@RefSymbol@290339": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@289763"
+            "__@RefSymbol@290339"
           ],
           "additionalProperties": false
         },
@@ -109,8 +109,7 @@
               ]
             },
             "fields": {
-              "type": "object",
-              "title": "Record<string, string>"
+              "$ref": "../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
             }
           },
           "additionalProperties": false

@@ -256,8 +256,7 @@
       "title": "FilterExpressionEditorDraft",
       "properties": {
         "operatorLabels": {
-          "type": "object",
-          "title": "Record<Data.DataViewFilterOperator, string>"
+          "$ref": "../../../../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "root": {
           "$ref": "#/$defs/FilterExpressionEditorGroup"

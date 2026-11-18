@@ -90,8 +90,7 @@
           "type": "string"
         },
         "tables": {
-          "type": "object",
-          "title": "Record<string, DataTable>"
+          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "resourceRelations": {
           "type": "array",
@@ -244,8 +243,7 @@
           "additionalProperties": false
         },
         "method.getRequestTemplateParams.return": {
-          "type": "object",
-          "title": "Record<string, unknown>"
+          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "method.on.params": {
           "type": "object",
@@ -400,8 +398,7 @@
                   "$ref": "types.ts.json#/$defs/DataSetMetadata"
                 },
                 {
-                  "type": "object",
-                  "title": "Record<string, unknown>"
+                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
                 },
                 {
                   "type": "string"
@@ -510,8 +507,7 @@
                   "$ref": "types.ts.json#/$defs/TableMetadata"
                 },
                 {
-                  "type": "object",
-                  "title": "Record<string, unknown>"
+                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
                 }
               ]
             }
@@ -858,8 +854,7 @@
                   "$ref": "types.ts.json#/$defs/DataSetMetadata"
                 },
                 {
-                  "type": "object",
-                  "title": "Record<string, unknown>"
+                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
                 },
                 {
                   "type": "string"

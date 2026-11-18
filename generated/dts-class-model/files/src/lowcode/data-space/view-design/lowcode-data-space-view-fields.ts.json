@@ -181,8 +181,7 @@
           "type": "object",
           "properties": {
             "view": {
-              "type": "object",
-              "title": "Record<string, unknown>"
+              "$ref": "../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
             },
             "model": {
               "$ref": "#/$defs/FormalModel"
@@ -230,8 +229,7 @@
           "type": "object",
           "properties": {
             "view": {
-              "type": "object",
-              "title": "Record<string, unknown>"
+              "$ref": "../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
             },
             "fields": {
               "type": "object",
@@ -245,8 +243,7 @@
           "type": "object",
           "properties": {
             "view": {
-              "type": "object",
-              "title": "Record<string, unknown>"
+              "$ref": "../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
             },
             "fields": {
               "type": "object",

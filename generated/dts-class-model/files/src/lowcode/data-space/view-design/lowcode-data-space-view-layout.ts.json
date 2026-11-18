@@ -67,8 +67,7 @@
           "additionalProperties": false
         },
         "method.positions.return": {
-          "type": "object",
-          "title": "Record<string, {\n        x: number;\n        y: number;\n    }>"
+          "$ref": "../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "method.assertModels.params": {
           "type": "object",

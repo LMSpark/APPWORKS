@@ -1,0 +1,407 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/content-package-release",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-package-release.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-package-release.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/content-package-release",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-package-release\n职责：第50项按当次要求核放行证据，供第51项绑定最终待发包。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "PackageProof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PackageProof",
+      "properties": {
+        "selectionId": {
+          "type": "string"
+        },
+        "selectionVersion": {
+          "type": "string"
+        },
+        "selectionHash": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "position": {
+                "type": "string"
+              },
+              "expectedVersionId": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "packedVersionId": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "expectedHash": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "packedHash": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "observedHash": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "position",
+              "expectedVersionId",
+              "packedVersionId",
+              "expectedHash",
+              "packedHash",
+              "observedHash",
+              "issues"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "membershipMatches": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "packageId": {
+          "type": "string"
+        },
+        "packageHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "selectionId",
+        "selectionVersion",
+        "selectionHash",
+        "assertCurrent",
+        "members",
+        "membershipMatches",
+        "projectId",
+        "packageId",
+        "packageHash"
+      ],
+      "additionalProperties": false
+    },
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "selectionHash": {
+          "type": "string"
+        },
+        "packageId": {
+          "type": "string"
+        },
+        "packageHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "selectionHash",
+        "packageId",
+        "packageHash"
+      ],
+      "additionalProperties": false
+    },
+    "Requirement": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Requirement",
+      "properties": {
+        "kind": {
+          "enum": [
+            "SELECTION_USE",
+            "APPROVAL",
+            "SIGNATURE"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "targetId"
+      ],
+      "additionalProperties": false
+    },
+    "Evidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Evidence",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "selectionHash": {
+          "type": "string"
+        },
+        "packageId": {
+          "type": "string"
+        },
+        "packageHash": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "SELECTION_USE",
+            "APPROVAL",
+            "SIGNATURE"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "evidenceRef": {
+          "type": "string"
+        },
+        "accepted": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "selectionHash",
+        "packageId",
+        "packageHash",
+        "kind",
+        "targetId"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T04:06:24.580Z",
+  "models": {
+    "PackageProof": {
+      "name": "PackageProof",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof readFrozenDeliveryZipPackageMembers>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof readFrozenDeliveryZipPackageMembers>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "selectionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "members",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "membershipMatches",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "packageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "packageHash",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<PackageProof, 'projectId' | 'packageId' | 'packageHash' | 'selectionHash'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<PackageProof, 'projectId' | 'packageId' | 'packageHash' | 'selectionHash'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "packageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "packageHash",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Requirement": {
+      "name": "Requirement",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'SELECTION_USE' | 'APPROVAL' | 'SIGNATURE';\n    targetId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: 'SELECTION_USE' | 'APPROVAL' | 'SIGNATURE';\n    targetId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Evidence": {
+      "name": "Evidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Requirement & Readonly<{\n    evidenceRef: string;\n    accepted: boolean;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Requirement",
+            "targetName": "Requirement"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    evidenceRef: string;\n    accepted: boolean;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "evidenceRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "accepted",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

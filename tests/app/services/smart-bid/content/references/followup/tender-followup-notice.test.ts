@@ -84,7 +84,8 @@ it('reads the original addendum locations for the current project, lot and round
   const deadline=reconcileDeadlineDelivery({roundId:'R',cutoffAt:knownAt,knownAt,obligationIds:['OBLIGATION']},
    {scope:receiptScope,receipts:[received],decisions:[{eventRef:'REC',obligationId:'OBLIGATION',attemptRef:'OUTBOUND',
     kind:'RECEIVED',knownAt,effectiveAt:knownAt,ruleRef:'RULE',assertCurrent}],assertCurrent},
-   {contents:{projectId:'P',requiredMembers:[],links:[],requiredFields:[],assertCurrent},proofs:{packages:[],batches:[]}})
+   {contents:{projectId:'P',requiredMembers:[{obligationId:'OBLIGATION',position:'技术册'}],links:[],
+    requiredFields:[{obligationId:'OBLIGATION',assignmentId:'FORM',fieldId:'PRICE'}],assertCurrent},proofs:{packages:[],batches:[]}})
   const readDeadline=vi.fn(async()=>deadline)
   const page=createTenderFollowupScriptHost(runtime,{scenarioId:'S',projectId:'P',assertCurrent},{selection:scope,readDeadline})
   const signal=new AbortController().signal
@@ -111,10 +112,11 @@ it('reads the original addendum locations for the current project, lot and round
   ]}]})
   const batches=await page.invoke('tender.followup.traceOutboundBatches',{addendumId:'A',knownAt},signal)
   expect(batches).toMatchObject({state:'BATCH_EVIDENCE',evidence:[{obligationId:'OBLIGATION',eventRef:'REC',attemptRef:'OUTBOUND'}],
-   changes:[{changeId:'ITEM',obligationId:'OBLIGATION',receiptRefs:['REC']}]})
+   changes:[{changeId:'ITEM',obligationId:'OBLIGATION',receiptRefs:['REC'],content:{attemptRef:'OUTBOUND',state:'PENDING',
+    members:[{position:'技术册',state:'PENDING'}],fields:[{assignmentId:'FORM',fieldId:'PRICE',state:'PENDING'}]}}]})
   readDeadline.mockResolvedValueOnce({...deadline,evidence:deadline.evidence.map(event=>({...event,obligationId:'ANOTHER'}))})
   expect(await page.invoke('tender.followup.traceOutboundBatches',{addendumId:'A',knownAt},signal)).toMatchObject({
-   evidence:[{obligationId:'ANOTHER',eventRef:'REC'}],changes:[{changeId:'ITEM',obligationId:'OBLIGATION',receiptRefs:[]}],
+   evidence:[{obligationId:'ANOTHER',eventRef:'REC'}],changes:[{changeId:'ITEM',obligationId:'OBLIGATION',receiptRefs:[],content:null}],
   })
   readDeadline.mockResolvedValueOnce({...deadline,scope:{...receiptScope,subjectId:'OTHER'}})
   await expect(page.invoke('tender.followup.traceOutboundBatches',{addendumId:'A',knownAt},signal))

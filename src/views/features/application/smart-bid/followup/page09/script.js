@@ -18,9 +18,21 @@ async function openOutboundImpact() {
         if (item.priorAttemptRef) lines.push(`原被替换批次 ${item.priorAttemptRef}`)
       }
       if (!result.evidence.length) lines.push('本次对账范围内无已核渠道办理证据')
+      const contentStates = {MATCHED: '一致', MISMATCHED: '有差异', PENDING: '待核'}
       for (const change of result.changes) {
-        if (change.receiptRefs.length) lines.push(`变动 ${change.changeId} · 事项 ${change.obligationId} · 原回执 ${change.receiptRefs.join('、')} · 递交内容待核`)
-        else lines.push(`变动 ${change.changeId} · 对应原办理批次待核`)
+        if (!change.receiptRefs.length) {
+          lines.push(`变动 ${change.changeId} · 对应原办理批次待核`)
+          continue
+        }
+        lines.push(`变动 ${change.changeId} · 事项 ${change.obligationId} · 原回执 ${change.receiptRefs.join('、')}`)
+        const content = change.content
+        if (!content) {
+          lines.push('截止有效批次的递交内容待核')
+          continue
+        }
+        lines.push(`截止有效批次 ${content.attemptRef} · 递交内容${contentStates[content.state]}`)
+        for (const member of content.members) lines.push(`文件 ${member.position} · ${contentStates[member.state]}`)
+        for (const field of content.fields) lines.push(`平台字段 ${field.assignmentId} / ${field.fieldId} · ${contentStates[field.state]}`)
       }
     }
     await $page.showAlert(lines.join('\n'), '递交批次反查')

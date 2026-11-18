@@ -55,10 +55,14 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
     obligationId:item.obligationId,eventRef:item.eventRef,attemptRef:item.attemptRef,kind:item.kind,
     priorAttemptRef:item.kind==='REPLACED'?item.priorAttemptRef:null,
    }))
-   const changes=addendum.items.map(item=>Object.freeze({
-    changeId:item.id,obligationId:item.deliveryObligationId,
-    receiptRefs:Object.freeze(evidence.filter(event=>event.obligationId===item.deliveryObligationId).map(event=>event.eventRef)),
-   }))
+   const changes=addendum.items.map(item=>{
+    const obligationId=item.deliveryObligationId
+    const receipts=evidence.filter(event=>event.obligationId===obligationId)
+    const checked=delivery.items.find(entry=>entry.obligationId===obligationId&&entry.state==='EFFECTIVE_ATTEMPT')
+    const content=checked&&receipts.some(event=>event.kind!=='WITHDRAWN'&&event.attemptRef===checked.attemptRef)?
+     Object.freeze({attemptRef:checked.attemptRef,state:checked.contentState,members:checked.members,fields:checked.fields}):null
+    return Object.freeze({changeId:item.id,obligationId,receiptRefs:Object.freeze(receipts.map(event=>event.eventRef)),content})
+   })
    return Object.freeze({state:'BATCH_EVIDENCE' as const,addendumId,knownAt:delivery.knownAt,cutoffAt:delivery.cutoffAt,
     evidence:Object.freeze(evidence),changes:Object.freeze(changes),assertCurrent:assertBatches})
   }

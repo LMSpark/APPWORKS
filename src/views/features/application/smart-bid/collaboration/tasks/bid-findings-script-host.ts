@@ -6,7 +6,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readFindingsForCompletedCoverage} from '../../authoring/model/review/content-review-findings-reader'
-import {prepareRegisteredBidFindingRecheck} from './bid-finding-recheck-reader'
+import {prepareRegisteredBidFindingRecheck,readBidFindingRecheckResult} from './bid-finding-recheck-reader'
 import {prepareRegisteredBidFinding,readBidFindingRegistrationResult} from './bid-finding-registration-reader'
 
 type Read=Parameters<typeof readFindingsForCompletedCoverage>
@@ -39,6 +39,13 @@ export function createBidFindingsScriptHost<Runtime extends Pick<PageRuntime,'re
    if(Object.keys(input).length!==2||!identity(checkRef)||!identity(requestKey))throw Error('BID_FINDINGS_PAGE_REQUEST')
    const readRegistration=sources.readRegistration
    return prepareRegisteredBidFinding({...host,runtime,assertCurrent},{checkRef,requestKey},check=>readRegistration(check,signal))
+  }
+  if(name==='bid.tasks.readRecheckResult'){
+   const {findingId,expectedFindingVersion,requestKey,requestDigest}=input
+   if(Object.keys(input).length!==4||!identity(findingId)||!identity(expectedFindingVersion)||!identity(requestKey)||!identity(requestDigest))
+    throw Error('BID_FINDINGS_PAGE_REQUEST')
+   return readBidFindingRecheckResult({...host,runtime,assertCurrent},
+    {projectId:host.projectId,findingId,expectedFindingVersion,requestKey,requestDigest})
   }
   if(name==='bid.tasks.prepareRecheck'&&sources.readRecheck){
    const {findingId,expectedFindingVersion,requestKey}=input

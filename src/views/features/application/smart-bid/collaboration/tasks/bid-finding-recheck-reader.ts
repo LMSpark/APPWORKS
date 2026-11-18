@@ -40,3 +40,32 @@ export async function prepareRegisteredBidFindingRecheck(
  const evidence=await readEvidence(finding)
  return prepareReviewFindingRecheck(request,{...evidence,finding})
 }
+
+const resultKeys=['projectId','findingId','expectedFindingVersion','requestKey']
+const resultFields=['id','requestDigest','outcome','evidenceRef']
+const outcomes=['UNRESOLVED','CORRECTED','FALSE_POSITIVE','WAIVED'] as const
+
+/** 按原问题版和请求键定位已追加的复验结论。 */
+export function bidFindingRecheckResultView(primaryKey:string){
+ return originalRegistrationView(primaryKey,resultKeys,resultFields)
+}
+
+/** 复验回执丢失时只认同一请求摘要下的原结论。 */
+export async function readBidFindingRecheckResult(
+ host:Parameters<typeof prepareRegisteredBidFindingRecheck>[0],
+ request:Recheck[0]&Readonly<{requestDigest:string}>){
+ const {projectId,findingId,expectedFindingVersion,requestKey,requestDigest}=request
+ host.assertCurrent()
+ const resultError='REVIEW_FINDING_RECHECK_RESULT_SCOPE'
+ if(projectId!==host.projectId||![projectId,findingId,expectedFindingVersion,requestKey].every(identity)||
+  !/^[a-f0-9]{64}$/u.test(requestDigest))throw Error(resultError)
+ const read=await readOriginalRegistrationView(host,{model:'CheckFinding',viewName:'originalRecheckResult'},
+  {projectId,findingId,expectedFindingVersion,requestKey})
+ if(!read.row)return Object.freeze({state:'UNKNOWN' as const,assertCurrent:read.assertCurrent})
+ const assertCurrent=read.captureFields(resultFields)
+ assertCurrent()
+ const {id:recheckRef,evidenceRef}=read.row
+ const outcome=outcomes.find(value=>value===read.row?.['outcome'])
+ if(read.row['requestDigest']!==requestDigest||!identity(recheckRef)||!identity(evidenceRef)||!outcome)throw Error(resultError)
+ return Object.freeze({state:'REGISTERED' as const,recheckRef,outcome,evidenceRef,assertCurrent})
+}

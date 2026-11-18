@@ -45,10 +45,21 @@ async function openBidFindingRecheck() {
   if (!bindBidFindingRecheck().visible) return
   const {findingId, expectedFindingVersion, recheckRequestKey: requestKey} = $route.query
   try {
+    const labels = {UNRESOLVED: '未解', CORRECTED: '已纠正', FALSE_POSITIVE: '误报', WAIVED: '例外处置'}
+    const digest = $route.query.recheckRequestDigest
+    if (digest !== undefined) {
+      const original = await $page.invokeHostCommand('bid.tasks.readRecheckResult',
+        {findingId, expectedFindingVersion, requestKey, requestDigest: digest})
+      original.assertCurrent()
+      const detail = original.state === 'REGISTERED'
+        ? `原复验 ${original.recheckRef} · ${labels[original.outcome]} · 证据 ${original.evidenceRef}`
+        : '原复验结果待确认'
+      await $page.showAlert(detail, '原复验结果')
+      return
+    }
     const result = await $page.invokeHostCommand('bid.tasks.prepareRecheck', {findingId, expectedFindingVersion, requestKey})
     result.assertCurrent()
     const {record, requestDigest} = result
-    const labels = {UNRESOLVED: '未解', CORRECTED: '已纠正', FALSE_POSITIVE: '误报', WAIVED: '例外处置'}
     const lines = [`问题 ${record.findingId} · 问题版 ${record.expectedFindingVersion}`,
       `复验目标 ${record.checkedTarget.targetId} · 版本 ${record.checkedTarget.versionRef}`,
       `拟登记结论 ${labels[record.outcome]} · 证据 ${record.evidenceRef}`, `请求摘要 ${requestDigest}`]

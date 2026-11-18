@@ -8,7 +8,7 @@ import {compileFunctions} from '../../../../../../packages/spark-component/src/p
 import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 import {prepareReviewFindingRecheck} from '@/services/smart-bid/content/review/finding/review-finding-recheck'
 import {prepareReviewFindingRegistration} from '@/services/smart-bid/content/review/finding/review-finding-registration'
-import {bidFindingRecheckView} from '@/views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader'
+import {bidFindingRecheckResultView,bidFindingRecheckView} from '@/views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader'
 import {bidFindingRegistrationResultView,bidFindingRegistrationView} from '@/views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -193,9 +193,11 @@ it('prepares recheck only for the expected finding version and matching target e
   .rejects.toThrow('REVIEW_FINDING_RECHECK_DECISION')
  const row={id:'F1',...scope,versionRef:'F1',targetKind:original.kind,targetId:original.targetId,
   targetVersionRef:original.versionRef,effectiveHash:original.effectiveHash,remediatorId:'AUTHOR'}
+ let registered=false
+ const resultRow={...request,id:'RECHECK',requestDigest:prepared.requestDigest,outcome:'CORRECTED',evidenceRef:'RESOURCE-V2'}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{CheckFinding:{
-  modelBinding:{modelName:'CheckFinding',modelId:'M'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalRecheckFinding:bidFindingRecheckView('id')},
+  modelBinding:{modelName:'CheckFinding',modelId:'M'},columns:Object.keys({...row,...resultRow}).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},originalRecheckFinding:bidFindingRecheckView('id'),originalRecheckResult:bidFindingRecheckResultView('id')},
  }}})
  try{
  const view=ds.getView('CheckFinding','originalRecheckFinding')
@@ -206,14 +208,23 @@ it('prepares recheck only for the expected finding version and matching target e
   identity:table.identity,scope:'recheck',readScope:()=> 'recheck',snapshot:table.applyResult({Result:{primaryKeyField:'id',
    data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:hidden?['targetVersionRef']:[],m:[],d:false}}]}}}),
  })})
- const runtime={resolveView:(key:string)=>key==='S@CheckFinding@originalRecheckFinding'?view:undefined,
+ const resultView=ds.getView('CheckFinding','originalRecheckResult')
+ if(!resultView)throw Error('TEST_RECHECK_RESULT_VIEW_REQUIRED')
+ const resultTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'CheckFinding'})
+ resultView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+  identity:resultTable.identity,scope:'result',readScope:()=> 'result',
+  snapshot:resultTable.applyResult({Result:{primaryKeyField:'id',data:{Count:registered?1:0,
+   Items:registered?[{...resultRow,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]:[]}}}),
+ })})
+ const runtime={resolveView:(key:string)=>key==='S@CheckFinding@originalRecheckFinding'?view:
+  key==='S@CheckFinding@originalRecheckResult'?resultView:undefined,
   generation:1,isLoaded:true,destroyed:false}
  const readRecheck=vi.fn(async()=>({decision,evidence}))
  const page=createBidFindingsScriptHost(runtime,{projectId:'P',scenarioId:'S',assertCurrent},{
   readCoverage:async()=>{throw Error('UNEXPECTED_COVERAGE')},readRecheck,
  })
  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
- const query={findingId:request.findingId,expectedFindingVersion:request.expectedFindingVersion,recheckRequestKey:request.requestKey}
+ const query:{findingId:string;expectedFindingVersion:string;recheckRequestKey:string;recheckRequestDigest?:string}={findingId:request.findingId,expectedFindingVersion:request.expectedFindingVersion,recheckRequestKey:request.requestKey}
  const {openBidFindingRecheck}=compileFunctions(script,{$route:{query},$page:{
   invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,showMessage,
  }} as unknown as PageContext)
@@ -231,6 +242,15 @@ it('prepares recheck only for the expected finding version and matching target e
  query.expectedFindingVersion='F1'
  hidden=true
  await openBidFindingRecheck()
+ expect(readRecheck).toHaveBeenCalledTimes(1)
+ query.recheckRequestDigest=prepared.requestDigest
+ await openBidFindingRecheck()
+ expect(showAlert).toHaveBeenLastCalledWith('原复验结果待确认','原复验结果')
+ registered=true
+ await openBidFindingRecheck()
+ expect(showAlert).toHaveBeenLastCalledWith('原复验 RECHECK · 已纠正 · 证据 RESOURCE-V2','原复验结果')
+ await expect(page.invoke('bid.tasks.readRecheckResult',{findingId:'F',expectedFindingVersion:'F1',requestKey:'Q',
+  requestDigest:'a'.repeat(64)},signal)).rejects.toThrow('REVIEW_FINDING_RECHECK_RESULT_SCOPE')
  expect(readRecheck).toHaveBeenCalledTimes(1)
  current=false
  expect(()=>prepared.assertCurrent()).toThrow('EVIDENCE_STALE')

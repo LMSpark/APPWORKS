@@ -36,7 +36,8 @@ export async function readDraftResponseVersions(host:ContentRevisionReadHost,sel
  if(!wanted.size)return Object.freeze({versions:[],factIds:[],assertCurrent:host.assertCurrent})
  const key=buildDataViewKey(model,viewName,scenarioId),view=runtime.resolveView(key)
  const valid=()=>view?.dataTable?.modelBinding?.modelName===model&&view.commitMode==='staged'&&
-  view.queryConfig.autoQuery===false&&view.queryConfig.allPages===true&&
+  view.queryConfig.autoQuery===false&&view.queryConfig.cacheType==='none'&&
+  view.queryConfig.pagination==='paged'&&view.queryConfig.allPages===true&&
   hasContentScopeCondition(view,'projectId',{Type:'GetInputParam',ParamName:'projectId'})
  if(!view||!valid()||view.hasEditingChanges())throw Error(error)
  view.queryContext={...view.queryContext,projectId}

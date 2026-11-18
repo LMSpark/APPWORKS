@@ -108,6 +108,12 @@ it('pins the original review stamp in the independent response version digest',a
   const recorded=await read()
   expect(recorded.versions[0]?.payloadHash).toMatch(/^[a-f0-9]{64}$/u)
   expect(recorded.versions[0]?.payloadHash).not.toBe(pending.versions[0]?.payloadHash)
+  const view=f.ds.getView('Response','selectedDraftResponseVersions')!
+  view.queryConfig={...view.queryConfig,cacheType:'page'}
+  expect(()=>recorded.assertCurrent()).toThrow('CONTENT_DRAFT_RESPONSE_VERSION')
+  const queryCount=f.query.mock.calls.length
+  await expect(read()).rejects.toThrow('CONTENT_DRAFT_RESPONSE_VERSION')
+  expect(f.query).toHaveBeenCalledTimes(queryCount)
  }finally{f.ds.destroy()}
 })
 it('takes first draft target nodes from the frozen input snapshot',async()=>{

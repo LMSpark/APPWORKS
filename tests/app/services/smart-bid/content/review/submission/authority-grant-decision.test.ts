@@ -2,6 +2,8 @@ import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {prepareAuthorityGrantDecision,readOriginalAuthorityGrantRegistration} from '@/services/smart-bid/content/review/submission/authority-grant-decision'
 import {checkRegisteredAuthorityGrant} from '@/services/smart-bid/content/review/submission/authority-grant-coverage'
+import {prepareSignatureRequest,recoverSignatureRequest} from '@/services/smart-bid/content/review/submission/signature-request'
+import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
 import {authorityGrantRegistrationView,readRegisteredAuthorityGrantRegistration} from '@/views/features/application/smart-bid/authority/authority-grant-registration-reader'
 import {createAuthorityGrantScriptHost} from '@/views/features/application/smart-bid/authority/authority-grant-script-host'
 import script from '@/views/features/application/smart-bid/authority/page04/script.js?raw'
@@ -30,6 +32,37 @@ it('binds a revocation to its authority, affected scope and original version',as
  const scope={enterpriseId:'ORG',grantId:'GRANT',representativeId:'REP',projectId:'P',action:'SUBMIT',
   objectRef:'LOT',actionAt:earlier,knownAt:source.knownAt}
  const evidence={versions,assertCurrent:()=>{}}
+ const signature={...scope,signerRef:scope.representativeId,requestKey:'SIGN-1',objectKind:'PACKAGE' as const,
+  objectVersion:'PACK-V1',objectHash:'a'.repeat(64),positionRef:'SEAL'}
+ const signatureBasis={...signature,requirementRef:'RULE',coverageRef:'COVERAGE',approved:true,assertCurrent:()=>{}}
+ const permitted={...evidence,versions:[{...versions[0]!,record:{...registered.record,actions:['SIGN']}},versions[1]!]}
+ const signing=await prepareSignatureRequest(signature,signatureBasis,permitted)
+ const originalSigning={...signature,requestDigest:signing.requestDigest}
+ const signReceipt={request:originalSigning,state:'SIGNED' as const,operationRef:'OP',signatureRecordId:'SIG',
+  signedObjectRef:'SIGNED-PACK',signedObjectHash:'c'.repeat(64),assertCurrent:evidence.assertCurrent}
+ await expect(recoverSignatureRequest(originalSigning,{...evidence,lookup:async()=>undefined}))
+  .resolves.toMatchObject({state:'UNKNOWN'})
+ await expect(recoverSignatureRequest(originalSigning,{...evidence,lookup:async()=>signReceipt}))
+  .resolves.toMatchObject({state:'SIGNED',signatureRecordId:'SIG',signedObjectRef:'SIGNED-PACK'})
+ await expect(recoverSignatureRequest(originalSigning,{...evidence,lookup:async()=>({...signReceipt,
+  request:{...originalSigning,objectVersion:'OTHER'},
+ })})).rejects.toThrow('BID_SIGNATURE_RECOVERY_SCOPE')
+ expect(signing.record).toMatchObject({authorityVersionId:'V1',objectVersion:'PACK-V1',positionRef:'SEAL'})
+ const page=createContentSubmissionScriptHost({resolveView:()=>undefined,generation:1,isLoaded:true,destroyed:false},
+  {scenarioId:'S',projectId:'P',assertCurrent:()=>{}},{readSignatureSelection:async()=>({
+   selectionRef:'SIGNING',request:signature,basis:signatureBasis,authority:permitted,
+  })})
+ const signal=new AbortController()
+ await expect(page.invoke('content.submission.prepareSignature',{selectionRef:'OTHER'},signal.signal))
+  .rejects.toThrow('SUBMISSION_PAGE_SIGNATURE_SCOPE')
+ const pageSigning=await page.invoke('content.submission.prepareSignature',{selectionRef:'SIGNING'},signal.signal)
+ expect(pageSigning).toMatchObject({requestDigest:signing.requestDigest})
+ signal.abort()
+ expect(()=>pageSigning.assertCurrent()).toThrow('SUBMISSION_PAGE_STALE')
+ await expect(prepareSignatureRequest({...signature,actionAt:source.knownAt},signatureBasis,permitted))
+  .rejects.toThrow('BID_SIGNATURE_AUTHORITY_REQUIRED')
+ await expect(prepareSignatureRequest({...signature,objectHash:'b'.repeat(64)},signatureBasis,permitted))
+  .rejects.toThrow('BID_SIGNATURE_TARGET_SCOPE')
  expect(checkRegisteredAuthorityGrant(scope,evidence)).toMatchObject({state:'COVERED',versionId:'V1'})
  expect(checkRegisteredAuthorityGrant({...scope,actionAt:source.knownAt},evidence)).toMatchObject({state:'REVOKED',versionId:'V2'})
  expect(checkRegisteredAuthorityGrant({...scope,action:'SIGN'},evidence)).toMatchObject({state:'OUTSIDE_SCOPE'})

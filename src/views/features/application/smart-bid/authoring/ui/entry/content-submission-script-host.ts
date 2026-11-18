@@ -10,6 +10,7 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {recoverSubmissionAttempt} from '@/services/smart-bid/content/review/submission-attempt-recovery'
 import {prepareDeliveryFreezeSelection} from '@/services/smart-bid/content/review/delivery-selection-digest'
 import {preparePaperPackingRecord} from '@/services/smart-bid/content/review/paper-submission-package'
+import {prepareSignatureRequest} from '@/services/smart-bid/content/review/submission/signature-request'
 import {prepareRegisteredDeliveryZipPackage} from '../../model/review/package/content-delivery-package-preparation'
 import {readPackingRegistrationIdentity,recoverRegisteredPackingCandidate} from '../../model/review/package/content-submission-package-reader'
 import {readRegisteredSubmissionRequest} from '../../model/review/submission/content-submission-request-reader'
@@ -38,6 +39,7 @@ type FreezePreparation=Parameters<typeof prepareDeliveryFreezeSelection>
 type PackingPreparation=Parameters<typeof prepareRegisteredDeliveryZipPackage>
 type PackingRecovery=Parameters<typeof recoverRegisteredPackingCandidate>
 type PaperPacking=Parameters<typeof preparePaperPackingRecord>
+type SignaturePreparation=Parameters<typeof prepareSignatureRequest>
 type PackingSelection=Readonly<{
  selectionRef:string;request:PackingPreparation[1];assertCurrent:()=>void
 }>&(
@@ -84,6 +86,9 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
    signature?:Readonly<{targets:Parameters<typeof bindPackageSignatureCoverage>[1];recordIds:readonly string[]}>
   }>>
   readSubmissionPreparation?:SubmissionPreparation
+  readSignatureSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
+   selectionRef:string;request:SignaturePreparation[0];basis:SignaturePreparation[1];authority:SignaturePreparation[2]
+  }>>
   readFreezeSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
    selectionRef:string;selection:FreezePreparation[0];uses:FreezePreparation[1];assertCurrent:()=>void
   }>>
@@ -108,6 +113,18 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)throw Error('SUBMISSION_PAGE_STALE')
    }
    const host={...scope,runtime,assertCurrent}
+   if(name==='content.submission.prepareSignature'&&sources.readSignatureSelection){
+    const {selectionRef}=input
+    if(!identity(selectionRef))throw Error('SUBMISSION_PAGE_SIGNATURE_SCOPE')
+    assertCurrent()
+    const selected=await sources.readSignatureSelection(selectionRef,signal)
+    assertCurrent()
+    if(selected.selectionRef!==selectionRef||selected.request.projectId!==projectId)
+     throw Error('SUBMISSION_PAGE_SIGNATURE_SCOPE')
+    const prepared=await prepareSignatureRequest(selected.request,selected.basis,selected.authority)
+    assertCurrent()
+    return Object.freeze({...prepared,assertCurrent:()=>{assertCurrent();prepared.assertCurrent()}})
+   }
    if(name==='content.submission.preparePaperPacking'&&sources.readPaperPackingSelection){
     const {selectionRef}=input
     if(!identity(selectionRef))throw Error('SUBMISSION_PAGE_PACKING_SCOPE')

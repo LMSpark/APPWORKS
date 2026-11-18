@@ -16,7 +16,7 @@ async function __init__() {
 }
 
 function bindOriginalSubmission() {
-  if ($route.query.attemptRef === undefined && (bindPackage().visible || bindPaperPackage().visible || bindSubmissionPreparation().visible || bindFreezePreparation().visible || bindPackingPreparation().visible || bindPaperPacking().visible)) return {visible: false}
+  if ($route.query.attemptRef === undefined && (bindPackage().visible || bindPaperPackage().visible || bindSubmissionPreparation().visible || bindFreezePreparation().visible || bindPackingPreparation().visible || bindPaperPacking().visible || bindSignaturePreparation().visible)) return {visible: false}
   if (!original) return {error: lookupError ?? '原递交记录无法读取'}
   try {
     original.assertCurrent()
@@ -32,6 +32,23 @@ function bindOriginalSubmission() {
     return {status: original.evidenceRef ? `${status}，凭据 ${original.evidenceRef}` : status}
   } catch {
     return {error: '原递交查询已失效'}
+  }
+}
+
+function bindSignaturePreparation() {
+  const ref = $route.query.signatureSelectionRef
+  return {visible: typeof ref === 'string' && !!ref && ref.trim() === ref}
+}
+
+async function openSignaturePreparation() {
+  if (!bindSignaturePreparation().visible) return
+  try {
+    const prepared = await $page.invokeHostCommand('content.submission.prepareSignature', {selectionRef: $route.query.signatureSelectionRef})
+    prepared.assertCurrent()
+    const {record} = prepared
+    await $page.showAlert(`待签对象 ${record.objectRef} · 版本 ${record.objectVersion}\n签署位置 ${record.positionRef}\n请求摘要 ${prepared.requestDigest}`, '签署前核验')
+  } catch (error) {
+    $page.showMessage(error?.message === 'BID_SIGNATURE_AUTHORITY_REQUIRED' ? '当前代表权未覆盖本次签署' : '待签对象或签署依据无法核验', 'warning')
   }
 }
 

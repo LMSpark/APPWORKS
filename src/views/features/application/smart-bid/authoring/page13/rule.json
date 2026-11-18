@@ -21,6 +21,14 @@
     ]
   },
   {
+    "id": "submission-signature-preparation",
+    "type": "r-section",
+    "props": {"title": "签署前核验", "onBeforeRender": "bindSignaturePreparation"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核验待签对象", "onClick": "openSignaturePreparation"}}
+    ]
+  },
+  {
     "id": "submission-preparation",
     "type": "r-section",
     "props": {"title": "递交前核验", "onBeforeRender": "bindSubmissionPreparation"},

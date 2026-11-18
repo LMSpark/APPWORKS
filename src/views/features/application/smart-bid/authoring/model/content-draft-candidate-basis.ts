@@ -5,6 +5,7 @@ import {readRevisionBasisResponses} from '@/services/smart-bid/content/content-s
 import {assertRevisionTemplateBindings} from '@/services/smart-bid/content/revision-template-bindings'
 import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
 import {assertRevisionResponseText} from '@/services/smart-bid/content/references/revision-response-text'
+import {assessBaselineRequirementPins,readBaselineRequirementMembers} from '@/services/smart-bid/content/references/baseline-requirement-members'
 import {readBidFrozenBaseline} from '../../collaboration/handoff/bid-project-scope-reader'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readAdoptedContentRevision,type ContentRevisionReadHost} from './content-revision-reader'
@@ -19,6 +20,18 @@ import {originalRegistrationView,readOriginalRegistrationView} from '../../autho
 const error='CONTENT_DRAFT_CANDIDATE_BASIS'
 const batchFields=['basisRevisionId','baselineId','inputSnapshotHash','targetScopes','lockHash']
 const batchView='originalFirstCandidateBatch'
+
+function assertBasisRequirementVersions(manifest:unknown,basisNodes:Awaited<ReturnType<typeof readBasisMembers>>['basisNodes'],requirements:unknown){
+ const sections=snapshotReferenceRecord(manifest,error)
+ const versions=readBaselineRequirementMembers(requirements)
+ if(assessBaselineRequirementPins(requirements,sections['requirementPins'],basisNodes).length)
+  throw Error('CONTENT_DRAFT_CANDIDATE_BASIS_REQUIREMENT')
+ visitSnapshotReferences(sections['responseAssignments'],value=>{
+  const {lineageId,version}=snapshotReferenceRecord(value,error)
+  if(!identity(lineageId)||!identity(version)||versions.get(lineageId)!==version)
+   throw Error('CONTENT_DRAFT_CANDIDATE_BASIS_REQUIREMENT')
+ },error)
+}
 
 export function firstCandidateBatchScenarioView(primaryKey:string){
  return originalRegistrationView(primaryKey,['projectId','id'],batchFields)
@@ -81,6 +94,8 @@ export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selec
   if(snapshot.index.baselineId!==frozen.baselineId||canonicalSnapshotValue(stageRef)!==canonicalSnapshotValue(frozen.stageRef))
    throw Error(error)
   const members=await readBasisMembers(scopedHost,snapshot,manifest)
+  assertBasisRequirementVersions(manifest,members.basisNodes,frozen.requirements)
+  members.assertCurrent()
   return Object.freeze({...members,projectId,revisionId,baselineId:frozen.baselineId,stageRef:frozen.stageRef,
    inputSnapshotHash,batchId:firstBatchId,lockHash,targetScope:registeredTargetScope})
  }
@@ -100,6 +115,7 @@ export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selec
   readContentReviewBaseline(scopedHost,{baselineId,stageRef,viewName:'selectedBasisBaseline'}),
  ])
  const assertCurrent=()=>{nodes.assertCurrent();frozen.assertCurrent()}
+ assertBasisRequirementVersions(manifest,nodes.basisNodes,frozen.requirementVersions)
  assertCurrent()
  return Object.freeze({projectId,revisionId,baselineId,stageRef:structuredClone(stageRef),
   basisNodes:nodes.basisNodes,nodePayloads:nodes.nodePayloads,responses:nodes.responses,assertCurrent})

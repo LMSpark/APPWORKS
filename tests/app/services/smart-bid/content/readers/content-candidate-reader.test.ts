@@ -35,13 +35,19 @@ it('rejects a hash-matched draft basis whose template refers to a heading',async
  }finally{f.ds.destroy()}
 })
 it('keeps exact original responses and unfilled assignments distinct for draft preparation',async()=>{
- const f=await fixture('response-fact',{threeVersions:true})
+ const f=await fixture('response-fact',{threeVersions:true,baselineRequirementVersion:'R1'})
  try{
   const basis=await readDraftCandidateBasis(f.host,{revisionId:'V1'})
   expect(basis.responses).toEqual([
    {projectId:'P',assignmentId:'A',responseId:'I'},
    {projectId:'P',assignmentId:'UNANSWERED',responseId:null},
   ])
+ }finally{f.ds.destroy()}
+})
+it.each(['valid-pin','response-fact'])('rejects %s requirements from a different frozen version',async mode=>{
+ const f=await fixture(mode,{threeVersions:true})
+ try{
+  await expect(readDraftCandidateBasis(f.host,{revisionId:'V1'})).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_BASIS_REQUIREMENT')
  }finally{f.ds.destroy()}
 })
 it('takes first draft target nodes from the frozen input snapshot',async()=>{

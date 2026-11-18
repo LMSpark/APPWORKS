@@ -56,7 +56,7 @@ it('refreshes an empty cached project head before preparing a first candidate',a
   const session=createContentAuthoringScriptHost(f.binding,f.commands)
    .invoke('content.authoring.connect',undefined,new AbortController().signal)
   await expect(session.prepareDraftCandidate({requestKey:'Q',firstBatchId:'BATCH',targetScopeIndex:0}))
-   .rejects.toThrow('CONTENT_DRAFT_CANDIDATE_BASIS')
+   .rejects.toThrow('CONTENT_DRAFT_FIRST_HEAD_CHANGED')
   expect(view?.rows[0]?.['headRevisionId']).toBe('ADOPTED')
   expect(f.save).not.toHaveBeenCalled()
  }finally{f.runtime.dispose()}

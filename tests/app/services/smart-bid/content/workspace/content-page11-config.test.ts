@@ -129,6 +129,9 @@ it('prepares the selected independent response from the saved draft and original
  await openDraftCandidate()
  expect(prepareDraftCandidate).toHaveBeenLastCalledWith({requestKey:'Q',firstBatchId:'BATCH',targetScopeIndex:2})
  expect(showAlert).toHaveBeenCalledTimes(3)
+ prepareDraftCandidate.mockRejectedValueOnce(Error('CONTENT_DRAFT_FIRST_HEAD_CHANGED'))
+ await openDraftCandidate()
+ expect(showMessage).toHaveBeenLastCalledWith('项目已有采用的正文，请基于当前正文版本重新发起候选','warning')
 })
 it('shows a later project head without changing the original adoption revision',async()=>{
  const showAlert=vi.fn(async()=>{}),showMessage=vi.fn()

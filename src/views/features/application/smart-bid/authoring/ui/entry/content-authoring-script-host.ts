@@ -128,10 +128,12 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      assertDraft()
      const project=projectView.rows[0]
      if(runtime.resolveView(projectKey)!==projectView||projectView.loadingError||!hasCompleteSingleContentResult(projectView)||
-      project?.['projectId']!==projectId||project['headRevisionId']!==null||!identity(project['activeBaselineId']))
+      project?.['projectId']!==projectId)
       throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
      const proof=projectView.captureReadRow(project,['projectId','headRevisionId','activeBaselineId'])
      const resultProof=projectView.captureReadResult()
+     if(identity(project['headRevisionId']))throw Error('CONTENT_DRAFT_FIRST_HEAD_CHANGED')
+     if(project['headRevisionId']!==null||!identity(project['activeBaselineId']))throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
      const assertFirst=()=>{
       assertDraft()
       if(runtime.resolveView(projectKey)!==projectView)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')

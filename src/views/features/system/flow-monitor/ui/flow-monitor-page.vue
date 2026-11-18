@@ -26,7 +26,7 @@ const {sparkConsume} = useSparkComponent({type: 'flow-monitor-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'flow-monitor-page')
 
 const scenarioId = 'E328FBBF518141973C575D612CD75151'
-const {viewKey, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
+const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'View_FlowObjList', componentType: 'flow-monitor-page', title: '流程监控',
   optionModels: ['Dict_state', 'Base_UserInfo'],
 })
@@ -58,31 +58,33 @@ const appScope = () => {
   if (!scope) throw new Error('流程监控缺少应用路径作用域')
   return scope
 }
-function openRun(row: DataRow): void {
+function openRun(row: DataRow, detail: boolean): void {
+  const view = ready.value ? session.runtime?.resolveView(viewKey.value) : undefined
+  if (!view?.rows.includes(row) || ['rowid', 'WFMID'].some(field => view.fieldAccess(row, field).read !== 'visible')) {
+    void pageService.showMessage('无法读取当前流程记录的正式身份，请重新查询', 'warning')
+    return
+  }
   const wfid = textValue(row, 'rowid')
   const flowid = textValue(row, 'WFMID')
   if (!wfid || !flowid) {
     void pageService.showMessage('流程记录缺少 wfid 或 flowid', 'warning')
     return
   }
-  void router.push(buildFlowRunPageRoute({wfid, flowid}, appScope()))
+  try {
+    view.captureReadRow(row, ['rowid', 'WFMID'])()
+    const buildRoute = detail ? buildFlowRunDetailRoute : buildFlowRunPageRoute
+    void router.push(buildRoute({wfid, flowid}, appScope()))
+  } catch {
+    void pageService.showMessage('当前流程记录已失效，请重新查询', 'warning')
+  }
 }
 const actions = computed<RToolbarProps>(() => ({children: [
-  {type: 'r-button', props: {label: '办理', buttonType: 'primary', onClick: (row: DataRow) => openRun(row)}},
-  {type: 'r-button', props: {label: '运行详情', onClick: (row: DataRow) => openRunDetail(row)}},
+  {type: 'r-button', props: {label: '办理', buttonType: 'primary', onClick: (row: DataRow) => openRun(row, false)}},
+  {type: 'r-button', props: {label: '运行详情', onClick: (row: DataRow) => openRun(row, true)}},
 ]}))
 function textValue(row: DataRow, field: string): string {
   const value = row[field]
   return typeof value === 'string' || typeof value === 'number' ? String(value).trim() : ''
-}
-function openRunDetail(row: DataRow): void {
-  const wfid = textValue(row, 'rowid')
-  const flowid = textValue(row, 'WFMID')
-  if (!wfid || !flowid) {
-    void pageService.showMessage('流程记录缺少 wfid 或 flowid', 'warning')
-    return
-  }
-  void router.push(buildFlowRunDetailRoute({wfid, flowid}, appScope()))
 }
 const filter: RFilterProps = {
   autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,

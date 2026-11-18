@@ -2,13 +2,12 @@
 @module app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page
 -->
 <template>
-  <SparkPageRenderer v-if="catalogToolRuntime" :page-runtime="catalogToolRuntime" :route-snapshot="routeSnapshot" />
-  <RendererSection v-else class="structured-catalog-page" title="Excel 导入配置" :bordered="false" :grid-columns="1"
-    :status="loading ? '正在读取导入目录…' : '导入方案目录；Sheet 布局与转换规则在编辑器中维护。'" :error="error">
-    <p v-if="creation?.phase === 'retained'" role="status">方案已保留；编码处理未标记完成，请核查正式结果。</p>
-    <template v-if="ready">
-      <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :actions="actions" :filter="filter" :stripe="true"
-        :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
+  <SparkPageRenderer v-if="catalogToolRuntime && catalogHost" :page-runtime="catalogToolRuntime" :route-snapshot="routeSnapshot" :host="catalogHost" />
+  <RendererSection v-else title="Excel 导入配置" :bordered="false"
+    :status="loading ? '正在读取导入目录…' : ''" :error="error" />
+  <p v-if="catalogToolRuntime && error" role="alert">{{ error }}</p>
+  <p v-if="creation?.phase === 'retained'" role="status">方案已保留；编码处理未标记完成，请核查正式结果。</p>
+  <template v-if="ready">
       <RendererDialog v-if="editingId !== undefined" :data-view-key="catalogKey" :model-value="true" :title="creating ? '新增方案' : '编辑方案'"
         :width="760" :destroy-on-close="true" :close-disabled="acting || pending || unconfirmed || creationSaved || templatePending" @update:model-value="closeEdit">
         <p v-if="unconfirmed" role="status">保存结果尚未确认，请核验原保存；不会重复提交。</p>
@@ -36,8 +35,7 @@
           <RendererButton label="关闭" :disabled="designPending" @click="closeDesign(false)" />
         </template>
       </RendererDialog>
-    </template>
-  </RendererSection>
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -45,7 +43,6 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
 import {buildDataViewKey,RequestState,type DataRow,type DataView,type SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import type {RToolbarProps,RFilterProps} from '@spark-appworks/spark-component'
 import {APPLICATION_CATALOG_PROJECT_ID, resolveExecutionProjectId} from '@/services/application-scope'
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
 import {startExcelSchemeCreation,saveExcelSchemeCreation,cancelExcelSchemeCreation,readExcelSchemeCreation,endExcelSchemeCreation} from '@/lowcode/resources/semi-structured/excel-import/catalog/creation'
@@ -57,7 +54,7 @@ import rule from './rule.json?raw'
 import script from './script.js?raw'
 import style from './style.css?raw'
 
-const {PAGE_RUNTIME,RendererSection,RendererTable,RendererDialog,RendererForm,RendererButton,SparkPageRenderer,useSparkComponent,consumeRequiredPageService}=SparkComponent
+const {PAGE_RUNTIME,RendererSection,RendererDialog,RendererForm,RendererButton,SparkPageRenderer,useSparkComponent,consumeRequiredPageService}=SparkComponent
 const route = useRoute()
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
@@ -98,30 +95,6 @@ const selected = computed(() => {
 const projectId = computed(() => resolveExecutionProjectId(route.path))
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodeExcelImport.catalogMetaName, 'default', scenarioId.value))
-const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
-  {type:'r-button',props:{label:'新增方案',permAction:'create',disabled:locked.value,onClick:createScheme}},
-  {type: 'r-button', props: {label: '打开设计', disabled: !selected.value || locked.value, onClick: () => openEditor()}},
-  {type: 'r-button', props: {label: '刷新', action: 'refresh',disabled:locked.value}},
-]}))
-const actions=computed<RToolbarProps>(()=>({children:[
-  {type:'r-button',props:{label:'复制KEY',disabled:locked.value||!pageService?.copyText,onClick:copyKey}},
-  {type:'r-button',props:{label:'设计',permAction:'edit',disabled:locked.value,onClick:(row:DataRow)=>openEditor(row)}},
-  {type:'r-button',props:{label:'编辑',permAction:'edit',disabled:locked.value,onClick:editRow}},
-]}))
-const filter=computed<RFilterProps>(()=>({autoQuery:false,children:[
-  {type:'r-text',props:{field:'coding',label:'方案编码',placeholder:'按编码搜索'}},
-  {type:'r-text',props:{field:'solutionName',label:'方案名称',placeholder:'按名称搜索'}},
-]}))
-const fields = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'coding', label: '方案编码', width: 180}},
-  {type: 'r-text', props: {field: 'solutionName', label: '方案名称', width: 240}},
-  {type: 'r-select', props: {field: 'dataSetId', label: '数据空间', width: 200,
-    optionDataViewKey: buildDataViewKey('Base_DataSet', 'default', scenarioId.value)}},
-  {type: 'r-text', props: {field: 'description', label: '描述', width: 300}},
-  {type: 'r-select', props: {field: 'createuser', label: '创建人', width: 150,
-    optionDataViewKey: buildDataViewKey('Base_UserInfo', 'default', scenarioId.value)}},
-  {type:'r-text',props:{field:'createtime',label:'创建时间',width:140}},
-])
 const editorFields=computed<SparkNode[]>(()=>[
   {type:'r-text',props:{field:'solutionName',label:'方案名称',maxlength:200,readonly:acting.value||unconfirmed.value||creationSaved.value||templateDispatched.value}},
   {type:'r-select',props:{field:'dataSetId',label:'数据空间',optionDataViewKey:buildDataViewKey('Base_DataSet','default',scenarioId.value),readonly:acting.value||unconfirmed.value||creationSaved.value||templateDispatched.value}},
@@ -209,43 +182,62 @@ function discardDesign(): void {
   if (designPage.value?.busy || designPage.value?.unconfirmed) return
   if (designPage.value?.discardChanges() === true) closeDesign(false)
 }
+function makeCatalogHost(runtime:PageRuntime,editable:boolean){
+  const assertCurrent=()=>{if(!active||!session.isCurrent(runtime))throw new Error('Excel 目录运行实例已失效')}
+  return {runtime,assertCurrent,async invoke(command:string,input:unknown){
+    assertCurrent()
+    if(command==='excel.catalog.connect')return {
+      editable, locked:()=>locked.value, selected:()=>!!selected.value, canCopy:()=>!!pageService?.copyText,
+    }
+    if(!editable||locked.value)return
+    if(command==='excel.catalog.create'){await createScheme();return}
+    if(command==='excel.catalog.openSelected'){openEditor();return}
+    const target=view.value
+    const row=target?.rows.find(record=>target.getPkKey(record)===input)
+    if(!row)return
+    if(command==='excel.catalog.select')choose(row)
+    else if(command==='excel.catalog.copy')await copyKey(row)
+    else if(command==='excel.catalog.design')openEditor(row)
+    else if(command==='excel.catalog.edit')editRow(row)
+    return undefined
+  }}
+}
+const catalogHost=shallowRef<ReturnType<typeof makeCatalogHost>>()
+
 watch([scenarioId, projectId], async ([id, project]) => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
   editingId.value=undefined;acting.value=false;designTarget.value=''
   unsubscribe?.(); view.value = undefined
   catalogToolRuntime.value=undefined
+  catalogHost.value=undefined
   session.dispose()
   try {
     if (!id) throw new Error('Excel 导入入口缺少导航绑定的数据空间ID')
     const targetId=project===undefined?id:`${project}:${id}`
-    if(project===APPLICATION_CATALOG_PROJECT_ID){
-      const tool=new PageTool({pageId:'excel-import-list-page'})
-      tool.hydrateFileText('rule.json',rule)
-      tool.hydrateFileText('script.js',script)
-      tool.hydrateFileText('style.css',style)
-      tool.markLoaded()
-      catalogToolRuntime.value=session.acquire({tool,scenarioIds:[id],targetId,
-        loadScenario:scenario=>LowcodeExcelImport.loadCatalog(scenario,APPLICATION_CATALOG_PROJECT_ID)})
+    const inCatalog=project===APPLICATION_CATALOG_PROJECT_ID
+    const tool=new PageTool({pageId:'excel-import-list-page'})
+    tool.hydrateFileText('rule.json',rule)
+    tool.hydrateFileText('script.js',script)
+    tool.hydrateFileText('style.css',style)
+    tool.markLoaded()
+    const current=session.acquire({tool,scenarioIds:[id],targetId,
+      loadScenario:scenario=>LowcodeExcelImport.loadCatalog(scenario,project)})
+    if(inCatalog){
+      catalogHost.value=makeCatalogHost(current,false)
+      catalogToolRuntime.value=current
       return
     }
-    const dataSet = await LowcodeExcelImport.loadCatalog(id,project)
-    if (!active || own !== generation) {dataSet.destroy(); return}
-    const current = session.acquire({pageId: 'excel-import-list-page', scenarioIds: [id], targetId,
-      loadScenario: async () => dataSet})
     await current.load()
     if (!active || own !== generation || !session.isCurrent(current)) return
+    const dataSet=current.getDataSet(id)
+    if(!dataSet)throw new Error('Excel 正式目录场景缺失')
     view.value = dataSet.getView(LowcodeExcelImport.catalogMetaName, 'default')
     const changed=()=>revision.value++
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged:changed,rowsChanged:changed,editingChanged:changed,mutatingChanged:changed,requestStateChanged:changed})
-    if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); ready.value = true}
-    dataSet.triggerAutoLoad()
+    if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); catalogHost.value=makeCatalogHost(current,true); catalogToolRuntime.value=current; ready.value = true}
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})
 onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>
-
-<style scoped>
-.structured-catalog-page { padding: 24px; }
-</style>

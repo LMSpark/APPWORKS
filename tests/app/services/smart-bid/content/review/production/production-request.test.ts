@@ -38,6 +38,12 @@ it('matches numbered paper copies and page order against independent observation
  expect(()=>preparePaperOutputRegistration(prepared,paper,{...observed,copies:[
   {copyRef:'C1',pageRefs:['P2','P1']},paper.copies[1]!,
  ]})).toThrow('BID_PAPER_OUTPUT_PAGES')
+ const retained=preparePaperOutputRegistration(prepared,paper,observed)
+ observed.witnessRef='OTHER-WITNESS'
+ expect(()=>retained.assertCurrent()).toThrow('BID_PAPER_OUTPUT_STALE')
+ observed.witnessRef='W'
+ paper.copies[0]?.pageRefs.reverse()
+ expect(()=>retained.assertCurrent()).toThrow('BID_PAPER_OUTPUT_STALE')
 })
 
 it('keeps the actual disclosed member tied to its original subject and package for read-only use',async()=>{

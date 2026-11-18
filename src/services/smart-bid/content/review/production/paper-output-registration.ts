@@ -3,6 +3,7 @@
  * 职责：动作41核原印制请求及独立清点所得的纸件页份。
  */
 import {snapshotReferenceIdentity as identity} from '../../references/snapshot-reference-values'
+import {canonicalSnapshotValue} from '../../revision-snapshot-hash'
 import type {prepareProductionRequest} from './production-request'
 
 type Prepared=Awaited<ReturnType<typeof prepareProductionRequest>>
@@ -10,6 +11,8 @@ type Scope=Pick<Prepared['request'],'projectId'|'documentId'|'revisionId'|'reque
 type Copy=Readonly<{copyRef:string;pageRefs:readonly string[]}>
 type Paper=Scope&Readonly<{productionRequestRef:string;paperRef:string;copies:readonly Copy[];assertCurrent:()=>void}>
 const keys=['projectId','documentId','revisionId','requestKey','inputDigest'] as const
+const paperIdentity=(source:Paper)=>[...keys.map(key=>source[key]),source.productionRequestRef,source.paperRef,
+ source.copies.map(({copyRef,pageRefs})=>[copyRef,pageRefs])]
 
 /** 原印制登记须有逐份页标识和同件独立清点凭据。 */
 export function preparePaperOutputRegistration(prepared:Prepared,paper:Paper,
@@ -35,6 +38,12 @@ export function preparePaperOutputRegistration(prepared:Prepared,paper:Paper,
   return Object.freeze({copyRef,pageRefs:Object.freeze([...pageRefs])})
  })
  assertCurrent()
+ const fingerprint=canonicalSnapshotValue([paperIdentity(paper),paperIdentity(observed),witnessRef,true])
+ const assertRegistrationCurrent=()=>{
+  assertCurrent()
+  if(canonicalSnapshotValue([paperIdentity(paper),paperIdentity(observed),observed.witnessRef,observed.complete])!==fingerprint)
+   throw Error('BID_PAPER_OUTPUT_STALE')
+ }
  return Object.freeze({record:Object.freeze({projectId,documentId,revisionId,requestKey,inputDigest,productionRequestRef,
-  paperRef,witnessRef,copies:Object.freeze(copies)}),assertCurrent})
+  paperRef,witnessRef,copies:Object.freeze(copies)}),assertCurrent:assertRegistrationCurrent})
 }

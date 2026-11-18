@@ -850,6 +850,7 @@ constructor(options: DynamicRouterOptions) {
             tool: node.tool,
             nodeId: node.id,
             title: node.title,
+            ...(node.blueprintScenarioId !== undefined && { blueprintScenarioId: node.blueprintScenarioId }),
             ...(node.description !== undefined && { description: node.description }),
             ...(node.icon !== undefined && { icon: node.icon }),
             ...(node.permissionMode !== undefined && { permissionMode: node.permissionMode }),

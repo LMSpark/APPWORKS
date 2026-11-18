@@ -14,7 +14,7 @@ const APP_NAV: RuntimeNavigation = {
   items: [
     { id: 'untargeted', title: '未绑定', itemKind: 'page', path: '/legacy/form.html', children: [] },
     { id: 'targeted', title: '已绑定', itemKind: 'page', path: '/orders',
-      tool: { projectId: 'P1', pageId: 'orders-tool' }, children: [] },
+      tool: { projectId: 'P1', pageId: 'orders-tool' }, blueprintScenarioId: 'orders-space', children: [] },
   ],
 }
 
@@ -35,6 +35,8 @@ describe('DynamicRouter untargeted config page', () => {
     const untargeted = routes.find(route => route.name === 'nav-untargeted')
     const targeted = routes.find(route => route.name === 'nav-targeted')
     expect(untargeted?.meta).toMatchObject({ type: 'invalid-config-page', pageId: 'untargeted', nodeId: 'untargeted' })
-    expect(targeted?.meta).toMatchObject({ type: 'config-page', pageId: 'orders-tool' })
+    expect(targeted?.meta).toMatchObject({
+      type: 'config-page', pageId: 'orders-tool', nodeId: 'targeted', blueprintScenarioId: 'orders-space',
+    })
   })
 })

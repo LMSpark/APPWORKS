@@ -1,5 +1,6 @@
 import {expect,it} from 'vitest'
 import {mergeTenderFollowupNoticeReads,prepareTenderFollowupNotice,projectTenderFollowupNotices} from '@/services/smart-bid/content/references/followup/tender-followup-notice'
+import {checkTenderFollowupResponseScope} from '@/services/smart-bid/content/references/followup/tender-followup-response-scope'
 
 it('retains a formal notice and deadline while the historical package and scope are still pending',async()=>{
  const scope={projectId:'P',lotId:'L',roundId:'R',subjectId:'ORG',stageId:'FOLLOW-UP'}
@@ -22,10 +23,19 @@ it('retains a formal notice and deadline while the historical package and scope 
  expect(same.origins).toEqual([{sourceRef:line.sourceRef,knownAt:line.knownAt},{sourceRef:later.sourceRef,knownAt:later.knownAt}])
  await expect(mergeTenderFollowupNoticeReads(scope,[line,{...later,replyDueAt:null}])).rejects.toThrow('TENDER_FOLLOWUP_SOURCE_CONFLICT')
  const corrected=await mergeTenderFollowupNoticeReads(scope,[{...later,noticeId:'NEW',documentVersionId:'DOC-V2',
-  change:'CORRECTION',previousNoticeRef:'NOTICE',replyDueAt:'2026-11-18T14:00:00+08:00'}])
+  change:'CORRECTION',previousNoticeRef:'NOTICE',permittedScopeRef:'SCOPE-2',replyDueAt:'2026-11-18T14:00:00+08:00'}])
  const timeline={notices:[same,corrected],assertCurrent:line.assertCurrent}
  expect(projectTenderFollowupNotices(scope,{...timeline,knownAt:line.knownAt}).items).toMatchObject([{state:'ACTIVE'}])
  expect(projectTenderFollowupNotices(scope,{...timeline,knownAt:later.knownAt}).items).toMatchObject([
   {state:'SUPERSEDED',event:{noticeId:'NOTICE'}},{state:'ACTIVE',event:{noticeId:'NEW',replyDueAt:'2026-11-18T14:00:00+08:00'}},
  ])
+ const actual=projectTenderFollowupNotices(scope,{...timeline,knownAt:later.knownAt})
+ const request={noticeId:'NEW',action:'EXPLAIN' as const,targetRefs:['CLAUSE']}
+ const proof={noticeId:'NEW',eventDigest:corrected.eventDigest,permittedScopeRef:'SCOPE-2',ruleRef:'RULE',
+  allowed:[{action:'EXPLAIN' as const,targetRefs:['CLAUSE']}],assertCurrent:line.assertCurrent}
+ expect(checkTenderFollowupResponseScope(actual,request,proof).state).toBe('ALLOWED')
+ expect(checkTenderFollowupResponseScope(actual,{...request,action:'REPRICE'},proof).state).toBe('OUTSIDE_SCOPE')
+ expect(checkTenderFollowupResponseScope(actual,{...request,noticeId:'NOTICE'},proof).state).toBe('NOTICE_REQUIRED')
+ expect(()=>checkTenderFollowupResponseScope(actual,request,{...proof,eventDigest:same.eventDigest}))
+  .toThrow('TENDER_FOLLOWUP_RESPONSE_SCOPE')
 })

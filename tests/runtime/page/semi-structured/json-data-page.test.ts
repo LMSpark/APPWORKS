@@ -13,6 +13,7 @@ import {FieldJson,FieldText,JsonTreeEditor,RendererTable,Spark,SparkPageRenderer
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 import JsonPage from '@/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue'
+import {createJsonDataScriptHost} from '@/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host'
 import {ApiBackend} from '../api-provider/api-provider.fixture'
 import {buildFormalModels} from '../structured-config/catalog/structured-config-catalog.fixture'
 const SCENE='FFDEF2AED3E19A38C0FCDDC748CF939B'
@@ -62,15 +63,7 @@ it('renders the shared JSON catalog through the three tool files without reading
  try{
   const runtime=session.acquire({tool,targetId:SCENE,scenarioIds:[SCENE],loadScenario:id=>LowcodeJsonData.loadCatalog(id)})
   const {path,fullPath,name,params,query,hash}=router.currentRoute.value
-  const host={runtime,assertCurrent:()=>{expect(session.isCurrent(runtime)).toBe(true)},async invoke(command:string,id:unknown){
-   expect(command).toBe('jsonData.openDocument')
-   if(typeof id!=='string')throw new Error('Expected original JSON identity')
-   const dataSet=runtime.getDataSet(SCENE)
-   if(!dataSet)throw new Error('Missing JSON scenario')
-   const view=LowcodeJsonData.openDocument(dataSet,id)
-   await view.refresh()
-   return {visible:true,dataViewKey:`${SCENE}@JsonDocumentFile@${view.viewId}`,contextRowId:id}
-  }}
+  const host=createJsonDataScriptHost(runtime,SCENE,()=>{if(!session.isCurrent(runtime))throw new Error('Stale JSON session')})
   wrapper=mount(SparkPageRenderer,{props:{pageRuntime:runtime,host,routeSnapshot:{path,fullPath,name:name??null,params,query,hash}},global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
   const rendered=wrapper
   await vi.waitFor(()=>expect(rendered.text()).toContain('样例JSON'))
@@ -81,6 +74,11 @@ it('renders the shared JSON catalog through the three tool files without reading
   await rendered.getComponent(RendererTable).get('tbody tr').trigger('click')
   await vi.waitFor(()=>expect(documentValue(rendered)).toEqual({flag:false,nested:[[1,null],{}]}))
   expect(state.reads).toEqual(['data.json'])
+  state.files.set('J2.json','[false,0]')
+  await rendered.getComponent(RendererTable).findAll('tbody tr')[1]!.trigger('click')
+  await vi.waitFor(()=>expect(documentValue(rendered)).toEqual([false,0]))
+  expect(dataSet?.getView('JsonDocumentFile','document-J1')).toBeUndefined()
+  expect(state.reads).toEqual(['data.json','J2.json'])
   expect(state.uploads).toEqual([])
  }finally{wrapper?.unmount();session.dispose()}
 })

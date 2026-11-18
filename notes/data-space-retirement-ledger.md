@@ -11714,3 +11714,4 @@ flowchart TD
 - 第11包目录配置渲染：原业务目录增加 rule.json/script.js/style.css，专项用 SparkPageRenderer 挂载三文件，标准表格通过完整键显示共享 pagedata 的目录行，正文读取为零。r-section/r-table/r-text 按 ClassModel 及既有渲染合同配置；JSON 页面专项30项通过。当前提交覆盖目录只读渲染，正式导航仍走原生入口，待正文弹窗、写入和离页流程一并迁移后切换。
 - 第11包目录渲染夹具补齐 SparkPageRenderer 必需的 routeSnapshot，取同次路由位置字段。全仓 typecheck 退出0，JSON 页面专项30项通过。
 - 第11包配置正文只读验证：目录原行事件将 rowid 交宿主命令，测试宿主通过同次 DataSet 派生正文 DataView，脚本动态返回完整键和原行 ID，标准 r-json 显示原始嵌套值。选行前零文件查询，选行后只读原 data.json，零上传，JSON 页面30项通过。入口未切换，正式宿主接线、权限边界、编辑和验证仍待。
+- 第11包正文预览宿主：真实预览命令替代挂载夹具内联命令，按同次运行的目录身份打开正文；切换原行时释放旧 DataView，读取新目标并动态绑定标准字段。页面与正文资源40项、全仓typecheck通过。正式导航下一步仍需接线，编辑保存与离页保持原入口。

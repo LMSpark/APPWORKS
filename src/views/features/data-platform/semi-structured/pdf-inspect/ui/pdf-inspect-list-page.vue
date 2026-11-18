@@ -4,16 +4,6 @@
 <template>
   <RendererSection class="pdf-inspect-catalog" title="PDF 识别规则" :bordered="false" :grid-columns="1" :grid-gap="16"
     :status="loading ? '正在读取规则目录…' : ''" :error="error">
-    <template v-if="ready" #header-actions>
-      <RendererButton v-if="!catalogScope" label="新增规则" :disabled="loading || adding || !!creationId" @click="createRule" />
-      <RendererButton v-if="!catalogScope" label="打开设计" icon="Setting" :disabled="loading || !selected" @click="openEditor" />
-      <RendererButton v-if="executionAvailable" label="核验准备" :disabled="loading || !selected || preparing || pendingExecution()" @click="prepareInspection" />
-      <RendererButton label="刷新" icon="Refresh" :disabled="loading" @click="refreshCatalog" />
-      <RendererButton v-if="historyAvailable" label="核验历史" :disabled="loading || historyLoading" @click="openHistory" />
-    </template>
-    <RendererButton v-for="id in pendingRequests" :key="id" :label="'核验原请求 ' + id"
-      :disabled="resultLoading || pendingExecution()" @click="router.push(resolveInspectionRecoveryUrl(id))" />
-    <p v-if="ready && catalogScope" role="status">请进入已授权应用后设计规则或发起核验。</p>
     <SparkPageRenderer v-if="ready && catalogRuntime && catalogHost" :page-runtime="catalogRuntime"
       :route-snapshot="routeSnapshot" :host="catalogHost" />
     <FeatureRecordDialog v-if="creationId !== undefined" :data-view-key="creationKey" :record-id="creationId"
@@ -41,7 +31,7 @@ import catalogRule from './rule.json?raw'
 import catalogScript from './script.js?raw'
 import catalogStyle from './style.css?raw'
 
-const {PAGE_RUNTIME, RendererSection, SparkPageRenderer, RendererButton,
+const {PAGE_RUNTIME, RendererSection, SparkPageRenderer,
   useSparkComponent, consumeRequiredPageService} = SparkComponent
 const route = useRoute()
 const router = useRouter()
@@ -340,6 +330,9 @@ function makeCatalogHost(runtime:PageRuntime){
   return {runtime,assertCurrent,async invoke(command:string,input:unknown){
     assertCurrent()
     if(command==='pdf.catalog.connect')return {
+      actions:()=>({catalogScope:catalogScope.value,loading:loading.value,adding:adding.value||creationId.value!==undefined,selected:!!selected.value,
+        executionAvailable:executionAvailable.value,preparing:preparing.value,pending:pendingExecution(),
+        historyAvailable:historyAvailable.value,historyLoading:historyLoading.value,resultLoading:resultLoading.value,requests:pendingRequests.value}),
       preparation:()=>({open:preparationOpen.value,loading:preparing.value,ready:preparationReady.value,
         error:preparationError.value,message:executionMessage.value,limitsKey:limitsKey.value,uploadKey:uploadKey.value,
         running:!!execution.value,busy:executionBusy.value,hasFiles:!!execution.value?.uploadIds.length,
@@ -351,6 +344,14 @@ function makeCatalogHost(runtime:PageRuntime){
     if(command==='pdf.catalog.openResult'){
       const row=runtime.resolveView(historyKey.value)?.rows.find(item=>item['inspectJobId']===input)
       if(row)openHistoryResult(row)
+    }
+    if(command==='pdf.catalog.create'&&!catalogScope.value)await createRule()
+    if(command==='pdf.catalog.design'&&!catalogScope.value)await openEditor()
+    if(command==='pdf.catalog.prepare'&&executionAvailable.value)await prepareInspection()
+    if(command==='pdf.catalog.refresh')await refreshCatalog()
+    if(command==='pdf.catalog.history'&&historyAvailable.value)await openHistory()
+    if(command==='pdf.catalog.openRequest'&&typeof input==='string'&&pendingRequests.value.includes(input)&&!resultLoading.value&&!pendingExecution()){
+      await router.push(resolveInspectionRecoveryUrl(input))
     }
     if(command==='pdf.catalog.recover')await recoverOriginal()
     if(command==='pdf.catalog.selectFiles')await selectInspectionFiles()

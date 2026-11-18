@@ -1,5 +1,19 @@
 [
   {
+    "id":"pdf-catalog-actions",
+    "type":"r-space",
+    "props":{"wrap":true},
+    "children":[
+      {"type":"r-button","props":{"label":"新增规则","onBeforeRender":"bindCreateRule","onClick":"createRule"}},
+      {"type":"r-button","props":{"label":"打开设计","icon":"Setting","onBeforeRender":"bindOpenDesign","onClick":"openDesign"}},
+      {"type":"r-button","props":{"label":"核验准备","onBeforeRender":"bindPrepareInspection","onClick":"prepareInspection"}},
+      {"type":"r-button","props":{"label":"刷新","icon":"Refresh","onBeforeRender":"bindRefreshCatalog","onClick":"refreshCatalog"}},
+      {"type":"r-button","props":{"label":"核验历史","onBeforeRender":"bindOpenHistory","onClick":"openHistory"}}
+    ]
+  },
+  {"type":"r-space","props":{"wrap":true,"onBeforeRender":"bindPendingRequests"}},
+  {"type":"r-section","props":{"bordered":false,"status":"请进入已授权应用后设计规则或发起核验。","onBeforeRender":"bindCatalogScope"}},
+  {
     "id":"pdf-inspect-rule-catalog",
     "type":"r-table",
     "props":{"dataViewKey":"A2D63AB2AAEF156E7727094A23AEA433@Base_FileInspectConfig@default","class":"pdf-rule-catalog-table",

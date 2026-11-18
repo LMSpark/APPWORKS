@@ -68,3 +68,44 @@ async function selectInspectionFiles() { await $page.invokeHostCommand('pdf.cata
 async function submitInspection() { await $page.invokeHostCommand('pdf.catalog.submitInspection') }
 async function cancelInspectionFiles() { await $page.invokeHostCommand('pdf.catalog.cancelFiles') }
 async function copyInspectionRecoveryLink() { await $page.invokeHostCommand('pdf.catalog.copyRecovery') }
+
+function bindCreateRule() {
+  const state = catalog?.actions()
+  return {visible:state?.catalogScope === false,disabled:state?.loading || state?.adding}
+}
+function bindOpenDesign() {
+  const state = catalog?.actions()
+  return {visible:state?.catalogScope === false,disabled:state?.loading || !state?.selected}
+}
+function bindPrepareInspection() {
+  const state = catalog?.actions()
+  return {visible:state?.executionAvailable === true,disabled:state?.loading || !state?.selected || state?.preparing || state?.pending}
+}
+function bindRefreshCatalog() { return {disabled:catalog?.actions().loading === true} }
+function bindOpenHistory() {
+  const state = catalog?.actions()
+  return {visible:state?.historyAvailable === true,disabled:state?.loading || state?.historyLoading}
+}
+function bindCatalogScope() { return {visible:catalog?.actions().catalogScope === true} }
+function bindPendingRequests() {
+  const state = catalog?.actions()
+  const requests = state?.requests || []
+  return {visible:requests.length > 0,children:requests.map(id=>({id,type:'r-button',props:{
+    label:'核验原请求 ' + id,disabled:state.resultLoading || state.pending,onClick:()=>openPendingRequest(id)
+  }}))}
+}
+
+async function createRule() { await $page.invokeHostCommand('pdf.catalog.create') }
+async function openDesign() { await navigateCatalog('pdf.catalog.design') }
+async function prepareInspection() { await $page.invokeHostCommand('pdf.catalog.prepare') }
+async function refreshCatalog() { await $page.invokeHostCommand('pdf.catalog.refresh') }
+async function openHistory() { await $page.invokeHostCommand('pdf.catalog.history') }
+async function openPendingRequest(id) { await navigateCatalog('pdf.catalog.openRequest',id) }
+
+async function navigateCatalog(command,id) {
+  try {
+    await $page.invokeHostCommand(command,id)
+  } catch (cause) {
+    if (!String(cause?.message).startsWith('PAGE_RUNTIME_STALE')) throw cause
+  }
+}

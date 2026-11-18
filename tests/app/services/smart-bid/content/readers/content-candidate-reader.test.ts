@@ -108,6 +108,7 @@ it('queries fixed facts from selected original candidate nodes only',async()=>{
   expect(f.query).toHaveBeenCalledTimes(before+1)
   const heading=await candidate.readNodeEffectiveFacts(['H'])
   expect(heading.displayHashes.map(item=>item.factId)).toEqual(['PRICE'])
+  expect(heading.nodeDisplayRefs).toEqual([{nodeId:'H',occurrence:0,displayHash:heading.displayHashes[0]?.displayHash}])
   await f.ds.getView('ContentNodeVersion','snapshotMembers')!.refresh()
   expect(()=>heading.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(f.save).not.toHaveBeenCalled()

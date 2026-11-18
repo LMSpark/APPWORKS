@@ -21,6 +21,7 @@ import {readContentTenderRecord} from './content-tender-record-reader'
 import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/services/smart-bid/content/content-scoped-preview'
 import {readEffectiveFactDependencies} from './hashes/effective-fact-reader'
 import {hashCalculationInputs} from '@/services/smart-bid/content/hashes/calculation-inputs-hash'
+import {projectFactDisplayOccurrences} from '@/services/smart-bid/content/hashes/fact-display-occurrences'
 import {expandBuiltInCalculationTable,readBuiltInCalculationGenerator} from '@/services/smart-bid/content/calculation-table-registry'
 import {ATTACHMENT_INDEX_GENERATOR} from '@/services/smart-bid/content/attachment-index-generator'
 import {ComputedQueryRoot,computedGetTool} from '@/services/smart-bid/content/computed-query-tool'
@@ -42,6 +43,9 @@ type CalculationSources=Readonly<{
  assertInputsCurrent:()=>void
 }>
 type ComputedTable=ReturnType<typeof expandBuiltInCalculationTable>
+type EffectiveFactsWithDisplays=Awaited<ReturnType<typeof readEffectiveFactDependencies>>&Readonly<{
+ nodeDisplayRefs:ReturnType<typeof projectFactDisplayOccurrences>
+}>
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
 type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>
 type CandidateScopePreview=Readonly<ReturnType<typeof previewScopedRevisionChanges>&{assertCurrent:()=>void}>
@@ -65,7 +69,7 @@ type PreviewVersionSession=PreviewVersions&Readonly<{
 export type ContentCandidateBinding=Readonly<{
  runtime:ContentRevisionReadHost['runtime']
  readFixedFact:(selection:Readonly<{factId:string;version?:number}>,assertConsumer?:()=>void)=>Promise<ContentCandidateFactBinding>
- readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>ReturnType<typeof readEffectiveFactDependencies>
+ readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>Promise<EffectiveFactsWithDisplays>
  hashNodeCalculationInputs:(nodeIds:readonly string[],tables:unknown,sources:CalculationSources)=>
   Promise<Awaited<ReturnType<typeof hashCalculationInputs>>&Readonly<{assertCurrent:()=>void}>>
  readCalculationTemplates:(nodeIds:readonly string[])=>ReturnType<typeof readCalculationTableTemplateRefs>
@@ -80,7 +84,7 @@ export type ContentCandidateBinding=Readonly<{
  resolveCalculationGenerators:(nodeIds:readonly string[],readTemplate:ReadFixedCalculationTemplate)=>Promise<Readonly<{
   tables:ReadonlyArray<Readonly<{nodeId:string;generatorKey:string}>>;assertCurrent:()=>void
  }>>
- readEffectiveFacts:(scope:Readonly<{nodeIds:readonly string[];responses:readonly IndependentResponseFactTarget[]}>,assertConsumer?:()=>void)=>ReturnType<typeof readEffectiveFactDependencies>
+ readEffectiveFacts:(scope:Readonly<{nodeIds:readonly string[];responses:readonly IndependentResponseFactTarget[]}>,assertConsumer?:()=>void)=>Promise<EffectiveFactsWithDisplays>
  readRequirementPinIssues:(assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementPinsBinding>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
@@ -211,7 +215,11 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const baselineId=row['baselineId']
   if(typeof baselineId!=='string')throw Error('CONTENT_CANDIDATE_BASELINE_REQUIRED')
   const usedFactIds=[...nodes.readFactIds(scope.nodeIds),...readIndependentResponseFactIds(responses,scope.responses)]
-  return readEffectiveFactDependencies({...host,assertCurrent:assertContext},{baselineId,stageRef:row['stageRef'],usedFactIds})
+  const selectedNodeIds=new Set(scope.nodeIds)
+  const result=await readEffectiveFactDependencies({...host,assertCurrent:assertContext},{baselineId,stageRef:row['stageRef'],usedFactIds})
+  result.assertCurrent()
+  const nodeDisplayRefs=projectFactDisplayOccurrences(payloads.filter(node=>selectedNodeIds.has(node.nodeId)),result.displayHashes)
+  return Object.freeze({...result,nodeDisplayRefs})
  }
  const readFixedFact=async(factSelection:Readonly<{factId:string;version?:number}>,assertConsumer?:()=>void):Promise<ContentCandidateFactBinding>=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}

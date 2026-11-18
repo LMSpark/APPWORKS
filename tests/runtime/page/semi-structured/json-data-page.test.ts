@@ -228,6 +228,7 @@ describe('JSON document page on the formal DataSet',()=>{
  })
  it('verifies an unknown raw file write without replaying it',async()=>{
   const f=await open();await f.choose();await f.edit('{"saved":true}');state.lose=true;await f.click('保存内容');expect(state.uploads).toHaveLength(1)
+  expect(f.wrapper.text()).toContain('正文保存结果尚未确认')
   const discard=f.wrapper.findAll('button').find(button=>button.text()==='放弃修改并关闭')
   expect(discard?.attributes('disabled')).toBeDefined()
   await f.click('核验内容保存结果');expect(state.uploads).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false)
@@ -289,6 +290,7 @@ it('cancels a new JSON before either source is written',async()=>{
 })
 it('holds the created file and unknown catalog result without replaying either write',async()=>{
  const f=await open();await f.click('新增');await setNewName(f.wrapper,'unknown');state.http.failAfterWrite=true;await f.click('创建JSON');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/json');expect(f.wrapper.findAll('button').find(b=>b.text()==='取消新增')?.attributes('disabled')).toBeDefined()
+ expect(f.wrapper.text()).toContain('正文已保存，目录保存结果尚未确认')
  await f.click('核验目录保存结果');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty,f.wrapper.text()).toBe(true)
  expect(f.wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
 })

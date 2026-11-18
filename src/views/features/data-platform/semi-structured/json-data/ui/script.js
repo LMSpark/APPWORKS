@@ -141,6 +141,20 @@ function bindDocumentError() {
   return {title, visible: !!title}
 }
 
+function bindDocumentSaveStatus() {
+  const view = currentDocument()
+  if (view?.hasUnconfirmedSave) {
+    return {visible:true, title:'正文保存结果尚未确认，请核验原保存结果。'}
+  }
+  if (fileAlreadyConfirmed(view)) {
+    const title = catalogView()?.hasUnconfirmedSave
+      ? '正文已保存，目录保存结果尚未确认，请核验目录保存结果。'
+      : '正文已保存，目录尚未确认，请继续保存目录。'
+    return {visible:true, title}
+  }
+  return {visible:false}
+}
+
 async function changeDocumentDialog(value) {
   if (value === false) await closeJsonDocument()
 }

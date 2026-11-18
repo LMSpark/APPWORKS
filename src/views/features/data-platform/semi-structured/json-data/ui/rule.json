@@ -50,6 +50,7 @@
         },
         "children": [
           {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindDocumentError"}},
+          {"type":"r-alert","props":{"alertType":"warning","closable":false,"onBeforeRender":"bindDocumentSaveStatus"}},
           {
             "id": "json-document-create-metadata",
             "type": "r-form",

@@ -74,12 +74,13 @@ export function preparePublishedBidClassModelCatalogCall(route:ContentAuthoringR
  })
 }
 
-type ConfigurationImpactReader=NonNullable<Parameters<typeof createConfigurationReleaseScriptHost>[2]>
+type ConfigurationHost=Parameters<typeof createConfigurationReleaseScriptHost>
 
 /** 页19配置作用域和影响证据由当前运行实例的正式绑定提供。 */
 export function preparePublishedConfigurationReleaseCall(route:ContentAuthoringRoute,entry:PublishedEntry,
  bindScope:(runtime:PageRuntime,scope:Scope)=>Readonly<{
-  scopeId:string;assertCurrent:()=>void;readDisableImpact?:ConfigurationImpactReader
+  scopeId:string;assertCurrent:()=>void;readDisableImpact?:NonNullable<ConfigurationHost[2]>
+  readCandidate?:NonNullable<ConfigurationHost[3]>
  }>,
 ){
  const prepared=preparePublishedCall(route,entry,(runtime,scope)=>{
@@ -88,7 +89,7 @@ export function preparePublishedConfigurationReleaseCall(route:ContentAuthoringR
   assertCurrent()
   if(!identity(binding.scopeId))throw Error('CONFIGURATION_RELEASE_PAGE_SCOPE')
   return createConfigurationReleaseScriptHost(runtime,{scenarioId:scope.scenarioId,scopeId:binding.scopeId,assertCurrent},
-   binding.readDisableImpact)
+   binding.readDisableImpact,binding.readCandidate)
  })
  if(prepared&&Object.hasOwn(route.query,'scopeId'))throw Error('CONFIGURATION_RELEASE_PAGE_SCOPE')
  return prepared

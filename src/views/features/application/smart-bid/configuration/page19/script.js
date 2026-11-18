@@ -41,3 +41,27 @@ async function openConfigurationRelease() {
     $page.showMessage('原启停结果无法核验', 'warning')
   }
 }
+
+function bindConfigurationCandidate() {
+  const {configurationKind, configurationKey, configurationVersionId, candidateRequestKey} = $route.query
+  return {visible: [configurationKind, configurationKey, configurationVersionId, candidateRequestKey]
+    .every(value => typeof value === 'string' && !!value && value.trim() === value)}
+}
+
+async function openConfigurationCandidate() {
+  if (!bindConfigurationCandidate().visible) return
+  const {configurationKind: kind, configurationKey: key, configurationVersionId: versionId,
+    candidateRequestKey: requestKey} = $route.query
+  try {
+    const result = await $page.invokeHostCommand('configuration.release.prepareEnable', {kind, key, versionId, requestKey})
+    result.assertCurrent()
+    const {record, currentVersion, requestDigest} = result
+    const previous = currentVersion ? `当前启用版 ${currentVersion.versionId} · 摘要 ${currentVersion.digest}` : '本作用域没有启用版本'
+    await $page.showAlert([previous,`候选 ${record.version.versionId} · 摘要 ${record.version.digest}`,
+      `预期指针 ${record.expectedPointerVersion ?? '未设置'}`,
+      `类型检查 ${record.typeCheckRef} · 闭包检查 ${record.closureCheckRef} · 业务审阅 ${record.reviewRef}`,
+      `待提交 · 请求摘要 ${requestDigest}`].join('\n'), '配置候选核验')
+  } catch {
+    $page.showMessage('配置候选或审阅证据无法核验', 'warning')
+  }
+}

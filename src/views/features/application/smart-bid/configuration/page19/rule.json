@@ -6,5 +6,13 @@
     "children": [
       {"type": "r-button", "props": {"label": "查询原启停结果", "onClick": "openConfigurationRelease"}}
     ]
+  },
+  {
+    "id": "configuration-release-candidate",
+    "type": "r-section",
+    "props": {"title": "配置候选核验", "onBeforeRender": "bindConfigurationCandidate"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对候选与当前版本", "onClick": "openConfigurationCandidate"}}
+    ]
   }
 ]

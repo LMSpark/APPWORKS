@@ -75,17 +75,21 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   expect(proved).toMatchObject({status:'APPLIED',state:'DISABLED',resultPointerVersion:'P2'})
   let impactCurrent=true,expireImpactAfterRead=false
   const readDisableImpact=vi.fn(async()=>({stop:{...stop,assertCurrent:()=>{if(!impactCurrent)throw Error('IMPACT_STALE')}},uses:refs}))
-  const page=createConfigurationReleaseScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,readDisableImpact)
+  let pointerCurrent=true
+  const oldVersion={versionId:'V0',digest:'b'.repeat(64)}
+  const pointer={...scope,pointerVersion:'P1',version:oldVersion,assertCurrent:()=>{if(!pointerCurrent)throw Error('POINTER_STALE')}}
+  const readCandidate=vi.fn(async()=>({decision:enable,pointer}))
+  const page=createConfigurationReleaseScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,readDisableImpact,readCandidate)
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
-  const {openConfigurationRelease}=compileFunctions(script,{$route:{query:{
-   configurationKind:scope.kind,configurationKey:scope.key,releaseRequestKey:request.requestKey,releaseRequestDigest:disabled.requestDigest,
+  const {openConfigurationRelease,openConfigurationCandidate}=compileFunctions(script,{$route:{query:{
+   configurationKind:scope.kind,configurationKey:scope.key,candidateRequestKey:'Q',releaseRequestKey:request.requestKey,releaseRequestDigest:disabled.requestDigest,
    configurationVersionId:version.versionId,configurationVersionDigest:version.digest,releaseAction:'DISABLE',expectedPointerVersion:'P1',
   }},$page:{invokeHostCommand:async(name:string,input:unknown)=>{
    const result=await page.invoke(name,input,signal)
    if(expireImpactAfterRead)impactCurrent=false
    return result
   },showAlert}} as unknown as PageContext)
-  if(!openConfigurationRelease)throw Error('TEST_CONFIGURATION_RELEASE_HANDLER_REQUIRED')
+  if(!openConfigurationRelease||!openConfigurationCandidate)throw Error('TEST_CONFIGURATION_RELEASE_HANDLER_REQUIRED')
   expect(()=>page.invoke('configuration.release.readOriginal',{scopeId:'OTHER'},signal)).toThrow('CONFIGURATION_RELEASE_PAGE_REQUEST')
   await openConfigurationRelease()
   expect(showAlert).toHaveBeenLastCalledWith([
@@ -111,6 +115,17 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
    '原停用已生效 · 原回执 STOP · 当次指针 P2 · 配置版本 V1\n停用影响证据无法核验','配置启停回查')
   await expect(readRegisteredConfigurationRelease(host,{...original,expectedPointerVersion:'OTHER'}))
    .rejects.toThrow('CONFIGURATION_RELEASE_REGISTERED_READ')
+  await openConfigurationCandidate()
+  expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining(
+   `当前启用版 V0 · 摘要 ${oldVersion.digest}\n候选 V1 · 摘要 ${version.digest}\n预期指针 P1`),'配置候选核验')
+  expect(readCandidate).toHaveBeenCalledWith({...scope,versionId:'V1'},signal)
+  const candidate=await page.invoke('configuration.release.prepareEnable',{kind:scope.kind,key:scope.key,versionId:'V1',requestKey:'Q'},signal)
+  expect(candidate).toMatchObject({record:{expectedPointerVersion:'P1',typeCheckRef:'TYPE',closureCheckRef:'LINKS',reviewRef:'REVIEW'},
+   requestDigest:prepared.requestDigest})
+  await expect(page.invoke('configuration.release.prepareEnable',{kind:scope.kind,key:scope.key,versionId:'OTHER',requestKey:'Q'},signal))
+   .rejects.toThrow('CONFIGURATION_RELEASE_CANDIDATE_SCOPE')
+  pointerCurrent=false
+  expect(()=>candidate.assertCurrent()).toThrow('POINTER_STALE')
   hidden=true
   await expect(readRegisteredConfigurationRelease(host,original)).rejects.toThrow('DATA_VIEW_READ_ROW')
   expect(()=>proved.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')

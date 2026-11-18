@@ -8,20 +8,25 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {readRegisteredConfigurationRelease} from './configuration-release-reader'
 import {assessConfigurationDisableImpact} from '@/services/smart-bid/content/references/configuration/configuration-disable-impact'
 
+import {prepareConfigurationRelease} from '@/services/smart-bid/content/references/configuration/configuration-release-decision'
+
 type Read=Parameters<typeof readRegisteredConfigurationRelease>
 type Impact=Parameters<typeof assessConfigurationDisableImpact>
 type ImpactReader=(original:Readonly<Pick<Impact[0],'kind'|'key'|'scopeId'|'versionId'|'digest'|'releaseRef'>>,signal:AbortSignal)=>
  Promise<Readonly<{stop:Impact[0];uses:Impact[1]}>>
 
+type Prepare=Parameters<typeof prepareConfigurationRelease>
+type CandidateReader=(selection:Prepare[0]&Readonly<{versionId:string}>,signal:AbortSignal)=>Promise<Readonly<{
+ decision:Extract<Prepare[2],{action:'ENABLE'}>
+ pointer:Prepare[0]&Readonly<{pointerVersion:string|null;version:Readonly<{versionId:string;digest:string}>|null;assertCurrent:()=>void}>
+}>>
+
 /** 页面提供原配置与请求引用，作用域由当前正式宿主限定。 */
 export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
- runtime:Runtime,host:Omit<Read[0],'runtime'>,readDisableImpact?:ImpactReader){
+ runtime:Runtime,host:Omit<Read[0],'runtime'>,readDisableImpact?:ImpactReader,readCandidate?:CandidateReader){
  return {runtime,assertCurrent:host.assertCurrent,invoke(name:string,input:unknown,signal:AbortSignal){
   const error='CONFIGURATION_RELEASE_PAGE_REQUEST'
-  if(name!=='configuration.release.readOriginal'||!isRecord(input)||Object.hasOwn(input,'scopeId'))throw Error(error)
-  const {kind,key,requestKey,requestDigest,action,versionId,versionDigest,expectedPointerVersion}=input
-  if(!identity(kind)||!identity(key)||!identity(requestKey)||!identity(requestDigest)||!identity(versionId)||!identity(versionDigest)||
-   (action!=='ENABLE'&&action!=='DISABLE')||(expectedPointerVersion!==null&&!identity(expectedPointerVersion)))throw Error(error)
+  if(!isRecord(input)||Object.hasOwn(input,'scopeId'))throw Error(error)
   const generation=runtime.generation
   const assertCurrent=()=>{
    host.assertCurrent()
@@ -29,6 +34,27 @@ export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRu
     throw Error('CONFIGURATION_RELEASE_PAGE_STALE')
   }
   const {scopeId}=host
+  if(name==='configuration.release.prepareEnable'&&readCandidate){
+   const {kind,key,requestKey,versionId}=input
+   if(Object.keys(input).length!==4||!identity(kind)||!identity(key)||!identity(requestKey)||!identity(versionId))throw Error(error)
+   const selection={kind,key,scopeId}
+   assertCurrent()
+   return readCandidate({...selection,versionId},signal).then(async ({decision,pointer})=>{
+    const assertEvidence=()=>{assertCurrent();pointer.assertCurrent();decision.assertCurrent()}
+    assertEvidence()
+    if(pointer.kind!==kind||pointer.key!==key||pointer.scopeId!==scopeId||decision.candidate.versionId!==versionId||
+     (pointer.version!==null&&(!identity(pointer.pointerVersion)||!identity(pointer.version.versionId)||
+      !/^[a-f0-9]{64}$/u.test(pointer.version.digest))))throw Error('CONFIGURATION_RELEASE_CANDIDATE_SCOPE')
+    const currentVersion=pointer.version===null?null:Object.freeze({...pointer.version})
+    const prepared=await prepareConfigurationRelease(selection,{requestKey,expectedPointerVersion:pointer.pointerVersion},
+     {...decision,assertCurrent:assertEvidence})
+    return Object.freeze({...prepared,currentVersion})
+   })
+  }
+  if(name!=='configuration.release.readOriginal')throw Error(error)
+  const {kind,key,requestKey,requestDigest,action,versionId,versionDigest,expectedPointerVersion}=input
+  if(!identity(kind)||!identity(key)||!identity(requestKey)||!identity(requestDigest)||!identity(versionId)||!identity(versionDigest)||
+   (action!=='ENABLE'&&action!=='DISABLE')||(expectedPointerVersion!==null&&!identity(expectedPointerVersion)))throw Error(error)
   return readRegisteredConfigurationRelease({...host,runtime,assertCurrent},{kind,key,requestKey,requestDigest,action,
    expectedPointerVersion,scopeId,version:{versionId,digest:versionDigest}}).then(async result=>{
    if(result.status!=='APPLIED'||result.state!=='DISABLED')return result

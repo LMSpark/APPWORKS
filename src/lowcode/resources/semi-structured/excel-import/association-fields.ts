@@ -4,20 +4,14 @@
  * 边界：不查询、不保存、不复制草稿；来源为原命名DataView，标准组件直接绑定原命名选项视图。
  * AI用途：编辑父外键时核对候选归属和读取权限，沿原节点成组更新字段名及描述。
  */
-import {buildDataViewKey, RequestState, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {RequestState, type DataSet, type DataView} from '@spark-appworks/spark-data'
 /** 两个关联分别消费父节点或当前节点的正式映射。 */
 type Kind = 'parentField' | 'foreignKeyField'
 /** 本次实例内的关联选项及成组业务编辑，持久化仍由原DataSet承接。 */
 export class ExcelAssociationFields {
-  /** 标准父字段选择器的完整视图键。 */
-  readonly parentKey: string
-  /** 标准本节点外键选择器的完整视图键。 */
-  readonly foreignKey: string
   /** @param dataSet 当前Excel设计实例；不得传入参考来源或其他方案实例。 */
   constructor(private readonly dataSet: DataSet) {
     if (dataSet.scenarioId !== '0F93B82141CF40852021D704B0E30BF4' || dataSet.destroyed) throw new Error('Excel关联需要本次正式设计实例')
-    this.parentKey = buildDataViewKey('Base_ImportData_Field', 'parentFields', dataSet.scenarioId)
-    this.foreignKey = buildDataViewKey('Base_ImportData_Field', 'foreignKeyFields', dataSet.scenarioId)
   }
   private nodes(): DataView {const view = this.dataSet.getView('Base_ImportData_Config'); if (!view || this.dataSet.destroyed) throw new Error('Excel关联实例已失效'); return view}
   private projection(kind: Kind): Array<{value: string; label: string; descriptionReadable: boolean}> {

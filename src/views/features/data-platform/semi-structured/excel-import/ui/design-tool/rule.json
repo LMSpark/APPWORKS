@@ -39,7 +39,9 @@
       {"type":"r-number","props":{"field":"dataIndex","label":"数据开始行","onBeforeRender":"bindNodeField"}},
       {"type":"r-text","props":{"field":"relatedAppName","label":"应用","readonly":true}},
       {"type":"r-text","props":{"field":"tableDesc","label":"目标数据","readonly":true}},
-      {"type":"r-select","props":{"field":"exportType","label":"导入导出方式","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@ImportExportMethods@default","onBeforeRender":"bindNodeField"}}
+      {"type":"r-select","props":{"field":"exportType","label":"导入导出方式","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@ImportExportMethods@default","onBeforeRender":"bindNodeField"}},
+      {"type":"r-select","props":{"field":"parentField","label":"父字段","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@parentFields","optionLabelFields":["title","name"],"onBeforeRender":"bindParentField"}},
+      {"type":"r-select","props":{"field":"foreignKeyField","label":"外键字段","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@foreignKeyFields","optionLabelFields":["title","name"],"onBeforeRender":"bindForeignField"}}
     ]
   }
 ]

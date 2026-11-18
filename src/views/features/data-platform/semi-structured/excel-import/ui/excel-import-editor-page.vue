@@ -34,8 +34,6 @@
               <template v-if="selectedNode">
           <SparkComponentRenderer :config="designRegion(children,'excel-node-basic')" />
           <RendererForm class="excel-node-form" :data-view-key="nodesKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="3">
-            <FieldSelect v-if="association" field="parentField" label="父字段" :option-data-view-key="association.parentKey" :option-label-fields="['title','name']" :readonly="locked" :on-change="associationHandlers.parent" />
-            <FieldSelect v-if="association" field="foreignKeyField" label="外键字段" :option-data-view-key="association.foreignKey" :option-label-fields="['title','name']" :readonly="locked" :on-change="associationHandlers.foreign" />
             <section class="excel-filter-definition">
               <h3>导出过滤条件</h3>
               <p v-if="filterReadOnly" role="status">版式过滤字段范围尚未确认，当前仅查看已存条件。</p>
@@ -139,7 +137,7 @@ import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
 import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
 import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
-const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, RendererTabs, RendererTabPane, FieldText, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, RendererTabs, RendererTabPane, FieldText, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
@@ -283,7 +281,10 @@ function makeTreeHost(runtime:PageRuntime){
   const assertCurrent=()=>{if(!active||!session.isCurrent(runtime))throw new Error('Excel 设计运行实例已失效')}
   return {runtime,assertCurrent,async invoke(command:string){
     assertCurrent()
-    if(command==='excel.design.connect')return {locked:()=>locked.value,selected:()=>!!selectedNode.value}
+    if(command==='excel.design.connect')return {
+      locked:()=>locked.value,selected:()=>!!selectedNode.value,
+      association:()=>association.value ? associationHandlers.value : undefined,
+    }
     if(locked.value)return undefined
     if(command==='excel.design.addRoot')await addNode('root')
     if(command==='excel.design.addSibling')await addNode('sibling')

@@ -21,6 +21,14 @@ function bindNodeField() {
   return {readonly:tree?.locked() !== false}
 }
 
+function bindAssociationField(kind) {
+  const handlers = tree?.association()
+  return {...bindNodeField(),visible:!!handlers,onChange:handlers?.[kind]}
+}
+
+function bindParentField() { return bindAssociationField('parent') }
+function bindForeignField() { return bindAssociationField('foreign') }
+
 async function addRoot() { await $page.invokeHostCommand('excel.design.addRoot') }
 async function addSibling() { await $page.invokeHostCommand('excel.design.addSibling') }
 async function addChild() { await $page.invokeHostCommand('excel.design.addChild') }

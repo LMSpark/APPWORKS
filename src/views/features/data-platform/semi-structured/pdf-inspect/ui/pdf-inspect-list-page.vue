@@ -78,7 +78,8 @@ const selected = computed(() => {
   return typeof id === 'string' || typeof id === 'number' ? String(id) : ''
 })
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
-const catalogScope = computed(() => resolveExecutionProjectId(route.path) === APPLICATION_CATALOG_PROJECT_ID)
+const projectId = computed(() => resolveExecutionProjectId(route.path))
+const catalogScope = computed(() => projectId.value === APPLICATION_CATALOG_PROJECT_ID)
 const historyKey = computed(() => buildDataViewKey(PDF_INSPECTION_HISTORY_TABLE, 'default', scenarioId.value))
 const limitsKey = computed(() => buildDataViewKey('PdfInspectionLimits', 'default', scenarioId.value))
 const uploadKey = computed(() => buildDataViewKey(PDF_INSPECTION_UPLOAD_TABLE, 'default', scenarioId.value))
@@ -381,7 +382,7 @@ async function openEditor(): Promise<void> {
   const path = scope ? buildApplicationPath(scope, editorPath) : editorPath
   await router.push({path, query: {ruleId: selected.value}})
 }
-watch([scenarioId, catalogScope], async ([id, inCatalog]) => {
+watch([scenarioId, projectId], async ([id, project]) => {
   const own = ++generation
   pendingRequests.value = []
   ready.value = false; loading.value = true; error.value = ''
@@ -394,14 +395,14 @@ watch([scenarioId, catalogScope], async ([id, inCatalog]) => {
   session.dispose()
   try {
     if (!id) throw new Error('PDF 识别入口缺少导航绑定的数据空间ID')
-    const dataSet = await LowcodePdfInspect.loadCatalog(id, inCatalog ? APPLICATION_CATALOG_PROJECT_ID : undefined)
+    const dataSet = await LowcodePdfInspect.loadCatalog(id, project)
     if (!active || own !== generation) {dataSet.destroy(); return}
     const tool=new PageTool({pageId:'pdf-inspect-list-page'})
     tool.hydrateFileText('rule.json',catalogRule)
     tool.hydrateFileText('script.js',catalogScript)
     tool.hydrateFileText('style.css',catalogStyle)
     tool.markLoaded()
-    const current = session.acquire({tool, scenarioIds: [id], targetId: id,
+    const current = session.acquire({tool, scenarioIds: [id], targetId: project===undefined?id:`${project}:${id}`,
       loadScenario: async () => dataSet})
     await current.load()
     if (!active || own !== generation || !session.isCurrent(current)) return

@@ -6,7 +6,7 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
-import {FieldJson, FieldText, RendererButton, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldJson, FieldText, RendererButton, RendererTable, Spark, SparkPageRenderer, registerAllRenderers} from '@spark-appworks/spark-component'
 import {DataSpaceRuntimeApi, LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
 import type {HttpResponse, RequestConfig} from '@spark-appworks/spark-utils'
 import SparkJsonEditor from '../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
@@ -77,6 +77,32 @@ async function open(ruleId = 'P1',catalog:boolean|string=false,recoveryRequestId
   return {wrapper, click, router, copied}
 }
 describe('formal PDF rule editor', () => {
+  it('releases the PDF catalog when the same route changes to an application outside the current request scope', async()=>{
+    const routePath='/apps/:app/pdf'
+    const router=createRouter({history:createMemoryHistory(),routes:[]})
+    const dynamic=createDynamicRouter({router,pageComponent:PdfList,
+      loadNavigation:async()=>({id:'root',title:'Root',childPlacement:'header',items:[{id:PDF,title:'PDF',path:routePath,itemKind:'system-page',blueprintScenarioId:PDF}]}),
+      componentMap:{[routePath]:PdfList}})
+    await dynamic.registerRoutes()
+    const record=router.getRoutes().find(item=>item.path===routePath)!
+    record.meta['blueprintScenarioId']=PDF
+    const query={__sparkNavigationId:PDF}
+    await router.push({path:'/apps/D99A1DCE9894698799101EFD70F8FC76/pdf',query})
+    const wrapper=mount(defineComponent({setup(){provideTestPageService(router);return()=>h(RouterView)}}),
+      {global:{plugins:[router,ElementPlus,Spark.createPlugin()]}})
+    wrappers.push(wrapper)
+    await vi.waitFor(()=>expect(wrapper.findComponent(SparkPageRenderer).exists()).toBe(true))
+    const original=wrapper.getComponent(SparkPageRenderer).props('pageRuntime')!.getDataSet(PDF)!
+    await vi.waitFor(()=>expect(original.getView('Base_FileInspectConfig')?.rows[0]?.['name']).toBe('发票规则'))
+    const reads=state.http.reads.length
+    await router.push({path:'/apps/another-app/pdf',query})
+    await vi.waitFor(()=>expect(wrapper.text()).toContain('PDF目录导航与当前执行应用不一致'))
+    expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
+    expect(original.destroyed).toBe(true)
+    expect(state.http.reads).toHaveLength(reads)
+    expect(state.http.saves).toEqual([])
+  })
+
   it('reads the registered platform PDF directory without choosing an execution application', async () => {
     const path='/apps/homepage/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page'
     const text=topicTexts[PDF]!,resourceId=`repository:scenario-view:${PDF}`

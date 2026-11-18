@@ -172,10 +172,10 @@ it.each(['response-fact','scoped-response'] as const)('matches reviewed response
   const {assertCurrent:_proof,...body}=draft
   const draftHash=await hashCanonicalSnapshotText(canonicalSnapshotValue(body))
   const nodeHash=f.ds.getView('ContentNodeVersion','snapshotMembers')?.rows.find(item=>item['nodeId']==='H')?.['nodeHash']
-  const getReview=(hash:string)=>{
+  const getReview=(hash:string,deviation:'POSITIVE'|null=null)=>{
    const position={positionRef:targetRef,contentHash:hash,requiresAiVerification:false}
-   return reviewResponseDraft(draft,{draftHash,reviewerRef:'REVIEWER',ruleVersionRef:'RULE',deviation:null,
-    deviationAllowed:false,positions:[position],checks:[{...position,accepted:true,reviewRef:'REVIEW',aiVerificationRef:null,assertCurrent}],
+   return reviewResponseDraft(draft,{draftHash,reviewerRef:'REVIEWER',ruleVersionRef:'RULE',deviation,
+    deviationAllowed:true,positions:[position],checks:[{...position,accepted:true,reviewRef:'REVIEW',aiVerificationRef:null,assertCurrent}],
     deferredPositionRefs:[],assertCurrent})
   }
   const review=await getReview(anchored&&typeof nodeHash==='string'?nodeHash:
@@ -184,6 +184,9 @@ it.each(['response-fact','scoped-response'] as const)('matches reviewed response
   expect(candidate.verifyReviewedResponse(responseId,reviewed)).toMatchObject({responseId,reviewHash:reviewed.reviewHash,
    reviewRecord:{draftHash,reviewerRef:'REVIEWER',ruleVersionRef:'RULE',positions:[{reviewRef:'REVIEW'}]}})
   expect(()=>candidate.verifyReviewedResponse('OTHER',reviewed)).toThrow('CONTENT_CANDIDATE_REVIEWED_RESPONSE')
+  const wrongDeviation=await readReviewedResponseForCandidate(scope,draft,
+   await getReview(review.positions[0]!.contentHash,'POSITIVE'))
+  expect(()=>candidate.verifyReviewedResponse(responseId,wrongDeviation)).toThrow('CONTENT_CANDIDATE_REVIEWED_RESPONSE')
   if(anchored){
    const wrong=await readReviewedResponseForCandidate(scope,draft,await getReview('b'.repeat(64)))
    expect(()=>candidate.verifyReviewedResponse(responseId,wrong)).toThrow('CONTENT_CANDIDATE_REVIEWED_RESPONSE')

@@ -229,7 +229,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
    const item=snapshotReferenceRecord(value,error)
    if(item['id']!==responseId)return
    if(item['assignmentId']!==response.assignmentId||item['lineageId']!==response.lineageId||
-    item['version']!==response.version)throw Error(error)
+    item['version']!==response.version||(item['deviation']??null)!==reviewed.reviewRecord.deviation)throw Error(error)
    const body=Object.hasOwn(item,'chapterId')?{chapterId:item['chapterId'],anchorNodeId:item['anchorNodeId']}:
     {statement:item['statement'],data:item['data']}
    if(canonicalSnapshotValue(body)!==canonicalSnapshotValue(response.body))throw Error(error)

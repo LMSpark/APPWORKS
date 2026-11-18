@@ -15,7 +15,10 @@ type Key=string|readonly [field:string,parameter:string]
 
 /** 页13读取同一最终包的正式验签记录。 */
 export function contentPackageSignatureScenarioViews(primaryKey:string){
- return {packageSignatureChecks:view(primaryKey,['projectId','packageId','packageHash','selectionHash'],{
+ return {originalSignatureRequest:view(primaryKey,['projectId','requestKey','requestDigest'],{
+  fields:['id','objectKind','objectRef','objectVersion','objectHash','positionRef','signerRef','state',
+   'terminalRef','operationRef','signedObjectRef','signedObjectHash'],
+ }),packageSignatureChecks:view(primaryKey,['projectId','packageId','packageHash','selectionHash'],{
   fields:['id','targetId','signerRef','positionRef','verificationRef','valid'],allPages:true,
  })}
 }

@@ -4,6 +4,7 @@ import {prepareAuthorityGrantDecision,readOriginalAuthorityGrantRegistration} fr
 import {checkRegisteredAuthorityGrant} from '@/services/smart-bid/content/review/submission/authority-grant-coverage'
 import {prepareSignatureRequest,recoverSignatureRequest} from '@/services/smart-bid/content/review/submission/signature-request'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
+import {contentPackageSignatureScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {authorityGrantRegistrationView,readRegisteredAuthorityGrantRegistration} from '@/views/features/application/smart-bid/authority/authority-grant-registration-reader'
 import {createAuthorityGrantScriptHost} from '@/views/features/application/smart-bid/authority/authority-grant-script-host'
 import script from '@/views/features/application/smart-bid/authority/page04/script.js?raw'
@@ -48,24 +49,43 @@ it('binds a revocation to its authority, affected scope and original version',as
   request:{...originalSigning,objectVersion:'OTHER'},
  })})).rejects.toThrow('BID_SIGNATURE_RECOVERY_SCOPE')
  expect(signing.record).toMatchObject({authorityVersionId:'V1',objectVersion:'PACK-V1',positionRef:'SEAL'})
- const page=createContentSubmissionScriptHost({resolveView:()=>undefined,generation:1,isLoaded:true,destroyed:false},
-  {scenarioId:'S',projectId:'P',assertCurrent:()=>{}},{
-   readSignatureSelection:async()=>({selectionRef:'SIGNING',request:signature,basis:signatureBasis,authority:permitted}),
-   readOriginalSignatureSelection:async()=>({selectionRef:'ORIGINAL',request:originalSigning,
-    source:{assertCurrent:evidence.assertCurrent,lookup:async()=>signReceipt}}),
-  })
- const signal=new AbortController()
- await expect(page.invoke('content.submission.prepareSignature',{selectionRef:'OTHER'},signal.signal))
-  .rejects.toThrow('SUBMISSION_PAGE_SIGNATURE_SCOPE')
- const pageSigning=await page.invoke('content.submission.prepareSignature',{selectionRef:'SIGNING'},signal.signal)
- expect(pageSigning).toMatchObject({requestDigest:signing.requestDigest})
- await expect(page.invoke('content.submission.recoverSignature',{selectionRef:'OTHER'},signal.signal))
-  .rejects.toThrow('SUBMISSION_PAGE_SIGNATURE_SCOPE')
- const pageRecovered=await page.invoke('content.submission.recoverSignature',{selectionRef:'ORIGINAL'},signal.signal)
- expect(pageRecovered).toMatchObject({state:'SIGNED',operationRef:'OP',signedObjectRef:'SIGNED-PACK'})
- signal.abort()
- expect(()=>pageSigning.assertCurrent()).toThrow('SUBMISSION_PAGE_STALE')
- expect(()=>pageRecovered.assertCurrent()).toThrow('SUBMISSION_PAGE_STALE')
+ const signRow={...originalSigning,id:'SIG',state:'SIGNED',operationRef:'OP',signedObjectRef:'SIGNED-PACK',
+  signedObjectHash:signReceipt.signedObjectHash,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}
+ const signatures=DataSet.fromJson({scenarioId:'S',tables:{SignatureRecord:{
+  modelBinding:{modelId:'SIGN-M',modelName:'SignatureRecord'},columns:Object.keys(signRow).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},...contentPackageSignatureScenarioViews('id')},
+ }}})
+ try{
+  const signatureView=signatures.getView('SignatureRecord','originalSignatureRequest')!
+  const signatureTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'SignatureRecord'})
+  let found=false
+  signatureView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+   identity:signatureTable.identity,scope:'sign',readScope:()=> 'sign',
+   snapshot:signatureTable.applyResult({Result:{primaryKeyField:'id',data:{Count:found?1:0,Items:found?[signRow]:[]}}}),
+  })})
+  const page=createContentSubmissionScriptHost({resolveView:key=>key==='S@SignatureRecord@originalSignatureRequest'?signatureView:undefined,
+   generation:1,isLoaded:true,destroyed:false},
+   {scenarioId:'S',projectId:'P',assertCurrent:()=>{}},{
+    readSignatureSelection:async()=>({selectionRef:'SIGNING',request:signature,basis:signatureBasis,authority:permitted}),
+    readOriginalSignatureSelection:async()=>({selectionRef:'ORIGINAL',request:originalSigning,
+     assertCurrent:evidence.assertCurrent}),
+   })
+  const signal=new AbortController()
+  await expect(page.invoke('content.submission.prepareSignature',{selectionRef:'OTHER'},signal.signal))
+   .rejects.toThrow('SUBMISSION_PAGE_SIGNATURE_SCOPE')
+  const pageSigning=await page.invoke('content.submission.prepareSignature',{selectionRef:'SIGNING'},signal.signal)
+  expect(pageSigning).toMatchObject({requestDigest:signing.requestDigest})
+  await expect(page.invoke('content.submission.recoverSignature',{selectionRef:'OTHER'},signal.signal))
+   .rejects.toThrow('SUBMISSION_PAGE_SIGNATURE_SCOPE')
+  await expect(page.invoke('content.submission.recoverSignature',{selectionRef:'ORIGINAL'},signal.signal))
+   .resolves.toMatchObject({state:'UNKNOWN'})
+  found=true
+  const pageRecovered=await page.invoke('content.submission.recoverSignature',{selectionRef:'ORIGINAL'},signal.signal)
+  expect(pageRecovered).toMatchObject({state:'SIGNED',operationRef:'OP',signedObjectRef:'SIGNED-PACK'})
+  signal.abort()
+  expect(()=>pageSigning.assertCurrent()).toThrow('SUBMISSION_PAGE_STALE')
+  expect(()=>pageRecovered.assertCurrent()).toThrow('SUBMISSION_PAGE_STALE')
+ }finally{signatures.destroy()}
  await expect(prepareSignatureRequest({...signature,actionAt:source.knownAt},signatureBasis,permitted))
   .rejects.toThrow('BID_SIGNATURE_AUTHORITY_REQUIRED')
  await expect(prepareSignatureRequest({...signature,objectHash:'b'.repeat(64)},signatureBasis,permitted))

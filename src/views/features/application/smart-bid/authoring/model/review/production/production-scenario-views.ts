@@ -3,6 +3,9 @@
  * 职责：为正式共享场景提供 ProducedFile 原登记及实件核验视图。
  */
 import type {ViewMetadata} from '@spark-appworks/spark-data'
+import {fileObservationView} from '../content-file-answer-reader'
+import {paperObservationView} from '../content-paper-answer-reader'
+import {platformObservationView,submittedPlatformObservationsView} from '../content-platform-field-review'
 
 /** 制件登记按原请求及输出查询，实件回读按登记身份和原制作关系查询。 */
 export function producedFileScenarioViews(){
@@ -26,5 +29,18 @@ export function producedFileScenarioViews(){
    originalFileFields),
   selectedObservedReviewFile:view([['projectId','projectId'],['id','producedFileId']],originalFileFields),
   selectedReviewFiles:view([['projectId','projectId']],[...originalFileFields,'usage'],true),
+ }
+}
+
+/** 正式场景按模型挂载实件登记和原填报位置视图。 */
+export function contentProductionReviewScenarioViews(){
+ return {
+  ProducedFile:producedFileScenarioViews(),
+  AnswerLocation:{
+   selectedFileObservation:fileObservationView(),
+   selectedPaperObservation:paperObservationView(),
+   selectedPlatformObservation:platformObservationView(),
+   submittedPlatformObservations:submittedPlatformObservationsView(),
+  },
  }
 }

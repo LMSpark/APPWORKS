@@ -1,8 +1,8 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
-import {paperObservationView,readRegisteredPaperAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader'
-import {producedFileScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
+import {readRegisteredPaperAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader'
+import {contentProductionReviewScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
 import script from '@/views/features/application/smart-bid/authoring/page12/script.js?raw'
 import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
 import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
@@ -13,13 +13,14 @@ it('requires the exact registered copy and page before returning the original ob
  const row={id:'OBS',projectId:'P',paperRef:'PAPER',copyRef:'COPY',revisionId:'R',
   pageRef:'P01',locationRef:'TOTAL',evidenceRef:'SCAN',value:'0.00',unit:'元',producedFileId:'REG'}
  const registration={id:'REG',projectId:'P',paperRef:'PAPER',revisionId:'R',copies:[{copyRef:'COPY',pageRefs:['P01']}]}
+ const {ProducedFile,AnswerLocation}=contentProductionReviewScenarioViews()
  const ds=DataSet.fromJson({scenarioId:'S',tables:{AnswerLocation:{
   modelBinding:{modelId:'M',modelName:'AnswerLocation'},
   columns:Object.keys(row).map(name=>({name,type:'string',isPrimaryKey:name==='id'})),
-  views:{default:{},selectedPaperObservation:paperObservationView()},
+  views:{default:{},selectedPaperObservation:AnswerLocation.selectedPaperObservation},
  },ProducedFile:{modelBinding:{modelId:'PAPER-M',modelName:'ProducedFile'},
   columns:Object.keys(registration).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},selectedPaperRegistration:producedFileScenarioViews().selectedPaperRegistration},
+  views:{default:{},selectedPaperRegistration:ProducedFile.selectedPaperRegistration},
  }}})
  const view=ds.getView('AnswerLocation','selectedPaperObservation')
  if(!view)throw Error('TEST_PAPER_VIEW_REQUIRED')

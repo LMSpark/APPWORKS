@@ -1,8 +1,10 @@
 import {expect,it,vi} from 'vitest'
-import {comparePlatformFieldObservation,platformObservationView,readPlatformFieldObservation,readPlatformFieldReviewVersion,readSubmittedPlatformField,readSubmittedPlatformFields} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
+import {comparePlatformFieldObservation,readPlatformFieldObservation,readPlatformFieldReviewVersion,readSubmittedPlatformField,readSubmittedPlatformFields} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
 import script from '@/views/features/application/smart-bid/authoring/page12/script.js?raw'
 import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
 import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
+import {contentProductionReviewScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
+import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
@@ -51,17 +53,17 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
   approvalRef:'APP',value:false,unit:null,assertCurrent:()=>{}}))
  const row={id:'OBS',...selection,attemptRef:'SEND',stage:'SAVED',value:false,unit:null}
  const receiptRow={id:'REC',projectId:'P',revisionId:'R',attemptRef:'SEND',eventKind:'RECEIVED',observationRefs:['OBS']}
- const filters=([['projectId','projectId'],['id','observationId'],['attemptRef','attemptRef']] as const)
-  .map(([field,ParamName])=>({field,operator:'eq' as const,value:{Type:'GetInputParam',ParamName}}))
+ const {AnswerLocation}=contentProductionReviewScenarioViews()
+ const {ChannelReceipt}=contentSubmissionScenarioViews({
+  SubmissionAttempt:'id',ChannelReceipt:'id',SubmissionReconciliation:'id',TenderOutcome:'id',
+ })
  const ds=DataSet.fromJson({scenarioId:'S',tables:{AnswerLocation:{
   modelBinding:{modelId:'M',modelName:'AnswerLocation'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},selectedPlatformObservation:platformObservationView(),
-   submittedPlatformObservations:{commitMode:'staged',queryConfig:{autoQuery:false,allPages:true,pagination:'paged'},
-    scopeFilter:{logic:'and',filters:filters.filter(filter=>filter.field!=='id')}}},
+  views:{default:{},selectedPlatformObservation:AnswerLocation.selectedPlatformObservation,
+   submittedPlatformObservations:AnswerLocation.submittedPlatformObservations},
  },ChannelReceipt:{
   modelBinding:{modelId:'REC_MODEL',modelName:'ChannelReceipt'},columns:Object.keys(receiptRow).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},selectedPlatformReceipt:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',
-   filters:filters.map(filter=>filter.field==='id'?{...filter,value:{Type:'GetInputParam',ParamName:'receiptRef'}}:filter)}}},
+  views:{default:{},selectedPlatformReceipt:ChannelReceipt.selectedPlatformReceipt},
  }}})
  const view=ds.getView('AnswerLocation','selectedPlatformObservation')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'AnswerLocation'})
  view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({

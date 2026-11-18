@@ -83,6 +83,16 @@ export function platformObservationView():ViewMetadata{
   }))}}
 }
 
+/** 截止对账按原办理合并回读，不限制在单页。 */
+export function submittedPlatformObservationsView():ViewMetadata{
+ const config=platformObservationView()
+ return {...config,
+  queryConfig:{...config.queryConfig,allPages:true,pagination:'paged'},
+  scopeFilter:{logic:'and',filters:scopeFields.filter(([field])=>field!=='id').map(([field,ParamName])=>({
+   field,operator:'eq',value:{Type:'GetInputParam',ParamName},
+  }))}}
+}
+
 function readObservation(row:Readonly<Record<string,unknown>>,assertCurrent:()=>void):FieldObservation{
  const {id,projectId,revisionId,assignmentId,fieldId,attemptRef,stage,value,unit}=row
  if(!identity(id)||!identity(projectId)||!identity(revisionId)||!identity(assignmentId)||!identity(fieldId)||!identity(attemptRef)||

@@ -2,10 +2,10 @@ import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {readCompletedProductionFiles,readProducedFileReviewVersion,readRegisteredProducedFileReviewVersion,readRegisteredProducedFileReviewVersions} from '@/views/features/application/smart-bid/authoring/model/review/content-produced-file-review'
 import {recoverProductionRequest} from '@/services/smart-bid/content/review/production/production-recovery'
-import {producedFileScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
+import {contentProductionReviewScenarioViews,producedFileScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
-import {compareApprovedFileAnswer,fileObservationView,readRegisteredFileAnswer,verifyOriginalFormFileAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-file-answer-reader'
+import {compareApprovedFileAnswer,readRegisteredFileAnswer,verifyOriginalFormFileAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-file-answer-reader'
 import {mapOriginalForm} from '@/services/smart-bid/content/references/response/original-form-mapping'
 import script from '@/views/features/application/smart-bid/authoring/page12/script.js?raw'
 import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
@@ -112,13 +112,14 @@ it('opens only the original registered resource version read through SPARK data'
   fileHash:createHash('sha256').update(bytes).digest('hex'),resourceVersionId:'RESOURCE-V1'}
  const answer={id:'OBS',projectId:'P',producedFileId:'F',revisionId:'R',documentId:'D',fileHash:row.fileHash,
   locationRef:'PAGE-1-TOTAL',value:'0.00',unit:'元'}
+ const {ProducedFile,AnswerLocation}=contentProductionReviewScenarioViews()
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ProducedFile:{
   modelBinding:{modelId:'M',modelName:'ProducedFile'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},...producedFileScenarioViews()},
+  views:{default:{},...ProducedFile},
  },AnswerLocation:{
   modelBinding:{modelId:'ANSWER',modelName:'AnswerLocation'},
   columns:Object.keys(answer).map(name=>({name,type:'string',isPrimaryKey:name==='id'})),
-  views:{default:{},selectedFileObservation:fileObservationView()},
+  views:{default:{},selectedFileObservation:AnswerLocation.selectedFileObservation},
  }}})
  const view=ds.getView('ProducedFile','selectedReviewFile')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ProducedFile'})
  for(const name of ['selectedReviewFile','selectedObservedReviewFile'])ds.getView('ProducedFile',name)!.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({

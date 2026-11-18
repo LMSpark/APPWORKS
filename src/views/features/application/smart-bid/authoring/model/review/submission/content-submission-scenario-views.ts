@@ -74,6 +74,8 @@ export function contentSubmissionScenarioViews(primaryKeys:Readonly<Record<
    receiptCandidates:view(SubmissionAttempt,scope,{fields:['id','operationRef','actualObjectRef','withdrawalTargetRef'],allPages:true}),
   },
   ChannelReceipt:{
+   selectedPlatformReceipt:view(ChannelReceipt,['projectId',['id','receiptRef'],'attemptRef'],
+    {fields:['revisionId','eventKind','observationRefs']}),
    originalPairing:view(ChannelReceipt,['projectId',['id','receiptRef']],
     {fields:['lotId','subjectId','channelId','eventRef','eventKind','eventAt','operationRef','objectRef','sources']}),
   },

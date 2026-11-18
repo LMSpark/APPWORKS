@@ -104,25 +104,44 @@
     ]
   },
   {
-    "id":"excel-field-mapping",
+    "id":"excel-field-workspace",
     "type":"r-section",
-    "props":{"title":"字段映射","bordered":false,"gridColumns":1},
+    "props":{"bordered":false,"gridColumns":1,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","onBeforeRender":"bindCurrentNode"},
     "children":[
-      {"type":"r-space","props":{"wrap":true,"size":8},"children":[
-        {"type":"r-button","props":{"label":"设置引用","permAction":"edit","onBeforeRender":"bindReferenceAction","onClick":"setReference"}},
-        {"type":"r-button","props":{"label":"清空引用","permAction":"edit","onBeforeRender":"bindReferenceAction","onClick":"clearReference"}},
-        {"type":"r-button","props":{"label":"删除字段","permAction":"delete","onBeforeRender":"bindDeleteField","onClick":"deleteField"}},
-        {"type":"r-button","props":{"label":"保存字段","onBeforeRender":"bindSaveFields","onClick":"saveFields"}},
-        {"type":"r-button","props":{"label":"取消字段修改","onBeforeRender":"bindCancelFields","onClick":"cancelFields"}}
-      ]},
-      {"type":"r-table","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default","highlightCurrentRow":true},"children":[
-        {"type":"r-text","props":{"field":"name","label":"字段名称","readonly":true,"showCellControl":true,"onBeforeRender":"bindMappingCell"}},
-        {"type":"r-text","props":{"field":"title","label":"标题","showCellControl":true,"onBeforeRender":"bindMappingCell"}},
-        {"type":"r-text","props":{"field":"index","label":"Excel 列号","showCellControl":true,"onBeforeRender":"bindMappingCell"}},
-        {"type":"r-number","props":{"field":"type","label":"类型","readonly":true,"showCellControl":true,"onBeforeRender":"bindMappingCell"}},
-        {"type":"r-select","props":{"field":"DesenID","label":"脱敏规则","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Desensitization_Rule@default","showCellControl":true,"onBeforeRender":"bindMappingCell"}},
-        {"type":"r-text","props":{"field":"refTableDesc","label":"引用表描述","readonly":true}}
-      ]}
+      {"type":"r-section","props":{"bordered":false,"status":"已启用相对版式，经典字段映射已隐藏。请在相对版式中维护版式定义。","onBeforeRender":"bindLayoutMappingNotice"}},
+      {
+        "type":"r-tabs",
+        "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default","dataMember":"currentRow","onBeforeRender":"bindFieldTabs","on":{"update:modelValue":"selectFieldTab"}},
+        "children":[
+          {"type":"r-tab-pane","props":{"name":"fields","label":"列配置","index":0},"children":[
+            {
+              "id":"excel-field-mapping",
+              "type":"r-section",
+              "props":{"title":"字段映射","bordered":false,"gridColumns":1},
+              "children":[
+                {"type":"r-space","props":{"wrap":true,"size":8},"children":[
+                  {"type":"r-button","props":{"label":"设置引用","permAction":"edit","onBeforeRender":"bindReferenceAction","onClick":"setReference"}},
+                  {"type":"r-button","props":{"label":"清空引用","permAction":"edit","onBeforeRender":"bindReferenceAction","onClick":"clearReference"}},
+                  {"type":"r-button","props":{"label":"删除字段","permAction":"delete","onBeforeRender":"bindDeleteField","onClick":"deleteField"}},
+                  {"type":"r-button","props":{"label":"保存字段","onBeforeRender":"bindSaveFields","onClick":"saveFields"}},
+                  {"type":"r-button","props":{"label":"取消字段修改","onBeforeRender":"bindCancelFields","onClick":"cancelFields"}}
+                ]},
+                {"type":"r-table","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default","highlightCurrentRow":true},"children":[
+                  {"type":"r-text","props":{"field":"name","label":"字段名称","readonly":true,"showCellControl":true,"onBeforeRender":"bindMappingCell"}},
+                  {"type":"r-text","props":{"field":"title","label":"标题","showCellControl":true,"onBeforeRender":"bindMappingCell"}},
+                  {"type":"r-text","props":{"field":"index","label":"Excel 列号","showCellControl":true,"onBeforeRender":"bindMappingCell"}},
+                  {"type":"r-number","props":{"field":"type","label":"类型","readonly":true,"showCellControl":true,"onBeforeRender":"bindMappingCell"}},
+                  {"type":"r-select","props":{"field":"DesenID","label":"脱敏规则","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Desensitization_Rule@default","showCellControl":true,"onBeforeRender":"bindMappingCell"}},
+                  {"type":"r-text","props":{"field":"refTableDesc","label":"引用表描述","readonly":true}}
+                ]}
+              ]
+            }
+          ]},
+          {"type":"r-tab-pane","props":{"name":"dynamicDict","label":"动态列字典","index":1},"children":[
+            {"type":"r-section","props":{"bordered":false,"status":"动态列字典待后续实现"}}
+          ]}
+        ]
+      }
     ]
   },
   {

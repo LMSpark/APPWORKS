@@ -17,6 +17,19 @@ function bindCurrentNode() {
   return {visible:tree?.selected() === true}
 }
 
+function bindLayoutMappingNotice() {
+  return {visible:tree?.fieldWorkspace()?.layoutEnabled === true}
+}
+
+function bindFieldTabs() {
+  const workspace = tree?.fieldWorkspace()
+  return {visible:workspace?.selected === true && !workspace.layoutEnabled,modelValue:workspace?.activeTab}
+}
+
+async function selectFieldTab(name) {
+  await $page.invokeHostCommand('excel.design.selectFieldTab',name)
+}
+
 function bindNodeField() {
   return {readonly:tree?.locked() !== false}
 }

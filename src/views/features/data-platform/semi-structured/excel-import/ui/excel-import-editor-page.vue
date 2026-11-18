@@ -56,18 +56,7 @@
               <p v-else role="status">请选择左侧节点后再编辑</p>
             </RendererTabPane>
           </RendererTabs>
-          <template v-if="selectedNode">
-            <p v-if="layoutEnabled" role="status">已启用相对版式，经典字段映射已隐藏。请在相对版式中维护版式定义。</p>
-            <RendererTabs v-else v-model="activeBottomTab" :data-view-key="fieldsKey" data-member="currentRow">
-              <RendererTabPane name="fields" label="列配置" :index="0" :data-view-key="fieldsKey">
-
-                <SparkComponentRenderer :config="designRegion(children,'excel-field-mapping')" />
-              </RendererTabPane>
-              <RendererTabPane name="dynamicDict" label="动态列字典" :index="1" :data-view-key="fieldsKey">
-                <p role="status">动态列字典待后续实现</p>
-              </RendererTabPane>
-            </RendererTabs>
-          </template>
+          <SparkComponentRenderer :config="designRegion(children,'excel-field-workspace')" />
         </main>
       </div>
         <SparkComponentRenderer :config="designRegion(children,'excel-node-removal')" />
@@ -254,6 +243,7 @@ function makeTreeHost(runtime:PageRuntime){
         databaseConfirmed:removalState.value?.databaseConfirmed===true,canCancel:removalState.value?.canCancel===true,
         canAccept:removalState.value?.canAcceptCurrent===true,busy:busy.value,unconfirmed:unconfirmed.value,error:error.value||queryError.value,
       }),
+      fieldWorkspace:()=>({selected:!!selectedNode.value,layoutEnabled:layoutEnabled.value,activeTab:activeBottomTab.value}),
       mapping:()=>({
         referenceDisabled:locked.value||!!targetChange.value||!currentMapping.value,
         deleteDisabled:locked.value||!!targetChange.value,
@@ -284,6 +274,10 @@ function makeTreeHost(runtime:PageRuntime){
         pending:pendingPart('rules'),busy:busy.value,unconfirmed:unconfirmed.value,
         switchUnconfirmed:isUnconfirmed(schemeTable),
       }),
+    }
+    if(command==='excel.design.selectFieldTab'){
+      if(input==='fields'||input==='dynamicDict')activeBottomTab.value=input
+      return undefined
     }
     if(command==='excel.design.diagnoseLayout'){
       if(layoutPane.value?.documentState().canDiagnose)layoutPane.value.diagnose()

@@ -11385,3 +11385,5 @@ flowchart TD
 2026-11-18 SmartBid I5 第05项：ContextManifest@originalDispatch 经 SPARK data 以原项目、运行、试次、请求读实发证据，校验同目标和配置锁。字段不可读只给已授权摘要；换查撤销原证据。专项Vitest及ESLint通过，正式视图和页18待验。
 
 2026-11-18 SmartBid I5 第06项：GenerationRun@originalResult 核同项目、运行、试次、请求及锁；返回正文必须具当次字段读权。页18业务读取入口串联两个正式DataView并验证，不重派发。专项2项与ESLint通过，正式视图部署及页面实测待验。
+
+2026-11-18 SmartBid I5：同一 DataSet 内联验 ContextManifest@originalDispatch 与 GenerationRun@originalResult，原清单至实发至验证候选通过。刷新任一来源撤销原证明；无远程写入。专项 Vitest 与 ESLint 通过，生产页18及真实SSE仍待验。

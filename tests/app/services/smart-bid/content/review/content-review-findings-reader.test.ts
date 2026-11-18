@@ -9,7 +9,7 @@ import type {PageContext} from '../../../../../../packages/spark-component/src/p
 import {prepareReviewFindingRecheck} from '@/services/smart-bid/content/review/finding/review-finding-recheck'
 import {prepareReviewFindingRegistration} from '@/services/smart-bid/content/review/finding/review-finding-registration'
 import {bidFindingRecheckView} from '@/views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader'
-import {bidFindingRegistrationView} from '@/views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader'
+import {bidFindingRegistrationResultView,bidFindingRegistrationView} from '@/views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -102,9 +102,12 @@ it('registers one issue identity across matching observations and requires posit
  const checkRow={id:'CHECK',projectId:'P',checkRef:'CHECK',state:'COMPLETED',targetKind:target.kind,targetId:target.targetId,
   targetVersionRef:target.versionRef,effectiveHash:target.effectiveHash,ruleRef:source.ruleRef,authorityRef:source.authorityRef,
   reviewerId:source.reviewerId,checkedAt:source.checkedAt}
+ let saved=false
+ const resultRow={id:'RESULT',projectId:'P',checkRef:'CHECK',requestKey:'Q',requestDigest:covered.requestDigest,
+  findingId:null}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{CheckFinding:{
-  modelBinding:{modelName:'CheckFinding',modelId:'CHECK-M'},columns:Object.keys(checkRow).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalCompletedCheck:bidFindingRegistrationView('id')},
+  modelBinding:{modelName:'CheckFinding',modelId:'CHECK-M'},columns:Object.keys({...checkRow,...resultRow}).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},originalCompletedCheck:bidFindingRegistrationView('id'),originalFindingRegistration:bidFindingRegistrationResultView('id')},
  }}})
  try{
  const view=ds.getView('CheckFinding','originalCompletedCheck')
@@ -114,14 +117,23 @@ it('registers one issue identity across matching observations and requires posit
   identity:table.identity,scope:'coverage',readScope:()=> 'coverage',snapshot:table.applyResult({Result:{primaryKeyField:'id',
    data:{Count:1,Items:[{...checkRow,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
  })})
- const runtime={resolveView:(key:string)=>key==='S@CheckFinding@originalCompletedCheck'?view:undefined,generation:1,isLoaded:true,destroyed:false}
+ const registration=ds.getView('CheckFinding','originalFindingRegistration')
+ if(!registration)throw Error('TEST_FINDING_REGISTRATION_VIEW_REQUIRED')
+ const resultTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'CheckFinding'})
+ registration.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+  identity:resultTable.identity,scope:'registration',readScope:()=> 'registration',
+  snapshot:resultTable.applyResult({Result:{primaryKeyField:'id',data:{Count:saved?1:0,
+   Items:saved?[{...resultRow,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]:[]}}}),
+ })})
+ const runtime={resolveView:(key:string)=>key==='S@CheckFinding@originalCompletedCheck'?view:
+  key==='S@CheckFinding@originalFindingRegistration'?registration:undefined,generation:1,isLoaded:true,destroyed:false}
  let hasFinding=true
  const readRegistration=vi.fn(async()=>hasFinding?{finding,observations:source.observations,assertCurrent}:
   {finding:null,observations:[],assertCurrent})
  const page=createBidFindingsScriptHost(runtime,{projectId:'P',scenarioId:'S',assertCurrent},{
   readCoverage:async()=>{throw Error('UNEXPECTED_COVERAGE')},readRegistration,
  })
- const query={findingCheckRef:'CHECK',findingRegistrationKey:'Q'}
+ const query:{findingCheckRef:string;findingRegistrationKey:string;findingRegistrationDigest?:string}={findingCheckRef:'CHECK',findingRegistrationKey:'Q'}
  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
  const {openBidFindingRegistration}=compileFunctions(script,{$route:{query},$page:{
   invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,showMessage,
@@ -144,6 +156,15 @@ it('registers one issue identity across matching observations and requires posit
  checkRow.state='RUNNING'
  await openBidFindingRegistration()
  expect(showMessage).toHaveBeenCalledTimes(2)
+ expect(readRegistration).toHaveBeenCalledTimes(2)
+ query.findingRegistrationDigest=covered.requestDigest
+ await openBidFindingRegistration()
+ expect(showAlert).toHaveBeenLastCalledWith('原登记结果待确认','原问题登记结果')
+ saved=true
+ await openBidFindingRegistration()
+ expect(showAlert).toHaveBeenLastCalledWith('原登记 RESULT · 零问题覆盖','原问题登记结果')
+ await expect(page.invoke('bid.tasks.readFindingRegistration',{checkRef:'CHECK',requestKey:'Q',requestDigest:prepared.requestDigest},signal))
+  .rejects.toThrow('REVIEW_FINDING_REGISTRATION_RESULT_SCOPE')
  expect(readRegistration).toHaveBeenCalledTimes(2)
  }finally{ds.destroy()}
 })

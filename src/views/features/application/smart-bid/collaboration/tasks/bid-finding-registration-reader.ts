@@ -42,3 +42,29 @@ export async function prepareRegisteredBidFinding(
   ...selected,projectId,target,checkRef,ruleRef,authorityRef,reviewerId,checkedAt,assertCurrent:()=>{assertCheck();selected.assertCurrent()},
  })
 }
+
+const resultKeys=['projectId','checkRef','requestKey']
+const resultFields=['requestDigest','id','findingId']
+
+/** 按原请求查已登记的问题或零问题覆盖。 */
+export function bidFindingRegistrationResultView(primaryKey:string){
+ return originalRegistrationView(primaryKey,resultKeys,resultFields)
+}
+
+/** 丢回执后按原请求回读，无登记证据保持待确认。 */
+export async function readBidFindingRegistrationResult(
+ host:Parameters<typeof prepareRegisteredBidFinding>[0],
+ input:Readonly<{checkRef:string;requestKey:string;requestDigest:string}>){
+ const {projectId}=host,{checkRef,requestKey,requestDigest}=input
+ const resultError='REVIEW_FINDING_REGISTRATION_RESULT_SCOPE'
+ host.assertCurrent()
+ if(![projectId,checkRef,requestKey].every(identity)||!/^[a-f0-9]{64}$/u.test(requestDigest))throw Error(resultError)
+ const read=await readOriginalRegistrationView(host,{model:'CheckFinding',viewName:'originalFindingRegistration'},
+  {projectId,checkRef,requestKey})
+ if(!read.row)return Object.freeze({state:'UNKNOWN' as const,assertCurrent:read.assertCurrent})
+ const assertCurrent=read.captureFields(resultFields)
+ assertCurrent()
+ const {id:registrationRef,findingId}=read.row
+ if(read.row['requestDigest']!==requestDigest||!identity(registrationRef)||(findingId!==null&&!identity(findingId)))throw Error(resultError)
+ return Object.freeze({state:'REGISTERED' as const,registrationRef,findingId,assertCurrent})
+}

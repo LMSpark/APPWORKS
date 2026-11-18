@@ -9,6 +9,17 @@ async function openBidFindingRegistration() {
   if (!bindBidFindingRegistration().visible) return
   const {findingCheckRef: checkRef, findingRegistrationKey: requestKey} = $route.query
   try {
+    const requestDigestFromRoute = $route.query.findingRegistrationDigest
+    if (requestDigestFromRoute !== undefined) {
+      const original = await $page.invokeHostCommand('bid.tasks.readFindingRegistration',
+        {checkRef, requestKey, requestDigest: requestDigestFromRoute})
+      original.assertCurrent()
+      const detail = original.state === 'REGISTERED'
+        ? `原登记 ${original.registrationRef} · ${original.findingId ? `问题 ${original.findingId}` : '零问题覆盖'}`
+        : '原登记结果待确认'
+      await $page.showAlert(detail, '原问题登记结果')
+      return
+    }
     const result = await $page.invokeHostCommand('bid.tasks.prepareFindingRegistration', {checkRef, requestKey})
     result.assertCurrent()
     const {record, requestDigest} = result

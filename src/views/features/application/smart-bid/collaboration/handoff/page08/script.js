@@ -56,7 +56,9 @@ async function openBidProjectScope() {
   try {
     const result = await $page.invokeHostCommand('bid.project.readScope', {})
     result.assertCurrent()
-    const pointer = (id, state) => id === null ? '尚未形成' : `${id} · ${state === 'VERIFIED' ? '已核原记录' : state === 'STAGE_MISMATCH' ? '原阶段不符，恢复待核' : '缺原记录，恢复待核'}`
+    const pointerStates = {VERIFIED: '已核原记录', STAGE_MISMATCH: '原阶段不符，恢复待核',
+      MISSING: '缺原记录，恢复待核', UNVERIFIED: '原记录无法核验，恢复待核'}
+    const pointer = (id, state) => id === null ? '尚未形成' : `${id} · ${pointerStates[state]}`
     const lines = result.state === 'REGISTERED' ? [
       `编制项目 ${result.projectId}`,
       `阶段引用 ${result.stageRefs.join('、') || '待补'}`,

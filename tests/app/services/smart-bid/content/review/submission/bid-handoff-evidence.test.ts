@@ -110,10 +110,12 @@ it('keeps responsibility with the original assignee until the current version is
     Items:[{...baselineRow,id:'PREVIOUS-BASELINE',stageRef:fixedStage,lingma_sys_params:proof}]}}}),
   })})
   const headTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContentRevision'})
-  head.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
-   identity:headTable.identity,scope:'head',readScope:()=> 'head',
-   snapshot:headTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[{...headRow,lingma_sys_params:proof}]}}}),
-  })})
+  let headUnavailable=false
+  head.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},async executeQuery(){
+   if(headUnavailable)throw Error('TEST_HEAD_QUERY_UNAVAILABLE')
+   return new DataSpaceQueryContext({identity:headTable.identity,scope:'head',readScope:()=> 'head',
+    snapshot:headTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[{...headRow,lingma_sys_params:proof}]}}})})
+  }})
   const host={scenarioId:'S',projectId:'P',runtime:{resolveView:(key:string)=>key==='S@BidHandoff@originalHandoff'?view:
    key==='S@BidHandoff@previousHandoff'?previousView:key==='S@ContentProject@originalProjectScope'?projectView:
     key==='S@Baseline@originalProjectBaseline'?baseline:key==='S@ContentRevision@originalProjectHead'?head:key==='S@Baseline@originalHeadBaseline'?fixedBaseline:undefined},
@@ -162,6 +164,10 @@ it('keeps responsibility with the original assignee until the current version is
   expect(recovered).toMatchObject({headBaselineState:'VERIFIED'})
   await fixedBaseline.refresh()
   expect(()=>recovered.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  headUnavailable=true
+  await openBidProjectScope()
+  expect(showAlert).toHaveBeenLastCalledWith(
+   '编制项目 P\n阶段引用 STAGE-1\n原正文头 HEAD · 原记录无法核验，恢复待核\n激活基线 BASELINE · 已核原记录\n激活基线阶段 STAGE-1','原编制项目范围')
   projectExists=false
   await openBidProjectScope()
   expect(showAlert).toHaveBeenLastCalledWith('当前项目范围登记待确认','原编制项目范围')

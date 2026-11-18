@@ -334,7 +334,7 @@ if (
         existingManifest,
         existingSemanticReport,
         result,
-        changedSourcePaths: incrementalPlan.changedSourcePaths,
+        replacedSourcePaths: [...incrementalPlan.changedSourcePaths, ...incrementalPlan.removedSourcePaths],
       })
     : targetedBuild === undefined
       ? result
@@ -995,7 +995,7 @@ function declaresNamedSymbol(node, symbolName) {
 function mergeChangedBundle(command) {
   const existingManifestPath = resolve(command.outputDir, 'manifest.json')
   const existingSemanticJsonPath = resolve(command.outputDir, 'semantic-gaps.json')
-  const targetSourcePaths = normalizeBundleManifestSourcePathSet(command.changedSourcePaths)
+  const targetSourcePaths = normalizeBundleManifestSourcePathSet(command.replacedSourcePaths)
   const mergedManifest = mergeBundleManifest({
     outputDir: command.outputDir,
     existingManifest: command.existingManifest,

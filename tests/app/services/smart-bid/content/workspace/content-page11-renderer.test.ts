@@ -22,7 +22,8 @@ function draftNodes(draft:unknown):unknown[]{
  return draft['nodes']
 }
 
-it.each([[false,'id'],[true,'draftId']] as const)('renders the three-file tool with optional authenticated editing (%s) and primary key %s',async (editable,primaryKey)=>{
+it.each([[false,false,'id'],[false,true,'draftId'],[true,true,'draftId']] as const)(
+ 'renders the three-file tool with edit permission %s, authenticated host %s and primary key %s',async (editable,hasHost,primaryKey)=>{
  const scenarioId='D3BBA1F0780056C837AC35E9825CAD5A'
  const nodes=[{nodeId:'B',parentId:'P',index:0,type:'document',class:[],value:'',data:{}},
   {nodeId:'C',parentId:'B',index:0,type:'chapter',class:[],value:'',data:{}},
@@ -64,10 +65,11 @@ it.each([[false,'id'],[true,'draftId']] as const)('renders the three-file tool w
  const runtime=new PageRuntime({tool,scenarioIds:[scenarioId],loadScenario:async()=>ds})
  await runtime.load()
  const binding={runtime,dataViewKey:`${scenarioId}@WorkingDraft@personalDraft`,projectId:'P',draftId:'D',actorUserId:'U',assertCurrent:()=>{},setPending:vi.fn()}
- const commands=editable?new ContentAuthoringCommands(binding):undefined
+ const commands=hasHost?new ContentAuthoringCommands(binding):undefined
  const host=commands?createContentAuthoringScriptHost(binding,commands):undefined
  if(host){
   const session=host.invoke('content.authoring.connect',undefined,new AbortController().signal)
+  expect(session.canEditDraft).toBe(editable)
   const obligations=await session.readVolumePlanningObligations()
   expect(obligations).toMatchObject({baselineId:'ACTIVE',obligations:[{obligationRef:'O',sourceRef:'SOURCE',kind:'DOCUMENT'}]})
   const head=await session.readCurrentHead()
@@ -94,6 +96,7 @@ it.each([[false,'id'],[true,'draftId']] as const)('renders the three-file tool w
   await flushPromises()
   expect(errors).not.toHaveBeenCalled()
   expect(wrapper.text()).toContain('标书正文编制');expect(wrapper.text()).toContain('实施方案')
+  if(hasHost&&!editable)expect(wrapper.text()).toContain('当前草稿仅可查看')
   const identityField=wrapper.findAll('.el-form-item').find(item=>item.text().includes('工作草稿'))
   if(!identityField)throw Error('工作草稿标识未渲染')
   expect(identityField.text().includes('D')||identityField.findAll('input').some(input=>input.element.value==='D')).toBe(true)

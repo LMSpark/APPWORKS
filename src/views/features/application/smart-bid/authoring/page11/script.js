@@ -480,7 +480,7 @@ function bindSelectedNode() {
   try {
     originalDraft()
     if (selectedPath === null) return {visible: false}
-    if (editorSession) return editorSession.editorProps(selectedPath)
+    if (editorSession?.canEditDraft) return editorSession.editorProps(selectedPath)
     return {valuePath: ['nodes', ...selectedPath]}
   } catch {return {visible: false}}
 }

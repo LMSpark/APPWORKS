@@ -6,6 +6,7 @@ import {createMemoryHistory,createRouter} from 'vue-router'
 import {defineComponent,h} from 'vue'
 import {ContentAuthoringCommands} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands'
 import {createContentAuthoringScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host'
+import {prepareDraftCandidateRequest} from '@/services/smart-bid/content/draft/content-draft-candidate-request'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {isRecord} from '@spark-appworks/spark-utils'
@@ -57,8 +58,18 @@ it('captures the saved draft for candidacy and withdraws it when edits start',as
   const captured=await f.commands.captureCandidateDraft(f.commands.epoch)
   expect(captured).toMatchObject({projectId:'P',draftId:'D',actorUserId:'U',draftVersion:'V1',baseRevisionId:'BASE',
    draftJson:'{"nodes":[],"responseChanges":[]}',contentDigest:expect.stringMatching(/^[a-f0-9]{64}$/u)})
+  const basis={projectId:'P',revisionId:'BASE',baselineId:'B',stageRef:'ST',basisNodes:[],responses:[],assertCurrent:()=>{}}
+  const input={requestKey:'CANDIDATE',targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]}}
+  const candidate=await prepareDraftCandidateRequest(captured,basis,input)
+  expect(candidate).toMatchObject({draftVersion:'V1',baseRevisionId:'BASE',baselineId:'B',
+   contentDigest:captured.contentDigest,requestDigest:expect.stringMatching(/^[a-f0-9]{64}$/u)})
+  expect(candidate.requestJson).toContain('"targetScope":{"projectId":"P","schemaVersion":2,"targets":[{"kind":"PROJECT"}]}')
+  await expect(prepareDraftCandidateRequest(captured,{...basis,revisionId:'OTHER'},input)).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_SCOPE')
+  await expect(prepareDraftCandidateRequest({...captured,contentDigest:'0'.repeat(64)},basis,input))
+   .rejects.toThrow('CONTENT_DRAFT_CANDIDATE_DIGEST')
   f.commands.run(add,f.commands.epoch)
   expect(()=>captured.assertCurrent()).toThrow()
+  expect(()=>candidate.assertCurrent()).toThrow()
   await expect(f.commands.captureCandidateDraft(f.commands.epoch)).rejects.toThrow('CONTENT_CANDIDATE_DRAFT_UNSAVED')
   expect(f.save).not.toHaveBeenCalled()
  }finally{f.runtime.dispose()}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1342,
+  "scannedFileCount": 1348,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17411,6 +17411,19 @@
         "symbols": []
       }
     },
+    "src/services/smart-bid/content/calculation/calculation-inputs-hash.ts": {
+      "file": "files/src/services/smart-bid/content/calculation/calculation-inputs-hash.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/calculation/calculation-inputs-hash",
+        "sourcePath": "src/services/smart-bid/content/calculation/calculation-inputs-hash.ts",
+        "sourceFile": "src/services/smart-bid/content/calculation/calculation-inputs-hash.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/calculation/calculation-inputs-hash",
+        "jsdoc": "@module app:services/smart-bid/content/calculation/calculation-inputs-hash\n职责：固定计算表生成器和已核业务输入，形成单表及审核范围摘要。\n边界：原表、填写说明、响应核定和版本归属由输入来源核验；不展开、回填或固化生成结果。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/calculation/calculation-table-expansion.ts": {
       "file": "files/src/services/smart-bid/content/calculation/calculation-table-expansion.ts.json",
       "module": {
@@ -17564,19 +17577,6 @@
           "ContentTextSelection",
           "VerifiedContentTextSpan"
         ]
-      }
-    },
-    "src/services/smart-bid/content/hashes/calculation-inputs-hash.ts": {
-      "file": "files/src/services/smart-bid/content/hashes/calculation-inputs-hash.ts.json",
-      "module": {
-        "name": "app:services/smart-bid/content/hashes/calculation-inputs-hash",
-        "sourcePath": "src/services/smart-bid/content/hashes/calculation-inputs-hash.ts",
-        "sourceFile": "src/services/smart-bid/content/hashes/calculation-inputs-hash.ts",
-        "packageName": "app",
-        "modulePath": "services/smart-bid/content/hashes/calculation-inputs-hash",
-        "jsdoc": "@module app:services/smart-bid/content/hashes/calculation-inputs-hash\n职责：固定计算表生成器和已核业务输入，形成单表及审核范围摘要。\n边界：原表、填写说明、响应核定和版本归属由输入来源核验；不展开、回填或固化生成结果。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
       }
     },
     "src/services/smart-bid/content/hashes/content-effective-hash.ts": {
@@ -17876,6 +17876,32 @@
         "packageName": "app",
         "modulePath": "services/smart-bid/content/references/template-content-rules",
         "jsdoc": "@module app:services/smart-bid/content/references/template-content-rules\n职责：按节点实际选中的固定模板类解析角色和可交付性。\n边界：无显式可交付值时消费原规则提供的默认值；不继承版式字段所用的 basedOn。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/review-check-evidence.ts": {
+      "file": "files/src/services/smart-bid/content/review/review-check-evidence.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/review-check-evidence",
+        "sourcePath": "src/services/smart-bid/content/review/review-check-evidence.ts",
+        "sourceFile": "src/services/smart-bid/content/review/review-check-evidence.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/review-check-evidence",
+        "jsdoc": "@module app:services/smart-bid/content/review/review-check-evidence\n职责：从原检查覆盖和核查问题投影动作45可消费的检查证据。\n边界：原检查读取负责权限及完整计数；空问题不能代替已完成覆盖。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/review-coverage.ts": {
+      "file": "files/src/services/smart-bid/content/review/review-coverage.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/review-coverage",
+        "sourcePath": "src/services/smart-bid/content/review/review-coverage.ts",
+        "sourceFile": "src/services/smart-bid/content/review/review-coverage.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/review-coverage",
+        "jsdoc": "@module app:services/smart-bid/content/review/review-coverage\n职责：逐项比较动作45的本轮审定范围、原批准与阻断检查。\n边界：输入来自授权读取；只确定覆盖及差距，不批准或保存。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -19154,6 +19180,58 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader\n职责：一次查询同范围实际使用的固定事实版本并生成原依赖摘要。\n边界：不抓取全项目事实，不核本次用途，不写入。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/content-approval-coverage.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-approval-coverage.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/content-approval-coverage",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-approval-coverage.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-approval-coverage.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-approval-coverage",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-approval-coverage\n职责：按原判定记录将批准映射到实际审定的文件和平台栏。\n边界：判定读取方核批准时的授权、原范围及结果；本函数不推断整标批准涵盖哪些事项。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/content-approval-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-approval-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/content-approval-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-approval-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-approval-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-approval-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-approval-reader\n职责：按项目和原批准 ID 读取动作45的固定 Approval 记录。\n边界：不选最近批准、不判断当前用途、不推断项目批准所覆盖的平台栏。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader\n职责：用固定审定范围、原批准及本次检查证明读取动作45覆盖结果。\n边界：只组合原证据；检查写入、审定决策及交付放行由原业务动作负责。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/content-review-findings-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-review-findings-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/content-review-findings-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-review-findings-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-findings-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-review-findings-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-review-findings-reader\n职责：批读固定目标及检查器版本的原 CheckFinding 记录。\n边界：零问题只证明查询结果为零；已完成检查及用途许可仍由独立原记录证明。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

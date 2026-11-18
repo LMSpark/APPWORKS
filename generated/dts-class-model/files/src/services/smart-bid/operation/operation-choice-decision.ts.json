@@ -57,9 +57,9 @@
         "state": {
           "enum": [
             "CURRENT",
+            "STALE",
             "PENDING",
-            "MISSING",
-            "STALE"
+            "MISSING"
           ]
         },
         "value": {

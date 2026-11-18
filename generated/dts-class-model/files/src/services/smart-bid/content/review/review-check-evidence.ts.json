@@ -1,0 +1,313 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/review-check-evidence",
+    "sourcePath": "src/services/smart-bid/content/review/review-check-evidence.ts",
+    "sourceFile": "src/services/smart-bid/content/review/review-check-evidence.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/review-check-evidence",
+    "jsdoc": "@module app:services/smart-bid/content/review/review-check-evidence\n职责：从原检查覆盖和核查问题投影动作45可消费的检查证据。\n边界：原检查读取负责权限及完整计数；空问题不能代替已完成覆盖。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Check": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Check",
+      "properties": {
+        "kind": {
+          "enum": [
+            "FILE",
+            "FIELD"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "effectiveHash": {
+          "type": "string"
+        },
+        "versionHash": {
+          "type": "string"
+        },
+        "checkRef": {
+          "type": "string"
+        },
+        "openBlockerIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "checkedUses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "useCheckRef": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "useCheckRef"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "targetId",
+        "effectiveHash",
+        "versionHash",
+        "checkRef",
+        "openBlockerIds",
+        "checkedUses"
+      ],
+      "additionalProperties": false
+    },
+    "CompletedCheck": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CompletedCheck",
+      "properties": {
+        "kind": {
+          "enum": [
+            "FILE",
+            "FIELD"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "effectiveHash": {
+          "type": "string"
+        },
+        "versionHash": {
+          "type": "string"
+        },
+        "checkRef": {
+          "type": "string"
+        },
+        "checkedUses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "useCheckRef": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "useCheckRef"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "targetId",
+        "effectiveHash",
+        "versionHash",
+        "checkRef",
+        "checkedUses"
+      ],
+      "additionalProperties": false
+    },
+    "Finding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Finding",
+      "properties": {
+        "kind": {
+          "enum": [
+            "FILE",
+            "FIELD"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "effectiveHash": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "BLOCK",
+            "CONFIRM",
+            "HINT"
+          ]
+        },
+        "status": {
+          "enum": [
+            "OPEN",
+            "RESOLVED",
+            "WAIVED",
+            "STALE"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "targetId",
+        "effectiveHash",
+        "id",
+        "severity",
+        "status"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T01:58:59.192Z",
+  "models": {
+    "Check": {
+      "name": "Check",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof compareReviewCoverage>[0]['checks'][number]",
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "effectiveHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "versionHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "checkRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "openBlockerIds",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "checkedUses",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "CompletedCheck": {
+      "name": "CompletedCheck",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<Check, 'openBlockerIds'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Omit<Check, 'openBlockerIds'>",
+            "targetName": "Omit"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "effectiveHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "versionHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "checkRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "checkedUses",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Finding": {
+      "name": "Finding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Check, 'kind' | 'targetId' | 'effectiveHash'> & Readonly<{\n    id: string;\n    severity: 'BLOCK' | 'CONFIRM' | 'HINT';\n    status: 'OPEN' | 'RESOLVED' | 'WAIVED' | 'STALE';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Pick<Check, 'kind' | 'targetId' | 'effectiveHash'>",
+            "targetName": "Pick"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    id: string;\n    severity: 'BLOCK' | 'CONFIRM' | 'HINT';\n    status: 'OPEN' | 'RESOLVED' | 'WAIVED' | 'STALE';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "severity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

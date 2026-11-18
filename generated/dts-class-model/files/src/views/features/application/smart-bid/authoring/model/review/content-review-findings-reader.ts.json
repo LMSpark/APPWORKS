@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/content-review-findings-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-review-findings-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-findings-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/content-review-findings-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-review-findings-reader\n职责：批读固定目标及检查器版本的原 CheckFinding 记录。\n边界：零问题只证明查询结果为零；已完成检查及用途许可仍由独立原记录证明。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "FindingSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FindingSelection",
+      "properties": {
+        "targetHash": {
+          "type": "string"
+        },
+        "checkerHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "targetHash",
+        "checkerHash"
+      ],
+      "additionalProperties": false
+    },
+    "ReviewFinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReviewFinding",
+      "properties": {
+        "kind": {
+          "enum": [
+            "FILE",
+            "FIELD"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "effectiveHash": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "BLOCK",
+            "CONFIRM",
+            "HINT"
+          ]
+        },
+        "status": {
+          "enum": [
+            "OPEN",
+            "RESOLVED",
+            "WAIVED",
+            "STALE"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "targetId",
+        "effectiveHash",
+        "id",
+        "severity",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "CompletedCoverage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CompletedCoverage",
+      "properties": {
+        "kind": {
+          "enum": [
+            "FILE",
+            "FIELD"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "effectiveHash": {
+          "type": "string"
+        },
+        "versionHash": {
+          "type": "string"
+        },
+        "checkRef": {
+          "type": "string"
+        },
+        "checkedUses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "useCheckRef": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "useCheckRef"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "targetHash": {
+          "type": "string"
+        },
+        "checkerHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "targetId",
+        "effectiveHash",
+        "versionHash",
+        "checkRef",
+        "checkedUses",
+        "targetHash",
+        "checkerHash"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T02:06:53.012Z",
+  "models": {
+    "FindingSelection": {
+      "name": "FindingSelection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    targetHash: string;\n    checkerHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    targetHash: string;\n    checkerHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "targetHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "checkerHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ReviewFinding": {
+      "name": "ReviewFinding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof projectReviewChecks>[1][number]",
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "effectiveHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "severity",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "CompletedCoverage": {
+      "name": "CompletedCoverage",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof projectReviewChecks>[0][number] & FindingSelection",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Parameters<typeof projectReviewChecks>[0][number]"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "FindingSelection",
+            "targetName": "FindingSelection"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "effectiveHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "versionHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "checkRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "checkedUses",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "checkerHash",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

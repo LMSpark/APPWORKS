@@ -16,7 +16,7 @@ export function producedFileScenarioViews(){
  })
  return {
   selectedPaperRegistration:view([['projectId','projectId'],['paperRef','paperRef'],['revisionId','revisionId']],
-   ['id','projectId','paperRef','revisionId','copies']),
+   ['id','projectId','paperRef','revisionId','copies','documentId','requestKey','inputDigest','productionRequestRef','witnessRef']),
   originalExportRegistration:view([['projectId','projectId'],['requestKey','requestKey'],['outputRef','outputRef']],
    [...originalFileFields,'requestKey','outputRef','inputDigest']),
   originalSignedRegistration:view([['projectId','projectId'],['signatureOperationRef','signatureOperationRef'],['signedObjectRef','signedObjectRef']],

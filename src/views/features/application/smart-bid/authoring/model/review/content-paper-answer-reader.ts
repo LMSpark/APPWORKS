@@ -7,6 +7,7 @@
 import {buildDataViewKey,type DataView,type ViewMetadata} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
+import type {preparePaperOutputRegistration} from '@/services/smart-bid/content/review/production/paper-output-registration'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 
@@ -31,11 +32,13 @@ const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='AnswerLo
   hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
 
 /** 从正式纸件登记中取观察指定的份次和页标识。 */
-export async function readRegisteredPaperCopy(host:ContentRevisionReadHost,scope:PaperScope):Promise<RegisteredPaper>{
- const {projectId,paperRef,copyRef,revisionId}=scope
+export async function readPaperRegistration(host:ContentRevisionReadHost,scope:Omit<PaperScope,'copyRef'>,
+ prepared?:ReturnType<typeof preparePaperOutputRegistration>){
+ const {projectId,paperRef,revisionId}=scope
  const error='CONTENT_PAPER_ANSWER_SCOPE'
  host.assertCurrent()
- if(projectId!==host.projectId||![projectId,paperRef,copyRef,revisionId,host.scenarioId].every(identity))throw Error(error)
+ prepared?.assertCurrent()
+ if(projectId!==host.projectId||![projectId,paperRef,revisionId,host.scenarioId].every(identity))throw Error(error)
  const context={projectId,paperRef,revisionId}
  const key=buildDataViewKey('ProducedFile','selectedPaperRegistration',host.scenarioId)
  const view=host.runtime.resolveView(key)
@@ -46,23 +49,44 @@ export async function readRegisteredPaperCopy(host:ContentRevisionReadHost,scope
  view.queryContext={...view.queryContext,...context}
  const assertScope=()=>{
   host.assertCurrent()
+  prepared?.assertCurrent()
   if(host.runtime.resolveView(key)!==view||!validRegistration(view)||view.loadingError||view.hasEditingChanges()||
    Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('CONTENT_PAPER_REGISTRATION_STALE')
  }
  await view.refresh()
  assertScope()
  const row=view.rows[0]
- if(!row||!hasCompleteSingleContentResult(view))throw Error('CONTENT_PAPER_REGISTRATION_NOT_UNIQUE')
- const assertResult=view.captureReadResult(),assertRow=view.captureReadRow(row,[...Object.keys(context),'id','copies'])
+ if(view.countReported!==true||view.total!==view.rows.length||view.nextPageAvailable===true||view.rows.length>1)
+  throw Error('CONTENT_PAPER_REGISTRATION_NOT_UNIQUE')
+ const assertResult=view.captureReadResult()
+ if(!row)return Object.freeze({state:'UNKNOWN' as const,assertCurrent:()=>{assertScope();assertResult()}})
+ const originFields=['documentId','requestKey','inputDigest','productionRequestRef','witnessRef'] as const
+ const assertRow=view.captureReadRow(row,[...Object.keys(context),'id','copies',...(prepared?originFields:[])])
  const {id,copies}=row
  if(!identity(id)||!Array.isArray(copies)||Object.entries(context).some(([field,value])=>row[field]!==value))throw Error(error)
- const matches=(copies as unknown[]).filter(copy=>isRecord(copy)&&copy['copyRef']===copyRef)
- const copy=matches[0]
- if(matches.length!==1||!isRecord(copy)||!Array.isArray(copy['pageRefs']))throw Error(error)
- const pages:unknown[]=copy['pageRefs']
- if(!pages.length||!pages.every(identity)||new Set(pages).size!==pages.length)throw Error(error)
- return Object.freeze({...scope,registrationRef:id,pageRefs:Object.freeze([...pages]),
+ const copyRefs=new Set<string>()
+ const registeredCopies=(copies as unknown[]).map(copy=>{
+  if(!isRecord(copy)||!identity(copy['copyRef'])||copyRefs.has(copy['copyRef'])||!Array.isArray(copy['pageRefs']))throw Error(error)
+  const pages:unknown[]=copy['pageRefs']
+  if(!pages.length||!pages.every(identity)||new Set(pages).size!==pages.length)throw Error(error)
+  copyRefs.add(copy['copyRef'])
+  return Object.freeze({copyRef:copy['copyRef'],pageRefs:Object.freeze([...pages])})
+ })
+ if(!registeredCopies.length)throw Error(error)
+ if(prepared&&(originFields.some(field=>row[field]!==prepared.record[field])||
+  canonicalSnapshotValue(registeredCopies)!==canonicalSnapshotValue(prepared.record.copies)))
+  throw Error('CONTENT_PAPER_REGISTRATION_CONFLICT')
+ return Object.freeze({state:'REGISTERED' as const,registrationRef:id,copies:Object.freeze(registeredCopies),
   assertCurrent:()=>{assertScope();assertResult();assertRow()}})
+}
+
+/** 观察必须关联已登记的指定份次。 */
+export async function readRegisteredPaperCopy(host:ContentRevisionReadHost,scope:PaperScope):Promise<RegisteredPaper>{
+ const registration=await readPaperRegistration(host,scope)
+ if(registration.state==='UNKNOWN')throw Error('CONTENT_PAPER_REGISTRATION_NOT_UNIQUE')
+ const copy=registration.copies.find(item=>item.copyRef===scope.copyRef)
+ if(!copy)throw Error('CONTENT_PAPER_ANSWER_SCOPE')
+ return Object.freeze({...scope,registrationRef:registration.registrationRef,pageRefs:copy.pageRefs,assertCurrent:registration.assertCurrent})
 }
 
 /** 原登记给实际纸件和份次，观察视图给其原版位置与值。 */

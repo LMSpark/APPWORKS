@@ -1,4 +1,8 @@
 import {expect,it} from 'vitest'
+import {DataSet} from '@spark-appworks/spark-data'
+import {producedFileScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
+import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {prepareProductionRequest} from '@/services/smart-bid/content/review/production/production-request'
 import {prepareExportRegistration} from '@/services/smart-bid/content/review/production/production-output-registration'
 import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-hash'
@@ -22,16 +26,34 @@ it('matches numbered paper copies and page order against independent observation
   copies:[{copyRef:'C1',pageRefs:['P1','P2']},{copyRef:'C2',pageRefs:['P1','P2']}]}
  const observed={...paper,complete:true,witnessRef:'W'}
  const unused=async()=>{throw Error('UNEXPECTED_REVIEW_CALL')}
- const host=createContentReviewScriptHost({resolveView:()=>undefined,generation:1,isLoaded:true,destroyed:false},
-  {scenarioId:'S',projectId:'P',assertCurrent:()=>{}},{readSelection:unused,readField:unused,readDecision:unused,
-   readCompleted:unused,openFile:unused,readPaperRegistrationSelection:async()=>({selectionRef:'PAPER-REF',prepared,paper,observed})})
- const controller=new AbortController()
- const command='content.review.preparePaperRegistration'
- await expect(host.invoke(command,{selectionRef:'OTHER'},controller.signal)).rejects.toThrow('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
- const result=await host.invoke(command,{selectionRef:'PAPER-REF'},controller.signal)
- expect(result).toMatchObject({record:{paperRef:'PAPER',witnessRef:'W',copies:paper.copies}})
- controller.abort()
- expect(()=>result.assertCurrent()).toThrow('CONTENT_REVIEW_PAGE_STALE')
+ const row={...preparePaperOutputRegistration(prepared,paper,observed).record,id:'REG'}
+ const ds=DataSet.fromJson({scenarioId:'S',tables:{ProducedFile:{
+  modelBinding:{modelName:'ProducedFile',modelId:'PAPER-M'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},selectedPaperRegistration:producedFileScenarioViews().selectedPaperRegistration},
+ }}})
+ try{
+  const view=ds.getView('ProducedFile','selectedPaperRegistration')!
+  const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ProducedFile'})
+  let found=false
+  view.bindQueryExecutor({save:unused,executeQuery:async()=>new DataSpaceQueryContext({
+   identity:table.identity,scope:'p',readScope:()=> 'p',snapshot:table.applyResult({Result:{primaryKeyField:'id',
+    data:{Count:found?1:0,Items:found?[{...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]:[]}}}),
+  })})
+  const host=createContentReviewScriptHost({resolveView:()=>view,generation:1,isLoaded:true,destroyed:false},
+   {scenarioId:'S',projectId:'P',assertCurrent:()=>{}},{readSelection:unused,readField:unused,readDecision:unused,
+    readCompleted:unused,openFile:unused,readPaperRegistrationSelection:async()=>({selectionRef:'PAPER-REF',prepared,paper,observed})})
+  const controller=new AbortController()
+  const command='content.review.preparePaperRegistration'
+  await expect(host.invoke(command,{selectionRef:'OTHER'},controller.signal)).rejects.toThrow('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
+  const result=await host.invoke(command,{selectionRef:'PAPER-REF'},controller.signal)
+  expect(result).toMatchObject({registrationRef:null,record:{paperRef:'PAPER',witnessRef:'W',copies:paper.copies}})
+  found=true
+  await expect(host.invoke(command,{selectionRef:'PAPER-REF'},controller.signal)).resolves.toMatchObject({registrationRef:'REG'})
+  row.witnessRef='OTHER'
+  await expect(host.invoke(command,{selectionRef:'PAPER-REF'},controller.signal)).rejects.toThrow('CONTENT_PAPER_REGISTRATION_CONFLICT')
+  controller.abort()
+  expect(()=>result.assertCurrent()).toThrow('CONTENT_REVIEW_PAGE_STALE')
+ }finally{ds.destroy()}
  expect(preparePaperOutputRegistration(prepared,paper,observed).record).toMatchObject({paperRef:'PAPER',witnessRef:'W',copies:paper.copies})
  expect(()=>preparePaperOutputRegistration(prepared,paper,{...observed,copies:paper.copies.slice(0,1)}))
   .toThrow('BID_PAPER_OUTPUT_COPIES')

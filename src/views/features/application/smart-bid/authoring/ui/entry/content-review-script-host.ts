@@ -10,7 +10,7 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {readContentReviewWorkspace} from '../../model/review/content-review-workspace'
 import {readPlatformFieldObservation} from '../../model/review/content-platform-field-review'
 import {compareApprovedFileAnswer,readRegisteredFileAnswer,verifyOriginalFormFileAnswer} from '../../model/review/content-file-answer-reader'
-import {readRegisteredPaperAnswer,readRegisteredPaperCopy} from '../../model/review/content-paper-answer-reader'
+import {readPaperRegistration,readRegisteredPaperAnswer,readRegisteredPaperCopy} from '../../model/review/content-paper-answer-reader'
 import {recoverProductionRequest} from '@/services/smart-bid/content/review/production/production-recovery'
 import {readCompletedProductionFiles} from '../../model/review/content-produced-file-review'
 import {readOriginalExportRegistration,readOriginalSignedRegistration} from '../../model/review/production/production-registration-reader'
@@ -76,7 +76,9 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
     if(selection.selectionRef!==selectionRef||selection.prepared.request.projectId!==scope.projectId)
      throw Error('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
     const prepared=preparePaperOutputRegistration(selection.prepared,selection.paper,selection.observed)
-    return Object.freeze({...prepared,assertCurrent:()=>{assertCurrent();prepared.assertCurrent()}})
+    const original=await readPaperRegistration({...scope,runtime,assertCurrent},prepared.record,prepared)
+    return Object.freeze({...prepared,registrationRef:original.state==='REGISTERED'?original.registrationRef:null,
+     assertCurrent:original.assertCurrent})
    }
    if(name==='content.review.prepareSignedRegistration'&&sources.readSignedRegistrationSelection){
     const selection=await sources.readSignedRegistrationSelection(selectionRef,signal)

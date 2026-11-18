@@ -23,7 +23,8 @@ async function openPaperRegistration() {
     result.assertCurrent()
     const {record} = result
     const copies = record.copies.map(copy => `份次 ${copy.copyRef} · ${copy.pageRefs.length} 页`)
-    await $page.showAlert([`纸件 ${record.paperRef} · 清点凭据 ${record.witnessRef}`, ...copies].join('\n'), '纸件登记前核验')
+    const status = result.registrationRef ? `原登记 ${result.registrationRef}` : '待登记'
+    await $page.showAlert([`纸件 ${record.paperRef} · 清点凭据 ${record.witnessRef}`, ...copies, status].join('\n'), '纸件登记前核验')
   } catch {
     $page.showMessage('纸件份数、页序或原印制凭据无法核验', 'warning')
   }

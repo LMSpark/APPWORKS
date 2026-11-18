@@ -83,6 +83,18 @@ it('reads only the scoped original approval and rejects mismatched or concealed 
   await expect(readRegisteredApprovedPrice(host,{...target,rateOnly:false},evidence)).resolves.toMatchObject({
    original:'APPROVED',use:'PENDING',value:'1.00',detailRef:'DETAIL',
   })
+  sheetHidden=[]
+  const unavailable:EvidenceReader=async()=>{throw Error('USE_SOURCE_UNAVAILABLE')}
+  await expect(readRegisteredApprovedPrice(host,{...target,rateOnly:false},unavailable)).resolves.toMatchObject({
+   original:'APPROVED',use:'PENDING',value:'1.00',detailStatus:'MATCHED',
+  })
+  const scopeLost=new AbortController()
+  const stopped=createApprovedPriceScriptHost(host.runtime,{...host,purposeRef:'BID',rateOnly:false},async()=>{
+   scopeLost.abort()
+   throw Error('USE_SOURCE_UNAVAILABLE')
+  })
+  await expect(stopped.invoke('bid.response.readApprovedPrice',{approvalRef:'A',version:'V1'},scopeLost.signal))
+   .rejects.toThrow('BID_APPROVED_PRICE_PAGE_STALE')
  }finally{ds.destroy()}
 })
 

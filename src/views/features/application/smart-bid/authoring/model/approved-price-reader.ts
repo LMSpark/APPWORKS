@@ -40,7 +40,13 @@ export async function readRegisteredApprovedPrice(
   typeof originalRateOnly!=='boolean')throw Error('BID_APPROVED_PRICE_EVIDENCE')
  const approval=Object.freeze({scopeRef:request.scopeRef,approvalRef,version,
   approverRef,value,unit,detailRef,rateOnly:originalRateOnly,assertCurrent:assertOriginal})
- const evidence=await readEvidence(request,approval)
+ let evidence:ReviewEvidence|undefined
+ try{
+  evidence=await readEvidence(request,approval)
+ }catch{
+  // 准用证据缺失时只保留原批准，不推导本次准用。
+  assertOriginal()
+ }
  assertOriginal()
  let detailRead:Awaited<ReturnType<typeof readRegisteredApprovedPriceDetail>>|undefined
  if(identity(detailRef)&&identity(pricingVersion)){
@@ -51,8 +57,8 @@ export async function readRegisteredApprovedPrice(
    assertOriginal()
   }
  }
- const assertCurrent=()=>{assertOriginal();evidence.assertCurrent();detailRead?.assertCurrent()}
+ const assertCurrent=()=>{assertOriginal();evidence?.assertCurrent();detailRead?.assertCurrent()}
  const detail=detailRead?.state==='READ'?detailRead.detail:undefined
- const {use,findings}=evidence
+ const use=evidence?.use,findings=evidence?.findings
  return reviewApprovedPrice(request,{approval,assertCurrent,...(detail?{detail}:{}),...(use?{use}:{}),...(findings?{findings}:{})})
 }

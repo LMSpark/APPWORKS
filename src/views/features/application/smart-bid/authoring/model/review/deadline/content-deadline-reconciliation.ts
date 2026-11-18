@@ -8,9 +8,28 @@ import {reconcileDeadlinePackageMembers} from './content-deadline-package-reconc
 import {reconcileSubmissionReceiptEffects} from '@/services/smart-bid/content/review/submission/submission-receipt-effects'
 import {projectSubmissionOpeningDisposition} from '@/services/smart-bid/content/review/submission/submission-opening-disposition'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import type {prepareTenderFollowupNotice} from '@/services/smart-bid/content/references/followup/tender-followup-notice'
 
 type FieldSource=Parameters<typeof reconcileDeadlineFieldValues>[0]
 type PackageSource=Parameters<typeof reconcileDeadlinePackageMembers>[0]
+
+/** 来件中的包引用只在已核截止组合唯一指出原实包时配对。 */
+export function matchFollowupNoticeToDeadlinePackage(notice:Readonly<{
+ record:Pick<Awaited<ReturnType<typeof prepareTenderFollowupNotice>>['record'],'projectId'|'lotId'|'roundId'|'subjectId'|'originalObjectRef'>
+ assertCurrent:()=>void
+}>,
+ delivery:ReturnType<typeof reconcileDeadlineDelivery>){
+ const assertCurrent=()=>{notice.assertCurrent();delivery.assertCurrent()}
+ assertCurrent()
+ const {projectId,lotId,roundId,subjectId,originalObjectRef}=notice.record
+ if(projectId!==delivery.scope.projectId||lotId!==delivery.scope.lotId||roundId!==delivery.roundId||subjectId!==delivery.scope.subjectId)
+  throw Error('TENDER_FOLLOWUP_DEADLINE_SCOPE')
+ const candidates=delivery.packageChecks.filter(pack=>pack.packageId===originalObjectRef)
+ const original=candidates.length===1?candidates[0]:undefined
+ return Object.freeze({notice,objectState:original?'IDENTIFIED' as const:'PENDING_PAIR' as const,
+  original:original?Object.freeze({packageId:original.packageId,packageHash:original.packageHash,attemptRef:original.attemptRef}):null,
+  assertCurrent})
+}
 
 /** 后续开启和准入只附在同一批次及原包，原截止时点和结论仍可独立读取。 */
 export function attachDeadlinePackageDisposition(delivery:ReturnType<typeof reconcileDeadlineDelivery>,

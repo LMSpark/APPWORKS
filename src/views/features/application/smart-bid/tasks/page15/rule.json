@@ -1,0 +1,26 @@
+[
+  {
+    "id": "bid-task-findings",
+    "type": "r-section",
+    "props": {"title": "任务问题回查"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看原检查问题", "onClick": "openBidFindings"}}
+    ]
+  },
+  {
+    "id": "bid-finding-registration",
+    "type": "r-section",
+    "props": {"title": "登记问题或检查覆盖", "onBeforeRender": "bindBidFindingRegistration"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对检查并生成登记请求", "onClick": "openBidFindingRegistration"}}
+    ]
+  },
+  {
+    "id": "bid-finding-recheck",
+    "type": "r-section",
+    "props": {"title": "问题复验", "onBeforeRender": "bindBidFindingRecheck"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核验证据并生成复验请求", "onClick": "openBidFindingRecheck"}}
+    ]
+  }
+]

@@ -39,7 +39,7 @@ export async function prepareTenderFollowupNotice(scope:Scope,notice:Notice){
   kind,change,previousNoticeRef,originalObjectRef,issuedAt,knownAt,replyDueAt,permittedScopeRef})
  const digest=await hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.followup-notice/1',record]))
  notice.assertCurrent()
- return Object.freeze({record,digest,objectState:originalObjectRef===null?'PENDING_PAIR':'IDENTIFIED',
+ return Object.freeze({record,digest,objectState:'PENDING_PAIR' as const,
   scopeState:permittedScopeRef===null?'PENDING_SCOPE':'REQUIRES_INTERPRETATION',assertCurrent:()=>notice.assertCurrent()})
 }
 

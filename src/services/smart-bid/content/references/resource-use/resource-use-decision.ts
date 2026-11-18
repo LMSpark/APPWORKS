@@ -20,6 +20,7 @@ const time=(value:string)=>{
  return parsed
 }
 const scopeFields=['sourceEnterpriseId','recipientEnterpriseId','projectId','applicationRef','resourceVersionId','decisionChainId'] as const
+const useKey=({purposeId,recipientId}:Pick<Use,'purposeId'|'recipientId'>)=>JSON.stringify([purposeId,recipientId])
 
 /** 生成正式登记所需载荷，原件身份固定并由来源企业的有权人决定。 */
 export async function prepareResourceUseDecision(request:Scope&Readonly<{
@@ -38,13 +39,17 @@ export async function prepareResourceUseDecision(request:Scope&Readonly<{
  time(knownAt)
  const keys=new Set<string>()
  const uses=source.uses.map(({purposeId,recipientId,fieldIds,expiresAt})=>{
-  const key=JSON.stringify([purposeId,recipientId])
+  const key=useKey({purposeId,recipientId})
   if(![purposeId,recipientId,...fieldIds].every(identity)||keys.has(key)||!fieldIds.length||
    new Set(fieldIds).size!==fieldIds.length||time(expiresAt)<=effective)throw Error('RESOURCE_USE_DECISION_USES')
   keys.add(key)
   return Object.freeze({purposeId,recipientId,fieldIds:Object.freeze([...fieldIds].sort()),expiresAt})
  })
  if(!uses.length)throw Error('RESOURCE_USE_DECISION_USES')
+ uses.sort((left,right)=>{
+  const a=useKey(left),b=useKey(right)
+  return a<b?-1:a>b?1:0
+ })
  const {sourceEnterpriseId,recipientEnterpriseId,projectId,applicationRef,resourceVersionId,decisionChainId}=request
  const record=Object.freeze({sourceEnterpriseId,recipientEnterpriseId,projectId,applicationRef,resourceVersionId,decisionChainId,
   decisionRef,requestKey,expectedVersion,intent,decisionEnterpriseId,decisionMakerId,
@@ -52,4 +57,44 @@ export async function prepareResourceUseDecision(request:Scope&Readonly<{
  const requestDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.resource-use-decision/1',record]))
  source.assertCurrent()
  return Object.freeze({record,requestDigest,assertCurrent:()=>source.assertCurrent()})
+}
+
+type Prepared=Awaited<ReturnType<typeof prepareResourceUseDecision>>
+type RegistrationKey=Scope&Readonly<{requestKey:string;requestDigest:string}>
+type RegistrationOutcome=RegistrationKey&Readonly<{assertCurrent:()=>void}>&(
+ Readonly<{status:'REGISTERED';versionId:string;record:Prepared['record']}>|
+ Readonly<{status:'REJECTED';receiptRef:string}>|
+ Readonly<{status:'UNKNOWN'}>
+)
+
+/** 原登记未知只回查同一请求；已登记的拒绝决定仍保留其正式版本。 */
+export async function readOriginalResourceUseRegistration(input:RegistrationKey,source:Readonly<{
+ lookup:(request:RegistrationKey)=>Promise<RegistrationOutcome|undefined>;assertCurrent:()=>void
+}>){
+ source.assertCurrent()
+ const {sourceEnterpriseId,recipientEnterpriseId,projectId,applicationRef,resourceVersionId,decisionChainId,requestKey,requestDigest}=input
+ const request=Object.freeze({sourceEnterpriseId,recipientEnterpriseId,projectId,applicationRef,resourceVersionId,
+  decisionChainId,requestKey,requestDigest})
+ const error='RESOURCE_USE_REGISTRATION_SCOPE'
+ if(!scopeFields.every(field=>identity(request[field]))||!identity(request.requestKey)||
+  !/^[a-f0-9]{64}$/u.test(request.requestDigest))throw Error(error)
+ const result=await source.lookup(request)
+ const assertCurrent=()=>{source.assertCurrent();result?.assertCurrent()}
+ assertCurrent()
+ if(!result)return Object.freeze({status:'UNKNOWN' as const,assertCurrent})
+ if(scopeFields.some(field=>result[field]!==request[field])||
+  result.requestKey!==request.requestKey||result.requestDigest!==request.requestDigest)throw Error(error)
+ if(result.status==='UNKNOWN')return Object.freeze({status:result.status,assertCurrent})
+ if(result.status==='REJECTED'){
+  if(!identity(result.receiptRef))throw Error(error)
+  return Object.freeze({status:result.status,receiptRef:result.receiptRef,assertCurrent})
+ }
+ const record=structuredClone(result.record),{versionId}=result
+ if(!identity(versionId)||versionId===record.expectedVersion||
+  scopeFields.some(field=>record[field]!==request[field])||record.requestKey!==request.requestKey)throw Error(error)
+ const recovered=await prepareResourceUseDecision(record,{...record,assertCurrent})
+ if(recovered.requestDigest!==request.requestDigest||canonicalSnapshotValue(record)!==canonicalSnapshotValue(recovered.record))
+  throw Error(error)
+ assertCurrent()
+ return Object.freeze({status:result.status,versionId,record:recovered.record,assertCurrent})
 }

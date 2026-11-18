@@ -1,6 +1,14 @@
-import {expect,it} from 'vitest'
+import {expect,it,vi} from 'vitest'
+import {DataSet} from '@spark-appworks/spark-data'
 import {prepareAuthorityGrantDecision,readOriginalAuthorityGrantRegistration} from '@/services/smart-bid/content/review/submission/authority-grant-decision'
 import {checkRegisteredAuthorityGrant} from '@/services/smart-bid/content/review/submission/authority-grant-coverage'
+import {authorityGrantRegistrationView,readRegisteredAuthorityGrantRegistration} from '@/views/features/application/smart-bid/authority/authority-grant-registration-reader'
+import {createAuthorityGrantScriptHost} from '@/views/features/application/smart-bid/authority/authority-grant-script-host'
+import script from '@/views/features/application/smart-bid/authority/page04/script.js?raw'
+import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
+import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
+import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 it('binds a revocation to its authority, affected scope and original version',async()=>{
  const request={enterpriseId:'ORG',grantId:'GRANT',requestKey:'Q',expectedVersion:'V1',intent:'REVOKE' as const,decisionRef:'DECISION'}
@@ -37,6 +45,42 @@ it('binds a revocation to its authority, affected scope and original version',as
  await expect(lookup({...result,record:{...result.record,representativeId:'OTHER'}})).rejects.toThrow('AUTHORITY_GRANT_REGISTRATION_SCOPE')
  const recovered=await lookup(result)
  expect(recovered).toMatchObject({status:'REGISTERED',versionId:'V2',record:prepared.record})
+ const row={id:'V2',...original,status:'REGISTERED',versionId:'V2',decisionRef:request.decisionRef,decisionRecord:prepared.record}
+ const ds=DataSet.fromJson({scenarioId:'S',tables:{AuthorityGrant:{
+  modelBinding:{modelId:'G',modelName:'AuthorityGrant'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},originalRegistration:authorityGrantRegistrationView('id')},
+ }}})
+ try{
+  const view=ds.getView('AuthorityGrant','originalRegistration')
+  if(!view)throw Error('TEST_AUTHORITY_REGISTRATION_VIEW_REQUIRED')
+  const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'AuthorityGrant'})
+  let hidden=false
+  view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+   identity:table.identity,scope:'grant',readScope:()=> 'grant',snapshot:table.applyResult({Result:{primaryKeyField:'id',
+    data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:hidden?['decisionRecord']:[],m:[],d:false}}]}}}),
+  })})
+  const host={enterpriseId:'ORG',scenarioId:'S',runtime:{resolveView:(key:string)=>key==='S@AuthorityGrant@originalRegistration'?view:undefined},
+   assertCurrent:()=>{}}
+  const read=await readRegisteredAuthorityGrantRegistration(host,original)
+  expect(read).toMatchObject({status:'REGISTERED',versionId:'V2',record:prepared.record})
+  expect(view.queryContext).toMatchObject(original)
+  const page=createAuthorityGrantScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host)
+  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
+  const {openOriginalGrantRegistration}=compileFunctions(script,{$route:{query:original},$page:{
+   invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,showMessage,
+  }} as unknown as PageContext)
+  if(!openOriginalGrantRegistration)throw Error('TEST_AUTHORITY_REGISTRATION_HANDLER_REQUIRED')
+  expect(()=>page.invoke('authority.grant.readRegistration',original,signal)).toThrow('AUTHORITY_GRANT_PAGE_REQUEST')
+  await openOriginalGrantRegistration()
+  expect(showAlert).toHaveBeenCalledExactlyOnceWith([
+   '原登记已确认 · 撤销 · 版本 V2','决定 DECISION · 代表 REP',`生效 ${source.effectiveAt} · 获知 ${source.knownAt}`,
+  ].join('\n'),'代表委托登记回查')
+  hidden=true
+  await expect(readRegisteredAuthorityGrantRegistration(host,original)).rejects.toThrow('DATA_VIEW_READ_ROW')
+  await openOriginalGrantRegistration()
+  expect(showMessage).toHaveBeenCalledExactlyOnceWith('原委托登记无法核验','warning')
+  expect(()=>read.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+ }finally{ds.destroy()}
  current=false
  expect(()=>prepared.assertCurrent()).toThrow('AUTH_STALE')
  expect(()=>recovered.assertCurrent()).toThrow('AUTH_STALE')

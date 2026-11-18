@@ -1,0 +1,26 @@
+[
+  {
+    "id": "bid-resource-version-history",
+    "type": "r-section",
+    "props": {"title": "资料版本历史", "onBeforeRender": "bindResourceVersionHistoryStatus"},
+    "children": [
+      {
+        "type": "r-table",
+        "props": {"autoColumns": false, "showPagination": false, "onBeforeRender": "bindResourceVersionHistory", "onRowClick": "openHistoricalResourceVersion"},
+        "children": [
+          {"type": "r-text", "props": {"field": "version", "label": "版本", "readonly": true}},
+          {"type": "r-text", "props": {"field": "typeVersion", "label": "资料类型版本", "readonly": true}},
+          {"type": "r-text", "props": {"field": "createdAt", "label": "登记时间", "readonly": true}}
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bid-original-resource-version",
+    "type": "r-section",
+    "props": {"title": "企业资料原版", "onBeforeRender": "bindResourceVersion"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查询资料原版", "onClick": "openResourceVersion"}}
+    ]
+  }
+]

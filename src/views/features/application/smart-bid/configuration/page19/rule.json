@@ -1,0 +1,10 @@
+[
+  {
+    "id": "configuration-release-recovery",
+    "type": "r-section",
+    "props": {"title": "配置启停回查", "onBeforeRender": "bindConfigurationRelease"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查询原启停结果", "onClick": "openConfigurationRelease"}}
+    ]
+  }
+]

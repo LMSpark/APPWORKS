@@ -1,0 +1,10 @@
+[
+  {
+    "id": "bid-round-handoff",
+    "type": "r-section",
+    "props": {"title": "本轮移交核对", "onBeforeRender": "bindBidHandoff"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看移交及签收", "onClick": "openBidHandoff"}}
+    ]
+  }
+]

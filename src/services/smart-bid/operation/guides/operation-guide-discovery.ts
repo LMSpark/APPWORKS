@@ -65,5 +65,5 @@ export async function readDiscoveredOperationGuide(runtime:Pick<ClassModelRuntim
  const action=await readOperationActionGuide(runtime,{
   rootKind:discovery.rootKind,guideRef,guideDigest,kind,actionName,assertCurrent:discovery.assertCurrent,
  })
- return Object.freeze({...action,versionRef:item.versionRef})
+ return Object.freeze({...action,versionRef:item.versionRef,pathRefs:item.pathRefs,materialRefs:item.materialRefs})
 }

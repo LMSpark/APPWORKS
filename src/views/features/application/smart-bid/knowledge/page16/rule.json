@@ -1,0 +1,19 @@
+[
+  {
+    "id": "knowledge-guide-directory",
+    "type": "r-section",
+    "props": {"title": "知识目录与指南", "onBeforeRender": "bindKnowledgeStatus"},
+    "children": [
+      {
+        "type": "r-table",
+        "props": {"autoColumns": false, "showPagination": false, "onBeforeRender": "bindKnowledgeDirectory", "onRowClick": "openKnowledgeGuide"},
+        "children": [
+          {"type": "r-text", "props": {"field": "guideRef", "label": "指南", "readonly": true}},
+          {"type": "r-text", "props": {"field": "versionRef", "label": "版本", "readonly": true}},
+          {"type": "r-text", "props": {"field": "kind", "label": "类型", "readonly": true}},
+          {"type": "r-text", "props": {"field": "actionName", "label": "动作", "readonly": true}}
+        ]
+      }
+    ]
+  }
+]

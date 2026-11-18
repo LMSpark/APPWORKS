@@ -21,11 +21,13 @@ export function assessConfigurationDisableImpact(stop:Stop,source:Readonly<{
  const fields=['kind','key','scopeId','versionId','digest'] as const
  const seen=new Set<string>(),error='CONFIGURATION_DISABLE_IMPACT_SCOPE'
  if(![stop.kind,stop.key,stop.scopeId,stop.versionId,stop.releaseRef].every(identity)||
-  !/^[a-f0-9]{64}$/u.test(stop.digest))throw Error(error)
+  !/^[a-f0-9]{64}$/u.test(stop.digest)||!['NEW_SELECTION','UNEXECUTED'].includes(stop.stopScope)||
+  typeof source.complete!=='boolean')throw Error(error)
  const items=uses.map(use=>{
   const {operationRef,lockRef,ownerId,permissionRef}=use
   if(fields.some(key=>use[key]!==stop[key])||![operationRef,lockRef,ownerId].every(identity)||seen.has(operationRef)||
-   use.permission==='ALLOWED'&&!identity(permissionRef))throw Error(error)
+   !['UNEXECUTED','EXECUTED','UNKNOWN'].includes(use.state)||!['ALLOWED','DENIED','UNKNOWN'].includes(use.permission)||
+   (permissionRef!==null&&!identity(permissionRef))||use.permission==='ALLOWED'&&permissionRef===null)throw Error(error)
   seen.add(operationRef)
   const action=use.state==='EXECUTED'?'PRESERVE_HISTORY':use.state==='UNKNOWN'?'CHECK_ORIGINAL':
    stop.stopScope==='UNEXECUTED'||use.permission==='DENIED'?'HOLD':

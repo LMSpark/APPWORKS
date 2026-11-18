@@ -1,0 +1,10 @@
+[
+  {
+    "id": "resource-use-registration",
+    "type": "r-section",
+    "props": {"title": "资料使用决定回查", "onBeforeRender": "bindResourceUseRegistration"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查询原登记结果", "onClick": "openResourceUseRegistration"}}
+    ]
+  }
+]

@@ -1,4 +1,12 @@
-import {expect,it} from 'vitest'
+import {expect,it,vi} from 'vitest'
+import {DataSet} from '@spark-appworks/spark-data'
+import {configurationReleaseReadView,readRegisteredConfigurationRelease} from '@/views/features/application/smart-bid/configuration/configuration-release-reader'
+import {createConfigurationReleaseScriptHost} from '@/views/features/application/smart-bid/configuration/configuration-release-script-host'
+import script from '@/views/features/application/smart-bid/configuration/page19/script.js?raw'
+import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
+import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
+import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {prepareConfigurationRelease,resolveActiveConfiguration} from '@/services/smart-bid/content/references/configuration/configuration-release-decision'
 import {readOriginalConfigurationRelease} from '@/services/smart-bid/content/references/configuration/configuration-release-recovery'
 import {assessConfigurationDisableImpact} from '@/services/smart-bid/content/references/configuration/configuration-disable-impact'
@@ -37,4 +45,65 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
  ]})
  expect(assessConfigurationDisableImpact({...stop,stopScope:'UNEXECUTED'},refs).items[0]?.action).toBe('HOLD')
  expect(assessConfigurationDisableImpact(stop,{...refs,uses:[{...use,permission:'DENIED'}]}).items[0]?.action).toBe('HOLD')
+ type Impact=Parameters<typeof assessConfigurationDisableImpact>
+ expect(()=>assessConfigurationDisableImpact({...stop,stopScope:'UNRECOGNIZED'} as unknown as Impact[0],refs))
+  .toThrow('CONFIGURATION_DISABLE_IMPACT_SCOPE')
+ expect(()=>assessConfigurationDisableImpact(stop,{...refs,uses:[{...use,permission:'UNRECOGNIZED'}]} as unknown as Impact[1]))
+  .toThrow('CONFIGURATION_DISABLE_IMPACT_SCOPE')
+ expect(()=>assessConfigurationDisableImpact(stop,{...refs,uses:[{...use,state:'UNRECOGNIZED'}]} as unknown as Impact[1]))
+  .toThrow('CONFIGURATION_DISABLE_IMPACT_SCOPE')
+ const row={id:'ROW',...scope,requestKey:request.requestKey,requestDigest:disabled.requestDigest,action:'DISABLE',
+  versionId:version.versionId,versionDigest:version.digest,expectedPointerVersion:'P1',status:'APPLIED',releaseRef:'STOP',
+  resultPointerVersion:'P2',state:'DISABLED',terminalRef:'TERMINAL'}
+ const ds=DataSet.fromJson({scenarioId:'S',tables:{ConfigurationRelease:{
+  modelBinding:{modelName:'ConfigurationRelease',modelId:'M'},
+  columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),views:{default:{},originalRelease:configurationReleaseReadView('id')},
+ }}})
+ try{
+  const view=ds.getView('ConfigurationRelease','originalRelease')
+  if(!view)throw Error('TEST_CONFIGURATION_RELEASE_VIEW_REQUIRED')
+  const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ConfigurationRelease'})
+  let hidden=false
+  view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+   identity:table.identity,scope:'release',readScope:()=> 'release',snapshot:table.applyResult({Result:{primaryKeyField:'id',
+    data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:hidden?['resultPointerVersion']:[],m:[],d:false}}]}}}),
+  })})
+  const host={scopeId:scope.scopeId,scenarioId:'S',
+   runtime:{resolveView:(key:string)=>key==='S@ConfigurationRelease@originalRelease'?view:undefined},assertCurrent:source.assertCurrent}
+  const original={...disabled.record,requestDigest:disabled.requestDigest}
+  const proved=await readRegisteredConfigurationRelease(host,original)
+  expect(proved).toMatchObject({status:'APPLIED',state:'DISABLED',resultPointerVersion:'P2'})
+  const readDisableImpact=vi.fn(async()=>({stop,uses:refs}))
+  const page=createConfigurationReleaseScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,readDisableImpact)
+  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
+  const {openConfigurationRelease}=compileFunctions(script,{$route:{query:{
+   configurationKind:scope.kind,configurationKey:scope.key,releaseRequestKey:request.requestKey,releaseRequestDigest:disabled.requestDigest,
+   configurationVersionId:version.versionId,configurationVersionDigest:version.digest,releaseAction:'DISABLE',expectedPointerVersion:'P1',
+  }},$page:{invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert}} as unknown as PageContext)
+  if(!openConfigurationRelease)throw Error('TEST_CONFIGURATION_RELEASE_HANDLER_REQUIRED')
+  expect(()=>page.invoke('configuration.release.readOriginal',{scopeId:'OTHER'},signal)).toThrow('CONFIGURATION_RELEASE_PAGE_REQUEST')
+  await openConfigurationRelease()
+  expect(showAlert).toHaveBeenLastCalledWith([
+   '原停用已生效 · 原回执 STOP · 当次指针 P2 · 配置版本 V1','停用影响尚未核全',
+   'RUN · 原锁可续办 · 跟踪人 OWNER','UNKNOWN · 待查原操作 · 跟踪人 OWNER','SENT · 保留已执行记录 · 跟踪人 OWNER',
+  ].join('\n'),'配置启停回查')
+  expect(readDisableImpact).toHaveBeenCalledExactlyOnceWith({...scope,...version,releaseRef:'STOP'},signal)
+  row.status='NOT_APPLIED'
+  await openConfigurationRelease()
+  expect(showAlert).toHaveBeenLastCalledWith('原停用未生效 · 凭据 TERMINAL','配置启停回查')
+  row.status='UNKNOWN'
+  await openConfigurationRelease()
+  expect(showAlert).toHaveBeenLastCalledWith('原停用结果未知','配置启停回查')
+  expect(readDisableImpact).toHaveBeenCalledTimes(1)
+  row.status='APPLIED'
+  readDisableImpact.mockResolvedValueOnce({stop:{...stop,releaseRef:'DIFFERENT'},uses:refs})
+  await openConfigurationRelease()
+  expect(showAlert).toHaveBeenLastCalledWith(
+   '原停用已生效 · 原回执 STOP · 当次指针 P2 · 配置版本 V1\n停用影响证据无法核验','配置启停回查')
+  await expect(readRegisteredConfigurationRelease(host,{...original,expectedPointerVersion:'OTHER'}))
+   .rejects.toThrow('CONFIGURATION_RELEASE_REGISTERED_READ')
+  hidden=true
+  await expect(readRegisteredConfigurationRelease(host,original)).rejects.toThrow('DATA_VIEW_READ_ROW')
+  expect(()=>proved.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+ }finally{ds.destroy()}
 })

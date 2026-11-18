@@ -9,6 +9,12 @@ import {AiAgentRegistration,AiAgentToolResult,DefaultAiAgentSessionStore,createS
 import {discoverRegisteredOperationGuides} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader'
 import {openContentOperationWorkspace} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace'
 import {createContentOperationScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host'
+import {createKnowledgeDirectoryScriptHost} from '@/views/features/application/smart-bid/knowledge/knowledge-directory-script-host'
+import {createBidClassModelCatalogHost} from '@/views/features/application/smart-bid/knowledge/class-model-catalog-script-host'
+import catalogScript from '@/views/features/application/smart-bid/knowledge/page17/script.js?raw'
+import knowledgeScript from '@/views/features/application/smart-bid/knowledge/page16/script.js?raw'
+import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
+import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 import {hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {contentOperationScenarioViews} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views'
 import rule from '@/views/features/application/smart-bid/authoring/page18/rule.json?raw'
@@ -78,10 +84,47 @@ it('discovers only the complete scoped directory and retains the original public
   expect(scriptHost.runtime.resolveView(directory.dataViewKey)).toBe(view)
   await expect(directory.readGuide('G')).resolves.toMatchObject({versionRef:'V1',guide:guideText})
   await expect(directory.readGuide('UNKNOWN')).rejects.toThrow('OPERATION_PAGE_GUIDE_ROW_REQUIRED')
+  const knowledge=createKnowledgeDirectoryScriptHost({...host.runtime,generation:1,destroyed:false,isLoaded:true},
+   tools,{...host,rootKind:'OperationRoute'})
+  const showAlert=vi.fn(async()=>{})
+  const {__init__,bindKnowledgeDirectory,openKnowledgeGuide}=compileFunctions(knowledgeScript,{
+   $route:{query:{directoryRef:'DIR'}},$page:{invokeHostCommand:(name:string,input:unknown)=>knowledge.invoke(name,input,controller.signal),
+    resolveView:host.runtime.resolveView,showAlert},
+  } as unknown as PageContext)
+  if(!__init__||!bindKnowledgeDirectory||!openKnowledgeGuide)throw Error('TEST_KNOWLEDGE_PAGE_HANDLERS_REQUIRED')
+  expect(()=>knowledge.invoke('content.operation.prepareRework',{},controller.signal)).toThrow('KNOWLEDGE_DIRECTORY_COMMAND_REQUIRED')
+  await __init__()
+  expect(bindKnowledgeDirectory()).toEqual({dataViewKey:'S@KnowledgeGuide@effectiveDirectory'})
+  await openKnowledgeGuide(view.rows[0])
+  expect(showAlert).toHaveBeenCalledExactlyOnceWith(
+   ['指南 GUIDE · 版本 V1','目录路径 DIR','原材料引用 MATERIAL','',guideText].join('\n'),'动作指南 · V1')
+  const runtime={generation:1,isLoaded:true,destroyed:false}
+  const catalogTools={executeTool:vi.fn(async(name:string)=>name==='model_action_guide'?{ok:true,data:guideText}:executeTool())}
+  const catalog=createBidClassModelCatalogHost(runtime,catalogTools,{rootKind:'OperationRoute',assertCurrent:host.assertCurrent})
+  const showCatalog=vi.fn(async()=>{})
+  const {openBidClassModelCatalog,openBidClassModelGuide}=compileFunctions(catalogScript,
+   {$route:{query:{modelKind:'OperationRoute',modelAction:'verify'}},$page:{
+   invokeHostCommand:(name:string,input:unknown)=>catalog.invoke(name,input,controller.signal),showAlert:showCatalog,
+  }} as unknown as PageContext)
+  if(!openBidClassModelCatalog||!openBidClassModelGuide)throw Error('TEST_CLASS_MODEL_CATALOG_HANDLER_REQUIRED')
+  await openBidClassModelCatalog()
+  expect(showCatalog).toHaveBeenCalledExactlyOnceWith('根模型 OperationRoute · 1 个定义\nOperationRoute · 方法 verify','ClassModel 定义目录')
+  await openBidClassModelGuide()
+  expect(showCatalog).toHaveBeenLastCalledWith(guideText,'方法指南 · OperationRoute.verify')
+  expect(catalogTools.executeTool).toHaveBeenCalledWith('model_action_guide',{kind:'OperationRoute',actionName:'verify'})
+  await expect(catalog.invoke('bid.models.readCatalog',{rootKind:'OTHER'},controller.signal))
+   .rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')
+  const evidence=await catalog.invoke('bid.models.readCatalog',{},controller.signal)
+  const callCount=catalogTools.executeTool.mock.calls.length
+  await expect(evidence.readGuide('OperationRoute','unknown')).rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')
+  expect(catalogTools.executeTool).toHaveBeenCalledTimes(callCount)
+  runtime.generation++
+  expect(()=>evidence.assertCurrent()).toThrow('BID_CLASS_MODEL_CATALOG_STALE')
   const workspace=openContentOperationWorkspace({...host.runtime,generation:1,destroyed:false,isLoaded:true},
    tools,
    {...host,rootKind:'OperationRoute',signal:controller.signal})
   const discovery=await workspace.discover('DIR'),guide=await workspace.readGuide(discovery,row)
+  expect(bindKnowledgeDirectory()).toEqual({visible:false})
   expect(()=>directory.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   const attempt={projectId:'P',runId:'R',attemptRef:'A',requestKey:'Q',targetDigest:'b'.repeat(64),configurationLockHash:'c'.repeat(64)}
   const original={scope:attempt,guideRef:'GUIDE',guideVersionRef:'V1',guideDigest}

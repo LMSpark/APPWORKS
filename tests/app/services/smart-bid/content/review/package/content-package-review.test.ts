@@ -2,7 +2,8 @@ import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {readSubmissionPackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-review'
 import {reconcileDeadlinePackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation'
-import {attachDeadlinePackageDisposition,reconcileDeadlineContents,reconcileDeadlineDelivery} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation'
+import {attachDeadlinePackageDisposition,matchFollowupNoticeToDeadlinePackage,reconcileDeadlineContents,reconcileDeadlineDelivery} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation'
+import {prepareTenderFollowupNotice} from '@/services/smart-bid/content/references/followup/tender-followup-notice'
 import {pairOriginalChannelReceipt} from '@/services/smart-bid/content/review/submission/channel-receipt-pairing'
 import {reconcileSubmissionDeadline} from '@/services/smart-bid/content/review/submission-reconciliation'
 
@@ -56,6 +57,19 @@ it('verifies the sealed bytes before enumerating and compares independently read
  expect(checked.items[0]).toMatchObject({attemptRef:'SEND',contentState:'MATCHED'})
  expect(checked.evidence).toMatchObject([{eventRef:'REC',ruleRef:'RULE'}])
  expect(checked.packageChecks).toEqual(actual.packageChecks)
+ const followupScope={...scope,roundId:'R',stageId:'FOLLOWUP'}
+ const notice={...followupScope,noticeId:'NOTICE',documentVersionId:'DOC',sourceRef:'SOURCE',issuerRef:'ISSUER',
+  kind:'INQUIRY' as const,change:'INITIAL' as const,previousNoticeRef:null,originalObjectRef:'PKG',
+  issuedAt:at,knownAt:at,replyDueAt:at,permittedScopeRef:null,assertCurrent:()=>{}}
+ const originalNotice=await prepareTenderFollowupNotice(followupScope,notice)
+ expect(originalNotice.objectState).toBe('PENDING_PAIR')
+ expect(matchFollowupNoticeToDeadlinePackage(originalNotice,checked)).toMatchObject({
+  objectState:'IDENTIFIED',original:{packageId:'PKG',packageHash:link.packageHash,attemptRef:'SEND'},
+ })
+ const otherNotice=await prepareTenderFollowupNotice(followupScope,{...notice,originalObjectRef:'OTHER'})
+ expect(matchFollowupNoticeToDeadlinePackage(otherNotice,checked)).toMatchObject({
+  objectState:'PENDING_PAIR',original:null,notice:{record:{replyDueAt:at}},
+ })
  const openingScope={projectId:'P',lotId:'L',roundId:'R',attemptRef:'SEND',objectRef:'PKG'}
  const later='2026-11-18T11:00:00+08:00'
  const dispositionSource={knownAt:later,assertCurrent:()=>{},records:[{...openingScope,

@@ -1,0 +1,10 @@
+[
+  {
+    "id": "tender-followup-notices",
+    "type": "r-section",
+    "props": {"title": "后续通知", "onBeforeRender": "bindFollowupNotices"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看后续通知", "onClick": "openFollowupNotices"}}
+    ]
+  }
+]

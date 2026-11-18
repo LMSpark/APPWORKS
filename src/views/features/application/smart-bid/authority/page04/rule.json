@@ -1,0 +1,10 @@
+[
+  {
+    "id": "authority-grant-registration",
+    "type": "r-section",
+    "props": {"title": "代表委托登记回查", "onBeforeRender": "bindOriginalGrantRegistration"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查询原登记结果", "onClick": "openOriginalGrantRegistration"}}
+    ]
+  }
+]

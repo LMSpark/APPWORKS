@@ -27,11 +27,14 @@ export function assessBidHandoff(scope:Scope,source:Readonly<{
  if(keys.some(key=>!identity(scope[key]))||itemIds.size!==source.items.length)throw Error(error)
  const receiptKey=(id:string,version:string)=>JSON.stringify([id,version])
  const byVersion=new Map<string,Receipt>()
+ const receiptRefs=new Set<string>()
  for(const receipt of receipts){
   const key=receiptKey(receipt.itemId,receipt.versionRef)
   if(keys.some(field=>scope[field]!==receipt[field])||!itemIds.has(receipt.itemId)||
-   ![receipt.taskReceiptRef,receipt.versionRef,receipt.receiverId].every(identity)||byVersion.has(key))throw Error(error)
+   ![receipt.taskReceiptRef,receipt.versionRef,receipt.receiverId].every(identity)||byVersion.has(key)||
+   receiptRefs.has(receipt.taskReceiptRef))throw Error(error)
   byVersion.set(key,receipt)
+  receiptRefs.add(receipt.taskReceiptRef)
  }
  const items=source.items.map(item=>{
   const {id,versionRef,originalAssigneeId,receiverId,followupRef,nextDueAt}=item
@@ -44,7 +47,7 @@ export function assessBidHandoff(scope:Scope,source:Readonly<{
    identity(followupRef)&&nextDueAt!==null&&Number.isFinite(Date.parse(nextDueAt))&&/(?:Z|[+-]\d{2}:\d{2})$/u.test(nextDueAt)
   const state=!hasFollowup?'FOLLOWUP_REQUIRED':receipt?.state==='ACCEPTED'?'ACCEPTED':
    receipt?.state==='RETURNED'?'RETURNED':'AWAITING_ACCEPTANCE'
-  return Object.freeze({id,versionRef,receiverId,followupRef,nextDueAt,openIssueRefs,state,
+  return Object.freeze({id,versionRef,originalAssigneeId,receiverId,followupRef,nextDueAt,openIssueRefs,state,
    taskReceiptRef:receipt?.taskReceiptRef??null,trackingAssigneeId:state==='ACCEPTED'?receiverId:originalAssigneeId})
  })
  assertCurrent()
@@ -61,14 +64,19 @@ export function compareBidHandoffVersions(previous:ReturnType<typeof assessBidHa
  const items=current.items.map(item=>{
   const original=originals.get(item.id)
   originals.delete(item.id)
+  if(original&&original.versionRef!==item.versionRef&&item.taskReceiptRef!==null&&item.taskReceiptRef===original.taskReceiptRef)
+   throw Error('BID_HANDOFF_VERSION_DRIFT')
   if(original?.versionRef!==item.versionRef)return Object.freeze({id:item.id,originalVersionRef:original?.versionRef??null,
-   versionRef:item.versionRef,state:original?'CHANGED':'ADDED',requiresAcceptance:item.state!=='ACCEPTED'})
+   versionRef:item.versionRef,state:original?'CHANGED':'ADDED',requiresAcceptance:item.state!=='ACCEPTED',
+   acceptanceReceiptRef:item.state==='ACCEPTED'?item.taskReceiptRef:null})
   const originalIssues=[...original.openIssueRefs].sort(),currentIssues=[...item.openIssueRefs].sort()
-  if(original.receiverId!==item.receiverId||original.followupRef!==item.followupRef||original.nextDueAt!==item.nextDueAt||
+  if(original.originalAssigneeId!==item.originalAssigneeId||original.receiverId!==item.receiverId||
+   original.followupRef!==item.followupRef||original.nextDueAt!==item.nextDueAt||
    JSON.stringify(originalIssues)!==JSON.stringify(currentIssues))throw Error('BID_HANDOFF_VERSION_DRIFT')
+  const acceptanceReceiptRef=item.state==='ACCEPTED'?item.taskReceiptRef:
+   item.state==='AWAITING_ACCEPTANCE'&&original.state==='ACCEPTED'?original.taskReceiptRef:null
   return Object.freeze({id:item.id,originalVersionRef:original.versionRef,versionRef:item.versionRef,
-   state:'UNCHANGED',requiresAcceptance:item.state!=='ACCEPTED'&&
-    (item.state!=='AWAITING_ACCEPTANCE'||original.state!=='ACCEPTED')})
+   state:'UNCHANGED',requiresAcceptance:acceptanceReceiptRef===null,acceptanceReceiptRef})
  })
  const removed=Object.freeze([...originals.values()].map(item=>Object.freeze({
   id:item.id,versionRef:item.versionRef,openIssueRefs:item.openIssueRefs,trackingAssigneeId:item.trackingAssigneeId,

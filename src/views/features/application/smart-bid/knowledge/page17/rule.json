@@ -1,0 +1,11 @@
+[
+  {
+    "id": "bid-class-model-catalog",
+    "type": "r-section",
+    "props": {"title": "ClassModel 定义目录"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看本次模型定义", "onClick": "openBidClassModelCatalog"}},
+      {"type": "r-button", "props": {"label": "查看定义签名与指南", "onBeforeRender": "bindBidClassModelGuide", "onClick": "openBidClassModelGuide"}}
+    ]
+  }
+]

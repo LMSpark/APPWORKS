@@ -70,9 +70,12 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      onSelectedPathChange:()=>{},onEditingChange:()=>{}}
    }
    return Object.freeze({assertCurrent,
-    get canLeave(){assertCurrent();return commands.canLeave},
+    get canLeave(){return commands.canLeave},
     select(){assertCurrent();commands.selectionChanged(commands.epoch)},
-    cancel(){assertCurrent();commands.cancel(commands.epoch)},
+    cancel(){
+     if(signal.aborted)throw Error('CONTENT_PAGE_RENDER_STALE')
+     commands.cancel(commands.epoch)
+    },
     setInputPending(pending:boolean){assertCurrent();commands.setInputPending('page11-detail',pending,commands.epoch)},
     editorProps(path:JsonPath){
      const original=layoutInput(path),epoch=commands.epoch,layout=contentTreeEditorLayout(original),node=layout.children?.[1]

@@ -48,9 +48,23 @@ it('still reports the original dirty state for departure when the editing bindin
   dirty.expire()
   expect(cleanSession.canLeave).toBe(true)
   expect(dirtySession.canLeave).toBe(false)
-  expect(()=>dirtySession.cancel()).toThrow('HOST_STALE')
+  dirtySession.cancel()
+  expect(dirtySession.canLeave).toBe(true)
+  expect(dirty.view.hasEditingChanges()).toBe(false)
   expect(dirty.save).not.toHaveBeenCalled()
  }finally{clean.runtime.dispose();dirty.runtime.dispose()}
+})
+it('protects staged rows when a stale command tries to cancel',async()=>{
+ const f=await fixture()
+ try{
+  f.commands.run(add,f.commands.epoch)
+  f.commands.setInputPending('detail',true,f.commands.epoch)
+  f.expire()
+  expect(()=>f.commands.cancel(f.commands.epoch)).toThrow('HOST_STALE')
+  expect(f.view.hasEditingChanges()).toBe(true)
+  expect(f.commands.canLeave).toBe(false)
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.runtime.dispose()}
 })
 it('prevents generic CRUD save from bypassing the unavailable authoritative draft command',async()=>{
  const f=await fixture()

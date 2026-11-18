@@ -88,7 +88,17 @@ export class ContentAuthoringCommands {
   for(const listener of this.#listeners)listener()
  }
  cancel(epoch:number):void{
-  this.assertCurrent(epoch);this.#view.discardEditingRows([this.binding.draftId])
+  if(!this.#active||epoch!==this.#epoch||this.binding.runtime.destroyed)throw Error('CONTENT_COMMAND_STALE')
+  let discardRows=true
+  try{
+   this.assertCurrent(epoch)
+  }catch(cause){
+   // 已失效的编辑器只能清理它尚未写回的输入，不能操作视图中的行。
+   if(this.#inputs.size===0||this.#view.hasEditingChanges()||this.#view.mutating||
+    this.#view.hasUnconfirmedSave||this.#view.hasPendingSavedRowPermissions)throw cause
+   discardRows=false
+  }
+  if(discardRows)this.#view.discardEditingRows([this.binding.draftId])
   this.#inputs.clear();this.#epoch++;this.binding.setPending(false)
   for(const listener of this.#listeners)listener()
  }

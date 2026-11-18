@@ -14,24 +14,7 @@ AI用途：每个页签只保存本页签视图，不夹带其它页签草稿；
         <RendererButton :data-view-key="authKey" label="保存" button-type="primary" perm-action="edit"
           :disabled="!ready || busy || unconfirmed" @click="save(authKey)" />
       </template>
-      <RendererTabs v-if="ready" v-model="tab" :data-view-key="authKey" @update:model-value="loadTab">
-        <RendererTabPane name="jwt" label="JWT设置" :index="0">
-          <SparkComponentRenderer :config="region('jwt')" />
-          <DisplayAlert v-if="invalid(authKey, 'loginApiName')" alert-type="warning" :closable="false" :show-icon="true"
-            title="认证接口引用失效，已保留原值，请重新选择后保存。" />
-        </RendererTabPane>
-        <RendererTabPane name="headers" label="请求头部信息" :index="1" :lazy="true">
-          <SparkComponentRenderer v-if="loaded.has('headers')" :config="tableRegion('headers', headerKey, ['add', 'remove', 'save', 'cancel'])" />
-        </RendererTabPane>
-        <RendererTabPane name="publicParams" label="公共参数" :index="2" :lazy="true">
-          <SparkComponentRenderer v-if="loaded.has('publicParams')" :config="tableRegion('publicParams', parameterKey, ['save', 'add', 'remove'])" />
-          <DisplayAlert v-if="invalid(parameterKey, 'interfaceId') || invalid(parameterKey, 'outputfield')" alert-type="warning" :closable="false" :show-icon="true"
-            title="当前公共参数的接口或输出字段引用失效，已保留原值，请选择有效引用后保存。" />
-        </RendererTabPane>
-        <RendererTabPane name="accounts" label="认证账号" :index="3" :lazy="true">
-          <SparkComponentRenderer v-if="loaded.has('accounts')" :config="tableRegion('accounts', accountKey, ['add', 'remove', 'save', 'cancel'])" />
-        </RendererTabPane>
-      </RendererTabs>
+      <SparkComponentRenderer v-if="ready" :config="tabsConfig" />
       <RendererButton v-if="unconfirmed" label="核验原保存结果" :disabled="busy" @click="verifyOriginalSaves" />
     </RendererSection>
   </RendererDialog>
@@ -46,7 +29,7 @@ import {featureTableToolbar, runFeatureTableAction, type FeatureTableAction} fro
 import type {ApiConfigPageProps} from './api-config-page.props'
 
 type RToolbarProps = SparkComponent.RToolbarProps
-const {PAGE_RUNTIME, DisplayAlert, SparkComponentRenderer, RendererDialog, RendererButton, RendererSection, RendererTabs, RendererTabPane, useSparkComponent, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, SparkComponentRenderer, RendererDialog, RendererButton, RendererSection, useSparkComponent, consumeRequiredPageService} = SparkComponent
 
 const scenarioId = '446B5D94A71587E9BD4D325A4DF5F6F8'
 const props = defineProps<ApiConfigPageProps>()
@@ -97,19 +80,44 @@ const notCurrent = (row: Readonly<DataRow>) => {
   const parameters = view(parameterKey), current = parameters.currentRow
   return !current || parameters.getPkKey(current) !== parameters.getPkKey(row)
 }
-function region(name: TabName): SparkNode {
-  const node = getSparkNodeChildren(props.config.children).find(child => nodeId(child) === name)
-  if (!node) throw new Error(`服务商配置缺少页签规则 ${name}`)
-  return node
+const tableTabs = {
+  headers: {viewKey: headerKey, actions: ['add', 'remove', 'save', 'cancel']},
+  publicParams: {viewKey: parameterKey, actions: ['save', 'add', 'remove']},
+  accounts: {viewKey: accountKey, actions: ['add', 'remove', 'save', 'cancel']},
+} satisfies Record<Exclude<TabName, 'jwt'>, {viewKey: string; actions: FeatureTableAction[]}>
+
+function selectTab(name: string | number): void {
+  if (!isTab(name)) return
+  tab.value = name
+  void loadTab(name)
 }
-function tableRegion(name: TabName, viewKey: string, order: readonly FeatureTableAction[]): SparkNode {
-  const node = region(name)
-  const children = getSparkNodeChildren(node.children).map(child =>
-    name === 'publicParams' && nodeId(child) === 'outputfield'
-      ? {...child, props: {...child.props, cellReadonly: notCurrent}}
-      : child)
-  return {...node, props: {...node.props, toolbar: toolbar(viewKey, order)}, children}
-}
+const tabsConfig = computed<SparkNode>(() => ({
+  ...props.config,
+  props: {...props.config.props, modelValue: tab.value, on: {'update:modelValue': selectTab}},
+  children: getSparkNodeChildren(props.config.children).map(pane => {
+    const name = nodeId(pane)
+    if (name === undefined || !isTab(name)) throw new Error('服务商配置包含未知页签')
+    if (!loaded.has(name)) return {...pane, children: []}
+    const children = getSparkNodeChildren(pane.children).flatMap(node => {
+      if (node.type === 'r-alert') {
+        const invalidReference = name === 'jwt' ? invalid(authKey, 'loginApiName')
+          : invalid(parameterKey, 'interfaceId') || invalid(parameterKey, 'outputfield')
+        return invalidReference ? [node] : []
+      }
+      if (name === 'jwt') return [node]
+      const {viewKey, actions} = tableTabs[name]
+      return [{
+        ...node,
+        props: {...node.props, toolbar: toolbar(viewKey, actions)},
+        children: getSparkNodeChildren(node.children).map(child =>
+          name === 'publicParams' && nodeId(child) === 'outputfield'
+            ? {...child, props: {...child.props, cellReadonly: notCurrent}}
+            : child),
+      }]
+    })
+    return {...pane, children}
+  }),
+}))
 
 function toolbar(viewKey: string, order: readonly FeatureTableAction[]): RToolbarProps {
   revision.value

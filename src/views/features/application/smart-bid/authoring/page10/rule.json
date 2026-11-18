@@ -6,5 +6,13 @@
     "children": [
       {"type": "r-button", "props": {"label": "读取指定批准版", "onBeforeRender": "bindApprovedPrice", "onClick": "openApprovedPrice"}}
     ]
+  },
+  {
+    "id": "bid-security-review",
+    "type": "r-section",
+    "props": {"title": "投标担保"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核担保办理", "onBeforeRender": "bindBidSecurity", "onClick": "openBidSecurity"}}
+    ]
   }
 ]

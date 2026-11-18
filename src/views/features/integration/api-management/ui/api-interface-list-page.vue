@@ -17,7 +17,8 @@
             </template>
             <RendererTabs v-if="selected" v-model="tab" :data-view-key="INTERFACE_KEYS.interfaces">
               <RendererTabPane name="edit" label="接口编辑" :index="0" :data-view-key="INTERFACE_KEYS.interfaces">
-                <InterfaceEditPanel :key="String(selectedId)" :workspace="workspace" :pending-create="pendingCreate" />
+                <SparkComponentRenderer :key="String(selectedId)" :config="region(children,'api-interface-edit')" />
+                <InterfaceJsonImportDialog v-if="importing" :key="importing.epoch" :target="importing.target" @close="importing=undefined" />
               </RendererTabPane>
               <RendererTabPane name="invoke" label="调用输出" :index="1" :lazy="true" :data-view-key="INTERFACE_KEYS.calls">
                 <SparkComponentRenderer :config="region(children,'api-interface-invocation')" />
@@ -44,13 +45,13 @@ import * as SparkComponent from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import type {ApiInterfaceListPageProps} from './api-interface-list-page.props'
-import {INTERFACE_KEYS, INTERFACE_SCENARIO_ID as scenarioId, syncPathParameters, invokeApi, abandonInterfaceCall, outputFieldsOf, type InterfaceWorkspace} from './interface-list/interface-list-workspace'
-import InterfaceEditPanel from './interface-list/interface-edit-panel.vue'
+import {INTERFACE_KEYS, INTERFACE_SCENARIO_ID as scenarioId, syncPathParameters, invokeApi, abandonInterfaceCall, outputFieldsOf} from './interface-list/interface-list-workspace'
+import InterfaceJsonImportDialog from './interface-list/interface-json-import-dialog.vue'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import rule from './interface-list/rule.json?raw'
 import script from './interface-list/script.js?raw'
 import style from './interface-list/style.css?raw'
-import {runFeatureTableAction} from '@/views/features/shared/table/feature-table-actions'
+import {featureTableToolbar,runFeatureTableAction,type FeatureTableAction} from '@/views/features/shared/table/feature-table-actions'
 import ParameterBindingDialog from './public-parameter-binding/api-public-parameter-binding-dialog.vue'
 const {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, SparkPageRenderer, SparkComponentRenderer, RendererButton, RendererTabs, RendererTabPane, DisplayEmpty, consumeRequiredPageService} = SparkComponent
 const writable = ['Base_DataServiceInterface', '_Base_ParamList', 'Base_InterfaceApi_Headers', 'Base_TblField'] as const
@@ -85,11 +86,36 @@ const pendingCreate = computed(() => {const id = selectedId.value; return id !==
 const interfacePending = computed(() => {const interfaces = view('Base_DataServiceInterface'); return !!interfaces && (interfaces.hasEditingChanges() || interfaces.dirtyTracking.hasPendingChanges())})
 const status = computed(() => definitionUnconfirmed.value ? '保存结果尚未确认，请核验原保存结果' :
   callUnconfirmed.value ? '上次外部调用结果尚未确认，请在调用输出中处理' : '')
-const workspace = computed<InterfaceWorkspace>(() => ({locked: locked.value, revision: revision.value, run: act}))
+
 function region(children:readonly SparkNode[],id:string):SparkNode {
   const node=children.find(child=>nodeId(child)===id)
   if(!node)throw new Error(`接口工作区缺少配置区域 ${id}`)
   return node
+}
+const requestTab=ref('params')
+const importing=ref<{target:'json'|'form';epoch:number}>()
+let importEpoch=0
+watch(selectedId,()=>{requestTab.value='params';importing.value=undefined},{flush:'sync'})
+function requestType():string {
+  const id=selectedId.value
+  return id===undefined?'':String(view('Base_DataServiceInterface')?.getEditingRow(id)?.['RequestType']??'')
+}
+function openImport():void {
+  const target=requestTab.value
+  if(target!=='json'&&target!=='form'){pageService.showMessage('当前页签暂不支持导入JSON','warning');return}
+  if(requestType()!==(target==='json'?'Body':'FormData')){
+    pageService.showMessage(`请先将参数类型选择为 ${target==='json'?'Body/Json':'Body/FormData'}`,'warning');return
+  }
+  importing.value={target,epoch:++importEpoch}
+}
+function requestToolbar(table:string,order:readonly FeatureTableAction[]){
+  const target=requireView(table)
+  return featureTableToolbar({view:target,order,locked:locked.value,addBlocked:pendingCreate.value,
+    run:action=>act(async()=>{
+      await runFeatureTableAction(target,action,pageService)
+      if(action==='save'&&table==='_Base_ParamList')await requireView(table,'references').refresh()
+    }),
+  })
 }
 const listRuntime=computed(()=>ready.value?session.runtime:undefined)
 const routeSnapshot=computed(()=>{
@@ -108,6 +134,9 @@ const listHost=computed(()=>{
         return {unknown,busy:busy.value,locked:locked.value,pending:pendingCreate.value,
           hasResult:selectedId.value!==undefined&&calls?.currentRow?.['interfaceId']===selectedId.value&&!unknown}
       },
+      edit:()=>({tab:requestTab.value,type:requestType(),locked:locked.value}),
+      headersToolbar:()=>requestToolbar('Base_InterfaceApi_Headers',['add','remove','save','cancel']),
+      parametersToolbar:()=>requestToolbar('_Base_ParamList',['add','remove','cancel','save']),
       output:()=>{
         const outputs=view('Base_TblField')
         return {locked:locked.value,unknown:callUnconfirmed.value,pendingCreate:pendingCreate.value,
@@ -119,6 +148,8 @@ const listHost=computed(()=>{
         return {createDisabled:locked.value||interfaces?.addActionState()!=='enabled',removeDisabled:locked.value||!removable}
       },
     }
+    if(command==='interfaces.requestTab'&&(input==='params'||input==='json'||input==='form'||input==='header'))requestTab.value=input
+    if(command==='interfaces.importJson'&&!locked.value)openImport()
     if(command==='interfaces.abandonCall'&&!busy.value&&callUnconfirmed.value){
       await act(()=>abandonInterfaceCall(requireView('InterfaceCallRequest')))
       return undefined

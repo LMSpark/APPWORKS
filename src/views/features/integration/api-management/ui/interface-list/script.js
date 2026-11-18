@@ -41,3 +41,32 @@ function bindOutputUnknown() { return {visible:interfaces?.output().unknown === 
 async function resetOutput() { await $page.invokeHostCommand('interfaces.resetOutput') }
 async function saveOutput() { await $page.invokeHostCommand('interfaces.saveOutput') }
 async function bindOutput(row) { await $page.invokeHostCommand('interfaces.bindOutput',row?.rowid) }
+
+function bindRequestTabs() { return {modelValue:interfaces?.edit().tab} }
+function bindImport() { return {disabled:interfaces?.edit().locked !== false} }
+function bindJsonBody() { return {visible:interfaces?.edit().type === 'Body'} }
+function bindJsonHint() { return {visible:interfaces?.edit().type !== 'Body'} }
+function bindFormBody() { return {visible:interfaces?.edit().type === 'FormData'} }
+function bindFormHint() { return {visible:interfaces?.edit().type !== 'FormData'} }
+function bindHeaderToolbar() { return {toolbar:interfaces?.headersToolbar()} }
+function bindParameterToolbar() { return {toolbar:interfaces?.parametersToolbar()} }
+function bindPathAdapter() {
+  return {rowAdapter:{
+    read:original=>({...original,paramType:'path'}),
+    write:value=>({paramName:value.paramName,valueFun:value.valueFun ?? ''}),
+  }}
+}
+function isValueFunction(value) {
+  if (typeof value !== 'string' || !value.trim().startsWith('{')) return false
+  try {const parsed=JSON.parse(value);return !!parsed && typeof parsed === 'object' && !Array.isArray(parsed)} catch {return false}
+}
+function bindFormAdapter() {
+  return {rowAdapter:{
+    read:original=>({fieldName:original.fieldName ?? '',fieldType:original.fieldType ?? '',value:original.valueFun || original.defaultValue || ''}),
+    write:value=>isValueFunction(value.value)
+      ? {fieldName:value.fieldName ?? '',fieldType:value.fieldType ?? '',defaultValue:'',valueFun:value.value}
+      : {fieldName:value.fieldName ?? '',fieldType:value.fieldType ?? '',defaultValue:value.value ?? '',valueFun:''},
+  }}
+}
+async function selectRequestTab(name) { await $page.invokeHostCommand('interfaces.requestTab',name) }
+async function openJsonImport() { await $page.invokeHostCommand('interfaces.importJson') }

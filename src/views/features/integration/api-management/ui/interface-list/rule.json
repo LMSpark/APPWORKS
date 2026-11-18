@@ -51,5 +51,68 @@
         {"type":"r-text","props":{"field":"Memo","label":"描述","showCellControl":true}}
       ]}
     ]
-  }
+  },
+  {"id":"api-interface-edit","type":"r-section","props":{"bordered":false,"gridColumns":1,"class":"interface-edit"},"children":[
+    {"type":"r-form","props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":6,"labelWidth":"92px"},"children":[
+      {"type":"r-text","props":{"field":"Name","label":"名称:","placeholder":"请输入接口名称","colSpan":2}},
+      {"type":"r-select","props":{"field":"AccountName","label":"认证账号:","placeholder":"请选择认证账号","clearable":true,"filterable":true,"colSpan":2,"optionDataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_InterfaceProvider_Account@default"}},
+      {"type":"r-select","props":{"field":"ContentType","label":"输出类型:","placeholder":"请选择输出类型","colSpan":2,"optionDataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@ContentType@default"}},
+      {"type":"r-select","props":{"field":"request","label":"请求类型:","placeholder":"请选择请求类型","colSpan":3,"optionDataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@request@default"}},
+      {"type":"r-text","props":{"field":"LinkUrl","label":"请求地址:","placeholder":"请输入请求地址","colSpan":3}},
+      {"type":"r-textarea","props":{"field":"Desc","label":"描述说明:","placeholder":"请输入描述说明","autosize":{"minRows":2,"maxRows":4},"colSpan":6}}
+    ]},
+    {"type":"r-section","props":{"bordered":false,"gridColumns":5,"gridGap":16,"class":"interface-edit__request"},"children":[
+      {"type":"r-section","props":{"bordered":false,"title":"请求参数","description":"注：query: 查询参数（?key=value）；path: 路径参数（/user/{id}）；header: 请求头参数；body: 请求体参数；","gridColumns":1,"colSpan":3,"class":"interface-edit__params"},"children":[
+        {"type":"r-form","props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":1,"labelWidth":"80px"},"children":[
+          {"type":"r-radio","props":{"field":"RequestType","label":"参数类型:","optionDataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@接口参数类型@default"}}
+        ]},
+        {"type":"r-button","props":{"label":"导入JSON","onBeforeRender":"bindImport","onClick":"openJsonImport"}},
+        {"type":"r-tabs","props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","onBeforeRender":"bindRequestTabs","on":{"update:modelValue":"selectRequestTab"}},"children":[
+          {"type":"r-tab-pane","props":{"name":"params","label":"Params","index":0},"children":[
+            {"type":"r-form","props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":1,"labelPosition":"top"},"children":[
+              {"type":"r-json","props":{"field":"PathStr","label":"路径参数（随请求地址中的 {参数名} 同步）","mode":"rows","rowEditMode":"inline","rowOperations":["edit"],"emptyArrayAsEmptyText":true,"rowsSource":{"keyField":"paramName","valueField":"valueFun"},"onBeforeRender":"bindPathAdapter"},"children":[
+                {"type":"r-text","props":{"field":"paramName","label":"参数名称","readonly":true}},
+                {"type":"r-text","props":{"field":"paramType","label":"参数类型","readonly":true}},
+                {"type":"r-value-function","props":{"field":"valueFun","label":"值函数数值","inputParameterDataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@_Base_ParamList@references","publicParameterDataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_Interface_PublicParam@default","functionContext":{"capabilities":["huoshan"]}}}
+              ]}
+            ]}
+          ]},
+          {"type":"r-tab-pane","props":{"name":"json","label":"Body/Json","index":1},"children":[
+            {"type":"r-form","props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":1,"labelPosition":"top","onBeforeRender":"bindJsonBody"},"children":[
+              {"type":"r-json","props":{"field":"BodyParamJsonStr","label":"JSON 请求体","mode":"tree","height":360}}
+            ]},
+            {"type":"r-alert","props":{"alertType":"info","closable":false,"title":"参数类型选择 Body/Json 后维护 JSON 请求体","onBeforeRender":"bindJsonHint"}}
+          ]},
+          {"type":"r-tab-pane","props":{"name":"form","label":"Body/FormData","index":2},"children":[
+            {"type":"r-form","props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":1,"labelPosition":"top","onBeforeRender":"bindFormBody"},"children":[
+              {"type":"r-json","props":{"field":"BodyParamJsonStr","label":"表单字段","mode":"rows","rowEditMode":"row","emptyArrayAsEmptyText":true,"rowDefaults":{"fieldName":"","fieldType":"string","value":""},"onBeforeRender":"bindFormAdapter"},"children":[
+                {"type":"r-text","props":{"field":"fieldName","label":"字段名称"}},
+                {"type":"r-select","props":{"field":"fieldType","label":"类型","optionDataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@ParamType@default"}},
+                {"type":"r-value-function","props":{"field":"value","label":"默认值","inputParameterDataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@_Base_ParamList@references","publicParameterDataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_Interface_PublicParam@default","functionContext":{"capabilities":["huoshan"]}}}
+              ]}
+            ]},
+            {"type":"r-alert","props":{"alertType":"info","closable":false,"title":"参数类型选择 Body/FormData 后维护表单字段","onBeforeRender":"bindFormHint"}}
+          ]},
+          {"type":"r-tab-pane","props":{"name":"header","label":"Header","index":3,"lazy":true,"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_InterfaceApi_Headers@default"},"children":[
+            {"type":"r-form","props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":1,"labelWidth":"0"},"children":[
+              {"type":"r-checkbox","props":{"field":"requiresAuth","label":"","checkboxText":"使用公共Header","trueValue":1,"falseValue":0}}
+            ]},
+            {"type":"r-table","props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_InterfaceApi_Headers@default","showPagination":false,"showDataViewMeta":false,"highlightCurrentRow":true,"maxHeight":320,"onBeforeRender":"bindHeaderToolbar"},"children":[
+              {"type":"r-text","props":{"field":"ParamName","label":"参数名称","showCellControl":true}},
+              {"type":"r-text","props":{"field":"ParamDesc","label":"描述","showCellControl":true}},
+              {"type":"r-value-function","props":{"field":"ValueFun","label":"值函数","showCellControl":true,"inputParameterDataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@_Base_ParamList@references","publicParameterDataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_Interface_PublicParam@default","functionContext":{"capabilities":["huoshan"]}}}
+            ]}
+          ]}
+        ]}
+      ]},
+      {"type":"r-section","props":{"bordered":false,"title":"输入参数","gridColumns":1,"colSpan":2},"children":[
+        {"type":"r-table","props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@_Base_ParamList@default","showPagination":false,"showDataViewMeta":false,"highlightCurrentRow":true,"maxHeight":420,"onBeforeRender":"bindParameterToolbar"},"children":[
+          {"type":"r-text","props":{"field":"parname","label":"名称","showCellControl":true}},
+          {"type":"r-select","props":{"field":"parzdtype","label":"类型","showCellControl":true,"optionDataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@ParamType@default"}},
+          {"type":"r-text","props":{"field":"pardesc","label":"描述","showCellControl":true}},
+          {"type":"r-text","props":{"field":"testvalue","label":"参数测试值","showCellControl":true}}
+        ]}
+      ]}
+    ]}
+  ]}
 ]

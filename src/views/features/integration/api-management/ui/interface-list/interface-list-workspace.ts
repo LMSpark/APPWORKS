@@ -1,6 +1,6 @@
 /**
  * @module app:views/features/integration/api-management/ui/interface-list/interface-list-workspace
- * 职责：接口列表工作区的场景视图键、子面板共享上下文，以及原页“路径参数随地址同步”“按调用结果生成输出字段”的业务推导。
+ * 职责：接口列表工作区的场景视图键，以及原页“路径参数随地址同步”“按调用结果生成输出字段”的业务推导。
  * 边界：只做值推导，写入仍由页面经DataView编辑覆盖和staged保存提交；不发送请求、不持有第二份草稿。
  */
 import {buildDataViewKey, type DataView} from '@spark-appworks/spark-data'
@@ -18,13 +18,6 @@ export const INTERFACE_KEYS = {
   calls: interfaceViewKey('InterfaceCallRequest'),
   paramTypes: interfaceViewKey('ParamType'),
 } as const
-
-/** 子面板共享的页面状态：locked为忙碌或待核验，revision驱动按DataView事件重算，run串行执行并展示失败。 */
-export type InterfaceWorkspace = Readonly<{
-  locked: boolean
-  revision: number
-  run: (task: () => unknown) => Promise<void>
-}>
 
 const PATH_PARAMETER = /\{([^{}]+)\}/g
 

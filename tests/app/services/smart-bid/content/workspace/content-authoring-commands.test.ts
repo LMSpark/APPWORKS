@@ -227,6 +227,13 @@ it('rejects old editor writes and never lets its cleanup clear a newer editor in
   if(!isRecord(draft)||!Array.isArray(draft['nodes']))throw Error('DRAFT_REQUIRED')
   f.view.updateEditingValue('D','draft',{...draft,nodes:[...draft['nodes']].reverse()})
   expect(()=>Reflect.apply(oldChange,undefined,[])).toThrow('CONTENT_COMMAND_STALE')
+  expect(()=>Reflect.apply(oldPending,undefined,[true])).toThrow('CONTENT_COMMAND_STALE')
+  const movedPending=session.editorProps([2])['onEditingChange']
+  if(typeof movedPending!=='function')throw Error('EDITOR_CALLBACK_REQUIRED')
+  Reflect.apply(movedPending,undefined,[true])
+  Reflect.apply(oldPending,undefined,[false])
+  expect(f.commands.hasPendingInput).toBe(true)
+  Reflect.apply(movedPending,undefined,[false])
   f.view.updateEditingValue('D','draft',draft)
   session.select()
   const next=session.editorProps([2]),nextPending=next['onEditingChange']

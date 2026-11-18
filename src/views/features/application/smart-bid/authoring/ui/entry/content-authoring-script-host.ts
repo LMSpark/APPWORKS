@@ -284,6 +284,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      }
      const nodeId=readNodeId()
      if(!identity(nodeId))throw Error('CONTENT_PAGE_EDITOR_REQUIRED')
+     const inputSource=JSON.stringify(['page11-detail',nodeId,path[0]])
      return {...props,onChange(){
       assertCurrent();commands.assertInputCurrent(epoch)
       if(readNodeId()!==nodeId)throw Error('CONTENT_COMMAND_STALE')
@@ -291,7 +292,9 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
       if(typeof pending!=='boolean')throw Error('CONTENT_COMMAND_INPUT_STATE_REQUIRED')
       // 旧编辑器卸载的false不能清掉下一编辑器的保护。
       if(!pending&&epoch!==commands.epoch)return
-      assertCurrent();commands.setInputPending('page11-detail',pending,epoch)
+      assertCurrent()
+      if(pending&&readNodeId()!==nodeId)throw Error('CONTENT_COMMAND_STALE')
+      commands.setInputPending(inputSource,pending,epoch)
      }}
     },
     actionProps(label:string,path:JsonPath|null){

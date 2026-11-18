@@ -198,10 +198,14 @@ describe('flow run page mount', () => {
     await flushPromises()
     const tool = openTool(FLOW_MONITOR_SCENARIO_ID)
     expect(tool.rule.children).toMatchObject([{
-      type: 'r-table',
-      props: {dataViewKey: `${FLOW_WORKBENCH_SCENARIO_ID}@WFOBJ_FLOW_RELATIONLINE_STEP@default`},
-      children: [{props: {field: 'description'}}, {props: {field: 'ReceiveUserName'}},
-        {props: {field: 'STARTTIME'}}, {props: {field: 'StepState'}}],
+      type: 'r-section',
+      props: {title: '步骤历史'},
+      children: [{
+        type: 'r-table',
+        props: {dataViewKey: `${FLOW_WORKBENCH_SCENARIO_ID}@WFOBJ_FLOW_RELATIONLINE_STEP@default`},
+        children: [{props: {field: 'description'}}, {props: {field: 'ReceiveUserName'}},
+          {props: {field: 'STARTTIME'}}, {props: {field: 'StepState'}}],
+      }],
     }])
     const model = 'WFOBJ_FLOW_RELATIONLINE_STEP'
     const configured = workbenchScenario.tables[model]
@@ -227,6 +231,7 @@ describe('flow run page mount', () => {
       await flushPromises()
       workbench.getView(model).replaceRows([{rowid: 'STEP-1', WFOBJID: 'WF-1', description: '原步骤摘要', ReceiveUserName: '测试办理人', STARTTIME: '2026-11-19', StepState: '1'}])
       await flushPromises()
+      expect(wrapper.text()).toContain('步骤历史')
       expect(wrapper.findComponent({name: 'ElTable'}).props('data')).toMatchObject([{rowid: 'STEP-1', description: '原步骤摘要', ReceiveUserName: '测试办理人'}])
     } finally {
       wrappers.pop()?.unmount()

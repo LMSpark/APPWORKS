@@ -27,10 +27,7 @@
           </SparkComponent.RendererTabPane>
         </SparkComponent.RendererTabs>
       </section>
-      <section v-if="prepared" class="flow-run-page__history">
-        <h3 class="flow-run-page__section-label">步骤历史</h3>
-        <SparkPageRenderer v-if="runtime" :page-runtime="runtime" :route-snapshot="routeSnapshot" :auto-load="false" />
-      </section>
+      <SparkPageRenderer v-if="runtime" :page-runtime="runtime" :route-snapshot="routeSnapshot" :auto-load="false" />
       <aside v-if="handleOpen" class="flow-run-page__handle">
         <h3 class="flow-run-page__handle-title">办理</h3>
         <SparkComponent.RendererTable :data-view-key="nodeInputViewKey" :children="nodeFields" :auto-columns="false" :show-pagination="false" :show-data-view-meta="false" />
@@ -175,11 +172,9 @@ const chartBadgeRules = [
 .flow-run-page__business {min-width: 0}
 .flow-run-page__handle {border: 1px solid var(--el-border-color); border-radius: 8px; padding: 12px; display: grid; gap: 12px}
 .flow-run-page__handle-title {margin: 0; font-size: 16px}
-.flow-run-page__section-label {margin: 8px 0 4px; font-size: 13px; color: var(--el-text-color-secondary)}
 .flow-run-page__nodes {display: grid; gap: 8px}
 .flow-run-page__node-option {display: flex; gap: 8px; align-items: center}
 .flow-run-page__handle-actions {display: flex; flex-wrap: wrap; gap: 8px}
-.flow-run-page__history {margin-top: 16px}
 .flow-run-page__chart {min-height: 50vh}
 @media (max-width: 960px) {
   .flow-run-page__layout {grid-template-columns: 1fr}

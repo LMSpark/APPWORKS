@@ -132,6 +132,7 @@ import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appwork
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
+import {resolveExecutionProjectId} from '@/services/application-scope'
 import {ExcelConfigurationEdit} from '@/lowcode/resources/semi-structured/excel-import/configuration-edit'
 import {ExcelConfigurationRemoval} from '@/lowcode/resources/semi-structured/excel-import/configuration-removal'
 import {assertExcelFieldRemoval} from '@/lowcode/resources/semi-structured/excel-import/edit-references'
@@ -149,6 +150,7 @@ import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/e
 const {PAGE_RUNTIME, RendererTree, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, RendererTabs, RendererTabPane, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const importConfigId = computed(() => props.schemeRowid ?? (typeof route.query['importConfigId'] === 'string' ? route.query['importConfigId'] : ''))
+const navigationProjectId=computed(()=>resolveExecutionProjectId(route.path))
 const scene = LowcodeExcelImport.designScenarioId, catalogScene = LowcodeExcelImport.navigationScenarioId
 const nodesTable = 'Base_ImportData_Config', fieldsTable = 'Base_ImportData_Field', rulesTable = 'Base_Import_Transform_Rule'
 const schemeTable = 'Base_Import_solution'
@@ -274,16 +276,23 @@ const fieldColumns = computed<SparkNode[]>(() => [
 onBeforeRouteLeave(() => !hasPending.value)
 onBeforeRouteUpdate(() => !hasPending.value)
 defineExpose({hasPending,busy,unconfirmed,discardChanges:discardAll})
-watch(importConfigId, async id => {
+watch([importConfigId,navigationProjectId], async ([id,project]) => {
   const own = ++generation
   sourceTargetId.value = ''; targetChange.value = undefined; removal.value = undefined; fieldReference.value=undefined
   unsubscribers.forEach(off=>off()); unsubscribers=[]; association.value=undefined; sortDirectory.value?.dispose();sortDirectory.value=undefined; dataSet.value=undefined; catalog.value=undefined; session.dispose()
   ready.value=false; opening.value=true; error.value=''; recoveryNotice.value=''; inputs.value.clear()
   try {
     if (!id.trim()) throw new Error('缺少 importConfigId 参数')
-    const current = session.acquire({pageId:'excel-import-editor-page',scenarioIds:[catalogScene,scene,LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],deferredScenarioIds:[LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],targetId:id,scenarioInputs:{[catalogScene]:{importConfigId:id},[scene]:{importConfigId:id}},
-      loadScenario: space => space === scene ? LowcodeExcelImport.loadEditor(scene,()=>current) : space === catalogScene ? LowcodeExcelImport.loadCatalog(catalogScene)
-        : space === LowcodeExcelImport.referenceScenarioId ? LowcodeExcelImport.loadReferenceSources() : space===LowcodeDictionary.editorScenarioId ? LowcodeDictionary.loadEditor().then(result=>result.dataSet) : Promise.reject(new Error('Excel页面未声明该来源空间'))})
+    const capturedProject=LowcodeExcelImport.designProject(project)
+    const current = session.acquire({pageId:'excel-import-editor-page',scenarioIds:[catalogScene,scene,LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],deferredScenarioIds:[LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],targetId:`${capturedProject}:${id}`,scenarioInputs:{[catalogScene]:{importConfigId:id},[scene]:{importConfigId:id}},
+      loadScenario: space => {
+        LowcodeExcelImport.designProject(capturedProject)
+        if(space===scene)return LowcodeExcelImport.loadEditor(scene,()=>current)
+        if(space===catalogScene)return LowcodeExcelImport.loadCatalog(catalogScene,capturedProject)
+        if(space===LowcodeExcelImport.referenceScenarioId)return LowcodeExcelImport.loadReferenceSources()
+        if(space===LowcodeDictionary.editorScenarioId)return LowcodeDictionary.loadEditor().then(result=>result.dataSet)
+        throw new Error('Excel页面未声明该来源空间')
+      }})
     await current.load()
     if (!active || own!==generation || !session.isCurrent(current)) return
     catalog.value=current.getDataSet(catalogScene); dataSet.value=current.getDataSet(scene)

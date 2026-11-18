@@ -55,9 +55,9 @@ beforeEach(() => {
   config.global.stubs = stubs
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
-async function open(importConfigId = 'E1') {
-  const router = createRouter({history: createMemoryHistory(), routes: [{path: '/editor', component: ExcelEditor, meta: {blueprintScenarioId: EXCEL}}, {path: '/other', component: {template: '<div>other</div>'}}]})
-  await router.push({path: '/editor', query: {importConfigId}}); await router.isReady()
+async function open(importConfigId = 'E1',path='/editor') {
+  const router = createRouter({history: createMemoryHistory(), routes: [{path, component: ExcelEditor, meta: {blueprintScenarioId: EXCEL}}, {path: '/other', component: {template: '<div>other</div>'}}]})
+  await router.push({path, query: {importConfigId}}); await router.isReady()
   const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}}); wrappers.push(wrapper)
   await flushPromises()
   const click = async (label: string) => {const button = wrapper.findAll('button').find(button => button.text() === label); expect(button, label).toBeDefined(); await button!.trigger('click'); await flushPromises()}
@@ -100,6 +100,13 @@ async function selectTarget(f: Awaited<ReturnType<typeof open>>) {
   await vi.waitFor(() => expect(f.wrapper.text()).toContain('目标及字段替换共同保存'))
 }
 describe('formal Excel design editor', () => {
+  it('rejects a navigation application mismatch before reading design data',async()=>{
+    const f=await open('E1','/apps/another-app/editor')
+    expect(f.wrapper.text()).toContain('Excel设计导航与当前执行应用不一致')
+    expect(f.wrapper.findComponent(RendererTree).exists()).toBe(false)
+    expect(state.http.reads).toEqual([])
+    expect(state.http.saves).toEqual([])
+  })
   it('hosts the Excel design runtime through the shared native session', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue'), 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')

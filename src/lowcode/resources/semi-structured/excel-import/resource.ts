@@ -19,6 +19,14 @@ export class LowcodeExcelImport {
   /** 原PageRuntime按需装配的正式表来源空间，不创建独立选择器数据链。 */
   static readonly referenceScenarioId = '34BDBE645F461A3D83282A941D6037F4'
 
+  /** Captures or checks the active application for a single design session. */
+  static designProject(expectedProjectId?:string):string {
+    const projectId=lowcodeApi.readRequestScope().headers['X-AppId']
+    if(!projectId||projectId===APPLICATION_CATALOG_PROJECT_ID)throw new Error('请先选择执行应用')
+    if(expectedProjectId!==undefined&&expectedProjectId!==projectId)throw new Error('Excel设计导航与当前执行应用不一致')
+    return projectId
+  }
+
   /** 按本次执行应用装配正式方案目录，身份不匹配时拒绝，不使用备用目录。 */
   static async loadCatalog(scenarioId: string, expectedProjectId?: string): Promise<DataSet> {
     if (scenarioId !== this.navigationScenarioId) throw new Error('Excel目录场景身份不匹配')

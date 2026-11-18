@@ -37,6 +37,9 @@ export function createFlowRunCandidatesBinding({view, source, guard, userDirecto
       const proofs = directory && readable ? readable.map(user => directory.captureReadRow(user, ['rowid', 'UserName'])) : []
       const assertAssigned = assigned?.captureReadResult()
       const assignedRows = assigned?.rows ?? []
+      if (assigned && (assigned.nextPageAvailable === true || assigned.countReported === true && assigned.total !== assignedRows.length)) {
+        throw Error('已有办理人查询结果不完整，无法安全追加办理人')
+      }
       if (assigned?.rows.some(item => assigned.fieldAccess(item, 'ReceiveUserId').read !== 'visible')) {
         throw Error('已有办理人身份不可读，无法安全追加办理人')
       }

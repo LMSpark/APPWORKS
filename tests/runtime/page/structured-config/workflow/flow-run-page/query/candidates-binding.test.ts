@@ -67,6 +67,12 @@ it('uses the original full directory only for explicit free choice and expires i
     expect(view.rows.map(row => row['value'])).toEqual(['U2:李四'])
     const assignedProof = view.captureReadResult()
     await assigned.refresh(); expect(() => assignedProof()).toThrow()
+    const nextPage = vi.spyOn(assigned, 'nextPageAvailable', 'get').mockReturnValue(true)
+    try {
+      await view.refresh()
+      expect(view.loadingError?.message).toContain('已有办理人查询结果不完整')
+      expect(() => view.captureReadResult()).toThrow()
+    } finally {nextPage.mockRestore()}
     const originalAccess = assigned.fieldAccess.bind(assigned)
     const access = vi.spyOn(assigned, 'fieldAccess').mockImplementation((row, field) => ({...originalAccess(row, field), read: 'masked'}))
     try {

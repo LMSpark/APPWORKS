@@ -1,13 +1,13 @@
 import {expect,it,vi} from 'vitest'
 import {preparePaperPackingRecord,reviewPaperSubmissionPackage} from '@/services/smart-bid/content/review/paper-submission-package'
 import {DataSet} from '@spark-appworks/spark-data'
-import {assessSubmissionPackageRelease,bindPackageSignatureCoverage} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-release'
+import {assessSubmissionPackageRelease,bindPackageSignatureCoverage,readPackageSignatureChecks} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-release'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
 import script from '@/views/features/application/smart-bid/authoring/page13/script.js?raw'
 import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
 import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {reviewRegisteredPaperSubmissionPackage} from '@/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader'
-import {contentDeliveryPackageScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
+import {contentDeliveryPackageScenarioViews,contentPackageSignatureScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -120,6 +120,22 @@ it('opens the original paper packing record before asking for same-seal witness 
   const check={...scope,packageHash:row.packageHash,...signatureTarget,signatureRef:'SIGNED',verificationRef:'VERIFIED',
    valid:true,assertCurrent:host.assertCurrent}
   const signatureEvidence=bindPackageSignatureCoverage(proof,[signatureTarget],[check])
+  const signRow={...scope,...signatureTarget,packageHash:row.packageHash,id:check.signatureRef,
+   verificationRef:check.verificationRef,valid:true,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}
+  const signatures=DataSet.fromJson({scenarioId:'S',tables:{SignatureRecord:{
+   modelBinding:{modelId:'SIGN-M',modelName:'SignatureRecord'},columns:Object.keys(signRow).map(name=>({name,isPrimaryKey:name==='id'})),
+   views:{default:{},...contentPackageSignatureScenarioViews('id')},
+  }}})
+  try{
+   const signatureView=signatures.getView('SignatureRecord','packageSignatureChecks')!
+   const signatureTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'SignatureRecord'})
+   signatureView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+    identity:signatureTable.identity,scope:'sign',readScope:()=> 'sign',
+    snapshot:signatureTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[signRow]}}}),
+   })})
+   const read=await readPackageSignatureChecks({...host,runtime:{resolveView:()=>signatureView}},proof,[check.signatureRef])
+   expect(bindPackageSignatureCoverage(proof,[signatureTarget],read)).toMatchObject([{accepted:true,evidenceRef:'VERIFIED'}])
+  }finally{signatures.destroy()}
   expect(assessSubmissionPackageRelease(proof,rules,[...evidence.slice(0,2),...signatureEvidence]).deliverable).toBe(true)
   expect(()=>bindPackageSignatureCoverage(proof,[signatureTarget],[{...check,signerRef:'OTHER'}]))
    .toThrow('SUBMISSION_PACKAGE_SIGNATURE_SCOPE')

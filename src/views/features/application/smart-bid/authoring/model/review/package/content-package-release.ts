@@ -3,6 +3,8 @@
  * 职责：第50项按当次要求核放行证据，供第51项绑定最终待发包。
  */
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {hasContentScopeCondition,type ContentRevisionReadHost} from '../../content-revision-reader'
 /** Identity of the registered original package and its frozen selection. */
 type Scope=Readonly<{projectId:string;packageId:string;packageHash:string;selectionHash:string}>
 /** Current member comparison from an independently observed final package. */
@@ -15,6 +17,48 @@ type SignatureTarget=Readonly<{targetId:string;signerRef:string;positionRef:stri
 type SignatureCheck=Scope&SignatureTarget&Readonly<{
  signatureRef:string;verificationRef:string;valid:boolean;assertCurrent:()=>void
 }>
+
+const signatureScope=['projectId','packageId','packageHash','selectionHash'] as const
+const signatureFields=[...signatureScope,'id','targetId','signerRef','positionRef','verificationRef','valid']
+
+/** 仅核当前包同一查询代次可读的原签署记录。 */
+export async function readPackageSignatureChecks(host:ContentRevisionReadHost,pack:Scope,ids:readonly string[]){
+ host.assertCurrent()
+ if(pack.projectId!==host.projectId||!identity(host.scenarioId)||!ids.every(identity)||new Set(ids).size!==ids.length)
+  throw Error('SUBMISSION_PACKAGE_SIGNATURE_SCOPE')
+ if(!ids.length)return Object.freeze([])
+ const viewKey=buildDataViewKey('SignatureRecord','packageSignatureChecks',host.scenarioId)
+ const view=host.runtime.resolveView(viewKey)
+ const context={projectId:pack.projectId,packageId:pack.packageId,packageHash:pack.packageHash,selectionHash:pack.selectionHash}
+ const valid=(target:DataView)=>target.dataTable?.modelBinding?.modelName==='SignatureRecord'&&
+  target.commitMode==='staged'&&target.queryConfig.autoQuery===false&&target.queryConfig.allPages===true&&
+  signatureScope.every(field=>hasContentScopeCondition(target,field,{Type:'GetInputParam',ParamName:field}))
+ if(!view||!valid(view)||view.hasEditingChanges())throw Error('SUBMISSION_PACKAGE_SIGNATURE_VIEW')
+ const requested=new Set(ids)
+ view.queryContext={...view.queryContext,...context}
+ view.filterExpression={logic:'or',filters:[...requested].map(id=>({field:'id',operator:'eq',value:id}))}
+ const filter=JSON.stringify(view.filterExpression)
+ const assertScope=()=>{
+  host.assertCurrent()
+  if(host.runtime.resolveView(viewKey)!==view||!valid(view)||view.hasEditingChanges()||view.loadingError||
+   signatureScope.some(field=>view.queryContext[field]!==context[field])||JSON.stringify(view.filterExpression)!==filter)
+   throw Error('SUBMISSION_PACKAGE_SIGNATURE_STALE')
+ }
+ await view.refresh()
+ assertScope()
+ if(view.countReported!==true||view.total!==view.rows.length||view.nextPageAvailable===true)
+  throw Error('SUBMISSION_PACKAGE_SIGNATURE_INCOMPLETE')
+ const assertResult=view.captureReadResult()
+ return Object.freeze(view.rows.map((row):SignatureCheck=>{
+  const assertRow=view.captureReadRow(row,signatureFields)
+  const {id,targetId,signerRef,positionRef,verificationRef,valid:verified}=row
+  if(!identity(id)||!requested.delete(id)||!identity(targetId)||!identity(signerRef)||!identity(positionRef)||
+   !identity(verificationRef)||typeof verified!=='boolean'||signatureScope.some(field=>row[field]!==context[field]))
+   throw Error('SUBMISSION_PACKAGE_SIGNATURE_SCOPE')
+  return Object.freeze({...context,targetId,signerRef,positionRef,signatureRef:id,verificationRef,valid:verified,
+   assertCurrent:()=>{assertScope();assertResult();assertRow()}})
+ }))
+}
 
 /** 动作47逐人逐位置核最终包，缺项保留给放行检查。 */
 export function bindPackageSignatureCoverage(pack:Scope&Readonly<{assertCurrent:()=>void}>,

@@ -21,7 +21,7 @@ import {readRegisteredTenderOutcome} from '../../model/review/submission/content
 import {readRegisteredDeadlineRecord} from '../../model/review/deadline/content-deadline-record-reader'
 import {reviewRegisteredDeliveryZipPackage} from '../../model/review/package/content-package-review'
 import {readRegisteredPaperPacking,reviewRegisteredPaperSubmissionPackage} from '../../model/review/package/content-paper-submission-package-reader'
-import {assessSubmissionPackageRelease,bindPackageSignatureCoverage} from '../../model/review/package/content-package-release'
+import {assessSubmissionPackageRelease,bindPackageSignatureCoverage,readPackageSignatureChecks} from '../../model/review/package/content-package-release'
 import {checkRepresentedSubmission,checkSubmissionStart,prepareSubmissionRequest} from '../../model/review/submission/content-submission-preflight'
 
 /** 原递交请求的读取合同。 */
@@ -81,7 +81,7 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
   readPackageRelease?:(
    original:Readonly<Pick<PackageRelease[0],'projectId'|'packageId'|'packageHash'|'selectionHash'>>,signal:AbortSignal
   )=>Promise<Readonly<{rules:PackageRelease[1];evidence:PackageRelease[2];
-   signature?:Readonly<{targets:Parameters<typeof bindPackageSignatureCoverage>[1];checks:Parameters<typeof bindPackageSignatureCoverage>[2]}>
+   signature?:Readonly<{targets:Parameters<typeof bindPackageSignatureCoverage>[1];recordIds:readonly string[]}>
   }>>
   readSubmissionPreparation?:SubmissionPreparation
   readFreezeSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
@@ -94,7 +94,8 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
   if(!proof.membershipMatches||!sources.readPackageRelease)return null
   const {projectId,packageId,packageHash,selectionHash}=proof
   const selected=await sources.readPackageRelease(Object.freeze({projectId,packageId,packageHash,selectionHash}),signal)
-  const signatures=selected.signature?bindPackageSignatureCoverage(proof,selected.signature.targets,selected.signature.checks):[]
+  const signatures=selected.signature?bindPackageSignatureCoverage(proof,selected.signature.targets,
+   await readPackageSignatureChecks({...scope,runtime,assertCurrent:proof.assertCurrent},proof,selected.signature.recordIds)):[]
   const otherEvidence=selected.evidence.filter(item=>item.kind!=='SIGNATURE')
   return assessSubmissionPackageRelease(proof,selected.rules,[...otherEvidence,...signatures])
  }

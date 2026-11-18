@@ -13,6 +13,13 @@ const outcomeFields=['subjectId','kind','eventRef','issuerRef','documentVersionI
 /** 固定查询字段，以及与字段名不同时使用的参数名。 */
 type Key=string|readonly [field:string,parameter:string]
 
+/** 页13读取同一最终包的正式验签记录。 */
+export function contentPackageSignatureScenarioViews(primaryKey:string){
+ return {packageSignatureChecks:view(primaryKey,['projectId','packageId','packageHash','selectionHash'],{
+  fields:['id','targetId','signerRef','positionRef','verificationRef','valid'],allPages:true,
+ })}
+}
+
 function view(primaryKey:string,keys:readonly Key[],options:Readonly<{
  fields:readonly string[];allPages?:boolean;extra?:DataViewFilterTree
 }>):ViewMetadata{

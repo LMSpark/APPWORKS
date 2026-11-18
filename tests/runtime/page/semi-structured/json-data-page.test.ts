@@ -73,6 +73,13 @@ describe('JSON document page on the formal DataSet',()=>{
  it('reports a missing file and disables save without fabricating an empty document',async()=>{
   const f=await open();await f.choose(1);await vi.waitFor(()=>expect(f.wrapper.text()).toContain('文件不存在'))
   expect(f.wrapper.findComponent(FieldJson).exists()).toBe(false);expect(f.wrapper.findAll('button').find(b=>b.text()==='保存内容')?.attributes('disabled')).toBeDefined();expect(state.uploads).toEqual([])
+  await f.click('关闭')
+  await f.choose(0)
+  await vi.waitFor(()=>expect(documentValue(f.wrapper)).toEqual({flag:false,nested:[[1,null],{}]}))
+  expect(f.wrapper.text()).not.toContain('文件不存在')
+  expect(state.reads.slice(-2)).toEqual(['J2.json','data.json'])
+  expect(state.http.saves).toEqual([])
+  expect(state.uploads).toEqual([])
  })
  it('verifies an unknown raw file write without replaying it',async()=>{
   const f=await open();await f.choose();await f.edit('{"saved":true}');state.lose=true;await f.click('保存内容');expect(state.uploads).toHaveLength(1)

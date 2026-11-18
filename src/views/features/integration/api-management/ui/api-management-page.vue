@@ -7,16 +7,7 @@ AI用途：恢复外部服务入口时复用标准外壳、通用记录对话框
 <template>
   <RendererSection class="api-manage-page" title="外部服务管理" :bordered="false" :grid-columns="1" :grid-gap="16"
     :status="loading ? '正在读取外部服务目录…' : ''" :error="error || message" :retryable="!loading && !ready" @retry="loadCurrentRoute">
-    <template v-if="ready" #header-actions>
-      <RendererButton label="AI添加" icon="ChatDotRound" :disabled="blocked" @click="openAi" />
-      <RendererButton :data-view-key="viewKey" label="新建" button-type="primary" icon="Plus" perm-action="create"
-        :disabled="blocked" @click="openCreate" />
-    </template>
-    <DisplayAlert v-if="ready && unresolvedModifier" alert-type="warning" :closable="false" :show-icon="true"
-      title="部分修改人在当前可读用户目录中未解析，保留原始标识。" />
-    <RendererTable v-if="ready" :data-view-key="viewKey" :children="columns" :actions="actions" :auto-columns="false"
-      :stripe="true" :border="true" :show-data-view-meta="false" :action-column="{label: '提供商操作', width: 280, fixed: true}"
-      :pagination="{pageSizes: [10, 20, 50, 100], showJumper: true}" />
+    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false" />
     <FeatureRecordDialog v-if="ready && dialog?.kind === 'record'" :key="dialog.epoch" :data-view-key="viewKey" :record-id="dialog.id"
       :created="dialog.created" :title="dialog.created ? '新增外部服务提供商' : '编辑外部服务提供商'" :specs="specs" :width="640"
       @close="closeRecord" />
@@ -30,14 +21,19 @@ AI用途：恢复外部服务入口时复用标准外壳、通用记录对话框
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
-import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {DisplayAlert, RendererButton, RendererSection, RendererTable, useSparkComponent, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {useRoute} from 'vue-router'
+import {buildDataViewKey, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {RendererSection, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import AiDataEntryDialog from '@/views/features/shared/ai/ai-data-entry-dialog.vue'
 import ApiConfigPage from './api-config-page.vue'
 import ApiInterfaceListPage from './api-interface-list-page.vue'
+import {PageTool} from '@spark-appworks/spark-project-model'
+import rule from './provider-tool/rule.json?raw'
+import script from './provider-tool/script.js?raw'
+import style from './provider-tool/style.css?raw'
 
 const scenarioId = '8CBB62EBC873A38DB9E6EEF177AFC731'
 const configScenarioId = '446B5D94A71587E9BD4D325A4DF5F6F8'
@@ -52,9 +48,20 @@ const childRecords = [
 const userViewKey = buildDataViewKey('Base_UserInfo', 'default', scenarioId)
 const {sparkConsume} = useSparkComponent({type: 'api-management-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'api-management-page')
+const route=useRoute()
+const routeSnapshot=computed(()=>{
+  const {path,fullPath,name,params,query,hash}=route
+  return {path,fullPath,name:name??null,params,query,hash}
+})
+const tool=new PageTool({pageId:'api-management-page'})
+tool.hydrateFileText('rule.json',rule)
+tool.hydrateFileText('script.js',script)
+tool.hydrateFileText('style.css',style)
+tool.markLoaded()
 const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId,
   modelName,
+  tool,
   componentType: 'api-management-page',
   title: '外部服务管理',
   optionModels: ['Base_UserInfo'],
@@ -88,32 +95,35 @@ const unresolvedModifier = computed(() => {
   return providers.rows.some(row => providers.fieldAccess(row, 'updateuser').read === 'visible'
     && row['updateuser'] !== undefined && row['updateuser'] !== null && row['updateuser'] !== '' && !ids.has(row['updateuser']))
 })
-const column = (field: string, label: string, props: Record<string, unknown>): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, showOverflowTooltip: true, ...props}})
-const columns: SparkNode[] = [
-  column('Name', '服务提供商名称', {minWidth: 220}),
-  column('BaseURL', 'API 基础 URL', {minWidth: 320}),
-  {type: 'r-select', props: {field: 'updateuser', label: '修改人', width: 160, readonly: true, sortable: false, optionDataViewKey: userViewKey}},
-  column('updatetime', '修改时间', {width: 140, displayFormatter: (value: unknown) => String(value ?? '').slice(0, 10)}),
-]
 const specs: readonly FeatureFieldSpec[] = [
   {field: 'Name', label: '提供商名称', placeholder: '请输入提供商名称', required: true},
   {field: 'BaseURL', label: 'API 基础 URL', placeholder: '请输入 API 基础 URL', required: true},
 ]
-type RowRenderContext = Readonly<{row?: DataRow | null; dataSource?: DataView | null}>
-type RowGuard = (row: DataRow, view: DataView) => boolean
-type RowButtonOptions = Readonly<{visible?: RowGuard; buttonType?: string; permAction?: 'edit' | 'delete'}>
-const rowButton = (label: string, onClick: (row: DataRow) => unknown, options: RowButtonOptions = {}): SparkNode =>
-  ({type: 'r-button', props: {dataViewKey: viewKey.value, label, link: true, buttonType: options.buttonType ?? 'primary', disabled: blocked.value, onClick,
-    ...(options.permAction ? {permAction: options.permAction} : {}),
-    ...(options.visible ? {onBeforeRender: ({row, dataSource}: RowRenderContext) =>
-      Boolean(row && dataSource && options.visible?.(row, dataSource))} : {})}})
-const actions = computed<RToolbarProps>(() => ({gap: 4, children: [
-  rowButton('编辑', openEdit, {visible: (row, view) => view.editActionState(row) === 'enabled'}),
-  rowButton('删除', removeProvider, {buttonType: 'danger', visible: (row, view) => view.deleteActionState(row) === 'enabled'}),
-  rowButton('接口列表', row => openInterfaces(String(list().getPkKey(row) ?? ''), text(row, 'Name'))),
-  rowButton('基础配置', openConfig, {permAction: 'edit'}),
-]}))
+const runtime=computed(()=>ready.value?session.runtime:undefined)
+const host=computed(()=>{
+  const current=runtime.value
+  if(!current)return undefined
+  const assertCurrent=()=>{if(!session.isCurrent(current))throw new Error('外部服务目录实例已失效')}
+  return {runtime:current,assertCurrent,async invoke(command:string,input:unknown){
+    assertCurrent()
+    if(command==='providers.connect')return {
+      blocked:()=>blocked.value,unresolved:()=>unresolvedModifier.value,
+      canEdit:(row:DataRow|null|undefined)=>!!row&&list().editActionState(row)==='enabled',
+      canDelete:(row:DataRow|null|undefined)=>!!row&&list().deleteActionState(row)==='enabled',
+    }
+    if(blocked.value)return undefined
+    if(command==='providers.create')await openCreate()
+    if(command==='providers.ai')openAi()
+    const catalog=list()
+    const row=catalog.rows.find(item=>catalog.getPkKey(item)===input)
+    if(!row)return undefined
+    if(command==='providers.edit'&&catalog.editActionState(row)==='enabled')openEdit(row)
+    if(command==='providers.remove'&&catalog.deleteActionState(row)==='enabled')await removeProvider(row)
+    if(command==='providers.config'&&catalog.editActionState(row)==='enabled')openConfig(row)
+    if(command==='providers.interfaces')openInterfaces(String(catalog.getPkKey(row)??''),text(row,'Name'))
+    return undefined
+  }}
+})
 
 async function openCreate(): Promise<void> {
   if (blocked.value) return

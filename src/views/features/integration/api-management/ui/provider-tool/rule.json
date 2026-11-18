@@ -1,0 +1,29 @@
+[
+  {"type":"r-space","props":{"wrap":true},"children":[
+    {"type":"r-button","props":{"label":"AI添加","icon":"ChatDotRound","onBeforeRender":"bindAction","onClick":"openAi"}},
+    {"type":"r-button","props":{"dataViewKey":"8CBB62EBC873A38DB9E6EEF177AFC731@Base_InterfaceProvider@default","label":"新建","buttonType":"primary","icon":"Plus","permAction":"create","onBeforeRender":"bindAction","onClick":"openCreate"}}
+  ]},
+  {"type":"r-alert","props":{"alertType":"warning","closable":false,"showIcon":true,"title":"部分修改人在当前可读用户目录中未解析，保留原始标识。","onBeforeRender":"bindModifierNotice"}},
+  {
+    "id":"api-provider-catalog",
+    "type":"r-table",
+    "props":{
+      "class":"api-provider-catalog","dataViewKey":"8CBB62EBC873A38DB9E6EEF177AFC731@Base_InterfaceProvider@default",
+      "autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false,
+      "actionColumn":{"label":"提供商操作","width":280,"fixed":true},
+      "pagination":{"pageSizes":[10,20,50,100],"showJumper":true},
+      "actions":{"gap":4,"children":[
+        {"type":"r-button","props":{"label":"编辑","dataViewKey":"8CBB62EBC873A38DB9E6EEF177AFC731@Base_InterfaceProvider@default","link":true,"buttonType":"primary","onBeforeRender":"bindEdit","onClick":"editProvider"}},
+        {"type":"r-button","props":{"label":"删除","dataViewKey":"8CBB62EBC873A38DB9E6EEF177AFC731@Base_InterfaceProvider@default","link":true,"buttonType":"danger","onBeforeRender":"bindDelete","onClick":"deleteProvider"}},
+        {"type":"r-button","props":{"label":"接口列表","dataViewKey":"8CBB62EBC873A38DB9E6EEF177AFC731@Base_InterfaceProvider@default","link":true,"buttonType":"primary","onBeforeRender":"bindAction","onClick":"openInterfaces"}},
+        {"type":"r-button","props":{"label":"基础配置","dataViewKey":"8CBB62EBC873A38DB9E6EEF177AFC731@Base_InterfaceProvider@default","link":true,"buttonType":"primary","permAction":"edit","onBeforeRender":"bindAction","onClick":"openConfig"}}
+      ]}
+    },
+    "children":[
+      {"type":"r-text","props":{"field":"Name","label":"服务提供商名称","minWidth":220,"readonly":true,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"BaseURL","label":"API 基础 URL","minWidth":320,"readonly":true,"showOverflowTooltip":true}},
+      {"type":"r-select","props":{"field":"updateuser","label":"修改人","width":160,"readonly":true,"sortable":false,"optionDataViewKey":"8CBB62EBC873A38DB9E6EEF177AFC731@Base_UserInfo@default"}},
+      {"type":"r-text","props":{"field":"updatetime","label":"修改时间","width":140,"readonly":true,"showOverflowTooltip":true,"onBeforeRender":"bindDate"}}
+    ]
+  }
+]

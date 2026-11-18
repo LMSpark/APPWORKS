@@ -58,6 +58,8 @@ type Props = {
  host?: NonNullable<Parameters<typeof buildPageContext>[0]['host']>
  routeSnapshot: PageRoute
  enableCssScope?: boolean
+ /** 原生宿主已按业务范围加载所需视图时，可关闭渲染器的场景自动查询。 */
+ autoLoad?: boolean
  messageService?: PageServiceOverrides['messageService']
  confirmService?: PageServiceOverrides['confirmService']
  beforeLoad?: (pageId: string) => void | Promise<void>
@@ -65,7 +67,7 @@ type Props = {
  onError?: (error: Error) => void
  onRuntimeError?: (payload: PageRuntimeErrorPayload) => void
 }
-const props = withDefaults(defineProps<Props>(), { enableCssScope: true })
+const props = withDefaults(defineProps<Props>(), { enableCssScope: true, autoLoad: true })
 const { router, sparkProvide, sparkConsume, loading, error, componentRegistry, pageRuntimeServices, runLoad } = useRendererSetup('spark-page', logger)
 const instance = getCurrentInstance()
 const capabilityContext = instance ? sparkResolveContextOwner(instance) : null
@@ -312,7 +314,7 @@ async function loadConfig():Promise<void> {
  if(!alive())return
  try {await functions['__init__']?.()}catch(errorLike){if(alive())report('init',runtime,errorLike)}
  if(!alive())return
- for(const id of runtime.call.scenarioIds){const ds=runtime.getDataSet(id);ds?.triggerAutoLoad();ds?.initAutoSelection()}
+ for(const id of runtime.call.scenarioIds){const ds=runtime.getDataSet(id);if(props.autoLoad)ds?.triggerAutoLoad();ds?.initAutoSelection()}
  invalidate()
 }
 onErrorCaptured(errorLike=>{if(activeRuntime && !controller?.signal.aborted)report('render',activeRuntime,errorLike)})

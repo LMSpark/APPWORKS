@@ -89,6 +89,12 @@
             true
           ]
         },
+        "autoLoad": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "messageService": {
           "type": "object",
           "properties": {
@@ -196,7 +202,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T18:09:55.923Z",
+  "generatedAt": "2026-11-18T21:40:06.176Z",
   "models": {
     "PageRuntimeErrorPhase": {
       "name": "PageRuntimeErrorPhase",
@@ -266,7 +272,7 @@
       "jsdoc": "渲染器调用输入；运行实例与路由快照必须由宿主提供，回调用于装载和错误呈现。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    pageRuntime: PageRuntime;\n    host?: NonNullable<Parameters<typeof buildPageContext>[0]['host']>;\n    routeSnapshot: PageRoute;\n    enableCssScope?: boolean;\n    messageService?: PageServiceOverrides['messageService'];\n    confirmService?: PageServiceOverrides['confirmService'];\n    beforeLoad?: (pageId: string) => void | Promise<void>;\n    afterLoad?: (state: PageToolDefinition) => void | Promise<void>;\n    onError?: (error: Error) => void;\n    onRuntimeError?: (payload: PageRuntimeErrorPayload) => void;\n}",
+        "declarationTypeText": "{\n    pageRuntime: PageRuntime;\n    host?: NonNullable<Parameters<typeof buildPageContext>[0]['host']>;\n    routeSnapshot: PageRoute;\n    enableCssScope?: boolean;\n    /** 原生宿主已按业务范围加载所需视图时，可关闭渲染器的场景自动查询。 */\n    autoLoad?: boolean;\n    messageService?: PageServiceOverrides['messageService'];\n    confirmService?: PageServiceOverrides['confirmService'];\n    beforeLoad?: (pageId: string) => void | Promise<void>;\n    afterLoad?: (state: PageToolDefinition) => void | Promise<void>;\n    onError?: (error: Error) => void;\n    onRuntimeError?: (payload: PageRuntimeErrorPayload) => void;\n}",
         "members": {
           "attributes": [
             {
@@ -286,6 +292,12 @@
             },
             {
               "name": "enableCssScope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "autoLoad",
+              "jsdoc": "原生宿主已按业务范围加载所需视图时，可关闭渲染器的场景自动查询。",
               "readable": true,
               "writable": false
             },

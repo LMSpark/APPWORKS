@@ -6,6 +6,7 @@ import {computeDeliverySelectionDigests} from '@/services/smart-bid/content/revi
 import {reviewRegisteredDeliveryZipPackage} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-review'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
 import {prepareRegisteredDeliveryZipPackage} from '@/views/features/application/smart-bid/authoring/model/review/package/content-delivery-package-preparation'
+import {verifyRegisteredPackingCandidate} from '@/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader'
 import {readRegisteredDeliveryFreeze} from '@/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader'
 import {contentDeliveryPackageScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
@@ -117,8 +118,18 @@ it('preserves unknown on a complete empty original read and requires readable te
   expect(openOriginal).toHaveBeenCalledOnce()
   await expect(page.invoke('content.submission.preparePacking',{selectionRef:'OTHER'},signal))
    .rejects.toThrow('SUBMISSION_PAGE_PACKING_SCOPE')
-  await expect(page.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal))
-   .resolves.toMatchObject({status:'PREPARED',candidate:{selectionHash:hashes.selectionHash,packed:[member]}})
+  const latest=await page.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal)
+  expect(latest).toMatchObject({status:'PREPARED',candidate:{selectionHash:hashes.selectionHash,packed:[member]}})
   expect(openOriginal).toHaveBeenCalledTimes(2)
+  if(!('candidate' in latest))throw Error('TEST_PACKING_REQUIRED')
+  const registered={packageId:pack.id,packingRequestRef:pack.packingRequestRef}
+  await expect(verifyRegisteredPackingCandidate(host,registered,latest.candidate,openAuthorized))
+   .rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_SCOPE')
+  pack.packageHash=latest.candidate.packageHash
+  const openRegistered=async()=>({...await openAuthorized(),bytes:latest.candidate.bytes})
+  const verified=await verifyRegisteredPackingCandidate(host,registered,latest.candidate,openRegistered)
+  expect(verified).toMatchObject({packageId:pack.id,packageHash:pack.packageHash,selectionHash:hashes.selectionHash})
+  await expect(verifyRegisteredPackingCandidate(host,registered,latest.candidate,openAuthorized))
+   .rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_HASH')
  }finally{ds.destroy()}
 })

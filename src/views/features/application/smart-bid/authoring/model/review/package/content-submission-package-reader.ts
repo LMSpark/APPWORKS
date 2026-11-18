@@ -6,6 +6,8 @@ import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {snapshotReferenceFields,snapshotReferenceIdentity as identity,visitSnapshotReferences} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../../content-revision-reader'
 import type {readFrozenDeliveryZipPackageMembers} from './content-package-review'
+import type {packFrozenDeliveryZip} from '@/services/smart-bid/content/review/delivery-zip-packing'
+import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-hash'
 
 type Source=Parameters<typeof readFrozenDeliveryZipPackageMembers>[0]
 type Selection=Readonly<{packageId:string;packingRequestRef:string}>
@@ -18,6 +20,29 @@ const error='SUBMISSION_ORIGINAL_PACKAGE_SCOPE'
 function valid(view:DataView){
  return view.dataTable?.modelBinding?.modelName==='SubmissionPackage'&&view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
   scopeFields.every(([field,ParamName])=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
+}
+
+/** 核本次装封回执所指原登记及实包，给下游交付同版证据。 */
+export async function verifyRegisteredPackingCandidate(host:ContentRevisionReadHost,input:Selection,
+ candidate:Awaited<ReturnType<typeof packFrozenDeliveryZip>>,openAuthorized:Parameters<typeof readRegisteredSubmissionZipSource>[2]){
+ const assertScope=()=>{host.assertCurrent();candidate.assertCurrent()}
+ assertScope()
+ if(candidate.projectId!==host.projectId)throw Error(error)
+ const source=await readRegisteredSubmissionZipSource({...host,assertCurrent:assertScope},input,openAuthorized)
+ const positions=new Set(source.requiredPositions)
+ const packed=new Map(source.packed.map(member=>[member.position,member]))
+ if(source.selectionId!==candidate.selectionId||source.selectionVersion!==candidate.selectionVersion||
+  source.selectionHash!==candidate.selectionHash||source.packageHash!==candidate.packageHash||
+  positions.size!==candidate.packed.length||packed.size!==candidate.packed.length||packed.size!==source.packed.length||
+  candidate.packed.some(member=>{
+   const original=packed.get(member.position)
+   return !positions.has(member.position)||original?.fileVersionId!==member.fileVersionId||original.fileHash!==member.fileHash
+  }))throw Error(error)
+ const bytes=await source.reopen()
+ if(await hashContentBytes(bytes)!==candidate.packageHash)throw Error('SUBMISSION_ORIGINAL_PACKAGE_HASH')
+ source.assertCurrent()
+ return Object.freeze({projectId:source.projectId,packageId:source.packageId,packageHash:source.packageHash,
+  selectionHash:source.selectionHash,assertCurrent:source.assertCurrent})
 }
 
 /** 只重开原记录授权的资源版本，查询换代或附件授权失效时撤销原证明。 */

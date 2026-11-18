@@ -93,6 +93,26 @@ it('shows the original save receipt without modifying the current editor',async(
  expect(bindOriginalSave()).toEqual({error:'原保存查询已失效'})
  expect(resolveView).not.toHaveBeenCalled()
 })
+it('prepares the selected independent response from the saved draft and original batch',async()=>{
+ const assertCurrent=vi.fn(),showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
+ const prepareDraftCandidate=vi.fn(async()=>({draftId:'D',draftVersion:'V1',baseRevisionId:null,
+  baselineId:'B',requestDigest:'a'.repeat(64),assertCurrent}))
+ const query={projectId:'P',draftCandidateRequestKey:'Q',candidateTargetKind:'RESPONSE',candidateAssignmentId:'ASSIGNMENT',
+  candidateBasisResponseId:null,candidateFirstBatchId:'BATCH'}
+ const {__init__,openDraftCandidate}=compileFunctions(script,{$route:{query},$page:{
+  invokeHostCommand:async()=>({prepareDraftCandidate}),showAlert,showMessage,
+ }} as unknown as PageContext)
+ if(!__init__||!openDraftCandidate)throw Error('TEST_CANDIDATE_PREPARATION_REQUIRED')
+ await __init__()
+ await openDraftCandidate()
+ expect(prepareDraftCandidate).toHaveBeenCalledExactlyOnceWith({requestKey:'Q',firstBatchId:'BATCH',
+  targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'RESPONSE',assignmentId:'ASSIGNMENT',responseId:null}]}})
+ expect(showAlert).toHaveBeenCalledWith(expect.stringContaining('候选登记待办理'),'候选生成输入')
+ assertCurrent.mockImplementation(()=>{throw Error('STALE')})
+ await openDraftCandidate()
+ expect(showAlert).toHaveBeenCalledTimes(1)
+ expect(showMessage).toHaveBeenCalledTimes(1)
+})
 it('withdraws the binding when the original query is replaced instead of recapturing a new proof',()=>{
  const f=fixture()
  expect(f.functions['bindOriginalDraft']!()).toEqual({contextRowId:'D'})

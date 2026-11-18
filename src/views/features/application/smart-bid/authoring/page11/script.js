@@ -12,6 +12,44 @@ let saveReceiptRequested = false
 let saveReceiptLoading = false
 let candidatePreviewPending = false
 
+function bindDraftCandidate() {
+  const {draftCandidateRequestKey} = $route.query
+  return {visible: typeof draftCandidateRequestKey === 'string' && !!draftCandidateRequestKey &&
+    draftCandidateRequestKey.trim() === draftCandidateRequestKey, disabled: !editorSession || editorFault}
+}
+
+async function openDraftCandidate() {
+  const {visible, disabled} = bindDraftCandidate()
+  if (!visible || disabled) return
+  const {projectId, draftCandidateRequestKey, candidateTargetKind, candidateTargetNodeId, candidateNodeExtent,
+    candidateAssignmentId, candidateBasisResponseId, candidateFirstBatchId} = $route.query
+  const id = value => typeof value === 'string' && !!value && value.trim() === value
+  try {
+    if (!id(projectId) || (candidateFirstBatchId !== undefined && !id(candidateFirstBatchId))) throw Error('CONTENT_DRAFT_CANDIDATE_SCOPE')
+    let target
+    if (candidateTargetKind === 'PROJECT') target = {kind: 'PROJECT'}
+    else if (candidateTargetKind === 'NODE' && id(candidateTargetNodeId) &&
+      (candidateNodeExtent === 'NODE' || candidateNodeExtent === 'SUBTREE')) {
+      target = {kind: 'NODE', nodeId: candidateTargetNodeId, extent: candidateNodeExtent}
+    } else if (candidateTargetKind === 'RESPONSE' && id(candidateAssignmentId) &&
+      (candidateBasisResponseId === null || id(candidateBasisResponseId))) {
+      target = {kind: 'RESPONSE', assignmentId: candidateAssignmentId, responseId: candidateBasisResponseId}
+    } else throw Error('CONTENT_DRAFT_CANDIDATE_SCOPE')
+    const result = await editorSession.prepareDraftCandidate({requestKey: draftCandidateRequestKey,
+      targetScope: {schemaVersion: 2, projectId, targets: [target]},
+      ...(candidateFirstBatchId ? {firstBatchId: candidateFirstBatchId} : {})})
+    result.assertCurrent()
+    await $page.showAlert([
+      `草稿 ${result.draftId} · 版本 ${result.draftVersion}`,
+      `正文基版 ${result.baseRevisionId ?? '首稿'} · 冻结基线 ${result.baselineId}`,
+      `请求摘要 ${result.requestDigest}`,
+      '候选登记待办理',
+    ].join('\n'), '候选生成输入')
+  } catch {
+    $page.showMessage('无法核验候选生成输入，请确认草稿已保存且编制范围与原依据一致', 'warning')
+  }
+}
+
 function bindCandidatePreview() {
   const {candidateRevisionId} = $route.query
   return {visible: typeof candidateRevisionId === 'string' && !!candidateRevisionId && candidateRevisionId.trim() === candidateRevisionId,

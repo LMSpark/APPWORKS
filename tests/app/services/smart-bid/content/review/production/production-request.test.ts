@@ -5,12 +5,26 @@ import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-h
 import {prepareSignedOutputRegistration} from '@/services/smart-bid/content/review/production/signed-output-registration'
 import {prepareNativePriceRegistration} from '@/services/smart-bid/content/review/production/native-price-registration'
 import {recalculatePriceLines} from '@/services/smart-bid/content/references/commercial/price-sheet-recalculation'
+import {prepareDisclosedOutputRegistration} from '@/services/smart-bid/content/review/production/disclosed-output-registration'
 
 const scope={projectId:'P',documentId:'D',revisionId:'R',baselineId:'B'}
 const version={...scope,state:'ADOPTED' as const,rootHash:'a'.repeat(64),assertCurrent:()=>{}}
 const evidence={...scope,templateVersionRef:'T1',ruleVersionRef:'RULE',factRefs:['F1'],
  formRequired:true,formVersionRef:'FORM-V1',requiredAttachmentRefs:['ATT-V1'],attachmentRefs:['ATT-V1'],assertCurrent:()=>{}}
 const input={...scope,requestKey:'Q',purpose:'FORMAL' as const,toolVersionRef:'TOOL',outputOptions:{format:'DOCX'}}
+
+it('keeps the actual disclosed member tied to its original subject and package for read-only use',async()=>{
+ const bytes=new TextEncoder().encode('disclosed member').buffer
+ const fileHash=await hashContentBytes(bytes),assertCurrent=()=>{}
+ const publication={projectId:'P',publicationRef:'PUB',subjectId:'SUBJECT',packageRef:'PACKAGE',assertCurrent}
+ const member={...publication,memberRef:'MEMBER',resourceVersionId:'V1',fileHash,bytes}
+ await expect(prepareDisclosedOutputRegistration(publication,'MEMBER',async()=>member))
+  .resolves.toMatchObject({record:{subjectId:'SUBJECT',packageRef:'PACKAGE',memberRef:'MEMBER',fileHash,usage:'READ_ONLY'}})
+ await expect(prepareDisclosedOutputRegistration(publication,'outer-attachment.pdf',async()=>member))
+  .rejects.toThrow('BID_DISCLOSED_OUTPUT_MEMBER')
+ await expect(prepareDisclosedOutputRegistration(publication,'MEMBER',async()=>({...member,subjectId:'OTHER'})))
+  .rejects.toThrow('BID_DISCLOSED_OUTPUT_MEMBER')
+})
 
 it('keeps a native price file attached to its original approved calculation version',async()=>{
  const bytes=new TextEncoder().encode('native price file').buffer

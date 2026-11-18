@@ -36,7 +36,8 @@ it('keeps both original file versions current from one complete read and rejects
  const fileHash=createHash('sha256').update(bytes).digest('hex')
  const targets=[{producedFileId:'F1',productionRequestRef:'REQ1'},{producedFileId:'F2',productionRequestRef:'REQ2'}]
  const rows=targets.map(({producedFileId:id,productionRequestRef})=>({id,productionRequestRef,projectId:'P',
-  revisionId:'R',documentId:'D',fileHash,resourceVersionId:id,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}})).reverse()
+  revisionId:'R',documentId:'D',fileHash,resourceVersionId:id,usage:null as string|null,
+  lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}})).reverse()
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ProducedFile:{
   modelBinding:{modelId:'M',modelName:'ProducedFile'},columns:Object.keys(rows[0]!).map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},selectedReviewFiles:producedFileScenarioViews().selectedReviewFiles},
@@ -90,6 +91,10 @@ it('keeps both original file versions current from one complete read and rejects
   expect(verified.files.map(file=>[file.producedFileId,file.completedScopeRefs])).toEqual([['F1',['F1']],['F2',['F2']]])
   expect(executeQuery).toHaveBeenCalledTimes(queryCount+1)
   expect(()=>verified.assertCurrent()).not.toThrow()
+  rows[0]!.usage='READ_ONLY'
+  await expect(readRegisteredProducedFileReviewVersions(host,targets,open)).rejects.toThrow('CONTENT_PRODUCED_FILE_READ_ONLY')
+  expect(open).toHaveBeenCalledTimes(6)
+  rows[0]!.usage=null
   rows[0]!.productionRequestRef='OTHER'
   await expect(readRegisteredProducedFileReviewVersions(host,targets,open)).rejects.toThrow('CONTENT_PRODUCED_FILE_SCOPE')
   expect(open).toHaveBeenCalledTimes(6)

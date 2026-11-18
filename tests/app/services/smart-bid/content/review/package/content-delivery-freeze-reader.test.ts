@@ -92,9 +92,14 @@ it('preserves unknown on a complete empty original read and requires readable te
   const openOriginal=vi.fn(async()=>({projectId:'P',fileVersionId:'FILE1',bytes:new TextEncoder().encode(text).buffer,
    assertCurrent:()=>{}}))
   const options={positions:[position],maxMemberBytes:128,openOriginal}
-  const use={allowed:true,selectionHash:hashes.selectionHash,positions:[position],assertCurrent:()=>{}}
+  const memberUse={position,fileVersionId:'FILE1',usage:null}
+  const use={allowed:true,selectionHash:hashes.selectionHash,positions:[position],members:[memberUse],assertCurrent:()=>{}}
   await expect(prepareRegisteredDeliveryZipPackage(host,request,{...options,readCurrentUse:async()=>({...use,allowed:false})}))
    .rejects.toThrow('DELIVERY_PACK_CURRENT_USE_REQUIRED')
+  expect(openOriginal).not.toHaveBeenCalled()
+  await expect(prepareRegisteredDeliveryZipPackage(host,request,{...options,
+   readCurrentUse:async()=>({...use,members:[{...memberUse,usage:'READ_ONLY'}]})}))
+   .rejects.toThrow('DELIVERY_PACK_MEMBER_USE_REQUIRED')
   expect(openOriginal).not.toHaveBeenCalled()
   const prepared=await prepareRegisteredDeliveryZipPackage(host,request,{...options,readCurrentUse:async scope=>{
    expect(scope.selectionHash).toBe(hashes.selectionHash)

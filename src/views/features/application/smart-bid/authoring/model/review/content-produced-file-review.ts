@@ -153,7 +153,10 @@ export async function readRegisteredProducedFileReviewVersions(host:ContentRevis
  for(const row of view.rows){
   const id=row['id'],target=identity(id)?byId.get(id):undefined
   if(!target||records.has(target.producedFileId))throw Error('CONTENT_PRODUCED_FILE_SCOPE')
-  records.set(target.producedFileId,bindRegisteredFile({view,row,selection:target,assertScope,assertResult,openAuthorized}))
+  const assertUsage=view.captureReadRow(row,['usage'])
+  if(row['usage']==='READ_ONLY')throw Error('CONTENT_PRODUCED_FILE_READ_ONLY')
+  records.set(target.producedFileId,bindRegisteredFile({view,row,selection:target,assertScope,
+   assertResult:()=>{assertResult();assertUsage()},openAuthorized}))
  }
  const versions=[]
  for(const target of targets){

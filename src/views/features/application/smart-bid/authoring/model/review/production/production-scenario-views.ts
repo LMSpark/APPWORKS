@@ -19,6 +19,6 @@ export function producedFileScenarioViews(){
    [...originalFileFields,'requestKey','outputRef','inputDigest']),
   selectedReviewFile:view([['projectId','projectId'],['id','producedFileId'],['productionRequestRef','productionRequestRef']],
    originalFileFields),
-  selectedReviewFiles:view([['projectId','projectId']],originalFileFields,true),
+  selectedReviewFiles:view([['projectId','projectId']],[...originalFileFields,'usage'],true),
  }
 }

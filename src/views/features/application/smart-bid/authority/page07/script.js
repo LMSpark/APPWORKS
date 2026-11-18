@@ -18,6 +18,7 @@ async function openAllocation() {
     const {start, end, units} = result.requested
     const lines = [`资源版本 ${result.resourceVersionId} · 限额 ${result.limit} · 申请 ${units}`,
       `申请时段 ${new Date(start).toISOString()} 至 ${new Date(end).toISOString()}`]
+    if (result.replacesAllocationRef) lines.push(`拟调整原占用 ${result.replacesAllocationRef}`)
     if (result.state === 'CLEAR') lines.push('本时段未发现占用冲突')
     else {
       if (result.exclusive) lines.push('存在排他占用冲突')

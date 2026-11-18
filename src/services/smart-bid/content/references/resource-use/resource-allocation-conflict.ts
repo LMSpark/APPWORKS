@@ -15,14 +15,16 @@ function validOccupancy(item:Occupancy){
 /** 输入为经核实的单资源完整占用快照；时段包含起点，结束时释放占用。 */
 export function checkResourceAllocationConflict(input:Readonly<{
  limit:number;requested:Occupancy;occupancies:readonly RegisteredOccupancy[];assertCurrent:()=>void
+ replacesAllocationRef?:string
 }>){
  input.assertCurrent()
- const {limit,requested,occupancies}=input
+ const {limit,requested,occupancies,replacesAllocationRef}=input
  if(!Number.isSafeInteger(limit)||limit<1||!validOccupancy(requested)||
   occupancies.some(item=>!identity(item.allocationRef)||!validOccupancy(item))||
-  new Set(occupancies.map(item=>item.allocationRef)).size!==occupancies.length)
+  new Set(occupancies.map(item=>item.allocationRef)).size!==occupancies.length||
+  (replacesAllocationRef!==undefined&&(!identity(replacesAllocationRef)||!occupancies.some(item=>item.allocationRef===replacesAllocationRef))))
   throw Error('BID_RESOURCE_ALLOCATION_SCOPE')
- const activeWindow=occupancies.filter(item=>item.start<requested.end&&item.end>requested.start)
+ const activeWindow=occupancies.filter(item=>item.allocationRef!==replacesAllocationRef&&item.start<requested.end&&item.end>requested.start)
  const boundaries=[...new Set([requested.start,...activeWindow.map(item=>Math.max(item.start,requested.start))])]
   .sort((left,right)=>left-right)
  const capacity=BigInt(limit)

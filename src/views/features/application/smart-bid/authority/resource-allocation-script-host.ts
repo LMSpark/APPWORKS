@@ -11,7 +11,10 @@ import {checkResourceAllocationRelease} from '@/services/smart-bid/content/refer
 
 type Allocation=Parameters<typeof checkResourceAllocationConflict>[0]
 type Selection=Readonly<{enterpriseId:string;projectId:string;resourceVersionId:string;requestRef:string}>
-type Snapshot=Selection&Allocation&Readonly<{complete:boolean}>
+type Snapshot=Selection&Omit<Allocation,'replacesAllocationRef'>&Readonly<{
+ complete:boolean
+ previous?:Pick<Selection,'enterpriseId'|'projectId'|'resourceVersionId'>&Readonly<{allocationRef:string;assertCurrent:()=>void}>
+}>
 type Release=Parameters<typeof checkResourceAllocationRelease>[0]
 type ReleaseReader=(allocation:Release['allocation'],signal:AbortSignal)=>Promise<Release&Readonly<{complete:boolean}>>
 
@@ -51,12 +54,16 @@ export function createResourceAllocationScriptHost<Runtime extends Pick<PageRunt
   const selection={enterpriseId:scope.enterpriseId,projectId:scope.projectId,
    resourceVersionId:input['resourceVersionId'],requestRef:input['requestRef']}
   const snapshot=await readSnapshot(Object.freeze(selection),signal)
-  const assertSnapshot=()=>{assertCurrent();snapshot.assertCurrent()}
+  const previous=snapshot.previous
+  const assertSnapshot=()=>{assertCurrent();snapshot.assertCurrent();previous?.assertCurrent()}
   assertSnapshot()
   if((['enterpriseId','projectId','resourceVersionId','requestRef'] as const).some(field=>snapshot[field]!==selection[field]))throw Error(error)
   if(snapshot.complete!==true)return Object.freeze({state:'PENDING' as const,assertCurrent:assertSnapshot})
-  const checked=checkResourceAllocationConflict({...snapshot,assertCurrent:assertSnapshot})
+  if(previous&&(['enterpriseId','projectId','resourceVersionId'] as const).some(field=>previous[field]!==selection[field]))throw Error(error)
+  const {limit,requested,occupancies}=snapshot
+  const checked=checkResourceAllocationConflict({limit,requested,occupancies,...(previous?{replacesAllocationRef:previous.allocationRef}:{}),
+   assertCurrent:assertSnapshot})
   return Object.freeze({...checked,resourceVersionId:selection.resourceVersionId,limit:snapshot.limit,
-   requested:Object.freeze({...snapshot.requested}),assertCurrent:assertSnapshot})
+   requested:Object.freeze({...snapshot.requested}),replacesAllocationRef:previous?.allocationRef??null,assertCurrent:assertSnapshot})
  }}
 }

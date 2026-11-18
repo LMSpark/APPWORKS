@@ -68,3 +68,22 @@ it('checks only the current enterprise allocation request and does not clear inc
  expect(()=>checked.assertCurrent()).toThrow('EVIDENCE_STALE')
 
 })
+
+it('excludes only the verified prior allocation when checking an adjustment',async()=>{
+ const scope={enterpriseId:'ORG',projectId:'P',assertCurrent:()=>{}}
+ const request={resourceVersionId:'V',requestRef:'ADJUST'}
+ const requested={start:0,end:10,units:1,exclusive:false}
+ const previous={enterpriseId:'ORG',projectId:'P',resourceVersionId:'V',allocationRef:'OWN',assertCurrent:()=>{}}
+ const own={...requested,exclusive:true,allocationRef:'OWN'}
+ const other={...requested,allocationRef:'OTHER',units:2}
+ let snapshot={...scope,...request,requested,limit:2,complete:true,previous,occupancies:[own,other]}
+ const host=createResourceAllocationScriptHost({generation:1,isLoaded:true,destroyed:false},scope,async()=>snapshot)
+ const check=()=>host.invoke('bid.resources.checkAllocation',request,new AbortController().signal)
+ await expect(check()).resolves.toMatchObject({state:'CONFLICT',allocationRefs:['OTHER'],replacesAllocationRef:'OWN'})
+ snapshot={...snapshot,occupancies:[own]}
+ await expect(check()).resolves.toMatchObject({state:'CLEAR',replacesAllocationRef:'OWN'})
+ snapshot={...snapshot,occupancies:[]}
+ await expect(check()).rejects.toThrow('BID_RESOURCE_ALLOCATION_SCOPE')
+ snapshot={...snapshot,occupancies:[own],previous:{...previous,projectId:'OTHER'}}
+ await expect(check()).rejects.toThrow('BID_RESOURCE_ALLOCATION_PAGE_SCOPE')
+})

@@ -8,6 +8,7 @@ import {prepareBidVolumePlan} from '@/services/smart-bid/content/references/resp
 import {compareAdoptionBasisChecks} from '@/services/smart-bid/content/adoption/adoption-basis-checks'
 import {prepareResponseDraft} from '@/services/smart-bid/content/references/response/response-draft'
 import {bindDraftCandidateFactEvidence} from '@/services/smart-bid/content/draft/content-draft-candidate-request'
+import {readDraftResponseVersions} from '@/views/features/application/smart-bid/authoring/model/draft/content-draft-response-versions'
 import {readReviewedResponseForCandidate,reviewResponseDraft} from '@/services/smart-bid/content/references/response/response-review'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
@@ -92,6 +93,21 @@ it('pins a new independent response and its frozen facts in the candidate reques
   }
   await f.ds.getView('Response','selectedDraftResponseVersions')?.refresh()
   expect(()=>prepared.assertCurrent()).toThrow()
+ }finally{f.ds.destroy()}
+})
+it('pins the original review stamp in the independent response version digest',async()=>{
+ const responseReview:{reviewedBy:string|null;reviewedAt:string|null}={reviewedBy:null,reviewedAt:null}
+ const f=await fixture('response-fact',{responseReview})
+ const read=()=>readDraftResponseVersions(f.host,[{responseId:'NEW',assignmentId:'A',lineageId:'L',version:'R1'}],[])
+ try{
+  const pending=await read()
+  responseReview.reviewedBy='REVIEWER'
+  await expect(read()).rejects.toThrow('CONTENT_DRAFT_RESPONSE_VERSION')
+  expect(()=>pending.assertCurrent()).toThrow()
+  responseReview.reviewedAt='2026-11-19T06:00:00+08:00'
+  const recorded=await read()
+  expect(recorded.versions[0]?.payloadHash).toMatch(/^[a-f0-9]{64}$/u)
+  expect(recorded.versions[0]?.payloadHash).not.toBe(pending.versions[0]?.payloadHash)
  }finally{f.ds.destroy()}
 })
 it('takes first draft target nodes from the frozen input snapshot',async()=>{

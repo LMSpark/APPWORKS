@@ -11,7 +11,7 @@ import {hashRevisionContentRoot} from '@/services/smart-bid/content/hashes/revis
 import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
-export async function createCandidateReadFixture(mode='normal',options:{tenderConfirmStatus?:'CONFIRMED'|'REJECTED';threeVersions?:boolean;headingText?:string;computeRoot?:boolean;baselineRequirementVersion?:string;baselineFactId?:string}={}){
+export async function createCandidateReadFixture(mode='normal',options:{tenderConfirmStatus?:'CONFIRMED'|'REJECTED';threeVersions?:boolean;headingText?:string;computeRoot?:boolean;baselineRequirementVersion?:string;baselineFactId?:string;responseReview?:{reviewedBy:string|null;reviewedAt:string|null}}={}){
  const param=(name:string)=>({Type:'GetInputParam',ParamName:name})
  const eq=(field:string,name=field)=>({field,operator:'eq' as const,value:param(name)})
  const payloads:Array<{nodeId:string;parentId:string;index:number;type:string;class:string[];value:string;data:Record<string,unknown>}>=
@@ -110,7 +110,7 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   const model=view.dataTable!.tableName,q=new DataSpaceQueryTable({scenarioId:'S',metaName:model})
   const rows=model==='Response'?[{id:'NEW',projectId:'P',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',
    statement:'报价{{金额}}',data:{金额:{type:'fact',factId:'PRICE'}},deviation:null,
-   answerLocation:{id:'LOCATION'},promiseRefs:[],evidenceRefs:[],reviewedBy:null,reviewedAt:null}]:
+   answerLocation:{id:'LOCATION'},promiseRefs:[],evidenceRefs:[],reviewedBy:null,reviewedAt:null,...options.responseReview}]:
    model==='GenerationBatch'?[firstBatch]:model==='DocumentTemplate'?[originalForm]:model==='SubmissionObligation'?[obligation]:model==='TenderRecord'?[tender]:model==='Requirement'?[requirement]:model==='Baseline'?[{id:mode==='wrong-fact-baseline'?'OTHER':'B',projectId:'P',stageRef:{id:'ST',version:'1'},factVersions:[{factId:options.baselineFactId??'PRICE',version:2}],requirementVersions:[{lineageId:'L',version:options.baselineRequirementVersion??'R2'}],
    tenderRecords:[{runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}]}]:
    model==='FactVersion'?[{id:'FV2',projectId:'P',key:'PRICE',version:2,kind:'PRICE',value:'0.00',unit:'元',sourceIds:[],claimId:null,scopeRef:null,decisionRefs:[],dependencyRefs:[],promiseTerms:null,sourceRecord:null,status:'ADOPTED'}]:

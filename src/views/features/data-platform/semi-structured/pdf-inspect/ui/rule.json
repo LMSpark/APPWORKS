@@ -9,5 +9,34 @@
       {"type":"r-text","props":{"field":"description","label":"描述","minWidth":300,"showOverflowTooltip":true}},
       {"type":"r-text","props":{"field":"enabled","label":"启用状态","width":120}}
     ]
+  },
+  {
+    "id":"pdf-inspection-history",
+    "type":"r-section",
+    "props":{"title":"核验历史","bordered":false,"onBeforeRender":"bindHistory"},
+    "children":[
+      {"type":"r-table","props":{"showDataViewMeta":false,"onBeforeRender":"bindHistoryTable","onRowClick":"openHistoryResult"},"children":[
+        {"type":"r-text","props":{"field":"inspectJobId","label":"任务编号","readonly":true}},
+        {"type":"r-text","props":{"field":"requestId","label":"请求编号","readonly":true}},
+        {"type":"r-text","props":{"field":"configId","label":"规则编号","readonly":true}},
+        {"type":"r-text","props":{"field":"status","label":"处理状态","readonly":true}}
+      ]}
+    ]
+  },
+  {
+    "id":"pdf-inspection-result",
+    "type":"r-section",
+    "props":{"bordered":false,"onBeforeRender":"bindResult"},
+    "children":[
+      {"type":"r-button","props":{"label":"重新核验原请求","onBeforeRender":"bindRecover","onClick":"recoverOriginal"}},
+      {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindResultForm"},"children":[
+        {"type":"r-text","props":{"field":"inspectJobId","label":"任务编号","readonly":true}},
+        {"type":"r-text","props":{"field":"requestId","label":"请求编号","readonly":true}},
+        {"type":"r-text","props":{"field":"status","label":"处理状态","readonly":true}},
+        {"type":"r-number","props":{"field":"finished","label":"已处理文件数","readonly":true}},
+        {"type":"r-number","props":{"field":"total","label":"文件总数","readonly":true}},
+        {"type":"r-json","props":{"field":"files","label":"文件与规则核验明细","mode":"text","valueFormat":"native","readonly":true}}
+      ]}
+    ]
   }
 ]

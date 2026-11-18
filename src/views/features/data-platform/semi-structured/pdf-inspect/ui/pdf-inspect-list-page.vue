@@ -39,26 +39,6 @@
       </template>
       <p v-if="executionMessage" role="status">{{ executionMessage }}</p>
     </RendererSection>
-    <RendererSection v-if="ready && historyOpen" title="核验历史" :error="historyError" :bordered="false">
-      <RendererTable :data-view-key="historyKey" :show-data-view-meta="false" :on-row-click="openHistoryResult">
-        <FieldText field="inspectJobId" label="任务编号" readonly />
-        <FieldText field="requestId" label="请求编号" readonly />
-        <FieldText field="configId" label="规则编号" readonly />
-        <FieldText field="status" label="处理状态" readonly />
-      </RendererTable>
-    </RendererSection>
-    <RendererSection v-if="resultOpen" :title="recovering ? '恢复原核验请求' : '原任务结果'" :bordered="false"
-      :status="resultLoading ? '正在读取原任务…' : ''" :error="resultError">
-      <RendererButton v-if="recovering" label="重新核验原请求" :disabled="resultLoading" @click="recoverOriginal" />
-      <RendererForm v-if="resultReady" :data-view-key="recovering ? recoveryKey : resultKey" :auto-columns="false" :show-data-view-meta="false">
-        <FieldText field="inspectJobId" label="任务编号" readonly />
-        <FieldText field="requestId" label="请求编号" readonly />
-        <FieldText field="status" label="处理状态" readonly />
-        <FieldNumber field="finished" label="已处理文件数" readonly />
-        <FieldNumber field="total" label="文件总数" readonly />
-        <FieldJson field="files" label="文件与规则核验明细" mode="text" value-format="native" readonly />
-      </RendererForm>
-    </RendererSection>
   </RendererSection>
 </template>
 
@@ -82,7 +62,7 @@ import catalogRule from './rule.json?raw'
 import catalogScript from './script.js?raw'
 import catalogStyle from './style.css?raw'
 
-const {PAGE_RUNTIME, RendererSection, RendererTable, SparkPageRenderer, RendererButton, RendererForm, FieldText, FieldNumber, FieldJson,
+const {PAGE_RUNTIME, RendererSection, RendererTable, SparkPageRenderer, RendererButton, RendererForm, FieldText, FieldNumber,
   useSparkComponent, consumeRequiredPageService} = SparkComponent
 const route = useRoute()
 const router = useRouter()
@@ -380,6 +360,16 @@ function makeCatalogHost(runtime:PageRuntime){
   const assertCurrent=()=>{if(!active||!session.isCurrent(runtime))throw Error('PDF目录实例已失效')}
   return {runtime,assertCurrent,async invoke(command:string,input:unknown){
     assertCurrent()
+    if(command==='pdf.catalog.connect')return {
+      history:()=>({open:ready.value&&historyOpen.value,error:historyError.value,key:historyKey.value}),
+      result:()=>({open:resultOpen.value,recovering:recovering.value,loading:resultLoading.value,ready:resultReady.value,
+        error:resultError.value,key:recovering.value?recoveryKey.value:resultKey.value}),
+    }
+    if(command==='pdf.catalog.openResult'){
+      const row=runtime.resolveView(historyKey.value)?.rows.find(item=>item['inspectJobId']===input)
+      if(row)openHistoryResult(row)
+    }
+    if(command==='pdf.catalog.recover')await recoverOriginal()
     if(command==='pdf.catalog.select'){
       const row=view.value?.rows.find(item=>view.value?.getPkKey(item)===input)
       if(row)choose(row)

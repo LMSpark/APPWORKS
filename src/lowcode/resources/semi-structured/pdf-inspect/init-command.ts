@@ -114,3 +114,17 @@ export function settlePdfInspectionTask(dataSet: DataSet, requestId: string): vo
 export function pendingPdfInspectionRequests(dataSet: DataSet, resolveUrl: InitInput['resolveRecoveryUrl']): string[] {
   return bindings.get(dataSet)?.openJournal(resolveUrl).pending().map(pointer => pointer.requestId) ?? []
 }
+
+/** 冷重开后按原恢复视图的正式回读清理对应定位，保留其他待核请求。 */
+export function settleRecoveredPdfInspection(view: DataView, requestId: string, resolveUrl: InitInput['resolveRecoveryUrl']): void {
+  const dataSet = view.dataSet
+  const binding = dataSet && bindings.get(dataSet)
+  const row = view.rows[0]
+  if (!binding || dataSet.getView('PdfInspectionRecovery') !== view || view.loadingError ||
+    view.queryContext['requestId'] !== requestId || view.rows.length !== 1 || row?.['requestId'] !== requestId ||
+    typeof row['inspectJobId'] !== 'string' || !row['inspectJobId']) throw Error('PDF_RECOVERY_IDENTITY')
+  view.captureReadRow(row, ['requestId', 'inspectJobId'])()
+  const journal = binding.openJournal(resolveUrl)
+  const pointer = journal.pending().find(item => item.requestId === requestId)
+  if (pointer) journal.settle(pointer)
+}

@@ -72,7 +72,7 @@ import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect
 import {PDF_INSPECTION_HISTORY_TABLE} from '@/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings'
 import {readPdfExecutionRule} from '@/lowcode/resources/semi-structured/pdf-inspect/execution-rule'
 import {cancelPdfInspectionFile, PDF_INSPECTION_UPLOAD_TABLE, stagePdfInspectionFile} from '@/lowcode/resources/semi-structured/pdf-inspect/upload-command'
-import {PDF_INSPECTION_INIT_TABLE, pendingPdfInspectionRequests, settlePdfInspectionTask, stagePdfInspectionTask} from '@/lowcode/resources/semi-structured/pdf-inspect/init-command'
+import {PDF_INSPECTION_INIT_TABLE, pendingPdfInspectionRequests, settleRecoveredPdfInspection, settlePdfInspectionTask, stagePdfInspectionTask} from '@/lowcode/resources/semi-structured/pdf-inspect/init-command'
 import {APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath, parseApplicationPathScope, resolveExecutionProjectId} from '@/services/application-scope'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
@@ -331,6 +331,14 @@ async function recoverOriginal(): Promise<void> {
     recovery.captureReadRow(original, ['requestId', 'inspectJobId'])()
     recovery.setCurrentRowById(jobId)
     resultReady.value = true
+    if (pendingRequests.value.includes(requestId)) {
+      try {
+        settleRecoveredPdfInspection(recovery, requestId, resolveInspectionRecoveryUrl)
+        pendingRequests.value = pendingRequests.value.filter(id => id !== requestId)
+      } catch {
+        resultError.value = '已读取原任务，恢复定位尚未清理，可重新核验原请求。'
+      }
+    }
   } catch {
     if (active && own === resultGeneration) resultError.value = '原请求结果尚未核定，可重新核验同一请求'
   } finally {

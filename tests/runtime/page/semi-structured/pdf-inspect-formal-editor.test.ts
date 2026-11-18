@@ -139,6 +139,9 @@ describe('formal PDF rule editor', () => {
           await reopened.click(`核验原请求 ${  String(requestId)}`)
           await vi.waitFor(() => expect(reopened.wrapper.text()).toContain('文件与规则核验明细'))
           expect(backend.recoverCalls[0]?.data).toMatchObject({requestId})
+          const third = await open('P1', true)
+          await vi.waitFor(() => expect(third.wrapper.text()).toContain('新增规则'))
+          expect(third.wrapper.text()).not.toContain(`核验原请求 ${String(requestId)}`)
         } else await f.click('继续核验原操作')
       }
       if (mode !== 'cold') await vi.waitFor(() => expect(f.wrapper.text()).toContain('任务已接纳'))

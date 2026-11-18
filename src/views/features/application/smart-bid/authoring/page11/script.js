@@ -195,13 +195,22 @@ function bindOriginalFormComparison() {
     previousFormTemplateVersion.trim() === previousFormTemplateVersion && previousFormTemplateVersion !== formTemplateVersion, disabled}
 }
 
+function captureOriginalFormSelection(session) {
+  const keys = ['projectId', 'draftId', 'formTemplateRef', 'formTemplateVersion', 'previousFormTemplateVersion']
+  const values = keys.map(key => $route.query[key])
+  return () => editorSession === session && keys.every((key, index) => $route.query[key] === values[index])
+}
+
 async function openOriginalFormComparison() {
   const {visible, disabled} = bindOriginalFormComparison()
   if (!visible || disabled) return
   const {formTemplateRef, previousFormTemplateVersion, formTemplateVersion} = $route.query
+  const session = editorSession
+  const isCurrent = captureOriginalFormSelection(session)
   try {
-    const result = await editorSession.compareOriginalForms({templateRef: formTemplateRef,
+    const result = await session.compareOriginalForms({templateRef: formTemplateRef,
       previousVersion: previousFormTemplateVersion, currentVersion: formTemplateVersion})
+    if (!isCurrent()) return
     result.assertCurrent()
     const lines = result.state === 'COMPARED' ? [
       `原表旧版 ${result.previousFormVersion} · 新版 ${result.currentFormVersion}`,
@@ -211,7 +220,7 @@ async function openOriginalFormComparison() {
     ] : ['两版原表映射待核']
     await $page.showAlert(lines.join('\n'), '换表差异')
   } catch {
-    $page.showMessage('换表差异无法核验', 'warning')
+    if (isCurrent()) $page.showMessage('换表差异无法核验', 'warning')
   }
 }
 
@@ -219,8 +228,11 @@ async function openOriginalForm() {
   const {visible, disabled} = bindOriginalForm()
   if (!visible || disabled) return
   const {formTemplateRef, formTemplateVersion} = $route.query
+  const session = editorSession
+  const isCurrent = captureOriginalFormSelection(session)
   try {
-    const result = await editorSession.readOriginalForm({templateRef: formTemplateRef, templateVersion: formTemplateVersion})
+    const result = await session.readOriginalForm({templateRef: formTemplateRef, templateVersion: formTemplateVersion})
+    if (!isCurrent()) return
     result.assertCurrent()
     const lines = ['模板原表映射待登记']
     if (result.state === 'MATCHED') {
@@ -232,7 +244,7 @@ async function openOriginalForm() {
     }
     await $page.showAlert(lines.join('\n'), '原表映射')
   } catch {
-    $page.showMessage('原表映射无法核验', 'warning')
+    if (isCurrent()) $page.showMessage('原表映射无法核验', 'warning')
   }
 }
 

@@ -135,6 +135,28 @@ it('prepares the selected independent response from the saved draft and original
  await openDraftCandidate()
  expect(showMessage).toHaveBeenLastCalledWith('项目已有采用的正文，请基于当前正文版本重新发起候选','warning')
 })
+it('withdraws original form and comparison results when the selected template changes',async()=>{
+ const query={projectId:'P',draftId:'D',formTemplateRef:'T',formTemplateVersion:'V2',previousFormTemplateVersion:'V1'}
+ const showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
+ const readOriginalForm=vi.fn(async()=>{
+  query.formTemplateVersion='V3'
+  return {state:'PENDING',assertCurrent:()=>{}}
+ })
+ const compareOriginalForms=vi.fn(async()=>{
+  query.previousFormTemplateVersion='V2'
+  throw Error('OLD_COMPARISON')
+ })
+ const {__init__,openOriginalForm,openOriginalFormComparison}=compileFunctions(script,{$route:{query},
+  $page:{invokeHostCommand:async()=>({readOriginalForm,compareOriginalForms}),showAlert,showMessage}} as unknown as PageContext)
+ if(!__init__||!openOriginalForm||!openOriginalFormComparison)throw Error('TEST_ORIGINAL_FORM_REQUIRED')
+ await __init__()
+ await openOriginalForm()
+ await openOriginalFormComparison()
+ expect(readOriginalForm).toHaveBeenCalledWith({templateRef:'T',templateVersion:'V2'})
+ expect(compareOriginalForms).toHaveBeenCalledWith({templateRef:'T',previousVersion:'V1',currentVersion:'V3'})
+ expect(showAlert).not.toHaveBeenCalled()
+ expect(showMessage).not.toHaveBeenCalled()
+})
 it('shows a later project head without changing the original adoption revision',async()=>{
  const showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
  const readOriginalAdoption=vi.fn(async()=>({recordFound:true,adoptionRef:'A',mergeRevisionId:'R1',

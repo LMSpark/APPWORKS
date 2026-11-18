@@ -643,7 +643,16 @@ function syncPageConfigSubscription(): void {
   }
 }
 
+function protectPageChanges(event: BeforeUnloadEvent): void {
+  try { getDynamicRouter()?.assertPageRuntimesClean() }
+  catch {
+    event.preventDefault()
+    event.returnValue = ''
+  }
+}
+
 onMounted(() => {
+  window.addEventListener('beforeunload', protectPageChanges)
   // APP 公共 SSE 在壳层接入 lowcode 页面配置事件。
   syncPageConfigSubscription()
   unregisterShellNavListener = registerShellNavRootListener(applyNavTree)
@@ -668,6 +677,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  window.removeEventListener('beforeunload', protectPageChanges)
   unregisterShellNavListener?.()
   unregisterShellNavListener = null
   moduleContextListeners.clear()

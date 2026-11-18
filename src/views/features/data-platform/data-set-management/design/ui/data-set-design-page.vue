@@ -1454,8 +1454,6 @@ const hasPending = computed(() => {revision.value; return isPending()})
 defineExpose({hasPending})
 const definitionPending = computed(() => {revision.value; return isPending(false)})
 useSystemPageDirtySource({get isDirty() {return isPending()}})
-function beforeUnload(event: BeforeUnloadEvent): void {if (isPending()) {event.preventDefault(); event.returnValue = ''}}
-window.addEventListener('beforeunload', beforeUnload)
 
 async function load(): Promise<void> {
   if (session.value && (isPending() || parameterOpen.value)) {error.value = '请先保存或明确处理本地修改和待核验提交，并关闭输入参数窗口'; return}
@@ -1609,7 +1607,6 @@ onBeforeUnmount(() => {
   if (blueprintDataSet && !blueprintDataSet.destroyed) blueprintDataSet.destroy()
   blueprintDataSet = undefined
   session.value?.dispose(); session.value = null
-  window.removeEventListener('beforeunload', beforeUnload)
 })
 </script>
 

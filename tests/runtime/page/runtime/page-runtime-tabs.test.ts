@@ -113,6 +113,7 @@ describe('page call tabs and retained renderer instances', () => {
     const firstView = first.getDataSet(scenarioId)?.tables['Users']?.getView('default')
     if (!firstView) throw new Error('missing first runtime DataView')
     expect(firstView.queryContext['actor']).toBe('trusted')
+    expect(() => owner.assertPageRuntimesClean()).not.toThrow()
     sessionCurrent = false
     expect(() => owner.getPageRuntime(router.currentRoute.value)).toThrow('SESSION_STALE')
     sessionCurrent = true
@@ -131,8 +132,10 @@ describe('page call tabs and retained renderer instances', () => {
     firstView.mutating = false
     firstView.updateEditingValue('u-1', 'name', 'unsaved draft')
     expect(first.isDirty).toBe(true)
+    expect(() => owner.assertPageRuntimesClean()).toThrow('未保存修改')
     await router.push('/native')
     await flushPromises()
+    expect(() => owner.assertPageRuntimesClean()).toThrow('未保存修改')
     for (let index = 2; index < 12; index++) {
       await router.push(`/__page/tool-node?value=${index}&scenarioId=SCENE`)
       await flushPromises()

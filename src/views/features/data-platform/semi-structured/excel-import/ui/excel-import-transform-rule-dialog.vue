@@ -4,7 +4,8 @@
 边界：不复制规则草稿、不创建查询或保存owner；未知结果沿原DataSet捕获核验。
 -->
 <template>
-  <RendererDialog :model-value="true" :data-view-key="dataViewKey" :title="created ? '新增增强规则' : '编辑增强规则'" :width="720" :append-to-body="true" :close-disabled="busy || unconfirmed" @update:model-value="cancel">
+  <slot v-if="$slots['default']" />
+  <RendererDialog v-else :model-value="true" :data-view-key="dataViewKey" :title="created ? '新增增强规则' : '编辑增强规则'" :width="720" :append-to-body="true" :close-disabled="busy || unconfirmed" @update:model-value="cancel">
     <p role="status">预览出错策略仅影响安全预览；正式导入任意规则失败都会整批回滚。</p>
     <p v-if="error" role="alert">{{ error }}</p>
     <p v-if="foreignRecovery" role="status">同一视图另有未确认提交，请关闭并保留本窗口草稿后核验原提交。</p>
@@ -84,4 +85,14 @@ function changeType(next:unknown,previous:unknown,control:unknown):void{
   businessError.value=''
  }catch(cause){message(cause)}
 }
+defineExpose({
+  state:()=>({
+    id:props.recordId,created:props.created,fieldOptionsKey:props.fieldOptionsKey,error:error.value,kind:kind.value,
+    busy:busy.value,current:current.value,unconfirmed:unconfirmed.value,foreign:foreignRecovery.value,
+    ended:recoveryEnded.value,permissionsPending:permissionsPending.value,hasStaged:hasStaged.value,
+    locked:locked.value,confirmedCreation:confirmedCreation.value,pendingInputs:pendingInputs.value,
+    source:sourceRequired.value,target:targetRequired.value,schema:schema.value,typeOptions,errorOptions,
+  }),
+  save,cancel,changeType,pending,
+})
 </script>

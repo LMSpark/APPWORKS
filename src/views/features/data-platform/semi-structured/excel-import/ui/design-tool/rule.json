@@ -186,5 +186,33 @@
       {"type":"r-alert","props":{"alertType":"info","closable":false,"onBeforeRender":"bindRuleOperationPrompt"}},
       {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindRuleOperationError"}}
     ]
+  },
+  {
+    "id":"excel-transform-edit",
+    "type":"r-dialog",
+    "props":{"width":720,"appendToBody":true,"destroyOnClose":true,"onBeforeRender":"bindRuleEditDialog","on":{"update:modelValue":"closeRuleEditor"},"footer":{"children":[
+      {"type":"r-button","props":{"onBeforeRender":"bindCancelRuleEditor","onClick":"cancelRuleEditor"}},
+      {"type":"r-button","props":{"buttonType":"primary","onBeforeRender":"bindSaveRuleEditor","onClick":"saveRuleEditor"}}
+    ]}},
+    "children":[
+      {"type":"r-alert","props":{"alertType":"info","closable":false,"title":"预览出错策略仅影响安全预览；正式导入任意规则失败都会整批回滚。"}},
+      {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindRuleEditorError"}},
+      {"type":"r-alert","props":{"alertType":"warning","closable":false,"onBeforeRender":"bindRuleEditorWarning"}},
+      {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindRuleEditForm"},"children":[
+        {"type":"r-text","props":{"field":"rule_name","label":"规则名称","onBeforeRender":"bindRuleField"}},
+        {"type":"r-select","props":{"field":"rule_type","label":"规则类型","filterable":true,"onBeforeRender":"bindRuleType"}},
+        {"type":"r-number","props":{"field":"sort_order","label":"执行顺序","onBeforeRender":"bindRuleField"}},
+        {"type":"r-select","props":{"field":"source_field","label":"来源字段","filterable":true,"allowCreate":true,"onBeforeRender":"bindRuleSource"}},
+        {"type":"r-select","props":{"field":"target_field","label":"目标字段","filterable":true,"allowCreate":true,"onBeforeRender":"bindRuleTarget"}},
+        {"type":"r-select","props":{"field":"on_error","label":"预览出错","onBeforeRender":"bindRuleErrorPolicy"}},
+        {"type":"r-checkbox","props":{"field":"enabled","label":"是否启用","trueValue":1,"falseValue":0,"nullChecked":true,"onBeforeRender":"bindRuleField"}},
+        {"type":"r-json","props":{"field":"config_json","label":"规则配置","mode":"form","onBeforeRender":"bindRuleSchema"}},
+        {"type":"r-json","props":{"field":"config_json","label":"拆解列","mode":"rows","valuePath":["columns"],"reorderable":true,"onBeforeRender":"bindRuleColumns"},"children":[
+          {"type":"r-select","props":{"field":"sourceField","label":"来源字段","filterable":true,"allowCreate":true,"onBeforeRender":"bindUnpivotSource"}},
+          {"type":"r-json","props":{"field":"key","label":"键值","valueFormat":"native"}}
+        ]},
+        {"type":"r-json","props":{"field":"condition_json","label":"执行条件","mode":"text","onBeforeRender":"bindRuleCondition"}}
+      ]}
+    ]
   }
 ]

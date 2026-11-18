@@ -8,7 +8,9 @@
     <h2>增强规则</h2>
     <slot name="scheme-tools" />
     <slot name="rule-list" />
-    <RuleDialog v-if="editing" :key="editing.epoch" :data-view-key="dataViewKey" :record-id="editing.id" :created="editing.created" :field-options-key="fieldOptionsKey" @close="editing=undefined" />
+    <RuleDialog v-if="editing" ref="editDialog" :key="editing.epoch" :data-view-key="dataViewKey" :record-id="editing.id" :created="editing.created" :field-options-key="fieldOptionsKey" @close="editing=undefined">
+      <template v-if="$slots['rule-editor']" #default><slot name="rule-editor" /></template>
+    </RuleDialog>
     <OperationDialog v-if="operation" ref="operationDialog" :key="operation.epoch" :data-view-key="dataViewKey" :record-id="operation.id" :mode="operation.mode" @close="operation=undefined">
       <slot name="rule-operation" />
     </OperationDialog>
@@ -34,6 +36,7 @@ const openedKey=props.dataViewKey
 const revision=ref(0),acting=ref(false),error=ref('')
 const editing=shallowRef<{id:string|number;created:boolean;epoch:number}>()
 const operation=shallowRef<{id:string|number;mode:'pending'|'delete';epoch:number}>()
+const editDialog=shallowRef<InstanceType<typeof RuleDialog>>()
 const operationDialog=shallowRef<InstanceType<typeof OperationDialog>>()
 let active=true,epoch=0
 const stop=dataSet.onAnyViewChange({rowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed})
@@ -90,5 +93,6 @@ defineExpose({
     canVerify:!busy.value&&!editing.value&&!operation.value,error:error.value}),
   refresh,add,verifyOriginal,openEdit,openDelete,rowClick,scopeLabel,
   operation:()=>operationDialog.value,
+  editor:()=>editDialog.value,
 })
 </script>

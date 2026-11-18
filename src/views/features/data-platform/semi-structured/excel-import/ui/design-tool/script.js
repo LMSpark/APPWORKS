@@ -243,3 +243,70 @@ async function closeRuleOperation(open) { if (open === false) await cancelRuleOp
 async function cancelRuleOperation() { await $page.invokeHostCommand('excel.design.cancelRuleOperation') }
 async function discardRuleOperation() { await $page.invokeHostCommand('excel.design.discardRuleOperation') }
 async function saveRuleOperation() { await $page.invokeHostCommand('excel.design.saveRuleOperation') }
+
+const rulesKey = '0F93B82141CF40852021D704B0E30BF4@Base_Import_Transform_Rule@default'
+function ruleEditorState() { return tree?.ruleEditor()?.state() }
+function bindRuleEditDialog() {
+  const state = ruleEditorState()
+  return {visible:!!state,modelValue:!!state,closeDisabled:!!(state?.busy || state?.unconfirmed),
+    title:state?.created ? '新增增强规则' : '编辑增强规则'}
+}
+function bindRuleEditForm() {
+  const state = ruleEditorState()
+  return {dataViewKey:rulesKey,contextRowId:state?.id,key:state?.id}
+}
+function bindRuleField() { return {dataViewKey:rulesKey,readonly:ruleEditorState()?.locked !== false} }
+function bindRuleType() {
+  const editor = tree?.ruleEditor()
+  const state = editor?.state()
+  return {...bindRuleField(),options:state?.typeOptions,readonly:state?.locked !== false || !!state?.pendingInputs,onChange:editor?.changeType}
+}
+function bindRuleSource() {
+  const state = ruleEditorState()
+  return {...bindRuleField(),visible:state?.source === true,optionDataViewKey:state?.fieldOptionsKey}
+}
+function bindRuleTarget() {
+  const state = ruleEditorState()
+  return {...bindRuleField(),visible:state?.target === true,optionDataViewKey:state?.fieldOptionsKey}
+}
+function bindRuleErrorPolicy() { return {...bindRuleField(),options:ruleEditorState()?.errorOptions} }
+function bindRuleSchema() {
+  const editor = tree?.ruleEditor()
+  const schema = editor?.state().schema
+  return {...bindRuleField(),visible:!!schema,schema,onEditingChange:value=>editor?.pending('config',value)}
+}
+function bindRuleColumns() {
+  const editor = tree?.ruleEditor()
+  return {...bindRuleField(),visible:editor?.state().kind === 'UNPIVOT',onEditingChange:value=>editor?.pending('columns',value)}
+}
+function bindUnpivotSource() { return {optionDataViewKey:ruleEditorState()?.fieldOptionsKey} }
+function bindRuleCondition() {
+  const editor = tree?.ruleEditor()
+  const kind = editor?.state().kind
+  return {...bindRuleField(),visible:!!kind && !['DEDUPLICATE','PIVOT'].includes(kind),onEditingChange:value=>editor?.pending('condition',value)}
+}
+function bindRuleEditorError() {
+  const title = ruleEditorState()?.error || ''
+  return {visible:!!title,title}
+}
+function bindRuleEditorWarning() {
+  const state = ruleEditorState()
+  const title = state?.foreign ? '同一视图另有未确认提交，请关闭并保留本窗口草稿后核验原提交。'
+    : state && !state.current ? '原记录已变化，本次编辑会话已失效。' : ''
+  return {visible:!!title,title}
+}
+function bindCancelRuleEditor() {
+  const state = ruleEditorState()
+  const label = state?.foreign || state?.ended ? '关闭并保留草稿' : state?.confirmedCreation ? '关闭'
+    : !state?.unconfirmed && state?.hasStaged && !state.created ? '关闭并保留待提交修改' : '取消'
+  return {label,disabled:!!(state?.busy || state?.unconfirmed)}
+}
+function bindSaveRuleEditor() {
+  const state = ruleEditorState()
+  const label = state?.permissionsPending ? '回读已保存规则权限' : state?.unconfirmed ? '核验原保存结果'
+    : state?.ended ? '原提交已结束，请重新选择' : '保存'
+  return {label,disabled:!state || !!(state.busy || state.pendingInputs || state.foreign || !state.permissionsPending && (state.ended || !state.current && !state.unconfirmed))}
+}
+async function closeRuleEditor(open) { if (open === false) await cancelRuleEditor() }
+async function cancelRuleEditor() { await $page.invokeHostCommand('excel.design.cancelRuleEditor') }
+async function saveRuleEditor() { await $page.invokeHostCommand('excel.design.saveRuleEditor') }

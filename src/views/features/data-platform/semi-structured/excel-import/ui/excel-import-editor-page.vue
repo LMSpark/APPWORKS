@@ -40,6 +40,9 @@
         <template #rule-list>
           <SparkComponentRenderer :config="designRegion(children,'excel-transform-list')" />
         </template>
+        <template #rule-editor>
+          <SparkComponentRenderer :config="designRegion(children,'excel-transform-edit')" />
+        </template>
         <template #rule-operation>
           <SparkComponentRenderer :config="designRegion(children,'excel-transform-operation')" />
         </template>
@@ -265,6 +268,7 @@ function makeTreeHost(runtime:PageRuntime){
       validateSorted,
       ruleList:()=>rulePane.value?.state(),
       ruleOperation:()=>rulePane.value?.operation()?.state(),
+      ruleEditor:()=>rulePane.value?.editor(),
       ruleDirection:(value:unknown)=>rulePane.value?.scopeLabel(value)??'',
       ruleRowClick:(row:Parameters<InstanceType<typeof ExcelTransformRulesPane>['rowClick']>[0],column:unknown,event?:Event)=>{
         if(active&&session.isCurrent(runtime))rulePane.value?.rowClick(row,column,event)
@@ -275,6 +279,8 @@ function makeTreeHost(runtime:PageRuntime){
         switchUnconfirmed:isUnconfirmed(schemeTable),
       }),
     }
+    if(command==='excel.design.saveRuleEditor'){await rulePane.value?.editor()?.save();return undefined}
+    if(command==='excel.design.cancelRuleEditor'){rulePane.value?.editor()?.cancel();return undefined}
     if(command==='excel.design.saveRuleOperation'){await rulePane.value?.operation()?.save();return undefined}
     if(command==='excel.design.cancelRuleOperation'){rulePane.value?.operation()?.cancel();return undefined}
     if(command==='excel.design.discardRuleOperation'){rulePane.value?.operation()?.discard();return undefined}

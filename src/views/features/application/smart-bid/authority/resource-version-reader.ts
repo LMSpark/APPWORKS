@@ -16,7 +16,7 @@ const historyFields=['resourceId','id','version','typeVersion','createdAt']
 
 /** 资料和版本均为明确原请求参数，由正式查询执行企业资料可读范围。 */
 export function resourceVersionReadView(primaryKey:string){
- return originalRegistrationView(primaryKey,['resourceId','version'],fields)
+ return originalRegistrationView(primaryKey,['resourceId','version'],[...fields,'files'])
 }
 
 /** 本资料的历史只查询元信息；原文及出处通过明确版本读取。 */
@@ -79,8 +79,20 @@ async function readVersion(host:Parameters<typeof readOriginalRegistrationView>[
  const {id:versionId,typeVersion,validFrom,validTo,sourceTerms,rights}=row
  if(!identity(versionId)||!identity(typeVersion)||(validFrom!==null&&!identity(validFrom))||
   (validTo!==null&&!identity(validTo))||(rights!=='EXTERNAL'&&rights!=='INTERNAL'))throw Error(error)
+ let attachmentCount:number|undefined
+ let assertAttachments:(()=>void)|undefined
+ if(Array.isArray(row['files'])){
+  try{
+   const proof=read.captureFields(['files'])
+   proof()
+   attachmentCount=row['files'].length
+   assertAttachments=proof
+  }catch{
+   assertRow()
+  }
+ }
  return Object.freeze({state:'READ' as const,...selection,versionId,typeVersion,validFrom,validTo,rights,
-  sourceTerms:structuredClone(sourceTerms),assertCurrent:assertRow})
+  sourceTerms:structuredClone(sourceTerms),attachmentCount,assertCurrent:()=>{assertRow();assertAttachments?.()}})
 }
 
 /** 受限于宿主提供的原资料身份，页面只提供待核版本。 */

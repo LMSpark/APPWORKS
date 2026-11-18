@@ -71,7 +71,9 @@ async function showResourceVersion(read) {
     if (result.validFrom) lines.push(`有效起始 ${result.validFrom}`)
     if (result.validTo) lines.push(`有效截止 ${result.validTo}`)
     const sources = result.sourceTerms == null ? '待核' : JSON.stringify(result.sourceTerms)
-    lines.push(`出处 ${sources}`, '实际用途许可请核原使用决定')
+    lines.push(`出处 ${sources}`,
+      result.attachmentCount === undefined ? '原版附件待核' : `原版附件 ${result.attachmentCount} 项`,
+      '实际用途许可请核原使用决定')
     await $page.showAlert(lines.join('\n'), '企业资料原版')
   } catch {
     if (generation === selectionGeneration) $page.showMessage('所选资料原版无法核验', 'warning')

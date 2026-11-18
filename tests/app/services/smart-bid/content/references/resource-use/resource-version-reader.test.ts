@@ -9,7 +9,8 @@ import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode
 
 it('shows only the requested original metadata and suppresses unauthorized provenance',async()=>{
  const row={id:'VER-ID',resourceId:'RESOURCE',version:'V1',typeVersion:'LICENSE-V3',
-  validFrom:null,validTo:'2026-12-31',sourceTerms:{issuer:'ISSUER'},rights:'EXTERNAL',createdAt:'2026-11-18T10:00:00+08:00'}
+  validFrom:null,validTo:'2026-12-31',sourceTerms:{issuer:'ISSUER'},rights:'EXTERNAL',files:[{id:'FILE-1'}],
+  createdAt:'2026-11-18T10:00:00+08:00'}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ResourceVersion:{
   modelBinding:{modelName:'ResourceVersion',modelId:'M'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},originalVersion:resourceVersionReadView('id'),versionHistory:resourceVersionHistoryView('id')},
@@ -19,10 +20,10 @@ it('shows only the requested original metadata and suppresses unauthorized prove
   const history=ds.getView('ResourceVersion','versionHistory')
   if(!view||!history)throw Error('TEST_RESOURCE_VERSION_VIEW_REQUIRED')
   const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ResourceVersion'})
-  let hidden=false,originalId=row.id
+  let hidden:string[]=[],originalId=row.id
   view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:table.identity,scope:'version',readScope:()=> 'version',snapshot:table.applyResult({Result:{primaryKeyField:'id',
-    data:{Count:1,Items:[{...row,id:originalId,lingma_sys_params:{r:[],e:[],h:hidden?['sourceTerms']:[],m:[],d:false}}]}}}),
+    data:{Count:1,Items:[{...row,id:originalId,lingma_sys_params:{r:[],e:[],h:hidden,m:[],d:false}}]}}}),
   })})
   const historyTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ResourceVersion'})
   let historyCount=2
@@ -36,7 +37,7 @@ it('shows only the requested original metadata and suppresses unauthorized prove
    key==='S@ResourceVersion@versionHistory'?history:undefined,generation:1,
    isLoaded:true,destroyed:false}
   const page=createBidResourceVersionHost(runtime,{scenarioId:'S',resourceId:'RESOURCE',assertCurrent:()=>{}})
-  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
+  const signal=new AbortController().signal,showAlert=vi.fn<(message:string,title:string)=>Promise<void>>(async()=>{}),showMessage=vi.fn()
   const {__init__,openResourceVersion,openHistoricalResourceVersion,bindResourceVersionHistory,bindResourceVersionHistoryStatus}=compileFunctions(script,{$route:{query:{resourceVersion:'V1'}},$page:{
    invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),resolveView:runtime.resolveView,showAlert,showMessage,
   }} as unknown as PageContext)
@@ -49,7 +50,7 @@ it('shows only the requested original metadata and suppresses unauthorized prove
   await openResourceVersion()
   expect(showAlert).toHaveBeenCalledExactlyOnceWith([
    '资料 RESOURCE · 版本 V1 · 原版编号 VER-ID','资料类型版本 LICENSE-V3 · 披露类别 对外','有效截止 2026-12-31',
-   '出处 {"issuer":"ISSUER"}','实际用途许可请核原使用决定',
+   '出处 {"issuer":"ISSUER"}','原版附件 1 项','实际用途许可请核原使用决定',
   ].join('\n'),'企业资料原版')
   expect(view.queryContext).toMatchObject({resourceId:'RESOURCE',version:'V1'})
   await openHistoricalResourceVersion(history.rows[0])
@@ -61,7 +62,11 @@ it('shows only the requested original metadata and suppresses unauthorized prove
   showMessage.mockClear()
   originalId=row.id
   await expect(page.invoke('bid.resources.readVersion',{version:'V2'},signal)).rejects.toThrow('ORIGINAL_REGISTRATION_VIEW_REQUIRED')
-  hidden=true
+  hidden=['files']
+  await openResourceVersion()
+  expect(showAlert.mock.lastCall?.[0]).toContain('原版附件待核')
+  expect(showAlert.mock.lastCall?.[0]).not.toContain('FILE-1')
+  hidden=['sourceTerms']
   await openResourceVersion()
   expect(showMessage).toHaveBeenCalledExactlyOnceWith('所选资料原版无法核验','warning')
   historyCount=3

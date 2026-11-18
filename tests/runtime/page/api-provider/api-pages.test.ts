@@ -515,6 +515,7 @@ describe('external API pages assembled through the standard scenario entry', () 
   })
 
   it('retries only the failed provider configuration tab', async () => {
+    config.global.stubs = {...config.global.stubs, transition: false}
     const wrapper = await mountAt(ManagementPage)
     await button(wrapper, '基础配置')!.trigger('click')
     const http = api.current.state.http
@@ -532,7 +533,7 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(http.reads.slice(previousReadCount).map(read => read.table)).toEqual([accountTable])
     expect(http.saves).toHaveLength(0)
     const dialog = wrapper.findAllComponents(RendererDialog).find(item => item.props('width') === 1180)!
-    dialog.vm.$emit('update:modelValue', false)
+    await dialog.get('.el-dialog__headerbtn').trigger('click')
     await vi.waitFor(() => expect(wrapper.text()).not.toContain('配置信息设置'))
   })
 

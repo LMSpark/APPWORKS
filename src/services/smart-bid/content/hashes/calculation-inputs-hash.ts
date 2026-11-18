@@ -11,7 +11,9 @@ const tableFields=['nodeId','generatorVersion',...groupFields] as const
 const error='CONTENT_CALCULATION_INPUT_MODEL'
 
 /** 输入组保留已核引用及响应声明；各组的顺序由正式来源确定。 */
-export async function hashCalculationInputs(input:Readonly<{expectedNodeIds:readonly string[];tables:unknown}>){
+export async function hashCalculationInputs(input:Readonly<{
+ expectedNodeIds:readonly string[];tables:unknown;generatorVersions?:ReadonlyMap<string,string>
+}>){
  const expected=new Set(input.expectedNodeIds)
  if(expected.size!==input.expectedNodeIds.length||![...expected].every(snapshotReferenceIdentity))
   throw Error('CONTENT_CALCULATION_INPUT_SCOPE')
@@ -20,6 +22,8 @@ export async function hashCalculationInputs(input:Readonly<{expectedNodeIds:read
   const row=snapshotReferenceFields(value,tableFields,error),{nodeId,generatorVersion}=row
   if(!snapshotReferenceIdentity(nodeId)||!snapshotReferenceIdentity(generatorVersion))throw Error(error)
   if(!expected.has(nodeId)||seen.has(nodeId))throw Error('CONTENT_CALCULATION_INPUT_SCOPE')
+  if(input.generatorVersions&&input.generatorVersions.get(nodeId)!==generatorVersion)
+   throw Error('CONTENT_CALCULATION_GENERATOR_VERSION')
   seen.add(nodeId)
   const groups=groupFields.map(field=>{
    const records:unknown[]=[]

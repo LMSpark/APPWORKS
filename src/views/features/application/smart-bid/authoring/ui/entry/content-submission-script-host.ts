@@ -10,7 +10,7 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {recoverSubmissionAttempt} from '@/services/smart-bid/content/review/submission-attempt-recovery'
 import {prepareDeliveryFreezeSelection} from '@/services/smart-bid/content/review/delivery-selection-digest'
 import {preparePaperPackingRecord} from '@/services/smart-bid/content/review/paper-submission-package'
-import {prepareSignatureRequest} from '@/services/smart-bid/content/review/submission/signature-request'
+import {prepareSignatureRequest,recoverSignatureRequest} from '@/services/smart-bid/content/review/submission/signature-request'
 import {prepareRegisteredDeliveryZipPackage} from '../../model/review/package/content-delivery-package-preparation'
 import {readPackingRegistrationIdentity,recoverRegisteredPackingCandidate} from '../../model/review/package/content-submission-package-reader'
 import {readRegisteredSubmissionRequest} from '../../model/review/submission/content-submission-request-reader'
@@ -40,6 +40,7 @@ type PackingPreparation=Parameters<typeof prepareRegisteredDeliveryZipPackage>
 type PackingRecovery=Parameters<typeof recoverRegisteredPackingCandidate>
 type PaperPacking=Parameters<typeof preparePaperPackingRecord>
 type SignaturePreparation=Parameters<typeof prepareSignatureRequest>
+type SignatureRecovery=Parameters<typeof recoverSignatureRequest>
 type PackingSelection=Readonly<{
  selectionRef:string;request:PackingPreparation[1];assertCurrent:()=>void
 }>&(
@@ -89,6 +90,9 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
   readSignatureSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
    selectionRef:string;request:SignaturePreparation[0];basis:SignaturePreparation[1];authority:SignaturePreparation[2]
   }>>
+  readOriginalSignatureSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
+   selectionRef:string;request:SignatureRecovery[0];source:SignatureRecovery[1]
+  }>>
   readFreezeSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
    selectionRef:string;selection:FreezePreparation[0];uses:FreezePreparation[1];assertCurrent:()=>void
   }>>
@@ -113,6 +117,19 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)throw Error('SUBMISSION_PAGE_STALE')
    }
    const host={...scope,runtime,assertCurrent}
+   if(name==='content.submission.recoverSignature'&&sources.readOriginalSignatureSelection){
+    const {selectionRef}=input
+    if(!identity(selectionRef))throw Error('SUBMISSION_PAGE_SIGNATURE_SCOPE')
+    assertCurrent()
+    const selected=await sources.readOriginalSignatureSelection(selectionRef,signal)
+    assertCurrent()
+    if(selected.selectionRef!==selectionRef||selected.request.projectId!==projectId)
+     throw Error('SUBMISSION_PAGE_SIGNATURE_SCOPE')
+    return recoverSignatureRequest(selected.request,{
+     lookup:request=>selected.source.lookup(request),
+     assertCurrent:()=>{assertCurrent();selected.source.assertCurrent()},
+    })
+   }
    if(name==='content.submission.prepareSignature'&&sources.readSignatureSelection){
     const {selectionRef}=input
     if(!identity(selectionRef))throw Error('SUBMISSION_PAGE_SIGNATURE_SCOPE')

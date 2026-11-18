@@ -49,16 +49,23 @@ it('binds a revocation to its authority, affected scope and original version',as
  })})).rejects.toThrow('BID_SIGNATURE_RECOVERY_SCOPE')
  expect(signing.record).toMatchObject({authorityVersionId:'V1',objectVersion:'PACK-V1',positionRef:'SEAL'})
  const page=createContentSubmissionScriptHost({resolveView:()=>undefined,generation:1,isLoaded:true,destroyed:false},
-  {scenarioId:'S',projectId:'P',assertCurrent:()=>{}},{readSignatureSelection:async()=>({
-   selectionRef:'SIGNING',request:signature,basis:signatureBasis,authority:permitted,
-  })})
+  {scenarioId:'S',projectId:'P',assertCurrent:()=>{}},{
+   readSignatureSelection:async()=>({selectionRef:'SIGNING',request:signature,basis:signatureBasis,authority:permitted}),
+   readOriginalSignatureSelection:async()=>({selectionRef:'ORIGINAL',request:originalSigning,
+    source:{assertCurrent:evidence.assertCurrent,lookup:async()=>signReceipt}}),
+  })
  const signal=new AbortController()
  await expect(page.invoke('content.submission.prepareSignature',{selectionRef:'OTHER'},signal.signal))
   .rejects.toThrow('SUBMISSION_PAGE_SIGNATURE_SCOPE')
  const pageSigning=await page.invoke('content.submission.prepareSignature',{selectionRef:'SIGNING'},signal.signal)
  expect(pageSigning).toMatchObject({requestDigest:signing.requestDigest})
+ await expect(page.invoke('content.submission.recoverSignature',{selectionRef:'OTHER'},signal.signal))
+  .rejects.toThrow('SUBMISSION_PAGE_SIGNATURE_SCOPE')
+ const pageRecovered=await page.invoke('content.submission.recoverSignature',{selectionRef:'ORIGINAL'},signal.signal)
+ expect(pageRecovered).toMatchObject({state:'SIGNED',operationRef:'OP',signedObjectRef:'SIGNED-PACK'})
  signal.abort()
  expect(()=>pageSigning.assertCurrent()).toThrow('SUBMISSION_PAGE_STALE')
+ expect(()=>pageRecovered.assertCurrent()).toThrow('SUBMISSION_PAGE_STALE')
  await expect(prepareSignatureRequest({...signature,actionAt:source.knownAt},signatureBasis,permitted))
   .rejects.toThrow('BID_SIGNATURE_AUTHORITY_REQUIRED')
  await expect(prepareSignatureRequest({...signature,objectHash:'b'.repeat(64)},signatureBasis,permitted))

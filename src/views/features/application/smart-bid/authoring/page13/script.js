@@ -16,7 +16,7 @@ async function __init__() {
 }
 
 function bindOriginalSubmission() {
-  if ($route.query.attemptRef === undefined && (bindPackage().visible || bindPaperPackage().visible || bindSubmissionPreparation().visible || bindFreezePreparation().visible || bindPackingPreparation().visible || bindPaperPacking().visible || bindSignaturePreparation().visible)) return {visible: false}
+  if ($route.query.attemptRef === undefined && (bindPackage().visible || bindPaperPackage().visible || bindSubmissionPreparation().visible || bindFreezePreparation().visible || bindPackingPreparation().visible || bindPaperPacking().visible || bindSignaturePreparation().visible || bindSignatureRecovery().visible)) return {visible: false}
   if (!original) return {error: lookupError ?? '原递交记录无法读取'}
   try {
     original.assertCurrent()
@@ -32,6 +32,26 @@ function bindOriginalSubmission() {
     return {status: original.evidenceRef ? `${status}，凭据 ${original.evidenceRef}` : status}
   } catch {
     return {error: '原递交查询已失效'}
+  }
+}
+
+function bindSignatureRecovery() {
+  const ref = $route.query.originalSignatureRef
+  return {visible: typeof ref === 'string' && !!ref && ref.trim() === ref}
+}
+
+async function openSignatureRecovery() {
+  if (!bindSignatureRecovery().visible) return
+  try {
+    const result = await $page.invokeHostCommand('content.submission.recoverSignature', {selectionRef: $route.query.originalSignatureRef})
+    result.assertCurrent()
+    const labels = {UNKNOWN: '原签署结果待确认', IN_PROGRESS: '原签署正在办理', NOT_EFFECTIVE: '原签署未生效'}
+    const details = result.state === 'SIGNED'
+      ? `原操作 ${result.operationRef}\n签后对象 ${result.signedObjectRef}\n签后实件待核验`
+      : labels[result.state]
+    await $page.showAlert(details, '原签署结果')
+  } catch {
+    $page.showMessage('原签署结果无法核验', 'warning')
   }
 }
 

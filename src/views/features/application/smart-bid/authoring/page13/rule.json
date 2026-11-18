@@ -29,6 +29,14 @@
     ]
   },
   {
+    "id": "submission-signature-recovery",
+    "type": "r-section",
+    "props": {"title": "原签署结果", "onBeforeRender": "bindSignatureRecovery"},
+    "children": [
+      {"type": "r-button", "props": {"label": "回查原签署结果", "onClick": "openSignatureRecovery"}}
+    ]
+  },
+  {
     "id": "submission-preparation",
     "type": "r-section",
     "props": {"title": "递交前核验", "onBeforeRender": "bindSubmissionPreparation"},

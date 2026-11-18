@@ -553,6 +553,20 @@ it('compares verified first-candidate versions under the original target scope',
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
  }finally{f.ds.destroy()}
 })
+it('binds original form evidence to the exact template used by the candidate document',async()=>{
+ const f=await fixture('mapped-form')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const selected={declaredAddedNodeIds:['D','C','H'],originalFormTemplate:{documentId:'D',templateRef:'T',templateVersion:'1'}}
+  await expect(candidate.previewScope({...selected,originalFormTemplate:{...selected.originalFormTemplate,documentId:'H'}}))
+   .rejects.toThrow('CONTENT_CANDIDATE_ORIGINAL_FORM_SCOPE')
+  const result=await candidate.previewScope(selected)
+  expect(result.originalFormBasisCheck).toMatchObject({owner:'DocumentTemplate',scopeRef:{documentId:'D',baselineId:'B'},
+   recordRefs:[{templateRef:'T',formRef:'FORM',tenderRecordRef:{recordVersion:'002'},mappings:[{fieldRef:'F'}]}]})
+  await f.ds.getView('DocumentTemplate','originalFormMapping')?.refresh()
+  expect(()=>result.assertCurrent()).toThrow()
+ }finally{f.ds.destroy()}
+})
 it('previews selected text against the verified current head without modifying its view',async()=>{
  const f=await fixture('populated',{threeVersions:true})
  const span=(revisionId:string,text:string)=>({schemaVersion:2,projectId:'P',revisionId,owner:{kind:'NODE',nodeId:'H'},

@@ -11,6 +11,8 @@ import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/refere
 import type {readReviewedResponseForCandidate} from '@/services/smart-bid/content/references/response/response-review'
 import {prepareBidVolumePlan,verifyBidVolumePlanPlacement} from '@/services/smart-bid/content/references/response/bid-volume-plan'
 import {readBaselineSubmissionObligations} from '../../followup/submission-obligation-reader'
+import {readRegisteredOriginalForm} from '../../response/model/original-form-reader'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {assertRevisionResponseText,readIndependentResponseFactOccurrences,type IndependentResponseFactTarget} from '@/services/smart-bid/content/references/revision-response-text'
 import {hasCompleteSingleContentResult,readContentRevisionBasis,readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
@@ -81,9 +83,12 @@ type SubtreeReviewSources=Readonly<{
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
 type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>&Readonly<{
  volumeDestinations?:Parameters<typeof prepareBidVolumePlan>[0]['destinations']
+ originalFormTemplate?:Readonly<{documentId:string;templateRef:string;templateVersion:string}>
 }>
 type CandidateScopePreview=Readonly<ReturnType<typeof previewScopedRevisionChanges>&{
  volumeBasisCheck?:ReturnType<ContentCandidateBinding['verifyVolumePlan']>['basisCheck']
+ originalFormBasisCheck?:Readonly<{owner:'DocumentTemplate';scopeRef:Readonly<{projectId:string;baselineId:string;documentId:string}>
+  scopeVersion:string;recordRefs:unknown}>
  assertCurrent:()=>void
 }>
 type CandidateNodeSelection=Pick<ContentTextSelection,'path'|'start'|'end'|'mode'>&Readonly<{role:'candidate'|'head';nodeId:string}>
@@ -575,16 +580,29 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
  const previewScope=async(input:PreviewScopeInput,assertConsumer?:()=>void):Promise<CandidateScopePreview>=>{
   assertCurrent();assertConsumer?.()
   const assertTargetScope=candidate.captureReadRow(row,['targetScope'])
-  const {declaredAddedNodeIds,volumeDestinations}=structuredClone(input)
+  const {declaredAddedNodeIds,volumeDestinations,originalFormTemplate}=structuredClone(input)
   const versions=await readPreviewVersions(assertConsumer)
   const volume=volumeDestinations===undefined?undefined:await verifyVolumePlanFromBaseline(volumeDestinations)
-  const assertPreview=()=>{versions.assertCurrent();assertTargetScope();volume?.assertCurrent()}
+  const mappedForm=originalFormTemplate===undefined?undefined:await readRegisteredOriginalForm({...host,assertCurrent},originalFormTemplate)
+  const assertPreview=()=>{versions.assertCurrent();assertTargetScope();volume?.assertCurrent();mappedForm?.assertCurrent()}
   assertPreview()
+  let originalFormBasisCheck:CandidateScopePreview['originalFormBasisCheck']
+  if(originalFormTemplate){
+   const {documentId,templateRef,templateVersion}=originalFormTemplate
+   if(mappedForm?.state!=='MATCHED'||mappedForm.baselineId!==row['baselineId']||!Array.isArray(templateRefs)||
+    !templateRefs.some(item=>isRecord(item)&&item['documentId']===documentId&&item['key']===templateRef&&item['version']===templateVersion))
+    throw Error('CONTENT_CANDIDATE_ORIGINAL_FORM_SCOPE')
+   originalFormBasisCheck=Object.freeze({owner:'DocumentTemplate',scopeRef:Object.freeze({projectId:host.projectId,
+    baselineId:mappedForm.baselineId,documentId}),scopeVersion:snapshotHash,recordRefs:Object.freeze([
+    Object.freeze({templateRef,templateVersion,formRef:mappedForm.formRef,tenderRecordRef:mappedForm.tenderRecordRef,mappings:mappedForm.mappings}),
+   ])})
+  }
   const result=previewScopedRevisionChanges({projectId:host.projectId,basis:readNodes(versions.basis),
    current:readNodes(versions.head),candidate:readNodes(versions.candidate),targetScope:row['targetScope'],declaredAddedNodeIds},
   {basis:readManifest(versions.basis),current:readManifest(versions.head),candidate:readManifest(versions.candidate)})
   assertPreview()
-  return Object.freeze({...result,...(volume?{volumeBasisCheck:volume.basisCheck}:{}),assertCurrent:assertPreview})
+  return Object.freeze({...result,...(volume?{volumeBasisCheck:volume.basisCheck}:{}),
+   ...(originalFormBasisCheck?{originalFormBasisCheck}:{}),assertCurrent:assertPreview})
  }
  const previewTextFromVersions=async(versions:PreviewVersions,changes:unknown):Promise<TextPreviewBinding>=>{
   versions.assertCurrent()

@@ -69,10 +69,11 @@ export async function readRegisteredOriginalForm(host:Parameters<typeof readBase
   if(!identity(fieldRef)||!identity(cellRef)||!identity(meaningRef))throw Error(error)
   fields.push(Object.freeze({fieldRef,cellRef,meaningRef}))
  },error)
+ const reference=readTenderRecordReference(tenderRecordRef)
  const form=await readBaselineOriginalForm({...host,assertCurrent},
-  {basis:{baselineId,stageRef,...(previous?{viewName:priorBaselineView}:{})},reference:tenderRecordRef,
+  {basis:{baselineId,stageRef,...(previous?{viewName:priorBaselineView}:{})},reference,
    mapping:{formRef,fillerRef,mappings:fields}},readLocatedForm,previous?priorTenderView:undefined)
- return Object.freeze({state:'MATCHED' as const,...form,baselineId,templateRef,templateVersion})
+ return Object.freeze({state:'MATCHED' as const,...form,baselineId,templateRef,templateVersion,tenderRecordRef:reference})
 }
 
 export async function compareRegisteredOriginalForms(host:Parameters<typeof readRegisteredOriginalForm>[0],input:Readonly<{

@@ -146,7 +146,6 @@ function commandOptions(view: DataView, input: Input): BindCommandSubmitOptions 
       if (!attempt || ['commandId', 'workflowId', 'designContent', 'definitionContent'].some(field => row[field] !== attempt.row[field])) {
         throw new Error('AGENT_WORKFLOW_PUBLICATION_VERIFY: 缺少原发布 attempt')
       }
-      await readDesign(attempt)
       const bytes = await input.api.readFileBytes(locator(String(attempt.row['workflowId']), 'definition.json'))
       guard()
       if (!sameBytes(bytes, new TextEncoder().encode(attempt.definitionContent))) {

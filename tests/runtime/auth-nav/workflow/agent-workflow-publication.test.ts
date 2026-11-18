@@ -141,6 +141,18 @@ describe('Agent workflow first publication command', () => {
     } finally {state.dataSet.destroy()}
   })
 
+  it('confirms the uploaded snapshot even after the working design changes', async () => {
+    const state = fixture({afterUpload: () => {throw new Error('response lost')}})
+    try {
+      await state.prepare()
+      await expect(state.save()).rejects.toThrow('response lost')
+      state.files.set('APP/workflow-designs/alpha/design.json', '{"newer":true}')
+      await expect(state.save()).resolves.toMatchObject({success: true})
+      expect(state.uploadTextVersion).toHaveBeenCalledOnce()
+      expect(state.view.hasUnconfirmedSave).toBe(false)
+    } finally {state.dataSet.destroy()}
+  })
+
   it('keeps unknown when the original Definition bytes differ and does not upload again', async () => {
     const state = fixture({afterUpload: () => {state.files.set('APP/workflow-designs/alpha/definition.json', '{}'); throw new Error('response lost')}})
     try {

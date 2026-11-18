@@ -4,6 +4,21 @@ import {readOperationRouteCandidate} from '@/services/smart-bid/operation/operat
 import {resolveContentTargetScope} from '@/services/smart-bid/content/content-target-scope'
 import {previewOperationRoute} from '@/services/smart-bid/operation/operation-route-preview'
 import {readComposedOperationRouteCandidate} from '@/services/smart-bid/operation/operation-station-fit'
+import {verifyOperationRouteReturn} from '@/services/smart-bid/operation/operation-route-return'
+
+it('accepts only the original complete attempt and the JSON candidate that fits its catalog',async()=>{
+ const scope={runId:'RUN',attemptRef:'TRY',requestKey:'Q',projectId:'P',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}
+ const receipt={...scope,receiptRef:'RESULT',assertCurrent:()=>{}}
+ const source={catalog:{stationRefs:craft.inputExample.stationCatalog.map(station=>station.ref),routeRefs:[]},
+  match:()=>true,assertCurrent:()=>{}}
+ expect(await verifyOperationRouteReturn(scope,{...receipt,state:'PARTIAL'},source)).toMatchObject({state:'PARTIAL'})
+ expect(await verifyOperationRouteReturn(scope,{...receipt,state:'COMPLETE',output:craft.outputExample},source))
+  .toMatchObject({state:'VERIFIED_CANDIDATE',receiptRef:'RESULT'})
+ await expect(verifyOperationRouteReturn(scope,{...receipt,attemptRef:'OLD',state:'COMPLETE',output:craft.outputExample},source))
+  .rejects.toThrow('OPERATION_ROUTE_RETURN_SCOPE')
+ await expect(verifyOperationRouteReturn(scope,{...receipt,state:'COMPLETE',output:'## 编制路线'},source))
+  .rejects.toThrow('OPERATION_ROUTE_JSON_MODEL')
+})
 
 it('keeps a draft prompt, exact slots and sample tied to the existing native JSON model',()=>{
  expect(craft.status).toBe('DRAFT_NOT_PUBLISHED')

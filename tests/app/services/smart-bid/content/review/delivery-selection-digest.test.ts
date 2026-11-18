@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {computeDeliverySelectionDigests,verifyDeliverySelectionDigests} from '@/services/smart-bid/content/review/delivery-selection-digest'
+import {computeDeliverySelectionDigests,prepareDeliveryFreezeSelection,verifyDeliverySelectionDigests} from '@/services/smart-bid/content/review/delivery-selection-digest'
 import {readOriginalDeliveryFreeze} from '@/services/smart-bid/content/review/delivery-freeze-recovery'
 
 it('binds fixed member positions and retains the approved basis and historical production references',async()=>{
@@ -21,6 +21,13 @@ it('binds fixed member positions and retains the approved basis and historical p
  const request={requestKey,requestDigest,groupScope}
  let current=true
  const assertCurrent=()=>{if(!current)throw Error('FREEZE_SOURCE_STALE')}
+ const uses=input.members.map(file=>({...file,projectId:'P',evidenceRef:'COVERAGE-A2',usage:null,allowed:true,assertCurrent}))
+ const prepared=await prepareDeliveryFreezeSelection(input,uses)
+ expect(prepared.record).toMatchObject(result)
+ await expect(prepareDeliveryFreezeSelection(input,uses.map(use=>({...use,usage:'READ_ONLY'}))))
+  .rejects.toThrow('DELIVERY_FREEZE_MEMBER_USE')
+ await expect(prepareDeliveryFreezeSelection(input,uses.map(use=>({...use,evidenceRef:'OTHER'}))))
+  .rejects.toThrow('DELIVERY_FREEZE_MEMBER_USE')
  const read=(lookup:Parameters<typeof readOriginalDeliveryFreeze>[1]['lookup'])=>
   readOriginalDeliveryFreeze(request,{lookup,assertCurrent})
  expect(await read(async()=>undefined)).toMatchObject({status:'UNKNOWN'})
@@ -31,5 +38,6 @@ it('binds fixed member positions and retains the approved basis and historical p
  await expect(read(async()=>({request,status:'FROZEN',record:{...input,...result,requestKey:'LATER'},assertCurrent})))
   .rejects.toThrow('DELIVERY_FREEZE_REQUEST_SCOPE')
  current=false
+ expect(()=>prepared.assertCurrent()).toThrow('FREEZE_SOURCE_STALE')
  expect(()=>original.assertCurrent()).toThrow('FREEZE_SOURCE_STALE')
 })

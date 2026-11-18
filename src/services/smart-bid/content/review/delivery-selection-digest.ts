@@ -17,6 +17,36 @@ type Selection=Readonly<{
 }>
 const isDigest=(value:string)=>/^[a-f0-9]{64}$/u.test(value)
 
+type FreezeUse=Readonly<{projectId:string;position:string;fileVersionId:string;fileHash:string;
+ evidenceRef:string;usage:string|null;allowed:boolean;assertCurrent:()=>void}>
+
+/** 冻结前逐件核本轮用途，证明随本次固定选件一起进入摘要。 */
+export async function prepareDeliveryFreezeSelection(selection:Selection,uses:readonly FreezeUse[]){
+ const record=structuredClone(selection)
+ const byPosition=new Map(uses.map(use=>[use.position,use]))
+ const checkedEvidence=new Set(record.checkedStateRefs)
+ if(byPosition.size!==uses.length||byPosition.size!==record.members.length)throw Error('DELIVERY_FREEZE_MEMBER_USE')
+ const assertCurrent=()=>{
+  for(const member of record.members){
+   const use=byPosition.get(member.position)
+   if(use?.position!==member.position||use.projectId!==record.groupScope.projectId||
+    use.fileVersionId!==member.fileVersionId||use.fileHash!==member.fileHash||use.allowed!==true||
+    use.usage==='READ_ONLY'||(use.usage!==null&&!identity(use.usage))||!checkedEvidence.has(use.evidenceRef))
+    throw Error('DELIVERY_FREEZE_MEMBER_USE')
+   use.assertCurrent()
+  }
+ }
+ assertCurrent()
+ const digests=await computeDeliverySelectionDigests(record)
+ assertCurrent()
+ const prepared=Object.freeze({...record,...digests})
+ const fingerprint=canonicalSnapshotValue(prepared)
+ return Object.freeze({record:prepared,assertCurrent:()=>{
+  assertCurrent()
+  if(canonicalSnapshotValue(prepared)!==fingerprint)throw Error('DELIVERY_FREEZE_SELECTION_CHANGED')
+ }})
+}
+
 /** 成员摘要以明确位置及版本排序，整份结果包含原请求和所有固定证据引用。 */
 export async function computeDeliverySelectionDigests(selection:Selection){
  const {requestKey,requestDigest,selectionId,selectionVersion,expectedSelectionVersion,groupScope,

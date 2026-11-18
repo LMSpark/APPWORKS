@@ -56,11 +56,16 @@ async function openCallImpact() {
     const lines = ['原调用引用或正式修改登记待核']
     if (result.state === 'CALLS_TRACED') {
       lines[0] = '原试次 ' + result.attemptRef
-      for (const {source, references} of result.impacts) {
+      const decisions = {REDO: '重做', RECHECK: '复核', REUSE: '沿用'}
+      for (const {source, references, results} of result.impacts) {
         lines.push(`${source.id} · 修改依据 ${source.current.documentVersionId} / ${source.current.locator}`)
         if (!references.length) lines.push('本试次未核得对应旧版引用')
         for (const item of references) {
           lines.push(`调用 ${item.callRef} · 成果 ${item.resultRef} · 字段 ${item.fieldPath} · 版本 ${item.version}`)
+        }
+        for (const {resultRef, disposition} of results) {
+          lines.push(disposition ? `成果 ${resultRef} · ${decisions[disposition.decision]} · 责任人 ${disposition.ownerRef} · 登记 ${disposition.decisionRef} · ${disposition.reason}` :
+            `成果 ${resultRef} · 原处置待核`)
         }
       }
     }

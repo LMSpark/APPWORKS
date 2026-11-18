@@ -38,6 +38,9 @@ it('reads the original addendum locations for the current project, lot and round
   GenerationRun:{projectId:'P',id:'CALLS',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST',actualRequirementReads:[
    {lineageId:'CLAUSE',version:'V1',callRef:'USED',resultRef:'RESULT',fieldPath:'requirements.qualification'},
    {lineageId:'CLAUSE',version:'V2',callRef:'OTHER',resultRef:'RESULT',fieldPath:'requirements.qualification'},
+  ],changeDispositions:[
+   {addendumId:'A',changeId:'ITEM',resultRef:'RESULT',decisionRef:'DECISION',ownerRef:'OWNER',reason:'替换资格条件',decision:'REDO'},
+   {addendumId:'OTHER',changeId:'ITEM',resultRef:'RESULT',decisionRef:'OTHER-DECISION',ownerRef:'OWNER',reason:'原轮次已核',decision:'REUSE'},
   ]},
  }
  const chapterViews=tenderChangeChapterScenarioViews({ContentRevision:'id',RevisionSnapshot:'id'})
@@ -109,7 +112,7 @@ it('reads the original addendum locations for the current project, lot and round
    {addendumId:'A',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST'},signal)
   expect(calls).toMatchObject({state:'CALLS_TRACED',impacts:[{references:[
    {callRef:'USED',version:'V1',resultRef:'RESULT',fieldPath:'requirements.qualification'},
-  ]}]})
+  ],results:[{resultRef:'RESULT',disposition:{decision:'REDO',decisionRef:'DECISION',ownerRef:'OWNER'}}]}]})
   const batches=await page.invoke('tender.followup.traceOutboundBatches',{addendumId:'A',knownAt},signal)
   expect(batches).toMatchObject({state:'BATCH_EVIDENCE',evidence:[{obligationId:'OBLIGATION',eventRef:'REC',attemptRef:'OUTBOUND'}],
    changes:[{changeId:'ITEM',obligationId:'OBLIGATION',receiptRefs:['REC'],content:{attemptRef:'OUTBOUND',state:'PENDING',

@@ -7,13 +7,14 @@ import {originalRegistrationView,readOriginalRegistrationView} from '../authorit
 
 const keys=['projectId','runId','attemptRef','requestKey']
 const fields=['actualRequirementReads']
+const dispositionField='changeDispositions'
 const viewName='originalRequirementReads'
 const error='TENDER_CHANGE_CALL_EVIDENCE'
 type Scope=Readonly<{projectId:string;runId:string;attemptRef:string;requestKey:string}>
 
 /** 原调用视图按试次完整身份精确取证。 */
 export function tenderChangeCallScenarioView(primaryKey:string){
- return originalRegistrationView(primaryKey,keys,fields)
+ return originalRegistrationView(primaryKey,keys,[...fields,dispositionField])
 }
 
 function captureReference(value:unknown){
@@ -21,6 +22,14 @@ function captureReference(value:unknown){
   ['callRef','resultRef','fieldPath','lineageId','version'],error)
  if(!identity(callRef)||!identity(resultRef)||!identity(fieldPath)||!identity(lineageId)||!identity(version))throw Error(error)
  return Object.freeze({callRef,resultRef,fieldPath,lineageId,version})
+}
+
+function captureDisposition(value:unknown){
+ const {addendumId,changeId,resultRef,decisionRef,ownerRef,reason,decision}=snapshotReferenceFields(value,
+  ['addendumId','changeId','resultRef','decisionRef','ownerRef','reason','decision'],error)
+ if(!identity(addendumId)||!identity(changeId)||!identity(resultRef)||!identity(decisionRef)||!identity(ownerRef)||
+  typeof reason!=='string'||!reason.trim()||(decision!=='REDO'&&decision!=='RECHECK'&&decision!=='REUSE'))throw Error(error)
+ return Object.freeze({addendumId,changeId,resultRef,decisionRef,ownerRef,reason,decision})
 }
 
 /** 缺失清单表示待取得原引用，空清单只描述本次已核试次。 */
@@ -39,5 +48,12 @@ export async function readTenderChangeCallReferences(host:Parameters<typeof read
   seen.add(key)
   items.push(item)
  },error)
- return Object.freeze({state:'REGISTERED' as const,items:Object.freeze(items),assertCurrent})
+ const rawDispositions=read.row[dispositionField]
+ const dispositions:Array<ReturnType<typeof captureDisposition>>=[]
+ const hasDispositions=rawDispositions!==null&&rawDispositions!==undefined
+ const assertDispositions=hasDispositions?read.captureFields([dispositionField]):read.assertCurrent
+ assertDispositions()
+ if(hasDispositions)visitSnapshotReferences(rawDispositions,value=>{dispositions.push(captureDisposition(value))},error)
+ return Object.freeze({state:'REGISTERED' as const,items:Object.freeze(items),dispositions:Object.freeze(dispositions),
+  assertCurrent:()=>{assertCurrent();assertDispositions()}})
 }

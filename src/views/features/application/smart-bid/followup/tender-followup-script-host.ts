@@ -75,8 +75,14 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
    if(addendum.state!=='REGISTERED')return addendum
    const calls=await readTenderChangeCallReferences({...readHost,assertCurrent:addendum.assertCurrent},{projectId,runId,attemptRef,requestKey})
    if(calls.state!=='REGISTERED')return calls
-   const impacts=addendum.items.map(source=>Object.freeze({source,references:Object.freeze(calls.items.filter(item=>
-    item.lineageId===source.requirementLineageId&&item.version===source.previousRequirementVersion))}))
+   const impacts=addendum.items.map(source=>{
+    const references=calls.items.filter(item=>item.lineageId===source.requirementLineageId&&item.version===source.previousRequirementVersion)
+    const results=[...new Set(references.map(item=>item.resultRef))].map(resultRef=>{
+     const decisions=calls.dispositions.filter(item=>item.addendumId===addendumId&&item.changeId===source.id&&item.resultRef===resultRef)
+     return Object.freeze({resultRef,disposition:decisions.length===1?decisions[0]:null})
+    })
+    return Object.freeze({source,references:Object.freeze(references),results:Object.freeze(results)})
+   })
    calls.assertCurrent()
    return Object.freeze({state:'CALLS_TRACED' as const,attemptRef,impacts:Object.freeze(impacts),assertCurrent:calls.assertCurrent})
   }

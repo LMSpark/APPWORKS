@@ -16,7 +16,7 @@ async function __init__() {
 }
 
 function bindOriginalSubmission() {
-  if ($route.query.attemptRef === undefined && (bindPackage().visible || bindPaperPackage().visible || bindSubmissionPreparation().visible || bindFreezePreparation().visible)) return {visible: false}
+  if ($route.query.attemptRef === undefined && (bindPackage().visible || bindPaperPackage().visible || bindSubmissionPreparation().visible || bindFreezePreparation().visible || bindPackingPreparation().visible)) return {visible: false}
   if (!original) return {error: lookupError ?? '原递交记录无法读取'}
   try {
     original.assertCurrent()
@@ -32,6 +32,26 @@ function bindOriginalSubmission() {
     return {status: original.evidenceRef ? `${status}，凭据 ${original.evidenceRef}` : status}
   } catch {
     return {error: '原递交查询已失效'}
+  }
+}
+
+function bindPackingPreparation() {
+  const ref = $route.query.packingSelectionRef
+  return {visible: typeof ref === 'string' && !!ref && ref.trim() === ref}
+}
+
+async function openPackingPreparation() {
+  if (!bindPackingPreparation().visible) return
+  try {
+    const result = await $page.invokeHostCommand('content.submission.preparePacking', {selectionRef: $route.query.packingSelectionRef})
+    result.assertCurrent()
+    const labels = {UNKNOWN: '原冻结结果待确认', NOT_EFFECTIVE: '原冻结未生效'}
+    const details = result.status === 'PREPARED'
+      ? `待核包共 ${result.candidate.packed.length} 件\n选件版本 ${result.candidate.selectionVersion}\n摘要 ${result.candidate.packageHash}`
+      : labels[result.status]
+    await $page.showAlert(details, '电子封装准备')
+  } catch {
+    $page.showMessage('无法核验原冻结或本次封装用途', 'warning')
   }
 }
 

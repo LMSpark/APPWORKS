@@ -77,6 +77,8 @@ it('preserves unknown on a complete empty original read and requires readable te
    evidence:requirements.map(requirement=>({...releaseScope,...requirement,evidenceRef:requirement.targetId,
     accepted:true,assertCurrent:host.assertCurrent}))}))
   const page=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
+   readPackingSelection:async()=>({selectionRef:'PACK',request,assertCurrent:host.assertCurrent,
+    options:{...options,readCurrentUse:async()=>use}}),
    readFreezeSelection:async()=>({selectionRef:'FIXED',selection:frozen,assertCurrent:host.assertCurrent,
     uses:[{...member,projectId:'P',evidenceRef:'APPROVAL',usage:null,allowed:true,assertCurrent:host.assertCurrent}]}),
    readPackageSelection:async()=>({request,options:reviewOptions,assertCurrent:host.assertCurrent}),
@@ -113,5 +115,10 @@ it('preserves unknown on a complete empty original read and requires readable te
   }})
   expect(prepared.status).toBe('PREPARED')
   expect(openOriginal).toHaveBeenCalledOnce()
+  await expect(page.invoke('content.submission.preparePacking',{selectionRef:'OTHER'},signal))
+   .rejects.toThrow('SUBMISSION_PAGE_PACKING_SCOPE')
+  await expect(page.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal))
+   .resolves.toMatchObject({status:'PREPARED',candidate:{selectionHash:hashes.selectionHash,packed:[member]}})
+  expect(openOriginal).toHaveBeenCalledTimes(2)
  }finally{ds.destroy()}
 })

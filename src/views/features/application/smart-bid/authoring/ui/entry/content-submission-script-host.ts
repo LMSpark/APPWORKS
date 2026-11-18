@@ -9,6 +9,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {recoverSubmissionAttempt} from '@/services/smart-bid/content/review/submission-attempt-recovery'
 import {prepareDeliveryFreezeSelection} from '@/services/smart-bid/content/review/delivery-selection-digest'
+import {prepareRegisteredDeliveryZipPackage} from '../../model/review/package/content-delivery-package-preparation'
 import {readRegisteredSubmissionRequest} from '../../model/review/submission/content-submission-request-reader'
 import {readRegisteredSubmissionEvents} from '../../model/review/submission/content-submission-events-reader'
 import {readRegisteredChannelReceiptPairing} from '../../model/review/submission/content-channel-receipt-pairing-reader'
@@ -32,6 +33,7 @@ type PackageReview=Parameters<typeof reviewRegisteredDeliveryZipPackage>
 /** 当前实包的原放行规则及证据。 */
 type PackageRelease=Parameters<typeof assessSubmissionPackageRelease>
 type FreezePreparation=Parameters<typeof prepareDeliveryFreezeSelection>
+type PackingPreparation=Parameters<typeof prepareRegisteredDeliveryZipPackage>
 /** 读取原截止记录对应的回执和核对证据。 */
 type ReadDeadline=(record:Awaited<ReturnType<typeof readRegisteredDeadlineRecord>>,signal:AbortSignal)=>Promise<Readonly<{
  options:Deadline[2]
@@ -66,6 +68,9 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
   readFreezeSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
    selectionRef:string;selection:FreezePreparation[0];uses:FreezePreparation[1];assertCurrent:()=>void
   }>>
+  readPackingSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
+   selectionRef:string;request:PackingPreparation[1];options:PackingPreparation[2];assertCurrent:()=>void
+  }>>
  }>={}){
  async function readRelease(proof:PackageRelease[0],signal:AbortSignal){
   proof.assertCurrent()
@@ -83,6 +88,17 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)throw Error('SUBMISSION_PAGE_STALE')
    }
    const host={...scope,runtime,assertCurrent}
+   if(name==='content.submission.preparePacking'&&sources.readPackingSelection){
+    const {selectionRef}=input
+    if(!identity(selectionRef))throw Error('SUBMISSION_PAGE_PACKING_SCOPE')
+    assertCurrent()
+    const selected=await sources.readPackingSelection(selectionRef,signal)
+    const assertSelection=()=>{assertCurrent();selected.assertCurrent()}
+    assertSelection()
+    if(selected.selectionRef!==selectionRef||selected.request.groupScope.projectId!==projectId)
+     throw Error('SUBMISSION_PAGE_PACKING_SCOPE')
+    return prepareRegisteredDeliveryZipPackage({...host,assertCurrent:assertSelection},selected.request,selected.options)
+   }
    if(name==='content.submission.prepareFreeze'&&sources.readFreezeSelection){
     const {selectionRef}=input
     if(!identity(selectionRef))throw Error('SUBMISSION_PAGE_FREEZE_SCOPE')

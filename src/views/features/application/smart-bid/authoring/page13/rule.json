@@ -13,6 +13,14 @@
     ]
   },
   {
+    "id": "delivery-packing-preparation",
+    "type": "r-section",
+    "props": {"title": "电子封装", "onBeforeRender": "bindPackingPreparation"},
+    "children": [
+      {"type": "r-button", "props": {"label": "生成待核电子包", "onClick": "openPackingPreparation"}}
+    ]
+  },
+  {
     "id": "submission-preparation",
     "type": "r-section",
     "props": {"title": "递交前核验", "onBeforeRender": "bindSubmissionPreparation"},

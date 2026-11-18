@@ -138,9 +138,11 @@ it('shows a later project head without changing the original adoption revision',
  const readOriginalAdoption=vi.fn(async()=>({recordFound:true,adoptionRef:'A',mergeRevisionId:'R1',
   commitCheckRef:null,assertCurrent:()=>{}}))
  const readCurrentHead=vi.fn(async()=>({headRevisionId:'R2',assertCurrent:()=>{}}))
- const {__init__,openOriginalAdoption}=compileFunctions(script,{$route:{query:{
+ const query={
   adoptionCandidateRevisionId:'C',adoptionRequestKey:'K',adoptionRequestDigest:'DIGEST',adoptionPreviewRef:'PV',
- }},$page:{invokeHostCommand:async()=>({readOriginalAdoption,readCurrentHead}),showAlert,showMessage}} as unknown as PageContext)
+ }
+ const {__init__,openOriginalAdoption}=compileFunctions(script,{$route:{query},
+  $page:{invokeHostCommand:async()=>({readOriginalAdoption,readCurrentHead}),showAlert,showMessage}} as unknown as PageContext)
  if(!__init__||!openOriginalAdoption)throw Error('TEST_ORIGINAL_ADOPTION_REQUIRED')
  await __init__()
  await openOriginalAdoption()
@@ -148,6 +150,12 @@ it('shows a later project head without changing the original adoption revision',
  readCurrentHead.mockRejectedValueOnce(Error('HEAD_UNAVAILABLE'))
  await openOriginalAdoption()
  expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining('项目当前头待核'),'原采用回查')
+ readCurrentHead.mockImplementationOnce(async()=>{
+  query.adoptionRequestKey='OTHER'
+  return {headRevisionId:'R2',assertCurrent:()=>{}}
+ })
+ await openOriginalAdoption()
+ expect(showAlert).toHaveBeenCalledTimes(2)
  expect(showMessage).not.toHaveBeenCalled()
 })
 it('withdraws the binding when the original query is replaced instead of recapturing a new proof',()=>{

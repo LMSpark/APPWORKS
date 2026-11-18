@@ -244,9 +244,14 @@ async function openOriginalAdoption() {
   const {visible, disabled} = bindOriginalAdoption()
   if (!visible || disabled) return
   const {adoptionCandidateRevisionId, adoptionRequestKey, adoptionRequestDigest, adoptionPreviewRef} = $route.query
+  const session = editorSession
+  const keys = ['projectId', 'adoptionCandidateRevisionId', 'adoptionRequestKey', 'adoptionRequestDigest', 'adoptionPreviewRef']
+  const selection = keys.map(key => $route.query[key])
+  const isCurrent = () => editorSession === session && keys.every((key, index) => $route.query[key] === selection[index])
   try {
-    const result = await editorSession.readOriginalAdoption({candidateRevisionId: adoptionCandidateRevisionId,
+    const result = await session.readOriginalAdoption({candidateRevisionId: adoptionCandidateRevisionId,
       requestKey: adoptionRequestKey, requestDigest: adoptionRequestDigest, previewRef: adoptionPreviewRef})
+    if (!isCurrent()) return
     result.assertCurrent()
     const lines = result.recordFound ? [`原采用记录 ${result.adoptionRef} · 修订 ${result.mergeRevisionId}`,
       result.commitCheckRef ? `登记引用的提交核验 ${result.commitCheckRef}` : '提交核验引用待补'] : ['未查到原采用记录']
@@ -260,16 +265,17 @@ async function openOriginalAdoption() {
     lines.push('原办理终态待核')
     let head
     try {
-      head = await editorSession.readCurrentHead()
+      head = await session.readCurrentHead()
       head.assertCurrent()
     } catch {
       head = undefined
     }
+    if (!isCurrent()) return
     result.assertCurrent()
     lines.push(head ? `项目当前头 ${head.headRevisionId ?? '尚未形成'}` : '项目当前头待核')
     await $page.showAlert(lines.join('\n'), '原采用回查')
   } catch {
-    $page.showMessage('原采用记录无法核验', 'warning')
+    if (isCurrent()) $page.showMessage('原采用记录无法核验', 'warning')
   }
 }
 

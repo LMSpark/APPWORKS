@@ -1,5 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
+import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {readRegisteredSubmissionRequest} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-submission-script-host'
@@ -10,18 +11,13 @@ it('reads a fixed original request and rejects payload drift despite an unchange
  const payload={projectId:'P',attemptRef:'A',requestKey:'Q',channelId:'PORTAL',enterpriseId:'ENT',objectRef:'LOT',priorAttemptRef:null}
  const requestDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.submission-request/1',payload]))
  const row={id:'A',projectId:'P',requestKey:'Q',requestDigest,requestPayload:payload}
- const scope=[['projectId','projectId'],['id','attemptRef'],['requestKey','requestKey']] as const
  const exact={projectId:'P',attemptRef:'A',lotId:'LOT',subjectId:'ENT',channelId:'PORTAL',requestDigest}
  const event={...exact,kind:'DISPATCHED',eventRef:'EVENT',actualObjectRef:'PACKAGE'}
  const originalEvents={...exact,id:'A',events:[event],combinedWithdrawalTarget:null}
- const eventScope=[['projectId','projectId'],['id','attemptRef'],['lotId','lotId'],['subjectId','subjectId'],
-  ['channelId','channelId'],['requestDigest','requestDigest']] as const
+ const pageViews=contentSubmissionScenarioViews({SubmissionAttempt:'id',ChannelReceipt:'id',SubmissionReconciliation:'id',TenderOutcome:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{SubmissionAttempt:{
   modelBinding:{modelId:'M',modelName:'SubmissionAttempt'},columns:Object.keys({...row,...originalEvents}).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalRequest:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',
-   filters:scope.map(([field,ParamName])=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName}}))}},
-   originalEvents:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',
-    filters:eventScope.map(([field,ParamName])=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName}}))}}},
+  views:{default:{},originalRequest:pageViews.SubmissionAttempt.originalRequest,originalEvents:pageViews.SubmissionAttempt.originalEvents},
  }}})
  const view=ds.getView('SubmissionAttempt','originalRequest')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'SubmissionAttempt'})
  let rows:typeof row[]=[]

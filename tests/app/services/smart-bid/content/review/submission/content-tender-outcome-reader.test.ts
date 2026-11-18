@@ -1,5 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
+import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {readRegisteredTenderOutcome} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-submission-script-host'
 import script from '@/views/features/application/smart-bid/authoring/page14/script.js?raw'
@@ -13,17 +14,11 @@ it('keeps recommendations and whole-round decisions separate and rejects another
  const time='2026-11-18T12:00:00+08:00'
  const row={...scope,id:'ROW',eventRef:'REC',kind:'RECOMMENDED',issuerRef:'ISSUER',documentVersionId:'DOC',
   eventAt:time,knownAt:time,supersedesRef:null}
- const filter=(field:string)=>({field,operator:'eq' as const,value:{Type:'GetInputParam',ParamName:field}})
- const filters=['projectId','lotId','roundId','stageId'].map(filter)
+ const pageViews=contentSubmissionScenarioViews({SubmissionAttempt:'id',ChannelReceipt:'id',SubmissionReconciliation:'id',TenderOutcome:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{TenderOutcome:{
   modelBinding:{modelId:'M',modelName:'TenderOutcome'},
   columns:Object.keys(row).map(name=>({name,type:'string',isPrimaryKey:name==='id'})),
-  views:{default:{},
-   officialSubjectEvents:{commitMode:'staged',queryConfig:{autoQuery:false,allPages:true},
-    scopeFilter:{logic:'and',filters:[...filters,filter('subjectId')]}},
-   officialRoundEvents:{commitMode:'staged',queryConfig:{autoQuery:false,allPages:true},
-    scopeFilter:{logic:'and',filters:[...filters,{field:'kind',operator:'eq',value:'ROUND_TERMINATED'}]}},
-  },
+  views:{default:{},...pageViews.TenderOutcome},
  }}})
  const subject=ds.getView('TenderOutcome','officialSubjectEvents'),round=ds.getView('TenderOutcome','officialRoundEvents')
  if(!subject||!round)throw Error('TEST_OUTCOME_VIEWS_REQUIRED')

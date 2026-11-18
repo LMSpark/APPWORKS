@@ -4,6 +4,7 @@ import {BlobWriter,TextReader,ZipWriter} from '@zip.js/zip.js'
 import {createHash} from 'node:crypto'
 import {computeDeliverySelectionDigests} from '@/services/smart-bid/content/review/delivery-selection-digest'
 import {reviewRegisteredDeliveryZipPackage} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-review'
+import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-submission-script-host'
 import {prepareRegisteredDeliveryZipPackage} from '@/views/features/application/smart-bid/authoring/model/review/package/content-delivery-package-preparation'
 import {readRegisteredDeliveryFreeze} from '@/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
@@ -73,7 +74,13 @@ it('preserves unknown on a complete empty original read and requires readable te
   expect(executePackage).not.toHaveBeenCalled()
   expect(openAuthorized).not.toHaveBeenCalled()
   items=[{...original,status:'FROZEN',frozenResult:{...frozen,...hashes}}]
-  const checked=await reviewRegisteredDeliveryZipPackage(host,request,reviewOptions)
+  const page=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
+   readPackageSelection:async()=>({request,options:reviewOptions,assertCurrent:host.assertCurrent}),
+  })
+  const signal=new AbortController().signal
+  await expect(page.invoke('content.submission.reviewPackage',{...reviewOptions.package,packingRequestRef:'OTHER'},signal))
+   .rejects.toThrow('SUBMISSION_PAGE_PACKAGE_SCOPE')
+  const checked=await page.invoke('content.submission.reviewPackage',reviewOptions.package,signal)
   expect(checked).toMatchObject({status:'FROZEN',proof:{membershipMatches:true}})
   expect(openAuthorized).toHaveBeenCalledWith({projectId:'P',packageId:'PKG',packingRequestRef:'PACKING',resourceVersionId:'RESOURCE'})
   await view.refresh()

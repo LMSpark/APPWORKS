@@ -1,5 +1,6 @@
 import {expect,it} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
+import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {readRegisteredChannelReceiptPairing} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-submission-script-host'
 import script from '@/views/features/application/smart-bid/authoring/page14/script.js?raw'
@@ -14,17 +15,15 @@ it('pairs only readable receipt evidence with one exact original operation',asyn
  const row={...scope,id:'REC',eventRef:'EVENT',eventKind:'RECEIVED',eventAt:time,operationRef:'OP',objectRef:'PACKAGE',
   sources:[{sourceRef:'SOURCE',knownAt:time}]}
  const candidateRow={...scope,id:'A',operationRef:'OP',actualObjectRef:'PACKAGE',withdrawalTargetRef:null}
+ const pageViews=contentSubmissionScenarioViews({SubmissionAttempt:'id',ChannelReceipt:'id',SubmissionReconciliation:'id',TenderOutcome:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ChannelReceipt:{
   modelBinding:{modelId:'M',modelName:'ChannelReceipt'},
   columns:Object.keys(row).map(name=>({name,type:name==='sources'?'object':'string',isPrimaryKey:name==='id'})),
-  views:{default:{},originalPairing:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',
-   filters:([['projectId','projectId'],['id','receiptRef']] as const)
-    .map(([field,ParamName])=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName}}))}}},
+  views:{default:{},...pageViews.ChannelReceipt},
  },SubmissionAttempt:{
   modelBinding:{modelId:'ATTEMPT',modelName:'SubmissionAttempt'},
   columns:Object.keys(candidateRow).map(name=>({name,type:'string',isPrimaryKey:name==='id'})),
-  views:{default:{},receiptCandidates:{commitMode:'staged',queryConfig:{autoQuery:false,allPages:true},scopeFilter:{logic:'and',
-   filters:Object.keys(scope).map(field=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName:field}}))}}},
+  views:{default:{},receiptCandidates:pageViews.SubmissionAttempt.receiptCandidates},
  }}})
  const view=ds.getView('ChannelReceipt','originalPairing')
  if(!view)throw Error('TEST_RECEIPT_VIEW_REQUIRED')

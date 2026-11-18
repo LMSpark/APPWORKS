@@ -9,5 +9,24 @@
         {"type":"r-button","props":{"label":"删除","onBeforeRender":"bindRemove","onClick":"removeInterface"}}
       ]}},
     "children":[{"type":"r-text-display","props":{"field":"Name","placeholder":"未命名接口"}}]
+  },
+  {
+    "id":"api-interface-invocation",
+    "type":"r-section",
+    "props":{"class":"interface-invoke","bordered":false,"gridColumns":1},
+    "children":[
+      {"type":"r-section","props":{"class":"interface-invoke__bar","bordered":false,"gridColumns":6},"children":[
+        {"type":"r-form","props":{"colSpan":4,"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","gridColumns":1,"labelWidth":"0","showDataViewMeta":false,"autoColumns":false},"children":[
+          {"type":"r-text","props":{"field":"resultPath","label":"","placeholder":"请输入结果过滤"}}
+        ]},
+        {"type":"r-button","props":{"colSpan":1,"label":"调用","buttonType":"primary","onBeforeRender":"bindInvoke","onClick":"invokeInterface"}},
+        {"type":"r-button","props":{"colSpan":1,"label":"放弃未知结果","onBeforeRender":"bindAbandon","onClick":"abandonInterface"}}
+      ]},
+      {"type":"r-alert","props":{"alertType":"warning","closable":false,"title":"上次调用结果未知，不会重新发送；如需再次调用请先放弃该结果","onBeforeRender":"bindUnknown"}},
+      {"type":"r-form","props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@InterfaceCallRequest@default","gridColumns":1,"labelPosition":"top","showDataViewMeta":false,"autoColumns":false,"onBeforeRender":"bindResult"},"children":[
+        {"type":"r-json","props":{"field":"result","label":"调用结果","mode":"tree","readonly":true,"height":420}}
+      ]},
+      {"type":"r-empty","props":{"onBeforeRender":"bindEmptyResult"}}
+    ]
   }
 ]

@@ -7,26 +7,30 @@
   <RendererSection v-if="!ready" :grid-columns="1" :bordered="false" :status="loading ? '正在读取接口方案…' : ''" :error="error" />
   <RendererButton v-if="!loading && !ready" label="关闭接口方案" @click="emit('close')" />
   <RendererDialog v-if="ready" :data-view-key="INTERFACE_KEYS.interfaces" :model-value="true" :title="`${providerName || '当前提供商'} - 接口列表`" :width="1480" :close-disabled="busy" @update:model-value="close">
-    <div class="interface-list">
-      <SparkPageRenderer v-if="listRuntime && listHost" :page-runtime="listRuntime" :route-snapshot="routeSnapshot" :host="listHost" :auto-load="false" />
-      <RendererSection :grid-columns="1" :bordered="false" :title="selected ? `${providerName || '当前提供商'} / ${selectedName || '接口配置'}` : ''" :status="status" :error="error" :retryable="definitionUnconfirmed && !busy" retry-text="核验原保存结果" @retry="verifyOriginalSaves">
-        <template v-if="selected" #header-actions>
-          <RendererButton label="保存" button-type="primary" :disabled="locked || !interfacePending" @click="saveApi" />
-        </template>
-        <RendererTabs v-if="selected" v-model="tab" :data-view-key="INTERFACE_KEYS.interfaces">
-          <RendererTabPane name="edit" label="接口编辑" :index="0" :data-view-key="INTERFACE_KEYS.interfaces">
-            <InterfaceEditPanel :key="String(selectedId)" :workspace="workspace" :pending-create="pendingCreate" />
-          </RendererTabPane>
-          <RendererTabPane name="invoke" label="调用输出" :index="1" :lazy="true" :data-view-key="INTERFACE_KEYS.calls">
-            <InterfaceInvokePanel :workspace="workspace" :busy="busy" :pending-create="pendingCreate" />
-          </RendererTabPane>
-          <RendererTabPane name="output" label="输出内容" :index="2" :lazy="true" :data-view-key="INTERFACE_KEYS.outputs">
-            <InterfaceOutputPanel :workspace="workspace" :pending-create="pendingCreate" @bind="openBinding" />
-          </RendererTabPane>
-        </RendererTabs>
-        <DisplayEmpty v-else description="请选择左侧接口，或先新建接口" />
-      </RendererSection>
-    </div>
+    <SparkPageRenderer v-if="listRuntime && listHost" :page-runtime="listRuntime" :route-snapshot="routeSnapshot" :host="listHost" :auto-load="false" >
+      <template #content="{children}">
+        <div class="interface-list">
+          <SparkComponentRenderer :config="region(children,'api-interface-sidebar')" />
+          <RendererSection :grid-columns="1" :bordered="false" :title="selected ? `${providerName || '当前提供商'} / ${selectedName || '接口配置'}` : ''" :status="status" :error="error" :retryable="definitionUnconfirmed && !busy" retry-text="核验原保存结果" @retry="verifyOriginalSaves">
+            <template v-if="selected" #header-actions>
+              <RendererButton label="保存" button-type="primary" :disabled="locked || !interfacePending" @click="saveApi" />
+            </template>
+            <RendererTabs v-if="selected" v-model="tab" :data-view-key="INTERFACE_KEYS.interfaces">
+              <RendererTabPane name="edit" label="接口编辑" :index="0" :data-view-key="INTERFACE_KEYS.interfaces">
+                <InterfaceEditPanel :key="String(selectedId)" :workspace="workspace" :pending-create="pendingCreate" />
+              </RendererTabPane>
+              <RendererTabPane name="invoke" label="调用输出" :index="1" :lazy="true" :data-view-key="INTERFACE_KEYS.calls">
+                <SparkComponentRenderer :config="region(children,'api-interface-invocation')" />
+              </RendererTabPane>
+              <RendererTabPane name="output" label="输出内容" :index="2" :lazy="true" :data-view-key="INTERFACE_KEYS.outputs">
+                <InterfaceOutputPanel :workspace="workspace" :pending-create="pendingCreate" @bind="openBinding" />
+              </RendererTabPane>
+            </RendererTabs>
+            <DisplayEmpty v-else description="请选择左侧接口，或先新建接口" />
+          </RendererSection>
+        </div>
+      </template>
+    </SparkPageRenderer>
     <ParameterBindingDialog v-if="bindingWindow" :key="bindingWindow.epoch" :parameters-key="INTERFACE_KEYS.bindings" :interface-key="INTERFACE_KEYS.interfaces" :interface-id="bindingWindow.interfaceId" :output-key="INTERFACE_KEYS.outputs" :output-id="bindingWindow.outputId" @close="closeBinding" />
   </RendererDialog>
 </template>
@@ -34,22 +38,21 @@
 import {computed, ref, watch, onBeforeUnmount} from 'vue'
 import {useRoute} from 'vue-router'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import type {DataSet, DataRow, DataView, DataViewEditingFieldChangeEvent} from '@spark-appworks/spark-data'
+import {nodeId, type DataSet, type DataRow, type DataView, type DataViewEditingFieldChangeEvent, type SparkNode} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import type {ApiInterfaceListPageProps} from './api-interface-list-page.props'
-import {INTERFACE_KEYS, INTERFACE_SCENARIO_ID as scenarioId, syncPathParameters, type InterfaceWorkspace} from './interface-list/interface-list-workspace'
+import {INTERFACE_KEYS, INTERFACE_SCENARIO_ID as scenarioId, syncPathParameters, invokeApi, abandonInterfaceCall, type InterfaceWorkspace} from './interface-list/interface-list-workspace'
 import InterfaceEditPanel from './interface-list/interface-edit-panel.vue'
-import InterfaceInvokePanel from './interface-list/interface-invoke-panel.vue'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import rule from './interface-list/rule.json?raw'
 import script from './interface-list/script.js?raw'
 import style from './interface-list/style.css?raw'
 import InterfaceOutputPanel from './interface-list/interface-output-panel.vue'
 import ParameterBindingDialog from './public-parameter-binding/api-public-parameter-binding-dialog.vue'
-const {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, SparkPageRenderer, RendererButton, RendererTabs, RendererTabPane, DisplayEmpty, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, SparkPageRenderer, SparkComponentRenderer, RendererButton, RendererTabs, RendererTabPane, DisplayEmpty, consumeRequiredPageService} = SparkComponent
 const writable = ['Base_DataServiceInterface', '_Base_ParamList', 'Base_InterfaceApi_Headers', 'Base_TblField'] as const
 const props = defineProps<ApiInterfaceListPageProps>()
 const emit = defineEmits<{close: []}>()
@@ -83,6 +86,11 @@ const interfacePending = computed(() => {const interfaces = view('Base_DataServi
 const status = computed(() => definitionUnconfirmed.value ? '保存结果尚未确认，请核验原保存结果' :
   callUnconfirmed.value ? '上次外部调用结果尚未确认，请在调用输出中处理' : '')
 const workspace = computed<InterfaceWorkspace>(() => ({locked: locked.value, revision: revision.value, run: act}))
+function region(children:readonly SparkNode[],id:string):SparkNode {
+  const node=children.find(child=>nodeId(child)===id)
+  if(!node)throw new Error(`接口工作区缺少配置区域 ${id}`)
+  return node
+}
 const listRuntime=computed(()=>ready.value?session.runtime:undefined)
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
@@ -95,13 +103,25 @@ const listHost=computed(()=>{
   return {runtime,assertCurrent,async invoke(command:string,input:unknown){
     assertCurrent()
     if(command==='interfaces.connect')return {
+      invocation:()=>{
+        const calls=view('InterfaceCallRequest'),unknown=calls?.hasUnconfirmedSave===true
+        return {unknown,busy:busy.value,locked:locked.value,pending:pendingCreate.value,
+          hasResult:selectedId.value!==undefined&&calls?.currentRow?.['interfaceId']===selectedId.value&&!unknown}
+      },
       actions:()=>{
         const interfaces=view('Base_DataServiceInterface'),row=selected.value,id=selectedId.value
         const removable=!!interfaces&&!!row&&id!==undefined&&(interfaces.dirtyTracking.isPendingCreate(id)||interfaces.deleteActionState(row)==='enabled')
         return {createDisabled:locked.value||interfaces?.addActionState()!=='enabled',removeDisabled:locked.value||!removable}
       },
     }
+    if(command==='interfaces.abandonCall'&&!busy.value&&callUnconfirmed.value){
+      await act(()=>abandonInterfaceCall(requireView('InterfaceCallRequest')))
+      return undefined
+    }
     if(locked.value)return undefined
+    if(command==='interfaces.invoke'&&!pendingCreate.value){
+      await act(()=>invokeApi({calls:requireView('InterfaceCallRequest'),interfaces:requireView('Base_DataServiceInterface')}))
+    }
     if(command==='interfaces.create')await create()
     if(command==='interfaces.remove')await removeApi()
     if(command==='interfaces.select'){

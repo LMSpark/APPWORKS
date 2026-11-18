@@ -7,3 +7,20 @@ function bindRemove() { return {disabled:interfaces?.actions().removeDisabled !=
 async function createInterface() { await $page.invokeHostCommand('interfaces.create') }
 async function removeInterface() { await $page.invokeHostCommand('interfaces.remove') }
 async function chooseInterface(row) { await $page.invokeHostCommand('interfaces.select',row?.rowid) }
+
+function bindInvoke() {
+  const state=interfaces?.invocation()
+  return {disabled:!state || state.locked || state.pending || state.unknown}
+}
+function bindAbandon() {
+  const state=interfaces?.invocation()
+  return {visible:state?.unknown === true,disabled:state?.busy === true}
+}
+function bindUnknown() { return {visible:interfaces?.invocation().unknown === true} }
+function bindResult() { return {visible:interfaces?.invocation().hasResult === true} }
+function bindEmptyResult() {
+  const state=interfaces?.invocation()
+  return {visible:state?.hasResult !== true,description:state?.pending ? '请先保存新建接口，再调用' : '点击调用查看接口返回结果'}
+}
+async function invokeInterface() { await $page.invokeHostCommand('interfaces.invoke') }
+async function abandonInterface() { await $page.invokeHostCommand('interfaces.abandonCall') }

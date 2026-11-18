@@ -9,7 +9,7 @@ import {originalRegistrationView,readOriginalRegistrationView} from '../../autho
 
 import {readBaselineFactMembers} from '@/services/smart-bid/content/references/baseline-fact-members'
 import {readBaselineRequirementMembers} from '@/services/smart-bid/content/references/baseline-requirement-members'
-import {assertBaselineTenderRecords} from '@/services/smart-bid/content/references/baseline-tender-records'
+import {readBaselineTenderRecords} from '@/services/smart-bid/content/references/baseline-tender-records'
 
 const frozenView='originalFrozenBaseline'
 const frozenFields=['stageRef','factVersions','requirementVersions','tenderRecords']
@@ -100,8 +100,10 @@ export async function readBidFrozenBaseline(host:Host,id:string){
  if(!identity(stageRef)&&!isRecord(stageRef))throw Error('BID_PROJECT_SCOPE_POINTER')
  const facts=readBaselineFactMembers(factVersions)
  const requirements=readBaselineRequirementMembers(requirementVersions)
- assertBaselineTenderRecords(tenderRecords)
+ const tenders=readBaselineTenderRecords(tenderRecords)
  return Object.freeze({state:'REGISTERED' as const,baselineId:id,
-  stage:identity(stageRef)?stageRef:canonicalSnapshotValue(stageRef),facts:facts.size,requirements:requirements.size,
+  stage:identity(stageRef)?stageRef:canonicalSnapshotValue(stageRef),facts:Object.freeze([...facts].map(([factId,version])=>Object.freeze({factId,version}))),
+  requirements:Object.freeze([...requirements].map(([lineageId,version])=>Object.freeze({lineageId,version}))),
+  tenderRecords:Object.freeze([...tenders.values()]),
   assertCurrent})
 }

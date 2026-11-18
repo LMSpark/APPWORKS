@@ -13,25 +13,26 @@ export function readTenderRecordReference(item:unknown){
    ||typeof recordHash!=='string'||!/^[0-9a-f]{64}$/u.test(recordHash))throw Error(error)
  return Object.freeze({runId,type,ordinal,recordVersion,recordHash})
 }
-function tenderReference(item:unknown){
- const {runId,type,ordinal,recordVersion,recordHash}=readTenderRecordReference(item)
- return {identity:JSON.stringify([runId,type,ordinal]),version:JSON.stringify([recordVersion,recordHash])}
-}
-function fixedVersions(value:unknown):Map<string,string>{
- const versions=new Map<string,string>()
+type TenderRecord=ReturnType<typeof readTenderRecordReference>
+const referenceKey=({runId,type,ordinal}:TenderRecord)=>JSON.stringify([runId,type,ordinal])
+
+/** 核验整份固定引用目录并返回原记录版。 */
+export function readBaselineTenderRecords(value:unknown):ReadonlyMap<string,TenderRecord>{
+ const versions=new Map<string,TenderRecord>()
  visitSnapshotReferences(value,item=>{
-  const {identity,version}=tenderReference(item)
-  if(versions.has(identity))throw Error('BASELINE_TENDER_RECORD_DUPLICATE')
-  versions.set(identity,version)
+  const record=readTenderRecordReference(item),key=referenceKey(record)
+  if(versions.has(key))throw Error('BASELINE_TENDER_RECORD_DUPLICATE')
+  versions.set(key,record)
  },'BASELINE_TENDER_RECORD_MODEL')
  return versions
 }
+
 /** 核验整份固定引用目录。 */
 export function assertBaselineTenderRecords(value:unknown):void {
- fixedVersions(value)
+ readBaselineTenderRecords(value)
 }
 /** 精确核对核定版和摘要，不回退到同序号的其它版本。 */
 export function assertBaselineTenderRecordMember(value:unknown,selected:unknown):void {
- const {identity,version}=tenderReference(selected)
- if(fixedVersions(value).get(identity)!==version)throw Error('BASELINE_TENDER_RECORD_MISSING')
+ const expected=readTenderRecordReference(selected),record=readBaselineTenderRecords(value).get(referenceKey(expected))
+ if(record?.recordVersion!==expected.recordVersion||record.recordHash!==expected.recordHash)throw Error('BASELINE_TENDER_RECORD_MISSING')
 }

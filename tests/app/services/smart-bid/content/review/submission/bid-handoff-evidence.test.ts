@@ -49,7 +49,8 @@ it('keeps responsibility with the original assignee until the current version is
  const row={...scope,id:'ROW',handoffId:'H',items:[item]}
  const projectRow={id:'P',projectId:'P',stageRefs:['STAGE-1'],headRevisionId:null as string|null,activeBaselineId:'BASELINE'}
  const baselineRow={id:'BASELINE',projectId:'P',stageRef:'STAGE-1',
-  factVersions:[{factId:'FACT',version:1}],requirementVersions:[{lineageId:'CLAUSE',version:'V1'}],tenderRecords:[]}
+  factVersions:[{factId:'FACT',version:1}],requirementVersions:[{lineageId:'CLAUSE',version:'V1'}],
+  tenderRecords:[{runId:'RUN',type:'CLAUSES',ordinal:0,recordVersion:'TV1',recordHash:'b'.repeat(64)}]}
  const headRow={id:'HEAD',projectId:'P',status:'ADOPTED',snapshotHash:'a'.repeat(64),stageRef:'PREVIOUS-STAGE',baselineId:'PREVIOUS-BASELINE'}
  const scopeViews=bidProjectScopeScenarioViews({ContentProject:'id',ContentRevision:'id',Baseline:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{BidHandoff:{
@@ -177,7 +178,10 @@ it('keeps responsibility with the original assignee until the current version is
   await fixedBaseline.refresh()
   expect(()=>recovered.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   await openFrozenBaseline()
-  expect(showAlert).toHaveBeenLastCalledWith('基线 BASELINE · 阶段 STAGE-1\n固定事实 1 项 · 固定要求 1 项','冻结依据回查')
+  expect(showAlert).toHaveBeenLastCalledWith([
+   '基线 BASELINE · 阶段 STAGE-1','固定事实 1 项 · 固定要求 1 项 · 招标记录 1 项',
+   '事实 FACT · 版本 1','要求 CLAUSE · 版本 V1',`招标记录 RUN / CLAUSES / 0 · 版本 TV1 · 摘要 ${'b'.repeat(64)}`,
+  ].join('\n'),'冻结依据回查')
   duplicateFact=true
   await expect(page.invoke('bid.project.readFrozenBaseline',{baselineId:'BASELINE'},signal)).rejects.toThrow('BASELINE_FACT_MEMBER_DUPLICATE')
   headUnavailable=true

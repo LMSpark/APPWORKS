@@ -83,10 +83,17 @@ async function openFrozenBaseline() {
   try {
     const result = await $page.invokeHostCommand('bid.project.readFrozenBaseline', {baselineId: $route.query.frozenBaselineId})
     result.assertCurrent()
-    const detail = result.state === 'REGISTERED'
-      ? `基线 ${result.baselineId} · 阶段 ${result.stage}\n固定事实 ${result.facts} 项 · 固定要求 ${result.requirements} 项`
-      : '所选基线登记待确认'
-    await $page.showAlert(detail, '冻结依据回查')
+    if (result.state !== 'REGISTERED') {
+      await $page.showAlert('所选基线登记待确认', '冻结依据回查')
+      return
+    }
+    const lines = [`基线 ${result.baselineId} · 阶段 ${result.stage}`,
+      `固定事实 ${result.facts.length} 项 · 固定要求 ${result.requirements.length} 项 · 招标记录 ${result.tenderRecords.length} 项`,
+      ...result.facts.map(item => `事实 ${item.factId} · 版本 ${item.version}`),
+      ...result.requirements.map(item => `要求 ${item.lineageId} · 版本 ${item.version}`),
+      ...result.tenderRecords.map(item => `招标记录 ${item.runId} / ${item.type} / ${item.ordinal} · 版本 ${item.recordVersion} · 摘要 ${item.recordHash}`),
+    ]
+    await $page.showAlert(lines.join('\n'), '冻结依据回查')
   } catch {
     $page.showMessage('原基线或固定引用无法核验', 'warning')
   }

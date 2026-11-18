@@ -75,7 +75,18 @@ it('reads the original addendum locations for the current project, lot and round
    const [scenario,model,name]=key.split('@')
    return scenario==='S'&&model&&name?ds.getView(model,name):undefined
   }}
-  const page=createTenderFollowupScriptHost(runtime,{scenarioId:'S',projectId:'P',assertCurrent:()=>{}},{selection:scope})
+  const receiptScope={projectId:'P',lotId:'L',subjectId:'ORG',channelId:'PORTAL'}
+  const receiptIdentity={...receiptScope,operationRef:'SEND',objectRef:'PKG'}
+  const knownAt=row.effectiveAt
+  const received=pairOriginalChannelReceipt(receiptScope,[{...receiptIdentity,eventRef:'REC',sourceRef:'PORTAL',
+   kind:'RECEIVED',eventAt:knownAt,knownAt}],[{...receiptIdentity,attemptRef:'OUTBOUND'}])
+  const assertCurrent=()=>{}
+  const deadline=reconcileDeadlineDelivery({roundId:'R',cutoffAt:knownAt,knownAt,obligationIds:['OBLIGATION']},
+   {scope:receiptScope,receipts:[received],decisions:[{eventRef:'REC',obligationId:'OBLIGATION',attemptRef:'OUTBOUND',
+    kind:'RECEIVED',knownAt,effectiveAt:knownAt,ruleRef:'RULE',assertCurrent}],assertCurrent},
+   {contents:{projectId:'P',requiredMembers:[],links:[],requiredFields:[],assertCurrent},proofs:{packages:[],batches:[]}})
+  const readDeadline=vi.fn(async()=>deadline)
+  const page=createTenderFollowupScriptHost(runtime,{scenarioId:'S',projectId:'P',assertCurrent},{selection:scope,readDeadline})
   const signal=new AbortController().signal
   const result=await page.invoke('tender.followup.readAddendum',{addendumId:'A'},signal)
   expect(view.queryContext).toMatchObject({projectId:'P',lotId:'L',roundId:'R',id:'A'})
@@ -98,6 +109,11 @@ it('reads the original addendum locations for the current project, lot and round
   expect(calls).toMatchObject({state:'CALLS_TRACED',impacts:[{references:[
    {callRef:'USED',version:'V1',resultRef:'RESULT',fieldPath:'requirements.qualification'},
   ]}]})
+  const batches=await page.invoke('tender.followup.traceOutboundBatches',{addendumId:'A',knownAt},signal)
+  expect(batches).toMatchObject({state:'BATCH_EVIDENCE',evidence:[{obligationId:'OBLIGATION',eventRef:'REC',attemptRef:'OUTBOUND'}]})
+  readDeadline.mockResolvedValueOnce({...deadline,scope:{...receiptScope,subjectId:'OTHER'}})
+  await expect(page.invoke('tender.followup.traceOutboundBatches',{addendumId:'A',knownAt},signal))
+   .rejects.toThrow('TENDER_FOLLOWUP_DEADLINE_SCOPE')
   roundId='OTHER'
   await expect(page.invoke('tender.followup.readAddendum',{addendumId:'A'},signal)).rejects.toThrow('ORIGINAL_REGISTRATION_VIEW_REQUIRED')
   expect(()=>result.assertCurrent()).toThrow()

@@ -34,6 +34,30 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
    return readTenderAddendum({...host,runtime,assertCurrent},
     {projectId:host.projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
   }
+  if(name==='tender.followup.traceOutboundBatches'){
+   const {addendumId,knownAt}=input
+   if(Object.keys(input).length!==2||!identity(addendumId)||!identity(knownAt)||
+    !Number.isFinite(Date.parse(knownAt))||!/(?:Z|[+-]\d{2}:\d{2})$/u.test(knownAt))
+    throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
+   const projectId=host.projectId
+   const addendum=await readTenderAddendum({...host,runtime,assertCurrent},{projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
+   if(addendum.state!=='REGISTERED')return addendum
+   const delivery=await readDeadline?.(Object.freeze({...scope,projectId,knownAt}),signal)
+   addendum.assertCurrent()
+   if(!delivery)return Object.freeze({state:'UNKNOWN' as const,assertCurrent:addendum.assertCurrent})
+   const {lotId,subjectId}=delivery.scope
+   const known=Date.parse(knownAt),bounds=[Date.parse(delivery.knownAt),Date.parse(delivery.cutoffAt)]
+   if(delivery.scope.projectId!==projectId||lotId!==scope.lotId||subjectId!==scope.subjectId||delivery.roundId!==scope.roundId||
+    bounds.some(bound=>!Number.isFinite(bound)||bound>known))throw Error('TENDER_FOLLOWUP_DEADLINE_SCOPE')
+   const assertBatches=()=>{addendum.assertCurrent();delivery.assertCurrent()}
+   assertBatches()
+   const evidence=delivery.evidence.map(item=>Object.freeze({
+    obligationId:item.obligationId,eventRef:item.eventRef,attemptRef:item.attemptRef,kind:item.kind,
+    priorAttemptRef:item.kind==='REPLACED'?item.priorAttemptRef:null,
+   }))
+   return Object.freeze({state:'BATCH_EVIDENCE' as const,addendumId,knownAt:delivery.knownAt,cutoffAt:delivery.cutoffAt,
+    evidence:Object.freeze(evidence),assertCurrent:assertBatches})
+  }
   if(name==='tender.followup.traceCallReferences'){
    const {addendumId,runId,attemptRef,requestKey}=input
    if(Object.keys(input).length!==4||!identity(addendumId)||!identity(runId)||!identity(attemptRef)||!identity(requestKey))

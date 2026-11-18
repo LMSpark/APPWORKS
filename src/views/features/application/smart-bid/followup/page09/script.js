@@ -1,4 +1,30 @@
 /* global $page, $route */
+function bindOutboundImpact() {
+  return {visible: bindTenderAddendum().visible && bindFollowupNotices().visible}
+}
+
+async function openOutboundImpact() {
+  if (!bindOutboundImpact().visible) return
+  const {addendumId, followupKnownAt} = $route.query
+  try {
+    const result = await $page.invokeHostCommand('tender.followup.traceOutboundBatches', {addendumId, knownAt: followupKnownAt})
+    result.assertCurrent()
+    const lines = ['正式修改或原渠道办理批次待核']
+    if (result.state === 'BATCH_EVIDENCE') {
+      lines[0] = `正式修改 ${result.addendumId} · 截止 ${result.cutoffAt} · 证据截至 ${result.knownAt}`
+      const kinds = {RECEIVED: '送达', WITHDRAWN: '撤回', REPLACED: '替换'}
+      for (const item of result.evidence) {
+        lines.push(`事项 ${item.obligationId} · ${kinds[item.kind]}批次 ${item.attemptRef} · 原回执 ${item.eventRef}`)
+        if (item.priorAttemptRef) lines.push(`原被替换批次 ${item.priorAttemptRef}`)
+      }
+      lines.push(result.evidence.length ? '批次与本次变动条项的关联待核' : '本次对账范围内无已核渠道办理证据')
+    }
+    await $page.showAlert(lines.join('\n'), '递交批次反查')
+  } catch {
+    $page.showMessage('原办理批次无法核验', 'warning')
+  }
+}
+
 function bindCallImpact() {
   const {addendumId, runId, attemptRef, requestKey} = $route.query
   return {visible: [addendumId, runId, attemptRef, requestKey]

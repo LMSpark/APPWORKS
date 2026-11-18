@@ -16,6 +16,14 @@
     ]
   },
   {
+    "id": "tender-followup-outbound-impact",
+    "type": "r-section",
+    "props": {"title": "递交批次反查", "onBeforeRender": "bindOutboundImpact"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对原办理批次", "onClick": "openOutboundImpact"}}
+    ]
+  },
+  {
     "id": "tender-followup-call-impact",
     "type": "r-section",
     "props": {"title": "原调用条款引用", "onBeforeRender": "bindCallImpact"},

@@ -66,6 +66,7 @@ type ReviewDependencies=Readonly<{
  facts:EffectiveFactsWithDisplays;requirements:RequirementBindingDigest;responseDependencyHash:string;assertCurrent:()=>void
 }>
 type SubtreeReviewSources=Readonly<{
+ assertConsumer?:()=>void
  readTemplate:ReadFixedRulesTemplate
  readSupplement:(nodeIds:readonly string[])=>Promise<Readonly<{
   qualificationIds:readonly string[];displayRefs:unknown;calculations:ReadonlyArray<Readonly<{
@@ -122,7 +123,7 @@ export type ContentCandidateBinding=Readonly<{
  readReviewDependencies:(scope:ReviewScope,assertConsumer?:()=>void)=>Promise<ReviewDependencies>
  readSubtreeReviewDependencies:(nodeId:string,responses:readonly ScopedResponseTarget[],assertConsumer?:()=>void)=>
   Promise<ReviewDependencies&Readonly<{subtreeHash:string;nodeIds:readonly string[]}>>
- readSubtreeEffectiveHash:(nodeId:string,responses:readonly ScopedResponseTarget[],sources:SubtreeReviewSources,assertConsumer?:()=>void)=>
+ readSubtreeEffectiveHash:(nodeId:string,responses:readonly ScopedResponseTarget[],sources:SubtreeReviewSources)=>
   Promise<Readonly<{effectiveHash:string;requiresUseCheck:true;assertCurrent:()=>void}>>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
@@ -383,8 +384,8 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertContext()
   return Object.freeze({qualificationHash,requiresUseCheck:true,assertCurrent:assertContext})
  }
- const readSubtreeEffectiveHash:ContentCandidateBinding['readSubtreeEffectiveHash']=async(nodeId,responseTargets,sources,assertConsumer)=>{
-  const dependencies=await readSubtreeReviewDependencies(nodeId,responseTargets,assertConsumer)
+ const readSubtreeEffectiveHash:ContentCandidateBinding['readSubtreeEffectiveHash']=async(nodeId,responseTargets,sources)=>{
+  const dependencies=await readSubtreeReviewDependencies(nodeId,responseTargets,sources.assertConsumer)
   const {nodeIds}=dependencies,selected=new Set(nodeIds)
   const supplement=await sources.readSupplement(nodeIds)
   const calculations=[...supplement.calculations]

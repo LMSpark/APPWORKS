@@ -1,7 +1,8 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {readContentApproval} from '@/views/features/application/smart-bid/authoring/model/review/content-approval-reader'
-import {readApprovalCoverageEvidence} from '@/views/features/application/smart-bid/authoring/model/content-approval-coverage'
+import {readApprovalCoverageEvidence} from '@/views/features/application/smart-bid/authoring/model/review/content-approval-coverage'
+import {readContentReviewCoverage} from '@/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -28,9 +29,18 @@ it('reads the original approval by exact identity and refuses an unreadable auth
   expect(view.queryContext).toMatchObject({projectId:'P',approvalId:'A'})
   expect(approval).toMatchObject({revisionId:'R',nodeId:'D',effectiveHash:row.effectiveHash,requiresCurrentCoverageCheck:true})
   const original=async (decisionTraceRef:string)=>({projectId:'P',revisionId:'R',approvalRef:'A',authorityRef:'AUTH',decisionTraceRef,
+   approvalEffectiveHash:row.effectiveHash,
    approvedTargets:[{kind:'FILE',targetId:'FILE-1',effectiveHash:'b'.repeat(64)}],assertCurrent:()=>{}})
   const coverage=await readApprovalCoverageEvidence(approval,original)
   expect(coverage.evidence).toEqual([{kind:'FILE',targetId:'FILE-1',effectiveHash:'b'.repeat(64),approvalRef:'A'}])
+  const target={kind:'FILE' as const,targetId:'FILE-1',effectiveHash:'b'.repeat(64),requiredUseIds:['PRICE']}
+  const selection={projectId:'P',revisionId:'CURRENT',targets:[target],assertCurrent:()=>{}}
+  const readChecks=async()=>({projectId:'P',revisionId:'CURRENT',checks:[{...target,checkRef:'CHECK',
+   openBlockerIds:[],checkedUses:[{id:'PRICE',useCheckRef:'USE'}]}],assertCurrent:()=>{}})
+  const review=await readContentReviewCoverage(selection,[coverage],readChecks)
+  expect(review.complete).toBe(true)
+  await expect(readContentReviewCoverage(selection,[coverage],async()=>({...await readChecks(),revisionId:'R'})))
+   .rejects.toThrow('CONTENT_REVIEW_CHECK_REVISION')
   await expect(readApprovalCoverageEvidence(approval,async ref=>({...await original(ref),authorityRef:'OTHER'})))
    .rejects.toThrow('CONTENT_APPROVAL_TRACE_MISMATCH')
   await expect(readApprovalCoverageEvidence(approval,async ref=>({...await original(ref),
@@ -39,6 +49,7 @@ it('reads the original approval by exact identity and refuses an unreadable auth
   await expect(readContentApproval(host,'A')).rejects.toThrow('DATA_VIEW_READ_ROW')
   expect(()=>approval.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(()=>coverage.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  expect(()=>review.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(save).not.toHaveBeenCalled()
  }finally{ds.destroy()}
 })

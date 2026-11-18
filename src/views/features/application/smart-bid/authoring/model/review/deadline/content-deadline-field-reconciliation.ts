@@ -1,11 +1,11 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation
+ * @module app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation
  * 职责：给动作54已核截止批次关联同批平台栏回读及批准值比较。
  * 边界：栏位比对不改变送达、实件装入、开启或准入结论。
  */
 import type {reconcileSubmissionDeadline} from '@/services/smart-bid/content/review/submission-reconciliation'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
-import type {readSubmittedPlatformFields} from './content-platform-field-review'
+import type {readSubmittedPlatformFields} from '../content-platform-field-review'
 
 type Deadline=ReturnType<typeof reconcileSubmissionDeadline>
 type Batch=Awaited<ReturnType<typeof readSubmittedPlatformFields>>

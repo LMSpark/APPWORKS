@@ -1,6 +1,6 @@
 import {expect,it} from 'vitest'
 import {reconcileSubmissionDeadline} from '@/services/smart-bid/content/review/submission-reconciliation'
-import {reconcileDeadlineFieldValues} from '@/views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation'
+import {reconcileDeadlineFieldValues} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation'
 
 it('retains deadline reception while leaving nonmatching attempts and missing field observations pending',()=>{
  const time='2026-11-18T10:00:00+08:00'

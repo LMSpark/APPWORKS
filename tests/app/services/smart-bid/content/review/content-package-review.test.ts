@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {readSubmissionPackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/content-package-review'
-import {reconcileDeadlinePackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation'
+import {reconcileDeadlinePackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation'
 import {reconcileSubmissionDeadline} from '@/services/smart-bid/content/review/submission-reconciliation'
 
 it('verifies the sealed bytes before enumerating and compares independently read member bytes',async()=>{
@@ -23,11 +23,15 @@ it('verifies the sealed bytes before enumerating and compares independently read
  ]})
  const link={obligationId:'O',attemptRef:'SEND',packageId:'PKG',packageHash:source.packageHash,position:record.position,assertCurrent:()=>{}}
  const reconcile=(selected:typeof link)=>reconcileDeadlinePackageMembers({
-  projectId:'P',deadline,links:[selected],assertCurrent:()=>{},
+  projectId:'P',deadline,requiredMembers:[{obligationId:'O',position:record.position}],links:[selected],assertCurrent:()=>{},
  },[result])
  expect(reconcile(link).items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',contentState:'MATCHED'})
  expect(reconcile({...link,attemptRef:'OTHER'}).items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',contentState:'PENDING'})
  expect(reconcile({...link,packageHash:'a'.repeat(64)}).items[0]?.contentState).toBe('PENDING')
+ const mixed=reconcileDeadlinePackageMembers({projectId:'P',deadline,links:[link],assertCurrent:()=>{},requiredMembers:[
+  {obligationId:'O',position:record.position},{obligationId:'O',position:'经济/分项表.pdf'},
+ ]},[result])
+ expect(mixed.items[0]).toMatchObject({contentState:'PENDING',members:[{state:'MATCHED'},{state:'PENDING'}]})
  await expect(readSubmissionPackageMembers({...source,packageHash:'a'.repeat(64)},enumerate)).rejects.toThrow('SUBMISSION_PACKAGE_HASH_MISMATCH')
  expect(enumerate).toHaveBeenCalledOnce()
  await expect(readSubmissionPackageMembers(source,async()=>({complete:false,members:[]}))).rejects.toThrow('SUBMISSION_PACKAGE_INVENTORY_INCOMPLETE')

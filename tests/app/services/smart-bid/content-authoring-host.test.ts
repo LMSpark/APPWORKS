@@ -168,7 +168,9 @@ it('loads the actual three files and authoring host through the page runtime poo
    expect(input).toEqual({projectId:applicationId,scenarioId})
    return ds
   },
-  readNavTree:()=>({title:'Fixture',childPlacement:'header',items:[{id:entry.nodeId,title:'Fixture tool',itemKind:'page',tool}]}),
+  readNavTree:()=>({title:'Fixture',childPlacement:'header',items:[{
+   id:entry.nodeId,title:'Fixture tool',itemKind:'page',tool,blueprintScenarioId:scenarioId,
+  }]}),
   refreshRoutes:async()=>{},
  })
  try{

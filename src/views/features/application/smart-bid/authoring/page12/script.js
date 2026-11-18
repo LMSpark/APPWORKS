@@ -23,10 +23,12 @@ async function openProductionRecovery() {
     result.assertCurrent()
     const labels = {UNKNOWN: '原制作请求的结果待确认', IN_PROGRESS: '原制作请求正在处理',
       NOT_EFFECTIVE: '原制作请求未生效'}
-    const details = result.state === 'COMPLETED'
-      ? `已核验文件 ${result.verifiedFile.producedFileId}\n修订 ${result.verifiedFile.revisionId}\nSHA-256 ${result.verifiedFile.versionHash}`
+    const details = result.state === 'COMPLETED' || result.state === 'PARTIAL'
+      ? result.verifiedFiles.map(file =>
+        `已核验文件 ${file.producedFileId} · 修订 ${file.revisionId}\n范围 ${file.completedScopeRefs.join('、')}\nSHA-256 ${file.versionHash}`).join('\n\n')
       : labels[result.state]
-    await $page.showAlert(details, '原制作结果')
+    const missing = result.state === 'PARTIAL' ? `\n部分完成，待出件范围 ${result.missingScopeRefs.join('、')}` : ''
+    await $page.showAlert(details + missing, '原制作结果')
   } catch {
     $page.showMessage('原制作结果无法核验', 'warning')
   }

@@ -10,7 +10,8 @@ type Request=Pick<Awaited<ReturnType<typeof prepareProductionRequest>>['request'
 type File=Readonly<{producedFileId:string;productionRequestRef:string;fileHash:string;completedScopeRefs:readonly string[]}>
 type Outcome=Readonly<{request:Request;assertCurrent:()=>void}>&(
  Readonly<{state:'UNKNOWN'|'IN_PROGRESS'}>|
- Readonly<{state:'COMPLETED';file:File}>|
+ Readonly<{state:'COMPLETED';files:readonly File[]}>|
+ Readonly<{state:'PARTIAL';files:readonly File[];missingScopeRefs:readonly string[]}>|
  Readonly<{state:'NOT_EFFECTIVE';terminalRef:string}>
 )
 const keys=['projectId','documentId','revisionId','requestKey','inputDigest','purpose'] as const
@@ -32,12 +33,20 @@ export async function recoverProductionRequest(request:Request,source:Readonly<{
   if(!identity(result.terminalRef))throw Error('BID_PRODUCTION_RECOVERY_RECEIPT')
   return Object.freeze({state:result.state,terminalRef:result.terminalRef,assertCurrent})
  }
- if(result.state!=='COMPLETED')return Object.freeze({state:result.state,assertCurrent})
- const {producedFileId,productionRequestRef,fileHash,completedScopeRefs}=result.file
- if(!identity(producedFileId)||!identity(productionRequestRef)||!/^[a-f0-9]{64}$/u.test(fileHash)||!completedScopeRefs.length||
-  new Set(completedScopeRefs).size!==completedScopeRefs.length||!completedScopeRefs.every(identity))
+ if(result.state!=='COMPLETED'&&result.state!=='PARTIAL')return Object.freeze({state:result.state,assertCurrent})
+ const {files}=result
+ if(!Array.isArray(files)||!files.length||new Set(files.map((file:File)=>file.producedFileId)).size!==files.length||
+  files.some(({producedFileId,productionRequestRef,fileHash,completedScopeRefs}:File)=>
+   !identity(producedFileId)||!identity(productionRequestRef)||!/^[a-f0-9]{64}$/u.test(fileHash)||!completedScopeRefs.length||
+   new Set(completedScopeRefs).size!==completedScopeRefs.length||!completedScopeRefs.every(identity)))
   throw Error('BID_PRODUCTION_RECOVERY_RECEIPT')
- return Object.freeze({state:result.state,request:selection,producedFileId,productionRequestRef,fileHash,
-  completedScopeRefs:Object.freeze([...completedScopeRefs]),
-  requiresFileVerification:true as const,assertCurrent})
+ const verifiedScope={request:selection,files:Object.freeze(files.map((file:File)=>Object.freeze({...file,
+  completedScopeRefs:Object.freeze([...file.completedScopeRefs])}))),
+  requiresFileVerification:true as const,assertCurrent}
+ if(result.state==='COMPLETED')return Object.freeze({...verifiedScope,state:result.state})
+ const {missingScopeRefs}=result
+ if(!missingScopeRefs.length||new Set(missingScopeRefs).size!==missingScopeRefs.length||
+  missingScopeRefs.some(ref=>!identity(ref)||verifiedScope.files.some(file=>file.completedScopeRefs.includes(ref))))
+  throw Error('BID_PRODUCTION_RECOVERY_RECEIPT')
+ return Object.freeze({...verifiedScope,state:result.state,missingScopeRefs:Object.freeze([...missingScopeRefs])})
 }

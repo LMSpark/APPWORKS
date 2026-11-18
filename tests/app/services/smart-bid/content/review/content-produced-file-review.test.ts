@@ -1,6 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
-import {readCompletedProductionFile,readProducedFileReviewVersion,readRegisteredProducedFileReviewVersion,readRegisteredProducedFileReviewVersions} from '@/views/features/application/smart-bid/authoring/model/review/content-produced-file-review'
+import {readCompletedProductionFiles,readProducedFileReviewVersion,readRegisteredProducedFileReviewVersion,readRegisteredProducedFileReviewVersions} from '@/views/features/application/smart-bid/authoring/model/review/content-produced-file-review'
 import {recoverProductionRequest} from '@/services/smart-bid/content/review/production/production-recovery'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
@@ -79,9 +79,21 @@ it('keeps both original file versions current from one complete read and rejects
   expect(bindCoverage()).toEqual({status:'已覆盖 0 项，共 2 项'})
   await openDetails()
   expect(showAlert).toHaveBeenCalledExactlyOnceWith('文件 F1 · 待同版检查\n文件 F2 · 待同版检查','审核覆盖明细')
+  const request={projectId:'P',documentId:'D',revisionId:'R',requestKey:'RUN',inputDigest:'a'.repeat(64),purpose:'FORMAL' as const}
+  const recovered=await recoverProductionRequest(request,{assertCurrent:host.assertCurrent,lookup:async()=>({
+   request,state:'PARTIAL',assertCurrent:host.assertCurrent,missingScopeRefs:['ANNEX'],
+   files:targets.map(target=>({...target,fileHash,completedScopeRefs:[target.producedFileId]})),
+  })})
+  if(recovered.state!=='PARTIAL')throw Error('TEST_PARTIAL_RECEIPT_REQUIRED')
+  const queryCount=executeQuery.mock.calls.length
+  const verified=await readCompletedProductionFiles(host,recovered,open)
+  expect(verified.files.map(file=>[file.producedFileId,file.completedScopeRefs])).toEqual([['F1',['F1']],['F2',['F2']]])
+  expect(executeQuery).toHaveBeenCalledTimes(queryCount+1)
+  expect(()=>verified.assertCurrent()).not.toThrow()
   rows[0]!.productionRequestRef='OTHER'
   await expect(readRegisteredProducedFileReviewVersions(host,targets,open)).rejects.toThrow('CONTENT_PRODUCED_FILE_SCOPE')
-  expect(open).toHaveBeenCalledTimes(4)
+  expect(open).toHaveBeenCalledTimes(6)
+  expect(()=>verified.assertCurrent()).toThrow()
   expect(()=>review.assertCurrent()).toThrow()
   expect(bindCoverage()).toEqual({error:'审核覆盖已失效'})
   for(const version of versions)expect(()=>version.assertCurrent()).toThrow()
@@ -141,14 +153,14 @@ it('opens only the original registered resource version read through SPARK data'
   const production={projectId:'P',documentId:'D',revisionId:'R',requestKey:'RUN',inputDigest:'a'.repeat(64),purpose:'FORMAL' as const}
   const recover=(fileHash:string)=>recoverProductionRequest(production,{assertCurrent:host.assertCurrent,lookup:async()=>({
    request:production,state:'COMPLETED',assertCurrent:host.assertCurrent,
-   file:{...selection,fileHash,completedScopeRefs:['TOTAL']},
+   files:[{...selection,fileHash,completedScopeRefs:['TOTAL']}],
   })})
   const completed=await recover(row.fileHash),mismatching=await recover('c'.repeat(64))
   if(completed.state!=='COMPLETED'||mismatching.state!=='COMPLETED')throw Error('TEST_PRODUCTION_RECEIPT_REQUIRED')
-  await expect(readCompletedProductionFile(host,completed,open)).resolves.toMatchObject({
-   producedFileId:'F',versionHash:row.fileHash,completedScopeRefs:['TOTAL'],
+  await expect(readCompletedProductionFiles(host,completed,open)).resolves.toMatchObject({
+   files:[{producedFileId:'F',versionHash:row.fileHash,completedScopeRefs:['TOTAL']}],
   })
-  await expect(readCompletedProductionFile(host,mismatching,open)).rejects.toThrow('CONTENT_PRODUCED_FILE_RECEIPT_SCOPE')
+  await expect(readCompletedProductionFiles(host,mismatching,open)).rejects.toThrow('CONTENT_PRODUCED_FILE_RECEIPT_SCOPE')
   const selected={...selection,observationId:'OBS',locationRef:'PAGE-1-TOTAL'}
   const approved={projectId:'P',revisionId:'R',producedFileId:'F',fileHash:row.fileHash,locationRef:selected.locationRef,
    approvalRef:'APP',value:'1.00',unit:'元',assertCurrent:host.assertCurrent}
@@ -165,7 +177,7 @@ it('opens only the original registered resource version read through SPARK data'
    readProductionSelection:async requestedRef=>({selectionRef:requestedRef==='PENDING'?'PENDING':'RUN',request:production,source:{
     ...(requestedRef==='PENDING'?{lookup:pending}:{
      lookup:async()=>({request:production,state:'COMPLETED' as const,assertCurrent:host.assertCurrent,
-      file:{...selection,fileHash:row.fileHash,completedScopeRefs:['TOTAL']}}),
+      files:[{...selection,fileHash:row.fileHash,completedScopeRefs:['TOTAL']}] }),
     }),
     assertCurrent:host.assertCurrent,
    }}),
@@ -180,7 +192,7 @@ it('opens only the original registered resource version read through SPARK data'
   await expect(page.invoke('content.review.recoverProduction',{selectionRef:'OTHER'},recoverySignal.signal))
    .rejects.toThrow('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
   const recovered=await page.invoke('content.review.recoverProduction',{selectionRef:'RUN'},recoverySignal.signal)
-  expect(recovered).toMatchObject({state:'COMPLETED',verifiedFile:{producedFileId:'F',versionHash:row.fileHash}})
+  expect(recovered).toMatchObject({state:'COMPLETED',verifiedFiles:[{producedFileId:'F',versionHash:row.fileHash}]})
   recoverySignal.abort()
   expect(()=>recovered.assertCurrent()).toThrow('CONTENT_REVIEW_PAGE_STALE')
   const observed=await page.invoke('content.review.readFileObservation',{selectionRef:'OBS'},new AbortController().signal)

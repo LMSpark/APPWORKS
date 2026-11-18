@@ -12,7 +12,7 @@ import {readPlatformFieldObservation} from '../../model/review/content-platform-
 import {compareApprovedFileAnswer,readRegisteredFileAnswer,verifyOriginalFormFileAnswer} from '../../model/review/content-file-answer-reader'
 import {readRegisteredPaperAnswer} from '../../model/review/content-paper-answer-reader'
 import {recoverProductionRequest} from '@/services/smart-bid/content/review/production/production-recovery'
-import {readCompletedProductionFile} from '../../model/review/content-produced-file-review'
+import {readCompletedProductionFiles} from '../../model/review/content-produced-file-review'
 
 /** 审定覆盖工作区的宿主、固定范围与证据读取合同。 */
 type Review=Parameters<typeof readContentReviewWorkspace>
@@ -63,9 +63,10 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
     const result=await recoverProductionRequest(selection.request,{
      lookup:request=>selection.source.lookup(request),assertCurrent:assertSelection,
     })
-    if(result.state!=='COMPLETED')return result
-    const file=await readCompletedProductionFile({...scope,runtime,assertCurrent:assertSelection},result,sources.openFile)
-    return Object.freeze({state:result.state,verifiedFile:file,assertCurrent:file.assertCurrent})
+    if(result.state!=='COMPLETED'&&result.state!=='PARTIAL')return result
+    const verified=await readCompletedProductionFiles({...scope,runtime,assertCurrent:assertSelection},result,sources.openFile)
+    return Object.freeze({state:result.state,verifiedFiles:verified.files,assertCurrent:verified.assertCurrent,
+     ...(result.state==='PARTIAL'?{missingScopeRefs:result.missingScopeRefs}:{})})
    }
    if(name==='content.review.readPaperObservation'&&sources.readPaperObservationSelection){
     const selection=await sources.readPaperObservationSelection(selectionRef,signal)

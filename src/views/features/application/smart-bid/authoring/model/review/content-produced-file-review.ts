@@ -69,21 +69,32 @@ export async function readRegisteredProducedFileReviewVersion(host:ContentRevisi
 }
 
 /** 核回执与实际登记实件是否同一制作、同册和同一文件字节。 */
-export async function readCompletedProductionFile(
+export async function readCompletedProductionFiles(
  host:ContentRevisionReadHost,
- completed:Extract<Awaited<ReturnType<typeof recoverProductionRequest>>,{state:'COMPLETED'}>,
+ completed:Extract<Awaited<ReturnType<typeof recoverProductionRequest>>,{state:'COMPLETED'|'PARTIAL'}>,
  openAuthorized:OpenAuthorized,
 ){
- const {request,producedFileId,productionRequestRef}=completed
+ const {request,files}=completed
  const assertScope=()=>{host.assertCurrent();completed.assertCurrent()}
  assertScope()
  if(request.projectId!==host.projectId)throw Error('CONTENT_PRODUCED_FILE_RECEIPT_SCOPE')
- const file=await readRegisteredProducedFileReviewVersion({...host,assertCurrent:assertScope},{producedFileId,productionRequestRef},
-  openAuthorized)
- if(file.revisionId!==request.revisionId||file.documentId!==request.documentId||file.versionHash!==completed.fileHash)
-  throw Error('CONTENT_PRODUCED_FILE_RECEIPT_SCOPE')
- file.assertCurrent()
- return Object.freeze({...file,completedScopeRefs:completed.completedScopeRefs})
+ const scopedHost={...host,assertCurrent:assertScope}
+ const first=files[0]
+ if(!first)throw Error('CONTENT_PRODUCED_FILE_RECEIPT_SCOPE')
+ const versions=files.length===1?[await readRegisteredProducedFileReviewVersion(scopedHost,first,openAuthorized)]:
+  await readRegisteredProducedFileReviewVersions(scopedHost,files,openAuthorized)
+ const verified=versions.map((file,index)=>{
+  const expected=files[index]
+  if(file.producedFileId!==expected?.producedFileId||file.revisionId!==request.revisionId||
+   file.documentId!==request.documentId||file.versionHash!==expected.fileHash)
+   throw Error('CONTENT_PRODUCED_FILE_RECEIPT_SCOPE')
+  file.assertCurrent()
+  return Object.freeze({...file,completedScopeRefs:expected.completedScopeRefs})
+ })
+ return Object.freeze({files:Object.freeze(verified),assertCurrent:()=>{
+  assertScope()
+  for(const file of verified)file.assertCurrent()
+ }})
 }
 
 function bindRegisteredFile(input:Readonly<{view:DataView;row:DataView['rows'][number];selection:FileSelection;

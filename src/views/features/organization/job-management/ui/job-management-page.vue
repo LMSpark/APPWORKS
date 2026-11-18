@@ -5,52 +5,37 @@
 AI用途：恢复岗位目录时，核对正式导航身份与机构选项绑定。
 -->
 <template>
-  <RendererSection class="job-page" title="岗位管理" :bordered="false" :grid-columns="1" :grid-gap="12"
+  <RendererSection :title="ready ? undefined : '岗位管理'" :bordered="false" :grid-columns="1" :grid-gap="12"
     :status="loading ? '正在读取岗位…' : ''" :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
-    <template #header-actions>
-      <DisplayTag content="当前租户" tag-type="info" />
-      <RendererButton v-if="ready" :data-view-key="viewKey" label="刷新" action="refresh" />
-    </template>
-    <DisplayAlert alert-type="info" :closable="false" :show-icon="true" title="本页只读取当前登录租户的正式组织投影，不提供跨租户切换。" />
-    <RendererTable v-if="ready" :data-view-key="viewKey" :children="fields" :filter="filter"
-      :stripe="true" :show-row-index="true" :show-data-view-meta="false"
-      :pagination="{pageSizes: [10, 20, 50, 100], showJumper: false}" />
+    <SparkPageRenderer v-if="runtime" :page-runtime="runtime" :route-snapshot="routeSnapshot" :auto-load="false" />
   </RendererSection>
 </template>
 
 <script setup lang="ts">
-import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
-import {DisplayAlert, DisplayTag, RendererButton, RendererSection, RendererTable, type RFilterProps} from '@spark-appworks/spark-component'
+import {computed} from 'vue'
+import {useRoute} from 'vue-router'
+import {RendererSection, SparkPageRenderer} from '@spark-appworks/spark-component'
+import {PageTool} from '@spark-appworks/spark-project-model'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
+import rule from './tool/rule.json?raw'
+import script from './tool/script.js?raw'
+import style from './tool/style.css?raw'
 
 const scenarioId = '0A835EB88AAC2BDFBDE344477C6827BB'
-const {viewKey, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
+const tool = new PageTool({pageId: 'job-management-page'})
+tool.hydrateFileText('rule.json', rule)
+tool.hydrateFileText('script.js', script)
+tool.hydrateFileText('style.css', style)
+tool.markLoaded()
+const {session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Base_JobInfo', componentType: 'job-management-page', title: '岗位管理',
   optionModels: ['Base_DepartInfo'],
+  tool,
 })
-const departmentViewKey = buildDataViewKey('Base_DepartInfo', 'default', scenarioId)
-const fields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'JobName', label: '岗位名称', readonly: true, minWidth: 220, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'JobCode', label: '岗位编码', readonly: true, minWidth: 160, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'DepName', label: '所属机构', readonly: true, minWidth: 220, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'Depid', label: '机构 ID', readonly: true, minWidth: 180, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'DepLevel', label: '职级', readonly: true, minWidth: 140, showOverflowTooltip: true}},
-]
-const filter: RFilterProps = {
-  autoQuery: false,
-  queryOnReset: true,
-  firstPageOnSearch: true,
-  showExpressionEditor: false,
-  showDataViewMeta: false,
-  children: [
-    {type: 'r-text', props: {field: 'JobName', label: '岗位名称', placeholder: '请输入岗位名称', filterTrim: true}},
-    {type: 'r-select', props: {field: 'Depid', label: '所属机构', placeholder: '请选择所属机构',
-      filterable: true, clearable: true, optionDataViewKey: departmentViewKey,
-      optionLabelField: 'DepName', optionLabelFields: ['DepName', 'DepID'], optionValueField: 'DepID', optionValueTrim: true}},
-  ],
-}
+const runtime = computed(() => ready.value ? session.runtime : undefined)
+const route = useRoute()
+const routeSnapshot = computed(() => {
+  const {path, fullPath, name, params, query, hash} = route
+  return {path, fullPath, name: name ?? null, params, query, hash}
+})
 </script>
-
-<style scoped>
-.job-page {padding: 8px}
-</style>

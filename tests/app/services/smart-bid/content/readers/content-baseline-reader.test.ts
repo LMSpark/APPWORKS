@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey} from '@spark-appworks/spark-data'
 import {readContentBaselineTenderRecord} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
-import {readBaselineOriginalForm} from '@/views/features/application/smart-bid/response/model/original-form-reader'
+import {originalFormMappingScenarioView,readBaselineOriginalForm,readRegisteredOriginalForm} from '@/views/features/application/smart-bid/response/model/original-form-reader'
 import {readContentBaselineFact,readContentBaselineFactUse,readContentBaselineRequirementPins,readContentBaselineRequirement} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -21,10 +21,14 @@ function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,u
    record:{id:'REQ',projectId:'P',lineageId:'L',version:'R2',kind:'FORMAT',text:'原文',score:null,sourceSpan:null,
     supportingSpans:[],sourceRecord:options.requirementSource??null,parseQuality:'TEXT_ONLY',checks:[],constraint:null,applicability:{},status:'ADOPTED'}},
   {name:'TenderRecord',view:'selectedTenderRecord',params:{projectId:'projectId',runId:'runId',type:'type',ordinal:'ordinal',recordVersion:'recordVersion',recordHash:'recordHash'},
-   record:{id:'TR',projectId:'P',...requirementSource,payload:{text:'原文'},sourceSpan:{page:1},parseQuality:'LOCATED',confirmStatus:'CONFIRMED',...options.tender}}]
+   record:{id:'TR',projectId:'P',...requirementSource,payload:{text:'原文'},sourceSpan:{page:1},parseQuality:'LOCATED',confirmStatus:'CONFIRMED',...options.tender}},
+  {name:'DocumentTemplate',view:'originalFormMapping',params:{projectId:'projectId',templateRef:'templateRef',templateVersion:'templateVersion'},
+   record:{id:'TM',projectId:'P',templateRef:'T',templateVersion:'V1',baselineId:baseline.id,stageRef:baseline.stageRef,
+    tenderRecordRef:requirementSource,formRef:'FORM',fillerRef:'P',mappings:[{fieldRef:'F',cellRef:'CELL',meaningRef:'PRICE'}]}}]
  const ds=DataSet.fromJson({scenarioId:'S',tables:Object.fromEntries(definitions.map(d=>[d.name,{
   modelBinding:{modelId:d.name,modelName:d.name},columns:Object.keys(d.record).map(name=>({name,isPrimaryKey:name==='id',...(d.name==='FactVersion'&&name==='version'?{type:'number' as const}:{})})),
-  views:{default:{},[d.view]:{commitMode:'staged',scopeFilter:{logic:'and',filters:Object.entries(d.params).map(([field,ParamName])=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName}}))}}}}]))})
+  views:{default:{},[d.view]:d.name==='DocumentTemplate'?originalFormMappingScenarioView('id'):
+   {commitMode:'staged',scopeFilter:{logic:'and',filters:Object.entries(d.params).map(([field,ParamName])=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName}}))}}}}]))})
  const save=vi.fn(async()=>{throw Error('NO_WRITE')}),queries=definitions.map(d=>{
   const table=new DataSpaceQueryTable({scenarioId:'S',metaName:d.name})
   const query=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',data:{
@@ -36,6 +40,18 @@ function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,u
  return {ds,host,queries,save,expire:()=>{active=false}}
 }
 const input={baselineId:'B',stageRef:{decisionId:'STAGE'},factId:'PRICE',version:2}
+it('reads the original template mapping and checks exact form cells against the frozen baseline',async()=>{
+ const scoped=fixture({baseline:{tenderRecords:[requirementSource]},tender:{payload:{formRef:'FORM',cells:[
+  {cellRef:'CELL',rowRef:'1',columnRef:'COL',meaningRef:'PRICE',fillerRef:'P',unit:'元',displayRef:'DECIMAL'},
+ ]}}})
+ try{
+  const result=await readRegisteredOriginalForm(scoped.host,{templateRef:'T',templateVersion:'V1'})
+  expect(result).toMatchObject({state:'MATCHED',formVersion:'002',baselineId:'B',
+   mappings:[{fieldRef:'F',cell:{rowRef:'1',meaningRef:'PRICE',unit:'元'}}]})
+  await scoped.ds.getView('DocumentTemplate','originalFormMapping')?.refresh()
+  expect(()=>result.assertCurrent()).toThrow()
+ }finally{scoped.ds.destroy()}
+})
 it('maps a located original form only from the reference fixed by the baseline',async()=>{
  const scoped=fixture({baseline:{tenderRecords:[requirementSource]}})
  try{

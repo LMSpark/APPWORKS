@@ -5,6 +5,7 @@
     "props": {"title": "标书正文编制", "gridColumns": 1, "onBeforeRender": "bindEditorStatus"},
     "children": [
       {"type": "r-button", "props": {"label": "查看分册策划依据", "onBeforeRender": "bindVolumePlanning", "onClick": "openVolumePlanning"}},
+      {"type": "r-button", "props": {"label": "核对原表映射", "onBeforeRender": "bindOriginalForm", "onClick": "openOriginalForm"}},
       {"type": "r-button", "props": {"label": "回查原采用记录", "onBeforeRender": "bindOriginalAdoption", "onClick": "openOriginalAdoption"}},
       {
         "id": "original-draft",

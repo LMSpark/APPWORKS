@@ -13,6 +13,7 @@ import {buildDataViewKey,parseDataViewKey} from '@spark-appworks/spark-data'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readBaselineSubmissionObligations} from '../../../followup/submission-obligation-reader'
 import {inspectRegisteredAdoption,type ContentAdoptionSelection} from '../../model/adoption/content-adoption-reader'
+import {readRegisteredOriginalForm} from '../../../response/model/original-form-reader'
 import {readRegisteredOriginalContentDraftSave} from '../../model/content-draft-save-reader'
 import {reconcileSavedContentDraft} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
 type Binding=Pick<ContentAuthoringBinding,'runtime'|'dataViewKey'|'projectId'|'draftId'|'actorUserId'|'assertCurrent'|'setPending'>
@@ -67,6 +68,7 @@ export type ContentAuthoringScriptSession=Readonly<{
  readOriginalSave:(input:SaveReadInput)=>Promise<OriginalSave&Readonly<{comparison?:SaveComparison}>>
  readVolumePlanningObligations:()=>ReturnType<typeof readBaselineSubmissionObligations>
  readOriginalAdoption:(input:ContentAdoptionSelection)=>ReturnType<typeof inspectRegisteredAdoption>
+ readOriginalForm:(selection:Parameters<typeof readRegisteredOriginalForm>[1])=>ReturnType<typeof readRegisteredOriginalForm>
 }>
 /** 供正式SparkPageRenderer.host使用；命令对象仍归原薄宿主释放。 */
 export function createContentAuthoringScriptHost(binding:Binding,commands:ContentAuthoringCommands,receiptDataViewKey?:string){
@@ -87,6 +89,12 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
    }
    return Object.freeze({assertCurrent,
     get canLeave(){return commands.canLeave},
+    readOriginalForm(selection:Parameters<typeof readRegisteredOriginalForm>[1]){
+     assertCurrent()
+     const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
+     if(!scenarioId||!identity(selection.templateRef)||!identity(selection.templateVersion))throw Error('BID_ORIGINAL_FORM_SCOPE')
+     return readRegisteredOriginalForm({runtime,scenarioId,projectId,assertCurrent},selection)
+    },
     readOriginalAdoption(request:ContentAdoptionSelection){
      assertCurrent()
      const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope

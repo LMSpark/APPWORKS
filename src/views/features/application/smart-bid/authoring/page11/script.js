@@ -11,6 +11,33 @@ let saveReceiptError = false
 let saveReceiptRequested = false
 let saveReceiptLoading = false
 
+function bindOriginalForm() {
+  const {formTemplateRef, formTemplateVersion} = $route.query
+  return {visible: [formTemplateRef, formTemplateVersion].every(value => typeof value === 'string' && !!value && value.trim() === value),
+    disabled: !editorSession || editorFault}
+}
+
+async function openOriginalForm() {
+  const {visible, disabled} = bindOriginalForm()
+  if (!visible || disabled) return
+  const {formTemplateRef, formTemplateVersion} = $route.query
+  try {
+    const result = await editorSession.readOriginalForm({templateRef: formTemplateRef, templateVersion: formTemplateVersion})
+    result.assertCurrent()
+    const lines = ['模板原表映射待登记']
+    if (result.state === 'MATCHED') {
+      lines[0] = `原表 ${result.formRef} · 版本 ${result.formVersion} · 基线 ${result.baselineId}`
+      for (const {fieldRef, cell} of result.mappings) {
+        lines.push(`${fieldRef} · ${cell.rowRef} / ${cell.columnRef} · 栏意 ${cell.meaningRef} · 填写方 ${cell.fillerRef} · 显示规则 ${cell.displayRef}`)
+        if (cell.unit) lines.push('单位 ' + cell.unit)
+      }
+    }
+    await $page.showAlert(lines.join('\n'), '原表映射')
+  } catch {
+    $page.showMessage('原表映射无法核验', 'warning')
+  }
+}
+
 function bindOriginalAdoption() {
   const {adoptionCandidateRevisionId, adoptionRequestKey, adoptionRequestDigest, adoptionPreviewRef} = $route.query
   const visible = [adoptionCandidateRevisionId, adoptionRequestKey, adoptionRequestDigest, adoptionPreviewRef]

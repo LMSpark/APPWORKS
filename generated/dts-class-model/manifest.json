@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1367,
+  "scannedFileCount": 1371,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17945,6 +17945,19 @@
         "symbols": []
       }
     },
+    "src/services/smart-bid/content/review/submission-attempt-recovery.ts": {
+      "file": "files/src/services/smart-bid/content/review/submission-attempt-recovery.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/submission-attempt-recovery",
+        "sourcePath": "src/services/smart-bid/content/review/submission-attempt-recovery.ts",
+        "sourceFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/submission-attempt-recovery",
+        "jsdoc": "@module app:services/smart-bid/content/review/submission-attempt-recovery\n职责：第52项核对原办理结果，区分上传、实发、撤回及权威未执行。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/review/submission-package-members.ts": {
       "file": "files/src/services/smart-bid/content/review/submission-package-members.ts.json",
       "module": {
@@ -17980,6 +17993,32 @@
         "packageName": "app",
         "modulePath": "services/smart-bid/content/review/submission-zip-inventory",
         "jsdoc": "@module app:services/smart-bid/content/review/submission-zip-inventory\n职责：在内存中读取递交原包的 ZIP 成员，按调用方批准的核验预算限制枚举。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts": {
+      "file": "files/src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/submission/channel-receipt-pairing",
+        "sourcePath": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
+        "sourceFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/submission/channel-receipt-pairing",
+        "jsdoc": "@module app:services/smart-bid/content/review/submission/channel-receipt-pairing\n职责：第53项将接收方回执配回原办理，保留原事件与各取得来源。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/submission/submission-receipt-effects.ts": {
+      "file": "files/src/services/smart-bid/content/review/submission/submission-receipt-effects.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/submission/submission-receipt-effects",
+        "sourcePath": "src/services/smart-bid/content/review/submission/submission-receipt-effects.ts",
+        "sourceFile": "src/services/smart-bid/content/review/submission/submission-receipt-effects.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/submission/submission-receipt-effects",
+        "jsdoc": "@module app:services/smart-bid/content/review/submission/submission-receipt-effects\n职责：将第53项已配对事件及适用规则判定交给第54项截止对账。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -19479,6 +19518,19 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader\n职责：由 SPARK data 的原装封记录定位第50项应重开的固定原包。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight\n职责：第51项固定待发送包与平台栏，交发送前的原办理检查。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

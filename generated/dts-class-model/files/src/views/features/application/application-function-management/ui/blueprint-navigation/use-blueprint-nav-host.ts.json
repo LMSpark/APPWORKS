@@ -37,13 +37,13 @@
             "value": {
               "type": "string"
             },
-            "__@RefSymbol@290339": {
+            "__@RefSymbol@290725": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@290339"
+            "__@RefSymbol@290725"
           ],
           "additionalProperties": false
         },

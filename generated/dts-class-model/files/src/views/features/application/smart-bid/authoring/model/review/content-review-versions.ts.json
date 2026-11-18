@@ -135,7 +135,8 @@
               "const": "FIELD"
             },
             "source": {
-              "$ref": "content-platform-field-review.ts.json#/$defs/ApprovedField"
+              "type": "object",
+              "title": "ApprovedField"
             }
           },
           "required": [

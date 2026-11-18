@@ -5461,6 +5461,11 @@
       "shardFile": "files/src/services/smart-bid/content/review/review-coverage.ts.json",
       "sourceModifiedAt": "2026-11-18T03:46:59.601Z"
     },
+    "src/services/smart-bid/content/review/submission-attempt-recovery.ts": {
+      "sourceFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts",
+      "shardFile": "files/src/services/smart-bid/content/review/submission-attempt-recovery.ts.json",
+      "sourceModifiedAt": "2026-11-18T04:12:12.485Z"
+    },
     "src/services/smart-bid/content/review/submission-package-members.ts": {
       "sourceFile": "src/services/smart-bid/content/review/submission-package-members.ts",
       "shardFile": "files/src/services/smart-bid/content/review/submission-package-members.ts.json",
@@ -5475,6 +5480,16 @@
       "sourceFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
       "shardFile": "files/src/services/smart-bid/content/review/submission-zip-inventory.ts.json",
       "sourceModifiedAt": "2026-11-18T03:36:00.561Z"
+    },
+    "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts": {
+      "sourceFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
+      "shardFile": "files/src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts.json",
+      "sourceModifiedAt": "2026-11-18T04:17:38.125Z"
+    },
+    "src/services/smart-bid/content/review/submission/submission-receipt-effects.ts": {
+      "sourceFile": "src/services/smart-bid/content/review/submission/submission-receipt-effects.ts",
+      "shardFile": "files/src/services/smart-bid/content/review/submission/submission-receipt-effects.ts.json",
+      "sourceModifiedAt": "2026-11-18T04:20:03.048Z"
     },
     "src/services/smart-bid/content/revision-response-comparison.ts": {
       "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
@@ -6000,6 +6015,11 @@
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts.json",
       "sourceModifiedAt": "2026-11-18T04:05:16.414Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts.json",
+      "sourceModifiedAt": "2026-11-18T04:10:05.055Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",

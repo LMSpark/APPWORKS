@@ -9,7 +9,8 @@ import {resolveTemplateContentRules} from '@/services/smart-bid/content/referenc
 import {resolveCalculationTableGenerator} from '@/services/smart-bid/content/references/calculation-table-generator'
 import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
 import type {readReviewedResponseForCandidate} from '@/services/smart-bid/content/references/response/response-review'
-import {verifyBidVolumePlanPlacement} from '@/services/smart-bid/content/references/response/bid-volume-plan'
+import {prepareBidVolumePlan,verifyBidVolumePlanPlacement} from '@/services/smart-bid/content/references/response/bid-volume-plan'
+import {readBaselineSubmissionObligations} from '../../followup/submission-obligation-reader'
 import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {assertRevisionResponseText,readIndependentResponseFactOccurrences,type IndependentResponseFactTarget} from '@/services/smart-bid/content/references/revision-response-text'
 import {hasCompleteSingleContentResult,readContentRevisionBasis,readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
@@ -136,6 +137,8 @@ export type ContentCandidateBinding=Readonly<{
    owner:string;scopeRef:Readonly<{projectId:string;baselineId:string;candidateRevisionId:string}>
    scopeVersion:string;recordRefs:Parameters<typeof verifyBidVolumePlanPlacement>[0]['destinations']
   }>}>
+ verifyVolumePlanFromBaseline:(destinations:Parameters<typeof prepareBidVolumePlan>[0]['destinations'])=>
+  Promise<ReturnType<ContentCandidateBinding['verifyVolumePlan']>>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
  readPreviewVersions:(assertConsumer?:()=>void)=>Promise<PreviewVersionSession>
  verifyRootHash:(contract:string)=>ReturnType<typeof verifyReadableRevisionRoot>
@@ -192,6 +195,18 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
    scopeRef:Object.freeze({projectId:host.projectId,baselineId,candidateRevisionId}),scopeVersion:snapshotHash,
    recordRefs:plan.destinations})
   return Object.freeze({...proof,basisCheck})
+ }
+ const verifyVolumePlanFromBaseline:ContentCandidateBinding['verifyVolumePlanFromBaseline']=async destinations=>{
+  assertCurrent()
+  const baselineId=row['baselineId']
+  if(typeof baselineId!=='string')throw Error('CONTENT_CANDIDATE_BASELINE_REQUIRED')
+  const submitted=structuredClone(destinations)
+  const source=await readBaselineSubmissionObligations({...host,assertCurrent},baselineId)
+  const plan=prepareBidVolumePlan({projectId:host.projectId,baselineId,destinations:submitted},source)
+  const proof=verifyVolumePlan(plan)
+  const sourceRefs=new Map(source.obligations.map(item=>[item.obligationRef,item.sourceRef]))
+  const recordRefs=plan.destinations.map(destination=>Object.freeze({...destination,sourceRef:sourceRefs.get(destination.obligationRef)}))
+  return Object.freeze({...proof,basisCheck:Object.freeze({...proof.basisCheck,recordRefs:Object.freeze(recordRefs)})})
  }
  const verifyReviewedResponse:ContentCandidateBinding['verifyReviewedResponse']=(responseId,reviewed)=>{
   const assertProof=()=>{assertCurrent();reviewed.assertCurrent()}
@@ -621,7 +636,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   readEffectiveFacts:(scope:ReviewScope,assertConsumer?:()=>void)=>readEffectiveFacts(scope,assertConsumer),
   hashNodeCalculationInputs,readCalculationTemplates,resolveCalculationGenerators,expandAttachmentIndex,
   readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readEffectiveFacts({nodeIds,responses:[]},assertConsumer),
-  readFixedRequirement,readRequirementPinIssues,verifyReviewedResponse,verifyVolumePlan,
+  readFixedRequirement,readRequirementPinIssues,verifyReviewedResponse,verifyVolumePlan,verifyVolumePlanFromBaseline,
   readRequirementBindingHash:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readRequirementBindingHash(nodeIds,assertConsumer),
   readReviewDependencies,readSubtreeReviewDependencies,readSubtreeEffectiveHash,readQualificationHash,readContentRulesHash,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   verifyRootHash:(contract:string)=>verifyReadableRevisionRoot({host:{...host,assertCurrent},revisionDataViewKey:revisions.candidateDataViewKey,snapshot,contract}),

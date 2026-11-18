@@ -43,6 +43,10 @@ it('checks the planned volume against the actual candidate tree and revokes the 
    matches:false,issues:[{owner:'BidVolume',code:'SCOPE_EVIDENCE_CHANGED'}],
   })
   expect(()=>candidate.verifyVolumePlan(wrong)).toThrow('BID_VOLUME_PLAN_PLACEMENT')
+  const registeredProof=await candidate.verifyVolumePlanFromBaseline([{...targets,documentId:'D'}])
+  expect(registeredProof.basisCheck.recordRefs).toMatchObject([{obligationRef:'DOC',sourceRef:'SOURCE-V1',documentId:'D'}])
+  await f.ds.getView('SubmissionObligation','originalBaselineObligations')?.refresh()
+  expect(()=>registeredProof.assertCurrent()).toThrow()
   await f.ds.getView('ContentNodeVersion','snapshotMembers')?.refresh()
   expect(()=>proof.assertCurrent()).toThrow()
  }finally{f.ds.destroy()}

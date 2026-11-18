@@ -1,4 +1,5 @@
 import {vi} from 'vitest'
+import {submissionObligationScenarioView} from '@/views/features/application/smart-bid/followup/submission-obligation-reader'
 import {DataSet,parseDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {hashContentNode} from '@/services/smart-bid/content-node-hash'
@@ -43,7 +44,12 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   supportingSpans:[],sourceRecord:mode==='fixed-pin'?tenderReference:null,parseQuality:'TEXT_ONLY',checks:[],constraint:null,applicability:{},status:'ADOPTED'}
  const tender={id:'TR',projectId:'P',...tenderReference,
   payload:{text:'核定原文'},sourceSpan:{page:1},parseQuality:'LOCATED',confirmStatus:options.tenderConfirmStatus??'CONFIRMED'}
+ const obligation={id:'DOC',projectId:'P',baselineId:'B',obligationRef:'DOC',sourceRef:'SOURCE-V1',kind:'DOCUMENT',
+  required:true,allowedDisclosureRefs:[]}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{
+  SubmissionObligation:{modelBinding:{modelId:'OBLIGATION',modelName:'SubmissionObligation'},
+   columns:Object.keys(obligation).map(name=>({name,isPrimaryKey:name==='id'})),
+   views:{default:{},originalBaselineObligations:submissionObligationScenarioView('id')}},
   TenderRecord:{modelBinding:{modelId:'TENDER_MODEL',modelName:'TenderRecord'},
    columns:Object.keys(tender).map(name=>({name,isPrimaryKey:name==='id',type:name==='ordinal'?'number':name==='payload'||name==='sourceSpan'?'object':'string'})),
    views:{default:{},selectedTenderRecord:{commitMode:'staged',scopeFilter:{logic:'and',
@@ -79,7 +85,7 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   templateRefs:mode==='template'?[{documentId:'D',key:'T',version:'2',hash:'a'.repeat(64)}]:templateRefs}
  const query=vi.fn(async(view:DataView)=>{
   const model=view.dataTable!.tableName,q=new DataSpaceQueryTable({scenarioId:'S',metaName:model})
-  const rows=model==='TenderRecord'?[tender]:model==='Requirement'?[requirement]:model==='Baseline'?[{id:mode==='wrong-fact-baseline'?'OTHER':'B',projectId:'P',stageRef:{id:'ST',version:'1'},factVersions:[{factId:'PRICE',version:2}],requirementVersions:[{lineageId:'L',version:'R2'}],
+  const rows=model==='SubmissionObligation'?[obligation]:model==='TenderRecord'?[tender]:model==='Requirement'?[requirement]:model==='Baseline'?[{id:mode==='wrong-fact-baseline'?'OTHER':'B',projectId:'P',stageRef:{id:'ST',version:'1'},factVersions:[{factId:'PRICE',version:2}],requirementVersions:[{lineageId:'L',version:'R2'}],
    tenderRecords:[{runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}]}]:
    model==='FactVersion'?[{id:'FV2',projectId:'P',key:'PRICE',version:2,kind:'PRICE',value:'0.00',unit:'元',sourceIds:[],claimId:null,scopeRef:null,decisionRefs:[],dependencyRefs:[],promiseTerms:null,sourceRecord:null,status:'ADOPTED'}]:
    model==='ContentProject'?[{projectId:'P',headRevisionId:options.threeVersions?'V2':null}]:

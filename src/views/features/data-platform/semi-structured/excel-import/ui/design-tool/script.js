@@ -133,3 +133,20 @@ async function addRoot() { await $page.invokeHostCommand('excel.design.addRoot')
 async function addSibling() { await $page.invokeHostCommand('excel.design.addSibling') }
 async function addChild() { await $page.invokeHostCommand('excel.design.addChild') }
 async function removeNode() { await $page.invokeHostCommand('excel.design.remove') }
+
+const mappingKey = '0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default'
+
+function bindMappingCell() { return {cellReadonly:tree?.locked} }
+function bindReferenceAction() { return {dataViewKey:mappingKey,disabled:tree?.mapping().referenceDisabled !== false} }
+function bindDeleteField() { return {dataViewKey:mappingKey,disabled:tree?.mapping().deleteDisabled !== false} }
+function bindSaveFields() {
+  const state = tree?.mapping()
+  return {label:state?.saveLabel || '保存字段',disabled:state?.saveDisabled !== false}
+}
+function bindCancelFields() { return {disabled:tree?.mapping().cancelDisabled !== false} }
+
+async function setReference() { await $page.invokeHostCommand('excel.design.setReference') }
+async function clearReference() { await $page.invokeHostCommand('excel.design.clearReference') }
+async function deleteField() { await $page.invokeHostCommand('excel.design.deleteField') }
+async function saveFields() { await $page.invokeHostCommand('excel.design.saveFields') }
+async function cancelFields() { await $page.invokeHostCommand('excel.design.cancelFields') }

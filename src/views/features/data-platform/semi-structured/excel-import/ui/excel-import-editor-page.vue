@@ -49,14 +49,7 @@
             <RendererTabs v-else v-model="activeBottomTab" :data-view-key="fieldsKey" data-member="currentRow">
               <RendererTabPane name="fields" label="列配置" :index="0" :data-view-key="fieldsKey">
 
-            <h2>字段映射</h2>
-            <RendererButton :data-view-key="fieldsKey" label="设置引用" perm-action="edit" :disabled="locked || !!targetChange || !currentMapping" @click="editReference(false)" />
-            <RendererButton :data-view-key="fieldsKey" label="清空引用" perm-action="edit" :disabled="locked || !!targetChange || !currentMapping" @click="editReference(true)" />
-            <RendererButton :data-view-key="fieldsKey" label="删除字段" perm-action="delete" :disabled="locked || !!targetChange" @click="remove(fieldsTable)" />
-            <RendererButton :label="targetChange ? targetSaveLabel : isUnconfirmed(fieldsTable) ? '核验字段保存结果' : '保存字段'" :disabled="busy || !!targetChange && (!targetChange.owns(fieldsTable) || targetChange.owns(nodesTable) && pendingPart('nodes'))" @click="save(fieldsTable)" />
-            <RendererButton label="取消字段修改" :disabled="busy || unconfirmed || !!targetChange && (!targetState?.canCancel || !targetChange.owns(fieldsTable))" @click="cancel(fieldsTable)" />
-            <RendererTable :data-view-key="fieldsKey" :children="fieldColumns" :highlight-current-row="true" />
-
+                <SparkComponentRenderer :config="designRegion(children,'excel-field-mapping')" />
               </RendererTabPane>
               <RendererTabPane name="dynamicDict" label="动态列字典" :index="1" :data-view-key="fieldsKey">
                 <p role="status">动态列字典待后续实现</p>
@@ -111,7 +104,7 @@ import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
 import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
 import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
-const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTable, RendererButton, RendererDialog, RendererTabs, RendererTabPane, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererButton, RendererDialog, RendererTabs, RendererTabPane, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
@@ -238,11 +231,6 @@ function changeLayout(value:unknown,previous:unknown,control:unknown):void {
     error.value=''
   }catch(cause){control.cancel=true;error.value=cause instanceof Error?cause.message:String(cause)}
 }
-const fieldColumns = computed<SparkNode[]>(() => [
-  ...Object.entries({name:'字段名称',title:'标题',index:'Excel 列号',type:'类型'}).map(([field,label]) => ({type:field === 'type' ? 'r-number' : 'r-text',props:{field,label,readonly:['name','type'].includes(field),showCellControl:true,cellReadonly:()=>locked.value}})),
-  {type:'r-select',props:{field:'DesenID',label:'脱敏规则',optionDataViewKey:key('Base_Desensitization_Rule'),showCellControl:true,cellReadonly:()=>locked.value}},
-  {type:'r-text',props:{field:'refTableDesc',label:'引用表描述',readonly:true}},
-])
 onBeforeRouteLeave(() => !hasPending.value)
 onBeforeRouteUpdate(() => !hasPending.value)
 defineExpose({hasPending,busy,unconfirmed,discardChanges:discardAll})
@@ -257,6 +245,13 @@ function makeTreeHost(runtime:PageRuntime){
       setFilterPending:(editing:boolean)=>{if(active&&session.isCurrent(runtime))pending('nodes.filters',editing)},
       sort:()=>({mode:sortMode.value,...sortState.value,options:sortDirectory.value?.dataViewKey,blocked:busy.value||pendingPart('nodes')}),
       setSortPending:(editing:boolean)=>{if(active&&session.isCurrent(runtime))pending('nodes.sorted',editing)},
+      mapping:()=>({
+        referenceDisabled:locked.value||!!targetChange.value||!currentMapping.value,
+        deleteDisabled:locked.value||!!targetChange.value,
+        saveLabel:targetChange.value?targetSaveLabel.value:isUnconfirmed(fieldsTable)?'核验字段保存结果':'保存字段',
+        saveDisabled:busy.value||!!targetChange.value&&(!targetChange.value.owns(fieldsTable)||targetChange.value.owns(nodesTable)&&pendingPart('nodes')),
+        cancelDisabled:busy.value||unconfirmed.value||!!targetChange.value&&(!targetState.value?.canCancel||!targetChange.value.owns(fieldsTable)),
+      }),
       nodeCommands:()=>({
         source:targetState.value?.kind==='source',busy:busy.value,
         saveLabel:targetChange.value?targetSaveLabel.value : isUnconfirmed(nodesTable)?'核验配置保存结果':'保存配置',
@@ -284,6 +279,14 @@ function makeTreeHost(runtime:PageRuntime){
       if(!pendingPart('rules'))cancel(schemeTable)
       return undefined
     }
+    if(command==='excel.design.setReference'){editReference(false);return undefined}
+    if(command==='excel.design.clearReference'){editReference(true);return undefined}
+    if(command==='excel.design.deleteField'){
+      if(!locked.value&&!targetChange.value)await remove(fieldsTable)
+      return undefined
+    }
+    if(command==='excel.design.saveFields'){await save(fieldsTable);return undefined}
+    if(command==='excel.design.cancelFields'){cancel(fieldsTable);return undefined}
     if(command==='excel.design.saveNode'&&selectedNode.value){await save(nodesTable);return undefined}
     if(command==='excel.design.cancelNode'&&selectedNode.value){cancel(nodesTable);return undefined}
     if(command==='excel.design.retryNode'&&targetState.value?.canRetry){await retryTarget();return undefined}

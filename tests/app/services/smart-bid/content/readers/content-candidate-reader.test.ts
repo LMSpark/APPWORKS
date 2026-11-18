@@ -2,12 +2,29 @@ import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/content-root-hash'
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
+import {prepareCandidateProduction} from '@/views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader'
 import {prepareBidVolumePlan} from '@/services/smart-bid/content/references/response/bid-volume-plan'
 import {compareAdoptionBasisChecks} from '@/services/smart-bid/content/adoption/adoption-basis-checks'
 import {prepareResponseDraft} from '@/services/smart-bid/content/references/response/response-draft'
 import {readReviewedResponseForCandidate,reviewResponseDraft} from '@/services/smart-bid/content/references/response/response-review'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
+
+it('prepares a review-only production request from a verified candidate root',async()=>{
+ const f=await fixture('populated',{computeRoot:true})
+ try{
+  const selection={candidateRevisionId:'C',expectedHead:null}
+  const request={projectId:'P',documentId:'D',revisionId:'C',baselineId:'B',requestKey:'RUN',
+   toolVersionRef:'TOOL',outputOptions:{format:'PDF'}}
+  const prepared=await prepareCandidateProduction(f.host,{selection,request},async version=>({
+   ...version,templateVersionRef:'T1',ruleVersionRef:'RULE',factRefs:[],
+   formRequired:false,formVersionRef:null,requiredAttachmentRefs:[],attachmentRefs:[],
+  }))
+  expect(prepared.request).toMatchObject({documentId:'D',revisionId:'C',purpose:'REVIEW',rootHash:expect.stringMatching(/^[a-f0-9]{64}$/u)})
+  await f.ds.getView('ContentNodeVersion','snapshotMembers')?.refresh()
+  expect(()=>prepared.assertCurrent()).toThrow()
+ }finally{f.ds.destroy()}
+})
 
 it('checks the planned volume against the actual candidate tree and revokes the proof on refresh',async()=>{
  const f=await fixture('populated')

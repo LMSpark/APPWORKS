@@ -89,6 +89,7 @@ export class PageRuntimePool {
     const scenarioInputs = prepared?.scenarioInputs ?? (inputText === undefined ? undefined : PageRuntime.parseScenarioInputs(inputText))
     const page = new PageTool({ pageId: tool.pageId })
     const reader = this.options.readPageFile
+    let assertPublishedVersion: (() => void) | undefined
     const runtime = markRaw(new PageRuntime({
       tool: page, scenarioIds: call.ids, ...(call.main === undefined ? {} : { mainScenarioId: call.main }),
       ...(scenarioInputs === undefined ? {} : { scenarioInputs }),
@@ -122,21 +123,27 @@ export class PageRuntimePool {
         const texts = batchReader ? await batchReader(commands) : reader ? await Promise.all(commands.map(reader)) : []
         if (runtime.destroyed || runtime.generation !== generation) throw new Error('PAGE_RUNTIME_STALE: 工具读取已失效')
         prepared?.assertCurrent()
-        if (readVersion() !== versionId) throw new Error('PAGE_RUNTIME_STALE: 工具读取期间发布版本已改变，请重新加载')
+        const assertVersion = () => {
+          if (readVersion() !== versionId) throw new Error('PAGE_RUNTIME_STALE: 发布版本已改变，请重新加载')
+        }
+        assertVersion()
         if (texts.length !== commands.length) throw new Error('工具文件读取结果数量不符')
         for (const [index, command] of commands.entries()) {
           const text = texts[index]
           if (typeof text !== 'string') throw new Error('工具文件读取结果缺少文本')
           page.hydrateFileText(command.fileName, text)
         }
+        assertPublishedVersion = assertVersion
         page.markLoaded()
         return page
       },
       loadScenario: async scenarioId => {
         prepared?.assertCurrent()
+        const assertVersion = assertPublishedVersion
+        assertVersion?.()
         if (!this.options.loadScenario) throw new Error('未注入场景运行装配器')
         const dataSet = await this.options.loadScenario({ projectId, scenarioId })
-        try { prepared?.assertCurrent(); return dataSet }
+        try { prepared?.assertCurrent(); assertVersion?.(); return dataSet }
         catch (error) { dataSet.destroy(); throw error }
       },
     }))

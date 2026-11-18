@@ -83,3 +83,13 @@ export function capturePdfInspectionUpload(dataSet: DataSet, uploadId: string) {
   if (!binding) throw Error('PDF_UPLOAD_ACK: 原上传视图未绑定')
   return binding.resource.fileInput(binding.view, uploadId)
 }
+
+/** 仅释放原视图中尚未派发的上传行。 */
+export function cancelPdfInspectionFile(dataSet: DataSet, uploadId: string): void {
+  const binding = bindings.get(dataSet)
+  if (!binding || binding.view.mutating || binding.view.hasUnconfirmedSave || !binding.view.dirtyTracking.isPendingCreate(uploadId)) {
+    throw Error('PDF_UPLOAD_CAPTURE: 原文件尚未暂存或结果未核定')
+  }
+  binding.view.discardPendingChanges([uploadId])
+  binding.resource.releaseCancelled(binding.view, uploadId)
+}

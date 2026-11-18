@@ -6,7 +6,7 @@ import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
 import {FieldJson, FieldText, RendererButton, RendererTable, Spark} from '@spark-appworks/spark-component'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import {DataSpaceRuntimeApi, LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
 import type {HttpResponse, RequestConfig} from '@spark-appworks/spark-utils'
 import SparkJsonEditor from '../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
@@ -21,7 +21,8 @@ const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runti
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return state.http}, lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
   createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => topicTexts[id] ?? null}}),
-  lowcodeApi: {readRequestScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}}), dataSpace: {
+  lowcodeApi: {session: {get: () => ({enterprise: {id: 'COMPANY', shortName: 'company'}, identity: {userId: 'USER'}})},
+   readRequestScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}}), dataSpace: {
     get runtime() {return state.runtime}, design: {
       readSpaceDefinition: async ({dataSpaceId}: {dataSpaceId: string}) => ({dataSpaceId, name: 'PDF'}),
       readModelBatch: async ({dataSpaceId}: {dataSpaceId: string}) => topicModels(dataSpaceId), readRelations: async () => [],
@@ -39,7 +40,7 @@ beforeEach(() => {
   state.runtime = new DataSpaceRuntimeApi({http: state.http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}})})
 })
 afterEach(() => wrappers.splice(0).forEach(wrapper => wrapper.unmount()))
-async function open(ruleId = 'P1',catalog=false,recoveryRequestId?:string|string[]) {
+async function open(ruleId = 'P1',catalog=false,recoveryRequestId?:string|string[],file?:File) {
   const router = createRouter({history: createMemoryHistory(), routes: [{path: '/editor', component: PdfEditor, meta: {blueprintScenarioId: PDF}}, {path: '/other', component: {template: '<div>other</div>'}}]})
   if(catalog){
     const dynamic=createDynamicRouter({router,pageComponent:PdfList,loadNavigation:async()=>({id:'root',title:'Root',childPlacement:'header',items:[{id:PDF,title:'PDF',path:'/catalog',itemKind:'system-page',blueprintScenarioId:PDF}]}),componentMap:{'/catalog':PdfList}})
@@ -48,12 +49,71 @@ async function open(ruleId = 'P1',catalog=false,recoveryRequestId?:string|string
     if(record)record.meta['blueprintScenarioId']=PDF
   }
   await router.push({path:catalog?'/catalog':'/editor',query:catalog?{pdfInspectionRequestId:recoveryRequestId}:{ruleId}}); await router.isReady()
-  const wrapper = mount(defineComponent({setup: () => {provideTestPageService(router);return () => h(RouterView)}}), {global: {plugins: [router, ElementPlus, Spark.createPlugin()]}}); wrappers.push(wrapper)
+  const copied: string[] = []
+  const wrapper = mount(defineComponent({setup: () => {
+    const service = provideTestPageService(router)
+    if (file) service.browseFiles = async () => [{name:file.name,size:file.size,type:file.type,lastModified:file.lastModified,file}]
+    service.copyText = async text => {copied.push(text)}
+    return () => h(RouterView)
+  }}), {global: {plugins: [router, ElementPlus, Spark.createPlugin()]}}); wrappers.push(wrapper)
   await flushPromises()
   const click = async (label: string) => {await wrapper.findAll('button').find(button => button.text() === label)!.trigger('click'); await flushPromises()}
-  return {wrapper, click, router}
+  return {wrapper, click, router, copied}
 }
 describe('formal PDF rule editor', () => {
+  it.each([false,true])('selects without writes and starts one formal task even if its reply is lost (%s)', async lostReply => {
+    const backend = new class extends ApiBackend {
+      initCalls: RequestConfig[] = []
+      recoverCalls: RequestConfig[] = []
+      protected override async executeRequest(request: RequestConfig): Promise<HttpResponse<unknown>> {
+        let result:unknown
+        if (request.url === '/api/File/inspect/limits') {
+          result = {protocolVersion:'2.0',maxFiles:4,maxFileBytes:1024,maxTotalFileBytes:4096,maxTotalSourceBytes:8192,
+            maxZipBytes:4096,maxZipEntries:16,maxPages:32,maxTextCharsPerPage:512,maxRenderedPixels:4096}
+        } else if (request.url === '/api/File/inspect/init') {
+          this.initCalls.push(request)
+          if (lostReply) throw Error('reply lost')
+          result = {protocolVersion:'2.0',inspectJobId:'JOB',status:'ACCEPTED',fileCount:1}
+        } else if (request.url === '/api/File/inspect/recover') {
+          this.recoverCalls.push(request)
+          result = {protocolVersion:'2.0',inspectJobId:'JOB',requestId:Reflect.get(Object(request.data),'requestId'),
+            status:'ACCEPTED',progress:{total:1,finished:0},files:[]}
+        } else return super.executeRequest(request)
+        return {data:{Code:200,Result:result},status:200,statusText:'OK',headers:{}}
+      }
+    }()
+    backend.primaryKeys = state.http.primaryKeys
+    backend.records = {Base_FileInspectConfig: [{id:'P1',name:'核验规则',enabled:1,rule_config:ruleText('value')}]}
+    state.http = backend
+    state.runtime = new DataSpaceRuntimeApi({http:backend,readScope:()=>({token:'scope',headers:{'X-AppId':'D99A1DCE9894698799101EFD70F8FC76'}})})
+    const upload = vi.spyOn(LowcodeDesignFileUpload.prototype,'uploadBinaryVersion').mockResolvedValue({
+      templatePath:'/tenant/filedata/original.pdf',locator:{appType:'filedata',customPath:'',fileName:'original.pdf'},
+    })
+    const verify = vi.spyOn(LowcodeDesignFileUpload.prototype,'verifyBinaryVersion').mockResolvedValue(undefined)
+    const load = vi.spyOn(LowcodePdfInspect,'loadCatalog')
+    try {
+      const f = await open('P1',true,undefined,new File(['%PDF-fixture'],'original.pdf'))
+      const catalog = (await load.mock.results[0]!.value).getView('Base_FileInspectConfig')!
+      catalog.setSelectedRows([catalog.rows[0]!]); await flushPromises()
+      await f.click('核验准备')
+      await f.click('选择 PDF 或 ZIP')
+      expect(upload).not.toHaveBeenCalled()
+      expect(backend.initCalls).toHaveLength(0)
+      await f.click('开始核验')
+      if (lostReply) {
+        await vi.waitFor(() => expect(f.wrapper.text()).toContain('继续核验原操作'))
+        await f.click('复制原请求恢复链接')
+        expect(f.copied).toEqual([`/catalog?pdfInspectionRequestId=${Reflect.get(Object(backend.initCalls[0]?.data),'requestId')}`])
+        await f.click('继续核验原操作')
+      }
+      await vi.waitFor(() => expect(f.wrapper.text()).toContain('任务已接纳'))
+      expect(upload).toHaveBeenCalledTimes(1)
+      expect(verify).toHaveBeenCalledTimes(1)
+      expect(backend.initCalls).toHaveLength(1)
+      expect(backend.recoverCalls).toHaveLength(lostReply ? 1 : 0)
+      expect(backend.initCalls[0]?.data).toMatchObject({configId:'P1',files:[{filePath:'/tenant/filedata/original.pdf'}]})
+    } finally {load.mockRestore(); upload.mockRestore(); verify.mockRestore()}
+  })
   it.each([1, 0])('prepares only an authorized enabled formal rule before reading limits (%s)', async enabled => {
     const backend = new class extends ApiBackend {
       limitsCalls = 0

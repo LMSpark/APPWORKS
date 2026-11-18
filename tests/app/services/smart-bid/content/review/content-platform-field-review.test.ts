@@ -68,7 +68,7 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
  const batch=ds.getView('AnswerLocation','submittedPlatformObservations')!
  batch.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
   identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',
-   data:{Count:2,Items:[row,{...row,id:'OBS2',fieldId:'F2'}].map(item=>({...item,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}))}}}),
+   data:{Count:2,Items:[{...row,id:'OBS2',fieldId:'F2',value:true},row].map(item=>({...item,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}))}}}),
  })})
  receipt.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
   identity:receipts.identity,scope:'q',readScope:()=> 'q',snapshot:receipts.applyResult({Result:{primaryKeyField:'id',
@@ -97,7 +97,11 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
   const reviewed=await readSubmittedPlatformFields(host,{receiptRef:'REC',attemptRef:'SEND',revisionId:'R',fields:[
    {observationId:'OBS',approved},{observationId:'OBS2',approved:approvedSecond},
   ]})
-  expect(reviewed.results.map(item=>item.state)).toEqual(['MATCHED','MATCHED'])
+  expect(reviewed.results.map(item=>[item.fieldId,item.state])).toEqual([['F','MATCHED'],['F2','MISMATCHED']])
+  expect(reviewed).toMatchObject({projectId:'P',revisionId:'R',attemptRef:'SEND',receiptRef:'REC',allSelectedFieldsMatched:false})
+  await expect(readSubmittedPlatformFields(host,{receiptRef:'REC',attemptRef:'SEND',revisionId:'R',fields:[
+   {observationId:'OBS',approved},{observationId:'OBS2',approved},
+  ]})).rejects.toThrow('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
   reviewed.assertCurrent()
   await batch.refresh()
   expect(()=>reviewed.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')

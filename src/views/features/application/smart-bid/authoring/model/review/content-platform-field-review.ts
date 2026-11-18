@@ -116,9 +116,10 @@ export async function readSubmittedPlatformFields(host:ContentRevisionReadHost,i
 }>){
  const {projectId,scenarioId,runtime}=host,{receiptRef,attemptRef,revisionId}=input
  const requested=new Map(input.fields.map(({observationId,approved})=>[observationId,approved]))
+ const fieldKeys=new Set([...requested.values()].map(item=>JSON.stringify([item.assignmentId,item.fieldId])))
  const assertOwner=()=>{host.assertCurrent();for(const approved of requested.values())approved.assertCurrent()}
  assertOwner()
- if(!identity(scenarioId)||!requested.size||requested.size!==input.fields.length||
+ if(!identity(scenarioId)||!requested.size||requested.size!==input.fields.length||fieldKeys.size!==requested.size||
   [...requested].some(([id,approved])=>!identity(id)||approved.projectId!==projectId||approved.revisionId!==revisionId))
   throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
  const submission=await readPlatformSubmissionReceipt({...host,assertCurrent:assertOwner},{receiptRef,attemptRef,revisionId})
@@ -141,18 +142,20 @@ export async function readSubmittedPlatformFields(host:ContentRevisionReadHost,i
  const assertResult=view.captureReadResult()
  if(view.countReported!==true||view.total!==requested.size||view.rows.length!==requested.size||view.nextPageAvailable===true)
   throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_INCOMPLETE')
- const seen=new Set<string>()
- const results=await Promise.all(view.rows.map(row=>{
-  const id=row['id'],approved=typeof id==='string'?requested.get(id):undefined
-  if(typeof id!=='string'||!approved||seen.has(id))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
-  seen.add(id)
+ const rows=new Map(view.rows.map(row=>[row['id'],row]))
+ if(rows.size!==requested.size)throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
+ const results=await Promise.all([...requested].map(async ([id,approved])=>{
+  const row=rows.get(id)
+  if(!row)throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
   const assertRow=view.captureReadRow(row,observationFields)
-  return comparePlatformFieldObservation(approved,{stage:'SUBMITTED',attemptRef,submission},
+  const comparison=await comparePlatformFieldObservation(approved,{stage:'SUBMITTED',attemptRef,submission},
    readObservation(row,()=>{assertScope();assertResult();assertRow()}))
+  return Object.freeze({...comparison,assignmentId:approved.assignmentId,fieldId:approved.fieldId})
  }))
  const assertCurrent=()=>{for(const result of results)result.assertCurrent()}
  assertCurrent()
- return Object.freeze({results:Object.freeze(results),assertCurrent})
+ return Object.freeze({projectId,revisionId,attemptRef,receiptRef,results:Object.freeze(results),
+  allSelectedFieldsMatched:results.every(item=>item.state==='MATCHED'),assertCurrent})
 }
 
 /** 按原回执和原观察双向固定同次提交的栏位值。 */

@@ -42,11 +42,13 @@ it('reads the original result only for the selected attempt and verifies the ret
    data:{Count:hasResult?1:0,Items:hasResult?[{...original,lingma_sys_params:{r:[],e:[],h:hidden?['output']:[],m:[],d:false}}]:[]}}}),
  })})
  const dispatchView=ds.getView('ContextManifest','originalDispatch')!,dispatchTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContextManifest'})
- let hideDispatchInput=false
- dispatchView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
-  identity:dispatchTable.identity,scope:'dispatch',readScope:()=> 'dispatch',snapshot:dispatchTable.applyResult({Result:{primaryKeyField:'id',
-   data:{Count:1,Items:[{...dispatch,lingma_sys_params:{r:[],e:[],h:hideDispatchInput?['actualInput']:[],m:[],d:false}}]}}}),
- })})
+ let hideDispatchInput=false,dispatchUnavailable=false
+ dispatchView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},async executeQuery(){
+  if(dispatchUnavailable)throw Error('TEST_DISPATCH_UNAVAILABLE')
+  return new DataSpaceQueryContext({identity:dispatchTable.identity,scope:'dispatch',readScope:()=> 'dispatch',
+   snapshot:dispatchTable.applyResult({Result:{primaryKeyField:'id',
+    data:{Count:1,Items:[{...dispatch,lingma_sys_params:{r:[],e:[],h:hideDispatchInput?['actualInput']:[],m:[],d:false}}]}}})})
+ }})
  const frozenView=ds.getView('ContextManifest','originalFrozen')
  if(!frozenView)throw Error('TEST_FROZEN_VIEW_REQUIRED')
  const frozenTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContextManifest'})
@@ -77,6 +79,10 @@ it('reads the original result only for the selected attempt and verifies the ret
   expect(projected).not.toHaveProperty('input')
   if(!('readActualInput' in projected)||!projected.readActualInput)throw Error('TEST_INPUT_PROOF_REQUIRED')
   await expect(projected.readActualInput()).resolves.toBe(manifest.inputJson)
+  dispatchUnavailable=true
+  await expect(scriptHost.invoke('content.operation.readDispatch',scope,signal)).rejects.toThrow('OPERATION_DISPATCH_READ_STALE')
+  await expect(projected.readActualInput()).rejects.toThrow('OPERATION_DISPATCH_READ_STALE')
+  dispatchUnavailable=false
   hideDispatchInput=true
   const restricted=await scriptHost.invoke('content.operation.readDispatch',scope,signal)
   expect(restricted).not.toHaveProperty('readActualInput')

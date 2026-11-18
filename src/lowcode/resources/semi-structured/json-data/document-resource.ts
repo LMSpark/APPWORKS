@@ -17,6 +17,7 @@ function locate(catalog:DataView,jsonId:string):string{
  if(jsonId.length===0||jsonId.trim()!==jsonId||catalog.dataSet?.destroyed||catalog.tableName!=='Base_JsonData')throw new Error('JSON_DOCUMENT_TARGET: 目录实例身份不匹配')
  const rows=catalog.rows.filter(row=>catalog.getPkKey(row)===jsonId),row=rows[0]
  if(!row||rows.length!==1||catalog.fieldAccess(row,'rowid').read!=='visible'||catalog.fieldAccess(row,'path').read!=='visible')throw new Error('JSON_DOCUMENT_TARGET: 当前正式目录未返回唯一可读目标')
+ if(!catalog.dirtyTracking.isPendingCreate(jsonId))catalog.captureReadRow(row,['rowid','path'])()
  const path=row['path']
  if(path!==null&&path!==undefined&&typeof path!=='string')throw new Error('JSON_DOCUMENT_TARGET: 文件路径不是文本')
  const name=typeof path==='string'&&path.trim()?path.slice(path.lastIndexOf('/')+1):`${jsonId}.json`

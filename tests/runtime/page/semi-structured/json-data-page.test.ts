@@ -79,6 +79,12 @@ it('renders the shared JSON catalog through the three tool files without reading
   const dataSet=runtime.getDataSet(SCENE)
   expect(dataSet?.getView('JsonDocumentFile')).toBeDefined()
   expect(state.reads).toEqual([])
+  const row=dataSet!.getView('Base_JsonData')!.rows.find(item=>item['rowid']==='J1')!
+  const originalPath=row['path']
+  row['path']='/NewApp/another.json'
+  await expect(host.invoke('jsonData.openDocument','J1',new AbortController().signal)).rejects.toThrow('原正式字段已变化')
+  expect(state.reads).toEqual([])
+  row['path']=originalPath
   await rendered.getComponent(RendererTable).get('tbody tr').trigger('click')
   await flushPromises()
   expect(state.reads).toEqual([])

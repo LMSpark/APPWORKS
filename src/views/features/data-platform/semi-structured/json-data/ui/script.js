@@ -271,7 +271,8 @@ async function submitJsonDocument(command) {
   try {
     const result = await $page.invokeHostCommand(command, documentBinding.contextRowId)
     if (result?.closed) documentBinding = undefined
-    else if (result?.binding) documentBinding = result.binding
+    if (result?.readError) error = result.readError
+    if (result?.binding) documentBinding = result.binding
     editorRevision++
   } catch (cause) {
     error = String(cause?.message || cause)

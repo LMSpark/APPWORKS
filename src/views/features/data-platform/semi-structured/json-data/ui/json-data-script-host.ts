@@ -136,6 +136,10 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
       creating=undefined
       fileConfirmed=false
       if(imported)return {closed:true}
+      await catalog.refresh()
+      assertActive()
+      if(catalog.loadingError)return {closed:true,readError:catalog.loadingError.message}
+      if(!catalog.rows.some(row=>catalog.getPkKey(row)===id))return {closed:true}
       const saved=LowcodeJsonData.openDocument(dataSet,id)
       document=saved
       await saved.refresh()

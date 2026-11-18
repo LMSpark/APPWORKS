@@ -7,6 +7,7 @@ import {readComposedOperationRouteCandidate} from '@/services/smart-bid/operatio
 import {verifyDispatchedOperationRouteReturn,verifyOperationRouteReturn} from '@/services/smart-bid/operation/operation-route-return'
 import {verifyOriginalOperationRouteDispatch} from '@/services/smart-bid/operation/operation-route-dispatch-evidence'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
+import {freezeOperationRouteContext} from '@/services/smart-bid/operation/operation-route-context'
 
 it('accepts only the original complete attempt and the JSON candidate that fits its catalog',async()=>{
  const scope={runId:'RUN',attemptRef:'TRY',requestKey:'Q',projectId:'P',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}
@@ -21,6 +22,14 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
  await expect(verifyOperationRouteReturn(scope,{...receipt,state:'COMPLETE',output:'## 编制路线'},source))
   .rejects.toThrow('OPERATION_ROUTE_JSON_MODEL')
  const actualInputDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(craft.inputExample))
+ const manifestGuide={guideRef:'GUIDE',createdAt:'2026-11-18T10:00:00+08:00',
+  slots:Object.keys(craft.inputExample).map(slotId=>({slotId,required:true})),assertCurrent:source.assertCurrent}
+ const provenance=Object.entries(craft.inputExample).map(([slotId,value])=>({slotId,value,state:'ALLOWED' as const,
+  sourceRef:'SOURCE',versionRef:'V1',useRef:'USE',assertCurrent:source.assertCurrent}))
+ const manifest=await freezeOperationRouteContext(scope,manifestGuide,provenance)
+ expect(manifest).toMatchObject({usable:true,inputDigest:actualInputDigest})
+ const missing=await freezeOperationRouteContext(scope,manifestGuide,provenance.slice(1))
+ expect(missing).toMatchObject({usable:false,inputJson:null,inputDigest:null})
  const evidence={expectedInputDigest:actualInputDigest,assertCurrent:source.assertCurrent}
  const sent={...scope,dispatchRef:'SENT',state:'DISPATCH_RECORDED' as const,actualInputDigest,assertCurrent:source.assertCurrent}
  expect(await verifyOriginalOperationRouteDispatch(scope,sent,evidence)).toMatchObject({state:'MATCHED',inputJson:null})

@@ -20,7 +20,8 @@ export class LowcodePdfInspect {
     return loadLowcodeRuntimeScenario({projectId, scenarioId})
   }
 
-  static async loadEditor(scenarioId: string): Promise<DataSet> {
-    return this.loadCatalog(scenarioId)
+  static async loadEditor(scenarioId: string, expectedProjectId?: string): Promise<DataSet> {
+    if (expectedProjectId === APPLICATION_CATALOG_PROJECT_ID) throw new Error('请进入已授权应用后设计 PDF 规则')
+    return this.loadCatalog(scenarioId, expectedProjectId)
   }
 }

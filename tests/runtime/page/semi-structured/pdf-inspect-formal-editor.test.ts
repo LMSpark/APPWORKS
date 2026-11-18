@@ -77,6 +77,25 @@ async function open(ruleId = 'P1',catalog:boolean|string=false,recoveryRequestId
   return {wrapper, click, router, copied}
 }
 describe('formal PDF rule editor', () => {
+  it('disposes the rule editor when its route changes to a different application with the same rule ID',async()=>{
+    const router=createRouter({history:createMemoryHistory(),routes:[
+      {path:'/apps/:app/pdf/editor',component:PdfEditor,meta:{blueprintScenarioId:PDF}},
+    ]})
+    const query={ruleId:'P1'}
+    await router.push({path:'/apps/D99A1DCE9894698799101EFD70F8FC76/pdf/editor',query})
+    const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),
+      {global:{plugins:[router,ElementPlus,Spark.createPlugin()]}})
+    wrappers.push(wrapper)
+    await vi.waitFor(()=>expect(wrapper.findComponent(SparkJsonEditor).exists()).toBe(true))
+    const original=wrapper.getComponent(SparkPageRenderer).props('pageRuntime')!.getDataSet(PDF)!
+    const reads=state.http.reads.length
+    await router.push({path:'/apps/another-app/pdf/editor',query})
+    await vi.waitFor(()=>expect(wrapper.text()).toContain('PDF目录导航与当前执行应用不一致'))
+    expect(wrapper.findComponent(SparkJsonEditor).exists()).toBe(false)
+    expect(original.destroyed).toBe(true)
+    expect(state.http.reads).toHaveLength(reads)
+    expect(state.http.saves).toEqual([])
+  })
   it('releases the PDF catalog when the same route changes to an application outside the current request scope', async()=>{
     const routePath='/apps/:app/pdf'
     const router=createRouter({history:createMemoryHistory(),routes:[]})

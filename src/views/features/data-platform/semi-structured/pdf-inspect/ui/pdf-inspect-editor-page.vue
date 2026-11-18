@@ -16,11 +16,13 @@ import {RendererSection, SparkPageRenderer} from '@spark-appworks/spark-componen
 import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
 import {validatePdfRuleConfig} from '@/lowcode/resources/semi-structured/pdf-inspect/rule-config'
 import {PageTool,type PageRuntime} from '@spark-appworks/spark-project-model'
+import {resolveExecutionProjectId} from '@/services/application-scope'
 import rule from './design-tool/rule.json?raw'
 import script from './design-tool/script.js?raw'
 import style from './design-tool/style.css?raw'
 
 const route = useRoute()
+const projectId = computed(() => resolveExecutionProjectId(route.path))
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const ruleId = computed(() => typeof route.query['ruleId'] === 'string' ? route.query['ruleId'] : '')
 const session = new NativePageRuntimeSession()
@@ -59,20 +61,20 @@ function makeHost(current:PageRuntime){
 }
 onBeforeRouteLeave(() => !hasPending.value)
 onBeforeRouteUpdate(() => !hasPending.value)
-watch([scenarioId, ruleId], async ([scene, id]) => {
+watch([scenarioId, ruleId, projectId], async ([scene, id, project]) => {
   const own = ++generation
   unsubscribe?.(); runtime.value=undefined; host.value=undefined; dataSet.value = undefined; session.dispose()
   ready.value = false; loading.value = true; error.value = ''; pendingInput.value = false
   try {
     if (!id.trim()) throw new Error('缺少 ruleId 参数')
-    const loaded = await LowcodePdfInspect.loadEditor(scene)
+    const loaded = await LowcodePdfInspect.loadEditor(scene, project)
     if (!active || own !== generation) {loaded.destroy(); return}
     const tool=new PageTool({pageId:'pdf-inspect-editor-page'})
     tool.hydrateFileText('rule.json',rule)
     tool.hydrateFileText('script.js',script)
     tool.hydrateFileText('style.css',style)
     tool.markLoaded()
-    const current = session.acquire({tool, scenarioIds: [scene], targetId: id,
+    const current = session.acquire({tool, scenarioIds: [scene], targetId: project === undefined ? id : `${project}:${id}`,
       scenarioInputs: {[scene]: {ruleId: id}}, loadScenario: async () => loaded})
     await current.load()
     if (!active || own !== generation || !session.isCurrent(current)) return

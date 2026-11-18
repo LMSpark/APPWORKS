@@ -7,6 +7,7 @@ import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
+import {readPlatformSubmissionReceipt} from './content-submission-receipt-reader'
 
 type FieldSelection=Readonly<{projectId:string;revisionId:string;assignmentId:string;fieldId:string}>
 type ProposedField=FieldSelection&Readonly<{
@@ -106,4 +107,19 @@ export async function readPlatformFieldObservation(host:ContentRevisionReadHost,
   stage:observedStage,attemptRef,observationRef:observationId,value:row['value'],unit,
   assertCurrent:()=>{assertScope();assertResult();assertRow()},
  })
+}
+
+/** 按原回执和原观察双向固定同次提交的栏位值。 */
+export async function readSubmittedPlatformField(host:ContentRevisionReadHost,approved:ApprovedField,input:Readonly<{
+ observationId:string;receiptRef:string;attemptRef:string
+}>){
+ const {observationId,receiptRef,attemptRef}=input
+ const assertCurrent=()=>{host.assertCurrent();approved.assertCurrent()}
+ assertCurrent()
+ if(host.projectId!==approved.projectId||!identity(observationId))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
+ const readHost={...host,assertCurrent}
+ const submission=await readPlatformSubmissionReceipt(readHost,{receiptRef,attemptRef,revisionId:approved.revisionId})
+ submission.assertCurrent()
+ if(!submission.observationRefs.includes(observationId))throw Error('CONTENT_PLATFORM_FIELD_RECEIPT_SCOPE')
+ return readPlatformFieldObservation(readHost,approved,{observationId,attemptRef,stage:'SUBMITTED',submission})
 }

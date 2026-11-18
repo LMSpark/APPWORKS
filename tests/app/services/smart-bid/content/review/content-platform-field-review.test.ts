@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {comparePlatformFieldObservation,readPlatformFieldObservation,readPlatformFieldReviewVersion} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
+import {comparePlatformFieldObservation,readPlatformFieldObservation,readPlatformFieldReviewVersion,readSubmittedPlatformField} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
 import {DataSet} from '@spark-appworks/spark-data'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -46,23 +46,41 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
  const approved=await readPlatformFieldReviewVersion(selection,async()=>({...selection,responseId:'RESP',fieldRuleRef:'RULE',
   approvalRef:'APP',value:false,unit:null,assertCurrent:()=>{}}))
  const row={id:'OBS',...selection,attemptRef:'SEND',stage:'SAVED',value:false,unit:null}
+ const receiptRow={id:'REC',projectId:'P',revisionId:'R',attemptRef:'SEND',eventKind:'RECEIVED',observationRefs:['OBS']}
  const filters=([['projectId','projectId'],['id','observationId'],['attemptRef','attemptRef']] as const)
   .map(([field,ParamName])=>({field,operator:'eq' as const,value:{Type:'GetInputParam',ParamName}}))
  const ds=DataSet.fromJson({scenarioId:'S',tables:{AnswerLocation:{
   modelBinding:{modelId:'M',modelName:'AnswerLocation'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},selectedPlatformObservation:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters}}},
+ },ChannelReceipt:{
+  modelBinding:{modelId:'REC_MODEL',modelName:'ChannelReceipt'},columns:Object.keys(receiptRow).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},selectedPlatformReceipt:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',
+   filters:filters.map(filter=>filter.field==='id'?{...filter,value:{Type:'GetInputParam',ParamName:'receiptRef'}}:filter)}}},
  }}})
  const view=ds.getView('AnswerLocation','selectedPlatformObservation')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'AnswerLocation'})
  view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
   identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',
    data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
  })})
- const host={runtime:{resolveView:()=>view},scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
+ const receipt=ds.getView('ChannelReceipt','selectedPlatformReceipt')!,receipts=new DataSpaceQueryTable({scenarioId:'S',metaName:'ChannelReceipt'})
+ receipt.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+  identity:receipts.identity,scope:'q',readScope:()=> 'q',snapshot:receipts.applyResult({Result:{primaryKeyField:'id',
+   data:{Count:1,Items:[{...receiptRow,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
+ })})
+ const host={runtime:{resolveView:(key:string)=>key==='S@ChannelReceipt@selectedPlatformReceipt'?receipt:view},
+  scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  try{
   const input={observationId:'OBS',attemptRef:'SEND',stage:'SAVED' as const}
   const result=await readPlatformFieldObservation(host,approved,input)
   expect(result.state).toBe('MATCHED')
   expect((await readPlatformFieldObservation(host,approved,{...input,stage:'SUBMITTED'})).state).toBe('STAGE_REQUIRED')
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  row.stage='SUBMITTED'
+  const request={observationId:'OBS',receiptRef:'REC',attemptRef:'SEND'}
+  const submitted=await readSubmittedPlatformField(host,approved,request)
+  expect(submitted).toMatchObject({state:'MATCHED',receiptRef:'REC'})
+  receiptRow.observationRefs=['OTHER']
+  await expect(readSubmittedPlatformField(host,approved,request)).rejects.toThrow('CONTENT_PLATFORM_FIELD_RECEIPT_SCOPE')
+  expect(()=>submitted.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
  }finally{ds.destroy()}
 })

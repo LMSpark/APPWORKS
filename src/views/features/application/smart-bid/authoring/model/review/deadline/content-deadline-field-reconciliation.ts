@@ -28,8 +28,13 @@ export function reconcileDeadlineFieldValues(source:Readonly<{
  }
  const observations=new Map<string,{receiptRef:string;result:Batch['results'][number]}>()
  for(const batch of proofs){
-  if(batch.projectId!==source.projectId)throw Error('SUBMISSION_FIELD_RECONCILIATION_SCOPE')
+  if(batch.projectId!==source.projectId||![batch.attemptRef,batch.receiptRef].every(identity))throw Error('SUBMISSION_FIELD_RECONCILIATION_SCOPE')
   for(const result of batch.results){
+   const compared=result.state==='MATCHED'||result.state==='MISMATCHED'
+   if(result.attemptRef!==batch.attemptRef||result.expectedStage!=='SUBMITTED'||
+    ![result.assignmentId,result.fieldId,result.observationRef].every(identity)||
+    (compared&&(result.observedStage!=='SUBMITTED'||result.receiptRef!==batch.receiptRef)))
+    throw Error('SUBMISSION_FIELD_RECONCILIATION_SCOPE')
    const id=key(batch.attemptRef,result.assignmentId,result.fieldId)
    if(observations.has(id))throw Error('SUBMISSION_FIELD_RECONCILIATION_SCOPE')
    observations.set(id,{receiptRef:batch.receiptRef,result})
@@ -40,7 +45,7 @@ export function reconcileDeadlineFieldValues(source:Readonly<{
    const evidence=item.state==='EFFECTIVE_ATTEMPT'&&item.attemptRef!==null?
     observations.get(key(item.attemptRef,assignmentId,fieldId)):undefined
    const state=evidence?.result.state==='MATCHED'?'MATCHED':evidence?.result.state==='MISMATCHED'?'MISMATCHED':'PENDING'
-   return Object.freeze({assignmentId,fieldId,state,observationRef:evidence?.result.observationRef??null,receiptRef:evidence?.receiptRef??null})
+   return Object.freeze({assignmentId,fieldId,state,observationRef:evidence?.result.observationRef??null,receiptRef:state==='PENDING'?null:evidence?.receiptRef??null})
   })
   return Object.freeze({...item,fields:Object.freeze(fields)})
  })

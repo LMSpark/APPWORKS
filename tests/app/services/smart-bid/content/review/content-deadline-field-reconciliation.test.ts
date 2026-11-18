@@ -19,16 +19,23 @@ it('retains deadline reception while leaving nonmatching attempts and missing fi
  const source={projectId:'P',deadline,requiredFields:[{obligationId:'O1',assignmentId:'A',fieldId:'F'},
   {obligationId:'O2',assignmentId:'A',fieldId:'F'}],assertCurrent:()=>{}}
  let current=true
- const result={approvalRef:'APP',attemptRef:'SEND',observedStage:'SUBMITTED' as const,expectedStage:'SUBMITTED' as const,assignmentId:'A',fieldId:'F',observationRef:'OBS',state:'MISMATCHED' as const,observedValueHash:'a'.repeat(64),
+ const result={receiptRef:'REC',approvalRef:'APP',attemptRef:'SEND',observedStage:'SUBMITTED' as const,expectedStage:'SUBMITTED' as const,assignmentId:'A',fieldId:'F',observationRef:'OBS',state:'MISMATCHED' as const,observedValueHash:'a'.repeat(64),
   observedValueJson:'"实际值"',unit:null,
   assertCurrent:()=>{}}
  const batch={projectId:'P',revisionId:'R',attemptRef:'SEND',receiptRef:'REC',results:[result],allSelectedFieldsMatched:false,
   assertCurrent:()=>{if(!current)throw Error('BATCH_STALE')}}
- const unrelated=reconcileDeadlineFieldValues(source,[{...batch,attemptRef:'OTHER'}])
+ const unrelated=reconcileDeadlineFieldValues(source,[{...batch,attemptRef:'OTHER',results:[{...result,attemptRef:'OTHER'}]}])
  expect(unrelated.items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',fields:[{state:'PENDING'}]})
  const linked=reconcileDeadlineFieldValues(source,[batch])
  expect(linked.items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',fields:[{state:'MISMATCHED',observationRef:'OBS',receiptRef:'REC'}]})
  expect(linked.items[1]).toMatchObject({state:'PENDING_DELIVERY',fields:[{state:'PENDING'}]})
+ expect(()=>reconcileDeadlineFieldValues(source,[{...batch,attemptRef:'OTHER'}]))
+  .toThrow('SUBMISSION_FIELD_RECONCILIATION_SCOPE')
+ expect(()=>reconcileDeadlineFieldValues(source,[{...batch,results:[{...result,receiptRef:'OTHER'}]}]))
+  .toThrow('SUBMISSION_FIELD_RECONCILIATION_SCOPE')
+ const pending=reconcileDeadlineFieldValues(source,[{...batch,results:[{...result,state:'STAGE_REQUIRED',observedStage:'SAVED'}]}])
+ expect(pending.items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',
+  fields:[{state:'PENDING',observationRef:'OBS',receiptRef:null}]})
  current=false
  expect(()=>linked.assertCurrent()).toThrow('BATCH_STALE')
 })

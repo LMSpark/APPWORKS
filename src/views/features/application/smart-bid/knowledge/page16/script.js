@@ -47,8 +47,8 @@ async function openKnowledgeGuide(row, _column, _event, control) {
   const generation = ++knowledgeGeneration
   try {
     const rowKey = $page.resolveView(current.dataViewKey)?.getPkKey(row)
-    if (typeof rowKey !== 'string' || !rowKey) return
-    const result = await current.readGuide(rowKey)
+    if (rowKey === undefined) return
+    const result = await current.readGuide(rowKey, row)
     if (generation !== knowledgeGeneration || currentKnowledgeDirectory() !== current) return
     result.assertCurrent()
     const lines = [`指南 ${result.guideRef} · 版本 ${result.versionRef}`, `目录路径 ${result.pathRefs.join(' / ')}`]

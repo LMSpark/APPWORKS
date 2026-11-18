@@ -77,13 +77,15 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
    return Object.freeze({dataViewKey,
     count:discovery.items.length,reachable:discovery.items.filter(item=>item.state==='REACHABLE').length,
     assertCurrent:discovery.assertCurrent,
-    async readGuide(rowKey:string){
+    async readGuide(rowKey:string|number,selection:unknown){
      discovery.assertCurrent()
      const view=runtime.resolveView(dataViewKey)
      const row=view?.rows.find(item=>view.getPkKey(item)===rowKey)
      const entry=discovery.items.find(item=>row?.['guideRef']===item.guideRef&&row['versionRef']===item.versionRef&&
       row['kind']===item.kind&&row['actionName']===item.actionName)
-     if(!row||!entry)throw Error('OPERATION_PAGE_GUIDE_ROW_REQUIRED')
+     const versionFields=['guideRef','versionRef','guideDigest','kind','actionName'] as const
+     if(!row||!entry||!isRecord(selection)||versionFields.some(field=>selection[field]!==row[field]))
+      throw Error('OPERATION_PAGE_GUIDE_ROW_REQUIRED')
      const {source,publicationRef}=row
      if(source!=='ENTERPRISE'&&(source!=='PUBLIC'||!identity(publicationRef)))
       throw Error('OPERATION_PAGE_GUIDE_ROW_REQUIRED')

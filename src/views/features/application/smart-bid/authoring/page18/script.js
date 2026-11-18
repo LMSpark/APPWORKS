@@ -146,8 +146,8 @@ async function readGuide(row, _column, _event, control) {
   const generation = ++selectionGeneration
   try {
     const rowKey = $page.resolveView(current.dataViewKey)?.getPkKey(row)
-    if (typeof rowKey !== 'string' || !rowKey) return
-    const guide = await current.readGuide(rowKey)
+    if (rowKey === undefined) return
+    const guide = await current.readGuide(rowKey, row)
     if (generation !== selectionGeneration || currentDirectory() !== current) return
     guide.assertCurrent()
     await $page.showAlert(guide.guide, '动作指南')

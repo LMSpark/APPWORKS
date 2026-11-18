@@ -11642,3 +11642,5 @@ flowchart TD
 - Excel 版式回调修复后，根 pnpm run typecheck 及版式面板和对应回归的 ESLint 均退出0。
 - Excel 实际导入入口核对：正式端点目录区分 sheet.importExcel（文件、encodingId、params、values）和 sheet.importExcelData（文件、sheetConfigs），两者响应均为 AjaxResult<unknown>。在 src 与 packages 业务实现搜索端点、encodingId、sheetConfigs 未发现对应消费；目录已证实的模板上传和方案编辑不能证明业务导入。当前没有该链可用的任务号/原请求回查合同证据，本轮零派发，业务结果仍待。
 - Excel 导入合同复核（对照本台账6463、6977及 SheetDataController 端点目录）：按已保存方案的参考执行器使用 sheet.importExcel。参考实现成功文案不含原请求号；业务行 lingma_sys_task_id、导入主账和明细、事务外归档须分别独立核实。当前仓内端点清单的 /api/import/void 仅有来源标记，不能据以确认清理附件，现有模板上传证据也未执行导入。实服与原请求核验仍待，未派发。
+- Excel OFF/ON 导出证据复核：2026-11-06-excel-export-offon-runtime.json 保存工作簿摘要、大小与当时解析的单元格；KEY/VALUE 表头下关闭转换有1行、开启有2行。在当前 Git 跟踪文件及未忽略的未跟踪文件中按大小和 SHA-256 核对，两份工作簿均未命中。因此本次可复核历史记录内容，不能声称本次独立重新解析原 XLSX 或验证当前部署。
+- Excel 导出能力归属补证：spark-data 的 CrudService.exportData 已通过 requestFull 和 responseType=blob 返回 CrudResult<Blob>，依赖配置的导出 endpoint，按 query params 发送。sheet.exportExcel 端点声明 POST 及 fileName/encodingId/params；历史 OFF/ON 探针以 FormData 调用。两种传参在当前部署的等价性、业务调用处的已保存方案与本次数据范围仍待验证。历史记录 fixtureRemaining=false，清理后规则、节点、字段精确查询为0，不能将其旧ID用于当前实服验收。

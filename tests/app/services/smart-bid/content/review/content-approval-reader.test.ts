@@ -1,6 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {readContentApproval} from '@/views/features/application/smart-bid/authoring/model/review/content-approval-reader'
+import {readContentApproval,readContentApprovals} from '@/views/features/application/smart-bid/authoring/model/review/content-approval-reader'
 import {readApprovalCoverageEvidence} from '@/views/features/application/smart-bid/authoring/model/review/content-approval-coverage'
 import {readContentReviewCoverage} from '@/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
@@ -56,5 +56,39 @@ it('reads the original approval by exact identity and refuses an unreadable auth
   expect(()=>coverage.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(()=>review.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(save).not.toHaveBeenCalled()
+ }finally{ds.destroy()}
+})
+
+it('retains joint proof of the requested approval decisions for one project and query generation',async()=>{
+ const shared={projectId:'P',nodeId:'D',scope:'DOCUMENT',effectiveHash:'a'.repeat(64),revisionId:'R',approverId:'U',
+  note:'',createdAt:'2026-11-18',actorKind:'HUMAN',authorityRef:'AUTH'}
+ const rows=['B','A'].map(id=>({...shared,id,decisionTraceRef:`TRACE-${id}`}))
+ const ds=DataSet.fromJson({scenarioId:'S',tables:{Approval:{modelBinding:{modelId:'M',modelName:'Approval'},
+  columns:Object.keys(rows[0]!).map(name=>({name,isPrimaryKey:name==='id'})),views:{default:{},
+   selectedContentApprovals:{commitMode:'staged',queryConfig:{autoQuery:false,allPages:true,pagination:'paged'},
+    scopeFilter:{logic:'and',filters:[{field:'projectId',operator:'eq',value:{Type:'GetInputParam',ParamName:'projectId'}}]}}}}}})
+ const view=ds.getView('Approval','selectedContentApprovals')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'Approval'})
+ const executeQuery=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',
+  snapshot:table.applyResult({Result:{primaryKeyField:'id',data:{Count:rows.length,Items:rows.map(item=>({
+   ...item,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false},
+  }))}}})}))
+ view.bindQueryExecutor({executeQuery,save:async()=>{throw Error('NO_WRITE')}})
+ const host={runtime:{resolveView:(key:string)=>key==='S@Approval@selectedContentApprovals'?view:undefined},
+  scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
+ try{
+  const approvals=await readContentApprovals(host,['A','B'])
+  expect(approvals.map(item=>item.approvalRef)).toEqual(['A','B'])
+  expect(executeQuery).toHaveBeenCalledOnce()
+  const proofs=await Promise.all(approvals.map(approval=>readApprovalCoverageEvidence(approval,async decisionTraceRef=>({
+   projectId:'P',revisionId:'R',approvalRef:approval.approvalRef,authorityRef:'AUTH',decisionTraceRef,
+   approvalEffectiveHash:shared.effectiveHash,approvedTargets:[
+    {kind:'FILE',targetId:decisionTraceRef,effectiveHash:'b'.repeat(64),versionHash:'c'.repeat(64)},
+   ],assertCurrent:()=>{},
+  }))))
+  expect(proofs.map(proof=>proof.evidence[0]?.targetId)).toEqual(['TRACE-A','TRACE-B'])
+  for(const proof of proofs)expect(()=>proof.assertCurrent()).not.toThrow()
+  rows[0]!.projectId='OTHER'
+  await expect(readContentApprovals(host,['A','B'])).rejects.toThrow('CONTENT_APPROVAL_UNAVAILABLE')
+  for(const proof of proofs)expect(()=>proof.assertCurrent()).toThrow()
  }finally{ds.destroy()}
 })

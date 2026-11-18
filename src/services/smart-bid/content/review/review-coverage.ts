@@ -28,23 +28,36 @@ function index<T extends Target>(records:readonly T[]):Map<string,T>{
 export function compareReviewCoverage(input:Readonly<{
  targets:readonly ReviewTarget[];approvals:readonly ApprovalEvidence[];checks:readonly ReviewCheck[]
 }>){
- const targets=index(input.targets),approvals=index(input.approvals),checks=index(input.checks)
- for(const id of [...approvals.keys(),...checks.keys()])if(!targets.has(id))throw Error('CONTENT_REVIEW_COVERAGE_SCOPE')
+ const targets=index(input.targets),checks=index(input.checks)
+ const approvals=new Map<string,Map<string,ApprovalEvidence>>()
+ for(const approval of input.approvals){
+  const id=key(approval)
+  if(!targets.has(id)||!/^[a-f0-9]{64}$/u.test(approval.effectiveHash)||!/^[a-f0-9]{64}$/u.test(approval.versionHash))
+   throw Error('CONTENT_REVIEW_COVERAGE_SCOPE')
+  const candidates=approvals.get(id)??new Map<string,ApprovalEvidence>()
+  if(!identity(approval.approvalRef)||candidates.has(approval.approvalRef))throw Error('CONTENT_REVIEW_COVERAGE_EVIDENCE')
+  candidates.set(approval.approvalRef,approval)
+  approvals.set(id,candidates)
+ }
+ for(const id of checks.keys())if(!targets.has(id))throw Error('CONTENT_REVIEW_COVERAGE_SCOPE')
  const items=[...targets].map(([id,target])=>{
-  const approval=approvals.get(id),check=checks.get(id)
+  const candidates=[...(approvals.get(id)?.values()??[])],check=checks.get(id)
+  const matching=candidates.filter(approval=>approval.effectiveHash===target.effectiveHash&&approval.versionHash===target.versionHash)
+  const matchingApprovalRefs=Object.freeze(matching.map(approval=>approval.approvalRef).sort())
   const uses=new Set(check?.checkedUses.map(item=>item.id))
   if(!target.requiredUseIds.every(identity)||new Set(target.requiredUseIds).size!==target.requiredUseIds.length||
-   approval&&!identity(approval.approvalRef)||check&&(!identity(check.checkRef)||!check.openBlockerIds.every(identity)||
+   check&&(!identity(check.checkRef)||!check.openBlockerIds.every(identity)||
    uses.size!==check.checkedUses.length||!check.checkedUses.every(item=>identity(item.id)&&identity(item.useCheckRef))))
    throw Error('CONTENT_REVIEW_COVERAGE_EVIDENCE')
   let state:CoverageState='COVERED'
   if(check?.effectiveHash!==target.effectiveHash||check.versionHash!==target.versionHash)state='CHECK_REQUIRED'
   else if(check.openBlockerIds.length)state='BLOCKED'
-  else if(!approval)state='NO_APPROVAL'
-  else if(approval.effectiveHash!==target.effectiveHash||approval.versionHash!==target.versionHash)state='CHANGED'
+  else if(!candidates.length)state='NO_APPROVAL'
+  else if(!matching.length)state='CHANGED'
   else if(target.requiredUseIds.some(useId=>!uses.has(useId)))state='USE_CHECK_REQUIRED'
   return Object.freeze({kind:target.kind,targetId:target.targetId,effectiveHash:target.effectiveHash,versionHash:target.versionHash,state,
-   approvalRef:approval?.approvalRef??null,checkRef:check?.checkRef??null})
+   approvalRef:(matching.length===1?matching[0]:matching.length===0&&candidates.length===1?candidates[0]:undefined)?.approvalRef??null,
+   matchingApprovalRefs,checkRef:check?.checkRef??null})
  })
  return Object.freeze({complete:items.length>0&&items.every(item=>item.state==='COVERED'),items:Object.freeze(items)})
 }

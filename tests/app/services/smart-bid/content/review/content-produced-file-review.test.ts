@@ -1,7 +1,8 @@
 import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
-import {readProducedFileReviewVersion,readRegisteredProducedFileReviewVersion} from '@/views/features/application/smart-bid/authoring/model/review/content-produced-file-review'
+import {readProducedFileReviewVersion,readRegisteredProducedFileReviewVersion,readRegisteredProducedFileReviewVersions} from '@/views/features/application/smart-bid/authoring/model/review/content-produced-file-review'
 import {DataSet} from '@spark-appworks/spark-data'
+import {readContentReviewWorkspace} from '@/views/features/application/smart-bid/authoring/model/review/content-review-workspace'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -21,6 +22,50 @@ it('reopens exactly the fixed production output and independently verifies its b
   .rejects.toThrow('CONTENT_PRODUCED_FILE_HASH_MISMATCH')
  current=false
  expect(()=>verified.assertCurrent()).toThrow('PRODUCTION_STALE')
+})
+
+it('keeps both original file versions current from one complete read and rejects mixed request rows',async()=>{
+ const bytes=new TextEncoder().encode('registered file')
+ const fileHash=createHash('sha256').update(bytes).digest('hex')
+ const targets=[{producedFileId:'F1',productionRequestRef:'REQ1'},{producedFileId:'F2',productionRequestRef:'REQ2'}]
+ const rows=targets.map(({producedFileId:id,productionRequestRef})=>({id,productionRequestRef,projectId:'P',
+  revisionId:'R',documentId:'D',fileHash,resourceVersionId:id,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}})).reverse()
+ const ds=DataSet.fromJson({scenarioId:'S',tables:{ProducedFile:{
+  modelBinding:{modelId:'M',modelName:'ProducedFile'},columns:Object.keys(rows[0]!).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},selectedReviewFiles:{commitMode:'staged',queryConfig:{autoQuery:false,allPages:true,pagination:'paged'},
+   scopeFilter:{logic:'and',filters:[{field:'projectId',operator:'eq',value:{Type:'GetInputParam',ParamName:'projectId'}}]}}},
+ }}})
+ const view=ds.getView('ProducedFile','selectedReviewFiles')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ProducedFile'})
+ const executeQuery=vi.fn(async()=>new DataSpaceQueryContext({
+  identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',
+   data:{Count:2,Items:rows}}}),
+ }))
+ view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery})
+ const host={runtime:{resolveView:()=>view},scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
+ const open=vi.fn(async({resourceVersionId}:{resourceVersionId:string})=>({projectId:'P',resourceVersionId,
+  bytes:bytes.buffer,assertCurrent:()=>{}}))
+ try{
+  const versions=await readRegisteredProducedFileReviewVersions(host,targets,open)
+  expect(versions.map(item=>item.producedFileId)).toEqual(['F1','F2'])
+  expect(executeQuery).toHaveBeenCalledOnce()
+  for(const version of versions)expect(()=>version.assertCurrent()).not.toThrow()
+  const scope={projectId:'P',revisionId:'R',files:targets,approvalIds:[],assertCurrent:()=>{},
+   targets:targets.map(({producedFileId})=>({kind:'FILE' as const,targetId:producedFileId,effectiveHash:fileHash,requiredUseIds:[]}))}
+  const review=await readContentReviewWorkspace(host,scope,{
+   openFile:open,readField:async()=>{throw Error('UNEXPECTED_FIELD')},
+   readDecision:async()=>{throw Error('UNEXPECTED_APPROVAL')},
+   readCompleted:async input=>{
+    expect(input.targets.map(target=>target.versionHash)).toEqual([fileHash,fileHash])
+    return {projectId:'P',revisionId:'R',completed:[],resolveAnchor:()=>{throw Error('UNEXPECTED_FINDING')},assertCurrent:()=>{}}
+   },
+  })
+  expect(review.items.map(item=>item.state)).toEqual(['CHECK_REQUIRED','CHECK_REQUIRED'])
+  rows[0]!.productionRequestRef='OTHER'
+  await expect(readRegisteredProducedFileReviewVersions(host,targets,open)).rejects.toThrow('CONTENT_PRODUCED_FILE_SCOPE')
+  expect(open).toHaveBeenCalledTimes(4)
+  expect(()=>review.assertCurrent()).toThrow()
+  for(const version of versions)expect(()=>version.assertCurrent()).toThrow()
+ }finally{ds.destroy()}
 })
 
 it('opens only the original registered resource version read through SPARK data',async()=>{

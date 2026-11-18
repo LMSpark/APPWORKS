@@ -12,6 +12,16 @@ it('keeps file approval separate from an independent platform field with the sam
  expect(result.complete).toBe(false)
 })
 
+it('keeps exact approved versions distinct from historical versions without selecting by return order',()=>{
+ const older={...approval,approvalRef:'OLD',versionHash:'d'.repeat(64)}
+ const other={...approval,approvalRef:'SECOND'}
+ const compare=(approvals:readonly typeof approval[])=>compareReviewCoverage({targets:[file],checks:[check],approvals}).items[0]
+ expect(compare([older,approval])).toMatchObject({state:'COVERED',approvalRef:'APPROVAL',matchingApprovalRefs:['APPROVAL']})
+ expect(compare([other,older,approval])).toMatchObject({state:'COVERED',approvalRef:null,matchingApprovalRefs:['APPROVAL','SECOND']})
+ expect(compare([older])).toMatchObject({state:'CHANGED',matchingApprovalRefs:[]})
+ expect(()=>compare([approval,{...older,approvalRef:approval.approvalRef}])).toThrow('CONTENT_REVIEW_COVERAGE_EVIDENCE')
+})
+
 it('requires current zero-blocker and use evidence before treating an approval as covered',()=>{
  const state=(checks:Parameters<typeof compareReviewCoverage>[0]['checks'])=>
   compareReviewCoverage({targets:[file],approvals:[approval],checks}).items[0]?.state

@@ -11,6 +11,8 @@
       <RendererButton label="刷新" icon="Refresh" :disabled="loading" @click="refreshCatalog" />
       <RendererButton v-if="historyAvailable" label="核验历史" :disabled="loading || historyLoading" @click="openHistory" />
     </template>
+    <RendererButton v-for="id in pendingRequests" :key="id" :label="'核验原请求 ' + id"
+      :disabled="resultLoading || pendingExecution()" @click="router.push(resolveInspectionRecoveryUrl(id))" />
     <p v-if="ready && catalogScope" role="status">请进入已授权应用后设计规则或发起核验。</p>
     <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :stripe="true" :border="true"
       :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
@@ -70,7 +72,7 @@ import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect
 import {PDF_INSPECTION_HISTORY_TABLE} from '@/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings'
 import {readPdfExecutionRule} from '@/lowcode/resources/semi-structured/pdf-inspect/execution-rule'
 import {cancelPdfInspectionFile, PDF_INSPECTION_UPLOAD_TABLE, stagePdfInspectionFile} from '@/lowcode/resources/semi-structured/pdf-inspect/upload-command'
-import {PDF_INSPECTION_INIT_TABLE, settlePdfInspectionTask, stagePdfInspectionTask} from '@/lowcode/resources/semi-structured/pdf-inspect/init-command'
+import {PDF_INSPECTION_INIT_TABLE, pendingPdfInspectionRequests, settlePdfInspectionTask, stagePdfInspectionTask} from '@/lowcode/resources/semi-structured/pdf-inspect/init-command'
 import {APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath, parseApplicationPathScope, resolveExecutionProjectId} from '@/services/application-scope'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
@@ -130,6 +132,7 @@ const limitsKey = computed(() => buildDataViewKey('PdfInspectionLimits', 'defaul
 const uploadKey = computed(() => buildDataViewKey(PDF_INSPECTION_UPLOAD_TABLE, 'default', scenarioId.value))
 const resultKey = computed(() => buildDataViewKey('PdfInspectionResult', 'default', scenarioId.value))
 const recoveryKey = computed(() => buildDataViewKey('PdfInspectionRecovery', 'default', scenarioId.value))
+const pendingRequests = ref<string[]>([])
 const recoveryRequest = computed(() => route.query['pdfInspectionRequestId'])
 const historyAvailable = ref(false), historyOpen = ref(false), historyLoading = ref(false), historyError = ref('')
 const resultOpen = ref(false), resultLoading = ref(false), resultReady = ref(false), resultError = ref('')
@@ -375,6 +378,7 @@ async function openEditor(): Promise<void> {
 }
 watch([scenarioId, catalogScope], async ([id, inCatalog]) => {
   const own = ++generation
+  pendingRequests.value = []
   ready.value = false; loading.value = true; error.value = ''
   historyAvailable.value = false; historyOpen.value = false; historyLoading.value = false; historyError.value = ''
   executionAvailable.value = false; preparationOpen.value = false; preparing.value = false; preparationReady.value = false; preparationError.value = ''
@@ -398,6 +402,7 @@ watch([scenarioId, catalogScope], async ([id, inCatalog]) => {
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: () => revision.value++})
     if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); ready.value = true}
     dataSet.triggerAutoLoad()
+    if (executionAvailable.value) pendingRequests.value = pendingPdfInspectionRequests(dataSet, resolveInspectionRecoveryUrl)
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})

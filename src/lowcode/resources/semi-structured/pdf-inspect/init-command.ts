@@ -19,7 +19,7 @@ export const PDF_INSPECTION_INIT_TABLE = 'PdfInspectionInit'
 type InitInput = Readonly<{configId: string; uploadIds: readonly string[]; assertRule: () => void;
   resolveRecoveryUrl: (requestId: string) => string}>
 /** 初始化适配与当前命令视图，只暂存一次原输入许可。 */
-type Binding = {view: DataView; resource: PdfInspectionInitResource; pending?: InitInput; activeId?: string; staging: boolean}
+type Binding = {view: DataView; resource: PdfInspectionInitResource; openJournal: (resolveUrl: InitInput['resolveRecoveryUrl']) => PdfInspectionRecoveryJournal; pending?: InitInput; activeId?: string; staging: boolean}
 /** 正式场景和当前认证域提供初始化及恢复存储。 */
 type Options = ConstructorParameters<typeof PdfInspectionApi>[0] & Readonly<{
   config: ScenarioViewConfig; assertCurrent: () => void; readOwner: () => PdfInspectionRecoveryOwner;
@@ -43,6 +43,10 @@ function bindInit(view: DataView, input: Options) {
   const dataSet = view.dataSet
   if (dataSet?.scenarioId !== PDF_INSPECTION_SCENARIO_ID || view.viewId !== 'default' || bindings.has(dataSet)) {
     throw Error('PDF_INSPECTION_INIT_BINDING: 原命令实例不匹配')
+  }
+  const openJournal = (resolveUrl: InitInput['resolveRecoveryUrl']) => {
+    input.assertCurrent()
+    return new PdfInspectionRecoveryJournal({storage: input.readStorage(), owner: input.readOwner(), resolveUrl})
   }
   let journal: PdfInspectionRecoveryJournal | undefined
   const currentJournal = () => {
@@ -68,11 +72,11 @@ function bindInit(view: DataView, input: Options) {
       const uploads = pending.uploadIds.map(id => capturePdfInspectionUpload(dataSet, id))
       const assertReady = () => {pending.assertRule(); for (const upload of uploads) upload.assertCurrent()}
       assertReady()
-      journal = new PdfInspectionRecoveryJournal({storage: input.readStorage(), owner: input.readOwner(), resolveUrl: pending.resolveRecoveryUrl})
+      journal = openJournal(pending.resolveRecoveryUrl)
       return {input: {requestId, configId: pending.configId, files: uploads.map(upload => upload.input)}, assertReady}
     },
   })
-  const binding: Binding = {resource, view, staging: false}
+  const binding: Binding = {resource, view, openJournal, staging: false}
   const result = resource.binding(view)
   bindings.set(dataSet, binding)
   return result
@@ -104,4 +108,9 @@ export function settlePdfInspectionTask(dataSet: DataSet, requestId: string): vo
   if (binding?.activeId !== requestId) throw Error('PDF_INSPECTION_INIT_BINDING: 原命令未绑定')
   binding.resource.settleConfirmed(binding.view, requestId)
   delete binding.activeId
+}
+
+/** 枚举本次实例拥有者的原请求定位。任务结果仍从恢复视图查询。 */
+export function pendingPdfInspectionRequests(dataSet: DataSet, resolveUrl: InitInput['resolveRecoveryUrl']): string[] {
+  return bindings.get(dataSet)?.openJournal(resolveUrl).pending().map(pointer => pointer.requestId) ?? []
 }

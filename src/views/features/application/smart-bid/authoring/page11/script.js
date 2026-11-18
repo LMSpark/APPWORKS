@@ -28,6 +28,13 @@ async function openOriginalAdoption() {
     result.assertCurrent()
     const lines = result.recordFound ? [`原采用记录 ${result.adoptionRef} · 修订 ${result.mergeRevisionId}`,
       result.commitCheckRef ? `登记引用的提交核验 ${result.commitCheckRef}` : '提交核验引用待补'] : ['未查到原采用记录']
+    if (result.revisionEvidence === 'SNAPSHOT_VERIFIED') {
+      lines.push(`已核合并修订快照 · 基线 ${result.baselineId} · 节点 ${result.nodeCount} 个`)
+    } else if (result.revisionEvidence === 'REVISION_READ') {
+      lines.push('已回读合并修订，快照待核')
+    } else if (result.revisionEvidence === 'UNVERIFIED') {
+      lines.push('合并修订待核')
+    }
     lines.push('原办理终态待核')
     await $page.showAlert(lines.join('\n'), '原采用回查')
   } catch {

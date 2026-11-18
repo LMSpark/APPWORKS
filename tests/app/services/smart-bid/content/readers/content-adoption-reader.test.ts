@@ -1,12 +1,25 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
-import {readContentAdoption} from '@/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader'
+import {inspectRegisteredAdoption,readContentAdoption} from '@/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader'
 import {prepareAdoptedProduction} from '@/views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 const request={candidateRevisionId:'C',requestKey:'K',requestDigest:'D',previewRef:'PV'}
+it('reports snapshot and revision evidence separately from original registration',async()=>{
+ const f=fixture()
+ try{
+  const complete=await inspectRegisteredAdoption(f.host,request)
+  expect(complete).toMatchObject({recordFound:true,revisionEvidence:'SNAPSHOT_VERIFIED',baselineId:'B',nodeCount:0})
+  f.snapshotQuery.mockRejectedValueOnce(Error('SNAPSHOT_UNAVAILABLE'))
+  expect(await inspectRegisteredAdoption(f.host,request)).toMatchObject({adoptionRef:'A',revisionEvidence:'REVISION_READ'})
+  f.revisionQuery.mockRejectedValueOnce(Error('REVISION_UNAVAILABLE'))
+  expect(await inspectRegisteredAdoption(f.host,request)).toMatchObject({adoptionRef:'A',revisionEvidence:'UNVERIFIED'})
+  expect(()=>complete.assertCurrent()).toThrow()
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
 it('will not prepare formal production from an adopted index without matching commit evidence',async()=>{
  const f=fixture()
  try{

@@ -53,3 +53,26 @@ export async function readContentAdoption(host:ContentRevisionReadHost,input:Con
    return Object.freeze({...merge,readSnapshot:()=>readAdoptionSnapshot(boundHost,merge)})
   }})
 }
+
+/** 分别核原登记、合并修订和快照；下游缺证时仍交可用的原登记。 */
+export async function inspectRegisteredAdoption(host:ContentRevisionReadHost,input:ContentAdoptionSelection){
+ const original=await readContentAdoption(host,input)
+ if(!original.recordFound)return original
+ let merge:Awaited<ReturnType<typeof original.readMergeRevision>>
+ try{
+  merge=await original.readMergeRevision()
+  merge.assertCurrent()
+ }catch{
+  original.assertCurrent()
+  return Object.freeze({...original,revisionEvidence:'UNVERIFIED' as const})
+ }
+ try{
+  const snapshot=await merge.readSnapshot()
+  snapshot.assertCurrent()
+  return Object.freeze({...original,revisionEvidence:'SNAPSHOT_VERIFIED' as const,baselineId:snapshot.snapshot.index.baselineId,
+   nodeCount:snapshot.snapshot.index.nodes.length,assertCurrent:snapshot.assertCurrent})
+ }catch{
+  merge.assertCurrent()
+  return Object.freeze({...original,revisionEvidence:'REVISION_READ' as const,assertCurrent:merge.assertCurrent})
+ }
+}

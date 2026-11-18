@@ -85,11 +85,23 @@ export async function bindDraftCandidateFactEvidence(request:Awaited<ReturnType<
  const {factDependencyHash,factVersions,responseVersions}=facts
  const error='CONTENT_DRAFT_CANDIDATE_FACT_EVIDENCE'
  if(!/^[a-f0-9]{64}$/u.test(factDependencyHash))throw Error(error)
+ const fixedFacts=readBaselineFactMembers(factVersions)
+ if(request.factVersions.some(({factId,version})=>fixedFacts.get(factId)!==version))throw Error(error)
+ const expectedResponses=new Map(request.responseChanges.flatMap(({assignmentId,responseId})=>
+  responseId===null?[]:[[assignmentId,responseId] as const]))
+ for(const {assignmentId,responseId,payloadHash} of responseVersions){
+  if(expectedResponses.get(assignmentId)!==responseId||!/^[a-f0-9]{64}$/u.test(payloadHash))throw Error(error)
+  expectedResponses.delete(assignmentId)
+ }
+ if(expectedResponses.size)throw Error(error)
+ const pinnedResponseVersions=Object.freeze(responseVersions.map(({responseId,assignmentId,payloadHash})=>
+  Object.freeze({responseId,assignmentId,payloadHash}))
+  .sort((left,right)=>left.responseId<right.responseId?-1:left.responseId>right.responseId?1:0))
  const parsed:unknown=JSON.parse(request.requestJson)
  const input=snapshotReferenceRecord(parsed,error)
- const requestJson=canonicalSnapshotValue({...input,factDependencyHash,factVersions,responseVersions})
+ const requestJson=canonicalSnapshotValue({...input,factDependencyHash,factVersions,responseVersions:pinnedResponseVersions})
  const requestDigest=await hashCanonicalSnapshotText(`["spark-bid.draft-candidate/1",${requestJson}]`)
  assertCurrent()
  return Object.freeze({...request,requestJson,requestDigest,factDependencyHash,factVersions:Object.freeze([...factVersions]),
-  requiresFactUseCheck:true as const,requiresResponseUseCheck:responseVersions.length>0,assertCurrent})
+  responseVersions:pinnedResponseVersions,requiresFactUseCheck:true as const,requiresResponseUseCheck:pinnedResponseVersions.length>0,assertCurrent})
 }

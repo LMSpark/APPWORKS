@@ -42,3 +42,31 @@ export async function prepareTenderFollowupNotice(scope:Scope,notice:Notice){
  return Object.freeze({record,digest,objectState:originalObjectRef===null?'PENDING_PAIR':'IDENTIFIED',
   scopeState:permittedScopeRef===null?'PENDING_SCOPE':'REQUIRES_INTERPRETATION',assertCurrent:()=>notice.assertCurrent()})
 }
+
+/** 按同一原通知归并取得记录，维持原文件版本、事实范围和各入口线索。 */
+export async function mergeTenderFollowupNoticeReads(scope:Scope,reads:readonly Notice[]){
+ const source=[...reads]
+ if(!source.length)throw Error('TENDER_FOLLOWUP_SCOPE')
+ const checked:Array<Awaited<ReturnType<typeof prepareTenderFollowupNotice>>>=[]
+ for(const notice of source)checked.push(await prepareTenderFollowupNotice(scope,notice))
+ const first=checked[0]
+ if(!first)throw Error('TENDER_FOLLOWUP_SCOPE')
+ const eventRecord=(record:typeof first.record)=>{
+  const {sourceRef:_source,knownAt:_known,...event}=record
+  return event
+ }
+ const event=eventRecord(first.record)
+ const encoded=canonicalSnapshotValue(['spark-bid.followup-event/1',event])
+ const origins=new Map<string,string>()
+ for(const {record} of checked){
+  if(canonicalSnapshotValue(['spark-bid.followup-event/1',eventRecord(record)])!==encoded)
+   throw Error('TENDER_FOLLOWUP_SOURCE_CONFLICT')
+  const prior=origins.get(record.sourceRef)
+  if(prior===undefined||times(record.knownAt)<times(prior))origins.set(record.sourceRef,record.knownAt)
+ }
+ const eventDigest=await hashCanonicalSnapshotText(encoded)
+ const assertCurrent=()=>{for(const read of checked)read.assertCurrent()}
+ assertCurrent()
+ return Object.freeze({event:Object.freeze(event),eventDigest,
+  origins:Object.freeze([...origins].map(([sourceRef,knownAt])=>Object.freeze({sourceRef,knownAt}))),assertCurrent})
+}

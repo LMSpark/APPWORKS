@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {prepareTenderFollowupNotice} from '@/services/smart-bid/content/references/followup/tender-followup-notice'
+import {mergeTenderFollowupNoticeReads,prepareTenderFollowupNotice} from '@/services/smart-bid/content/references/followup/tender-followup-notice'
 
 it('retains a formal notice and deadline while the historical package and scope are still pending',async()=>{
  const scope={projectId:'P',lotId:'L',roundId:'R',subjectId:'ORG',stageId:'FOLLOW-UP'}
@@ -16,4 +16,9 @@ it('retains a formal notice and deadline while the historical package and scope 
   change:'CORRECTION',previousNoticeRef:'NOTICE'})
  expect(correction.record.previousNoticeRef).toBe('NOTICE')
  expect(correction.digest).not.toBe(original.digest)
+ const later={...line,sourceRef:'PORTAL-RECORD',knownAt:'2026-11-18T11:30:00+08:00'}
+ const same=await mergeTenderFollowupNoticeReads(scope,[line,later])
+ expect(same.eventDigest).toBe((await mergeTenderFollowupNoticeReads(scope,[later])).eventDigest)
+ expect(same.origins).toEqual([{sourceRef:line.sourceRef,knownAt:line.knownAt},{sourceRef:later.sourceRef,knownAt:later.knownAt}])
+ await expect(mergeTenderFollowupNoticeReads(scope,[line,{...later,replyDueAt:null}])).rejects.toThrow('TENDER_FOLLOWUP_SOURCE_CONFLICT')
 })

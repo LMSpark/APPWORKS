@@ -75,7 +75,16 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
     if(recovered.state!=='SIGNED')return recovered
     const prepared=await prepareSignedOutputRegistration(selection.original,selection.receipt,recovered,selection.open)
     const registration=await readOriginalSignedRegistration({...scope,runtime,assertCurrent:assertSelection},prepared)
-    if(registration.state==='REGISTERED')return Object.freeze({...registration,state:'SIGNED_REGISTERED' as const})
+    if(registration.state==='REGISTERED'){
+     const registered=registration.resourceVersionId===prepared.record.resourceVersionId?prepared:
+      await prepareSignedOutputRegistration(selection.original,{
+       ...selection.receipt,resourceVersionId:registration.resourceVersionId,
+       assertCurrent:()=>{selection.receipt.assertCurrent();registration.assertCurrent()},
+      },recovered,selection.open)
+     const assertRegistered=()=>{registration.assertCurrent();registered.assertCurrent()}
+     assertRegistered()
+     return Object.freeze({...registration,state:'SIGNED_REGISTERED' as const,assertCurrent:assertRegistered})
+    }
     return Object.freeze({state:'PREPARED' as const,...prepared,assertCurrent:registration.assertCurrent})
    }
    if(name==='content.review.readExportRegistration'&&sources.readExportRegistrationSelection){

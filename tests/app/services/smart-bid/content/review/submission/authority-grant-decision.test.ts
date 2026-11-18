@@ -106,9 +106,13 @@ it('binds a revocation to its authority, affected scope and original version',as
   registrationView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:fileTable.identity,scope:'produced',readScope:()=> 'produced',
    snapshot:fileTable.applyResult({Result:{primaryKeyField:'id',data:{Count:registered?1:0,
-    Items:registered?[{...receipt,id:'REGISTERED',lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]:[]}}}),
+    Items:registered?[{...receipt,id:'REGISTERED',resourceVersionId:'REGISTERED-RESOURCE',
+     lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]:[]}}}),
   })})
-  const open=vi.fn(async()=>({projectId:'P',resourceVersionId:'RESOURCE',bytes,assertCurrent:evidence.assertCurrent}))
+  let invalidRegisteredBytes=false
+  const open=vi.fn(async({resourceVersionId}:{resourceVersionId:string})=>({projectId:'P',resourceVersionId,
+   bytes:invalidRegisteredBytes&&resourceVersionId==='REGISTERED-RESOURCE'?new ArrayBuffer(1):bytes,
+   assertCurrent:evidence.assertCurrent}))
   const unused=async()=>{throw Error('UNEXPECTED_REVIEW_CALL')}
   const review=createContentReviewScriptHost({resolveView:key=>key==='S@ProducedFile@originalSignedRegistration'?registrationView:signatureView,
    generation:1,isLoaded:true,destroyed:false},
@@ -130,7 +134,11 @@ it('binds a revocation to its authority, affected scope and original version',as
   expect(open).toHaveBeenCalledOnce()
   registered=true
   await expect(review.invoke('content.review.prepareSignedRegistration',{selectionRef:'FILE'},reviewSignal))
-   .resolves.toMatchObject({state:'SIGNED_REGISTERED',producedFileId:'REGISTERED'})
+   .resolves.toMatchObject({state:'SIGNED_REGISTERED',producedFileId:'REGISTERED',resourceVersionId:'REGISTERED-RESOURCE'})
+  expect(open).toHaveBeenLastCalledWith({projectId:'P',resourceVersionId:'REGISTERED-RESOURCE'})
+  invalidRegisteredBytes=true
+  await expect(review.invoke('content.review.prepareSignedRegistration',{selectionRef:'FILE'},reviewSignal))
+   .rejects.toThrow('BID_SIGNED_OUTPUT_HASH')
  }finally{signatures.destroy()}
  await expect(prepareSignatureRequest({...signature,actionAt:source.knownAt},signatureBasis,permitted))
   .rejects.toThrow('BID_SIGNATURE_AUTHORITY_REQUIRED')

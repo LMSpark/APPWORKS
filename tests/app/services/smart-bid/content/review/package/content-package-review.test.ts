@@ -22,7 +22,7 @@ it('verifies the sealed bytes before enumerating and compares independently read
  expect(result.membershipMatches).toBe(true)
  const at='2026-11-18T10:00:00+08:00'
  const deadline=reconcileSubmissionDeadline({cutoffAt:at,knownAt:at,obligationIds:['O'],effects:[
-  {kind:'RECEIVED',eventRef:'REC',obligationId:'O',attemptRef:'SEND',effectiveAt:at,knownAt:at},
+  {kind:'RECEIVED',eventRef:'REC',obligationId:'O',attemptRef:'SEND',effectiveAt:'2026-11-18T09:00:00+08:00',knownAt:at},
  ]})
  const link={obligationId:'O',attemptRef:'SEND',packageId:'PKG',packageHash:source.packageHash,position:record.position,assertCurrent:()=>{}}
  const reconcile=(selected:typeof link)=>reconcileDeadlinePackageMembers({
@@ -31,6 +31,20 @@ it('verifies the sealed bytes before enumerating and compares independently read
  expect(reconcile(link).items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',contentState:'MATCHED'})
  expect(reconcile({...link,attemptRef:'OTHER'}).items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',contentState:'PENDING'})
  expect(reconcile({...link,packageHash:'a'.repeat(64)}).items[0]?.contentState).toBe('PENDING')
+ const late='2026-11-18T11:00:00+08:00'
+ const newLink={...link,attemptRef:'NEXT',packageId:'PKG-NEXT'}
+ const newPackage=await readSubmissionPackageMembers({...source,packageId:newLink.packageId},async()=>({complete:true,members:[{position:record.position,bytes:member.buffer}]}))
+ const replay=(knownAt:string,links=[link,newLink])=>reconcileDeadlinePackageMembers({
+  projectId:'P',requiredMembers:[link],links,assertCurrent:()=>{},
+  deadline:reconcileSubmissionDeadline({cutoffAt:at,knownAt,obligationIds:['O'],effects:[
+   {kind:'RECEIVED',eventRef:'REC',obligationId:'O',attemptRef:'SEND',effectiveAt:'2026-11-18T09:00:00+08:00',knownAt:at},
+   {kind:'REPLACED',eventRef:'REC-NEXT',obligationId:'O',attemptRef:'NEXT',priorAttemptRef:'SEND',effectiveAt:at,knownAt:late},
+  ]}),
+ },[result,newPackage])
+ expect(replay(at).items[0]).toMatchObject({attemptRef:'SEND',members:[{state:'MATCHED',packageId:'PKG'}]})
+ expect(replay(late).items[0]).toMatchObject({attemptRef:'NEXT',members:[{state:'MATCHED',packageId:'PKG-NEXT'}]})
+ expect(replay(late,[link]).items[0]).toMatchObject({attemptRef:'NEXT',members:[{state:'PENDING',packageId:null}]})
+ expect(()=>replay(late,[link,{...link,packageId:'OTHER'}])).toThrow('SUBMISSION_PACKAGE_RECONCILIATION_SCOPE')
  const mixed=reconcileDeadlinePackageMembers({projectId:'P',deadline,links:[link],assertCurrent:()=>{},requiredMembers:[
   {obligationId:'O',position:record.position},{obligationId:'O',position:'经济/分项表.pdf'},
  ]},[result])

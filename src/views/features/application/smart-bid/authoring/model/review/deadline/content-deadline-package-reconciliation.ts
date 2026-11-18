@@ -14,6 +14,7 @@ type PackageLink=Readonly<{
 }>
 type RequiredMember=Readonly<{obligationId:string;position:string}>
 const memberKey=({obligationId,position}:RequiredMember)=>JSON.stringify([obligationId,position])
+const linkKey=({obligationId,position}:RequiredMember,attemptRef:string)=>JSON.stringify([obligationId,position,attemptRef])
 
 /** 只使用有效批次中渠道实际指出的包和位置；其它批次不能补缺。 */
 export function reconcileDeadlinePackageMembers(source:Readonly<{
@@ -36,8 +37,8 @@ export function reconcileDeadlinePackageMembers(source:Readonly<{
  }
  const byMember=new Map<string,PackageLink>()
  for(const link of links){
-  const key=memberKey(link)
-  if(!required.has(key)||byMember.has(key)||
+  const key=linkKey(link,link.attemptRef)
+  if(!required.has(memberKey(link))||byMember.has(key)||
    ![link.attemptRef,link.packageId,link.position].every(identity)||!/^[a-f0-9]{64}$/u.test(link.packageHash))
    throw Error('SUBMISSION_PACKAGE_RECONCILIATION_SCOPE')
   byMember.set(key,link)
@@ -49,8 +50,9 @@ export function reconcileDeadlinePackageMembers(source:Readonly<{
  }>>()
  const items=source.deadline.items.map(item=>{
   const members=source.requiredMembers.filter(entry=>entry.obligationId===item.obligationId).map(entry=>{
-   const link=byMember.get(memberKey(entry))
-   const pack=link&&item.state==='EFFECTIVE_ATTEMPT'&&link.attemptRef===item.attemptRef?byPackage.get(link.packageId):undefined
+   const link=item.state==='EFFECTIVE_ATTEMPT'&&item.attemptRef!==null?
+    byMember.get(linkKey(entry,item.attemptRef)):undefined
+   const pack=link?byPackage.get(link.packageId):undefined
    const verified=link&&pack?.packageHash===link.packageHash?pack:undefined
    if(verified&&link){
     const key=JSON.stringify([link.attemptRef,verified.packageId])

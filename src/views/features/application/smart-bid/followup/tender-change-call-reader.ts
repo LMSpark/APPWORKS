@@ -48,11 +48,21 @@ export function captureTenderChangeCallEvidence(row:Readonly<Record<string,unkno
   items.push(item)
  },error)
  const rawDispositions=row[dispositionField]
- const dispositions:Array<ReturnType<typeof captureDisposition>>=[]
- const hasDispositions=rawDispositions!==null&&rawDispositions!==undefined
- const assertDispositions=hasDispositions?captureFields([dispositionField]):assertCurrent
- assertDispositions()
- if(hasDispositions)visitSnapshotReferences(rawDispositions,value=>{dispositions.push(captureDisposition(value))},error)
+ let dispositions:ReadonlyArray<ReturnType<typeof captureDisposition>>=[]
+ let assertDispositions=assertCurrent
+ if(rawDispositions!==null&&rawDispositions!==undefined){
+  try{
+   const proof=captureFields([dispositionField])
+   proof()
+   const entries:Array<ReturnType<typeof captureDisposition>>=[]
+   visitSnapshotReferences(rawDispositions,value=>{entries.push(captureDisposition(value))},error)
+   dispositions=entries
+   assertDispositions=proof
+  }catch{
+   // Missing disposition evidence must not invalidate independently authorized call references.
+   assertCurrent()
+  }
+ }
  return Object.freeze({state:'REGISTERED' as const,items:Object.freeze(items),dispositions:Object.freeze(dispositions),
   assertCurrent:()=>{assertCurrent();assertDispositions()}})
 }

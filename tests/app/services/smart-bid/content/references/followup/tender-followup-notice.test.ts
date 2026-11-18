@@ -84,9 +84,10 @@ it('reads the original addendum locations for the current project, lot and round
   if(!attempts)throw Error('TEST_ATTEMPT_VIEW_REQUIRED')
   const attemptTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'GenerationRun'})
   let attemptCount=1
+  let hiddenFields:string[]=[]
   attempts.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:attemptTable.identity,scope:'attempts',readScope:()=> 'attempts',snapshot:attemptTable.applyResult({Result:{primaryKeyField:'id',
-    data:{Count:attemptCount,Items:[{...rows.GenerationRun,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
+    data:{Count:attemptCount,Items:[{...rows.GenerationRun,lingma_sys_params:{r:[],e:[],h:hiddenFields,m:[],d:false}}]}}}),
   })})
   const receiptScope={projectId:'P',lotId:'L',subjectId:'ORG',channelId:'PORTAL'}
   const receiptIdentity={...receiptScope,operationRef:'SEND',objectRef:'PKG'}
@@ -109,6 +110,14 @@ it('reads the original addendum locations for the current project, lot and round
    references:[{callRef:'USED'}],results:[{resultRef:'RESULT',disposition:{decision:'REDO'}}],
   }]}]})
   history.assertCurrent()
+  hiddenFields=['changeDispositions']
+  expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))
+   .toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',impacts:[{
+    references:[{callRef:'USED'}],results:[{resultRef:'RESULT',disposition:null}],
+   }]}]})
+  hiddenFields=['actualRequirementReads']
+  expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))
+   .toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',impacts:null}]})
   attemptCount=2
   await expect(page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL'},signal))
    .rejects.toThrow('TENDER_CHANGE_ATTEMPT_INCOMPLETE')

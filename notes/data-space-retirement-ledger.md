@@ -11835,3 +11835,5 @@ flowchart TD
 - 第16/17包追加办理人命令回归验证：选人确认捕获原候选后，已有办理人 DataView 即使原值不变，重查也令旧凭据失效。提交被拒绝，未发送 POST，也未建立未知保存。追加参数工作区6项通过，正式服务待验。
 
 - 标书页11平台交接核对：当前生产源码中的 preparePublishedContentAuthoringCall 尚无调用方。需要授权蓝图回读确认 nodeId/pageId 后接入通用工具运行入口；共享场景 D3BBA1F0780056C837AC35E9825CAD5A 的 GenerationBatch@originalFirstCandidateBatch 与 Response@selectedDraftResponseVersions 当前只查到业务视图工厂及夹具接线，正式场景需独立回读。原保存回执视图通过已发布入口 receiptDataViewKey 注入，真实服务资源和权威终态未证。页11宿主、配置及渲染37项通过，保存/重开实服未验。
+
+- 第20包通用工具运行池在准备宿主命令前复核当前蓝图中的工具发布版本。回归验证同一节点从 v1 切到 v2 后，旧宿主证明立即失效；仍使用同一 PageRuntime 和原准备宿主。页11的正式发布身份与场景持久化继续待实服回读。

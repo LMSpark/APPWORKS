@@ -3,12 +3,43 @@ import { describe, expect, it, vi } from 'vitest'
 import { computed, defineComponent, h, KeepAlive, onMounted, ref } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { createDynamicRouter } from '../../../../packages/spark-app/src/router/dynamic'
+import { PageRuntimePool, type PageRuntimePoolOptions } from '../../../../packages/spark-app/src/router/page-runtime-pool'
 import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/nav-access'
 import { useTabPages } from '../../../../packages/spark-app/src/navigation/useTabPages'
 import { Spark, SparkPageRenderer } from '@spark-appworks/spark-component'
 import { SparkData } from '@spark-appworks/spark-data'
 
 describe('page call tabs and retained renderer instances', () => {
+  it('invalidates a prepared command when its published tool version changes', async () => {
+    const tool = {pageId: 'TOOL', projectId: 'APP', versionId: 'v1'}
+    const invoke = vi.fn()
+    let assertHostCurrent: (() => void) | undefined
+    const component = defineComponent({props: ['host'], setup(props) {
+      assertHostCurrent = () => props.host.assertCurrent()
+      return () => null
+    }})
+    const options: PageRuntimePoolOptions = {
+      pageComponent: component,
+      readPageFile: undefined,
+      readPageFiles: async commands => commands.map(command => command.fileName === 'rule.json' ? '[]' : ''),
+      preparePageCall: () => ({scenarioInputs: {}, assertCurrent() {}, createHost: runtime => ({runtime, assertCurrent() {}, invoke})}),
+      loadScenario: undefined,
+      readNavTree: () => ({title: 'App', childPlacement: 'header', items: [{id: 'node', title: 'Tool', itemKind: 'page', path: '/tool', tool}]}),
+      refreshRoutes: async () => {},
+    }
+    const router = createRouter({history: createMemoryHistory(), routes: [{path: '/tool', component, meta: {type: 'config-page', nodeId: 'node', tool}}]})
+    await router.push('/tool')
+    const pool = new PageRuntimePool(options)
+    const runtime = pool.getPageRuntime(router.currentRoute.value)!
+    await runtime.load()
+    const wrapper = mount(pool.getPageRuntimeView(router.currentRoute.value)!)
+    try {
+      expect(assertHostCurrent).toBeDefined()
+      expect(() => assertHostCurrent!()).not.toThrow()
+      tool.versionId = 'v2'
+      expect(() => assertHostCurrent!()).toThrow('发布版本已改变')
+    } finally {wrapper.unmount(); runtime.dispose()}
+  })
   it('keeps distinct calls across native pages and twelve tabs, rejects dirty closes, and preserves aborted navigation', async () => {
     const mounted = vi.fn()
     const invoke = vi.fn()

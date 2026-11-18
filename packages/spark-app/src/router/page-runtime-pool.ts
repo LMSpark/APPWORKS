@@ -173,8 +173,16 @@ export class PageRuntimePool {
           if (typeof reload !== 'function') throw new Error('页面渲染器缺少 reload 能力')
           await Reflect.apply(reload, renderer.value, [])
         } })
-        const host = prepared?.createHost?.(runtime)
-        if (host && host.runtime !== runtime) throw new Error('PAGE_HOST_RUNTIME_MISMATCH')
+        const capability = prepared?.createHost?.(runtime)
+        if (capability && capability.runtime !== runtime) throw new Error('PAGE_HOST_RUNTIME_MISMATCH')
+        const host = capability && {
+          runtime,
+          assertCurrent() {
+            assertPublishedVersion?.()
+            capability.assertCurrent()
+          },
+          invoke: (name: string, input: unknown, signal: AbortSignal) => capability.invoke(name, input, signal),
+        }
         return () => h(this.options.pageComponent, {
           ref: renderer, pageRuntime: runtime, routeSnapshot: snapshot,
           ...(host ? {host} : {}),

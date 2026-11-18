@@ -201,9 +201,71 @@
           "additionalProperties": false
         }
       ]
+    },
+    "PackageReview": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "PackageReview",
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "../model/review/package/content-delivery-package-preparation.ts.json#/$defs/Host"
+        },
+        {
+          "type": "object",
+          "title": "Request"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "package": {
+              "type": "object",
+              "properties": {
+                "packageId": {
+                  "type": "string"
+                },
+                "packingRequestRef": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "packageId",
+                "packingRequestRef"
+              ],
+              "additionalProperties": false
+            },
+            "openAuthorized": {
+              "type": "object",
+              "title": "(scope: ResourceScope) => Promise<Readonly<{ projectId: string; resourceVersionId: string; bytes: ArrayBuffer; assertCurrent: () => void; }>>"
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "maxEntries": {
+                  "type": "number"
+                },
+                "maxExpandedBytes": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "maxEntries",
+                "maxExpandedBytes"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "package",
+            "openAuthorized",
+            "limits"
+          ],
+          "additionalProperties": false
+        }
+      ]
     }
   },
-  "generatedAt": "2026-11-18T09:08:34.071Z",
+  "generatedAt": "2026-11-18T09:17:43.882Z",
   "models": {
     "Read": {
       "name": "Read",
@@ -237,12 +299,37 @@
         "members": {}
       }
     },
+    "PackageReview": {
+      "name": "PackageReview",
+      "jsdoc": "冻结包、原装封请求与 ZIP 字节核验合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof reviewRegisteredDeliveryZipPackage>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof reviewRegisteredDeliveryZipPackage>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
     "ReadDeadline": {
       "name": "ReadDeadline",
       "jsdoc": "读取原截止记录对应的回执和核对证据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "(record: Awaited<ReturnType<typeof readRegisteredDeadlineRecord>>, signal: AbortSignal) => Promise<Readonly<{\n    options: Deadline[2];\n    receipts: Omit<Deadline[1], 'receipts'> & Readonly<{\n        receipts: ReadonlyArray<Deadline[1]['receipts'][number] & Readonly<{\n            assertCurrent: () => void;\n        }>>;\n    }>;\n}>>",
+        "members": {}
+      }
+    },
+    "PackageSelection": {
+      "name": "PackageSelection",
+      "jsdoc": "正式宿主按原包身份提供装封请求及原件读取能力。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(input: PackageReview[2]['package'], signal: AbortSignal) => Promise<Readonly<{\n    request: PackageReview[1];\n    options: PackageReview[2];\n    assertCurrent: () => void;\n}>>",
         "members": {}
       }
     }

@@ -1,5 +1,5 @@
 {
-  "gapCount": 7504,
+  "gapCount": 7516,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -21420,9 +21420,9 @@
     {
       "kind": "attribute",
       "className": "TreeModel",
-      "memberName": "__@iterator@293186",
+      "memberName": "__@iterator@293487",
       "reason": "missing-jsdoc",
-      "chainBreak": "TreeModel.__@iterator@293186 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "TreeModel.__@iterator@293487 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-json-document/src/tree/tree-types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-json-document/src/tree/tree-types.ts",
       "declarationLine": 50,
@@ -72373,6 +72373,114 @@
       "declarationKind": "typeAlias"
     },
     {
+      "kind": "attribute",
+      "className": "Scope",
+      "memberName": "projectId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/paper-submission-package.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Scope",
+      "memberName": "packageId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope.packageId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/paper-submission-package.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationLine": 4,
+      "sourceFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Scope",
+      "memberName": "sealRef",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope.sealRef 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/paper-submission-package.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationLine": 5,
+      "sourceFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Scope",
+      "memberName": "selectionHash",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope.selectionHash 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/paper-submission-package.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Member",
+      "memberName": "position",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Member.position 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/paper-submission-package.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Member",
+      "memberName": "paperRef",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Member.paperRef 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/paper-submission-package.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Member",
+      "memberName": "versionRef",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Member.versionRef 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/paper-submission-package.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationLine": 12,
+      "sourceFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Member",
+      "memberName": "copies",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Member.copies 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/paper-submission-package.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "Evidence",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Evidence.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/paper-submission-package.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationLine": 17,
+      "sourceFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/review-check-evidence",
       "moduleName": "app:services/smart-bid/content/review/review-check-evidence",
@@ -87350,6 +87458,42 @@
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-package-review.ts",
       "declarationLine": 14,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-package-review.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Source",
+      "memberName": "frozen",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Source.frozen 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Source",
+      "memberName": "observed",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Source.observed 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Source",
+      "memberName": "packed",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Source.packed 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts",
       "declarationKind": "typeAlias"
     },
     {

@@ -16,7 +16,7 @@ async function __init__() {
 }
 
 function bindOriginalSubmission() {
-  if ($route.query.attemptRef === undefined && bindPackage().visible) return {visible: false}
+  if ($route.query.attemptRef === undefined && (bindPackage().visible || bindPaperPackage().visible)) return {visible: false}
   if (!original) return {error: lookupError ?? '原递交记录无法读取'}
   try {
     original.assertCurrent()
@@ -27,6 +27,28 @@ function bindOriginalSubmission() {
     return {status: original.evidenceRef ? `${status}，凭据 ${original.evidenceRef}` : status}
   } catch {
     return {error: '原递交查询已失效'}
+  }
+}
+
+function bindPaperPackage() {
+  const {paperPackageId, paperPackingRequestRef} = $route.query
+  return {visible: [paperPackageId, paperPackingRequestRef].every(value => typeof value === 'string' && value && value.trim() === value)}
+}
+
+async function openPaperPackage() {
+  if (!bindPaperPackage().visible) return
+  const {paperPackageId: packageId, paperPackingRequestRef: packingRequestRef} = $route.query
+  try {
+    const result = await $page.invokeHostCommand('content.submission.reviewPaperPackage', {packageId, packingRequestRef})
+    result.assertCurrent()
+    const labels = {UNPLANNED: '不在原清单', PACKING_RECORD_MISSING: '缺装封记录', MEMBER_MISSING: '实包缺件',
+      COUNT_PENDING: '待清点', PACKING_MISMATCH: '装封与清单不符', OBSERVED_VERSION_MISMATCH: '实包纸件版本不符',
+      COPY_COUNT_MISMATCH: '实见份数不符'}
+    const lines = [`封装 ${result.sealRef} · 见证 ${result.witnessRef}`,
+      ...result.members.map(item => `${item.position}${item.observed ? ` · 实见 ${item.observed.copies} 份` : ''} · ${item.issues.length ? item.issues.map(issue => labels[issue]).join('、') : '一致'}`)]
+    await $page.showAlert(lines.join('\n'), '纸件清点')
+  } catch {
+    $page.showMessage('纸件清点证据无法核验', 'warning')
   }
 }
 

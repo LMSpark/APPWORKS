@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader\n职责：经原装封 DataView 定位同一纸包，再核独立见证和原选件。\n边界：装封记录从当前实例读取；应装清单和见证由原证据来源提供。\nAI用途：核对纸件清点是否关联同一装封请求及冻结选件。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Review": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Review",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "packageId": {
+              "type": "string"
+            },
+            "sealRef": {
+              "type": "string"
+            },
+            "selectionHash": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "projectId",
+            "packageId",
+            "sealRef",
+            "selectionHash"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "$ref": "#/$defs/Source"
+        }
+      ]
+    },
+    "Source": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Source",
+      "properties": {
+        "frozen": {
+          "type": "object",
+          "title": "Pick<Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }>, \"projectId\" | \"selectionHash\"> & Readonly<{ members: readonly Readonly<{ position: string; paperRef: string; versionRef: string; copies: number; }>[]; }> & Readonly<{ assertCurrent: () => void; }>"
+        },
+        "packed": {
+          "type": "object",
+          "title": "Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }> & Readonly<{ packingRef: string; members: readonly Readonly<{ position: string; paperRef: string; versionRef: string; copies: number; }>[]; }> & Readonly<{ assertCurrent: () => void; }>"
+        },
+        "observed": {
+          "type": "object",
+          "title": "Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }> & Readonly<{ witnessRef: string; complete: boolean; members: readonly Readonly<{ position: string; paperRef: string; versionRef: string; copies: number; }>[]; }> & Readonly<{ assertCurrent: () => void; }>"
+        }
+      },
+      "required": [
+        "frozen",
+        "packed",
+        "observed"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T09:18:39.292Z",
+  "models": {
+    "Review": {
+      "name": "Review",
+      "jsdoc": "纸件清点原范围和来源的业务合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof reviewPaperSubmissionPackage>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof reviewPaperSubmissionPackage>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Source": {
+      "name": "Source",
+      "jsdoc": "同封装的应装、实装与清点证据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Review[1]",
+        "members": {
+          "attributes": [
+            {
+              "name": "frozen",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "packed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "observed",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

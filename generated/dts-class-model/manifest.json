@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1415,
+  "scannedFileCount": 1418,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -18049,6 +18049,19 @@
         "symbols": []
       }
     },
+    "src/services/smart-bid/content/review/paper-submission-package.ts": {
+      "file": "files/src/services/smart-bid/content/review/paper-submission-package.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/paper-submission-package",
+        "sourcePath": "src/services/smart-bid/content/review/paper-submission-package.ts",
+        "sourceFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/paper-submission-package",
+        "jsdoc": "@module app:services/smart-bid/content/review/paper-submission-package\n职责：第50项核同一纸件封装的应装、实装和独立清点。\n边界：按正式来源证明比较，实际装封和见证由各自办理方提供。\nAI用途：定位纸件的版次、份数或位置差异，并判断缺项是否仍待清点。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/review/review-check-evidence.ts": {
       "file": "files/src/services/smart-bid/content/review/review-check-evidence.ts.json",
       "module": {
@@ -20016,6 +20029,19 @@
         "symbols": []
       }
     },
+    "src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader\n职责：经原装封 DataView 定位同一纸包，再核独立见证和原选件。\n边界：装封记录从当前实例读取；应装清单和见证由原证据来源提供。\nAI用途：核对纸件清点是否关联同一装封请求及冻结选件。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts": {
       "file": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts.json",
       "module": {
@@ -20091,6 +20117,19 @@
         "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader\n职责：独立回读第51项原待发请求，为第52项提供同一请求证明。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views\n职责：供正式共享场景装配原递交、回执、截止与阶段结果命名视图。\n边界：只提供视图配置，模型身份、字段与授权由正式场景确定。\nAI用途：查找各正式办理视图的固定查询参数与字段投影。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },

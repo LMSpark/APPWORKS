@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/paper-submission-package",
+    "sourcePath": "src/services/smart-bid/content/review/paper-submission-package.ts",
+    "sourceFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/paper-submission-package",
+    "jsdoc": "@module app:services/smart-bid/content/review/paper-submission-package\n职责：第50项核同一纸件封装的应装、实装和独立清点。\n边界：按正式来源证明比较，实际装封和见证由各自办理方提供。\nAI用途：定位纸件的版次、份数或位置差异，并判断缺项是否仍待清点。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "packageId": {
+          "type": "string"
+        },
+        "sealRef": {
+          "type": "string"
+        },
+        "selectionHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "packageId",
+        "sealRef",
+        "selectionHash"
+      ],
+      "additionalProperties": false
+    },
+    "Member": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Member",
+      "properties": {
+        "position": {
+          "type": "string"
+        },
+        "paperRef": {
+          "type": "string"
+        },
+        "versionRef": {
+          "type": "string"
+        },
+        "copies": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "position",
+        "paperRef",
+        "versionRef",
+        "copies"
+      ],
+      "additionalProperties": false
+    },
+    "Evidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Evidence",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T09:16:10.947Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "同一纸件封装与已冻结交付范围的身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    packageId: string;\n    sealRef: string;\n    selectionHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    packageId: string;\n    sealRef: string;\n    selectionHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "packageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sealRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selectionHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Member": {
+      "name": "Member",
+      "jsdoc": "纸件分配位置、版本和份次。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    position: string;\n    paperRef: string;\n    versionRef: string;\n    copies: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    position: string;\n    paperRef: string;\n    versionRef: string;\n    copies: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "paperRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "versionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "copies",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Evidence": {
+      "name": "Evidence",
+      "jsdoc": "保留原业务来源有效性检查的证据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "T & Readonly<{\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "T",
+            "targetName": "T"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

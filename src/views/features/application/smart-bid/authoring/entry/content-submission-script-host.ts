@@ -16,6 +16,7 @@ import {reconcileDeadlineDelivery} from '../model/review/deadline/content-deadli
 import {readRegisteredTenderOutcome} from '../model/review/submission/content-tender-outcome-reader'
 import {readRegisteredDeadlineRecord} from '../model/review/deadline/content-deadline-record-reader'
 import {reviewRegisteredDeliveryZipPackage} from '../model/review/package/content-package-review'
+import {reviewRegisteredPaperSubmissionPackage} from '../model/review/package/content-paper-submission-package-reader'
 
 /** 原递交请求的读取合同。 */
 type Read=Parameters<typeof readRegisteredSubmissionRequest>
@@ -39,6 +40,7 @@ type PackageSelection=(input:PackageReview[2]['package'],signal:AbortSignal)=>Pr
 export function createContentSubmissionScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
  runtime:Runtime,scope:Omit<Read[0],'runtime'>,sources:Readonly<{
   readDeadline?:ReadDeadline;readPackageSelection?:PackageSelection
+  paperEvidence?:Parameters<typeof reviewRegisteredPaperSubmissionPackage>[2]
  }>={}){
  return {runtime,assertCurrent:scope.assertCurrent,
   async invoke(name:string,input:unknown,signal:AbortSignal){
@@ -49,6 +51,11 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)throw Error('SUBMISSION_PAGE_STALE')
    }
    const host={...scope,runtime,assertCurrent}
+   if(name==='content.submission.reviewPaperPackage'&&sources.paperEvidence){
+    const {packageId,packingRequestRef}=input
+    if(!identity(packageId)||!identity(packingRequestRef))throw Error('SUBMISSION_PAGE_PACKAGE_SCOPE')
+    return reviewRegisteredPaperSubmissionPackage(host,{packageId,packingRequestRef},sources.paperEvidence)
+   }
    if(name==='content.submission.reviewPackage'&&sources.readPackageSelection){
     const {packageId,packingRequestRef}=input
     if(!identity(packageId)||!identity(packingRequestRef))throw Error('SUBMISSION_PAGE_PACKAGE_SCOPE')

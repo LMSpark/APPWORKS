@@ -11,5 +11,13 @@
     "children": [
       {"type": "r-button", "props": {"label": "核对包内文件", "onClick": "openPackage"}}
     ]
+  },
+  {
+    "id": "submission-paper-package",
+    "type": "r-section",
+    "props": {"title": "纸件清点", "onBeforeRender": "bindPaperPackage"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对纸包成员与份数", "onClick": "openPaperPackage"}}
+    ]
   }
 ]

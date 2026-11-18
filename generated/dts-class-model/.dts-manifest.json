@@ -5501,6 +5501,11 @@
       "shardFile": "files/src/services/smart-bid/content/review/delivery-zip-packing.ts.json",
       "sourceModifiedAt": "2026-11-18T03:59:04.727Z"
     },
+    "src/services/smart-bid/content/review/paper-submission-package.ts": {
+      "sourceFile": "src/services/smart-bid/content/review/paper-submission-package.ts",
+      "shardFile": "files/src/services/smart-bid/content/review/paper-submission-package.ts.json",
+      "sourceModifiedAt": "2026-11-18T09:16:10.947Z"
+    },
     "src/services/smart-bid/content/review/review-check-evidence.ts": {
       "sourceFile": "src/services/smart-bid/content/review/review-check-evidence.ts",
       "shardFile": "files/src/services/smart-bid/content/review/review-check-evidence.ts.json",
@@ -5994,7 +5999,7 @@
     "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-18T09:08:34.071Z"
+      "sourceModifiedAt": "2026-11-18T09:17:43.882Z"
     },
     "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts",
@@ -6206,6 +6211,11 @@
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-package-review.ts.json",
       "sourceModifiedAt": "2026-11-18T04:05:16.411Z"
     },
+    "src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader.ts.json",
+      "sourceModifiedAt": "2026-11-18T09:18:39.292Z"
+    },
     "src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts.json",
@@ -6235,6 +6245,11 @@
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts.json",
       "sourceModifiedAt": "2026-11-18T08:42:58.456Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views.ts.json",
+      "sourceModifiedAt": "2026-11-18T09:14:42.636Z"
     },
     "src/views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader.ts",

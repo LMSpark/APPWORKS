@@ -9,7 +9,7 @@ import ElementPlus from 'element-plus'
 import VXETable from 'vxe-table'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {PageTool} from '@spark-appworks/spark-project-model'
-import {FieldJson,FieldText,JsonTreeEditor,RendererTable,Spark,SparkPageRenderer,registerAllRenderers,PAGE_SERVICE,useSparkComponent,type PageServiceCapability,type PageSelectedFile,type PageBrowseFilesOptions} from '@spark-appworks/spark-component'
+import {FieldJson,FieldText,JsonTreeEditor,RendererTable,Spark,SparkPageRenderer,registerAllRenderers,PAGE_SERVICE,PAGE_RUNTIME_SERVICES,useSparkComponent,type PageServiceCapability,type PageSelectedFile,type PageBrowseFilesOptions} from '@spark-appworks/spark-component'
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 import JsonPage from '@/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue'
@@ -64,7 +64,13 @@ it('renders the shared JSON catalog through the three tool files without reading
   const runtime=session.acquire({tool,targetId:SCENE,scenarioIds:[SCENE],loadScenario:id=>LowcodeJsonData.loadCatalog(id)})
   const {path,fullPath,name,params,query,hash}=router.currentRoute.value
   const host=createJsonDataScriptHost(runtime,SCENE,()=>{if(!session.isCurrent(runtime))throw new Error('Stale JSON session')},true)
-  wrapper=mount(SparkPageRenderer,{props:{pageRuntime:runtime,host,routeSnapshot:{path,fullPath,name:name??null,params,query,hash}},global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
+  const Host=defineComponent({setup(){
+   const {sparkProvide}=useSparkComponent({type:'json-tool-test-host'})
+   const picker:Pick<PageServiceCapability,'browseFiles'>={browseFiles:async()=>state.picked}
+   sparkProvide(PAGE_RUNTIME_SERVICES,{logger:{debug:vi.fn(),info:vi.fn(),warn:vi.fn(),error:vi.fn()},pageService:picker})
+   return ()=>h(SparkPageRenderer,{pageRuntime:runtime,host,routeSnapshot:{path,fullPath,name:name??null,params,query,hash}})
+  }})
+  wrapper=mount(Host,{global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
   const rendered=wrapper
   await vi.waitFor(()=>expect(rendered.getComponent(RendererTable).findAll('input').some(item=>item.element.value==='样例JSON')).toBe(true))
   expect(rendered.getComponent(RendererTable).props('dataViewKey')).toBe(`${SCENE}@Base_JsonData@default`)
@@ -133,6 +139,26 @@ it('renders the shared JSON catalog through the three tool files without reading
   await flushPromises()
   expect(state.http.saves).toHaveLength(2)
   expect(state.http.saves[1]?.added[0]?.['name']).toBe('配置页新增')
+  delete state.http.beforeSave
+  pickJson('bad.json','invalid JSON')
+  await click('导入JSON')
+  await flushPromises()
+  expect(state.uploads).toHaveLength(2)
+  expect(state.http.saves).toHaveLength(2)
+  const imported='[false,null,[0]]'
+  pickJson('配置导入.json',imported)
+  state.lose=true
+  await click('导入JSON')
+  await flushPromises()
+  expect(state.uploads).toHaveLength(3)
+  expect(state.http.saves).toHaveLength(2)
+  await click('核验内容保存结果')
+  await flushPromises()
+  expect(state.uploads).toHaveLength(3)
+  expect(state.http.saves).toHaveLength(3)
+  const record=state.http.saves[2]?.added[0]
+  expect(record?.['name']).toBe('配置导入.json')
+  expect(state.files.get(`${String(record?.['rowid'])}.json`)).toBe(imported)
  }finally{wrapper?.unmount();session.dispose()}
 })
 it('displays a failed catalog query once through the standard table with metadata hidden',async()=>{

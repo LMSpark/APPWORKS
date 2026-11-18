@@ -1,5 +1,6 @@
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
+import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
 
 /** Opens the exact catalog record in the tool's existing scenario. */
@@ -20,9 +21,17 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
    if(!dataSet)throw new Error('JSON正式目录视图缺失')
    if(command==='jsonData.canEditCatalog')return editable
    const catalog=dataSet.getView(LowcodeJsonData.catalogMetaName)
-   if(command==='jsonData.createDocument'){
+   if(command==='jsonData.createDocument'||command==='jsonData.importDocument'){
     if(!editable||document||runtime.isDirty||!catalog||catalog.addActionState()!=='enabled')throw new Error('JSON_CATALOG_REQUEST')
-    await catalog.addRow({name:'',description:'',path:''})
+    let name='',content='{}'
+    if(command==='jsonData.importDocument'){
+     const input=id as {name?:unknown;content?:unknown}|undefined
+     if(typeof input?.name!=='string'||typeof input.content!=='string')throw new Error('JSON_IMPORT_REQUEST')
+     name=input.name
+     content=input.content
+     parseJsonDocument(content)
+    }
+    await catalog.addRow({name,description:name,path:''})
     assertActive()
     const row=catalog.dirtyTracking.pendingCreateRows[0]
     if(!row)throw new Error('JSON目录新增草稿缺失')
@@ -35,7 +44,7 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
      await view.refresh()
      assertActive()
      if(view.loadingError)throw view.loadingError
-     await view.addRow({content:'{}'})
+     await view.addRow({content})
      assertActive()
      return {visible:true,dataViewKey:buildDataViewKey(view.tableName,view.viewId,scenarioId),contextRowId:key,editable,creating:true}
     }catch(error){

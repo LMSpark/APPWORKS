@@ -33,6 +33,25 @@ async function createJsonDocument() {
   }
 }
 
+async function importJsonDocument() {
+  if (acting || bindCatalogCreate().disabled || !catalogEditable) return
+  acting = true
+  try {
+    const files = await $page.browseFiles({title:'导入JSON',accept:'.json,application/json',multiple:false})
+    if (files.length === 0) return
+    if (files.length !== 1) throw new Error('每次只能导入一个JSON文件')
+    const file = files[0].file
+    const content = await file.text()
+    documentBinding = await $page.invokeHostCommand('jsonData.importDocument', {name:file.name,content})
+    const result = await $page.invokeHostCommand('jsonData.saveDocument', documentBinding.contextRowId)
+    if (result?.closed) documentBinding = undefined
+  } catch (cause) {
+    if (!String(cause?.message).startsWith('PAGE_RUNTIME_STALE')) $page.showMessage(cause.message, 'error')
+  } finally {
+    acting = false
+  }
+}
+
 function bindCreationMetadata() {
   if (!documentBinding?.creating) return {visible:false}
   return {visible:true, dataViewKey:catalogKey, contextRowId:documentBinding.contextRowId}

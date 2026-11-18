@@ -28,7 +28,7 @@ type OriginalSave=Awaited<ReturnType<typeof readRegisteredOriginalContentDraftSa
 /** 原回执与当前草稿在同一版本下的比较结果。 */
 type SaveComparison=Awaited<ReturnType<typeof reconcileSavedContentDraft>>
 type CandidatePreviewInput=Parameters<ContentCandidateBinding['previewScope']>[0]
-type DraftCandidateInput=Parameters<typeof prepareDraftCandidateRequest>[2]&Readonly<{firstBatchId?:string}>
+type DraftCandidateInput=Readonly<{requestKey:string;targetScope?:unknown;firstBatchId?:string;targetScopeIndex?:number}>
 
 /** 实例池创建宿主后，仅在三文件脚本连接时装配原视图。并行连接共享本次装载。 */
 export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:ContentAuthoringTarget,
@@ -109,9 +109,9 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const host={runtime,projectId,scenarioId,assertCurrent:assertDraft}
      const {baseRevisionId:revisionId}=captured
      if(revisionId!==null){
-      if(request.firstBatchId!==undefined)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
+      if(request.firstBatchId!==undefined||request.targetScopeIndex!==undefined)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
       const basis=await readDraftCandidateBasis(host,{revisionId})
-      return prepareDraftCandidateRequest(captured,basis,request)
+      return prepareDraftCandidateRequest(captured,basis,{requestKey:request.requestKey,targetScope:request.targetScope})
      }
      const projectKey=buildDataViewKey('ContentProject','selectedProject',scenarioId)
      const projectView=runtime.resolveView(projectKey),project=projectView?.rows[0]
@@ -126,8 +126,10 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
       proof()
      }
      const basis=await readDraftCandidateBasis({...host,assertCurrent:assertFirst},
-      {revisionId,firstBaselineId:project['activeBaselineId'],firstBatchId,targetScope:request.targetScope})
-     return prepareDraftCandidateRequest(captured,basis,request)
+      {revisionId,firstBaselineId:project['activeBaselineId'],firstBatchId,targetScope:request.targetScope,
+       ...(request.targetScopeIndex===undefined?{}:{targetScopeIndex:request.targetScopeIndex})})
+     if(!('targetScope' in basis))throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
+     return prepareDraftCandidateRequest(captured,basis,{requestKey:request.requestKey,targetScope:basis.targetScope})
     },
     async captureCandidateDraft(){
      assertCurrent()

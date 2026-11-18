@@ -54,7 +54,9 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
  const obligation={id:'DOC',projectId:'P',baselineId:'B',obligationRef:'DOC',sourceRef:'SOURCE-V1',kind:'DOCUMENT',
   required:true,allowedDisclosureRefs:[]}
  const firstBatch={id:'BATCH',projectId:'P',basisRevisionId:null,baselineId:'B',inputSnapshotHash:snapshotHash,
-  targetScopes:[{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]}],lockHash:'f'.repeat(64)}
+  targetScopes:[{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]},
+   {schemaVersion:2,projectId:'P',targets:[{kind:'NODE',nodeId:'C',extent:'NODE'},{kind:'NODE',nodeId:'H',extent:'NODE'}]}],
+  lockHash:'f'.repeat(64)}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{
   GenerationBatch:{modelBinding:{modelId:'GENERATION_BATCH',modelName:'GenerationBatch'},
    columns:Object.keys(firstBatch).map(name=>({name,isPrimaryKey:name==='id'})),

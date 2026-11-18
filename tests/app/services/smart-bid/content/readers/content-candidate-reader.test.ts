@@ -33,6 +33,10 @@ it('takes first draft target nodes from the frozen input snapshot',async()=>{
   const first=await readDraftCandidateBasis(f.host,selection)
   expect(first).toMatchObject({revisionId:null,baselineId:'B',inputSnapshotHash:snapshotHash,batchId:'BATCH',lockHash:'f'.repeat(64),
    basisNodes:expect.arrayContaining([{nodeId:'D',parentId:'P',type:'document',index:0}])})
+  const indexed=await readDraftCandidateBasis(f.host,{revisionId:null,firstBaselineId:'B',firstBatchId:'BATCH',targetScopeIndex:1})
+  expect(indexed).toMatchObject({targetScope:{targets:[{nodeId:'C',extent:'NODE'},{nodeId:'H',extent:'NODE'}]}})
+  await expect(readDraftCandidateBasis(f.host,{revisionId:null,firstBaselineId:'B',firstBatchId:'BATCH',targetScopeIndex:2}))
+   .rejects.toThrow('CONTENT_DRAFT_CANDIDATE_BASIS')
   await expect(readDraftCandidateBasis(f.host,{...selection,targetScope:{...targetScope,targets:[{kind:'NODE',nodeId:'D',extent:'NODE'}]}}))
    .rejects.toThrow('CONTENT_DRAFT_CANDIDATE_BASIS')
   expect(()=>first.assertCurrent()).toThrow()

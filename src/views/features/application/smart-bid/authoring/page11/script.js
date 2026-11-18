@@ -22,12 +22,17 @@ async function openDraftCandidate() {
   const {visible, disabled} = bindDraftCandidate()
   if (!visible || disabled) return
   const {projectId, draftCandidateRequestKey, candidateTargetKind, candidateTargetNodeId, candidateNodeExtent,
-    candidateAssignmentId, candidateBasisResponseId, candidateFirstBatchId} = $route.query
+    candidateAssignmentId, candidateBasisResponseId, candidateFirstBatchId, candidateBatchScopeIndex} = $route.query
   const id = value => typeof value === 'string' && !!value && value.trim() === value
   try {
     if (!id(projectId) || (candidateFirstBatchId !== undefined && !id(candidateFirstBatchId))) throw Error('CONTENT_DRAFT_CANDIDATE_SCOPE')
-    let target
-    if (candidateTargetKind === 'PROJECT') target = {kind: 'PROJECT'}
+    let target, targetScopeIndex
+    if (candidateBatchScopeIndex !== undefined) {
+      if (!id(candidateFirstBatchId) || candidateTargetKind !== undefined || typeof candidateBatchScopeIndex !== 'string' ||
+        !/^(0|[1-9]\d*)$/u.test(candidateBatchScopeIndex)) throw Error('CONTENT_DRAFT_CANDIDATE_SCOPE')
+      targetScopeIndex = Number(candidateBatchScopeIndex)
+      if (!Number.isSafeInteger(targetScopeIndex)) throw Error('CONTENT_DRAFT_CANDIDATE_SCOPE')
+    } else if (candidateTargetKind === 'PROJECT') target = {kind: 'PROJECT'}
     else if (candidateTargetKind === 'NODE' && id(candidateTargetNodeId) &&
       (candidateNodeExtent === 'NODE' || candidateNodeExtent === 'SUBTREE')) {
       target = {kind: 'NODE', nodeId: candidateTargetNodeId, extent: candidateNodeExtent}
@@ -36,7 +41,7 @@ async function openDraftCandidate() {
       target = {kind: 'RESPONSE', assignmentId: candidateAssignmentId, responseId: candidateBasisResponseId}
     } else throw Error('CONTENT_DRAFT_CANDIDATE_SCOPE')
     const result = await editorSession.prepareDraftCandidate({requestKey: draftCandidateRequestKey,
-      targetScope: {schemaVersion: 2, projectId, targets: [target]},
+      ...(target ? {targetScope: {schemaVersion: 2, projectId, targets: [target]}} : {targetScopeIndex}),
       ...(candidateFirstBatchId ? {firstBatchId: candidateFirstBatchId} : {})})
     result.assertCurrent()
     await $page.showAlert([

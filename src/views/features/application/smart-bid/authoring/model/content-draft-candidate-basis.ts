@@ -38,12 +38,14 @@ async function readBasisMembers(host:ContentRevisionReadHost,snapshot:Awaited<Re
 
 /** 首版须由调用方已核空头；已有基版沿原修订保留固定基线。 */
 export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selection:
- Readonly<{revisionId:string}|{revisionId:null;firstBaselineId:string;firstBatchId:string;targetScope:unknown}>){
+ Readonly<{revisionId:string}|{revisionId:null;firstBaselineId:string;firstBatchId:string;targetScope?:unknown;targetScopeIndex?:number}>){
  const {runtime,projectId}=host,{revisionId}=selection
  if(revisionId===null){
-  const {firstBatchId,firstBaselineId,targetScope}=selection
+  const {firstBatchId,firstBaselineId,targetScope,targetScopeIndex}=selection
   if(!identity(firstBatchId)||!identity(firstBaselineId))throw Error(error)
-  const requestedScope=canonicalSnapshotValue(targetScope)
+  const byIndex=targetScopeIndex!==undefined
+  if(byIndex?(targetScope!==undefined||!Number.isSafeInteger(targetScopeIndex)||targetScopeIndex<0):targetScope===undefined)throw Error(error)
+  const requestedScope=byIndex?null:canonicalSnapshotValue(targetScope)
   const batch=await readOriginalRegistrationView(host,{model:'GenerationBatch',viewName:batchView},{projectId,id:firstBatchId})
   if(!batch.row)throw Error(error)
   const assertBatch=batch.captureFields(batchFields)
@@ -58,7 +60,9 @@ export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selec
    if(scopes.has(encoded))throw Error(error)
    scopes.add(encoded)
   },error)
-  if(!scopes.has(requestedScope))throw Error(error)
+  const approvedScope=requestedScope??[...scopes][targetScopeIndex??-1]
+  if(approvedScope===undefined||!scopes.has(approvedScope))throw Error(error)
+  const registeredTargetScope:unknown=JSON.parse(approvedScope)
   const frozen=await readBidFrozenBaseline({...host,assertCurrent:assertBatch},firstBaselineId)
   if(frozen.state!=='REGISTERED')throw Error(error)
   const scopedHost={...host,assertCurrent:frozen.assertCurrent}
@@ -69,7 +73,7 @@ export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selec
    throw Error(error)
   const members=await readBasisMembers(scopedHost,snapshot,manifest)
   return Object.freeze({...members,projectId,revisionId,baselineId:frozen.baselineId,stageRef:frozen.stageRef,
-   inputSnapshotHash,batchId:firstBatchId,lockHash})
+   inputSnapshotHash,batchId:firstBatchId,lockHash,targetScope:registeredTargetScope})
  }
  const revision=await readAdoptedContentRevision(host,{kind:'basis',revisionId})
  const view=runtime.resolveView(revision.dataViewKey),row=view?.rows[0]

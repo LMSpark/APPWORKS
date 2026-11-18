@@ -97,7 +97,7 @@ it('prepares the selected independent response from the saved draft and original
  const assertCurrent=vi.fn(),showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
  const prepareDraftCandidate=vi.fn(async()=>({draftId:'D',draftVersion:'V1',baseRevisionId:null,
   baselineId:'B',requestDigest:'a'.repeat(64),assertCurrent}))
- const query={projectId:'P',draftCandidateRequestKey:'Q',candidateTargetKind:'RESPONSE',candidateAssignmentId:'ASSIGNMENT',
+ const query:Record<string,string|null>={projectId:'P',draftCandidateRequestKey:'Q',candidateTargetKind:'RESPONSE',candidateAssignmentId:'ASSIGNMENT',
   candidateBasisResponseId:null,candidateFirstBatchId:'BATCH'}
  const {__init__,openDraftCandidate}=compileFunctions(script,{$route:{query},$page:{
   invokeHostCommand:async()=>({prepareDraftCandidate}),showAlert,showMessage,
@@ -108,9 +108,13 @@ it('prepares the selected independent response from the saved draft and original
  expect(prepareDraftCandidate).toHaveBeenCalledExactlyOnceWith({requestKey:'Q',firstBatchId:'BATCH',
   targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'RESPONSE',assignmentId:'ASSIGNMENT',responseId:null}]}})
  expect(showAlert).toHaveBeenCalledWith(expect.stringContaining('候选登记待办理'),'候选生成输入')
+ delete query['candidateTargetKind']
+ query['candidateBatchScopeIndex']='1'
+ await openDraftCandidate()
+ expect(prepareDraftCandidate).toHaveBeenLastCalledWith({requestKey:'Q',firstBatchId:'BATCH',targetScopeIndex:1})
  assertCurrent.mockImplementation(()=>{throw Error('STALE')})
  await openDraftCandidate()
- expect(showAlert).toHaveBeenCalledTimes(1)
+ expect(showAlert).toHaveBeenCalledTimes(2)
  expect(showMessage).toHaveBeenCalledTimes(1)
 })
 it('withdraws the binding when the original query is replaced instead of recapturing a new proof',()=>{

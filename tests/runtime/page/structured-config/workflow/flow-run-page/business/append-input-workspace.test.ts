@@ -19,7 +19,7 @@ class AppendHttp extends HttpClientBase {
   }
 }
 
-it.each(['restricted', 'expanded', 'unknown', 'false', 'zero'])('keeps original selection and command proof for %s', async mode => {
+it.each(['restricted', 'expanded', 'unknown', 'false', 'zero', 'stale-participants'])('keeps original selection and command proof for %s', async mode => {
   const scene = 'A5BADCEE11D2438CB9E75C2453A220A6', text = readFileSync('config/pages/workflow/flow-workbench/pagedata.json', 'utf8'), json = JSON.parse(text)
   const ds = DataSet.fromJson({scenarioId: scene, tables: {AppendOptions: json.tables.AppendOptions, AppendCandidates: json.tables.AppendCandidates, ApprovalCommand: json.tables.ApprovalCommand}}), directorySet = DataSet.fromJson({scenarioId: 'D', tables: {}})
   const target = {rowid: 'P', WFOBJID: 'WF', SendNodeModelId: 'N1', ReceiveNodeModelId: 'N2', LastStepID: 'L', TITLE: '原节点'}
@@ -53,6 +53,15 @@ it.each(['restricted', 'expanded', 'unknown', 'false', 'zero'])('keeps original 
     expect(workspace.parameters.rows[0]?.['receiveUsers']).toEqual(['U1:甲'])
     if (mode === 'expanded') workspace.parameters.updateEditingValue('current', 'receiveUsers', ['U2:乙'])
     const captured = workspace.capture()
+    if (mode === 'stale-participants') {
+      await assigned.refresh()
+      expect(() => captured.assertCurrent()).toThrow()
+      await expect(submitApprovalCommand(ds, captured.input, captured.assertCurrent)).rejects.toThrow()
+      expect(http.calls.filter(call => call.method === 'POST')).toEqual([])
+      expect(command.hasUnconfirmedSave).toBe(false)
+      workspace.close()
+      return
+    }
     if (mode === 'unknown' || mode === 'false') {
       await expect(submitApprovalCommand(ds, captured.input, captured.assertCurrent)).rejects.toThrow(/未知/)
       const ids = [...command.dirtyTracking.pendingCreateIds]

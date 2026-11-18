@@ -6,6 +6,8 @@
  */
 import {ContentTreeDraftEditor} from '@/services/smart-bid/content-tree-draft-editor'
 import {contentDraftSaveRule} from '@/services/smart-bid/content-draft-save-rule'
+import {prepareContentDraftSaveRequest} from '@/services/smart-bid/content/draft/content-draft-save-request'
+import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
 import type {ContentAuthoringBinding} from '../model/content-authoring-host'
 import {parseDataViewKey,resolveDataViewKey,type DataView} from '@spark-appworks/spark-data'
 
@@ -45,6 +47,28 @@ export class ContentAuthoringCommands {
  /** 输入编辑只核本次原身份，不在开始输入时改写草稿。 */
  assertInputCurrent(epoch:number):void{this.assertCurrent(epoch)}
  get hasPendingInput():boolean{return this.#inputs.size>0}
+ /** 只捕获本行确认为编辑的内容和原查询所见的并发版本。 */
+ prepareSave(requestKey:string,epoch:number){
+  this.assertCurrent(epoch)
+  if(this.#inputs.size)throw Error('CONTENT_COMMAND_PENDING_INPUT')
+  const {draftId,projectId}=this.binding
+  const view=this.#view
+  const original=view.rows.find(row=>view.getPkKey(row)===draftId),edited=view.getEditingRow(draftId)
+  if(!original||!edited)throw Error('CONTENT_DRAFT_SAVE_SCOPE')
+  const assertVersion=view.captureReadRow(original,['draftVersion','baseRevisionId'])
+  const {draftVersion,baseRevisionId}=original
+  if(typeof draftVersion!=='string'||baseRevisionId!==null&&typeof baseRevisionId!=='string'||
+   view.fieldAccess(edited,'draft').read!=='visible'||view.fieldAccess(edited,'draft').write!=='allowed')
+   throw Error('CONTENT_DRAFT_SAVE_SCOPE')
+  const draft=edited['draft'],signature=canonicalSnapshotValue(draft)
+  if(signature===canonicalSnapshotValue(original['draft']))throw Error('CONTENT_DRAFT_SAVE_UNCHANGED')
+  const assertCurrent=()=>{
+   this.assertCurrent(epoch);assertVersion()
+   const row=view.getEditingRow(draftId)
+   if(!row||canonicalSnapshotValue(row['draft'])!==signature)throw Error('CONTENT_DRAFT_SAVE_STALE')
+  }
+  return prepareContentDraftSaveRequest({projectId,draftId,baseRevisionId,expectedDraftVersion:draftVersion,requestKey,draft,assertCurrent})
+ }
  /** 选择元信息仍归标准组件；只撤销旧选择产生的按钮回调，不保存节点副本。 */
  selectionChanged(epoch:number):void{
   this.assertCurrent(epoch)

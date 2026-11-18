@@ -12,9 +12,10 @@ import {isRecord} from '@spark-appworks/spark-utils'
 
 async function fixture(writable=true,other=false,createRuntime?:(ds:DataSet)=>Promise<PageRuntime>,primaryKey='id'){
  const ds=DataSet.fromJson({scenarioId:'S',tables:{WorkingDraft:{modelBinding:{modelId:'M',modelName:'WorkingDraft'},
-  columns:[{name:primaryKey,type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},{name:'draft',type:'object'}],views:{default:{commitMode:'staged'}}}}})
+  columns:[{name:primaryKey,type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},
+   {name:'draftVersion',type:'string'},{name:'baseRevisionId',type:'string'},{name:'draft',type:'object'}],views:{default:{commitMode:'staged'}}}}})
  const view=ds.getView('WorkingDraft')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'WorkingDraft'})
- const row={[primaryKey]:'D',projectId:'P',userId:'U',draft:{nodes:[],responseChanges:[]}}
+ const row={[primaryKey]:'D',projectId:'P',userId:'U',draftVersion:'V1',baseRevisionId:'BASE',draft:{nodes:[],responseChanges:[]}}
  const records=[row,...(other?[{...row,[primaryKey]:'OTHER'}]:[])]
  const query=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:primaryKey,data:{Count:records.length,
   Items:records.map(item=>({...item,lingma_sys_params:{r:[],e:writable?['draft']:[],h:[],m:[],d:false}}))}}})}))
@@ -27,6 +28,19 @@ async function fixture(writable=true,other=false,createRuntime?:(ds:DataSet)=>Pr
  return {ds,runtime,view,commands,binding,query,save,pending,expire:()=>{current=false}}
 }
 const add={action:'addDocument' as const,args:[{documentId:'B',chapterId:'C',headingId:'H',title:'实施方案'}] as [{documentId:string;chapterId:string;headingId:string;title:string}]}
+it('seals only confirmed changes and binds them to the original draft version',async()=>{
+ const f=await fixture()
+ try{
+  expect(()=>f.commands.prepareSave('Q',f.commands.epoch)).toThrow('CONTENT_DRAFT_SAVE_UNCHANGED')
+  f.commands.run(add,f.commands.epoch)
+  const prepared=await f.commands.prepareSave('Q',f.commands.epoch)
+  expect(prepared).toMatchObject({expectedDraftVersion:'V1',baseRevisionId:'BASE'})
+  expect(prepared.requestJson).toContain('实施方案')
+  f.commands.cancel(f.commands.epoch)
+  expect(()=>prepared.assertCurrent()).toThrow()
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.runtime.dispose()}
+})
 it('uses the formal draft primary key for editing and cancellation',async()=>{
  const f=await fixture(true,false,undefined,'draftId')
  try{

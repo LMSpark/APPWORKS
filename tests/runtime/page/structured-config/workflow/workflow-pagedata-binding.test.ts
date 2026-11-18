@@ -42,3 +42,14 @@ describe('workflow pagedata G0 modelBinding', () => {
     })
   }
 })
+it('binds workflow catalog status to the formal dictionary option view', () => {
+  const doc = readPagedata('config/pages/structured-config/workflow-catalog/pagedata.json')
+  expect(doc.tables?.['Base_WorkflowDefinition']).toMatchObject({
+    columns: expect.arrayContaining([{name: 'status', required: true,
+      optionsView: {tableName: 'workflowStatus', valueField: 'statusCode'}}]),
+  })
+  expect(doc.tables?.['workflowStatus']).toMatchObject({
+    modelBinding: {modelId: expect.any(String), modelName: 'workflowStatus'},
+    views: {default: {valueField: 'statusCode', labelField: 'txt'}},
+  })
+})

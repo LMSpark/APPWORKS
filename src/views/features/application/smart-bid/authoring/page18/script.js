@@ -4,6 +4,7 @@ let directoryError
 let selectionGeneration = 0
 let dispatch
 let dispatchError
+let dispatchIsCurrent
 let hasAttempt = false
 let reworkPending = false
 
@@ -13,15 +14,19 @@ async function __init__() {
   directoryError = undefined
   dispatch = undefined
   dispatchError = undefined
-  const {runId, attemptRef, requestKey, targetDigest, configurationLockHash} = $route.query
-  hasAttempt = [runId, attemptRef, requestKey, targetDigest, configurationLockHash].some(value => value != null)
+  const {projectId, runId, attemptRef, requestKey, targetDigest, configurationLockHash} = $route.query
+  const attempt = {runId, attemptRef, requestKey, targetDigest, configurationLockHash}
+  const isCurrent = () => $route.query.projectId === projectId &&
+    Object.entries(attempt).every(([key, value]) => $route.query[key] === value)
+  dispatchIsCurrent = isCurrent
+  hasAttempt = Object.values(attempt).some(value => value != null)
   if (hasAttempt) {
     try {
       const result = await $page.invokeHostCommand('content.operation.readDispatch',
-        {runId, attemptRef, requestKey, targetDigest, configurationLockHash})
-      if (generation === selectionGeneration) dispatch = result
+        attempt)
+      if (generation === selectionGeneration && isCurrent()) dispatch = result
     } catch {
-      if (generation === selectionGeneration) dispatchError = '原试次实发记录无法读取'
+      if (generation === selectionGeneration && isCurrent()) dispatchError = '原试次实发记录无法读取'
     }
   }
   if (generation !== selectionGeneration) return
@@ -59,7 +64,7 @@ function bindDirectoryStatus() {
 }
 
 function bindOriginalDispatch() {
-  if (!hasAttempt) return {visible: false}
+  if (!hasAttempt || !dispatchIsCurrent?.()) return {visible: false}
   try {
     dispatch?.assertCurrent()
     if (dispatch?.state === 'DISPATCH_RECORDED') {
@@ -73,6 +78,7 @@ function bindOriginalDispatch() {
 }
 
 function bindActualInput() {
+  if (!dispatchIsCurrent?.()) return {visible: false}
   try {
     dispatch?.assertCurrent()
     return {visible: typeof dispatch?.readActualInput === 'function'}
@@ -86,16 +92,16 @@ async function openActualInput() {
   if (!bindActualInput().visible) return
   try {
     const json = await current.readActualInput()
-    if (current !== dispatch) return
+    if (current !== dispatch || !dispatchIsCurrent?.()) return
     current.assertCurrent()
     await $page.showAlert(JSON.stringify(JSON.parse(json), null, 2), '原实发 JSON')
   } catch {
-    if (current === dispatch) $page.showMessage('原实发明细无法核验', 'warning')
+    if (current === dispatch && dispatchIsCurrent?.()) $page.showMessage('原实发明细无法核验', 'warning')
   }
 }
 
 function bindOriginalVerification() {
-  if (!hasAttempt) return {visible: false}
+  if (!hasAttempt || !dispatchIsCurrent?.()) return {visible: false}
   const result = dispatch?.verification
   if (!result) return {error: dispatchError ?? '缺原冻结输入或同版核验依据，待核原返回'}
   try {

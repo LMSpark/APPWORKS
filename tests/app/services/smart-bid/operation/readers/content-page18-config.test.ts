@@ -36,6 +36,25 @@ it('binds the original directory and never displays a superseded row response',a
  expect(showMessage).not.toHaveBeenCalled()
 })
 
+it('withdraws dispatch, verification and input details after the selected attempt changes',async()=>{
+ const query={projectId:'P',runId:'R',attemptRef:'A',requestKey:'Q',targetDigest:'DIGEST',configurationLockHash:'LOCK'}
+ const assertCurrent=vi.fn(),showAlert=vi.fn(),showMessage=vi.fn()
+ const readActualInput=vi.fn(async()=>{query.attemptRef='OTHER';return '{}'})
+ const invokeHostCommand=vi.fn(async()=>({state:'DISPATCH_RECORDED',dispatchRef:'REC',actualInputDigest:'DIGEST',assertCurrent,
+  verification:{state:'VERIFIED_CANDIDATE',assertCurrent},readActualInput}))
+ const {__init__,bindOriginalDispatch,bindOriginalVerification,openActualInput}=compileFunctions(script,{$route:{query},
+  $page:{invokeHostCommand,showAlert,showMessage}} as unknown as PageContext)
+ if(!__init__||!bindOriginalDispatch||!bindOriginalVerification||!openActualInput)throw Error('TEST_PAGE18_HANDLERS_REQUIRED')
+ await __init__()
+ expect(bindOriginalDispatch()).toMatchObject({status:expect.stringContaining('REC')})
+ expect(bindOriginalVerification()).toEqual({status:'候选核验通过'})
+ await openActualInput()
+ expect(bindOriginalDispatch()).toEqual({visible:false})
+ expect(bindOriginalVerification()).toEqual({visible:false})
+ expect(showAlert).not.toHaveBeenCalled()
+ expect(showMessage).not.toHaveBeenCalled()
+})
+
 it('prepares rework from the route attempt and a confirmed reason',async()=>{
  const assertCurrent=vi.fn(),showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
  const query={runId:'R',attemptRef:'A',requestKey:'Q'}

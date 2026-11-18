@@ -7,6 +7,7 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
+import type {recoverProductionRequest} from '@/services/smart-bid/content/review/production/production-recovery'
 
 type FileSelection=Readonly<{projectId:string;producedFileId:string;productionRequestRef:string}>
 type RegisteredFile=FileSelection&Readonly<{
@@ -65,6 +66,24 @@ export async function readRegisteredProducedFileReviewVersion(host:ContentRevisi
   if(!row)throw Error('CONTENT_PRODUCED_FILE_NOT_UNIQUE')
   return bindRegisteredFile({view,row,selection,assertScope,assertResult:view.captureReadResult(),openAuthorized})
  })
+}
+
+/** 核回执与实际登记实件是否同一制作、同册和同一文件字节。 */
+export async function readCompletedProductionFile(
+ host:ContentRevisionReadHost,
+ completed:Extract<Awaited<ReturnType<typeof recoverProductionRequest>>,{state:'COMPLETED'}>,
+ openAuthorized:OpenAuthorized,
+){
+ const {request,producedFileId,productionRequestRef}=completed
+ const assertScope=()=>{host.assertCurrent();completed.assertCurrent()}
+ assertScope()
+ if(request.projectId!==host.projectId)throw Error('CONTENT_PRODUCED_FILE_RECEIPT_SCOPE')
+ const file=await readRegisteredProducedFileReviewVersion({...host,assertCurrent:assertScope},{producedFileId,productionRequestRef},
+  openAuthorized)
+ if(file.revisionId!==request.revisionId||file.documentId!==request.documentId||file.versionHash!==completed.fileHash)
+  throw Error('CONTENT_PRODUCED_FILE_RECEIPT_SCOPE')
+ file.assertCurrent()
+ return Object.freeze({...file,completedScopeRefs:completed.completedScopeRefs})
 }
 
 function bindRegisteredFile(input:Readonly<{view:DataView;row:DataView['rows'][number];selection:FileSelection;

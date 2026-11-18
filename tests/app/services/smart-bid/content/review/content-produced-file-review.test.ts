@@ -1,6 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
-import {readProducedFileReviewVersion,readRegisteredProducedFileReviewVersion,readRegisteredProducedFileReviewVersions} from '@/views/features/application/smart-bid/authoring/model/review/content-produced-file-review'
+import {readCompletedProductionFile,readProducedFileReviewVersion,readRegisteredProducedFileReviewVersion,readRegisteredProducedFileReviewVersions} from '@/views/features/application/smart-bid/authoring/model/review/content-produced-file-review'
+import {recoverProductionRequest} from '@/services/smart-bid/content/review/production/production-recovery'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
 import {compareApprovedFileAnswer,readRegisteredFileAnswer,verifyOriginalFormFileAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-file-answer-reader'
@@ -137,6 +138,17 @@ it('opens only the original registered resource version read through SPARK data'
   await expect(readRegisteredProducedFileReviewVersion(host,selection,async()=>({...await open(),resourceVersionId:'OTHER'})))
    .rejects.toThrow('CONTENT_PRODUCED_FILE_RESOURCE_MISMATCH')
   expect(()=>result.assertCurrent()).toThrow()
+  const production={projectId:'P',documentId:'D',revisionId:'R',requestKey:'RUN',inputDigest:'a'.repeat(64),purpose:'FORMAL' as const}
+  const recover=(fileHash:string)=>recoverProductionRequest(production,{assertCurrent:host.assertCurrent,lookup:async()=>({
+   request:production,state:'COMPLETED',assertCurrent:host.assertCurrent,
+   file:{...selection,fileHash,completedScopeRefs:['TOTAL']},
+  })})
+  const completed=await recover(row.fileHash),mismatching=await recover('c'.repeat(64))
+  if(completed.state!=='COMPLETED'||mismatching.state!=='COMPLETED')throw Error('TEST_PRODUCTION_RECEIPT_REQUIRED')
+  await expect(readCompletedProductionFile(host,completed,open)).resolves.toMatchObject({
+   producedFileId:'F',versionHash:row.fileHash,completedScopeRefs:['TOTAL'],
+  })
+  await expect(readCompletedProductionFile(host,mismatching,open)).rejects.toThrow('CONTENT_PRODUCED_FILE_RECEIPT_SCOPE')
   const selected={...selection,observationId:'OBS',locationRef:'PAGE-1-TOTAL'}
   const approved={projectId:'P',revisionId:'R',producedFileId:'F',fileHash:row.fileHash,locationRef:selected.locationRef,
    approvalRef:'APP',value:'1.00',unit:'元',assertCurrent:host.assertCurrent}

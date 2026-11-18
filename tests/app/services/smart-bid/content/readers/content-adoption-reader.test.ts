@@ -2,10 +2,31 @@ import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {readContentAdoption} from '@/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader'
+import {prepareAdoptedProduction} from '@/views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 const request={candidateRevisionId:'C',requestKey:'K',requestDigest:'D',previewRef:'PV'}
+it('will not prepare formal production from an adopted index without matching commit evidence',async()=>{
+ const f=fixture()
+ try{
+  const original={...request,projectId:'P'}
+  const production={projectId:'P',documentId:'DOC',revisionId:'R',baselineId:'B',requestKey:'MAKE',
+   toolVersionRef:'TOOL',outputOptions:{format:'PDF'}}
+  const readEvidence=vi.fn(async()=>{throw Error('UNEXPECTED_PRODUCTION_EVIDENCE')})
+  const observation={...original,effect:'COMMITTED' as const,resultEvidenceRef:'RESULT'}
+  const evidence={...original,kind:'COMMITTED' as const,resultEvidenceRef:'RESULT',adoptionRef:'A',mergeRevisionId:'R'}
+  await expect(prepareAdoptedProduction(f.host,production,{adoption:[original,observation,evidence],readEvidence,assertCurrent:()=>{}}))
+   .rejects.toThrow('BID_PRODUCTION_ADOPTION_REQUIRED')
+  expect(f.query).not.toHaveBeenCalled()
+  await expect(prepareAdoptedProduction(f.host,production,{
+   adoption:[original,observation,{...evidence,commitCheckRef:'CHECK'}],readEvidence,assertCurrent:()=>{},
+  })).rejects.toThrow('BID_PRODUCTION_ADOPTION_REQUIRED')
+  expect(f.query).toHaveBeenCalledOnce()
+  expect(f.revisionQuery).not.toHaveBeenCalled()
+  expect(readEvidence).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
 function fixture(options:{count?:number;requestDigest?:string}={}){
  const manifest={hashContract:'spark-bid.revision-snapshot/1',projectId:'P',stageRef:{id:'ST'},baselineId:'B',
   templateRefs:[],nodes:[],requirementPins:[],responseAssignments:[],responses:[],qualificationReviews:[],sensitiveRefs:[]}

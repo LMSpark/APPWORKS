@@ -1,8 +1,20 @@
 import {expect,it} from 'vitest'
 import {readContentNodeFactIds,readContentNodeLinkOccurrences,readContentNodeLinks} from '@/services/smart-bid/content/content-node-links'
-import {projectContentCrossReferences} from '@/services/smart-bid/content/cross-reference-projection'
+import {hashCrossReferenceDisplays,projectContentCrossReferences} from '@/services/smart-bid/content/cross-reference-projection'
 
 const node=(type='paragraph',value='',data:Record<string,unknown>={})=>({nodeId:'N',parentId:'P',index:0,type,class:[],value,data})
+it('hashes xref displays at their positions among all original placeholders',async()=>{
+ const input=node('paragraph','{{页}}{{标题}}{{事实}}{{编号}}',{
+  编号:{type:'xref',nodeId:'D',show:'number'},标题:{type:'xref',nodeId:'D',show:'title'},
+  页:{type:'page',nodeId:'D'},事实:{type:'fact',factId:'PRICE'},
+ })
+ const targets=[{nodeId:'D',title:'实施方案',number:'3.2'}]
+ const refs=await hashCrossReferenceDisplays([input],targets)
+ expect(refs.map(({nodeId,occurrence})=>[nodeId,occurrence])).toEqual([['N',1],['N',3]])
+ const changed=await hashCrossReferenceDisplays([input],[{nodeId:'D',title:'新版方案',number:'3.2'}])
+ expect(changed[0]?.displayHash).not.toBe(refs[0]?.displayHash)
+ expect(changed[1]).toEqual(refs[1])
+})
 it('projects target titles and numbers independently of page placeholders',()=>{
  const input=node('paragraph','{{标题}}{{编号}}{{页}}',{
   标题:{type:'xref',nodeId:'D',show:'title'},编号:{type:'xref',nodeId:'D',show:'number'},页:{type:'page',nodeId:'D'}})

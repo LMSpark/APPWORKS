@@ -23,8 +23,9 @@ export type ContentTableData=Readonly<{
  rows:ReadonlyArray<ReadonlyArray<Readonly<{value:string;data:Readonly<Record<string,unknown>>}>>>
 }>
 /** 位置按原文 UTF-16 左闭右开区间，表格位置由 path 中的行列标识。 */
-export type ContentNodeLinkOccurrence=ContentNodeLink&Readonly<{start:number;end:number;show?:'title'|'number'}>
-type NodeReferences={links:ContentNodeLink[];factIds:Set<string>;resourceVersionIds:Set<string>;linkOccurrences:ContentNodeLinkOccurrence[]}
+export type ContentNodeLinkOccurrence=ContentNodeLink&Readonly<{occurrence:number;start:number;end:number;show?:'title'|'number'}>
+type NodeReferences={links:ContentNodeLink[];factIds:Set<string>;resourceVersionIds:Set<string>;
+ linkOccurrences:ContentNodeLinkOccurrence[];occurrenceCount:number}
 const containers=new Set(['document','toc','chapter','list','item','figure','quote'])
 const texts=new Set(['heading','paragraph','caption','image'])
 
@@ -57,10 +58,11 @@ function checkFields(input:Readonly<{value:string;data:Record<string,unknown>;ow
  }
  const parsed=inspectContentPlaceholders(value)
  for(const {name,start,end} of parsed.occurrences){
+  const occurrence=references.occurrenceCount++
   const link=fieldLinks.get(name)
   if(link){
    const show=record(data[name])['show']
-   references.linkOccurrences.push({...link,start,end,...(show==='title'||show==='number'?{show}:{})})
+   references.linkOccurrences.push({...link,occurrence,start,end,...(show==='title'||show==='number'?{show}:{})})
   }
  }
  for(const key of parsed.names){
@@ -97,7 +99,7 @@ function readNodeReferences(input:unknown) {
  canonicalContentNode(input)
  const node=record(input),ownerNodeId=text(own(node,'nodeId')),type=text(own(node,'type'))
  const value=text(own(node,'value')),data=record(own(node,'data'))
- const references:NodeReferences={links:[],factIds:new Set(),resourceVersionIds:new Set(),linkOccurrences:[]}
+ const references:NodeReferences={links:[],factIds:new Set(),resourceVersionIds:new Set(),linkOccurrences:[],occurrenceCount:0}
  let requiresTableGeneratorCheck=false
  if(containers.has(type)){
   if(value!==''||Object.keys(data).length!==0)throw Error('CONTENT_LINK_CONTAINER')

@@ -4,6 +4,7 @@
  * 边界：编号和标题解析由本次呈现提供；不改原节点或提前填页码。
  */
 import {readContentNodeLinkOccurrences} from './content-node-links'
+import {canonicalSnapshotValue,hashCanonicalSnapshotText} from './revision-snapshot-hash'
 import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from './references/snapshot-reference-values'
 
 /** 目标没有适用的标题或编号时，报告原引用位置。 */
@@ -21,4 +22,13 @@ export function projectContentCrossReferences(nodes:readonly unknown[],targets:u
   if(display===undefined||display===null)throw Error(`CONTENT_XREF_TARGET_MISSING:${occurrence.ownerNodeId}:${occurrence.targetNodeId}`)
   return [Object.freeze({...occurrence,path:Object.freeze([...occurrence.path]),display})]
  })))
+}
+
+/** 输出可交给有效内容摘要的显示引用条目，页码仍由出件阶段处理。 */
+export async function hashCrossReferenceDisplays(nodes:readonly unknown[],targets:unknown){
+ const projected=projectContentCrossReferences(nodes,targets)
+ return Object.freeze(await Promise.all(projected.map(async item=>Object.freeze({
+  nodeId:item.ownerNodeId,occurrence:item.occurrence,
+  displayHash:await hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.xref-display/1',item.display])),
+ }))))
 }

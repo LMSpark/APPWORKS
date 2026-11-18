@@ -11646,3 +11646,5 @@ flowchart TD
 - Excel 导出能力归属补证：spark-data 的 CrudService.exportData 已通过 requestFull 和 responseType=blob 返回 CrudResult<Blob>，依赖配置的导出 endpoint，按 query params 发送。sheet.exportExcel 端点声明 POST 及 fileName/encodingId/params；历史 OFF/ON 探针以 FormData 调用。两种传参在当前部署的等价性、业务调用处的已保存方案与本次数据范围仍待验证。历史记录 fixtureRemaining=false，清理后规则、节点、字段精确查询为0，不能将其旧ID用于当前实服验收。
 - 页12动作41核查：readOriginalExportRegistration 要求原场景 ProducedFile@originalExportRegistration 按 projectId、requestKey、outputRef 精确查询，空查保留 UNKNOWN；本仓搜索该视图命名仅见读取方及测试夹具。实件核验将注入的资源版本字节重新计算摘要；原请求恢复、登记回读、实件核验3文件6项本地通过。未取得已部署视图、服务端复合唯一/同摘要幂等/异摘要冲突回执或附件授权读取的实服证据，未执行登记写入。
 - 实件附件读取合同核对：页12将 projectId、producedFileId、productionRequestRef 与原 resourceVersionId 交给 openAuthorized，回读时复核项目、资源版本、授权有效性及文件摘要。平台 DownFile 的 FileInfo 接受 appType/customPath/fileName 等存储定位；缺少业务登记到获准文件版本的正式解析和实际授权回读证据。企业资料原件与制作实件2文件4项本地回归通过，本轮未尝试按推测路径下载。
+- 逻辑视图页面本地完整回归：tests/runtime/page/structured-config/logic-view 共11文件152项通过。覆盖设计目录、节点、参数与来源视图、两来源发布先后、回执缺失和后续草稿保护。未重放历史 SaveView；当前部署的独立回读及运行查询仍待。
+- 逻辑视图节点添加在异步读取来源字段后复核原查询结果、唯一选择行及可编辑状态；等待期间从表A改选表B时保留设计且提示重新确认。页面既有35项与新增定向1项通过。

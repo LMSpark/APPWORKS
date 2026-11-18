@@ -45,7 +45,7 @@
     <div data-logic-source-dialog>
       <p v-if="sourceBusy" role="status">正在读取来源…</p><p v-if="sourceError" role="alert">{{ sourceError }}</p>
       <RendererTable v-if="sourceView" :data-view-key="sourceKey" :children="sourceColumns" :filter="sourceFilter" :show-data-view-meta="false" :max-height="460" />
-      <RendererButton :data-view-key="viewKey" label="确认添加" :disabled="sourceBusy || !sourceView" @click="confirmSource" />
+      <RendererButton :data-view-key="viewKey" label="确认添加" :disabled="sourceBusy || !sourceView || !canEdit" @click="confirmSource" />
       <RendererButton :data-view-key="viewKey" label="取消" @click="closeSource" />
     </div>
   </RendererDialog>
@@ -124,11 +124,15 @@ async function openSource(type:LogicViewSourceType):Promise<void>{
   }catch(cause){if(!active||own!==sourceGeneration)return;if(sourceOpen.value){sourceError.value=cause instanceof Error?cause.message:String(cause);sourceBusy.value=false}else commandError.value=String(cause)}
 }
 async function confirmSource():Promise<void>{
-  const view=sourceView.value,workspace=sources.value;if(!view||!workspace||sourceBusy.value)return
+  const view=sourceView.value,workspace=sources.value;if(!view||!workspace||sourceBusy.value||!canEdit.value)return
   const own=sourceGeneration
   try {sourceBusy.value=true;sourceError.value=''
-    const source=LowcodeDataSpaceSourceCatalog.selected(sourceType.value,view),prepared=await workspace.prepare(source)
+    const source=LowcodeDataSpaceSourceCatalog.selected(sourceType.value,view)
+    const selectedRow=view.selectedRows[0],assertResult=view.captureReadResult()
+    const prepared=await workspace.prepare(source)
     if(!active||own!==sourceGeneration||!sourceOpen.value)return
+    assertResult()
+    if(!canEdit.value||view.selectedRows.length!==1||view.selectedRows[0]!==selectedRow)throw new Error('来源选择或编辑状态已变化，请重新确认')
     const selected=commands.value.append({expected:sourceExpected,parentPath:sourceParent,prepared})
     closeSource();path.value=selected;tab.value='basic'
   }catch(cause){if(active&&own===sourceGeneration){sourceError.value=cause instanceof Error?cause.message:String(cause);sourceBusy.value=false}}

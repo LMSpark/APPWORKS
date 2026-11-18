@@ -10,5 +10,22 @@
       {"type":"r-button","props":{"label":"删除配置","permAction":"delete","onBeforeRender":"bindSelectedAction","onClick":"removeNode"}},
       {"type":"r-tree","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","expandLevel":1,"treeProps":{"highlightCurrent":true,"expandOnClickNode":false},"showDataViewMeta":false}}
     ]
+  },
+  {
+    "id":"excel-scheme-summary",
+    "type":"r-form",
+    "props":{"dataViewKey":"36B01771C627B9BF5CD493DC75B996A1@Base_Import_solution@editorTarget","autoColumns":false,"showDataViewMeta":false,"gridColumns":2},
+    "children":[
+      {"type":"r-text","props":{"field":"solutionName","label":"方案名称","readonly":true}},
+      {"type":"r-text","props":{"field":"dataSetId","label":"方案数据空间","readonly":true}}
+    ]
+  },
+  {
+    "id":"excel-current-node",
+    "type":"r-form",
+    "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindCurrentNode"},
+    "children":[
+      {"type":"r-text","props":{"field":"sheetName","label":"当前节点","readonly":true}}
+    ]
   }
 ]

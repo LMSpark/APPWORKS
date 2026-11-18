@@ -8,21 +8,18 @@
     <p v-if="missing" role="alert">当前方案不存在</p>
     <p v-if="unconfirmed" role="status">存在尚未确认的保存结果，请通过原保存入口核验。</p>
     <p v-if="recoveryNotice" role="status">{{ recoveryNotice }}</p>
-    <template v-if="ready && validTarget">
+    <SparkPageRenderer v-if="ready && validTarget && treeRuntime && treeHost" :page-runtime="treeRuntime"
+      :route-snapshot="routeSnapshot" :host="treeHost">
+      <template #content="{children}">
       <div class="excel-workspaces">
         <aside :inert="(acting || unconfirmed || !!targetChange || !!removal || !!fieldReference || pendingPart('nodes') || pendingPart('rules')) || undefined">
-          <SparkPageRenderer v-if="treeRuntime && treeHost" :page-runtime="treeRuntime" :route-snapshot="routeSnapshot" :host="treeHost" />
+          <SparkComponentRenderer :config="designRegion(children,'excel-design-tree')" />
         </aside>
         <main>
           <header class="excel-workspace-header">
             <h1>导入配置设置</h1>
-      <RendererForm :data-view-key="schemeKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="2">
-        <FieldText field="solutionName" label="方案名称" :readonly="true" />
-        <FieldText field="dataSetId" label="方案数据空间" :readonly="true" />
-      </RendererForm>
-            <RendererForm v-if="selectedNode" :data-view-key="nodesKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
-              <FieldText field="sheetName" label="当前节点" :readonly="true" />
-            </RendererForm>
+            <SparkComponentRenderer :config="designRegion(children,'excel-scheme-summary')" />
+            <SparkComponentRenderer :config="designRegion(children,'excel-current-node')" />
             <div v-if="selectedNode" class="excel-workspace-actions">
           <p v-if="targetState?.kind==='source'" role="status">目标及字段替换共同保存；提交开始后沿同一次保存核验。</p>
           <RendererButton :label="targetChange ? targetSaveLabel : isUnconfirmed(nodesTable) ? '核验配置保存结果' : '保存配置'" :disabled="busy || !!targetChange && !targetChange.owns(nodesTable) || pendingPart('nodes')" @click="save(nodesTable)" />
@@ -103,7 +100,8 @@
         </main>
       </div>
 
-    </template>
+      </template>
+    </SparkPageRenderer>
     <ExcelTargetDialog v-if="sourceTargetId" :data-view-key="nodesKey" :record-id="sourceTargetId" :busy="acting" :validate-target="validateSourceTarget" @close="sourceTargetId = ''" @confirm="applyTarget" />
     <ExcelReferenceDialog v-if="fieldReference" :data-view-key="fieldsKey" :reference="fieldReference" :busy="acting" @close="fieldReference=undefined" />
     <RendererDialog v-if="removal" :model-value="true" :data-view-key="nodesKey" title="删除配置确认" :width="560" @update:model-value="cancelRemoval">
@@ -123,7 +121,7 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
-import {buildDataViewKey, RequestState, type DataSet, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, nodeId, RequestState, type DataSet, type SparkNode} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {PageTool,type PageRuntime} from '@spark-appworks/spark-project-model'
@@ -147,12 +145,17 @@ import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
 import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
 import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
-const {PAGE_RUNTIME, SparkPageRenderer, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, RendererTabs, RendererTabPane, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, RendererTabs, RendererTabPane, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
   return {path,fullPath,name:name??null,params,query,hash}
 })
+function designRegion(children:readonly SparkNode[],id:string):SparkNode {
+  const node=children.find(child=>nodeId(child)===id)
+  if(!node)throw new Error(`Excel 设计配置缺少 ${id}`)
+  return node
+}
 const treeRuntime=shallowRef<PageRuntime>()
 const treeHost=shallowRef<ReturnType<typeof makeTreeHost>>()
 const importConfigId = computed(() => props.schemeRowid ?? (typeof route.query['importConfigId'] === 'string' ? route.query['importConfigId'] : ''))

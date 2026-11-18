@@ -13,6 +13,10 @@ function bindSelectedAction() {
   return {...bindTreeAction(),disabled:tree?.locked() !== false || !tree?.selected()}
 }
 
+function bindCurrentNode() {
+  return {visible:tree?.selected() === true}
+}
+
 async function addRoot() { await $page.invokeHostCommand('excel.design.addRoot') }
 async function addSibling() { await $page.invokeHostCommand('excel.design.addSibling') }
 async function addChild() { await $page.invokeHostCommand('excel.design.addChild') }

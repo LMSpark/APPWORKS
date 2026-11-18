@@ -3,6 +3,7 @@ import {prepareProductionRequest} from '@/services/smart-bid/content/review/prod
 import {prepareExportRegistration} from '@/services/smart-bid/content/review/production/production-output-registration'
 import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {prepareSignedOutputRegistration} from '@/services/smart-bid/content/review/production/signed-output-registration'
+import {recoverSignatureRequest} from '@/services/smart-bid/content/review/submission/signature-request'
 import {prepareNativePriceRegistration} from '@/services/smart-bid/content/review/production/native-price-registration'
 import {recalculatePriceLines} from '@/services/smart-bid/content/references/commercial/price-sheet-recalculation'
 import {prepareDisclosedOutputRegistration} from '@/services/smart-bid/content/review/production/disclosed-output-registration'
@@ -46,17 +47,26 @@ it('keeps a native price file attached to its original approved calculation vers
 it('keeps a signed file attached to its original file and signing operation',async()=>{
  const bytes=new TextEncoder().encode('signed file').buffer
  const fileHash=await hashContentBytes(bytes)
- const original={...scope,producedFileId:'BEFORE',versionHash:'b'.repeat(64),assertCurrent:()=>{}}
+ const original={...scope,producedFileId:'BEFORE',objectVersion:'V1',versionHash:'b'.repeat(64),assertCurrent:()=>{}}
  const receipt={...scope,signatureOperationRef:'SIGN',signatureRecordId:'SR',originalFileId:'BEFORE',
-  originalHash:original.versionHash,resourceVersionId:'AFTER',fileHash,assertCurrent:()=>{}}
+  originalHash:original.versionHash,signedObjectRef:'SIGNED-FILE',resourceVersionId:'AFTER',fileHash,assertCurrent:()=>{}}
+ const request={projectId:'P',objectKind:'FILE' as const,objectRef:'BEFORE',objectVersion:'V1',objectHash:original.versionHash,
+  positionRef:'SEAL',signerRef:'SIGNER',requestKey:'REQ',requestDigest:'a'.repeat(64)}
+ const recovered=await recoverSignatureRequest(request,{assertCurrent:original.assertCurrent,lookup:async()=>({
+  request,state:'SIGNED',operationRef:'SIGN',signatureRecordId:'SR',signedObjectRef:'SIGNED-FILE',signedObjectHash:fileHash,
+  assertCurrent:original.assertCurrent,
+ })})
+ if(recovered.state!=='SIGNED')throw Error('TEST_SIGNATURE_RESULT_REQUIRED')
  const open=async()=>({projectId:'P',resourceVersionId:'AFTER',bytes,assertCurrent:()=>{}})
- const signed=await prepareSignedOutputRegistration(original,receipt,open)
+ const signed=await prepareSignedOutputRegistration(original,receipt,recovered,open)
  expect(signed.record).toMatchObject({originalFileId:'BEFORE',signatureOperationRef:'SIGN',resourceVersionId:'AFTER',fileHash})
- await expect(prepareSignedOutputRegistration({...original,producedFileId:'OTHER'},receipt,open))
+ await expect(prepareSignedOutputRegistration({...original,producedFileId:'OTHER'},receipt,recovered,open))
   .rejects.toThrow('BID_SIGNED_OUTPUT_SCOPE')
- await expect(prepareSignedOutputRegistration(original,receipt,async()=>({...await open(),resourceVersionId:'OTHER'})))
+ await expect(prepareSignedOutputRegistration(original,receipt,recovered,async()=>({...await open(),resourceVersionId:'OTHER'})))
   .rejects.toThrow('BID_SIGNED_OUTPUT_RESOURCE')
- await expect(prepareSignedOutputRegistration(original,{...receipt,fileHash:'c'.repeat(64)},open))
+ await expect(prepareSignedOutputRegistration(original,{...receipt,signatureOperationRef:'OTHER'},recovered,open))
+  .rejects.toThrow('BID_SIGNED_OUTPUT_SCOPE')
+ await expect(prepareSignedOutputRegistration(original,receipt,recovered,async()=>({...await open(),bytes:new ArrayBuffer(1)})))
   .rejects.toThrow('BID_SIGNED_OUTPUT_HASH')
 })
 

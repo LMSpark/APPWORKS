@@ -4,29 +4,37 @@
  */
 import {snapshotReferenceIdentity as identity} from '../../references/snapshot-reference-values'
 import {hashContentBytes} from '../../revision-snapshot-hash'
+import type {recoverSignatureRequest} from '../submission/signature-request'
 
 type FileScope=Readonly<{projectId:string;documentId:string;revisionId:string}>
 type SignedReceipt=FileScope&Readonly<{
  signatureOperationRef:string;signatureRecordId:string;originalFileId:string;originalHash:string
- resourceVersionId:string;fileHash:string;assertCurrent:()=>void
+ signedObjectRef:string;resourceVersionId:string;fileHash:string;assertCurrent:()=>void
 }>
+type Recovered=Extract<Awaited<ReturnType<typeof recoverSignatureRequest>>,{state:'SIGNED'}>
 
 /** 只准备签后登记，签署和验签分别消费各自的原办理凭据。 */
 export async function prepareSignedOutputRegistration(
- original:FileScope&Readonly<{producedFileId:string;versionHash:string;assertCurrent:()=>void}>,
- receipt:SignedReceipt,open:(input:Readonly<{projectId:string;resourceVersionId:string}>)=>Promise<Readonly<{
+ original:FileScope&Readonly<{producedFileId:string;objectVersion:string;versionHash:string;assertCurrent:()=>void}>,
+ receipt:SignedReceipt,recovered:Recovered,open:(input:Readonly<{projectId:string;resourceVersionId:string}>)=>Promise<Readonly<{
   projectId:string;resourceVersionId:string;bytes:ArrayBuffer;assertCurrent:()=>void
  }>>,
 ){
  const {projectId,documentId,revisionId,signatureOperationRef,signatureRecordId,originalFileId,originalHash,
-  resourceVersionId,fileHash}=receipt
+  signedObjectRef,resourceVersionId,fileHash}=receipt
  const record=Object.freeze({projectId,documentId,revisionId,signatureOperationRef,signatureRecordId,originalFileId,
-  originalHash,resourceVersionId,fileHash})
+  originalHash,signedObjectRef,resourceVersionId,fileHash})
  const assertOrigin=()=>{
   original.assertCurrent()
   receipt.assertCurrent()
+  recovered.assertCurrent()
   if(original.projectId!==projectId||original.documentId!==documentId||original.revisionId!==revisionId||
    original.producedFileId!==originalFileId||original.versionHash!==originalHash||
+   recovered.request.projectId!==projectId||recovered.request.objectKind!=='FILE'||
+   recovered.request.objectRef!==originalFileId||recovered.request.objectVersion!==original.objectVersion||
+   recovered.request.objectHash!==originalHash||
+   recovered.operationRef!==signatureOperationRef||recovered.signatureRecordId!==signatureRecordId||
+   recovered.signedObjectRef!==signedObjectRef||recovered.signedObjectHash!==fileHash||
    Object.entries(record).some(([key,value])=>receipt[key as keyof typeof record]!==value))
    throw Error('BID_SIGNED_OUTPUT_SCOPE')
  }

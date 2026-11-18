@@ -5,6 +5,7 @@
 import {readComposedOperationRouteCandidate} from './operation-station-fit'
 import {snapshotReferenceIdentity as identity} from '../content/references/snapshot-reference-values'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '../content/revision-snapshot-hash'
+import type {verifyOriginalOperationRouteDispatch} from './operation-route-dispatch-evidence'
 
 type Scope=Readonly<{
  runId:string;attemptRef:string;requestKey:string;projectId:string;targetDigest:string;configurationLockHash:string
@@ -13,6 +14,21 @@ type Receipt=Scope&Readonly<{receiptRef:string;assertCurrent:()=>void}>&(
  Readonly<{state:'COMPLETE';output:unknown}>|Readonly<{state:'PARTIAL'|'FAILED'|'UNKNOWN'}>
 )
 const fields=['runId','attemptRef','requestKey','projectId','targetDigest','configurationLockHash'] as const
+
+/** 用第05项实发证明和原指南核第06项，发送内容不合时暂不交候选。 */
+export async function verifyDispatchedOperationRouteReturn(
+ dispatch:Awaited<ReturnType<typeof verifyOriginalOperationRouteDispatch>>,receipt:Receipt,
+ source:Parameters<typeof verifyOperationRouteReturn>[2]&Readonly<{
+  guideRef:string;configurationLockHash:string;assertGuideCurrent:()=>void
+ }>){
+ const assertCurrent=()=>{dispatch.assertCurrent();source.assertCurrent();source.assertGuideCurrent()}
+ assertCurrent()
+ if(dispatch.state!=='MATCHED')return Object.freeze({state:'DISPATCH_EVIDENCE_REQUIRED' as const,assertCurrent})
+ if(!identity(source.guideRef)||source.configurationLockHash!==dispatch.scope.configurationLockHash)
+  throw Error('OPERATION_ROUTE_RETURN_GUIDE_SCOPE')
+ const verified=await verifyOperationRouteReturn(dispatch.scope,receipt,{catalog:source.catalog,match:source.match,assertCurrent})
+ return Object.freeze({...verified,dispatchRef:dispatch.dispatchRef,actualInputDigest:dispatch.actualInputDigest,guideRef:source.guideRef})
+}
 
 /** 只校验原返回，不将工艺完成或候选通过视为发布。 */
 export async function verifyOperationRouteReturn(scope:Scope,receipt:Receipt,source:Readonly<{

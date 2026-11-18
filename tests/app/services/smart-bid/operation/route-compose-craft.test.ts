@@ -4,7 +4,9 @@ import {readOperationRouteCandidate} from '@/services/smart-bid/operation/operat
 import {resolveContentTargetScope} from '@/services/smart-bid/content/content-target-scope'
 import {previewOperationRoute} from '@/services/smart-bid/operation/operation-route-preview'
 import {readComposedOperationRouteCandidate} from '@/services/smart-bid/operation/operation-station-fit'
-import {verifyOperationRouteReturn} from '@/services/smart-bid/operation/operation-route-return'
+import {verifyDispatchedOperationRouteReturn,verifyOperationRouteReturn} from '@/services/smart-bid/operation/operation-route-return'
+import {verifyOriginalOperationRouteDispatch} from '@/services/smart-bid/operation/operation-route-dispatch-evidence'
+import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 
 it('accepts only the original complete attempt and the JSON candidate that fits its catalog',async()=>{
  const scope={runId:'RUN',attemptRef:'TRY',requestKey:'Q',projectId:'P',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}
@@ -18,6 +20,25 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
   .rejects.toThrow('OPERATION_ROUTE_RETURN_SCOPE')
  await expect(verifyOperationRouteReturn(scope,{...receipt,state:'COMPLETE',output:'## 编制路线'},source))
   .rejects.toThrow('OPERATION_ROUTE_JSON_MODEL')
+ const actualInputDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(craft.inputExample))
+ const evidence={expectedInputDigest:actualInputDigest,assertCurrent:source.assertCurrent}
+ const sent={...scope,dispatchRef:'SENT',state:'DISPATCH_RECORDED' as const,actualInputDigest,assertCurrent:source.assertCurrent}
+ expect(await verifyOriginalOperationRouteDispatch(scope,sent,evidence)).toMatchObject({state:'MATCHED',inputJson:null})
+ expect(await verifyOriginalOperationRouteDispatch(scope,{...sent,input:craft.inputExample},evidence))
+  .toMatchObject({state:'MATCHED',inputJson:canonicalSnapshotValue(craft.inputExample)})
+ await expect(verifyOriginalOperationRouteDispatch(scope,{...sent,input:{other:true}},evidence))
+  .rejects.toThrow('OPERATION_ROUTE_DISPATCH_DIGEST')
+ await expect(verifyOriginalOperationRouteDispatch(scope,{...sent,configurationLockHash:'0'.repeat(64)},evidence))
+  .rejects.toThrow('OPERATION_ROUTE_DISPATCH_SCOPE')
+ const dispatch=await verifyOriginalOperationRouteDispatch(scope,sent,evidence)
+ const response={...receipt,state:'COMPLETE' as const,output:craft.outputExample}
+ const guide={...source,guideRef:'GUIDE',configurationLockHash:scope.configurationLockHash,assertGuideCurrent:()=>{}}
+ expect(await verifyDispatchedOperationRouteReturn(dispatch,response,guide))
+  .toMatchObject({state:'VERIFIED_CANDIDATE',dispatchRef:'SENT',guideRef:'GUIDE',actualInputDigest})
+ const mismatch=await verifyOriginalOperationRouteDispatch(scope,sent,{...evidence,expectedInputDigest:'0'.repeat(64)})
+ expect(await verifyDispatchedOperationRouteReturn(mismatch,response,guide)).toMatchObject({state:'DISPATCH_EVIDENCE_REQUIRED'})
+ await expect(verifyDispatchedOperationRouteReturn(dispatch,response,{...guide,configurationLockHash:'0'.repeat(64)}))
+  .rejects.toThrow('OPERATION_ROUTE_RETURN_GUIDE_SCOPE')
 })
 
 it('keeps a draft prompt, exact slots and sample tied to the existing native JSON model',()=>{

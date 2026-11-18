@@ -53,7 +53,7 @@ it('discovers only the complete scoped directory and retains the original public
  const host={runtime:{resolveView:(key:string)=>key==='S@KnowledgeGuide@effectiveDirectory'?view:
   key==='S@KnowledgeGuide@originalVersion'?originalView:undefined},
   scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
- const executeTool=vi.fn(async()=>({ok:true,data:{rootKind:'OperationRoute',models:[{kind:'OperationRoute',methods:[{name:'verify',signature:'verify(target: string): boolean'}]}]}}))
+ const executeTool=vi.fn(async()=>({ok:true,data:{rootKind:'OperationRoute',models:[{kind:'OperationRoute',attributes:[{name:'status',typeText:'string'}],methods:[{name:'verify',signature:'verify(target: string): boolean'}]}]}}))
  const discover=()=>discoverRegisteredOperationGuides(host,{executeTool},{rootKind:'OperationRoute',directoryRef:'DIR'})
  try{
   const result=await discover()
@@ -75,7 +75,7 @@ it('discovers only the complete scoped directory and retains the original public
   expect(executeTool).toHaveBeenCalledTimes(1)
   projectId='P'
   const controller=new AbortController()
-  const tools={executeTool:async(name:string)=>name==='model_action_guide'?{ok:true,data:guideText}:executeTool()}
+  const tools={executeTool:async(name:string)=>['model_action_guide','model_attribute_guide'].includes(name)?{ok:true,data:guideText}:executeTool()}
   const scriptHost=createContentOperationScriptHost({...host.runtime,generation:1,destroyed:false,isLoaded:true},
    tools,{...host,rootKind:'OperationRoute'})
   const directory=await scriptHost.invoke('content.operation.discover',{directoryRef:'DIR'},controller.signal)
@@ -99,28 +99,37 @@ it('discovers only the complete scoped directory and retains the original public
   expect(showAlert).toHaveBeenCalledExactlyOnceWith(
    ['指南 GUIDE · 版本 V1','目录路径 DIR','原材料引用 MATERIAL','',guideText].join('\n'),'动作指南 · V1')
   const runtime={generation:1,isLoaded:true,destroyed:false}
-  const catalogTools={executeTool:vi.fn(async(name:string)=>name==='model_action_guide'?{ok:true,data:guideText}:executeTool())}
+  const catalogTools={executeTool:vi.fn(async(name:string)=>['model_action_guide','model_attribute_guide'].includes(name)?{ok:true,data:guideText}:executeTool())}
   const catalog=createBidClassModelCatalogHost(runtime,catalogTools,{rootKind:'OperationRoute',assertCurrent:host.assertCurrent})
   const showCatalog=vi.fn(async()=>{})
-  const {openBidClassModelCatalog,openBidClassModelGuide}=compileFunctions(catalogScript,
-   {$route:{query:{modelKind:'OperationRoute',modelAction:'verify'}},$page:{
+  const catalogQuery:{modelKind:string;modelAction?:string;modelAttribute?:string}={modelKind:'OperationRoute',modelAction:'verify'}
+  const {openBidClassModelCatalog,openBidClassModelGuide,bindBidClassModelGuide}=compileFunctions(catalogScript,
+   {$route:{query:catalogQuery},$page:{
    invokeHostCommand:(name:string,input:unknown)=>catalog.invoke(name,input,controller.signal),showAlert:showCatalog,
   }} as unknown as PageContext)
-  if(!openBidClassModelCatalog||!openBidClassModelGuide)throw Error('TEST_CLASS_MODEL_CATALOG_HANDLER_REQUIRED')
+  if(!openBidClassModelCatalog||!openBidClassModelGuide||!bindBidClassModelGuide)throw Error('TEST_CLASS_MODEL_CATALOG_HANDLER_REQUIRED')
   await openBidClassModelCatalog()
-  expect(showCatalog).toHaveBeenCalledExactlyOnceWith('根模型 OperationRoute · 1 个定义\nOperationRoute · 方法\nverify(target: string): boolean','ClassModel 定义目录')
+  expect(showCatalog).toHaveBeenCalledExactlyOnceWith('根模型 OperationRoute · 1 个定义\nOperationRoute\nstatus: string\nverify(target: string): boolean','ClassModel 定义目录')
   await openBidClassModelGuide()
   expect(showCatalog).toHaveBeenLastCalledWith(guideText,'方法指南 · OperationRoute.verify')
   expect(catalogTools.executeTool).toHaveBeenCalledWith('model_action_guide',{kind:'OperationRoute',actionName:'verify'})
+  catalogQuery.modelAttribute='status'
+  expect(bindBidClassModelGuide()).toEqual({visible:false})
+  delete catalogQuery.modelAction
+  await openBidClassModelGuide()
+  expect(showCatalog).toHaveBeenLastCalledWith(guideText,'属性指南 · OperationRoute.status')
+  expect(catalogTools.executeTool).toHaveBeenCalledWith('model_attribute_guide',{kind:'OperationRoute',attributeName:'status'})
   await expect(catalog.invoke('bid.models.readCatalog',{rootKind:'OTHER'},controller.signal))
    .rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')
   const evidence=await catalog.invoke('bid.models.readCatalog',{},controller.signal)
+  expect(evidence.models[0]?.attributes).toEqual([{name:'status',typeText:'string'}])
   expect(evidence.models[0]?.methods).toEqual([{name:'verify',signature:'verify(target: string): boolean'}])
   catalogTools.executeTool.mockResolvedValueOnce({ok:true,data:{rootKind:'OperationRoute',
-   models:[{kind:'OperationRoute',methods:[{name:'verify',signature:''}]}]}})
+   models:[{kind:'OperationRoute',attributes:[{name:'status',typeText:'string'}],methods:[{name:'verify',signature:''}]}]}})
   await expect(catalog.invoke('bid.models.readCatalog',{},controller.signal)).rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')
   const callCount=catalogTools.executeTool.mock.calls.length
   await expect(evidence.readGuide('OperationRoute','unknown')).rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')
+  await expect(evidence.readAttributeGuide('OperationRoute','missing')).rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')
   expect(catalogTools.executeTool).toHaveBeenCalledTimes(callCount)
   runtime.generation++
   expect(()=>evidence.assertCurrent()).toThrow('BID_CLASS_MODEL_CATALOG_STALE')

@@ -25,7 +25,7 @@ export function createBidClassModelCatalogHost<Runtime extends Pick<PageRuntime,
   if(!result.ok||!isRecord(result.data)||result.data['rootKind']!==rootKind||!Array.isArray(result.data['models']))throw Error(error)
   const seen=new Set<string>()
   const models=Array.from<unknown>(result.data['models']).map(model=>{
-   if(!isRecord(model)||!identity(model['kind'])||!Array.isArray(model['methods'])||seen.has(model['kind']))throw Error(error)
+   if(!isRecord(model)||!identity(model['kind'])||!Array.isArray(model['methods'])||!Array.isArray(model['attributes'])||seen.has(model['kind']))throw Error(error)
    const kind=model['kind'],methodNames=new Set<string>()
    const methods=Array.from<unknown>(model['methods']).map(method=>{
     if(!isRecord(method)||!identity(method['name'])||methodNames.has(method['name'])||
@@ -34,10 +34,26 @@ export function createBidClassModelCatalogHost<Runtime extends Pick<PageRuntime,
     methodNames.add(methodName)
     return Object.freeze({name:methodName,signature})
    })
+   const attributeNames=new Set<string>()
+   const attributes=Array.from<unknown>(model['attributes']).map(attribute=>{
+    if(!isRecord(attribute)||!identity(attribute['name'])||attributeNames.has(attribute['name'])||
+     typeof attribute['typeText']!=='string'||!attribute['typeText'].trim())throw Error(error)
+    const {name:attributeName,typeText}=attribute
+    attributeNames.add(attributeName)
+    return Object.freeze({name:attributeName,typeText})
+   })
    seen.add(kind)
-   return Object.freeze({kind,methods:Object.freeze(methods)})
+   return Object.freeze({kind,attributes:Object.freeze(attributes),methods:Object.freeze(methods)})
   })
-  return Object.freeze({rootKind,models:Object.freeze(models),assertCurrent,async readGuide(kind:string,actionName?:string){
+  async function readAttributeGuide(kind:string,attributeName:string){
+   assertCurrent()
+   if(!models.find(item=>item.kind===kind)?.attributes.some(attribute=>attribute.name===attributeName))throw Error(error)
+   const guide=await classModel.executeTool(CLASS_MODEL_TOOL_NAMES.attributeGuide,{kind,attributeName})
+   assertCurrent()
+   if(!guide.ok||typeof guide.data!=='string'||!guide.data.trim())throw Error('BID_CLASS_MODEL_GUIDE_REQUIRED')
+   return Object.freeze({kind,attributeName,guide:guide.data,assertCurrent})
+  }
+  return Object.freeze({rootKind,models:Object.freeze(models),assertCurrent,readAttributeGuide,async readGuide(kind:string,actionName?:string){
    assertCurrent()
    const model=models.find(item=>item.kind===kind)
    if(!model||(actionName!==undefined&&!model.methods.some(method=>method.name===actionName)))throw Error(error)

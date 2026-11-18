@@ -86,7 +86,7 @@ export type ContentCandidateBinding=Readonly<{
   tables:ReadonlyArray<Readonly<{nodeId:string;generatorKey:string}>>;assertCurrent:()=>void
  }>>
  readEffectiveFacts:(scope:Readonly<{nodeIds:readonly string[];responses:readonly IndependentResponseFactTarget[]}>,assertConsumer?:()=>void)=>Promise<EffectiveFactsWithDisplays>
- readRequirementPinIssues:(assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementPinsBinding>
+ readRequirementPinIssues:(assertConsumer?:()=>void,nodeIds?:readonly string[])=>Promise<ContentCandidateRequirementPinsBinding>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
  readPreviewVersions:(assertConsumer?:()=>void)=>Promise<PreviewVersionSession>
@@ -234,13 +234,22 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertFact()
   return Object.freeze({...fact,requiresRevisionMatchCheck:false,assertCurrent:assertFact})
  }
- const readRequirementPinIssues=async(assertConsumer?:()=>void):Promise<ContentCandidateRequirementPinsBinding>=>{
+ const readRequirementPinIssues:ContentCandidateBinding['readRequirementPinIssues']=async(assertConsumer,nodeIds)=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}
   assertContext()
   const baselineId=row['baselineId']
   if(typeof baselineId!=='string')throw Error('CONTENT_CANDIDATE_BASELINE_REQUIRED')
+  const selected=new Set(nodeIds??payloads.map(node=>node.nodeId))
+  const scopedNodes=payloads.filter(node=>selected.has(node.nodeId))
+  if(selected.size!==scopedNodes.length||nodeIds!==undefined&&selected.size!==nodeIds.length)
+   throw Error('CONTENT_CANDIDATE_REQUIREMENT_SCOPE')
+  const pins:unknown[]=[]
+  visitSnapshotReferences(requirementPins,item=>{
+   const pin=snapshotReferenceRecord(item,'CONTENT_CANDIDATE_REQUIREMENT_PIN'),chapterId=pin['chapterId']
+   if(typeof chapterId==='string'&&selected.has(chapterId))pins.push(pin)
+  },'CONTENT_CANDIDATE_REQUIREMENT_PIN')
   const report=await readContentBaselineRequirementPins({...host,assertCurrent:assertContext},
-   {baselineId,stageRef:row['stageRef'],pins:requirementPins,nodes:payloads})
+   {baselineId,stageRef:row['stageRef'],pins,nodes:scopedNodes})
   const assertReport=()=>{assertContext();report.assertCurrent()}
   assertReport()
   return Object.freeze({...report,requiresRevisionMatchCheck:false,assertCurrent:assertReport})

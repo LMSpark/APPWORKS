@@ -74,17 +74,17 @@ function checkFields(input:Readonly<{value:string;data:Record<string,unknown>;ow
   if(reference['type']==='resource'&&typeof resourceVersionId==='string')references.resourceVersionIds.add(resourceVersionId)
  }
 }
-function checkTable(data:Record<string,unknown>,ownerNodeId:string,references:NodeReferences):boolean {
+function checkTable(data:Record<string,unknown>,ownerNodeId:string,references:NodeReferences):ContentTableData {
  if(Object.keys(data).length!==2||!Object.hasOwn(data,'header')||!Object.hasOwn(data,'rows'))throw Error('CONTENT_LINK_TABLE')
  const header=data['header'],rows=data['rows']
  if(!Array.isArray(header)||!Array.isArray(rows))throw Error('CONTENT_LINK_TABLE')
- if(header.length===0){if(rows.length!==0)throw Error('CONTENT_LINK_TABLE');return true}
+ if(header.length===0){if(rows.length!==0)throw Error('CONTENT_LINK_TABLE');return {header:[],rows:[]}}
  const names=header.map(value=>text(value)),normalized=names.map(name=>name.normalize('NFC'))
  if(names.some(name=>!name.trim())||new Set(normalized).size!==names.length)throw Error('CONTENT_LINK_TABLE_HEADER')
  const columnKinds=new Map<number,string>()
- rows.forEach((row:unknown,rowIndex:number)=>{
+ const cells=rows.map((row:unknown,rowIndex:number)=>{
   if(!Array.isArray(row)||row.length!==names.length)throw Error('CONTENT_LINK_TABLE_ROW')
-  row.forEach((item:unknown,columnIndex:number)=>{
+  return row.map((item:unknown,columnIndex:number)=>{
    const cell=record(item)
    if(Object.keys(cell).length!==2)throw Error('CONTENT_LINK_TABLE_CELL')
    const value=text(own(cell,'value')),fields=record(own(cell,'data')),name=names[columnIndex]
@@ -93,9 +93,10 @@ function checkTable(data:Record<string,unknown>,ownerNodeId:string,references:No
    columnKinds.set(columnIndex,kind)
    if(kind==='DATA'&&(value!==`{{${name}}}`||Object.keys(fields).length!==1||name===undefined||!Object.hasOwn(fields,name)))throw Error('CONTENT_LINK_TABLE_CELL')
    checkFields({value,data:fields,ownerNodeId,path:['data','rows',String(rowIndex),String(columnIndex),'data'],references})
+   return {value,data:fields}
   })
  })
- return false
+ return {header:names,rows:cells}
 }
 
 function readNodeReferences(input:unknown) {
@@ -103,7 +104,7 @@ function readNodeReferences(input:unknown) {
  const node=record(input),ownerNodeId=text(own(node,'nodeId')),type=text(own(node,'type'))
  const value=text(own(node,'value')),data=record(own(node,'data'))
  const references:NodeReferences={links:[],factIds:new Set(),resourceVersionIds:new Set(),linkOccurrences:[],factOccurrences:[],occurrenceCount:0}
- let requiresTableGeneratorCheck=false
+ let table:ContentTableData|undefined
  if(containers.has(type)){
   if(value!==''||Object.keys(data).length!==0)throw Error('CONTENT_LINK_CONTAINER')
  }else if(texts.has(type)){
@@ -114,12 +115,19 @@ function readNodeReferences(input:unknown) {
   }
  }else if(type==='table'){
   if(value!=='')throw Error('CONTENT_LINK_TABLE')
-  requiresTableGeneratorCheck=checkTable(data,ownerNodeId,references)
+  table=checkTable(data,ownerNodeId,references)
  }else if(type==='raw'){
   const classes=own(node,'class')
   if(Object.keys(data).length!==0||!Array.isArray(classes)||classes.length!==1||classes[0]!=='legacy')throw Error('CONTENT_LINK_RAW')
  }else throw Error('CONTENT_LINK_TYPE')
- return {...references,requiresTableGeneratorCheck}
+ return {...references,table,requiresTableGeneratorCheck:table?.header.length===0}
+}
+
+/** 验证计算展开的表格结构并返回已核正文表格和引用。 */
+export function readExpandedContentTable(input:unknown):Readonly<{data:ContentTableData;links:readonly ContentNodeLink[]}> {
+ const {table,links,requiresTableGeneratorCheck}=readNodeReferences(input)
+ if(!table||requiresTableGeneratorCheck)throw Error('CONTENT_CALCULATION_EXPANSION')
+ return {data:table,links}
 }
 
 /** 从正式节点 JSON 中提取 page/xref 引用。 */

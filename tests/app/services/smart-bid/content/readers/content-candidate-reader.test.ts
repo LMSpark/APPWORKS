@@ -139,7 +139,9 @@ it('checks original candidate pins against its fixed baseline and invalidates th
  const f=await fixture('valid-pin')
  try{
   const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
-  const report=await candidate.readRequirementPinIssues()
+  await expect(candidate.readRequirementPinIssues(undefined,['missing'])).rejects.toThrow('CONTENT_CANDIDATE_REQUIREMENT_SCOPE')
+  expect((await candidate.readRequirementPinIssues(undefined,['H'])).issues).toEqual([])
+  const report=await candidate.readRequirementPinIssues(undefined,['C','H'])
   expect(report.issues).toEqual([{chapterId:'C',lineageId:'L',version:'R1',reason:'VERSION_CHANGED',selectedVersion:'R2'}])
   expect(report.requiresRevisionMatchCheck).toBe(false);expect(report.requiresUseCheck).toBe(true)
   report.assertCurrent()

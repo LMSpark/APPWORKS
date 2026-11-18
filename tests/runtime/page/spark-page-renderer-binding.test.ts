@@ -131,10 +131,10 @@ describe('configured DataView query completion', () => {
     view.queryContext = {count: (view.queryContext.count || 0) + 1, key: dataViewKey, aborted: signal.aborted,
       current: view.currentRow && view.currentRow.id};
   }`
-  async function fixture(scriptText = script, scenarioIds = ['one'], autoLoad = false) {
+  async function fixture(scriptText = script, scenarioIds = ['one'], autoLoad = false, deferredScenarioIds:readonly string[] = []) {
     const tool = markRaw(new PageTool({pageId: 'completion'}))
     tool.hydrateFileText('rule.json', '[]'); tool.hydrateFileText('script.js', scriptText); tool.markLoaded()
-    const runtime = trackPageRuntime(markRaw(new PageRuntime({tool, scenarioIds, mainScenarioId: scenarioIds[0]!,
+    const runtime = trackPageRuntime(markRaw(new PageRuntime({tool, scenarioIds, deferredScenarioIds, mainScenarioId: scenarioIds[0]!,
       loadScenario: async scenarioId => SparkData.createDataSet({scenarioId, dataSetName: 'Completion', tables: {Internal: {
         tableName: 'Internal', resourceType: 'static-data', modelBinding: {modelId: 'M', modelName: 'Items'},
         columns: [{name: 'id', type: 'string', isPrimaryKey: true}], views: {default: {
@@ -181,6 +181,22 @@ describe('configured DataView query completion', () => {
     const {wrapper, view} = await fixture(script, ['one'], true)
     try {expect(view.queryContext).toMatchObject({count: 1, key: 'one@Items@default'})}
     finally {wrapper.unmount()}
+  })
+
+  it('subscribes a deferred scenario before the caller queries it and detaches on unmount', async()=>{
+    const {runtime,wrapper,onRuntimeError}=await fixture(script,['one','late'],true,['late'])
+    try{
+      expect(runtime.getDataSet('late')).toBeUndefined()
+      const dataSet=await runtime.ensureScenarioLoaded('late')
+      const view=dataSet.getView('Internal')!
+      expect(view.queryContext).toEqual({})
+      await view.refresh()
+      expect(view.queryContext).toMatchObject({count:1,key:'late@Items@default',current:'late'})
+      expect(onRuntimeError).not.toHaveBeenCalled()
+      wrapper.unmount()
+      await view.refresh()
+      expect(view.queryContext['count']).toBe(1)
+    }finally{if(wrapper.exists())wrapper.unmount()}
   })
 
   it.each(['missing', 'sync', 'async'])('reports %s handlers without turning accepted data into a query failure', async mode => {

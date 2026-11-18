@@ -33,7 +33,7 @@ AI用途：接入页面调用渲染或检查多实例隔离、脚本响应更新
 
 <script setup lang="ts">
 import { cloneVNode, toRaw, ref, watch, nextTick, getCurrentInstance, shallowRef, defineComponent, markRaw, onErrorCaptured, onUnmounted, isVNode, type VNode, type VNodeArrayChildren } from 'vue'
-import { type SparkNode, getSparkNodeChildren, nodeId, SparkNodeTree, buildDataViewKey } from '@spark-appworks/spark-data'
+import { type DataSet, type SparkNode, getSparkNodeChildren, nodeId, SparkNodeTree, buildDataViewKey } from '@spark-appworks/spark-data'
 import { Logger, isCallable } from '@spark-appworks/spark-utils'
 import type { PageRuntime, PageToolDefinition } from '@spark-appworks/spark-project-model'
 import type { PageRoute } from '../../runtime'
@@ -258,9 +258,7 @@ async function loadConfig():Promise<void> {
     return result
    }catch(errorLike){if(current())report('script-function',runtime,errorLike);throw errorLike}
   }
-  for(const scenarioId of runtime.call.scenarioIds) {
-   const ds=runtime.getDataSet(scenarioId)
-   if (!ds) continue // Deferred scenarios are not part of the initial render.
+  const subscribeScenario=(ds:DataSet)=>{
    releaseViewSubscriptions.push(ds.onAnyViewChange({
     currentRowChanged:refresh,
     selectedRowsChanged:refresh,
@@ -280,7 +278,7 @@ async function loadConfig():Promise<void> {
       report('script-function',runtime,new Error(`DATA_VIEW_COMPLETION_HANDLER: 页面未声明函数 ${name}`))
       return
      }
-     const dataViewKey=buildDataViewKey(view.dataTable?.modelBinding?.modelName ?? tableName,viewId,scenarioId)
+     const dataViewKey=buildDataViewKey(view.dataTable?.modelBinding?.modelName ?? tableName,viewId,ds.scenarioId)
      // 查询已经成功；脚本错误由callFunc诊断，不回流为查询失败。异步动作复用页面失效信号。
      try {
       const result=callFunc(name,{view,dataViewKey,signal})
@@ -289,6 +287,16 @@ async function loadConfig():Promise<void> {
      },
    }))
   }
+  for(const scenarioId of runtime.call.scenarioIds) {
+   const ds=runtime.getDataSet(scenarioId)
+   if(ds)subscribeScenario(ds)
+  }
+  releaseViewSubscriptions.push(runtime.onDeferredScenarioLoaded(ds=>{
+   if(!current())return
+   ds.setAppServices(pageRuntimeServices);ds.setPageRoute(route)
+   subscribeScenario(ds)
+   invalidate()
+  }))
   registerRenders(currentFunctions,current)
   nodeTree=SparkNodeTree.fromPageChildren(definition.rule)
   children.value=buildPageChildren(getSparkNodeChildren(nodeTree.root.children),{callFunc,callBeforeRender,actionCtx:{

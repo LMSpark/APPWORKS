@@ -47,6 +47,7 @@ export class PageRuntime {
   readonly #loadTool: PageRuntimeOptions['loadTool']
   readonly #dataSets = new Map<string,DataSet>()
   readonly #scenarioLoading = new Map<string,Promise<DataSet>>()
+  readonly #scenarioLoadedListeners = new Set<(dataSet:DataSet)=>void>()
   readonly #content = new Map<string,PageContentRuntime>()
   readonly #contentListeners = new Set<() => void>()
   readonly #externalDirtySources = new Map<string, { source: ExternalDirtySource; unsubscribe: () => void }>()
@@ -204,8 +205,16 @@ export class PageRuntime {
     try {
       this.#assertGeneration(generation)
       if(alreadyOwned || ds.scenarioId!==id || ds.destroyed)throw new Error('场景装配返回错误的数据空间身份')
-      this.#applyScenarioInputs(id,ds);this.#bindPeers(ds);this.#dataSets.set(id,ds);return ds
+      this.#applyScenarioInputs(id,ds);this.#bindPeers(ds);this.#dataSets.set(id,ds)
     } catch(error) {if(!alreadyOwned)ds.destroy();throw error}
+    for(const listener of this.#scenarioLoadedListeners)listener(ds)
+    return ds
+  }
+  /** Observes deferred scenarios after the runtime has registered their identities and peers. */
+  onDeferredScenarioLoaded(listener:(dataSet:DataSet)=>void):()=>void {
+    this.#assertAlive()
+    this.#scenarioLoadedListeners.add(listener)
+    return ()=>this.#scenarioLoadedListeners.delete(listener)
   }
   /** 选项来源跨空间只解析本次调用声明且已装配的同伴 DataSet。 */
   #bindPeers(ds:DataSet):void {
@@ -246,7 +255,7 @@ export class PageRuntime {
     return definition
   }
   /** 销毁本次调用全部 DataSet，并使尚未完成的装配代次失效。 */
-  dispose():void { if(this.#destroyed)return;this.#destroyed=true;this.#loaded=false;this.#generation++;this.#scenarioLoading.clear();this.#clearExternalDirtySources();for(const content of this.#content.values())content.dispose();this.#content.clear();this.#contentListeners.clear();for(const ds of this.#dataSets.values())ds.destroy();this.#dataSets.clear() }
+  dispose():void { if(this.#destroyed)return;this.#destroyed=true;this.#loaded=false;this.#generation++;this.#scenarioLoading.clear();this.#scenarioLoadedListeners.clear();this.#clearExternalDirtySources();for(const content of this.#content.values())content.dispose();this.#content.clear();this.#contentListeners.clear();for(const ds of this.#dataSets.values())ds.destroy();this.#dataSets.clear() }
   #assertAlive():void { if(this.#destroyed)throw new Error('PAGE_RUNTIME_DESTROYED: 页面调用已销毁') }
   #assertGeneration(generation:number):void { this.#assertAlive();if(generation!==this.#generation)throw new Error('PAGE_RUNTIME_STALE: 页面调用代次已失效') }
 }

@@ -42,10 +42,12 @@ export function reviewApprovedPrice(request:Target&Readonly<{purposeRef:string;r
   findingRefs.add(finding.findingRef)
   if(finding.blocksUse)blockingFindingRefs.push(finding.findingRef)
  }
- const detailsSatisfied=(request.rateOnly&&approval.rateOnly&&detailRef===null)||detail?.matchesApproval===true
+ const detailStatus=request.rateOnly&&approval.rateOnly&&detailRef===null?'NOT_REQUIRED':
+  detail===undefined?'PENDING':detail.matchesApproval?'MATCHED':'DIFFERENCE'
+ const detailsSatisfied=detailStatus==='NOT_REQUIRED'||detailStatus==='MATCHED'
  const useState=use?.state==='RESTRICTED'||blockingFindingRefs.length?'RESTRICTED':detailsSatisfied&&use?.state==='USABLE'?'USABLE':'PENDING'
  return Object.freeze({original:'APPROVED' as const,use:useState,scopeRef:request.scopeRef,purposeRef:request.purposeRef,
-  approvalRef:approval.approvalRef,version:approval.version,approverRef,value,unit,detailRef,
+  approvalRef:approval.approvalRef,version:approval.version,approverRef,value,unit,detailRef,detailStatus,
   useDecisionRef:use?.decisionRef??null,findingRefs:Object.freeze([...findingRefs].sort()),
   blockingFindingRefs:Object.freeze(blockingFindingRefs.sort()),assertCurrent})
 }

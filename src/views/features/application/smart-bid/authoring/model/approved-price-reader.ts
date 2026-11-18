@@ -42,9 +42,15 @@ export async function readRegisteredApprovedPrice(
   approverRef,value,unit,detailRef,rateOnly:originalRateOnly,assertCurrent:assertOriginal})
  const evidence=await readEvidence(request,approval)
  assertOriginal()
- const detailRead=identity(detailRef)&&identity(pricingVersion)
-  ? await readRegisteredApprovedPriceDetail(host,{...approval,detailRef,pricingVersion})
-  : undefined
+ let detailRead:Awaited<ReturnType<typeof readRegisteredApprovedPriceDetail>>|undefined
+ if(identity(detailRef)&&identity(pricingVersion)){
+  try{
+   detailRead=await readRegisteredApprovedPriceDetail(host,{...approval,detailRef,pricingVersion})
+  }catch{
+   // 原批准仍可读时，仅将复算依据留待核实。
+   assertOriginal()
+  }
+ }
  const assertCurrent=()=>{assertOriginal();evidence.assertCurrent();detailRead?.assertCurrent()}
  const detail=detailRead?.state==='READ'?detailRead.detail:undefined
  const {use,findings}=evidence

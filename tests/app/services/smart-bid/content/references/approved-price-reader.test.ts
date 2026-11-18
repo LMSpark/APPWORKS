@@ -25,7 +25,7 @@ it('reads only the scoped original approval and rejects mismatched or concealed 
   const sheetView=ds.getView('PriceSheet','selectedPriceSheet')
   if(!view||!sheetView)throw Error('TEST_VIEW_REQUIRED')
   const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ApprovedPrice'})
-  let hidden:string[]=[],version=row.version,withSheet=false
+  let hidden:string[]=[],version=row.version,withSheet=false,sheetHidden:string[]=[]
   view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:table.identity,scope:'original',readScope:()=> 'original',snapshot:table.applyResult({Result:{primaryKeyField:'id',
     data:{Count:1,Items:[{...row,version,...(withSheet?{detailRef:sheet.detailRef,pricingVersion:sheet.pricingVersion,value:'1.00',unit:'CNY',rateOnly:false}:{}),
@@ -34,7 +34,7 @@ it('reads only the scoped original approval and rejects mismatched or concealed 
   const sheetTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'PriceSheet'})
   sheetView.bindQueryExecutor({executeQuery:async()=>new DataSpaceQueryContext({
    identity:sheetTable.identity,scope:'sheet',readScope:()=> 'sheet',snapshot:sheetTable.applyResult({Result:{primaryKeyField:'id',
-    data:{Count:1,Items:[{...sheet,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
+    data:{Count:1,Items:[{...sheet,lingma_sys_params:{r:[],e:[],h:sheetHidden,m:[],d:false}}]}}}),
   })})
   const host={scenarioId:'S',scopeRef:'LOT',runtime:{resolveView:(key:string)=>key==='S@ApprovedPrice@selectedApprovedPrice'?view:
    key==='S@PriceSheet@selectedPriceSheet'?sheetView:undefined,
@@ -79,6 +79,10 @@ it('reads only the scoped original approval and rejects mismatched or concealed 
    original:'APPROVED',use:'USABLE',detailRef:'DETAIL',
   })
   expect(sheetView.queryContext).toMatchObject({pricingVersion:'SHEET-V1',detailRef:'DETAIL',scopeRef:'LOT'})
+  sheetHidden=['lines']
+  await expect(readRegisteredApprovedPrice(host,{...target,rateOnly:false},evidence)).resolves.toMatchObject({
+   original:'APPROVED',use:'PENDING',value:'1.00',detailRef:'DETAIL',
+  })
  }finally{ds.destroy()}
 })
 

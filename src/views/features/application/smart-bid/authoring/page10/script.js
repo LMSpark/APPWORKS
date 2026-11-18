@@ -31,6 +31,8 @@ async function openApprovedPrice() {
       : ['未取得指定版本的原批准']
     const use = {USABLE: '可用', RESTRICTED: '受限', PENDING: '待核'}[result.use]
     lines.push(`本次用途 ${use}`)
+    if (result.detailStatus === 'PENDING') lines.push('计价明细待核')
+    if (result.detailStatus === 'DIFFERENCE') lines.push('计价明细复算有差异')
     if (result.blockingFindingRefs?.length) lines.push(`阻断问题 ${result.blockingFindingRefs.join('、')}`)
     await $page.showAlert(lines.join('\n'), '原报价批准')
   } catch {

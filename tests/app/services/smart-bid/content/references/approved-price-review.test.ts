@@ -9,7 +9,12 @@ const detail={...request,detailRef:'DETAIL',matchesApproval:true,assertCurrent}
 
 it('preserves the original approval while checking same-version details and current purpose',()=>{
  expect(reviewApprovedPrice(request,{assertCurrent})).toMatchObject({original:'PENDING_APPROVAL',use:'PENDING'})
- expect(reviewApprovedPrice(request,{approval,use,assertCurrent})).toMatchObject({original:'APPROVED',use:'PENDING'})
+ expect(reviewApprovedPrice(request,{approval,use,assertCurrent})).toMatchObject({
+  original:'APPROVED',use:'PENDING',detailStatus:'PENDING',
+ })
+ expect(reviewApprovedPrice(request,{approval,detail:{...detail,matchesApproval:false},use,assertCurrent})).toMatchObject({
+  original:'APPROVED',use:'PENDING',detailStatus:'DIFFERENCE',
+ })
  expect(reviewApprovedPrice(request,{approval,detail,use,assertCurrent})).toMatchObject({original:'APPROVED',use:'USABLE',value:'0.00'})
  expect(reviewApprovedPrice(request,{approval,detail,use:{...use,state:'RESTRICTED'},assertCurrent}))
   .toMatchObject({original:'APPROVED',use:'RESTRICTED'})

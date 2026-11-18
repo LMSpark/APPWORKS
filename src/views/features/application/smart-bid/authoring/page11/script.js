@@ -320,6 +320,8 @@ async function openVolumePlanning() {
 
 async function __init__() {
   const generation = ++initialization
+  assertOriginalDraft = undefined
+  selectedNodeId = null
   editorSession = undefined
   editorFault = false
   hostUnavailable = false

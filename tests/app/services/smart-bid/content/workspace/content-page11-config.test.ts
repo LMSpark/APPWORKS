@@ -12,7 +12,8 @@ function fixture(user='U',primaryKey='id'){
  const proof=vi.fn(),resultProof=vi.fn(),view={dataTable:{modelBinding:{modelName:'WorkingDraft'}},queryContext:{projectId:'P',currentUserId:'U'},
   primaryKey,rows:[row],getPkKey:(item:typeof row)=>item[primaryKey],getEditingRow:vi.fn(()=>row),captureReadRow:vi.fn(()=>proof),captureReadResult:vi.fn(()=>resultProof)}
  const resolveView=vi.fn(()=>view)
- const functions=compileFunctions(script,{$route:{query:{projectId:'P',draftId:'D'}},$page:{resolveView}} as unknown as PageContext)
+ const functions=compileFunctions(script,{$route:{query:{projectId:'P',draftId:'D'}},$page:{resolveView,
+  invokeHostCommand:async()=>({assertCurrent:()=>{}})}} as unknown as PageContext)
  return {row,view,proof,resultProof,functions,resolveView}
 }
 it('expresses the draft structure with standard children and binds its original row',()=>{
@@ -37,6 +38,18 @@ it('keeps selected content attached to the original node when local rows move',(
  Object.assign(f.row.draft,{nodes:[{nodeId:'B'},{nodeId:'A'}]})
  expect(f.functions['bindSelectedNode']!()).toEqual({valuePath:['nodes',1]})
  Object.assign(f.row.draft,{nodes:[{nodeId:'B'}]})
+ expect(f.functions['bindSelectedNode']!()).toEqual({visible:false})
+})
+it('reopens without carrying the previous draft proof or node selection',async()=>{
+ const f=fixture()
+ Object.assign(f.row.draft,{nodes:[{nodeId:'A'}]})
+ f.functions['selectContentNode']!([0])
+ expect(f.functions['bindSelectedNode']!()).toEqual({valuePath:['nodes',0]})
+ f.resultProof.mockImplementation(()=>{throw Error('PREVIOUS_DRAFT_PROOF')})
+ f.view.captureReadResult.mockReturnValueOnce(vi.fn())
+ await f.functions['__init__']!()
+ expect(f.functions['bindOriginalDraft']!()).toEqual({contextRowId:'D'})
+ expect(f.view.captureReadResult).toHaveBeenCalledTimes(2)
  expect(f.functions['bindSelectedNode']!()).toEqual({visible:false})
 })
 it('hides data when the original authenticated draft or its read proof is unavailable',()=>{

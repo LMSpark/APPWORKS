@@ -2,10 +2,8 @@
 @module app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page
 -->
 <template>
-  <section class="structured-catalog-page">
-    <header><h1>Excel 导入配置</h1><p>导入方案目录；Sheet 布局与转换规则在编辑器中维护。</p></header>
-    <p v-if="loading" role="status">正在读取导入目录…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
+  <RendererSection class="structured-catalog-page" title="Excel 导入配置" :bordered="false" :grid-columns="1"
+    :status="loading ? '正在读取导入目录…' : '导入方案目录；Sheet 布局与转换规则在编辑器中维护。'" :error="error">
     <p v-if="creation?.phase === 'retained'" role="status">方案已保留；编码处理未标记完成，请核查正式结果。</p>
     <template v-if="ready">
       <p v-if="catalogScope" role="status">请进入已授权应用后维护导入方案。</p>
@@ -39,7 +37,7 @@
         </template>
       </RendererDialog>
     </template>
-  </section>
+  </RendererSection>
 </template>
 
 <script setup lang="ts">
@@ -55,7 +53,7 @@ import {selectExcelTemplate,cancelExcelTemplate,saveExcelTemplate,readExcelTempl
 import ExcelEditor from './excel-import-editor-page.vue'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 
-const {PAGE_RUNTIME,RendererTable,RendererDialog,RendererForm,RendererButton,useSparkComponent,consumeRequiredPageService}=SparkComponent
+const {PAGE_RUNTIME,RendererSection,RendererTable,RendererDialog,RendererForm,RendererButton,useSparkComponent,consumeRequiredPageService}=SparkComponent
 const route = useRoute()
 const designTarget = ref('')
 const designPage = ref<{hasPending: boolean; busy: boolean; unconfirmed: boolean; discardChanges: () => boolean}>()
@@ -228,6 +226,5 @@ onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.di
 </script>
 
 <style scoped>
-.structured-catalog-page { display: grid; gap: 16px; padding: 24px; }
-.structured-catalog-page header h1 { margin: 0; font-size: 1.25rem; }
+.structured-catalog-page { padding: 24px; }
 </style>

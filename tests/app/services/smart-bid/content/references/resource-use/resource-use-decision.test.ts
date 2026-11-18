@@ -1,8 +1,9 @@
 import {expect,it,vi} from 'vitest'
+import {authorityScenarioViews} from '@/views/features/application/smart-bid/authority/authority-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
 import {prepareResourceUseDecision,readOriginalResourceUseRegistration} from '@/services/smart-bid/content/references/resource-use/resource-use-decision'
 import {checkApplicableResourceUse,checkRegisteredResourceUse} from '@/services/smart-bid/content/references/resource-use/resource-use-coverage'
-import {readRegisteredResourceUseRegistration,resourceUseRegistrationView} from '@/views/features/application/smart-bid/authority/resource-use-registration-reader'
+import {readRegisteredResourceUseRegistration} from '@/views/features/application/smart-bid/authority/resource-use-registration-reader'
 import {createResourceUseScriptHost} from '@/views/features/application/smart-bid/authority/resource-use-script-host'
 import script from '@/views/features/application/smart-bid/authority/page06/script.js?raw'
 import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
@@ -86,9 +87,10 @@ it('requires an original decision from the source enterprise for exact recipient
  expect(recovered).toMatchObject({status:'REGISTERED',versionId:'DENIED-V1',record:{intent:'DENY'}})
  const row={id:'DENIED-V1',...original,status:'REGISTERED',versionId:'DENIED-V1',receiptRef:'RECEIPT',decisionRecord:denied.record}
  const scenarioId='S',model='ResourceUseDecision'
+ const scenarioViews=authorityScenarioViews({AuthorityGrant:'id',ResourceVersion:'id',ResourceUseDecision:'id'})
  const ds=DataSet.fromJson({scenarioId,tables:{ResourceUseDecision:{
   modelBinding:{modelName:model,modelId:'M'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalRegistration:resourceUseRegistrationView('id')},
+  views:{default:{},...scenarioViews.ResourceUseDecision},
  }}})
  try{
   const view=ds.getView(model,'originalRegistration')

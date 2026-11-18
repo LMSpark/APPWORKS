@@ -1,4 +1,5 @@
 import {expect,it,vi} from 'vitest'
+import {authorityScenarioViews} from '@/views/features/application/smart-bid/authority/authority-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
 import {prepareAuthorityGrantDecision,readOriginalAuthorityGrantRegistration} from '@/services/smart-bid/content/review/submission/authority-grant-decision'
 import {checkRegisteredAuthorityGrant} from '@/services/smart-bid/content/review/submission/authority-grant-coverage'
@@ -8,7 +9,7 @@ import {createContentReviewScriptHost} from '@/views/features/application/smart-
 import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {contentPackageSignatureScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {producedFileScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
-import {authorityGrantRegistrationView,readRegisteredAuthorityGrantRegistration} from '@/views/features/application/smart-bid/authority/authority-grant-registration-reader'
+import {readRegisteredAuthorityGrantRegistration} from '@/views/features/application/smart-bid/authority/authority-grant-registration-reader'
 import {createAuthorityGrantScriptHost} from '@/views/features/application/smart-bid/authority/authority-grant-script-host'
 import script from '@/views/features/application/smart-bid/authority/page04/script.js?raw'
 import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
@@ -167,9 +168,10 @@ it('binds a revocation to its authority, affected scope and original version',as
  const recovered=await lookup(result)
  expect(recovered).toMatchObject({status:'REGISTERED',versionId:'V2',record:prepared.record})
  const row={id:'V2',...original,status:'REGISTERED',versionId:'V2',decisionRef:request.decisionRef,decisionRecord:prepared.record}
+ const scenarioViews=authorityScenarioViews({AuthorityGrant:'id',ResourceVersion:'id',ResourceUseDecision:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{AuthorityGrant:{
   modelBinding:{modelId:'G',modelName:'AuthorityGrant'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalRegistration:authorityGrantRegistrationView('id')},
+  views:{default:{},...scenarioViews.AuthorityGrant},
  }}})
  try{
   const view=ds.getView('AuthorityGrant','originalRegistration')

@@ -1,6 +1,7 @@
 import {expect,it,vi} from 'vitest'
+import {authorityScenarioViews} from '@/views/features/application/smart-bid/authority/authority-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
-import {createBidResourceVersionHost,resourceVersionHistoryView,resourceVersionReadView} from '@/views/features/application/smart-bid/authority/resource-version-reader'
+import {createBidResourceVersionHost} from '@/views/features/application/smart-bid/authority/resource-version-reader'
 import script from '@/views/features/application/smart-bid/authority/page05/script.js?raw'
 import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
 import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
@@ -11,9 +12,10 @@ it('shows only the requested original metadata and suppresses unauthorized prove
  const row={id:'VER-ID',resourceId:'RESOURCE',version:'V1',typeVersion:'LICENSE-V3',
   validFrom:null,validTo:'2026-12-31',sourceTerms:{issuer:'ISSUER'},rights:'EXTERNAL',files:[{id:'FILE-1'}],
   createdAt:'2026-11-18T10:00:00+08:00'}
+ const scenarioViews=authorityScenarioViews({AuthorityGrant:'id',ResourceVersion:'id',ResourceUseDecision:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ResourceVersion:{
   modelBinding:{modelName:'ResourceVersion',modelId:'M'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalVersion:resourceVersionReadView('id'),versionHistory:resourceVersionHistoryView('id')},
+  views:{default:{},...scenarioViews.ResourceVersion},
  }}})
  try{
   const view=ds.getView('ResourceVersion','originalVersion')

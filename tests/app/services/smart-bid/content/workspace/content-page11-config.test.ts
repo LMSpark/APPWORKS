@@ -107,7 +107,8 @@ it('only adds undeclared nodes after confirmation against a current preview',asy
  const previewCandidate=vi.fn(async()=>initial)
  previewCandidate.mockResolvedValueOnce(initial).mockResolvedValueOnce({...initial,scopeCheckPassed:true,violations:[]})
  const showConfirm=vi.fn(async()=>true)
- const {__init__,openCandidatePreview}=compileFunctions(script,{$route:{query:{candidateRevisionId:'C'}},
+ const query={candidateRevisionId:'C'}
+ const {__init__,openCandidatePreview}=compileFunctions(script,{$route:{query},
   $page:{invokeHostCommand:async()=>({previewCandidate}),showAlert,showMessage,showConfirm}} as unknown as PageContext)
  if(!__init__||!openCandidatePreview)throw Error('TEST_PAGE11_PREVIEW_REQUIRED')
  await __init__()
@@ -119,6 +120,11 @@ it('only adds undeclared nodes after confirmation against a current preview',asy
  await openCandidatePreview()
  expect(previewCandidate).toHaveBeenCalledTimes(3)
  expect(showMessage).toHaveBeenCalledWith('候选变更无法预演','warning')
+ proof.mockImplementation(()=>{})
+ showConfirm.mockImplementationOnce(async()=>{query.candidateRevisionId='OTHER';return true})
+ await openCandidatePreview()
+ expect(previewCandidate).toHaveBeenCalledTimes(4)
+ expect(showAlert).toHaveBeenCalledTimes(1)
 })
 it.each([false,true])('keeps the original query proof when the draft already has an edit overlay (%s), then withdraws after refresh',async edited=>{
  const scenarioId='D3BBA1F0780056C837AC35E9825CAD5A'

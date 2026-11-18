@@ -10,11 +10,19 @@ let saveReceipt
 let saveReceiptError = false
 let saveReceiptRequested = false
 let saveReceiptLoading = false
+let candidatePreviewPending = false
 
 function bindCandidatePreview() {
   const {candidateRevisionId} = $route.query
   return {visible: typeof candidateRevisionId === 'string' && !!candidateRevisionId && candidateRevisionId.trim() === candidateRevisionId,
-    disabled: !editorSession || editorFault}
+    disabled: !editorSession || editorFault || candidatePreviewPending}
+}
+
+function candidatePreviewRouteKey() {
+  const {candidateRevisionId, candidateExpectedHead, candidateAddedNodeId, candidateFormDocumentId,
+    formTemplateRef, formTemplateVersion} = $route.query
+  return JSON.stringify([candidateRevisionId, candidateExpectedHead, candidateAddedNodeId,
+    candidateFormDocumentId, formTemplateRef, formTemplateVersion])
 }
 
 async function openCandidatePreview() {
@@ -22,6 +30,8 @@ async function openCandidatePreview() {
   if (!visible || disabled) return
   const {candidateRevisionId, candidateExpectedHead, candidateAddedNodeId, candidateFormDocumentId,
     formTemplateRef, formTemplateVersion} = $route.query
+  const routeKey = candidatePreviewRouteKey()
+  candidatePreviewPending = true
   try {
     const id = value => typeof value === 'string' && !!value && value.trim() === value
     const declaredAddedNodeIds = candidateAddedNodeId === undefined ? [] :
@@ -36,18 +46,23 @@ async function openCandidatePreview() {
     }
     const session = editorSession
     const selection = {candidateRevisionId, expectedHead: candidateExpectedHead ?? null}
+    const assertSelection = () => {
+      if (editorSession !== session || candidatePreviewRouteKey() !== routeKey) throw Error('CONTENT_PAGE_RENDER_STALE')
+    }
     let result = await session.previewCandidate(selection, options)
     result.assertCurrent()
+    assertSelection()
     const missing = result.violations.filter(issue => issue.code === 'UNDECLARED_ADDITION').map(issue => issue.ownerId)
     if (missing.length) {
       const confirmed = await $page.showConfirm(`以下新增节点尚未声明：${missing.join('、')}`,
         '确认新增节点', {confirmText: '确认并重新预演', cancelText: '保留原预演'})
       result.assertCurrent()
-      if (editorSession !== session) throw Error('CONTENT_PAGE_RENDER_STALE')
+      assertSelection()
       if (confirmed) {
         const additions = [...new Set([...declaredAddedNodeIds, ...missing])]
         result = await session.previewCandidate(selection, {...options, declaredAddedNodeIds: additions})
         result.assertCurrent()
+        assertSelection()
       }
     }
     const lines = [
@@ -80,6 +95,8 @@ async function openCandidatePreview() {
     await $page.showAlert(lines.join('\n'), '候选变更预演')
   } catch {
     $page.showMessage('候选变更无法预演', 'warning')
+  } finally {
+    candidatePreviewPending = false
   }
 }
 

@@ -276,7 +276,18 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const original=layoutInput(path),epoch=commands.epoch,layout=contentTreeEditorLayout(original),node=layout.children?.[1]
      const props=isRecord(node)&&isRecord(node['props'])?node['props']:undefined
      if(!props)throw Error('CONTENT_PAGE_EDITOR_REQUIRED')
-     return {...props,onChange(){assertCurrent();commands.assertInputCurrent(epoch)},onEditingChange(pending:boolean){
+     const readNodeId=()=>{
+      const draft=original.view.getEditingRow(original.draftId)?.['draft'],index=path[0]
+      const nodes=isRecord(draft)?draft['nodes']:undefined
+      const selected:unknown=Array.isArray(nodes)&&typeof index==='number'?nodes[index]:undefined
+      return isRecord(selected)?selected['nodeId']:undefined
+     }
+     const nodeId=readNodeId()
+     if(!identity(nodeId))throw Error('CONTENT_PAGE_EDITOR_REQUIRED')
+     return {...props,onChange(){
+      assertCurrent();commands.assertInputCurrent(epoch)
+      if(readNodeId()!==nodeId)throw Error('CONTENT_COMMAND_STALE')
+     },onEditingChange(pending:boolean){
       if(typeof pending!=='boolean')throw Error('CONTENT_COMMAND_INPUT_STATE_REQUIRED')
       // 旧编辑器卸载的false不能清掉下一编辑器的保护。
       if(!pending&&epoch!==commands.epoch)return

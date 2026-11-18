@@ -223,6 +223,11 @@ it('rejects old editor writes and never lets its cleanup clear a newer editor in
   const session=createContentAuthoringScriptHost(f.binding,f.commands).invoke('content.authoring.connect',undefined,controller.signal)
   const old=session.editorProps([2]),oldChange=old['onChange'],oldPending=old['onEditingChange']
   if(typeof oldChange!=='function'||typeof oldPending!=='function')throw Error('EDITOR_CALLBACK_REQUIRED')
+  const draft=f.view.getEditingRow('D')?.['draft']
+  if(!isRecord(draft)||!Array.isArray(draft['nodes']))throw Error('DRAFT_REQUIRED')
+  f.view.updateEditingValue('D','draft',{...draft,nodes:[...draft['nodes']].reverse()})
+  expect(()=>Reflect.apply(oldChange,undefined,[])).toThrow('CONTENT_COMMAND_STALE')
+  f.view.updateEditingValue('D','draft',draft)
   session.select()
   const next=session.editorProps([2]),nextPending=next['onEditingChange']
   if(typeof nextPending!=='function')throw Error('EDITOR_CALLBACK_REQUIRED')

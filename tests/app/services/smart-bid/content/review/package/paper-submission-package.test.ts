@@ -49,17 +49,25 @@ it('opens the original paper packing record before asking for same-seal witness 
  const ds=DataSet.fromJson({scenarioId:'S',tables:{SubmissionPackage:{
   modelBinding:{modelId:'M',modelName:'SubmissionPackage'},
   columns:Object.keys(row).map(name=>({name,type:name==='packed'?'object':'string',isPrimaryKey:name==='id'})),
-  views:{default:{},originalPackedPaper:SubmissionPackage.originalPackedPaper},
+  views:{default:{},originalPackedPaper:SubmissionPackage.originalPackedPaper,
+   originalPackedPaperByRequest:SubmissionPackage.originalPackedPaperByRequest},
  }}})
  const view=ds.getView('SubmissionPackage','originalPackedPaper')
- if(!view)throw Error('TEST_PAPER_PACKAGE_VIEW_REQUIRED')
+ const requestView=ds.getView('SubmissionPackage','originalPackedPaperByRequest')
+ if(!view||!requestView)throw Error('TEST_PAPER_PACKAGE_VIEW_REQUIRED')
  const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'SubmissionPackage'})
  let hidden=false
  view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
   identity:table.identity,scope:'paper',readScope:()=> 'paper',snapshot:table.applyResult({Result:{primaryKeyField:'id',
    data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:hidden?['packed']:[],m:[],d:false}}]}}}),
  })})
- const host={runtime:{resolveView:(key:string)=>key==='S@SubmissionPackage@originalPackedPaper'?view:undefined},
+ let found=false
+ requestView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+  identity:table.identity,scope:'paper-request',readScope:()=> 'paper-request',snapshot:table.applyResult({Result:{primaryKeyField:'id',
+   data:{Count:found?1:0,Items:found?[{...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]:[]}}}),
+ })})
+ const host={runtime:{resolveView:(key:string)=>key==='S@SubmissionPackage@originalPackedPaper'?view:
+  key==='S@SubmissionPackage@originalPackedPaperByRequest'?requestView:undefined},
   scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  const input={packageId:'PKG',packingRequestRef:'Q'}
  const readWitness=vi.fn(async()=>({...scope,witnessRef:'W',complete:true,members,assertCurrent:host.assertCurrent}))
@@ -73,8 +81,8 @@ it('opens the original paper packing record before asking for same-seal witness 
  try{
   const page=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
    paperEvidence:{readFrozen,readWitness},readPackageRelease,
-   readPaperPackingSelection:async()=>({selectionRef:'PAPER',state:'REGISTERED',frozen:{...scope,members,assertCurrent:host.assertCurrent},
-    target:input}),
+   readPaperPackingSelection:async()=>({selectionRef:'PAPER',state:'RECOVER',frozen:{...scope,members,assertCurrent:host.assertCurrent},
+    packingRequestRef:input.packingRequestRef}),
   })
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
   await expect(page.invoke('content.submission.preparePaperPacking',{selectionRef:'OTHER'},signal))
@@ -83,6 +91,9 @@ it('opens the original paper packing record before asking for same-seal witness 
   const {openPaperPacking}=compileFunctions(script,{$route:{query:{paperPackingSelectionRef:'PAPER'}},
    $page:{invokeHostCommand:(name:string,params:unknown)=>page.invoke(name,params,signal),showAlert:packingAlert}} as unknown as PageContext)
   if(!openPaperPacking)throw Error('TEST_PAPER_PACKING_HANDLER_REQUIRED')
+  await expect(page.invoke('content.submission.preparePaperPacking',{selectionRef:'PAPER'},signal))
+   .resolves.toMatchObject({status:'REGISTRATION_UNKNOWN'})
+  found=true
   await openPaperPacking()
   expect(packingAlert).toHaveBeenCalledExactlyOnceWith('封条 SEAL · 装封 PACK\n册 · 版本 V1 · 1 份','纸包装封核验')
   expect(readWitness).not.toHaveBeenCalled()

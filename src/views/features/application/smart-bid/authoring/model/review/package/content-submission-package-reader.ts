@@ -22,13 +22,12 @@ function valid(view:DataView){
   scopeFields.every(([field,ParamName])=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
 }
 
-/** 按原装封请求找登记，保留空查未知并核对后续实包。 */
-export async function recoverRegisteredPackingCandidate(host:ContentRevisionReadHost,packingRequestRef:string,
- candidate:Parameters<typeof verifyRegisteredPackingCandidate>[2],openAuthorized:Parameters<typeof verifyRegisteredPackingCandidate>[3]){
+/** 按原装封请求找唯一登记；空查保留未知。 */
+export async function readPackingRegistrationIdentity(host:ContentRevisionReadHost,packingRequestRef:string,format:'ZIP'|'PAPER'){
  const {runtime,scenarioId,projectId}=host
- host.assertCurrent();candidate.assertCurrent()
- if(candidate.projectId!==projectId||![scenarioId,projectId,packingRequestRef].every(identity))throw Error(error)
- const key=buildDataViewKey('SubmissionPackage','originalPackedZipByRequest',scenarioId)
+ host.assertCurrent()
+ if(![scenarioId,projectId,packingRequestRef].every(identity))throw Error(error)
+ const key=buildDataViewKey('SubmissionPackage',format==='ZIP'?'originalPackedZipByRequest':'originalPackedPaperByRequest',scenarioId)
  const view=runtime.resolveView(key),context={projectId,packingRequestRef}
  const isRequestView=(target:DataView)=>target.dataTable?.modelBinding?.modelName==='SubmissionPackage'&&
   target.commitMode==='staged'&&target.queryConfig.autoQuery===false&&Object.keys(context).every(field=>
@@ -36,7 +35,7 @@ export async function recoverRegisteredPackingCandidate(host:ContentRevisionRead
  if(!view||!isRequestView(view)||view.hasEditingChanges())throw Error('SUBMISSION_ORIGINAL_PACKAGE_VIEW')
  view.queryContext={...view.queryContext,...context}
  const assertScope=()=>{
-  host.assertCurrent();candidate.assertCurrent()
+  host.assertCurrent()
   if(runtime.resolveView(key)!==view||!isRequestView(view)||view.loadingError||view.hasEditingChanges()||
    Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('SUBMISSION_ORIGINAL_PACKAGE_STALE')
  }
@@ -48,11 +47,22 @@ export async function recoverRegisteredPackingCandidate(host:ContentRevisionRead
  if(!row)return Object.freeze({status:'REGISTRATION_UNKNOWN' as const,assertCurrent:()=>{assertScope();assertResult()}})
  const assertRow=view.captureReadRow(row,['id','projectId','packingRequestRef','format'])
  const packageId=row['id']
- if(!identity(packageId)||row['projectId']!==projectId||row['packingRequestRef']!==packingRequestRef||row['format']!=='ZIP')
+ if(!identity(packageId)||row['projectId']!==projectId||row['packingRequestRef']!==packingRequestRef||row['format']!==format)
   throw Error(error)
- const verified=await verifyRegisteredPackingCandidate({...host,assertCurrent:()=>{
+ return Object.freeze({status:'REGISTERED' as const,packageId,packingRequestRef,assertCurrent:()=>{
   assertScope();assertResult();assertRow()
- }},{packageId,packingRequestRef},candidate,openAuthorized)
+ }})
+}
+
+/** 核原请求登记所指的电子实包。 */
+export async function recoverRegisteredPackingCandidate(host:ContentRevisionReadHost,packingRequestRef:string,
+ candidate:Parameters<typeof verifyRegisteredPackingCandidate>[2],openAuthorized:Parameters<typeof verifyRegisteredPackingCandidate>[3]){
+ if(candidate.projectId!==host.projectId)throw Error(error)
+ const registration=await readPackingRegistrationIdentity({...host,assertCurrent:()=>{
+  host.assertCurrent();candidate.assertCurrent()
+ }},packingRequestRef,'ZIP')
+ if(registration.status!=='REGISTERED')return registration
+ const verified=await verifyRegisteredPackingCandidate({...host,assertCurrent:registration.assertCurrent},registration,candidate,openAuthorized)
  return Object.freeze({status:'REGISTRATION_VERIFIED' as const,verified,assertCurrent:verified.assertCurrent})
 }
 

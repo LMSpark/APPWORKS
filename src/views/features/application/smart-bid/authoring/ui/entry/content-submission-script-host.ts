@@ -11,7 +11,7 @@ import {recoverSubmissionAttempt} from '@/services/smart-bid/content/review/subm
 import {prepareDeliveryFreezeSelection} from '@/services/smart-bid/content/review/delivery-selection-digest'
 import {preparePaperPackingRecord} from '@/services/smart-bid/content/review/paper-submission-package'
 import {prepareRegisteredDeliveryZipPackage} from '../../model/review/package/content-delivery-package-preparation'
-import {recoverRegisteredPackingCandidate} from '../../model/review/package/content-submission-package-reader'
+import {readPackingRegistrationIdentity,recoverRegisteredPackingCandidate} from '../../model/review/package/content-submission-package-reader'
 import {readRegisteredSubmissionRequest} from '../../model/review/submission/content-submission-request-reader'
 import {readRegisteredSubmissionEvents} from '../../model/review/submission/content-submission-events-reader'
 import {readRegisteredChannelReceiptPairing} from '../../model/review/submission/content-channel-receipt-pairing-reader'
@@ -76,7 +76,7 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
    selectionRef:string;frozen:PaperPacking[0]
   }>&(
    Readonly<{state:'PREPARE';packed:PaperPacking[1]}>|
-   Readonly<{state:'REGISTERED';target:Parameters<typeof readRegisteredPaperPacking>[1]}>
+   Readonly<{state:'RECOVER';packingRequestRef:string}>
   )>
   readPackageRelease?:(
    original:Readonly<Pick<PackageRelease[0],'projectId'|'packageId'|'packageHash'|'selectionHash'>>,signal:AbortSignal
@@ -111,9 +111,15 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     assertCurrent()
     if(selected.selectionRef!==selectionRef||selected.frozen.projectId!==projectId)
      throw Error('SUBMISSION_PAGE_PACKING_SCOPE')
-    const packed=selected.state==='PREPARE'?selected.packed:(await readRegisteredPaperPacking(host,selected.target)).packed
+    if(selected.state==='PREPARE'){
+     const prepared=preparePaperPackingRecord(selected.frozen,selected.packed)
+     return Object.freeze({status:'PREPARED' as const,...prepared,assertCurrent:()=>{assertCurrent();prepared.assertCurrent()}})
+    }
+    const original=await readPackingRegistrationIdentity(host,selected.packingRequestRef,'PAPER')
+    if(original.status!=='REGISTERED')return original
+    const {packed}=await readRegisteredPaperPacking({...host,assertCurrent:original.assertCurrent},original)
     const prepared=preparePaperPackingRecord(selected.frozen,packed)
-    return Object.freeze({...prepared,assertCurrent:()=>{assertCurrent();prepared.assertCurrent()}})
+    return Object.freeze({status:'REGISTRATION_VERIFIED' as const,...prepared})
    }
    if(name==='content.submission.preparePacking'&&sources.readPackingSelection){
     const {selectionRef}=input

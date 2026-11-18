@@ -110,6 +110,10 @@ async function openPaperPacking() {
   try {
     const prepared = await $page.invokeHostCommand('content.submission.preparePaperPacking', {selectionRef: $route.query.paperPackingSelectionRef})
     prepared.assertCurrent()
+    if (prepared.status === 'REGISTRATION_UNKNOWN') {
+      await $page.showAlert('原装封登记结果待确认', '纸包装封核验')
+      return
+    }
     const {record} = prepared
     const members = record.members.map(member => `${member.position} · 版本 ${member.versionRef} · ${member.copies} 份`)
     await $page.showAlert([`封条 ${record.sealRef} · 装封 ${record.packingRef}`, ...members].join('\n'), '纸包装封核验')

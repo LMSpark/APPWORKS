@@ -342,6 +342,11 @@
     ]
   },
   {
+    "id":"excel-layout-no-node",
+    "type":"r-section",
+    "props":{"bordered":false,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","status":"请选择左侧节点后再编辑"}
+  },
+  {
     "id":"excel-layout-controls",
     "type":"r-section",
     "props":{"bordered":false,"gridColumns":1,"title":"相对版式","status":"配置单组主表、明细和相对表尾的导出版式。重复分段、汇总及导入尚未完成验收。"},

@@ -115,6 +115,18 @@ describe('formal Excel design editor', () => {
     expect(source).toContain('scenarioInputs:{[catalogScene]:{importConfigId:id},[scene]:{importConfigId:id}}')
     expect(source).not.toContain('new PageRuntime')
   })
+  it('shows the configured layout empty state without querying its source or writing a draft', async () => {
+    state.http.records['Base_ImportData_Config'] = []
+    const f = await open()
+    await vi.waitFor(() => expect(f.wrapper.findComponent(RendererTree).exists()).toBe(true))
+    const reads = state.http.reads.length
+    await layoutTab(f)
+    const pane = f.wrapper.findAllComponents(RendererTabPane).find(tab => tab.props('name') === 'layout')!
+    expect(pane.text()).toContain('请选择左侧节点后再编辑')
+    expect(pane.findComponent(FieldJson).exists()).toBe(false)
+    expect(state.http.reads).toHaveLength(reads)
+    expect(state.http.saves).toEqual([])
+  })
   it('creates the structured layout from a selected formal detail and cancels through the original node',async()=>{
     Object.assign(state.http.records['Base_ImportData_Config']![0]!,{relatedappid:'A1',table:'数据库一@table_one',exportType:'default',sheet_layout_json:''})
     state.http.records['Base_ImportData_Config']!.push({rowid:'C2',schemeid:'E1',pid:'C1',sheetName:'明细',relatedappid:'A1',table:'数据库一@table_three',exportType:'default',sheet_layout_json:'',sorted:''})

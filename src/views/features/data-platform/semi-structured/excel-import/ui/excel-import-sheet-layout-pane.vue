@@ -107,6 +107,3 @@ defineExpose({
  clear,create,diagnose,beforeChange,pending,
 })
 </script>
-<style scoped>
-.excel-layout-pane{display:grid;gap:12px}.excel-layout-region{padding:12px;border:1px solid var(--el-border-color);border-radius:4px}
-</style>

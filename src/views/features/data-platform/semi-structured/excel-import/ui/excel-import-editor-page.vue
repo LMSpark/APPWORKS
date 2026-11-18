@@ -47,7 +47,7 @@
                 <template #layout-controls><SparkComponentRenderer :config="designRegion(children,'excel-layout-controls')" /></template>
                 <template #layout-document><SparkComponentRenderer :config="designRegion(children,'excel-layout-document')" /></template>
               </ExcelImportSheetLayoutPane>
-              <p v-else role="status">请选择左侧节点后再编辑</p>
+              <SparkComponentRenderer v-else :config="designRegion(children,'excel-layout-no-node')" />
             </RendererTabPane>
           </RendererTabs>
           <SparkComponentRenderer :config="designRegion(children,'excel-field-workspace')" />

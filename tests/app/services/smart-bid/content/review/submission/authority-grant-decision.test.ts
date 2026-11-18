@@ -59,7 +59,7 @@ it('binds a revocation to its authority, affected scope and original version',as
   views:{default:{},...contentPackageSignatureScenarioViews('id')},
  },ProducedFile:{modelBinding:{modelId:'FILE-M',modelName:'ProducedFile'},
   columns:['id','projectId','documentId','revisionId','fileHash','resourceVersionId','signatureOperationRef','signedObjectRef',
-   'signatureRecordId','originalFileId','originalHash'].map(name=>({name,isPrimaryKey:name==='id'})),
+   'signatureRecordId','originalFileId','originalHash','signing'].map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},originalSignedRegistration:producedFileScenarioViews().originalSignedRegistration},
  }}})
  try{
@@ -103,10 +103,13 @@ it('binds a revocation to its authority, affected scope and original version',as
   const registrationView=signatures.getView('ProducedFile','originalSignedRegistration')!
   const fileTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ProducedFile'})
   let registered=false
+  let registeredSigner=fileRequest.signerRef
   registrationView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:fileTable.identity,scope:'produced',readScope:()=> 'produced',
    snapshot:fileTable.applyResult({Result:{primaryKeyField:'id',data:{Count:registered?1:0,
     Items:registered?[{...receipt,id:'REGISTERED',resourceVersionId:'REGISTERED-RESOURCE',
+     signing:{requestKey:fileRequest.requestKey,requestDigest:fileRequest.requestDigest,objectVersion:fileRequest.objectVersion,
+      signerRef:registeredSigner,positionRef:fileRequest.positionRef},
      lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]:[]}}}),
   })})
   let invalidRegisteredBytes=false
@@ -136,6 +139,10 @@ it('binds a revocation to its authority, affected scope and original version',as
   await expect(review.invoke('content.review.prepareSignedRegistration',{selectionRef:'FILE'},reviewSignal))
    .resolves.toMatchObject({state:'SIGNED_REGISTERED',producedFileId:'REGISTERED',resourceVersionId:'REGISTERED-RESOURCE'})
   expect(open).toHaveBeenLastCalledWith({projectId:'P',resourceVersionId:'REGISTERED-RESOURCE'})
+  registeredSigner='OTHER'
+  await expect(review.invoke('content.review.prepareSignedRegistration',{selectionRef:'FILE'},reviewSignal))
+   .rejects.toThrow('BID_SIGNED_REGISTRATION_REQUEST_MISMATCH')
+  registeredSigner=fileRequest.signerRef
   invalidRegisteredBytes=true
   await expect(review.invoke('content.review.prepareSignedRegistration',{selectionRef:'FILE'},reviewSignal))
    .rejects.toThrow('BID_SIGNED_OUTPUT_HASH')

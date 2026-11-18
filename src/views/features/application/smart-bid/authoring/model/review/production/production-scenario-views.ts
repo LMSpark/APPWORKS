@@ -19,7 +19,7 @@ export function producedFileScenarioViews(){
    [...originalFileFields,'requestKey','outputRef','inputDigest']),
   originalSignedRegistration:view([['projectId','projectId'],['signatureOperationRef','signatureOperationRef'],['signedObjectRef','signedObjectRef']],
    ['id','projectId','documentId','revisionId','fileHash','resourceVersionId','signatureOperationRef','signedObjectRef',
-    'signatureRecordId','originalFileId','originalHash']),
+    'signatureRecordId','originalFileId','originalHash','signing']),
   selectedReviewFile:view([['projectId','projectId'],['id','producedFileId'],['productionRequestRef','productionRequestRef']],
    originalFileFields),
   selectedReviewFiles:view([['projectId','projectId']],[...originalFileFields,'usage'],true),

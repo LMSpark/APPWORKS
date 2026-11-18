@@ -42,7 +42,6 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     const view = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('ApprovalCommand', 'default')
     return view !== undefined && (view.mutating || view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
   }
-  useSystemPageDirtySource({get isDirty() {return hasPendingApproval() || approvalWorkspace.value?.dirty === true || hasPendingAppendInput()}})
   const prepared = shallowRef<FlowRunPreparedPage>()
   const pageLoading = ref(false)
   const pageError = ref('')
@@ -80,6 +79,10 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     const ds = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID), view = ds?.getView('AppendInput')
     return ds?.getView('AppendOptions')?.requestState === RequestState.Loading || (view !== undefined && (view.rows.length > 0 || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))
   }
+  function hasPendingWork(): boolean {
+    return handleLoading.value || hasPendingApproval() || approvalWorkspace.value?.dirty === true || hasPendingAppendInput()
+  }
+  useSystemPageDirtySource({get isDirty() { return hasPendingWork() }})
   const appendCloseDisabled = computed(() => handleLoading.value || commandState.resultReplacementBlocked.value || commandState.mutating.value || appendOptionsState.requestState.value === RequestState.Loading || appendInputState.rows.value.length > 0 || appendInputState.resultReplacementBlocked.value)
   const inputLocked = computed(() => {commandState.mutating.value; commandState.requestState.value; return handleLoading.value || hasPendingApproval()})
   const inputFields = computed(() => flowRunInputFields({scope: FLOW_WORKBENCH_SCENARIO_ID, locked: inputLocked.value, force: allowForceBack.value && forceBackNodeOptions.value.length > 0}))
@@ -207,6 +210,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   }
 
   async function retryPage(reload: () => Promise<void>): Promise<void> {
+    if (handleLoading.value) return
     if (hasPendingApproval() || hasPendingAppendInput()) {handleError.value = '原审批命令尚有待提交或待核验状态，不能重建运行实例'; return}
     if (approvalWorkspace.value?.dirty) {handleError.value = '请先确认或取消原办理参数，不能重建运行实例'; return}
     await reload()
@@ -407,6 +411,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     stepViewKey,
     loadPage,
     retryPage,
+    hasPendingWork,
     openHandlePanel,
     closeHandlePanel,
     submitFlow,

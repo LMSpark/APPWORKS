@@ -4,7 +4,7 @@
 -->
 <template>
   <SparkComponent.RendererSection class="flow-run-page" title="流程办理" :bordered="false" :grid-columns="1"
-    :status="shellLoading ? '正在加载办理页…' : ''" :error="shellError" :retryable="!shellLoading" @retry="retryShell">
+    :status="shellStatus" :error="shellError" :retryable="!shellLoading" @retry="retryShell">
     <template v-if="prepared" #header-actions>
       <SparkComponent.RendererButton label="流程图" @click="openFlowChart" />
       <SparkComponent.RendererButton label="加签" @click="openAppendDialog" />
@@ -12,6 +12,7 @@
       <SparkComponent.RendererButton label="办理" button-type="primary" :loading="handleLoading" @click="openHandlePanel" />
       <SparkComponent.RendererButton label="核验原办理结果" :loading="handleLoading" @click="verifyOriginalApproval" />
     </template>
+    <SparkComponent.RendererButton v-if="reloadBlocked" label="切换到当前导航" :disabled="hasPendingWork()" @click="retryShell" />
     <div v-if="prepared" class="flow-run-page__layout">
       <section class="flow-run-page__business">
         <p class="flow-run-page__title">{{ prepared.instanceTitle }}</p>
@@ -91,6 +92,7 @@ const {
   ready: runtimeReady,
   loading: runtimeLoading,
   error: runtimeError,
+  reloadBlocked,
   loadCurrentRoute: reloadFeatureRuntime,
 } = useFeaturePageRuntime({
   scenarioId,
@@ -107,6 +109,7 @@ const {
   componentType: 'flow-run-page',
   title: '流程办理',
   peerScenarioIds: [FLOW_DESIGN_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID],
+  preserveRuntime: () => hasPendingWork(),
   queryContext: () => ({rowid: routeQuery().wfid, WFOBJID: routeQuery().wfid}),
 })
 
@@ -136,6 +139,7 @@ const {
   chartError,
   chartPrepared,
   retryPage,
+  hasPendingWork,
   openHandlePanel,
   closeHandlePanel,
   submitFlow,
@@ -155,6 +159,8 @@ const routeSnapshot = computed(() => {
   return {path, fullPath, name: name ?? null, params, query, hash}
 })
 const shellLoading = computed(() => runtimeLoading.value || pageLoading.value)
+const shellStatus = computed(() => shellLoading.value ? '正在加载办理页…'
+  : reloadBlocked.value ? '当前仍显示原办理记录，请先处理原操作后重试。' : '')
 const shellError = computed(() => runtimeError.value || pageError.value)
 
 function retryShell(): void {

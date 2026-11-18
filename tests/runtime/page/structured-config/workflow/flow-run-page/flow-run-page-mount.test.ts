@@ -16,7 +16,7 @@ import {fixture as designFixture} from '../flow-design/flow-design-data.fixture'
 const {reloadRuntime} = vi.hoisted(() => ({reloadRuntime: vi.fn(async () => undefined)}))
 const {openTool, runtimeOptions} = vi.hoisted(() => ({
   openTool: vi.fn<(pageId: string) => PageTool>(),
-  runtimeOptions: vi.fn<(options: {tool: (pageId: string) => PageTool; scenarioId: string; navigationId?: string}) => void>(),
+  runtimeOptions: vi.fn<(options: {tool: (pageId: string) => PageTool; scenarioId: string; navigationId?: string; preserveRuntime: () => boolean}) => void>(),
 }))
 const callbacks = vi.hoisted(() => ({end: vi.fn(async (_payload: unknown) => true), succeeded: vi.fn(async (_payload: unknown) => {}), failed: vi.fn((_payload: unknown) => {})}))
 
@@ -32,6 +32,7 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
         ready: ref(true),
         loading: ref(false),
         error: ref(''),
+        reloadBlocked: ref(false),
         loadCurrentRoute: reloadRuntime,
       }
     },
@@ -386,6 +387,7 @@ describe('flow run page mount', () => {
       expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({idea: '同意', notifyType: '0', nextNode: [{NodeId: 'NEXT-1', ExecUserList: outcome === 'directory' ? ['U2:李四'] : []}]}))
       if (outcome === 'unknown') {
         expect(command.hasUnconfirmedSave).toBe(true)
+        expect(runtimeOptions.mock.lastCall?.[0].preserveRuntime()).toBe(true)
         expect(wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title') === '追加办理人')?.props('closeDisabled')).toBe(true)
         expect(wrapper.text()).toContain('审批结果未知')
         expect(ds.getView('ApprovalInput')?.getEditingRow('current')?.['idea']).toBe('同意')

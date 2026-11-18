@@ -1,0 +1,395 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/followup/tender-followup-response-scope",
+    "sourcePath": "src/services/smart-bid/content/references/followup/tender-followup-response-scope.ts",
+    "sourceFile": "src/services/smart-bid/content/references/followup/tender-followup-response-scope.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/followup/tender-followup-response-scope",
+    "jsdoc": "@module app:services/smart-bid/content/references/followup/tender-followup-response-scope\n职责：第57项通知向应答任务交接时核解释、修正和重新报价的原范围。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Timeline": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Timeline",
+      "properties": {
+        "knownAt": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "event": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string"
+                  },
+                  "lotId": {
+                    "type": "string"
+                  },
+                  "roundId": {
+                    "type": "string"
+                  },
+                  "subjectId": {
+                    "type": "string"
+                  },
+                  "stageId": {
+                    "type": "string"
+                  },
+                  "noticeId": {
+                    "type": "string"
+                  },
+                  "documentVersionId": {
+                    "type": "string"
+                  },
+                  "issuerRef": {
+                    "type": "string"
+                  },
+                  "channelId": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "INQUIRY",
+                      "CLARIFICATION",
+                      "REVIEW",
+                      "REPRICE_INVITATION",
+                      "OTHER"
+                    ]
+                  },
+                  "change": {
+                    "enum": [
+                      "INITIAL",
+                      "SUPPLEMENT",
+                      "CORRECTION",
+                      "CANCELLATION"
+                    ]
+                  },
+                  "previousNoticeRef": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "originalObjectRef": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "issuedAt": {
+                    "type": "string"
+                  },
+                  "replyDueAt": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "permittedScopeRef": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  }
+                },
+                "required": [
+                  "projectId",
+                  "lotId",
+                  "roundId",
+                  "subjectId",
+                  "stageId",
+                  "noticeId",
+                  "documentVersionId",
+                  "issuerRef",
+                  "channelId",
+                  "kind",
+                  "change",
+                  "previousNoticeRef",
+                  "originalObjectRef",
+                  "issuedAt",
+                  "replyDueAt",
+                  "permittedScopeRef"
+                ],
+                "additionalProperties": false
+              },
+              "eventDigest": {
+                "type": "string"
+              },
+              "origins": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "sourceRef": {
+                      "type": "string"
+                    },
+                    "knownAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "sourceRef",
+                    "knownAt"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "state": {
+                "enum": [
+                  "CANCELLED",
+                  "PENDING_LINK",
+                  "PENDING_CONFLICT",
+                  "SUPERSEDED",
+                  "ACTIVE"
+                ]
+              }
+            },
+            "required": [
+              "event",
+              "eventDigest",
+              "origins",
+              "state"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "roundId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "stageId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "knownAt",
+        "items",
+        "assertCurrent",
+        "projectId",
+        "lotId",
+        "roundId",
+        "subjectId",
+        "stageId"
+      ],
+      "additionalProperties": false
+    },
+    "Action": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Action",
+      "enum": [
+        "EXPLAIN",
+        "CORRECT",
+        "REPRICE"
+      ]
+    },
+    "Proof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Proof",
+      "properties": {
+        "noticeId": {
+          "type": "string"
+        },
+        "eventDigest": {
+          "type": "string"
+        },
+        "permittedScopeRef": {
+          "type": "string"
+        },
+        "ruleRef": {
+          "type": "string"
+        },
+        "allowed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "$ref": "#/$defs/Action"
+              },
+              "targetRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "action",
+              "targetRefs"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T05:54:31.126Z",
+  "models": {
+    "Timeline": {
+      "name": "Timeline",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof projectTenderFollowupNotices>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<typeof projectTenderFollowupNotices>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "items",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "roundId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "subjectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "stageId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Action": {
+      "name": "Action",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'EXPLAIN' | 'CORRECT' | 'REPRICE'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'EXPLAIN'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CORRECT'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'REPRICE'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Proof": {
+      "name": "Proof",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    noticeId: string;\n    eventDigest: string;\n    permittedScopeRef: string;\n    ruleRef: string;\n    allowed: ReadonlyArray<Readonly<{\n        action: Action;\n        targetRefs: readonly string[];\n    }>>;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    noticeId: string;\n    eventDigest: string;\n    permittedScopeRef: string;\n    ruleRef: string;\n    allowed: ReadonlyArray<Readonly<{\n        action: Action;\n        targetRefs: readonly string[];\n    }>>;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "noticeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "eventDigest",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permittedScopeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ruleRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowed",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

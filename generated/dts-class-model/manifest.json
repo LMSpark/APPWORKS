@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1385,
+  "scannedFileCount": 1386,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17885,6 +17885,19 @@
         "modulePath": "services/smart-bid/content/references/followup/tender-followup-notice",
         "jsdoc": "@module app:services/smart-bid/content/references/followup/tender-followup-notice\n职责：第57项固定正式后续通知及其已证边界，供下游分派和期限跟踪。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/followup/tender-followup-response-scope.ts": {
+      "file": "files/src/services/smart-bid/content/references/followup/tender-followup-response-scope.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/followup/tender-followup-response-scope",
+        "sourcePath": "src/services/smart-bid/content/references/followup/tender-followup-response-scope.ts",
+        "sourceFile": "src/services/smart-bid/content/references/followup/tender-followup-response-scope.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/followup/tender-followup-response-scope",
+        "jsdoc": "@module app:services/smart-bid/content/references/followup/tender-followup-response-scope\n职责：第57项通知向应答任务交接时核解释、修正和重新报价的原范围。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },

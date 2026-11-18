@@ -24,9 +24,7 @@
       <RendererButton v-if="revokeUnconfirmed" label="核验原命令结果" :disabled="revoking" @click="verifyOriginalRevoke" />
     </template>
   <p v-if="!embedded" class="flow-append-user__node-title">{{ contextTitle }}</p>
-    <RendererTable v-if="listViewKey && !pageLoading && !pageError" :data-view-key="listViewKey"
-      :children="listFields" :actions="listActions" :auto-columns="false" :show-pagination="false"
-      :show-data-view-meta="false" :max-height="380" />
+    <SparkComponentRenderer v-if="listViewKey && !pageLoading && !pageError" :config="listConfig" />
 
     <RendererDialog
       v-model="addDialog.visible"
@@ -41,10 +39,8 @@
     >
       <RendererSection class="flow-append-user__dialog-body" :bordered="false" :grid-columns="1"
         :status="addDialog.loading ? '正在读取办理人候选…' : ''" :error="pageError">
-        <RendererForm v-if="parameterViewKey && candidateViewKey && !addDialog.loading" :data-view-key="parameterViewKey"
-          :children="inputFields" :auto-columns="false" :show-data-view-meta="false" />
-        <RendererForm v-if="optionsViewKey && !addDialog.loading" :data-view-key="optionsViewKey"
-          :children="limitFields" :auto-columns="false" :show-data-view-meta="false" />
+        <SparkComponentRenderer v-if="parameterViewKey && candidateViewKey && !addDialog.loading" :config="inputConfig" />
+        <SparkComponentRenderer v-if="optionsViewKey && !addDialog.loading" :config="limitsConfig" />
       </RendererSection>
       <template #footer>
         <RendererButton v-if="revokeUnconfirmed" label="核验原命令结果" :disabled="addDialog.submitting" @click="verifyOriginalRevoke" />
@@ -57,8 +53,10 @@
 
 <script setup lang="ts">
 import {computed} from 'vue'
-import {RendererButton, RendererDialog, RendererForm, RendererSection, RendererTable, type RToolbarProps} from '@spark-appworks/spark-component'
-import type {SparkNode} from '@spark-appworks/spark-data'
+import {RendererButton, RendererDialog, RendererSection, SparkComponentRenderer} from '@spark-appworks/spark-component'
+import {getSparkNodeChildren, isSparkNode, nodeId, type SparkNode} from '@spark-appworks/spark-data'
+import {compileRule} from '@spark-appworks/spark-project-model'
+import rule from '../../flow-runtime/run-page/ui/tool/rule.json?raw'
 import type {FlowAppendUserContext} from '@/lowcode/resources/system/workflow/manage'
 import {useFlowAppendUser} from './use-flow-append-user'
 
@@ -98,19 +96,39 @@ const {
   ...(props.userDirectoryViewKey ? {userDirectoryViewKey: () => props.userDirectoryViewKey} : {}),
 })
 
-const inputFields = computed<SparkNode[]>(() => [{type: 'r-user-picker', props: {field: 'receiveUsers', label: '办理人', multiple: true, valueMode: 'array', optionDataViewKey: candidateViewKey.value, optionLabelField: 'name', optionValueField: 'value', disabled: commandLocked.value || addDialog.submitting}}])
-const limitFields: SparkNode[] = [
-  {type: 'r-number', props: {field: 'minNum', label: '最少人数', readonly: true}},
-  {type: 'r-number', props: {field: 'maxNum', label: '最多人数', readonly: true}},
-]
-const listFields = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'ReceiveUserName', label: '办理人', readonly: true, minWidth: 180}},
-  {type: 'r-select', props: {field: 'StepState', label: '步骤状态', readonly: true, minWidth: 120, optionDataViewKey: stepStateViewKey.value, optionValueField: 'value', optionLabelField: 'label'}},
-  {type: 'r-select', props: {field: 'STATUS', label: '办理状态', readonly: true, minWidth: 120, optionDataViewKey: handleStateViewKey.value, optionValueField: 'value', optionLabelField: 'label'}},
-])
-const listActions = computed<RToolbarProps>(() => ({children: [
-  {type: 'r-button', props: {label: '撤回', link: true, buttonType: 'primary', disabled: pageLoading.value || revoking.value || commandLocked.value ? true : '$[appendRevokeDisabled]', onClick: revokeRecord}},
-]}))
+const rules = compileRule(rule)
+const listRule = rules.find(node => nodeId(node) === 'appendParticipants')
+const inputRule = rules.find(node => nodeId(node) === 'appendInput')
+const limitsRule = rules.find(node => nodeId(node) === 'appendLimits')
+const revokeRule = listRule?.props?.['actions']
+const revokeButton = revokeRule && typeof revokeRule === 'object' && 'children' in revokeRule && Array.isArray(revokeRule.children)
+  ? revokeRule.children.find(isSparkNode)
+  : undefined
+if (!listRule || !inputRule || !limitsRule || !revokeButton) throw new Error('流程办理工具缺少追加办理人组件')
+
+const listConfig = computed<SparkNode>(() => ({
+  ...listRule,
+  props: {...listRule.props, dataViewKey: listViewKey.value, actions: {children: [{
+    ...revokeButton,
+    props: {...revokeButton.props,
+      disabled: pageLoading.value || revoking.value || commandLocked.value ? true : revokeButton.props?.['disabled'],
+      onClick: revokeRecord,
+    },
+  }]}},
+  children: getSparkNodeChildren(listRule.children).map(field => {
+    const optionDataViewKey = field.props?.['field'] === 'StepState' ? stepStateViewKey.value
+      : field.props?.['field'] === 'STATUS' ? handleStateViewKey.value : undefined
+    return optionDataViewKey === undefined ? field : {...field, props: {...field.props, optionDataViewKey}}
+  }),
+}))
+const inputConfig = computed<SparkNode>(() => ({
+  ...inputRule,
+  props: {...inputRule.props, dataViewKey: parameterViewKey.value},
+  children: getSparkNodeChildren(inputRule.children).map(field => ({...field, props: {...field.props,
+    optionDataViewKey: candidateViewKey.value, disabled: commandLocked.value || addDialog.submitting,
+  }})),
+}))
+const limitsConfig = computed<SparkNode>(() => ({...limitsRule, props: {...limitsRule.props, dataViewKey: optionsViewKey.value}}))
 </script>
 
 <style scoped>

@@ -286,5 +286,108 @@
         }
       }
     ]
+  },
+  {
+    "id": "appendParticipants",
+    "type": "r-table",
+    "props": {
+      "autoColumns": false,
+      "showPagination": false,
+      "showDataViewMeta": false,
+      "maxHeight": 380,
+      "actions": {
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "撤回",
+              "link": true,
+              "buttonType": "primary",
+              "disabled": "$[appendRevokeDisabled]"
+            }
+          }
+        ]
+      }
+    },
+    "children": [
+      {
+        "type": "r-text",
+        "props": {
+          "field": "ReceiveUserName",
+          "label": "办理人",
+          "readonly": true,
+          "minWidth": 180
+        }
+      },
+      {
+        "type": "r-select",
+        "props": {
+          "field": "StepState",
+          "label": "步骤状态",
+          "readonly": true,
+          "minWidth": 120,
+          "optionValueField": "value",
+          "optionLabelField": "label"
+        }
+      },
+      {
+        "type": "r-select",
+        "props": {
+          "field": "STATUS",
+          "label": "办理状态",
+          "readonly": true,
+          "minWidth": 120,
+          "optionValueField": "value",
+          "optionLabelField": "label"
+        }
+      }
+    ]
+  },
+  {
+    "id": "appendInput",
+    "type": "r-form",
+    "props": {
+      "autoColumns": false,
+      "showDataViewMeta": false
+    },
+    "children": [
+      {
+        "type": "r-user-picker",
+        "props": {
+          "field": "receiveUsers",
+          "label": "办理人",
+          "multiple": true,
+          "valueMode": "array",
+          "optionLabelField": "name",
+          "optionValueField": "value"
+        }
+      }
+    ]
+  },
+  {
+    "id": "appendLimits",
+    "type": "r-form",
+    "props": {
+      "autoColumns": false,
+      "showDataViewMeta": false
+    },
+    "children": [
+      {
+        "type": "r-number",
+        "props": {
+          "field": "minNum",
+          "label": "最少人数",
+          "readonly": true
+        }
+      },
+      {
+        "type": "r-number",
+        "props": {
+          "field": "maxNum",
+          "label": "最多人数",
+          "readonly": true
+        }
+      }
+    ]
   }
 ]

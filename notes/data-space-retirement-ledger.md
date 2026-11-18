@@ -11706,3 +11706,5 @@ flowchart TD
 - Agent 首发所依赖的文件上传 SDK 背景回归44项通过。当前会话浏览器工具已撤下，无法由授权菜单复验实服首发、冲突及回读。
 - 首发 SDK 测试直接核对 uploadTextVersion 送出的表单 isReplace=false；这是传输合同回归，服务实际拒绝覆盖仍待实服验证。
 - f5cecd8b9 工作区根 typecheck 复验退出0，涵盖最新 Agent 首发校验变更；实服回执仍待。
+- 第11包整定义删除核查：JsonDataController 类型化合同已有 DelJsonData 和 BatchData，描述为动态 JSON 数据操作；当前 document-resource 明确 canDelete=false，目录无整定义删除入口。待核这些端点是否涵盖正式定义行、独占文件、引用和分来源回执。本轮未发删除。
+- JSON 整删定位核查：正式 Base_JsonData 目录按 rowid 选中唯一可读行，正文资源在 jsondatapath 根按 path 的末段定位，空 path 使用原 id.json。现有正文定位只证明访问目标，不证明文件独占；整删还需核对其他定义是否解析到同一文件及下游引用，分别回读目录和文件。

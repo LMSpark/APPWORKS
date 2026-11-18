@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/operation-route-agent-task",
+    "sourcePath": "src/services/smart-bid/operation/operation-route-agent-task.ts",
+    "sourceFile": "src/services/smart-bid/operation/operation-route-agent-task.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/operation-route-agent-task",
+    "jsdoc": "@module app:services/smart-bid/operation/operation-route-agent-task\n职责：由正式工艺装配原参数，并沿 SPARK AI 注册契约准备同一次任务。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Registry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Registry",
+      "properties": {
+        "get": {
+          "type": "object",
+          "title": "(kindID: string) => AiAgentRegistration<Readonly<Record<string, JsonValue>>> | undefined"
+        }
+      },
+      "required": [
+        "get"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T06:18:01.681Z",
+  "models": {
+    "Registry": {
+      "name": "Registry",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof createAiAgentTask>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "get",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

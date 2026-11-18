@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1386,
+  "scannedFileCount": 1388,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -18283,6 +18283,19 @@
         ]
       }
     },
+    "src/services/smart-bid/operation/operation-route-agent-task.ts": {
+      "file": "files/src/services/smart-bid/operation/operation-route-agent-task.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/operation-route-agent-task",
+        "sourcePath": "src/services/smart-bid/operation/operation-route-agent-task.ts",
+        "sourceFile": "src/services/smart-bid/operation/operation-route-agent-task.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/operation-route-agent-task",
+        "jsdoc": "@module app:services/smart-bid/operation/operation-route-agent-task\n职责：由正式工艺装配原参数，并沿 SPARK AI 注册契约准备同一次任务。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/operation/operation-route-candidate.ts": {
       "file": "files/src/services/smart-bid/operation/operation-route-candidate.ts.json",
       "module": {
@@ -18314,6 +18327,19 @@
           "OperationTaskClasses",
           "OperationRoutePreview"
         ]
+      }
+    },
+    "src/services/smart-bid/operation/operation-route-return.ts": {
+      "file": "files/src/services/smart-bid/operation/operation-route-return.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/operation-route-return",
+        "sourcePath": "src/services/smart-bid/operation/operation-route-return.ts",
+        "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/operation-route-return",
+        "jsdoc": "@module app:services/smart-bid/operation/operation-route-return\n职责：核同一已派发路线工艺的原返回身份与原生 JSON。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
       }
     },
     "src/services/smart-bid/operation/operation-station-fit.ts": {

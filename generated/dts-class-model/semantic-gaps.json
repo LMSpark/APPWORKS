@@ -1,5 +1,5 @@
 {
-  "gapCount": 7312,
+  "gapCount": 7327,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -21420,9 +21420,9 @@
     {
       "kind": "attribute",
       "className": "TreeModel",
-      "memberName": "__@iterator@290189",
+      "memberName": "__@iterator@290284",
       "reason": "missing-jsdoc",
-      "chainBreak": "TreeModel.__@iterator@290189 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "TreeModel.__@iterator@290284 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-json-document/src/tree/tree-types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-json-document/src/tree/tree-types.ts",
       "declarationLine": 50,
@@ -75144,6 +75144,40 @@
       "declarationKind": "interface"
     },
     {
+      "kind": "module",
+      "className": "app:services/smart-bid/operation/operation-route-agent-task",
+      "moduleName": "app:services/smart-bid/operation/operation-route-agent-task",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/operation/operation-route-agent-task 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-agent-task.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-agent-task.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-agent-task.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "Registry",
+      "memberName": "get",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Registry.get 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-agent-task.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-agent-task.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-agent-task.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "Registry",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Registry 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-agent-task.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-agent-task.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-agent-task.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
       "kind": "attribute",
       "className": "ControlData",
       "memberName": "when",
@@ -75321,6 +75355,147 @@
       "declarationFile": "src/services/smart-bid/operation/operation-route-preview.ts",
       "declarationLine": 11,
       "sourceFile": "src/services/smart-bid/operation/operation-route-preview.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/operation/operation-route-return",
+      "moduleName": "app:services/smart-bid/operation/operation-route-return",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/operation/operation-route-return 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-return.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Scope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-return.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Scope",
+      "memberName": "runId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope.runId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-return.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Scope",
+      "memberName": "attemptRef",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope.attemptRef 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-return.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationLine": 8,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Scope",
+      "memberName": "requestKey",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope.requestKey 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-return.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationLine": 9,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Scope",
+      "memberName": "projectId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-return.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Scope",
+      "memberName": "targetDigest",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope.targetDigest 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-return.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Scope",
+      "memberName": "configurationLockHash",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope.configurationLockHash 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-return.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationLine": 12,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "Receipt",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Receipt 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-return.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationLine": 14,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Receipt",
+      "memberName": "receiptRef",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Receipt.receiptRef 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-return.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationLine": 15,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "Receipt",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Receipt.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-return.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationLine": 16,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Receipt",
+      "memberName": "state",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Receipt.state 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/operation/operation-route-return.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "declarationLine": 18,
+      "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
       "declarationKind": "interface"
     },
     {

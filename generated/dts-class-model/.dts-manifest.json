@@ -5586,6 +5586,11 @@
       "shardFile": "files/src/services/smart-bid/operation/operation-choice-decision.ts.json",
       "sourceModifiedAt": "2026-11-17T11:31:03.696Z"
     },
+    "src/services/smart-bid/operation/operation-route-agent-task.ts": {
+      "sourceFile": "src/services/smart-bid/operation/operation-route-agent-task.ts",
+      "shardFile": "files/src/services/smart-bid/operation/operation-route-agent-task.ts.json",
+      "sourceModifiedAt": "2026-11-18T06:18:01.681Z"
+    },
     "src/services/smart-bid/operation/operation-route-candidate.ts": {
       "sourceFile": "src/services/smart-bid/operation/operation-route-candidate.ts",
       "shardFile": "files/src/services/smart-bid/operation/operation-route-candidate.ts.json",
@@ -5595,6 +5600,11 @@
       "sourceFile": "src/services/smart-bid/operation/operation-route-preview.ts",
       "shardFile": "files/src/services/smart-bid/operation/operation-route-preview.ts.json",
       "sourceModifiedAt": "2026-11-17T09:00:36.541Z"
+    },
+    "src/services/smart-bid/operation/operation-route-return.ts": {
+      "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
+      "shardFile": "files/src/services/smart-bid/operation/operation-route-return.ts.json",
+      "sourceModifiedAt": "2026-11-18T06:11:56.587Z"
     },
     "src/services/smart-bid/operation/operation-station-fit.ts": {
       "sourceFile": "src/services/smart-bid/operation/operation-station-fit.ts",

@@ -29,8 +29,10 @@ async function openTenderAddendum() {
 
 function bindChapterImpact() {
   const {revisionId, previousFrozenBaselineId, frozenBaselineId, addendumId} = $route.query
-  return {visible: [revisionId, previousFrozenBaselineId, frozenBaselineId, addendumId]
+  return {visible: [revisionId, previousFrozenBaselineId, addendumId]
     .every(value => typeof value === 'string' && !!value && value.trim() === value) &&
+    (frozenBaselineId === undefined || (typeof frozenBaselineId === 'string' && !!frozenBaselineId &&
+      frozenBaselineId.trim() === frozenBaselineId)) &&
     previousFrozenBaselineId !== frozenBaselineId}
 }
 
@@ -39,7 +41,7 @@ async function openChapterImpact() {
   const {revisionId, previousFrozenBaselineId, frozenBaselineId, addendumId} = $route.query
   try {
     const result = await $page.invokeHostCommand('tender.followup.traceChapterPins',
-      {revisionId, previousId: previousFrozenBaselineId, currentId: frozenBaselineId, addendumId})
+      {revisionId, previousId: previousFrozenBaselineId, currentId: frozenBaselineId ?? null, addendumId})
     result.assertCurrent()
     const lines = ['正式修改、原正文或基线证据待核']
     if (result.state === 'ADDENDUM_TRACED') {

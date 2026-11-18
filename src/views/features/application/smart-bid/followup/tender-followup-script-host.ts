@@ -35,13 +35,14 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
   }
   if(name==='tender.followup.traceChapterPins'){
    const {revisionId,previousId,currentId,addendumId}=input
-   if(Object.keys(input).length!==4||!identity(revisionId)||!identity(previousId)||!identity(currentId)
+   if(Object.keys(input).length!==4||!identity(revisionId)||!identity(previousId)||(currentId!==null&&!identity(currentId))
     ||!identity(addendumId)||previousId===currentId)
     throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
    const readHost={...host,runtime,assertCurrent}
    const addendum=await readTenderAddendum(readHost,{projectId:host.projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
    if(addendum.state!=='REGISTERED')return addendum
-   const trace=await readTenderChangeChapterPins({...readHost,assertCurrent:addendum.assertCurrent},{revisionId,previousId,currentId})
+   const trace=currentId===null?{state:'UNKNOWN' as const,assertCurrent:addendum.assertCurrent}:
+    await readTenderChangeChapterPins({...readHost,assertCurrent:addendum.assertCurrent},{revisionId,previousId,currentId})
    const tracedItems=trace.state==='TRACED'?trace.items:[]
    const impacts=addendum.items.map(source=>{
     const matching=tracedItems.find(({previous,current})=>{

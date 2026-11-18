@@ -44,6 +44,17 @@ it('reads the original addendum locations for the current project, lot and round
   expect(result).toMatchObject({state:'REGISTERED',items:[{
    requirementLineageId:'CLAUSE',previous:{documentVersionId:'V1',locator:'5.2'},current:{documentVersionId:'V2',locator:'1.3'},
   }]})
+  const showAlert=vi.fn(async(_message:string,_title:string)=>{}),showMessage=vi.fn()
+  const {openChapterImpact}=compileFunctions(script,{$route:{query:{revisionId:'ORIGINAL',previousFrozenBaselineId:'OLD',addendumId:'A'}},
+   $page:{invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,showMessage},
+  } as unknown as PageContext)
+  if(!openChapterImpact)throw Error('TEST_CHAPTER_IMPACT_HANDLER_REQUIRED')
+  await openChapterImpact()
+  expect(showAlert).toHaveBeenCalledExactlyOnceWith([
+   '正式修改 A · 原正文 ORIGINAL','原正文或基线证据待核，以下为正式修改列明的影响范围',
+   'ITEM · REQUIREMENT · 修改依据 V2 / 1.3','原位 V1 / 5.2','本项的基线条款差异待核',
+  ].join('\n'),'正文条款引用追查')
+  expect(showMessage).not.toHaveBeenCalled()
   roundId='OTHER'
   await expect(page.invoke('tender.followup.readAddendum',{addendumId:'A'},signal)).rejects.toThrow('ORIGINAL_REGISTRATION_VIEW_REQUIRED')
   expect(()=>result.assertCurrent()).toThrow()

@@ -132,6 +132,20 @@ function currentDocument() {
   return documentBinding && $page.resolveView(documentBinding.dataViewKey)
 }
 
+function bindCatalogRowAction() {
+  const catalog = catalogView()
+  const document = currentDocument()
+  return {visible: catalogEditable, disabled: catalog?.mutating === true ||
+    catalog?.hasUnconfirmedSave === true || catalog?.hasEditingChanges() === true ||
+    catalog?.dirtyTracking.hasPendingChanges() === true || document?.hasUnconfirmedSave === true ||
+    document?.hasEditingChanges() === true || document?.dirtyTracking.hasPendingChanges() === true}
+}
+
+function selectCatalogRow(row) {
+  const catalog = catalogView()
+  if (catalogEditable && catalog?.rows.includes(row)) catalog.setSelectedRows([row])
+}
+
 async function openJsonDocument(row) {
   if (!catalogEditable) return
   const view = currentDocument()

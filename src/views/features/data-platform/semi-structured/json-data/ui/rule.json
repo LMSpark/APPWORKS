@@ -17,7 +17,12 @@
           "stripe": true,
           "showRowIndex": true,
           "showDataViewMeta": false,
-          "onRowClick": "openJsonDocument"
+          "highlightCurrentRow": true,
+          "onRowClick": "selectCatalogRow",
+          "actionColumn": {"label":"操作", "width":180, "fixed":true},
+          "actions": {"children":[
+            {"type":"r-button","props":{"label":"编辑文件","link":true,"buttonType":"primary","onClick":"openJsonDocument","onBeforeRender":"bindCatalogRowAction"}}
+          ]}
         },
         "children": [
           {"type": "r-text", "props": {"field": "name", "label": "名称", "maxlength": 200, "minWidth": 220, "onBeforeRender": "bindCatalogField"}},

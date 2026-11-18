@@ -34,7 +34,7 @@ async function open(path='/json',meta:Record<string,unknown>={blueprintScenarioI
  const router=createRouter({history:createMemoryHistory(),routes:[{path,component:JsonPage,meta},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push(path);await router.isReady()
  const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'json-page-test-host'});const service:PageServiceCapability={copyText:async()=>{},showMessage:()=>{},showConfirm:async()=>true,showPrompt:async()=>null,showAlert:async()=>{},showDialog:async()=> 'cancel',selectEntities:async()=>[],browseFiles:async options=>{state.browseCalls.push(options??{});return state.picked},uploadFiles:async()=>{throw new Error('Direct host upload is forbidden in this JSON flow')},showLoading:()=>{},navigate:()=>{}};sparkProvide(PAGE_SERVICE,service);sparkProvide(PAGE_RUNTIME_SERVICES,{logger:{debug:vi.fn(),info:vi.fn(),warn:vi.fn(),error:vi.fn()},pageService:service});return()=>h(RouterView)}}),{attachTo:document.body,global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}});wrappers.push(wrapper);await flushPromises()
  const click=async(requested:string)=>{const label=({'保存':'保存目录','取消':'取消目录修改','关闭':'关闭正文'} as Record<string,string>)[requested]??requested;const button=wrapper.findAll('button').find(b=>b.text()===label&&b.attributes('disabled')===undefined);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
- const choose=async(index=0)=>{await vi.waitFor(()=>expect(wrapper.findComponent(RendererTable).exists()).toBe(true));await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.trigger('click');await flushPromises()}
+ const choose=async(index=0)=>{await vi.waitFor(()=>expect(wrapper.findComponent(RendererTable).exists()).toBe(true));await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.get('button').trigger('click');await flushPromises()}
  const edit=async(value:string)=>{wrapper.getComponent(FieldJson).getComponent(JsonTreeEditor).vm.$emit('update:modelValue',value);await flushPromises()}
  return {wrapper,router,click,choose,edit}
 }
@@ -78,10 +78,13 @@ it('renders the shared JSON catalog through the three tool files without reading
   expect(dataSet?.getView('JsonDocumentFile')).toBeDefined()
   expect(state.reads).toEqual([])
   await rendered.getComponent(RendererTable).get('tbody tr').trigger('click')
+  await flushPromises()
+  expect(state.reads).toEqual([])
+  await rendered.getComponent(RendererTable).get('tbody tr').get('button').trigger('click')
   await vi.waitFor(()=>expect(documentValue(rendered)).toEqual({flag:false,nested:[[1,null],{}]}))
   expect(state.reads).toEqual(['data.json'])
   state.files.set('J2.json','[false,0]')
-  await rendered.getComponent(RendererTable).findAll('tbody tr')[1]!.trigger('click')
+  await rendered.getComponent(RendererTable).findAll('tbody tr')[1]!.get('button').trigger('click')
   await vi.waitFor(()=>expect(documentValue(rendered)).toEqual([false,0]))
   expect(dataSet?.getView('JsonDocumentFile','document-J1')).toBeUndefined()
   expect(state.reads).toEqual(['data.json','J2.json'])
@@ -173,7 +176,7 @@ it('renders the shared JSON catalog through the three tool files without reading
   expect(state.uploads).toHaveLength(3)
   expect(state.http.saves).toHaveLength(3)
   state.files.delete('J2.json')
-  await rendered.getComponent(RendererTable).findAll('tbody tr')[1]!.trigger('click')
+  await rendered.getComponent(RendererTable).findAll('tbody tr')[1]!.get('button').trigger('click')
   await vi.waitFor(()=>expect(rendered.text()).toContain('文件不存在'))
   expect(rendered.findComponent(FieldJson).exists()).toBe(false)
   expect(rendered.findAll('button').find(item=>item.text()==='保存内容')?.attributes('disabled')).toBeDefined()

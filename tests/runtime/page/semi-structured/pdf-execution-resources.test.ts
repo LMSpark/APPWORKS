@@ -1,11 +1,12 @@
-import {expect,it} from 'vitest'
+import {expect,it,vi} from 'vitest'
 import {readFileSync} from 'node:fs'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import {DataSpaceRuntimeApi,LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {buildDataViewKey,resolveDataViewKey} from '@spark-appworks/spark-data'
 import {HttpClientBase,type RequestConfig,type HttpResponse} from '@spark-appworks/spark-utils'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {createPdfInspectionProjectionBindings,PDF_INSPECTION_HISTORY_TABLE,PDF_INSPECTION_SCENARIO_ID} from '@/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings'
+import {capturePdfInspectionUpload,createPdfInspectionUploadBindings,PDF_INSPECTION_UPLOAD_TABLE,stagePdfInspectionFile} from '@/lowcode/resources/semi-structured/pdf-inspect/upload-command'
 
 class HistoryHttp extends HttpClientBase{
  calls:RequestConfig[]=[]
@@ -23,8 +24,36 @@ function assemble(table:string,http:HttpClientBase){
  const readScope=()=>({token:'scope',headers:{'X-AppId':'APP'}})
  const runtime=new DataSpaceRuntimeApi({http,readScope})
  const projectionBindings=createPdfInspectionProjectionBindings({config,http,readScope,assertCurrent:()=>{}})
- return new LowcodeDataSpaceAssembler(runtime,http).assemble({config,space:{dataSpaceId:PDF_INSPECTION_SCENARIO_ID,name:'PDF核验'},models:[],relations:[],projectionBindings}).dataSet
+ const commandBindings=createPdfInspectionUploadBindings({config,http,readScope,assertCurrent:()=>{}})
+ return new LowcodeDataSpaceAssembler(runtime,http).assemble({config,space:{dataSpaceId:PDF_INSPECTION_SCENARIO_ID,name:'PDF核验'},models:[],relations:[],projectionBindings,commandBindings}).dataSet
 }
+
+it('stages an original File through the configured PDF command and saves that row only',async()=>{
+ const dataSet=assemble(PDF_INSPECTION_UPLOAD_TABLE,new HistoryHttp())
+ const file=new File(['%PDF-fixture'],'original.pdf')
+ const upload=vi.spyOn(LowcodeDesignFileUpload.prototype,'uploadBinaryVersion').mockResolvedValue({
+  templatePath:'/tenant/filedata/original.pdf',locator:{appType:'filedata',customPath:'',fileName:'original.pdf'},
+ })
+ const verify=vi.spyOn(LowcodeDesignFileUpload.prototype,'verifyBinaryVersion').mockResolvedValue(undefined)
+ try{
+  const view=dataSet.getView(PDF_INSPECTION_UPLOAD_TABLE)!
+  await view.refresh()
+  await expect(view.addRow({originalName:file.name,size:file.size})).rejects.toThrow('缺少本次原文件许可')
+  const id=await stagePdfInspectionFile(dataSet,file,()=>{})
+  expect(upload).not.toHaveBeenCalled()
+  expect(view.dirtyTracking.isPendingCreate(id)).toBe(true)
+  expect(()=>capturePdfInspectionUpload(dataSet,id)).toThrow('尚无确认回执')
+  const saved=await dataSet.saveChanges({views:[{tableName:PDF_INSPECTION_UPLOAD_TABLE,viewId:'default',ids:[id]}]})
+  expect(saved.success).toBe(true)
+  expect(upload).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({file}))
+  expect(verify).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({file}))
+  expect(view.rows).toMatchObject([{uploadId:id,filePath:'/tenant/filedata/original.pdf'}])
+  const proof=capturePdfInspectionUpload(dataSet,id)
+  expect(proof.input).toEqual({fileId:id,appType:'filedata',filePath:'/tenant/filedata/original.pdf'})
+  await view.refresh()
+  expect(proof.assertCurrent).toThrow()
+ }finally{upload.mockRestore();verify.mockRestore();dataSet.destroy()}
+})
 
 it('loads PDF history through the formal scenario assembler and the exported readonly binding',async()=>{
  const http=new HistoryHttp()

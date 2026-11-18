@@ -22,6 +22,16 @@
         "scopeFilter": {"field": "id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "ruleId"}}
       }}
     },
+    "PdfInspectionUpload": {
+      "resourceType": "command", "resourceId": "pdf-inspect:upload",
+      "columns": [
+        {"name": "uploadId", "type": "string", "isPrimaryKey": true},
+        {"name": "originalName", "type": "string"},
+        {"name": "size", "type": "number"},
+        {"name": "filePath", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    },
     "PdfInspectionHistory": {
       "resourceType": "logical-view", "resourceId": "pdf-inspect:history",
       "columns": [

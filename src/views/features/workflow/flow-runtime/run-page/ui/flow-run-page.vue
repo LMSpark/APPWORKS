@@ -6,10 +6,10 @@
   <SparkComponent.RendererSection class="flow-run-page" title="流程办理" :bordered="false" :grid-columns="1"
     :status="shellStatus" :error="shellError" :retryable="!shellLoading" @retry="retryShell">
     <template v-if="prepared" #header-actions>
-      <SparkComponent.RendererButton label="流程图" @click="openFlowChart" />
-      <SparkComponent.RendererButton label="加签" @click="openAppendDialog" />
-      <SparkComponent.RendererButton label="撤回" :loading="handleLoading" @click="revokeCurrentStep" />
-      <SparkComponent.RendererButton label="办理" button-type="primary" :loading="handleLoading" @click="openHandlePanel" />
+      <SparkComponent.RendererButton label="流程图" :disabled="reloadBlocked" @click="openFlowChart" />
+      <SparkComponent.RendererButton label="加签" :disabled="reloadBlocked" @click="openAppendDialog" />
+      <SparkComponent.RendererButton label="撤回" :disabled="reloadBlocked" :loading="handleLoading" @click="revokeCurrentStep" />
+      <SparkComponent.RendererButton label="办理" :disabled="reloadBlocked" button-type="primary" :loading="handleLoading" @click="openHandlePanel" />
       <SparkComponent.RendererButton label="核验原办理结果" :loading="handleLoading" @click="verifyOriginalApproval" />
     </template>
     <SparkComponent.RendererButton v-if="reloadBlocked" label="切换到当前导航" :disabled="hasPendingWork()" @click="retryShell" />
@@ -151,7 +151,7 @@ const {
   openFlowChart,
   revokeCurrentStep,
   stepViewKey,
-} = useFlowRunPage(routeQuery, () => runtimeReady.value)
+} = useFlowRunPage(routeQuery, () => runtimeReady.value, () => reloadBlocked.value)
 
 const runtime = computed(() => runtimeReady.value ? session.runtime : undefined)
 const routeSnapshot = computed(() => {

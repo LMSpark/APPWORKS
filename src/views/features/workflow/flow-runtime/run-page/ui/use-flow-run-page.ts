@@ -34,7 +34,7 @@ import {getVuePageOptions} from '@/registries/vue-page-registry'
 
 const STEP_MODEL = 'WFOBJ_FLOW_RELATIONLINE_STEP'
 
-export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRuntimeRouteQuery>, runtimeReady: () => boolean) {
+export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRuntimeRouteQuery>, runtimeReady: () => boolean, navigationBlocked: () => boolean) {
   const router = useRouter()
   const {sparkConsume} = useSparkComponent({type: 'flow-run-page'})
   const approvalWorkspace = shallowRef<FlowRunApprovalInputWorkspace>()
@@ -180,6 +180,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   }
 
   async function loadPage(): Promise<void> {
+    if (navigationBlocked()) return
     if (hasPendingApproval() || hasPendingAppendInput()) {handleError.value = '原审批命令尚有待提交或待核验状态，请先处理原命令'; return}
     if (approvalWorkspace.value?.dirty) {handleError.value = '请先确认或取消原办理参数'; return}
     if (approvalWorkspace.value?.active) approvalWorkspace.value.close()
@@ -218,6 +219,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   }
 
   async function openHandlePanel(): Promise<void> {
+    if (navigationBlocked()) return
     const own = generation
     handleLoading.value = true
     handleError.value = ''
@@ -310,6 +312,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   const backToCreator = () => runParameterAction('toCreator')
 
   function openAppendDialog(): void {
+    if (navigationBlocked()) return
     if (approvalWorkspace.value?.active || hasPendingApproval() || hasPendingAppendInput()) {handleError.value = '请先确认、取消办理参数或核验原审批命令'; return}
     const step = readCurrentStep()
     appendContext.value = buildAppendUserContext(step)
@@ -321,6 +324,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   }
 
   async function revokeCurrentStep(): Promise<void> {
+    if (navigationBlocked()) return
     const own = generation
     handleLoading.value = true
     handleError.value = ''
@@ -342,6 +346,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   }
 
   async function openFlowChart(): Promise<void> {
+    if (navigationBlocked()) return
     const own = generation
     chartOpen.value = true
     chartLoading.value = true

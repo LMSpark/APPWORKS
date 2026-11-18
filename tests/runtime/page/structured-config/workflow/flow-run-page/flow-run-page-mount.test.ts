@@ -21,7 +21,7 @@ const {openTool, runtimeOptions} = vi.hoisted(() => ({
 const callbacks = vi.hoisted(() => ({end: vi.fn(async (_payload: unknown) => true), succeeded: vi.fn(async (_payload: unknown) => {}), failed: vi.fn((_payload: unknown) => {})}))
 
 vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => {
-  const {ref} = await import('vue')
+  const {ref, toRef} = await import('vue')
   return {
     useFeaturePageRuntime: (options: Parameters<typeof runtimeOptions>[0]) => {
       runtimeOptions(options)
@@ -32,13 +32,13 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
         ready: ref(true),
         loading: ref(false),
         error: ref(''),
-        reloadBlocked: ref(false),
+        reloadBlocked: toRef(routeState, 'reloadBlocked'),
         loadCurrentRoute: reloadRuntime,
       }
     },
   }
 })
-const routeState = reactive({query: {wfid: 'WF-1', flowid: 'FM-1', stepid: ''}, meta: {}, path: '/test'})
+const routeState = reactive({query: {wfid: 'WF-1', flowid: 'FM-1', stepid: ''}, meta: {}, path: '/test', reloadBlocked: false})
 let releaseOldQuery: (() => void) | undefined
 let delayFirstQuery = false
 let instanceReads = 0
@@ -189,6 +189,7 @@ beforeEach(async () => {
   config.global.stubs = {...baselineStubs}
   reloadRuntime.mockClear()
   callbacks.end.mockReset().mockResolvedValue(true); callbacks.succeeded.mockReset().mockResolvedValue(undefined); callbacks.failed.mockClear()
+  routeState.reloadBlocked = false
   routeState.query.wfid = 'WF-1'
   routeState.query.stepid = ''
   releaseOldQuery = undefined
@@ -280,6 +281,22 @@ describe('flow run page mount', () => {
       runtime.dispose()
     }
 
+  })
+
+  it('retains the original context when a navigation change is blocked', async () => {
+    const wrapper = mount(withTestPageService(Host), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+    wrappers.push(wrapper)
+    await flushPromises()
+    const reads = instanceReads
+    routeState.reloadBlocked = true
+    routeState.query.wfid = 'WF-2'
+    await flushPromises()
+    expect(instanceReads).toBe(reads)
+    expect(wrapper.text()).toContain('当前仍显示原办理记录')
+    for (const label of ['流程图', '加签', '撤回', '办理']) {
+      expect(wrapper.findAll('button').find(button => button.text() === label)?.attributes('disabled')).toBeDefined()
+    }
+    expect(wrapper.findAll('button').find(button => button.text() === '核验原办理结果')?.element.disabled).toBe(false)
   })
 
   it('opens its flow chart with the original formal edge endpoints',async()=>{

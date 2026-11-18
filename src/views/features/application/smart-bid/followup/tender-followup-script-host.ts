@@ -13,6 +13,19 @@ import {readTenderChangeAttempts} from './tender-change-attempt-reader'
 import {matchFollowupNoticeToDeadlinePackage,type reconcileDeadlineDelivery} from '../authoring/model/review/deadline/content-deadline-reconciliation'
 
 type Read=Parameters<typeof readRegisteredTenderFollowupNotices>
+type Addendum=Extract<Awaited<ReturnType<typeof readTenderAddendum>>,{state:'REGISTERED'}>
+type CallEvidence=Extract<Awaited<ReturnType<typeof readTenderChangeCallReferences>>,{state:'REGISTERED'}>
+
+function traceCallImpacts(addendum:Addendum,calls:CallEvidence){
+ return Object.freeze(addendum.items.map(source=>{
+  const references=calls.items.filter(item=>item.lineageId===source.requirementLineageId&&item.version===source.previousRequirementVersion)
+  const results=[...new Set(references.map(item=>item.resultRef))].map(resultRef=>{
+   const decisions=calls.dispositions.filter(item=>item.addendumId===addendum.id&&item.changeId===source.id&&item.resultRef===resultRef)
+   return Object.freeze({resultRef,disposition:decisions.length===1?decisions[0]:null})
+  })
+  return Object.freeze({source,references:Object.freeze(references),results:Object.freeze(results)})
+ }))
+}
 type ReadDeadline=(scope:Read[1]&Readonly<{projectId:string;knownAt:string}>,signal:AbortSignal)=>
  Promise<ReturnType<typeof reconcileDeadlineDelivery>|null>
 
@@ -39,6 +52,18 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
    const {revisionId}=input
    if(Object.keys(input).length!==1||!identity(revisionId))throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
    return readTenderChangeAttempts({...host,runtime,assertCurrent},revisionId)
+  }
+  if(name==='tender.followup.traceOriginalAttempts'){
+   const {revisionId,addendumId}=input
+   if(Object.keys(input).length!==2||!identity(revisionId)||!identity(addendumId))throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
+   const readHost={...host,runtime,assertCurrent}
+   const addendum=await readTenderAddendum(readHost,{projectId:host.projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
+   if(addendum.state!=='REGISTERED')return addendum
+   const attempts=await readTenderChangeAttempts({...readHost,assertCurrent:addendum.assertCurrent},revisionId,true)
+   const items=attempts.items.map(({runId,attemptRef,evidence})=>Object.freeze({runId,attemptRef,
+    impacts:evidence?.state==='REGISTERED'?traceCallImpacts(addendum,evidence):null}))
+   attempts.assertCurrent()
+   return Object.freeze({state:'HISTORY_TRACED' as const,basisRevisionId:revisionId,items:Object.freeze(items),assertCurrent:attempts.assertCurrent})
   }
   if(name==='tender.followup.traceOutboundBatches'){
    const {addendumId,knownAt}=input
@@ -81,14 +106,7 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
    if(addendum.state!=='REGISTERED')return addendum
    const calls=await readTenderChangeCallReferences({...readHost,assertCurrent:addendum.assertCurrent},{projectId,runId,attemptRef,requestKey})
    if(calls.state!=='REGISTERED')return calls
-   const impacts=addendum.items.map(source=>{
-    const references=calls.items.filter(item=>item.lineageId===source.requirementLineageId&&item.version===source.previousRequirementVersion)
-    const results=[...new Set(references.map(item=>item.resultRef))].map(resultRef=>{
-     const decisions=calls.dispositions.filter(item=>item.addendumId===addendumId&&item.changeId===source.id&&item.resultRef===resultRef)
-     return Object.freeze({resultRef,disposition:decisions.length===1?decisions[0]:null})
-    })
-    return Object.freeze({source,references:Object.freeze(references),results:Object.freeze(results)})
-   })
+   const impacts=traceCallImpacts(addendum,calls)
    calls.assertCurrent()
    return Object.freeze({state:'CALLS_TRACED' as const,attemptRef,impacts:Object.freeze(impacts),assertCurrent:calls.assertCurrent})
   }

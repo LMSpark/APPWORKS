@@ -8,13 +8,14 @@ import {originalRegistrationView,readOriginalRegistrationView} from '../authorit
 const keys=['projectId','runId','attemptRef','requestKey']
 const fields=['actualRequirementReads']
 const dispositionField='changeDispositions'
+export const tenderChangeCallFields=[...fields,dispositionField]
 const viewName='originalRequirementReads'
 const error='TENDER_CHANGE_CALL_EVIDENCE'
 type Scope=Readonly<{projectId:string;runId:string;attemptRef:string;requestKey:string}>
 
 /** 原调用视图按试次完整身份精确取证。 */
 export function tenderChangeCallScenarioView(primaryKey:string){
- return originalRegistrationView(primaryKey,keys,[...fields,dispositionField])
+ return originalRegistrationView(primaryKey,keys,tenderChangeCallFields)
 }
 
 function captureReference(value:unknown){
@@ -32,14 +33,12 @@ function captureDisposition(value:unknown){
  return Object.freeze({addendumId,changeId,resultRef,decisionRef,ownerRef,reason,decision})
 }
 
-/** 缺失清单表示待取得原引用，空清单只描述本次已核试次。 */
-export async function readTenderChangeCallReferences(host:Parameters<typeof readOriginalRegistrationView>[0],scope:Scope){
- const read=await readOriginalRegistrationView(host,{model:'GenerationRun',viewName},scope)
- if(!read.row)return Object.freeze({state:'UNKNOWN' as const,assertCurrent:read.assertCurrent})
- const assertCurrent=read.captureFields(fields)
+/** 从本次查询中核验可读的原引用及处置字段。 */
+export function captureTenderChangeCallEvidence(row:Readonly<Record<string,unknown>>,captureFields:(fields:readonly string[])=>()=>void){
+ const assertCurrent=captureFields(fields)
  assertCurrent()
- const raw=read.row['actualRequirementReads']
- if(raw===null)return Object.freeze({state:'UNKNOWN' as const,assertCurrent})
+ const raw=row['actualRequirementReads']
+ if(raw===null||raw===undefined)return Object.freeze({state:'UNKNOWN' as const,assertCurrent})
  const items:Array<ReturnType<typeof captureReference>>=[],seen=new Set<string>()
  visitSnapshotReferences(raw,value=>{
   const item=captureReference(value)
@@ -48,12 +47,19 @@ export async function readTenderChangeCallReferences(host:Parameters<typeof read
   seen.add(key)
   items.push(item)
  },error)
- const rawDispositions=read.row[dispositionField]
+ const rawDispositions=row[dispositionField]
  const dispositions:Array<ReturnType<typeof captureDisposition>>=[]
  const hasDispositions=rawDispositions!==null&&rawDispositions!==undefined
- const assertDispositions=hasDispositions?read.captureFields([dispositionField]):read.assertCurrent
+ const assertDispositions=hasDispositions?captureFields([dispositionField]):assertCurrent
  assertDispositions()
  if(hasDispositions)visitSnapshotReferences(rawDispositions,value=>{dispositions.push(captureDisposition(value))},error)
  return Object.freeze({state:'REGISTERED' as const,items:Object.freeze(items),dispositions:Object.freeze(dispositions),
   assertCurrent:()=>{assertCurrent();assertDispositions()}})
+}
+
+/** 缺失清单表示待取得原引用，空清单只描述本次已核试次。 */
+export async function readTenderChangeCallReferences(host:Parameters<typeof readOriginalRegistrationView>[0],scope:Scope){
+ const read=await readOriginalRegistrationView(host,{model:'GenerationRun',viewName},scope)
+ if(!read.row)return Object.freeze({state:'UNKNOWN' as const,assertCurrent:read.assertCurrent})
+ return captureTenderChangeCallEvidence(read.row,read.captureFields)
 }

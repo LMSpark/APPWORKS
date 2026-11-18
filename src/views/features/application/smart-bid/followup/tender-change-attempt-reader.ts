@@ -5,6 +5,7 @@ import {buildDataViewKey,type ViewMetadata} from '@spark-appworks/spark-data'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../authoring/model/content-revision-reader'
 import {originalRegistrationView} from '../authority/original-registration-view'
+import {captureTenderChangeCallEvidence,tenderChangeCallFields} from './tender-change-call-reader'
 
 const keys=['projectId','basisRevisionId'] as const
 const fields=['runId','attemptRef','requestKey']
@@ -12,12 +13,12 @@ const model='GenerationRun',viewName='originalBasisAttempts'
 const error='TENDER_CHANGE_ATTEMPT_SCOPE'
 
 export function tenderChangeAttemptScenarioView(primaryKey:string):ViewMetadata{
- const view=originalRegistrationView(primaryKey,keys,fields)
+ const view=originalRegistrationView(primaryKey,keys,[...fields,...tenderChangeCallFields])
  return {...view,queryConfig:{...view.queryConfig,pagination:'paged',allPages:true}}
 }
 
 /** 收齐所选正文基版的原调用目录，不以部分页推断追查完毕。 */
-export async function readTenderChangeAttempts(host:ContentRevisionReadHost,basisRevisionId:string){
+export async function readTenderChangeAttempts(host:ContentRevisionReadHost,basisRevisionId:string,includeEvidence=false){
  const {scenarioId,projectId,runtime}=host
  const scope={projectId,basisRevisionId}
  host.assertCurrent()
@@ -47,7 +48,17 @@ export async function readTenderChangeAttempts(host:ContentRevisionReadHost,basi
   if(seen.has(id))throw Error(error)
   seen.add(id)
   proofs.push(proof)
-  return Object.freeze({runId,attemptRef,requestKey})
+  let evidence:ReturnType<typeof captureTenderChangeCallEvidence>|null=null
+  if(includeEvidence){
+   try{
+    evidence=captureTenderChangeCallEvidence(row,required=>view.captureReadRow(row,[...keys,...fields,...required]))
+   }catch{
+    proof()
+    evidence=Object.freeze({state:'UNKNOWN' as const,assertCurrent:proof})
+   }
+  }
+  if(evidence)proofs.push(evidence.assertCurrent)
+  return Object.freeze({runId,attemptRef,requestKey,evidence})
  })
  const assertCurrent=()=>{assertScope();assertRead();for(const proof of proofs)proof()}
  assertCurrent()

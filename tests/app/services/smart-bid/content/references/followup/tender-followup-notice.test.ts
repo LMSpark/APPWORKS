@@ -104,9 +104,15 @@ it('reads the original addendum locations for the current project, lot and round
   const signal=new AbortController().signal
   const listed=await page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL'},signal)
   expect(listed).toMatchObject({basisRevisionId:'ORIGINAL',items:[{runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST'}]})
+  const history=await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal)
+  expect(history).toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',impacts:[{
+   references:[{callRef:'USED'}],results:[{resultRef:'RESULT',disposition:{decision:'REDO'}}],
+  }]}]})
+  history.assertCurrent()
   attemptCount=2
   await expect(page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL'},signal))
    .rejects.toThrow('TENDER_CHANGE_ATTEMPT_INCOMPLETE')
+  expect(()=>history.assertCurrent()).toThrow()
   const result=await page.invoke('tender.followup.readAddendum',{addendumId:'A'},signal)
   expect(view.queryContext).toMatchObject({projectId:'P',lotId:'L',roundId:'R',id:'A'})
   expect(result).toMatchObject({state:'REGISTERED',items:[{

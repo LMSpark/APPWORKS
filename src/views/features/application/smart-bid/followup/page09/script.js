@@ -7,9 +7,33 @@ function bindOriginalAttempts() {
 async function openOriginalAttempts() {
   if (!bindOriginalAttempts().visible) return
   try {
-    const result = await $page.invokeHostCommand('tender.followup.readOriginalAttempts', {revisionId: $route.query.revisionId})
+    const {revisionId, addendumId} = $route.query
+    const trace = bindTenderAddendum().visible
+    const result = trace ? await $page.invokeHostCommand('tender.followup.traceOriginalAttempts', {revisionId, addendumId}) :
+      await $page.invokeHostCommand('tender.followup.readOriginalAttempts', {revisionId})
     result.assertCurrent()
-    const lines = ['正文基版 ' + result.basisRevisionId, ...result.items.map(item => `运行 ${item.runId} · 试次 ${item.attemptRef}`)]
+    if (trace && result.state !== 'HISTORY_TRACED') {
+      await $page.showAlert('正式修改登记待核', '原正文工艺试次')
+      return
+    }
+    const lines = ['正文基版 ' + result.basisRevisionId]
+    for (const item of result.items) {
+      lines.push(`运行 ${item.runId} · 试次 ${item.attemptRef}`)
+      if (!trace) continue
+      if (!item.impacts) {
+        lines.push('原引用待核')
+        continue
+      }
+      for (const {source, references, results} of item.impacts) {
+        lines.push(`变动 ${source.id} · 已核旧版引用 ${references.length} 项`)
+        for (const ref of references) lines.push(`调用 ${ref.callRef} · 成果 ${ref.resultRef} · 字段 ${ref.fieldPath} · 版本 ${ref.version}`)
+        for (const {resultRef, disposition} of results) {
+          const decisions = {REDO: '重做', RECHECK: '复核', REUSE: '沿用'}
+          lines.push(disposition ? `成果 ${resultRef} · ${decisions[disposition.decision]} · 登记 ${disposition.decisionRef} · ${disposition.reason}` :
+            `成果 ${resultRef} · 原处置待核`)
+        }
+      }
+    }
     if (!result.items.length) lines.push('当前查询范围内无原工艺试次登记')
     await $page.showAlert(lines.join('\n'), '原正文工艺试次')
   } catch {

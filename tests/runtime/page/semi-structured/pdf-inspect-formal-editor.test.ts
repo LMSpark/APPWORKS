@@ -86,7 +86,8 @@ describe('formal PDF rule editor', () => {
       expect(state.http.saves).toHaveLength(0)
     } finally {fetchScenario.mockRestore()}
   })
-  it.each([false,true])('selects without writes and starts one formal task even if its reply is lost (%s)', async lostReply => {
+  it.each(['accepted','retry','cold'] as const)('selects without writes and dispatches only once (%s)', async mode => {
+    const lostReply = mode !== 'accepted'
     const backend = new class extends ApiBackend {
       initCalls: RequestConfig[] = []
       recoverCalls: RequestConfig[] = []
@@ -129,9 +130,18 @@ describe('formal PDF rule editor', () => {
         await vi.waitFor(() => expect(f.wrapper.text()).toContain('继续核验原操作'))
         await f.click('复制原请求恢复链接')
         expect(f.copied.map(link=>new URL(link).pathname+new URL(link).search)).toEqual([`/catalog?__sparkNavigationId=${PDF}&pdfInspectionRequestId=${Reflect.get(Object(backend.initCalls[0]?.data),'requestId')}`])
-        await f.click('继续核验原操作')
+        if (mode === 'cold') {
+          f.wrapper.unmount()
+          wrappers.splice(wrappers.indexOf(f.wrapper), 1)
+          const reopened = await open('P1', true)
+          const requestId = Reflect.get(Object(backend.initCalls[0]?.data), 'requestId')
+          expect(backend.recoverCalls).toHaveLength(0)
+          await reopened.click(`核验原请求 ${  String(requestId)}`)
+          await vi.waitFor(() => expect(reopened.wrapper.text()).toContain('文件与规则核验明细'))
+          expect(backend.recoverCalls[0]?.data).toMatchObject({requestId})
+        } else await f.click('继续核验原操作')
       }
-      await vi.waitFor(() => expect(f.wrapper.text()).toContain('任务已接纳'))
+      if (mode !== 'cold') await vi.waitFor(() => expect(f.wrapper.text()).toContain('任务已接纳'))
       expect(upload).toHaveBeenCalledTimes(1)
       expect(verify).toHaveBeenCalledTimes(1)
       expect(backend.initCalls).toHaveLength(1)

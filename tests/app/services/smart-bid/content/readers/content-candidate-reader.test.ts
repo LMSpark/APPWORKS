@@ -4,6 +4,21 @@ import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/co
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
 
+it('binds content rule digests to the original owning document',async()=>{
+ const f=await fixture('populated')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const rule={nodeId:'C',documentId:'D',role:'RESPONSE',deliverable:true}
+  const source={nodes:[rule],documents:[{documentId:'D',restrictions:[]}],assertCurrent:()=>{}}
+  const result=await candidate.readContentRulesHash(['C'],source)
+  expect(result.contentRulesHash).toMatch(/^[a-f0-9]{64}$/)
+  await expect(candidate.readContentRulesHash(['C'],{...source,nodes:[{...rule,documentId:'OTHER'}]}))
+   .rejects.toThrow('CONTENT_RULES_SCOPE')
+  await f.ds.getView('RevisionSnapshot','selectedSnapshot')!.refresh()
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+ }finally{f.ds.destroy()}
+})
+
 it('reads scoped qualification evidence with the original snapshot proof',async()=>{
  const f=await fixture('qualification')
  try{

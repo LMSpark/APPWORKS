@@ -32,6 +32,27 @@ export function assertRevisionTemplateBindings(value:unknown,nodes:ReadonlyArray
  },'SNAPSHOT_TEMPLATE_MODEL')
 }
 
+function findDocument(byId:ReadonlyMap<string,ContentStructureNode>,nodeId:string):ContentStructureNode|undefined {
+ const seen=new Set<string>()
+ let current=byId.get(nodeId)
+ while(current&&current.type!=='document'&&!seen.has(current.nodeId)){
+  seen.add(current.nodeId)
+  current=byId.get(current.parentId)
+ }
+ return current?.type==='document'?current:undefined
+}
+
+/** 从原树父链取各节点所属逻辑册，包含逻辑册自身。 */
+export function readContentDocumentScope(nodes:readonly ContentStructureNode[],nodeIds:readonly string[]){
+ const byId=new Map(nodes.map(node=>[node.nodeId,node]))
+ if(byId.size!==nodes.length||new Set(nodeIds).size!==nodeIds.length)throw Error('CONTENT_DOCUMENT_SCOPE')
+ return Object.freeze(nodeIds.map(nodeId=>{
+  const document=findDocument(byId,nodeId)
+  if(!document)throw Error('CONTENT_DOCUMENT_SCOPE')
+  return Object.freeze({nodeId,documentId:document.nodeId})
+ }))
+}
+
 /** 每个所选计算表沿原父链找到逻辑册，必须有该册明确固定的模板。 */
 export function readCalculationTableTemplateRefs(value:unknown,nodes:readonly ContentStructureNode[],tableIds:readonly string[]){
  assertRevisionTemplateBindings(value,nodes)
@@ -41,13 +62,8 @@ export function readCalculationTableTemplateRefs(value:unknown,nodes:readonly Co
  return Object.freeze(tableIds.map(nodeId=>{
   const table=byId.get(nodeId)
   if(table?.type!=='table')throw Error('SNAPSHOT_CALCULATION_TABLE')
-  const seen=new Set<string>()
-  let current:ContentStructureNode|undefined=table
-  while(current&&current.type!=='document'&&!seen.has(current.nodeId)){
-   seen.add(current.nodeId)
-   current=byId.get(current.parentId)
-  }
-  const template=current?.type==='document'?bindings.get(current.nodeId):undefined
+  const document=findDocument(byId,nodeId)
+  const template=document?bindings.get(document.nodeId):undefined
   if(!template)throw Error('SNAPSHOT_CALCULATION_TEMPLATE_REQUIRED')
   return Object.freeze({nodeId,template:Object.freeze(template)})
  }))

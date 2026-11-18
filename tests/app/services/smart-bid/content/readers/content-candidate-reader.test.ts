@@ -4,6 +4,23 @@ import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/co
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
 
+it('reads only explicitly selected independent response facts with exact assignment identity',async()=>{
+ const f=await fixture('response-fact')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const before=f.query.mock.calls.length
+  await expect(candidate.readEffectiveFacts({nodeIds:[],responses:[{assignmentId:'OTHER',responseId:'I'}]}))
+   .rejects.toThrow('SNAPSHOT_RESPONSE_FACT_SCOPE')
+  expect(f.query).toHaveBeenCalledTimes(before)
+  expect((await candidate.readNodeEffectiveFacts([])).displayHashes).toEqual([])
+  const result=await candidate.readEffectiveFacts({nodeIds:[],responses:[{assignmentId:'A',responseId:'I'}]})
+  expect(result.displayHashes.map(item=>item.factId)).toEqual(['PRICE'])
+  await f.ds.getView('RevisionSnapshot','selectedSnapshot')!.refresh()
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
+
 it('queries fixed facts from selected original candidate nodes only',async()=>{
  const f=await fixture('fact')
  try{

@@ -25,7 +25,8 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   templateRefs,nodes:populated?members.map(({nodeId,nodeHash})=>({nodeId,nodeHash})).sort((a,b)=>a.nodeId<b.nodeId?-1:1):[],
   requirementPins:['bad-pin','valid-pin','fixed-pin','bad-response'].includes(mode)?[{chapterId:mode==='bad-pin'?'H':'C',lineageId:'L',version:mode==='fixed-pin'?'R2':'R1'}]:[],
   responseAssignments:[],responses:mode==='bad-response'?[{id:'R',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',chapterId:'C',anchorNodeId:'D'}]:
-   mode==='bad-response-text'?[{id:'I',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',statement:'报价{{金额}}元',data:{}}]:[],
+   ['bad-response-text','response-fact'].includes(mode)?[{id:'I',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',
+    statement:'报价{{金额}}元',data:mode==='response-fact'?{金额:{type:'fact',factId:'PRICE'}}:{}}]:[],
   qualificationReviews:[],sensitiveRefs:[]}
  const snapshotHash=await hashRevisionSnapshot(manifest)
  const rootHash=options.computeRoot?await hashRevisionContentRoot({manifest,

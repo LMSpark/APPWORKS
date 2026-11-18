@@ -19,6 +19,7 @@ import {readTenderRecordReference} from '@/services/smart-bid/content/references
 import {readContentTenderRecord} from './content-tender-record-reader'
 import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/services/smart-bid/content/content-scoped-preview'
 import {readEffectiveFactDependencies} from './hashes/effective-fact-reader'
+import {hashCalculationInputs} from '@/services/smart-bid/content/hashes/calculation-inputs-hash'
 import {previewContentTextSnapshot,type ContentResponseTextSnapshot,type ContentTextSnapshotPreview} from '@/services/smart-bid/content/content-text-snapshot-preview'
 import {captureContentTextSpan,type ContentTextSelection,type VerifiedContentTextSpan} from '@/services/smart-bid/content/content-text-span'
 
@@ -53,6 +54,8 @@ export type ContentCandidateBinding=Readonly<{
  runtime:ContentRevisionReadHost['runtime']
  readFixedFact:(selection:Readonly<{factId:string;version?:number}>,assertConsumer?:()=>void)=>Promise<ContentCandidateFactBinding>
  readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>ReturnType<typeof readEffectiveFactDependencies>
+ hashNodeCalculationInputs:(nodeIds:readonly string[],tables:unknown,assertInputsCurrent:()=>void)=>
+  Promise<Awaited<ReturnType<typeof hashCalculationInputs>>&Readonly<{assertCurrent:()=>void}>>
  readEffectiveFacts:(scope:Readonly<{nodeIds:readonly string[];responses:readonly IndependentResponseFactTarget[]}>,assertConsumer?:()=>void)=>ReturnType<typeof readEffectiveFactDependencies>
  readRequirementPinIssues:(assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementPinsBinding>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
@@ -103,6 +106,14 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
  assertRevisionResponseAnchors(responses,requirementPins,payloads)
  assertRevisionResponseText(responses,payloads.map(payload=>payload.nodeId))
  assertCurrent()
+ const hashNodeCalculationInputs:ContentCandidateBinding['hashNodeCalculationInputs']=async(nodeIds,tables,assertInputsCurrent)=>{
+  const assertInputs=()=>{assertCurrent();assertInputsCurrent()}
+  assertInputs()
+  const expectedNodeIds=nodes.readCalculationTableIds(nodeIds)
+  const result=await hashCalculationInputs({expectedNodeIds,tables})
+  assertInputs()
+  return Object.freeze({...result,assertCurrent:assertInputs})
+ }
  const readEffectiveFacts:ContentCandidateBinding['readEffectiveFacts']=async(scope,assertConsumer)=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}
   assertContext()

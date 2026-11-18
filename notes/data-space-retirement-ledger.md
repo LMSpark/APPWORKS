@@ -11076,3 +11076,6 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - 2026-11-18 实服 Baseline 补 selectedBasisBaseline、selectedHeadBaseline：两条通过标准常驻范围编辑器配置 AND(projectId eq GetInputParam(projectId), id eq GetInputParam(baselineId))，同拟提交视图选择 staged。各保存一次，UI 均显示已保存并回读确认，保存按钮禁用。未执行实际基线查询或业务写入；仍需整页冷复读、FactVersion 有效成员视图及正式菜单/采用消费。
 - 2026-11-18 候选修订按明确选中的原快照节点读取有效事实：节点必须属于已复核成员，事实键取原节点 JSON，并沿候选同版基线批查。未引用事实的节点跳过事实版本查询，节点刷新撤销读取证明。读取专项 11 文件 140 项，ESLint 与 diff 检查通过。独立响应、计算表和本次用途审核待接。
 - 2026-11-18 关闭实服整个设计实例，从数据空间目录重开并经模型目录进入 Baseline。selectedBasisBaseline 与 selectedHeadBaseline 均冷读到原 projectId 与 id 参数 AND 常驻条件及 staged；此为配置持久验收，未执行实际业务查询。
+- 2026-11-18 候选有效事实读取覆盖显式选择的独立答复，校验原分工和答复 ID 成对匹配；与节点中的引用合并后按同版基线批查。未选择的答复不进入查询，快照刷新撤销已有证明。读取专项 11 文件 141 项和 ESLint 通过。计算表依赖及用途审核仍待接。
+- 2026-11-18 按正文规范 §7 固定计算表输入摘要：生成器版本、原表和填写说明、要求版本、已确认响应及覆盖/勾选/例外、事实与资源版本分组编码。按节点身份组合并拒绝遗漏、重复或额外表。专项 2 项和 ESLint 通过。调用方仍需从正式节点和固定记录提供范围与各组，生成器、共用展开和下游递交待接。
+- 2026-11-18 实服 FactVersion@effectiveFactVersions 一次保存并回读确认：Table、paged、allPages=true、autoQuery=false、cache=none、staged，常驻 projectId eq GetInputParam(projectId)。未触发实际业务查询；精确 key/version 来自正式宿主临时条件，冷重开和真实结果仍待。

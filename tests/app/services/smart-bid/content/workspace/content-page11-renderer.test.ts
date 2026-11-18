@@ -28,7 +28,7 @@ it.each([false,true])('renders the three-file tool with original draft and optio
   {nodeId:'C',parentId:'B',index:0,type:'chapter',class:[],value:'',data:{}},
   {nodeId:'H',parentId:'C',index:0,type:'heading',class:[],value:'实施方案',data:{}}]
  const planningRows={
-  ContentProject:{id:'P',projectId:'P',activeBaselineId:'ACTIVE'},
+  ContentProject:{id:'P',projectId:'P',activeBaselineId:'ACTIVE',headRevisionId:'CURRENT'},
   SubmissionObligation:{id:'O',projectId:'P',baselineId:'ACTIVE',obligationRef:'O',kind:'DOCUMENT',required:true,
    sourceRef:'SOURCE',allowedDisclosureRefs:['PUBLIC']},
  }
@@ -68,8 +68,11 @@ it.each([false,true])('renders the three-file tool with original draft and optio
   const session=host.invoke('content.authoring.connect',undefined,new AbortController().signal)
   const obligations=await session.readVolumePlanningObligations()
   expect(obligations).toMatchObject({baselineId:'ACTIVE',obligations:[{obligationRef:'O',sourceRef:'SOURCE',kind:'DOCUMENT'}]})
-  await ds.getView('ContentProject','selectedProject')?.refresh()
+  const head=await session.readCurrentHead()
+  expect(head).toMatchObject({headRevisionId:'CURRENT'})
   expect(()=>obligations.assertCurrent()).toThrow()
+  await ds.getView('ContentProject','selectedProject')?.refresh()
+  expect(()=>head.assertCurrent()).toThrow()
  }
  const router=createRouter({history:createMemoryHistory(),routes:[{path:'/',component:defineComponent({render:()=>h('div')})}]})
  await router.push('/?projectId=P&draftId=D');await router.isReady()

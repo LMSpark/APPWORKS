@@ -117,6 +117,23 @@ it('prepares the selected independent response from the saved draft and original
  expect(showAlert).toHaveBeenCalledTimes(2)
  expect(showMessage).toHaveBeenCalledTimes(1)
 })
+it('shows a later project head without changing the original adoption revision',async()=>{
+ const showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
+ const readOriginalAdoption=vi.fn(async()=>({recordFound:true,adoptionRef:'A',mergeRevisionId:'R1',
+  commitCheckRef:null,assertCurrent:()=>{}}))
+ const readCurrentHead=vi.fn(async()=>({headRevisionId:'R2',assertCurrent:()=>{}}))
+ const {__init__,openOriginalAdoption}=compileFunctions(script,{$route:{query:{
+  adoptionCandidateRevisionId:'C',adoptionRequestKey:'K',adoptionRequestDigest:'DIGEST',adoptionPreviewRef:'PV',
+ }},$page:{invokeHostCommand:async()=>({readOriginalAdoption,readCurrentHead}),showAlert,showMessage}} as unknown as PageContext)
+ if(!__init__||!openOriginalAdoption)throw Error('TEST_ORIGINAL_ADOPTION_REQUIRED')
+ await __init__()
+ await openOriginalAdoption()
+ expect(showAlert).toHaveBeenCalledWith('原采用记录 A · 修订 R1\n提交核验引用待补\n原办理终态待核\n项目当前头 R2','原采用回查')
+ readCurrentHead.mockRejectedValueOnce(Error('HEAD_UNAVAILABLE'))
+ await openOriginalAdoption()
+ expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining('项目当前头待核'),'原采用回查')
+ expect(showMessage).not.toHaveBeenCalled()
+})
 it('withdraws the binding when the original query is replaced instead of recapturing a new proof',()=>{
  const f=fixture()
  expect(f.functions['bindOriginalDraft']!()).toEqual({contextRowId:'D'})

@@ -232,6 +232,15 @@ async function openOriginalAdoption() {
       lines.push('合并修订待核')
     }
     lines.push('原办理终态待核')
+    let head
+    try {
+      head = await editorSession.readCurrentHead()
+      head.assertCurrent()
+    } catch {
+      head = undefined
+    }
+    result.assertCurrent()
+    lines.push(head ? `项目当前头 ${head.headRevisionId ?? '尚未形成'}` : '项目当前头待核')
     await $page.showAlert(lines.join('\n'), '原采用回查')
   } catch {
     $page.showMessage('原采用记录无法核验', 'warning')

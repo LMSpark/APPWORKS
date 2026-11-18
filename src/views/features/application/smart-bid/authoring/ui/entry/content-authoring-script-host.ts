@@ -15,7 +15,7 @@ import {readBaselineSubmissionObligations} from '../../../followup/submission-ob
 import {inspectRegisteredAdoption,type ContentAdoptionSelection} from '../../model/adoption/content-adoption-reader'
 import {compareRegisteredOriginalForms,readRegisteredOriginalForm} from '../../../response/model/original-form-reader'
 import {readCandidateContent,type ContentCandidateBinding} from '../../model/content-candidate-reader'
-import type {ContentRevisionSelection} from '../../model/content-revision-reader'
+import {hasCompleteSingleContentResult,type ContentRevisionSelection} from '../../model/content-revision-reader'
 import {readDraftCandidateBasis} from '../../model/content-draft-candidate-basis'
 import {prepareDraftCandidateRequest} from '@/services/smart-bid/content/draft/content-draft-candidate-request'
 import {readRegisteredOriginalContentDraftSave} from '../../model/content-draft-save-reader'
@@ -76,6 +76,7 @@ export type ContentAuthoringScriptSession=Readonly<{
  readOriginalSave:(input:SaveReadInput)=>Promise<OriginalSave&Readonly<{comparison?:SaveComparison}>>
  readVolumePlanningObligations:()=>ReturnType<typeof readBaselineSubmissionObligations>
  readOriginalAdoption:(input:ContentAdoptionSelection)=>ReturnType<typeof inspectRegisteredAdoption>
+ readCurrentHead:()=>Promise<Readonly<{headRevisionId:string|null;assertCurrent:()=>void}>>
  readOriginalForm:(selection:Parameters<typeof readRegisteredOriginalForm>[1])=>ReturnType<typeof readRegisteredOriginalForm>
  compareOriginalForms:(selection:Parameters<typeof compareRegisteredOriginalForms>[1])=>ReturnType<typeof compareRegisteredOriginalForms>
  previewCandidate:(selection:ContentRevisionSelection,options:CandidatePreviewInput)=>ReturnType<ContentCandidateBinding['previewScope']>
@@ -166,6 +167,28 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
      if(!scenarioId)throw Error('CONTENT_ADOPTION_SCOPE_REQUIRED')
      return inspectRegisteredAdoption({runtime,scenarioId,projectId,assertCurrent},request)
+    },
+    async readCurrentHead(){
+     assertCurrent()
+     const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
+     if(!scenarioId)throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
+     const key=buildDataViewKey('ContentProject','selectedProject',scenarioId),view=runtime.resolveView(key)
+     if(view?.dataTable?.modelBinding?.modelName!=='ContentProject'||view.hasEditingChanges())throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
+     await view.refresh()
+     assertCurrent()
+     const row=view.rows[0]
+     if(!hasCompleteSingleContentResult(view)||row?.['projectId']!==projectId)throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
+     const {headRevisionId}=row
+     if(headRevisionId!==null&&!identity(headRevisionId))throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
+     const proof=view.captureReadRow(row,['projectId','headRevisionId']),resultProof=view.captureReadResult()
+     const assertHead=()=>{
+      assertCurrent()
+      if(runtime.resolveView(key)!==view)throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
+      resultProof()
+      proof()
+     }
+     assertHead()
+     return Object.freeze({headRevisionId,assertCurrent:assertHead})
     },
     async readVolumePlanningObligations(){
      assertCurrent()

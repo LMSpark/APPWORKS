@@ -5,25 +5,40 @@
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import type {prepareExportRegistration} from '@/services/smart-bid/content/review/production/production-output-registration'
+import type {prepareSignedOutputRegistration} from '@/services/smart-bid/content/review/production/signed-output-registration'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../../content-revision-reader'
 
-const keys=['projectId','requestKey','outputRef'] as const
-const fields=[...keys,'id','documentId','revisionId','inputDigest','productionRequestRef','fileHash','resourceVersionId']
-const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='ProducedFile'&&
- view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
- keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
-
 /** 空查只表示未读到原登记，写入仍需独立的正式办理命令处理并发。 */
-export async function readOriginalExportRegistration(host:ContentRevisionReadHost,
+export function readOriginalExportRegistration(host:ContentRevisionReadHost,
  prepared:Awaited<ReturnType<typeof prepareExportRegistration>>){
- const {runtime,scenarioId,projectId}=host
  const {record}=prepared
- const {requestKey,outputRef}=record
+ return readRegistration(host,prepared,'originalExportRegistration',{projectId:record.projectId,
+  requestKey:record.requestKey,outputRef:record.outputRef},{documentId:record.documentId,revisionId:record.revisionId,
+  inputDigest:record.inputDigest,productionRequestRef:record.productionRequestRef})
+}
+
+/** 签后件按原签署操作及输出定位既有登记。 */
+export function readOriginalSignedRegistration(host:ContentRevisionReadHost,
+ prepared:Awaited<ReturnType<typeof prepareSignedOutputRegistration>>){
+ const {record}=prepared
+ return readRegistration(host,prepared,'originalSignedRegistration',{projectId:record.projectId,
+  signatureOperationRef:record.signatureOperationRef,signedObjectRef:record.signedObjectRef},
+ {documentId:record.documentId,revisionId:record.revisionId,signatureRecordId:record.signatureRecordId,
+  originalFileId:record.originalFileId,originalHash:record.originalHash})
+}
+
+async function readRegistration(host:ContentRevisionReadHost,
+ prepared:Readonly<{record:Readonly<{fileHash:string}>;assertCurrent:()=>void}>,
+ viewName:string,context:Readonly<Record<string,string>>,match:Readonly<Record<string,string>>){
+ const {runtime,scenarioId,projectId}=host
  host.assertCurrent();prepared.assertCurrent()
- if(!identity(scenarioId)||record.projectId!==projectId)throw Error('BID_EXPORT_REGISTRATION_SCOPE')
- const key=buildDataViewKey('ProducedFile','originalExportRegistration',scenarioId),view=runtime.resolveView(key)
+ if(!identity(scenarioId)||context['projectId']!==projectId)throw Error('BID_EXPORT_REGISTRATION_SCOPE')
+ const keys=Object.keys(context),fields=[...keys,...Object.keys(match),'id','fileHash','resourceVersionId']
+ const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='ProducedFile'&&
+  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+  keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
+ const key=buildDataViewKey('ProducedFile',viewName,scenarioId),view=runtime.resolveView(key)
  if(!view||!valid(view)||view.hasEditingChanges())throw Error('BID_EXPORT_REGISTRATION_VIEW_REQUIRED')
- const context={projectId,requestKey,outputRef}
  view.queryContext={...view.queryContext,...context}
  const assertScope=()=>{
   host.assertCurrent();prepared.assertCurrent()
@@ -38,11 +53,9 @@ export async function readOriginalExportRegistration(host:ContentRevisionReadHos
  if(!row)return Object.freeze({state:'UNKNOWN' as const,assertCurrent:()=>{assertScope();assertResult()}})
  const assertRow=view.captureReadRow(row,fields)
  const {id,resourceVersionId}=row
- if(keys.some(field=>row[field]!==record[field])||!identity(id)||!identity(resourceVersionId)||
-  row['documentId']!==record.documentId||row['revisionId']!==record.revisionId||
-  row['inputDigest']!==record.inputDigest||row['productionRequestRef']!==record.productionRequestRef)
+ if(Object.entries({...context,...match}).some(([field,value])=>row[field]!==value)||!identity(id)||!identity(resourceVersionId))
   throw Error('BID_EXPORT_REGISTRATION_SCOPE')
- if(row['fileHash']!==record.fileHash)throw Error('BID_EXPORT_REGISTRATION_HASH_CONFLICT')
+ if(row['fileHash']!==prepared.record.fileHash)throw Error('BID_EXPORT_REGISTRATION_HASH_CONFLICT')
  return Object.freeze({state:'REGISTERED' as const,producedFileId:id,resourceVersionId,
   assertCurrent:()=>{assertScope();assertResult();assertRow()}})
 }

@@ -13,7 +13,7 @@ import {compareApprovedFileAnswer,readRegisteredFileAnswer,verifyOriginalFormFil
 import {readRegisteredPaperAnswer} from '../../model/review/content-paper-answer-reader'
 import {recoverProductionRequest} from '@/services/smart-bid/content/review/production/production-recovery'
 import {readCompletedProductionFiles} from '../../model/review/content-produced-file-review'
-import {readOriginalExportRegistration} from '../../model/review/production/production-registration-reader'
+import {readOriginalExportRegistration,readOriginalSignedRegistration} from '../../model/review/production/production-registration-reader'
 import {readOriginalSignatureRequest} from '../../model/review/submission/content-signature-request-reader'
 import {prepareSignedOutputRegistration} from '@/services/smart-bid/content/review/production/signed-output-registration'
 
@@ -74,7 +74,9 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
     const recovered=await readOriginalSignatureRequest({...scope,runtime,assertCurrent:assertSelection},selection.request)
     if(recovered.state!=='SIGNED')return recovered
     const prepared=await prepareSignedOutputRegistration(selection.original,selection.receipt,recovered,selection.open)
-    return Object.freeze({state:'PREPARED' as const,...prepared})
+    const registration=await readOriginalSignedRegistration({...scope,runtime,assertCurrent:assertSelection},prepared)
+    if(registration.state==='REGISTERED')return Object.freeze({...registration,state:'SIGNED_REGISTERED' as const})
+    return Object.freeze({state:'PREPARED' as const,...prepared,assertCurrent:registration.assertCurrent})
    }
    if(name==='content.review.readExportRegistration'&&sources.readExportRegistrationSelection){
     const selection=await sources.readExportRegistrationSelection(selectionRef,signal)

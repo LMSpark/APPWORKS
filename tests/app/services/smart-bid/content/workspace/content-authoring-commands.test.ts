@@ -12,16 +12,33 @@ import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {isRecord} from '@spark-appworks/spark-utils'
 
-async function fixture(writable=true,other=false,createRuntime?:(ds:DataSet)=>Promise<PageRuntime>,primaryKey='id'){
- const ds=DataSet.fromJson({scenarioId:'S',tables:{WorkingDraft:{modelBinding:{modelId:'M',modelName:'WorkingDraft'},
+async function fixture(writable=true,other=false,createRuntime?:(ds:DataSet)=>Promise<PageRuntime>,primaryKey='id',
+ firstProject?:{headRevisionId:string|null}){
+ const ds=DataSet.fromJson({scenarioId:'S',tables:{...(firstProject?{
+  ContentProject:{modelBinding:{modelId:'P_MODEL',modelName:'ContentProject'},
+   columns:['projectId','headRevisionId','activeBaselineId'].map(name=>({name,isPrimaryKey:name==='projectId'})),
+   views:{default:{},selectedProject:{scopeFilter:{field:'projectId',operator:'eq',value:{Type:'GetInputParam',ParamName:'projectId'}}}}},
+ }:{}),WorkingDraft:{modelBinding:{modelId:'M',modelName:'WorkingDraft'},
   columns:[{name:primaryKey,type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},
    {name:'draftVersion',type:'string'},{name:'baseRevisionId',type:'string'},{name:'draft',type:'object'}],views:{default:{commitMode:'staged'}}}}})
  const view=ds.getView('WorkingDraft')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'WorkingDraft'})
- const row={[primaryKey]:'D',projectId:'P',userId:'U',draftVersion:'V1',baseRevisionId:'BASE',draft:{nodes:[],responseChanges:[]}}
+ const row={[primaryKey]:'D',projectId:'P',userId:'U',draftVersion:'V1',baseRevisionId:firstProject?null:'BASE',draft:{nodes:[],responseChanges:[]}}
  const records=[row,...(other?[{...row,[primaryKey]:'OTHER'}]:[])]
  const query=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:primaryKey,data:{Count:records.length,
   Items:records.map(item=>({...item,lingma_sys_params:{r:[],e:writable?['draft']:[],h:[],m:[],d:false}}))}}})}))
  const save=vi.fn(async()=>{throw Error('NO_SAVE')});view.bindQueryExecutor({executeQuery:query,save});await view.refresh()
+ if(firstProject){
+  const project=ds.getView('ContentProject','selectedProject')!
+  const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContentProject'})
+  project.queryContext={projectId:'P'}
+  project.bindQueryExecutor({save,executeQuery:async()=>new DataSpaceQueryContext({
+   identity:table.identity,scope:'project',readScope:()=> 'project',snapshot:table.applyResult({Result:{
+    primaryKeyField:'projectId',data:{Count:1,Items:[{projectId:'P',headRevisionId:firstProject.headRevisionId,
+     activeBaselineId:'B',lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]},
+   }}),
+  })})
+  await project.refresh()
+ }
  let current=true
  const runtime=createRuntime?await createRuntime(ds):new PageRuntime({pageId:'PAGE11',scenarioIds:['S'],loadScenario:async()=>ds});await runtime.load()
  const pending=vi.fn(),binding={runtime,dataViewKey:'S@WorkingDraft@default',projectId:'P',draftId:'D',actorUserId:'U',
@@ -29,6 +46,21 @@ async function fixture(writable=true,other=false,createRuntime?:(ds:DataSet)=>Pr
  const commands=new ContentAuthoringCommands(binding)
  return {ds,runtime,view,commands,binding,query,save,pending,expire:()=>{current=false}}
 }
+it('refreshes an empty cached project head before preparing a first candidate',async()=>{
+ const project:{headRevisionId:string|null}={headRevisionId:null}
+ const f=await fixture(true,false,undefined,'id',project)
+ try{
+  const view=f.ds.getView('ContentProject','selectedProject')
+  expect(view?.rows[0]?.['headRevisionId']).toBeNull()
+  project.headRevisionId='ADOPTED'
+  const session=createContentAuthoringScriptHost(f.binding,f.commands)
+   .invoke('content.authoring.connect',undefined,new AbortController().signal)
+  await expect(session.prepareDraftCandidate({requestKey:'Q',firstBatchId:'BATCH',targetScopeIndex:0}))
+   .rejects.toThrow('CONTENT_DRAFT_CANDIDATE_BASIS')
+  expect(view?.rows[0]?.['headRevisionId']).toBe('ADOPTED')
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.runtime.dispose()}
+})
 const add={action:'addDocument' as const,args:[{documentId:'B',chapterId:'C',headingId:'H',title:'实施方案'}] as [{documentId:string;chapterId:string;headingId:string;title:string}]}
 it('seals only confirmed changes and binds them to the original draft version',async()=>{
  const f=await fixture()

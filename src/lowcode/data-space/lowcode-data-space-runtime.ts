@@ -272,8 +272,9 @@ async function loadCatalogRuntimeScenario(command: Readonly<{ projectId: string;
  const text = await readRepositoryScenarioText(resource, assertCurrent)
  assertCurrent()
  const declared = new ScenarioViewConfig(scenarioId, text)
- // The platform directory has no execution application. Only the formal PDF rule model is available here.
- const config = scenarioId === PDF_INSPECTION_SCENARIO_ID ? declared.selectModelScope('Base_FileInspectConfig', []) : declared
+ // 平台目录只加载列表消费的模型，文件与执行资源由应用内场景装配。
+ const config = scenarioId === PDF_INSPECTION_SCENARIO_ID ? declared.selectModelScope('Base_FileInspectConfig', [])
+  : resource.name === 'jsonDataCatalog' ? declared.selectModelScope('Base_JsonData', []) : declared
  return assembleLowcodeRuntimeScenario({projectId, scenarioId, config, assertCurrent,
   ...(command.getPage?{getPage:command.getPage}:{})})
 }

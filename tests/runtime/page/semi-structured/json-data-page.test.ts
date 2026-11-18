@@ -1,4 +1,5 @@
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest'
+import {createHash} from 'node:crypto'
 import {readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {flushPromises,mount,config,type VueWrapper} from '@vue/test-utils'
@@ -20,15 +21,15 @@ vi.mock('@spark-appworks/spark-app',async()=>{
   const {NativePageRuntimeSession}=await import('../../../../packages/spark-app/src/router/native-page-runtime-session')
   return {NativePageRuntimeSession,useSystemPageDirtySource:(source:{isDirty:boolean})=>state.dirty.push(source)}
 })
-vi.mock('@/lowcode/lowcode-runtime',()=>({get lowcodeHttp(){return state.http},lowcodeDesignFileUpload:{uploadTextVersion:async(input:{fileName:string;text:string})=>{if(state.files.has(input.fileName))throw new Error('File exists');state.files.set(input.fileName,input.text);state.uploads.push(input.fileName);if(state.lose){state.lose=false;throw new Error('response lost')}return {}},uploadWorkingText:async(input:{fileName:string;text:string})=>{state.files.set(input.fileName,input.text);state.uploads.push(input.fileName);if(state.lose){state.lose=false;throw new Error('response lost')}return {}}},createLowcodeProjectGateways:()=>({scenarioViews:{readText:async(id:string)=>id===SCENE?text:null}}),lowcodeApi:{readRequestScope:()=>({token:'scope',headers:{'X-AppId':'APP'}}),design:{readTextFile:async(input:{fileName:string})=>{state.reads.push(input.fileName);const value=state.files.get(input.fileName);if(value===undefined)throw new LowcodeApiError(404,'文件不存在');return value}},dataSpace:{get runtime(){return state.runtime},design:{readSpaceDefinition:async({dataSpaceId}:{dataSpaceId:string})=>({dataSpaceId,name:'JSON数据'}),readModelBatch:async()=>buildFormalModels({Base_JsonData:['rowid','name','description','path','createuser','createtime'],Base_UserInfo:['ID','rowid','UserName']}).map(model=>({...model,id:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001'),fields:model.fields.map(field=>({...field,modelId:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001')}))})),readRelations:async()=>[]}}}}))
+vi.mock('@/lowcode/lowcode-runtime',()=>({get lowcodeCatalogDataSpace(){return {runtime:new DataSpaceRuntimeApi({http:state.http,readScope:()=>({token:'scope',headers:{}})}),design:this.lowcodeApi.dataSpace.design}},get lowcodeHttp(){return state.http},lowcodeDesignFileUpload:{uploadTextVersion:async(input:{fileName:string;text:string})=>{if(state.files.has(input.fileName))throw new Error('File exists');state.files.set(input.fileName,input.text);state.uploads.push(input.fileName);if(state.lose){state.lose=false;throw new Error('response lost')}return {}},uploadWorkingText:async(input:{fileName:string;text:string})=>{state.files.set(input.fileName,input.text);state.uploads.push(input.fileName);if(state.lose){state.lose=false;throw new Error('response lost')}return {}}},createLowcodeProjectGateways:()=>({scenarioViews:{readText:async(id:string)=>id===SCENE?text:null}}),lowcodeApi:{application:{get:()=>null},readAuthenticatedRequestScope:()=>({token:'scope',headers:{}}),readRequestScope:()=>({token:'scope',headers:{'X-AppId':'APP'}}),design:{readTextFile:async(input:{fileName:string})=>{state.reads.push(input.fileName);const value=state.files.get(input.fileName);if(value===undefined)throw new LowcodeApiError(404,'文件不存在');return value}},dataSpace:{get runtime(){return state.runtime},design:{readSpaceDefinition:async({dataSpaceId}:{dataSpaceId:string})=>({dataSpaceId,name:'JSON数据'}),readModelBatch:async()=>buildFormalModels({Base_JsonData:['rowid','name','description','path','createuser','createtime'],Base_UserInfo:['ID','rowid','UserName']}).map(model=>({...model,id:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001'),fields:model.fields.map(field=>({...field,modelId:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001')}))})),readRelations:async()=>[]}}}}))
 const wrappers:VueWrapper[]=[],original={...config.global.stubs}
 beforeEach(()=>{
  state.picked=[];state.browseCalls=[];state.http=new ApiBackend();state.http.records={Base_JsonData:[{rowid:'J1',name:'样例JSON',path:'/NewApp/data.json'},{rowid:'J2',name:'另一份JSON',path:null}],Base_UserInfo:[]};state.files=new Map([['data.json','{"flag":false,"nested":[[1,null],{}]}']]);state.reads=[];state.uploads=[];state.lose=false;state.dirty=[]
  state.runtime=new DataSpaceRuntimeApi({http:state.http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})});registerAllRenderers();const stubs={...original};for(const name of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])Reflect.deleteProperty(stubs,name);config.global.stubs=stubs
 })
 afterEach(()=>{wrappers.splice(0).forEach(w=>w.unmount());config.global.stubs=original})
-async function open(){
- const router=createRouter({history:createMemoryHistory(),routes:[{path:'/json',component:JsonPage,meta:{blueprintScenarioId:SCENE}},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push('/json');await router.isReady()
+async function open(path='/json'){
+ const router=createRouter({history:createMemoryHistory(),routes:[{path,component:JsonPage,meta:{blueprintScenarioId:SCENE}},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push(path);await router.isReady()
  const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'json-page-test-host'});const service:PageServiceCapability={copyText:async()=>{},showMessage:()=>{},showConfirm:async()=>true,showPrompt:async()=>null,showAlert:async()=>{},showDialog:async()=> 'cancel',selectEntities:async()=>[],browseFiles:async options=>{state.browseCalls.push(options??{});return state.picked},uploadFiles:async()=>{throw new Error('Direct host upload is forbidden in this JSON flow')},showLoading:()=>{},navigate:()=>{}};sparkProvide(PAGE_SERVICE,service);return()=>h(RouterView)}}),{attachTo:document.body,global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}});wrappers.push(wrapper);await flushPromises()
  const click=async(label:string)=>{const button=wrapper.findAll('button').find(b=>b.text()===label&&b.attributes('disabled')===undefined);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
  const choose=async(index=0)=>{await vi.waitFor(()=>expect(wrapper.findComponent(RendererTable).exists()).toBe(true));await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.trigger('click');await flushPromises();await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.findAll('button').find(b=>b.text()==='编辑文件')!.trigger('click');await flushPromises()}
@@ -95,9 +96,10 @@ it('keeps catalog edits out of an open content operation',async()=>{
  const f=await open();await f.choose();const input=f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON');expect(input?.attributes('disabled')).toBeDefined()
  await f.edit('{"contentOnly":true}');await f.click('保存内容');expect(state.http.saves).toEqual([]);expect(state.http.records['Base_JsonData']?.[0]?.['name']).toBe('样例JSON')
 })
-it('verifies an unknown catalog save without replaying the database write or touching a file',async()=>{
+it('keeps a catalog save unknown when the original database receipt is lost',async()=>{
  const f=await open();const input=f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON');expect(input).toBeDefined();await input!.setValue('改名');await flushPromises();state.http.failAfterWrite=true;await f.click('保存');expect(state.http.saves).toHaveLength(1)
- const cancel=f.wrapper.findAll('button').find(b=>b.text()==='取消');expect(cancel?.attributes('disabled')).toBeDefined();await f.click('核验目录保存结果');expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false);expect(state.uploads).toEqual([])
+ const cancel=f.wrapper.findAll('button').find(b=>b.text()==='取消');expect(cancel?.attributes('disabled')).toBeDefined();await f.click('核验目录保存结果');expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(true);expect(state.uploads).toEqual([])
+ expect(f.wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
 })
 
 async function setNewName(wrapper:VueWrapper,name:string){const field=wrapper.findAllComponents(FieldText).find(item=>item.props('field')==='name'&&item.props('dataViewKey')===`${SCENE}@Base_JsonData@default`);expect(field,'new catalog name field').toBeDefined();await field!.get('input').setValue(name);await flushPromises()}
@@ -115,9 +117,10 @@ it('creates JSON through native file and catalog views, file first, with both re
 it('cancels a new JSON before either source is written',async()=>{
  const f=await open();await f.click('新增');await setNewName(f.wrapper,'cancel');await f.edit('{"cancel":true}');await f.click('取消新增');expect(state.http.saves).toEqual([]);expect(state.uploads).toEqual([]);expect(state.http.records['Base_JsonData']).toHaveLength(2);expect(state.dirty[0]?.isDirty).toBe(false);await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/other')
 })
-it('holds the created file while catalog result is unknown, then verifies without replaying either write',async()=>{
+it('holds the created file and unknown catalog result without replaying either write',async()=>{
  const f=await open();await f.click('新增');await setNewName(f.wrapper,'unknown');state.http.failAfterWrite=true;await f.click('创建JSON');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/json');expect(f.wrapper.findAll('button').find(b=>b.text()==='取消新增')?.attributes('disabled')).toBeDefined()
- await f.click('核验目录保存结果');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty,f.wrapper.text()).toBe(false)
+ await f.click('核验目录保存结果');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty,f.wrapper.text()).toBe(true)
+ expect(f.wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
 })
 it('verifies an unknown new file before saving metadata and never uploads it twice',async()=>{
  const f=await open();await f.click('新增');await setNewName(f.wrapper,'file unknown');state.lose=true;await f.click('创建JSON');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toEqual([]);expect(f.wrapper.findAll('button').find(b=>b.text()==='取消新增')?.attributes('disabled')).toBeDefined()
@@ -160,4 +163,20 @@ it('ignores a late imported file after the navigation scenario changes',async()=
 })
 it('preserves an imported array root and nested primitive values',async()=>{
  const f=await open();const raw='[false,null,[0],{"x":[]}]';pickJson('array.json',raw);await f.click('导入JSON');const added=state.http.saves[0]?.added[0];expect(added).toBeDefined();expect(state.files.get(`${String(added?.['rowid'])}.json`)).toBe(raw);expect(state.dirty[0]?.isDirty).toBe(false)
+})
+
+it('reads only the JSON directory from the enterprise homepage',async()=>{
+ const resourceId=`repository:scenario-view:${SCENE}`
+ const fetchScenario=vi.spyOn(globalThis,'fetch').mockImplementation(async url=>{
+  expect(url).toBe(`/__spark/repository-scenarios?resourceId=${encodeURIComponent(resourceId)}`)
+  return Response.json({resourceId,scenarioId:SCENE,text,sourceRevision:createHash('sha256').update(text).digest('hex')})
+ })
+ try{
+  const {wrapper}=await open('/apps/homepage/json')
+  await vi.waitFor(()=>expect(wrapper.text()).toContain('样例JSON'))
+  expect(new Set(state.http.reads.map(read=>read.table))).toEqual(new Set(['Base_JsonData']))
+  expect(wrapper.text()).not.toMatch(/编辑文件|导入JSON|新增/)
+  expect(state.reads).toEqual([])
+  expect(state.http.saves).toEqual([])
+ }finally{fetchScenario.mockRestore()}
 })

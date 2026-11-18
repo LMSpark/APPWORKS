@@ -4,15 +4,16 @@
  * 边界：页面只消费同一DataSet，文件传输及定位留在数据层。
  */
 import type {DataSet,DataView} from '@spark-appworks/spark-data'
+import type {APPLICATION_CATALOG_PROJECT_ID} from '@/services/application-scope'
 import {lowcodeApi} from '../../../lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '../../../data-space/lowcode-data-space-runtime'
 import {openJsonDocumentView} from './document-resource'
 export class LowcodeJsonData{
  static readonly navigationScenarioId='FFDEF2AED3E19A38C0FCDDC748CF939B'
  static readonly catalogMetaName='Base_JsonData'
- static async loadCatalog(scenarioId:string):Promise<DataSet>{
+ static async loadCatalog(scenarioId:string,catalogProjectId?:typeof APPLICATION_CATALOG_PROJECT_ID):Promise<DataSet>{
   if(scenarioId!==this.navigationScenarioId)throw new Error('JSON目录场景身份不匹配')
-  const projectId=lowcodeApi.readRequestScope().headers['X-AppId'];if(!projectId)throw new Error('请先选择执行应用')
+  const projectId=catalogProjectId??lowcodeApi.readRequestScope().headers['X-AppId'];if(!projectId)throw new Error('请先选择执行应用')
   return loadLowcodeRuntimeScenario({projectId,scenarioId})
  }
  static openDocument(dataSet:DataSet,jsonId:string,options:Readonly<{create?:boolean}>={}):DataView{

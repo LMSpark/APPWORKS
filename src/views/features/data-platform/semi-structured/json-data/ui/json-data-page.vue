@@ -4,13 +4,14 @@
 <template>
  <RendererSection class="json-data-page" title="JSON 文件数据管理" :bordered="false" :grid-columns="1" :grid-gap="16"
   :status="loading ? '正在读取目录…' : ''" :error="document ? '' : error">
-  <template v-if="ready" #header-actions>
+  <template v-if="ready && !catalogScope" #header-actions>
    <RendererButton label="新增" button-type="primary" icon="Plus" :disabled="addBlocked" @click="createDocument()" />
    <RendererButton :label="catalogUnconfirmed ? '核验目录保存结果' : '保存'" icon="Check" :disabled="busy || !!document || !catalogPending" @click="saveCatalog" />
    <RendererButton label="取消" icon="Close" :disabled="busy || !!document || catalogUnconfirmed || !catalogPending" @click="cancelCatalog" />
    <RendererButton label="导入JSON" icon="Upload" :disabled="addBlocked || !pageService?.browseFiles" @click="importDocument" />
   </template>
-  <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :actions="rowActions" :highlight-current-row="true" :on-row-click="choose"
+  <p v-if="ready && catalogScope" role="status">请进入已授权应用后维护 JSON 文件。</p>
+  <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" v-bind="catalogScope ? {} : {actions: rowActions}" :highlight-current-row="true" :on-row-click="choose"
    :stripe="true" :border="true" :show-row-index="true" :show-data-view-meta="false" :action-column="{label: '操作', width: 180, fixed: true}" />
   <RendererDialog v-if="document" :model-value="true" title="JSON 编辑" :data-view-key="contentKey" :width="1180" :close-disabled="busy || hasPending" :destroy-on-close="true" @update:model-value="closeDocument">
    <DisplayAlert v-if="documentLoading" alert-type="info" :closable="false" title="正在读取内容…" />
@@ -41,6 +42,7 @@ import {buildDataViewKey,RequestState,type DataRow,type DataSet,type DataView,ty
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import * as SparkComponent from '@spark-appworks/spark-component'
+import {APPLICATION_CATALOG_PROJECT_ID,resolveExecutionProjectId} from '@/services/application-scope'
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
 const {PAGE_RUNTIME,RendererSection,RendererTable,RendererForm,RendererDialog,RendererButton,FieldJson,FieldText,DisplayAlert,useSparkComponent,consumeRequiredPageService}=SparkComponent
 const route=useRoute(),{sparkProvide,sparkRemove,sparkConsume}=useSparkComponent({type:'json-data-page'})
@@ -50,6 +52,7 @@ const session=new NativePageRuntimeSession({
 })
 const pageService=consumeRequiredPageService(sparkConsume,'json-data-page')
 const scenarioId=computed(()=>typeof route.meta['blueprintScenarioId']==='string'?route.meta['blueprintScenarioId']:'')
+const catalogScope=computed(()=>resolveExecutionProjectId(route.path)===APPLICATION_CATALOG_PROJECT_ID)
 const catalogKey=computed(()=>buildDataViewKey(LowcodeJsonData.catalogMetaName,'default',scenarioId.value))
 const dataSet=shallowRef<DataSet>(),catalog=shallowRef<DataView>(),document=shallowRef<DataView>(),opening=ref(false),openingDocument=ref(false),ready=ref(false),acting=ref(false),inputPending=ref(false),error=ref(''),revision=ref(0)
 const creating=ref('')
@@ -73,12 +76,12 @@ const hasPending=computed(()=>{revision.value;const view=document.value;return c
 useSystemPageDirtySource({get isDirty(){return busy.value||hasPending.value}})
 onBeforeRouteLeave(()=>!hasPending.value&&!busy.value)
 onBeforeRouteUpdate(()=>!hasPending.value&&!busy.value)
-const cellLocked=computed(()=>busy.value||!!document.value||catalogUnconfirmed.value)
+const cellLocked=computed(()=>catalogScope.value||busy.value||!!document.value||catalogUnconfirmed.value)
 const fields=computed<SparkNode[]>(()=>[
- {type:'r-text',props:{field:'name',label:'名称',placeholder:'请输入文件名称',maxlength:200,showCellControl:true,readonly:cellLocked.value,minWidth:220,showOverflowTooltip:true}},
- {type:'r-text',props:{field:'description',label:'摘要',placeholder:'请输入摘要',maxlength:500,showCellControl:true,readonly:cellLocked.value,minWidth:260,showOverflowTooltip:true}},
+ {type:'r-text',props:{field:'name',label:'名称',placeholder:'请输入文件名称',maxlength:200,showCellControl:!catalogScope.value,readonly:cellLocked.value,minWidth:220,showOverflowTooltip:true}},
+ {type:'r-text',props:{field:'description',label:'摘要',placeholder:'请输入摘要',maxlength:500,showCellControl:!catalogScope.value,readonly:cellLocked.value,minWidth:260,showOverflowTooltip:true}},
  {type:'r-text',props:{field:'path',label:'文件地址',readonly:true,minWidth:280,showOverflowTooltip:true}},
- {type:'r-select',props:{field:'createuser',label:'创建人',readonly:true,width:140,optionDataViewKey:buildDataViewKey('Base_UserInfo','default',scenarioId.value)}},
+ ...(catalogScope.value ? [] : [{type:'r-select',props:{field:'createuser',label:'创建人',readonly:true,width:140,optionDataViewKey:buildDataViewKey('Base_UserInfo','default',scenarioId.value)}}]),
  {type:'r-text',props:{field:'createtime',label:'创建时间',readonly:true,width:140}},
 ])
 const addBlocked=computed(()=>busy.value||hasPending.value||!!document.value||catalog.value?.addActionState()!=='enabled')
@@ -161,11 +164,11 @@ async function saveContent():Promise<void>{
 function cancelContent():void{if(busy.value||unconfirmed.value||creationFileCommitted.value||(!creating.value&&!documentReady.value))return;try{document.value?.discardPendingChanges();contentSession.value++;if(creating.value){catalog.value?.discardPendingChanges([creating.value]);creating.value='';inputPending.value=false;closeDocument(false)}error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 function discardAndClose():void{cancelContent();if(!hasPending.value)closeDocument(false)}
 async function refreshCatalog():Promise<void>{if(busy.value||hasPending.value)return;closeDocument(false);try{await catalog.value?.refresh()}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
-watch(scenarioId,async id=>{
+watch([scenarioId,catalogScope],async ([id,inCatalog])=>{
  const own=++generation;ready.value=false;opening.value=true;acting.value=false;openingDocument.value=false;importing.value=false;inputPending.value=false;error.value='';off?.();documentGeneration++;creating.value='';document.value=undefined;catalog.value=undefined;dataSet.value=undefined;session.dispose()
  try{
   if(!id)throw new Error('JSON数据入口缺少导航数据空间ID')
-  const current=session.acquire({pageId:'json-data-page',scenarioIds:[id],targetId:id,loadScenario:()=>LowcodeJsonData.loadCatalog(id)})
+  const current=session.acquire({pageId:'json-data-page',scenarioIds:[id],targetId:id,loadScenario:()=>LowcodeJsonData.loadCatalog(id,inCatalog ? APPLICATION_CATALOG_PROJECT_ID : undefined)})
   await current.load()
   if(!active||own!==generation||!session.isCurrent(current))return
   dataSet.value=current.getDataSet(id);catalog.value=dataSet.value?.getView(LowcodeJsonData.catalogMetaName)

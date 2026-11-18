@@ -88,7 +88,7 @@ it('retains a formal notice and deadline while the historical package and scope 
    proofs:{packages:[{projectId:'P',packageId:'PKG',packageHash,membershipMatches:false,members:[],assertCurrent}],batches:[]}})
   const readDeadline=vi.fn(async()=>delivery)
   const page=createTenderFollowupScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{selection:scope,readDeadline})
-  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
+  const signal=new AbortController().signal,showAlert=vi.fn(async(_message:string,_title:string)=>{}),showMessage=vi.fn()
   const query={followupKnownAt:line.knownAt}
   const {openFollowupNotices}=compileFunctions(script,{$route:{query},$page:{
    invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,showMessage,
@@ -102,6 +102,12 @@ it('retains a formal notice and deadline while the historical package and scope 
    `  答复截止 ${line.replyDueAt} · 允许范围待取证`,'  原包 PKG · 原递交批次 SEND','  出具方 ISSUER · 来源 INBOX',
   ].join('\n'),'后续通知')
   expect(readDeadline).toHaveBeenCalledExactlyOnceWith({...scope,knownAt:line.knownAt},signal)
+  readDeadline.mockResolvedValueOnce({...delivery,roundId:'OTHER'})
+  await openFollowupNotices()
+  const unlinked=showAlert.mock.lastCall?.[0]
+  expect(unlinked).toContain('原包关联证据无法核验')
+  expect(unlinked).toContain('所指原包 PKG · 待配')
+  expect(unlinked).not.toContain('原递交批次 SEND')
   query.followupKnownAt=later.knownAt
   await openFollowupNotices()
   expect(showMessage).toHaveBeenCalledExactlyOnceWith('后续通知无法核验','warning')

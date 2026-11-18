@@ -13,6 +13,7 @@ async function openFollowupNotices() {
       PENDING_LINK: '前序通知待配', PENDING_CONFLICT: '通知关系冲突'}
     const kinds = {INQUIRY: '询问', CLARIFICATION: '澄清', REVIEW: '复核', REPRICE_INVITATION: '报价邀请', OTHER: '其他'}
     const lines = [`标段 ${result.lotId} · 轮次 ${result.roundId} · 证据截至 ${result.knownAt}`]
+    if (result.packageEvidence === 'UNVERIFIED') lines.push('原包关联证据无法核验')
     if (!result.items.length) lines.push('截至该时点未查到后续通知')
     for (const {event, state, origins, originalPackage} of result.items) {
       lines.push(`${event.noticeId} · ${kinds[event.kind]} · ${statuses[state]} · 原件 ${event.documentVersionId}`)

@@ -29,17 +29,23 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
   const knownAt=input['knownAt']
   const timeline=await readRegisteredTenderFollowupNotices({...host,runtime,assertCurrent},scope,knownAt)
   if(!readDeadline||!timeline.items.some(item=>item.event.originalObjectRef!==null))return timeline
-  const delivery=await readDeadline(Object.freeze({...scope,projectId:host.projectId,knownAt}),signal)
-  timeline.assertCurrent()
-  if(delivery===null)return timeline
-  if(Date.parse(delivery.knownAt)>Date.parse(knownAt)||Date.parse(delivery.cutoffAt)>Date.parse(knownAt))
-   throw Error('TENDER_FOLLOWUP_DEADLINE_SCOPE')
-  const items=timeline.items.map(item=>{
-   const match=matchFollowupNoticeToDeadlinePackage({record:item.event,assertCurrent:timeline.assertCurrent},delivery)
-   return Object.freeze({...item,originalPackage:match.original})
-  })
-  return Object.freeze({...timeline,items:Object.freeze(items),assertCurrent:()=>{
-   timeline.assertCurrent();delivery.assertCurrent()
-  }})
+  try{
+   const delivery=await readDeadline(Object.freeze({...scope,projectId:host.projectId,knownAt}),signal)
+   timeline.assertCurrent()
+   if(delivery===null)return timeline
+   const known=Date.parse(knownAt),deliveryKnown=Date.parse(delivery.knownAt),cutoff=Date.parse(delivery.cutoffAt)
+   if(!Number.isFinite(deliveryKnown)||!Number.isFinite(cutoff)||deliveryKnown>known||cutoff>known)
+    throw Error('TENDER_FOLLOWUP_DEADLINE_SCOPE')
+   const items=timeline.items.map(item=>{
+    const match=matchFollowupNoticeToDeadlinePackage({record:item.event,assertCurrent:timeline.assertCurrent},delivery)
+    return Object.freeze({...item,originalPackage:match.original})
+   })
+   return Object.freeze({...timeline,items:Object.freeze(items),assertCurrent:()=>{
+    timeline.assertCurrent();delivery.assertCurrent()
+   }})
+  }catch{
+   timeline.assertCurrent()
+   return Object.freeze({...timeline,packageEvidence:'UNVERIFIED' as const})
+  }
  }}
 }

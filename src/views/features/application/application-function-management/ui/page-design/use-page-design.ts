@@ -208,22 +208,32 @@ export function usePageDesign(state: DevState) {
     }
     collect(tree.items)
     const match=matches[0]
+    if (!match || matches.length !== 1 || match.unavailable) {
+      const warning = !match ? '当前应用的运行导航未返回所选节点'
+        : matches.length !== 1 ? '当前应用的运行导航返回了重复的节点身份'
+        : '所选运行节点或其上级已隐藏或停用'
+      state.addStatus(warning, 'warning')
+      return
+    }
     const target=currentNavigationTarget.value
     const scenarioId=String(scope.owner.value('conid') ?? '').trim()
     const resource=target.startsWith('vue:') ? target.slice(4).replace(/^\/+/,'') : ''
-    const matchesNative=resource!=='' && match?.node.itemKind==='system-page' && match.node.path===`/${resource}`
+    const matchesNative=resource!=='' && match.node.itemKind==='system-page' && match.node.path===`/${resource}`
     const toolPageId=parseConfigToolPageId(target)
     let configPath: string | undefined
     if (toolPageId) {
       try {configPath = buildConfigPageNavigationPath(scope.nodeId, scenarioId, target)}
       catch (error) {state.addStatus(String(error), 'warning');return}
     }
-    const matchesConfig=toolPageId!=='' && toolPageId===scope.pageId && match?.node.itemKind==='page'
+    const matchesConfig=toolPageId!=='' && toolPageId===scope.pageId && match.node.itemKind==='page'
       && match.node.tool?.projectId===scope.projectId && match.node.tool.pageId===toolPageId
       && match.node.path===configPath
-    if (matches.length!==1 || !match || match.unavailable || (!matchesNative && !matchesConfig)
-      || (match.node.blueprintScenarioId ?? '')!==scenarioId) {
-      state.addStatus('运行导航的节点、目标或数据空间身份不匹配，或该页面尚不可用', 'warning')
+    if (!matchesNative && !matchesConfig) {
+      state.addStatus('运行导航的页面类型、目标或路径与所选蓝图节点不一致', 'warning')
+      return
+    }
+    if ((match.node.blueprintScenarioId ?? '')!==scenarioId) {
+      state.addStatus('运行导航与所选蓝图节点的主数据空间不一致', 'warning')
       return
     }
     const resolved=resolveNavNodeRuntimeTarget(match.node)

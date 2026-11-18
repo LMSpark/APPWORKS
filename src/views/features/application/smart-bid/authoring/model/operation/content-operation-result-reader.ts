@@ -25,11 +25,22 @@ function valid(view:DataView){
 /** 页18可沿同一正式运行实例回查实发和原返回，不调用派发。 */
 export function recoverRegisteredOperationRouteAttempt(host:ContentRevisionReadHost,
  manifest:Parameters<typeof recoverOperationRouteAttempt>[0],guide:Parameters<typeof recoverOperationRouteAttempt>[1]['guide']){
- return recoverOperationRouteAttempt(manifest,{guide,assertCurrent:()=>host.assertCurrent(),
-  readDispatch:scope=>readRegisteredOperationDispatch(host,scope),readResult:scope=>readRegisteredOperationResult(host,scope)})
+ let assertResult:()=>void=()=>{}
+ return recoverOperationRouteAttempt(manifest,{guide,assertCurrent:()=>{host.assertCurrent();assertResult()},
+  readDispatch:scope=>readRegisteredOperationDispatch(host,scope),async readResult(scope){
+   const result=await readRegisteredOperationResultEvidence(host,scope)
+   assertResult=result.assertCurrent
+   return result.receipt
+  }})
 }
 
 export async function readRegisteredOperationResult(host:ContentRevisionReadHost,input:Scope):Promise<Receipt|undefined>{
+ return (await readRegisteredOperationResultEvidence(host,input)).receipt
+}
+
+async function readRegisteredOperationResultEvidence(host:ContentRevisionReadHost,input:Scope):Promise<Readonly<{
+ receipt?:Receipt;assertCurrent:()=>void
+}>>{
  const {runtime,scenarioId,projectId}=host
  host.assertCurrent()
  const scope=Object.freeze({...input})
@@ -41,21 +52,22 @@ export async function readRegisteredOperationResult(host:ContentRevisionReadHost
  view.queryContext={...view.queryContext,...context}
  const assertScope=()=>{
   host.assertCurrent()
-  if(runtime.resolveView(key)!==view||!valid(view)||view.hasEditingChanges()||
+  if(runtime.resolveView(key)!==view||!valid(view)||view.loadingError||view.hasEditingChanges()||
    Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('OPERATION_RESULT_READ_STALE')
  }
  await view.refresh()
  assertScope()
  if(view.countReported!==true||view.total!==view.rows.length||view.nextPageAvailable===true||view.rows.length>1)
   throw Error('OPERATION_RESULT_READ_INCOMPLETE')
- const row=view.rows[0]
- if(!row)return undefined
+ const assertRead=view.captureReadResult(),row=view.rows[0]
+ if(!row)return Object.freeze({assertCurrent:()=>{assertScope();assertRead()}})
  if(Object.entries(scope).some(([field,value])=>row[field]!==value))throw Error(error)
  const {receiptRef,state}=row
  if(!identity(receiptRef)||(state!=='COMPLETE'&&state!=='PARTIAL'&&state!=='FAILED'&&state!=='UNKNOWN'))throw Error(error)
- const assertRead=view.captureReadResult(),assertRow=view.captureReadRow(row,state==='COMPLETE'?[...fields,'output']:fields)
+ const assertRow=view.captureReadRow(row,state==='COMPLETE'?[...fields,'output']:fields)
  const assertCurrent=()=>{assertScope();assertRead();assertRow()}
  assertCurrent()
- return state==='COMPLETE'?Object.freeze({...scope,state,receiptRef,output:structuredClone(row['output']),assertCurrent}):
+ const receipt:Receipt=state==='COMPLETE'?Object.freeze({...scope,state,receiptRef,output:structuredClone(row['output']),assertCurrent}):
   Object.freeze({...scope,state,receiptRef,assertCurrent})
+ return Object.freeze({receipt,assertCurrent})
 }

@@ -36,10 +36,10 @@ it('reads the original result only for the selected attempt and verifies the ret
   views:{default:{},originalVersion:views.KnowledgeGuide.originalVersion},
  }}})
  const view=ds.getView('GenerationRun','originalResult')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'GenerationRun'})
- let hidden=false
+ let hidden=false,hasResult=true
  view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
   identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',
-   data:{Count:1,Items:[{...original,lingma_sys_params:{r:[],e:[],h:hidden?['output']:[],m:[],d:false}}]}}}),
+   data:{Count:hasResult?1:0,Items:hasResult?[{...original,lingma_sys_params:{r:[],e:[],h:hidden?['output']:[],m:[],d:false}}]:[]}}}),
  })})
  const dispatchView=ds.getView('ContextManifest','originalDispatch')!,dispatchTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContextManifest'})
  let hideDispatchInput=false
@@ -108,6 +108,13 @@ it('reads the original result only for the selected attempt and verifies the ret
   expect(inspected).toMatchObject({state:'DISPATCH_RECORDED',dispatchRef:'DISPATCH',
    verification:{state:'VERIFIED_CANDIDATE',receiptRef:'RECEIPT'}})
   expect(inspected).not.toHaveProperty('verification.candidateJson')
+  hasResult=false
+  const unknown=await verificationHost.invoke('content.operation.readDispatch',scope,signal)
+  expect(unknown).toMatchObject({dispatchRef:'DISPATCH',verification:{state:'RETURN_UNKNOWN'}})
+  unknown.assertCurrent()
+  hasResult=true
+  await view.refresh()
+  expect(()=>unknown.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   hasFrozen=false
   const beforeMissingFrozen=resolveGuide.mock.calls.length
   const withoutFrozen=await verificationHost.invoke('content.operation.readDispatch',scope,signal)

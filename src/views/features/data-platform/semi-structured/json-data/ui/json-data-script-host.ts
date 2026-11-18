@@ -91,6 +91,15 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
     document=undefined
     return
    }
+   if(command==='jsonData.discardAndCloseDocument'){
+    const view=document
+    if(!editable||creating!==undefined||!view||view.queryContext['jsonId']!==id||view.mutating||view.hasUnconfirmedSave)throw new Error('JSON_DOCUMENT_REQUEST')
+    view.discardPendingChanges([id])
+    view.dataTable?.destroyView(view.viewId)
+    document=undefined
+    inputPending=false
+    return {closed:true}
+   }
    if(command==='jsonData.saveDocument'||command==='jsonData.cancelDocument'){
     const view=document
     if(!editable||!view||view.queryContext['jsonId']!==id||view.mutating||view.loadingError)throw new Error('JSON_DOCUMENT_REQUEST')

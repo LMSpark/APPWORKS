@@ -41,6 +41,7 @@
           "footer": {"children": [
             {"type": "r-button", "props": {"label": "保存内容", "onBeforeRender": "bindJsonSave", "onClick": "saveJsonDocument"}},
             {"type": "r-button", "props": {"label": "取消修改", "onBeforeRender": "bindJsonCancel", "onClick": "cancelJsonDocument"}},
+            {"type": "r-button", "props": {"label": "放弃修改并关闭", "onBeforeRender": "bindDiscardAndClose", "onClick": "discardAndCloseJsonDocument"}},
             {"type": "r-button", "props": {"label": "关闭正文", "onBeforeRender": "bindDocumentClose", "onClick": "closeJsonDocument"}}
           ]}
         },

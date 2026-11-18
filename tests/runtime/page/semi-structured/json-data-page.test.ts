@@ -226,7 +226,18 @@ describe('JSON document page on the formal DataSet',()=>{
  })
  it('verifies an unknown raw file write without replaying it',async()=>{
   const f=await open();await f.choose();await f.edit('{"saved":true}');state.lose=true;await f.click('保存内容');expect(state.uploads).toHaveLength(1)
+  const discard=f.wrapper.findAll('button').find(button=>button.text()==='放弃修改并关闭')
+  expect(discard?.attributes('disabled')).toBeDefined()
   await f.click('核验内容保存结果');expect(state.uploads).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false)
+ })
+ it('discards only the open document and closes without writing',async()=>{
+  const f=await open();await f.choose();await f.edit('{"changed":1}')
+  await f.click('放弃修改并关闭')
+  expect(f.wrapper.findComponent({name:'RendererDialog'}).exists()).toBe(false)
+  expect(state.dirty[0]?.isDirty).toBe(false)
+  expect(state.uploads).toEqual([]);expect(state.http.saves).toEqual([])
+  await f.choose()
+  expect(documentValue(f.wrapper)).toEqual({flag:false,nested:[[1,null],{}]})
  })
  it('uses the real metadata fallback filename and preserves an array root',async()=>{
   state.files.set('J2.json','[false,[],null]');const f=await open();await f.choose(1)

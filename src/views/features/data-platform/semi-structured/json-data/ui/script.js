@@ -108,6 +108,28 @@ function bindDocumentClose() {
   return {disabled: documentCloseBlocked()}
 }
 
+function bindDiscardAndClose() {
+  const view = currentDocument()
+  return {visible: documentBinding?.editable === true && !documentBinding.creating && documentCloseBlocked(),
+    disabled: view?.mutating === true || view?.hasUnconfirmedSave === true}
+}
+
+async function discardAndCloseJsonDocument() {
+  const action = bindDiscardAndClose()
+  if (acting || !action.visible || action.disabled) return
+  error = ''
+  acting = true
+  try {
+    await $page.invokeHostCommand('jsonData.discardAndCloseDocument', documentBinding.contextRowId)
+    inputPending = false
+    documentBinding = undefined
+  } catch (cause) {
+    error = String(cause?.message || cause)
+  } finally {
+    acting = false
+  }
+}
+
 function bindDocumentError() {
   const title = error || documentBinding?.loadError || ''
   return {title, visible: !!title}

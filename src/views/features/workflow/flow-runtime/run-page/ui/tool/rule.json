@@ -63,6 +63,62 @@
           }
         ]
       }
+    ],
+    "id": "history"
+  },
+  {
+    "id": "approvalInput",
+    "type": "r-form",
+    "props": {
+      "autoColumns": false,
+      "showDataViewMeta": false
+    },
+    "children": [
+      {
+        "type": "r-textarea",
+        "props": {
+          "field": "idea",
+          "label": "办理意见",
+          "rows": 4
+        }
+      },
+      {
+        "type": "r-select",
+        "props": {
+          "field": "forceNodeId",
+          "label": "强制退回目标",
+          "optionValueField": "id",
+          "optionLabelField": "title"
+        }
+      },
+      {
+        "type": "r-checkbox",
+        "props": {
+          "field": "notifySms",
+          "label": "短信通知"
+        }
+      },
+      {
+        "type": "r-checkbox",
+        "props": {
+          "field": "notifyQywx",
+          "label": "企业微信通知"
+        }
+      },
+      {
+        "type": "r-checkbox",
+        "props": {
+          "field": "notifyDingTalk",
+          "label": "钉钉通知"
+        }
+      },
+      {
+        "type": "r-checkbox",
+        "props": {
+          "field": "notifyWechat",
+          "label": "微信通知"
+        }
+      }
     ]
   }
 ]

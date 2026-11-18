@@ -28,11 +28,15 @@
           </SparkComponent.RendererTabPane>
         </SparkComponent.RendererTabs>
       </section>
-      <SparkPageRenderer v-if="runtime" :page-runtime="runtime" :route-snapshot="routeSnapshot" :auto-load="false" />
+      <SparkPageRenderer v-if="runtime" :page-runtime="runtime" :route-snapshot="routeSnapshot" :auto-load="false">
+        <template #content="{children}">
+          <SparkComponentRenderer v-for="(node, index) in children.filter(child => nodeId(child) === 'history')" :key="nodeId(node) ?? index" :config="node" />
+        </template>
+      </SparkPageRenderer>
       <aside v-if="handleOpen" class="flow-run-page__handle">
         <h3 class="flow-run-page__handle-title">办理</h3>
         <SparkComponent.RendererTable :data-view-key="nodeInputViewKey" :children="nodeFields" :auto-columns="false" :show-pagination="false" :show-data-view-meta="false" />
-        <SparkComponent.RendererForm :data-view-key="inputViewKey" :children="inputFields" :auto-columns="false" :show-data-view-meta="false" />
+        <SparkComponentRenderer :config="approvalInputConfig" />
         <div class="flow-run-page__handle-actions">
           <SparkComponent.RendererButton label="提交" button-type="primary" :loading="handleLoading" @click="submitFlow" />
           <SparkComponent.RendererButton v-if="backNodeOptions.length > 0" label="普通退回" :loading="handleLoading" @click="backByHistory" />
@@ -73,8 +77,9 @@ import {
   FLOW_RUN_GRAPH_NODE_BADGE_FIELD,
   readFlowRuntimeRouteQuery,
 } from '@/lowcode/resources/system/workflow/manage'
-import {PageTool} from '@spark-appworks/spark-project-model'
-import {SparkPageRenderer} from '@spark-appworks/spark-component'
+import {compileRule, PageTool} from '@spark-appworks/spark-project-model'
+import {SparkComponentRenderer, SparkPageRenderer} from '@spark-appworks/spark-component'
+import {buildDataViewKey, getSparkNodeChildren, nodeId} from '@spark-appworks/spark-data'
 import rule from './tool/rule.json?raw'
 import script from './tool/script.js?raw'
 import style from './tool/style.css?raw'
@@ -120,9 +125,8 @@ const {
   handleOpen,
   handleLoading,
   handleError,
-  inputViewKey,
   nodeInputViewKey,
-  inputFields,
+  inputLocked,
   nodeFields,
   backNodeOptions,
   forceBackNodeOptions,
@@ -153,6 +157,19 @@ const {
   stepViewKey,
 } = useFlowRunPage(routeQuery, () => runtimeReady.value, () => reloadBlocked.value)
 
+const approvalInputRule = compileRule(rule).find(node => nodeId(node) === 'approvalInput')
+if (!approvalInputRule) throw new Error('流程办理工具缺少办理参数表单')
+const approvalInputConfig = computed(() => ({
+  ...approvalInputRule,
+  props: {...approvalInputRule.props, dataViewKey: buildDataViewKey('ApprovalInput', 'default', FLOW_WORKBENCH_SCENARIO_ID)},
+  children: getSparkNodeChildren(approvalInputRule.children)
+    .filter(field => field.props?.['field'] !== 'forceNodeId' || (allowForceBack.value && forceBackNodeOptions.value.length > 0))
+    .map(field => ({...field, props: {...field.props, readonly: inputLocked.value,
+      ...(field.props?.['field'] === 'forceNodeId'
+        ? {optionDataViewKey: buildDataViewKey('ApprovalForceTargets', 'default', FLOW_WORKBENCH_SCENARIO_ID)}
+        : {}),
+    }})),
+}))
 const runtime = computed(() => runtimeReady.value ? session.runtime : undefined)
 const routeSnapshot = computed(() => {
   const {path, fullPath, name, params, query, hash} = route

@@ -23,7 +23,7 @@ import {
   readFlowRunAllowForceBack,
 } from '@/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options'
 import {FlowRunApprovalInputWorkspace} from '@/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
-import {flowRunInputFields, flowRunNodeFields} from '../model/flow-run-input-fields'
+import {flowRunNodeFields} from '../model/flow-run-input-fields'
 import {submitFlowBusinessPage} from '../model/flow-run-business-submit'
 import {
   createFlowBusinessPageRegistry,
@@ -63,7 +63,6 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     try {view.captureReadRow(row, ['payload'])(); return isRecord(row['payload']) ? row['payload'] : {}}
     catch {return {}}
   })
-  const inputViewKey = buildDataViewKey('ApprovalInput', 'default', FLOW_WORKBENCH_SCENARIO_ID)
   const nodeInputViewKey = buildDataViewKey('ApprovalNodeInput', 'default', FLOW_WORKBENCH_SCENARIO_ID)
   const commandView = computed(() => {
     runtimeReady(); prepared.value
@@ -85,7 +84,6 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   useSystemPageDirtySource({get isDirty() { return hasPendingWork() }})
   const appendCloseDisabled = computed(() => handleLoading.value || commandState.resultReplacementBlocked.value || commandState.mutating.value || appendOptionsState.requestState.value === RequestState.Loading || appendInputState.rows.value.length > 0 || appendInputState.resultReplacementBlocked.value)
   const inputLocked = computed(() => {commandState.mutating.value; commandState.requestState.value; return handleLoading.value || hasPendingApproval()})
-  const inputFields = computed(() => flowRunInputFields({scope: FLOW_WORKBENCH_SCENARIO_ID, locked: inputLocked.value, force: allowForceBack.value && forceBackNodeOptions.value.length > 0}))
   const nodeFields = computed(() => flowRunNodeFields(inputLocked.value))
   const activeFormId = ref('')
   const appendOpen = ref(false)
@@ -394,9 +392,8 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     handleOpen,
     handleLoading,
     handleError,
-    inputViewKey,
+    inputLocked,
     nodeInputViewKey,
-    inputFields,
     nodeFields,
     backNodeOptions,
     forceBackNodeOptions,

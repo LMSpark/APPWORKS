@@ -220,7 +220,7 @@ describe('flow run page mount', () => {
     wrappers.push(mount(withTestPageService(Host), {global: {plugins: [ElementPlus, Spark.createPlugin()]}}))
     await flushPromises()
     const tool = openTool(FLOW_MONITOR_SCENARIO_ID)
-    expect(tool.rule.children).toMatchObject([{
+    expect(tool.rule.children?.[0]).toMatchObject({
       type: 'r-section',
       props: {title: '步骤历史'},
       children: [{
@@ -229,7 +229,7 @@ describe('flow run page mount', () => {
         children: [{props: {field: 'description'}}, {props: {field: 'ReceiveUserName'}},
           {props: {field: 'STARTTIME'}}, {props: {field: 'StepState'}}],
       }],
-    }])
+    })
     const model = 'WFOBJ_FLOW_RELATIONLINE_STEP'
     const configured = workbenchScenario.tables[model]
     const workbench = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {

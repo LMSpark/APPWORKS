@@ -11648,3 +11648,5 @@ flowchart TD
 - 实件附件读取合同核对：页12将 projectId、producedFileId、productionRequestRef 与原 resourceVersionId 交给 openAuthorized，回读时复核项目、资源版本、授权有效性及文件摘要。平台 DownFile 的 FileInfo 接受 appType/customPath/fileName 等存储定位；缺少业务登记到获准文件版本的正式解析和实际授权回读证据。企业资料原件与制作实件2文件4项本地回归通过，本轮未尝试按推测路径下载。
 - 逻辑视图页面本地完整回归：tests/runtime/page/structured-config/logic-view 共11文件152项通过。覆盖设计目录、节点、参数与来源视图、两来源发布先后、回执缺失和后续草稿保护。未重放历史 SaveView；当前部署的独立回读及运行查询仍待。
 - 逻辑视图节点添加在异步读取来源字段后复核原查询结果、唯一选择行及可编辑状态；等待期间从表A改选表B时保留设计且提示重新确认。页面既有35项与新增定向1项通过。
+- 逻辑视图来源切换修复后，当前工作区完整专项11文件153项及两文件ESLint均通过。核对0841fa048父提交到000623ac5的测试净差异，仅新增来源准备类导入及选择变化用例；并行发布断言不在该批净差异内。
+- 逻辑视图后续核对：DataView.captureReadResult 捕获查询上下文、刷新身份和代次，查询刷新后旧证明失效；read-row-proof 15 项及根 typecheck 均通过。尚无新的实服回执。

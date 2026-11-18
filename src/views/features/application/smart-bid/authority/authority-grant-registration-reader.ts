@@ -11,14 +11,14 @@ import {originalRegistrationView,readOriginalRegistrationView} from './original-
 type Request=Parameters<typeof readOriginalAuthorityGrantRegistration>[0]
 type Registration=NonNullable<Awaited<ReturnType<Parameters<typeof readOriginalAuthorityGrantRegistration>[1]['lookup']>>>
 type Registered=Extract<Registration,{status:'REGISTERED'}>
-const keys=['enterpriseId','grantId','requestKey','requestDigest'] as const
+const keys=['enterpriseId','grantId','requestKey'] as const
 const decisionFields=['enterpriseId','grantId','requestKey','decisionRef','decisionMakerId','decisionAuthorityRef',
  'representativeId','effectiveAt','expiresAt','knownAt']
 const error='AUTHORITY_GRANT_REGISTRATION_READ'
 
 /** 供页04所属正式场景为已经登记的模型装配原请求查询。 */
 export function authorityGrantRegistrationView(primaryKey:string){
- return originalRegistrationView(primaryKey,keys,['status','versionId','decisionRef','decisionRecord'])
+ return originalRegistrationView(primaryKey,keys,['requestDigest','status','versionId','decisionRef','decisionRecord'])
 }
 
 function isDecisionRecord(value:unknown):value is Registered['record']{
@@ -36,12 +36,14 @@ export function readRegisteredAuthorityGrantRegistration(
  host.assertCurrent()
  if(host.enterpriseId!==input.enterpriseId)throw Error(error)
  return readOriginalAuthorityGrantRegistration(input,{assertCurrent:()=>host.assertCurrent(),lookup:async request=>{
-  const read=await readOriginalRegistrationView(host,{model:'AuthorityGrant'},request),{row}=read
+  const {requestDigest,...original}=request
+  const read=await readOriginalRegistrationView(host,{model:'AuthorityGrant'},original),{row}=read
   if(!row)return {...request,status:'UNKNOWN',assertCurrent:read.assertCurrent}
   const {status,versionId,decisionRef,decisionRecord}=row
-  const fields=['status',...(status==='REGISTERED'?['versionId','decisionRecord']:status==='REJECTED'?['decisionRef']:[])]
+  const fields=['requestDigest','status',...(status==='REGISTERED'?['versionId','decisionRecord']:status==='REJECTED'?['decisionRef']:[])]
   const assertCurrent=read.captureFields(fields)
   assertCurrent()
+  if(row['requestDigest']!==requestDigest)throw Error(error)
   if(status==='UNKNOWN')return {...request,status,assertCurrent}
   if(status==='REJECTED'&&identity(decisionRef))return {...request,status,decisionRef,assertCurrent}
   if(status==='REGISTERED'&&identity(versionId)&&isDecisionRecord(decisionRecord))

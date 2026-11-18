@@ -184,7 +184,10 @@ it('binds a revocation to its authority, affected scope and original version',as
    assertCurrent:()=>{}}
   const read=await readRegisteredAuthorityGrantRegistration(host,original)
   expect(read).toMatchObject({status:'REGISTERED',versionId:'V2',record:prepared.record})
-  expect(view.queryContext).toMatchObject(original)
+  expect(view.queryContext).toMatchObject({requestKey:original.requestKey})
+  expect(view.queryContext).not.toHaveProperty('requestDigest')
+  await expect(readRegisteredAuthorityGrantRegistration(host,{...original,requestDigest:'c'.repeat(64)}))
+   .rejects.toThrow('AUTHORITY_GRANT_REGISTRATION_READ')
   const page=createAuthorityGrantScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host)
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
   const {openOriginalGrantRegistration}=compileFunctions(script,{$route:{query:original},$page:{

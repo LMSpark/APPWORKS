@@ -104,7 +104,10 @@ it('requires an original decision from the source enterprise for exact recipient
   expect(()=>readRegisteredResourceUseRegistration({...host,enterpriseId:'OTHER'},original)).toThrow('RESOURCE_USE_REGISTRATION_READ')
   const registeredUse=await readRegisteredResourceUseRegistration(host,original)
   expect(registeredUse).toMatchObject({status:'REGISTERED',versionId:'DENIED-V1',record:{intent:'DENY'}})
-  expect(view.queryContext).toMatchObject(original)
+  expect(view.queryContext).toMatchObject({requestKey:original.requestKey})
+  expect(view.queryContext).not.toHaveProperty('requestDigest')
+  await expect(readRegisteredResourceUseRegistration(host,{...original,requestDigest:'c'.repeat(64)}))
+   .rejects.toThrow('RESOURCE_USE_REGISTRATION_READ')
   const runtime={...host.runtime,generation:1,isLoaded:true,destroyed:false}
   const page=createResourceUseScriptHost(runtime,host)
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()

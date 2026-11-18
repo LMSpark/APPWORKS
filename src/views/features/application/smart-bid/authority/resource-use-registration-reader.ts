@@ -12,13 +12,13 @@ type Request=Parameters<typeof readOriginalResourceUseRegistration>[0]
 type Outcome=Awaited<ReturnType<typeof readOriginalResourceUseRegistration>>
 type Decision=Extract<Outcome,{status:'REGISTERED'}>['record']
 const scope=['sourceEnterpriseId','recipientEnterpriseId','projectId','applicationRef','resourceVersionId','decisionChainId'] as const
-const keys=[...scope,'requestKey','requestDigest']
+const keys=[...scope,'requestKey']
 const decisionFields=[...scope,'requestKey','decisionRef','decisionEnterpriseId','decisionMakerId','authorityRef','effectiveAt','knownAt']
 const error='RESOURCE_USE_REGISTRATION_READ'
 
 /** 为页06正式登记模型提供原请求命名视图。 */
 export function resourceUseRegistrationView(primaryKey:string){
- return originalRegistrationView(primaryKey,keys,['status','versionId','receiptRef','decisionRecord'])
+ return originalRegistrationView(primaryKey,keys,['requestDigest','status','versionId','receiptRef','decisionRecord'])
 }
 
 function isDecisionRecord(value:unknown):value is Decision{
@@ -37,12 +37,14 @@ export function readRegisteredResourceUseRegistration(
  if(host.projectId!==input.projectId||
   (host.enterpriseId!==input.sourceEnterpriseId&&host.enterpriseId!==input.recipientEnterpriseId))throw Error(error)
  return readOriginalResourceUseRegistration(input,{assertCurrent:()=>host.assertCurrent(),lookup:async request=>{
-  const read=await readOriginalRegistrationView(host,{model:'ResourceUseDecision'},request),{row}=read
+  const {requestDigest,...original}=request
+  const read=await readOriginalRegistrationView(host,{model:'ResourceUseDecision'},original),{row}=read
   if(!row)return {...request,status:'UNKNOWN',assertCurrent:read.assertCurrent}
   const {status,versionId,receiptRef,decisionRecord}=row
-  const fields=['status',...(status==='REGISTERED'?['versionId','decisionRecord']:status==='REJECTED'?['receiptRef']:[])]
+  const fields=['requestDigest','status',...(status==='REGISTERED'?['versionId','decisionRecord']:status==='REJECTED'?['receiptRef']:[])]
   const assertCurrent=read.captureFields(fields)
   assertCurrent()
+  if(row['requestDigest']!==requestDigest)throw Error(error)
   if(status==='UNKNOWN')return {...request,status,assertCurrent}
   if(status==='REJECTED'&&identity(receiptRef))return {...request,status,receiptRef,assertCurrent}
   if(status==='REGISTERED'&&identity(versionId)&&isDecisionRecord(decisionRecord))

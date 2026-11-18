@@ -61,7 +61,8 @@ it('renders the shared JSON catalog through the three tool files without reading
  let wrapper:VueWrapper|undefined
  try{
   const runtime=session.acquire({tool,targetId:SCENE,scenarioIds:[SCENE],loadScenario:id=>LowcodeJsonData.loadCatalog(id)})
-  wrapper=mount(SparkPageRenderer,{props:{pageRuntime:runtime},global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
+  const {path,fullPath,name,params,query,hash}=router.currentRoute.value
+  wrapper=mount(SparkPageRenderer,{props:{pageRuntime:runtime,routeSnapshot:{path,fullPath,name:name??null,params,query,hash}},global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
   const rendered=wrapper
   await vi.waitFor(()=>expect(rendered.text()).toContain('样例JSON'))
   expect(rendered.getComponent(RendererTable).props('dataViewKey')).toBe(`${SCENE}@Base_JsonData@default`)

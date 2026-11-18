@@ -11712,3 +11712,4 @@ flowchart TD
 - 第11包导航身份回归：当前企业导航登记落原生 JSON 页面，PageRuntime 消费共享 pagedata；缺导航场景 ID 时不渲染目录，不发目录/正文读写。新增挂载反例随 JSON 页面专项29项通过，verify:pages-config 通过。原生宿主加共享场景目前仍缺工具三文件的运行消费证据。
 - 第11包工具装配：PageTool 三文件测试夹具经 NativePageRuntimeSession 装配真实共享 pagedata，目录与正文 DataView 均存在，打开正文前文件读取为零；JSON 页面专项30项通过。按已核源码保留原导航薄宿主，由 SparkPageRenderer 渲染标准表格、表单、弹窗；静态绑定先验，正文需在原目录行派生视图创建后动态绑定真实键。保留文件→目录分次提交、未知核验及离页保护。本批只验证装配，正式页面仍待接线。
 - 第11包目录配置渲染：原业务目录增加 rule.json/script.js/style.css，专项用 SparkPageRenderer 挂载三文件，标准表格通过完整键显示共享 pagedata 的目录行，正文读取为零。r-section/r-table/r-text 按 ClassModel 及既有渲染合同配置；JSON 页面专项30项通过。当前提交覆盖目录只读渲染，正式导航仍走原生入口，待正文弹窗、写入和离页流程一并迁移后切换。
+- 第11包目录渲染夹具补齐 SparkPageRenderer 必需的 routeSnapshot，取同次路由位置字段。全仓 typecheck 退出0，JSON 页面专项30项通过。

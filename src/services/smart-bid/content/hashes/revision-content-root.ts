@@ -4,7 +4,7 @@
  * 边界：依赖快照和基线的原读取证明；不查最新事实，不确认本次用途。
  */
 import {canonicalRevisionSnapshot,canonicalSnapshotValue,hashCanonicalSnapshotText} from '../revision-snapshot-hash'
-import {readBaselineFactMembers} from '../references/baseline-fact-members'
+import {readBaselineFactMembers} from '../references/baseline/baseline-fact-members'
 import {snapshotReferenceFields,snapshotReferenceIdentity,snapshotReferenceRecord} from '../references/snapshot-reference-values'
 import {hashContentRoot} from './content-root-hash'
 import {hashContentRootSections} from './content-root-sections'

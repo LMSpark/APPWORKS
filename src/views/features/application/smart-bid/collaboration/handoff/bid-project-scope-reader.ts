@@ -7,7 +7,7 @@ import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snap
 import {isRecord} from '@spark-appworks/spark-utils'
 import {originalRegistrationView,readOriginalRegistrationView} from '../../authority/original-registration-view'
 
-import {readBaselineFactMembers} from '@/services/smart-bid/content/references/baseline-fact-members'
+import {readBaselineFactMembers} from '@/services/smart-bid/content/references/baseline/baseline-fact-members'
 import {readBaselineRequirementMembers} from '@/services/smart-bid/content/references/baseline-requirement-members'
 import {readBaselineTenderRecords} from '@/services/smart-bid/content/references/baseline-tender-records'
 

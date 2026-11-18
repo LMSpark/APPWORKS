@@ -3,7 +3,7 @@
  * 职责：固定审核范围内实际使用的事实版本、依据引用及显示摘要。
  * 边界：输入须由原事实读取链提供；不认为原采纳等同现在可用。
  */
-import {readBaselineFactMembers} from '../references/baseline-fact-members'
+import {readBaselineFactMembers} from '../references/baseline/baseline-fact-members'
 import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from '../references/snapshot-reference-values'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '../revision-snapshot-hash'
 

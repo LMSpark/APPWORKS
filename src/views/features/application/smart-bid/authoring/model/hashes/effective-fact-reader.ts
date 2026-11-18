@@ -5,7 +5,7 @@
  */
 import {buildDataViewKey,type DataView,type DataViewFilterTree} from '@spark-appworks/spark-data'
 import {EFFECTIVE_FACT_FIELDS,hashEffectiveFactDependencies} from '@/services/smart-bid/content/hashes/effective-fact-dependencies'
-import {readBaselineFactMembers} from '@/services/smart-bid/content/references/baseline-fact-members'
+import {readBaselineFactMembers} from '@/services/smart-bid/content/references/baseline/baseline-fact-members'
 import {snapshotReferenceIdentity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readContentBaselineFactIndex} from '../content-baseline-reader'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'

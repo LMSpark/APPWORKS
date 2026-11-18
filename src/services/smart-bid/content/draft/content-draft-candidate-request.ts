@@ -9,7 +9,7 @@ import {previewScopedContentTree} from '../content-scoped-preview'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '../revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity,snapshotReferenceRecord} from '../references/snapshot-reference-values'
 import {readContentNodeFactIds} from '../content-node-links'
-import {readBaselineFactMembers,type BaselineFactMember} from '../references/baseline-fact-members'
+import {readBaselineFactMembers,type BaselineFactMember} from '../references/baseline/baseline-fact-members'
 
 type Draft=Readonly<{
  projectId:string;draftId:string;actorUserId:string;draftVersion:string;baseRevisionId:string|null

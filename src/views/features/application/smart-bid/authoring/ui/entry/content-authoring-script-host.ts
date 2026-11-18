@@ -16,7 +16,7 @@ import {inspectRegisteredAdoption,type ContentAdoptionSelection} from '../../mod
 import {compareRegisteredOriginalForms,readRegisteredOriginalForm} from '../../../response/model/original-form-reader'
 import {readCandidateContent,type ContentCandidateBinding} from '../../model/content-candidate-reader'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionSelection} from '../../model/content-revision-reader'
-import {prepareRegisteredDraftCandidateRequest,readDraftCandidateBasis} from '../../model/content-draft-candidate-basis'
+import {prepareRegisteredDraftCandidateRequest,readDraftCandidateBasis} from '../../model/draft/content-draft-candidate-basis'
 import {readRegisteredOriginalContentDraftSave} from '../../model/content-draft-save-reader'
 import {reconcileSavedContentDraft} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
 type Binding=Pick<ContentAuthoringBinding,'runtime'|'dataViewKey'|'projectId'|'draftId'|'actorUserId'|'assertCurrent'|'setPending'>

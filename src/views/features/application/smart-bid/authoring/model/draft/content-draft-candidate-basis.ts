@@ -1,4 +1,4 @@
-/** @module app:views/features/application/smart-bid/authoring/model/content-draft-candidate-basis
+/** @module app:views/features/application/smart-bid/authoring/model/draft/content-draft-candidate-basis
  * 职责：沿草稿基版回读不可变的正文和分工身份。
  */
 import {readRevisionBasisResponses} from '@/services/smart-bid/content/content-scoped-preview'
@@ -6,20 +6,20 @@ import {assertRevisionTemplateBindings} from '@/services/smart-bid/content/revis
 import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
 import {assertRevisionResponseText,readIndependentResponseFactOccurrences,type IndependentResponseFactTarget}
  from '@/services/smart-bid/content/references/revision-response-text'
-import {readBaselineFactMembers} from '@/services/smart-bid/content/references/baseline-fact-members'
+import {readBaselineFactMembers} from '@/services/smart-bid/content/references/baseline/baseline-fact-members'
 import {assessBaselineRequirementPins,readBaselineRequirementMembers} from '@/services/smart-bid/content/references/baseline-requirement-members'
-import {readBidFrozenBaseline} from '../../collaboration/handoff/bid-project-scope-reader'
+import {readBidFrozenBaseline} from '../../../collaboration/handoff/bid-project-scope-reader'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
-import {readAdoptedContentRevision,type ContentRevisionReadHost} from './content-revision-reader'
-import {assertRevisionManifest,readContentSnapshotIndex} from './hashes/content-snapshot-reader'
-import {readContentSnapshotNodes} from './content-snapshot-nodes'
-import {assertContentNodeVersionPayload} from './content-node-version-reader'
-import {readContentReviewBaseline} from './content-baseline-reader'
+import {readAdoptedContentRevision,type ContentRevisionReadHost} from '../content-revision-reader'
+import {assertRevisionManifest,readContentSnapshotIndex} from '../hashes/content-snapshot-reader'
+import {readContentSnapshotNodes} from '../content-snapshot-nodes'
+import {assertContentNodeVersionPayload} from '../content-node-version-reader'
+import {readContentReviewBaseline} from '../content-baseline-reader'
 import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {snapshotReferenceRecord,visitSnapshotReferences} from '@/services/smart-bid/content/references/snapshot-reference-values'
-import {originalRegistrationView,readOriginalRegistrationView} from '../../authority/original-registration-view'
+import {originalRegistrationView,readOriginalRegistrationView} from '../../../authority/original-registration-view'
 import {bindDraftCandidateFactEvidence,prepareDraftCandidateRequest} from '@/services/smart-bid/content/draft/content-draft-candidate-request'
-import {readEffectiveFactsFromBaseline} from './hashes/effective-fact-reader'
+import {readEffectiveFactsFromBaseline} from '../hashes/effective-fact-reader'
 import {readDraftResponseVersions} from './content-draft-response-versions'
 
 const error='CONTENT_DRAFT_CANDIDATE_BASIS'

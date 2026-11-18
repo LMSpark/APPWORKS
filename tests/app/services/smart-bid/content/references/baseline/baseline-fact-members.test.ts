@@ -1,5 +1,5 @@
 import {expect,it,vi} from 'vitest'
-import {assertBaselineFactMember} from '@/services/smart-bid/content/references/baseline-fact-members'
+import {assertBaselineFactMember} from '@/services/smart-bid/content/references/baseline/baseline-fact-members'
 
 it('selects the exact original key and version without rewriting the JSON',()=>{
  const members=Object.freeze([Object.freeze({factId:'PRICE',version:2}),Object.freeze({factId:'TERM',version:0})])

@@ -1,12 +1,12 @@
-/** @module app:views/features/application/smart-bid/authoring/model/content-draft-response-versions
+/** @module app:views/features/application/smart-bid/authoring/model/draft/content-draft-response-versions
  * 职责：一次精确读取草稿引用的新独立答复版本及其事实占位。
  */
 import {buildDataViewKey,type ViewMetadata} from '@spark-appworks/spark-data'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {assertRevisionResponseText,readIndependentResponseFactOccurrences} from '@/services/smart-bid/content/references/revision-response-text'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
-import {originalRegistrationView} from '../../authority/original-registration-view'
-import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
+import {originalRegistrationView} from '../../../authority/original-registration-view'
+import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 
 const model='Response',viewName='selectedDraftResponseVersions'
 const fields=['id','projectId','assignmentId','lineageId','version','revisionId','statement','data',

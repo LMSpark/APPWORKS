@@ -1,10 +1,10 @@
 /**
- * @module app:services/smart-bid/content/references/baseline-fact-members
+ * @module app:services/smart-bid/content/references/baseline/baseline-fact-members
  * 职责：核固定基线事实成员的确定JSON合同及精确选版。
  * 边界：不查询最新版本、不确认冻结/采纳或当前用途许可、不存事实值。
  * AI用途：基线原记录读取后核成员，再沿原事实视图读取固定版本。
  */
-import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from './snapshot-reference-values'
+import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from '../snapshot-reference-values'
 
 /** 项目及阶段归基线原记录；成员只引用事实键和显式原版本。 */
 export type BaselineFactMember=Readonly<{factId:string;version:number}>

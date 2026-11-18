@@ -182,3 +182,27 @@ async function closeRemovalDialog(open) { if (open === false) await cancelRemova
 async function cancelRemoval() { await $page.invokeHostCommand('excel.design.cancelRemoval') }
 async function acceptRemoval() { await $page.invokeHostCommand('excel.design.acceptRemoval') }
 async function saveRemoval() { await $page.invokeHostCommand('excel.design.saveRemoval') }
+
+function bindRuleList() {
+  const state = tree?.ruleList()
+  return {error:state?.error || '',status:state?.hasNode
+    ? '关闭增强规则时仍可设计；启用后按执行方向和顺序消费已保存规则。' : '选择配置后维护其增强规则。'}
+}
+function bindRuleTable() {
+  return {visible:tree?.ruleList()?.hasNode === true,onRowClick:tree?.ruleRowClick}
+}
+function bindRuleAction() {
+  const state = tree?.ruleList()
+  return {disabled:state?.blocked !== false || !state?.hasNode}
+}
+function bindVerifyRule() {
+  const state = tree?.ruleList()
+  return {visible:state?.unconfirmed === true,disabled:state?.canVerify !== true}
+}
+function bindRuleDirection() { return {displayFormatter:tree?.ruleDirection} }
+
+async function refreshRules() { await $page.invokeHostCommand('excel.design.refreshRules') }
+async function addRule() { await $page.invokeHostCommand('excel.design.addRule') }
+async function verifyRule() { await $page.invokeHostCommand('excel.design.verifyRule') }
+async function editRule(row) { await $page.invokeHostCommand('excel.design.editRule', row) }
+async function deleteRule(row) { await $page.invokeHostCommand('excel.design.deleteRule', row) }

@@ -33,9 +33,12 @@
               <p v-else role="status">请选择左侧节点后再编辑</p>
             </RendererTabPane>
             <RendererTabPane name="transform" label="增强规则" :index="1" :data-view-key="rulesKey">
-      <ExcelTransformRulesPane :data-view-key="rulesKey" :field-options-key="ruleFieldOptionsKey" :has-node="!!selectedNode" :disabled="locked" @session-change="value => pending('rules.dialog',value)">
+      <ExcelTransformRulesPane ref="rulePane" :data-view-key="rulesKey" :field-options-key="ruleFieldOptionsKey" :has-node="!!selectedNode" :disabled="locked" @session-change="value => pending('rules.dialog',value)">
         <template #scheme-tools>
           <SparkComponentRenderer :config="designRegion(children,'excel-scheme-transform')" />
+        </template>
+        <template #rule-list>
+          <SparkComponentRenderer :config="designRegion(children,'excel-transform-list')" />
         </template>
       </ExcelTransformRulesPane>
             </RendererTabPane>
@@ -107,6 +110,7 @@ function designRegion(children:readonly SparkNode[],id:string):SparkNode {
 }
 const treeRuntime=shallowRef<PageRuntime>()
 const treeHost=shallowRef<ReturnType<typeof makeTreeHost>>()
+const rulePane=shallowRef<InstanceType<typeof ExcelTransformRulesPane>>()
 const importConfigId = computed(() => props.schemeRowid ?? (typeof route.query['importConfigId'] === 'string' ? route.query['importConfigId'] : ''))
 const navigationProjectId=computed(()=>resolveExecutionProjectId(route.path))
 const scene = LowcodeExcelImport.designScenarioId, catalogScene = LowcodeExcelImport.navigationScenarioId
@@ -226,7 +230,7 @@ onBeforeRouteUpdate(() => !hasPending.value)
 defineExpose({hasPending,busy,unconfirmed,discardChanges:discardAll})
 function makeTreeHost(runtime:PageRuntime){
   const assertCurrent=()=>{if(!active||!session.isCurrent(runtime))throw new Error('Excel 设计运行实例已失效')}
-  return {runtime,assertCurrent,async invoke(command:string){
+  return {runtime,assertCurrent,async invoke(command:string,input:unknown){
     assertCurrent()
     if(command==='excel.design.connect')return {
       locked:()=>locked.value,selected:()=>!!selectedNode.value,
@@ -256,12 +260,22 @@ function makeTreeHost(runtime:PageRuntime){
         discard:!!targetChange.value&&targetState.value?.applyStarted===true&&targetState.value.canDiscard,
       }),
       validateSorted,
+      ruleList:()=>rulePane.value?.state(),
+      ruleDirection:(value:unknown)=>rulePane.value?.scopeLabel(value)??'',
+      ruleRowClick:(row:Parameters<InstanceType<typeof ExcelTransformRulesPane>['rowClick']>[0],column:unknown,event?:Event)=>{
+        if(active&&session.isCurrent(runtime))rulePane.value?.rowClick(row,column,event)
+      },
       canOpenTarget:()=>!locked.value&&!targetChange.value&&targetAllowed.value,
       transformSwitch:()=>({
         pending:pendingPart('rules'),busy:busy.value,unconfirmed:unconfirmed.value,
         switchUnconfirmed:isUnconfirmed(schemeTable),
       }),
     }
+    if(command==='excel.design.refreshRules'){await rulePane.value?.refresh();return undefined}
+    if(command==='excel.design.addRule'){await rulePane.value?.add();return undefined}
+    if(command==='excel.design.verifyRule'){await rulePane.value?.verifyOriginal();return undefined}
+    if(command==='excel.design.editRule'){rulePane.value?.openEdit(input);return undefined}
+    if(command==='excel.design.deleteRule'){rulePane.value?.openDelete(input);return undefined}
     if(command==='excel.design.openTarget'){
       openTarget()
       return undefined

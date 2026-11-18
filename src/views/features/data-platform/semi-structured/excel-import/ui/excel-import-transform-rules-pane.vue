@@ -7,6 +7,7 @@
   <section class="excel-transform-rules">
     <h2>增强规则</h2>
     <slot name="scheme-tools" />
+    <slot name="rule-list">
     <p>关闭增强规则时仍可设计；启用后按执行方向和顺序消费已保存规则。</p>
     <p v-if="error" role="alert">{{ error }}</p>
     <RendererButton label="刷新规则" :disabled="blocked || !hasNode" @click="refresh" />
@@ -16,6 +17,7 @@
       <RendererTable :data-view-key="dataViewKey" :children="columns" :actions="actions" :highlight-current-row="true" :on-row-click="rowClick" />
     </template>
     <p v-else role="status">选择配置后维护其增强规则。</p>
+    </slot>
     <RuleDialog v-if="editing" :key="editing.epoch" :data-view-key="dataViewKey" :record-id="editing.id" :created="editing.created" :field-options-key="fieldOptionsKey" @close="editing=undefined" />
     <OperationDialog v-if="operation" :key="operation.epoch" :data-view-key="dataViewKey" :record-id="operation.id" :mode="operation.mode" @close="operation=undefined" />
   </section>
@@ -96,4 +98,9 @@ async function verifyOriginal():Promise<void>{
  try{await dataSet.saveChanges({applyEditingRows:false,views:[{tableName:view.tableName,viewId:view.viewId}]})}catch(cause){message(cause)}finally{if(active){acting.value=false;changed()}}
 }
 onBeforeUnmount(()=>{active=false;stop();emit('session-change',false)})
+defineExpose({
+  state:()=>({blocked:blocked.value,busy:busy.value,hasNode:props.hasNode,unconfirmed:unconfirmed.value,
+    canVerify:!busy.value&&!editing.value&&!operation.value,error:error.value}),
+  refresh,add,verifyOriginal,openEdit,openDelete,rowClick,scopeLabel,
+})
 </script>

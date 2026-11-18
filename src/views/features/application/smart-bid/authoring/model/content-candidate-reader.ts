@@ -4,7 +4,8 @@
  * 边界：仅返回原视图绑定与证明；不缓存载荷、不采用、不冒充完整业务闭包或三版预演。
  * AI用途：候选内容先核固定依据一致，再交后续业务检查；JSON内容与模板引用分别核对。
  */
-import {assertRevisionTemplateBindings,readCalculationTableTemplateRefs,readContentDocumentScope,type RevisionTemplateRef} from '@/services/smart-bid/content/revision-template-bindings'
+import {assertRevisionTemplateBindings,readCalculationTableTemplateRefs,readContentDocumentScope,readRevisionTemplateBindings,type RevisionTemplateRef} from '@/services/smart-bid/content/revision-template-bindings'
+import {resolveTemplateContentRules} from '@/services/smart-bid/content/references/template-content-rules'
 import {resolveCalculationTableGenerator} from '@/services/smart-bid/content/references/calculation-table-generator'
 import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
 import {assertRevisionResponseText,readIndependentResponseFactOccurrences,type IndependentResponseFactTarget} from '@/services/smart-bid/content/references/revision-response-text'
@@ -27,6 +28,7 @@ import {hashQualificationReviews} from '@/services/smart-bid/content/hashes/qual
 import {hashContentRules} from '@/services/smart-bid/content/hashes/content-rules-hash'
 import {hashScopedResponses,type ScopedResponseTarget} from '@/services/smart-bid/content/hashes/content-root-sections'
 import {hashEffectiveResponseDependencies} from '@/services/smart-bid/content/hashes/content-effective-hash'
+import {resolveContentTargetScope} from '@/services/smart-bid/content/content-target-scope'
 import {readEffectiveRequirementVersions} from './content-requirement-reader'
 import {projectFactDisplayOccurrences,projectResponseFactDisplayOccurrences} from '@/services/smart-bid/content/hashes/fact-display-occurrences'
 import {expandBuiltInCalculationTable,readBuiltInCalculationGenerator} from '@/services/smart-bid/content/calculation/calculation-table-registry'
@@ -44,6 +46,8 @@ export type ContentCandidateRequirementBinding=Omit<Awaited<ReturnType<typeof re
 type PreviewVersion=Readonly<{snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding}>
 type FixedCalculationTemplate=RevisionTemplateRef&Readonly<{classes:unknown;assertCurrent:()=>void}>
 type ReadFixedCalculationTemplate=(ref:RevisionTemplateRef)=>Promise<FixedCalculationTemplate>
+type FixedRulesTemplate=FixedCalculationTemplate&Readonly<{defaultDeliverable:boolean;restrictions:unknown}>
+type ReadFixedRulesTemplate=(ref:RevisionTemplateRef)=>Promise<FixedRulesTemplate>
 type CalculationSources=Readonly<{
  readTemplate:ReadFixedCalculationTemplate
  readGenerator?:(key:string)=>Readonly<{key:string;version:string;assertCurrent:()=>void}>|undefined
@@ -57,6 +61,9 @@ type EffectiveFactsWithDisplays=Awaited<ReturnType<typeof readEffectiveFactDepen
 type ReviewBaseline=Awaited<ReturnType<typeof readContentReviewBaseline>>
 type ReviewScope=Readonly<{nodeIds:readonly string[];responses:readonly ScopedResponseTarget[]}>
 type RequirementBindingDigest=Readonly<{requirementBindingHash:string;requiresUseCheck:true;assertCurrent:()=>void}>
+type ReviewDependencies=Readonly<{
+ facts:EffectiveFactsWithDisplays;requirements:RequirementBindingDigest;responseDependencyHash:string;assertCurrent:()=>void
+}>
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
 type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>
 type CandidateScopePreview=Readonly<ReturnType<typeof previewScopedRevisionChanges>&{assertCurrent:()=>void}>
@@ -98,14 +105,14 @@ export type ContentCandidateBinding=Readonly<{
  readEffectiveFacts:(scope:ReviewScope,assertConsumer?:()=>void)=>Promise<EffectiveFactsWithDisplays>
  readRequirementPinIssues:(assertConsumer?:()=>void,nodeIds?:readonly string[])=>Promise<ContentCandidateRequirementPinsBinding>
  readRequirementBindingHash:(nodeIds:readonly string[],assertConsumer?:()=>void)=>Promise<RequirementBindingDigest>
- readContentRulesHash:(nodeIds:readonly string[],source:Readonly<{nodes:unknown;documents:unknown;assertCurrent:()=>void}>)=>
+ readContentRulesHash:(nodeIds:readonly string[],readTemplate:ReadFixedRulesTemplate)=>
   Promise<Readonly<{contentRulesHash:string;assertCurrent:()=>void}>>
  readQualificationHash:(reviewIds:readonly string[],assertConsumer?:()=>void)=>Promise<Readonly<{
   qualificationHash:string;requiresUseCheck:true;assertCurrent:()=>void
  }>>
- readReviewDependencies:(scope:ReviewScope,assertConsumer?:()=>void)=>Promise<Readonly<{
-  facts:EffectiveFactsWithDisplays;requirements:RequirementBindingDigest;responseDependencyHash:string;assertCurrent:()=>void
- }>>
+ readReviewDependencies:(scope:ReviewScope,assertConsumer?:()=>void)=>Promise<ReviewDependencies>
+ readSubtreeReviewDependencies:(nodeId:string,responses:readonly ScopedResponseTarget[],assertConsumer?:()=>void)=>
+  Promise<ReviewDependencies&Readonly<{subtreeHash:string;nodeIds:readonly string[]}>>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
  readPreviewVersions:(assertConsumer?:()=>void)=>Promise<PreviewVersionSession>
@@ -158,11 +165,30 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertCurrent()
   return readCalculationTableTemplateRefs(templateRefs,payloads,nodes.readCalculationTableIds(nodeIds))
  }
- const readContentRulesHash:ContentCandidateBinding['readContentRulesHash']=async(nodeIds,source)=>{
-  const assertRules=()=>{assertCurrent();source.assertCurrent()}
-  assertRules()
+ const readContentRulesHash:ContentCandidateBinding['readContentRulesHash']=async(nodeIds,readTemplate)=>{
+  assertCurrent()
   const scope=readContentDocumentScope(payloads,nodeIds)
-  const contentRulesHash=await hashContentRules({scope,nodes:source.nodes,documents:source.documents})
+  const bindings=readRevisionTemplateBindings(templateRefs,payloads),templates=new Map<string,FixedRulesTemplate>()
+  for(const documentId of new Set(scope.map(item=>item.documentId))){
+   const ref=bindings.get(documentId)
+   if(!ref)throw Error('CONTENT_RULES_TEMPLATE_REQUIRED')
+   const template=await readTemplate(ref)
+   assertCurrent()
+   if(template.documentId!==ref.documentId||template.key!==ref.key||template.version!==ref.version||template.hash!==ref.hash)
+    throw Error('CONTENT_RULES_TEMPLATE_MISMATCH')
+   template.assertCurrent()
+   templates.set(documentId,template)
+  }
+  const assertRules=()=>{assertCurrent();for(const template of templates.values())template.assertCurrent()}
+  assertRules()
+  const byNode=new Map(payloads.map(node=>[node.nodeId,node]))
+  const rules=scope.map(item=>{
+   const source=templates.get(item.documentId)
+   if(!source)throw Error('CONTENT_RULES_TEMPLATE_REQUIRED')
+   return {...item,...resolveTemplateContentRules(byNode.get(item.nodeId),source.classes,source.defaultDeliverable)}
+  })
+  const documents=[...templates].map(([documentId,template])=>({documentId,restrictions:template.restrictions}))
+  const contentRulesHash=await hashContentRules({scope,nodes:rules,documents})
   assertRules()
   return Object.freeze({contentRulesHash,assertCurrent:assertRules})
  }
@@ -324,6 +350,16 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const assertDependencies=()=>{facts.assertCurrent();requirements.assertCurrent()}
   assertDependencies()
   return Object.freeze({facts,requirements,responseDependencyHash,assertCurrent:assertDependencies})
+ }
+ const readSubtreeReviewDependencies:ContentCandidateBinding['readSubtreeReviewDependencies']=async(nodeId,responseTargets,assertConsumer)=>{
+  assertCurrent();assertConsumer?.()
+  const subtreeHash=nodes.subtreeHashes.find(item=>item.nodeId===nodeId)?.subtreeHash
+  if(subtreeHash===undefined)throw Error('CONTENT_REVIEW_SUBTREE_REQUIRED')
+  const {nodeIds}=resolveContentTargetScope({projectId:host.projectId,basisNodes:payloads,responses:[],
+   scope:{schemaVersion:2,projectId:host.projectId,targets:[{kind:'NODE',nodeId,extent:'SUBTREE'}]}})
+  const dependencies=await readReviewDependencies({nodeIds,responses:responseTargets},assertConsumer)
+  dependencies.assertCurrent()
+  return Object.freeze({...dependencies,subtreeHash,nodeIds:Object.freeze([...nodeIds])})
  }
  const readQualificationHash:ContentCandidateBinding['readQualificationHash']=async(reviewIds,assertConsumer)=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}
@@ -487,7 +523,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readEffectiveFacts({nodeIds,responses:[]},assertConsumer),
   readFixedRequirement,readRequirementPinIssues,
   readRequirementBindingHash:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readRequirementBindingHash(nodeIds,assertConsumer),
-  readReviewDependencies,readQualificationHash,readContentRulesHash,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+  readReviewDependencies,readSubtreeReviewDependencies,readQualificationHash,readContentRulesHash,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   verifyRootHash:(contract:string)=>verifyReadableRevisionRoot({host:{...host,assertCurrent},revisionDataViewKey:revisions.candidateDataViewKey,snapshot,contract}),
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,

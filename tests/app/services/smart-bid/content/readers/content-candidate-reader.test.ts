@@ -1,4 +1,4 @@
-import {expect,it} from 'vitest'
+import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/content-root-hash'
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
@@ -8,12 +8,19 @@ it('binds content rule digests to the original owning document',async()=>{
  const f=await fixture('populated')
  try{
   const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
-  const rule={nodeId:'C',documentId:'D',role:'RESPONSE',deliverable:true}
-  const source={nodes:[rule],documents:[{documentId:'D',restrictions:[]}],assertCurrent:()=>{}}
-  const result=await candidate.readContentRulesHash(['C'],source)
+  let sourceCurrent=true
+  const source=vi.fn(async (ref:Parameters<Parameters<typeof candidate.readContentRulesHash>[1]>[0])=>({
+   ...ref,defaultDeliverable:true,restrictions:[],classes:[{name:'candidate-heading',elements:['heading']}],
+   assertCurrent:()=>{if(!sourceCurrent)throw Error('RULE_SOURCE_STALE')},
+  }))
+  const result=await candidate.readContentRulesHash(['C','H'],source)
+  expect(source).toHaveBeenCalledOnce()
   expect(result.contentRulesHash).toMatch(/^[a-f0-9]{64}$/)
-  await expect(candidate.readContentRulesHash(['C'],{...source,nodes:[{...rule,documentId:'OTHER'}]}))
-   .rejects.toThrow('CONTENT_RULES_SCOPE')
+  await expect(candidate.readContentRulesHash(['C'],async ref=>({...await source(ref),documentId:'OTHER'})))
+   .rejects.toThrow('CONTENT_RULES_TEMPLATE_MISMATCH')
+  sourceCurrent=false
+  expect(()=>result.assertCurrent()).toThrow('RULE_SOURCE_STALE')
+  sourceCurrent=true
   await f.ds.getView('RevisionSnapshot','selectedSnapshot')!.refresh()
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
  }finally{f.ds.destroy()}
@@ -47,7 +54,10 @@ it('retains simultaneous fact and requirement proofs from one original baseline 
  const f=await fixture('fixed-pin')
  try{
   const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
-  const result=await candidate.readReviewDependencies({nodeIds:['C','H'],responses:[]})
+  await expect(candidate.readSubtreeReviewDependencies('missing',[])).rejects.toThrow('CONTENT_REVIEW_SUBTREE_REQUIRED')
+  const result=await candidate.readSubtreeReviewDependencies('C',[])
+  expect(result.nodeIds).toEqual(['C','H'])
+  expect(result.subtreeHash).toBe(candidate.nodes.subtreeHashes.find(item=>item.nodeId==='C')?.subtreeHash)
   expect(result.facts.displayHashes.map(item=>item.factId)).toEqual(['PRICE'])
   expect(result.requirements.requirementBindingHash).toMatch(/^[a-f0-9]{64}$/)
   expect(f.query.mock.calls.filter(([view])=>view.viewId==='selectedBaseline')).toHaveLength(1)

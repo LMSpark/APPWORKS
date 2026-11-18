@@ -1,6 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {readContentReviewFindings} from '@/views/features/application/smart-bid/authoring/model/review/content-review-findings-reader'
+import {readContentReviewFindings,readFindingsForCompletedCoverage} from '@/views/features/application/smart-bid/authoring/model/review/content-review-findings-reader'
+import {readContentReviewCoverageFromFindings} from '@/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -30,6 +31,29 @@ it('accepts complete zero findings and rejects findings from a different checker
   ]}]})
   rows=[row]
   expect((await readContentReviewFindings(host,[selection])).records[0]).toMatchObject({id:'F',severity:'BLOCK'})
+  let coverageCurrent=true
+  const coverage={projectId:'P',revisionId:'R',completed:[{...selection,kind:'FILE' as const,targetId:'D',
+   effectiveHash:'d'.repeat(64),versionHash:'e'.repeat(64),checkRef:'CHECK',checkedUses:[]}],
+  assertCurrent:()=>{if(!coverageCurrent)throw Error('COVERAGE_STALE')},
+  resolveAnchor:(anchor:unknown)=>{expect(anchor).toEqual({nodeId:'N'});return {kind:'FILE' as const,targetId:'D'}}}
+  const combined=await readFindingsForCompletedCoverage(host,coverage)
+  expect(combined.findings).toEqual([{id:'F',kind:'FILE',targetId:'D',effectiveHash:'d'.repeat(64),status:'OPEN',severity:'BLOCK'}])
+  coverageCurrent=false
+  expect(()=>combined.assertCurrent()).toThrow('COVERAGE_STALE')
+  coverageCurrent=true
+  const target={kind:'FILE' as const,targetId:'D',effectiveHash:'d'.repeat(64),versionHash:'e'.repeat(64),requiredUseIds:[]}
+  const request={projectId:'P',revisionId:'R',targets:[target],assertCurrent:()=>{}}
+  const review=await readContentReviewCoverageFromFindings(host,request,{approvals:[],readCompleted:async()=>coverage})
+  expect(review.items[0]?.state).toBe('BLOCKED')
+  const calls=executeQuery.mock.calls.length
+  await expect(readContentReviewCoverageFromFindings(host,request,{approvals:[],readCompleted:async()=>({...coverage,revisionId:'OLD'})}))
+   .rejects.toThrow('CONTENT_REVIEW_CHECK_REVISION')
+  await expect(readContentReviewCoverageFromFindings(host,{...request,targets:[{...target,targetId:'OTHER'}]},
+   {approvals:[],readCompleted:async()=>coverage}))
+   .rejects.toThrow('CONTENT_REVIEW_COVERAGE_SCOPE')
+  expect(executeQuery).toHaveBeenCalledTimes(calls)
+  await expect(readFindingsForCompletedCoverage(host,{...coverage,resolveAnchor:()=>({kind:'FILE',targetId:'OTHER'})}))
+   .rejects.toThrow('CONTENT_REVIEW_FINDINGS_SCOPE')
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   rows=[{...row,checkerHash:'c'.repeat(64)}]
   await expect(readContentReviewFindings(host,[selection])).rejects.toThrow('CONTENT_REVIEW_FINDINGS_SCOPE')

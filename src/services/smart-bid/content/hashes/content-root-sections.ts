@@ -40,7 +40,7 @@ export async function hashSelectedIndependentResponses(manifest:unknown,targets:
  const selectedAssignments=new Map<string,Record<string,unknown>>(),selectedResponses=new Map<string,Record<string,unknown>>()
  for(const {assignmentId,responseId} of targets){
   const assignment=assignments.get(assignmentId),response=responses.get(responseId)
-  if(!assignment||!response||response['assignmentId']!==assignmentId||Object.hasOwn(response,'chapterId')||selectedResponses.has(responseId))
+  if(!assignment||response?.['assignmentId']!==assignmentId||Object.hasOwn(response,'chapterId')||selectedResponses.has(responseId))
    throw Error('CONTENT_EFFECTIVE_RESPONSE_SCOPE')
   selectedAssignments.set(assignmentId,assignment)
   selectedResponses.set(responseId,response)

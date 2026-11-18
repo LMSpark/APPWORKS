@@ -56,7 +56,8 @@ function valid(view:DataView):boolean {
   &&hasContentScopeCondition(view,'id',{Type:'GetInputParam',ParamName:'baselineId'})
 }
 /** 两种成员消费共用原查询、阶段和字段证明，不复制查询/保存责任。 */
-async function readOriginalBaseline(host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown;viewName?:string}>,memberField:'factVersions'|'requirementVersions'|'tenderRecords'){
+async function readOriginalBaseline(host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown;viewName?:string}>,
+ memberField:'factVersions'|'requirementVersions'|'tenderRecords'|ReadonlyArray<'factVersions'|'requirementVersions'>){
  const {runtime,scenarioId,projectId}=host,{baselineId}=input
  host.assertCurrent()
  if(!snapshotReferenceIdentity(scenarioId)||!snapshotReferenceIdentity(projectId)||!snapshotReferenceIdentity(baselineId)
@@ -76,11 +77,19 @@ async function readOriginalBaseline(host:ContentRevisionReadHost,input:Readonly<
  if(!hasCompleteSingleContentResult(view))throw Error('CONTENT_BASELINE_NOT_UNIQUE')
  const row=view.rows[0]
  if(row?.['id']!==baselineId||row['projectId']!==projectId)throw Error('CONTENT_BASELINE_UNAVAILABLE')
- const assertRow=view.captureReadRow(row,['id','projectId','stageRef',memberField])
+ const assertRow=view.captureReadRow(row,['id','projectId','stageRef',...(typeof memberField==='string'?[memberField]:memberField)])
  if(stage(row['stageRef'])!==expectedStage)throw Error('CONTENT_BASELINE_STAGE_MISMATCH')
  const assertCurrent=()=>{assertScope();assertResult();assertRow()}
  assertCurrent()
  return {key:baselineDataViewKey,view,row,assertCurrent}
+}
+
+/** 同一审核调用中从一次基线查询同时保留事实、要求的原字段证明。 */
+export async function readContentReviewBaseline(host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown}>){
+ const baseline=await readOriginalBaseline(host,input,['factVersions','requirementVersions'])
+ baseline.assertCurrent()
+ return Object.freeze({dataViewKey:baseline.key,factVersions:baseline.row['factVersions'],
+  requirementVersions:baseline.row['requirementVersions'],assertCurrent:baseline.assertCurrent})
 }
 
 /** 为固定修订根摘要提供原基线事实成员绑定。 */

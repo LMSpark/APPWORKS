@@ -20,15 +20,24 @@ function validScope(view:DataView):boolean{
 export async function readEffectiveFactDependencies(host:ContentRevisionReadHost,input:Readonly<{
  baselineId:string;stageRef:unknown;usedFactIds:readonly string[]
 }>){
- const {runtime,scenarioId,projectId}=host,usedFactIds=[...new Set(input.usedFactIds)]
- if(!usedFactIds.every(snapshotReferenceIdentity))throw Error('EFFECTIVE_FACT_SCOPE')
+ if(!input.usedFactIds.every(snapshotReferenceIdentity))throw Error('EFFECTIVE_FACT_SCOPE')
  const baseline=await readContentBaselineFactIndex(host,{baselineId:input.baselineId,stageRef:input.stageRef,role:'candidate'})
  baseline.assertCurrent()
- const factVersions=runtime.resolveView(baseline.dataViewKey)?.rows[0]?.['factVersions']
+ const factVersions=host.runtime.resolveView(baseline.dataViewKey)?.rows[0]?.['factVersions']
+ return readEffectiveFactsFromBaseline(host,input.usedFactIds,{factVersions,assertCurrent:baseline.assertCurrent})
+}
+
+/** 复用本次审核已对证的原基线，不覆写其读取代次。 */
+export async function readEffectiveFactsFromBaseline(host:ContentRevisionReadHost,factIds:readonly string[],
+ baseline:Readonly<{factVersions:unknown;assertCurrent:()=>void}>){
+ const {runtime,scenarioId,projectId}=host,usedFactIds=[...new Set(factIds)],{factVersions}=baseline
+ const assertBaseline=()=>{host.assertCurrent();baseline.assertCurrent()}
+ assertBaseline()
+ if(!usedFactIds.every(snapshotReferenceIdentity))throw Error('EFFECTIVE_FACT_SCOPE')
  if(!usedFactIds.length){
   const result=await hashEffectiveFactDependencies({projectId,factVersions,usedFactIds,records:[]})
-  baseline.assertCurrent()
-  return Object.freeze({...result,assertCurrent:baseline.assertCurrent})
+  assertBaseline()
+  return Object.freeze({...result,assertCurrent:assertBaseline})
  }
  const versions=readBaselineFactMembers(factVersions),filter:DataViewFilterTree={logic:'or',filters:usedFactIds.map(key=>{
   const version=versions.get(key)
@@ -42,7 +51,7 @@ export async function readEffectiveFactDependencies(host:ContentRevisionReadHost
  view.filterExpression=filter
  const scopeSignature=JSON.stringify(view.filterExpression)
  const assertScope=()=>{
-  baseline.assertCurrent()
+  assertBaseline()
   if(runtime.resolveView(key)!==view||!validScope(view)||view.hasEditingChanges()||view.queryContext['projectId']!==projectId||
    JSON.stringify(view.filterExpression)!==scopeSignature||view.queryConfig.maxRows!==usedFactIds.length+1)throw Error('EFFECTIVE_FACT_VIEW_STALE')
  }

@@ -27,7 +27,7 @@ import {hashRequirementBindings} from '@/services/smart-bid/content/hashes/requi
 import {hashQualificationReviews} from '@/services/smart-bid/content/hashes/qualification-review-hash'
 import {hashContentRules} from '@/services/smart-bid/content/hashes/content-rules-hash'
 import {hashScopedResponses,type ScopedResponseTarget} from '@/services/smart-bid/content/hashes/content-root-sections'
-import {hashEffectiveResponseDependencies} from '@/services/smart-bid/content/hashes/content-effective-hash'
+import {hashContentEffective,hashEffectiveResponseDependencies} from '@/services/smart-bid/content/hashes/content-effective-hash'
 import {resolveContentTargetScope} from '@/services/smart-bid/content/content-target-scope'
 import {readEffectiveRequirementVersions} from './content-requirement-reader'
 import {projectFactDisplayOccurrences,projectResponseFactDisplayOccurrences} from '@/services/smart-bid/content/hashes/fact-display-occurrences'
@@ -63,6 +63,12 @@ type ReviewScope=Readonly<{nodeIds:readonly string[];responses:readonly ScopedRe
 type RequirementBindingDigest=Readonly<{requirementBindingHash:string;requiresUseCheck:true;assertCurrent:()=>void}>
 type ReviewDependencies=Readonly<{
  facts:EffectiveFactsWithDisplays;requirements:RequirementBindingDigest;responseDependencyHash:string;assertCurrent:()=>void
+}>
+type SubtreeReviewSources=Readonly<{
+ readTemplate:ReadFixedRulesTemplate
+ readSupplement:(nodeIds:readonly string[])=>Promise<Readonly<{
+  qualificationIds:readonly string[];displayRefs:unknown;calculationInputsHash:string;assertCurrent:()=>void
+ }>>
 }>
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
 type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>
@@ -113,6 +119,8 @@ export type ContentCandidateBinding=Readonly<{
  readReviewDependencies:(scope:ReviewScope,assertConsumer?:()=>void)=>Promise<ReviewDependencies>
  readSubtreeReviewDependencies:(nodeId:string,responses:readonly ScopedResponseTarget[],assertConsumer?:()=>void)=>
   Promise<ReviewDependencies&Readonly<{subtreeHash:string;nodeIds:readonly string[]}>>
+ readSubtreeEffectiveHash:(nodeId:string,responses:readonly ScopedResponseTarget[],sources:SubtreeReviewSources,assertConsumer?:()=>void)=>
+  Promise<Readonly<{effectiveHash:string;requiresUseCheck:true;assertCurrent:()=>void}>>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
  readPreviewVersions:(assertConsumer?:()=>void)=>Promise<PreviewVersionSession>
@@ -369,6 +377,31 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertContext()
   return Object.freeze({qualificationHash,requiresUseCheck:true,assertCurrent:assertContext})
  }
+ const readSubtreeEffectiveHash:ContentCandidateBinding['readSubtreeEffectiveHash']=async(nodeId,responseTargets,sources,assertConsumer)=>{
+  const dependencies=await readSubtreeReviewDependencies(nodeId,responseTargets,assertConsumer)
+  const {nodeIds}=dependencies,selected=new Set(nodeIds)
+  const supplement=await sources.readSupplement(nodeIds)
+  const assertSupplement=()=>{dependencies.assertCurrent();supplement.assertCurrent()}
+  assertSupplement()
+  const displayRefs:unknown[]=[...dependencies.facts.nodeDisplayRefs]
+  visitSnapshotReferences(supplement.displayRefs,item=>{
+   const ref=snapshotReferenceFields(item,['nodeId','occurrence','displayHash'],'CONTENT_REVIEW_DISPLAY_SCOPE')
+   if(typeof ref['nodeId']!=='string'||!selected.has(ref['nodeId']))throw Error('CONTENT_REVIEW_DISPLAY_SCOPE')
+   displayRefs.push(ref)
+  },'CONTENT_REVIEW_DISPLAY_SCOPE')
+  const qualification=await readQualificationHash(supplement.qualificationIds,assertSupplement)
+  const rules=await readContentRulesHash(nodeIds,sources.readTemplate)
+  const assertEffective=()=>{qualification.assertCurrent();rules.assertCurrent()}
+  assertEffective()
+  const effectiveHash=await hashContentEffective({
+   subtreeHash:dependencies.subtreeHash,displayRefs,factDependencyHash:dependencies.facts.factDependencyHash,
+   requirementBindingHash:dependencies.requirements.requirementBindingHash,responseDependencyHash:dependencies.responseDependencyHash,
+   qualificationHash:qualification.qualificationHash,contentRulesHash:rules.contentRulesHash,
+   calculationInputsHash:supplement.calculationInputsHash,
+  })
+  assertEffective()
+  return Object.freeze({effectiveHash,requiresUseCheck:true,assertCurrent:assertEffective})
+ }
  const readFixedRequirement=async(pin:RevisionRequirementPin,assertConsumer?:()=>void):Promise<ContentCandidateRequirementBinding>=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}
   assertContext()
@@ -523,7 +556,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readEffectiveFacts({nodeIds,responses:[]},assertConsumer),
   readFixedRequirement,readRequirementPinIssues,
   readRequirementBindingHash:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readRequirementBindingHash(nodeIds,assertConsumer),
-  readReviewDependencies,readSubtreeReviewDependencies,readQualificationHash,readContentRulesHash,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+  readReviewDependencies,readSubtreeReviewDependencies,readSubtreeEffectiveHash,readQualificationHash,readContentRulesHash,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   verifyRootHash:(contract:string)=>verifyReadableRevisionRoot({host:{...host,assertCurrent},revisionDataViewKey:revisions.candidateDataViewKey,snapshot,contract}),
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,

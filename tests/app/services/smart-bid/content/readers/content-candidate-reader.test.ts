@@ -4,6 +4,31 @@ import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/co
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
 
+it('combines candidate subtree evidence and rejects supplementary references outside the subtree',async()=>{
+ const f=await fixture('fixed-pin')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  type Sources=Parameters<typeof candidate.readSubtreeEffectiveHash>[2]
+  let current=true
+  const source:Sources={
+   readTemplate:async ref=>({...ref,defaultDeliverable:true,restrictions:[],
+    classes:[{name:'candidate-heading',elements:['heading']}],assertCurrent:()=>{}}),
+   readSupplement:async nodeIds=>{
+    expect(nodeIds).toEqual(['C','H'])
+    return {qualificationIds:[],displayRefs:[],calculationInputsHash:'a'.repeat(64),
+     assertCurrent:()=>{if(!current)throw Error('REVIEW_SUPPLEMENT_STALE')}}
+   },
+  }
+  await expect(candidate.readSubtreeEffectiveHash('C',[],{...source,readSupplement:async ids=>({
+   ...await source.readSupplement(ids),displayRefs:[{nodeId:'D',occurrence:0,displayHash:'b'.repeat(64)}],
+  })})).rejects.toThrow('CONTENT_REVIEW_DISPLAY_SCOPE')
+  const result=await candidate.readSubtreeEffectiveHash('C',[],source)
+  expect(result.effectiveHash).toMatch(/^[0-9a-f]{64}$/)
+  expect(result.requiresUseCheck).toBe(true)
+  current=false;expect(()=>result.assertCurrent()).toThrow('REVIEW_SUPPLEMENT_STALE')
+ }finally{f.ds.destroy()}
+})
+
 it('binds content rule digests to the original owning document',async()=>{
  const f=await fixture('populated')
  try{

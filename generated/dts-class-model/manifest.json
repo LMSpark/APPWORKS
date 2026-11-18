@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1372,
+  "scannedFileCount": 1374,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17993,6 +17993,32 @@
         "packageName": "app",
         "modulePath": "services/smart-bid/content/review/submission-zip-inventory",
         "jsdoc": "@module app:services/smart-bid/content/review/submission-zip-inventory\n职责：在内存中读取递交原包的 ZIP 成员，按调用方批准的核验预算限制枚举。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/submission/authority-grant-coverage.ts": {
+      "file": "files/src/services/smart-bid/content/review/submission/authority-grant-coverage.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/submission/authority-grant-coverage",
+        "sourcePath": "src/services/smart-bid/content/review/submission/authority-grant-coverage.ts",
+        "sourceFile": "src/services/smart-bid/content/review/submission/authority-grant-coverage.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/submission/authority-grant-coverage",
+        "jsdoc": "@module app:services/smart-bid/content/review/submission/authority-grant-coverage\n职责：第27项按办理和获知时点核已有登记委托链的代表权。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/submission/authority-grant-decision.ts": {
+      "file": "files/src/services/smart-bid/content/review/submission/authority-grant-decision.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/submission/authority-grant-decision",
+        "sourcePath": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts",
+        "sourceFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/submission/authority-grant-decision",
+        "jsdoc": "@module app:services/smart-bid/content/review/submission/authority-grant-decision\n职责：第55项按原决定、委托链和准予登记范围构造确定的委托决定版本。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

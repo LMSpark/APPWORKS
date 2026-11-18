@@ -126,7 +126,8 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
     context?.assertCurrent()
     answer.assertCurrent()
     const comparison=context?.approved&&compareApprovedFileAnswer(answer,context.approved)
-    const form=context?.originalForm&&verifyOriginalFormFileAnswer(answer,context.originalForm.mapping,context.originalForm.placement)
+    const originalForm=await answer.readOriginalForm()
+    const form=originalForm??(context?.originalForm&&verifyOriginalFormFileAnswer(answer,context.originalForm.mapping,context.originalForm.placement))
     const assertAnswer=()=>{answer.assertCurrent();context?.assertCurrent();comparison?.assertCurrent();form?.assertCurrent()}
     return Object.freeze({...answer,...(comparison?{comparison}:{}),...(form?{form}:{}),assertCurrent:assertAnswer})
    }

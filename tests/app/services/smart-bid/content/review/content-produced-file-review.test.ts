@@ -111,7 +111,7 @@ it('opens only the original registered resource version read through SPARK data'
  const row={id:'F',projectId:'P',productionRequestRef:'REQUEST',revisionId:'R',documentId:'D',
   fileHash:createHash('sha256').update(bytes).digest('hex'),resourceVersionId:'RESOURCE-V1'}
  const answer={id:'OBS',projectId:'P',producedFileId:'F',revisionId:'R',documentId:'D',fileHash:row.fileHash,
-  locationRef:'PAGE-1-TOTAL',value:'0.00',unit:'元'}
+  locationRef:'PAGE-1-TOTAL',value:'0.00',unit:'元',originalFormPlacement:null as Record<string,unknown>|null}
  const {ProducedFile,AnswerLocation}=contentProductionReviewScenarioViews()
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ProducedFile:{
   modelBinding:{modelId:'M',modelName:'ProducedFile'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
@@ -214,6 +214,10 @@ it('opens only the original registered resource version read through SPARK data'
   const verified=verifyOriginalFormFileAnswer(observed,mapping,placement)
   expect(verified).toMatchObject({formVersion:'V1',cellRef:'T',unitMatched:true})
   expect(()=>verifyOriginalFormFileAnswer(observed,mapping,{...placement,formVersion:'V2'})).toThrow('CONTENT_FILE_ANSWER_FORM_SCOPE')
+  answer.originalFormPlacement={formRef:'FORM',formVersion:'V1'}
+  await expect(page.invoke('content.review.readFileObservation',{selectionRef:'OBS'},new AbortController().signal))
+   .rejects.toThrow('CONTENT_FILE_ANSWER_FORM_SCOPE')
+  answer.originalFormPlacement=null
   answer.fileHash='a'.repeat(64)
   await expect(readRegisteredFileAnswer(host,'OBS',open)).rejects.toThrow('CONTENT_FILE_ANSWER_SCOPE')
   expect(()=>observed.assertCurrent()).toThrow()

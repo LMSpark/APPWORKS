@@ -6,7 +6,8 @@
  */
 import {buildDataViewKey,type DataView,type ViewMetadata} from '@spark-appworks/spark-data'
 import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
-import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {snapshotReferenceFields,snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {readRegisteredOriginalForm} from '../../../response/model/original-form-reader'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 import {readRegisteredProducedFileReviewVersion} from './content-produced-file-review'
 import type {mapOriginalForm} from '@/services/smart-bid/content/references/response/original-form-mapping'
@@ -15,6 +16,7 @@ import type {mapOriginalForm} from '@/services/smart-bid/content/references/resp
 type FileInput=Parameters<typeof readRegisteredProducedFileReviewVersion>
 const scopeFields=[['projectId','projectId'],['id','observationId']] as const
 const fields=['id','projectId','revisionId','documentId','producedFileId','fileHash','locationRef','value','unit']
+const placementField='originalFormPlacement'
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='AnswerLocation'&&
  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&scopeFields.every(([field,ParamName])=>
   hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
@@ -22,7 +24,7 @@ const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='AnswerLo
 /** 正式共享场景按项目和观察编号定位电子实件。 */
 export function fileObservationView():ViewMetadata{
  return {autoLoad:false,autoCurrentFirst:false,autoSelectFirst:false,commitMode:'staged',
-  queryConfig:{autoQuery:false,cacheType:'none',pagination:'none',fields:[...fields]},
+  queryConfig:{autoQuery:false,cacheType:'none',pagination:'none',fields:[...fields,placementField]},
   scopeFilter:{logic:'and',filters:scopeFields.map(([field,ParamName])=>({
    field,operator:'eq',value:{Type:'GetInputParam',ParamName},
   }))}}
@@ -57,11 +59,32 @@ export async function readRegisteredFileAnswer(host:ContentRevisionReadHost,obse
   throw Error('CONTENT_FILE_ANSWER_SCOPE')
  const observedValueJson=canonicalSnapshotValue(value)
  assertCurrent()
- return Object.freeze({file,observationId,locationRef,observedValueJson,unit,assertCurrent})
+ const readOriginalForm=async()=>{
+  assertCurrent()
+  const raw=row[placementField]
+  if(raw===null||raw===undefined)return null
+  const assertPlacement=view.captureReadRow(row,[placementField])
+  const assertForm=()=>{assertCurrent();assertPlacement()}
+  assertForm()
+  const error='CONTENT_FILE_ANSWER_FORM_SCOPE'
+  const {templateRef,templateVersion,formRef,formVersion,fieldRef,cellRef}=snapshotReferenceFields(raw,
+   ['templateRef','templateVersion','formRef','formVersion','fieldRef','cellRef'],error)
+  if(!identity(templateRef)||!identity(templateVersion)||!identity(formRef)||!identity(formVersion)||
+   !identity(fieldRef)||!identity(cellRef))throw Error(error)
+  const mapping=await readRegisteredOriginalForm({...host,assertCurrent:assertForm},{templateRef,templateVersion})
+  if(mapping.state!=='MATCHED')throw Error(error)
+  return verifyOriginalFormFileAnswer(answer,mapping,{formRef,formVersion,fieldRef,cellRef,locationRef,
+   revisionId:file.revisionId,producedFileId:file.producedFileId,fileHash:file.versionHash,assertCurrent:assertForm})
+ }
+ const answer=Object.freeze({file,observationId,locationRef,observedValueJson,unit,assertCurrent})
+ return Object.freeze({...answer,readOriginalForm})
 }
 
 /** 绑定实际文件版本和填报位置的原观察结果。 */
-type FileAnswer=Awaited<ReturnType<typeof readRegisteredFileAnswer>>
+type FileAnswer=Readonly<{
+ file:Awaited<ReturnType<typeof readRegisteredProducedFileReviewVersion>>
+ observationId:string;locationRef:string;observedValueJson:string;unit:string|null;assertCurrent:()=>void
+}>
 
 /** 只有同版同位置的批准依据才能用于比对；原观察值和批准值各自保留出处。 */
 export function compareApprovedFileAnswer(answer:FileAnswer,approved:Readonly<{

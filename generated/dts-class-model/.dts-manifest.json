@@ -5484,12 +5484,17 @@
     "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts": {
       "sourceFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
       "shardFile": "files/src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts.json",
-      "sourceModifiedAt": "2026-11-18T04:17:38.125Z"
+      "sourceModifiedAt": "2026-11-18T04:23:52.821Z"
+    },
+    "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts": {
+      "sourceFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts",
+      "shardFile": "files/src/services/smart-bid/content/review/submission/submission-opening-disposition.ts.json",
+      "sourceModifiedAt": "2026-11-18T04:25:09.940Z"
     },
     "src/services/smart-bid/content/review/submission/submission-receipt-effects.ts": {
       "sourceFile": "src/services/smart-bid/content/review/submission/submission-receipt-effects.ts",
       "shardFile": "files/src/services/smart-bid/content/review/submission/submission-receipt-effects.ts.json",
-      "sourceModifiedAt": "2026-11-18T04:20:03.048Z"
+      "sourceModifiedAt": "2026-11-18T04:23:52.860Z"
     },
     "src/services/smart-bid/content/revision-response-comparison.ts": {
       "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
@@ -5994,7 +5999,7 @@
     "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation.ts.json",
-      "sourceModifiedAt": "2026-11-18T03:31:56.231Z"
+      "sourceModifiedAt": "2026-11-18T04:26:37.333Z"
     },
     "src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader.ts",

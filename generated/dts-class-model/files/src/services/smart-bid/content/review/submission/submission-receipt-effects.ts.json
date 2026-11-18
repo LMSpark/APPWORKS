@@ -48,6 +48,12 @@
             "string"
           ]
         },
+        "withdrawalTargetRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
         "state": {
           "enum": [
             "PENDING_PAIR",
@@ -83,6 +89,7 @@
         "kind",
         "eventAt",
         "attemptRef",
+        "withdrawalTargetRef",
         "state",
         "sources"
       ],
@@ -256,7 +263,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T04:20:03.048Z",
+  "generatedAt": "2026-11-18T04:23:52.860Z",
   "models": {
     "Receipt": {
       "name": "Receipt",
@@ -310,6 +317,11 @@
             },
             {
               "name": "attemptRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "withdrawalTargetRef",
               "readable": true,
               "writable": true
             },

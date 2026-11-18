@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1371,
+  "scannedFileCount": 1372,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -18006,6 +18006,19 @@
         "packageName": "app",
         "modulePath": "services/smart-bid/content/review/submission/channel-receipt-pairing",
         "jsdoc": "@module app:services/smart-bid/content/review/submission/channel-receipt-pairing\n职责：第53项将接收方回执配回原办理，保留原事件与各取得来源。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts": {
+      "file": "files/src/services/smart-bid/content/review/submission/submission-opening-disposition.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/submission/submission-opening-disposition",
+        "sourcePath": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts",
+        "sourceFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/submission/submission-opening-disposition",
+        "jsdoc": "@module app:services/smart-bid/content/review/submission/submission-opening-disposition\n职责：第54项按可识别原包分别展示开启和准入的正式处置。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

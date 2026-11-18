@@ -9,9 +9,63 @@
     "modulePath": "services/smart-bid/content/hashes/content-root-sections",
     "jsdoc": "@module app:services/smart-bid/content/hashes/content-root-sections\n职责：从固定快照生成要求挂接和响应集的根摘要输入。\n边界：核引用形状与归属；原权限、响应载荷业务条件及快照来源另核。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": []
+    "symbols": [
+      "ScopedResponseTarget"
+    ]
   },
-  "$defs": {},
-  "generatedAt": "2026-11-17T22:42:13.334Z",
-  "models": {}
+  "$defs": {
+    "ScopedResponseTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScopedResponseTarget",
+      "properties": {
+        "assignmentId": {
+          "type": "string"
+        },
+        "responseId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "assignmentId",
+        "responseId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T01:14:19.740Z",
+  "models": {
+    "ScopedResponseTarget": {
+      "name": "ScopedResponseTarget",
+      "jsdoc": "空答复保留原分工，只适用于尚无答复的任务。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assignmentId: string;\n    responseId: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assignmentId: string;\n    responseId: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responseId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
 }

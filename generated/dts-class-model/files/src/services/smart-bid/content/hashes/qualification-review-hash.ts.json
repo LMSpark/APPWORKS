@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/hashes/qualification-review-hash",
+    "sourcePath": "src/services/smart-bid/content/hashes/qualification-review-hash.ts",
+    "sourceFile": "src/services/smart-bid/content/hashes/qualification-review-hash.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/hashes/qualification-review-hash",
+    "jsdoc": "@module app:services/smart-bid/content/hashes/qualification-review-hash\n职责：固定审核范围选中的完整资格核验记录。\n边界：标段、落点与本次使用由正式范围核定；摘要不判定资格通过。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T01:16:24.628Z",
+  "models": {}
+}

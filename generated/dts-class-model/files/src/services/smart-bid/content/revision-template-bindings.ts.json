@@ -41,7 +41,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T00:09:52.317Z",
+  "generatedAt": "2026-11-18T01:27:20.695Z",
   "models": {
     "RevisionTemplateRef": {
       "name": "RevisionTemplateRef",

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/calculation/attachment-index-generator",
+    "sourcePath": "src/services/smart-bid/content/calculation/attachment-index-generator.ts",
+    "sourceFile": "src/services/smart-bid/content/calculation/attachment-index-generator.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/calculation/attachment-index-generator",
+    "jsdoc": "@module app:services/smart-bid/content/calculation/attachment-index-generator\n职责：把固定递交范围内的附件资源版本及原正文落点投影为目录。\n边界：按来源交付顺序展开；附件准用、实件内容和目标页码由原责任方核验。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T01:02:37.265Z",
+  "models": {}
+}

@@ -13,7 +13,8 @@
       "ContentNodeLink",
       "ContentNodeLinks",
       "ContentTableData",
-      "ContentNodeLinkOccurrence"
+      "ContentNodeLinkOccurrence",
+      "ContentFactOccurrence"
     ]
   },
   "$defs": {
@@ -164,9 +165,31 @@
         "end"
       ],
       "additionalProperties": false
+    },
+    "ContentFactOccurrence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentFactOccurrence",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "factId": {
+          "type": "string"
+        },
+        "occurrence": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "nodeId",
+        "factId",
+        "occurrence"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T00:45:34.756Z",
+  "generatedAt": "2026-11-18T00:55:55.506Z",
   "models": {
     "ContentNodeLink": {
       "name": "ContentNodeLink",
@@ -302,6 +325,40 @@
             },
             {
               "name": "show",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentFactOccurrence": {
+      "name": "ContentFactOccurrence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    factId: string;\n    occurrence: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    factId: string;\n    occurrence: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "factId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "occurrence",
               "readable": true,
               "writable": false
             }

@@ -5271,30 +5271,30 @@
       "shardFile": "files/src/services/smart-bid/content/adoption/adoption-request.ts.json",
       "sourceModifiedAt": "2026-11-17T22:24:10.988Z"
     },
-    "src/services/smart-bid/content/attachment-index-generator.ts": {
-      "sourceFile": "src/services/smart-bid/content/attachment-index-generator.ts",
-      "shardFile": "files/src/services/smart-bid/content/attachment-index-generator.ts.json",
-      "sourceModifiedAt": "2026-11-18T00:17:35.285Z"
+    "src/services/smart-bid/content/calculation/attachment-index-generator.ts": {
+      "sourceFile": "src/services/smart-bid/content/calculation/attachment-index-generator.ts",
+      "shardFile": "files/src/services/smart-bid/content/calculation/attachment-index-generator.ts.json",
+      "sourceModifiedAt": "2026-11-18T01:02:37.265Z"
     },
-    "src/services/smart-bid/content/calculation-table-expansion.ts": {
-      "sourceFile": "src/services/smart-bid/content/calculation-table-expansion.ts",
-      "shardFile": "files/src/services/smart-bid/content/calculation-table-expansion.ts.json",
-      "sourceModifiedAt": "2026-11-18T00:38:17.187Z"
+    "src/services/smart-bid/content/calculation/calculation-table-expansion.ts": {
+      "sourceFile": "src/services/smart-bid/content/calculation/calculation-table-expansion.ts",
+      "shardFile": "files/src/services/smart-bid/content/calculation/calculation-table-expansion.ts.json",
+      "sourceModifiedAt": "2026-11-18T01:02:37.265Z"
     },
-    "src/services/smart-bid/content/calculation-table-registry.ts": {
-      "sourceFile": "src/services/smart-bid/content/calculation-table-registry.ts",
-      "shardFile": "files/src/services/smart-bid/content/calculation-table-registry.ts.json",
-      "sourceModifiedAt": "2026-11-18T00:19:11.972Z"
+    "src/services/smart-bid/content/calculation/calculation-table-registry.ts": {
+      "sourceFile": "src/services/smart-bid/content/calculation/calculation-table-registry.ts",
+      "shardFile": "files/src/services/smart-bid/content/calculation/calculation-table-registry.ts.json",
+      "sourceModifiedAt": "2026-11-18T01:02:37.266Z"
     },
-    "src/services/smart-bid/content/computed-query-tool.ts": {
-      "sourceFile": "src/services/smart-bid/content/computed-query-tool.ts",
-      "shardFile": "files/src/services/smart-bid/content/computed-query-tool.ts.json",
-      "sourceModifiedAt": "2026-11-18T00:37:54.639Z"
+    "src/services/smart-bid/content/calculation/computed-query-tool.ts": {
+      "sourceFile": "src/services/smart-bid/content/calculation/computed-query-tool.ts",
+      "shardFile": "files/src/services/smart-bid/content/calculation/computed-query-tool.ts.json",
+      "sourceModifiedAt": "2026-11-18T01:02:37.266Z"
     },
     "src/services/smart-bid/content/content-node-links.ts": {
       "sourceFile": "src/services/smart-bid/content/content-node-links.ts",
       "shardFile": "files/src/services/smart-bid/content/content-node-links.ts.json",
-      "sourceModifiedAt": "2026-11-18T00:45:34.756Z"
+      "sourceModifiedAt": "2026-11-18T00:55:55.506Z"
     },
     "src/services/smart-bid/content/content-scoped-preview.ts": {
       "sourceFile": "src/services/smart-bid/content/content-scoped-preview.ts",
@@ -5321,11 +5321,6 @@
       "shardFile": "files/src/services/smart-bid/content/content-text-span.ts.json",
       "sourceModifiedAt": "2026-11-17T22:16:29.518Z"
     },
-    "src/services/smart-bid/content/cross-reference-projection.ts": {
-      "sourceFile": "src/services/smart-bid/content/cross-reference-projection.ts",
-      "shardFile": "files/src/services/smart-bid/content/cross-reference-projection.ts.json",
-      "sourceModifiedAt": "2026-11-18T00:45:34.772Z"
-    },
     "src/services/smart-bid/content/hashes/calculation-inputs-hash.ts": {
       "sourceFile": "src/services/smart-bid/content/hashes/calculation-inputs-hash.ts",
       "shardFile": "files/src/services/smart-bid/content/hashes/calculation-inputs-hash.ts.json",
@@ -5334,7 +5329,7 @@
     "src/services/smart-bid/content/hashes/content-effective-hash.ts": {
       "sourceFile": "src/services/smart-bid/content/hashes/content-effective-hash.ts",
       "shardFile": "files/src/services/smart-bid/content/hashes/content-effective-hash.ts.json",
-      "sourceModifiedAt": "2026-11-17T22:59:36.221Z"
+      "sourceModifiedAt": "2026-11-18T00:52:32.220Z"
     },
     "src/services/smart-bid/content/hashes/content-root-hash.ts": {
       "sourceFile": "src/services/smart-bid/content/hashes/content-root-hash.ts",
@@ -5344,7 +5339,12 @@
     "src/services/smart-bid/content/hashes/content-root-sections.ts": {
       "sourceFile": "src/services/smart-bid/content/hashes/content-root-sections.ts",
       "shardFile": "files/src/services/smart-bid/content/hashes/content-root-sections.ts.json",
-      "sourceModifiedAt": "2026-11-17T22:42:13.334Z"
+      "sourceModifiedAt": "2026-11-18T01:14:19.740Z"
+    },
+    "src/services/smart-bid/content/hashes/content-rules-hash.ts": {
+      "sourceFile": "src/services/smart-bid/content/hashes/content-rules-hash.ts",
+      "shardFile": "files/src/services/smart-bid/content/hashes/content-rules-hash.ts.json",
+      "sourceModifiedAt": "2026-11-18T01:22:27.297Z"
     },
     "src/services/smart-bid/content/hashes/content-subtree-hash.ts": {
       "sourceFile": "src/services/smart-bid/content/hashes/content-subtree-hash.ts",
@@ -5356,15 +5356,35 @@
       "shardFile": "files/src/services/smart-bid/content/hashes/effective-fact-dependencies.ts.json",
       "sourceModifiedAt": "2026-11-17T23:07:17.451Z"
     },
+    "src/services/smart-bid/content/hashes/fact-display-occurrences.ts": {
+      "sourceFile": "src/services/smart-bid/content/hashes/fact-display-occurrences.ts",
+      "shardFile": "files/src/services/smart-bid/content/hashes/fact-display-occurrences.ts.json",
+      "sourceModifiedAt": "2026-11-18T00:49:51.593Z"
+    },
+    "src/services/smart-bid/content/hashes/qualification-review-hash.ts": {
+      "sourceFile": "src/services/smart-bid/content/hashes/qualification-review-hash.ts",
+      "shardFile": "files/src/services/smart-bid/content/hashes/qualification-review-hash.ts.json",
+      "sourceModifiedAt": "2026-11-18T01:16:24.628Z"
+    },
+    "src/services/smart-bid/content/hashes/requirement-binding-hash.ts": {
+      "sourceFile": "src/services/smart-bid/content/hashes/requirement-binding-hash.ts",
+      "shardFile": "files/src/services/smart-bid/content/hashes/requirement-binding-hash.ts.json",
+      "sourceModifiedAt": "2026-11-18T00:58:28.049Z"
+    },
     "src/services/smart-bid/content/hashes/revision-content-root.ts": {
       "sourceFile": "src/services/smart-bid/content/hashes/revision-content-root.ts",
       "shardFile": "files/src/services/smart-bid/content/hashes/revision-content-root.ts.json",
       "sourceModifiedAt": "2026-11-17T22:44:24.328Z"
     },
-    "src/services/smart-bid/content/page-reference-projection.ts": {
-      "sourceFile": "src/services/smart-bid/content/page-reference-projection.ts",
-      "shardFile": "files/src/services/smart-bid/content/page-reference-projection.ts.json",
-      "sourceModifiedAt": "2026-11-18T00:43:03.940Z"
+    "src/services/smart-bid/content/projection/cross-reference-projection.ts": {
+      "sourceFile": "src/services/smart-bid/content/projection/cross-reference-projection.ts",
+      "shardFile": "files/src/services/smart-bid/content/projection/cross-reference-projection.ts.json",
+      "sourceModifiedAt": "2026-11-18T01:02:37.267Z"
+    },
+    "src/services/smart-bid/content/projection/page-reference-projection.ts": {
+      "sourceFile": "src/services/smart-bid/content/projection/page-reference-projection.ts",
+      "shardFile": "files/src/services/smart-bid/content/projection/page-reference-projection.ts.json",
+      "sourceModifiedAt": "2026-11-18T01:02:37.267Z"
     },
     "src/services/smart-bid/content/references/baseline-fact-members.ts": {
       "sourceFile": "src/services/smart-bid/content/references/baseline-fact-members.ts",
@@ -5404,12 +5424,17 @@
     "src/services/smart-bid/content/references/revision-response-text.ts": {
       "sourceFile": "src/services/smart-bid/content/references/revision-response-text.ts",
       "shardFile": "files/src/services/smart-bid/content/references/revision-response-text.ts.json",
-      "sourceModifiedAt": "2026-11-17T23:16:17.335Z"
+      "sourceModifiedAt": "2026-11-18T00:49:51.582Z"
     },
     "src/services/smart-bid/content/references/snapshot-reference-values.ts": {
       "sourceFile": "src/services/smart-bid/content/references/snapshot-reference-values.ts",
       "shardFile": "files/src/services/smart-bid/content/references/snapshot-reference-values.ts.json",
       "sourceModifiedAt": "2026-11-17T13:32:07.664Z"
+    },
+    "src/services/smart-bid/content/references/template-content-rules.ts": {
+      "sourceFile": "src/services/smart-bid/content/references/template-content-rules.ts",
+      "shardFile": "files/src/services/smart-bid/content/references/template-content-rules.ts.json",
+      "sourceModifiedAt": "2026-11-18T01:24:49.889Z"
     },
     "src/services/smart-bid/content/revision-response-comparison.ts": {
       "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
@@ -5429,7 +5454,7 @@
     "src/services/smart-bid/content/revision-template-bindings.ts": {
       "sourceFile": "src/services/smart-bid/content/revision-template-bindings.ts",
       "shardFile": "files/src/services/smart-bid/content/revision-template-bindings.ts.json",
-      "sourceModifiedAt": "2026-11-18T00:09:52.317Z"
+      "sourceModifiedAt": "2026-11-18T01:27:20.695Z"
     },
     "src/services/smart-bid/operation/operation-choice-decision.ts": {
       "sourceFile": "src/services/smart-bid/operation/operation-choice-decision.ts",
@@ -5799,12 +5824,12 @@
     "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T22:53:48.947Z"
+      "sourceModifiedAt": "2026-11-18T01:07:11.780Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json",
-      "sourceModifiedAt": "2026-11-18T00:35:02.564Z"
+      "sourceModifiedAt": "2026-11-18T01:30:02.993Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts",
@@ -5819,7 +5844,7 @@
     "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T21:11:12.258Z"
+      "sourceModifiedAt": "2026-11-18T01:00:29.745Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts",
@@ -5849,7 +5874,7 @@
     "src/views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T23:07:17.460Z"
+      "sourceModifiedAt": "2026-11-18T01:05:15.120Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",

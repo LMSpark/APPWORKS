@@ -10,7 +10,8 @@
     "jsdoc": "@module app:services/smart-bid/content/references/revision-response-text\n职责：核独立答复原文、占位绑定及内部节点链接，禁止章内响应复制第二份正文。\n边界：不展开显示、不读最新事实、不核外部资源版本/权限，不代完整响应及作答分工。\nAI用途：原响应定位通过后复用正文的占位和引用规则；数据与呈现格式分别处理。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "IndependentResponseFactTarget"
+      "IndependentResponseFactTarget",
+      "IndependentResponseFactOccurrence"
     ]
   },
   "$defs": {
@@ -31,9 +32,35 @@
         "responseId"
       ],
       "additionalProperties": false
+    },
+    "IndependentResponseFactOccurrence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "IndependentResponseFactOccurrence",
+      "properties": {
+        "assignmentId": {
+          "type": "string"
+        },
+        "responseId": {
+          "type": "string"
+        },
+        "factId": {
+          "type": "string"
+        },
+        "occurrence": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "assignmentId",
+        "responseId",
+        "factId",
+        "occurrence"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T23:16:17.335Z",
+  "generatedAt": "2026-11-18T00:49:51.582Z",
   "models": {
     "IndependentResponseFactTarget": {
       "name": "IndependentResponseFactTarget",
@@ -57,6 +84,40 @@
             },
             {
               "name": "responseId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "IndependentResponseFactOccurrence": {
+      "name": "IndependentResponseFactOccurrence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "IndependentResponseFactTarget & Readonly<{\n    factId: string;\n    occurrence: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "IndependentResponseFactTarget",
+            "targetName": "IndependentResponseFactTarget"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    factId: string;\n    occurrence: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "factId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "occurrence",
               "readable": true,
               "writable": false
             }

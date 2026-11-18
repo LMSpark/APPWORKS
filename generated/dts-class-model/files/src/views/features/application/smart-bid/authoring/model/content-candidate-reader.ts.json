@@ -113,6 +113,9 @@
         "requirementDataViewKey": {
           "type": "string"
         },
+        "requirementContentHash": {
+          "type": "string"
+        },
         "requiresRevisionMatchCheck": {
           "const": false
         }
@@ -123,6 +126,7 @@
         "baselineMembershipVerified",
         "requiresUseCheck",
         "requirementDataViewKey",
+        "requirementContentHash",
         "requiresRevisionMatchCheck"
       ],
       "additionalProperties": false
@@ -161,6 +165,48 @@
         },
         "method.assertCurrent.return": true
       }
+    },
+    "FixedRulesTemplate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FixedRulesTemplate",
+      "properties": {
+        "documentId": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "hash": {
+          "type": "string"
+        },
+        "classes": true,
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "defaultDeliverable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "restrictions": true
+      },
+      "required": [
+        "documentId",
+        "key",
+        "version",
+        "hash",
+        "classes",
+        "assertCurrent",
+        "defaultDeliverable",
+        "restrictions"
+      ],
+      "additionalProperties": false
     },
     "CalculationSources": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -328,6 +374,172 @@
         "presentationNode"
       ],
       "additionalProperties": false
+    },
+    "EffectiveFactsWithDisplays": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EffectiveFactsWithDisplays",
+      "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "factDependencyHash": {
+          "type": "string"
+        },
+        "displayHashes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "factId": {
+                "type": "string"
+              },
+              "displayHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "factId",
+              "displayHash"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "requiresUseCheck": {
+          "const": true
+        },
+        "nodeDisplayRefs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nodeId": {
+                "type": "string"
+              },
+              "occurrence": {
+                "type": "number"
+              },
+              "displayHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "nodeId",
+              "occurrence",
+              "displayHash"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "responseDisplayRefs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "responseId": {
+                "type": "string"
+              },
+              "assignmentId": {
+                "type": "string"
+              },
+              "occurrence": {
+                "type": "number"
+              },
+              "displayHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "responseId",
+              "assignmentId",
+              "occurrence",
+              "displayHash"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "assertCurrent",
+        "factDependencyHash",
+        "displayHashes",
+        "requiresUseCheck",
+        "nodeDisplayRefs",
+        "responseDisplayRefs"
+      ],
+      "additionalProperties": false
+    },
+    "ReviewScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReviewScope",
+      "properties": {
+        "nodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "responses": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../services/smart-bid/content/hashes/content-root-sections.ts.json#/$defs/ScopedResponseTarget"
+          }
+        }
+      },
+      "required": [
+        "nodeIds",
+        "responses"
+      ],
+      "additionalProperties": false
+    },
+    "RequirementBindingDigest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RequirementBindingDigest",
+      "properties": {
+        "requirementBindingHash": {
+          "type": "string"
+        },
+        "requiresUseCheck": {
+          "const": true
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ReviewDependencies": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReviewDependencies",
+      "properties": {
+        "facts": {
+          "$ref": "#/$defs/EffectiveFactsWithDisplays"
+        },
+        "requirements": {
+          "$ref": "#/$defs/RequirementBindingDigest"
+        },
+        "responseDependencyHash": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     },
     "PreviewVersions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -782,7 +994,7 @@
         },
         "method.readNodeEffectiveFacts.return": {
           "type": "object",
-          "title": "ReturnType<typeof readEffectiveFactDependencies>"
+          "title": "Promise<EffectiveFactsWithDisplays>"
         },
         "method.hashNodeCalculationInputs.params": {
           "type": "object",
@@ -876,26 +1088,7 @@
           "type": "object",
           "properties": {
             "scope": {
-              "type": "object",
-              "properties": {
-                "nodeIds": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "responses": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "../../../../../../services/smart-bid/content/references/revision-response-text.ts.json#/$defs/IndependentResponseFactTarget"
-                  }
-                }
-              },
-              "required": [
-                "nodeIds",
-                "responses"
-              ],
-              "additionalProperties": false
+              "$ref": "#/$defs/ReviewScope"
             },
             "assertConsumer": {
               "type": "object",
@@ -906,7 +1099,7 @@
         },
         "method.readEffectiveFacts.return": {
           "type": "object",
-          "title": "ReturnType<typeof readEffectiveFactDependencies>"
+          "title": "Promise<EffectiveFactsWithDisplays>"
         },
         "method.readRequirementPinIssues.params": {
           "type": "object",
@@ -914,6 +1107,12 @@
             "assertConsumer": {
               "type": "object",
               "title": "() => void"
+            },
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           },
           "additionalProperties": false
@@ -921,6 +1120,106 @@
         "method.readRequirementPinIssues.return": {
           "type": "object",
           "title": "Promise<ContentCandidateRequirementPinsBinding>"
+        },
+        "method.readRequirementBindingHash.params": {
+          "type": "object",
+          "properties": {
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "assertConsumer": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readRequirementBindingHash.return": {
+          "type": "object",
+          "title": "Promise<RequirementBindingDigest>"
+        },
+        "method.readContentRulesHash.params": {
+          "type": "object",
+          "properties": {
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "readTemplate": {
+              "type": "object",
+              "title": "ReadFixedRulesTemplate"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readContentRulesHash.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        contentRulesHash: string;\n        assertCurrent: () => void;\n    }>>"
+        },
+        "method.readQualificationHash.params": {
+          "type": "object",
+          "properties": {
+            "reviewIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "assertConsumer": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readQualificationHash.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        qualificationHash: string;\n        requiresUseCheck: true;\n        assertCurrent: () => void;\n    }>>"
+        },
+        "method.readReviewDependencies.params": {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "$ref": "#/$defs/ReviewScope"
+            },
+            "assertConsumer": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readReviewDependencies.return": {
+          "type": "object",
+          "title": "Promise<ReviewDependencies>"
+        },
+        "method.readSubtreeReviewDependencies.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "responses": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../services/smart-bid/content/hashes/content-root-sections.ts.json#/$defs/ScopedResponseTarget"
+              }
+            },
+            "assertConsumer": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readSubtreeReviewDependencies.return": {
+          "type": "object",
+          "title": "Promise<ReviewDependencies & Readonly<{\n        subtreeHash: string;\n        nodeIds: readonly string[];\n    }>>"
         },
         "method.readFixedRequirement.params": {
           "type": "object",
@@ -1039,7 +1338,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T00:35:02.564Z",
+  "generatedAt": "2026-11-18T01:30:02.993Z",
   "models": {
     "ContentCandidateFactBinding": {
       "name": "ContentCandidateFactBinding",
@@ -1205,6 +1504,49 @@
         "members": {}
       }
     },
+    "FixedRulesTemplate": {
+      "name": "FixedRulesTemplate",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FixedCalculationTemplate & Readonly<{\n    defaultDeliverable: boolean;\n    restrictions: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "FixedCalculationTemplate",
+            "targetName": "FixedCalculationTemplate"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    defaultDeliverable: boolean;\n    restrictions: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "defaultDeliverable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "restrictions",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ReadFixedRulesTemplate": {
+      "name": "ReadFixedRulesTemplate",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(ref: RevisionTemplateRef) => Promise<FixedRulesTemplate>",
+        "members": {}
+      }
+    },
     "CalculationSources": {
       "name": "CalculationSources",
       "jsdoc": "",
@@ -1308,6 +1650,152 @@
               "name": "presentationNode",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "EffectiveFactsWithDisplays": {
+      "name": "EffectiveFactsWithDisplays",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof readEffectiveFactDependencies>> & Readonly<{\n    nodeDisplayRefs: ReturnType<typeof projectFactDisplayOccurrences>;\n    responseDisplayRefs: ReturnType<typeof projectResponseFactDisplayOccurrences>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Awaited<ReturnType<typeof readEffectiveFactDependencies>>",
+            "targetName": "Awaited"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    nodeDisplayRefs: ReturnType<typeof projectFactDisplayOccurrences>;\n    responseDisplayRefs: ReturnType<typeof projectResponseFactDisplayOccurrences>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeDisplayRefs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responseDisplayRefs",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ReviewScope": {
+      "name": "ReviewScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeIds: readonly string[];\n    responses: readonly ScopedResponseTarget[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeIds: readonly string[];\n    responses: readonly ScopedResponseTarget[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responses",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RequirementBindingDigest": {
+      "name": "RequirementBindingDigest",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    requirementBindingHash: string;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    requirementBindingHash: string;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requirementBindingHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresUseCheck",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ReviewDependencies": {
+      "name": "ReviewDependencies",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    facts: EffectiveFactsWithDisplays;\n    requirements: RequirementBindingDigest;\n    responseDependencyHash: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    facts: EffectiveFactsWithDisplays;\n    requirements: RequirementBindingDigest;\n    responseDependencyHash: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "facts",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requirements",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responseDependencyHash",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }
@@ -1770,11 +2258,11 @@
       "jsdoc": "候选链保留各原视图证明；其它业务分组、当前依据、rootHash和采用必须继续核验。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readNodeEffectiveFacts: (nodeIds: readonly string[], assertConsumer?: () => void) => ReturnType<typeof readEffectiveFactDependencies>;\n    hashNodeCalculationInputs: (nodeIds: readonly string[], tables: unknown, sources: CalculationSources) => Promise<Awaited<ReturnType<typeof hashCalculationInputs>> & Readonly<{\n        assertCurrent: () => void;\n    }>>;\n    readCalculationTemplates: (nodeIds: readonly string[]) => ReturnType<typeof readCalculationTableTemplateRefs>;\n    expandAttachmentIndex: (nodeId: string, source: Readonly<{\n        entries: unknown;\n        assertCurrent: () => void;\n    }>, readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        table: ComputedTable;\n        calculationInputsHash: string;\n        assertCurrent: () => void;\n        readComputed: (target: Readonly<{\n            nodeId: string;\n            inputHash: string;\n        }>) => ComputedTable;\n        computedGet: (input: unknown) => Readonly<{\n            nodeId: string;\n            inputHash: string;\n            data: ComputedTable['data'];\n        }>;\n        computedGetTool: typeof computedGetTool;\n        createComputedQueryRoot: (assertAllowed: () => void) => ComputedQueryRoot;\n    }>>;\n    resolveCalculationGenerators: (nodeIds: readonly string[], readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        tables: ReadonlyArray<Readonly<{\n            nodeId: string;\n            generatorKey: string;\n        }>>;\n        assertCurrent: () => void;\n    }>>;\n    readEffectiveFacts: (scope: Readonly<{\n        nodeIds: readonly string[];\n        responses: readonly IndependentResponseFactTarget[];\n    }>, assertConsumer?: () => void) => ReturnType<typeof readEffectiveFactDependencies>;\n    readRequirementPinIssues: (assertConsumer?: () => void) => Promise<ContentCandidateRequirementPinsBinding>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    verifyRootHash: (contract: string) => ReturnType<typeof verifyReadableRevisionRoot>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readNodeEffectiveFacts: (nodeIds: readonly string[], assertConsumer?: () => void) => Promise<EffectiveFactsWithDisplays>;\n    hashNodeCalculationInputs: (nodeIds: readonly string[], tables: unknown, sources: CalculationSources) => Promise<Awaited<ReturnType<typeof hashCalculationInputs>> & Readonly<{\n        assertCurrent: () => void;\n    }>>;\n    readCalculationTemplates: (nodeIds: readonly string[]) => ReturnType<typeof readCalculationTableTemplateRefs>;\n    expandAttachmentIndex: (nodeId: string, source: Readonly<{\n        entries: unknown;\n        assertCurrent: () => void;\n    }>, readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        table: ComputedTable;\n        calculationInputsHash: string;\n        assertCurrent: () => void;\n        readComputed: (target: Readonly<{\n            nodeId: string;\n            inputHash: string;\n        }>) => ComputedTable;\n        computedGet: (input: unknown) => Readonly<{\n            nodeId: string;\n            inputHash: string;\n            data: ComputedTable['data'];\n        }>;\n        computedGetTool: typeof computedGetTool;\n        createComputedQueryRoot: (assertAllowed: () => void) => ComputedQueryRoot;\n    }>>;\n    resolveCalculationGenerators: (nodeIds: readonly string[], readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        tables: ReadonlyArray<Readonly<{\n            nodeId: string;\n            generatorKey: string;\n        }>>;\n        assertCurrent: () => void;\n    }>>;\n    readEffectiveFacts: (scope: ReviewScope, assertConsumer?: () => void) => Promise<EffectiveFactsWithDisplays>;\n    readRequirementPinIssues: (assertConsumer?: () => void, nodeIds?: readonly string[]) => Promise<ContentCandidateRequirementPinsBinding>;\n    readRequirementBindingHash: (nodeIds: readonly string[], assertConsumer?: () => void) => Promise<RequirementBindingDigest>;\n    readContentRulesHash: (nodeIds: readonly string[], readTemplate: ReadFixedRulesTemplate) => Promise<Readonly<{\n        contentRulesHash: string;\n        assertCurrent: () => void;\n    }>>;\n    readQualificationHash: (reviewIds: readonly string[], assertConsumer?: () => void) => Promise<Readonly<{\n        qualificationHash: string;\n        requiresUseCheck: true;\n        assertCurrent: () => void;\n    }>>;\n    readReviewDependencies: (scope: ReviewScope, assertConsumer?: () => void) => Promise<ReviewDependencies>;\n    readSubtreeReviewDependencies: (nodeId: string, responses: readonly ScopedResponseTarget[], assertConsumer?: () => void) => Promise<ReviewDependencies & Readonly<{\n        subtreeHash: string;\n        nodeIds: readonly string[];\n    }>>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    verifyRootHash: (contract: string) => ReturnType<typeof verifyReadableRevisionRoot>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readNodeEffectiveFacts: (nodeIds: readonly string[], assertConsumer?: () => void) => ReturnType<typeof readEffectiveFactDependencies>;\n    hashNodeCalculationInputs: (nodeIds: readonly string[], tables: unknown, sources: CalculationSources) => Promise<Awaited<ReturnType<typeof hashCalculationInputs>> & Readonly<{\n        assertCurrent: () => void;\n    }>>;\n    readCalculationTemplates: (nodeIds: readonly string[]) => ReturnType<typeof readCalculationTableTemplateRefs>;\n    expandAttachmentIndex: (nodeId: string, source: Readonly<{\n        entries: unknown;\n        assertCurrent: () => void;\n    }>, readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        table: ComputedTable;\n        calculationInputsHash: string;\n        assertCurrent: () => void;\n        readComputed: (target: Readonly<{\n            nodeId: string;\n            inputHash: string;\n        }>) => ComputedTable;\n        computedGet: (input: unknown) => Readonly<{\n            nodeId: string;\n            inputHash: string;\n            data: ComputedTable['data'];\n        }>;\n        computedGetTool: typeof computedGetTool;\n        createComputedQueryRoot: (assertAllowed: () => void) => ComputedQueryRoot;\n    }>>;\n    resolveCalculationGenerators: (nodeIds: readonly string[], readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        tables: ReadonlyArray<Readonly<{\n            nodeId: string;\n            generatorKey: string;\n        }>>;\n        assertCurrent: () => void;\n    }>>;\n    readEffectiveFacts: (scope: Readonly<{\n        nodeIds: readonly string[];\n        responses: readonly IndependentResponseFactTarget[];\n    }>, assertConsumer?: () => void) => ReturnType<typeof readEffectiveFactDependencies>;\n    readRequirementPinIssues: (assertConsumer?: () => void) => Promise<ContentCandidateRequirementPinsBinding>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    verifyRootHash: (contract: string) => ReturnType<typeof verifyReadableRevisionRoot>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readNodeEffectiveFacts: (nodeIds: readonly string[], assertConsumer?: () => void) => Promise<EffectiveFactsWithDisplays>;\n    hashNodeCalculationInputs: (nodeIds: readonly string[], tables: unknown, sources: CalculationSources) => Promise<Awaited<ReturnType<typeof hashCalculationInputs>> & Readonly<{\n        assertCurrent: () => void;\n    }>>;\n    readCalculationTemplates: (nodeIds: readonly string[]) => ReturnType<typeof readCalculationTableTemplateRefs>;\n    expandAttachmentIndex: (nodeId: string, source: Readonly<{\n        entries: unknown;\n        assertCurrent: () => void;\n    }>, readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        table: ComputedTable;\n        calculationInputsHash: string;\n        assertCurrent: () => void;\n        readComputed: (target: Readonly<{\n            nodeId: string;\n            inputHash: string;\n        }>) => ComputedTable;\n        computedGet: (input: unknown) => Readonly<{\n            nodeId: string;\n            inputHash: string;\n            data: ComputedTable['data'];\n        }>;\n        computedGetTool: typeof computedGetTool;\n        createComputedQueryRoot: (assertAllowed: () => void) => ComputedQueryRoot;\n    }>>;\n    resolveCalculationGenerators: (nodeIds: readonly string[], readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        tables: ReadonlyArray<Readonly<{\n            nodeId: string;\n            generatorKey: string;\n        }>>;\n        assertCurrent: () => void;\n    }>>;\n    readEffectiveFacts: (scope: ReviewScope, assertConsumer?: () => void) => Promise<EffectiveFactsWithDisplays>;\n    readRequirementPinIssues: (assertConsumer?: () => void, nodeIds?: readonly string[]) => Promise<ContentCandidateRequirementPinsBinding>;\n    readRequirementBindingHash: (nodeIds: readonly string[], assertConsumer?: () => void) => Promise<RequirementBindingDigest>;\n    readContentRulesHash: (nodeIds: readonly string[], readTemplate: ReadFixedRulesTemplate) => Promise<Readonly<{\n        contentRulesHash: string;\n        assertCurrent: () => void;\n    }>>;\n    readQualificationHash: (reviewIds: readonly string[], assertConsumer?: () => void) => Promise<Readonly<{\n        qualificationHash: string;\n        requiresUseCheck: true;\n        assertCurrent: () => void;\n    }>>;\n    readReviewDependencies: (scope: ReviewScope, assertConsumer?: () => void) => Promise<ReviewDependencies>;\n    readSubtreeReviewDependencies: (nodeId: string, responses: readonly ScopedResponseTarget[], assertConsumer?: () => void) => Promise<ReviewDependencies & Readonly<{\n        subtreeHash: string;\n        nodeIds: readonly string[];\n    }>>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    verifyRootHash: (contract: string) => ReturnType<typeof verifyReadableRevisionRoot>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1934,11 +2422,12 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "ReturnType",
+                "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "unknown",
-                    "name": "typeof readEffectiveFactDependencies"
+                    "type": "reference",
+                    "name": "EffectiveFactsWithDisplays",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
                   }
                 ]
               }
@@ -2121,50 +2610,10 @@
                   "name": "scope",
                   "type": {
                     "type": "reference",
-                    "name": "Readonly",
-                    "typeArguments": [
-                      {
-                        "type": "unknown",
-                        "name": "{\n        nodeIds: readonly string[];\n        responses: readonly IndependentResponseFactTarget[];\n    }"
-                      }
-                    ]
+                    "name": "ReviewScope",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
                   }
                 },
-                {
-                  "name": "assertConsumer",
-                  "type": {
-                    "type": "reflection",
-                    "declaration": {
-                      "signatures": [
-                        {
-                          "parameters": [],
-                          "type": {
-                            "type": "intrinsic",
-                            "name": "void"
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "ReturnType",
-                "typeArguments": [
-                  {
-                    "type": "unknown",
-                    "name": "typeof readEffectiveFactDependencies"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "readRequirementPinIssues",
-              "parameters": [
                 {
                   "name": "assertConsumer",
                   "type": {
@@ -2192,8 +2641,290 @@
                 "typeArguments": [
                   {
                     "type": "reference",
+                    "name": "EffectiveFactsWithDisplays",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readRequirementPinIssues",
+              "parameters": [
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "nodeIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
                     "name": "ContentCandidateRequirementPinsBinding",
                     "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readRequirementBindingHash",
+              "parameters": [
+                {
+                  "name": "nodeIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                },
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "RequirementBindingDigest",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readContentRulesHash",
+              "parameters": [
+                {
+                  "name": "nodeIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                },
+                {
+                  "name": "readTemplate",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReadFixedRulesTemplate",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        contentRulesHash: string;\n        assertCurrent: () => void;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readQualificationHash",
+              "parameters": [
+                {
+                  "name": "reviewIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                },
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        qualificationHash: string;\n        requiresUseCheck: true;\n        assertCurrent: () => void;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readReviewDependencies",
+              "parameters": [
+                {
+                  "name": "scope",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReviewScope",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                },
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ReviewDependencies",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readSubtreeReviewDependencies",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "responses",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly ScopedResponseTarget[]"
+                  }
+                },
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intersection",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ReviewDependencies",
+                        "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Readonly",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "{\n        subtreeHash: string;\n        nodeIds: readonly string[];\n    }"
+                          }
+                        ]
+                      }
+                    ]
                   }
                 ]
               }

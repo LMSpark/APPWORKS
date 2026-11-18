@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/hashes/requirement-binding-hash",
+    "sourcePath": "src/services/smart-bid/content/hashes/requirement-binding-hash.ts",
+    "sourceFile": "src/services/smart-bid/content/hashes/requirement-binding-hash.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/hashes/requirement-binding-hash",
+    "jsdoc": "@module app:services/smart-bid/content/hashes/requirement-binding-hash\n职责：用审核范围内的原章节挂接、固定基线解析状态和要求内容摘要生成依赖摘要。\n边界：要求内容摘要须来自原版本读取；基线状态不替代撤回、采用或当前准用的决定。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T00:58:28.049Z",
+  "models": {}
+}

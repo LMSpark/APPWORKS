@@ -41,6 +41,9 @@
         "dataViewKey": {
           "type": "string"
         },
+        "requirementContentHash": {
+          "type": "string"
+        },
         "requiresBaselineMembershipCheck": {
           "const": true
         },
@@ -59,7 +62,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T21:11:12.258Z",
+  "generatedAt": "2026-11-18T01:00:29.745Z",
   "models": {
     "ContentRequirementSelection": {
       "name": "ContentRequirementSelection",
@@ -95,11 +98,11 @@
       "jsdoc": "原版本可读证明；两个待核标志不因status=ADOPTED而消失。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataViewKey: string;\n    requiresBaselineMembershipCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    dataViewKey: string;\n    requirementContentHash: string;\n    requiresBaselineMembershipCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataViewKey: string;\n    requiresBaselineMembershipCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    dataViewKey: string;\n    requirementContentHash: string;\n    requiresBaselineMembershipCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -107,6 +110,11 @@
           "attributes": [
             {
               "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requirementContentHash",
               "readable": true,
               "writable": false
             },

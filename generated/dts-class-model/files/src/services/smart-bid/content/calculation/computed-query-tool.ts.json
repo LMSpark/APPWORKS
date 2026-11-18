@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "app:services/smart-bid/content/computed-query-tool",
-    "sourcePath": "src/services/smart-bid/content/computed-query-tool.ts",
-    "sourceFile": "src/services/smart-bid/content/computed-query-tool.ts",
+    "name": "app:services/smart-bid/content/calculation/computed-query-tool",
+    "sourcePath": "src/services/smart-bid/content/calculation/computed-query-tool.ts",
+    "sourceFile": "src/services/smart-bid/content/calculation/computed-query-tool.ts",
     "packageName": "app",
-    "modulePath": "services/smart-bid/content/computed-query-tool",
-    "jsdoc": "@module app:services/smart-bid/content/computed-query-tool\n职责：定义候选计算结果的只读函数及闭合参数。\n边界：调用方按工位和原实例范围挂接；读取权及原证明由候选绑定检查。",
+    "modulePath": "services/smart-bid/content/calculation/computed-query-tool",
+    "jsdoc": "@module app:services/smart-bid/content/calculation/computed-query-tool\n职责：定义候选计算结果的只读函数及闭合参数。\n边界：调用方按工位和原实例范围挂接；读取权及原证明由候选绑定检查。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "ComputedQueryInput",
@@ -54,7 +54,7 @@
           "type": "string"
         },
         "data": {
-          "$ref": "content-node-links.ts.json#/$defs/ContentTableData"
+          "$ref": "../content-node-links.ts.json#/$defs/ContentTableData"
         }
       },
       "required": [
@@ -98,7 +98,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T00:37:54.639Z",
+  "generatedAt": "2026-11-18T01:02:37.266Z",
   "models": {
     "ComputedQueryInput": {
       "name": "ComputedQueryInput",
@@ -200,7 +200,7 @@
                       "type": {
                         "type": "reference",
                         "name": "ComputedQueryOutput",
-                        "sourcePath": "src/services/smart-bid/content/computed-query-tool.ts"
+                        "sourcePath": "src/services/smart-bid/content/calculation/computed-query-tool.ts"
                       }
                     }
                   ]
@@ -237,14 +237,14 @@
                   "type": {
                     "type": "reference",
                     "name": "ComputedQueryInput",
-                    "sourcePath": "src/services/smart-bid/content/computed-query-tool.ts"
+                    "sourcePath": "src/services/smart-bid/content/calculation/computed-query-tool.ts"
                   }
                 }
               ],
               "type": {
                 "type": "reference",
                 "name": "ComputedQueryOutput",
-                "sourcePath": "src/services/smart-bid/content/computed-query-tool.ts"
+                "sourcePath": "src/services/smart-bid/content/calculation/computed-query-tool.ts"
               }
             }
           ]

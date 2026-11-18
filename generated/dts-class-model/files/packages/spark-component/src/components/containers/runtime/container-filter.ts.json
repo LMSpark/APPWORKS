@@ -246,13 +246,13 @@
                 "string"
               ]
             },
-            "__@RefSymbol@286859": {
+            "__@RefSymbol@287571": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@286859"
+            "__@RefSymbol@287571"
           ],
           "additionalProperties": false
         }

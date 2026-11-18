@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1337,
+  "scannedFileCount": 1342,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17398,54 +17398,54 @@
         "symbols": []
       }
     },
-    "src/services/smart-bid/content/attachment-index-generator.ts": {
-      "file": "files/src/services/smart-bid/content/attachment-index-generator.ts.json",
+    "src/services/smart-bid/content/calculation/attachment-index-generator.ts": {
+      "file": "files/src/services/smart-bid/content/calculation/attachment-index-generator.ts.json",
       "module": {
-        "name": "app:services/smart-bid/content/attachment-index-generator",
-        "sourcePath": "src/services/smart-bid/content/attachment-index-generator.ts",
-        "sourceFile": "src/services/smart-bid/content/attachment-index-generator.ts",
+        "name": "app:services/smart-bid/content/calculation/attachment-index-generator",
+        "sourcePath": "src/services/smart-bid/content/calculation/attachment-index-generator.ts",
+        "sourceFile": "src/services/smart-bid/content/calculation/attachment-index-generator.ts",
         "packageName": "app",
-        "modulePath": "services/smart-bid/content/attachment-index-generator",
-        "jsdoc": "@module app:services/smart-bid/content/attachment-index-generator\n职责：把固定递交范围内的附件资源版本及原正文落点投影为目录。\n边界：按来源交付顺序展开；附件准用、实件内容和目标页码由原责任方核验。",
+        "modulePath": "services/smart-bid/content/calculation/attachment-index-generator",
+        "jsdoc": "@module app:services/smart-bid/content/calculation/attachment-index-generator\n职责：把固定递交范围内的附件资源版本及原正文落点投影为目录。\n边界：按来源交付顺序展开；附件准用、实件内容和目标页码由原责任方核验。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
-    "src/services/smart-bid/content/calculation-table-expansion.ts": {
-      "file": "files/src/services/smart-bid/content/calculation-table-expansion.ts.json",
+    "src/services/smart-bid/content/calculation/calculation-table-expansion.ts": {
+      "file": "files/src/services/smart-bid/content/calculation/calculation-table-expansion.ts.json",
       "module": {
-        "name": "app:services/smart-bid/content/calculation-table-expansion",
-        "sourcePath": "src/services/smart-bid/content/calculation-table-expansion.ts",
-        "sourceFile": "src/services/smart-bid/content/calculation-table-expansion.ts",
+        "name": "app:services/smart-bid/content/calculation/calculation-table-expansion",
+        "sourcePath": "src/services/smart-bid/content/calculation/calculation-table-expansion.ts",
+        "sourceFile": "src/services/smart-bid/content/calculation/calculation-table-expansion.ts",
         "packageName": "app",
-        "modulePath": "services/smart-bid/content/calculation-table-expansion",
-        "jsdoc": "@module app:services/smart-bid/content/calculation-table-expansion\n职责：按已核输入运行固定生成器，校验展开后的正文表格和节点引用。\n边界：结果供呈现、计算读取和质检共用；不写回节点、草稿或事实。",
+        "modulePath": "services/smart-bid/content/calculation/calculation-table-expansion",
+        "jsdoc": "@module app:services/smart-bid/content/calculation/calculation-table-expansion\n职责：按已核输入运行固定生成器，校验展开后的正文表格和节点引用。\n边界：结果供呈现、计算读取和质检共用；不写回节点、草稿或事实。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
-    "src/services/smart-bid/content/calculation-table-registry.ts": {
-      "file": "files/src/services/smart-bid/content/calculation-table-registry.ts.json",
+    "src/services/smart-bid/content/calculation/calculation-table-registry.ts": {
+      "file": "files/src/services/smart-bid/content/calculation/calculation-table-registry.ts.json",
       "module": {
-        "name": "app:services/smart-bid/content/calculation-table-registry",
-        "sourcePath": "src/services/smart-bid/content/calculation-table-registry.ts",
-        "sourceFile": "src/services/smart-bid/content/calculation-table-registry.ts",
+        "name": "app:services/smart-bid/content/calculation/calculation-table-registry",
+        "sourcePath": "src/services/smart-bid/content/calculation/calculation-table-registry.ts",
+        "sourceFile": "src/services/smart-bid/content/calculation/calculation-table-registry.ts",
         "packageName": "app",
-        "modulePath": "services/smart-bid/content/calculation-table-registry",
-        "jsdoc": "@module app:services/smart-bid/content/calculation-table-registry\n职责：固定内置计算表生成器的键、版本和实现。\n边界：输入由正式来源提供；不执行远端脚本或自动替换不匹配的版本。",
+        "modulePath": "services/smart-bid/content/calculation/calculation-table-registry",
+        "jsdoc": "@module app:services/smart-bid/content/calculation/calculation-table-registry\n职责：固定内置计算表生成器的键、版本和实现。\n边界：输入由正式来源提供；不执行远端脚本或自动替换不匹配的版本。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
-    "src/services/smart-bid/content/computed-query-tool.ts": {
-      "file": "files/src/services/smart-bid/content/computed-query-tool.ts.json",
+    "src/services/smart-bid/content/calculation/computed-query-tool.ts": {
+      "file": "files/src/services/smart-bid/content/calculation/computed-query-tool.ts.json",
       "module": {
-        "name": "app:services/smart-bid/content/computed-query-tool",
-        "sourcePath": "src/services/smart-bid/content/computed-query-tool.ts",
-        "sourceFile": "src/services/smart-bid/content/computed-query-tool.ts",
+        "name": "app:services/smart-bid/content/calculation/computed-query-tool",
+        "sourcePath": "src/services/smart-bid/content/calculation/computed-query-tool.ts",
+        "sourceFile": "src/services/smart-bid/content/calculation/computed-query-tool.ts",
         "packageName": "app",
-        "modulePath": "services/smart-bid/content/computed-query-tool",
-        "jsdoc": "@module app:services/smart-bid/content/computed-query-tool\n职责：定义候选计算结果的只读函数及闭合参数。\n边界：调用方按工位和原实例范围挂接；读取权及原证明由候选绑定检查。",
+        "modulePath": "services/smart-bid/content/calculation/computed-query-tool",
+        "jsdoc": "@module app:services/smart-bid/content/calculation/computed-query-tool\n职责：定义候选计算结果的只读函数及闭合参数。\n边界：调用方按工位和原实例范围挂接；读取权及原证明由候选绑定检查。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "ComputedQueryInput",
@@ -17468,7 +17468,8 @@
           "ContentNodeLink",
           "ContentNodeLinks",
           "ContentTableData",
-          "ContentNodeLinkOccurrence"
+          "ContentNodeLinkOccurrence",
+          "ContentFactOccurrence"
         ]
       }
     },
@@ -17565,19 +17566,6 @@
         ]
       }
     },
-    "src/services/smart-bid/content/cross-reference-projection.ts": {
-      "file": "files/src/services/smart-bid/content/cross-reference-projection.ts.json",
-      "module": {
-        "name": "app:services/smart-bid/content/cross-reference-projection",
-        "sourcePath": "src/services/smart-bid/content/cross-reference-projection.ts",
-        "sourceFile": "src/services/smart-bid/content/cross-reference-projection.ts",
-        "packageName": "app",
-        "modulePath": "services/smart-bid/content/cross-reference-projection",
-        "jsdoc": "@module app:services/smart-bid/content/cross-reference-projection\n职责：将固定呈现目标的标题或编号关联到每处 xref。\n边界：编号和标题解析由本次呈现提供；不改原节点或提前填页码。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
     "src/services/smart-bid/content/hashes/calculation-inputs-hash.ts": {
       "file": "files/src/services/smart-bid/content/hashes/calculation-inputs-hash.ts.json",
       "module": {
@@ -17627,6 +17615,21 @@
         "modulePath": "services/smart-bid/content/hashes/content-root-sections",
         "jsdoc": "@module app:services/smart-bid/content/hashes/content-root-sections\n职责：从固定快照生成要求挂接和响应集的根摘要输入。\n边界：核引用形状与归属；原权限、响应载荷业务条件及快照来源另核。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ScopedResponseTarget"
+        ]
+      }
+    },
+    "src/services/smart-bid/content/hashes/content-rules-hash.ts": {
+      "file": "files/src/services/smart-bid/content/hashes/content-rules-hash.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/hashes/content-rules-hash",
+        "sourcePath": "src/services/smart-bid/content/hashes/content-rules-hash.ts",
+        "sourceFile": "src/services/smart-bid/content/hashes/content-rules-hash.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/hashes/content-rules-hash",
+        "jsdoc": "@module app:services/smart-bid/content/hashes/content-rules-hash\n职责：将已核适用的章节角色、可交付性和分册限制固定为审核依赖。\n边界：模板和分册限制的实际选取由原来源负责，版式另在呈现层处理。",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
@@ -17659,6 +17662,45 @@
         "symbols": []
       }
     },
+    "src/services/smart-bid/content/hashes/fact-display-occurrences.ts": {
+      "file": "files/src/services/smart-bid/content/hashes/fact-display-occurrences.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/hashes/fact-display-occurrences",
+        "sourcePath": "src/services/smart-bid/content/hashes/fact-display-occurrences.ts",
+        "sourceFile": "src/services/smart-bid/content/hashes/fact-display-occurrences.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/hashes/fact-display-occurrences",
+        "jsdoc": "@module app:services/smart-bid/content/hashes/fact-display-occurrences\n职责：将同版事实显示摘要关联到原正文及表格中的每一次使用。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/hashes/qualification-review-hash.ts": {
+      "file": "files/src/services/smart-bid/content/hashes/qualification-review-hash.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/hashes/qualification-review-hash",
+        "sourcePath": "src/services/smart-bid/content/hashes/qualification-review-hash.ts",
+        "sourceFile": "src/services/smart-bid/content/hashes/qualification-review-hash.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/hashes/qualification-review-hash",
+        "jsdoc": "@module app:services/smart-bid/content/hashes/qualification-review-hash\n职责：固定审核范围选中的完整资格核验记录。\n边界：标段、落点与本次使用由正式范围核定；摘要不判定资格通过。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/hashes/requirement-binding-hash.ts": {
+      "file": "files/src/services/smart-bid/content/hashes/requirement-binding-hash.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/hashes/requirement-binding-hash",
+        "sourcePath": "src/services/smart-bid/content/hashes/requirement-binding-hash.ts",
+        "sourceFile": "src/services/smart-bid/content/hashes/requirement-binding-hash.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/hashes/requirement-binding-hash",
+        "jsdoc": "@module app:services/smart-bid/content/hashes/requirement-binding-hash\n职责：用审核范围内的原章节挂接、固定基线解析状态和要求内容摘要生成依赖摘要。\n边界：要求内容摘要须来自原版本读取；基线状态不替代撤回、采用或当前准用的决定。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/hashes/revision-content-root.ts": {
       "file": "files/src/services/smart-bid/content/hashes/revision-content-root.ts.json",
       "module": {
@@ -17672,15 +17714,28 @@
         "symbols": []
       }
     },
-    "src/services/smart-bid/content/page-reference-projection.ts": {
-      "file": "files/src/services/smart-bid/content/page-reference-projection.ts.json",
+    "src/services/smart-bid/content/projection/cross-reference-projection.ts": {
+      "file": "files/src/services/smart-bid/content/projection/cross-reference-projection.ts.json",
       "module": {
-        "name": "app:services/smart-bid/content/page-reference-projection",
-        "sourcePath": "src/services/smart-bid/content/page-reference-projection.ts",
-        "sourceFile": "src/services/smart-bid/content/page-reference-projection.ts",
+        "name": "app:services/smart-bid/content/projection/cross-reference-projection",
+        "sourcePath": "src/services/smart-bid/content/projection/cross-reference-projection.ts",
+        "sourceFile": "src/services/smart-bid/content/projection/cross-reference-projection.ts",
         "packageName": "app",
-        "modulePath": "services/smart-bid/content/page-reference-projection",
-        "jsdoc": "@module app:services/smart-bid/content/page-reference-projection\n职责：将一次出件的分页结果绑定到原正文和展开表格中的每处页码引用。\n边界：只返回呈现替换位置和值，不改变原节点、引用或中间表示。",
+        "modulePath": "services/smart-bid/content/projection/cross-reference-projection",
+        "jsdoc": "@module app:services/smart-bid/content/projection/cross-reference-projection\n职责：将固定呈现目标的标题或编号关联到每处 xref。\n边界：编号和标题解析由本次呈现提供；不改原节点或提前填页码。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/projection/page-reference-projection.ts": {
+      "file": "files/src/services/smart-bid/content/projection/page-reference-projection.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/projection/page-reference-projection",
+        "sourcePath": "src/services/smart-bid/content/projection/page-reference-projection.ts",
+        "sourceFile": "src/services/smart-bid/content/projection/page-reference-projection.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/projection/page-reference-projection",
+        "jsdoc": "@module app:services/smart-bid/content/projection/page-reference-projection\n职责：将一次出件的分页结果绑定到原正文和展开表格中的每处页码引用。\n边界：只返回呈现替换位置和值，不改变原节点、引用或中间表示。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -17794,7 +17849,8 @@
         "jsdoc": "@module app:services/smart-bid/content/references/revision-response-text\n职责：核独立答复原文、占位绑定及内部节点链接，禁止章内响应复制第二份正文。\n边界：不展开显示、不读最新事实、不核外部资源版本/权限，不代完整响应及作答分工。\nAI用途：原响应定位通过后复用正文的占位和引用规则；数据与呈现格式分别处理。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
-          "IndependentResponseFactTarget"
+          "IndependentResponseFactTarget",
+          "IndependentResponseFactOccurrence"
         ]
       }
     },
@@ -17808,6 +17864,19 @@
         "modulePath": "services/smart-bid/content/references/snapshot-reference-values",
         "jsdoc": "@module app:services/smart-bid/content/references/snapshot-reference-values\n职责：共用固定快照引用的精确身份、闭合记录与密集列表读取。\n边界：仅检查JSON值描述符，不补字段、不查询、不选择版本或保存第二份业务数据。\nAI用途：分册模板和章节挂接复用同一安全读取，业务归属仍在各自合同核验。",
         "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/template-content-rules.ts": {
+      "file": "files/src/services/smart-bid/content/references/template-content-rules.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/template-content-rules",
+        "sourcePath": "src/services/smart-bid/content/references/template-content-rules.ts",
+        "sourceFile": "src/services/smart-bid/content/references/template-content-rules.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/template-content-rules",
+        "jsdoc": "@module app:services/smart-bid/content/references/template-content-rules\n职责：按节点实际选中的固定模板类解析角色和可交付性。\n边界：无显式可交付值时消费原规则提供的默认值；不继承版式字段所用的 basedOn。",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
@@ -23103,16 +23172,16 @@
       "file": "files/packages/spark-data/src/types.ts.json"
     },
     "ComputedQueryInput": {
-      "sourcePath": "src/services/smart-bid/content/computed-query-tool.ts",
-      "file": "files/src/services/smart-bid/content/computed-query-tool.ts.json"
+      "sourcePath": "src/services/smart-bid/content/calculation/computed-query-tool.ts",
+      "file": "files/src/services/smart-bid/content/calculation/computed-query-tool.ts.json"
     },
     "ComputedQueryOutput": {
-      "sourcePath": "src/services/smart-bid/content/computed-query-tool.ts",
-      "file": "files/src/services/smart-bid/content/computed-query-tool.ts.json"
+      "sourcePath": "src/services/smart-bid/content/calculation/computed-query-tool.ts",
+      "file": "files/src/services/smart-bid/content/calculation/computed-query-tool.ts.json"
     },
     "ComputedQueryRoot": {
-      "sourcePath": "src/services/smart-bid/content/computed-query-tool.ts",
-      "file": "files/src/services/smart-bid/content/computed-query-tool.ts.json"
+      "sourcePath": "src/services/smart-bid/content/calculation/computed-query-tool.ts",
+      "file": "files/src/services/smart-bid/content/calculation/computed-query-tool.ts.json"
     },
     "ConfigChangedContext": {
       "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts",
@@ -23205,6 +23274,10 @@
     "ContentCandidateRequirementPinsBinding": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json"
+    },
+    "ContentFactOccurrence": {
+      "sourcePath": "src/services/smart-bid/content/content-node-links.ts",
+      "file": "files/src/services/smart-bid/content/content-node-links.ts.json"
     },
     "ContentFactVersionBinding": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts",
@@ -25513,6 +25586,10 @@
     "Id": {
       "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
       "file": "files/src/lowcode/resources/structured-config/dimension-source/view-support.ts.json"
+    },
+    "IndependentResponseFactOccurrence": {
+      "sourcePath": "src/services/smart-bid/content/references/revision-response-text.ts",
+      "file": "files/src/services/smart-bid/content/references/revision-response-text.ts.json"
     },
     "IndependentResponseFactTarget": {
       "sourcePath": "src/services/smart-bid/content/references/revision-response-text.ts",
@@ -28133,6 +28210,10 @@
     "ScopedContentPreviewInput": {
       "sourcePath": "src/services/smart-bid/content/content-scoped-preview.ts",
       "file": "files/src/services/smart-bid/content/content-scoped-preview.ts.json"
+    },
+    "ScopedResponseTarget": {
+      "sourcePath": "src/services/smart-bid/content/hashes/content-root-sections.ts",
+      "file": "files/src/services/smart-bid/content/hashes/content-root-sections.ts.json"
     },
     "ScriptContext": {
       "sourcePath": "packages/spark-component/src/runtime/script-context-types.ts",

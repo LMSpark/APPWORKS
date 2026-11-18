@@ -32,7 +32,8 @@ it.each([false,true])('renders the three-file tool with original draft and optio
   SubmissionObligation:{id:'O',projectId:'P',baselineId:'ACTIVE',obligationRef:'O',kind:'DOCUMENT',required:true,
    sourceRef:'SOURCE',allowedDisclosureRefs:['PUBLIC']},
  }
- const planningViews={ContentProject:{selectedProject:{commitMode:'staged' as const}},
+ const planningViews={ContentProject:{selectedProject:{commitMode:'staged' as const,
+  scopeFilter:{field:'projectId',operator:'eq' as const,value:{Type:'GetInputParam',ParamName:'projectId'}}}},
   SubmissionObligation:{originalBaselineObligations:submissionObligationScenarioView('id')}}
  const planningTables=Object.fromEntries(Object.entries(planningRows).map(([model,row])=>[model,{
   modelBinding:{modelId:model,modelName:model},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
@@ -50,6 +51,7 @@ it.each([false,true])('renders the three-file tool with original draft and optio
  for(const [model,viewName] of [['ContentProject','selectedProject'],['SubmissionObligation','originalBaselineObligations']] as const){
   const source=ds.getView(model,viewName)
   if(!source)throw Error('TEST_PLANNING_VIEW_REQUIRED')
+  if(model==='ContentProject')source.queryContext={projectId:'P'}
   const queryTable=new DataSpaceQueryTable({scenarioId,metaName:model})
   source.bindQueryExecutor({save,executeQuery:async()=>new DataSpaceQueryContext({identity:queryTable.identity,scope:'planning',
    readScope:()=> 'planning',snapshot:queryTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[
@@ -73,6 +75,10 @@ it.each([false,true])('renders the three-file tool with original draft and optio
   expect(()=>obligations.assertCurrent()).toThrow()
   await ds.getView('ContentProject','selectedProject')?.refresh()
   expect(()=>head.assertCurrent()).toThrow()
+  const project=ds.getView('ContentProject','selectedProject')!
+  project.queryContext={projectId:'OTHER'}
+  await expect(session.readCurrentHead()).rejects.toThrow('CONTENT_AUTHORING_HEAD_SCOPE')
+  project.queryContext={projectId:'P'}
  }
  const router=createRouter({history:createMemoryHistory(),routes:[{path:'/',component:defineComponent({render:()=>h('div')})}]})
  await router.push('/?projectId=P&draftId=D');await router.isReady()

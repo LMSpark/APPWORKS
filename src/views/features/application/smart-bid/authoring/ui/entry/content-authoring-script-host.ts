@@ -183,11 +183,13 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
      if(!scenarioId)throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
      const key=buildDataViewKey('ContentProject','selectedProject',scenarioId),view=runtime.resolveView(key)
-     if(view?.dataTable?.modelBinding?.modelName!=='ContentProject'||view.hasEditingChanges())throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
+     if(view?.dataTable?.modelBinding?.modelName!=='ContentProject'||view.hasEditingChanges()||
+      view.queryContext['projectId']!==projectId||
+      !hasContentScopeCondition(view,'projectId',{Type:'GetInputParam',ParamName:'projectId'}))throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
      await view.refresh()
      assertCurrent()
      const row=view.rows[0]
-     if(!hasCompleteSingleContentResult(view)||row?.['projectId']!==projectId)throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
+     if(view.loadingError||!hasCompleteSingleContentResult(view)||row?.['projectId']!==projectId)throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
      const {headRevisionId}=row
      if(headRevisionId!==null&&!identity(headRevisionId))throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
      const proof=view.captureReadRow(row,['projectId','headRevisionId']),resultProof=view.captureReadResult()
@@ -197,6 +199,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
       resultProof()
       proof()
      }
+     assertHead()
      assertHead()
      return Object.freeze({headRevisionId,assertCurrent:assertHead})
     },

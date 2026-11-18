@@ -61,6 +61,26 @@ async function fixture(existing=false,duplicate=false){
  return {...f,source,start,choose,get wrapper(){return wrapper!}}
 }
 describe('bound single layout pane source identity',()=>{
+ it('locks the layout on a failed detail query and releases it when the original view recovers',async()=>{
+  const f=await fixture(true),details=f.ds.getView('Base_ImportData_Config','layoutChildren')!
+  const refresh=vi.spyOn(details,'refresh').mockRejectedValue(new Error('明细查询暂时失败'))
+  const fields=()=>f.wrapper.findAllComponents(FieldJson).filter(field=>field.props('mode')==='rows')
+  await f.start()
+  await vi.waitFor(()=>{
+   expect(f.wrapper.text()).toContain('明细查询暂时失败')
+   expect(fields()).toHaveLength(3)
+   expect(fields().every(field=>field.props('readonly')===true)).toBe(true)
+  })
+  refresh.mockRestore()
+  f.nodes.setCurrentRow(null)
+  f.nodes.setCurrentRowById('C1')
+  await vi.waitFor(()=>{
+   expect(f.wrapper.text()).not.toContain('明细查询暂时失败')
+   expect(fields()).toHaveLength(3)
+   expect(fields().every(field=>field.props('readonly')===false)).toBe(true)
+  })
+  expect(f.http.saves).toEqual([])
+ })
  it('preserves a newer layout edit made by the host before applying a layout command',async()=>{
   const f=await fixture()
   await f.start(()=>{f.nodes.updateEditingValue('C1','sheet_layout_json','{"newer":true}')})

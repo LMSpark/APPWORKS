@@ -28,6 +28,12 @@ it('rejects a draft basis response with no original assignment',async()=>{
   await expect(readDraftCandidateBasis(f.host,{revisionId:'V1'})).rejects.toThrow('CONTENT_SCOPE_ASSIGNMENT_BASIS')
  }finally{f.ds.destroy()}
 })
+it('rejects a hash-matched draft basis whose template refers to a heading',async()=>{
+ const f=await fixture('bad-template',{threeVersions:true})
+ try{
+  await expect(readDraftCandidateBasis(f.host,{revisionId:'V1'})).rejects.toThrow('SNAPSHOT_TEMPLATE')
+ }finally{f.ds.destroy()}
+})
 it('keeps exact original responses and unfilled assignments distinct for draft preparation',async()=>{
  const f=await fixture('response-fact',{threeVersions:true})
  try{

@@ -2,6 +2,9 @@
  * 职责：沿草稿基版回读不可变的正文和分工身份。
  */
 import {readRevisionBasisResponses} from '@/services/smart-bid/content/content-scoped-preview'
+import {assertRevisionTemplateBindings} from '@/services/smart-bid/content/revision-template-bindings'
+import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
+import {assertRevisionResponseText} from '@/services/smart-bid/content/references/revision-response-text'
 import {readBidFrozenBaseline} from '../../collaboration/handoff/bid-project-scope-reader'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readAdoptedContentRevision,type ContentRevisionReadHost} from './content-revision-reader'
@@ -33,6 +36,10 @@ async function readBasisMembers(host:ContentRevisionReadHost,snapshot:Awaited<Re
  })
  const basisNodes=nodePayloads.map(({nodeId,parentId,type,index})=>Object.freeze({nodeId,parentId,type,index}))
  const responses=readRevisionBasisResponses(host.projectId,manifest)
+ const sections=snapshotReferenceRecord(manifest,error)
+ assertRevisionTemplateBindings(sections['templateRefs'],nodePayloads)
+ assertRevisionResponseAnchors(sections['responses'],sections['requirementPins'],basisNodes)
+ assertRevisionResponseText(sections['responses'],basisNodes.map(node=>node.nodeId))
  nodes.assertCurrent()
  return Object.freeze({basisNodes:Object.freeze(basisNodes),nodePayloads:Object.freeze(nodePayloads),
   responses:Object.freeze(responses),assertCurrent:nodes.assertCurrent})

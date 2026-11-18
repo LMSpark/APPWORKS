@@ -34,20 +34,27 @@ export function reconcileSubmissionDeadline(input:Readonly<{
  const items=input.obligationIds.map(obligationId=>{
   const events=(byObligation.get(obligationId)??[]).sort((a,b)=>a.effective-b.effective)
   let current:string|null=null,previousTime:number|undefined,needsResolution=false
+  const retiredAttempts=new Set<string>()
+  let effectiveWithdrawal=false
   for(const {event,effective} of events){
    if(effective===previousTime){needsResolution=true;break}
    previousTime=effective
    if(event.kind==='RECEIVED'){
-    if(current!==null&&current!==event.attemptRef){needsResolution=true;break}
+    if(retiredAttempts.has(event.attemptRef)||(current!==null&&current!==event.attemptRef)){needsResolution=true;break}
     current=event.attemptRef
    }else if(event.kind==='REPLACED'){
-    if(!identity(event.priorAttemptRef)||event.priorAttemptRef===event.attemptRef||current!==event.priorAttemptRef){needsResolution=true;break}
+    if(!identity(event.priorAttemptRef)||event.priorAttemptRef===event.attemptRef||current!==event.priorAttemptRef||retiredAttempts.has(event.attemptRef)){needsResolution=true;break}
+    retiredAttempts.add(event.priorAttemptRef)
     current=event.attemptRef
-   }else if(current===event.attemptRef){
-    current=null
+   }else{
+    retiredAttempts.add(event.attemptRef)
+    if(current===event.attemptRef){
+     current=null
+     effectiveWithdrawal=true
+    }
    }
   }
-  const state=needsResolution?'PENDING_EFFECT':current===null?'PENDING_DELIVERY':'EFFECTIVE_ATTEMPT'
+  const state=needsResolution?'PENDING_EFFECT':current!==null?'EFFECTIVE_ATTEMPT':effectiveWithdrawal?'WITHDRAWN':'PENDING_DELIVERY'
   return Object.freeze({obligationId,state,attemptRef:needsResolution?null:current,
    eventRefs:Object.freeze(events.map(item=>item.event.eventRef))})
  })

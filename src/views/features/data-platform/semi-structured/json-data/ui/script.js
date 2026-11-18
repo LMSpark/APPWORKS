@@ -86,7 +86,8 @@ function bindCatalogCancel() {
 }
 
 function bindCatalogSection() {
-  return {status: catalogEditable ? '' : '请进入已授权应用后维护 JSON 文件。'}
+  return {status: catalogEditable ? '' : '请进入已授权应用后维护 JSON 文件。',
+    error: documentBinding?.loadError || ''}
 }
 
 async function submitJsonCatalog(command) {
@@ -157,13 +158,14 @@ function bindJsonField() {
   const view = currentDocument()
   return {
     dataViewKey: documentBinding?.dataViewKey,
+    visible: !documentBinding?.loadError,
     readonly: !documentBinding?.editable || view?.mutating === true || view?.hasUnconfirmedSave === true || fileAlreadyConfirmed(view) === true,
   }
 }
 
 function bindJsonSave() {
   const unknown = currentDocument()?.hasUnconfirmedSave === true
-  return {visible: documentBinding?.editable === true, disabled: currentDocument()?.mutating === true || inputPending,
+  return {visible: documentBinding?.editable === true, disabled: !!documentBinding?.loadError || currentDocument()?.mutating === true || inputPending,
     label: documentBinding?.creating && catalogView()?.hasUnconfirmedSave ? '核验目录保存结果' :
       unknown ? '核验内容保存结果' : documentBinding?.creating ? '创建JSON' : '保存内容'}
 }
@@ -181,6 +183,7 @@ async function submitJsonDocument(command) {
   try {
     const result = await $page.invokeHostCommand(command, documentBinding.contextRowId)
     if (result?.closed) documentBinding = undefined
+    else if (result?.binding) documentBinding = result.binding
     editorRevision++
   } catch (cause) {
     $page.showMessage(cause.message, 'error')

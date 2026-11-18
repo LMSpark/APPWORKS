@@ -10,6 +10,11 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
  let fileConfirmed=false
  let inputPending=false
  let pickingFile=false
+ let imported=false
+ const binding=(view:DataView,id:string)=>({
+  visible:true,dataViewKey:buildDataViewKey(view.tableName,view.viewId,scenarioId),
+  contextRowId:id,editable,loadError:view.loadingError?.message,
+ })
  return {
   runtime,
   assertCurrent,
@@ -46,6 +51,7 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
     if(!row)throw new Error('JSON目录新增草稿缺失')
     const key=String(catalog.getPkKey(row))
     creating=key
+    imported=command==='jsonData.importDocument'
     fileConfirmed=false
     try{
      const view=LowcodeJsonData.openDocument(dataSet,key,{create:true})
@@ -55,7 +61,7 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
      if(view.loadingError)throw view.loadingError
      await view.addRow({content})
      assertActive()
-     return {visible:true,dataViewKey:buildDataViewKey(view.tableName,view.viewId,scenarioId),contextRowId:key,editable,creating:true}
+     return {...binding(view,key),creating:true}
     }catch(error){
      assertActive()
      document?.dataTable?.destroyView(document.viewId)
@@ -87,7 +93,7 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
    }
    if(command==='jsonData.saveDocument'||command==='jsonData.cancelDocument'){
     const view=document
-    if(!editable||!view||view.queryContext['jsonId']!==id||view.mutating)throw new Error('JSON_DOCUMENT_REQUEST')
+    if(!editable||!view||view.queryContext['jsonId']!==id||view.mutating||view.loadingError)throw new Error('JSON_DOCUMENT_REQUEST')
     if(command==='jsonData.cancelDocument'){
      if(view.hasUnconfirmedSave||fileConfirmed)throw new Error('请先核验原保存结果')
      view.discardPendingChanges()
@@ -119,7 +125,12 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
       document=undefined
       creating=undefined
       fileConfirmed=false
-      return {closed:true}
+      if(imported)return {closed:true}
+      const saved=LowcodeJsonData.openDocument(dataSet,id)
+      document=saved
+      await saved.refresh()
+      assertActive()
+      return {binding:binding(saved,id)}
      }
     }
     const row=view.rows.find(candidate=>view.getPkKey(candidate)===id)
@@ -133,8 +144,7 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
    await next.refresh()
    assertActive()
    if(document!==next)throw new Error('JSON_DOCUMENT_STALE')
-   if(next.loadingError)throw next.loadingError
-   return {visible:true,dataViewKey:buildDataViewKey(next.tableName,next.viewId,scenarioId),contextRowId:id,editable}
+   return binding(next,id)
   },
  }
 }

@@ -139,6 +139,9 @@ it('renders the shared JSON catalog through the three tool files without reading
   await flushPromises()
   expect(state.http.saves).toHaveLength(2)
   expect(state.http.saves[1]?.added[0]?.['name']).toBe('配置页新增')
+  await vi.waitFor(()=>expect(documentValue(rendered)).toEqual({}))
+  await click('关闭正文')
+  await flushPromises()
   delete state.http.beforeSave
   pickJson('bad.json','invalid JSON')
   await click('导入JSON')
@@ -169,6 +172,13 @@ it('renders the shared JSON catalog through the three tool files without reading
   await vi.waitFor(()=>expect(host.isDirty).toBe(false))
   expect(state.uploads).toHaveLength(3)
   expect(state.http.saves).toHaveLength(3)
+  state.files.delete('J2.json')
+  await rendered.getComponent(RendererTable).findAll('tbody tr')[1]!.trigger('click')
+  await vi.waitFor(()=>expect(rendered.text()).toContain('文件不存在'))
+  expect(rendered.findComponent(FieldJson).exists()).toBe(false)
+  expect(rendered.findAll('button').find(item=>item.text()==='保存内容')?.attributes('disabled')).toBeDefined()
+  await click('关闭正文')
+  await vi.waitFor(()=>expect(rendered.text()).not.toContain('文件不存在'))
  }finally{wrapper?.unmount();session.dispose()}
 })
 it('displays a failed catalog query once through the standard table with metadata hidden',async()=>{

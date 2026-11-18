@@ -43,13 +43,14 @@ it('keeps the first dependency identities when a late rule appears during previe
   await expect(command.save()).rejects.toThrow('依赖已变化')
   expect(f.http.saves).toEqual([]); command.cancel()
 })
-it('verifies a lost joint reply and completes readback without repeating any delete', async () => {
+it('keeps a lost joint delete reply unknown without repeating any delete', async () => {
   const f = await fixture(), command = await f.open(); f.http.failAfterWrite = true
   await expect(command.save()).rejects.toThrow()
   const count = f.http.saves.length
   expect(command.getState().canCancel).toBe(false)
-  await command.save(); expect(f.http.saves).toHaveLength(count)
-  expect(command.getState().done).toBe(true)
+  await expect(command.save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(f.http.saves).toHaveLength(count)
+  expect(command.getState()).toMatchObject({done:false,databaseConfirmed:false,canCancel:false})
 })
 it('retains database confirmation when refreshing the original page fails and resumes only reads', async () => {
   const f = await fixture(), command = await f.open(), fail = vi.spyOn(f.nodes, 'refresh').mockRejectedValueOnce(new Error('page refresh interrupted'))
@@ -63,6 +64,14 @@ it('protects a physical route referenced by an ancestor layout', async () => {
   Object.assign(f.http.records['Base_ImportData_Config']![0]!,{pid:'SIB',table:'db@detail'})
   f.http.records['Base_ImportData_Config']![1]!['sheet_layout_json'] = '{"version":3,"enabled":false,"tables":[{"id":"T","table":" DB@DETAIL "}]}'
   await expect(f.open()).rejects.toThrow(/布局仍.*引用/)
+  expect(f.http.saves).toEqual([])
+})
+it('protects an explicit configuration identity in a surviving ancestor even when the physical route differs', async () => {
+  const f = await fixture()
+  f.http.records['Base_ImportData_Config']![0]!['pid'] = 'SIB'
+  f.http.records['Base_ImportData_Config']![0]!['table'] = 'db@current_detail'
+  f.http.records['Base_ImportData_Config']![1]!['sheet_layout_json'] = '{"version":3,"tables":[{"configId":"C1","table":"db@previous_detail"}]}'
+  await expect(f.open()).rejects.toThrow(/布局仍引用本配置身份/)
   expect(f.http.saves).toEqual([])
 })
 it('does not treat an unrelated root layout configId as a node reference', async () => {

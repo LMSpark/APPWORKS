@@ -92,7 +92,9 @@ export class ExcelConfigurationRemoval {
       if (typeof raw !== 'string') throw new Error('祖先配置布局引用无法核定')
       const layout = parseJsonDocument(raw)
       if (!isJsonObject(layout)||layout['version']!==3||!Array.isArray(layout['tables']))throw new Error('祖先配置布局引用合同无法核定')
-      const tables=layout['tables'],route=this.read(nodes,targetRow,'table')
+      const tables=layout['tables']
+      if(tables.some(table=>isJsonObject(table)&&table['configId']===this.input.nodeId))throw Error('祖先配置布局仍引用本配置身份，不能删除')
+      const route=this.read(nodes,targetRow,'table')
       if(typeof route!=='string'||!route||tables.some(table=>!isJsonObject(table)||typeof table['table']!=='string'||!table['table']))throw new Error('祖先配置布局物理来源无法核定')
       if(tables.some(table=>isJsonObject(table)&&excelLayoutTableKey(table['table'])===excelLayoutTableKey(route)))throw new Error('祖先配置布局仍声明引用本配置物理来源，不能删除')
     }

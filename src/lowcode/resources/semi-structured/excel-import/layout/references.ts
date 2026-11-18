@@ -122,6 +122,7 @@ export function createExcelLayoutDeleteReferences(context:ExcelLayoutContext):Da
     if(configured(raw)){
      if(typeof raw!=='string')throw Error('版式删除引用无法核定');const layout=parseJsonDocument(raw)
      if(!isJsonObject(layout)||layout['version']!==3||!Array.isArray(layout['tables'])||layout['tables'].some(value=>!isJsonObject(value)||typeof value['table']!=='string'||!value['table']))throw Error('版式删除引用无法核定')
+     if(layout['tables'].some(value=>isJsonObject(value)&&value['configId']===id))throw Error('祖先版式仍引用该配置身份，请先清除并保存版式引用')
      const target=await exact(id,['rowid','schemeid','pid','table']),route=excelLayoutTableKey(target['table'])
      if(target['pid']!==targetParent||!route)throw Error('删除版式节点正式目标已变化或缺少来源')
      if(layout['tables'].some(value=>isJsonObject(value)&&excelLayoutTableKey(value['table'])===route))throw Error('祖先版式仍引用该明细物理来源，请先清除并保存版式引用')

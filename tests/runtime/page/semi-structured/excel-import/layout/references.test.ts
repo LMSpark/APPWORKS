@@ -24,6 +24,18 @@ describe('layout validation along the original model save capture',()=>{
  it('does not treat an ancestor staged outside the submitted IDs as a deleted layout reference',async()=>{const f=await fixture(true);try{
   await f.nodes.removeRow('C2');await f.nodes.removeRow('C1');await expect(f.save('C2')).rejects.toThrow(/版式/);expect(f.http.saves).toEqual([])
  }finally{f.dispose()}})
+ it('blocks native deletion when the surviving ancestor names the configuration after its physical source changed',async()=>{
+  const f=await fixture(true)
+  try{
+   const ancestor=readSingleExportLayout(f.text)!
+   ancestor.detailTable['configId']='C2'
+   ancestor.detailTable['table']='数据库一@previous_detail'
+   f.http.records['Base_ImportData_Config']![0]!['sheet_layout_json']=JSON.stringify(ancestor.document)
+   await f.nodes.removeRow('C2')
+   await expect(f.save('C2')).rejects.toThrow(/版式仍引用该配置身份/)
+   expect(f.http.saves).toEqual([])
+  }finally{f.dispose()}
+ })
  it('does not require reading the layout or sorting of ancestors deleted in the same batch',async()=>{const f=await fixture(true);try{
   f.http.maskedFields['Base_ImportData_Config']=['sheet_layout_json','sorted'];await f.nodes.refresh();await f.nodes.removeRow('C2');await f.nodes.removeRow('C1')
   expect((await f.ds.saveChanges({views:[{tableName:f.nodes.tableName,viewId:f.nodes.viewId,ids:['C2','C1']}]})).success).toBe(true);expect(f.http.records['Base_ImportData_Config']).toEqual([])

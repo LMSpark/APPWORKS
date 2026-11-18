@@ -95,7 +95,7 @@ const selected = computed(() => {
   const id = row && view.value?.selectedRows.length === 1 ? view.value.getPkKey(row) : undefined
   return typeof id === 'string' || typeof id === 'number' ? String(id) : ''
 })
-const catalogScope = computed(() => resolveExecutionProjectId(route.path) === APPLICATION_CATALOG_PROJECT_ID)
+const projectId = computed(() => resolveExecutionProjectId(route.path))
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodeExcelImport.catalogMetaName, 'default', scenarioId.value))
 const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
@@ -209,7 +209,7 @@ function discardDesign(): void {
   if (designPage.value?.busy || designPage.value?.unconfirmed) return
   if (designPage.value?.discardChanges() === true) closeDesign(false)
 }
-watch([scenarioId, catalogScope], async ([id, inCatalog]) => {
+watch([scenarioId, projectId], async ([id, project]) => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
   editingId.value=undefined;acting.value=false;designTarget.value=''
@@ -218,19 +218,20 @@ watch([scenarioId, catalogScope], async ([id, inCatalog]) => {
   session.dispose()
   try {
     if (!id) throw new Error('Excel 导入入口缺少导航绑定的数据空间ID')
-    if(inCatalog){
+    const targetId=project===undefined?id:`${project}:${id}`
+    if(project===APPLICATION_CATALOG_PROJECT_ID){
       const tool=new PageTool({pageId:'excel-import-list-page'})
       tool.hydrateFileText('rule.json',rule)
       tool.hydrateFileText('script.js',script)
       tool.hydrateFileText('style.css',style)
       tool.markLoaded()
-      catalogToolRuntime.value=session.acquire({tool,scenarioIds:[id],targetId:id,
+      catalogToolRuntime.value=session.acquire({tool,scenarioIds:[id],targetId,
         loadScenario:scenario=>LowcodeExcelImport.loadCatalog(scenario,APPLICATION_CATALOG_PROJECT_ID)})
       return
     }
     const dataSet = await LowcodeExcelImport.loadCatalog(id)
     if (!active || own !== generation) {dataSet.destroy(); return}
-    const current = session.acquire({pageId: 'excel-import-list-page', scenarioIds: [id], targetId: id,
+    const current = session.acquire({pageId: 'excel-import-list-page', scenarioIds: [id], targetId,
       loadScenario: async () => dataSet})
     await current.load()
     if (!active || own !== generation || !session.isCurrent(current)) return

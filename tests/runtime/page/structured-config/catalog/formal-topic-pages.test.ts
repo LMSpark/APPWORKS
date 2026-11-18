@@ -73,6 +73,25 @@ beforeEach(() => {
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it('releases the Excel catalog when the application changes on the same route',async()=>{
+    const route={path:'/apps/:project/excel',component:Excel,meta:{blueprintScenarioId:EXCEL}}
+    const router=createRouter({history:createMemoryHistory(),routes:[route]})
+    const load=vi.spyOn(LowcodeExcelImport,'loadCatalog')
+    try{
+      await router.push('/apps/first/excel')
+      const wrapper=mount(withTestPageService(RouterView),{global:{plugins:[router,ElementPlus,Spark.createPlugin()]}})
+      wrappers.push(wrapper)
+      await vi.waitFor(()=>expect(wrapper.text()).toContain('订单导入'))
+      const first=await load.mock.results[0]?.value
+      state.appId='second'
+      state.http.records['Base_Import_solution']=[{rowid:'E2',coding:'EXCEL2',solutionName:'新应用导入'}]
+      await router.push('/apps/second/excel')
+      await vi.waitFor(()=>expect(wrapper.text()).toContain('新应用导入'))
+      expect(first?.destroyed).toBe(true)
+      expect(load).toHaveBeenCalledTimes(2)
+      expect(wrapper.text()).not.toContain('订单导入')
+    }finally{load.mockRestore()}
+  })
   it('renders the enterprise Excel catalog through four files with only the catalog query',async()=>{
     const text=topicTexts[EXCEL]!
     const resourceId=`repository:scenario-view:${EXCEL}`

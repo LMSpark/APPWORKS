@@ -50,7 +50,14 @@ it('requires calculation inputs for exactly the original selected table placehol
   expect(expanded.table.data['rows']).toMatchObject([[{data:{附件:{resourceVersionId:'ATTACHMENT-2'}}},{data:{页码:{nodeId:'H'}}}]])
   expect(expanded.readComputed({nodeId:'T',inputHash:expanded.table.inputHash})).toBe(expanded.table)
   const query={projectId:'P',revisionId:'C',nodeId:'T',inputHash:expanded.table.inputHash}
+  expect(expanded.computedGetTool.function).toMatchObject({name:'computed_get',strict:true,
+   parameters:{required:Object.keys(query),additionalProperties:false}})
   expect(expanded.computedGet(query).data).toBe(expanded.table.data)
+  let stationCurrent=true
+  const station=expanded.createComputedQueryRoot(()=>{if(!stationCurrent)throw Error('STATION_STALE')})
+  expect(station.computed_get(query).data).toBe(expanded.table.data)
+  stationCurrent=false
+  expect(()=>station.computed_get(query)).toThrow('STATION_STALE')
   expect(()=>expanded.computedGet({...query,projectId:'OTHER'})).toThrow('CONTENT_COMPUTED_QUERY_SCOPE')
   expect(()=>expanded.computedGet({...query,revisionId:'OTHER'})).toThrow('CONTENT_COMPUTED_QUERY_SCOPE')
   expect(()=>expanded.computedGet({...query,extra:true})).toThrow('CONTENT_COMPUTED_QUERY_SCOPE')

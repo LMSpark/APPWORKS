@@ -23,6 +23,7 @@ import {readEffectiveFactDependencies} from './hashes/effective-fact-reader'
 import {hashCalculationInputs} from '@/services/smart-bid/content/hashes/calculation-inputs-hash'
 import {expandBuiltInCalculationTable,readBuiltInCalculationGenerator} from '@/services/smart-bid/content/calculation-table-registry'
 import {ATTACHMENT_INDEX_GENERATOR} from '@/services/smart-bid/content/attachment-index-generator'
+import {ComputedQueryRoot,computedGetTool} from '@/services/smart-bid/content/computed-query-tool'
 import {previewContentTextSnapshot,type ContentResponseTextSnapshot,type ContentTextSnapshotPreview} from '@/services/smart-bid/content/content-text-snapshot-preview'
 import {captureContentTextSpan,type ContentTextSelection,type VerifiedContentTextSpan} from '@/services/smart-bid/content/content-text-span'
 
@@ -73,6 +74,8 @@ export type ContentCandidateBinding=Readonly<{
    table:ComputedTable;calculationInputsHash:string;assertCurrent:()=>void
    readComputed:(target:Readonly<{nodeId:string;inputHash:string}>)=>ComputedTable
    computedGet:(input:unknown)=>Readonly<{nodeId:string;inputHash:string;data:ComputedTable['data']}>
+   computedGetTool:typeof computedGetTool
+   createComputedQueryRoot:(assertAllowed:()=>void)=>ComputedQueryRoot
   }>>
  resolveCalculationGenerators:(nodeIds:readonly string[],readTemplate:ReadFixedCalculationTemplate)=>Promise<Readonly<{
   tables:ReadonlyArray<Readonly<{nodeId:string;generatorKey:string}>>;assertCurrent:()=>void
@@ -199,7 +202,8 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
    const result=readComputed({nodeId:requestedNodeId,inputHash:requestedHash})
    return Object.freeze({nodeId:result.nodeId,inputHash:result.inputHash,data:result.data})
   }
-  return Object.freeze({table,calculationInputsHash:digest.calculationInputsHash,assertCurrent:assertInputs,readComputed,computedGet})
+  return Object.freeze({table,calculationInputsHash:digest.calculationInputsHash,assertCurrent:assertInputs,readComputed,computedGet,computedGetTool,
+   createComputedQueryRoot:(assertAllowed:()=>void)=>new ComputedQueryRoot(computedGet,assertAllowed)})
  }
  const readEffectiveFacts:ContentCandidateBinding['readEffectiveFacts']=async(scope,assertConsumer)=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}

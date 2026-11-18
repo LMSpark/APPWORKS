@@ -12,11 +12,20 @@
           "border": true,
           "stripe": true,
           "showRowIndex": true,
-          "showDataViewMeta": false
+          "showDataViewMeta": false,
+          "onRowClick": "openJsonDocument"
         },
         "children": [
           {"type": "r-text", "props": {"field": "name", "label": "名称", "readonly": true, "minWidth": 220}},
           {"type": "r-text", "props": {"field": "description", "label": "摘要", "readonly": true, "minWidth": 220}}
+        ]
+      },
+      {
+        "id": "json-document-preview",
+        "type": "r-form",
+        "props": {"autoColumns": false, "showDataViewMeta": false, "onBeforeRender": "bindJsonDocument"},
+        "children": [
+          {"type": "r-json", "props": {"field": "content", "label": "JSON 内容", "mode": "tree", "readonly": true}}
         ]
       }
     ]

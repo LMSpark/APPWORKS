@@ -62,13 +62,26 @@ it('renders the shared JSON catalog through the three tool files without reading
  try{
   const runtime=session.acquire({tool,targetId:SCENE,scenarioIds:[SCENE],loadScenario:id=>LowcodeJsonData.loadCatalog(id)})
   const {path,fullPath,name,params,query,hash}=router.currentRoute.value
-  wrapper=mount(SparkPageRenderer,{props:{pageRuntime:runtime,routeSnapshot:{path,fullPath,name:name??null,params,query,hash}},global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
+  const host={runtime,assertCurrent:()=>{expect(session.isCurrent(runtime)).toBe(true)},async invoke(command:string,id:unknown){
+   expect(command).toBe('jsonData.openDocument')
+   if(typeof id!=='string')throw new Error('Expected original JSON identity')
+   const dataSet=runtime.getDataSet(SCENE)
+   if(!dataSet)throw new Error('Missing JSON scenario')
+   const view=LowcodeJsonData.openDocument(dataSet,id)
+   await view.refresh()
+   return {visible:true,dataViewKey:`${SCENE}@JsonDocumentFile@${view.viewId}`,contextRowId:id}
+  }}
+  wrapper=mount(SparkPageRenderer,{props:{pageRuntime:runtime,host,routeSnapshot:{path,fullPath,name:name??null,params,query,hash}},global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
   const rendered=wrapper
   await vi.waitFor(()=>expect(rendered.text()).toContain('样例JSON'))
   expect(rendered.getComponent(RendererTable).props('dataViewKey')).toBe(`${SCENE}@Base_JsonData@default`)
   const dataSet=runtime.getDataSet(SCENE)
   expect(dataSet?.getView('JsonDocumentFile')).toBeDefined()
   expect(state.reads).toEqual([])
+  await rendered.getComponent(RendererTable).get('tbody tr').trigger('click')
+  await vi.waitFor(()=>expect(documentValue(rendered)).toEqual({flag:false,nested:[[1,null],{}]}))
+  expect(state.reads).toEqual(['data.json'])
+  expect(state.uploads).toEqual([])
  }finally{wrapper?.unmount();session.dispose()}
 })
 it('displays a failed catalog query once through the standard table with metadata hidden',async()=>{

@@ -98,10 +98,10 @@ function bindCandidatePreview() {
 }
 
 function candidatePreviewRouteKey() {
-  const {candidateRevisionId, candidateExpectedHead, candidateAddedNodeId, candidateFormDocumentId,
+  const {projectId, draftId, candidateRevisionId, candidateExpectedHead, candidateAddedNodeId, candidateFormDocumentId,
     formTemplateRef, formTemplateVersion} = $route.query
-  return JSON.stringify([candidateRevisionId, candidateExpectedHead, candidateAddedNodeId,
-    candidateFormDocumentId, formTemplateRef, formTemplateVersion])
+  return JSON.stringify({projectId, draftId, candidateRevisionId, candidateExpectedHead, candidateAddedNodeId,
+    candidateFormDocumentId, formTemplateRef, formTemplateVersion})
 }
 
 async function openCandidatePreview() {
@@ -110,6 +110,8 @@ async function openCandidatePreview() {
   const {candidateRevisionId, candidateExpectedHead, candidateAddedNodeId, candidateFormDocumentId,
     formTemplateRef, formTemplateVersion} = $route.query
   const routeKey = candidatePreviewRouteKey()
+  const session = editorSession
+  const isCurrent = () => editorSession === session && candidatePreviewRouteKey() === routeKey
   candidatePreviewPending = true
   try {
     const id = value => typeof value === 'string' && !!value && value.trim() === value
@@ -123,10 +125,9 @@ async function openCandidatePreview() {
       if (![candidateFormDocumentId, formTemplateRef, formTemplateVersion].every(id)) throw Error('CONTENT_CANDIDATE_PAGE_SELECTION')
       options.originalFormTemplate = {documentId: candidateFormDocumentId, templateRef: formTemplateRef, templateVersion: formTemplateVersion}
     }
-    const session = editorSession
     const selection = {candidateRevisionId, expectedHead: candidateExpectedHead ?? null}
     const assertSelection = () => {
-      if (editorSession !== session || candidatePreviewRouteKey() !== routeKey) throw Error('CONTENT_PAGE_RENDER_STALE')
+      if (!isCurrent()) throw Error('CONTENT_PAGE_RENDER_STALE')
     }
     let result = await session.previewCandidate(selection, options)
     result.assertCurrent()
@@ -173,7 +174,7 @@ async function openCandidatePreview() {
     lines.push('采用依据仍需在正式办理时核验')
     await $page.showAlert(lines.join('\n'), '候选变更预演')
   } catch {
-    $page.showMessage('候选变更无法预演', 'warning')
+    if (isCurrent()) $page.showMessage('候选变更无法预演', 'warning')
   } finally {
     candidatePreviewPending = false
   }

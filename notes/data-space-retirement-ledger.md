@@ -11638,3 +11638,5 @@ flowchart TD
 - 蓝图场景绑定身份加入配置页实例池键。复现原实现对同URL同工具命中旧实例；新增显式场景后经另一节点返回，当前实例独立装配声明的S1，旧实例保留。动态路由39项通过。
 - 2026-11-19 当前主仓 verify:rules 全链退出0，verify:arch 和 verify:dirs 单独复验通过，先前5处目录超限本次未复现。页面配置、生成规则2312文件、文档596文件、ClassModel 4文件50项、低代码合同611端点252消费点均通过；保留 DataViewFilter 与 ScenarioViewConfig 两项模型告警及页面薄化审查提示。这批是静态/本地门禁，业务实服验收仍待。
 - Excel 单组导出版式的序列化签名用于字段目录失效，正式编辑仍由绑定 DataView 承担。创建/清空在宿主 beforeChange 返回后重核行身份、可编辑状态和原字段值，避免覆盖回调期间较新的版式编辑。版式、引用和面板3文件23项通过，新用例确认新编辑保留且无服务写入。
+- Excel 导入页面专项完整复跑 tests/runtime/page/semi-structured/excel-import：25 文件、307 项全部通过。TLS 恢复后已推送版式修复并独立核对远端 32f88ea89；本轮未派发实服导入。
+- Excel 版式回调修复后，根 pnpm run typecheck 及版式面板和对应回归的 ESLint 均退出0。

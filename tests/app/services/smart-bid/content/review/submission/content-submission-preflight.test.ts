@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {checkRepresentedSubmission,checkSubmissionContents,checkSubmissionStart} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight'
+import {checkRepresentedSubmission,checkSubmissionContents,checkSubmissionStart,prepareSubmissionRequest} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight'
 import {prepareAuthorityGrantDecision} from '@/services/smart-bid/content/review/submission/authority-grant-decision'
 import {recoverSubmissionAttempt} from '@/services/smart-bid/content/review/submission-attempt-recovery'
 import {readPlatformFieldReviewVersion} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
@@ -49,4 +49,12 @@ it('holds a mixed submission until the original package and same-attempt saved f
   eventRef:'TERM',kind:'NOT_EXECUTED',assertCurrent}],assertCurrent})
  expect(checkSubmissionStart(checked,{...channel,includesClose:true,prior:terminated}).state).toBe('READY')
  expect(()=>checkSubmissionStart(checked,{...channel,channelId:'OTHER',prior:terminated})).toThrow('SUBMISSION_START_SCOPE')
+ const start=checkSubmissionStart(checked,{...channel,includesClose:true,prior:terminated})
+ const prepared=await prepareSubmissionRequest(start,'REQUEST')
+ expect(prepared.record).toMatchObject({attemptRef,priorAttemptRef:'OLD',authorityVersionId:'V1',
+  package:{packageId:'PKG',packageHash:pack.packageHash},fields:[{versionHash:version.versionHash},{versionHash:second.versionHash}]})
+ expect((await prepareSubmissionRequest(start,'REQUEST')).requestDigest).toBe(prepared.requestDigest)
+ expect((await prepareSubmissionRequest(start,'OTHER')).requestDigest).not.toBe(prepared.requestDigest)
+ await expect(prepareSubmissionRequest(checkSubmissionStart(checked,{...channel,prior:unknown}),'REQUEST'))
+  .rejects.toThrow('SUBMISSION_REQUEST_NOT_READY')
 })

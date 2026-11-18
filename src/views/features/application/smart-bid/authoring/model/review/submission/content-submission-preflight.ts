@@ -90,7 +90,9 @@ export async function checkSubmissionContents(input:Readonly<{
  release:Release|null;fields:readonly ApprovedField[];observations:readonly SavedObservation[]
 }>){
  const {projectId,revisionId,attemptRef}=input
- const expectedPack=input.package&&Object.freeze({...input.package})
+ const expectedPack=input.package&&Object.freeze({
+  packageId:input.package.packageId,packageHash:input.package.packageHash,selectionHash:input.package.selectionHash,
+ })
  const fields=input.fields.map(field=>Object.freeze({...field}))
  const approved=[...sources.fields],observations=[...sources.observations],release=sources.release
  const assertCurrent=()=>{
@@ -100,6 +102,8 @@ export async function checkSubmissionContents(input:Readonly<{
  assertCurrent()
  const error='SUBMISSION_PREFLIGHT_SCOPE'
  if(![projectId,revisionId,attemptRef].every(identity)||(!expectedPack&&!fields.length))throw Error(error)
+ if(expectedPack&&(!identity(expectedPack.packageId)||
+  ![expectedPack.packageHash,expectedPack.selectionHash].every(hash=>/^[a-f0-9]{64}$/u.test(hash))))throw Error(error)
  if(release&&(!expectedPack||release.projectId!==projectId||release.packageId!==expectedPack.packageId||
   release.packageHash!==expectedPack.packageHash||release.selectionHash!==expectedPack.selectionHash))throw Error(error)
  const required=new Map(fields.map(item=>[fieldKey(item),item]))

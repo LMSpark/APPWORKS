@@ -84,7 +84,7 @@ export function openContentOperationWorkspace(
   readDispatch(attempt:Parameters<typeof readRegisteredOperationDispatch>[1]){
    return readRegisteredOperationDispatch(host,attempt)
   },
-  readOriginalGuide(original:Parameters<typeof readRegisteredOriginalOperationGuide>[3]){
+  readOriginalGuide(original:Parameters<typeof readRegisteredOriginalOperationGuide>[2]['original']){
    return readRegisteredOriginalOperationGuide(host,classModel,{rootKind,original})
   },
   recover(manifest:Parameters<typeof recoverRegisteredOperationRouteAttempt>[1],

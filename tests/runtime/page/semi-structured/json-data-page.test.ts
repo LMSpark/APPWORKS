@@ -28,8 +28,8 @@ beforeEach(()=>{
  state.runtime=new DataSpaceRuntimeApi({http:state.http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})});registerAllRenderers();const stubs={...original};for(const name of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])Reflect.deleteProperty(stubs,name);config.global.stubs=stubs
 })
 afterEach(()=>{wrappers.splice(0).forEach(w=>w.unmount());config.global.stubs=original})
-async function open(path='/json'){
- const router=createRouter({history:createMemoryHistory(),routes:[{path,component:JsonPage,meta:{blueprintScenarioId:SCENE}},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push(path);await router.isReady()
+async function open(path='/json',meta:Record<string,unknown>={blueprintScenarioId:SCENE}){
+ const router=createRouter({history:createMemoryHistory(),routes:[{path,component:JsonPage,meta},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push(path);await router.isReady()
  const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'json-page-test-host'});const service:PageServiceCapability={copyText:async()=>{},showMessage:()=>{},showConfirm:async()=>true,showPrompt:async()=>null,showAlert:async()=>{},showDialog:async()=> 'cancel',selectEntities:async()=>[],browseFiles:async options=>{state.browseCalls.push(options??{});return state.picked},uploadFiles:async()=>{throw new Error('Direct host upload is forbidden in this JSON flow')},showLoading:()=>{},navigate:()=>{}};sparkProvide(PAGE_SERVICE,service);return()=>h(RouterView)}}),{attachTo:document.body,global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}});wrappers.push(wrapper);await flushPromises()
  const click=async(label:string)=>{const button=wrapper.findAll('button').find(b=>b.text()===label&&b.attributes('disabled')===undefined);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
  const choose=async(index=0)=>{await vi.waitFor(()=>expect(wrapper.findComponent(RendererTable).exists()).toBe(true));await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.trigger('click');await flushPromises();await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.findAll('button').find(b=>b.text()==='编辑文件')!.trigger('click');await flushPromises()}
@@ -177,6 +177,16 @@ it('ignores a late imported file after the navigation scenario changes',async()=
 })
 it('preserves an imported array root and nested primitive values',async()=>{
  const f=await open();const raw='[false,null,[0],{"x":[]}]';pickJson('array.json',raw);await f.click('导入JSON');const added=state.http.saves[0]?.added[0];expect(added).toBeDefined();expect(state.files.get(`${String(added?.['rowid'])}.json`)).toBe(raw);expect(state.dirty[0]?.isDirty).toBe(false)
+})
+
+it('requires a navigation scenario before reading the catalog or document',async()=>{
+ const {wrapper}=await open('/json',{})
+ expect(wrapper.text()).toContain('JSON数据入口缺少导航数据空间ID')
+ expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
+ expect(state.http.reads).toEqual([])
+ expect(state.reads).toEqual([])
+ expect(state.http.saves).toEqual([])
+ expect(state.uploads).toEqual([])
 })
 
 it('reads only the JSON directory from the enterprise homepage',async()=>{

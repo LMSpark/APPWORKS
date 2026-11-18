@@ -11709,3 +11709,4 @@ flowchart TD
 - 第11包整定义删除核查：JsonDataController 类型化合同已有 DelJsonData 和 BatchData，描述为动态 JSON 数据操作；当前 document-resource 明确 canDelete=false，目录无整定义删除入口。待核这些端点是否涵盖正式定义行、独占文件、引用和分来源回执。本轮未发删除。
 - JSON 整删定位核查：正式 Base_JsonData 目录按 rowid 选中唯一可读行，正文资源在 jsondatapath 根按 path 的末段定位，空 path 使用原 id.json。现有正文定位只证明访问目标，不证明文件独占；整删还需核对其他定义是否解析到同一文件及下游引用，分别回读目录和文件。
 - 第11包删除合同续核：BatchData 载荷按数据集 name 提交 delJsonData 对象数组，DelJsonData 在本仓无消费方、只有动态请求声明。正文可用的通用 RemoveFile 按应用类型、目录和文件名派发一次并回列核验缺失。数据空间设计和工作流编辑均声明 Base_JsonData 来源，单独删除正文前仍缺跨消费方引用与独占性的正式查询。保持整删入口关闭。上轮全仓类型检查退出0、JSON目录和正文专项38项通过，仅覆盖现有路径。
+- 第11包导航身份回归：当前企业导航登记落原生 JSON 页面，PageRuntime 消费共享 pagedata；缺导航场景 ID 时不渲染目录，不发目录/正文读写。新增挂载反例随 JSON 页面专项29项通过，verify:pages-config 通过。原生宿主加共享场景目前仍缺工具三文件的运行消费证据。

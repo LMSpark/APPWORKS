@@ -11676,3 +11676,6 @@ flowchart TD
 - 工作流目录 pagedata 合同新增断言：状态字段绑定正式 workflowStatus 选项视图，以 statusCode 取值、txt 展示。专项3项通过，仍待实服选项与业务消费验收。
 - 正式目录挂载回归 formal-topic-pages 38项通过，其中工作流目录显示由字典解析的「已启用」、定义编辑选择状态并核对测试存储值。工作流列表与编辑器均消费正式场景 workflowStatus@default；实服渲染待重新登录后验证。
 - 数据工作流新增入口提示对齐已知领码前置条件，明确建行与编码回写尚待合同。页面定向回归1项通过；没有发起新增或领码。
+- 工作流领码复用边界：Excel catalog/creation.ts 已复用 BusinessCodeAssignmentResource，并对原方案确认、专用规则和仅 coding 回写作领域校验。工作流目录 pagedata 明确 workflow_key 不可变，不能直接搬用 Excel 的普通字段回写；须另证工作流正式创建命令或专用回写权限，本轮零写入。
+- 工作流创建合同复核：源码派生的 /ai/workflow/create 归 AiWorkflowController，数据工作流 /api/Workflow 只列运行和测试，不能将不同领域端点接入。SPARK data 的 DataView/save-rule-validator 会拦截普通 workflow_key 回写；通用领码资源仅负责编码命令，不提供工作流建行授权。
+- 工作流字段历史回读仅确认 workflow_key 为 varchar、输出字段、非主键、非计算；未覆盖可空性、默认值及实服回写权限。前端 immutable 继续保护普通编辑。

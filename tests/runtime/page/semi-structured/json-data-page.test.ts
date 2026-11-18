@@ -120,6 +120,13 @@ it('creates JSON through native file and catalog views, file first, with both re
  const opening=vi.spyOn(LowcodeJsonData,'loadCatalog');const f=await open();const loaded=opening.mock.results[0];opening.mockRestore();if(loaded?.type!=='return')throw new Error('Formal catalog load did not return');const instance=await loaded.value;await f.click('新增');await setNewName(f.wrapper,'  新增JSON  ');await f.edit('{"new":[false,null,[]]}');state.http.beforeSave=async()=>{expect(state.uploads).toHaveLength(1)};await f.click('创建JSON')
  expect(state.http.saves).toHaveLength(1);const added=state.http.saves[0]!.added[0];expect(added?.['name']).toBe('新增JSON');expect(state.files.get(`${String(added?.['rowid'])}.json`)).toBe('{"new":[false,null,[]]}');expect(state.dirty[0]?.isDirty).toBe(false)
  const catalog=instance.getView('Base_JsonData')!;await catalog.refresh();const row=catalog.rows.find(item=>item['rowid']===added?.['rowid']);if(!row)throw new Error('Created catalog record missing on reread');expect(LowcodeDataSpaceSourceCatalog.source('json',catalog,row)).toMatchObject({id:added?.['rowid'],name:'新增JSON',type:'json'})
+ const fileName=`${String(added?.['rowid'])}.json`
+ await f.edit('{"updated":2}');await f.click('保存内容')
+ expect(state.files.get(fileName)).toBe('{"updated":2}')
+ expect(state.uploads).toEqual([fileName,fileName])
+ expect(state.http.saves).toHaveLength(1)
+ expect(state.dirty[0]?.isDirty).toBe(false)
+
 })
 it('cancels a new JSON before either source is written',async()=>{
  const f=await open();await f.click('新增');await setNewName(f.wrapper,'cancel');await f.edit('{"cancel":true}');await f.click('取消新增');expect(state.http.saves).toEqual([]);expect(state.uploads).toEqual([]);expect(state.http.records['Base_JsonData']).toHaveLength(2);expect(state.dirty[0]?.isDirty).toBe(false);await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/other')

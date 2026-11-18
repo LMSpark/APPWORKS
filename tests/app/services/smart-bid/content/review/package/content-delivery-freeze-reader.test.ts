@@ -77,10 +77,16 @@ it('preserves unknown on a complete empty original read and requires readable te
    evidence:requirements.map(requirement=>({...releaseScope,...requirement,evidenceRef:requirement.targetId,
     accepted:true,assertCurrent:host.assertCurrent}))}))
   const page=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
+   readFreezeSelection:async()=>({selectionRef:'FIXED',selection:frozen,assertCurrent:host.assertCurrent,
+    uses:[{...member,projectId:'P',evidenceRef:'APPROVAL',usage:null,allowed:true,assertCurrent:host.assertCurrent}]}),
    readPackageSelection:async()=>({request,options:reviewOptions,assertCurrent:host.assertCurrent}),
    readPackageRelease,
   })
   const signal=new AbortController().signal
+  await expect(page.invoke('content.submission.prepareFreeze',{selectionRef:'OTHER'},signal))
+   .rejects.toThrow('SUBMISSION_PAGE_FREEZE_SCOPE')
+  await expect(page.invoke('content.submission.prepareFreeze',{selectionRef:'FIXED'},signal))
+   .resolves.toMatchObject({record:{selectionHash:hashes.selectionHash}})
   await expect(page.invoke('content.submission.reviewPackage',{...reviewOptions.package,packingRequestRef:'OTHER'},signal))
    .rejects.toThrow('SUBMISSION_PAGE_PACKAGE_SCOPE')
   const checked=await page.invoke('content.submission.reviewPackage',reviewOptions.package,signal)

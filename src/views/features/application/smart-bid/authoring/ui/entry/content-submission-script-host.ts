@@ -8,6 +8,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {recoverSubmissionAttempt} from '@/services/smart-bid/content/review/submission-attempt-recovery'
+import {prepareDeliveryFreezeSelection} from '@/services/smart-bid/content/review/delivery-selection-digest'
 import {readRegisteredSubmissionRequest} from '../../model/review/submission/content-submission-request-reader'
 import {readRegisteredSubmissionEvents} from '../../model/review/submission/content-submission-events-reader'
 import {readRegisteredChannelReceiptPairing} from '../../model/review/submission/content-channel-receipt-pairing-reader'
@@ -30,6 +31,7 @@ type DeadlineDisposition=Parameters<typeof attachDeadlinePackageDisposition>
 type PackageReview=Parameters<typeof reviewRegisteredDeliveryZipPackage>
 /** 当前实包的原放行规则及证据。 */
 type PackageRelease=Parameters<typeof assessSubmissionPackageRelease>
+type FreezePreparation=Parameters<typeof prepareDeliveryFreezeSelection>
 /** 读取原截止记录对应的回执和核对证据。 */
 type ReadDeadline=(record:Awaited<ReturnType<typeof readRegisteredDeadlineRecord>>,signal:AbortSignal)=>Promise<Readonly<{
  options:Deadline[2]
@@ -61,6 +63,9 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
    original:Readonly<Pick<PackageRelease[0],'projectId'|'packageId'|'packageHash'|'selectionHash'>>,signal:AbortSignal
   )=>Promise<Readonly<{rules:PackageRelease[1];evidence:PackageRelease[2]}>>
   readSubmissionPreparation?:SubmissionPreparation
+  readFreezeSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
+   selectionRef:string;selection:FreezePreparation[0];uses:FreezePreparation[1];assertCurrent:()=>void
+  }>>
  }>={}){
  async function readRelease(proof:PackageRelease[0],signal:AbortSignal){
   proof.assertCurrent()
@@ -78,6 +83,19 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)throw Error('SUBMISSION_PAGE_STALE')
    }
    const host={...scope,runtime,assertCurrent}
+   if(name==='content.submission.prepareFreeze'&&sources.readFreezeSelection){
+    const {selectionRef}=input
+    if(!identity(selectionRef))throw Error('SUBMISSION_PAGE_FREEZE_SCOPE')
+    assertCurrent()
+    const selected=await sources.readFreezeSelection(selectionRef,signal)
+    const assertSelection=()=>{assertCurrent();selected.assertCurrent()}
+    assertSelection()
+    if(selected.selectionRef!==selectionRef||selected.selection.groupScope.projectId!==projectId)
+     throw Error('SUBMISSION_PAGE_FREEZE_SCOPE')
+    const prepared=await prepareDeliveryFreezeSelection(selected.selection,selected.uses)
+    assertSelection()
+    return Object.freeze({...prepared,assertCurrent:()=>{assertSelection();prepared.assertCurrent()}})
+   }
    if(name==='content.submission.prepareRequest'&&sources.readSubmissionPreparation){
     const {attemptRef,requestKey,combinedWithdrawalTarget=null}=input
     if(!identity(attemptRef)||!identity(requestKey)||

@@ -16,7 +16,7 @@ async function __init__() {
 }
 
 function bindOriginalSubmission() {
-  if ($route.query.attemptRef === undefined && (bindPackage().visible || bindPaperPackage().visible || bindSubmissionPreparation().visible)) return {visible: false}
+  if ($route.query.attemptRef === undefined && (bindPackage().visible || bindPaperPackage().visible || bindSubmissionPreparation().visible || bindFreezePreparation().visible)) return {visible: false}
   if (!original) return {error: lookupError ?? '原递交记录无法读取'}
   try {
     original.assertCurrent()
@@ -32,6 +32,23 @@ function bindOriginalSubmission() {
     return {status: original.evidenceRef ? `${status}，凭据 ${original.evidenceRef}` : status}
   } catch {
     return {error: '原递交查询已失效'}
+  }
+}
+
+function bindFreezePreparation() {
+  const ref = $route.query.freezeSelectionRef
+  return {visible: typeof ref === 'string' && !!ref && ref.trim() === ref}
+}
+
+async function openFreezePreparation() {
+  if (!bindFreezePreparation().visible) return
+  try {
+    const prepared = await $page.invokeHostCommand('content.submission.prepareFreeze', {selectionRef: $route.query.freezeSelectionRef})
+    prepared.assertCurrent()
+    const {record} = prepared
+    await $page.showAlert(`待冻结选件 ${record.selectionId} · 版本 ${record.selectionVersion}\n共 ${record.members.length} 件\n摘要 ${record.selectionHash}`, '交付选件核验')
+  } catch (error) {
+    $page.showMessage(error?.message === 'DELIVERY_FREEZE_MEMBER_USE' ? '选件缺同版用途凭据或包含只读件' : '无法核验待冻结选件', 'warning')
   }
 }
 

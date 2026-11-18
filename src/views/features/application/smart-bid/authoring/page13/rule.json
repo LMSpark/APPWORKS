@@ -5,6 +5,14 @@
     "props": {"title": "签署与递交", "onBeforeRender": "bindOriginalSubmission"}
   },
   {
+    "id": "delivery-freeze-preparation",
+    "type": "r-section",
+    "props": {"title": "交付选件", "onBeforeRender": "bindFreezePreparation"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核验待冻结选件", "onClick": "openFreezePreparation"}}
+    ]
+  },
+  {
     "id": "submission-preparation",
     "type": "r-section",
     "props": {"title": "递交前核验", "onBeforeRender": "bindSubmissionPreparation"},

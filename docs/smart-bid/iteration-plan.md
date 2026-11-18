@@ -695,3 +695,5 @@ I1 缺少权威能力时，明确登记平台缺口；可并行推进人工编�
 2026-11-18 SmartBid I5 第06项：GenerationRun@originalResult 核同项目、运行、试次、请求及锁；返回正文必须具当次字段读权。页18业务读取入口串联两个正式DataView并验证，不重派发。专项2项与ESLint通过，正式视图部署及页面实测待验。
 
 2026-11-18 SmartBid I5：同一 DataSet 内联验 ContextManifest@originalDispatch 与 GenerationRun@originalResult，原清单至实发至验证候选通过。刷新任一来源撤销原证明；无远程写入。专项 Vitest 与 ESLint 通过，生产页18及真实SSE仍待验。
+
+2026-11-18 SmartBid I5 第02项：复用 ClassModelRuntime model_query 与 model_action_guide 定位当前根可达的精确类型及方法，核原指南摘要，错根/错方法或指南变动不继续。专项Vitest、ESLint通过；正式指南的平台注册与实服连接待验。

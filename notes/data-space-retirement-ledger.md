@@ -11683,3 +11683,5 @@ flowchart TD
 - 第10包触发配置：正式页面上 activeType 与 timeExp 分别由标准 Radio/Text 绑定；两项保存/取消回归通过。台账历史独立回读已证 time/Cron 保存及重开，夹具已清理；当前实际调度仍待验。
 - 工作流创建只读前置核查入口：数据库表字段元数据现有标准列 IsNill、DefaultValue（field-metadata.ts），可用于已授权物理表读取；当前未确认 Base_WorkflowDefinition 到物理库表的正式定位及目标字段返回，未写入。
 - 工作流物理表只读定位：历史正式编码规则 E06753D019382D5E479264B70258ADE0 给出 BusTableRowid=F73ED4B293524AD7A251D37DEE659CCF、BusTableName=Base_WorkflowDefinition、KeyFields=rowid。可按该物理表身份在授权字段目录取证，仍待当前读回 IsNill/DefaultValue，未发起服务写入。
+- 第10包执行专项复跑：workflow-execution-runtime/contract 两文件27项通过，覆盖派发后身份变化仍保留未知、原命令不重放。实服六节点整流执行与实际调度证据仍待。
+- 工作流执行面板使用 hasUnconfirmedSave 锁定新测试、取消和关闭，并提示缺少按原请求核验接口。保留原请求的证据限当前实例，未证跨实例恢复或服务终态。

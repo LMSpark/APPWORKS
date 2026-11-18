@@ -1,4 +1,26 @@
 /* global $page, $route */
+function bindSubmissionObligations() {
+  const {frozenBaselineId} = $route.query
+  return {visible: typeof frozenBaselineId === 'string' && !!frozenBaselineId && frozenBaselineId.trim() === frozenBaselineId}
+}
+
+async function openSubmissionObligations() {
+  if (!bindSubmissionObligations().visible) return
+  try {
+    const result = await $page.invokeHostCommand('tender.followup.readBaselineObligations', {baselineId: $route.query.frozenBaselineId})
+    result.assertCurrent()
+    const lines = ['依据基线 ' + result.baselineId]
+    for (const item of result.obligations) {
+      lines.push(`${item.obligationRef} · ${item.required ? '必交' : '按条件选用'} · ${item.kind === 'DOCUMENT' ? '分册' : '独立递交'} · 依据 ${item.sourceRef}`)
+      if (item.allowedDisclosureRefs.length) lines.push('获准披露范围 ' + item.allowedDisclosureRefs.join('、'))
+    }
+    if (!result.obligations.length) lines.push('该基线还没有可核的递交事项登记')
+    await $page.showAlert(lines.join('\n'), '应递交事项')
+  } catch {
+    $page.showMessage('基线递交事项无法核验', 'warning')
+  }
+}
+
 function bindOriginalAttempts() {
   const {revisionId} = $route.query
   return {visible: typeof revisionId === 'string' && !!revisionId && revisionId.trim() === revisionId}

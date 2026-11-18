@@ -6,6 +6,7 @@ import {tenderAddendumScenarioView} from '@/views/features/application/smart-bid
 import {tenderChangeChapterScenarioViews} from '@/views/features/application/smart-bid/followup/tender-change-chapter-reader'
 import {tenderChangeCallScenarioView} from '@/views/features/application/smart-bid/followup/tender-change-call-reader'
 import {tenderChangeAttemptScenarioView} from '@/views/features/application/smart-bid/followup/tender-change-attempt-reader'
+import {submissionObligationScenarioView} from '@/views/features/application/smart-bid/followup/submission-obligation-reader'
 import {bidProjectScopeScenarioViews} from '@/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {SNAPSHOT_HASH_CONTRACT} from '@/services/smart-bid/content/revision-snapshot-index'
@@ -36,6 +37,8 @@ it('reads the original addendum locations for the current project, lot and round
   ContentRevision:{projectId:'P',id:'ORIGINAL',status:'ADOPTED',stageRef:'STAGE',baselineId:'OLD',templateRefs:[],snapshotHash},
   RevisionSnapshot:{projectId:'P',id:'S1',snapshotHash,manifest},
   Baseline:{projectId:'P',id:'OLD',stageRef:'STAGE',factVersions:[],requirementVersions:[{lineageId:'CLAUSE',version:'V1'}],tenderRecords:[]},
+  SubmissionObligation:{projectId:'P',id:'O',baselineId:'OLD',obligationRef:'O',sourceRef:'FORM-V1',
+   kind:'INDEPENDENT',required:true,allowedDisclosureRefs:['PUBLIC']},
   GenerationRun:{projectId:'P',id:'CALLS',basisRevisionId:'ORIGINAL',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST',actualRequirementReads:[
    {lineageId:'CLAUSE',version:'V1',callRef:'USED',resultRef:'RESULT',fieldPath:'requirements.qualification'},
    {lineageId:'CLAUSE',version:'V2',callRef:'OTHER',resultRef:'RESULT',fieldPath:'requirements.qualification'},
@@ -46,7 +49,8 @@ it('reads the original addendum locations for the current project, lot and round
  }
  const chapterViews=tenderChangeChapterScenarioViews({ContentRevision:'id',RevisionSnapshot:'id'})
  const baselineViews=bidProjectScopeScenarioViews({ContentProject:'id',ContentRevision:'id',Baseline:'id'}).Baseline
- const views={...chapterViews,Baseline:baselineViews,GenerationRun:{originalRequirementReads:tenderChangeCallScenarioView('id'),
+ const views={...chapterViews,Baseline:baselineViews,SubmissionObligation:{originalBaselineObligations:submissionObligationScenarioView('id')},
+  GenerationRun:{originalRequirementReads:tenderChangeCallScenarioView('id'),
   originalBasisAttempts:tenderChangeAttemptScenarioView('id')}}
  const contextTables=Object.fromEntries(Object.entries(rows).map(([model,record])=>[model,{
   modelBinding:{modelName:model,modelId:model},columns:Object.keys(record).map(name=>({name,isPrimaryKey:name==='id'})),
@@ -66,7 +70,7 @@ it('reads the original addendum locations for the current project, lot and round
     data:{Count:1,Items:[{...row,roundId,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
   })})
   const revisionViews={ContentRevision:'originalImpactRevision',RevisionSnapshot:'originalImpactSnapshot',Baseline:'previousFrozenBaseline',
-   GenerationRun:'originalRequirementReads'}
+   GenerationRun:'originalRequirementReads',SubmissionObligation:'originalBaselineObligations'}
   for(const model of Object.keys(rows) as Array<keyof typeof rows>){
    const source=ds.getView(model,revisionViews[model])
    if(!source)throw Error('TEST_REFERENCE_VIEW_REQUIRED')
@@ -103,6 +107,10 @@ it('reads the original addendum locations for the current project, lot and round
   const readDeadline=vi.fn(async()=>deadline)
   const page=createTenderFollowupScriptHost(runtime,{scenarioId:'S',projectId:'P',assertCurrent},{selection:scope,readDeadline})
   const signal=new AbortController().signal
+  const obligations=await page.invoke('tender.followup.readBaselineObligations',{baselineId:'OLD'},signal)
+  expect(obligations).toMatchObject({baselineId:'OLD',obligations:[{obligationRef:'O',sourceRef:'FORM-V1',kind:'INDEPENDENT'}]})
+  await expect(page.invoke('tender.followup.readBaselineObligations',{baselineId:'OTHER'},signal))
+   .rejects.toThrow('BID_SUBMISSION_OBLIGATION_SCOPE')
   const listed=await page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL'},signal)
   expect(listed).toMatchObject({basisRevisionId:'ORIGINAL',items:[{runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST'}]})
   const history=await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal)

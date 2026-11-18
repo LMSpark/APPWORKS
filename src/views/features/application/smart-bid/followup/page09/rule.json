@@ -16,6 +16,14 @@
     ]
   },
   {
+    "id": "tender-followup-submission-obligations",
+    "type": "r-section",
+    "props": {"title": "应递交事项", "onBeforeRender": "bindSubmissionObligations"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看基线递交事项", "onClick": "openSubmissionObligations"}}
+    ]
+  },
+  {
     "id": "tender-followup-outbound-impact",
     "type": "r-section",
     "props": {"title": "递交批次反查", "onBeforeRender": "bindOutboundImpact"},

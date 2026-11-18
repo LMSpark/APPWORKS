@@ -10,6 +10,7 @@ import {readTenderChangeChapterPins} from './tender-change-chapter-reader'
 import {readTenderAddendum} from './tender-addendum-reader'
 import {readTenderChangeCallReferences} from './tender-change-call-reader'
 import {readTenderChangeAttempts} from './tender-change-attempt-reader'
+import {readBaselineSubmissionObligations} from './submission-obligation-reader'
 import {matchFollowupNoticeToDeadlinePackage,type reconcileDeadlineDelivery} from '../authoring/model/review/deadline/content-deadline-reconciliation'
 
 type Read=Parameters<typeof readRegisteredTenderFollowupNotices>
@@ -52,6 +53,11 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
    const {revisionId}=input
    if(Object.keys(input).length!==1||!identity(revisionId))throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
    return readTenderChangeAttempts({...host,runtime,assertCurrent},revisionId)
+  }
+  if(name==='tender.followup.readBaselineObligations'){
+   const {baselineId}=input
+   if(Object.keys(input).length!==1||!identity(baselineId))throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
+   return readBaselineSubmissionObligations({...host,runtime,assertCurrent},baselineId)
   }
   if(name==='tender.followup.traceOriginalAttempts'){
    const {revisionId,addendumId}=input

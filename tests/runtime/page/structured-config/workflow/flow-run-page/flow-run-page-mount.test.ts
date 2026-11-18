@@ -14,20 +14,27 @@ import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/r
 import workbenchScenario from '../../../../../../config/pages/workflow/flow-workbench/pagedata.json'
 import {fixture as designFixture} from '../flow-design/flow-design-data.fixture'
 const {reloadRuntime} = vi.hoisted(() => ({reloadRuntime: vi.fn(async () => undefined)}))
-const {openTool} = vi.hoisted(() => ({openTool: vi.fn<(pageId: string) => PageTool>()}))
+const {openTool, runtimeOptions} = vi.hoisted(() => ({
+  openTool: vi.fn<(pageId: string) => PageTool>(),
+  runtimeOptions: vi.fn<(options: {tool: (pageId: string) => PageTool; scenarioId: string; navigationId?: string}) => void>(),
+}))
 const callbacks = vi.hoisted(() => ({end: vi.fn(async (_payload: unknown) => true), succeeded: vi.fn(async (_payload: unknown) => {}), failed: vi.fn((_payload: unknown) => {})}))
 
 vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => {
   const {ref} = await import('vue')
   return {
-    useFeaturePageRuntime: ({tool}: {tool: (pageId: string) => PageTool}) => ({
-      session: {get runtime() {openTool.mockImplementation(tool); return undefined}},
-      viewKey: ref('E328FBBF518141973C575D612CD75151@View_FlowObjList@default'),
-      ready: ref(true),
-      loading: ref(false),
-      error: ref(''),
-      loadCurrentRoute: reloadRuntime,
-    }),
+    useFeaturePageRuntime: (options: Parameters<typeof runtimeOptions>[0]) => {
+      runtimeOptions(options)
+      openTool.mockImplementation(options.tool)
+      return {
+        session: {runtime: undefined},
+        viewKey: ref('E328FBBF518141973C575D612CD75151@View_FlowObjList@default'),
+        ready: ref(true),
+        loading: ref(false),
+        error: ref(''),
+        loadCurrentRoute: reloadRuntime,
+      }
+    },
   }
 })
 const routeState = reactive({query: {wfid: 'WF-1', flowid: 'FM-1', stepid: ''}, meta: {}, path: '/test'})
@@ -67,6 +74,7 @@ vi.mock('@spark-appworks/spark-component', async importOriginal => {
   }
 })
 
+const {default: MobileFlowRunPage} = await import('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue')
 const {default: FlowRunPage} = await import('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue')
 
 type MockView = {
@@ -193,6 +201,19 @@ afterEach(() => {
 })
 
 describe('flow run page mount', () => {
+  it('keeps the mobile navigation node distinct from the monitoring data space', async () => {
+    const mobile = pagePool.get(fixtureRouter.currentRoute.value, {scope: 'application', nodeId: 'mobile-navigation-node',
+      pageId: 'mobile-navigation-node', path: '/test/mobile', title: '移动办理', component: MobileFlowRunPage, explicitQuery: {}})
+    wrappers.push(mount(withTestPageService(mobile.view), {global: {plugins: [ElementPlus, Spark.createPlugin()]}}))
+    await flushPromises()
+    const options = runtimeOptions.mock.lastCall?.[0]
+    expect(options?.scenarioId).toBe(FLOW_MONITOR_SCENARIO_ID)
+    expect(options).not.toHaveProperty('navigationId')
+    const tool = openTool('mobile-navigation-node')
+    expect(tool.pageId).toBe('mobile-navigation-node')
+    expect(tool.getFileText('rule.json')).toBe(openTool(FLOW_MONITOR_SCENARIO_ID).getFileText('rule.json'))
+  })
+
   it('loads the history rule under the original navigation and workbench view identities', async () => {
     wrappers.push(mount(withTestPageService(Host), {global: {plugins: [ElementPlus, Spark.createPlugin()]}}))
     await flushPromises()

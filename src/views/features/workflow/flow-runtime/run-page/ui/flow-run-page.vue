@@ -82,7 +82,8 @@ import FlowAppendUser from '@/views/features/workflow/flow-append-user/ui/flow-a
 import FlowRunRouteRenderer from './flow-run-route-renderer.vue'
 import {useFlowRunPage} from './use-flow-run-page'
 
-const scenarioId = 'E328FBBF518141973C575D612CD75151'
+const props = defineProps<{mobile?: boolean}>()
+const scenarioId = FLOW_MONITOR_SCENARIO_ID
 const route = useRoute()
 const routeQuery = () => readFlowRuntimeRouteQuery(route.query)
 const {
@@ -101,7 +102,7 @@ const {
     tool.markLoaded()
     return tool
   },
-  navigationId: FLOW_MONITOR_SCENARIO_ID,
+  ...(!props.mobile ? {navigationId: FLOW_MONITOR_SCENARIO_ID} : {}),
   modelName: 'View_FlowObjList',
   componentType: 'flow-run-page',
   title: '流程办理',

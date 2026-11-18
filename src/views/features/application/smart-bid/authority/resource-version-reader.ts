@@ -46,23 +46,24 @@ async function readHistory(host:Parameters<typeof readOriginalRegistrationView>[
  assertScope()
  if(view.countReported!==true||view.total!==view.rows.length||view.nextPageAvailable===true)throw Error('BID_RESOURCE_HISTORY_INCOMPLETE')
  const assertResult=view.captureReadResult(),knownVersions=new Set<string>()
- const entries=new Map<string,Readonly<{version:string;id:string}>>()
+ const entries=new Map<string|number,Readonly<{version:string;id:string}>>()
  const proofs=view.rows.map(row=>{
   const proof=view.captureReadRow(row,historyFields)
   const {id,version,typeVersion,createdAt}=row
   const rowKey=view.getPkKey(row)
   if(row['resourceId']!==resourceId||!identity(id)||!identity(version)||!identity(typeVersion)||!identity(createdAt)||
-   !identity(rowKey)||knownVersions.has(version)||entries.has(rowKey))throw Error(error)
+   !(identity(rowKey)||(typeof rowKey==='number'&&Number.isSafeInteger(rowKey)))||knownVersions.has(version)||entries.has(rowKey))throw Error(error)
   knownVersions.add(version)
   entries.set(rowKey,Object.freeze({version,id}))
   return proof
  })
  const assertCurrent=()=>{assertScope();assertResult();for(const proof of proofs)proof()}
  assertCurrent()
- return Object.freeze({dataViewKey,count:proofs.length,assertCurrent,async readVersion(rowKey:string){
+ return Object.freeze({dataViewKey,count:proofs.length,assertCurrent,async readVersion(rowKey:string|number,selection:unknown){
   assertCurrent()
   const entry=entries.get(rowKey)
-  if(!entry)throw Error(error)
+  if(!entry||!isRecord(selection)||selection['resourceId']!==resourceId||selection['version']!==entry.version||
+   selection['id']!==entry.id)throw Error(error)
   const result=await readVersion({...host,assertCurrent},{resourceId,version:entry.version})
   assertCurrent()
   if(result.state==='READ'&&result.versionId!==entry.id)throw Error(error)

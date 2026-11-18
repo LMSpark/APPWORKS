@@ -52,8 +52,8 @@ async function openHistoricalResourceVersion(row, _column, _event, control) {
   const history = currentResourceHistory()
   if (!history) return
   const rowKey = $page.resolveView(history.dataViewKey)?.getPkKey(row)
-  if (typeof rowKey !== 'string' || !rowKey) return
-  await showResourceVersion(() => history.readVersion(rowKey))
+  if (rowKey === undefined) return
+  await showResourceVersion(() => history.readVersion(rowKey, row))
 }
 
 async function showResourceVersion(read) {

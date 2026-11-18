@@ -55,6 +55,11 @@ it('shows only the requested original metadata and suppresses unauthorized prove
   expect(view.queryContext).toMatchObject({resourceId:'RESOURCE',version:'V1'})
   await openHistoricalResourceVersion(history.rows[0])
   expect(showAlert).toHaveBeenCalledTimes(2)
+  await openHistoricalResourceVersion({...history.rows[0],version:'OTHER'})
+  expect(showAlert).toHaveBeenCalledTimes(2)
+  expect(showMessage).toHaveBeenCalledExactlyOnceWith('所选资料原版无法核验','warning')
+  expect(view.queryContext).toMatchObject({resourceId:'RESOURCE',version:'V1'})
+  showMessage.mockClear()
   originalId='DIFFERENT-ID'
   await openHistoricalResourceVersion(history.rows[0])
   expect(showAlert).toHaveBeenCalledTimes(2)

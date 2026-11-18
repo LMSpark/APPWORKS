@@ -8,17 +8,45 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {openContentOperationWorkspace} from './content-operation-workspace'
 
 type Open=Parameters<typeof openContentOperationWorkspace>
+type Recover=Parameters<ReturnType<typeof openContentOperationWorkspace>['recoverOriginal']>
+type ResolveGuide=(attempt:Recover[0],signal:AbortSignal)=>Promise<Recover[1]|undefined>
 
-export function createContentOperationScriptHost<Runtime extends Open[0]>(runtime:Runtime,classModel:Open[1],scope:Omit<Open[2],'signal'>){
+export function createContentOperationScriptHost<Runtime extends Open[0]>(runtime:Runtime,classModel:Open[1],
+ scope:Omit<Open[2],'signal'>&Readonly<{resolveOriginalGuide?:ResolveGuide}>){
  return {runtime,assertCurrent:scope.assertCurrent,
   async invoke(name:string,input:unknown,signal:AbortSignal){
    if(!isRecord(input))throw Error('OPERATION_PAGE_COMMAND_REQUIRED')
    const workspace=openContentOperationWorkspace(runtime,classModel,{...scope,signal})
+   if(name==='content.operation.prepareRework'){
+    const {runId,attemptRef,requestKey,reason}=input
+    if(!identity(runId)||!identity(attemptRef)||!identity(requestKey)||typeof reason!=='string'||!reason.trim())
+     throw Error('OPERATION_PAGE_REWORK_REQUIRED')
+    const prepared=await workspace.prepareRework({runId,attemptRef,requestKey,reason:reason.trim()})
+    prepared.assertCurrent()
+    return Object.freeze({handoffs:prepared.handoffs,originalOperations:prepared.originalOperations,
+     reusable:prepared.reusable,assertCurrent:prepared.assertCurrent})
+   }
    if(name==='content.operation.readDispatch'){
     const {runId,attemptRef,requestKey,targetDigest,configurationLockHash}=input
     if(!identity(runId)||!identity(attemptRef)||!identity(requestKey)||!identity(targetDigest)||!identity(configurationLockHash)||
      ![targetDigest,configurationLockHash].every(value=>/^[a-f0-9]{64}$/u.test(value)))throw Error('OPERATION_PAGE_ATTEMPT_REQUIRED')
-    const readback=await workspace.readDispatch({projectId:scope.projectId,runId,attemptRef,requestKey,targetDigest,configurationLockHash})
+    const attempt={projectId:scope.projectId,runId,attemptRef,requestKey,targetDigest,configurationLockHash}
+    const guide=await scope.resolveOriginalGuide?.(attempt,signal)
+    if(guide){
+     const verified=await workspace.recoverOriginal(attempt,guide)
+     verified.assertCurrent()
+     const dispatch='dispatch' in verified?verified.dispatch:undefined
+     const result='result' in verified?verified.result:undefined
+     const assertCurrent=verified.assertCurrent
+     return Object.freeze({
+      state:dispatch&&'dispatchRef' in dispatch?'DISPATCH_RECORDED':'UNKNOWN',
+      ...(dispatch&&'dispatchRef' in dispatch?{dispatchRef:dispatch.dispatchRef,actualInputDigest:dispatch.actualInputDigest}:{}),
+      verification:Object.freeze({state:verified.state,
+       receiptRef:result&&'receiptRef' in result?result.receiptRef:undefined,assertCurrent}),
+      assertCurrent,
+     })
+    }
+    const readback=await workspace.readDispatch(attempt)
     readback.assertCurrent()
     return readback.state==='DISPATCH_RECORDED'
      ?Object.freeze({state:readback.state,dispatchRef:readback.dispatchRef,actualInputDigest:readback.actualInputDigest,assertCurrent:readback.assertCurrent})

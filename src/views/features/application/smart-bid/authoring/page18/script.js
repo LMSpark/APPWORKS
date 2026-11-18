@@ -5,6 +5,7 @@ let selectionGeneration = 0
 let dispatch
 let dispatchError
 let hasAttempt = false
+let reworkPending = false
 
 async function __init__() {
   const generation = ++selectionGeneration
@@ -69,6 +70,50 @@ function bindOriginalDispatch() {
     return {error: '原试次实发查询已失效'}
   }
   return {error: dispatchError ?? '原试次实发记录无法读取'}
+}
+
+function bindOriginalVerification() {
+  if (!hasAttempt) return {visible: false}
+  const result = dispatch?.verification
+  if (!result) return {error: dispatchError ?? '缺同版核验指南，待核原返回'}
+  try {
+    result.assertCurrent()
+    const state = {
+      VERIFIED_CANDIDATE: '候选核验通过', DISPATCH_UNKNOWN: '实发未知',
+      DISPATCH_EVIDENCE_REQUIRED: '待核实发证据', RETURN_UNKNOWN: '原返回未知',
+      PARTIAL: '原返回不完整', FAILED: '原试次失败', UNKNOWN: '原试次状态未知',
+    }[result.state] ?? '待核原返回'
+    return {status: result.receiptRef ? `${state}，回执 ${result.receiptRef}` : state}
+  } catch {
+    return {error: '原试次核验已失效'}
+  }
+}
+
+function bindRework() {
+  const {runId, attemptRef, requestKey} = $route.query
+  return {disabled: ![runId, attemptRef, requestKey].every(value => typeof value === 'string' && value && value.trim() === value)}
+}
+
+async function prepareRework() {
+  if (reworkPending || bindRework().disabled) return
+  reworkPending = true
+  try {
+    const reason = await $page.showPrompt('请说明本次返工原因', '准备返工交接')
+    if (typeof reason !== 'string' || !reason.trim()) return
+    const {runId, attemptRef, requestKey} = $route.query
+    const prepared = await $page.invokeHostCommand('content.operation.prepareRework', {runId, attemptRef, requestKey, reason})
+    prepared.assertCurrent()
+    const lines = [
+      ...prepared.handoffs.map(item => `调用 ${item.callRef} → ${item.destination}`),
+      ...prepared.originalOperations.map(item => `原办理 ${item.callRef} → ${item.destination}（${item.ownerRef}）`),
+      ...prepared.reusable.map(item => `可沿用 ${item.resultRef}`),
+    ]
+    await $page.showAlert(lines.join('\n'), '返工交接预览')
+  } catch {
+    $page.showMessage('返工证据无法核验', 'warning')
+  } finally {
+    reworkPending = false
+  }
 }
 
 async function readGuide(row) {

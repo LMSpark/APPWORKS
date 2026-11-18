@@ -71,6 +71,13 @@ it('reads the original result only for the selected attempt and verifies the ret
   expect(verified).toMatchObject({state:'VERIFIED_CANDIDATE',dispatch:{dispatchRef:'DISPATCH'},result:{receiptRef:'RECEIPT'}})
   await dispatchView.refresh()
   expect(()=>verified.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  const verificationHost=createContentOperationScriptHost(scriptHost.runtime,
+   {executeTool:async()=>{throw Error('UNEXPECTED_CLASS_MODEL_CALL')}},
+   {...host,rootKind:'OperationRoute',resolveOriginalGuide:async()=>guide})
+  const inspected=await verificationHost.invoke('content.operation.readDispatch',scope,signal)
+  expect(inspected).toMatchObject({state:'DISPATCH_RECORDED',dispatchRef:'DISPATCH',
+   verification:{state:'VERIFIED_CANDIDATE',receiptRef:'RECEIPT'}})
+  expect(inspected).not.toHaveProperty('verification.candidateJson')
   hideFrozen=true
   await expect(workspace.recoverOriginal(scope,guide)).rejects.toThrow('DATA_VIEW_READ_ROW')
   hidden=true

@@ -21,5 +21,13 @@
     "id": "original-operation-dispatch",
     "type": "r-section",
     "props": {"title": "原试次实发记录", "onBeforeRender": "bindOriginalDispatch"}
+  },
+  {
+    "id": "original-operation-verification",
+    "type": "r-section",
+    "props": {"title": "原试次返回核验", "onBeforeRender": "bindOriginalVerification"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看返工交接", "onBeforeRender": "bindRework", "onClick": "prepareRework"}}
+    ]
   }
 ]

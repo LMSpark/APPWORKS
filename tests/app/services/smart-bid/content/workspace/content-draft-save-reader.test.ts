@@ -35,5 +35,9 @@ it('reads only the original authorized save result and keeps a missing result un
   await expect(readRegisteredOriginalContentDraftSave(host,input)).rejects.toThrow('CONTENT_DRAFT_SAVE_RECEIPT_SCOPE')
   missing=true
   await expect(readRegisteredOriginalContentDraftSave(host,input)).resolves.toMatchObject({state:'UNKNOWN'})
+  const mismatched={...host,receiptDataViewKey:'S@OtherReceipt@originalDraftSave',runtime:{resolveView:()=>view}}
+  await expect(readRegisteredOriginalContentDraftSave(mismatched,input)).rejects.toThrow('CONTENT_DRAFT_SAVE_RECEIPT_VIEW_REQUIRED')
+  view.queryConfig={...view.queryConfig,cacheType:'page'}
+  await expect(readRegisteredOriginalContentDraftSave(host,input)).rejects.toThrow('CONTENT_DRAFT_SAVE_RECEIPT_VIEW_REQUIRED')
  }finally{ds.destroy()}
 })

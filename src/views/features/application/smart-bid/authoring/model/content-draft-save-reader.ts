@@ -13,9 +13,6 @@ import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-r
 type Request=Parameters<typeof readOriginalContentDraftSave>[0]
 const keys=['projectId','draftId','authorId','requestKey','requestDigest'] as const
 const fields=[...keys,'expectedDraftVersion','contentDigest','state']
-const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName!=='WorkingDraft'&&
- view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
- keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
 
 /** 原办理视图地址由正式场景交付，原作者只能取当前会话。 */
 export function readRegisteredOriginalContentDraftSave(host:ContentRevisionReadHost&Readonly<{
@@ -26,6 +23,10 @@ export function readRegisteredOriginalContentDraftSave(host:ContentRevisionReadH
  host.assertCurrent()
  const parsed=parseDataViewKey(key)
  if(!identity(scenarioId)||parsed?.scope!==scenarioId||parsed.tableName==='WorkingDraft')throw Error(error)
+ const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName===parsed.tableName&&view.viewId===parsed.viewId&&
+  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+  (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
+  keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
  return readOriginalContentDraftSave({...input,projectId,draftId,authorId:actorUserId},{
   assertCurrent:()=>host.assertCurrent(),
   async lookup(request){

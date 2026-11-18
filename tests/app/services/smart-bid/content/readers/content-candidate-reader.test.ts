@@ -36,6 +36,13 @@ it('requires calculation inputs for exactly the original selected table placehol
    .rejects.toThrow('CONTENT_CALCULATION_GENERATOR_VERSION')
   const result=await candidate.hashNodeCalculationInputs(['H','T'],[table],sources)
   expect(result.tables.map(item=>item.nodeId)).toEqual(['T'])
+  const builtIn=await candidate.hashNodeCalculationInputs(['T'],[{...table,generatorVersion:'1'}],{
+   assertInputsCurrent:assertInputs,
+   readTemplate:async ref=>({...await readTemplate(ref),classes:[
+    {name:'deviation',elements:['table'],generatorKey:'attachment-index'},
+   ]}),
+  })
+  expect(builtIn.tables.map(item=>item.nodeId)).toEqual(['T'])
   registryCurrent=false;expect(()=>result.assertCurrent()).toThrow('GENERATOR_STALE')
   registryCurrent=true
   current=false;expect(()=>result.assertCurrent()).toThrow('CALCULATION_INPUT_STALE')

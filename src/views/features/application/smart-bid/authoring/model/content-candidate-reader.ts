@@ -21,6 +21,7 @@ import {readContentTenderRecord} from './content-tender-record-reader'
 import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/services/smart-bid/content/content-scoped-preview'
 import {readEffectiveFactDependencies} from './hashes/effective-fact-reader'
 import {hashCalculationInputs} from '@/services/smart-bid/content/hashes/calculation-inputs-hash'
+import {readBuiltInCalculationGenerator} from '@/services/smart-bid/content/calculation-table-registry'
 import {previewContentTextSnapshot,type ContentResponseTextSnapshot,type ContentTextSnapshotPreview} from '@/services/smart-bid/content/content-text-snapshot-preview'
 import {captureContentTextSpan,type ContentTextSelection,type VerifiedContentTextSpan} from '@/services/smart-bid/content/content-text-span'
 
@@ -35,7 +36,7 @@ type FixedCalculationTemplate=RevisionTemplateRef&Readonly<{classes:unknown;asse
 type ReadFixedCalculationTemplate=(ref:RevisionTemplateRef)=>Promise<FixedCalculationTemplate>
 type CalculationSources=Readonly<{
  readTemplate:ReadFixedCalculationTemplate
- readGenerator:(key:string)=>Readonly<{key:string;version:string;assertCurrent:()=>void}>|undefined
+ readGenerator?:(key:string)=>Readonly<{key:string;version:string;assertCurrent:()=>void}>|undefined
  assertInputsCurrent:()=>void
 }>
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
@@ -146,7 +147,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   return Object.freeze({tables:Object.freeze(tables),assertCurrent:assertInputs})
  }
  const hashNodeCalculationInputs:ContentCandidateBinding['hashNodeCalculationInputs']=async(nodeIds,tables,sources)=>{
-  const {readTemplate,readGenerator,assertInputsCurrent}=sources
+  const {readTemplate,readGenerator=readBuiltInCalculationGenerator,assertInputsCurrent}=sources
   assertCurrent();assertInputsCurrent()
   const resolution=await resolveCalculationGenerators(nodeIds,readTemplate)
   const proofs=new Set<()=>void>(),generatorVersions=new Map<string,string>()

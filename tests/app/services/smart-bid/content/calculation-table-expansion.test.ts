@@ -1,6 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {expandCalculationTable} from '@/services/smart-bid/content/calculation-table-expansion'
 import {ATTACHMENT_INDEX_GENERATOR,generateAttachmentIndex} from '@/services/smart-bid/content/attachment-index-generator'
+import {expandBuiltInCalculationTable} from '@/services/smart-bid/content/calculation-table-registry'
 
 const placeholder={nodeId:'T',parentId:'C',type:'table',index:0,class:['deviation'],value:'',data:{header:[],rows:[]}}
 const data={header:['页'],rows:[[{value:'{{页}}',data:{页:{type:'page',nodeId:'H'}}}]]}
@@ -22,8 +23,9 @@ it('rejects unresolved, incomplete or stale generated results',()=>{
 
 it('expands an attachment index in recorded order with fixed resource and page references',()=>{
  const entries=[{resourceVersionId:'ATTACHMENT-2',nodeId:'H'},{resourceVersionId:'ATTACHMENT-1',nodeId:'H'}]
- const result=expandCalculationTable({...input,generatorKey:ATTACHMENT_INDEX_GENERATOR.key,
-  generatorVersion:ATTACHMENT_INDEX_GENERATOR.version,generate:()=>generateAttachmentIndex(entries)})
+ const {generate:_generate,...scope}=input
+ const request={...scope,generatorKey:ATTACHMENT_INDEX_GENERATOR.key,generatorVersion:ATTACHMENT_INDEX_GENERATOR.version,entries}
+ const result=expandBuiltInCalculationTable(request)
  expect(result.data).toEqual({
   header:['附件','页码'],
   rows:entries.map(({resourceVersionId,nodeId})=>[
@@ -32,4 +34,6 @@ it('expands an attachment index in recorded order with fixed resource and page r
   ]),
  })
  expect(()=>generateAttachmentIndex([entries[0],entries[0]])).toThrow('CONTENT_ATTACHMENT_INDEX_ENTRY')
+ expect(()=>expandBuiltInCalculationTable({...request,generatorVersion:'previous'})).toThrow('CONTENT_CALCULATION_GENERATOR_VERSION')
+ expect(()=>expandBuiltInCalculationTable({...request,generatorKey:'unknown'})).toThrow('CONTENT_CALCULATION_GENERATOR_VERSION')
 })

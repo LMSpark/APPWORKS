@@ -76,7 +76,11 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
   .toMatchObject({state:'DISPATCH_EVIDENCE_REQUIRED'})
  expect(readResult).not.toHaveBeenCalled()
  expect(await recoverOperationRouteAttempt(manifest,recovery)).toMatchObject({state:'VERIFIED_CANDIDATE',
-  result:{dispatchRef:'SENT',guideRef:'GUIDE'}})
+  result:{dispatchRef:'SENT',guideRef:'GUIDE'},actualRequirementReads:null})
+ expect(await recoverOperationRouteAttempt(withRequirement,recovery)).toMatchObject({state:'VERIFIED_CANDIDATE',
+  actualRequirementReads:[{lineageId:'CLAUSE',version:'V1',fieldPath:provenance[0]?.slotId,callRef:'SENT',resultRef:'RESULT'}]})
+ expect(await recoverOperationRouteAttempt(withRequirement,{...recovery,readResult:async()=>({...receipt,state:'PARTIAL'})}))
+  .toMatchObject({state:'PARTIAL',actualRequirementReads:null})
  expect(readResult).toHaveBeenCalledWith(scope)
  await expect(recoverOperationRouteAttempt(manifest,{...recovery,guide:{...guide,guideDigest:'0'.repeat(64)}}))
   .rejects.toThrow('OPERATION_ROUTE_RETURN_GUIDE_SCOPE')

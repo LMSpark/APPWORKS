@@ -31,7 +31,7 @@ export function contentOperationScenarioViews(primaryKeys:Readonly<Record<'Knowl
    originalVersion:view(['projectId','guideRef','versionRef'],guideFields,{primaryKey:KnowledgeGuide}),
   },
   ContextManifest:{
-   originalFrozen:view(attemptScope,[...attemptFields,'guideRef','guideVersionRef','guideDigest','usable','inputDigest'],{primaryKey:ContextManifest}),
+   originalFrozen:view(attemptScope,[...attemptFields,'guideRef','guideVersionRef','guideDigest','usable','inputDigest','requirementReads'],{primaryKey:ContextManifest}),
    originalDispatch:view(attemptScope,[...attemptFields,'dispatchRef','actualInputDigest','actualInput'],{primaryKey:ContextManifest}),
   },
   GenerationRun:{

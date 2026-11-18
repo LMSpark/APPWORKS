@@ -5,7 +5,8 @@
  * AI用途：定位原试次输入或清单身份不匹配的原因。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
-import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {snapshotReferenceFields,snapshotReferenceIdentity as identity,visitSnapshotReferences}
+ from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 import type {recoverRegisteredOperationRouteAttempt} from './content-operation-result-reader'
 
@@ -40,11 +41,22 @@ export async function readRegisteredFrozenOperationContext(host:ContentRevisionR
   throw Error('OPERATION_FROZEN_READ_INCOMPLETE')
  const assertRead=view.captureReadResult(),row=view.rows[0]
  if(!row)return undefined
- const assertRow=view.captureReadRow(row,fields)
+ const rawReads=row['requirementReads']
+ const hasReads=rawReads!==null&&rawReads!==undefined
+ const assertRow=view.captureReadRow(row,hasReads?[...fields,'requirementReads']:fields)
  const assertCurrent=()=>{assertScope();assertRead();assertRow()}
  const {guideRef,guideVersionRef,guideDigest,usable,inputDigest}=row
  if(Object.entries(scope).some(([field,value])=>row[field]!==value)||!identity(guideRef)||!identity(guideVersionRef)||!digest(guideDigest)||
   typeof usable!=='boolean'||(usable?!digest(inputDigest):inputDigest!==null))throw Error('OPERATION_FROZEN_READ_SCOPE')
  assertCurrent()
- return Object.freeze({scope,guideRef,guideVersionRef,guideDigest,usable,inputDigest:usable&&digest(inputDigest)?inputDigest:null,assertCurrent})
+ const requirementReads:Array<Readonly<{fieldPath:string;lineageId:string;version:string}>>=[],seen=new Set<string>()
+ if(hasReads)visitSnapshotReferences(rawReads,value=>{
+  const error='OPERATION_FROZEN_REQUIREMENT_READS'
+  const {fieldPath,lineageId,version}=snapshotReferenceFields(value,['fieldPath','lineageId','version'],error)
+  if(!identity(fieldPath)||!identity(lineageId)||!identity(version)||seen.has(fieldPath))throw Error(error)
+  seen.add(fieldPath)
+  requirementReads.push(Object.freeze({fieldPath,lineageId,version}))
+ },'OPERATION_FROZEN_REQUIREMENT_READS')
+ return Object.freeze({scope,guideRef,guideVersionRef,guideDigest,usable,inputDigest:usable&&digest(inputDigest)?inputDigest:null,
+  requirementReads:Object.freeze(requirementReads),assertCurrent})
 }

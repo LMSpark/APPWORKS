@@ -10,7 +10,8 @@ import {verifyDispatchedOperationRouteReturn} from './operation-route-return'
 
 /** 原调用固定的输入、工具版本和证据清单。 */
 type Manifest=Pick<Awaited<ReturnType<typeof freezeOperationRouteContext>>,
- 'scope'|'guideRef'|'guideVersionRef'|'guideDigest'|'usable'|'inputDigest'|'assertCurrent'>
+ 'scope'|'guideRef'|'guideVersionRef'|'guideDigest'|'usable'|'inputDigest'|'assertCurrent'>&
+ Partial<Pick<Awaited<ReturnType<typeof freezeOperationRouteContext>>,'requirementReads'>>
 /** 原办理发出的请求及其回查凭据。 */
 type Dispatch=Parameters<typeof verifyOriginalOperationRouteDispatch>[1]
 /** 原调用返回并用于核验的结果证据。 */
@@ -40,5 +41,10 @@ export async function recoverOperationRouteAttempt(manifest:Manifest,source:Read
  dispatch.assertCurrent()
  if(response===undefined)return Object.freeze({state:'RETURN_UNKNOWN' as const,dispatch,assertCurrent:dispatch.assertCurrent})
  const result=await verifyDispatchedOperationRouteReturn(dispatch,response,source.guide)
- return Object.freeze({state:result.state,dispatch,result,assertCurrent:result.assertCurrent})
+ const actualRequirementReads=result.state==='VERIFIED_CANDIDATE'&&manifest.requirementReads?.length?
+  Object.freeze(manifest.requirementReads.map(reference=>Object.freeze({
+   ...reference,callRef:dispatch.dispatchRef,resultRef:response.receiptRef,
+  }))):null
+ result.assertCurrent()
+ return Object.freeze({state:result.state,dispatch,result,actualRequirementReads,assertCurrent:result.assertCurrent})
 }

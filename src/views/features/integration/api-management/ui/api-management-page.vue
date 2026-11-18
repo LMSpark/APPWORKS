@@ -11,7 +11,7 @@ AI用途：恢复外部服务入口时复用标准外壳、通用记录对话框
       <template #content="{children}">
         <template v-for="(child, index) in children" :key="nodeId(child) ?? index">
           <ApiConfigPage v-if="nodeId(child) === 'api-provider-config' && ready && dialog?.kind === 'config'"
-            :key="dialog.epoch" :provider-id="dialog.id" :config="child" @close="dialog = null" @interfaces="openConfigInterfaces" />
+            :key="dialog.epoch" ref="providerConfig" :provider-id="dialog.id" :config="child" @close="dialog = null" />
           <SparkComponentRenderer v-else-if="nodeId(child) !== 'api-provider-config'" :config="child" />
         </template>
       </template>
@@ -79,6 +79,7 @@ type ProviderDialog = Readonly<{kind: 'record'; id: string | number; created: bo
   | Readonly<{kind: 'ai'; epoch: number}>
 type InterfaceDialog = Readonly<{id: string; name: string; epoch: number}>
 const dialog = ref<ProviderDialog | null>(null)
+const providerConfig = ref<InstanceType<typeof ApiConfigPage>[]>([])
 const interfaces = ref<InterfaceDialog | null>(null)
 const busy = ref(false), message = ref(''), revision = ref(0)
 let epoch = 0
@@ -112,6 +113,12 @@ const host=computed(()=>{
   const assertCurrent=()=>{if(!session.isCurrent(current))throw new Error('外部服务目录实例已失效')}
   return {runtime:current,assertCurrent,async invoke(command:string,input:unknown){
     assertCurrent()
+    if (dialog.value?.kind === 'config') {
+      const config = providerConfig.value[0]
+      if (command === 'providers.configInterfaces') return openConfigInterfaces()
+      if (command === 'providers.configSave') return await config?.saveAuthentication()
+      if (command === 'providers.configVerify') return await config?.verifyOriginalSaves()
+    }
     if(command==='providers.connect')return {
       blocked:()=>blocked.value,unresolved:()=>unresolvedModifier.value,
       canEdit:(row:DataRow|null|undefined)=>!!row&&list().editActionState(row)==='enabled',

@@ -14,3 +14,6 @@ async function editProvider(row) { await $page.invokeHostCommand('providers.edit
 async function deleteProvider(row) { await $page.invokeHostCommand('providers.remove',row?.rowid) }
 async function openInterfaces(row) { await $page.invokeHostCommand('providers.interfaces',row?.rowid) }
 async function openConfig(row) { await $page.invokeHostCommand('providers.config',row?.rowid) }
+async function openConfigInterfaces() { await $page.invokeHostCommand('providers.configInterfaces') }
+async function saveProviderAuthentication() { await $page.invokeHostCommand('providers.configSave') }
+async function verifyProviderConfiguration() { await $page.invokeHostCommand('providers.configVerify') }

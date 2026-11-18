@@ -21,7 +21,7 @@ const {PAGE_RUNTIME, SparkComponentRenderer, useSparkComponent, consumeRequiredP
 
 const scenarioId = '446B5D94A71587E9BD4D325A4DF5F6F8'
 const props = defineProps<ApiConfigPageProps>()
-const emit = defineEmits<{close: []; interfaces: []}>()
+const emit = defineEmits<{close: []}>()
 const {sparkConsume} = useSparkComponent({type: 'api-config-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'api-config-page')
 const key = (table: string, viewId = 'default') => buildDataViewKey(table, viewId, scenarioId)
@@ -116,13 +116,13 @@ const dialogConfig = computed<SparkNode>(() => {
   const actions = getSparkNodeChildren(header?.children).map(node => ({
     ...node,
     props: nodeId(node) === 'config-save'
-      ? {...node.props, disabled: !ready.value || busy.value || unconfirmed.value, onClick: () => save(authKey)}
-      : {...node.props, disabled: busy.value, onClick: () => emit('interfaces')},
+      ? {...node.props, disabled: !ready.value || busy.value || unconfirmed.value}
+      : {...node.props, disabled: busy.value},
   }))
   const children = getSparkNodeChildren(section.children).flatMap(node => {
     if (node.type === 'r-tabs') return ready.value ? [bindTabs(node)] : []
     return unconfirmed.value
-      ? [{...node, props: {...node.props, disabled: busy.value, onClick: verifyOriginalSaves}}]
+      ? [{...node, props: {...node.props, disabled: busy.value}}]
       : []
   })
   return {
@@ -158,8 +158,8 @@ function run(viewKey: string, action: FeatureTableAction): Promise<void> {
     if (action === 'save' && viewKey === parameterKey && loaded.has('headers')) await view(referencesKey).refresh()
   })
 }
-function save(viewKey: string): Promise<void> {
-  return run(viewKey, 'save')
+async function saveAuthentication(): Promise<void> {
+  if (active && ready.value && !unconfirmed.value) await run(authKey, 'save')
 }
 function verifyOriginalSaves(): Promise<void> {
   return act(async () => {
@@ -169,6 +169,7 @@ function verifyOriginalSaves(): Promise<void> {
     }
   })
 }
+defineExpose({saveAuthentication, verifyOriginalSaves})
 async function close(): Promise<void> {
   if (busy.value || unconfirmed.value || pendingTabs.size > 0) return
   if (dirty.value) {

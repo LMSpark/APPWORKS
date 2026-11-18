@@ -4,12 +4,17 @@
  * 边界：只组合原证据；检查写入、审定决策及交付放行由原业务动作负责。
  */
 import {compareReviewCoverage} from '@/services/smart-bid/content/review/review-coverage'
+import {projectReviewChecks} from '@/services/smart-bid/content/review/review-check-evidence'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import type {readApprovalCoverageEvidence} from './content-approval-coverage'
 
 type CoverageInput=Parameters<typeof compareReviewCoverage>[0]
 type CoverageSelection=Readonly<{projectId:string;revisionId:string;targets:CoverageInput['targets'];assertCurrent:()=>void}>
-type CoverageChecks=Readonly<{projectId:string;revisionId:string;checks:CoverageInput['checks'];assertCurrent:()=>void}>
+type CoverageChecks=Readonly<{
+ projectId:string;revisionId:string
+ completed:Parameters<typeof projectReviewChecks>[0];findings:Parameters<typeof projectReviewChecks>[1]
+ assertCurrent:()=>void
+}>
 type ApprovalProof=Awaited<ReturnType<typeof readApprovalCoverageEvidence>>
 
 /** 当前检查必须来自所选修订；旧批准沿原判定证据比较有效摘要。 */
@@ -30,6 +35,7 @@ export async function readContentReviewCoverage(selection:CoverageSelection,appr
  const assertCurrent=()=>{selection.assertCurrent();current.assertCurrent();for(const approval of proofs)approval.assertCurrent()}
  assertCurrent()
  if(current.projectId!==projectId||current.revisionId!==revisionId)throw Error('CONTENT_REVIEW_CHECK_REVISION')
- const result=compareReviewCoverage({targets,approvals:proofs.flatMap(approval=>approval.evidence),checks:current.checks})
+ const result=compareReviewCoverage({targets,approvals:proofs.flatMap(approval=>approval.evidence),
+  checks:projectReviewChecks(current.completed,current.findings)})
  return Object.freeze({...result,assertCurrent})
 }

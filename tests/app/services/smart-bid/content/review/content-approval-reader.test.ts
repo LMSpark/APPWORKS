@@ -35,10 +35,15 @@ it('reads the original approval by exact identity and refuses an unreadable auth
   expect(coverage.evidence).toEqual([{kind:'FILE',targetId:'FILE-1',effectiveHash:'b'.repeat(64),approvalRef:'A'}])
   const target={kind:'FILE' as const,targetId:'FILE-1',effectiveHash:'b'.repeat(64),requiredUseIds:['PRICE']}
   const selection={projectId:'P',revisionId:'CURRENT',targets:[target],assertCurrent:()=>{}}
-  const readChecks=async()=>({projectId:'P',revisionId:'CURRENT',checks:[{...target,checkRef:'CHECK',
-   openBlockerIds:[],checkedUses:[{id:'PRICE',useCheckRef:'USE'}]}],assertCurrent:()=>{}})
+  const readChecks=async()=>({projectId:'P',revisionId:'CURRENT',completed:[{...target,checkRef:'CHECK',
+   checkedUses:[{id:'PRICE',useCheckRef:'USE'}]}],findings:[],assertCurrent:()=>{}})
   const review=await readContentReviewCoverage(selection,[coverage],readChecks)
   expect(review.complete).toBe(true)
+  const unchecked=await readContentReviewCoverage(selection,[coverage],async()=>({...await readChecks(),completed:[]}))
+  expect(unchecked.items[0]?.state).toBe('CHECK_REQUIRED')
+  const blocked=await readContentReviewCoverage(selection,[coverage],async()=>({...await readChecks(),
+   findings:[{...target,id:'FINDING',severity:'BLOCK',status:'OPEN'}]}))
+  expect(blocked.items[0]?.state).toBe('BLOCKED')
   await expect(readContentReviewCoverage(selection,[coverage],async()=>({...await readChecks(),revisionId:'R'})))
    .rejects.toThrow('CONTENT_REVIEW_CHECK_REVISION')
   await expect(readApprovalCoverageEvidence(approval,async ref=>({...await original(ref),authorityRef:'OTHER'})))

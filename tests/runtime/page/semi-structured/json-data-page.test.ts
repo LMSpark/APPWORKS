@@ -118,6 +118,21 @@ it('renders the shared JSON catalog through the three tool files without reading
   expect(state.http.saves).toHaveLength(1)
   expect(state.http.records['Base_JsonData']?.[0]?.['name']).toBe('修改目录')
   expect(state.uploads).toEqual(['J2.json'])
+  await click('新增')
+  await flushPromises()
+  await vi.waitFor(()=>expect(documentValue(rendered)).toEqual({}))
+  await click('取消新增')
+  await flushPromises()
+  expect(state.uploads).toEqual(['J2.json'])
+  expect(state.http.saves).toHaveLength(1)
+  await click('新增')
+  await flushPromises()
+  await setNewName(rendered,'配置页新增')
+  state.http.beforeSave=async()=>{expect(state.uploads).toHaveLength(2)}
+  await click('创建JSON')
+  await flushPromises()
+  expect(state.http.saves).toHaveLength(2)
+  expect(state.http.saves[1]?.added[0]?.['name']).toBe('配置页新增')
  }finally{wrapper?.unmount();session.dispose()}
 })
 it('displays a failed catalog query once through the standard table with metadata hidden',async()=>{

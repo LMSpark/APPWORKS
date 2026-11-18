@@ -4,6 +4,7 @@
     "type": "r-section",
     "props": {"title": "JSON 文件数据管理", "class": "json-data-catalog", "bordered": false, "gridColumns": 1, "onBeforeRender": "bindCatalogSection"},
     "children": [
+      {"type": "r-button", "props": {"label": "新增", "onBeforeRender": "bindCatalogCreate", "onClick": "createJsonDocument"}},
       {"type": "r-button", "props": {"label": "保存目录", "onBeforeRender": "bindCatalogSave", "onClick": "saveJsonCatalog"}},
       {"type": "r-button", "props": {"label": "取消目录修改", "onBeforeRender": "bindCatalogCancel", "onClick": "cancelJsonCatalog"}},
       {
@@ -20,6 +21,15 @@
         "children": [
           {"type": "r-text", "props": {"field": "name", "label": "名称", "maxlength": 200, "minWidth": 220, "onBeforeRender": "bindCatalogField"}},
           {"type": "r-text", "props": {"field": "description", "label": "摘要", "maxlength": 500, "minWidth": 220, "onBeforeRender": "bindCatalogField"}}
+        ]
+      },
+      {
+        "id": "json-document-create-metadata",
+        "type": "r-form",
+        "props": {"autoColumns": false, "showDataViewMeta": false, "onBeforeRender": "bindCreationMetadata"},
+        "children": [
+          {"type":"r-text","props":{"field":"name","label":"名称","maxlength":200,"onBeforeRender":"bindCreationField"}},
+          {"type":"r-text","props":{"field":"description","label":"摘要","maxlength":500,"onBeforeRender":"bindCreationField"}}
         ]
       },
       {

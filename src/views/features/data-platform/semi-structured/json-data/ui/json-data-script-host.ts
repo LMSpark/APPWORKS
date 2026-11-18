@@ -5,6 +5,8 @@ import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/res
 /** Opens the exact catalog record in the tool's existing scenario. */
 export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,assertCurrent:()=>void,editable=false){
  let document:DataView|undefined
+ let creating:string|undefined
+ let fileConfirmed=false
  return {
   runtime,
   assertCurrent,
@@ -17,6 +19,34 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
    const dataSet=runtime.getDataSet(scenarioId)
    if(!dataSet)throw new Error('JSON正式目录视图缺失')
    if(command==='jsonData.canEditCatalog')return editable
+   const catalog=dataSet.getView(LowcodeJsonData.catalogMetaName)
+   if(command==='jsonData.createDocument'){
+    if(!editable||document||runtime.isDirty||!catalog||catalog.addActionState()!=='enabled')throw new Error('JSON_CATALOG_REQUEST')
+    await catalog.addRow({name:'',description:'',path:''})
+    assertActive()
+    const row=catalog.dirtyTracking.pendingCreateRows[0]
+    if(!row)throw new Error('JSON目录新增草稿缺失')
+    const key=String(catalog.getPkKey(row))
+    creating=key
+    fileConfirmed=false
+    try{
+     const view=LowcodeJsonData.openDocument(dataSet,key,{create:true})
+     document=view
+     await view.refresh()
+     assertActive()
+     if(view.loadingError)throw view.loadingError
+     await view.addRow({content:'{}'})
+     assertActive()
+     return {visible:true,dataViewKey:buildDataViewKey(view.tableName,view.viewId,scenarioId),contextRowId:key,editable,creating:true}
+    }catch(error){
+     assertActive()
+     document?.dataTable?.destroyView(document.viewId)
+     document=undefined
+     creating=undefined
+     catalog.discardPendingChanges([key])
+     throw error
+    }
+   }
    if(command==='jsonData.saveCatalog'||command==='jsonData.cancelCatalog'){
     const view=dataSet.getView(LowcodeJsonData.catalogMetaName)
     if(!editable||document||!view||view.mutating)throw new Error('JSON_CATALOG_REQUEST')
@@ -41,12 +71,38 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
     const view=document
     if(!editable||!view||view.queryContext['jsonId']!==id||view.mutating)throw new Error('JSON_DOCUMENT_REQUEST')
     if(command==='jsonData.cancelDocument'){
-     if(view.hasUnconfirmedSave)throw new Error('请先核验原保存结果')
+     if(view.hasUnconfirmedSave||fileConfirmed)throw new Error('请先核验原保存结果')
      view.discardPendingChanges()
+     if(creating===id){
+      catalog?.discardPendingChanges([id])
+      view.dataTable?.destroyView(view.viewId)
+      document=undefined
+      creating=undefined
+      return {closed:true}
+     }
     }else{
-     const result=await dataSet.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]})
-     assertActive()
-     if(!result.success)throw new Error(result.message??'保存未完整确认')
+     if(creating===id&&!fileConfirmed&&catalog&&!catalog.hasUnconfirmedSave){
+      const draft=catalog.getEditingRow(id)
+      if(!draft)throw new Error('JSON目录新增草稿缺失')
+      const invalid=catalog.validator?.validate(draft).errors[0]
+      if(invalid)throw new Error(invalid.message)
+     }
+     if(!fileConfirmed){
+      const result=await dataSet.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]})
+      assertActive()
+      if(!result.success)throw new Error(result.message??'保存未完整确认')
+      fileConfirmed=creating===id
+     }
+     if(creating===id&&catalog){
+      const result=await dataSet.saveChanges({views:[{tableName:catalog.tableName,viewId:catalog.viewId,ids:[id]}]})
+      assertActive()
+      if(!result.success)throw new Error(result.message??'目录保存未完整确认')
+      view.dataTable?.destroyView(view.viewId)
+      document=undefined
+      creating=undefined
+      fileConfirmed=false
+      return {closed:true}
+     }
     }
     const row=view.rows.find(candidate=>view.getPkKey(candidate)===id)
     if(row)view.setCurrentRow(row)

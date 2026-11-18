@@ -22,7 +22,7 @@ function draftNodes(draft:unknown):unknown[]{
  return draft['nodes']
 }
 
-it.each([false,true])('renders the three-file tool with original draft and optional authenticated editing host (%s)',async editable=>{
+it.each([[false,'id'],[true,'draftId']] as const)('renders the three-file tool with optional authenticated editing (%s) and primary key %s',async (editable,primaryKey)=>{
  const scenarioId='D3BBA1F0780056C837AC35E9825CAD5A'
  const nodes=[{nodeId:'B',parentId:'P',index:0,type:'document',class:[],value:'',data:{}},
   {nodeId:'C',parentId:'B',index:0,type:'chapter',class:[],value:'',data:{}},
@@ -40,11 +40,11 @@ it.each([false,true])('renders the three-file tool with original draft and optio
   views:{default:{},...planningViews[model as keyof typeof planningViews]},
  }]))
  const ds=DataSet.fromJson({scenarioId,tables:{...planningTables,WorkingDraft:{modelBinding:{modelId:'M',modelName:'WorkingDraft'},
-  columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},{name:'draft',type:'object'}],
+  columns:[{name:primaryKey,type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},{name:'draft',type:'object'}],
   views:{default:{},personalDraft:{commitMode:'staged'}}}}})
  const view=ds.getView('WorkingDraft','personalDraft')!,table=new DataSpaceQueryTable({scenarioId,metaName:'WorkingDraft'})
- const row={id:'D',projectId:'P',userId:'U',draft:{nodes,responseChanges:[]}}
- const query=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',data:{Count:1,
+ const row={[primaryKey]:'D',projectId:'P',userId:'U',draft:{nodes,responseChanges:[]}}
+ const query=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:primaryKey,data:{Count:1,
   Items:[{...row,lingma_sys_params:{r:[],e:editable?['draft']:[],h:[],m:[],d:false}}]}}})}))
  const save=vi.fn(async()=>{throw Error('NO_WRITE')})
  view.queryContext={projectId:'P',currentUserId:'U'};view.bindQueryExecutor({executeQuery:query,save});await view.refresh()
@@ -94,6 +94,9 @@ it.each([false,true])('renders the three-file tool with original draft and optio
   await flushPromises()
   expect(errors).not.toHaveBeenCalled()
   expect(wrapper.text()).toContain('标书正文编制');expect(wrapper.text()).toContain('实施方案')
+  const identityField=wrapper.findAll('.el-form-item').find(item=>item.text().includes('工作草稿'))
+  if(!identityField)throw Error('工作草稿标识未渲染')
+  expect(identityField.text().includes('D')||identityField.findAll('input').some(input=>input.element.value==='D')).toBe(true)
   expect(wrapper.findAll('.el-table__body-wrapper tbody tr')).toHaveLength(3)
   await wrapper.findAll('.el-table__body-wrapper tbody tr')[2]!.trigger('click');await flushPromises()
   expect(wrapper.text()).toContain('所选内容')

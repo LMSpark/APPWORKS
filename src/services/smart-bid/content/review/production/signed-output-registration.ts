@@ -24,6 +24,8 @@ export async function prepareSignedOutputRegistration(
   signedObjectRef,resourceVersionId,fileHash}=receipt
  const record=Object.freeze({projectId,documentId,revisionId,signatureOperationRef,signatureRecordId,originalFileId,
   originalHash,signedObjectRef,resourceVersionId,fileHash})
+ const {requestKey,requestDigest,objectVersion,signerRef,positionRef}=recovered.request
+ const signing=Object.freeze({requestKey,requestDigest,objectVersion,signerRef,positionRef})
  const assertOrigin=()=>{
   original.assertCurrent()
   receipt.assertCurrent()
@@ -35,6 +37,7 @@ export async function prepareSignedOutputRegistration(
    recovered.request.objectHash!==originalHash||
    recovered.operationRef!==signatureOperationRef||recovered.signatureRecordId!==signatureRecordId||
    recovered.signedObjectRef!==signedObjectRef||recovered.signedObjectHash!==fileHash||
+   Object.entries(signing).some(([key,value])=>recovered.request[key as keyof typeof signing]!==value)||
    Object.entries(record).some(([key,value])=>receipt[key as keyof typeof record]!==value))
    throw Error('BID_SIGNED_OUTPUT_SCOPE')
  }
@@ -51,5 +54,5 @@ export async function prepareSignedOutputRegistration(
  assertCurrent()
  if(resource.bytes.byteLength===0||await hashContentBytes(resource.bytes)!==fileHash)throw Error('BID_SIGNED_OUTPUT_HASH')
  assertCurrent()
- return Object.freeze({record,assertCurrent})
+ return Object.freeze({record:Object.freeze({...record,signing}),assertCurrent})
 }

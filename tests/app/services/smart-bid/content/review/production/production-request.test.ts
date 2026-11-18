@@ -59,7 +59,8 @@ it('keeps a signed file attached to its original file and signing operation',asy
  if(recovered.state!=='SIGNED')throw Error('TEST_SIGNATURE_RESULT_REQUIRED')
  const open=async()=>({projectId:'P',resourceVersionId:'AFTER',bytes,assertCurrent:()=>{}})
  const signed=await prepareSignedOutputRegistration(original,receipt,recovered,open)
- expect(signed.record).toMatchObject({originalFileId:'BEFORE',signatureOperationRef:'SIGN',resourceVersionId:'AFTER',fileHash})
+ expect(signed.record).toMatchObject({originalFileId:'BEFORE',signatureOperationRef:'SIGN',resourceVersionId:'AFTER',fileHash,
+  signing:{requestKey:'REQ',requestDigest:request.requestDigest,objectVersion:'V1',signerRef:'SIGNER',positionRef:'SEAL'}})
  await expect(prepareSignedOutputRegistration({...original,producedFileId:'OTHER'},receipt,recovered,open))
   .rejects.toThrow('BID_SIGNED_OUTPUT_SCOPE')
  await expect(prepareSignedOutputRegistration(original,receipt,recovered,async()=>({...await open(),resourceVersionId:'OTHER'})))

@@ -32,9 +32,9 @@ beforeEach(()=>{
 afterEach(()=>{wrappers.splice(0).forEach(w=>w.unmount());config.global.stubs=original})
 async function open(path='/json',meta:Record<string,unknown>={blueprintScenarioId:SCENE}){
  const router=createRouter({history:createMemoryHistory(),routes:[{path,component:JsonPage,meta},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push(path);await router.isReady()
- const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'json-page-test-host'});const service:PageServiceCapability={copyText:async()=>{},showMessage:()=>{},showConfirm:async()=>true,showPrompt:async()=>null,showAlert:async()=>{},showDialog:async()=> 'cancel',selectEntities:async()=>[],browseFiles:async options=>{state.browseCalls.push(options??{});return state.picked},uploadFiles:async()=>{throw new Error('Direct host upload is forbidden in this JSON flow')},showLoading:()=>{},navigate:()=>{}};sparkProvide(PAGE_SERVICE,service);return()=>h(RouterView)}}),{attachTo:document.body,global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}});wrappers.push(wrapper);await flushPromises()
- const click=async(label:string)=>{const button=wrapper.findAll('button').find(b=>b.text()===label&&b.attributes('disabled')===undefined);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
- const choose=async(index=0)=>{await vi.waitFor(()=>expect(wrapper.findComponent(RendererTable).exists()).toBe(true));await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.trigger('click');await flushPromises();await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.findAll('button').find(b=>b.text()==='编辑文件')!.trigger('click');await flushPromises()}
+ const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'json-page-test-host'});const service:PageServiceCapability={copyText:async()=>{},showMessage:()=>{},showConfirm:async()=>true,showPrompt:async()=>null,showAlert:async()=>{},showDialog:async()=> 'cancel',selectEntities:async()=>[],browseFiles:async options=>{state.browseCalls.push(options??{});return state.picked},uploadFiles:async()=>{throw new Error('Direct host upload is forbidden in this JSON flow')},showLoading:()=>{},navigate:()=>{}};sparkProvide(PAGE_SERVICE,service);sparkProvide(PAGE_RUNTIME_SERVICES,{logger:{debug:vi.fn(),info:vi.fn(),warn:vi.fn(),error:vi.fn()},pageService:service});return()=>h(RouterView)}}),{attachTo:document.body,global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}});wrappers.push(wrapper);await flushPromises()
+ const click=async(requested:string)=>{const label=({'保存':'保存目录','取消':'取消目录修改','关闭':'关闭正文'} as Record<string,string>)[requested]??requested;const button=wrapper.findAll('button').find(b=>b.text()===label&&b.attributes('disabled')===undefined);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
+ const choose=async(index=0)=>{await vi.waitFor(()=>expect(wrapper.findComponent(RendererTable).exists()).toBe(true));await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.trigger('click');await flushPromises()}
  const edit=async(value:string)=>{wrapper.getComponent(FieldJson).getComponent(JsonTreeEditor).vm.$emit('update:modelValue',value);await flushPromises()}
  return {wrapper,router,click,choose,edit}
 }
@@ -186,10 +186,10 @@ it('displays a failed catalog query once through the standard table with metadat
  const f=await open();const errors=f.wrapper.findAll('[role="alert"]').filter(item=>item.text().includes('catalog query denied'));expect(errors).toHaveLength(1);expect(f.wrapper.find('[data-testid="data-view-meta"]').exists()).toBe(false)
 })
 describe('JSON document page on the formal DataSet',()=>{
- it('hosts the JSON catalog runtime through the shared native session',()=>{
+ it('hosts the JSON tool runtime through the shared native session',()=>{
   const source=readFileSync(resolve(process.cwd(),'src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue'),'utf8')
   expect(source).toContain('new NativePageRuntimeSession')
-  expect(source).toContain('session.isCurrent(current)')
+  expect(source).toContain('session.isCurrent(current)');expect(source).toContain('SparkPageRenderer')
   expect(source).not.toContain('new PageRuntime')
  })
  it('loads files only after selecting a record and binds the actual document rather than wire tree rows',async()=>{
@@ -240,7 +240,7 @@ it('keeps catalog edits out of an open content operation',async()=>{
 })
 it('keeps a catalog save unknown when the original database receipt is lost',async()=>{
  const f=await open();const input=f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON');expect(input).toBeDefined();await input!.setValue('改名');await flushPromises();state.http.failAfterWrite=true;await f.click('保存');expect(state.http.saves).toHaveLength(1)
- const cancel=f.wrapper.findAll('button').find(b=>b.text()==='取消');expect(cancel?.attributes('disabled')).toBeDefined();await f.click('核验目录保存结果');expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(true);expect(state.uploads).toEqual([])
+ const cancel=f.wrapper.findAll('button').find(b=>b.text()==='取消目录修改');expect(cancel?.attributes('disabled')).toBeDefined();await f.click('核验目录保存结果');expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(true);expect(state.uploads).toEqual([])
  expect(f.wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
 })
 
@@ -308,6 +308,7 @@ it('reports local file read failure without creating resources',async()=>{
 })
 it('ignores a late imported file after the navigation scenario changes',async()=>{
  let complete:((text:string)=>void)|undefined;const pending=new Promise<string>(resolve=>{complete=resolve});const f=await open();pickJson('late.json','{}',()=>pending);await f.click('导入JSON');expect(state.dirty[0]?.isDirty).toBe(true)
+ await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/json')
  f.router.currentRoute.value={...f.router.currentRoute.value,meta:{blueprintScenarioId:'OTHER'}};await flushPromises();complete?.('{}');await flushPromises();expect(state.http.saves).toEqual([]);expect(state.uploads).toEqual([]);expect(f.wrapper.text()).toContain('JSON目录场景身份不匹配');expect(state.dirty[0]?.isDirty).toBe(false)
 })
 it('preserves an imported array root and nested primitive values',async()=>{

@@ -5,6 +5,7 @@ let acting = false
 let inputPending = false
 let editorRevision = 0
 let catalogEditable = false
+let error = ''
 const catalogKey = 'FFDEF2AED3E19A38C0FCDDC748CF939B@Base_JsonData@default'
 
 async function __init__() {
@@ -23,11 +24,12 @@ function bindCatalogCreate() {
 
 async function createJsonDocument() {
   if (acting || bindCatalogCreate().disabled || !catalogEditable) return
+  error = ''
   acting = true
   try {
     documentBinding = await $page.invokeHostCommand('jsonData.createDocument')
   } catch (cause) {
-    $page.showMessage(cause.message, 'error')
+    error = String(cause?.message || cause)
   } finally {
     acting = false
   }
@@ -35,6 +37,7 @@ async function createJsonDocument() {
 
 async function importJsonDocument() {
   if (acting || bindCatalogCreate().disabled || !catalogEditable) return
+  error = ''
   acting = true
   try {
     await $page.invokeHostCommand('jsonData.setPickingFile', true)
@@ -47,7 +50,7 @@ async function importJsonDocument() {
     const result = await $page.invokeHostCommand('jsonData.saveDocument', documentBinding.contextRowId)
     if (result?.closed) documentBinding = undefined
   } catch (cause) {
-    if (!String(cause?.message).startsWith('PAGE_RUNTIME_STALE')) $page.showMessage(cause.message, 'error')
+    if (!String(cause?.message).startsWith('PAGE_RUNTIME_STALE')) error = String(cause?.message || cause)
   } finally {
     acting = false
     await $page.invokeHostCommand('jsonData.setPickingFile', false).catch(() => {})
@@ -87,16 +90,17 @@ function bindCatalogCancel() {
 
 function bindCatalogSection() {
   return {status: catalogEditable ? '' : '请进入已授权应用后维护 JSON 文件。',
-    error: documentBinding?.loadError || ''}
+    error: error || documentBinding?.loadError || ''}
 }
 
 async function submitJsonCatalog(command) {
   if (!catalogEditable || documentBinding || acting) return
+  error = ''
   acting = true
   try {
     await $page.invokeHostCommand(command)
   } catch (cause) {
-    $page.showMessage(cause.message, 'error')
+    error = String(cause?.message || cause)
   } finally {
     acting = false
   }
@@ -112,12 +116,13 @@ async function cancelJsonCatalog() {
 
 async function closeJsonDocument() {
   if (acting || inputPending || !documentBinding) return
+  error = ''
   acting = true
   try {
     await $page.invokeHostCommand('jsonData.closeDocument', documentBinding.contextRowId)
     documentBinding = undefined
   } catch (cause) {
-    $page.showMessage(cause.message, 'error')
+    error = String(cause?.message || cause)
   } finally {
     acting = false
   }
@@ -133,13 +138,14 @@ async function openJsonDocument(row) {
   const catalog = catalogView()
   if (acting || inputPending || catalog?.hasUnconfirmedSave || catalog?.hasEditingChanges() ||
     catalog?.dirtyTracking.hasPendingChanges() || view?.hasUnconfirmedSave || view?.hasEditingChanges() || view?.dirtyTracking.hasPendingChanges()) return
+  error = ''
   const generation = ++openGeneration
   documentBinding = undefined
   try {
     const binding = await $page.invokeHostCommand('jsonData.openDocument', row.rowid)
     if (generation === openGeneration) documentBinding = binding
   } catch (cause) {
-    if (generation === openGeneration) $page.showMessage(cause.message, 'error')
+    if (generation === openGeneration) error = String(cause?.message || cause)
   }
 }
 
@@ -158,6 +164,7 @@ function bindJsonField() {
   const view = currentDocument()
   return {
     dataViewKey: documentBinding?.dataViewKey,
+    onEditingChange: trackJsonInput,
     visible: !documentBinding?.loadError,
     readonly: !documentBinding?.editable || view?.mutating === true || view?.hasUnconfirmedSave === true || fileAlreadyConfirmed(view) === true,
   }
@@ -165,20 +172,21 @@ function bindJsonField() {
 
 function bindJsonSave() {
   const unknown = currentDocument()?.hasUnconfirmedSave === true
-  return {visible: documentBinding?.editable === true, disabled: !!documentBinding?.loadError || currentDocument()?.mutating === true || inputPending,
+  return {visible: documentBinding?.editable === true, disabled: !!documentBinding?.loadError || currentDocument()?.mutating === true,
     label: documentBinding?.creating && catalogView()?.hasUnconfirmedSave ? '核验目录保存结果' :
       unknown ? '核验内容保存结果' : documentBinding?.creating ? '创建JSON' : '保存内容'}
 }
 
 function bindJsonCancel() {
   const view = currentDocument()
-  return {visible: documentBinding?.editable === true, disabled: view?.mutating === true || inputPending ||
+  return {visible: documentBinding?.editable === true, disabled: view?.mutating === true ||
     view?.hasUnconfirmedSave === true || fileAlreadyConfirmed(view) === true,
     label: documentBinding?.creating ? '取消新增' : '取消修改'}
 }
 
 async function submitJsonDocument(command) {
   if (acting || inputPending || !documentBinding?.editable) return
+  error = ''
   acting = true
   try {
     const result = await $page.invokeHostCommand(command, documentBinding.contextRowId)
@@ -186,7 +194,7 @@ async function submitJsonDocument(command) {
     else if (result?.binding) documentBinding = result.binding
     editorRevision++
   } catch (cause) {
-    $page.showMessage(cause.message, 'error')
+    error = String(cause?.message || cause)
   } finally {
     acting = false
   }

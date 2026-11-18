@@ -38,7 +38,7 @@
         "type": "r-form",
         "props": {"autoColumns": false, "showDataViewMeta": false, "onBeforeRender": "bindJsonDocument"},
         "children": [
-          {"type": "r-json", "props": {"field": "content", "label": "JSON 内容", "mode": "tree", "onBeforeRender": "bindJsonField", "onEditingChange": "trackJsonInput"}},
+          {"type": "r-json", "props": {"field": "content", "label": "JSON 内容", "mode": "tree", "onBeforeRender": "bindJsonField"}},
           {"type": "r-button", "props": {"label": "保存内容", "onBeforeRender": "bindJsonSave", "onClick": "saveJsonDocument"}},
           {"type": "r-button", "props": {"label": "取消修改", "onBeforeRender": "bindJsonCancel", "onClick": "cancelJsonDocument"}},
           {"type": "r-button", "props": {"label": "关闭正文", "onClick": "closeJsonDocument"}}

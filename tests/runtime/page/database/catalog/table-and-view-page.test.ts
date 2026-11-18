@@ -1221,6 +1221,7 @@ describe('table-and-view-page', () => {
     await design!.trigger('click')
     await flushPromises()
     expect(wrapper.text()).toContain('数据工作流设计')
+    expect(wrapper.getComponent({name: 'WorkflowDesignPage'}).props('rowid')).toBe('W1')
   })
 
   it('loads physical table preview when table design data tab opens', async () => {

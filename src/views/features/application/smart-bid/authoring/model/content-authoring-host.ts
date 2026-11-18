@@ -69,7 +69,7 @@ function readableOwnDraft(view:DataView,target:ContentAuthoringTarget,actorUserI
 }
 
 /** 一次正文编制宿主；未保存输入/原视图编辑均阻止换目标，过期装配不能发布新绑定。 */
-export function captureContentAuthoringSession(target: ContentAuthoringTarget) {
+export function captureContentAuthoringSession(target: Pick<ContentAuthoringTarget,'applicationId'|'scenarioId'|'projectId'>) {
  const actorUserId = lowcodeApi.session.get()?.identity.userId
  const scope = lowcodeApi.readRequestScope()
  if (!actorUserId?.trim() || scope.headers['X-AppId'] !== target.applicationId) {

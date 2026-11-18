@@ -1,10 +1,19 @@
 import {expect,it,vi} from 'vitest'
+import {config,mount} from '@vue/test-utils'
+import ElementPlus from 'element-plus'
+import VXETable from 'vxe-table'
+import {Spark,SparkPageRenderer,registerAllRenderers} from '@spark-appworks/spark-component'
+import {createMemoryHistory,createRouter} from 'vue-router'
 import {DataSet} from '@spark-appworks/spark-data'
 import {AiAgentRegistration,AiAgentToolResult,DefaultAiAgentSessionStore,createSimpleInputContract} from '@spark-appworks/spark-ai/agent'
 import {discoverRegisteredOperationGuides} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader'
 import {openContentOperationWorkspace} from '@/views/features/application/smart-bid/authoring/entry/content-operation-workspace'
 import {createContentOperationScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-operation-script-host'
 import {hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
+import rule from '@/views/features/application/smart-bid/authoring/page18/rule.json?raw'
+import script from '@/views/features/application/smart-bid/authoring/page18/script.js?raw'
+import style from '@/views/features/application/smart-bid/authoring/page18/style.css?raw'
+import {PageRuntimePool} from '../../../../../../packages/spark-app/src/router/page-runtime-pool'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -18,7 +27,9 @@ it('discovers only the complete scoped directory and retains the original public
  const originalFilters=['projectId','guideRef','versionRef'].map(field=>({field,operator:'eq' as const,
   value:{Type:'GetInputParam',ParamName:field}}))
  const ds=DataSet.fromJson({scenarioId:'S',tables:{KnowledgeGuide:{
-  modelBinding:{modelId:'GUIDES',modelName:'KnowledgeGuide'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
+  modelBinding:{modelId:'GUIDES',modelName:'KnowledgeGuide'},columns:Object.keys(row).map(name=>({
+   name,type:name==='pathRefs'||name==='materialRefs'?'object':'string',isPrimaryKey:name==='id',
+  })),
   views:{default:{},originalVersion:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters:originalFilters}},
    effectiveDirectory:{commitMode:'staged',queryConfig:{autoQuery:false},
    scopeFilter:{logic:'and',filters:[...filters,{field:'state',operator:'eq',value:'EFFECTIVE'}]}}},
@@ -129,5 +140,33 @@ it('discovers only the complete scoped directory and retains the original public
   controller.abort()
   await expect(workspace.dispatch(options,{...dispatch,manifest:frozen})).rejects.toThrow('OPERATION_WORKSPACE_STALE')
   expect(()=>frozen.assertCurrent()).toThrow('OPERATION_WORKSPACE_STALE')
- }finally{ds.destroy()}
+  registerAllRenderers()
+  const path='/apps/APP/page18',tool={projectId:'APP',pageId:'PAGE18'}
+  const router=createRouter({history:createMemoryHistory(),routes:[{path,component:SparkPageRenderer,
+   meta:{type:'config-page',nodeId:'NODE18',pageId:'PAGE18',tool}}]})
+  const readPageFiles=vi.fn(async(commands:ReadonlyArray<{fileName:string}>)=>
+   commands.map(({fileName})=>fileName==='rule.json'?rule:fileName==='script.js'?script:style))
+  const executePageTool=vi.fn(tools.executeTool)
+  const pool=new PageRuntimePool({pageComponent:SparkPageRenderer,readPageFile:undefined,readPageFiles,
+   preparePageCall:()=>({scenarioInputs:{},assertCurrent:host.assertCurrent,
+    createHost:runtime=>createContentOperationScriptHost(runtime,{executeTool:executePageTool},{...host,rootKind:'OperationRoute'})}),
+   loadScenario:async()=>ds,readNavTree:()=>({title:'Fixture',childPlacement:'header',
+    items:[{id:'NODE18',title:'工艺',itemKind:'page',tool}]}),refreshRoutes:async()=>{}})
+  const originalStubs={...config.global.stubs},stubs={...originalStubs}
+  for(const key of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])delete stubs[key]
+  config.global.stubs=stubs
+  try{
+   await router.push({path,query:{scenarioId:'S',directoryRef:'DIR'}})
+   const component=pool.getPageRuntimeView(router.currentRoute.value)
+   if(!component)throw Error('TEST_OPERATION_PAGE_REQUIRED')
+   const rendered=mount(component,{global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
+   try{
+    await vi.waitFor(()=>expect(rendered.text()).toContain('目录指南 1 项，当前可达动作 1 项'),{timeout:3000})
+    const guideRow=rendered.findAll('tr').find(item=>item.text().includes('GUIDE'))
+    expect(guideRow).toBeDefined()
+    await guideRow?.trigger('click')
+    await vi.waitFor(()=>expect(executePageTool).toHaveBeenCalledWith('model_action_guide',{kind:'OperationRoute',actionName:'verify'}))
+   }finally{rendered.unmount()}
+  }finally{config.global.stubs=originalStubs;pool.disposePageRuntimes()}
+ }finally{if(!ds.destroyed)ds.destroy()}
 })

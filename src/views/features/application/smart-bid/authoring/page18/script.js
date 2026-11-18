@@ -116,7 +116,9 @@ async function prepareRework() {
   }
 }
 
-async function readGuide(row) {
+async function readGuide(row, _column, _event, control) {
+  // 表格的 current-change 维护选择，异步读指南不重复提交行选择。
+  if (control) control.cancel = true
   const current = currentDirectory()
   if (!current) return
   const generation = ++selectionGeneration

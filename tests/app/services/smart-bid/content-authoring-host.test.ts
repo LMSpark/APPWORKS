@@ -10,6 +10,7 @@ import {captureContentAuthoringSession,ContentAuthoringHost, type ContentAuthori
 import ContentDraftWorkspace from '@/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue'
 import {createPublishedContentAuthoringHost} from '@/views/features/application/smart-bid/authoring/entry/content-authoring-script-host'
 import {preparePublishedContentAuthoringCall} from '@/views/features/application/smart-bid/authoring/entry/content-authoring-target'
+import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import rule from '@/views/features/application/smart-bid/authoring/page11/rule.json?raw'
 import script from '@/views/features/application/smart-bid/authoring/page11/script.js?raw'
 import style from '@/views/features/application/smart-bid/authoring/page11/style.css?raw'
@@ -34,7 +35,7 @@ let wrapper:VueWrapper|undefined
 beforeEach(()=>{auth.token='session-1';auth.userId='U';auth.appId='APP';load.mockReset()})
 afterEach(()=>{wrapper?.unmount();wrapper=undefined;config.global.stubs=originalStubs})
 function fixture(scoped=true,hiddenProject:boolean|(()=>boolean)=false,draftKey='draftId',scenarioId='SPACE',projectCount=1,
- readDraftAuthor?:(actor:unknown)=>unknown) {
+ readDraftAuthor?:(actor:unknown)=>unknown,receipt?:Readonly<Record<string,string>>) {
  const ds=DataSet.fromJson({scenarioId,tables:{
   ContentProject:{modelBinding:{modelId:'PM',modelName:'ContentProject'},columns:[{name:'projectId',type:'string',isPrimaryKey:true}],
    views:{default:{},selectedProject:{...(scoped?{scopeFilter:projectScope}:{}),commitMode:'staged'}}},
@@ -46,17 +47,21 @@ function fixture(scoped=true,hiddenProject:boolean|(()=>boolean)=false,draftKey=
     .map(name=>({name,type:'string',isPrimaryKey:name==='id'})),
    views:{default:{},selectedAdoption:{commitMode:'staged',scopeFilter:{logic:'and',
     filters:['projectId','candidateRevisionId','requestKey'].map(field=>({field,operator:'eq',value:param(field)}))}}}},
+  ...(receipt?{SaveReceipt:{modelBinding:{modelId:'RM',modelName:'SaveReceipt'},
+   columns:Object.keys(receipt).map(name=>({name,type:'string',isPrimaryKey:name==='id'})),
+   views:{default:{},originalSave:{commitMode:'staged' as const,queryConfig:{autoQuery:false},scopeFilter:{logic:'and' as const,
+    filters:['projectId','draftId','authorId','requestKey','requestDigest'].map(field=>({field,operator:'eq' as const,value:param(field)}))}}}}}:{}),
  }})
  const queries=vi.fn(async(view:DataView,params:QueryParams)=>{
   const model=view.dataTable!.modelBinding!.modelName
   const query=new DataSpaceQueryTable({scenarioId,metaName:model})
-  const rows=model==='ContentProject'?[{projectId:params.context!['projectId']}]:
+  const rows=model==='SaveReceipt'&&receipt?[receipt]:model==='ContentProject'?[{projectId:params.context!['projectId']}]:
    model==='ContentAdoption'?[{id:'A',projectId:params.context!['projectId'],candidateRevisionId:'C',requestKey:'K',
     requestDigest:'DIGEST',previewRef:'PV',mergeRevisionId:'R',commitCheckRef:null}]:[
    {[draftKey]:'D',projectId:params.context!['projectId'],userId:readDraftAuthor?readDraftAuthor(params.context!['currentUserId']):
     params.context!['currentUserId'],draft:{nodes:[],responseChanges:[]}}]
   return new DataSpaceQueryContext({identity:query.identity,scope:'original',readScope:()=> 'original',snapshot:query.applyResult({Result:{
-   primaryKeyField:model==='ContentProject'?'projectId':model==='ContentAdoption'?'id':draftKey,data:{Count:model==='ContentProject'?projectCount:rows.length,Items:rows.map(row=>({...row,
+   primaryKeyField:model==='ContentProject'?'projectId':model==='ContentAdoption'||model==='SaveReceipt'?'id':draftKey,data:{Count:model==='ContentProject'?projectCount:rows.length,Items:rows.map(row=>({...row,
     lingma_sys_params:{r:[],e:['draft'],h:model==='ContentProject'&&(typeof hiddenProject==='function'?hiddenProject():hiddenProject)?['projectId']:[],m:[],d:false}}))}}})})
  })
  const save=vi.fn(async()=>{throw Error('UNEXPECTED_REMOTE_WRITE')})
@@ -131,8 +136,12 @@ it('connects the published script to the original runtime only once per load',as
   const [first,second]=await Promise.all([connect(),connect()])
   first.assertCurrent();second.assertCurrent()
   expect(queries).toHaveBeenCalledTimes(2)
+  const originalSave={requestKey:'REQ',requestDigest:'a'.repeat(64),contentDigest:'b'.repeat(64),expectedDraftVersion:'V1'}
+  await expect(first.readOriginalSave(originalSave)).rejects.toThrow('CONTENT_DRAFT_SAVE_RECEIPT_VIEW_REQUIRED')
+  expect(queries).toHaveBeenCalledTimes(2)
   controller.abort()
   expect(()=>first.assertCurrent()).toThrow('CONTENT_PAGE_RENDER_STALE')
+  await expect(first.readOriginalSave(originalSave)).rejects.toThrow('CONTENT_PAGE_RENDER_STALE')
  }finally{runtime.dispose()}
 })
 it('loads the actual three files and authoring host through the page runtime pool',async()=>{
@@ -142,8 +151,11 @@ it('loads the actual three files and authoring host through the page runtime poo
  config.global.stubs=stubs
  const applicationId='D8490EC99436A8B9AFDE205BE3153802',scenarioId='D3BBA1F0780056C837AC35E9825CAD5A'
  auth.appId=applicationId
- const {ds,queries,save}=fixture(true,false,'id',scenarioId)
- const entry={nodeId:'fixture-navigation',pageId:'fixture-tool'}
+ const requestDigest='a'.repeat(64),contentDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue({nodes:[],responseChanges:[]}))
+ const receipt={id:'RECEIPT',projectId:'P',draftId:'D',authorId:'U',requestKey:'Q',requestDigest,contentDigest,
+  expectedDraftVersion:'V1',state:'SAVED',draftVersion:'V2',receiptRef:'RC'}
+ const {ds,queries,save}=fixture(true,false,'id',scenarioId,1,undefined,receipt)
+ const entry={nodeId:'fixture-navigation',pageId:'fixture-tool',receiptDataViewKey:`${scenarioId}@SaveReceipt@originalSave`}
  const tool={pageId:entry.pageId,projectId:applicationId}
  const path=`/apps/${applicationId}/__page/${entry.nodeId}`
  const router=createRouter({history:createMemoryHistory(),routes:[{path,component:SparkPageRenderer,
@@ -160,22 +172,26 @@ it('loads the actual three files and authoring host through the page runtime poo
   refreshRoutes:async()=>{},
  })
  try{
-  await router.push({path,query:{scenarioId,projectId:'P',draftId:'D'}})
+  await router.push({path,query:{scenarioId,projectId:'P',draftId:'D',saveRequestKey:'Q',saveRequestDigest:requestDigest,
+   saveContentDigest:contentDigest,saveExpectedDraftVersion:'V1'}})
   const route=router.currentRoute.value, runtime=pool.getPageRuntime(route), component=pool.getPageRuntimeView(route)
   if(!runtime||!component)throw Error('Missing pooled authoring page')
   wrapper=mount(component,{global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
-  await flushPromises()
+  await vi.waitFor(()=>expect(wrapper?.text()).toContain('原请求已保存草稿版 V2，回执 RC。当前草稿与原保存内容一致。'))
   expect(wrapper.text()).toContain('标书正文编制')
   expect(wrapper.text()).toContain('新增逻辑册')
   expect(runtime.getDataSet(scenarioId)).toBe(ds)
   expect(pool.getPageRuntime(route)).toBe(runtime)
   expect(readPageFiles).toHaveBeenCalledOnce()
-  expect(queries).toHaveBeenCalledTimes(2)
+  expect(queries).toHaveBeenCalledTimes(3)
+  expect(queries.mock.calls.at(-1)?.[1].context).toMatchObject({projectId:'P',draftId:'D',authorId:'U',requestKey:'Q',requestDigest})
   expect(load).not.toHaveBeenCalled()
   const drafts=ds.getView('WorkingDraft','personalDraft')!
   const button=(label:string)=>wrapper?.findAll('button').find(item=>item.text()===label)
   await button('新增逻辑册')!.trigger('click');await flushPromises()
   expect(drafts.getEditingRow('D')?.['draft']).not.toEqual(drafts.rows[0]?.['draft'])
+  expect(wrapper.text()).toContain('原请求已保存草稿版 V2，回执 RC')
+  expect(wrapper.text()).not.toContain('当前草稿与原保存内容一致')
   expect(()=>pool.closePageRuntime(runtime.instanceId)).toThrow('未保存')
   await button('取消本次草稿编辑')!.trigger('click');await flushPromises()
   expect(drafts.getEditingRow('D')?.['draft']).toEqual(drafts.rows[0]?.['draft'])

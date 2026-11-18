@@ -30,6 +30,37 @@ it('hides data when the original authenticated draft or its read proof is unavai
  const f=fixture();f.proof.mockImplementation(()=>{throw Error('STALE')})
  expect(f.functions['bindContentOutline']!()).toEqual({visible:false})
 })
+it('explains missing edit integration without enabling edit actions',async()=>{
+ const functions=compileFunctions(script,{$route:{query:{projectId:'P',draftId:'D'}},
+  $page:{invokeHostCommand:async()=>{throw Error('PAGE_HOST_COMMAND_UNAVAILABLE')},resolveView:()=>undefined}} as unknown as PageContext)
+ const {__init__,bindEditorStatus,bindOriginalDraft,bindCancel}=functions
+ if(!__init__||!bindEditorStatus||!bindOriginalDraft||!bindCancel)throw Error('TEST_PAGE11_HANDLERS_REQUIRED')
+ await __init__()
+ expect(bindEditorStatus()).toEqual({error:'正文编制未接入当前页面实例'})
+ expect(bindOriginalDraft()).toEqual({visible:false})
+ expect(bindCancel()).toEqual({visible:false,disabled:true})
+})
+it('shows the original save receipt without modifying the current editor',async()=>{
+ const assertCurrent=vi.fn(),assertComparison=vi.fn(),resolveView=vi.fn()
+ const readOriginalSave=vi.fn(async()=>({state:'SAVED',draftVersion:'V2',receiptRef:'RC',assertCurrent,
+  comparison:{currentState:'NEWER_EDITS',assertCurrent:assertComparison}}))
+ const invokeHostCommand=vi.fn(async()=>({readOriginalSave}))
+ const query={projectId:'P',draftId:'D',saveRequestKey:'Q',saveRequestDigest:'a'.repeat(64),
+  saveContentDigest:'b'.repeat(64),saveExpectedDraftVersion:null}
+ const {__init__,bindOriginalSave}=compileFunctions(script,{$route:{query},
+  $page:{invokeHostCommand,resolveView}} as unknown as PageContext)
+ if(!__init__||!bindOriginalSave)throw Error('TEST_PAGE11_HANDLERS_REQUIRED')
+ await __init__()
+ expect(invokeHostCommand).toHaveBeenCalledExactlyOnceWith('content.authoring.connect')
+ expect(readOriginalSave).toHaveBeenCalledExactlyOnceWith({requestKey:'Q',requestDigest:query.saveRequestDigest,
+  contentDigest:query.saveContentDigest,expectedDraftVersion:null})
+ expect(bindOriginalSave()).toEqual({status:'原请求已保存草稿版 V2，回执 RC。当前草稿与原保存内容不同。'})
+ assertComparison.mockImplementation(()=>{throw Error('DRAFT_CHANGED')})
+ expect(bindOriginalSave()).toEqual({status:'原请求已保存草稿版 V2，回执 RC'})
+ assertCurrent.mockImplementation(()=>{throw Error('STALE')})
+ expect(bindOriginalSave()).toEqual({error:'原保存查询已失效'})
+ expect(resolveView).not.toHaveBeenCalled()
+})
 it('withdraws the binding when the original query is replaced instead of recapturing a new proof',()=>{
  const f=fixture()
  expect(f.functions['bindOriginalDraft']!()).toEqual({contextRowId:'D'})

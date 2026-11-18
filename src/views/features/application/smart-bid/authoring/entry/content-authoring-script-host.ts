@@ -9,10 +9,17 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type {JsonPath} from '@spark-appworks/spark-json-document'
 import {contentTreeDraftActionLayout,contentTreeEditorLayout,type ContentTreeEditorLayoutInput} from '@/services/smart-bid/content-tree-editor-layout'
 import {isCallable,isRecord} from '@spark-appworks/spark-utils'
+import {parseDataViewKey} from '@spark-appworks/spark-data'
+import {readRegisteredOriginalContentDraftSave} from '../model/content-draft-save-reader'
+import {reconcileSavedContentDraft} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
 type Binding=Pick<ContentAuthoringBinding,'runtime'|'dataViewKey'|'projectId'|'draftId'|'actorUserId'|'assertCurrent'|'setPending'>
+type SaveReadInput=Parameters<typeof readRegisteredOriginalContentDraftSave>[1]
+type OriginalSave=Awaited<ReturnType<typeof readRegisteredOriginalContentDraftSave>>
+type SaveComparison=Awaited<ReturnType<typeof reconcileSavedContentDraft>>
 
 /** 实例池创建宿主后，仅在三文件脚本连接时装配原视图。并行连接共享本次装载。 */
-export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:ContentAuthoringTarget,assertSession:()=>void){
+export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:ContentAuthoringTarget,assertSession:()=>void,
+ receiptDataViewKey?:string){
  let active:Readonly<{generation:number;connection:Promise<ReturnType<typeof createContentAuthoringScriptHost>>}>|undefined
  const assertCurrent=()=>{
   assertSession()
@@ -32,7 +39,7 @@ export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:C
     const connection=owner.open(target).then(binding=>{
      assertCurrent()
      binding.assertCurrent()
-     return createContentAuthoringScriptHost(binding,new ContentAuthoringCommands(binding))
+     return createContentAuthoringScriptHost(binding,new ContentAuthoringCommands(binding),receiptDataViewKey)
     }).catch((cause:unknown)=>{
      if(active?.connection===connection)active=undefined
      throw cause
@@ -51,9 +58,10 @@ export type ContentAuthoringScriptSession=Readonly<{
  canLeave:boolean
  actionProps:(label:string,path:JsonPath|null)=>Readonly<{disabled:boolean;onClick:()=>void}>
  editorProps:(path:JsonPath)=>Readonly<Record<string,unknown>>
+ readOriginalSave:(input:SaveReadInput)=>Promise<OriginalSave&Readonly<{comparison?:SaveComparison}>>
 }>
 /** 供正式SparkPageRenderer.host使用；命令对象仍归原薄宿主释放。 */
-export function createContentAuthoringScriptHost(binding:Binding,commands:ContentAuthoringCommands){
+export function createContentAuthoringScriptHost(binding:Binding,commands:ContentAuthoringCommands,receiptDataViewKey?:string){
  return {runtime:binding.runtime,assertCurrent:binding.assertCurrent,
   invoke(name:string,input:unknown,signal:AbortSignal):ContentAuthoringScriptSession{
    const assertCurrent=()=>{
@@ -71,6 +79,31 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
    }
    return Object.freeze({assertCurrent,
     get canLeave(){return commands.canLeave},
+    async readOriginalSave(request:SaveReadInput){
+     assertCurrent()
+     const scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
+     if(!scenarioId||!receiptDataViewKey)throw Error('CONTENT_DRAFT_SAVE_RECEIPT_VIEW_REQUIRED')
+     const {runtime,projectId,draftId,actorUserId}=binding
+     const receipt=await readRegisteredOriginalContentDraftSave({runtime,scenarioId,projectId,draftId,actorUserId,receiptDataViewKey,assertCurrent},request)
+     if(receipt.state!=='SAVED'||commands.hasPendingInput)return receipt
+     const view=runtime.resolveView(binding.dataViewKey)
+     const draft=()=>{
+      assertCurrent()
+      const row=view?.rows.find(item=>view.getPkKey(item)===draftId)
+      if(commands.hasPendingInput||!view||!row||view.fieldAccess(row,'draft').read!=='visible')
+       throw Error('CONTENT_DRAFT_SAVE_COMPARISON_UNAVAILABLE')
+      return view.getEditingRow(draftId)?.['draft']
+     }
+     try{
+      const comparison=await reconcileSavedContentDraft(receipt,{
+       projectId,draftId,authorId:actorUserId,get draft(){return draft()},assertCurrent,
+      })
+      return Object.freeze({...receipt,comparison})
+     }catch{
+      receipt.assertCurrent()
+      return receipt
+     }
+    },
     select(){assertCurrent();commands.selectionChanged(commands.epoch)},
     cancel(){
      if(signal.aborted)throw Error('CONTENT_PAGE_RENDER_STALE')

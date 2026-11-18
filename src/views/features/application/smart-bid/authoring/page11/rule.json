@@ -2,7 +2,7 @@
   {
     "id": "authoring-content",
     "type": "r-section",
-    "props": {"title": "标书正文编制", "gridColumns": 1},
+    "props": {"title": "标书正文编制", "gridColumns": 1, "onBeforeRender": "bindEditorStatus"},
     "children": [
       {
         "id": "original-draft",
@@ -54,5 +54,10 @@
         ]
       }
     ]
+  },
+  {
+    "id": "original-draft-save",
+    "type": "r-section",
+    "props": {"title": "原保存结果", "onBeforeRender": "bindOriginalSave"}
   }
 ]

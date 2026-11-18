@@ -17,7 +17,7 @@ function identity(value:unknown):value is string {return typeof value==='string'
 export type ContentAuthoringRoute=Readonly<{path:string;meta:Readonly<Record<string,unknown>>;query:Readonly<Record<string,unknown>>}>
 
 /** Published IDs captured from the authorized blueprint readback. */
-export type ContentAuthoringPublishedEntry = Readonly<{nodeId:string; pageId:string}>
+export type ContentAuthoringPublishedEntry = Readonly<{nodeId:string;pageId:string;receiptDataViewKey?:string}>
 
 /** Prepare the published route with the session inputs expected by the runtime pool. */
 export function preparePublishedContentAuthoringCall(route:ContentAuthoringRoute, entry:ContentAuthoringPublishedEntry) {
@@ -25,7 +25,7 @@ export function preparePublishedContentAuthoringCall(route:ContentAuthoringRoute
  if(!target)return undefined
  const session=captureContentAuthoringSession(target)
  return {scenarioInputs:session.scenarioInputs,assertCurrent:session.assertCurrent,
-  createHost:(runtime:PageRuntime)=>createPublishedContentAuthoringHost(runtime,target,session.assertCurrent)}
+  createHost:(runtime:PageRuntime)=>createPublishedContentAuthoringHost(runtime,target,session.assertCurrent,entry.receiptDataViewKey)}
 }
 
 /** Select only the registered tool before preparing its authenticated runtime inputs. */

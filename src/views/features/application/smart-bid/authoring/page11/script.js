@@ -5,10 +5,64 @@ let assertOriginalDraft
 let selectedPath = null
 let editorSession
 let editorFault = false
+let hostUnavailable = false
+let saveReceipt
+let saveReceiptError = false
+let saveReceiptRequested = false
 
 async function __init__() {
+  editorSession = undefined
+  editorFault = false
+  hostUnavailable = false
+  saveReceipt = undefined
+  saveReceiptError = false
+  const query = $route.query
+  saveReceiptRequested = ['saveRequestKey', 'saveRequestDigest', 'saveContentDigest', 'saveExpectedDraftVersion']
+    .some(key => Object.hasOwn(query, key))
   try {editorSession = await $page.invokeHostCommand('content.authoring.connect')}
-  catch (cause) {editorFault = cause?.message !== 'PAGE_HOST_COMMAND_UNAVAILABLE'}
+  catch (cause) {
+    hostUnavailable = cause?.message === 'PAGE_HOST_COMMAND_UNAVAILABLE'
+    editorFault = !hostUnavailable
+  }
+  if (!saveReceiptRequested || !editorSession) return
+  const {saveRequestKey, saveRequestDigest, saveContentDigest, saveExpectedDraftVersion} = query
+  try {
+    saveReceipt = await editorSession.readOriginalSave({requestKey: saveRequestKey, requestDigest: saveRequestDigest,
+      contentDigest: saveContentDigest, expectedDraftVersion: saveExpectedDraftVersion})
+  } catch {
+    saveReceiptError = true
+  }
+}
+
+function bindOriginalSave() {
+  if (!saveReceiptRequested) return {visible: false}
+  if (saveReceiptError || !saveReceipt) return {error: '原保存结果无法核验'}
+  try {
+    saveReceipt.assertCurrent()
+    if (saveReceipt.state === 'SAVED') {
+      const status = `原请求已保存草稿版 ${saveReceipt.draftVersion}，回执 ${saveReceipt.receiptRef}`
+      try {
+        saveReceipt.comparison?.assertCurrent()
+        if (saveReceipt.comparison?.currentState === 'MATCHED') return {status: `${status}。当前草稿与原保存内容一致。`}
+        if (saveReceipt.comparison?.currentState === 'NEWER_EDITS') return {status: `${status}。当前草稿与原保存内容不同。`}
+      } catch {
+        return {status}
+      }
+      return {status}
+    }
+    if (saveReceipt.state === 'NOT_SAVED') return {status: `原请求未保存，回执 ${saveReceipt.terminalRef}`}
+    return {status: '原保存结果未知'}
+  } catch {
+    return {error: '原保存查询已失效'}
+  }
+}
+
+function bindEditorStatus() {
+  if (hostUnavailable) return {error: '正文编制未接入当前页面实例'}
+  if (editorFault) return {error: '当前项目或工作草稿无法打开'}
+  try {editorSession?.assertCurrent()}
+  catch {return {error: '正文编制会话已失效，请重新打开草稿'}}
+  return {}
 }
 
 function originalDraft() {

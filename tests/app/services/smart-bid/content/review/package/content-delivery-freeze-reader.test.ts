@@ -69,12 +69,14 @@ it('preserves unknown on a complete empty original read and requires readable te
     data:{Count:1,Items:[{...pack,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
   }))
   packageView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:executePackage})
-  let registrationFound=false
+  let registrationMode:'EMPTY'|'FOUND'|'DUPLICATE'|'HIDDEN'='EMPTY'
   packageRequestView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>{
    const requestTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'SubmissionPackage'})
+   const registeredRow={...pack,lingma_sys_params:{r:[],e:[],h:registrationMode==='HIDDEN'?['packingRequestRef']:[],m:[],d:false}}
+   const registrations=registrationMode==='EMPTY'?[]:registrationMode==='DUPLICATE'?
+    [registeredRow,{...registeredRow,id:'DUPLICATE'}]:[registeredRow]
    return new DataSpaceQueryContext({identity:requestTable.identity,scope:'pkg-request',readScope:()=> 'pkg-request',
-    snapshot:requestTable.applyResult({Result:{primaryKeyField:'id',data:{Count:registrationFound?1:0,
-     Items:registrationFound?[{...pack,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]:[]}}})})
+    snapshot:requestTable.applyResult({Result:{primaryKeyField:'id',data:{Count:registrations.length,Items:registrations}}})})
   }})
   const reviewOptions={package:{packageId:'PKG',packingRequestRef:'PACKING'},openAuthorized,limits:{maxEntries:1,maxExpandedBytes:128}}
   items=[]
@@ -146,9 +148,18 @@ it('preserves unknown on a complete empty original read and requires readable te
   await expect(registeredPage.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal))
    .resolves.toMatchObject({status:'REGISTRATION_UNKNOWN'})
   expect(openOriginal).toHaveBeenCalledTimes(2)
-  registrationFound=true
+  registrationMode='FOUND'
+  const recovered=await registeredPage.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal)
+  expect(recovered).toMatchObject({status:'REGISTRATION_VERIFIED',verified:{packageId:pack.id,packageHash:pack.packageHash}})
+  const zipOpenCount=openAuthorized.mock.calls.length
+  registrationMode='DUPLICATE'
   await expect(registeredPage.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal))
-   .resolves.toMatchObject({status:'REGISTRATION_VERIFIED',verified:{packageId:pack.id,packageHash:pack.packageHash}})
+   .rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_NOT_UNIQUE')
+  expect(()=>recovered.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  registrationMode='HIDDEN'
+  await expect(registeredPage.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal))
+   .rejects.toThrow('DATA_VIEW_READ_ROW')
+  expect(openAuthorized).toHaveBeenCalledTimes(zipOpenCount)
   expect(openOriginal).toHaveBeenCalledTimes(2)
   await expect(verifyRegisteredPackingCandidate(host,registered,latest.candidate,openAuthorized))
    .rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_HASH')

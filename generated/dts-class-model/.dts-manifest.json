@@ -5406,6 +5406,21 @@
       "shardFile": "files/src/services/smart-bid/content/references/calculation-table-generator.ts.json",
       "sourceModifiedAt": "2026-11-18T00:07:59.096Z"
     },
+    "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts": {
+      "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts",
+      "shardFile": "files/src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts.json",
+      "sourceModifiedAt": "2026-11-18T05:11:50.771Z"
+    },
+    "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts": {
+      "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts",
+      "shardFile": "files/src/services/smart-bid/content/references/configuration/configuration-release-decision.ts.json",
+      "sourceModifiedAt": "2026-11-18T05:04:30.182Z"
+    },
+    "src/services/smart-bid/content/references/configuration/configuration-release-recovery.ts": {
+      "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-release-recovery.ts",
+      "shardFile": "files/src/services/smart-bid/content/references/configuration/configuration-release-recovery.ts.json",
+      "sourceModifiedAt": "2026-11-18T05:08:54.385Z"
+    },
     "src/services/smart-bid/content/references/content-reference-editor-schema.ts": {
       "sourceFile": "src/services/smart-bid/content/references/content-reference-editor-schema.ts",
       "shardFile": "files/src/services/smart-bid/content/references/content-reference-editor-schema.ts.json",
@@ -5505,6 +5520,11 @@
       "sourceFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts",
       "shardFile": "files/src/services/smart-bid/content/review/submission/authority-grant-decision.ts.json",
       "sourceModifiedAt": "2026-11-18T04:29:16.494Z"
+    },
+    "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts": {
+      "sourceFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts",
+      "shardFile": "files/src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts.json",
+      "sourceModifiedAt": "2026-11-18T04:58:58.440Z"
     },
     "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts": {
       "sourceFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
@@ -5889,7 +5909,7 @@
     "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts.json",
-      "sourceModifiedAt": "2026-11-17T21:51:19.445Z"
+      "sourceModifiedAt": "2026-11-18T05:05:43.683Z"
     },
     "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts",
@@ -5909,7 +5929,7 @@
     "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts.json",
-      "sourceModifiedAt": "2026-11-17T22:30:47.065Z"
+      "sourceModifiedAt": "2026-11-18T05:16:53.939Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",

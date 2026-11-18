@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1379,
+  "scannedFileCount": 1383,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17797,6 +17797,45 @@
         "symbols": []
       }
     },
+    "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts": {
+      "file": "files/src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/configuration/configuration-disable-impact",
+        "sourcePath": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts",
+        "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/configuration/configuration-disable-impact",
+        "jsdoc": "@module app:services/smart-bid/content/references/configuration/configuration-disable-impact\n职责：第61项按原锁和原执行状态交接停用影响。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts": {
+      "file": "files/src/services/smart-bid/content/references/configuration/configuration-release-decision.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/configuration/configuration-release-decision",
+        "sourcePath": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts",
+        "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/configuration/configuration-release-decision",
+        "jsdoc": "@module app:services/smart-bid/content/references/configuration/configuration-release-decision\n职责：第60、61项固定配置启停决定和预期指针。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/configuration/configuration-release-recovery.ts": {
+      "file": "files/src/services/smart-bid/content/references/configuration/configuration-release-recovery.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/configuration/configuration-release-recovery",
+        "sourcePath": "src/services/smart-bid/content/references/configuration/configuration-release-recovery.ts",
+        "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-release-recovery.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/configuration/configuration-release-recovery",
+        "jsdoc": "@module app:services/smart-bid/content/references/configuration/configuration-release-recovery\n职责：第60、61项按原启停请求恢复历史结果。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/references/content-reference-editor-schema.ts": {
       "file": "files/src/services/smart-bid/content/references/content-reference-editor-schema.ts.json",
       "module": {
@@ -18058,6 +18097,19 @@
         "packageName": "app",
         "modulePath": "services/smart-bid/content/review/submission/authority-grant-decision",
         "jsdoc": "@module app:services/smart-bid/content/review/submission/authority-grant-decision\n职责：第55项按原决定、委托链和准予登记范围构造确定的委托决定版本。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts": {
+      "file": "files/src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/submission/bid-handoff-evidence",
+        "sourcePath": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts",
+        "sourceFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/submission/bid-handoff-evidence",
+        "jsdoc": "@module app:services/smart-bid/content/review/submission/bid-handoff-evidence\n职责：第59项核本轮实际签收，按固定事项版本交接后续责任。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

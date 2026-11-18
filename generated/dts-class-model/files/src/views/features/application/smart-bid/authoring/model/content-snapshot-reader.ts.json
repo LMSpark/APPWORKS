@@ -35,8 +35,8 @@
       "title": "ContentSnapshotRole",
       "enum": [
         "head",
-        "basis",
         "candidate",
+        "basis",
         "adoption"
       ]
     },

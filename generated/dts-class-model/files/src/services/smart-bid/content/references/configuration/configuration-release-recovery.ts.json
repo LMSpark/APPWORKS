@@ -1,0 +1,488 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/configuration/configuration-release-recovery",
+    "sourcePath": "src/services/smart-bid/content/references/configuration/configuration-release-recovery.ts",
+    "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-release-recovery.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/configuration/configuration-release-recovery",
+    "jsdoc": "@module app:services/smart-bid/content/references/configuration/configuration-release-recovery\n职责：第60、61项按原启停请求恢复历史结果。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Prepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Prepared",
+      "properties": {
+        "record": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "targetState": {
+                  "const": "ENABLED"
+                },
+                "typeCheckRef": {
+                  "type": "string"
+                },
+                "closureCheckRef": {
+                  "type": "string"
+                },
+                "reviewRef": {
+                  "type": "string"
+                },
+                "effectiveAt": false,
+                "stopScope": false,
+                "kind": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "scopeId": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "expectedPointerVersion": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "action": {
+                  "enum": [
+                    "ENABLE",
+                    "DISABLE"
+                  ]
+                },
+                "decisionRef": {
+                  "type": "string"
+                },
+                "authorityRef": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "object",
+                  "properties": {
+                    "versionId": {
+                      "type": "string"
+                    },
+                    "digest": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "versionId",
+                    "digest"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "targetState",
+                "typeCheckRef",
+                "closureCheckRef",
+                "reviewRef",
+                "kind",
+                "key",
+                "scopeId",
+                "requestKey",
+                "expectedPointerVersion",
+                "action",
+                "decisionRef",
+                "authorityRef",
+                "version"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "targetState": {
+                  "const": "DISABLED"
+                },
+                "effectiveAt": {
+                  "type": "string"
+                },
+                "stopScope": {
+                  "enum": [
+                    "NEW_SELECTION",
+                    "UNEXECUTED"
+                  ]
+                },
+                "typeCheckRef": false,
+                "closureCheckRef": false,
+                "reviewRef": false,
+                "kind": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "scopeId": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "expectedPointerVersion": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "action": {
+                  "enum": [
+                    "ENABLE",
+                    "DISABLE"
+                  ]
+                },
+                "decisionRef": {
+                  "type": "string"
+                },
+                "authorityRef": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "object",
+                  "properties": {
+                    "versionId": {
+                      "type": "string"
+                    },
+                    "digest": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "versionId",
+                    "digest"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "targetState",
+                "effectiveAt",
+                "stopScope",
+                "kind",
+                "key",
+                "scopeId",
+                "requestKey",
+                "expectedPointerVersion",
+                "action",
+                "decisionRef",
+                "authorityRef",
+                "version"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "record",
+        "requestDigest",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "properties": {
+        "version": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "versionId": {
+                  "type": "string"
+                },
+                "digest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "versionId",
+                "digest"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "versionId": {
+                  "type": "string"
+                },
+                "digest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "versionId",
+                "digest"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "scopeId": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "expectedPointerVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "action": {
+          "enum": [
+            "ENABLE",
+            "DISABLE"
+          ]
+        },
+        "requestDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "scopeId",
+        "kind",
+        "key",
+        "requestKey",
+        "expectedPointerVersion",
+        "action",
+        "requestDigest"
+      ],
+      "additionalProperties": false
+    },
+    "Receipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Receipt",
+      "properties": {
+        "version": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "versionId": {
+                  "type": "string"
+                },
+                "digest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "versionId",
+                "digest"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "versionId": {
+                  "type": "string"
+                },
+                "digest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "versionId",
+                "digest"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "scopeId": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "expectedPointerVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "action": {
+          "enum": [
+            "ENABLE",
+            "DISABLE"
+          ]
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "APPLIED",
+            "NOT_APPLIED",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "version",
+        "scopeId",
+        "kind",
+        "key",
+        "requestKey",
+        "expectedPointerVersion",
+        "action",
+        "requestDigest"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T05:08:54.385Z",
+  "models": {
+    "Prepared": {
+      "name": "Prepared",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof prepareConfigurationRelease>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof prepareConfigurationRelease>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "record",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Request": {
+      "name": "Request",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Prepared['record'], 'kind' | 'key' | 'scopeId' | 'requestKey' | 'action' | 'version' | 'expectedPointerVersion'> & Readonly<{\n    requestDigest: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Pick<Prepared['record'], 'kind' | 'key' | 'scopeId' | 'requestKey' | 'action' | 'version' | 'expectedPointerVersion'>",
+            "targetName": "Pick"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    requestDigest: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Receipt": {
+      "name": "Receipt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Request & Readonly<{\n    assertCurrent: () => void;\n}> & (Readonly<{\n    status: 'APPLIED';\n    releaseRef: string;\n    resultPointerVersion: string;\n    state: 'ENABLED' | 'DISABLED';\n}> | Readonly<{\n    status: 'NOT_APPLIED';\n    terminalRef: string;\n}> | Readonly<{\n    status: 'UNKNOWN';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Request",
+            "targetName": "Request"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    status: 'APPLIED';\n    releaseRef: string;\n    resultPointerVersion: string;\n    state: 'ENABLED' | 'DISABLED';\n}> | Readonly<{\n    status: 'NOT_APPLIED';\n    terminalRef: string;\n}> | Readonly<{\n    status: 'UNKNOWN';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

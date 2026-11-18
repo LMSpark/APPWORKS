@@ -1,0 +1,315 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/configuration/configuration-disable-impact",
+    "sourcePath": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts",
+    "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/configuration/configuration-disable-impact",
+    "jsdoc": "@module app:services/smart-bid/content/references/configuration/configuration-disable-impact\n职责：第61项按原锁和原执行状态交接停用影响。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "scopeId": {
+          "type": "string"
+        },
+        "versionId": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "key",
+        "scopeId",
+        "versionId",
+        "digest"
+      ],
+      "additionalProperties": false
+    },
+    "Stop": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Stop",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "scopeId": {
+          "type": "string"
+        },
+        "versionId": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string"
+        },
+        "releaseRef": {
+          "type": "string"
+        },
+        "stopScope": {
+          "enum": [
+            "NEW_SELECTION",
+            "UNEXECUTED"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "kind",
+        "key",
+        "scopeId",
+        "versionId",
+        "digest"
+      ]
+    },
+    "Use": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Use",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "scopeId": {
+          "type": "string"
+        },
+        "versionId": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string"
+        },
+        "operationRef": {
+          "type": "string"
+        },
+        "lockRef": {
+          "type": "string"
+        },
+        "ownerId": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "UNKNOWN",
+            "UNEXECUTED",
+            "EXECUTED"
+          ]
+        },
+        "permission": {
+          "enum": [
+            "UNKNOWN",
+            "ALLOWED",
+            "DENIED"
+          ]
+        },
+        "permissionRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "kind",
+        "key",
+        "scopeId",
+        "versionId",
+        "digest"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T05:11:50.771Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: string;\n    key: string;\n    scopeId: string;\n    versionId: string;\n    digest: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: string;\n    key: string;\n    scopeId: string;\n    versionId: string;\n    digest: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "key",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "versionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "digest",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Stop": {
+      "name": "Stop",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    releaseRef: string;\n    stopScope: 'NEW_SELECTION' | 'UNEXECUTED';\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    releaseRef: string;\n    stopScope: 'NEW_SELECTION' | 'UNEXECUTED';\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "releaseRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stopScope",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Use": {
+      "name": "Use",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    operationRef: string;\n    lockRef: string;\n    ownerId: string;\n    state: 'UNEXECUTED' | 'EXECUTED' | 'UNKNOWN';\n    permission: 'ALLOWED' | 'DENIED' | 'UNKNOWN';\n    permissionRef: string | null;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    operationRef: string;\n    lockRef: string;\n    ownerId: string;\n    state: 'UNEXECUTED' | 'EXECUTED' | 'UNKNOWN';\n    permission: 'ALLOWED' | 'DENIED' | 'UNKNOWN';\n    permissionRef: string | null;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "operationRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lockRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ownerId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permission",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permissionRef",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/configuration/configuration-release-decision",
+    "sourcePath": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts",
+    "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/configuration/configuration-release-decision",
+    "jsdoc": "@module app:services/smart-bid/content/references/configuration/configuration-release-decision\n职责：第60、61项固定配置启停决定和预期指针。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "scopeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "key",
+        "scopeId"
+      ],
+      "additionalProperties": false
+    },
+    "Version": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Version",
+      "properties": {
+        "versionId": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "versionId",
+        "digest"
+      ],
+      "additionalProperties": false
+    },
+    "Decision": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Decision",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "scopeId": {
+          "type": "string"
+        },
+        "decisionRef": {
+          "type": "string"
+        },
+        "authorityRef": {
+          "type": "string"
+        },
+        "action": {
+          "enum": [
+            "ENABLE",
+            "DISABLE"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "kind",
+        "key",
+        "scopeId"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T05:04:30.182Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: string;\n    key: string;\n    scopeId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: string;\n    key: string;\n    scopeId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "key",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Version": {
+      "name": "Version",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    versionId: string;\n    digest: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    versionId: string;\n    digest: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "versionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "digest",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Decision": {
+      "name": "Decision",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    decisionRef: string;\n    authorityRef: string;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    action: 'ENABLE';\n    candidate: Version;\n    typeCheckRef: string;\n    closureCheckRef: string;\n    reviewRef: string;\n}> | Readonly<{\n    action: 'DISABLE';\n    original: Version;\n    effectiveAt: string;\n    stopScope: 'NEW_SELECTION' | 'UNEXECUTED';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    decisionRef: string;\n    authorityRef: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    action: 'ENABLE';\n    candidate: Version;\n    typeCheckRef: string;\n    closureCheckRef: string;\n    reviewRef: string;\n}> | Readonly<{\n    action: 'DISABLE';\n    original: Version;\n    effectiveAt: string;\n    stopScope: 'NEW_SELECTION' | 'UNEXECUTED';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "decisionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "authorityRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "action",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

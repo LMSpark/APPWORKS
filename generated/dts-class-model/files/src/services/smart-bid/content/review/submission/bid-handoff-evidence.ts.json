@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/submission/bid-handoff-evidence",
+    "sourcePath": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts",
+    "sourceFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/submission/bid-handoff-evidence",
+    "jsdoc": "@module app:services/smart-bid/content/review/submission/bid-handoff-evidence\n职责：第59项核本轮实际签收，按固定事项版本交接后续责任。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "roundId": {
+          "type": "string"
+        },
+        "stageId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "roundId",
+        "stageId"
+      ],
+      "additionalProperties": false
+    },
+    "Item": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Item",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "versionRef": {
+          "type": "string"
+        },
+        "originalAssigneeId": {
+          "type": "string"
+        },
+        "receiverId": {
+          "type": "string"
+        },
+        "openIssueRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "followupRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "nextDueAt": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "versionRef",
+        "originalAssigneeId",
+        "receiverId",
+        "openIssueRefs",
+        "followupRef",
+        "nextDueAt"
+      ],
+      "additionalProperties": false
+    },
+    "Receipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Receipt",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "roundId": {
+          "type": "string"
+        },
+        "stageId": {
+          "type": "string"
+        },
+        "itemId": {
+          "type": "string"
+        },
+        "versionRef": {
+          "type": "string"
+        },
+        "receiverId": {
+          "type": "string"
+        },
+        "taskReceiptRef": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "ACCEPTED",
+            "RETURNED"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "roundId",
+        "stageId"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T04:58:58.440Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    lotId: string;\n    roundId: string;\n    stageId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    lotId: string;\n    roundId: string;\n    stageId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "roundId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stageId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Item": {
+      "name": "Item",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    versionRef: string;\n    originalAssigneeId: string;\n    receiverId: string;\n    openIssueRefs: readonly string[];\n    followupRef: string | null;\n    nextDueAt: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    versionRef: string;\n    originalAssigneeId: string;\n    receiverId: string;\n    openIssueRefs: readonly string[];\n    followupRef: string | null;\n    nextDueAt: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "versionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "originalAssigneeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "receiverId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "openIssueRefs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "followupRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nextDueAt",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Receipt": {
+      "name": "Receipt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    itemId: string;\n    versionRef: string;\n    receiverId: string;\n    taskReceiptRef: string;\n    state: 'ACCEPTED' | 'RETURNED';\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    itemId: string;\n    versionRef: string;\n    receiverId: string;\n    taskReceiptRef: string;\n    state: 'ACCEPTED' | 'RETURNED';\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "itemId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "versionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "receiverId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "taskReceiptRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

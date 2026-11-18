@@ -193,10 +193,10 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const computedGet=(input:unknown)=>{
    const error='CONTENT_COMPUTED_QUERY_SCOPE'
    const query=snapshotReferenceFields(input,['projectId','revisionId','nodeId','inputHash'],error)
-   const {nodeId,inputHash}=query
+   const {nodeId:requestedNodeId,inputHash:requestedHash}=query
    if(query['projectId']!==host.projectId||query['revisionId']!==candidateRevisionId||
-    !snapshotReferenceIdentity(nodeId)||typeof inputHash!=='string'||!/^[a-f0-9]{64}$/u.test(inputHash))throw Error(error)
-   const result=readComputed({nodeId,inputHash})
+    !snapshotReferenceIdentity(requestedNodeId)||typeof requestedHash!=='string'||!/^[a-f0-9]{64}$/u.test(requestedHash))throw Error(error)
+   const result=readComputed({nodeId:requestedNodeId,inputHash:requestedHash})
    return Object.freeze({nodeId:result.nodeId,inputHash:result.inputHash,data:result.data})
   }
   return Object.freeze({table,calculationInputsHash:digest.calculationInputsHash,assertCurrent:assertInputs,readComputed,computedGet})

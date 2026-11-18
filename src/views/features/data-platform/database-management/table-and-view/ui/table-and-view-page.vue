@@ -468,6 +468,7 @@ function chooseTableWorkflow(row: SparkData.DataRow): void {
   revision.value++
 }
 function openWorkflowDesign(): void {
+  if (busy.value || workflowDesignId.value) return
   const view = workflowView.value
   const row = view?.selectedRows[0]
   const tableId = tableView.value?.getSelectedValues()[0]
@@ -968,6 +969,7 @@ async function refreshTableWorkflows(): Promise<void> {
   if (!workflows || !tables) return
   const tableId = tables.getSelectedValues()[0]
   if (typeof tableId !== 'string') throw new Error('请先选择物理表')
+  workflows.clearSelectedRows()
   await databaseCatalogWorkflowRefreshForTable(workflows, tableId, {...workflowQuery})
 }
 

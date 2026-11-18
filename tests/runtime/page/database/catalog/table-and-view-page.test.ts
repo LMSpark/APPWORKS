@@ -1216,9 +1216,15 @@ describe('table-and-view-page', () => {
     expect(row).toBeDefined()
     await row!.trigger('click')
     await flushPromises()
-    const design = dialog.findAll('button').find(button => button.text() === '设计')
-    expect(design?.attributes('disabled')).toBeUndefined()
-    await design!.trigger('click')
+    const workflowTable = dialog.findAllComponents(RendererTable).find(table => String(table.props('dataViewKey')).endsWith('@forTable'))!
+    const workflowButton = (label: string) => workflowTable.findAll('button').find(button => button.text() === label)!
+    expect(workflowButton('设计').attributes('disabled')).toBeUndefined()
+    await workflowButton('刷新').trigger('click')
+    await flushPromises()
+    expect(workflowButton('设计').attributes('disabled')).toBeDefined()
+    await workflowTable.findAll('tbody tr').find(item => item.text().includes('订单流'))!.trigger('click')
+    await flushPromises()
+    await workflowButton('设计').trigger('click')
     await flushPromises()
     expect(wrapper.text()).toContain('数据工作流设计')
     expect(wrapper.getComponent({name: 'WorkflowDesignPage'}).props('rowid')).toBe('W1')

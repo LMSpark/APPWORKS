@@ -70,3 +70,49 @@ export async function mergeTenderFollowupNoticeReads(scope:Scope,reads:readonly 
  return Object.freeze({event:Object.freeze(event),eventDigest,
   origins:Object.freeze([...origins].map(([sourceRef,knownAt])=>Object.freeze({sourceRef,knownAt}))),assertCurrent})
 }
+
+/** 按获知时点核原通知关系，续件保留独立期限，更正或撤销才代替原项。 */
+export function projectTenderFollowupNotices(scope:Scope,source:Readonly<{
+ knownAt:string;notices:ReadonlyArray<Awaited<ReturnType<typeof mergeTenderFollowupNoticeReads>>>;assertCurrent:()=>void
+}>){
+ const {knownAt}=source,cutoff=times(knownAt),notices=[...source.notices]
+ const assertCurrent=()=>{source.assertCurrent();for(const notice of notices)notice.assertCurrent()}
+ assertCurrent()
+ const fields=['projectId','lotId','roundId','subjectId','stageId'] as const
+ const all=new Set<string>(),visible=new Map<string,(typeof notices)[number]>()
+ if(fields.some(key=>!identity(scope[key])))throw Error('TENDER_FOLLOWUP_SCOPE')
+ for(const notice of notices){
+  const {event,origins}=notice
+  if(fields.some(key=>event[key]!==scope[key])||all.has(event.noticeId))throw Error('TENDER_FOLLOWUP_SCOPE')
+  all.add(event.noticeId)
+  if(origins.some(origin=>times(origin.knownAt)<=cutoff))visible.set(event.noticeId,notice)
+ }
+ const replaced=new Map<string,number>(),unresolved=new Set<string>()
+ for(const {event} of visible.values()){
+  const parentRef=event.previousNoticeRef
+  if(parentRef===null)continue
+  const parent=visible.get(parentRef)
+  if(!parent||times(parent.event.issuedAt)>times(event.issuedAt)){
+   unresolved.add(event.noticeId)
+   continue
+  }
+  if(event.change==='CORRECTION'||event.change==='CANCELLATION')replaced.set(parentRef,(replaced.get(parentRef)??0)+1)
+ }
+ const status=(event:(typeof notices)[number]['event'])=>{
+  const path=new Set<string>()
+  let parent:typeof event|undefined=event
+  while(parent){
+   if(path.has(parent.noticeId)||unresolved.has(parent.noticeId))return 'PENDING_LINK'
+   if((replaced.get(parent.noticeId)??0)>1)return 'PENDING_CONFLICT'
+   path.add(parent.noticeId)
+   parent=parent.previousNoticeRef===null?undefined:visible.get(parent.previousNoticeRef)?.event
+  }
+  return replaced.has(event.noticeId)?'SUPERSEDED':event.change==='CANCELLATION'?'CANCELLED':'ACTIVE'
+ }
+ const items=[...visible.values()].map(({event,eventDigest,origins})=>Object.freeze({
+  event,eventDigest,origins:Object.freeze(origins.filter(origin=>times(origin.knownAt)<=cutoff)),
+  state:status(event),
+ }))
+ assertCurrent()
+ return Object.freeze({...scope,knownAt,items:Object.freeze(items),assertCurrent})
+}

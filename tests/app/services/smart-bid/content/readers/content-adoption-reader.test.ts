@@ -1,12 +1,25 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
+import {hashRevisionContentRoot} from '@/services/smart-bid/content/hashes/revision-content-root'
 import {inspectRegisteredAdoption,readContentAdoption} from '@/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader'
 import {prepareAdoptedProduction} from '@/views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 const request={candidateRevisionId:'C',requestKey:'K',requestDigest:'D',previewRef:'PV'}
+it('recomputes the old merge root from its exact baseline and withdraws proof when the baseline reloads',async()=>{
+ const f=fixture({withRoot:true})
+ try{
+  const result=await inspectRegisteredAdoption(f.host,request)
+  expect(result).toMatchObject({revisionEvidence:'SNAPSHOT_VERIFIED',rootHashVerified:true,rootHash:await f.root})
+  expect(f.baselineView.queryContext).toMatchObject({projectId:'P',baselineId:'B'})
+  expect(f.baselineQuery).toHaveBeenCalledOnce()
+  await f.baselineView.refresh()
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
 it('reports snapshot and revision evidence separately from original registration',async()=>{
  const f=fixture()
  try{
@@ -40,16 +53,18 @@ it('will not prepare formal production from an adopted index without matching co
   expect(readEvidence).not.toHaveBeenCalled()
  }finally{f.ds.destroy()}
 })
-function fixture(options:{count?:number;requestDigest?:string}={}){
+function fixture(options:{count?:number;requestDigest?:string;withRoot?:boolean}={}){
  const manifest={hashContract:'spark-bid.revision-snapshot/1',projectId:'P',stageRef:{id:'ST'},baselineId:'B',
   templateRefs:[],nodes:[],requirementPins:[],responseAssignments:[],responses:[],qualificationReviews:[],sensitiveRefs:[]}
  const hash=hashRevisionSnapshot(manifest)
+ const baseline={id:'B',projectId:'P',stageRef:manifest.stageRef,factVersions:[]}
+ const root=options.withRoot?hashRevisionContentRoot({manifest,baseline}):null
  const record={id:'A',projectId:'P',...request,mergeRevisionId:'R',commitCheckRef:null,requestDigest:options.requestDigest??request.requestDigest}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ContentAdoption:{modelBinding:{modelId:'M',modelName:'ContentAdoption'},
   columns:Object.keys(record).map(name=>({name,isPrimaryKey:name==='id'})),views:{default:{},selectedAdoption:{commitMode:'staged',
    scopeFilter:{logic:'and',filters:['projectId','candidateRevisionId','requestKey'].map(field=>({field,operator:'eq',
     value:{Type:'GetInputParam',ParamName:field}}))}}}},
-  ContentRevision:{modelBinding:{modelId:'RM',modelName:'ContentRevision'},columns:['id','projectId','status','snapshotHash','stageRef','baselineId','templateRefs'].map(name=>({name,isPrimaryKey:name==='id'})),
+  ContentRevision:{modelBinding:{modelId:'RM',modelName:'ContentRevision'},columns:['id','projectId','status','snapshotHash','stageRef','baselineId','templateRefs','rootHash'].map(name=>({name,isPrimaryKey:name==='id'})),
    views:{default:{},selectedAdoptionRevision:{commitMode:'staged',scopeFilter:{logic:'and',filters:[
     {field:'projectId',operator:'eq',value:{Type:'GetInputParam',ParamName:'projectId'}},
     {field:'id',operator:'eq',value:{Type:'GetInputParam',ParamName:'mergeRevisionId'}},
@@ -58,6 +73,11 @@ function fixture(options:{count?:number;requestDigest?:string}={}){
   RevisionSnapshot:{modelBinding:{modelId:'SM',modelName:'RevisionSnapshot'},columns:['id','projectId','snapshotHash','manifest'].map(name=>({name,isPrimaryKey:name==='id'})),
    views:{default:{},selectedAdoptionSnapshot:{commitMode:'staged',scopeFilter:{logic:'and',filters:['projectId','snapshotHash'].map(field=>({
     field,operator:'eq',value:{Type:'GetInputParam',ParamName:field}}))}}}},
+  Baseline:{modelBinding:{modelId:'BM',modelName:'Baseline'},columns:Object.keys(baseline).map(name=>({name,isPrimaryKey:name==='id'})),
+   views:{default:{},selectedBaseline:{commitMode:'staged',scopeFilter:{logic:'and',filters:[
+    {field:'projectId',operator:'eq',value:{Type:'GetInputParam',ParamName:'projectId'}},
+    {field:'id',operator:'eq',value:{Type:'GetInputParam',ParamName:'baselineId'}},
+   ]}}}},
  }})
  const view=ds.getView('ContentAdoption','selectedAdoption')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContentAdoption'})
  const save=vi.fn(async()=>{throw Error('NO_WRITE')})
@@ -69,6 +89,7 @@ function fixture(options:{count?:number;requestDigest?:string}={}){
  const revisionQuery=vi.fn(async()=>new DataSpaceQueryContext({identity:revisionTable.identity,scope:'q',readScope:()=> 'q',
   snapshot:revisionTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[
    {id:'R',projectId:'P',status:'ADOPTED',snapshotHash:await hash,baselineId:'B',stageRef:manifest.stageRef,templateRefs:[],
+    rootHash:await root,
     lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}},
   ]}}})}))
  revision.bindQueryExecutor({executeQuery:revisionQuery,save})
@@ -78,10 +99,16 @@ function fixture(options:{count?:number;requestDigest?:string}={}){
    {id:'SN',projectId:'P',snapshotHash:await hash,manifest,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}},
   ]}}})}))
  snapshot.bindQueryExecutor({executeQuery:snapshotQuery,save})
+ const baselineView=ds.getView('Baseline','selectedBaseline')!,baselineTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'Baseline'})
+ const baselineQuery=vi.fn(async()=>new DataSpaceQueryContext({identity:baselineTable.identity,scope:'q',readScope:()=> 'q',
+  snapshot:baselineTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[
+   {...baseline,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}},
+  ]}}})}))
+ baselineView.bindQueryExecutor({executeQuery:baselineQuery,save})
  const host={scenarioId:'S',projectId:'P',assertCurrent:()=>{},runtime:{resolveView:(key:string)=>
   key==='S@ContentAdoption@selectedAdoption'?view:key==='S@ContentRevision@selectedAdoptionRevision'?revision:
-   key==='S@RevisionSnapshot@selectedAdoptionSnapshot'?snapshot:undefined}}
- return {host,view,ds,query,revision,revisionQuery,snapshotQuery,save}
+   key==='S@RevisionSnapshot@selectedAdoptionSnapshot'?snapshot:key==='S@Baseline@selectedBaseline'?baselineView:undefined}}
+ return {host,view,ds,query,revision,revisionQuery,snapshotQuery,baselineView,baselineQuery,root,save}
 }
 it('reads the adopted merge revision by the original record and invalidates it when that record is refreshed',async()=>{
  const f=fixture()

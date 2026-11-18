@@ -5,10 +5,20 @@
 import {createAiAgentSession,createAiAgentTask,type AiAgentTurnMeta} from '@spark-appworks/spark-ai/agent'
 import {canonicalSnapshotValue} from '../content/revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '../content/references/snapshot-reference-values'
+import type {freezeOperationRouteContext} from './operation-route-context'
 
 type Registry=Parameters<typeof createAiAgentTask>[0]
-type DispatchIdentity=Readonly<{registrationId:string;businessInstanceId:string;runtimeInstanceId:string;turnId:string}>
+type FrozenContext=Awaited<ReturnType<typeof freezeOperationRouteContext>>
+type DispatchIdentity=Readonly<{registrationId:string;businessInstanceId:string;runtimeInstanceId:string;turnId:string;
+ manifestDigest:string;inputDigest:string}>&FrozenContext['scope']
 type DispatchClaim=DispatchIdentity&Readonly<{state:'CLAIMED'|'EXISTING'|'UNKNOWN';assertCurrent:()=>void}>
+const dispatchIdentityFields={
+ runId:true,attemptRef:true,requestKey:true,projectId:true,targetDigest:true,configurationLockHash:true,
+ manifestDigest:true,inputDigest:true,registrationId:true,businessInstanceId:true,runtimeInstanceId:true,turnId:true,
+} satisfies Record<keyof DispatchIdentity,true>
+function isDispatchIdentityField(key:string):key is keyof DispatchIdentity{
+ return Object.hasOwn(dispatchIdentityFields,key)
+}
 
 /** 草案不能派发；原业务实例与配置证据由正式来源提供。 */
 export function prepareOperationRouteAgentTask(registry:Registry,source:Readonly<{
@@ -35,25 +45,30 @@ export function prepareOperationRouteAgentTask(registry:Registry,source:Readonly
 
 /** 通过现有 Agent I/O 派发一次已登记试次；未知结果留给原试次回查。 */
 export async function dispatchOperationRouteAgentTask(options:Parameters<typeof createAiAgentSession>[0],
- source:Parameters<typeof prepareOperationRouteAgentTask>[1]&Readonly<{
+ source:Omit<Parameters<typeof prepareOperationRouteAgentTask>[1],'inputs'>&Readonly<{
   turn:AiAgentTurnMeta
+  manifest:FrozenContext
   claimOriginalTurn:(input:DispatchIdentity)=>Promise<DispatchClaim>
  }>){
- const {turn}=source
+ const {turn,manifest}=source
  if(!identity(turn.turnId))throw Error('OPERATION_ROUTE_AGENT_TURN_REQUIRED')
+ manifest.assertCurrent()
+ if(!manifest.usable||manifest.inputJson===null||manifest.inputDigest===null)throw Error('OPERATION_ROUTE_AGENT_INPUT_REQUIRED')
  const fixedTurn=Object.freeze({...turn})
- const prepared=prepareOperationRouteAgentTask(options.registry,source)
+ const inputs:unknown=JSON.parse(manifest.inputJson)
+ const prepared=prepareOperationRouteAgentTask(options.registry,{...source,inputs,
+  assertCurrent:()=>{source.assertCurrent();manifest.assertCurrent()}})
  const session=createAiAgentSession(options,prepared.task.target)
  if(session.scope.businessInstanceId!==prepared.task.scope.businessInstanceId||
   session.scope.runtimeInstanceId!==prepared.task.scope.runtimeInstanceId||
   session.scope.instanceId!==prepared.task.scope.instanceId)throw Error('OPERATION_ROUTE_AGENT_SCOPE')
- const dispatch=Object.freeze({registrationId:source.registrationId,businessInstanceId:source.businessInstanceId,
-  runtimeInstanceId:source.runtimeInstanceId,turnId:fixedTurn.turnId})
+ const dispatch=Object.freeze({...manifest.scope,manifestDigest:manifest.manifestDigest,inputDigest:manifest.inputDigest,
+  registrationId:source.registrationId,businessInstanceId:source.businessInstanceId,runtimeInstanceId:source.runtimeInstanceId,turnId:fixedTurn.turnId})
  const claim=await source.claimOriginalTurn(dispatch)
  prepared.assertCurrent()
  claim.assertCurrent()
- if(claim.registrationId!==dispatch.registrationId||claim.businessInstanceId!==dispatch.businessInstanceId||
-  claim.runtimeInstanceId!==dispatch.runtimeInstanceId||claim.turnId!==dispatch.turnId)throw Error('OPERATION_ROUTE_AGENT_SCOPE')
+ if(Object.keys(dispatchIdentityFields).some(key=>isDispatchIdentityField(key)&&claim[key]!==dispatch[key]))
+  throw Error('OPERATION_ROUTE_AGENT_SCOPE')
  if(claim.state!=='CLAIMED')return Object.freeze({state:'CHECK_ORIGINAL' as const,turnId:fixedTurn.turnId})
  await session.start()
  prepared.assertCurrent()

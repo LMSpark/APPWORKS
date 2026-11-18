@@ -52,5 +52,5 @@ export async function freezeOperationRouteContext(scope:Scope,guide:Readonly<{
  ])
  assertCurrent()
  return Object.freeze({scope:Object.freeze({runId,attemptRef,requestKey,projectId,targetDigest,configurationLockHash}),
-  usable,manifestJson,manifestDigest,inputJson,inputDigest,assertCurrent})
+  guideRef,usable,manifestJson,manifestDigest,inputJson,inputDigest,assertCurrent})
 }

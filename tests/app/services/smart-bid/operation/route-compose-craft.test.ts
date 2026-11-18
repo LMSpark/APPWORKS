@@ -1,4 +1,4 @@
-import {expect,it} from 'vitest'
+import {expect,it,vi} from 'vitest'
 import craft from '@/services/smart-bid/craft/route-compose-v1.json'
 import {readOperationRouteCandidate} from '@/services/smart-bid/operation/operation-route-candidate'
 import {resolveContentTargetScope} from '@/services/smart-bid/content/content-target-scope'
@@ -8,6 +8,7 @@ import {verifyDispatchedOperationRouteReturn,verifyOperationRouteReturn} from '@
 import {verifyOriginalOperationRouteDispatch} from '@/services/smart-bid/operation/operation-route-dispatch-evidence'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {freezeOperationRouteContext} from '@/services/smart-bid/operation/operation-route-context'
+import {recoverOperationRouteAttempt} from '@/services/smart-bid/operation/operation-route-recovery'
 
 it('accepts only the original complete attempt and the JSON candidate that fits its catalog',async()=>{
  const scope={runId:'RUN',attemptRef:'TRY',requestKey:'Q',projectId:'P',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}
@@ -48,6 +49,14 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
  expect(await verifyDispatchedOperationRouteReturn(mismatch,response,guide)).toMatchObject({state:'DISPATCH_EVIDENCE_REQUIRED'})
  await expect(verifyDispatchedOperationRouteReturn(dispatch,response,{...guide,configurationLockHash:'0'.repeat(64)}))
   .rejects.toThrow('OPERATION_ROUTE_RETURN_GUIDE_SCOPE')
+ const readResult=vi.fn(async()=>response)
+ const recovery={readDispatch:async()=>sent,readResult,guide,assertCurrent:source.assertCurrent}
+ expect(await recoverOperationRouteAttempt(manifest,{...recovery,readDispatch:async()=>undefined}))
+  .toMatchObject({state:'DISPATCH_UNKNOWN'})
+ expect(readResult).not.toHaveBeenCalled()
+ expect(await recoverOperationRouteAttempt(manifest,recovery)).toMatchObject({state:'VERIFIED_CANDIDATE',
+  result:{dispatchRef:'SENT',guideRef:'GUIDE'}})
+ expect(readResult).toHaveBeenCalledWith(scope)
 })
 
 it('keeps a draft prompt, exact slots and sample tied to the existing native JSON model',()=>{

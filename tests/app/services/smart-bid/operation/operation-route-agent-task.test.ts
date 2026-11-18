@@ -1,6 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {AiAgentRegistration,AiAgentToolResult,DefaultAiAgentSessionStore,createSimpleInputContract} from '@spark-appworks/spark-ai/agent'
 import {dispatchOperationRouteAgentTask,prepareOperationRouteAgentTask} from '@/services/smart-bid/operation/operation-route-agent-task'
+import {freezeOperationRouteContext} from '@/services/smart-bid/operation/operation-route-context'
 
 it('uses a registered SPARK Agent input contract and rejects another runtime instance',async()=>{
  const registrationId='bid.route.compose',businessInstanceId='ROUTE-1'
@@ -25,15 +26,25 @@ it('uses a registered SPARK Agent input contract and rejects another runtime ins
  const options={registry,turnCallbacks:{executeTurn,appendMessages:async()=>{}}}
  const time='2026-11-18T10:00:00+08:00'
  const turn={turnId:crypto.randomUUID(),seq:1,baseRevision:0,queuedAt:time,startedAt:time,maxParallelTurns:1}
+ const scope={runId:'RUN',attemptRef:'TRY',requestKey:'Q',projectId:'P',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}
+ const guide={guideRef:'GUIDE',createdAt:time,slots:[{slotId:'id',required:true},{slotId:'prompt',required:true}],assertCurrent:source.assertCurrent}
+ const inputs=Object.entries(source.inputs).map(([slotId,value])=>({slotId,value,state:'ALLOWED' as const,
+  sourceRef:'REFERENCE',versionRef:'V1',useRef:'USE',assertCurrent:source.assertCurrent}))
+ const manifest=await freezeOperationRouteContext(scope,guide,inputs)
+ const partial=await freezeOperationRouteContext(scope,guide,inputs.slice(0,1))
  const claimOriginalTurn=vi.fn<Parameters<typeof dispatchOperationRouteAgentTask>[1]['claimOriginalTurn']>()
   .mockImplementationOnce(async input=>({...input,state:'CLAIMED',assertCurrent:()=>{}}))
   .mockImplementation(async input=>({...input,state:'EXISTING',assertCurrent:()=>{}}))
- const dispatched=await dispatchOperationRouteAgentTask(options,{...source,turn,claimOriginalTurn})
+ await expect(dispatchOperationRouteAgentTask(options,{...source,turn,manifest:partial,claimOriginalTurn}))
+  .rejects.toThrow('OPERATION_ROUTE_AGENT_INPUT_REQUIRED')
+ expect(claimOriginalTurn).not.toHaveBeenCalled()
+ const dispatched=await dispatchOperationRouteAgentTask(options,{...source,turn,manifest,claimOriginalTurn})
  expect(dispatched.state).toBe('DISPATCHED')
  expect(dispatched.turnId).toBe(turn.turnId)
  expect(executeTurn).toHaveBeenCalledOnce()
- expect(await dispatchOperationRouteAgentTask(options,{...source,turn,claimOriginalTurn})).toMatchObject({state:'CHECK_ORIGINAL'})
- await expect(dispatchOperationRouteAgentTask(options,{...source,turn,claimOriginalTurn,runtimeInstanceId:'OTHER'}))
+ expect(claimOriginalTurn).toHaveBeenCalledWith(expect.objectContaining({attemptRef:'TRY',manifestDigest:manifest.manifestDigest}))
+ expect(await dispatchOperationRouteAgentTask(options,{...source,turn,manifest,claimOriginalTurn})).toMatchObject({state:'CHECK_ORIGINAL'})
+ await expect(dispatchOperationRouteAgentTask(options,{...source,turn,manifest,claimOriginalTurn,runtimeInstanceId:'OTHER'}))
   .rejects.toThrow('OPERATION_ROUTE_AGENT_SCOPE')
  expect(executeTurn).toHaveBeenCalledOnce()
 })

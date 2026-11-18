@@ -159,6 +159,16 @@ it('renders the shared JSON catalog through the three tool files without reading
   const record=state.http.saves[2]?.added[0]
   expect(record?.['name']).toBe('配置导入.json')
   expect(state.files.get(`${String(record?.['rowid'])}.json`)).toBe(imported)
+  let finishRead:(text:string)=>void=()=>{}
+  const pendingRead=new Promise<string>(resolve=>{finishRead=resolve})
+  pickJson('待选文件.json','',()=>pendingRead)
+  await click('导入JSON')
+  await vi.waitFor(()=>expect(host.isDirty).toBe(true))
+  expect(runtime.isDirty).toBe(false)
+  finishRead('invalid JSON')
+  await vi.waitFor(()=>expect(host.isDirty).toBe(false))
+  expect(state.uploads).toHaveLength(3)
+  expect(state.http.saves).toHaveLength(3)
  }finally{wrapper?.unmount();session.dispose()}
 })
 it('displays a failed catalog query once through the standard table with metadata hidden',async()=>{

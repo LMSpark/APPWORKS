@@ -85,9 +85,10 @@ const catalogUnconfirmed=computed(()=>{revision.value;return catalog.value?.hasU
 const creationFileCommitted=computed(()=>{revision.value;const view=document.value;return !!creating.value&&!!view&&(view.hasUnconfirmedSave||(view.rows.length===1&&!view.dirtyTracking.isPendingCreate(creating.value)))})
 const catalogPending=computed(()=>{revision.value;return catalogUnconfirmed.value||catalog.value?.hasEditingChanges()===true||catalog.value?.dirtyTracking.hasPendingChanges()===true})
 const hasPending=computed(()=>{revision.value;const view=document.value;return catalogPending.value|| inputPending.value||acting.value||unconfirmed.value||view?.hasEditingChanges()===true||view?.dirtyTracking.hasPendingChanges()===true})
-useSystemPageDirtySource({get isDirty(){return busy.value||hasPending.value}})
-onBeforeRouteLeave(()=>!hasPending.value&&!busy.value)
-onBeforeRouteUpdate(()=>!hasPending.value&&!busy.value)
+const isPageDirty=()=>busy.value||hasPending.value||catalogToolHost.value?.isDirty===true
+useSystemPageDirtySource({get isDirty(){return isPageDirty()}})
+onBeforeRouteLeave(()=>!isPageDirty())
+onBeforeRouteUpdate(()=>!isPageDirty())
 const cellLocked=computed(()=>catalogScope.value||busy.value||!!document.value||catalogUnconfirmed.value)
 const fields=computed<SparkNode[]>(()=>[
  {type:'r-text',props:{field:'name',label:'名称',placeholder:'请输入文件名称',maxlength:200,showCellControl:!catalogScope.value,readonly:cellLocked.value,minWidth:220,showOverflowTooltip:true}},

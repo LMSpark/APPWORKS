@@ -37,6 +37,7 @@ async function importJsonDocument() {
   if (acting || bindCatalogCreate().disabled || !catalogEditable) return
   acting = true
   try {
+    await $page.invokeHostCommand('jsonData.setPickingFile', true)
     const files = await $page.browseFiles({title:'导入JSON',accept:'.json,application/json',multiple:false})
     if (files.length === 0) return
     if (files.length !== 1) throw new Error('每次只能导入一个JSON文件')
@@ -49,6 +50,7 @@ async function importJsonDocument() {
     if (!String(cause?.message).startsWith('PAGE_RUNTIME_STALE')) $page.showMessage(cause.message, 'error')
   } finally {
     acting = false
+    await $page.invokeHostCommand('jsonData.setPickingFile', false).catch(() => {})
   }
 }
 
@@ -148,6 +150,7 @@ function bindJsonDocument() {
 
 function trackJsonInput(value) {
   inputPending = value
+  if (catalogEditable) return $page.invokeHostCommand('jsonData.setInputPending', value).catch(() => {})
 }
 
 function bindJsonField() {

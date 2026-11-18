@@ -8,15 +8,24 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
  let document:DataView|undefined
  let creating:string|undefined
  let fileConfirmed=false
+ let inputPending=false
+ let pickingFile=false
  return {
   runtime,
   assertCurrent,
+  get isDirty(){return inputPending||pickingFile||runtime.isDirty},
   async invoke(command:string,id:unknown,signal:AbortSignal){
    const assertActive=()=>{
     assertCurrent()
     if(signal.aborted||runtime.destroyed)throw new Error('JSON_DOCUMENT_STALE')
    }
    assertActive()
+   if(command==='jsonData.setInputPending'||command==='jsonData.setPickingFile'){
+    if(!editable||typeof id!=='boolean')throw new Error('JSON_DOCUMENT_REQUEST')
+    if(command==='jsonData.setInputPending')inputPending=id
+    else pickingFile=id
+    return
+   }
    const dataSet=runtime.getDataSet(scenarioId)
    if(!dataSet)throw new Error('JSON正式目录视图缺失')
    if(command==='jsonData.canEditCatalog')return editable

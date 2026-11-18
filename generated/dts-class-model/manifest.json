@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1316,
+  "scannedFileCount": 1334,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17346,6 +17346,97 @@
         ]
       }
     },
+    "src/services/smart-bid/content/adoption/adoption-basis-checks.ts": {
+      "file": "files/src/services/smart-bid/content/adoption/adoption-basis-checks.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/adoption/adoption-basis-checks",
+        "sourcePath": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts",
+        "sourceFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/adoption/adoption-basis-checks",
+        "jsdoc": "@module app:services/smart-bid/content/adoption/adoption-basis-checks\n职责：比较动作38预演固定的依据和原责任域的观察结果。\n边界：仅诊断待重核的依据；正式提交同次检查、授权时限和原子写入由权威执行端完成。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/adoption/adoption-preflight.ts": {
+      "file": "files/src/services/smart-bid/content/adoption/adoption-preflight.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/adoption/adoption-preflight",
+        "sourcePath": "src/services/smart-bid/content/adoption/adoption-preflight.ts",
+        "sourceFile": "src/services/smart-bid/content/adoption/adoption-preflight.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/adoption/adoption-preflight",
+        "jsdoc": "@module app:services/smart-bid/content/adoption/adoption-preflight\n职责：依据当前业务观察检查固定预演是否需要重做，并准备匹配的采用请求。\n边界：无权威查询、持久化或写入；正式执行仍须同次核头、依据及权限。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/adoption/adoption-recovery.ts": {
+      "file": "files/src/services/smart-bid/content/adoption/adoption-recovery.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/adoption/adoption-recovery",
+        "sourcePath": "src/services/smart-bid/content/adoption/adoption-recovery.ts",
+        "sourceFile": "src/services/smart-bid/content/adoption/adoption-recovery.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/adoption/adoption-recovery",
+        "jsdoc": "@module app:services/smart-bid/content/adoption/adoption-recovery\n职责：将原采用请求、结果观察及原责任域凭据配对。\n边界：纯核对，不查询、不写入。观察与凭据应由同一权威业务域读取。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/adoption/adoption-request.ts": {
+      "file": "files/src/services/smart-bid/content/adoption/adoption-request.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/adoption/adoption-request",
+        "sourcePath": "src/services/smart-bid/content/adoption/adoption-request.ts",
+        "sourceFile": "src/services/smart-bid/content/adoption/adoption-request.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/adoption/adoption-request",
+        "jsdoc": "@module app:services/smart-bid/content/adoption/adoption-request\n职责：捕获采用准备的原请求身份和确定 JSON 内容。\n边界：本地准备，原请求持久记录、范围复核及正式提交仍待权威服务。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/attachment-index-generator.ts": {
+      "file": "files/src/services/smart-bid/content/attachment-index-generator.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/attachment-index-generator",
+        "sourcePath": "src/services/smart-bid/content/attachment-index-generator.ts",
+        "sourceFile": "src/services/smart-bid/content/attachment-index-generator.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/attachment-index-generator",
+        "jsdoc": "@module app:services/smart-bid/content/attachment-index-generator\n职责：把固定递交范围内的附件资源版本及原正文落点投影为目录。\n边界：按来源交付顺序展开；附件准用、实件内容和目标页码由原责任方核验。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/calculation-table-expansion.ts": {
+      "file": "files/src/services/smart-bid/content/calculation-table-expansion.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/calculation-table-expansion",
+        "sourcePath": "src/services/smart-bid/content/calculation-table-expansion.ts",
+        "sourceFile": "src/services/smart-bid/content/calculation-table-expansion.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/calculation-table-expansion",
+        "jsdoc": "@module app:services/smart-bid/content/calculation-table-expansion\n职责：按已核输入运行固定生成器，校验展开后的正文表格和节点引用。\n边界：结果供呈现、计算读取和质检共用；不写回节点、草稿或事实。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/calculation-table-registry.ts": {
+      "file": "files/src/services/smart-bid/content/calculation-table-registry.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/calculation-table-registry",
+        "sourcePath": "src/services/smart-bid/content/calculation-table-registry.ts",
+        "sourceFile": "src/services/smart-bid/content/calculation-table-registry.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/calculation-table-registry",
+        "jsdoc": "@module app:services/smart-bid/content/calculation-table-registry\n职责：固定内置计算表生成器的键、版本和实现。\n边界：输入由正式来源提供；不执行远端脚本或自动替换不匹配的版本。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/content-node-links.ts": {
       "file": "files/src/services/smart-bid/content/content-node-links.ts.json",
       "module": {
@@ -17455,6 +17546,58 @@
         ]
       }
     },
+    "src/services/smart-bid/content/hashes/calculation-inputs-hash.ts": {
+      "file": "files/src/services/smart-bid/content/hashes/calculation-inputs-hash.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/hashes/calculation-inputs-hash",
+        "sourcePath": "src/services/smart-bid/content/hashes/calculation-inputs-hash.ts",
+        "sourceFile": "src/services/smart-bid/content/hashes/calculation-inputs-hash.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/hashes/calculation-inputs-hash",
+        "jsdoc": "@module app:services/smart-bid/content/hashes/calculation-inputs-hash\n职责：固定计算表生成器和已核业务输入，形成单表及审核范围摘要。\n边界：原表、填写说明、响应核定和版本归属由输入来源核验；不展开、回填或固化生成结果。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/hashes/content-effective-hash.ts": {
+      "file": "files/src/services/smart-bid/content/hashes/content-effective-hash.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/hashes/content-effective-hash",
+        "sourcePath": "src/services/smart-bid/content/hashes/content-effective-hash.ts",
+        "sourceFile": "src/services/smart-bid/content/hashes/content-effective-hash.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/hashes/content-effective-hash",
+        "jsdoc": "@module app:services/smart-bid/content/hashes/content-effective-hash\n职责：组合树、显示引用和全部适用业务依赖的有效内容摘要。\n边界：输入须来自同一审核范围的已核固定记录；相同摘要仍须重新核使用许可。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/hashes/content-root-hash.ts": {
+      "file": "files/src/services/smart-bid/content/hashes/content-root-hash.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/hashes/content-root-hash",
+        "sourcePath": "src/services/smart-bid/content/hashes/content-root-hash.ts",
+        "sourceFile": "src/services/smart-bid/content/hashes/content-root-hash.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/hashes/content-root-hash",
+        "jsdoc": "@module app:services/smart-bid/content/hashes/content-root-hash\n职责：组合正式方案 §2.2 的已核节点及业务分组摘要。\n边界：不从缺失分组推定空摘要，不证明分组原记录或改写历史根摘要。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/hashes/content-root-sections.ts": {
+      "file": "files/src/services/smart-bid/content/hashes/content-root-sections.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/hashes/content-root-sections",
+        "sourcePath": "src/services/smart-bid/content/hashes/content-root-sections.ts",
+        "sourceFile": "src/services/smart-bid/content/hashes/content-root-sections.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/hashes/content-root-sections",
+        "jsdoc": "@module app:services/smart-bid/content/hashes/content-root-sections\n职责：从固定快照生成要求挂接和响应集的根摘要输入。\n边界：核引用形状与归属；原权限、响应载荷业务条件及快照来源另核。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/hashes/content-subtree-hash.ts": {
       "file": "files/src/services/smart-bid/content/hashes/content-subtree-hash.ts.json",
       "module": {
@@ -17469,6 +17612,32 @@
           "ContentSubtreeInput",
           "ContentSubtreeHash"
         ]
+      }
+    },
+    "src/services/smart-bid/content/hashes/effective-fact-dependencies.ts": {
+      "file": "files/src/services/smart-bid/content/hashes/effective-fact-dependencies.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/hashes/effective-fact-dependencies",
+        "sourcePath": "src/services/smart-bid/content/hashes/effective-fact-dependencies.ts",
+        "sourceFile": "src/services/smart-bid/content/hashes/effective-fact-dependencies.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/hashes/effective-fact-dependencies",
+        "jsdoc": "@module app:services/smart-bid/content/hashes/effective-fact-dependencies\n职责：固定审核范围内实际使用的事实版本、依据引用及显示摘要。\n边界：输入须由原事实读取链提供；不认为原采纳等同现在可用。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/hashes/revision-content-root.ts": {
+      "file": "files/src/services/smart-bid/content/hashes/revision-content-root.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/hashes/revision-content-root",
+        "sourcePath": "src/services/smart-bid/content/hashes/revision-content-root.ts",
+        "sourceFile": "src/services/smart-bid/content/hashes/revision-content-root.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/hashes/revision-content-root",
+        "jsdoc": "@module app:services/smart-bid/content/hashes/revision-content-root\n职责：组合固定修订清单与同版基线成员的根摘要。\n边界：依赖快照和基线的原读取证明；不查最新事实，不确认本次用途。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
       }
     },
     "src/services/smart-bid/content/references/baseline-fact-members.ts": {
@@ -17511,6 +17680,19 @@
         "packageName": "app",
         "modulePath": "services/smart-bid/content/references/baseline-tender-records",
         "jsdoc": "@module app:services/smart-bid/content/references/baseline-tender-records\n职责：校验基线固定的核定记录引用。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/calculation-table-generator.ts": {
+      "file": "files/src/services/smart-bid/content/references/calculation-table-generator.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/calculation-table-generator",
+        "sourcePath": "src/services/smart-bid/content/references/calculation-table-generator.ts",
+        "sourceFile": "src/services/smart-bid/content/references/calculation-table-generator.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/calculation-table-generator",
+        "jsdoc": "@module app:services/smart-bid/content/references/calculation-table-generator\n职责：按固定模板类解析计算表的显式生成器键。\n边界：调用方负责提供节点所属逻辑册的原模板类；生成器版本与可用性由注册表核验。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -17566,7 +17748,9 @@
         "modulePath": "services/smart-bid/content/references/revision-response-text",
         "jsdoc": "@module app:services/smart-bid/content/references/revision-response-text\n职责：核独立答复原文、占位绑定及内部节点链接，禁止章内响应复制第二份正文。\n边界：不展开显示、不读最新事实、不核外部资源版本/权限，不代完整响应及作答分工。\nAI用途：原响应定位通过后复用正文的占位和引用规则；数据与呈现格式分别处理。",
         "jsdocSource": "source-file-jsdoc",
-        "symbols": []
+        "symbols": [
+          "IndependentResponseFactTarget"
+        ]
       }
     },
     "src/services/smart-bid/content/references/snapshot-reference-values.ts": {
@@ -18644,6 +18828,34 @@
         "symbols": []
       }
     },
+    "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader\n职责：读取原采用记录并对照固定请求。\n边界：只提供原记录读取证明，原子结果凭据及执行终结仍须原责任域核实。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentAdoptionSelection"
+        ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader\n职责：沿原采用关联的合并修订回读快照及完整节点。\n边界：只读历史结果，不从现头重建，不证明原处理是否原子生效。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts": {
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts.json",
       "module": {
@@ -18687,7 +18899,7 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/content-candidate-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-candidate-reader\n职责：在原正文运行实例串联候选修订、同版清单及完整节点成员。\n边界：仅返回原视图绑定与证明；不缓存载荷、不采用、不冒充完整业务闭包或三版预演。\nAI用途：候选内容先核固定依据一致，再交后续业务检查；JSON内容与模板引用分别核对。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ContentCandidateFactBinding",
           "ContentCandidateRequirementPinsBinding",
@@ -18802,6 +19014,32 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/content-tender-record-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-tender-record-reader\n职责：按固定引用读取同项目已核定的原文解析记录。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/hashes/content-revision-root-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/hashes/content-revision-root-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/hashes/content-revision-root-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/hashes/content-revision-root-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/hashes/content-revision-root-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/hashes/content-revision-root-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/hashes/content-revision-root-reader\n职责：沿原修订和快照证明读取同版基线，复核根摘要。\n边界：调用方须确认编码合同；只读，不修改原摘要或判定采用许可。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader\n职责：一次查询同范围实际使用的固定事实版本并生成原依赖摘要。\n边界：不抓取全项目事实，不核本次用途，不写入。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -22847,6 +23085,10 @@
       "sourcePath": "packages/spark-component/src/components/containers/runtime/container-ui.ts",
       "file": "files/packages/spark-component/src/components/containers/runtime/container-ui.ts.json"
     },
+    "ContentAdoptionSelection": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts.json"
+    },
     "ContentAuthoringBinding": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts.json"
@@ -25206,6 +25448,10 @@
     "Id": {
       "sourcePath": "src/lowcode/resources/structured-config/dimension-source/view-support.ts",
       "file": "files/src/lowcode/resources/structured-config/dimension-source/view-support.ts.json"
+    },
+    "IndependentResponseFactTarget": {
+      "sourcePath": "src/services/smart-bid/content/references/revision-response-text.ts",
+      "file": "files/src/services/smart-bid/content/references/revision-response-text.ts.json"
     },
     "InferColumnValue": {
       "sourcePath": "packages/spark-data/src/types.ts",

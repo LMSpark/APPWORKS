@@ -175,6 +175,19 @@
         "method.readBaselineFact.return": {
           "type": "object",
           "title": "Promise<ContentBaselineFactBinding>"
+        },
+        "method.readOriginalAdoption.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "adoption/content-adoption-reader.ts.json#/$defs/ContentAdoptionSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readOriginalAdoption.return": {
+          "type": "object",
+          "title": "ReturnType<typeof readContentAdoption>"
         }
       }
     },
@@ -226,7 +239,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T21:48:35.092Z",
+  "generatedAt": "2026-11-17T22:30:47.065Z",
   "models": {
     "ContentAuthoringTarget": {
       "name": "ContentAuthoringTarget",
@@ -277,11 +290,11 @@
       "jsdoc": "直接交给正文组件的原实例绑定；pending只表示尚未写回字段的交互，不保存业务数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n    /** 原节点版本读取；完整快照成员关系仍由快照装配核对。 */\n    readNodeVersion: (selection: ContentNodeVersionSelection) => Promise<ContentNodeVersionBinding>;\n    /** 读取并核同版清单摘要；业务闭包及修订匹配仍另核。 */\n    readSnapshotIndex: (selection: ContentSnapshotSelection) => Promise<ContentSnapshotIndexBinding>;\n    /** 沿完整成员视图装配本次已核清单节点；其它分组和采用另核。 */\n    readSnapshotNodes: (snapshot: ContentSnapshotIndexBinding) => Promise<ContentSnapshotNodesBinding>;\n    /** 候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。 */\n    readCandidateContent: (selection: ContentRevisionSelection) => Promise<ContentCandidateBinding>;\n    /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */\n    readFactVersion: (selection: ContentFactVersionSelection) => Promise<ContentFactVersionBinding>;\n    readBaselineFact: (selection: ContentBaselineFactSelection) => Promise<ContentBaselineFactBinding>;\n}>",
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n    /** 原节点版本读取；完整快照成员关系仍由快照装配核对。 */\n    readNodeVersion: (selection: ContentNodeVersionSelection) => Promise<ContentNodeVersionBinding>;\n    /** 读取并核同版清单摘要；业务闭包及修订匹配仍另核。 */\n    readSnapshotIndex: (selection: ContentSnapshotSelection) => Promise<ContentSnapshotIndexBinding>;\n    /** 沿完整成员视图装配本次已核清单节点；其它分组和采用另核。 */\n    readSnapshotNodes: (snapshot: ContentSnapshotIndexBinding) => Promise<ContentSnapshotNodesBinding>;\n    /** 候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。 */\n    readCandidateContent: (selection: ContentRevisionSelection) => Promise<ContentCandidateBinding>;\n    /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */\n    readFactVersion: (selection: ContentFactVersionSelection) => Promise<ContentFactVersionBinding>;\n    readBaselineFact: (selection: ContentBaselineFactSelection) => Promise<ContentBaselineFactBinding>;\n    /** 只读原请求关联的采用行；实际原办理结果另核。 */\n    readOriginalAdoption: (selection: ContentAdoptionSelection) => ReturnType<typeof readContentAdoption>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n    /** 原节点版本读取；完整快照成员关系仍由快照装配核对。 */\n    readNodeVersion: (selection: ContentNodeVersionSelection) => Promise<ContentNodeVersionBinding>;\n    /** 读取并核同版清单摘要；业务闭包及修订匹配仍另核。 */\n    readSnapshotIndex: (selection: ContentSnapshotSelection) => Promise<ContentSnapshotIndexBinding>;\n    /** 沿完整成员视图装配本次已核清单节点；其它分组和采用另核。 */\n    readSnapshotNodes: (snapshot: ContentSnapshotIndexBinding) => Promise<ContentSnapshotNodesBinding>;\n    /** 候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。 */\n    readCandidateContent: (selection: ContentRevisionSelection) => Promise<ContentCandidateBinding>;\n    /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */\n    readFactVersion: (selection: ContentFactVersionSelection) => Promise<ContentFactVersionBinding>;\n    readBaselineFact: (selection: ContentBaselineFactSelection) => Promise<ContentBaselineFactBinding>;\n}>",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n    /** 原节点版本读取；完整快照成员关系仍由快照装配核对。 */\n    readNodeVersion: (selection: ContentNodeVersionSelection) => Promise<ContentNodeVersionBinding>;\n    /** 读取并核同版清单摘要；业务闭包及修订匹配仍另核。 */\n    readSnapshotIndex: (selection: ContentSnapshotSelection) => Promise<ContentSnapshotIndexBinding>;\n    /** 沿完整成员视图装配本次已核清单节点；其它分组和采用另核。 */\n    readSnapshotNodes: (snapshot: ContentSnapshotIndexBinding) => Promise<ContentSnapshotNodesBinding>;\n    /** 候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。 */\n    readCandidateContent: (selection: ContentRevisionSelection) => Promise<ContentCandidateBinding>;\n    /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */\n    readFactVersion: (selection: ContentFactVersionSelection) => Promise<ContentFactVersionBinding>;\n    readBaselineFact: (selection: ContentBaselineFactSelection) => Promise<ContentBaselineFactBinding>;\n    /** 只读原请求关联的采用行；实际原办理结果另核。 */\n    readOriginalAdoption: (selection: ContentAdoptionSelection) => ReturnType<typeof readContentAdoption>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -508,6 +521,30 @@
                     "type": "reference",
                     "name": "ContentBaselineFactBinding",
                     "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readOriginalAdoption",
+              "jsdoc": "只读原请求关联的采用行；实际原办理结果另核。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentAdoptionSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof readContentAdoption"
                   }
                 ]
               }

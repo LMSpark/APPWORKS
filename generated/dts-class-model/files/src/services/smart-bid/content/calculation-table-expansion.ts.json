@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/calculation-table-expansion",
+    "sourcePath": "src/services/smart-bid/content/calculation-table-expansion.ts",
+    "sourceFile": "src/services/smart-bid/content/calculation-table-expansion.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/calculation-table-expansion",
+    "jsdoc": "@module app:services/smart-bid/content/calculation-table-expansion\n职责：按已核输入运行固定生成器，校验展开后的正文表格和节点引用。\n边界：结果供呈现、计算读取和质检共用；不写回节点、草稿或事实。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T00:25:33.971Z",
+  "models": {}
+}

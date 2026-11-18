@@ -223,7 +223,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T21:54:32.195Z",
+  "generatedAt": "2026-11-17T22:16:29.518Z",
   "models": {
     "ContentTextOwner": {
       "name": "ContentTextOwner",

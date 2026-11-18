@@ -8,7 +8,7 @@
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/authoring/model/content-candidate-reader",
     "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-candidate-reader\n职责：在原正文运行实例串联候选修订、同版清单及完整节点成员。\n边界：仅返回原视图绑定与证明；不缓存载荷、不采用、不冒充完整业务闭包或三版预演。\nAI用途：候选内容先核固定依据一致，再交后续业务检查；JSON内容与模板引用分别核对。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ContentCandidateFactBinding",
       "ContentCandidateRequirementPinsBinding",
@@ -142,6 +142,120 @@
       "required": [
         "snapshot",
         "nodes"
+      ],
+      "additionalProperties": false
+    },
+    "FixedCalculationTemplate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FixedCalculationTemplate",
+      "properties": {
+        "classes": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "CalculationSources": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CalculationSources",
+      "properties": {
+        "readTemplate": {
+          "type": "object",
+          "title": "ReadFixedCalculationTemplate"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readGenerator.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readGenerator.return": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "key",
+            "version",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        },
+        "method.assertInputsCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertInputsCurrent.return": true
+      }
+    },
+    "ComputedTable": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ComputedTable",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "generatorKey": {
+          "type": "string"
+        },
+        "generatorVersion": {
+          "type": "string"
+        },
+        "inputHash": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "presentationNode": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "data"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "nodeId",
+        "generatorKey",
+        "generatorVersion",
+        "inputHash",
+        "data",
+        "presentationNode"
       ],
       "additionalProperties": false
     },
@@ -346,6 +460,68 @@
         "method.assertCurrent.return": true
       }
     },
+    "RevisionRootProof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RevisionRootProof",
+      "properties": {
+        "rootHash": {
+          "type": "string"
+        },
+        "rootHashVerified": {
+          "const": true
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "rootHash",
+        "rootHashVerified",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "PreviewRootProofs": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PreviewRootProofs",
+      "properties": {
+        "candidate": {
+          "$ref": "#/$defs/RevisionRootProof"
+        },
+        "basis": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/RevisionRootProof"
+            }
+          ]
+        },
+        "head": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/RevisionRootProof"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
     "PreviewVersionSession": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -387,6 +563,19 @@
         "method.previewNodeTextChange.return": {
           "type": "object",
           "title": "Promise<TextPreviewBinding>"
+        },
+        "method.verifyRootHashes.params": {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verifyRootHashes.return": {
+          "type": "object",
+          "title": "Promise<PreviewRootProofs>"
         }
       },
       "properties": {
@@ -505,6 +694,150 @@
           "type": "object",
           "title": "Promise<ContentCandidateFactBinding>"
         },
+        "method.readNodeEffectiveFacts.params": {
+          "type": "object",
+          "properties": {
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "assertConsumer": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readNodeEffectiveFacts.return": {
+          "type": "object",
+          "title": "ReturnType<typeof readEffectiveFactDependencies>"
+        },
+        "method.hashNodeCalculationInputs.params": {
+          "type": "object",
+          "properties": {
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "tables": true,
+            "sources": {
+              "$ref": "#/$defs/CalculationSources"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hashNodeCalculationInputs.return": {
+          "type": "object",
+          "title": "Promise<Awaited<ReturnType<typeof hashCalculationInputs>> & Readonly<{\n        assertCurrent: () => void;\n    }>>"
+        },
+        "method.readCalculationTemplates.params": {
+          "type": "object",
+          "properties": {
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readCalculationTemplates.return": {
+          "type": "object",
+          "title": "ReturnType<typeof readCalculationTableTemplateRefs>"
+        },
+        "method.expandAttachmentIndex.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "source": {
+              "type": "object",
+              "properties": {
+                "entries": true,
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              },
+              "required": [
+                "entries",
+                "assertCurrent"
+              ],
+              "additionalProperties": false
+            },
+            "readTemplate": {
+              "type": "object",
+              "title": "ReadFixedCalculationTemplate"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.expandAttachmentIndex.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        table: ComputedTable;\n        calculationInputsHash: string;\n        assertCurrent: () => void;\n        readComputed: (target: Readonly<{\n            nodeId: string;\n            inputHash: string;\n        }>) => ComputedTable;\n        computedGet: (input: unknown) => Readonly<{\n            nodeId: string;\n            inputHash: string;\n            data: ComputedTable['data'];\n        }>;\n    }>>"
+        },
+        "method.resolveCalculationGenerators.params": {
+          "type": "object",
+          "properties": {
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "readTemplate": {
+              "type": "object",
+              "title": "ReadFixedCalculationTemplate"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveCalculationGenerators.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        tables: ReadonlyArray<Readonly<{\n            nodeId: string;\n            generatorKey: string;\n        }>>;\n        assertCurrent: () => void;\n    }>>"
+        },
+        "method.readEffectiveFacts.params": {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "type": "object",
+              "properties": {
+                "nodeIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "responses": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../../../../../../services/smart-bid/content/references/revision-response-text.ts.json#/$defs/IndependentResponseFactTarget"
+                  }
+                }
+              },
+              "required": [
+                "nodeIds",
+                "responses"
+              ],
+              "additionalProperties": false
+            },
+            "assertConsumer": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readEffectiveFacts.return": {
+          "type": "object",
+          "title": "ReturnType<typeof readEffectiveFactDependencies>"
+        },
         "method.readRequirementPinIssues.params": {
           "type": "object",
           "properties": {
@@ -565,6 +898,19 @@
           "type": "object",
           "title": "Promise<PreviewVersionSession>"
         },
+        "method.verifyRootHash.params": {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verifyRootHash.return": {
+          "type": "object",
+          "title": "ReturnType<typeof verifyReadableRevisionRoot>"
+        },
         "method.previewScope.params": {
           "type": "object",
           "properties": {
@@ -623,7 +969,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T21:56:55.533Z",
+  "generatedAt": "2026-11-18T00:29:21.583Z",
   "models": {
     "ContentCandidateFactBinding": {
       "name": "ContentCandidateFactBinding",
@@ -736,6 +1082,162 @@
               "name": "nodes",
               "readable": true,
               "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FixedCalculationTemplate": {
+      "name": "FixedCalculationTemplate",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "RevisionTemplateRef & Readonly<{\n    classes: unknown;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "RevisionTemplateRef",
+            "targetName": "RevisionTemplateRef"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    classes: unknown;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "classes",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ReadFixedCalculationTemplate": {
+      "name": "ReadFixedCalculationTemplate",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(ref: RevisionTemplateRef) => Promise<FixedCalculationTemplate>",
+        "members": {}
+      }
+    },
+    "CalculationSources": {
+      "name": "CalculationSources",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    readTemplate: ReadFixedCalculationTemplate;\n    readGenerator?: (key: string) => Readonly<{\n        key: string;\n        version: string;\n        assertCurrent: () => void;\n    }> | undefined;\n    assertInputsCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    readTemplate: ReadFixedCalculationTemplate;\n    readGenerator?: (key: string) => Readonly<{\n        key: string;\n        version: string;\n        assertCurrent: () => void;\n    }> | undefined;\n    assertInputsCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "readTemplate",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readGenerator",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Readonly",
+                  "typeArguments": [
+                    {
+                      "type": "unknown",
+                      "name": "{\n        key: string;\n        version: string;\n        assertCurrent: () => void;\n    }"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "assertInputsCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ComputedTable": {
+      "name": "ComputedTable",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof expandBuiltInCalculationTable>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<typeof expandBuiltInCalculationTable>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "generatorKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "generatorVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "presentationNode",
+              "readable": true,
+              "writable": true
             }
           ]
         }
@@ -997,12 +1499,90 @@
         }
       }
     },
+    "RevisionRootProof": {
+      "name": "RevisionRootProof",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof verifyReadableRevisionRoot>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof verifyReadableRevisionRoot>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rootHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rootHashVerified",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "PreviewRootProofs": {
+      "name": "PreviewRootProofs",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    candidate: RevisionRootProof;\n    basis: RevisionRootProof | null;\n    head: RevisionRootProof | null;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    candidate: RevisionRootProof;\n    basis: RevisionRootProof | null;\n    head: RevisionRootProof | null;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "candidate",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "basis",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "head",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
     "PreviewVersionSession": {
       "name": "PreviewVersionSession",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "PreviewVersions & Readonly<{\n    previewText: (changes: unknown) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection) => Promise<TextSelectionBinding>;\n    previewNodeTextChange: (change: NodeTextChange) => Promise<TextPreviewBinding>;\n}>",
+        "declarationTypeText": "PreviewVersions & Readonly<{\n    previewText: (changes: unknown) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection) => Promise<TextSelectionBinding>;\n    previewNodeTextChange: (change: NodeTextChange) => Promise<TextPreviewBinding>;\n    verifyRootHashes: (contract: string) => Promise<PreviewRootProofs>;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -1011,7 +1591,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    previewText: (changes: unknown) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection) => Promise<TextSelectionBinding>;\n    previewNodeTextChange: (change: NodeTextChange) => Promise<TextPreviewBinding>;\n}>",
+            "typeText": "Readonly<{\n    previewText: (changes: unknown) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection) => Promise<TextSelectionBinding>;\n    previewNodeTextChange: (change: NodeTextChange) => Promise<TextPreviewBinding>;\n    verifyRootHashes: (contract: string) => Promise<PreviewRootProofs>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1087,6 +1667,29 @@
                   }
                 ]
               }
+            },
+            {
+              "name": "verifyRootHashes",
+              "parameters": [
+                {
+                  "name": "contract",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PreviewRootProofs",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
             }
           ]
         }
@@ -1097,11 +1700,11 @@
       "jsdoc": "候选链保留各原视图证明；其它业务分组、当前依据、rootHash和采用必须继续核验。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readRequirementPinIssues: (assertConsumer?: () => void) => Promise<ContentCandidateRequirementPinsBinding>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readNodeEffectiveFacts: (nodeIds: readonly string[], assertConsumer?: () => void) => ReturnType<typeof readEffectiveFactDependencies>;\n    hashNodeCalculationInputs: (nodeIds: readonly string[], tables: unknown, sources: CalculationSources) => Promise<Awaited<ReturnType<typeof hashCalculationInputs>> & Readonly<{\n        assertCurrent: () => void;\n    }>>;\n    readCalculationTemplates: (nodeIds: readonly string[]) => ReturnType<typeof readCalculationTableTemplateRefs>;\n    expandAttachmentIndex: (nodeId: string, source: Readonly<{\n        entries: unknown;\n        assertCurrent: () => void;\n    }>, readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        table: ComputedTable;\n        calculationInputsHash: string;\n        assertCurrent: () => void;\n        readComputed: (target: Readonly<{\n            nodeId: string;\n            inputHash: string;\n        }>) => ComputedTable;\n        computedGet: (input: unknown) => Readonly<{\n            nodeId: string;\n            inputHash: string;\n            data: ComputedTable['data'];\n        }>;\n    }>>;\n    resolveCalculationGenerators: (nodeIds: readonly string[], readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        tables: ReadonlyArray<Readonly<{\n            nodeId: string;\n            generatorKey: string;\n        }>>;\n        assertCurrent: () => void;\n    }>>;\n    readEffectiveFacts: (scope: Readonly<{\n        nodeIds: readonly string[];\n        responses: readonly IndependentResponseFactTarget[];\n    }>, assertConsumer?: () => void) => ReturnType<typeof readEffectiveFactDependencies>;\n    readRequirementPinIssues: (assertConsumer?: () => void) => Promise<ContentCandidateRequirementPinsBinding>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    verifyRootHash: (contract: string) => ReturnType<typeof verifyReadableRevisionRoot>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readRequirementPinIssues: (assertConsumer?: () => void) => Promise<ContentCandidateRequirementPinsBinding>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readNodeEffectiveFacts: (nodeIds: readonly string[], assertConsumer?: () => void) => ReturnType<typeof readEffectiveFactDependencies>;\n    hashNodeCalculationInputs: (nodeIds: readonly string[], tables: unknown, sources: CalculationSources) => Promise<Awaited<ReturnType<typeof hashCalculationInputs>> & Readonly<{\n        assertCurrent: () => void;\n    }>>;\n    readCalculationTemplates: (nodeIds: readonly string[]) => ReturnType<typeof readCalculationTableTemplateRefs>;\n    expandAttachmentIndex: (nodeId: string, source: Readonly<{\n        entries: unknown;\n        assertCurrent: () => void;\n    }>, readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        table: ComputedTable;\n        calculationInputsHash: string;\n        assertCurrent: () => void;\n        readComputed: (target: Readonly<{\n            nodeId: string;\n            inputHash: string;\n        }>) => ComputedTable;\n        computedGet: (input: unknown) => Readonly<{\n            nodeId: string;\n            inputHash: string;\n            data: ComputedTable['data'];\n        }>;\n    }>>;\n    resolveCalculationGenerators: (nodeIds: readonly string[], readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        tables: ReadonlyArray<Readonly<{\n            nodeId: string;\n            generatorKey: string;\n        }>>;\n        assertCurrent: () => void;\n    }>>;\n    readEffectiveFacts: (scope: Readonly<{\n        nodeIds: readonly string[];\n        responses: readonly IndependentResponseFactTarget[];\n    }>, assertConsumer?: () => void) => ReturnType<typeof readEffectiveFactDependencies>;\n    readRequirementPinIssues: (assertConsumer?: () => void) => Promise<ContentCandidateRequirementPinsBinding>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    verifyRootHash: (contract: string) => ReturnType<typeof verifyReadableRevisionRoot>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1224,6 +1827,267 @@
                     "type": "reference",
                     "name": "ContentCandidateFactBinding",
                     "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readNodeEffectiveFacts",
+              "parameters": [
+                {
+                  "name": "nodeIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                },
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof readEffectiveFactDependencies"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "hashNodeCalculationInputs",
+              "parameters": [
+                {
+                  "name": "nodeIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                },
+                {
+                  "name": "tables",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "sources",
+                  "type": {
+                    "type": "reference",
+                    "name": "CalculationSources",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intersection",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "Awaited",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "ReturnType",
+                            "typeArguments": [
+                              {
+                                "type": "unknown",
+                                "name": "typeof hashCalculationInputs"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Readonly",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "{\n        assertCurrent: () => void;\n    }"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readCalculationTemplates",
+              "parameters": [
+                {
+                  "name": "nodeIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof readCalculationTableTemplateRefs"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "expandAttachmentIndex",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        entries: unknown;\n        assertCurrent: () => void;\n    }"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "readTemplate",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReadFixedCalculationTemplate",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        table: ComputedTable;\n        calculationInputsHash: string;\n        assertCurrent: () => void;\n        readComputed: (target: Readonly<{\n            nodeId: string;\n            inputHash: string;\n        }>) => ComputedTable;\n        computedGet: (input: unknown) => Readonly<{\n            nodeId: string;\n            inputHash: string;\n            data: ComputedTable['data'];\n        }>;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "resolveCalculationGenerators",
+              "parameters": [
+                {
+                  "name": "nodeIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                },
+                {
+                  "name": "readTemplate",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReadFixedCalculationTemplate",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        tables: ReadonlyArray<Readonly<{\n            nodeId: string;\n            generatorKey: string;\n        }>>;\n        assertCurrent: () => void;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readEffectiveFacts",
+              "parameters": [
+                {
+                  "name": "scope",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        nodeIds: readonly string[];\n        responses: readonly IndependentResponseFactTarget[];\n    }"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof readEffectiveFactDependencies"
                   }
                 ]
               }
@@ -1381,6 +2245,28 @@
                     "type": "reference",
                     "name": "PreviewVersionSession",
                     "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verifyRootHash",
+              "parameters": [
+                {
+                  "name": "contract",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof verifyReadableRevisionRoot"
                   }
                 ]
               }

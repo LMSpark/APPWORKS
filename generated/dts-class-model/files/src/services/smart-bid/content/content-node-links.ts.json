@@ -72,7 +72,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T09:28:06.655Z",
+  "generatedAt": "2026-11-18T00:21:12.689Z",
   "models": {
     "ContentNodeLink": {
       "name": "ContentNodeLink",

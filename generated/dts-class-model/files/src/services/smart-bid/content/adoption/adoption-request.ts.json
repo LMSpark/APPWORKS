@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/adoption/adoption-request",
+    "sourcePath": "src/services/smart-bid/content/adoption/adoption-request.ts",
+    "sourceFile": "src/services/smart-bid/content/adoption/adoption-request.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/adoption/adoption-request",
+    "jsdoc": "@module app:services/smart-bid/content/adoption/adoption-request\n职责：捕获采用准备的原请求身份和确定 JSON 内容。\n边界：本地准备，原请求持久记录、范围复核及正式提交仍待权威服务。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-17T22:24:10.988Z",
+  "models": {}
+}

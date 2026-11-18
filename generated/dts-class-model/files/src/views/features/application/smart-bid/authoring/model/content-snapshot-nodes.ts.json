@@ -48,22 +48,89 @@
           "properties": {},
           "additionalProperties": false
         },
-        "method.assertCurrent.return": true
+        "method.assertCurrent.return": true,
+        "method.readFactIds.params": {
+          "type": "object",
+          "properties": {
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFactIds.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.readCalculationTableIds.params": {
+          "type": "object",
+          "properties": {
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readCalculationTableIds.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.readResourceReferences.params": {
+          "type": "object",
+          "properties": {
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readResourceReferences.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nodeId": {
+                "type": "string"
+              },
+              "resourceVersionId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "nodeId",
+              "resourceVersionId"
+            ],
+            "additionalProperties": false
+          }
+        }
       }
     }
   },
-  "generatedAt": "2026-11-17T21:17:10.849Z",
+  "generatedAt": "2026-11-18T00:21:12.700Z",
   "models": {
     "ContentSnapshotNodesBinding": {
       "name": "ContentSnapshotNodesBinding",
       "jsdoc": "整批原成员绑定；空节点清单不绑定旧视图，也不发空IN查询。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataViewKey: string | null;\n    nodeMembershipVerified: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n    subtreeHashContract: typeof SUBTREE_HASH_CONTRACT;\n    subtreeHashes: readonly ContentSubtreeHash[];\n}>",
+        "declarationTypeText": "Readonly<{\n    dataViewKey: string | null;\n    nodeMembershipVerified: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n    subtreeHashContract: typeof SUBTREE_HASH_CONTRACT;\n    subtreeHashes: readonly ContentSubtreeHash[];\n    readFactIds: (nodeIds: readonly string[]) => readonly string[];\n    readCalculationTableIds: (nodeIds: readonly string[]) => readonly string[];\n    readResourceReferences: (nodeIds: readonly string[]) => ReadonlyArray<Readonly<{\n        nodeId: string;\n        resourceVersionId: string;\n    }>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataViewKey: string | null;\n    nodeMembershipVerified: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n    subtreeHashContract: typeof SUBTREE_HASH_CONTRACT;\n    subtreeHashes: readonly ContentSubtreeHash[];\n}>",
+            "typeText": "Readonly<{\n    dataViewKey: string | null;\n    nodeMembershipVerified: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n    subtreeHashContract: typeof SUBTREE_HASH_CONTRACT;\n    subtreeHashes: readonly ContentSubtreeHash[];\n    readFactIds: (nodeIds: readonly string[]) => readonly string[];\n    readCalculationTableIds: (nodeIds: readonly string[]) => readonly string[];\n    readResourceReferences: (nodeIds: readonly string[]) => ReadonlyArray<Readonly<{\n        nodeId: string;\n        resourceVersionId: string;\n    }>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -102,6 +169,63 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            },
+            {
+              "name": "readFactIds",
+              "parameters": [
+                {
+                  "name": "nodeIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly string[]"
+              }
+            },
+            {
+              "name": "readCalculationTableIds",
+              "parameters": [
+                {
+                  "name": "nodeIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly string[]"
+              }
+            },
+            {
+              "name": "readResourceReferences",
+              "parameters": [
+                {
+                  "name": "nodeIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Readonly",
+                  "typeArguments": [
+                    {
+                      "type": "unknown",
+                      "name": "{\n        nodeId: string;\n        resourceVersionId: string;\n    }"
+                    }
+                  ]
+                }
               }
             }
           ]

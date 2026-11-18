@@ -58,7 +58,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T21:23:50.823Z",
+  "generatedAt": "2026-11-17T22:21:06.676Z",
   "models": {
     "RevisionResponseComparison": {
       "name": "RevisionResponseComparison",

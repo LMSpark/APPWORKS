@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/hashes/revision-content-root",
+    "sourcePath": "src/services/smart-bid/content/hashes/revision-content-root.ts",
+    "sourceFile": "src/services/smart-bid/content/hashes/revision-content-root.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/hashes/revision-content-root",
+    "jsdoc": "@module app:services/smart-bid/content/hashes/revision-content-root\n职责：组合固定修订清单与同版基线成员的根摘要。\n边界：依赖快照和基线的原读取证明；不查最新事实，不确认本次用途。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-17T22:44:24.328Z",
+  "models": {}
+}

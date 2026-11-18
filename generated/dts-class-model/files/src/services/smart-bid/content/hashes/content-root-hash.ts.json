@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/hashes/content-root-hash",
+    "sourcePath": "src/services/smart-bid/content/hashes/content-root-hash.ts",
+    "sourceFile": "src/services/smart-bid/content/hashes/content-root-hash.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/hashes/content-root-hash",
+    "jsdoc": "@module app:services/smart-bid/content/hashes/content-root-hash\n职责：组合正式方案 §2.2 的已核节点及业务分组摘要。\n边界：不从缺失分组推定空摘要，不证明分组原记录或改写历史根摘要。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-17T22:39:29.914Z",
+  "models": {}
+}

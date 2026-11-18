@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/adoption/adoption-preflight",
+    "sourcePath": "src/services/smart-bid/content/adoption/adoption-preflight.ts",
+    "sourceFile": "src/services/smart-bid/content/adoption/adoption-preflight.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/adoption/adoption-preflight",
+    "jsdoc": "@module app:services/smart-bid/content/adoption/adoption-preflight\n职责：依据当前业务观察检查固定预演是否需要重做，并准备匹配的采用请求。\n边界：无权威查询、持久化或写入；正式执行仍须同次核头、依据及权限。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "AdoptionBasis": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AdoptionBasis",
+      "properties": {
+        "stageRef": true,
+        "baselineId": {
+          "type": "string"
+        },
+        "basisChecks": true
+      },
+      "required": [
+        "stageRef",
+        "baselineId",
+        "basisChecks"
+      ],
+      "additionalProperties": false
+    },
+    "AdoptionPreflight": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AdoptionPreflight",
+      "properties": {
+        "request": true,
+        "preview": {
+          "type": "object",
+          "properties": {
+            "stageRef": true,
+            "baselineId": {
+              "type": "string"
+            },
+            "basisChecks": true,
+            "selection": true
+          },
+          "required": [
+            "stageRef",
+            "baselineId",
+            "basisChecks",
+            "selection"
+          ],
+          "additionalProperties": false
+        },
+        "current": {
+          "type": "object",
+          "properties": {
+            "stageRef": true,
+            "baselineId": {
+              "type": "string"
+            },
+            "basisChecks": true,
+            "projectId": {
+              "type": "string"
+            },
+            "headRevisionId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "required": [
+            "stageRef",
+            "baselineId",
+            "basisChecks",
+            "projectId",
+            "headRevisionId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "request",
+        "preview",
+        "current"
+      ],
+      "additionalProperties": false
+    },
+    "RepreviewReason": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "RepreviewReason",
+      "enum": [
+        "HEAD_CHANGED",
+        "STAGE_CHANGED",
+        "BASELINE_CHANGED",
+        "BASIS_CHECKS_CHANGED"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-17T22:24:10.973Z",
+  "models": {
+    "AdoptionBasis": {
+      "name": "AdoptionBasis",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    stageRef: unknown;\n    baselineId: string;\n    basisChecks: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    stageRef: unknown;\n    baselineId: string;\n    basisChecks: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "stageRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "basisChecks",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AdoptionPreflight": {
+      "name": "AdoptionPreflight",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    request: unknown;\n    preview: AdoptionBasis & Readonly<{\n        selection: unknown;\n    }>;\n    current: AdoptionBasis & Readonly<{\n        projectId: string;\n        headRevisionId: string | null;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    request: unknown;\n    preview: AdoptionBasis & Readonly<{\n        selection: unknown;\n    }>;\n    current: AdoptionBasis & Readonly<{\n        projectId: string;\n        headRevisionId: string | null;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "request",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preview",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "current",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RepreviewReason": {
+      "name": "RepreviewReason",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'HEAD_CHANGED' | 'STAGE_CHANGED' | 'BASELINE_CHANGED' | 'BASIS_CHECKS_CHANGED'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'HEAD_CHANGED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'STAGE_CHANGED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'BASELINE_CHANGED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'BASIS_CHECKS_CHANGED'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

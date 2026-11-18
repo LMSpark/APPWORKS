@@ -235,11 +235,11 @@
             "name",
             "search",
             "result",
+            "contract",
             "parameter",
             "mapping",
             "addition",
-            "removal",
-            "contract"
+            "removal"
           ]
         },
         "id": {

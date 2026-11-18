@@ -5251,15 +5251,50 @@
       "shardFile": "files/src/services/smart-bid/content-tree-structure.ts.json",
       "sourceModifiedAt": "2026-11-17T05:46:07.663Z"
     },
+    "src/services/smart-bid/content/adoption/adoption-basis-checks.ts": {
+      "sourceFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts",
+      "shardFile": "files/src/services/smart-bid/content/adoption/adoption-basis-checks.ts.json",
+      "sourceModifiedAt": "2026-11-17T22:24:10.969Z"
+    },
+    "src/services/smart-bid/content/adoption/adoption-preflight.ts": {
+      "sourceFile": "src/services/smart-bid/content/adoption/adoption-preflight.ts",
+      "shardFile": "files/src/services/smart-bid/content/adoption/adoption-preflight.ts.json",
+      "sourceModifiedAt": "2026-11-17T22:24:10.973Z"
+    },
+    "src/services/smart-bid/content/adoption/adoption-recovery.ts": {
+      "sourceFile": "src/services/smart-bid/content/adoption/adoption-recovery.ts",
+      "shardFile": "files/src/services/smart-bid/content/adoption/adoption-recovery.ts.json",
+      "sourceModifiedAt": "2026-11-17T22:24:10.983Z"
+    },
+    "src/services/smart-bid/content/adoption/adoption-request.ts": {
+      "sourceFile": "src/services/smart-bid/content/adoption/adoption-request.ts",
+      "shardFile": "files/src/services/smart-bid/content/adoption/adoption-request.ts.json",
+      "sourceModifiedAt": "2026-11-17T22:24:10.988Z"
+    },
+    "src/services/smart-bid/content/attachment-index-generator.ts": {
+      "sourceFile": "src/services/smart-bid/content/attachment-index-generator.ts",
+      "shardFile": "files/src/services/smart-bid/content/attachment-index-generator.ts.json",
+      "sourceModifiedAt": "2026-11-18T00:17:35.285Z"
+    },
+    "src/services/smart-bid/content/calculation-table-expansion.ts": {
+      "sourceFile": "src/services/smart-bid/content/calculation-table-expansion.ts",
+      "shardFile": "files/src/services/smart-bid/content/calculation-table-expansion.ts.json",
+      "sourceModifiedAt": "2026-11-18T00:25:33.971Z"
+    },
+    "src/services/smart-bid/content/calculation-table-registry.ts": {
+      "sourceFile": "src/services/smart-bid/content/calculation-table-registry.ts",
+      "shardFile": "files/src/services/smart-bid/content/calculation-table-registry.ts.json",
+      "sourceModifiedAt": "2026-11-18T00:19:11.972Z"
+    },
     "src/services/smart-bid/content/content-node-links.ts": {
       "sourceFile": "src/services/smart-bid/content/content-node-links.ts",
       "shardFile": "files/src/services/smart-bid/content/content-node-links.ts.json",
-      "sourceModifiedAt": "2026-11-17T09:28:06.655Z"
+      "sourceModifiedAt": "2026-11-18T00:21:12.689Z"
     },
     "src/services/smart-bid/content/content-scoped-preview.ts": {
       "sourceFile": "src/services/smart-bid/content/content-scoped-preview.ts",
       "shardFile": "files/src/services/smart-bid/content/content-scoped-preview.ts.json",
-      "sourceModifiedAt": "2026-11-17T21:28:28.899Z"
+      "sourceModifiedAt": "2026-11-17T22:20:01.068Z"
     },
     "src/services/smart-bid/content/content-target-scope.ts": {
       "sourceFile": "src/services/smart-bid/content/content-target-scope.ts",
@@ -5269,7 +5304,7 @@
     "src/services/smart-bid/content/content-text-patch.ts": {
       "sourceFile": "src/services/smart-bid/content/content-text-patch.ts",
       "shardFile": "files/src/services/smart-bid/content/content-text-patch.ts.json",
-      "sourceModifiedAt": "2026-11-17T09:53:07.625Z"
+      "sourceModifiedAt": "2026-11-17T22:16:29.535Z"
     },
     "src/services/smart-bid/content/content-text-snapshot-preview.ts": {
       "sourceFile": "src/services/smart-bid/content/content-text-snapshot-preview.ts",
@@ -5279,17 +5314,47 @@
     "src/services/smart-bid/content/content-text-span.ts": {
       "sourceFile": "src/services/smart-bid/content/content-text-span.ts",
       "shardFile": "files/src/services/smart-bid/content/content-text-span.ts.json",
-      "sourceModifiedAt": "2026-11-17T21:54:32.195Z"
+      "sourceModifiedAt": "2026-11-17T22:16:29.518Z"
+    },
+    "src/services/smart-bid/content/hashes/calculation-inputs-hash.ts": {
+      "sourceFile": "src/services/smart-bid/content/hashes/calculation-inputs-hash.ts",
+      "shardFile": "files/src/services/smart-bid/content/hashes/calculation-inputs-hash.ts.json",
+      "sourceModifiedAt": "2026-11-18T00:14:13.557Z"
+    },
+    "src/services/smart-bid/content/hashes/content-effective-hash.ts": {
+      "sourceFile": "src/services/smart-bid/content/hashes/content-effective-hash.ts",
+      "shardFile": "files/src/services/smart-bid/content/hashes/content-effective-hash.ts.json",
+      "sourceModifiedAt": "2026-11-17T22:59:36.221Z"
+    },
+    "src/services/smart-bid/content/hashes/content-root-hash.ts": {
+      "sourceFile": "src/services/smart-bid/content/hashes/content-root-hash.ts",
+      "shardFile": "files/src/services/smart-bid/content/hashes/content-root-hash.ts.json",
+      "sourceModifiedAt": "2026-11-17T22:39:29.914Z"
+    },
+    "src/services/smart-bid/content/hashes/content-root-sections.ts": {
+      "sourceFile": "src/services/smart-bid/content/hashes/content-root-sections.ts",
+      "shardFile": "files/src/services/smart-bid/content/hashes/content-root-sections.ts.json",
+      "sourceModifiedAt": "2026-11-17T22:42:13.334Z"
     },
     "src/services/smart-bid/content/hashes/content-subtree-hash.ts": {
       "sourceFile": "src/services/smart-bid/content/hashes/content-subtree-hash.ts",
       "shardFile": "files/src/services/smart-bid/content/hashes/content-subtree-hash.ts.json",
       "sourceModifiedAt": "2026-11-17T13:46:22.798Z"
     },
+    "src/services/smart-bid/content/hashes/effective-fact-dependencies.ts": {
+      "sourceFile": "src/services/smart-bid/content/hashes/effective-fact-dependencies.ts",
+      "shardFile": "files/src/services/smart-bid/content/hashes/effective-fact-dependencies.ts.json",
+      "sourceModifiedAt": "2026-11-17T23:07:17.451Z"
+    },
+    "src/services/smart-bid/content/hashes/revision-content-root.ts": {
+      "sourceFile": "src/services/smart-bid/content/hashes/revision-content-root.ts",
+      "shardFile": "files/src/services/smart-bid/content/hashes/revision-content-root.ts.json",
+      "sourceModifiedAt": "2026-11-17T22:44:24.328Z"
+    },
     "src/services/smart-bid/content/references/baseline-fact-members.ts": {
       "sourceFile": "src/services/smart-bid/content/references/baseline-fact-members.ts",
       "shardFile": "files/src/services/smart-bid/content/references/baseline-fact-members.ts.json",
-      "sourceModifiedAt": "2026-11-17T16:32:24.146Z"
+      "sourceModifiedAt": "2026-11-17T22:44:24.321Z"
     },
     "src/services/smart-bid/content/references/baseline-requirement-members.ts": {
       "sourceFile": "src/services/smart-bid/content/references/baseline-requirement-members.ts",
@@ -5300,6 +5365,11 @@
       "sourceFile": "src/services/smart-bid/content/references/baseline-tender-records.ts",
       "shardFile": "files/src/services/smart-bid/content/references/baseline-tender-records.ts.json",
       "sourceModifiedAt": "2026-11-17T19:27:24.390Z"
+    },
+    "src/services/smart-bid/content/references/calculation-table-generator.ts": {
+      "sourceFile": "src/services/smart-bid/content/references/calculation-table-generator.ts",
+      "shardFile": "files/src/services/smart-bid/content/references/calculation-table-generator.ts.json",
+      "sourceModifiedAt": "2026-11-18T00:07:59.096Z"
     },
     "src/services/smart-bid/content/references/content-reference-editor-schema.ts": {
       "sourceFile": "src/services/smart-bid/content/references/content-reference-editor-schema.ts",
@@ -5319,7 +5389,7 @@
     "src/services/smart-bid/content/references/revision-response-text.ts": {
       "sourceFile": "src/services/smart-bid/content/references/revision-response-text.ts",
       "shardFile": "files/src/services/smart-bid/content/references/revision-response-text.ts.json",
-      "sourceModifiedAt": "2026-11-17T13:34:42.640Z"
+      "sourceModifiedAt": "2026-11-17T23:16:17.335Z"
     },
     "src/services/smart-bid/content/references/snapshot-reference-values.ts": {
       "sourceFile": "src/services/smart-bid/content/references/snapshot-reference-values.ts",
@@ -5329,12 +5399,12 @@
     "src/services/smart-bid/content/revision-response-comparison.ts": {
       "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
       "shardFile": "files/src/services/smart-bid/content/revision-response-comparison.ts.json",
-      "sourceModifiedAt": "2026-11-17T21:23:50.823Z"
+      "sourceModifiedAt": "2026-11-17T22:21:06.676Z"
     },
     "src/services/smart-bid/content/revision-snapshot-hash.ts": {
       "sourceFile": "src/services/smart-bid/content/revision-snapshot-hash.ts",
       "shardFile": "files/src/services/smart-bid/content/revision-snapshot-hash.ts.json",
-      "sourceModifiedAt": "2026-11-17T12:23:20.716Z"
+      "sourceModifiedAt": "2026-11-17T22:13:51.848Z"
     },
     "src/services/smart-bid/content/revision-snapshot-index.ts": {
       "sourceFile": "src/services/smart-bid/content/revision-snapshot-index.ts",
@@ -5344,7 +5414,7 @@
     "src/services/smart-bid/content/revision-template-bindings.ts": {
       "sourceFile": "src/services/smart-bid/content/revision-template-bindings.ts",
       "shardFile": "files/src/services/smart-bid/content/revision-template-bindings.ts.json",
-      "sourceModifiedAt": "2026-11-17T13:22:15.404Z"
+      "sourceModifiedAt": "2026-11-18T00:09:52.317Z"
     },
     "src/services/smart-bid/operation/operation-choice-decision.ts": {
       "sourceFile": "src/services/smart-bid/operation/operation-choice-decision.ts",
@@ -5696,20 +5766,30 @@
       "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts.json",
       "sourceModifiedAt": "2026-11-17T17:18:15.032Z"
     },
+    "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts.json",
+      "sourceModifiedAt": "2026-11-17T22:35:52.458Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader.ts.json",
+      "sourceModifiedAt": "2026-11-17T22:52:06.927Z"
+    },
     "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts.json",
-      "sourceModifiedAt": "2026-11-17T21:48:35.092Z"
+      "sourceModifiedAt": "2026-11-17T22:30:47.065Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T21:11:12.255Z"
+      "sourceModifiedAt": "2026-11-17T22:53:48.947Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T21:56:55.533Z"
+      "sourceModifiedAt": "2026-11-18T00:29:21.583Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts",
@@ -5729,27 +5809,37 @@
     "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T21:19:43.564Z"
+      "sourceModifiedAt": "2026-11-17T22:29:38.241Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts.json",
-      "sourceModifiedAt": "2026-11-17T21:17:10.849Z"
+      "sourceModifiedAt": "2026-11-18T00:21:12.700Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts.json",
-      "sourceModifiedAt": "2026-11-17T21:17:10.837Z"
+      "sourceModifiedAt": "2026-11-17T22:33:41.452Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts.json",
       "sourceModifiedAt": "2026-11-17T21:11:12.259Z"
     },
+    "src/views/features/application/smart-bid/authoring/model/hashes/content-revision-root-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/hashes/content-revision-root-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/hashes/content-revision-root-reader.ts.json",
+      "sourceModifiedAt": "2026-11-17T22:53:48.968Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader.ts.json",
+      "sourceModifiedAt": "2026-11-17T23:07:17.460Z"
+    },
     "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue.json",
-      "sourceModifiedAt": "2026-11-17T22:03:58.103Z"
+      "sourceModifiedAt": "2026-11-17T22:06:21.544Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue",
@@ -5944,7 +6034,7 @@
     "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue.json",
-      "sourceModifiedAt": "2026-11-17T20:24:30.690Z"
+      "sourceModifiedAt": "2026-11-17T23:07:47.613Z"
     },
     "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.props.ts",

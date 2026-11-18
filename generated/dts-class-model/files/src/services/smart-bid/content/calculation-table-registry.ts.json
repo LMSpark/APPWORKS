@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/calculation-table-registry",
+    "sourcePath": "src/services/smart-bid/content/calculation-table-registry.ts",
+    "sourceFile": "src/services/smart-bid/content/calculation-table-registry.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/calculation-table-registry",
+    "jsdoc": "@module app:services/smart-bid/content/calculation-table-registry\n职责：固定内置计算表生成器的键、版本和实现。\n边界：输入由正式来源提供；不执行远端脚本或自动替换不匹配的版本。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T00:19:11.972Z",
+  "models": {}
+}

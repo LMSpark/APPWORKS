@@ -51,6 +51,18 @@ it('uses the formal draft primary key for editing and cancellation',async()=>{
   expect(f.save).not.toHaveBeenCalled()
  }finally{f.runtime.dispose()}
 })
+it('captures the saved draft for candidacy and withdraws it when edits start',async()=>{
+ const f=await fixture()
+ try{
+  const captured=await f.commands.captureCandidateDraft(f.commands.epoch)
+  expect(captured).toMatchObject({projectId:'P',draftId:'D',actorUserId:'U',draftVersion:'V1',baseRevisionId:'BASE',
+   draftJson:'{"nodes":[],"responseChanges":[]}',contentDigest:expect.stringMatching(/^[a-f0-9]{64}$/u)})
+  f.commands.run(add,f.commands.epoch)
+  expect(()=>captured.assertCurrent()).toThrow()
+  await expect(f.commands.captureCandidateDraft(f.commands.epoch)).rejects.toThrow('CONTENT_CANDIDATE_DRAFT_UNSAVED')
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.runtime.dispose()}
+})
 it('still reports the original dirty state for departure when the editing binding is stale',async()=>{
  const clean=await fixture(),dirty=await fixture()
  const controller=new AbortController()

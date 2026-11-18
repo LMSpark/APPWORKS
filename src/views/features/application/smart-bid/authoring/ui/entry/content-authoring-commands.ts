@@ -5,9 +5,10 @@
  * AI用途：正式页面脚本桥调用此实例；旧代次、未确认输入或原查询失效必须拒绝。
  */
 import {ContentTreeDraftEditor} from '@/services/smart-bid/content-tree-draft-editor'
-import {contentDraftSaveRule} from '@/services/smart-bid/content-draft-save-rule'
+import {contentDraftSaveRule,validateContentDraftPayload} from '@/services/smart-bid/content-draft-save-rule'
 import {prepareContentDraftSaveRequest} from '@/services/smart-bid/content/draft/content-draft-save-request'
-import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
+import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
+import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import type {ContentAuthoringBinding} from '../../model/content-authoring-host'
 import {parseDataViewKey,resolveDataViewKey,type DataView} from '@spark-appworks/spark-data'
 
@@ -47,6 +48,29 @@ export class ContentAuthoringCommands {
  /** 输入编辑只核本次原身份，不在开始输入时改写草稿。 */
  assertInputCurrent(epoch:number):void{this.assertCurrent(epoch)}
  get hasPendingInput():boolean{return this.#inputs.size>0}
+ /** 固定用于生成候选的已保存个人草稿，避免将本地编辑覆盖层当作持久证据。 */
+ async captureCandidateDraft(epoch:number){
+  this.assertCurrent(epoch)
+  const {draftId,projectId,actorUserId}=this.binding,view=this.#view
+  const assertSaved=()=>{
+   this.assertCurrent(epoch)
+   if(this.#inputs.size||view.hasEditingChanges())throw Error('CONTENT_CANDIDATE_DRAFT_UNSAVED')
+  }
+  assertSaved()
+  const row=view.rows.find(item=>view.getPkKey(item)===draftId)
+  if(!row)throw Error('CONTENT_CANDIDATE_DRAFT_REQUIRED')
+  const proof=view.captureReadRow(row,['draftVersion','baseRevisionId','draft'])
+  const assertCurrent=()=>{assertSaved();proof()}
+  assertCurrent()
+  const {draftVersion,baseRevisionId,draft}=row
+  if(!identity(draftVersion)||(baseRevisionId!==null&&!identity(baseRevisionId)))throw Error('CONTENT_CANDIDATE_DRAFT_REQUIRED')
+  const draftJson=canonicalSnapshotValue(draft)
+  const snapshot:unknown=JSON.parse(draftJson)
+  validateContentDraftPayload({projectId,draft:snapshot})
+  const contentDigest=await hashCanonicalSnapshotText(draftJson)
+  assertCurrent()
+  return Object.freeze({projectId,draftId,actorUserId,draftVersion,baseRevisionId,draftJson,contentDigest,assertCurrent})
+ }
  /** 只捕获本行确认为编辑的内容和原查询所见的并发版本。 */
  prepareSave(requestKey:string,epoch:number){
   this.assertCurrent(epoch)

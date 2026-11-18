@@ -74,6 +74,7 @@ export type ContentAuthoringScriptSession=Readonly<{
  readOriginalForm:(selection:Parameters<typeof readRegisteredOriginalForm>[1])=>ReturnType<typeof readRegisteredOriginalForm>
  compareOriginalForms:(selection:Parameters<typeof compareRegisteredOriginalForms>[1])=>ReturnType<typeof compareRegisteredOriginalForms>
  previewCandidate:(selection:ContentRevisionSelection,options:CandidatePreviewInput)=>ReturnType<ContentCandidateBinding['previewScope']>
+ captureCandidateDraft:()=>ReturnType<ContentAuthoringCommands['captureCandidateDraft']>
 }>
 /** 供正式SparkPageRenderer.host使用；命令对象仍归原薄宿主释放。 */
 export function createContentAuthoringScriptHost(binding:Binding,commands:ContentAuthoringCommands,receiptDataViewKey?:string){
@@ -94,6 +95,12 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
    }
    return Object.freeze({assertCurrent,
     get canLeave(){return commands.canLeave},
+    async captureCandidateDraft(){
+     assertCurrent()
+     const captured=await commands.captureCandidateDraft(commands.epoch)
+     assertCurrent()
+     return Object.freeze({...captured,assertCurrent:()=>{assertCurrent();captured.assertCurrent()}})
+    },
     async previewCandidate(selection:ContentRevisionSelection,options:CandidatePreviewInput){
      assertCurrent()
      const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope

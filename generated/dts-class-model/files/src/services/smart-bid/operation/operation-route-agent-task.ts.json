@@ -26,9 +26,76 @@
         "get"
       ],
       "additionalProperties": false
+    },
+    "DispatchIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DispatchIdentity",
+      "properties": {
+        "registrationId": {
+          "type": "string"
+        },
+        "businessInstanceId": {
+          "type": "string"
+        },
+        "runtimeInstanceId": {
+          "type": "string"
+        },
+        "turnId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "registrationId",
+        "businessInstanceId",
+        "runtimeInstanceId",
+        "turnId"
+      ],
+      "additionalProperties": false
+    },
+    "DispatchClaim": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DispatchClaim",
+      "properties": {
+        "registrationId": {
+          "type": "string"
+        },
+        "businessInstanceId": {
+          "type": "string"
+        },
+        "runtimeInstanceId": {
+          "type": "string"
+        },
+        "turnId": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "UNKNOWN",
+            "CLAIMED",
+            "EXISTING"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "registrationId",
+        "businessInstanceId",
+        "runtimeInstanceId",
+        "turnId"
+      ]
     }
   },
-  "generatedAt": "2026-11-18T06:18:01.681Z",
+  "generatedAt": "2026-11-18T06:34:50.719Z",
   "models": {
     "Registry": {
       "name": "Registry",
@@ -42,6 +109,84 @@
               "name": "get",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DispatchIdentity": {
+      "name": "DispatchIdentity",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    registrationId: string;\n    businessInstanceId: string;\n    runtimeInstanceId: string;\n    turnId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    registrationId: string;\n    businessInstanceId: string;\n    runtimeInstanceId: string;\n    turnId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "registrationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "businessInstanceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtimeInstanceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DispatchClaim": {
+      "name": "DispatchClaim",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DispatchIdentity & Readonly<{\n    state: 'CLAIMED' | 'EXISTING' | 'UNKNOWN';\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DispatchIdentity",
+            "targetName": "DispatchIdentity"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    state: 'CLAIMED' | 'EXISTING' | 'UNKNOWN';\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

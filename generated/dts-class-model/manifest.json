@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1388,
+  "scannedFileCount": 1389,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -18311,6 +18311,19 @@
           "OperationCandidateNode",
           "OperationRouteCandidate"
         ]
+      }
+    },
+    "src/services/smart-bid/operation/operation-route-dispatch-evidence.ts": {
+      "file": "files/src/services/smart-bid/operation/operation-route-dispatch-evidence.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/operation-route-dispatch-evidence",
+        "sourcePath": "src/services/smart-bid/operation/operation-route-dispatch-evidence.ts",
+        "sourceFile": "src/services/smart-bid/operation/operation-route-dispatch-evidence.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/operation-route-dispatch-evidence",
+        "jsdoc": "@module app:services/smart-bid/operation/operation-route-dispatch-evidence\n职责：第05项按原试次回读实际发送的工艺 JSON，核对已冻结输入。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
       }
     },
     "src/services/smart-bid/operation/operation-route-preview.ts": {

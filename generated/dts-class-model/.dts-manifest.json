@@ -5589,12 +5589,17 @@
     "src/services/smart-bid/operation/operation-route-agent-task.ts": {
       "sourceFile": "src/services/smart-bid/operation/operation-route-agent-task.ts",
       "shardFile": "files/src/services/smart-bid/operation/operation-route-agent-task.ts.json",
-      "sourceModifiedAt": "2026-11-18T06:18:01.681Z"
+      "sourceModifiedAt": "2026-11-18T06:34:50.719Z"
     },
     "src/services/smart-bid/operation/operation-route-candidate.ts": {
       "sourceFile": "src/services/smart-bid/operation/operation-route-candidate.ts",
       "shardFile": "files/src/services/smart-bid/operation/operation-route-candidate.ts.json",
       "sourceModifiedAt": "2026-11-17T19:06:10.794Z"
+    },
+    "src/services/smart-bid/operation/operation-route-dispatch-evidence.ts": {
+      "sourceFile": "src/services/smart-bid/operation/operation-route-dispatch-evidence.ts",
+      "shardFile": "files/src/services/smart-bid/operation/operation-route-dispatch-evidence.ts.json",
+      "sourceModifiedAt": "2026-11-18T06:38:53.736Z"
     },
     "src/services/smart-bid/operation/operation-route-preview.ts": {
       "sourceFile": "src/services/smart-bid/operation/operation-route-preview.ts",
@@ -5604,7 +5609,7 @@
     "src/services/smart-bid/operation/operation-route-return.ts": {
       "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
       "shardFile": "files/src/services/smart-bid/operation/operation-route-return.ts.json",
-      "sourceModifiedAt": "2026-11-18T06:11:56.587Z"
+      "sourceModifiedAt": "2026-11-18T06:42:36.855Z"
     },
     "src/services/smart-bid/operation/operation-station-fit.ts": {
       "sourceFile": "src/services/smart-bid/operation/operation-station-fit.ts",

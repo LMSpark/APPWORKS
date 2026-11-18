@@ -11,6 +11,35 @@ type Requirement=Readonly<{kind:'SELECTION_USE'|'APPROVAL'|'SIGNATURE';targetId:
 type Evidence=Scope&Requirement&Readonly<{evidenceRef:string;accepted:boolean;assertCurrent:()=>void}>
 const key=({kind,targetId}:Requirement)=>JSON.stringify([kind,targetId])
 
+type SignatureTarget=Readonly<{targetId:string;signerRef:string;positionRef:string}>
+type SignatureCheck=Scope&SignatureTarget&Readonly<{
+ signatureRef:string;verificationRef:string;valid:boolean;assertCurrent:()=>void
+}>
+
+/** 动作47逐人逐位置核最终包，缺项保留给放行检查。 */
+export function bindPackageSignatureCoverage(pack:Scope&Readonly<{assertCurrent:()=>void}>,
+ required:readonly SignatureTarget[],checks:readonly SignatureCheck[]){
+ const targets=new Map(required.map(target=>[target.targetId,target]))
+ if(targets.size!==required.length||required.some(target=>!Object.values(target).every(identity)))
+  throw Error('SUBMISSION_PACKAGE_SIGNATURE_SCOPE')
+ const assertCurrent=()=>{pack.assertCurrent();for(const check of checks)check.assertCurrent()}
+ assertCurrent()
+ const used=new Set<string>()
+ const evidence=checks.map(check=>{
+  const {targetId,signerRef,positionRef,signatureRef,verificationRef,valid}=check
+  const target=targets.get(targetId)
+  if(target?.signerRef!==signerRef||target.positionRef!==positionRef||used.has(targetId)||
+   check.projectId!==pack.projectId||check.packageId!==pack.packageId||check.packageHash!==pack.packageHash||
+   check.selectionHash!==pack.selectionHash||![signatureRef,verificationRef].every(identity)||typeof valid!=='boolean')
+   throw Error('SUBMISSION_PACKAGE_SIGNATURE_SCOPE')
+  used.add(targetId)
+  const {projectId,packageId,packageHash,selectionHash}=pack
+  return Object.freeze({projectId,packageId,packageHash,selectionHash,kind:'SIGNATURE' as const,targetId,
+   evidenceRef:verificationRef,accepted:valid,assertCurrent})
+ })
+ return Object.freeze(evidence)
+}
+
 /** 成员匹配后仍须验证当次选件适用、批准覆盖及规则要求的签署。 */
 export function assessSubmissionPackageRelease(pack:PackageProof,rules:Scope&Readonly<{
  requirements:readonly Requirement[];assertCurrent:()=>void

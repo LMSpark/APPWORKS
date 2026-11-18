@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {preparePaperPackingRecord,reviewPaperSubmissionPackage} from '@/services/smart-bid/content/review/paper-submission-package'
 import {DataSet} from '@spark-appworks/spark-data'
-import {assessSubmissionPackageRelease} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-release'
+import {assessSubmissionPackageRelease,bindPackageSignatureCoverage} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-release'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
 import script from '@/views/features/application/smart-bid/authoring/page13/script.js?raw'
 import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
@@ -80,7 +80,7 @@ it('opens the original paper packing record before asking for same-seal witness 
  const rules={...scope,packageHash:row.packageHash,requirements,assertCurrent:host.assertCurrent}
  const evidence=requirements.map(requirement=>({...requirement,...scope,packageHash:row.packageHash,
   evidenceRef:requirement.targetId,accepted:true,assertCurrent:host.assertCurrent}))
- const readPackageRelease=vi.fn(async()=>({rules,evidence:evidence.slice(0,2)}))
+ const readPackageRelease=vi.fn(async()=>({rules,evidence}))
  try{
   const page=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
    paperEvidence:{readFrozen,readWitness},readPackageRelease,
@@ -116,6 +116,17 @@ it('opens the original paper packing record before asking for same-seal witness 
   expect(assessSubmissionPackageRelease(proof,rules,evidence.slice(0,2)).deliverable).toBe(false)
   const released=assessSubmissionPackageRelease(proof,rules,evidence)
   expect(released).toMatchObject({deliverable:true,packageHash:row.packageHash})
+  const signatureTarget={targetId:'SIGNATURE',signerRef:'SIGNER',positionRef:'SEAL-PAGE'}
+  const check={...scope,packageHash:row.packageHash,...signatureTarget,signatureRef:'SIGNED',verificationRef:'VERIFIED',
+   valid:true,assertCurrent:host.assertCurrent}
+  const signatureEvidence=bindPackageSignatureCoverage(proof,[signatureTarget],[check])
+  expect(assessSubmissionPackageRelease(proof,rules,[...evidence.slice(0,2),...signatureEvidence]).deliverable).toBe(true)
+  expect(()=>bindPackageSignatureCoverage(proof,[signatureTarget],[{...check,signerRef:'OTHER'}]))
+   .toThrow('SUBMISSION_PACKAGE_SIGNATURE_SCOPE')
+  expect(()=>bindPackageSignatureCoverage(proof,[signatureTarget],[{...check,positionRef:'OTHER'}]))
+   .toThrow('SUBMISSION_PACKAGE_SIGNATURE_SCOPE')
+  expect(()=>bindPackageSignatureCoverage(proof,[signatureTarget],[{...check,packageHash:'c'.repeat(64)}]))
+   .toThrow('SUBMISSION_PACKAGE_SIGNATURE_SCOPE')
   expect(()=>assessSubmissionPackageRelease(proof,{...rules,packageId:'OLDER_PACKAGE'},evidence))
    .toThrow('SUBMISSION_PACKAGE_RELEASE_SCOPE')
   expect(()=>assessSubmissionPackageRelease(proof,rules,evidence.map(item=>({...item,packageHash:'c'.repeat(64)}))))

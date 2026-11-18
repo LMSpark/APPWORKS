@@ -86,7 +86,7 @@ async function readOriginalBaseline(host:ContentRevisionReadHost,input:Readonly<
 }
 
 /** 同一审核调用中从一次基线查询同时保留事实、要求的原字段证明。 */
-export async function readContentReviewBaseline(host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown}>){
+export async function readContentReviewBaseline(host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown;viewName?:string}>){
  const baseline=await readOriginalBaseline(host,input,['factVersions','requirementVersions'])
  baseline.assertCurrent()
  return Object.freeze({dataViewKey:baseline.key,factVersions:baseline.row['factVersions'],

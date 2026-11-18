@@ -104,7 +104,8 @@ export async function readBidFrozenBaseline(host:Host,id:string,side:'current'|'
  const requirements=readBaselineRequirementMembers(requirementVersions)
  const tenders=readBaselineTenderRecords(tenderRecords)
  return Object.freeze({state:'REGISTERED' as const,baselineId:id,
-  stage:identity(stageRef)?stageRef:canonicalSnapshotValue(stageRef),facts:Object.freeze([...facts].map(([factId,version])=>Object.freeze({factId,version}))),
+  stageRef:structuredClone(stageRef),stage:identity(stageRef)?stageRef:canonicalSnapshotValue(stageRef),
+  facts:Object.freeze([...facts].map(([factId,version])=>Object.freeze({factId,version}))),
   requirements:Object.freeze([...requirements].map(([lineageId,version])=>Object.freeze({lineageId,version}))),
   tenderRecords:Object.freeze([...tenders.values()]),
   assertCurrent})

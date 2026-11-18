@@ -16,6 +16,8 @@ import {inspectRegisteredAdoption,type ContentAdoptionSelection} from '../../mod
 import {compareRegisteredOriginalForms,readRegisteredOriginalForm} from '../../../response/model/original-form-reader'
 import {readCandidateContent,type ContentCandidateBinding} from '../../model/content-candidate-reader'
 import type {ContentRevisionSelection} from '../../model/content-revision-reader'
+import {readDraftCandidateBasis} from '../../model/content-draft-candidate-basis'
+import {prepareDraftCandidateRequest} from '@/services/smart-bid/content/draft/content-draft-candidate-request'
 import {readRegisteredOriginalContentDraftSave} from '../../model/content-draft-save-reader'
 import {reconcileSavedContentDraft} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
 type Binding=Pick<ContentAuthoringBinding,'runtime'|'dataViewKey'|'projectId'|'draftId'|'actorUserId'|'assertCurrent'|'setPending'>
@@ -75,6 +77,7 @@ export type ContentAuthoringScriptSession=Readonly<{
  compareOriginalForms:(selection:Parameters<typeof compareRegisteredOriginalForms>[1])=>ReturnType<typeof compareRegisteredOriginalForms>
  previewCandidate:(selection:ContentRevisionSelection,options:CandidatePreviewInput)=>ReturnType<ContentCandidateBinding['previewScope']>
  captureCandidateDraft:()=>ReturnType<ContentAuthoringCommands['captureCandidateDraft']>
+ prepareDraftCandidate:(input:Parameters<typeof prepareDraftCandidateRequest>[2])=>ReturnType<typeof prepareDraftCandidateRequest>
 }>
 /** 供正式SparkPageRenderer.host使用；命令对象仍归原薄宿主释放。 */
 export function createContentAuthoringScriptHost(binding:Binding,commands:ContentAuthoringCommands,receiptDataViewKey?:string){
@@ -95,6 +98,31 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
    }
    return Object.freeze({assertCurrent,
     get canLeave(){return commands.canLeave},
+    async prepareDraftCandidate(request:Parameters<typeof prepareDraftCandidateRequest>[2]){
+     assertCurrent()
+     const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
+     if(!scenarioId)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
+     const captured=await commands.captureCandidateDraft(commands.epoch)
+     const assertDraft=()=>{assertCurrent();captured.assertCurrent()}
+     const host={runtime,projectId,scenarioId,assertCurrent:assertDraft}
+     const {baseRevisionId:revisionId}=captured
+     if(revisionId!==null){
+      const basis=await readDraftCandidateBasis(host,{revisionId})
+      return prepareDraftCandidateRequest(captured,basis,request)
+     }
+     const projectKey=buildDataViewKey('ContentProject','selectedProject',scenarioId)
+     const projectView=runtime.resolveView(projectKey),project=projectView?.rows[0]
+     if(!projectView||project?.['projectId']!==projectId||project['headRevisionId']!==null||!identity(project['activeBaselineId']))
+      throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
+     const proof=projectView.captureReadRow(project,['projectId','headRevisionId','activeBaselineId'])
+     const assertFirst=()=>{
+      assertDraft()
+      if(runtime.resolveView(projectKey)!==projectView)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
+      proof()
+     }
+     const basis=await readDraftCandidateBasis({...host,assertCurrent:assertFirst},{revisionId,firstBaselineId:project['activeBaselineId']})
+     return prepareDraftCandidateRequest(captured,basis,request)
+    },
     async captureCandidateDraft(){
      assertCurrent()
      const captured=await commands.captureCandidateDraft(commands.epoch)

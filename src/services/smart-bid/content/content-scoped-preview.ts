@@ -155,15 +155,10 @@ export function previewScopedContentTree(command:ScopedContentPreviewInput):Scop
   requiresCurrentAuthorityChecks:true,requiresResponsePayloadChecks:true,requiresMergedSnapshotValidation:true}
 }
 
-/** 从三份固定清单提取响应变更，避免以调用方的空变更清单绕过范围核验。 */
-export function previewScopedRevisionChanges(
- command:Omit<ScopedContentPreviewInput,'responseChanges'|'responses'>&Partial<Pick<ScopedContentPreviewInput,'responses'>>,
- manifests:Readonly<{basis:unknown;current:unknown;candidate:unknown}>,
-){
- const responseComparison=compareRevisionResponses({...manifests,expectedProjectId:command.projectId})
+function readBasisResponseIds(basisManifest:unknown,responseComparison:ReturnType<typeof compareRevisionResponses>){
  const error='CONTENT_SCOPE_ASSIGNMENT_BASIS',assignments=new Set<string>()
- if(manifests.basis!==null){
-  const basis=snapshotReferenceRecord(manifests.basis,error)
+ if(basisManifest!==null){
+  const basis=snapshotReferenceRecord(basisManifest,error)
   visitSnapshotReferences(basis['responseAssignments'],value=>{
    const assignmentId=snapshotReferenceRecord(value,error)['id']
    if(!snapshotReferenceIdentity(assignmentId)||assignments.has(assignmentId))throw Error(error)
@@ -172,11 +167,27 @@ export function previewScopedRevisionChanges(
  }
  const basisIds=new Map<string,string|null>([...assignments].map(assignmentId=>[assignmentId,null]))
  for(const row of responseComparison)if(row.basisResponseId!==null)basisIds.set(row.assignmentId,row.basisResponseId)
+ return {assignments,basisIds}
+}
+
+/** 从同一固定基准清单投影目标检查使用的分工与答复身份。 */
+export function readRevisionBasisResponses(projectId:string,manifest:unknown):readonly ContentScopeResponse[]{
+ const compared=compareRevisionResponses({basis:manifest,current:manifest,candidate:manifest,expectedProjectId:projectId})
+ return [...readBasisResponseIds(manifest,compared).basisIds].map(([assignmentId,responseId])=>({projectId,assignmentId,responseId}))
+}
+
+/** 从三份固定清单提取响应变更，避免以调用方的空变更清单绕过范围核验。 */
+export function previewScopedRevisionChanges(
+ command:Omit<ScopedContentPreviewInput,'responseChanges'|'responses'>&Partial<Pick<ScopedContentPreviewInput,'responses'>>,
+ manifests:Readonly<{basis:unknown;current:unknown;candidate:unknown}>,
+){
+ const responseComparison=compareRevisionResponses({...manifests,expectedProjectId:command.projectId})
+ const {assignments,basisIds}=readBasisResponseIds(manifests.basis,responseComparison)
  const responses=command.responses===undefined
   ?[...basisIds].map(([assignmentId,responseId])=>({projectId:command.projectId,assignmentId,responseId}))
   :responseBasis(command.responses)
  const projected=new Map(responses.map(row=>[row.assignmentId,row.responseId]))
- if(responses.some(row=>row.responseId===null&&!assignments.has(row.assignmentId)))throw Error(error)
+ if(responses.some(row=>row.responseId===null&&!assignments.has(row.assignmentId)))throw Error('CONTENT_SCOPE_ASSIGNMENT_BASIS')
  if(responses.some(row=>row.responseId!==null&&basisIds.get(row.assignmentId)!==row.responseId))
   throw Error('CONTENT_SCOPE_RESPONSE_BASIS')
  for(const row of responseComparison){

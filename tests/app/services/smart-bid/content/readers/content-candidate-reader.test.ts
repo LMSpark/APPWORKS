@@ -2,6 +2,7 @@ import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/content-root-hash'
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
+import {readDraftCandidateBasis} from '@/views/features/application/smart-bid/authoring/model/content-draft-candidate-basis'
 import {prepareCandidateProduction} from '@/views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader'
 import {prepareBidVolumePlan} from '@/services/smart-bid/content/references/response/bid-volume-plan'
 import {compareAdoptionBasisChecks} from '@/services/smart-bid/content/adoption/adoption-basis-checks'
@@ -9,6 +10,18 @@ import {prepareResponseDraft} from '@/services/smart-bid/content/references/resp
 import {readReviewedResponseForCandidate,reviewResponseDraft} from '@/services/smart-bid/content/references/response/response-review'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
+
+it('reads candidate-generation scope from the exact adopted draft basis',async()=>{
+ const f=await fixture('populated',{threeVersions:true})
+ try{
+  const basis=await readDraftCandidateBasis(f.host,{revisionId:'V1'})
+  expect(basis).toMatchObject({revisionId:'V1',baselineId:'B',basisNodes:[
+   {nodeId:'D',parentId:'P'},{nodeId:'C',parentId:'D'},{nodeId:'H',parentId:'C'},
+  ],responses:[]})
+  await f.ds.getView('Baseline','selectedBasisBaseline')?.refresh()
+  expect(()=>basis.assertCurrent()).toThrow()
+ }finally{f.ds.destroy()}
+})
 
 it('prepares a review-only production request from a verified candidate root',async()=>{
  const f=await fixture('populated',{computeRoot:true})

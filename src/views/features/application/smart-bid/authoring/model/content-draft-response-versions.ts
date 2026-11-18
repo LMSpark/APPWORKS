@@ -9,7 +9,8 @@ import {originalRegistrationView} from '../../authority/original-registration-vi
 import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
 
 const model='Response',viewName='selectedDraftResponseVersions'
-const fields=['id','projectId','assignmentId','lineageId','version','revisionId','statement','data']
+const fields=['id','projectId','assignmentId','lineageId','version','revisionId','statement','data',
+ 'deviation','answerLocation','promiseRefs','evidenceRefs']
 const optional=['chapterId','anchorNodeId']
 const error='CONTENT_DRAFT_RESPONSE_VERSION'
 type Selection=Readonly<{responseId:string;assignmentId:string;lineageId:string;version:string}>
@@ -50,14 +51,17 @@ export async function readDraftResponseVersions(host:ContentRevisionReadHost,sel
   if(optional.some(field=>view.fieldAccess(row,field).read!=='visible'))throw Error(error)
   const proof=view.captureReadRow(row,[...fields,...optional.filter(field=>Object.hasOwn(row,field))])
   proof()
-  const {id,assignmentId,lineageId,version,revisionId,statement,data,chapterId,anchorNodeId}=row
+  const {id,assignmentId,lineageId,version,revisionId,statement,data,chapterId,anchorNodeId,deviation,answerLocation,promiseRefs,evidenceRefs}=row
   const matched=identity(id)?wanted.get(id):undefined
   if(!identity(id)||!matched||seen.has(id)||row['projectId']!==projectId||matched.assignmentId!==assignmentId||
    matched.lineageId!==lineageId||matched.version!==version||!identity(revisionId)||typeof statement!=='string'||
-   chapterId!==null&&chapterId!==undefined||anchorNodeId!==null&&anchorNodeId!==undefined)throw Error(error)
+   chapterId!==null&&chapterId!==undefined||anchorNodeId!==null&&anchorNodeId!==undefined||
+   deviation!==null&&deviation!=='NONE'&&deviation!=='POSITIVE'&&deviation!=='NEGATIVE'||
+   answerLocation===null||answerLocation===undefined||!Array.isArray(promiseRefs)||!Array.isArray(evidenceRefs))throw Error(error)
   seen.add(id)
   rowProofs.push(proof)
-  return {id,assignmentId:matched.assignmentId,lineageId:matched.lineageId,version:matched.version,revisionId,statement,data}
+  return {id,assignmentId:matched.assignmentId,lineageId:matched.lineageId,version:matched.version,revisionId,statement,data,
+   deviation,answerLocation,promiseRefs,evidenceRefs}
  })
  assertRevisionResponseText(responses,nodeIds)
  const factIds=[...new Set(readIndependentResponseFactOccurrences(responses,selection).map(item=>item.factId))].sort()

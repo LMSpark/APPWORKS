@@ -60,7 +60,8 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   lockHash:'f'.repeat(64)}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{
   Response:{modelBinding:{modelId:'RESPONSE',modelName:'Response'},
-   columns:['id','projectId','assignmentId','lineageId','version','revisionId','statement','data'].map(name=>({name,isPrimaryKey:name==='id'})),
+   columns:['id','projectId','assignmentId','lineageId','version','revisionId','statement','data','deviation',
+    'answerLocation','promiseRefs','evidenceRefs'].map(name=>({name,isPrimaryKey:name==='id'})),
    views:{default:{},selectedDraftResponseVersions:draftResponseVersionsScenarioView('id')}},
   GenerationBatch:{modelBinding:{modelId:'GENERATION_BATCH',modelName:'GenerationBatch'},
    columns:Object.keys(firstBatch).map(name=>({name,isPrimaryKey:name==='id'})),
@@ -108,7 +109,8 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
  const query=vi.fn(async(view:DataView)=>{
   const model=view.dataTable!.tableName,q=new DataSpaceQueryTable({scenarioId:'S',metaName:model})
   const rows=model==='Response'?[{id:'NEW',projectId:'P',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',
-   statement:'报价{{金额}}',data:{金额:{type:'fact',factId:'PRICE'}}}]:
+   statement:'报价{{金额}}',data:{金额:{type:'fact',factId:'PRICE'}},deviation:null,
+   answerLocation:{id:'LOCATION'},promiseRefs:[],evidenceRefs:[]}]:
    model==='GenerationBatch'?[firstBatch]:model==='DocumentTemplate'?[originalForm]:model==='SubmissionObligation'?[obligation]:model==='TenderRecord'?[tender]:model==='Requirement'?[requirement]:model==='Baseline'?[{id:mode==='wrong-fact-baseline'?'OTHER':'B',projectId:'P',stageRef:{id:'ST',version:'1'},factVersions:[{factId:options.baselineFactId??'PRICE',version:2}],requirementVersions:[{lineageId:'L',version:options.baselineRequirementVersion??'R2'}],
    tenderRecords:[{runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}]}]:
    model==='FactVersion'?[{id:'FV2',projectId:'P',key:'PRICE',version:2,kind:'PRICE',value:'0.00',unit:'元',sourceIds:[],claimId:null,scopeRef:null,decisionRefs:[],dependencyRefs:[],promiseTerms:null,sourceRecord:null,status:'ADOPTED'}]:

@@ -71,6 +71,13 @@ export async function comparePlatformFieldObservation(approved:ApprovedField,exp
 
 const observationFields=['id','projectId','revisionId','assignmentId','fieldId','attemptRef','stage','value','unit']
 const scopeFields=[['projectId','projectId'],['id','observationId'],['attemptRef','attemptRef']] as const
+function readObservation(row:Readonly<Record<string,unknown>>,assertCurrent:()=>void):FieldObservation{
+ const {id,projectId,revisionId,assignmentId,fieldId,attemptRef,stage,value,unit}=row
+ if(!identity(id)||!identity(projectId)||!identity(revisionId)||!identity(assignmentId)||!identity(fieldId)||!identity(attemptRef)||
+  (stage!=='DRAFT'&&stage!=='SAVED'&&stage!=='SUBMITTED')||unit!==null&&!identity(unit))
+  throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
+ return {observationRef:id,projectId,revisionId,assignmentId,fieldId,attemptRef,stage,value,unit,assertCurrent}
+}
 function validObservationView(view:DataView):boolean{
  return view.dataTable?.modelBinding?.modelName==='AnswerLocation'&&view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
   scopeFields.every(([field,param])=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:param}))
@@ -98,15 +105,54 @@ export async function readPlatformFieldObservation(host:ContentRevisionReadHost,
  if(row?.['id']!==observationId||row['projectId']!==projectId||row['attemptRef']!==attemptRef||
   row['revisionId']!==approved.revisionId||row['assignmentId']!==approved.assignmentId||row['fieldId']!==approved.fieldId)
   throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
- const observedStage=row['stage'],unit=row['unit']
- if((observedStage!=='DRAFT'&&observedStage!=='SAVED'&&observedStage!=='SUBMITTED')||unit!==null&&!identity(unit))
-  throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
  const assertResult=view.captureReadResult(),assertRow=view.captureReadRow(row,observationFields)
- return comparePlatformFieldObservation(approved,{attemptRef,stage,...(submission?{submission}:{})},{
-  projectId,revisionId:approved.revisionId,assignmentId:approved.assignmentId,fieldId:approved.fieldId,
-  stage:observedStage,attemptRef,observationRef:observationId,value:row['value'],unit,
-  assertCurrent:()=>{assertScope();assertResult();assertRow()},
- })
+ return comparePlatformFieldObservation(approved,{attemptRef,stage,...(submission?{submission}:{})},
+  readObservation(row,()=>{assertScope();assertResult();assertRow()}))
+}
+
+/** 同一回执覆盖的多个栏位一次读取，保留原回执及全部观察证明。 */
+export async function readSubmittedPlatformFields(host:ContentRevisionReadHost,input:Readonly<{
+ receiptRef:string;attemptRef:string;revisionId:string;fields:ReadonlyArray<Readonly<{observationId:string;approved:ApprovedField}>>
+}>){
+ const {projectId,scenarioId,runtime}=host,{receiptRef,attemptRef,revisionId}=input
+ const requested=new Map(input.fields.map(({observationId,approved})=>[observationId,approved]))
+ const assertOwner=()=>{host.assertCurrent();for(const approved of requested.values())approved.assertCurrent()}
+ assertOwner()
+ if(!identity(scenarioId)||!requested.size||requested.size!==input.fields.length||
+  [...requested].some(([id,approved])=>!identity(id)||approved.projectId!==projectId||approved.revisionId!==revisionId))
+  throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
+ const submission=await readPlatformSubmissionReceipt({...host,assertCurrent:assertOwner},{receiptRef,attemptRef,revisionId})
+ if([...requested.keys()].some(id=>!submission.observationRefs.includes(id)))throw Error('CONTENT_PLATFORM_FIELD_RECEIPT_SCOPE')
+ const key=buildDataViewKey('AnswerLocation','submittedPlatformObservations',scenarioId),view=runtime.resolveView(key)
+ const valid=()=>view?.dataTable?.modelBinding?.modelName==='AnswerLocation'&&view.commitMode==='staged'&&
+  view.queryConfig.autoQuery===false&&view.queryConfig.allPages===true&&view.queryConfig.pagination==='paged'&&
+  scopeFields.filter(([field])=>field!=='id').every(([field,param])=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:param}))
+ if(!view||!valid()||view.hasEditingChanges())throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_VIEW')
+ view.queryContext={...view.queryContext,projectId,attemptRef}
+ view.filterExpression={field:'id',operator:'in',value:[...requested.keys()]}
+ const signature=JSON.stringify(view.filterExpression)
+ const assertScope=()=>{
+  submission.assertCurrent()
+  if(runtime.resolveView(key)!==view||!valid()||view.hasEditingChanges()||view.queryContext['projectId']!==projectId||
+   view.queryContext['attemptRef']!==attemptRef||JSON.stringify(view.filterExpression)!==signature)
+   throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_STALE')
+ }
+ await view.refresh();assertScope()
+ const assertResult=view.captureReadResult()
+ if(view.countReported!==true||view.total!==requested.size||view.rows.length!==requested.size||view.nextPageAvailable===true)
+  throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_INCOMPLETE')
+ const seen=new Set<string>()
+ const results=await Promise.all(view.rows.map(row=>{
+  const id=row['id'],approved=typeof id==='string'?requested.get(id):undefined
+  if(typeof id!=='string'||!approved||seen.has(id))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
+  seen.add(id)
+  const assertRow=view.captureReadRow(row,observationFields)
+  return comparePlatformFieldObservation(approved,{stage:'SUBMITTED',attemptRef,submission},
+   readObservation(row,()=>{assertScope();assertResult();assertRow()}))
+ }))
+ const assertCurrent=()=>{for(const result of results)result.assertCurrent()}
+ assertCurrent()
+ return Object.freeze({results:Object.freeze(results),assertCurrent})
 }
 
 /** 按原回执和原观察双向固定同次提交的栏位值。 */

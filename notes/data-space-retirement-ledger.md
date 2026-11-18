@@ -11225,3 +11225,4 @@ flowchart TD
 - 2026-11-18 平台提交态比对须有原项目、修订、原办理和指定观察均吻合的回执证明，否则待回执或拒绝错范围；回执失效同步撤销比对。review 5 文件 7 项与 ESLint 通过。正式回执源与独立实服回读仍待。
 - 2026-11-18 渠道回执读取接 ChannelReceipt@selectedPlatformReceipt，按原项目、回执和办理锁定，经原修订与接收事件核验后只交显式覆盖观察。撤回事件拒作接收证据。review 6 文件 8 项、ESLint 通过。正式视图及事件字段回读仍待，尚未作提交确认。
 - 2026-11-18 平台栏提交值回读串联原 ChannelReceipt 与 AnswerLocation 两个 DataView，按同次办理、修订及回执显式覆盖取得观察并比对。未列入回执不查目标观察，任一原视图刷新撤销证明。6 文件 8 项和 ESLint 通过。实服仍待。
+- 2026-11-18 同回执多栏提交回读接 AnswerLocation@submittedPlatformObservations，精确批查回执涵盖的观察 ID，核完整结果及每栏固定拟填。一个原视图刷新撤销整批证明。6 文件 8 项、ESLint 通过；实服命名视图仍待配置/回读。

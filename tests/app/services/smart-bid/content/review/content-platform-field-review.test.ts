@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {comparePlatformFieldObservation,readPlatformFieldObservation,readPlatformFieldReviewVersion,readSubmittedPlatformField} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
+import {comparePlatformFieldObservation,readPlatformFieldObservation,readPlatformFieldReviewVersion,readSubmittedPlatformField,readSubmittedPlatformFields} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
 import {DataSet} from '@spark-appworks/spark-data'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -51,7 +51,9 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
   .map(([field,ParamName])=>({field,operator:'eq' as const,value:{Type:'GetInputParam',ParamName}}))
  const ds=DataSet.fromJson({scenarioId:'S',tables:{AnswerLocation:{
   modelBinding:{modelId:'M',modelName:'AnswerLocation'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},selectedPlatformObservation:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters}}},
+  views:{default:{},selectedPlatformObservation:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters}},
+   submittedPlatformObservations:{commitMode:'staged',queryConfig:{autoQuery:false,allPages:true,pagination:'paged'},
+    scopeFilter:{logic:'and',filters:filters.filter(filter=>filter.field!=='id')}}},
  },ChannelReceipt:{
   modelBinding:{modelId:'REC_MODEL',modelName:'ChannelReceipt'},columns:Object.keys(receiptRow).map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},selectedPlatformReceipt:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',
@@ -63,11 +65,18 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
    data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
  })})
  const receipt=ds.getView('ChannelReceipt','selectedPlatformReceipt')!,receipts=new DataSpaceQueryTable({scenarioId:'S',metaName:'ChannelReceipt'})
+ const batch=ds.getView('AnswerLocation','submittedPlatformObservations')!
+ batch.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+  identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',
+   data:{Count:2,Items:[row,{...row,id:'OBS2',fieldId:'F2'}].map(item=>({...item,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}))}}}),
+ })})
  receipt.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
   identity:receipts.identity,scope:'q',readScope:()=> 'q',snapshot:receipts.applyResult({Result:{primaryKeyField:'id',
    data:{Count:1,Items:[{...receiptRow,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
  })})
- const host={runtime:{resolveView:(key:string)=>key==='S@ChannelReceipt@selectedPlatformReceipt'?receipt:view},
+ const views=new Map([['S@ChannelReceipt@selectedPlatformReceipt',receipt],['S@AnswerLocation@selectedPlatformObservation',view],
+  ['S@AnswerLocation@submittedPlatformObservations',batch]])
+ const host={runtime:{resolveView:(key:string)=>views.get(key)},
   scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  try{
   const input={observationId:'OBS',attemptRef:'SEND',stage:'SAVED' as const}
@@ -82,5 +91,15 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
   receiptRow.observationRefs=['OTHER']
   await expect(readSubmittedPlatformField(host,approved,request)).rejects.toThrow('CONTENT_PLATFORM_FIELD_RECEIPT_SCOPE')
   expect(()=>submitted.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  receiptRow.observationRefs=['OBS','OBS2']
+  const approvedSecond=await readPlatformFieldReviewVersion({...selection,fieldId:'F2'},async input=>({...input,
+   responseId:'RESP',fieldRuleRef:'RULE',approvalRef:'APP',value:false,unit:null,assertCurrent:()=>{}}))
+  const reviewed=await readSubmittedPlatformFields(host,{receiptRef:'REC',attemptRef:'SEND',revisionId:'R',fields:[
+   {observationId:'OBS',approved},{observationId:'OBS2',approved:approvedSecond},
+  ]})
+  expect(reviewed.results.map(item=>item.state)).toEqual(['MATCHED','MATCHED'])
+  reviewed.assertCurrent()
+  await batch.refresh()
+  expect(()=>reviewed.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
  }finally{ds.destroy()}
 })

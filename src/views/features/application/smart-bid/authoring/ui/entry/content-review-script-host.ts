@@ -16,6 +16,7 @@ import {readCompletedProductionFiles} from '../../model/review/content-produced-
 import {readOriginalExportRegistration,readOriginalSignedRegistration} from '../../model/review/production/production-registration-reader'
 import {readOriginalSignatureRequest} from '../../model/review/submission/content-signature-request-reader'
 import {prepareSignedOutputRegistration} from '@/services/smart-bid/content/review/production/signed-output-registration'
+import {preparePaperOutputRegistration} from '@/services/smart-bid/content/review/production/paper-output-registration'
 
 /** 审定覆盖工作区的宿主、固定范围与证据读取合同。 */
 type Review=Parameters<typeof readContentReviewWorkspace>
@@ -28,6 +29,7 @@ type FormVerification=Parameters<typeof verifyOriginalFormFileAnswer>
 type PaperObservation=Parameters<typeof readRegisteredPaperAnswer>
 type ProductionRecovery=Parameters<typeof recoverProductionRequest>
 type SignedRegistration=Parameters<typeof prepareSignedOutputRegistration>
+type PaperRegistration=Parameters<typeof preparePaperOutputRegistration>
 
 /** 固定审定范围由正式办理记录提供，调用地址只携带引用。 */
 export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
@@ -42,6 +44,9 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
   readSignedRegistrationSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
    selectionRef:string;request:Parameters<typeof readOriginalSignatureRequest>[1];
    original:SignedRegistration[0];receipt:SignedRegistration[1];open:SignedRegistration[3];assertCurrent:()=>void
+  }>>
+  readPaperRegistrationSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
+   selectionRef:string;prepared:PaperRegistration[0];paper:PaperRegistration[1];observed:PaperRegistration[2]
   }>>
   readObservationSelection?:(observationRef:string,signal:AbortSignal)=>Promise<Readonly<{
    approved:Observation[1];input:Observation[2];assertCurrent:()=>void
@@ -65,6 +70,14 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
      throw Error('CONTENT_REVIEW_PAGE_STALE')
    }
    assertCurrent()
+   if(name==='content.review.preparePaperRegistration'&&sources.readPaperRegistrationSelection){
+    const selection=await sources.readPaperRegistrationSelection(selectionRef,signal)
+    assertCurrent()
+    if(selection.selectionRef!==selectionRef||selection.prepared.request.projectId!==scope.projectId)
+     throw Error('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
+    const prepared=preparePaperOutputRegistration(selection.prepared,selection.paper,selection.observed)
+    return Object.freeze({...prepared,assertCurrent:()=>{assertCurrent();prepared.assertCurrent()}})
+   }
    if(name==='content.review.prepareSignedRegistration'&&sources.readSignedRegistrationSelection){
     const selection=await sources.readSignedRegistrationSelection(selectionRef,signal)
     const assertSelection=()=>{assertCurrent();selection.assertCurrent()}

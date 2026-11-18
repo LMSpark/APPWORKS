@@ -4,6 +4,7 @@ import {prepareExportRegistration} from '@/services/smart-bid/content/review/pro
 import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {prepareSignedOutputRegistration} from '@/services/smart-bid/content/review/production/signed-output-registration'
 import {preparePaperOutputRegistration} from '@/services/smart-bid/content/review/production/paper-output-registration'
+import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
 import {recoverSignatureRequest} from '@/services/smart-bid/content/review/submission/signature-request'
 import {prepareNativePriceRegistration} from '@/services/smart-bid/content/review/production/native-price-registration'
 import {recalculatePriceLines} from '@/services/smart-bid/content/references/commercial/price-sheet-recalculation'
@@ -20,6 +21,17 @@ it('matches numbered paper copies and page order against independent observation
  const paper={...prepared.request,productionRequestRef:'PRINT',paperRef:'PAPER',assertCurrent:()=>{},
   copies:[{copyRef:'C1',pageRefs:['P1','P2']},{copyRef:'C2',pageRefs:['P1','P2']}]}
  const observed={...paper,complete:true,witnessRef:'W'}
+ const unused=async()=>{throw Error('UNEXPECTED_REVIEW_CALL')}
+ const host=createContentReviewScriptHost({resolveView:()=>undefined,generation:1,isLoaded:true,destroyed:false},
+  {scenarioId:'S',projectId:'P',assertCurrent:()=>{}},{readSelection:unused,readField:unused,readDecision:unused,
+   readCompleted:unused,openFile:unused,readPaperRegistrationSelection:async()=>({selectionRef:'PAPER-REF',prepared,paper,observed})})
+ const controller=new AbortController()
+ const command='content.review.preparePaperRegistration'
+ await expect(host.invoke(command,{selectionRef:'OTHER'},controller.signal)).rejects.toThrow('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
+ const result=await host.invoke(command,{selectionRef:'PAPER-REF'},controller.signal)
+ expect(result).toMatchObject({record:{paperRef:'PAPER',witnessRef:'W',copies:paper.copies}})
+ controller.abort()
+ expect(()=>result.assertCurrent()).toThrow('CONTENT_REVIEW_PAGE_STALE')
  expect(preparePaperOutputRegistration(prepared,paper,observed).record).toMatchObject({paperRef:'PAPER',witnessRef:'W',copies:paper.copies})
  expect(()=>preparePaperOutputRegistration(prepared,paper,{...observed,copies:paper.copies.slice(0,1)}))
   .toThrow('BID_PAPER_OUTPUT_COPIES')

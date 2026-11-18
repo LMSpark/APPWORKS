@@ -7,8 +7,26 @@ function hasRef(ref) {
 }
 
 function hasObservation() {
-  const {platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef, exportRegistrationRef, signedRegistrationRef} = $route.query
-  return [platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef, exportRegistrationRef, signedRegistrationRef].some(hasRef)
+  const {platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef, exportRegistrationRef, signedRegistrationRef, paperRegistrationRef} = $route.query
+  return [platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef, exportRegistrationRef, signedRegistrationRef, paperRegistrationRef].some(hasRef)
+}
+
+function bindPaperRegistration() {
+  return {visible: hasRef($route.query.paperRegistrationRef)}
+}
+
+async function openPaperRegistration() {
+  if (!bindPaperRegistration().visible) return
+  try {
+    const result = await $page.invokeHostCommand('content.review.preparePaperRegistration',
+      {selectionRef: $route.query.paperRegistrationRef})
+    result.assertCurrent()
+    const {record} = result
+    const copies = record.copies.map(copy => `份次 ${copy.copyRef} · ${copy.pageRefs.length} 页`)
+    await $page.showAlert([`纸件 ${record.paperRef} · 清点凭据 ${record.witnessRef}`, ...copies].join('\n'), '纸件登记前核验')
+  } catch {
+    $page.showMessage('纸件份数、页序或原印制凭据无法核验', 'warning')
+  }
 }
 
 function bindSignedRegistration() {

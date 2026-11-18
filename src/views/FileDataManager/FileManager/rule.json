@@ -15,6 +15,7 @@
           {"type":"r-text","props":{"field":"fileName","label":"文件名称","placeholder":"请输入文件名称","filterTrim":true}}
         ]},
         "actions":{"children":[
+          {"type":"r-button","props":{"label":"下载","link":true,"onBeforeRender":"bindAction","onClick":"downloadFile"}},
           {"type":"r-button","props":{"label":"删除","buttonType":"danger","link":true,"permAction":"delete","onBeforeRender":"bindAction","onClick":"removeFile"}}
         ]}
       },"children":[

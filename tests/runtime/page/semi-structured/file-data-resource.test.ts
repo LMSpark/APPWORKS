@@ -20,6 +20,7 @@ vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',()=>({
 function fixture(formalDataSet?:DataSet) {
   const names = ['a.txt']
   const api = {
+    readFileBytes: vi.fn(async () => new Uint8Array([0,255,42])),
     listFiles: vi.fn(async (input: {appType: string; folderPath: string}) => {
       expect(input).toEqual({appType: 'filedata', folderPath: ''})
       return names.map((name, index) => ({name, lastModified: 1769848151208 + index}))
@@ -44,7 +45,7 @@ function fixture(formalDataSet?:DataSet) {
   }})
   const resource = new FileDataResource({api, fileUpload, assertCurrent: () => undefined})
   const view = dataSet.getView(FILE_DATA_TABLE, 'default')!
-  view.bindQueryExecutor(resource, {resource: {resourceType: 'file', resourceId: FILE_DATA_RESOURCE_ID}})
+  for(const item of dataSet.getTable(FILE_DATA_TABLE)!.viewList)item.bindQueryExecutor(resource, {resource: {resourceType: 'file', resourceId: FILE_DATA_RESOURCE_ID}})
   return {api, fileUpload, dataSet, view}
 }
 
@@ -63,6 +64,24 @@ describe('filedata DataView resource', () => {
       expect(()=>view.captureReadRow(view.rows[0]!, ['fileName','path'])()).not.toThrow()
       expect(api.listFiles).toHaveBeenCalledOnce()
     } finally {dataSet.destroy()}
+  })
+
+  it('reads exact download bytes only for the current formal directory row', async()=>{
+    const {api,dataSet,view}=fixture()
+    try{
+      await view.refresh()
+      const download=dataSet.getView(FILE_DATA_TABLE,'download')!
+      download.queryContext={fileName:'missing.txt'}
+      await download.refresh()
+      expect(download.loadingError?.message).toContain('当前正式目录')
+      expect(api.readFileBytes).not.toHaveBeenCalled()
+      download.queryContext={fileName:'a.txt'}
+      await download.refresh()
+      const bytes=download.readSnapshot().rows[0]?.['content'] as Uint8Array
+      expect(ArrayBuffer.isView(bytes)).toBe(true)
+      expect(Array.from(bytes)).toEqual([0,255,42])
+      expect(api.readFileBytes).toHaveBeenCalledWith({appType:'filedata',customPath:'',fileName:'a.txt'})
+    }finally{dataSet.destroy()}
   })
 
   it('uploads the picked File, verifies its bytes and accepts the listed row', async () => {
@@ -128,7 +147,7 @@ it('consumes the file catalog tool and verifies the original row again after con
   try{
     await vi.waitFor(()=>expect(wrapper.findComponent(SparkPageRenderer).exists()).toBe(true))
     expect(wrapper.getComponent(SparkPageRenderer).props('pageRuntime')?.getDataSet(formal.scenarioId!)).toBe(dataSet)
-    const remove=()=>wrapper.getComponent(RendererTable).get('tbody tr').get('button')
+    const remove=()=>wrapper.getComponent(RendererTable).get('tbody tr').findAll('button').find(button=>button.text()==='删除')!
     await vi.waitFor(()=>expect(remove().text()).toBe('删除'))
     await remove().trigger('click')
     expect(confirm).toBeDefined()

@@ -48,10 +48,13 @@ const host=computed(()=>{
     assertCurrent()
     if(command==='files.connect')return {busy:()=>busy.value,error:()=>error.value}
     if(command==='files.upload')await pickAndUpload()
-    if(command==='files.remove'){
+    if(command==='files.remove'||command==='files.download'){
       const view=runtime.resolveView(viewKey.value)
       const row=view?.rows.find(item=>view.getPkKey(item)===input)
-      if(row)await remove(row)
+      if(row){
+        if(command==='files.download')await download(row)
+        else await remove(row)
+      }
     }
     return undefined
   }}
@@ -106,6 +109,40 @@ async function pickAndUpload(): Promise<void> {
     if (selected.length > 1) throw new Error('每次只能上传一个文件')
     const file = selected[0]?.file
     if (file) await commit(view, assertCurrent, () => view.addRow({content: file}), `${file.name} 已上传`)
+  })
+}
+
+async function download(row: DataRow): Promise<void> {
+  await runFileAction(async (view, assertCurrent) => {
+    const fileName = view.getPkKey(row)
+    if (typeof fileName !== 'string' || !fileName) throw new Error('文件记录缺少正式身份')
+    const assertRow = view.captureReadRow(row, ['fileName', 'path'])
+    const content = view.dataSet?.getView(view.tableName, 'download')
+    if (!content) throw new Error('文件下载视图缺失')
+    content.queryContext = {fileName}
+    try {
+      await content.refresh()
+      assertCurrent()
+      assertRow()
+      if (content.loadingError) throw content.loadingError
+      const snapshot = content.readSnapshot()
+      const result = snapshot.rows[0]
+      const bytes = result?.['content']
+      if (snapshot.total !== 1 || result?.['fileName'] !== fileName || !ArrayBuffer.isView(bytes) || Object.prototype.toString.call(bytes) !== '[object Uint8Array]') {
+        throw new Error('文件下载结果与原记录不一致')
+      }
+      const url = URL.createObjectURL(new Blob([new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength).slice()]))
+      try {
+        const link = document.createElement('a')
+        link.href = url
+        link.download = fileName
+        link.click()
+      } finally {
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+      }
+    } finally {
+      if (!content.destroyed) content.queryContext = {fileName:''}
+    }
   })
 }
 

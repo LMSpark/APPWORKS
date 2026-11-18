@@ -21,8 +21,11 @@ export const FILE_DATA_VIEWS = Object.freeze({default: Object.freeze({
   autoCurrentFirst: false,
   autoSelectFirst: false,
   commitMode: 'staged',
-})})
-export const FILE_DATA_QUERY_PARAMETERS = Object.freeze({default: Object.freeze([])})
+}), download: Object.freeze({autoLoad:false,commitMode:'staged',queryContext:Object.freeze({fileName:''})})})
+export const FILE_DATA_QUERY_PARAMETERS = Object.freeze({
+  default:Object.freeze([]),
+  download:Object.freeze([{name:'fileName',type:'string',label:'文件名称',required:true}]),
+})
 
 const AREA = Object.freeze({appType: 'filedata' as const, customPath: '' as const})
 const OUTPUT: ReadonlySet<string> = new Set(['fileName', 'path', 'lastModified'])
@@ -33,7 +36,7 @@ type SaveCommand = Parameters<NonNullable<Executor['save']>>[0]
 type SaveReceipt = Awaited<ReturnType<NonNullable<Executor['save']>>>[number]
 /** 文件区执行器依赖：目录/删除接口、二进制上传核验链及会话校验。 */
 type FileDataResourceInput = Readonly<{
-  api: Pick<LowcodeDesignApi, 'listFiles' | 'removeFile'>
+  api: Pick<LowcodeDesignApi, 'listFiles' | 'removeFile' | 'readFileBytes'>
   fileUpload: Pick<LowcodeDesignFileUpload, 'uploadBinaryVersion' | 'verifyBinaryVersion'>
   assertCurrent: () => void
 }>
@@ -55,6 +58,7 @@ export class FileDataResource {
 
   async executeQuery(view: DataView, params: QueryParams): Promise<QueryResult> {
     this.assertView(view)
+    if (view.viewId === 'download') return this.readDownload(view)
     const rows = await this.readDirectory()
     this.assertView(view)
     const selected = DataViewLocalQuery.select({rows, fields: OUTPUT, primaryKeys: ['fileName'], params})
@@ -103,6 +107,21 @@ export class FileDataResource {
       context: this.result(view, rows, rows.length)}]
   }
 
+  private async readDownload(view: DataView): Promise<QueryResult> {
+    const directory = view.dataSet?.getView(FILE_DATA_TABLE, 'default')
+    const fileName = view.queryContext['fileName']
+    const row = typeof fileName === 'string' && directory?.rows.find(item => item['fileName'] === fileName)
+    if (!directory || !row || typeof fileName !== 'string' || !fileName || row['path'] !== `${AREA.appType}/${fileName}`) {
+      throw new Error('文件下载目标不在当前正式目录')
+    }
+    const assertOriginal = directory.captureReadRow(row, ['fileName', 'path'])
+    const bytes = await this.#input.api.readFileBytes({...AREA, fileName})
+    this.assertView(view)
+    assertOriginal()
+    if (view.queryContext['fileName'] !== fileName) throw new Error('文件下载目标已变化')
+    return this.result(view, [{fileName, path: row['path'], content: bytes}], 1)
+  }
+
   private async readDirectory(): Promise<DataRow[]> {
     this.#input.assertCurrent()
     const entries = await this.#input.api.listFiles({appType: AREA.appType, folderPath: AREA.customPath})
@@ -113,6 +132,8 @@ export class FileDataResource {
   private result(view: DataView, rows: readonly DataRow[], total: number): QueryResult {
     const keys = new Set(rows.map(row => String(row['fileName'])))
     const check = () => this.assertView(view)
+    const download = view.viewId === 'download'
+    const readable = (field: string) => OUTPUT.has(field) || download && field === 'content'
     const result: QueryResult = {
       rows,
       total,
@@ -126,11 +147,11 @@ export class FileDataResource {
       },
       fieldAccess: (rowKey, field) => {
         check()
-        const visible = keys.has(String(rowKey)) && OUTPUT.has(field)
+        const visible = keys.has(String(rowKey)) && readable(field)
         return {read: visible ? 'visible' as const : 'invisible' as const, write: 'denied' as const,
           component: visible ? 'readonly' as const : 'hidden' as const, required: false, writeMode: 'readonly' as const}
       },
-      readFieldAccess: (row, field) => {check(); return rows.includes(row) && OUTPUT.has(field) ? 'visible' as const : 'invisible' as const},
+      readFieldAccess: (row, field) => {check(); return rows.includes(row) && readable(field) ? 'visible' as const : 'invisible' as const},
       prepareNewRow: row => {
         check()
         const file = row['content']
@@ -140,13 +161,13 @@ export class FileDataResource {
       },
       newRowFieldAccess: field => ({read: field === 'content' || OUTPUT.has(field) ? 'visible' as const : 'invisible' as const,
         write: field === 'content' ? 'allowed' as const : 'denied' as const, required: field === 'content'}),
-      addActionState: () => {check(); return 'enabled' as const},
+      addActionState: () => {check(); return download ? 'disabled' as const : 'enabled' as const},
       editActionState: () => {check(); return 'disabled' as const},
-      deleteActionState: rowKey => {check(); return keys.has(String(rowKey)) ? 'enabled' as const : 'disabled' as const},
+      deleteActionState: rowKey => {check(); return !download && keys.has(String(rowKey)) ? 'enabled' as const : 'disabled' as const},
       createChildActionState: () => {check(); return 'disabled' as const},
       viewActionState: rowKey => {check(); return keys.has(String(rowKey)) ? 'enabled' as const : 'disabled' as const},
     }
-    this.#views.set(result, view)
+    if (!download) this.#views.set(result, view)
     return result
   }
 

@@ -12,7 +12,8 @@
       ],
       "views": {
         "default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 15,
-          "sortExpression": [{"field": "lastModified", "direction": "desc"}]}
+          "sortExpression": [{"field": "lastModified", "direction": "desc"}]},
+        "download": {"autoLoad": false, "commitMode": "staged", "queryContext": {"fileName": ""}}
       }
     }
   }

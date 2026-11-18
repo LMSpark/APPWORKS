@@ -60,12 +60,19 @@ async function openDraftCandidate() {
       ...(candidateAddedNodeId === undefined ? {} : {declaredAddedNodeIds})})
     if (!isCurrent()) return
     result.assertCurrent()
-    await $page.showAlert([
+    const lines = [
       `草稿 ${result.draftId} · 版本 ${result.draftVersion}`,
       `正文基版 ${result.baseRevisionId ?? '首稿'} · 冻结基线 ${result.baselineId}`,
       `请求摘要 ${result.requestDigest}`,
-      '候选登记待办理',
-    ].join('\n'), '候选生成输入')
+    ]
+    if (result.requiresResponseUseCheck) {
+      lines.push(`独立答复待核复核决定与当前准用：${result.responseVersions.map(item => item.responseId).join('、')}`)
+    }
+    if (result.requiresFactUseCheck && result.factVersions.length) {
+      lines.push(`冻结事实待核当前准用：${result.factVersions.map(item => `${item.factId}（版本 ${item.version}）`).join('、')}`)
+    }
+    lines.push('候选登记待办理')
+    await $page.showAlert(lines.join('\n'), '候选生成输入')
   } catch (cause) {
     if (!isCurrent()) return
     const messages = {
@@ -73,6 +80,7 @@ async function openDraftCandidate() {
       CONTENT_DRAFT_CANDIDATE_NODE_TYPE_CHANGED: '候选改变了既有节点的类型，请核对节点身份',
       CONTENT_DRAFT_CANDIDATE_TARGET_MISMATCH: '候选含范围外改动或未声明的新增节点',
       CONTENT_DRAFT_CANDIDATE_FACT_NOT_FROZEN: '草稿引用的事实尚未列入冻结基线，请先核定并冻结事实版本',
+      CONTENT_DRAFT_RESPONSE_VERSION: '无法核对所选独立答复的原版本，请确认答复与冻结基线中的分工版本一致',
     }
     const code = cause?.message
     $page.showMessage(typeof code === 'string' && Object.hasOwn(messages, code) ? messages[code] :

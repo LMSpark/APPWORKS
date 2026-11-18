@@ -120,22 +120,6 @@ it('opens the original paper packing record before asking for same-seal witness 
   const check={...scope,packageHash:row.packageHash,...signatureTarget,signatureRef:'SIGNED',verificationRef:'VERIFIED',
    valid:true,assertCurrent:host.assertCurrent}
   const signatureEvidence=bindPackageSignatureCoverage(proof,[signatureTarget],[check])
-  const signRow={...scope,...signatureTarget,packageHash:row.packageHash,id:check.signatureRef,
-   verificationRef:check.verificationRef,valid:true,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}
-  const signatures=DataSet.fromJson({scenarioId:'S',tables:{SignatureRecord:{
-   modelBinding:{modelId:'SIGN-M',modelName:'SignatureRecord'},columns:Object.keys(signRow).map(name=>({name,isPrimaryKey:name==='id'})),
-   views:{default:{},...contentPackageSignatureScenarioViews('id')},
-  }}})
-  try{
-   const signatureView=signatures.getView('SignatureRecord','packageSignatureChecks')!
-   const signatureTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'SignatureRecord'})
-   signatureView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
-    identity:signatureTable.identity,scope:'sign',readScope:()=> 'sign',
-    snapshot:signatureTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[signRow]}}}),
-   })})
-   const read=await readPackageSignatureChecks({...host,runtime:{resolveView:()=>signatureView}},proof,[check.signatureRef])
-   expect(bindPackageSignatureCoverage(proof,[signatureTarget],read)).toMatchObject([{accepted:true,evidenceRef:'VERIFIED'}])
-  }finally{signatures.destroy()}
   expect(assessSubmissionPackageRelease(proof,rules,[...evidence.slice(0,2),...signatureEvidence]).deliverable).toBe(true)
   expect(()=>bindPackageSignatureCoverage(proof,[signatureTarget],[{...check,signerRef:'OTHER'}]))
    .toThrow('SUBMISSION_PACKAGE_SIGNATURE_SCOPE')
@@ -147,9 +131,39 @@ it('opens the original paper packing record before asking for same-seal witness 
    .toThrow('SUBMISSION_PACKAGE_RELEASE_SCOPE')
   expect(()=>assessSubmissionPackageRelease(proof,rules,evidence.map(item=>({...item,packageHash:'c'.repeat(64)}))))
    .toThrow('SUBMISSION_PACKAGE_RELEASE_SCOPE')
+  const signRow={...scope,...signatureTarget,packageHash:row.packageHash,id:check.signatureRef,
+   verificationRef:check.verificationRef,valid:true,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}
+  const signatures=DataSet.fromJson({scenarioId:'S',tables:{SignatureRecord:{
+   modelBinding:{modelId:'SIGN-M',modelName:'SignatureRecord'},columns:Object.keys(signRow).map(name=>({name,isPrimaryKey:name==='id'})),
+   views:{default:{},...contentPackageSignatureScenarioViews('id')},
+  }}})
+  try{
+   const signatureView=signatures.getView('SignatureRecord','packageSignatureChecks')!
+   const signatureTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'SignatureRecord'})
+   let signatureHidden=false
+   signatureView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+    identity:signatureTable.identity,scope:'sign',readScope:()=> 'sign',
+    snapshot:signatureTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[{
+     ...signRow,lingma_sys_params:{...signRow.lingma_sys_params,h:signatureHidden?['valid']:[]},
+    }]}}}),
+   })})
+   const read=await readPackageSignatureChecks({...host,runtime:{resolveView:()=>signatureView}},proof,[check.signatureRef])
+   expect(bindPackageSignatureCoverage(proof,[signatureTarget],read)).toMatchObject([{accepted:true,evidenceRef:'VERIFIED'}])
+   const signaturePage=createContentSubmissionScriptHost({
+    ...host.runtime,generation:1,isLoaded:true,destroyed:false,
+    resolveView:key=>key==='S@SignatureRecord@packageSignatureChecks'?signatureView:host.runtime.resolveView(key),
+   },host,{paperEvidence:{readFrozen,readWitness},readPackageRelease:async()=>({
+    rules,evidence,signature:{targets:[signatureTarget],recordIds:[check.signatureRef]},
+   })})
+   const releasedByPage=await signaturePage.invoke('content.submission.reviewPaperPackage',input,signal)
+   expect(releasedByPage).toMatchObject({release:{deliverable:true}})
+   signatureHidden=true
+   await expect(signaturePage.invoke('content.submission.reviewPaperPackage',input,signal)).rejects.toThrow('DATA_VIEW_READ_ROW')
+   expect(()=>releasedByPage.assertCurrent()).toThrow()
+  }finally{signatures.destroy()}
   hidden=true
   await expect(reviewRegisteredPaperSubmissionPackage(host,input,{readFrozen,readWitness})).rejects.toThrow('DATA_VIEW_READ_ROW')
-  expect(readWitness).toHaveBeenCalledTimes(2)
+  expect(readWitness).toHaveBeenCalledTimes(4)
   expect(()=>released.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
  }finally{ds.destroy()}
 })

@@ -4,7 +4,7 @@
  * 边界：纸件登记提供份次与页标识，SPARK Data 提供原填报位置及可读值。
  * AI用途：核对纸件观察是否对应实际登记份次和页栏。
  */
-import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {buildDataViewKey,type DataView,type ViewMetadata} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
@@ -14,8 +14,18 @@ import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevi
 type PaperScope=Readonly<{projectId:string;paperRef:string;copyRef:string;revisionId:string}>
 /** 已登记纸件及可证明属于该份次的页。 */
 type RegisteredPaper=PaperScope&Readonly<{registrationRef:string;pageRefs:readonly string[];assertCurrent:()=>void}>
-const keys=[['projectId','projectId'],['id','observationId'],['paperRef','paperRef'],['copyRef','copyRef']] as const
-const fields=['id','projectId','paperRef','copyRef','revisionId','pageRef','locationRef','evidenceRef','value','unit']
+const keys=[['projectId','projectId'],['id','observationId'],['paperRef','paperRef'],['copyRef','copyRef'],
+ ['producedFileId','producedFileId']] as const
+const fields=['id','projectId','paperRef','copyRef','producedFileId','revisionId','pageRef','locationRef','evidenceRef','value','unit']
+
+/** 纸件观察和电子实件观察共用 ProducedFile 身份字段。 */
+export function paperObservationView():ViewMetadata{
+ return {autoLoad:false,autoCurrentFirst:false,autoSelectFirst:false,commitMode:'staged',
+  queryConfig:{autoQuery:false,cacheType:'none',pagination:'none',fields:[...fields]},
+  scopeFilter:{logic:'and',filters:keys.map(([field,ParamName])=>({
+   field,operator:'eq',value:{Type:'GetInputParam',ParamName},
+  }))}}
+}
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='AnswerLocation'&&
  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&keys.every(([field,ParamName])=>
   hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
@@ -70,7 +80,7 @@ export async function readRegisteredPaperAnswer(host:ContentRevisionReadHost,inp
   paper.pageRefs.filter(ref=>ref===pageRef).length!==1)throw Error(error)
  const key=buildDataViewKey('AnswerLocation','selectedPaperObservation',scenarioId),view=runtime.resolveView(key)
  if(!view||!valid(view)||view.hasEditingChanges())throw Error('CONTENT_PAPER_ANSWER_VIEW_REQUIRED')
- const context={projectId,observationId,paperRef,copyRef}
+ const context={projectId,observationId,paperRef,copyRef,producedFileId:paper.registrationRef}
  view.queryContext={...view.queryContext,...context}
  const assertScope=()=>{
   host.assertCurrent();paper.assertCurrent()
@@ -84,7 +94,7 @@ export async function readRegisteredPaperAnswer(host:ContentRevisionReadHost,inp
  const assertRead=view.captureReadResult(),assertRow=view.captureReadRow(row,fields)
  const assertCurrent=()=>{assertScope();assertRead();assertRow()}
  const {evidenceRef,unit,value}=row
- if(row['id']!==observationId||row['pageRef']!==pageRef||row['locationRef']!==locationRef||
+ if(row['id']!==observationId||row['pageRef']!==pageRef||row['locationRef']!==locationRef||row['producedFileId']!==paper.registrationRef||
   Object.entries(scope).some(([field,expected])=>row[field]!==expected)||
   !identity(evidenceRef)||(unit!==null&&!identity(unit))||!Object.hasOwn(row,'value'))throw Error(error)
  const observedValueJson=canonicalSnapshotValue(value)

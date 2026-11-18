@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
-import {readRegisteredPaperAnswer,readRegisteredPaperCopy} from '@/views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader'
+import {paperObservationView,readRegisteredPaperAnswer,readRegisteredPaperCopy} from '@/views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader'
 import {producedFileScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
 import script from '@/views/features/application/smart-bid/authoring/page12/script.js?raw'
 import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
@@ -12,14 +12,12 @@ import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-ap
 it('requires the exact registered copy and page before returning the original observed value',async()=>{
  const input={paperRef:'PAPER',copyRef:'COPY',revisionId:'R',observationId:'OBS',pageRef:'P01',locationRef:'TOTAL'}
  const row={id:'OBS',projectId:'P',paperRef:'PAPER',copyRef:'COPY',revisionId:'R',
-  pageRef:'P01',locationRef:'TOTAL',evidenceRef:'SCAN',value:'0.00',unit:'元'}
+  pageRef:'P01',locationRef:'TOTAL',evidenceRef:'SCAN',value:'0.00',unit:'元',producedFileId:'REG'}
  const registration={id:'REG',projectId:'P',paperRef:'PAPER',revisionId:'R',copies:[{copyRef:'COPY',pageRefs:['P01']}]}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{AnswerLocation:{
   modelBinding:{modelId:'M',modelName:'AnswerLocation'},
   columns:Object.keys(row).map(name=>({name,type:'string',isPrimaryKey:name==='id'})),
-  views:{default:{},selectedPaperObservation:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',
-   filters:([['projectId','projectId'],['id','observationId'],['paperRef','paperRef'],['copyRef','copyRef']] as const)
-    .map(([field,ParamName])=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName}}))}}},
+  views:{default:{},selectedPaperObservation:paperObservationView()},
  },ProducedFile:{modelBinding:{modelId:'PAPER-M',modelName:'ProducedFile'},
   columns:Object.keys(registration).map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},selectedPaperRegistration:producedFileScenarioViews().selectedPaperRegistration},
@@ -35,10 +33,10 @@ it('requires the exact registered copy and page before returning the original ob
   }]}}}),
  })})
  const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'AnswerLocation'})
- let copyRef='COPY',hidden=false
+ let copyRef='COPY',hidden=false,producedFileId='REG'
  view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
   identity:table.identity,scope:'p',readScope:()=> 'p',snapshot:table.applyResult({Result:{primaryKeyField:'id',
-   data:{Count:1,Items:[{...row,copyRef,lingma_sys_params:{r:[],e:[],h:hidden?['value']:[],m:[],d:false}}]}}}),
+   data:{Count:1,Items:[{...row,copyRef,producedFileId,lingma_sys_params:{r:[],e:[],h:hidden?['value']:[],m:[],d:false}}]}}}),
  })})
  const host={runtime:{resolveView:(key:string)=>key==='S@AnswerLocation@selectedPaperObservation'?view:
   key==='S@ProducedFile@selectedPaperRegistration'?paperView:undefined},
@@ -67,6 +65,9 @@ it('requires the exact registered copy and page before returning the original ob
   await openPaperObservation()
   expect(showAlert).toHaveBeenCalledExactlyOnceWith('纸件 PAPER · 份次 COPY\n页 P01 · 位置 TOTAL\n原实填值 "0.00" 元\n原登记 REG · 观察凭据 SCAN','纸件实填回读')
   await expect(readRegisteredPaperAnswer(host,{...input,pageRef:'P02'},readPaper)).rejects.toThrow('CONTENT_PAPER_ANSWER_SCOPE')
+  producedFileId='OLD-REG'
+  await expect(readRegisteredPaperAnswer(host,input,readPaper)).rejects.toThrow('CONTENT_PAPER_ANSWER_SCOPE')
+  producedFileId='REG'
   copyRef='OTHER'
   await expect(readRegisteredPaperAnswer(host,input,readPaper)).rejects.toThrow('CONTENT_PAPER_ANSWER_SCOPE')
   expect(()=>observed.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')

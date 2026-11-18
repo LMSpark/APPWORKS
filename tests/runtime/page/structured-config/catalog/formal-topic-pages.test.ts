@@ -78,6 +78,7 @@ describe('formal topic catalog pages', () => {
     const router=createRouter({history:createMemoryHistory(),routes:[route]})
     const load=vi.spyOn(LowcodeExcelImport,'loadCatalog')
     try{
+      state.appId='first'
       await router.push('/apps/first/excel')
       const wrapper=mount(withTestPageService(RouterView),{global:{plugins:[router,ElementPlus,Spark.createPlugin()]}})
       wrappers.push(wrapper)
@@ -90,6 +91,11 @@ describe('formal topic catalog pages', () => {
       expect(first?.destroyed).toBe(true)
       expect(load).toHaveBeenCalledTimes(2)
       expect(wrapper.text()).not.toContain('订单导入')
+      const reads=state.http.reads.length
+      await router.push('/apps/third/excel')
+      await vi.waitFor(()=>expect(wrapper.text()).toContain('Excel目录导航与当前执行应用不一致'))
+      expect(state.http.reads).toHaveLength(reads)
+      expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
     }finally{load.mockRestore()}
   })
   it('renders the enterprise Excel catalog through four files with only the catalog query',async()=>{

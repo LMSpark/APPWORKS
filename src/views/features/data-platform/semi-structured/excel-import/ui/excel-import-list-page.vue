@@ -229,7 +229,7 @@ watch([scenarioId, projectId], async ([id, project]) => {
         loadScenario:scenario=>LowcodeExcelImport.loadCatalog(scenario,APPLICATION_CATALOG_PROJECT_ID)})
       return
     }
-    const dataSet = await LowcodeExcelImport.loadCatalog(id)
+    const dataSet = await LowcodeExcelImport.loadCatalog(id,project)
     if (!active || own !== generation) {dataSet.destroy(); return}
     const current = session.acquire({pageId: 'excel-import-list-page', scenarioIds: [id], targetId,
       loadScenario: async () => dataSet})

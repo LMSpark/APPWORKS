@@ -129,6 +129,14 @@ it('preserves unknown on a complete empty original read and requires readable te
   const openRegistered=async()=>({...await openAuthorized(),bytes:latest.candidate.bytes})
   const verified=await verifyRegisteredPackingCandidate(host,registered,latest.candidate,openRegistered)
   expect(verified).toMatchObject({packageId:pack.id,packageHash:pack.packageHash,selectionHash:hashes.selectionHash})
+  const registeredPage=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
+   readPackingSelection:async()=>({selectionRef:'PACK',request,assertCurrent:host.assertCurrent,
+    options:{...options,readCurrentUse:async()=>use},
+    registration:{target:registered,candidate:latest.candidate,openAuthorized:openRegistered,assertCurrent:host.assertCurrent}}),
+  })
+  await expect(registeredPage.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal))
+   .resolves.toMatchObject({status:'REGISTRATION_VERIFIED',verified:{packageId:pack.id,packageHash:pack.packageHash}})
+  expect(openOriginal).toHaveBeenCalledTimes(2)
   await expect(verifyRegisteredPackingCandidate(host,registered,latest.candidate,openAuthorized))
    .rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_HASH')
  }finally{ds.destroy()}

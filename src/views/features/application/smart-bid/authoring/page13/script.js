@@ -45,6 +45,10 @@ async function openPackingPreparation() {
   try {
     const result = await $page.invokeHostCommand('content.submission.preparePacking', {selectionRef: $route.query.packingSelectionRef})
     result.assertCurrent()
+    if (result.status === 'REGISTRATION_VERIFIED') {
+      await $page.showAlert(`原包登记 ${result.verified.packageId}\n实包摘要 ${result.verified.packageHash}`, '电子包登记核验')
+      return
+    }
     const labels = {UNKNOWN: '原冻结结果待确认', NOT_EFFECTIVE: '原冻结未生效'}
     const details = result.status === 'PREPARED'
       ? `待核包共 ${result.candidate.packed.length} 件\n选件版本 ${result.candidate.selectionVersion}\n摘要 ${result.candidate.packageHash}`

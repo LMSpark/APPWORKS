@@ -10,6 +10,7 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {recoverSubmissionAttempt} from '@/services/smart-bid/content/review/submission-attempt-recovery'
 import {prepareDeliveryFreezeSelection} from '@/services/smart-bid/content/review/delivery-selection-digest'
 import {prepareRegisteredDeliveryZipPackage} from '../../model/review/package/content-delivery-package-preparation'
+import {verifyRegisteredPackingCandidate} from '../../model/review/package/content-submission-package-reader'
 import {readRegisteredSubmissionRequest} from '../../model/review/submission/content-submission-request-reader'
 import {readRegisteredSubmissionEvents} from '../../model/review/submission/content-submission-events-reader'
 import {readRegisteredChannelReceiptPairing} from '../../model/review/submission/content-channel-receipt-pairing-reader'
@@ -34,6 +35,7 @@ type PackageReview=Parameters<typeof reviewRegisteredDeliveryZipPackage>
 type PackageRelease=Parameters<typeof assessSubmissionPackageRelease>
 type FreezePreparation=Parameters<typeof prepareDeliveryFreezeSelection>
 type PackingPreparation=Parameters<typeof prepareRegisteredDeliveryZipPackage>
+type PackingVerification=Parameters<typeof verifyRegisteredPackingCandidate>
 /** 读取原截止记录对应的回执和核对证据。 */
 type ReadDeadline=(record:Awaited<ReturnType<typeof readRegisteredDeadlineRecord>>,signal:AbortSignal)=>Promise<Readonly<{
  options:Deadline[2]
@@ -70,6 +72,8 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
   }>>
   readPackingSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
    selectionRef:string;request:PackingPreparation[1];options:PackingPreparation[2];assertCurrent:()=>void
+   registration?:Readonly<{target:PackingVerification[1];candidate:PackingVerification[2];
+    openAuthorized:PackingVerification[3];assertCurrent:()=>void}>
   }>>
  }>={}){
  async function readRelease(proof:PackageRelease[0],signal:AbortSignal){
@@ -97,7 +101,13 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     assertSelection()
     if(selected.selectionRef!==selectionRef||selected.request.groupScope.projectId!==projectId)
      throw Error('SUBMISSION_PAGE_PACKING_SCOPE')
-    return prepareRegisteredDeliveryZipPackage({...host,assertCurrent:assertSelection},selected.request,selected.options)
+    const scopedHost={...host,assertCurrent:assertSelection}
+    if(!selected.registration)return prepareRegisteredDeliveryZipPackage(scopedHost,selected.request,selected.options)
+    const {target,candidate,openAuthorized,assertCurrent:assertRegistration}=selected.registration
+    const verified=await verifyRegisteredPackingCandidate({...scopedHost,assertCurrent:()=>{
+     assertSelection();assertRegistration()
+    }},target,candidate,openAuthorized)
+    return Object.freeze({status:'REGISTRATION_VERIFIED' as const,verified,assertCurrent:verified.assertCurrent})
    }
    if(name==='content.submission.prepareFreeze'&&sources.readFreezeSelection){
     const {selectionRef}=input

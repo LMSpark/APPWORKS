@@ -24,7 +24,8 @@ function valid(view:DataView){
 
 /** 核本次装封回执所指原登记及实包，给下游交付同版证据。 */
 export async function verifyRegisteredPackingCandidate(host:ContentRevisionReadHost,input:Selection,
- candidate:Awaited<ReturnType<typeof packFrozenDeliveryZip>>,openAuthorized:Parameters<typeof readRegisteredSubmissionZipSource>[2]){
+ candidate:Omit<Awaited<ReturnType<typeof packFrozenDeliveryZip>>,'bytes'>,
+ openAuthorized:Parameters<typeof readRegisteredSubmissionZipSource>[2]){
  const assertScope=()=>{host.assertCurrent();candidate.assertCurrent()}
  assertScope()
  if(candidate.projectId!==host.projectId)throw Error(error)

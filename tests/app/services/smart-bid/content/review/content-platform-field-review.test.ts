@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {comparePlatformFieldObservation,readPlatformFieldObservation,readPlatformFieldReviewVersion,readSubmittedPlatformField,readSubmittedPlatformFields} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
+import {comparePlatformFieldObservation,platformObservationView,readPlatformFieldObservation,readPlatformFieldReviewVersion,readSubmittedPlatformField,readSubmittedPlatformFields} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
@@ -52,7 +52,7 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
   .map(([field,ParamName])=>({field,operator:'eq' as const,value:{Type:'GetInputParam',ParamName}}))
  const ds=DataSet.fromJson({scenarioId:'S',tables:{AnswerLocation:{
   modelBinding:{modelId:'M',modelName:'AnswerLocation'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},selectedPlatformObservation:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters}},
+  views:{default:{},selectedPlatformObservation:platformObservationView(),
    submittedPlatformObservations:{commitMode:'staged',queryConfig:{autoQuery:false,allPages:true,pagination:'paged'},
     scopeFilter:{logic:'and',filters:filters.filter(filter=>filter.field!=='id')}}},
  },ChannelReceipt:{
@@ -82,9 +82,10 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
  try{
   const input={observationId:'OBS',attemptRef:'SEND',stage:'SAVED' as const}
   const unused=async()=>{throw Error('UNEXPECTED_REVIEW_CALL')}
+  let observationInput:Parameters<typeof readPlatformFieldObservation>[2]=input
   const page=createContentReviewScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
    readSelection:unused,openFile:unused,readField:unused,readDecision:unused,readCompleted:unused,
-   readObservationSelection:async()=>({approved,input,assertCurrent:host.assertCurrent}),
+   readObservationSelection:async()=>({approved,input:observationInput,assertCurrent:host.assertCurrent}),
   })
   const signal=new AbortController().signal
   await expect(page.invoke('content.review.readPlatformObservation',{selectionRef:'OTHER'},signal))
@@ -95,10 +96,13 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   row.stage='SUBMITTED'
   const request={observationId:'OBS',receiptRef:'REC',attemptRef:'SEND'}
-  const submitted=await readSubmittedPlatformField(host,approved,request)
+  observationInput={...request,stage:'SUBMITTED'}
+  const submitted=await page.invoke('content.review.readPlatformObservation',{selectionRef:'OBS'},signal)
   expect(submitted).toMatchObject({state:'MATCHED',receiptRef:'REC'})
   receiptRow.observationRefs=['OTHER']
   await expect(readSubmittedPlatformField(host,approved,request)).rejects.toThrow('CONTENT_PLATFORM_FIELD_RECEIPT_SCOPE')
+  await expect(page.invoke('content.review.readPlatformObservation',{selectionRef:'OBS'},signal))
+   .rejects.toThrow('CONTENT_PLATFORM_FIELD_RECEIPT_SCOPE')
   expect(()=>submitted.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   receiptRow.observationRefs=['OBS','OBS2']
   const approvedSecond=await readPlatformFieldReviewVersion({...selection,fieldId:'F2'},async input=>({...input,

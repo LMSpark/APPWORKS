@@ -5,7 +5,7 @@
  */
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
-import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {buildDataViewKey,type DataView,type ViewMetadata} from '@spark-appworks/spark-data'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 import {readPlatformSubmissionReceipt} from './submission/content-submission-receipt-reader'
 
@@ -72,6 +72,15 @@ export async function comparePlatformFieldObservation(approved:ApprovedField,exp
 
 const observationFields=['id','projectId','revisionId','assignmentId','fieldId','attemptRef','stage','value','unit']
 const scopeFields=[['projectId','projectId'],['id','observationId'],['attemptRef','attemptRef']] as const
+/** 正式共享场景按项目、观察编号和办理编号读取原观察。 */
+export function platformObservationView():ViewMetadata{
+ return {autoLoad:false,autoCurrentFirst:false,autoSelectFirst:false,commitMode:'staged',
+  queryConfig:{autoQuery:false,cacheType:'none',pagination:'none',fields:[...observationFields]},
+  scopeFilter:{logic:'and',filters:scopeFields.map(([field,ParamName])=>({
+   field,operator:'eq',value:{Type:'GetInputParam',ParamName},
+  }))}}
+}
+
 function readObservation(row:Readonly<Record<string,unknown>>,assertCurrent:()=>void):FieldObservation{
  const {id,projectId,revisionId,assignmentId,fieldId,attemptRef,stage,value,unit}=row
  if(!identity(id)||!identity(projectId)||!identity(revisionId)||!identity(assignmentId)||!identity(fieldId)||!identity(attemptRef)||
@@ -86,8 +95,8 @@ function validObservationView(view:DataView):boolean{
 
 /** 按同次原办理只读回读指定平台观察，保留原行证明到比较结果。 */
 export async function readPlatformFieldObservation(host:ContentRevisionReadHost,approved:ApprovedField,input:
- ExpectedObservation&Readonly<{observationId:string}>){
- const {projectId,scenarioId,runtime}=host,{observationId,attemptRef,stage,submission}=input
+ Readonly<{observationId:string;stage:'SAVED'|'SUBMITTED';attemptRef:string;receiptRef?:string}>){
+ const {projectId,scenarioId,runtime}=host,{observationId,attemptRef,stage,receiptRef}=input
  const assertOwner=()=>{host.assertCurrent();approved.assertCurrent()}
  assertOwner()
  if(projectId!==approved.projectId||![scenarioId,observationId,attemptRef].every(identity))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
@@ -97,7 +106,7 @@ export async function readPlatformFieldObservation(host:ContentRevisionReadHost,
  view.queryContext={...view.queryContext,...context}
  const assertScope=()=>{
   assertOwner()
-  if(runtime.resolveView(key)!==view||!validObservationView(view)||view.hasEditingChanges()||
+  if(runtime.resolveView(key)!==view||!validObservationView(view)||view.loadingError||view.hasEditingChanges()||
    Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_STALE')
  }
  await view.refresh();assertScope()
@@ -107,8 +116,14 @@ export async function readPlatformFieldObservation(host:ContentRevisionReadHost,
   row['revisionId']!==approved.revisionId||row['assignmentId']!==approved.assignmentId||row['fieldId']!==approved.fieldId)
   throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
  const assertResult=view.captureReadResult(),assertRow=view.captureReadRow(row,observationFields)
- return comparePlatformFieldObservation(approved,{attemptRef,stage,...(submission?{submission}:{})},
-  readObservation(row,()=>{assertScope();assertResult();assertRow()}))
+ const assertObservation=()=>{assertScope();assertResult();assertRow()}
+ assertObservation()
+ const observation=readObservation(row,assertObservation)
+ const submission=stage==='SUBMITTED'&&receiptRef!==undefined?
+  await readPlatformSubmissionReceipt({...host,assertCurrent:assertObservation},{receiptRef,attemptRef,revisionId:approved.revisionId}):
+  undefined
+ if(submission&&!submission.observationRefs.includes(observationId))throw Error('CONTENT_PLATFORM_FIELD_RECEIPT_SCOPE')
+ return comparePlatformFieldObservation(approved,{attemptRef,stage,...(submission?{submission}:{})},observation)
 }
 
 /** 同一回执覆盖的多个栏位一次读取，保留原回执及全部观察证明。 */
@@ -163,13 +178,5 @@ export async function readSubmittedPlatformFields(host:ContentRevisionReadHost,i
 export async function readSubmittedPlatformField(host:ContentRevisionReadHost,approved:ApprovedField,input:Readonly<{
  observationId:string;receiptRef:string;attemptRef:string
 }>){
- const {observationId,receiptRef,attemptRef}=input
- const assertCurrent=()=>{host.assertCurrent();approved.assertCurrent()}
- assertCurrent()
- if(host.projectId!==approved.projectId||!identity(observationId))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
- const readHost={...host,assertCurrent}
- const submission=await readPlatformSubmissionReceipt(readHost,{receiptRef,attemptRef,revisionId:approved.revisionId})
- submission.assertCurrent()
- if(!submission.observationRefs.includes(observationId))throw Error('CONTENT_PLATFORM_FIELD_RECEIPT_SCOPE')
- return readPlatformFieldObservation(readHost,approved,{observationId,attemptRef,stage:'SUBMITTED',submission})
+ return readPlatformFieldObservation(host,approved,{...input,stage:'SUBMITTED'})
 }

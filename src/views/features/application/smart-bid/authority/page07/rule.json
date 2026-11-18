@@ -1,0 +1,18 @@
+[
+  {
+    "id": "resource-allocation-review",
+    "type": "r-section",
+    "props": {"title": "跨项目资源协调", "onBeforeRender": "bindAllocation"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对占用冲突", "onClick": "openAllocation"}}
+    ]
+  },
+  {
+    "id": "resource-allocation-release",
+    "type": "r-section",
+    "props": {"title": "资源释放前核对", "onBeforeRender": "bindAllocationRelease"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对义务终止凭据", "onClick": "openAllocationRelease"}}
+    ]
+  }
+]

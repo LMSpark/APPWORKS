@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {resolveContentAuthoringTarget,resolvePublishedContentAuthoringTarget,type ContentAuthoringRoute} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
-import {preparePublishedConfigurationReleaseCall,preparePublishedBidClassModelCatalogCall,preparePublishedKnowledgeDirectoryCall,preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
+import {preparePublishedResourceAllocationCall,preparePublishedConfigurationReleaseCall,preparePublishedBidClassModelCatalogCall,preparePublishedKnowledgeDirectoryCall,preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
 
 const auth=vi.hoisted(()=>({token:'SESSION',appId:'D8490EC99436A8B9AFDE205BE3153802'}))
 vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
@@ -13,6 +13,7 @@ const app='D8490EC99436A8B9AFDE205BE3153802',space='D3BBA1F0780056C837AC35E9825C
 const route=():ContentAuthoringRoute=>({path:`/apps/${app}/features/application/smart-bid/authoring/entry/content-authoring-page`,
  meta:{type:'config-page',nodeId:'NAV11',pageId:'TOOL11',tool:{projectId:app,pageId:'TOOL11'}},query:{scenarioId:space,projectId:'P',draftId:'D'}})
 it.each([
+ {number:7,prepareCall:preparePublishedResourceAllocationCall},
  {number:12,prepareCall:preparePublishedContentReviewCall},
  {number:13,prepareCall:preparePublishedContentSubmissionCall},
  {number:14,prepareCall:preparePublishedContentDeadlineCall},
@@ -20,9 +21,9 @@ it.each([
  {number:16,prepareCall:preparePublishedKnowledgeDirectoryCall},
  {number:17,prepareCall:preparePublishedBidClassModelCatalogCall},
 ])('prepares published page $number inputs for the authorized route and invalidates stale sessions',({number,prepareCall})=>{
- const nodeId=`NAV${number}`,pageId=`TOOL${number}`
+ const pageNumber=String(number).padStart(2,'0'),nodeId=`NAV${pageNumber}`,pageId=`TOOL${pageNumber}`
  const entry={applicationId:app,scenarioId:space,nodeId,pageId}
- const reviewRoute={...route(),path:`/apps/${app}/page${number}`,meta:{type:'config-page',nodeId,pageId,
+ const reviewRoute={...route(),path:`/apps/${app}/page${pageNumber}`,meta:{type:'config-page',nodeId,pageId,
   blueprintScenarioId:space,tool:{projectId:app,pageId}},query:{projectId:'P',scenarioId:space}}
  const createSources=vi.fn(()=>{throw Error('NO_RUNTIME_YET')})
  expect(prepareCall(route(),entry,createSources)).toBeUndefined()

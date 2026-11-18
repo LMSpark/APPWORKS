@@ -14,6 +14,7 @@ import {createBidFindingsScriptHost} from '../../../collaboration/tasks/bid-find
 
 import {createKnowledgeDirectoryScriptHost} from '../../../knowledge/knowledge-directory-script-host'
 import {createBidClassModelCatalogHost} from '../../../knowledge/class-model-catalog-script-host'
+import {createResourceAllocationScriptHost} from '../../../authority/resource-allocation-script-host'
 import {createConfigurationReleaseScriptHost} from '../../../configuration/configuration-release-script-host'
 
 
@@ -92,6 +93,24 @@ export function preparePublishedConfigurationReleaseCall(route:ContentAuthoringR
    binding.readDisableImpact,binding.readCandidate)
  })
  if(prepared&&Object.hasOwn(route.query,'scopeId'))throw Error('CONFIGURATION_RELEASE_PAGE_SCOPE')
+ return prepared
+}
+
+/** 页07由本次正式实例绑定企业及原占用快照读取方。 */
+export function preparePublishedResourceAllocationCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+ bindEnterprise:(runtime:PageRuntime,scope:Scope)=>Readonly<{
+  enterpriseId:string;assertCurrent:()=>void;readSnapshot:Parameters<typeof createResourceAllocationScriptHost>[2]
+  readRelease?:NonNullable<Parameters<typeof createResourceAllocationScriptHost>[3]>
+ }>,
+){
+ const prepared=preparePublishedCall(route,entry,(runtime,scope)=>{
+  const binding=bindEnterprise(runtime,scope)
+  const assertCurrent=()=>{scope.assertCurrent();binding.assertCurrent()}
+  assertCurrent()
+  return createResourceAllocationScriptHost(runtime,{enterpriseId:binding.enterpriseId,projectId:scope.projectId,assertCurrent},
+   binding.readSnapshot,binding.readRelease)
+ })
+ if(prepared&&Object.hasOwn(route.query,'enterpriseId'))throw Error('BID_RESOURCE_ALLOCATION_PAGE_SCOPE')
  return prepared
 }
 

@@ -5,41 +5,57 @@
 AI用途：迁移参考仓 FileDataManager/FileManager 时，核对文件区、导航身份(dataSpaceId)与保存回执。
 -->
 <template>
-  <RendererSection class="file-page" title="文件管理" :bordered="false" :grid-columns="1" :grid-gap="16"
-    :status="loading ? '正在读取文件目录…' : ''" :error="error" :retryable="!loading && !ready" retry-text="重试" @retry="loadCurrentRoute">
-    <template v-if="ready" #header-actions>
-      <RendererButton label="上传" button-type="primary" :disabled="busy" @click="pickAndUpload" />
-      <RendererButton :data-view-key="viewKey" label="刷新" action="refresh" :disabled="busy" />
-    </template>
-    <RendererTable v-if="ready" :data-view-key="viewKey" :children="fields" :filter="filter" :actions="actions"
-      :stripe="true" :border="true" :show-row-index="true" :show-data-view-meta="false"
-      :pagination="{pageSizes: [15, 30, 50, 100], showJumper: true}" />
-  </RendererSection>
+  <SparkPageRenderer v-if="catalogRuntime && host" :page-runtime="catalogRuntime" :route-snapshot="routeSnapshot" :host="host" />
+  <RendererSection v-else title="文件管理" :bordered="false"
+    :status="loading ? '正在读取文件目录…' : ''" :error="error" :retryable="!loading && !ready" retry-text="重试" @retry="loadCurrentRoute" />
 </template>
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
-import type {DataRow, DataView, SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererSection, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {useRoute} from 'vue-router'
+import type {DataRow, DataView} from '@spark-appworks/spark-data'
+import {RendererSection, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
+import {PageTool} from '@spark-appworks/spark-project-model'
+import rule from './rule.json?raw'
+import script from './script.js?raw'
+import style from './style.css?raw'
 
 const {sparkConsume} = useSparkComponent({type: 'file-manager-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'file-manager-page')
+const route = useRoute()
+const routeSnapshot = computed(() => {
+  const {path,fullPath,name,params,query,hash}=route
+  return {path,fullPath,name:name??null,params,query,hash}
+})
+const navigationId='EDF7DE3E5723E127F98B2A119BE81BF9'
+const tool=new PageTool({pageId:navigationId})
+tool.hydrateFileText('rule.json',rule)
+tool.hydrateFileText('script.js',script)
+tool.hydrateFileText('style.css',style)
+tool.markLoaded()
 const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
-  scenarioId: '23F469CC96AC4B73BA5AE593C0002BD4', navigationId: 'EDF7DE3E5723E127F98B2A119BE81BF9',
+  scenarioId: '23F469CC96AC4B73BA5AE593C0002BD4', navigationId, tool,
   modelName: 'FileDataCatalog', componentType: 'file-manager-page', title: '文件管理',
 })
 const busy = ref(false)
-const text = (field: string, label: string, minWidth: number): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, minWidth, showOverflowTooltip: true}})
-const fields: SparkNode[] = [text('fileName', '文件名称', 200), text('path', '存储路径', 260), text('lastModified', '上传时间', 180)]
-const filter: RFilterProps = {
-  autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,
-  children: [{type: 'r-text', props: {field: 'fileName', label: '文件名称', placeholder: '请输入文件名称', filterTrim: true}}],
-}
-const actions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
-  label: '删除', buttonType: 'danger', link: true, permAction: 'delete', disabled: busy.value, onClick: remove,
-}}]}))
+const catalogRuntime=computed(()=>ready.value?session.runtime:undefined)
+const host=computed(()=>{
+  const runtime=catalogRuntime.value
+  if(!runtime)return undefined
+  const assertCurrent=()=>{if(!session.isCurrent(runtime))throw new Error('文件目录视图已失效')}
+  return {runtime,assertCurrent,async invoke(command:string,input:unknown){
+    assertCurrent()
+    if(command==='files.connect')return {busy:()=>busy.value,error:()=>error.value}
+    if(command==='files.upload')await pickAndUpload()
+    if(command==='files.remove'){
+      const view=runtime.resolveView(viewKey.value)
+      const row=view?.rows.find(item=>view.getPkKey(item)===input)
+      if(row)await remove(row)
+    }
+    return undefined
+  }}
+})
 
 async function runFileAction(action: (view: DataView, assertCurrent: () => void) => Promise<void>): Promise<void> {
   const runtime = session.runtime
@@ -108,7 +124,3 @@ async function remove(row: DataRow): Promise<void> {
   })
 }
 </script>
-
-<style scoped>
-.file-page {padding: 8px}
-</style>

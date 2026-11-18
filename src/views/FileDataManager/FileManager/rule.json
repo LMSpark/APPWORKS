@@ -1,0 +1,27 @@
+[
+  {
+    "id":"file-data-catalog",
+    "type":"r-section",
+    "props":{"title":"文件管理","class":"file-page","bordered":false,"gridColumns":1,"gridGap":16,"onBeforeRender":"bindCatalog"},
+    "children":[
+      {"type":"r-space","props":{"wrap":true},"children":[
+        {"type":"r-button","props":{"label":"上传","buttonType":"primary","onBeforeRender":"bindAction","onClick":"uploadFile"}},
+        {"type":"r-button","props":{"dataViewKey":"23F469CC96AC4B73BA5AE593C0002BD4@FileDataCatalog@default","label":"刷新","action":"refresh","onBeforeRender":"bindAction"}}
+      ]},
+      {"type":"r-table","props":{
+        "dataViewKey":"23F469CC96AC4B73BA5AE593C0002BD4@FileDataCatalog@default","stripe":true,"border":true,"showRowIndex":true,"showDataViewMeta":false,
+        "pagination":{"pageSizes":[15,30,50,100],"showJumper":true},
+        "filter":{"autoQuery":false,"queryOnReset":true,"firstPageOnSearch":true,"showExpressionEditor":false,"showDataViewMeta":false,"children":[
+          {"type":"r-text","props":{"field":"fileName","label":"文件名称","placeholder":"请输入文件名称","filterTrim":true}}
+        ]},
+        "actions":{"children":[
+          {"type":"r-button","props":{"label":"删除","buttonType":"danger","link":true,"permAction":"delete","onBeforeRender":"bindAction","onClick":"removeFile"}}
+        ]}
+      },"children":[
+        {"type":"r-text","props":{"field":"fileName","label":"文件名称","readonly":true,"minWidth":200,"showOverflowTooltip":true}},
+        {"type":"r-text","props":{"field":"path","label":"存储路径","readonly":true,"minWidth":260,"showOverflowTooltip":true}},
+        {"type":"r-text","props":{"field":"lastModified","label":"上传时间","readonly":true,"minWidth":180,"showOverflowTooltip":true}}
+      ]}
+    ]
+  }
+]

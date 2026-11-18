@@ -5,6 +5,8 @@
  */
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 
 type FieldSelection=Readonly<{projectId:string;revisionId:string;assignmentId:string;fieldId:string}>
 type ProposedField=FieldSelection&Readonly<{
@@ -36,12 +38,15 @@ type ApprovedField=Awaited<ReturnType<typeof readPlatformFieldReviewVersion>>
 type FieldObservation=FieldSelection&Readonly<{
  stage:'DRAFT'|'SAVED'|'SUBMITTED';attemptRef:string;observationRef:string;value:unknown;unit:string|null;assertCurrent:()=>void
 }>
+type SubmissionEvidence=Readonly<{
+ projectId:string;revisionId:string;attemptRef:string;receiptRef:string;observationRefs:readonly string[];assertCurrent:()=>void
+}>
+type ExpectedObservation=Readonly<{stage:'SAVED'|'SUBMITTED';attemptRef:string;submission?:SubmissionEvidence}>
 
 /** 回读值须属于同一办理和栏位，保存值不能证明提交态。 */
-export async function comparePlatformFieldObservation(approved:ApprovedField,expected:Readonly<{
- stage:'SAVED'|'SUBMITTED';attemptRef:string
-}>,observation:FieldObservation){
- const assertCurrent=()=>{approved.assertCurrent();observation.assertCurrent()}
+export async function comparePlatformFieldObservation(approved:ApprovedField,expected:ExpectedObservation,observation:FieldObservation){
+ const submission=expected.stage==='SUBMITTED'?expected.submission:undefined
+ const assertCurrent=()=>{approved.assertCurrent();observation.assertCurrent();submission?.assertCurrent()}
  assertCurrent()
  if(approved.projectId!==observation.projectId||approved.revisionId!==observation.revisionId||
   approved.fieldId!==observation.fieldId||approved.assignmentId!==observation.assignmentId||
@@ -49,9 +54,56 @@ export async function comparePlatformFieldObservation(approved:ApprovedField,exp
   throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
  if(observation.stage!==expected.stage)
   return Object.freeze({state:'STAGE_REQUIRED' as const,observationRef:observation.observationRef,assertCurrent})
+ if(expected.stage==='SUBMITTED'){
+  if(!submission)return Object.freeze({state:'RECEIPT_REQUIRED' as const,observationRef:observation.observationRef,assertCurrent})
+  if(submission.projectId!==approved.projectId||submission.revisionId!==approved.revisionId||submission.attemptRef!==expected.attemptRef||
+   !identity(submission.receiptRef)||!submission.observationRefs.includes(observation.observationRef))
+   throw Error('CONTENT_PLATFORM_FIELD_RECEIPT_SCOPE')
+ }
  if(observation.unit!==null&&!identity(observation.unit))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
  const observedValueHash=await hashFieldValue(observation.value,observation.unit)
  assertCurrent()
  const state=observedValueHash===approved.valueHash?'MATCHED':'MISMATCHED'
- return Object.freeze({state,observationRef:observation.observationRef,observedValueHash,assertCurrent})
+ return Object.freeze({state,observationRef:observation.observationRef,observedValueHash,
+  ...(submission?{receiptRef:submission.receiptRef}:{}),assertCurrent})
+}
+
+const observationFields=['id','projectId','revisionId','assignmentId','fieldId','attemptRef','stage','value','unit']
+const scopeFields=[['projectId','projectId'],['id','observationId'],['attemptRef','attemptRef']] as const
+function validObservationView(view:DataView):boolean{
+ return view.dataTable?.modelBinding?.modelName==='AnswerLocation'&&view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+  scopeFields.every(([field,param])=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:param}))
+}
+
+/** 按同次原办理只读回读指定平台观察，保留原行证明到比较结果。 */
+export async function readPlatformFieldObservation(host:ContentRevisionReadHost,approved:ApprovedField,input:
+ ExpectedObservation&Readonly<{observationId:string}>){
+ const {projectId,scenarioId,runtime}=host,{observationId,attemptRef,stage}=input
+ const assertOwner=()=>{host.assertCurrent();approved.assertCurrent()}
+ assertOwner()
+ if(projectId!==approved.projectId||![scenarioId,observationId,attemptRef].every(identity))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
+ const key=buildDataViewKey('AnswerLocation','selectedPlatformObservation',scenarioId),view=runtime.resolveView(key)
+ if(!view||!validObservationView(view)||view.hasEditingChanges())throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_VIEW')
+ const context={projectId,observationId,attemptRef}
+ view.queryContext={...view.queryContext,...context}
+ const assertScope=()=>{
+  assertOwner()
+  if(runtime.resolveView(key)!==view||!validObservationView(view)||view.hasEditingChanges()||
+   Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_STALE')
+ }
+ await view.refresh();assertScope()
+ if(!hasCompleteSingleContentResult(view))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_NOT_UNIQUE')
+ const row=view.rows[0]
+ if(row?.['id']!==observationId||row['projectId']!==projectId||row['attemptRef']!==attemptRef||
+  row['revisionId']!==approved.revisionId||row['assignmentId']!==approved.assignmentId||row['fieldId']!==approved.fieldId)
+  throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
+ const observedStage=row['stage'],unit=row['unit']
+ if((observedStage!=='DRAFT'&&observedStage!=='SAVED'&&observedStage!=='SUBMITTED')||unit!==null&&!identity(unit))
+  throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
+ const assertResult=view.captureReadResult(),assertRow=view.captureReadRow(row,observationFields)
+ return comparePlatformFieldObservation(approved,{attemptRef,stage,...(input.submission?{submission:input.submission}:{})},{
+  projectId,revisionId:approved.revisionId,assignmentId:approved.assignmentId,fieldId:approved.fieldId,
+  stage:observedStage,attemptRef,observationRef:observationId,value:row['value'],unit,
+  assertCurrent:()=>{assertScope();assertResult();assertRow()},
+ })
 }

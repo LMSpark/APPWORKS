@@ -189,7 +189,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T00:55:55.506Z",
+  "generatedAt": "2026-11-18T01:34:48.879Z",
   "models": {
     "ContentNodeLink": {
       "name": "ContentNodeLink",

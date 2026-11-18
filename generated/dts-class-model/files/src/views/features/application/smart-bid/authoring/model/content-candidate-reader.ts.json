@@ -541,6 +541,36 @@
         "method.assertCurrent.return": true
       }
     },
+    "SubtreeReviewSources": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SubtreeReviewSources",
+      "properties": {
+        "readTemplate": {
+          "type": "object",
+          "title": "ReadFixedRulesTemplate"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readSupplement.params": {
+          "type": "object",
+          "properties": {
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readSupplement.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        qualificationIds: readonly string[];\n        displayRefs: unknown;\n        calculations: ReadonlyArray<Readonly<{\n            table: ComputedTable;\n            assertCurrent: () => void;\n        }>>;\n        assertCurrent: () => void;\n    }>>"
+        }
+      }
+    },
     "PreviewVersions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -1221,6 +1251,32 @@
           "type": "object",
           "title": "Promise<ReviewDependencies & Readonly<{\n        subtreeHash: string;\n        nodeIds: readonly string[];\n    }>>"
         },
+        "method.readSubtreeEffectiveHash.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "responses": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../services/smart-bid/content/hashes/content-root-sections.ts.json#/$defs/ScopedResponseTarget"
+              }
+            },
+            "sources": {
+              "$ref": "#/$defs/SubtreeReviewSources"
+            },
+            "assertConsumer": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readSubtreeEffectiveHash.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        effectiveHash: string;\n        requiresUseCheck: true;\n        assertCurrent: () => void;\n    }>>"
+        },
         "method.readFixedRequirement.params": {
           "type": "object",
           "properties": {
@@ -1338,7 +1394,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T01:30:02.993Z",
+  "generatedAt": "2026-11-18T01:37:10.208Z",
   "models": {
     "ContentCandidateFactBinding": {
       "name": "ContentCandidateFactBinding",
@@ -1795,6 +1851,60 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SubtreeReviewSources": {
+      "name": "SubtreeReviewSources",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    readTemplate: ReadFixedRulesTemplate;\n    readSupplement: (nodeIds: readonly string[]) => Promise<Readonly<{\n        qualificationIds: readonly string[];\n        displayRefs: unknown;\n        calculations: ReadonlyArray<Readonly<{\n            table: ComputedTable;\n            assertCurrent: () => void;\n        }>>;\n        assertCurrent: () => void;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    readTemplate: ReadFixedRulesTemplate;\n    readSupplement: (nodeIds: readonly string[]) => Promise<Readonly<{\n        qualificationIds: readonly string[];\n        displayRefs: unknown;\n        calculations: ReadonlyArray<Readonly<{\n            table: ComputedTable;\n            assertCurrent: () => void;\n        }>>;\n        assertCurrent: () => void;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "readTemplate",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readSupplement",
+              "parameters": [
+                {
+                  "name": "nodeIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        qualificationIds: readonly string[];\n        displayRefs: unknown;\n        calculations: ReadonlyArray<Readonly<{\n            table: ComputedTable;\n            assertCurrent: () => void;\n        }>>;\n        assertCurrent: () => void;\n    }"
+                      }
+                    ]
+                  }
+                ]
               }
             }
           ]
@@ -2258,11 +2368,11 @@
       "jsdoc": "候选链保留各原视图证明；其它业务分组、当前依据、rootHash和采用必须继续核验。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readNodeEffectiveFacts: (nodeIds: readonly string[], assertConsumer?: () => void) => Promise<EffectiveFactsWithDisplays>;\n    hashNodeCalculationInputs: (nodeIds: readonly string[], tables: unknown, sources: CalculationSources) => Promise<Awaited<ReturnType<typeof hashCalculationInputs>> & Readonly<{\n        assertCurrent: () => void;\n    }>>;\n    readCalculationTemplates: (nodeIds: readonly string[]) => ReturnType<typeof readCalculationTableTemplateRefs>;\n    expandAttachmentIndex: (nodeId: string, source: Readonly<{\n        entries: unknown;\n        assertCurrent: () => void;\n    }>, readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        table: ComputedTable;\n        calculationInputsHash: string;\n        assertCurrent: () => void;\n        readComputed: (target: Readonly<{\n            nodeId: string;\n            inputHash: string;\n        }>) => ComputedTable;\n        computedGet: (input: unknown) => Readonly<{\n            nodeId: string;\n            inputHash: string;\n            data: ComputedTable['data'];\n        }>;\n        computedGetTool: typeof computedGetTool;\n        createComputedQueryRoot: (assertAllowed: () => void) => ComputedQueryRoot;\n    }>>;\n    resolveCalculationGenerators: (nodeIds: readonly string[], readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        tables: ReadonlyArray<Readonly<{\n            nodeId: string;\n            generatorKey: string;\n        }>>;\n        assertCurrent: () => void;\n    }>>;\n    readEffectiveFacts: (scope: ReviewScope, assertConsumer?: () => void) => Promise<EffectiveFactsWithDisplays>;\n    readRequirementPinIssues: (assertConsumer?: () => void, nodeIds?: readonly string[]) => Promise<ContentCandidateRequirementPinsBinding>;\n    readRequirementBindingHash: (nodeIds: readonly string[], assertConsumer?: () => void) => Promise<RequirementBindingDigest>;\n    readContentRulesHash: (nodeIds: readonly string[], readTemplate: ReadFixedRulesTemplate) => Promise<Readonly<{\n        contentRulesHash: string;\n        assertCurrent: () => void;\n    }>>;\n    readQualificationHash: (reviewIds: readonly string[], assertConsumer?: () => void) => Promise<Readonly<{\n        qualificationHash: string;\n        requiresUseCheck: true;\n        assertCurrent: () => void;\n    }>>;\n    readReviewDependencies: (scope: ReviewScope, assertConsumer?: () => void) => Promise<ReviewDependencies>;\n    readSubtreeReviewDependencies: (nodeId: string, responses: readonly ScopedResponseTarget[], assertConsumer?: () => void) => Promise<ReviewDependencies & Readonly<{\n        subtreeHash: string;\n        nodeIds: readonly string[];\n    }>>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    verifyRootHash: (contract: string) => ReturnType<typeof verifyReadableRevisionRoot>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readNodeEffectiveFacts: (nodeIds: readonly string[], assertConsumer?: () => void) => Promise<EffectiveFactsWithDisplays>;\n    hashNodeCalculationInputs: (nodeIds: readonly string[], tables: unknown, sources: CalculationSources) => Promise<Awaited<ReturnType<typeof hashCalculationInputs>> & Readonly<{\n        assertCurrent: () => void;\n    }>>;\n    readCalculationTemplates: (nodeIds: readonly string[]) => ReturnType<typeof readCalculationTableTemplateRefs>;\n    expandAttachmentIndex: (nodeId: string, source: Readonly<{\n        entries: unknown;\n        assertCurrent: () => void;\n    }>, readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        table: ComputedTable;\n        calculationInputsHash: string;\n        assertCurrent: () => void;\n        readComputed: (target: Readonly<{\n            nodeId: string;\n            inputHash: string;\n        }>) => ComputedTable;\n        computedGet: (input: unknown) => Readonly<{\n            nodeId: string;\n            inputHash: string;\n            data: ComputedTable['data'];\n        }>;\n        computedGetTool: typeof computedGetTool;\n        createComputedQueryRoot: (assertAllowed: () => void) => ComputedQueryRoot;\n    }>>;\n    resolveCalculationGenerators: (nodeIds: readonly string[], readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        tables: ReadonlyArray<Readonly<{\n            nodeId: string;\n            generatorKey: string;\n        }>>;\n        assertCurrent: () => void;\n    }>>;\n    readEffectiveFacts: (scope: ReviewScope, assertConsumer?: () => void) => Promise<EffectiveFactsWithDisplays>;\n    readRequirementPinIssues: (assertConsumer?: () => void, nodeIds?: readonly string[]) => Promise<ContentCandidateRequirementPinsBinding>;\n    readRequirementBindingHash: (nodeIds: readonly string[], assertConsumer?: () => void) => Promise<RequirementBindingDigest>;\n    readContentRulesHash: (nodeIds: readonly string[], readTemplate: ReadFixedRulesTemplate) => Promise<Readonly<{\n        contentRulesHash: string;\n        assertCurrent: () => void;\n    }>>;\n    readQualificationHash: (reviewIds: readonly string[], assertConsumer?: () => void) => Promise<Readonly<{\n        qualificationHash: string;\n        requiresUseCheck: true;\n        assertCurrent: () => void;\n    }>>;\n    readReviewDependencies: (scope: ReviewScope, assertConsumer?: () => void) => Promise<ReviewDependencies>;\n    readSubtreeReviewDependencies: (nodeId: string, responses: readonly ScopedResponseTarget[], assertConsumer?: () => void) => Promise<ReviewDependencies & Readonly<{\n        subtreeHash: string;\n        nodeIds: readonly string[];\n    }>>;\n    readSubtreeEffectiveHash: (nodeId: string, responses: readonly ScopedResponseTarget[], sources: SubtreeReviewSources, assertConsumer?: () => void) => Promise<Readonly<{\n        effectiveHash: string;\n        requiresUseCheck: true;\n        assertCurrent: () => void;\n    }>>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    verifyRootHash: (contract: string) => ReturnType<typeof verifyReadableRevisionRoot>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readNodeEffectiveFacts: (nodeIds: readonly string[], assertConsumer?: () => void) => Promise<EffectiveFactsWithDisplays>;\n    hashNodeCalculationInputs: (nodeIds: readonly string[], tables: unknown, sources: CalculationSources) => Promise<Awaited<ReturnType<typeof hashCalculationInputs>> & Readonly<{\n        assertCurrent: () => void;\n    }>>;\n    readCalculationTemplates: (nodeIds: readonly string[]) => ReturnType<typeof readCalculationTableTemplateRefs>;\n    expandAttachmentIndex: (nodeId: string, source: Readonly<{\n        entries: unknown;\n        assertCurrent: () => void;\n    }>, readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        table: ComputedTable;\n        calculationInputsHash: string;\n        assertCurrent: () => void;\n        readComputed: (target: Readonly<{\n            nodeId: string;\n            inputHash: string;\n        }>) => ComputedTable;\n        computedGet: (input: unknown) => Readonly<{\n            nodeId: string;\n            inputHash: string;\n            data: ComputedTable['data'];\n        }>;\n        computedGetTool: typeof computedGetTool;\n        createComputedQueryRoot: (assertAllowed: () => void) => ComputedQueryRoot;\n    }>>;\n    resolveCalculationGenerators: (nodeIds: readonly string[], readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        tables: ReadonlyArray<Readonly<{\n            nodeId: string;\n            generatorKey: string;\n        }>>;\n        assertCurrent: () => void;\n    }>>;\n    readEffectiveFacts: (scope: ReviewScope, assertConsumer?: () => void) => Promise<EffectiveFactsWithDisplays>;\n    readRequirementPinIssues: (assertConsumer?: () => void, nodeIds?: readonly string[]) => Promise<ContentCandidateRequirementPinsBinding>;\n    readRequirementBindingHash: (nodeIds: readonly string[], assertConsumer?: () => void) => Promise<RequirementBindingDigest>;\n    readContentRulesHash: (nodeIds: readonly string[], readTemplate: ReadFixedRulesTemplate) => Promise<Readonly<{\n        contentRulesHash: string;\n        assertCurrent: () => void;\n    }>>;\n    readQualificationHash: (reviewIds: readonly string[], assertConsumer?: () => void) => Promise<Readonly<{\n        qualificationHash: string;\n        requiresUseCheck: true;\n        assertCurrent: () => void;\n    }>>;\n    readReviewDependencies: (scope: ReviewScope, assertConsumer?: () => void) => Promise<ReviewDependencies>;\n    readSubtreeReviewDependencies: (nodeId: string, responses: readonly ScopedResponseTarget[], assertConsumer?: () => void) => Promise<ReviewDependencies & Readonly<{\n        subtreeHash: string;\n        nodeIds: readonly string[];\n    }>>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    verifyRootHash: (contract: string) => ReturnType<typeof verifyReadableRevisionRoot>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    runtime: ContentRevisionReadHost['runtime'];\n    readFixedFact: (selection: Readonly<{\n        factId: string;\n        version?: number;\n    }>, assertConsumer?: () => void) => Promise<ContentCandidateFactBinding>;\n    readNodeEffectiveFacts: (nodeIds: readonly string[], assertConsumer?: () => void) => Promise<EffectiveFactsWithDisplays>;\n    hashNodeCalculationInputs: (nodeIds: readonly string[], tables: unknown, sources: CalculationSources) => Promise<Awaited<ReturnType<typeof hashCalculationInputs>> & Readonly<{\n        assertCurrent: () => void;\n    }>>;\n    readCalculationTemplates: (nodeIds: readonly string[]) => ReturnType<typeof readCalculationTableTemplateRefs>;\n    expandAttachmentIndex: (nodeId: string, source: Readonly<{\n        entries: unknown;\n        assertCurrent: () => void;\n    }>, readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        table: ComputedTable;\n        calculationInputsHash: string;\n        assertCurrent: () => void;\n        readComputed: (target: Readonly<{\n            nodeId: string;\n            inputHash: string;\n        }>) => ComputedTable;\n        computedGet: (input: unknown) => Readonly<{\n            nodeId: string;\n            inputHash: string;\n            data: ComputedTable['data'];\n        }>;\n        computedGetTool: typeof computedGetTool;\n        createComputedQueryRoot: (assertAllowed: () => void) => ComputedQueryRoot;\n    }>>;\n    resolveCalculationGenerators: (nodeIds: readonly string[], readTemplate: ReadFixedCalculationTemplate) => Promise<Readonly<{\n        tables: ReadonlyArray<Readonly<{\n            nodeId: string;\n            generatorKey: string;\n        }>>;\n        assertCurrent: () => void;\n    }>>;\n    readEffectiveFacts: (scope: ReviewScope, assertConsumer?: () => void) => Promise<EffectiveFactsWithDisplays>;\n    readRequirementPinIssues: (assertConsumer?: () => void, nodeIds?: readonly string[]) => Promise<ContentCandidateRequirementPinsBinding>;\n    readRequirementBindingHash: (nodeIds: readonly string[], assertConsumer?: () => void) => Promise<RequirementBindingDigest>;\n    readContentRulesHash: (nodeIds: readonly string[], readTemplate: ReadFixedRulesTemplate) => Promise<Readonly<{\n        contentRulesHash: string;\n        assertCurrent: () => void;\n    }>>;\n    readQualificationHash: (reviewIds: readonly string[], assertConsumer?: () => void) => Promise<Readonly<{\n        qualificationHash: string;\n        requiresUseCheck: true;\n        assertCurrent: () => void;\n    }>>;\n    readReviewDependencies: (scope: ReviewScope, assertConsumer?: () => void) => Promise<ReviewDependencies>;\n    readSubtreeReviewDependencies: (nodeId: string, responses: readonly ScopedResponseTarget[], assertConsumer?: () => void) => Promise<ReviewDependencies & Readonly<{\n        subtreeHash: string;\n        nodeIds: readonly string[];\n    }>>;\n    readSubtreeEffectiveHash: (nodeId: string, responses: readonly ScopedResponseTarget[], sources: SubtreeReviewSources, assertConsumer?: () => void) => Promise<Readonly<{\n        effectiveHash: string;\n        requiresUseCheck: true;\n        assertCurrent: () => void;\n    }>>;\n    readFixedRequirement: (pin: RevisionRequirementPin, assertConsumer?: () => void) => Promise<ContentCandidateRequirementBinding>;\n    readFixedTenderRecord: (reference: unknown, assertConsumer?: () => void) => ReturnType<typeof readContentTenderRecord>;\n    readPreviewVersions: (assertConsumer?: () => void) => Promise<PreviewVersionSession>;\n    verifyRootHash: (contract: string) => ReturnType<typeof verifyReadableRevisionRoot>;\n    previewScope: (input: PreviewScopeInput, assertConsumer?: () => void) => Promise<CandidateScopePreview>;\n    previewText: (changes: unknown, assertConsumer?: () => void) => Promise<TextPreviewBinding>;\n    captureNodeTextSelection: (input: CandidateNodeSelection, assertConsumer?: () => void) => Promise<TextSelectionBinding>;\n    revisions: ContentRevisionReadBinding;\n    snapshot: ContentSnapshotIndexBinding;\n    nodes: ContentSnapshotNodesBinding;\n    revisionMatchVerified: true;\n    templateBindingsVerified: true;\n    requirementBindingsVerified: true;\n    responseAnchorsVerified: true;\n    responseTextVerified: true;\n    requiresResponseReferenceChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresTemplateResourceChecks: true;\n    requiresRequirementVersionChecks: true;\n    requiresBusinessSectionChecks: true;\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -2923,6 +3033,69 @@
                             "name": "{\n        subtreeHash: string;\n        nodeIds: readonly string[];\n    }"
                           }
                         ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readSubtreeEffectiveHash",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "responses",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly ScopedResponseTarget[]"
+                  }
+                },
+                {
+                  "name": "sources",
+                  "type": {
+                    "type": "reference",
+                    "name": "SubtreeReviewSources",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                },
+                {
+                  "name": "assertConsumer",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        effectiveHash: string;\n        requiresUseCheck: true;\n        assertCurrent: () => void;\n    }"
                       }
                     ]
                   }

@@ -14,6 +14,27 @@ function digest(value:unknown):string{
  if(typeof value!=='string'||!/^[a-f0-9]{64}$/u.test(value))throw Error('CONTENT_EFFECTIVE_COMPONENT')
  return value
 }
+
+/** 将独立答复的显示摘要绑定到同一范围原响应依赖；不与正文节点身份混用。 */
+export async function hashEffectiveResponseDependencies(responseDependencyHash:string,displayRefs:unknown):Promise<string>{
+ const error='CONTENT_EFFECTIVE_RESPONSE_DISPLAY_MODEL'
+ const display:Array<{assignmentId:string;responseId:string;occurrence:number;displayHash:string}>=[]
+ const seen=new Set<string>()
+ visitSnapshotReferences(displayRefs,value=>{
+  const {assignmentId,responseId,occurrence,displayHash}=snapshotReferenceFields(value,
+   ['assignmentId','responseId','occurrence','displayHash'],error)
+  if(!snapshotReferenceIdentity(assignmentId)||!snapshotReferenceIdentity(responseId)||
+   typeof occurrence!=='number'||!Number.isSafeInteger(occurrence)||occurrence<0)throw Error(error)
+  const key=JSON.stringify([assignmentId,responseId,occurrence])
+  if(seen.has(key))throw Error('CONTENT_EFFECTIVE_DISPLAY_DUPLICATE')
+  seen.add(key);display.push({assignmentId,responseId,occurrence,displayHash:digest(displayHash)})
+ },error)
+ const compare=(a:string,b:string)=>a<b?-1:a>b?1:0
+ display.sort((a,b)=>compare(a.assignmentId,b.assignmentId)||compare(a.responseId,b.responseId)||a.occurrence-b.occurrence)
+ const original=digest(responseDependencyHash)
+ if(!display.length)return original
+ return hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.effective-response-dependencies/1',original,display]))
+}
 /** 已核显示摘要只按原节点及出现序组合，动态页码不应进入该列表。 */
 export async function hashContentEffective(input:unknown):Promise<string>{
  const row=snapshotReferenceFields(input,fields,'CONTENT_EFFECTIVE_MODEL')

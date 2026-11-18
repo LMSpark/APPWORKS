@@ -22,7 +22,7 @@ import {readTenderRecordReference} from '@/services/smart-bid/content/references
 import {readContentTenderRecord} from './content-tender-record-reader'
 import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/services/smart-bid/content/content-scoped-preview'
 import {readEffectiveFactDependencies,readEffectiveFactsFromBaseline} from './hashes/effective-fact-reader'
-import {hashCalculationInputs} from '@/services/smart-bid/content/hashes/calculation-inputs-hash'
+import {hashCalculationInputs,hashCalculationInputSet} from '@/services/smart-bid/content/hashes/calculation-inputs-hash'
 import {hashRequirementBindings} from '@/services/smart-bid/content/hashes/requirement-binding-hash'
 import {hashQualificationReviews} from '@/services/smart-bid/content/hashes/qualification-review-hash'
 import {hashContentRules} from '@/services/smart-bid/content/hashes/content-rules-hash'
@@ -68,7 +68,9 @@ type ReviewDependencies=Readonly<{
 type SubtreeReviewSources=Readonly<{
  readTemplate:ReadFixedRulesTemplate
  readSupplement:(nodeIds:readonly string[])=>Promise<Readonly<{
-  qualificationIds:readonly string[];displayRefs:unknown;calculationInputsHash:string;assertCurrent:()=>void
+  qualificationIds:readonly string[];displayRefs:unknown;calculations:ReadonlyArray<Readonly<{
+   table:ComputedTable;assertCurrent:()=>void
+  }>>;assertCurrent:()=>void
  }>>
 }>
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
@@ -170,6 +172,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
  assertRevisionResponseAnchors(responses,requirementPins,payloads)
  assertRevisionResponseText(responses,payloads.map(payload=>payload.nodeId))
  assertCurrent()
+ const verifiedExpansions=new WeakSet<object>()
  const readCalculationTemplates=(nodeIds:readonly string[])=>{
   assertCurrent()
   return readCalculationTableTemplateRefs(templateRefs,payloads,nodes.readCalculationTableIds(nodeIds))
@@ -269,8 +272,10 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
    const result=readComputed({nodeId:requestedNodeId,inputHash:requestedHash})
    return Object.freeze({nodeId:result.nodeId,inputHash:result.inputHash,data:result.data})
   }
-  return Object.freeze({table,calculationInputsHash:digest.calculationInputsHash,assertCurrent:assertInputs,readComputed,computedGet,computedGetTool,
+  const expansion=Object.freeze({table,calculationInputsHash:digest.calculationInputsHash,assertCurrent:assertInputs,readComputed,computedGet,computedGetTool,
    createComputedQueryRoot:(assertAllowed:()=>void)=>new ComputedQueryRoot(computedGet,assertAllowed)})
+  verifiedExpansions.add(expansion)
+  return expansion
  }
  const readEffectiveFacts=async(scope:ReviewScope,assertConsumer?:()=>void,baseline?:ReviewBaseline):Promise<EffectiveFactsWithDisplays>=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}
@@ -382,17 +387,25 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const dependencies=await readSubtreeReviewDependencies(nodeId,responseTargets,assertConsumer)
   const {nodeIds}=dependencies,selected=new Set(nodeIds)
   const supplement=await sources.readSupplement(nodeIds)
-  const assertSupplement=()=>{dependencies.assertCurrent();supplement.assertCurrent()}
+  const calculations=[...supplement.calculations]
+  if(calculations.some(item=>!verifiedExpansions.has(item)))throw Error('CONTENT_REVIEW_CALCULATION_SOURCE')
+  const assertSupplement=()=>{
+   dependencies.assertCurrent();supplement.assertCurrent()
+   for(const calculation of calculations)calculation.assertCurrent()
+  }
   assertSupplement()
   const displayRefs:unknown[]=[...dependencies.facts.nodeDisplayRefs]
-  const calculationTables=new Set(nodes.readCalculationTableIds(nodeIds))
+  const calculationTables=nodes.readCalculationTableIds(nodeIds)
+  const calculationInputsHash=await hashCalculationInputSet(calculationTables,calculations.map(item=>item.table))
+  assertSupplement()
   const expected=new Set(payloads.filter(node=>selected.has(node.nodeId)).flatMap(node=>
    readContentSupplementalDisplayPositions(node).map(occurrence=>JSON.stringify([node.nodeId,occurrence]))))
+  for(const {table} of calculations)for(const occurrence of readContentSupplementalDisplayPositions(table.presentationNode))
+   expected.add(JSON.stringify([table.nodeId,occurrence]))
   visitSnapshotReferences(supplement.displayRefs,item=>{
    const ref=snapshotReferenceFields(item,['nodeId','occurrence','displayHash'],'CONTENT_REVIEW_DISPLAY_SCOPE')
    const {nodeId:owner,occurrence}=ref
-   if(typeof owner!=='string'||!selected.has(owner)||
-    !expected.delete(JSON.stringify([owner,occurrence]))&&!calculationTables.has(owner))throw Error('CONTENT_REVIEW_DISPLAY_SCOPE')
+   if(typeof owner!=='string'||!expected.delete(JSON.stringify([owner,occurrence])))throw Error('CONTENT_REVIEW_DISPLAY_SCOPE')
    displayRefs.push(ref)
   },'CONTENT_REVIEW_DISPLAY_SCOPE')
   if(expected.size)throw Error('CONTENT_REVIEW_DISPLAY_INCOMPLETE')
@@ -404,7 +417,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
    subtreeHash:dependencies.subtreeHash,displayRefs,factDependencyHash:dependencies.facts.factDependencyHash,
    requirementBindingHash:dependencies.requirements.requirementBindingHash,responseDependencyHash:dependencies.responseDependencyHash,
    qualificationHash:qualification.qualificationHash,contentRulesHash:rules.contentRulesHash,
-   calculationInputsHash:supplement.calculationInputsHash,
+   calculationInputsHash,
   })
   assertEffective()
   return Object.freeze({effectiveHash,requiresUseCheck:true,assertCurrent:assertEffective})

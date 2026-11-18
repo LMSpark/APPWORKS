@@ -10,6 +10,18 @@ const groupFields=['formInstructionRefs','requirementVersions','confirmedRespons
 const tableFields=['nodeId','generatorVersion',...groupFields] as const
 const error='CONTENT_CALCULATION_INPUT_MODEL'
 
+/** 同一次已验证展开的单表输入摘要聚合，拒绝缺表和重复表。 */
+export async function hashCalculationInputSet(expectedNodeIds:readonly string[],tables:ReadonlyArray<Readonly<{nodeId:string;inputHash:string}>>){
+ const expected=new Set(expectedNodeIds),seen=new Set<string>()
+ if(expected.size!==expectedNodeIds.length||tables.length!==expected.size)throw Error('CONTENT_CALCULATION_INPUT_SCOPE')
+ for(const {nodeId,inputHash} of tables){
+  if(!expected.has(nodeId)||seen.has(nodeId)||!/^[a-f0-9]{64}$/u.test(inputHash))throw Error('CONTENT_CALCULATION_INPUT_SCOPE')
+  seen.add(nodeId)
+ }
+ const ordered=tables.map(({nodeId,inputHash})=>({nodeId,inputHash})).sort((a,b)=>a.nodeId<b.nodeId?-1:a.nodeId>b.nodeId?1:0)
+ return hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.calculation-inputs/1',ordered]))
+}
+
 /** 输入组保留已核引用及响应声明；各组的顺序由正式来源确定。 */
 export async function hashCalculationInputs(input:Readonly<{
  expectedNodeIds:readonly string[];tables:unknown;generatorVersions?:ReadonlyMap<string,string>
@@ -37,6 +49,6 @@ export async function hashCalculationInputs(input:Readonly<{
  const hashes=await Promise.all(tables.map(async({nodeId,encoded})=>Object.freeze({
   nodeId,inputHash:await hashCanonicalSnapshotText(encoded),
  })))
- const calculationInputsHash=await hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.calculation-inputs/1',hashes]))
+ const calculationInputsHash=await hashCalculationInputSet(input.expectedNodeIds,hashes)
  return Object.freeze({calculationInputsHash,tables:Object.freeze(hashes)})
 }

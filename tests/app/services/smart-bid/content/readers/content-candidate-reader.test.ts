@@ -12,7 +12,7 @@ it('requires every original non-fact display and rejects an invented position on
   const makeSources=(displayRefs:unknown):Sources=>({
    readTemplate:async ref=>({...ref,defaultDeliverable:true,restrictions:[],
     classes:[{name:'candidate-heading',elements:['heading']}],assertCurrent:()=>{}}),
-   readSupplement:async()=>({qualificationIds:[],displayRefs,calculationInputsHash:'a'.repeat(64),assertCurrent:()=>{}}),
+   readSupplement:async()=>({qualificationIds:[],displayRefs,calculations:[],assertCurrent:()=>{}}),
   })
   await expect(candidate.readSubtreeEffectiveHash('C',[],makeSources([]))).rejects.toThrow('CONTENT_REVIEW_DISPLAY_INCOMPLETE')
   const display={nodeId:'H',occurrence:0,displayHash:'b'.repeat(64)}
@@ -34,7 +34,7 @@ it('combines candidate subtree evidence and rejects supplementary references out
     classes:[{name:'candidate-heading',elements:['heading']}],assertCurrent:()=>{}}),
    readSupplement:async nodeIds=>{
     expect(nodeIds).toEqual(['C','H'])
-    return {qualificationIds:[],displayRefs:[],calculationInputsHash:'a'.repeat(64),
+    return {qualificationIds:[],displayRefs:[],calculations:[],
      assertCurrent:()=>{if(!current)throw Error('REVIEW_SUPPLEMENT_STALE')}}
    },
   }
@@ -170,6 +170,16 @@ it('requires calculation inputs for exactly the original selected table placehol
    classes:[{name:'deviation',elements:['table'],generatorKey:'attachment-index'}]})
   const entries=[{resourceVersionId:'ATTACHMENT-2',nodeId:'H'}]
   const expanded=await candidate.expandAttachmentIndex('T',{entries,assertCurrent:assertInputs},readAttachmentTemplate)
+  const reviewSource=(calculations:ReadonlyArray<typeof expanded>,occurrence:number)=>({
+   readTemplate:async (ref:Parameters<typeof readTemplate>[0])=>({...await readAttachmentTemplate(ref),defaultDeliverable:true,restrictions:[]}),
+   readSupplement:async()=>({qualificationIds:[],calculations,assertCurrent:assertInputs,
+    displayRefs:[{nodeId:'T',occurrence,displayHash:'a'.repeat(64)}]}),
+  })
+  await expect(candidate.readSubtreeEffectiveHash('T',[],reviewSource([],0))).rejects.toThrow('CONTENT_CALCULATION_INPUT_SCOPE')
+  await expect(candidate.readSubtreeEffectiveHash('T',[],reviewSource([{...expanded}],0))).rejects.toThrow('CONTENT_REVIEW_CALCULATION_SOURCE')
+  await expect(candidate.readSubtreeEffectiveHash('T',[],reviewSource([expanded],1))).rejects.toThrow('CONTENT_REVIEW_DISPLAY_SCOPE')
+  const reviewed=await candidate.readSubtreeEffectiveHash('T',[],reviewSource([expanded],0))
+  expect(reviewed.effectiveHash).toMatch(/^[a-f0-9]{64}$/)
   expect(expanded.table.data['rows']).toMatchObject([[{data:{附件:{resourceVersionId:'ATTACHMENT-2'}}},{data:{页码:{nodeId:'H'}}}]])
   expect(expanded.readComputed({nodeId:'T',inputHash:expanded.table.inputHash})).toBe(expanded.table)
   const query={projectId:'P',revisionId:'C',nodeId:'T',inputHash:expanded.table.inputHash}

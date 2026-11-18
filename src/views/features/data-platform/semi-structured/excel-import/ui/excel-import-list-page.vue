@@ -117,7 +117,12 @@ async function chooseTemplate():Promise<void>{
  const ds=view.value?.dataSet,id=editingId.value,own=generation
  if(!ds||typeof id!=='string'||acting.value||unconfirmed.value||templateDispatched.value||!pageService?.browseFiles)return
  acting.value=true;error.value=''
- try{const files=await pageService.browseFiles({title:'选择Excel模板',accept:'.xls,.xlsx',multiple:false});if(active&&own===generation&&editingId.value===id&&files[0])selectExcelTemplate(ds,id,files[0].file)}
+ try{
+  const files=await pageService.browseFiles({title:'选择Excel模板',accept:'.xls,.xlsx',multiple:false})
+  if(!active||own!==generation||editingId.value!==id||files.length===0)return
+  if(files.length!==1)throw new Error('每次只能选择一个 Excel 模板')
+  selectExcelTemplate(ds,id,files[0]!.file)
+ }
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }

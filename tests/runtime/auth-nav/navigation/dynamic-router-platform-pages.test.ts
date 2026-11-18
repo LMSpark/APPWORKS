@@ -432,6 +432,28 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     expect(current?.destroyed).toBe(false)
   })
 
+  it('rejects files from a superseded version when navigation changes during the read', async () => {
+    const navigation = { ...TOOL_NAV, items: [...TOOL_NAV.items] }
+    const started = deferred<void>(), finish = deferred<void>()
+    const router = createRouter({ history: createMemoryHistory(), routes: [] })
+    const dynamic = createDynamicRouter({ router, pageComponent: DummyPage, applicationPathPrefix: '/apps/:projectId',
+      loadNavigation: async () => navigation, readPageFile: async command => {
+        started.resolve(); await finish.promise
+        return command.fileName === 'rule.json' ? '[]' : ''
+      } })
+    await dynamic.registerRoutes()
+    await router.push('/apps/APP/__page/orders-node')
+    const runtime = dynamic.getPageRuntime(router.currentRoute.value)
+    if (!runtime) throw new Error('missing runtime')
+    const loading = runtime.load()
+    await started.promise
+    navigation.items = navigation.items.map(item => item.tool ? {...item, tool: {...item.tool, versionId: 'rule=5;script=5;style=5'}} : item)
+    await dynamic.refreshRoutes()
+    finish.resolve()
+    await expect(loading).rejects.toThrow('发布版本已改变')
+    expect(runtime.isLoaded).toBe(false)
+  })
+
   it('reloads the latest published files in the retained instance and rejects changed tool identity', async () => {
     const navigation: RuntimeNavigation = { ...TOOL_NAV, items: [...TOOL_NAV.items] }
     const { router, dynamic, requests } = await setup(navigation)

@@ -105,20 +105,24 @@ export class PageRuntimePool {
           }
           return undefined
         }
-        const navTree = this.options.readNavTree()
-        const registeredTool = findTool(navTree?.items ?? [])
-        if (route.meta['programmaticTool'] !== true && navTree !== null
-          && (registeredTool?.pageId !== page.pageId || registeredTool.projectId !== projectId)) {
-          throw new Error('PAGE_RUNTIME_STALE: 蓝图工具绑定已改变，必须重新打开页面')
+        const readVersion = () => {
+          const navTree = this.options.readNavTree()
+          const registeredTool = findTool(navTree?.items ?? [])
+          if (route.meta['programmaticTool'] !== true && navTree !== null
+            && (registeredTool?.pageId !== page.pageId || registeredTool.projectId !== projectId)) {
+            throw new Error('PAGE_RUNTIME_STALE: 蓝图工具绑定已改变，必须重新打开页面')
+          }
+          const currentTool = registeredTool ?? tool
+          return 'versionId' in currentTool && typeof currentTool.versionId === 'string' ? currentTool.versionId : undefined
         }
-        const currentTool = registeredTool ?? tool
-        const versionId = 'versionId' in currentTool && typeof currentTool.versionId === 'string' ? currentTool.versionId : undefined
+        const versionId = readVersion()
         const commands = PAGE_TOOL_FILE_NAMES.map(fileName => ({
           projectId, pageId: page.pageId, fileName, ...(versionId === undefined ? {} : { versionId }),
         }))
         const texts = batchReader ? await batchReader(commands) : reader ? await Promise.all(commands.map(reader)) : []
         if (runtime.destroyed || runtime.generation !== generation) throw new Error('PAGE_RUNTIME_STALE: 工具读取已失效')
         prepared?.assertCurrent()
+        if (readVersion() !== versionId) throw new Error('PAGE_RUNTIME_STALE: 工具读取期间发布版本已改变，请重新加载')
         if (texts.length !== commands.length) throw new Error('工具文件读取结果数量不符')
         for (const [index, command] of commands.entries()) {
           const text = texts[index]

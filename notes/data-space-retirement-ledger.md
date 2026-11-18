@@ -11629,3 +11629,5 @@ flowchart TD
 - Agent 首发回归改由当前 DataView 读取命令主键，修复测试 TS7053；全仓 typecheck、专项 ESLint、命令 11 项与页面 31 项通过。冷重开审查确认 attempts 随实例释放，现有文件上传合同仅带路径和内容，缺少原命令身份。重开时应优先只读核验原定位，缺少可关联回执仍保留未知；实服与跨实例恢复待验。
 - Agent 首发页面在异步创建或确定失败时仅撤销输入仍匹配的原命令行，保留新编辑、其它命令及未知结果。页面回归 32 项通过，覆盖目标检查期间修改后零上传；全仓类型检查及专项 ESLint 通过。跨实例恢复和首次发布实服验收仍待。
 - Agent 工作流离页确认期间，同一待丢弃视图的 editingChanged 使原确认失效，保留后续修改；32 项既有页面回归及同一节点二次编辑用例通过，全仓类型检查与专项 ESLint 通过。另核投标平台：src 中 preparePublishedContentAuthoringCall 与 createBidResponseScriptHost 仅命中定义，蓝图管理页已有工具离页守卫，仍需页11正式运行宿主实际注册和触发证据。
+- 2026-11-19 第20包页面交付与预览本地复验：page-tool-publication、use-dev-state-page-data-history、page-design-sop/gates、page-tool-directory-resource 共5文件85项通过。覆盖三文件部分发布后同实例与冷重开、快照缺失或失配、发布指针丢回执、预览所声明的场景及共享 pagedata；均为本地测试。投标页10/11/12正式菜单、部署与实际场景冷回读仍待。本批发布模块有并行未跟踪文件，仅记录工作区验证结果。
+- 正式配置页 PageRuntime 在三文件读取结束、装载页面前重新核对蓝图节点的项目、工具与发布版本；读取期间切换发布指针时拒绝旧结果。动态路由36项及专项ESLint通过，未将模拟发布指针视为投标实服回执。

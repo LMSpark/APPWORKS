@@ -3,8 +3,8 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {readRegisteredOperationResult,recoverRegisteredOperationRouteAttempt} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader'
 import {freezeOperationRouteContext} from '@/services/smart-bid/operation/operation-route-context'
 import craft from '@/services/smart-bid/craft/route-compose-v1.json'
-import {DataSpaceQueryTable} from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 it('reads the original result only for the selected attempt and verifies the returned field permissions',async()=>{
  const scope={projectId:'P',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'Q',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}

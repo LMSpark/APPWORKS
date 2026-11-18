@@ -1,8 +1,8 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {discoverRegisteredOperationGuides} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader'
-import {DataSpaceQueryTable} from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 it('discovers only the complete scoped directory and retains the original publication and permission proof',async()=>{
  const row={id:'G',projectId:'P',directoryRef:'DIR',state:'EFFECTIVE',source:'PUBLIC',publicationRef:'PUB',

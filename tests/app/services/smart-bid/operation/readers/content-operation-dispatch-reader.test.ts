@@ -2,8 +2,8 @@ import {expect,it} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {readRegisteredOperationDispatch} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader'
 import {verifyOriginalOperationRouteDispatch} from '@/services/smart-bid/operation/operation-route-dispatch-evidence'
-import {DataSpaceQueryTable} from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 it('keeps actual input hidden behind field access while the original digest remains verifiable',async()=>{
  const scope={projectId:'P',runId:'R',attemptRef:'A',requestKey:'Q',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}

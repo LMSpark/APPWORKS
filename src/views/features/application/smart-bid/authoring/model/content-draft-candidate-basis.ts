@@ -4,7 +4,9 @@
 import {readRevisionBasisResponses} from '@/services/smart-bid/content/content-scoped-preview'
 import {assertRevisionTemplateBindings} from '@/services/smart-bid/content/revision-template-bindings'
 import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
-import {assertRevisionResponseText} from '@/services/smart-bid/content/references/revision-response-text'
+import {assertRevisionResponseText,readIndependentResponseFactOccurrences,type IndependentResponseFactTarget}
+ from '@/services/smart-bid/content/references/revision-response-text'
+import {readBaselineFactMembers} from '@/services/smart-bid/content/references/baseline-fact-members'
 import {assessBaselineRequirementPins,readBaselineRequirementMembers} from '@/services/smart-bid/content/references/baseline-requirement-members'
 import {readBidFrozenBaseline} from '../../collaboration/handoff/bid-project-scope-reader'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
@@ -53,9 +55,26 @@ async function readBasisMembers(host:ContentRevisionReadHost,snapshot:Awaited<Re
  assertRevisionTemplateBindings(sections['templateRefs'],nodePayloads)
  assertRevisionResponseAnchors(sections['responses'],sections['requirementPins'],basisNodes)
  assertRevisionResponseText(sections['responses'],basisNodes.map(node=>node.nodeId))
+ const independent:Array<IndependentResponseFactTarget>=[]
+ visitSnapshotReferences(sections['responses'],value=>{
+  const response=snapshotReferenceRecord(value,error)
+  if(Object.hasOwn(response,'chapterId'))return
+  const {id:responseId,assignmentId}=response
+  if(!identity(responseId)||!identity(assignmentId))throw Error(error)
+  independent.push({responseId,assignmentId})
+ },error)
+ const factIds=new Set([
+  ...nodes.readFactIds(basisNodes.map(node=>node.nodeId)),
+  ...readIndependentResponseFactOccurrences(sections['responses'],independent).map(item=>item.factId),
+ ])
  nodes.assertCurrent()
  return Object.freeze({basisNodes:Object.freeze(basisNodes),nodePayloads:Object.freeze(nodePayloads),
-  responses:Object.freeze(responses),assertCurrent:nodes.assertCurrent})
+  responses:Object.freeze(responses),factIds:Object.freeze([...factIds]),assertCurrent:nodes.assertCurrent})
+}
+
+function assertBasisFacts(factIds:readonly string[],members:unknown){
+ const versions=readBaselineFactMembers(members)
+ if(factIds.some(id=>!versions.has(id)))throw Error('CONTENT_DRAFT_CANDIDATE_BASIS_FACT')
 }
 
 /** 首版须由调用方已核空头；已有基版沿原修订保留固定基线。 */
@@ -95,6 +114,7 @@ export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selec
    throw Error(error)
   const members=await readBasisMembers(scopedHost,snapshot,manifest)
   assertBasisRequirementVersions(manifest,members.basisNodes,frozen.requirements)
+  assertBasisFacts(members.factIds,frozen.facts)
   members.assertCurrent()
   return Object.freeze({...members,projectId,revisionId,baselineId:frozen.baselineId,stageRef:frozen.stageRef,
    inputSnapshotHash,batchId:firstBatchId,lockHash,targetScope:registeredTargetScope})
@@ -116,6 +136,7 @@ export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selec
  ])
  const assertCurrent=()=>{nodes.assertCurrent();frozen.assertCurrent()}
  assertBasisRequirementVersions(manifest,nodes.basisNodes,frozen.requirementVersions)
+ assertBasisFacts(nodes.factIds,frozen.factVersions)
  assertCurrent()
  return Object.freeze({projectId,revisionId,baselineId,stageRef:structuredClone(stageRef),
   basisNodes:nodes.basisNodes,nodePayloads:nodes.nodePayloads,responses:nodes.responses,assertCurrent})

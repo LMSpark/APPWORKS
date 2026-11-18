@@ -50,6 +50,12 @@ it.each(['valid-pin','response-fact'])('rejects %s requirements from a different
   await expect(readDraftCandidateBasis(f.host,{revisionId:'V1'})).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_BASIS_REQUIREMENT')
  }finally{f.ds.destroy()}
 })
+it.each(['fact','response-fact'])('rejects a %s reference missing from the frozen baseline',async mode=>{
+ const f=await fixture(mode,{threeVersions:true,baselineRequirementVersion:'R1',baselineFactId:'OTHER'})
+ try{
+  await expect(readDraftCandidateBasis(f.host,{revisionId:'V1'})).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_BASIS_FACT')
+ }finally{f.ds.destroy()}
+})
 it('takes first draft target nodes from the frozen input snapshot',async()=>{
  const f=await fixture('populated')
  try{

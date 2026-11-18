@@ -69,10 +69,16 @@ export async function dispatchOperationRouteAgentTask(options:Parameters<typeof 
  claim.assertCurrent()
  if(Object.keys(dispatchIdentityFields).some(key=>isDispatchIdentityField(key)&&claim[key]!==dispatch[key]))
   throw Error('OPERATION_ROUTE_AGENT_SCOPE')
- if(claim.state!=='CLAIMED')return Object.freeze({state:'CHECK_ORIGINAL' as const,turnId:fixedTurn.turnId})
+ if(claim.state!=='CLAIMED')return Object.freeze({state:'CHECK_ORIGINAL' as const,observation:'CLAIM_UNAVAILABLE' as const,turnId:fixedTurn.turnId})
  await session.start()
  prepared.assertCurrent()
  claim.assertCurrent()
- await session.send(prepared.task.toChatRequest({turn:fixedTurn}))
- return Object.freeze({state:'DISPATCHED' as const,session,turnId:fixedTurn.turnId,publishedVersionRef:prepared.publishedVersionRef})
+ const request=prepared.task.toChatRequest({turn:fixedTurn})
+ const original={state:'CHECK_ORIGINAL' as const,session,turnId:fixedTurn.turnId,publishedVersionRef:prepared.publishedVersionRef}
+ try{
+  await session.send(request)
+ }catch{
+  return Object.freeze({...original,observation:'SEND_UNKNOWN' as const})
+ }
+ return Object.freeze({...original,observation:'SEND_RETURNED' as const})
 }

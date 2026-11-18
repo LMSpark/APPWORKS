@@ -25,7 +25,7 @@ import {computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import {PageTool} from '@spark-appworks/spark-project-model'
-import {nodeId, type DataRow} from '@spark-appworks/spark-data'
+import {nodeId, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {
   RendererSection,
   SparkPageRenderer,
@@ -79,8 +79,8 @@ const host = computed(() => {
     const row = input as DataRow
     const source = current.resolveView(viewKey.value)
     if (!source?.rows.includes(row)) return
-    if (command === 'workbench.run' && activeTab.value === 'pending') openRun(row)
-    if (command === 'workbench.detail') openDetail(row)
+    if (command === 'workbench.run' && activeTab.value === 'pending') openRoute(source, row, false)
+    if (command === 'workbench.detail') openRoute(source, row, true)
   }}
 })
 
@@ -88,22 +88,21 @@ function tabIndex(id: FlowWorkbenchTab): number {
   return TAB_ITEMS.findIndex(item => item.id === id)
 }
 
-function openRun(row: DataRow): void {
-  const routeIds = readFlowWorkbenchRowRoute(row, activeTab.value)
-  if (!routeIds) {
-    void pageService.showMessage('行记录缺少 wfid 或流程模型 ID', 'warning')
-    return
+function openRoute(source: DataView, row: DataRow, detail: boolean): void {
+  const tab = activeTab.value
+  const fields = tab === 'pending' ? ['wfid', 'WFOBJID', 'FlowID', 'StepID']
+    : tab === 'started' ? ['rowid', 'WFMID'] : ['WFOBJID', 'FlowID', 'WFMID', 'rowid']
+  try {
+    const available = fields.filter(field => source.fieldAccess(row, field).read === 'visible' && Object.hasOwn(row, field))
+    source.captureReadRow(row, available)()
+    const routeIds = readFlowWorkbenchRowRoute(Object.fromEntries(available.map(field => [field, row[field]])), tab)
+    if (!routeIds || (!detail && !routeIds.stepId)) throw new Error('流程身份缺失')
+    const {wfid, flowid, stepId} = routeIds
+    const scope = appScope()
+    void router.push(detail ? buildFlowRunDetailRoute({wfid, flowid}, scope) : buildFlowRunPageRoute({wfid, flowid, stepid: stepId}, scope))
+  } catch {
+    void pageService.showMessage('当前流程身份不可读或查询已失效，请重新查询', 'warning')
   }
-  void router.push(buildFlowRunPageRoute({wfid: routeIds.wfid, flowid: routeIds.flowid, stepid: routeIds.stepId}, appScope()))
-}
-
-function openDetail(row: DataRow): void {
-  const routeIds = readFlowWorkbenchRowRoute(row, activeTab.value)
-  if (!routeIds) {
-    void pageService.showMessage('行记录缺少 wfid 或流程模型 ID', 'warning')
-    return
-  }
-  void router.push(buildFlowRunDetailRoute({wfid: routeIds.wfid, flowid: routeIds.flowid}, appScope()))
 }
 
 </script>

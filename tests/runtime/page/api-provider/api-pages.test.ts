@@ -514,6 +514,25 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(api.current.state.http.saves[0]).toMatchObject({table: 'Base_InterfaceProvider_Account', added: [expect.objectContaining({ProviderID: 'P1', UserName: 'second'})]})
   })
 
+  it('retries only the failed provider configuration tab', async () => {
+    const wrapper = await mountAt(ManagementPage)
+    await button(wrapper, '基础配置')!.trigger('click')
+    const http = api.current.state.http
+    const accountTable = 'Base_InterfaceProvider_Account'
+    let attempts = 0
+    http.beforeDefinitionRead = async table => {
+      if (table === accountTable && ++attempts === 1) throw new Error('认证账号读取暂不可用')
+    }
+    await vi.waitFor(() => expect(wrapper.findAll('.el-tabs__item').some(item => item.text() === '认证账号')).toBe(true))
+    await wrapper.findAll('.el-tabs__item').find(item => item.text() === '认证账号')!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('认证账号读取暂不可用'))
+    const previousReadCount = http.reads.length
+    await button(wrapper, '重试')!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('用户名'))
+    expect(http.reads.slice(previousReadCount).map(read => read.table)).toEqual([accountTable])
+    expect(http.saves).toHaveLength(0)
+  })
+
   it('opens the interface scheme for one provider with no child definition loaded before a selection', async () => {
     const wrapper = await mountAt(InterfacePage, {providerId: 'P1'})
     expect(wrapper.text()).toContain('取令牌')

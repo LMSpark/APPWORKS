@@ -5,10 +5,10 @@
 AI用途：每个页签只保存本页签视图，不夹带其它页签草稿；未知回执须重读核验，不自动重放。
 -->
 <template>
-  <RendererDialog :model-value="true" :data-view-key="authKey" :width="1180" :close-disabled="busy || unconfirmed"
+  <RendererDialog :model-value="true" :data-view-key="authKey" :width="1180" :close-disabled="busy || unconfirmed || pendingTabs.size > 0"
     @update:model-value="close">
     <RendererSection class="api-config-page" title="配置信息设置" :bordered="false" :grid-columns="1" :grid-gap="12"
-      :status="loading ? '正在读取服务提供商配置…' : ''" :error="error" :retryable="!loading && !ready" @retry="loadTab('jwt')">
+      :status="selectedTabLoading ? '正在读取服务提供商配置…' : ''" :error="selectedTabError || error" :retryable="Boolean(selectedTabError) && !selectedTabLoading" @retry="loadTab(tab)">
       <template #header-actions>
         <RendererButton label="接口列表" button-type="primary" :disabled="busy" @click="emit('interfaces')" />
         <RendererButton :data-view-key="authKey" label="保存" button-type="primary" perm-action="edit"
@@ -76,8 +76,12 @@ const tabViews: Readonly<Record<TabName, readonly string[]>> = {
   accounts: [accountKey],
 }
 const writable = [authKey, headerKey, parameterKey, accountKey] as const
-const ready = ref(false), loading = ref(false), busy = ref(false), error = ref(''), revision = ref(0), tab = ref<string | number>('jwt')
+const ready = ref(false), busy = ref(false), error = ref(''), revision = ref(0), tab = ref<string | number>('jwt')
 const loaded = reactive(new Set<TabName>())
+const pendingTabs = reactive(new Set<TabName>())
+const tabErrors = reactive(new Map<TabName, string>())
+const selectedTabLoading = computed(() => isTab(tab.value) && pendingTabs.has(tab.value))
+const selectedTabError = computed(() => isTab(tab.value) ? tabErrors.get(tab.value) ?? '' : '')
 let dataSet: DataSet | undefined, active = true, unsubscribe: (() => void) | undefined, unsubscribeCascade: (() => void) | undefined
 const runtime = sparkConsume(PAGE_RUNTIME)
 const failure = (cause: unknown) => cause instanceof Error ? cause.message : String(cause)
@@ -170,10 +174,10 @@ function verifyOriginalSaves(): Promise<void> {
   })
 }
 async function close(): Promise<void> {
-  if (busy.value || unconfirmed.value) return
+  if (busy.value || unconfirmed.value || pendingTabs.size > 0) return
   if (dirty.value) {
     const confirmed = await pageService.showConfirm('存在未保存的修改，关闭将放弃这些修改。', '关闭确认', {type: 'warning'})
-    if (!confirmed || busy.value || unconfirmed.value) return
+    if (!confirmed || busy.value || unconfirmed.value || pendingTabs.size > 0) return
     for (const item of views.value) item.discardPendingChanges()
   }
   emit('close')
@@ -182,9 +186,9 @@ function isTab(value: string | number): value is TabName {
   return value === 'jwt' || value === 'headers' || value === 'publicParams' || value === 'accounts'
 }
 async function loadTab(name: string | number): Promise<void> {
-  if (!isTab(name) || loaded.has(name) || !active) return
-  if (name === 'jwt') loading.value = true
-  error.value = ''
+  if (!isTab(name) || loaded.has(name) || pendingTabs.has(name) || !active) return
+  pendingTabs.add(name)
+  tabErrors.delete(name)
   try {
     if (!runtime) throw new Error('配置信息设置缺少外部服务管理的运行实例')
     dataSet ??= runtime.getDataSet(scenarioId)
@@ -201,16 +205,18 @@ async function loadTab(name: string | number): Promise<void> {
     for (const target of targets) {
       if ('providerId' in target.queryContext) target.queryContext = {...target.queryContext, providerId: props.providerId}
     }
-    await Promise.all(targets.map(target => target.refresh()))
+    const results = await Promise.allSettled(targets.map(target => target.refresh()))
+    const rejected = results.find(result => result.status === 'rejected')
+    if (rejected) throw rejected.reason
     const failed = targets.find(target => target.loadingError)
     if (failed?.loadingError) throw failed.loadingError
     if (!active) return
     loaded.add(name)
     if (name === 'jwt') ready.value = true
   } catch (cause) {
-    if (active) error.value = failure(cause)
+    if (active) tabErrors.set(name, failure(cause))
   } finally {
-    if (name === 'jwt') loading.value = false
+    pendingTabs.delete(name)
     changed()
   }
 }

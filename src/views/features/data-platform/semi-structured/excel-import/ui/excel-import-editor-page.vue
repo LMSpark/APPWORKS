@@ -49,7 +49,9 @@
       </ExcelTransformRulesPane>
             </RendererTabPane>
             <RendererTabPane name="layout" label="相对版式" :lazy="true" :index="2" :data-view-key="nodesKey">
-              <ExcelImportSheetLayoutPane v-if="selectedNode" :data-view-key="nodesKey" :disabled="locked" :before-change="changeLayout" @session-change="value => pending('nodes.layout',value)" />
+              <ExcelImportSheetLayoutPane v-if="selectedNode" ref="layoutPane" :data-view-key="nodesKey" :disabled="locked" :before-change="changeLayout" @session-change="value => pending('nodes.layout',value)">
+                <template #layout-controls><SparkComponentRenderer :config="designRegion(children,'excel-layout-controls')" /></template>
+              </ExcelImportSheetLayoutPane>
               <p v-else role="status">请选择左侧节点后再编辑</p>
             </RendererTabPane>
           </RendererTabs>
@@ -117,6 +119,7 @@ function designRegion(children:readonly SparkNode[],id:string):SparkNode {
 const treeRuntime=shallowRef<PageRuntime>()
 const treeHost=shallowRef<ReturnType<typeof makeTreeHost>>()
 const rulePane=shallowRef<InstanceType<typeof ExcelTransformRulesPane>>()
+const layoutPane=shallowRef<InstanceType<typeof ExcelImportSheetLayoutPane>>()
 const importConfigId = computed(() => props.schemeRowid ?? (typeof route.query['importConfigId'] === 'string' ? route.query['importConfigId'] : ''))
 const navigationProjectId=computed(()=>resolveExecutionProjectId(route.path))
 const scene = LowcodeExcelImport.designScenarioId, catalogScene = LowcodeExcelImport.navigationScenarioId
@@ -269,6 +272,7 @@ function makeTreeHost(runtime:PageRuntime){
       ruleList:()=>rulePane.value?.state(),
       ruleOperation:()=>rulePane.value?.operation()?.state(),
       ruleEditor:()=>rulePane.value?.editor(),
+      layout:()=>layoutPane.value?.state(),
       ruleDirection:(value:unknown)=>rulePane.value?.scopeLabel(value)??'',
       ruleRowClick:(row:Parameters<InstanceType<typeof ExcelTransformRulesPane>['rowClick']>[0],column:unknown,event?:Event)=>{
         if(active&&session.isCurrent(runtime))rulePane.value?.rowClick(row,column,event)
@@ -278,6 +282,14 @@ function makeTreeHost(runtime:PageRuntime){
         pending:pendingPart('rules'),busy:busy.value,unconfirmed:unconfirmed.value,
         switchUnconfirmed:isUnconfirmed(schemeTable),
       }),
+    }
+    if(command==='excel.design.clearLayout'){
+      if(layoutPane.value?.state().canClear)layoutPane.value.clear()
+      return undefined
+    }
+    if(command==='excel.design.createLayout'){
+      if(layoutPane.value?.state().canCreate)layoutPane.value.create()
+      return undefined
     }
     if(command==='excel.design.saveRuleEditor'){await rulePane.value?.editor()?.save();return undefined}
     if(command==='excel.design.cancelRuleEditor'){rulePane.value?.editor()?.cancel();return undefined}

@@ -214,5 +214,21 @@
         {"type":"r-json","props":{"field":"condition_json","label":"执行条件","mode":"text","onBeforeRender":"bindRuleCondition"}}
       ]}
     ]
+  },
+  {
+    "id":"excel-layout-controls",
+    "type":"r-section",
+    "props":{"bordered":false,"gridColumns":1,"title":"相对版式","status":"配置单组主表、明细和相对表尾的导出版式。重复分段、汇总及导入尚未完成验收。"},
+    "children":[
+      {"type":"r-alert","props":{"alertType":"info","closable":false,"onBeforeRender":"bindLayoutNotice"}},
+      {"type":"r-button","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","label":"清空版式","permAction":"edit","onBeforeRender":"bindLayoutClear","onClick":"clearLayout"}},
+      {"type":"r-section","props":{"title":"选择明细配置","bordered":false,"gridColumns":1,"onBeforeRender":"bindLayoutDetails"},"children":[
+        {"type":"r-table","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@layoutChildren","highlightCurrentRow":true,"showDataViewMeta":false},"children":[
+          {"type":"r-text","props":{"field":"sheetName","label":"明细配置","readonly":true}},
+          {"type":"r-text","props":{"field":"table","label":"物理来源","readonly":true}}
+        ]},
+        {"type":"r-button","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","label":"创建单组导出版式","permAction":"edit","onBeforeRender":"bindLayoutCreate","onClick":"createLayout"}}
+      ]}
+    ]
   }
 ]

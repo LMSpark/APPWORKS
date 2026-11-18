@@ -310,3 +310,17 @@ function bindSaveRuleEditor() {
 async function closeRuleEditor(open) { if (open === false) await cancelRuleEditor() }
 async function cancelRuleEditor() { await $page.invokeHostCommand('excel.design.cancelRuleEditor') }
 async function saveRuleEditor() { await $page.invokeHostCommand('excel.design.saveRuleEditor') }
+
+function bindLayoutNotice() {
+  const state = tree?.layout()
+  const title = !state?.root ? '请选择一个已保存的根配置。' : state.problem
+  return {title,visible:!!title}
+}
+function bindLayoutClear() {
+  const state = tree?.layout()
+  return {visible:state?.root === true,disabled:state?.canClear !== true}
+}
+function bindLayoutDetails() { return {visible:tree?.layout()?.showDetails === true} }
+function bindLayoutCreate() { return {disabled:tree?.layout()?.canCreate !== true} }
+async function clearLayout() { await $page.invokeHostCommand('excel.design.clearLayout') }
+async function createLayout() { await $page.invokeHostCommand('excel.design.createLayout') }

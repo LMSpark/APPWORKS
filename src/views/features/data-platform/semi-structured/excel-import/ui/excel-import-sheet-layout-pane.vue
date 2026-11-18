@@ -4,6 +4,7 @@
 -->
 <template>
   <section class="excel-layout-pane">
+    <slot name="layout-controls">
     <h2>相对版式</h2>
     <p>配置单组主表、明细和相对表尾的导出版式。重复分段、汇总及导入尚未完成验收。</p>
     <p v-if="!root" role="status">请选择一个已保存的根配置。</p>
@@ -15,6 +16,9 @@
         <RendererTable :data-view-key="childrenKey" :children="childColumns" :highlight-current-row="true" :show-data-view-meta="false" />
         <RendererButton :data-view-key="dataViewKey" label="创建单组导出版式" perm-action="edit" :disabled="blocked || !directoriesReady || !modeReady || !detailId" @click="create" />
       </template>
+    </template>
+    </slot>
+    <template v-if="root">
       <RendererForm v-if="part" :key="rowEpoch" :data-view-key="dataViewKey" v-bind="rootId===undefined?{}:{contextRowId:rootId}" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
         <FieldJson field="sheet_layout_json" label="启用设置" mode="form" :schema="enabledSchema" :readonly="blocked || !directoriesReady || !modeReady" :on-change="beforeChange" :on-editing-change="value=>pending('enabled',value)" />
         <p>主表来源：{{ part.rootTable['table'] }}；明细来源：{{ part.detailTable['table'] }}</p>
@@ -122,6 +126,13 @@ const regions=computed(()=>{const current=part.value;if(!current)return [];retur
  return {id:String(region['id']),label:shape==='form'?'主表':shape==='list'?'明细':'表尾',shape,index:current.indexes[shape],children:fields,adapter:adapters[shape]}
 })})
 onBeforeUnmount(()=>{active=false;generation++;stop();rootDirectory.dispose();detailDirectory.dispose();emit('session-change',false)})
+defineExpose({
+ state:()=>({root:!!root.value,problem:problem.value||sourceError.value,
+  showDetails:!!root.value&&!part.value&&!problem.value,
+  canClear:!blocked.value&&!!raw.value&&editing.value.size===0,
+  canCreate:!blocked.value&&directoriesReady.value&&modeReady.value&&!!detailId.value}),
+ clear,create,
+})
 </script>
 <style scoped>
 .excel-layout-pane{display:grid;gap:12px}.excel-layout-region{padding:12px;border:1px solid var(--el-border-color);border-radius:4px}

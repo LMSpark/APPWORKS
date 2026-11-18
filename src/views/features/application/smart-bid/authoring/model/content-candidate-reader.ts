@@ -7,7 +7,7 @@
 import {assertRevisionTemplateBindings,readCalculationTableTemplateRefs,type RevisionTemplateRef} from '@/services/smart-bid/content/revision-template-bindings'
 import {resolveCalculationTableGenerator} from '@/services/smart-bid/content/references/calculation-table-generator'
 import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
-import {assertRevisionResponseText,readIndependentResponseFactIds,type IndependentResponseFactTarget} from '@/services/smart-bid/content/references/revision-response-text'
+import {assertRevisionResponseText,readIndependentResponseFactOccurrences,type IndependentResponseFactTarget} from '@/services/smart-bid/content/references/revision-response-text'
 import {hasCompleteSingleContentResult,readContentRevisionBasis,readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
 import {assertContentNodeVersionPayload} from './content-node-version-reader'
 import {assertRevisionManifest,readContentSnapshotIndex,type ContentSnapshotIndexBinding,type ContentSnapshotRole} from './content-snapshot-reader'
@@ -21,7 +21,7 @@ import {readContentTenderRecord} from './content-tender-record-reader'
 import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/services/smart-bid/content/content-scoped-preview'
 import {readEffectiveFactDependencies} from './hashes/effective-fact-reader'
 import {hashCalculationInputs} from '@/services/smart-bid/content/hashes/calculation-inputs-hash'
-import {projectFactDisplayOccurrences} from '@/services/smart-bid/content/hashes/fact-display-occurrences'
+import {projectFactDisplayOccurrences,projectResponseFactDisplayOccurrences} from '@/services/smart-bid/content/hashes/fact-display-occurrences'
 import {expandBuiltInCalculationTable,readBuiltInCalculationGenerator} from '@/services/smart-bid/content/calculation-table-registry'
 import {ATTACHMENT_INDEX_GENERATOR} from '@/services/smart-bid/content/attachment-index-generator'
 import {ComputedQueryRoot,computedGetTool} from '@/services/smart-bid/content/computed-query-tool'
@@ -45,6 +45,7 @@ type CalculationSources=Readonly<{
 type ComputedTable=ReturnType<typeof expandBuiltInCalculationTable>
 type EffectiveFactsWithDisplays=Awaited<ReturnType<typeof readEffectiveFactDependencies>>&Readonly<{
  nodeDisplayRefs:ReturnType<typeof projectFactDisplayOccurrences>
+ responseDisplayRefs:ReturnType<typeof projectResponseFactDisplayOccurrences>
 }>
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
 type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>
@@ -214,12 +215,14 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertContext()
   const baselineId=row['baselineId']
   if(typeof baselineId!=='string')throw Error('CONTENT_CANDIDATE_BASELINE_REQUIRED')
-  const usedFactIds=[...nodes.readFactIds(scope.nodeIds),...readIndependentResponseFactIds(responses,scope.responses)]
+  const responseOccurrences=readIndependentResponseFactOccurrences(responses,scope.responses)
+  const usedFactIds=[...nodes.readFactIds(scope.nodeIds),...responseOccurrences.map(item=>item.factId)]
   const selectedNodeIds=new Set(scope.nodeIds)
   const result=await readEffectiveFactDependencies({...host,assertCurrent:assertContext},{baselineId,stageRef:row['stageRef'],usedFactIds})
   result.assertCurrent()
   const nodeDisplayRefs=projectFactDisplayOccurrences(payloads.filter(node=>selectedNodeIds.has(node.nodeId)),result.displayHashes)
-  return Object.freeze({...result,nodeDisplayRefs})
+  const responseDisplayRefs=projectResponseFactDisplayOccurrences(responseOccurrences,result.displayHashes)
+  return Object.freeze({...result,nodeDisplayRefs,responseDisplayRefs})
  }
  const readFixedFact=async(factSelection:Readonly<{factId:string;version?:number}>,assertConsumer?:()=>void):Promise<ContentCandidateFactBinding>=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}

@@ -90,6 +90,9 @@ it('reads only explicitly selected independent response facts with exact assignm
   expect((await candidate.readNodeEffectiveFacts([])).displayHashes).toEqual([])
   const result=await candidate.readEffectiveFacts({nodeIds:[],responses:[{assignmentId:'A',responseId:'I'}]})
   expect(result.displayHashes.map(item=>item.factId)).toEqual(['PRICE'])
+  expect(result.responseDisplayRefs).toEqual([0,1].map(occurrence=>({
+   responseId:'I',assignmentId:'A',occurrence,displayHash:result.displayHashes[0]?.displayHash,
+  })))
   await f.ds.getView('RevisionSnapshot','selectedSnapshot')!.refresh()
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(f.save).not.toHaveBeenCalled()

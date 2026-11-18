@@ -9,7 +9,8 @@ import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/
 export async function createCandidateReadFixture(mode='normal',options:{tenderConfirmStatus?:'CONFIRMED'|'REJECTED';threeVersions?:boolean;headingText?:string;computeRoot?:boolean}={}){
  const param=(name:string)=>({Type:'GetInputParam',ParamName:name})
  const eq=(field:string,name=field)=>({field,operator:'eq' as const,value:param(name)})
- const payloads=[{nodeId:'D',parentId:'P',index:0,type:'document',class:[],value:'',data:{}},
+ const payloads:Array<{nodeId:string;parentId:string;index:number;type:string;class:string[];value:string;data:Record<string,unknown>}>=
+  [{nodeId:'D',parentId:'P',index:0,type:'document',class:[],value:'',data:{}},
   {nodeId:'C',parentId:'D',index:0,type:'chapter',class:[],value:'',data:{}},
   {nodeId:'H',parentId:'C',index:0,type:'heading',class:['candidate-heading'],value:options.headingText??'标题{{册名}}',
    data:{册名:{type:'xref',nodeId:'D',show:'title'}}}]
@@ -28,7 +29,8 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   requirementPins:['bad-pin','valid-pin','fixed-pin','bad-response'].includes(mode)?[{chapterId:mode==='bad-pin'?'H':'C',lineageId:'L',version:mode==='fixed-pin'?'R2':'R1'}]:[],
   responseAssignments:[],responses:mode==='bad-response'?[{id:'R',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',chapterId:'C',anchorNodeId:'D'}]:
    ['bad-response-text','response-fact'].includes(mode)?[{id:'I',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',
-    statement:'报价{{金额}}元',data:mode==='response-fact'?{金额:{type:'fact',factId:'PRICE'}}:{}}]:[],
+    statement:mode==='response-fact'?'报价{{金额}}元，再确认{{金额}}元':'报价{{金额}}元',
+    data:mode==='response-fact'?{金额:{type:'fact',factId:'PRICE'}}:{}}]:[],
   qualificationReviews:[],sensitiveRefs:[]}
  const snapshotHash=await hashRevisionSnapshot(manifest)
  const rootHash=options.computeRoot?await hashRevisionContentRoot({manifest,

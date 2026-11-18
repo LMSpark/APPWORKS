@@ -9,9 +9,10 @@ import {validateContentReference} from '../../content-reference'
 import {snapshotReferenceIdentity,snapshotReferenceRecord,visitSnapshotReferences} from './snapshot-reference-values'
 
 export type IndependentResponseFactTarget=Readonly<{assignmentId:string;responseId:string}>
+export type IndependentResponseFactOccurrence=IndependentResponseFactTarget&Readonly<{factId:string;occurrence:number}>
 
-/** 从已通过原快照文本和锚点校验的独立答复取事实键。 */
-export function readIndependentResponseFactIds(value:unknown,targets:readonly IndependentResponseFactTarget[]):readonly string[]{
+/** 从已核原快照的独立答复，读取实际事实占位及原分工身份。 */
+export function readIndependentResponseFactOccurrences(value:unknown,targets:readonly IndependentResponseFactTarget[]):readonly IndependentResponseFactOccurrence[]{
  const requested=new Map<string,string>()
  for(const {responseId,assignmentId} of targets){
   if(!snapshotReferenceIdentity(responseId)||!snapshotReferenceIdentity(assignmentId)||requested.has(responseId))
@@ -19,22 +20,22 @@ export function readIndependentResponseFactIds(value:unknown,targets:readonly In
   requested.set(responseId,assignmentId)
  }
  if(!requested.size)return []
- const byId=new Map<string,readonly string[]>()
+ const byId=new Map<string,readonly IndependentResponseFactOccurrence[]>()
  visitSnapshotReferences(value,item=>{
   const row=snapshotReferenceRecord(item,'SNAPSHOT_RESPONSE_TEXT'),id=row['id']
   if(typeof id!=='string'||!requested.has(id))return
-  const statement=row['statement']
-  if(Object.hasOwn(row,'chapterId')||requested.get(id)!==row['assignmentId']||typeof statement!=='string'||byId.has(id))
+  const statement=row['statement'],assignmentId=requested.get(id)
+  if(Object.hasOwn(row,'chapterId')||assignmentId===undefined||assignmentId!==row['assignmentId']||typeof statement!=='string'||byId.has(id))
    throw Error('SNAPSHOT_RESPONSE_FACT_SCOPE')
-  const data=snapshotReferenceRecord(row['data'],'SNAPSHOT_RESPONSE_TEXT'),keys:string[]=[]
-  for(const name of inspectContentPlaceholders(statement).names){
+  const data=snapshotReferenceRecord(row['data'],'SNAPSHOT_RESPONSE_TEXT')
+  const occurrences=inspectContentPlaceholders(statement).occurrences.flatMap(({name},occurrence)=>{
    const ref=snapshotReferenceRecord(data[name],'SNAPSHOT_RESPONSE_REFERENCE'),factId=ref['factId']
-   if(ref['type']==='fact'&&typeof factId==='string')keys.push(factId)
-  }
-  byId.set(id,keys)
+   return ref['type']==='fact'&&typeof factId==='string'?[Object.freeze({responseId:id,assignmentId,factId,occurrence})]:[]
+  })
+  byId.set(id,occurrences)
  },'SNAPSHOT_RESPONSE_TEXT')
  if(byId.size!==requested.size)throw Error('SNAPSHOT_RESPONSE_FACT_SCOPE')
- return [...new Set([...byId.keys()].sort().flatMap(id=>byId.get(id)??[]))]
+ return Object.freeze([...byId.keys()].sort().flatMap(id=>byId.get(id)??[]))
 }
 
 /** 不改原串或规范值；章内内容只能沿已核anchor读取，独立答复保留自己的statement/data。 */

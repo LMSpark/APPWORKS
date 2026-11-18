@@ -1,0 +1,24 @@
+[
+  {
+    "id": "json-data-catalog",
+    "type": "r-section",
+    "props": {"title": "JSON 文件数据管理", "class": "json-data-catalog", "bordered": false, "gridColumns": 1},
+    "children": [
+      {
+        "id": "json-data-definitions",
+        "type": "r-table",
+        "props": {
+          "dataViewKey": "FFDEF2AED3E19A38C0FCDDC748CF939B@Base_JsonData@default",
+          "border": true,
+          "stripe": true,
+          "showRowIndex": true,
+          "showDataViewMeta": false
+        },
+        "children": [
+          {"type": "r-text", "props": {"field": "name", "label": "名称", "readonly": true, "minWidth": 220}},
+          {"type": "r-text", "props": {"field": "description", "label": "摘要", "readonly": true, "minWidth": 220}}
+        ]
+      }
+    ]
+  }
+]

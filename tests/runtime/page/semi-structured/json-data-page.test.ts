@@ -9,7 +9,7 @@ import ElementPlus from 'element-plus'
 import VXETable from 'vxe-table'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {PageTool} from '@spark-appworks/spark-project-model'
-import {FieldJson,FieldText,JsonTreeEditor,RendererTable,Spark,registerAllRenderers,PAGE_SERVICE,useSparkComponent,type PageServiceCapability,type PageSelectedFile,type PageBrowseFilesOptions} from '@spark-appworks/spark-component'
+import {FieldJson,FieldText,JsonTreeEditor,RendererTable,Spark,SparkPageRenderer,registerAllRenderers,PAGE_SERVICE,useSparkComponent,type PageServiceCapability,type PageSelectedFile,type PageBrowseFilesOptions} from '@spark-appworks/spark-component'
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 import JsonPage from '@/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue'
@@ -47,22 +47,28 @@ it('assembles the declared document resource before opening any JSON file',async
  const opening=vi.spyOn(LowcodeJsonData,'loadCatalog');await open();const loaded=opening.mock.results[0];opening.mockRestore();if(loaded?.type!=='return')throw new Error('Catalog load missing');const instance=await loaded.value
  expect(instance.getTable('JsonDocumentFile')?.resourceId).toBe('json-data:document-file');expect(instance.getView('JsonDocumentFile','default')).toBeDefined();expect(state.reads).toEqual([])
 })
-it('loads the shared JSON scenario through a tool runtime and keeps document loading on demand',async()=>{
+it('renders the shared JSON catalog through the three tool files without reading any document',async()=>{
  const {NativePageRuntimeSession}=await import('../../../../packages/spark-app/src/router/native-page-runtime-session')
  const tool=new PageTool({pageId:'json-tool-fixture'})
- tool.hydrateFileText('rule.json','[]')
- tool.hydrateFileText('script.js','')
- tool.hydrateFileText('style.css','')
+ const directory='src/views/features/data-platform/semi-structured/json-data/ui'
+ for(const file of ['rule.json','script.js','style.css'] as const){
+  tool.hydrateFileText(file,readFileSync(resolve(directory,file),'utf8'))
+ }
  tool.markLoaded()
  const session=new NativePageRuntimeSession()
+ const router=createRouter({history:createMemoryHistory(),routes:[{path:'/',component:JsonPage}]})
+ await router.push('/')
+ let wrapper:VueWrapper|undefined
  try{
   const runtime=session.acquire({tool,targetId:SCENE,scenarioIds:[SCENE],loadScenario:id=>LowcodeJsonData.loadCatalog(id)})
-  await runtime.load()
+  wrapper=mount(SparkPageRenderer,{props:{pageRuntime:runtime},global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
+  const rendered=wrapper
+  await vi.waitFor(()=>expect(rendered.text()).toContain('样例JSON'))
+  expect(rendered.getComponent(RendererTable).props('dataViewKey')).toBe(`${SCENE}@Base_JsonData@default`)
   const dataSet=runtime.getDataSet(SCENE)
-  expect(dataSet?.getView('Base_JsonData')).toBeDefined()
   expect(dataSet?.getView('JsonDocumentFile')).toBeDefined()
   expect(state.reads).toEqual([])
- }finally{session.dispose()}
+ }finally{wrapper?.unmount();session.dispose()}
 })
 it('displays a failed catalog query once through the standard table with metadata hidden',async()=>{
  state.http.interceptors.request.use({onRequest:request=>{const body=request.data as {Table?:Array<{Name?:string}>}|undefined;if(request.url==='/api/DataOperation/GetData'&&body?.Table?.[0]?.Name==='Base_JsonData')throw new Error('catalog query denied');return request}})

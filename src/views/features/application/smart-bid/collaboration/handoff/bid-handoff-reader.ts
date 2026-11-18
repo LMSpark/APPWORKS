@@ -23,6 +23,11 @@ export function bidHandoffReadView(primaryKey:string):ViewMetadata{
   queryConfig:{autoQuery:false,cacheType:'none',pagination:'none',fields:[...new Set([primaryKey,...keys,'items'])]}}
 }
 
+/** 前后清单各用本次场景的独立 DataView，保留两次读取证明。 */
+export function bidHandoffScenarioViews(primaryKey:string){
+ return {originalHandoff:bidHandoffReadView(primaryKey),previousHandoff:bidHandoffReadView(primaryKey)}
+}
+
 function valid(view:DataView){
  return view.dataTable?.modelBinding?.modelName==='BidHandoff'&&view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
   keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
@@ -42,12 +47,13 @@ function readItem(value:unknown):Item{
 /** 先核唯一原清单和原可读字段，再请正式任务来源读取其签收。 */
 export async function readRegisteredBidHandoff(host:ContentRevisionReadHost,
  selection:Omit<Scope,'projectId'>&Readonly<{handoffId:string}>,
- readReceipts:(scope:Scope,items:readonly Item[])=>Promise<Pick<Source,'receipts'|'assertCurrent'>>){
+ readReceipts:(scope:Scope,items:readonly Item[])=>Promise<Pick<Source,'receipts'|'assertCurrent'>>,role:'current'|'previous'='current'){
  const {runtime,scenarioId,projectId}=host,{lotId,roundId,stageId,handoffId}=selection
  const scope=Object.freeze({projectId,lotId,roundId,stageId}),query={...scope,handoffId}
  host.assertCurrent()
  if(![scenarioId,...Object.values(query)].every(identity))throw Error(error)
- const key=buildDataViewKey('BidHandoff','originalHandoff',scenarioId),view=runtime.resolveView(key)
+ const viewName=role==='previous'?'previousHandoff':'originalHandoff'
+ const key=buildDataViewKey('BidHandoff',viewName,scenarioId),view=runtime.resolveView(key)
  if(!view||!valid(view)||view.hasEditingChanges())throw Error(error)
  view.queryContext={...view.queryContext,...query}
  const assertScope=()=>{

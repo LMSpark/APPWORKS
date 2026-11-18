@@ -26,3 +26,28 @@ async function openBidHandoff() {
     $page.showMessage('本轮移交无法核验', 'warning')
   }
 }
+
+function bindHandoffComparison() {
+  const {handoffId, previousHandoffId} = $route.query
+  return {visible: bindBidHandoff().visible && typeof previousHandoffId === 'string' &&
+    !!previousHandoffId && previousHandoffId.trim() === previousHandoffId && handoffId !== previousHandoffId}
+}
+
+async function openHandoffComparison() {
+  if (!bindHandoffComparison().visible) return
+  const {handoffId, previousHandoffId} = $route.query
+  try {
+    const result = await $page.invokeHostCommand('bid.handoff.compareVersions', {handoffId, previousHandoffId})
+    result.assertCurrent()
+    const changes = {ADDED: '新增', CHANGED: '换版', UNCHANGED: '同版'}
+    const lines = result.items.map(item => `${item.id} · ${changes[item.state]} · ${item.versionRef} · ${
+      item.requiresAcceptance ? '待签收' : `签收 ${item.acceptanceReceiptRef}`}`)
+    for (const item of result.removed) {
+      lines.push(`${item.id} · 已移出 · 原跟踪人 ${item.trackingAssigneeId}`)
+      if (item.openIssueRefs.length) lines.push(`  未决事项 ${item.openIssueRefs.join('、')} · 续查 ${item.followupRef ?? '待补'} · ${item.nextDueAt ?? '下次核查待补'}`)
+    }
+    await $page.showAlert(lines.join('\n') || '两份清单均无事项', '移交清单差异')
+  } catch {
+    $page.showMessage('移交清单差异无法核验', 'warning')
+  }
+}

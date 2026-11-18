@@ -80,6 +80,7 @@ export function compareBidHandoffVersions(previous:ReturnType<typeof assessBidHa
  })
  const removed=Object.freeze([...originals.values()].map(item=>Object.freeze({
   id:item.id,versionRef:item.versionRef,openIssueRefs:item.openIssueRefs,trackingAssigneeId:item.trackingAssigneeId,
+  followupRef:item.followupRef,nextDueAt:item.nextDueAt,
  })))
  return Object.freeze({items:Object.freeze(items),removed,assertCurrent})
 }

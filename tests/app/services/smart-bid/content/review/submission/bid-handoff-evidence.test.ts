@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {assessBidHandoff,compareBidHandoffVersions} from '@/services/smart-bid/content/review/submission/bid-handoff-evidence'
-import {bidHandoffReadView,readRegisteredBidHandoff} from '@/views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader'
+import {bidHandoffScenarioViews,readRegisteredBidHandoff} from '@/views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader'
 import {createBidHandoffScriptHost} from '@/views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host'
 import script from '@/views/features/application/smart-bid/collaboration/handoff/page08/script.js?raw'
 import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
@@ -48,7 +48,7 @@ it('keeps responsibility with the original assignee until the current version is
  const row={...scope,id:'ROW',handoffId:'H',items:[item]}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{BidHandoff:{
   modelBinding:{modelName:'BidHandoff',modelId:'M'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalHandoff:bidHandoffReadView('id')},
+  views:{default:{},...bidHandoffScenarioViews('id')},
  }}})
  try{
   const view=ds.getView('BidHandoff','originalHandoff')
@@ -59,7 +59,16 @@ it('keeps responsibility with the original assignee until the current version is
    identity:table.identity,scope:'handoff',readScope:()=> 'handoff',snapshot:table.applyResult({Result:{primaryKeyField:'id',
     data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:hidden?['items']:[],m:[],d:false}}]}}}),
   })})
-  const host={scenarioId:'S',projectId:'P',runtime:{resolveView:(key:string)=>key==='S@BidHandoff@originalHandoff'?view:undefined},
+  const previousView=ds.getView('BidHandoff','previousHandoff')
+  if(!previousView)throw Error('TEST_PREVIOUS_HANDOFF_VIEW_REQUIRED')
+  const previousTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'BidHandoff'})
+  previousView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+   identity:previousTable.identity,scope:'previous',readScope:()=> 'previous',snapshot:previousTable.applyResult({Result:{primaryKeyField:'id',
+    data:{Count:1,Items:[{...row,id:'PREVIOUS',handoffId:'H1',items:[{...item,versionRef:'V1'}],
+     lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
+  })})
+  const host={scenarioId:'S',projectId:'P',runtime:{resolveView:(key:string)=>key==='S@BidHandoff@originalHandoff'?view:
+   key==='S@BidHandoff@previousHandoff'?previousView:undefined},
    assertCurrent}
   let hasCurrentReceipt=true
   const readReceipts=vi.fn(async()=>({receipts:hasCurrentReceipt?[old,current]:[old],
@@ -73,10 +82,10 @@ it('keeps responsibility with the original assignee until the current version is
   receiptCurrent=true
   const page=createBidHandoffScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{selection,readReceipts})
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
-  const {openBidHandoff}=compileFunctions(script,{$route:{query:{handoffId:'H'}},$page:{
+  const {openBidHandoff,openHandoffComparison}=compileFunctions(script,{$route:{query:{handoffId:'H',previousHandoffId:'H1'}},$page:{
    invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,
   }} as unknown as PageContext)
-  if(!openBidHandoff)throw Error('TEST_HANDOFF_PAGE_HANDLER_REQUIRED')
+  if(!openBidHandoff||!openHandoffComparison)throw Error('TEST_HANDOFF_PAGE_HANDLER_REQUIRED')
   await openBidHandoff()
   expect(showAlert).toHaveBeenLastCalledWith([
    '移交 H · 所列事项均已签收','GUARANTEE · 版本 V2 · 已签收 · 跟踪人 FINANCE','  原任务凭据 RECEIPT-2',
@@ -86,8 +95,15 @@ it('keeps responsibility with the original assignee until the current version is
   await openBidHandoff()
   expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining('待签收 · 跟踪人 OWNER'),'本轮移交核对')
   expect(()=>registered.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  await openHandoffComparison()
+  expect(showAlert).toHaveBeenLastCalledWith('GUARANTEE · 换版 · V2 · 待签收','移交清单差异')
+  expect(readReceipts).toHaveBeenLastCalledWith(scope,[{...item,versionRef:'V1'}],signal,'previous')
+  const compared=await page.invoke('bid.handoff.compareVersions',{handoffId:'H',previousHandoffId:'H1'},signal)
+  compared.assertCurrent()
+  await previousView.refresh()
+  expect(()=>compared.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   hidden=true
   await expect(readRegisteredBidHandoff(host,selection,readReceipts)).rejects.toThrow('DATA_VIEW_READ_ROW')
-  expect(readReceipts).toHaveBeenCalledTimes(3)
+  expect(readReceipts).toHaveBeenCalledTimes(7)
  }finally{ds.destroy()}
 })

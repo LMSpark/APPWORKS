@@ -1,12 +1,13 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
-import {defineComponent, h} from 'vue'
+import {defineComponent, h, ref, type Component} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus, {ElSelect} from 'element-plus'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {RendererFilter, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {getSystemScenarioResource, resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {api, JOB_PATH, JOB_SCENARIO, resetJobFixture} from './job-management.fixture'
+import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return api.state.http},
@@ -44,7 +45,7 @@ afterEach(() => {
   config.global.stubs = originalStubs
 })
 
-async function open(wait = true) {
+async function open(wait = true, component: Component = JobPage) {
   const observed = new Set<PageRuntime>()
   const load = PageRuntime.prototype.load
   vi.spyOn(PageRuntime.prototype, 'load').mockImplementation(function(this: PageRuntime) {
@@ -52,7 +53,7 @@ async function open(wait = true) {
     return load.call(this)
   })
   const router = createRouter({history: createMemoryHistory(), routes: [{
-    path: `/apps/:projectId${JOB_PATH}`, component: JobPage,
+    path: `/apps/:projectId${JOB_PATH}`, component,
     meta: {blueprintScenarioId: JOB_SCENARIO, nodeId: JOB_SCENARIO, systemPageIdentityState: 'resolved'},
   }]})
   await router.push(`/apps/APP${JOB_PATH}`)
@@ -260,5 +261,28 @@ describe('reference job page through SPARK data', () => {
     expect(wrapper.text()).toContain('SPARK_EXECUTION_SCOPE_STALE')
     expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
     expect(http.saves).toHaveLength(0)
+  })
+
+  it('preserves a busy feature runtime until the current route is explicitly reopened', async () => {
+    const busy = ref(true)
+    const host = defineComponent({setup() {
+      const runtime = useFeaturePageRuntime({scenarioId: JOB_SCENARIO, modelName: 'Base_JobInfo',
+        componentType: 'preserved-feature-test', title: '测试目录', preserveRuntime: () => busy.value})
+      return () => h('button', {disabled: busy.value, onClick: runtime.loadCurrentRoute},
+        runtime.reloadBlocked.value ? '切换到当前导航' : runtime.ready.value ? '目录已加载' : runtime.error.value)
+    }})
+    const {wrapper, router, observed} = await open(false, host)
+    await vi.waitFor(() => expect(wrapper.text()).toBe('目录已加载'))
+    const original = [...observed][0]!
+    await router.push(`/apps/OTHER${JOB_PATH}`)
+    await vi.waitFor(() => expect(wrapper.text()).toBe('切换到当前导航'))
+    expect(original.destroyed).toBe(false)
+    expect(observed.size).toBe(1)
+    busy.value = false
+    await flushPromises()
+    expect(original.destroyed).toBe(false)
+    await wrapper.get('button').trigger('click')
+    await vi.waitFor(() => expect(original.destroyed).toBe(true))
+    expect(observed.size).toBe(2)
   })
 })

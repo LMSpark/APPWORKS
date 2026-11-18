@@ -18,6 +18,8 @@ import {readContentReviewBaseline} from './content-baseline-reader'
 import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {snapshotReferenceRecord,visitSnapshotReferences} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {originalRegistrationView,readOriginalRegistrationView} from '../../authority/original-registration-view'
+import {prepareDraftCandidateRequest} from '@/services/smart-bid/content/draft/content-draft-candidate-request'
+import {readEffectiveFactsFromBaseline} from './hashes/effective-fact-reader'
 
 const error='CONTENT_DRAFT_CANDIDATE_BASIS'
 const batchFields=['basisRevisionId','baselineId','inputSnapshotHash','targetScopes','lockHash']
@@ -141,4 +143,16 @@ export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selec
  assertCurrent()
  return Object.freeze({projectId,revisionId,baselineId,stageRef:structuredClone(stageRef),factVersions,
   basisNodes:nodes.basisNodes,nodePayloads:nodes.nodePayloads,responses:nodes.responses,assertCurrent})
+}
+
+/** 按请求实际使用的事实读取原版本，保留读取证明供登记前再核。 */
+export async function prepareRegisteredDraftCandidateRequest(host:ContentRevisionReadHost,
+ ...inputs:Parameters<typeof prepareDraftCandidateRequest>){
+ const request=await prepareDraftCandidateRequest(...inputs)
+ if(host.projectId!==request.projectId)throw Error(error)
+ const facts=await readEffectiveFactsFromBaseline(host,request.factVersions.map(item=>item.factId),
+  {factVersions:request.factVersions,assertCurrent:request.assertCurrent})
+ const assertCurrent=()=>{request.assertCurrent();facts.assertCurrent()}
+ assertCurrent()
+ return Object.freeze({...request,factDependencyHash:facts.factDependencyHash,requiresFactUseCheck:true as const,assertCurrent})
 }

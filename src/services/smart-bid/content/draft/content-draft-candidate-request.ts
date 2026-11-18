@@ -71,5 +71,5 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
  const requestDigest=await hashCanonicalSnapshotText(`["spark-bid.draft-candidate/1",${requestJson}]`)
  assertCurrent()
  return Object.freeze({projectId,draftId,draftVersion,baseRevisionId,baselineId,requestKey,contentDigest,requestJson,requestDigest,
-  requiresCurrentAuthorityChecks:true as const,assertCurrent})
+  factVersions:Object.freeze(referencedFacts.map(item=>Object.freeze(item))),requiresCurrentAuthorityChecks:true as const,assertCurrent})
 }

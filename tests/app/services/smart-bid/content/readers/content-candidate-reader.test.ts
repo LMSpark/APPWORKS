@@ -2,7 +2,7 @@ import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/content-root-hash'
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
-import {readDraftCandidateBasis} from '@/views/features/application/smart-bid/authoring/model/content-draft-candidate-basis'
+import {prepareRegisteredDraftCandidateRequest,readDraftCandidateBasis} from '@/views/features/application/smart-bid/authoring/model/content-draft-candidate-basis'
 import {prepareCandidateProduction} from '@/views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader'
 import {prepareBidVolumePlan} from '@/services/smart-bid/content/references/response/bid-volume-plan'
 import {compareAdoptionBasisChecks} from '@/services/smart-bid/content/adoption/adoption-basis-checks'
@@ -54,6 +54,20 @@ it.each(['fact','response-fact'])('rejects a %s reference missing from the froze
  const f=await fixture(mode,{threeVersions:true,baselineRequirementVersion:'R1',baselineFactId:'OTHER'})
  try{
   await expect(readDraftCandidateBasis(f.host,{revisionId:'V1'})).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_BASIS_FACT')
+ }finally{f.ds.destroy()}
+})
+it('binds a prepared draft candidate to the original fact version query',async()=>{
+ const f=await fixture('fact',{threeVersions:true})
+ try{
+  const basis=await readDraftCandidateBasis(f.host,{revisionId:'V1'})
+  const draftJson=canonicalSnapshotValue({nodes:basis.nodePayloads,responseChanges:[]})
+  const request=await prepareRegisteredDraftCandidateRequest(f.host,{projectId:'P',draftId:'D',actorUserId:'U',
+   draftVersion:'D1',baseRevisionId:'V1',draftJson,contentDigest:await hashCanonicalSnapshotText(draftJson),assertCurrent:()=>{}},
+  basis,{requestKey:'Q',targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]}})
+  expect(request).toMatchObject({factVersions:[{factId:'PRICE',version:2}],
+   factDependencyHash:expect.stringMatching(/^[a-f0-9]{64}$/u),requiresFactUseCheck:true})
+  await f.ds.getView('FactVersion','effectiveFactVersions')?.refresh()
+  expect(()=>request.assertCurrent()).toThrow()
  }finally{f.ds.destroy()}
 })
 it('takes first draft target nodes from the frozen input snapshot',async()=>{

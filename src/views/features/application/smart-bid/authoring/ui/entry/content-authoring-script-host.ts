@@ -16,8 +16,7 @@ import {inspectRegisteredAdoption,type ContentAdoptionSelection} from '../../mod
 import {compareRegisteredOriginalForms,readRegisteredOriginalForm} from '../../../response/model/original-form-reader'
 import {readCandidateContent,type ContentCandidateBinding} from '../../model/content-candidate-reader'
 import {hasCompleteSingleContentResult,type ContentRevisionSelection} from '../../model/content-revision-reader'
-import {readDraftCandidateBasis} from '../../model/content-draft-candidate-basis'
-import {prepareDraftCandidateRequest} from '@/services/smart-bid/content/draft/content-draft-candidate-request'
+import {prepareRegisteredDraftCandidateRequest,readDraftCandidateBasis} from '../../model/content-draft-candidate-basis'
 import {readRegisteredOriginalContentDraftSave} from '../../model/content-draft-save-reader'
 import {reconcileSavedContentDraft} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
 type Binding=Pick<ContentAuthoringBinding,'runtime'|'dataViewKey'|'projectId'|'draftId'|'actorUserId'|'assertCurrent'|'setPending'>
@@ -81,7 +80,7 @@ export type ContentAuthoringScriptSession=Readonly<{
  compareOriginalForms:(selection:Parameters<typeof compareRegisteredOriginalForms>[1])=>ReturnType<typeof compareRegisteredOriginalForms>
  previewCandidate:(selection:ContentRevisionSelection,options:CandidatePreviewInput)=>ReturnType<ContentCandidateBinding['previewScope']>
  captureCandidateDraft:()=>ReturnType<ContentAuthoringCommands['captureCandidateDraft']>
- prepareDraftCandidate:(input:DraftCandidateInput)=>ReturnType<typeof prepareDraftCandidateRequest>
+ prepareDraftCandidate:(input:DraftCandidateInput)=>ReturnType<typeof prepareRegisteredDraftCandidateRequest>
 }>
 /** 供正式SparkPageRenderer.host使用；命令对象仍归原薄宿主释放。 */
 export function createContentAuthoringScriptHost(binding:Binding,commands:ContentAuthoringCommands,receiptDataViewKey?:string){
@@ -116,7 +115,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      if(revisionId!==null){
       if(request.firstBatchId!==undefined||request.targetScopeIndex!==undefined)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
       const basis=await readDraftCandidateBasis(host,{revisionId})
-      return prepareDraftCandidateRequest(captured,basis,{...requestFields,targetScope:request.targetScope})
+      return prepareRegisteredDraftCandidateRequest(host,captured,basis,{...requestFields,targetScope:request.targetScope})
      }
      const projectKey=buildDataViewKey('ContentProject','selectedProject',scenarioId)
      const projectView=runtime.resolveView(projectKey),project=projectView?.rows[0]
@@ -134,7 +133,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
       {revisionId,firstBaselineId:project['activeBaselineId'],firstBatchId,targetScope:request.targetScope,
        ...(request.targetScopeIndex===undefined?{}:{targetScopeIndex:request.targetScopeIndex})})
      if(!('targetScope' in basis))throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
-     return prepareDraftCandidateRequest(captured,basis,{...requestFields,targetScope:basis.targetScope})
+     return prepareRegisteredDraftCandidateRequest(host,captured,basis,{...requestFields,targetScope:basis.targetScope})
     },
     async captureCandidateDraft(){
      assertCurrent()

@@ -2,7 +2,7 @@
  * @module app:services/smart-bid/operation/operation-route-agent-task
  * 职责：由正式工艺装配原参数，并沿 SPARK AI 注册契约准备同一次任务。
  */
-import {createAiAgentTask} from '@spark-appworks/spark-ai/agent'
+import {createAiAgentSession,createAiAgentTask,type AiAgentTurnMeta} from '@spark-appworks/spark-ai/agent'
 import {canonicalSnapshotValue} from '../content/revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '../content/references/snapshot-reference-values'
 
@@ -29,4 +29,23 @@ export function prepareOperationRouteAgentTask(registry:Registry,source:Readonly
   if(task.scope.businessInstanceId!==businessInstanceId||task.scope.runtimeInstanceId!==runtimeInstanceId||
    canonicalSnapshotValue(task.normalizedInput)!==encoded)throw Error('OPERATION_ROUTE_AGENT_SCOPE')
  }})
+}
+
+/** 通过现有 Agent I/O 派发一次已登记试次；未知结果留给原试次回查。 */
+export async function dispatchOperationRouteAgentTask(options:Parameters<typeof createAiAgentSession>[0],
+ source:Parameters<typeof prepareOperationRouteAgentTask>[1]&Readonly<{
+  turn:AiAgentTurnMeta
+ }>){
+ const {turn}=source
+ if(!identity(turn.turnId))throw Error('OPERATION_ROUTE_AGENT_TURN_REQUIRED')
+ const fixedTurn=Object.freeze({...turn})
+ const prepared=prepareOperationRouteAgentTask(options.registry,source)
+ const session=createAiAgentSession(options,prepared.task.target)
+ if(session.scope.businessInstanceId!==prepared.task.scope.businessInstanceId||
+  session.scope.runtimeInstanceId!==prepared.task.scope.runtimeInstanceId||
+  session.scope.instanceId!==prepared.task.scope.instanceId)throw Error('OPERATION_ROUTE_AGENT_SCOPE')
+ await session.start()
+ prepared.assertCurrent()
+ await session.send(prepared.task.toChatRequest({turn:fixedTurn}))
+ return Object.freeze({session,turnId:fixedTurn.turnId,publishedVersionRef:prepared.publishedVersionRef})
 }

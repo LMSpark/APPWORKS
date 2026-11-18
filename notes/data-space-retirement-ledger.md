@@ -11365,3 +11365,5 @@ flowchart TD
 2026-11-18 SmartBid 合并复验：基线 af5199bfd，标书域 Vitest 95 文件、724 项通过。页11生产源码仍仅有 preparePublishedContentAuthoringCall 定义，应用启动未注册该回调。历史冷开截图只见应用根；正式发布的节点与工具身份、登录后导航回读及权威草稿持久化均缺当前证据。
 
 2026-11-18 SmartBid I5：工艺任务准备消费正式版本证明及 SPARK AI 注册输入合同，校验归一后的 JSON、业务实例和运行实例仍等于已固定输入。正式 Agent 类夹具验证正常构造及错实例拒绝；专项 Vitest/ESLint 通过，生产注册和SSE未验。
+
+2026-11-18 SmartBid I5：路线工艺沿现有 SPARK Agent session start/send 使用既定 turnId，启动后复核原作用域权限再发。官方会话类夹具证实一次进入原 turn callback，错运行实例零额外调用。专项 Vitest/ESLint 通过；生产注册、实际后端 SSE、原试次记录及恢复仍待验。

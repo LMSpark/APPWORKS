@@ -1,8 +1,8 @@
-import {expect,it} from 'vitest'
+import {expect,it,vi} from 'vitest'
 import {AiAgentRegistration,AiAgentToolResult,DefaultAiAgentSessionStore,createSimpleInputContract} from '@spark-appworks/spark-ai/agent'
-import {prepareOperationRouteAgentTask} from '@/services/smart-bid/operation/operation-route-agent-task'
+import {dispatchOperationRouteAgentTask,prepareOperationRouteAgentTask} from '@/services/smart-bid/operation/operation-route-agent-task'
 
-it('uses a registered SPARK Agent input contract and rejects another runtime instance',()=>{
+it('uses a registered SPARK Agent input contract and rejects another runtime instance',async()=>{
  const registrationId='bid.route.compose',businessInstanceId='ROUTE-1'
  const registration=new AiAgentRegistration({
   moduleId:registrationId,name:'路线编排',description:'生成路线候选',
@@ -21,4 +21,13 @@ it('uses a registered SPARK Agent input contract and rejects another runtime ins
  expect(ready.task.toChatRequest().historyMsgs).toEqual([{role:'user',content:source.inputs.prompt}])
  expect(()=>prepareOperationRouteAgentTask(registry,{...source,runtimeInstanceId:'OTHER'})).toThrow('OPERATION_ROUTE_AGENT_SCOPE')
  expect(()=>prepareOperationRouteAgentTask(registry,{...source,publishedVersionRef:''})).toThrow('OPERATION_ROUTE_AGENT_SCOPE')
+ const executeTurn=vi.fn(async()=>({text:'{"nodes":[]}',toolCalls:[]}))
+ const options={registry,turnCallbacks:{executeTurn,appendMessages:async()=>{}}}
+ const time='2026-11-18T10:00:00+08:00'
+ const turn={turnId:crypto.randomUUID(),seq:1,baseRevision:0,queuedAt:time,startedAt:time,maxParallelTurns:1}
+ const dispatched=await dispatchOperationRouteAgentTask(options,{...source,turn})
+ expect(dispatched.turnId).toBe(turn.turnId)
+ expect(executeTurn).toHaveBeenCalledOnce()
+ await expect(dispatchOperationRouteAgentTask(options,{...source,turn,runtimeInstanceId:'OTHER'})).rejects.toThrow('OPERATION_ROUTE_AGENT_SCOPE')
+ expect(executeTurn).toHaveBeenCalledOnce()
 })

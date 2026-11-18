@@ -11,17 +11,18 @@ AI用途：迁移系统运维数据恢复时，核对级联输入、data_id取�
       <RendererSection class="recovery-page__side" title="数据表选择" :grid-columns="1" :grid-gap="12">
         <RendererForm :data-view-key="appKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
           <FieldSelect data-member="value" :option-data-view-key="appKey" :option-label-fields="['AppDesc', 'AppName']"
-            label="应用系统" placeholder="请选择应用系统" :filterable="true" :clearable="true" :disabled="busy" />
+            label="应用系统" placeholder="请选择应用系统" :filterable="true" :clearable="true" :disabled="locked" />
         </RendererForm>
         <RendererForm :data-view-key="dbKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
           <FieldSelect data-member="value" :option-data-view-key="dbKey" :option-label-fields="['conName']"
-            label="数据库" placeholder="请选择数据库" :filterable="true" :clearable="true" :disabled="busy" />
+            label="数据库" placeholder="请选择数据库" :filterable="true" :clearable="true" :disabled="locked" />
         </RendererForm>
         <RendererTable :data-view-key="tableKey" :children="tableFields" :show-data-view-meta="false"
           :pagination="{pageSizes: [15, 30, 50]}" />
       </RendererSection>
       <RendererSection class="recovery-page__main" :title="table?.label ?? '数据'" :grid-columns="1"
         :status="table ? notice : '请先选择应用系统和数据库，再选择数据表'" :error="message">
+        <RendererButton v-if="unconfirmed" label="核验原保存结果" :disabled="busy" @click="verifyOriginalSave" />
         <template v-if="table">
           <RendererTabs v-model="tab" @tab-change="loadAll">
             <RendererTabPane label="待恢复数据" name="deleted" :index="0">
@@ -45,12 +46,13 @@ AI用途：迁移系统运维数据恢复时，核对级联输入、data_id取�
 
 <script setup lang="ts">
 import {computed, nextTick, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
+import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import type {RToolbarProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
-const {RendererSection, RendererForm, RendererTable, RendererTabs, RendererTabPane, FieldSelect, consumeRequiredPageService} = Components
+const {RendererSection, RendererForm, RendererTable, RendererTabs, RendererTabPane, RendererButton, FieldSelect, consumeRequiredPageService} = Components
 const scenarioId = '70D5D8FACCC201A822F64B16A441BE8F'
 const {sparkConsume} = Components.useSparkComponent({type: 'data-recovery-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'data-recovery-page')
@@ -70,6 +72,9 @@ const tab = ref<string | number>('deleted')
 const table = shallowRef<{rowid: string; label: string}>()
 const columns = shallowRef<readonly {name: string; label: string}[]>([])
 const columnsEpoch = ref(0), busy = ref(false), message = ref(''), notice = ref('')
+const unconfirmed = shallowRef<RecoveryCommit>()
+const locked = computed(() => busy.value || unconfirmed.value !== undefined)
+useSystemPageDirtySource({get isDirty() {return locked.value}})
 /** 软删除读取适配器拒绝排序，表数据列为运行时生成、不在视图输出合同内，二者均不提供表头排序。 */
 const dataFields = computed(() => columns.value.map(column => {
   const node = text(column.name, column.label)
@@ -139,10 +144,10 @@ function undoBlocker(row: DataRow): string {
   return target.editActionState(row) === 'enabled' && target.fieldAccess(row, 'status').write === 'allowed' ? '' : '当前无撤销该恢复记录的权限'
 }
 const deletedActions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
-  label: '恢复', buttonType: 'primary', link: true, disabled: busy.value, onClick: recover,
+  label: '恢复', buttonType: 'primary', link: true, disabled: locked.value, onClick: recover,
 }}]}))
 const recoveredActions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
-  label: '撤销恢复', buttonType: 'warning', link: true, disabled: busy.value, onClick: undo,
+  label: '撤销恢复', buttonType: 'warning', link: true, disabled: locked.value, onClick: undo,
 }}]}))
 
 async function confirm(text: string): Promise<boolean> {
@@ -150,19 +155,36 @@ async function confirm(text: string): Promise<boolean> {
 }
 /** 一次恢复记录提交：目标视图、记录主键、失败后丢弃本地变更的方式及成功提示。 */
 type RecoveryCommit = Readonly<{target: DataView; id: string | number; discard: () => void; done: string}>
-async function commit({target, id, discard, done}: RecoveryCommit): Promise<void> {
+async function commit(operation: RecoveryCommit): Promise<void> {
+  const {target, id, discard, done} = operation
   const result = await target.dataSet?.saveChanges({views: [{tableName: target.tableName, viewId: target.viewId, ids: [id]}]})
   if (!result) throw new Error('恢复记录视图缺少DataSet')
   if (!result.success) {
-    if (!target.hasUnconfirmedSave) discard()
+    if (target.hasUnconfirmedSave) unconfirmed.value = operation
+    else discard()
     throw new Error(result.error?.message ?? '保存未确认，请刷新核验')
   }
   notice.value = done
   await Promise.all([view(deletedKey).refresh(), target.refresh()])
 }
 
+async function verifyOriginalSave(): Promise<void> {
+  const operation = unconfirmed.value
+  if (!operation || busy.value) return
+  busy.value = true; message.value = ''
+  try {
+    const {target} = operation
+    if (target.destroyed || target !== recoveredView() || !target.hasUnconfirmedSaveFor([operation.id])) throw new Error('原保存查询已失效')
+    const result = await target.saveChanges([operation.id])
+    if (!result.success) throw new Error(result.message || '原保存结果尚未核定')
+    unconfirmed.value = undefined
+    notice.value = '原保存结果已确认'
+    await Promise.all([view(deletedKey).refresh(), target.refresh()])
+  } catch (cause) { message.value = failure(cause) } finally { busy.value = false }
+}
+
 async function recover(row: DataRow): Promise<void> {
-  if (busy.value || !table.value) return
+  if (locked.value || !table.value) return
   const blocker = recoverBlocker(row)
   if (blocker) { message.value = `无法恢复：${blocker}`; return }
   busy.value = true; message.value = ''; notice.value = ''
@@ -190,7 +212,7 @@ async function recover(row: DataRow): Promise<void> {
 
 async function undo(row: DataRow): Promise<void> {
   const target = recoveredView(), id = target.rows.includes(row) ? target.getPkKey(row) : undefined
-  if (busy.value || id === undefined) return
+  if (locked.value || id === undefined) return
   const blocker = undoBlocker(row)
   if (blocker) { message.value = `无法撤销恢复：${blocker}`; return }
   busy.value = true; message.value = ''; notice.value = ''

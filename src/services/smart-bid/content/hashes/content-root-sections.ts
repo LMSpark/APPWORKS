@@ -10,7 +10,8 @@ import {snapshotReferenceFields,snapshotReferenceIdentity,snapshotReferenceRecor
 export type ScopedResponseTarget=Readonly<{assignmentId:string;responseId:string|null}>
 
 function compare(left:string,right:string):number{return left<right?-1:left>right?1:0}
-function requirementPins(value:unknown){
+/** Read the exact requirement references stored in the manifest. */
+export function readSnapshotRequirementPins(value:unknown){
  const error='CONTENT_ROOT_REQUIREMENT_PIN',pins:Array<Readonly<{chapterId:string;lineageId:string;version:string}>>=[],seen=new Set<string>()
  visitSnapshotReferences(value,item=>{
   const {chapterId,lineageId,version}=snapshotReferenceFields(item,['chapterId','lineageId','version'],error)
@@ -73,7 +74,7 @@ export async function hashScopedResponses(manifest:unknown,nodeIds:readonly stri
 export async function hashContentRootSections(value:unknown){
  const parsed:unknown=JSON.parse(canonicalRevisionSnapshot(value))
  const manifest=snapshotReferenceRecord(parsed,'CONTENT_ROOT_SNAPSHOT_MODEL')
- const pins=requirementPins(manifest['requirementPins']),assignments=indexedRecords(manifest['responseAssignments']),responses=indexedRecords(manifest['responses'])
+ const pins=readSnapshotRequirementPins(manifest['requirementPins']),assignments=indexedRecords(manifest['responseAssignments']),responses=indexedRecords(manifest['responses'])
  for(const row of responses.values()){
   const assignmentId=row['assignmentId']
   if(!snapshotReferenceIdentity(assignmentId)||!assignments.has(assignmentId))throw Error('CONTENT_ROOT_RESPONSE_ASSIGNMENT')

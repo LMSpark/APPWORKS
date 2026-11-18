@@ -6,6 +6,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readRegisteredTenderFollowupNotices} from './tender-followup-notice-reader'
+import {readTenderChangeChapterPins} from './tender-change-chapter-reader'
 import {matchFollowupNoticeToDeadlinePackage,type reconcileDeadlineDelivery} from '../authoring/model/review/deadline/content-deadline-reconciliation'
 
 type Read=Parameters<typeof readRegisteredTenderFollowupNotices>
@@ -18,15 +19,22 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
  const {selection,readDeadline}=options
  const scope=Object.freeze({...selection})
  return {runtime,assertCurrent:host.assertCurrent,async invoke(name:string,input:unknown,signal:AbortSignal){
-  if(name!=='tender.followup.readNotices'||!isRecord(input)||Object.keys(input).length!==1||!identity(input['knownAt']))
-   throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
+  if(!isRecord(input))throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
   const generation=runtime.generation
   const assertCurrent=()=>{
    host.assertCurrent()
    if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)
     throw Error('TENDER_FOLLOWUP_PAGE_STALE')
   }
+  if(name==='tender.followup.traceChapterPins'){
+   const {revisionId,previousId,currentId}=input
+   if(Object.keys(input).length!==3||!identity(revisionId)||!identity(previousId)||!identity(currentId)||previousId===currentId)
+    throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
+   return readTenderChangeChapterPins({...host,runtime,assertCurrent},{revisionId,previousId,currentId})
+  }
   const knownAt=input['knownAt']
+  if(name!=='tender.followup.readNotices'||Object.keys(input).length!==1||!identity(knownAt))
+   throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
   const timeline=await readRegisteredTenderFollowupNotices({...host,runtime,assertCurrent},scope,knownAt)
   if(!readDeadline||!timeline.items.some(item=>item.event.originalObjectRef!==null))return timeline
   try{

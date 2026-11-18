@@ -71,10 +71,17 @@ export async function readReviewedResponseForCandidate(
  const {assertCurrent:_proof,...record}=draft
  const snapshot=structuredClone(record)
  const snapshotText=canonicalSnapshotValue(snapshot)
- if(await hashCanonicalSnapshotText(snapshotText)!==review.draftHash)
+ const reviewRecord=Object.freeze({draftHash:review.draftHash,reviewerRef:review.reviewerRef,
+  ruleVersionRef:review.ruleVersionRef,deviation:review.deviation,positions:review.positions,
+  deferredPositionRefs:review.deferredPositionRefs})
+ const [draftHash,reviewHash]=await Promise.all([
+  hashCanonicalSnapshotText(snapshotText),
+  hashCanonicalSnapshotText(canonicalSnapshotValue(reviewRecord)),
+ ])
+ if(draftHash!==review.draftHash)
   throw Error('BID_RESPONSE_CANDIDATE_VERSION')
  assertCurrent()
- return Object.freeze({response:snapshot,reviewHash:review.draftHash,deviation:review.deviation,
+ return Object.freeze({response:snapshot,draftHash,reviewHash,reviewRecord,deviation:review.deviation,
   reviewedPositions:review.positions,deferredPositionRefs:review.deferredPositionRefs,assertCurrent:()=>{
    assertCurrent()
    if(canonicalSnapshotValue(snapshot)!==snapshotText)throw Error('BID_RESPONSE_CANDIDATE_VERSION')

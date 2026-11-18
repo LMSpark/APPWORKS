@@ -22,9 +22,14 @@ it('requires verification of the exact AI-assisted position separately from the 
  expect(verified).toMatchObject({
   verified:true,deferredPositionRefs:['FILE-FIELD'],
  })
- expect(await readReviewedResponseForCandidate(scope,draft,verified)).toMatchObject({
+ const reviewed=await readReviewedResponseForCandidate(scope,draft,verified)
+ expect(reviewed).toMatchObject({
   response:{assignmentId:'A',body:{statement:'按条款答复'}},deferredPositionRefs:['FILE-FIELD'],
  })
+ const anotherReview=await reviewResponseDraft(draft,{...source,checks:[{...check,reviewRef:'OTHER',aiVerificationRef:'AI'}]})
+ const another=await readReviewedResponseForCandidate(scope,draft,anotherReview)
+ expect(another.draftHash).toBe(reviewed.draftHash)
+ expect(another.reviewHash).not.toBe(reviewed.reviewHash)
  await expect(readReviewedResponseForCandidate(scope,draft,pending)).rejects.toThrow('BID_RESPONSE_CANDIDATE_SCOPE')
  await expect(readReviewedResponseForCandidate(scope,{...draft,body:{statement:'换文',data:{}}},verified))
   .rejects.toThrow('BID_RESPONSE_CANDIDATE_VERSION')

@@ -141,7 +141,7 @@ export type ContentCandidateBinding=Readonly<{
   Promise<Readonly<{effectiveHash:string;requiresUseCheck:true;assertCurrent:()=>void}>>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  verifyReviewedResponse:(responseId:string,reviewed:Awaited<ReturnType<typeof readReviewedResponseForCandidate>>)=>
-  Readonly<{responseId:string;reviewHash:string;assertCurrent:()=>void}>
+  Readonly<{responseId:string;reviewHash:string;reviewRecord:Awaited<ReturnType<typeof readReviewedResponseForCandidate>>['reviewRecord'];assertCurrent:()=>void}>
  verifyVolumePlan:(plan:Parameters<typeof verifyBidVolumePlanPlacement>[0])=>
   ReturnType<typeof verifyBidVolumePlanPlacement>&Readonly<{basisCheck:Readonly<{
    owner:string;scopeRef:Readonly<{projectId:string;baselineId:string;candidateRevisionId:string}>
@@ -242,7 +242,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
    const node=nodes.dataViewKey?host.runtime.resolveView(nodes.dataViewKey)?.rows.find(item=>item['nodeId']===anchorNodeId):undefined
    if(!verifiedAnchor||node?.['nodeHash']!==verifiedAnchor.contentHash)throw Error(error)
   }
-  return Object.freeze({responseId,reviewHash:reviewed.reviewHash,assertCurrent:assertProof})
+  return Object.freeze({responseId,reviewHash:reviewed.reviewHash,reviewRecord:reviewed.reviewRecord,assertCurrent:assertProof})
  }
  const verifiedExpansions=new WeakSet<object>()
  const readCalculationTemplates=(nodeIds:readonly string[])=>{

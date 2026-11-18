@@ -174,7 +174,8 @@ it.each(['response-fact','scoped-response'] as const)('matches reviewed response
   const review=await getReview(anchored&&typeof nodeHash==='string'?nodeHash:
    await hashCanonicalSnapshotText(canonicalSnapshotValue(draft.body)))
   const reviewed=await readReviewedResponseForCandidate(scope,draft,review)
-  expect(candidate.verifyReviewedResponse(responseId,reviewed)).toMatchObject({responseId,reviewHash:draftHash})
+  expect(candidate.verifyReviewedResponse(responseId,reviewed)).toMatchObject({responseId,reviewHash:reviewed.reviewHash,
+   reviewRecord:{draftHash,reviewerRef:'REVIEWER',ruleVersionRef:'RULE',positions:[{reviewRef:'REVIEW'}]}})
   expect(()=>candidate.verifyReviewedResponse('OTHER',reviewed)).toThrow('CONTENT_CANDIDATE_REVIEWED_RESPONSE')
   if(anchored){
    const wrong=await readReviewedResponseForCandidate(scope,draft,await getReview('b'.repeat(64)))

@@ -8,7 +8,7 @@ import {prepareAdoptionFromApprovedPreview} from './adoption-request'
 import {canonicalSnapshotValue} from '../revision-snapshot-hash'
 import {snapshotReferenceIdentity,snapshotReferenceRecord} from '../references/snapshot-reference-values'
 
-type AdoptionBasis=Readonly<{stageRef:unknown;baselineId:string;basisChecks:unknown}>
+type AdoptionBasis=Readonly<{stageRef:unknown;baselineId:string;basisChecks:unknown;assertCurrent:()=>void}>
 type AdoptionPreflight=Readonly<{
  request:unknown
  preview:AdoptionBasis&Readonly<{selection:unknown}>
@@ -18,6 +18,8 @@ type RepreviewReason='HEAD_CHANGED'|'STAGE_CHANGED'|'BASELINE_CHANGED'|'BASIS_CH
 
 /** 当前依据变化时只报告重做条件，不签发可执行证明。 */
 export async function prepareCheckedAdoption({request,preview,current}:AdoptionPreflight){
+ const assertCurrent=()=>{preview.assertCurrent();current.assertCurrent()}
+ assertCurrent()
  const selection=snapshotReferenceRecord(preview.selection,'ADOPTION_PREVIEW_REQUIRED')
  if(!snapshotReferenceIdentity(current.projectId)||selection['projectId']!==current.projectId)
   throw Error('ADOPTION_PREFLIGHT_PROJECT')
@@ -30,7 +32,11 @@ export async function prepareCheckedAdoption({request,preview,current}:AdoptionP
  if(canonicalSnapshotValue(preview.stageRef)!==canonicalSnapshotValue(current.stageRef))reasons.push('STAGE_CHANGED')
  if(preview.baselineId!==current.baselineId)reasons.push('BASELINE_CHANGED')
  if(!basis.matches)reasons.push('BASIS_CHECKS_CHANGED')
- if(reasons.length)return {status:'REPREVIEW_REQUIRED' as const,reasons,basisIssues:basis.issues}
+ if(reasons.length){
+  assertCurrent()
+  return Object.freeze({status:'REPREVIEW_REQUIRED' as const,reasons:Object.freeze(reasons),basisIssues:basis.issues,assertCurrent})
+ }
  const prepared=await prepareAdoptionFromApprovedPreview(request,selection)
- return {status:'PREPARED' as const,request:prepared,requiresAtomicCommitChecks:basis.requiresAtomicCommitChecks}
+ assertCurrent()
+ return Object.freeze({status:'PREPARED' as const,request:prepared,requiresAtomicCommitChecks:basis.requiresAtomicCommitChecks,assertCurrent})
 }

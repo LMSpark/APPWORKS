@@ -34,14 +34,7 @@
               <template v-if="selectedNode">
           <SparkComponentRenderer :config="designRegion(children,'excel-node-basic')" />
           <RendererForm class="excel-node-form" :data-view-key="nodesKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="3">
-            <section class="excel-filter-definition">
-              <h3>导出过滤条件</h3>
-              <p v-if="filterReadOnly" role="status">版式过滤字段范围尚未确认，当前仅查看已存条件。</p>
-              <RendererFilterExpression v-if="!filterReadOnly" :data-view-key="nodesKey" data-member="currentRow" field="filters" format="spark-json" title="导出过滤条件"
-                :column-data-view-key="ruleFieldOptionsKey" column-type-field="type" :column-type-map="{'0':'string','1':'number','2':'datetime'}"
-                :column-table="filterTable" :readonly="locked" :on-editing-change="value => pending('nodes.filters',value)" />
-              <RendererFilterExpression v-else :data-view-key="nodesKey" data-member="currentRow" field="filters" format="spark-json" title="导出过滤条件" :columns="[]" :readonly="true" />
-            </section>
+            <SparkComponentRenderer :config="designRegion(children,'excel-node-filter')" />
             <section class="excel-filter-definition">
               <h3>导出排序</h3>
               <p v-if="sortState.error" role="status">{{ sortState.error }}</p>
@@ -137,7 +130,7 @@ import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
 import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
 import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
-const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, RendererTabs, RendererTabPane, FieldText, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTable, RendererForm, RendererButton, RendererDialog, RendererTabs, RendererTabPane, FieldText, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
@@ -284,6 +277,8 @@ function makeTreeHost(runtime:PageRuntime){
     if(command==='excel.design.connect')return {
       locked:()=>locked.value,selected:()=>!!selectedNode.value,
       association:()=>association.value ? associationHandlers.value : undefined,
+      filter:()=>({readOnly:filterReadOnly.value,table:filterTable.value}),
+      setFilterPending:(editing:boolean)=>{if(active&&session.isCurrent(runtime))pending('nodes.filters',editing)},
     }
     if(locked.value)return undefined
     if(command==='excel.design.addRoot')await addNode('root')

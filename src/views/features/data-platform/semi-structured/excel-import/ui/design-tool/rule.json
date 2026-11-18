@@ -43,5 +43,13 @@
       {"type":"r-select","props":{"field":"parentField","label":"父字段","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@parentFields","optionLabelFields":["title","name"],"onBeforeRender":"bindParentField"}},
       {"type":"r-select","props":{"field":"foreignKeyField","label":"外键字段","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@foreignKeyFields","optionLabelFields":["title","name"],"onBeforeRender":"bindForeignField"}}
     ]
+  },
+  {
+    "id":"excel-node-filter",
+    "type":"r-section",
+    "props":{"title":"导出过滤条件","bordered":false,"gridColumns":1,"onBeforeRender":"bindFilterSection"},
+    "children":[
+      {"type":"r-filter-expression","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","dataMember":"currentRow","field":"filters","format":"spark-json","title":"导出过滤条件","onBeforeRender":"bindFilterEditor"}}
+    ]
   }
 ]

@@ -6,16 +6,18 @@ AI用途：迁移系统运维数据恢复时，核对级联输入、data_id取�
 -->
 <template>
   <RendererSection class="recovery-page" :bordered="false" :grid-columns="1" :grid-gap="16"
-    :status="loading ? '正在读取应用系统…' : ''" :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
+    :status="loading ? '正在读取应用系统…' : reloadBlocked ? '当前显示原导航的数据恢复记录。' : ''"
+    :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
+    <RendererButton v-if="reloadBlocked" label="切换到当前导航" :disabled="locked" @click="loadCurrentRoute" />
     <div v-if="ready" class="recovery-page__body">
       <RendererSection class="recovery-page__side" title="数据表选择" :grid-columns="1" :grid-gap="12">
         <RendererForm :data-view-key="appKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
           <FieldSelect data-member="value" :option-data-view-key="appKey" :option-label-fields="['AppDesc', 'AppName']"
-            label="应用系统" placeholder="请选择应用系统" :filterable="true" :clearable="true" :disabled="locked" />
+            label="应用系统" placeholder="请选择应用系统" :filterable="true" :clearable="true" :disabled="locked || reloadBlocked" />
         </RendererForm>
         <RendererForm :data-view-key="dbKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
           <FieldSelect data-member="value" :option-data-view-key="dbKey" :option-label-fields="['conName']"
-            label="数据库" placeholder="请选择数据库" :filterable="true" :clearable="true" :disabled="locked" />
+            label="数据库" placeholder="请选择数据库" :filterable="true" :clearable="true" :disabled="locked || reloadBlocked" />
         </RendererForm>
         <RendererTable :data-view-key="tableKey" :children="tableFields" :show-data-view-meta="false"
           :pagination="{pageSizes: [15, 30, 50]}" />
@@ -56,8 +58,12 @@ const {RendererSection, RendererForm, RendererTable, RendererTabs, RendererTabPa
 const scenarioId = '70D5D8FACCC201A822F64B16A441BE8F'
 const {sparkConsume} = Components.useSparkComponent({type: 'data-recovery-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'data-recovery-page')
-const {session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
+const busy = ref(false)
+const unconfirmed = shallowRef<RecoveryCommit>()
+const locked = computed(() => busy.value || unconfirmed.value !== undefined)
+const {session, ready, loading, error, reloadBlocked, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Base_AppSystemList', componentType: 'data-recovery-page', title: '数据恢复',
+  preserveRuntime: () => locked.value,
 })
 const key = (model: string) => buildDataViewKey(model, 'default', scenarioId)
 const appKey = key('Base_AppSystemList'), dbKey = key('Base_AppAndSource_Relation'), tableKey = key('_Base_TblList')
@@ -71,9 +77,7 @@ const recoveredFields: SparkNode[] = [text('sys_id', '应用系统ID'), text('db
 const tab = ref<string | number>('deleted')
 const table = shallowRef<{rowid: string; label: string}>()
 const columns = shallowRef<readonly {name: string; label: string}[]>([])
-const columnsEpoch = ref(0), busy = ref(false), message = ref(''), notice = ref('')
-const unconfirmed = shallowRef<RecoveryCommit>()
-const locked = computed(() => busy.value || unconfirmed.value !== undefined)
+const columnsEpoch = ref(0), message = ref(''), notice = ref('')
 useSystemPageDirtySource({get isDirty() {return locked.value}})
 /** 软删除读取适配器拒绝排序，表数据列为运行时生成、不在视图输出合同内，二者均不提供表头排序。 */
 const dataFields = computed(() => columns.value.map(column => {
@@ -144,10 +148,10 @@ function undoBlocker(row: DataRow): string {
   return target.editActionState(row) === 'enabled' && target.fieldAccess(row, 'status').write === 'allowed' ? '' : '当前无撤销该恢复记录的权限'
 }
 const deletedActions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
-  label: '恢复', buttonType: 'primary', link: true, disabled: locked.value, onClick: recover,
+  label: '恢复', buttonType: 'primary', link: true, disabled: locked.value || reloadBlocked.value, onClick: recover,
 }}]}))
 const recoveredActions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
-  label: '撤销恢复', buttonType: 'warning', link: true, disabled: locked.value, onClick: undo,
+  label: '撤销恢复', buttonType: 'warning', link: true, disabled: locked.value || reloadBlocked.value, onClick: undo,
 }}]}))
 
 async function confirm(text: string): Promise<boolean> {
@@ -184,7 +188,7 @@ async function verifyOriginalSave(): Promise<void> {
 }
 
 async function recover(row: DataRow): Promise<void> {
-  if (locked.value || !table.value) return
+  if (locked.value || reloadBlocked.value || !table.value) return
   const blocker = recoverBlocker(row)
   if (blocker) { message.value = `无法恢复：${blocker}`; return }
   busy.value = true; message.value = ''; notice.value = ''
@@ -197,6 +201,7 @@ async function recover(row: DataRow): Promise<void> {
     const checks = [source.captureReadRow(row, [identity.field]), owners[0].captureReadRow(selectedTable, ['rowid']),
       owners[1].captureReadRow(db, ['conid']), owners[2].captureReadRow(app, ['rowid'])]
     if (!await confirm('确认恢复该条数据吗？')) return
+    if (reloadBlocked.value) throw new Error('导航已变化，请重新选择恢复记录')
     checks.forEach(check => check())
     if (owners[0].currentRow !== selectedTable || owners[1].currentRow !== db || owners[2].currentRow !== app || recoveredView() !== target) {
       throw new Error('恢复对象已变化，请重新选择')
@@ -212,13 +217,14 @@ async function recover(row: DataRow): Promise<void> {
 
 async function undo(row: DataRow): Promise<void> {
   const target = recoveredView(), id = target.rows.includes(row) ? target.getPkKey(row) : undefined
-  if (locked.value || id === undefined) return
+  if (locked.value || reloadBlocked.value || id === undefined) return
   const blocker = undoBlocker(row)
   if (blocker) { message.value = `无法撤销恢复：${blocker}`; return }
   busy.value = true; message.value = ''; notice.value = ''
   try {
     const original = target.captureReadRow(row, ['status'])
     if (!await confirm('撤销恢复后，原数据将重新进入回收站。确认继续吗？')) return
+    if (reloadBlocked.value) throw new Error('导航已变化，请重新选择恢复记录')
     original()
     if (recoveredView() !== target) throw new Error('恢复记录视图已变化，请重新选择')
     const currentBlocker = undoBlocker(row)

@@ -37,6 +37,8 @@ type FeaturePageRuntimeOptions = Readonly<{
   optionViews?: readonly string[]
   /** 主视图及各选项视图首次查询前写入的查询参数；每次装配时取值，抛错即入口失败。 */
   queryContext?: () => Readonly<Record<string, string>>
+  /** 当前实例仍持有未完成的业务操作时，暂停替换运行实例。 */
+  preserveRuntime?: () => boolean
 }>
 
 /** 在路由的执行作用域（应用或目录）内加载主视图，切换或卸载时撤销原实例。 */
@@ -56,6 +58,7 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
     remove: () => sparkRemove(PAGE_RUNTIME),
   })
   const ready = ref(false), loading = ref(false), error = ref('')
+  const reloadBlocked = ref(false)
   const target = computed(() => ({
     projectId: resolveExecutionProjectId(route.path),
     scenario: route.meta['blueprintScenarioId'],
@@ -67,6 +70,11 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
     active && own === generation && session.isCurrent(runtime)
 
   async function loadCurrentRoute(): Promise<void> {
+    if (session.runtime && options.preserveRuntime?.()) {
+      reloadBlocked.value = true
+      return
+    }
+    reloadBlocked.value = false
     const {projectId, nodeId: nodeIdRaw, state} = target.value
     const nodeId = typeof nodeIdRaw === 'string' ? nodeIdRaw.trim() : ''
     const own = ++generation
@@ -129,5 +137,5 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
     },
   )
   onBeforeUnmount(() => {active = false; generation++; session.dispose()})
-  return {viewKey, session, ready, loading, error, loadCurrentRoute}
+  return {viewKey, session, ready, loading, error, reloadBlocked, loadCurrentRoute}
 }

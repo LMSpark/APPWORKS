@@ -1196,7 +1196,7 @@ describe('table-and-view-page', () => {
     expect((cnInput.element as HTMLInputElement).value).toBe('合计列')
   })
 
-  it('shows workflow design stub message from table design data flow tab', async () => {
+  it('disables workflow design without a selected workflow', async () => {
     const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
     const designDialog = await openTableDesignOnTable(wrapper, 'Orders')
     const flowTab = wrapper.findAll('.el-tabs__item').find(item => item.text() === '数据流')
@@ -1204,10 +1204,23 @@ describe('table-and-view-page', () => {
     await flushPromises()
     await flushPromises()
     const design = designDialog.findAll('button').find(button => button.text() === '设计')
-    expect(design).toBeTruthy()
+    expect(design?.attributes('disabled')).toBeDefined()
+  })
+
+  it('opens the workflow designer for the selected physical table workflow', async () => {
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    const dialog = await openTableDesignOnTable(wrapper, 'Orders')
+    await dialog.findAll('.el-tabs__item').find(item => item.text() === '数据流')!.trigger('click')
+    await flushPromises()
+    const row = dialog.findAll('tbody tr').find(item => item.text().includes('订单流'))
+    expect(row).toBeDefined()
+    await row!.trigger('click')
+    await flushPromises()
+    const design = dialog.findAll('button').find(button => button.text() === '设计')
+    expect(design?.attributes('disabled')).toBeUndefined()
     await design!.trigger('click')
     await flushPromises()
-    expect(wrapper.text()).toContain('暂未实现')
+    expect(wrapper.text()).toContain('数据工作流设计')
   })
 
   it('loads physical table preview when table design data tab opens', async () => {

@@ -56,13 +56,17 @@
         :busy="busy" :action-error="actionError" :unregistered-hint="unregisteredTableHint"
         :can-load-unregistered="canLoadUnregisteredTables"
         @cancel="cancelTableRegister" @save="saveTableRegister" @load-unregistered="loadUnregisteredTableNames" />
+      <RendererDialog v-if="workflowDesignId" :model-value="true" title="数据工作流设计" :data-view-key="workflowKey"
+        :close-disabled="workflowDesignPending" @update:model-value="closeWorkflowDesign">
+        <WorkflowDesign ref="workflowDesigner" :rowid="workflowDesignId" />
+      </RendererDialog>
       <TableDesignDialog v-if="tableDesignOpen"
         title="表设计" :object-meta-key="tableKey"
         :object-header-children="DATABASE_CATALOG_TABLE_DESIGN_HEADER_FIELDS"
         :field-key="fieldKey" :field-children="fieldGridChildren"
         :relation-key="relationKey" :relation-list-fields="DATABASE_CATALOG_RELATION_LIST_FIELDS"
         :relation-toolbar="relationToolbar" :relation-error="relationListError"
-        :workflow-key="workflowKey" :workflow-list-fields="workflowListFields" :workflow-toolbar="workflowToolbar"
+        :on-workflow-row-click="chooseTableWorkflow" :workflow-key="workflowKey" :workflow-list-fields="workflowListFields" :workflow-toolbar="workflowToolbar"
         :workflow-error="workflowListError" :workflow-query="workflowQuery"
         :preview-key="previewKey" :preview-children="previewChildren" :preview-error="previewFailure"
         :toolbar="tableDesignFieldToolbar" :save-disabled="designSaveDisabled"
@@ -111,6 +115,7 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, reactive, ref, shallowRef, toRaw, watch} from 'vue'
 import {useRoute} from 'vue-router'
+import WorkflowDesign from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import * as SparkData from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
@@ -449,14 +454,40 @@ const selectedApplicationLabel = computed(() => {
   if (desc && name) return `${desc}[${name}]`
   return modid
 })
+const workflowDesignId = ref('')
+const workflowDesigner = ref<{hasPending: boolean; busy: boolean; unconfirmed: boolean}>()
+const workflowDesignPending = computed(() => {
+  const editor = workflowDesigner.value
+  return editor?.hasPending === true || editor?.busy === true || editor?.unconfirmed === true
+})
+function closeWorkflowDesign(open: boolean): void {
+  if (!open && !workflowDesignPending.value) workflowDesignId.value = ''
+}
+function chooseTableWorkflow(row: SparkData.DataRow): void {
+  workflowView.value?.setSelectedRows([row])
+  revision.value++
+}
+function openWorkflowDesign(): void {
+  const view = workflowView.value
+  const row = view?.selectedRows[0]
+  const tableId = tableView.value?.getSelectedValues()[0]
+  if (!view || !row || view.selectedRows.length !== 1 || !tableId || row['tblid'] !== tableId) return
+  try {
+    view.captureReadRow(row, ['rowid', 'tblid'])()
+    const id = view.getPkKey(row)
+    if (typeof id === 'string' && id) workflowDesignId.value = id
+  } catch (cause) {
+    message.value = cause instanceof Error ? cause.message : String(cause)
+  }
+}
 const workflowToolbar = computed<RToolbarProps>(() => {
   revision.value
   const workflow = workflowView.value
   return {children: [
     {type: 'r-button', props: {
       label: '设计',
-      disabled: busy.value,
-      onClick: () => { message.value = '暂未实现' },
+      disabled: busy.value || !!workflowDesignId.value || workflow?.selectedRows.length !== 1,
+      onClick: openWorkflowDesign,
     }},
     {type: 'r-button', props: {
       label: '刷新',
@@ -1042,6 +1073,7 @@ async function deleteSelectedRelation(): Promise<void> {
 }
 
 function closeTableDesign(): void {
+  if (workflowDesignId.value) return
   if (relationSession.value) return
   resetWorkflowQuery()
   tableDesignOpen.value = false
@@ -1635,7 +1667,7 @@ function release(): void {
 }
 
 function hasPendingWork(): boolean {
-  if (busy.value || loading.value || relationExpressionEditing.value) return true
+  if (busy.value || loading.value || relationExpressionEditing.value || workflowDesignPending.value) return true
   const data = dataSet.value
   if (!data) return false
   return Object.values(data.tables).some(table => Object.values(table.views).some(view =>

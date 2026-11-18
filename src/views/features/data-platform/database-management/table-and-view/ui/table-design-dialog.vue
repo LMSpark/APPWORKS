@@ -53,7 +53,7 @@
           </label>
           <RendererButton label="查询" :disabled="busy" @click="emit('applyWorkflowFilter')" />
         </div>
-        <RendererTable v-if="workflowKey.length > 0" :data-view-key="workflowKey" :children="workflowListFields" :toolbar="workflowToolbar"
+        <RendererTable v-if="workflowKey.length > 0" :data-view-key="workflowKey" :children="workflowListFields" :toolbar="workflowToolbar" :on-row-click="onWorkflowRowClick"
           :stripe="true" :show-pagination="false" :show-data-view-meta="false" />
         <table v-else class="design-empty-grid">
           <thead><tr><th>名称</th><th>工作流编码</th><th>描述</th><th>状态</th><th>版本号</th></tr></thead>
@@ -96,6 +96,7 @@ const props = defineProps<{
   relationListFields: SparkNode[]
   relationToolbar: RToolbarProps
   relationError: string
+  onWorkflowRowClick: (row: DataRow) => void
   workflowKey: string
   workflowListFields: SparkNode[]
   workflowToolbar: RToolbarProps

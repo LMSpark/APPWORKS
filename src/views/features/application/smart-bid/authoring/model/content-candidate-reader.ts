@@ -4,7 +4,8 @@
  * 边界：仅返回原视图绑定与证明；不缓存载荷、不采用、不冒充完整业务闭包或三版预演。
  * AI用途：候选内容先核固定依据一致，再交后续业务检查；JSON内容与模板引用分别核对。
  */
-import {assertRevisionTemplateBindings,readCalculationTableTemplateRefs} from '@/services/smart-bid/content/revision-template-bindings'
+import {assertRevisionTemplateBindings,readCalculationTableTemplateRefs,type RevisionTemplateRef} from '@/services/smart-bid/content/revision-template-bindings'
+import {resolveCalculationTableGenerator} from '@/services/smart-bid/content/references/calculation-table-generator'
 import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
 import {assertRevisionResponseText,readIndependentResponseFactIds,type IndependentResponseFactTarget} from '@/services/smart-bid/content/references/revision-response-text'
 import {hasCompleteSingleContentResult,readContentRevisionBasis,readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
@@ -14,7 +15,7 @@ import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './conte
 import {verifyReadableRevisionRoot} from './hashes/content-revision-root-reader'
 import {readContentBaselineFact,readContentBaselineRequirement,readContentBaselineRequirementPins,readContentBaselineTenderRecord,type ContentBaselineFactBinding,type ContentBaselineRequirementPinsBinding} from './content-baseline-reader'
 import type {RevisionRequirementPin} from '@/services/smart-bid/content/references/revision-requirement-pins'
-import {snapshotReferenceFields,snapshotReferenceRecord,visitSnapshotReferences} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {snapshotReferenceFields,snapshotReferenceIdentity,snapshotReferenceRecord,visitSnapshotReferences} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readTenderRecordReference} from '@/services/smart-bid/content/references/baseline-tender-records'
 import {readContentTenderRecord} from './content-tender-record-reader'
 import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/services/smart-bid/content/content-scoped-preview'
@@ -30,6 +31,13 @@ export type ContentCandidateRequirementPinsBinding=Omit<ContentBaselineRequireme
 /** 候选章节、固定基线和原要求记录已匹配；用途另核。 */
 export type ContentCandidateRequirementBinding=Omit<Awaited<ReturnType<typeof readContentBaselineRequirement>>,'requiresRevisionMatchCheck'>&Readonly<{requiresRevisionMatchCheck:false}>
 type PreviewVersion=Readonly<{snapshot:ContentSnapshotIndexBinding;nodes:ContentSnapshotNodesBinding}>
+type FixedCalculationTemplate=RevisionTemplateRef&Readonly<{classes:unknown;assertCurrent:()=>void}>
+type ReadFixedCalculationTemplate=(ref:RevisionTemplateRef)=>Promise<FixedCalculationTemplate>
+type CalculationSources=Readonly<{
+ readTemplate:ReadFixedCalculationTemplate
+ readGenerator:(key:string)=>Readonly<{key:string;version:string;assertCurrent:()=>void}>|undefined
+ assertInputsCurrent:()=>void
+}>
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
 type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>
 type CandidateScopePreview=Readonly<ReturnType<typeof previewScopedRevisionChanges>&{assertCurrent:()=>void}>
@@ -54,9 +62,12 @@ export type ContentCandidateBinding=Readonly<{
  runtime:ContentRevisionReadHost['runtime']
  readFixedFact:(selection:Readonly<{factId:string;version?:number}>,assertConsumer?:()=>void)=>Promise<ContentCandidateFactBinding>
  readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>ReturnType<typeof readEffectiveFactDependencies>
- hashNodeCalculationInputs:(nodeIds:readonly string[],tables:unknown,assertInputsCurrent:()=>void)=>
+ hashNodeCalculationInputs:(nodeIds:readonly string[],tables:unknown,sources:CalculationSources)=>
   Promise<Awaited<ReturnType<typeof hashCalculationInputs>>&Readonly<{assertCurrent:()=>void}>>
  readCalculationTemplates:(nodeIds:readonly string[])=>ReturnType<typeof readCalculationTableTemplateRefs>
+ resolveCalculationGenerators:(nodeIds:readonly string[],readTemplate:ReadFixedCalculationTemplate)=>Promise<Readonly<{
+  tables:ReadonlyArray<Readonly<{nodeId:string;generatorKey:string}>>;assertCurrent:()=>void
+ }>>
  readEffectiveFacts:(scope:Readonly<{nodeIds:readonly string[];responses:readonly IndependentResponseFactTarget[]}>,assertConsumer?:()=>void)=>ReturnType<typeof readEffectiveFactDependencies>
  readRequirementPinIssues:(assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementPinsBinding>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
@@ -111,11 +122,43 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertCurrent()
   return readCalculationTableTemplateRefs(templateRefs,payloads,nodes.readCalculationTableIds(nodeIds))
  }
- const hashNodeCalculationInputs:ContentCandidateBinding['hashNodeCalculationInputs']=async(nodeIds,tables,assertInputsCurrent)=>{
-  const assertInputs=()=>{assertCurrent();assertInputsCurrent()}
+ const resolveCalculationGenerators:ContentCandidateBinding['resolveCalculationGenerators']=async(nodeIds,readTemplate)=>{
+  const selected=readCalculationTemplates(nodeIds),byNodeId=new Map(payloads.map(node=>[node.nodeId,node]))
+  const templates=new Map<string,FixedCalculationTemplate>()
+  const tables:Array<Readonly<{nodeId:string;generatorKey:string}>>=[]
+  for(const {nodeId,template} of selected){
+   const identity=JSON.stringify([template.documentId,template.key,template.version,template.hash])
+   let source=templates.get(identity)
+   if(!source){
+    source=await readTemplate(template)
+    assertCurrent()
+    if(source.documentId!==template.documentId||source.key!==template.key||source.version!==template.version||source.hash!==template.hash)
+     throw Error('CONTENT_CALCULATION_TEMPLATE_MISMATCH')
+    templates.set(identity,source)
+   }
+   source.assertCurrent()
+   const generatorKey=resolveCalculationTableGenerator(byNodeId.get(nodeId),source.classes)
+   if(generatorKey===null)throw Error('CONTENT_CALCULATION_GENERATOR_REQUIRED')
+   tables.push(Object.freeze({nodeId,generatorKey}))
+  }
+  const assertInputs=()=>{assertCurrent();for(const source of templates.values())source.assertCurrent()}
   assertInputs()
-  const expectedNodeIds=readCalculationTemplates(nodeIds).map(item=>item.nodeId)
-  const result=await hashCalculationInputs({expectedNodeIds,tables})
+  return Object.freeze({tables:Object.freeze(tables),assertCurrent:assertInputs})
+ }
+ const hashNodeCalculationInputs:ContentCandidateBinding['hashNodeCalculationInputs']=async(nodeIds,tables,sources)=>{
+  const {readTemplate,readGenerator,assertInputsCurrent}=sources
+  assertCurrent();assertInputsCurrent()
+  const resolution=await resolveCalculationGenerators(nodeIds,readTemplate)
+  const proofs=new Set<()=>void>(),generatorVersions=new Map<string,string>()
+  for(const {nodeId,generatorKey} of resolution.tables){
+   const generator=readGenerator(generatorKey)
+   if(generator?.key!==generatorKey||!snapshotReferenceIdentity(generator.version))throw Error('CONTENT_CALCULATION_GENERATOR_VERSION')
+   proofs.add(()=>generator.assertCurrent())
+   generatorVersions.set(nodeId,generator.version)
+  }
+  const assertInputs=()=>{resolution.assertCurrent();assertInputsCurrent();for(const proof of proofs)proof()}
+  assertInputs()
+  const result=await hashCalculationInputs({expectedNodeIds:[...generatorVersions.keys()],tables,generatorVersions})
   assertInputs()
   return Object.freeze({...result,assertCurrent:assertInputs})
  }
@@ -296,7 +339,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   if(capturedInput.role==='head')return (await readPreviewVersions(assertConsumer)).captureNodeTextSelection(capturedInput)
   return captureNodeSelection(capturedInput,{snapshot,nodes},()=>{assertCurrent();assertConsumer?.()})
  }
- return Object.freeze({runtime:host.runtime,readFixedFact,readEffectiveFacts,hashNodeCalculationInputs,readCalculationTemplates,
+ return Object.freeze({runtime:host.runtime,readFixedFact,readEffectiveFacts,hashNodeCalculationInputs,readCalculationTemplates,resolveCalculationGenerators,
   readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readEffectiveFacts({nodeIds,responses:[]},assertConsumer),
   readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   verifyRootHash:(contract:string)=>verifyReadableRevisionRoot({host:{...host,assertCurrent},revisionDataViewKey:revisions.candidateDataViewKey,snapshot,contract}),

@@ -16,11 +16,30 @@ it('requires calculation inputs for exactly the original selected table placehol
   }])
   let current=true
   const assertInputs=()=>{if(!current)throw Error('CALCULATION_INPUT_STALE')}
-  await expect(candidate.hashNodeCalculationInputs(['T'],[],assertInputs)).rejects.toThrow('CONTENT_CALCULATION_INPUT_SCOPE')
-  await expect(candidate.hashNodeCalculationInputs(['H'],[table],assertInputs)).rejects.toThrow('CONTENT_CALCULATION_INPUT_SCOPE')
-  const result=await candidate.hashNodeCalculationInputs(['H','T'],[table],assertInputs)
+  const readTemplate=async(ref:{documentId:string;key:string;version:string;hash:string})=>{
+   expect(ref.documentId).toBe('D')
+   return {...ref,classes:[{name:'deviation',elements:['table'],generatorKey:'deviation'}],assertCurrent:assertInputs}
+  }
+  await expect(candidate.resolveCalculationGenerators(['T'],async ref=>({...await readTemplate(ref),version:'other'})))
+   .rejects.toThrow('CONTENT_CALCULATION_TEMPLATE_MISMATCH')
+  await expect(candidate.resolveCalculationGenerators(['T'],async ref=>({...await readTemplate(ref),documentId:'other'})))
+   .rejects.toThrow('CONTENT_CALCULATION_TEMPLATE_MISMATCH')
+  const generators=await candidate.resolveCalculationGenerators(['T'],readTemplate)
+  expect(generators.tables).toEqual([{nodeId:'T',generatorKey:'deviation'}])
+  let registryCurrent=true
+  const sources={readTemplate,assertInputsCurrent:assertInputs,readGenerator:(key:string)=>({
+   key,version:'deviation/1',assertCurrent:()=>{if(!registryCurrent)throw Error('GENERATOR_STALE')},
+  })}
+  await expect(candidate.hashNodeCalculationInputs(['T'],[],sources)).rejects.toThrow('CONTENT_CALCULATION_INPUT_SCOPE')
+  await expect(candidate.hashNodeCalculationInputs(['H'],[table],sources)).rejects.toThrow('CONTENT_CALCULATION_INPUT_SCOPE')
+  await expect(candidate.hashNodeCalculationInputs(['T'],[{...table,generatorVersion:'other'}],sources))
+   .rejects.toThrow('CONTENT_CALCULATION_GENERATOR_VERSION')
+  const result=await candidate.hashNodeCalculationInputs(['H','T'],[table],sources)
   expect(result.tables.map(item=>item.nodeId)).toEqual(['T'])
+  registryCurrent=false;expect(()=>result.assertCurrent()).toThrow('GENERATOR_STALE')
+  registryCurrent=true
   current=false;expect(()=>result.assertCurrent()).toThrow('CALCULATION_INPUT_STALE')
+  expect(()=>generators.assertCurrent()).toThrow('CALCULATION_INPUT_STALE')
   current=true;await f.ds.getView('ContentNodeVersion','snapshotMembers')!.refresh()
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(()=>candidate.readCalculationTemplates(['T'])).toThrow('DATA_VIEW_READ_RESULT')

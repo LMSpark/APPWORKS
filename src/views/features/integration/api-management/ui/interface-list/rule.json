@@ -1,0 +1,13 @@
+[
+  {
+    "id":"api-interface-sidebar",
+    "type":"r-list",
+    "props":{"class":"interface-list__sidebar","dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default",
+      "highlightCurrent":true,"showPagination":false,"emptyText":"当前提供商暂无接口，可先新建接口","onItemClick":"chooseInterface",
+      "toolbar":{"gap":8,"children":[
+        {"type":"r-button","props":{"label":"新建","buttonType":"primary","permAction":"create","onBeforeRender":"bindCreate","onClick":"createInterface"}},
+        {"type":"r-button","props":{"label":"删除","onBeforeRender":"bindRemove","onClick":"removeInterface"}}
+      ]}},
+    "children":[{"type":"r-text-display","props":{"field":"Name","placeholder":"未命名接口"}}]
+  }
+]

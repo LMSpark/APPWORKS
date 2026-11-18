@@ -108,6 +108,16 @@ async function interfaceFixture(){
 }
 
 describe('external API pages assembled through the standard scenario entry', () => {
+  it('selects the original interface from the configured sidebar',async()=>{
+    const f=await interfaceFixture()
+    const sidebar=f.wrapper.find('.interface-list__sidebar')
+    await vi.waitFor(()=>expect(sidebar.text()).toContain('查询'))
+    const item=sidebar.findAll('.renderer-list-item-shell').find(node=>node.text()==='查询')!
+    await item.trigger('click')
+    await vi.waitFor(()=>expect(f.interfaces.currentRow?.['rowid']).toBe('I2'))
+    expect(f.interfaces.selectedRows.map(row=>row['rowid'])).toEqual(['I2'])
+    expect(f.http.saves).toEqual([])
+  })
   it('hosts the API interface catalog runtime through the shared native session', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/views/features/integration/api-management/ui/api-interface-list-page.vue'), 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')

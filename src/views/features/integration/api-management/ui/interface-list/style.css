@@ -1,0 +1,11 @@
+.interface-list__sidebar {
+  border-right: 1px solid var(--el-border-color-lighter);
+  padding-right: 12px;
+}
+
+@media (max-width: 900px) {
+  .interface-list__sidebar {
+    border-right: 0;
+    padding-right: 0;
+  }
+}

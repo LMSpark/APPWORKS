@@ -8,7 +8,7 @@
   <RendererButton v-if="!loading && !ready" label="关闭接口方案" @click="emit('close')" />
   <RendererDialog v-if="ready" :data-view-key="INTERFACE_KEYS.interfaces" :model-value="true" :title="`${providerName || '当前提供商'} - 接口列表`" :width="1480" :close-disabled="busy" @update:model-value="close">
     <div class="interface-list">
-      <RendererList class="interface-list__sidebar" :data-view-key="INTERFACE_KEYS.interfaces" :children="listItem" :toolbar="listToolbar" :highlight-current="true" :show-pagination="false" empty-text="当前提供商暂无接口，可先新建接口" :on-item-click="choose" />
+      <SparkPageRenderer v-if="listRuntime && listHost" :page-runtime="listRuntime" :route-snapshot="routeSnapshot" :host="listHost" :auto-load="false" />
       <RendererSection :grid-columns="1" :bordered="false" :title="selected ? `${providerName || '当前提供商'} / ${selectedName || '接口配置'}` : ''" :status="status" :error="error" :retryable="definitionUnconfirmed && !busy" retry-text="核验原保存结果" @retry="verifyOriginalSaves">
         <template v-if="selected" #header-actions>
           <RendererButton label="保存" button-type="primary" :disabled="locked || !interfacePending" @click="saveApi" />
@@ -34,7 +34,7 @@
 import {computed, ref, watch, onBeforeUnmount} from 'vue'
 import {useRoute} from 'vue-router'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import type {DataSet, DataRow, DataView, DataViewEditingFieldChangeEvent, SparkNode} from '@spark-appworks/spark-data'
+import type {DataSet, DataRow, DataView, DataViewEditingFieldChangeEvent} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
@@ -43,10 +43,13 @@ import type {ApiInterfaceListPageProps} from './api-interface-list-page.props'
 import {INTERFACE_KEYS, INTERFACE_SCENARIO_ID as scenarioId, syncPathParameters, type InterfaceWorkspace} from './interface-list/interface-list-workspace'
 import InterfaceEditPanel from './interface-list/interface-edit-panel.vue'
 import InterfaceInvokePanel from './interface-list/interface-invoke-panel.vue'
+import {PageTool} from '@spark-appworks/spark-project-model'
+import rule from './interface-list/rule.json?raw'
+import script from './interface-list/script.js?raw'
+import style from './interface-list/style.css?raw'
 import InterfaceOutputPanel from './interface-list/interface-output-panel.vue'
 import ParameterBindingDialog from './public-parameter-binding/api-public-parameter-binding-dialog.vue'
-type RToolbarProps = SparkComponent.RToolbarProps
-const {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, RendererList, RendererButton, RendererTabs, RendererTabPane, DisplayEmpty, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, SparkPageRenderer, RendererButton, RendererTabs, RendererTabPane, DisplayEmpty, consumeRequiredPageService} = SparkComponent
 const writable = ['Base_DataServiceInterface', '_Base_ParamList', 'Base_InterfaceApi_Headers', 'Base_TblField'] as const
 const props = defineProps<ApiInterfaceListPageProps>()
 const emit = defineEmits<{close: []}>()
@@ -80,14 +83,34 @@ const interfacePending = computed(() => {const interfaces = view('Base_DataServi
 const status = computed(() => definitionUnconfirmed.value ? '保存结果尚未确认，请核验原保存结果' :
   callUnconfirmed.value ? '上次外部调用结果尚未确认，请在调用输出中处理' : '')
 const workspace = computed<InterfaceWorkspace>(() => ({locked: locked.value, revision: revision.value, run: act}))
-const listItem: SparkNode[] = [{type: 'r-text-display', props: {field: 'Name', placeholder: '未命名接口'}}]
-const listToolbar = computed<RToolbarProps>(() => {
-  const interfaces = view('Base_DataServiceInterface'), row = selected.value, id = selectedId.value
-  const removable = !!interfaces && !!row && id !== undefined && (interfaces.dirtyTracking.isPendingCreate(id) || interfaces.deleteActionState(row) === 'enabled')
-  return {gap: 8, children: [
-    {type: 'r-button', props: {label: '新建', buttonType: 'primary', permAction: 'create', disabled: locked.value || interfaces?.addActionState() !== 'enabled', onClick: create}},
-    {type: 'r-button', props: {label: '删除', disabled: locked.value || !removable, onClick: removeApi}},
-  ]}
+const listRuntime=computed(()=>ready.value?session.runtime:undefined)
+const routeSnapshot=computed(()=>{
+  const {path,fullPath,name,params,query,hash}=route
+  return {path,fullPath,name:name??null,params,query,hash}
+})
+const listHost=computed(()=>{
+  const runtime=listRuntime.value
+  if(!runtime)return undefined
+  const assertCurrent=()=>{if(!active||!session.isCurrent(runtime))throw new Error('接口列表运行实例已失效')}
+  return {runtime,assertCurrent,async invoke(command:string,input:unknown){
+    assertCurrent()
+    if(command==='interfaces.connect')return {
+      actions:()=>{
+        const interfaces=view('Base_DataServiceInterface'),row=selected.value,id=selectedId.value
+        const removable=!!interfaces&&!!row&&id!==undefined&&(interfaces.dirtyTracking.isPendingCreate(id)||interfaces.deleteActionState(row)==='enabled')
+        return {createDisabled:locked.value||interfaces?.addActionState()!=='enabled',removeDisabled:locked.value||!removable}
+      },
+    }
+    if(locked.value)return undefined
+    if(command==='interfaces.create')await create()
+    if(command==='interfaces.remove')await removeApi()
+    if(command==='interfaces.select'){
+      const interfaces=view('Base_DataServiceInterface')
+      const row=interfaces?.rows.find(item=>interfaces.getPkKey(item)===input)
+      if(row)choose(row)
+    }
+    return undefined
+  }}
 })
 useSystemPageDirtySource({get isDirty() {return loading.value || busy.value || dirty.value || unconfirmed.value || !!bindingWindow.value}})
 function changed(): void {revision.value++}
@@ -223,7 +246,12 @@ async function loadProvider(providerId: string): Promise<void> {
   unsubscribe?.(); dataSet = undefined; session.dispose()
   try {
     const projectId = parseApplicationPathScope(route.path)?.projectId ?? ''
-    const current = session.acquire({pageId: 'api-interface-list-page', scenarioIds: [scenarioId, DATA_SPACE_DESIGN_FORM_KEY], deferredScenarioIds: [DATA_SPACE_DESIGN_FORM_KEY], targetId: providerId, scenarioInputs: {[scenarioId]: {providerId}},
+    const tool=new PageTool({pageId:'api-interface-list-page'})
+    tool.hydrateFileText('rule.json',rule)
+    tool.hydrateFileText('script.js',script)
+    tool.hydrateFileText('style.css',style)
+    tool.markLoaded()
+    const current = session.acquire({tool, scenarioIds: [scenarioId, DATA_SPACE_DESIGN_FORM_KEY], deferredScenarioIds: [DATA_SPACE_DESIGN_FORM_KEY], targetId: providerId, scenarioInputs: {[scenarioId]: {providerId}},
       loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id, getPage: () => current})})
     await current.load()
     if (!active || own !== generation || !session.isCurrent(current)) return
@@ -244,6 +272,5 @@ onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.di
 </script>
 <style scoped>
 .interface-list {display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 16px; align-items: start; min-height: 560px;}
-.interface-list__sidebar {border-right: 1px solid var(--el-border-color-lighter); padding-right: 12px;}
-@media (max-width: 900px) {.interface-list {grid-template-columns: minmax(0, 1fr);} .interface-list__sidebar {border-right: 0; padding-right: 0;}}
+@media (max-width: 900px) {.interface-list {grid-template-columns: minmax(0, 1fr);}}
 </style>

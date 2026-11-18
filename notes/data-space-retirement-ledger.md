@@ -11626,3 +11626,4 @@ flowchart TD
 - 2026-11-19 本地复跑 tests/runtime/page/structured-config/workflow 全目录，71 文件 719 项通过，包含工作台 pagedata 命名视图、正式模型绑定及流程运行页刷新。实服业务触发和首次发布仍须独立验证。
 - 2026-11-19 验收归属校正：Definition 首次发布属于第20包 Agent 工作流。单独复跑 agent-workflow-publication、design-resource、design-projection 三文件 20 项通过，覆盖拒绝覆盖、发布前设计变化、上传后精确字节回读和未知结果原命令只读核验。第10包数据工作流六类节点的实服执行另验。当前首发适配的 attempts 位于命令 DataView 实例内，测试结果不证明销毁实例后仍能按原命令核验。
 - Agent 首次发布竞态：读取目标 Definition 期间更改原命令输入，修复前仍返回发布成功；现于上传前检查同一 DataView 的编辑行，保留新编辑、零上传且不标未知。设计资源、投影、首发共 3 文件 21 项通过。
+- Agent 首发回归改由当前 DataView 读取命令主键，修复测试 TS7053；全仓 typecheck、专项 ESLint、命令 11 项与页面 31 项通过。冷重开审查确认 attempts 随实例释放，现有文件上传合同仅带路径和内容，缺少原命令身份。重开时应优先只读核验原定位，缺少可关联回执仍保留未知；实服与跨实例恢复待验。

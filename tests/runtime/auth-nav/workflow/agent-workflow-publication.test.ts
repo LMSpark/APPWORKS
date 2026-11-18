@@ -98,8 +98,10 @@ describe('Agent workflow first publication command', () => {
   it('keeps a newer command edit when the target lookup is still in progress', async () => {
     const state = fixture()
     try {
-      const row = await state.prepare()
-      const key = String(row['commandId'])
+      await state.prepare()
+      const row = state.view.currentRow
+      const key = row && state.view.getPkKey(row)
+      if (key === undefined || key === null) throw new Error('Missing publication command key')
       state.readTextFile.mockResolvedValueOnce(designContent).mockImplementationOnce(async () => {
         state.view.updateEditingValue(key, 'definitionContent', '{}')
         throw new LowcodeApiError(404, 'missing')

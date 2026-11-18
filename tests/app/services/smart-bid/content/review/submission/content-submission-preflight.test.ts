@@ -1,6 +1,7 @@
 import {expect,it} from 'vitest'
 import {checkRepresentedSubmission,checkSubmissionContents,checkSubmissionStart} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight'
 import {prepareAuthorityGrantDecision} from '@/services/smart-bid/content/review/submission/authority-grant-decision'
+import {recoverSubmissionAttempt} from '@/services/smart-bid/content/review/submission-attempt-recovery'
 import {readPlatformFieldReviewVersion} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
 
 it('holds a mixed submission until the original package and same-attempt saved field both pass',async()=>{
@@ -37,10 +38,15 @@ it('holds a mixed submission until the original package and same-attempt saved f
  const checked=await represented(['SUBMIT'])
  expect(checked).toMatchObject({authority:{state:'COVERED'},authorizedContentsReady:true})
  const channel={projectId,objectRef:'LOT',channelId:'PORTAL',attemptRef,openedAt:'2026-11-18T09:00:00+08:00',
-  closesAt:at,includesClose:false,windowEvidenceRef:'WINDOW',priorAttemptRef:null,priorState:'NONE' as const,assertCurrent}
+  closesAt:at,includesClose:false,windowEvidenceRef:'WINDOW',prior:null,assertCurrent}
  expect(checkSubmissionStart(checked,channel).state).toBe('OUTSIDE_WINDOW')
  expect(checkSubmissionStart(checked,{...channel,includesClose:true}).state).toBe('READY')
- expect(checkSubmissionStart(checked,{...channel,includesClose:true,priorAttemptRef:'OLD',priorState:'UNKNOWN'}).state)
+ const originalScope={projectId,lotId:'LOT',subjectId:'ORG',channelId:'PORTAL',attemptRef:'OLD',requestDigest:'a'.repeat(64)}
+ const unknown=recoverSubmissionAttempt(originalScope,{events:[],assertCurrent})
+ expect(checkSubmissionStart(checked,{...channel,includesClose:true,prior:unknown}).state)
   .toBe('ORIGINAL_PENDING')
- expect(()=>checkSubmissionStart(checked,{...channel,priorAttemptRef:'OLD',priorState:'NOT_EXECUTED'})).toThrow('SUBMISSION_START_SCOPE')
+ const terminated=recoverSubmissionAttempt(originalScope,{events:[{...originalScope,
+  eventRef:'TERM',kind:'NOT_EXECUTED',assertCurrent}],assertCurrent})
+ expect(checkSubmissionStart(checked,{...channel,includesClose:true,prior:terminated}).state).toBe('READY')
+ expect(()=>checkSubmissionStart(checked,{...channel,channelId:'OTHER',prior:terminated})).toThrow('SUBMISSION_START_SCOPE')
 })

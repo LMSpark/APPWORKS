@@ -3,7 +3,9 @@
  * 职责：第51项固定待发送包与平台栏，交发送前的原办理检查。
  */
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {checkRegisteredAuthorityGrant} from '@/services/smart-bid/content/review/submission/authority-grant-coverage'
+import type {recoverSubmissionAttempt} from '@/services/smart-bid/content/review/submission-attempt-recovery'
 import {comparePlatformFieldObservation} from '../content-platform-field-review'
 import type {assessSubmissionPackageRelease} from '../content-package-release'
 
@@ -13,20 +15,41 @@ type Release=ReturnType<typeof assessSubmissionPackageRelease>
 type FieldRequirement=Readonly<{assignmentId:string;fieldId:string;versionHash:string;savedReadbackRequired:boolean}>
 const fieldKey=({assignmentId,fieldId}:Pick<FieldRequirement,'assignmentId'|'fieldId'>)=>JSON.stringify([assignmentId,fieldId])
 
+/** 登记待发原请求所需的固定引用；后续按包摘要和栏位版本取原值。 */
+export async function prepareSubmissionRequest(start:ReturnType<typeof checkSubmissionStart>,requestKey:string){
+ start.assertCurrent()
+ const {represented,channelId,windowEvidenceRef,priorAttemptRef}=start
+ const {contents,authority,enterpriseId,representativeId,objectRef,actionAt}=represented
+ if(start.state!=='READY'||!identity(requestKey)||!identity(authority.versionId)||!identity(authority.decisionRef))
+  throw Error('SUBMISSION_REQUEST_NOT_READY')
+ const {projectId,revisionId,attemptRef}=contents
+ const fields=Object.freeze(contents.fields.map(({assignmentId,fieldId,versionHash,savedReadbackRequired})=>
+  Object.freeze({assignmentId,fieldId,versionHash,savedReadbackRequired})).sort((left,right)=>{
+  const a=fieldKey(left),b=fieldKey(right)
+  return a<b?-1:a>b?1:0
+ }))
+ const record=Object.freeze({requestKey,projectId,revisionId,attemptRef,enterpriseId,representativeId,objectRef,actionAt,
+  channelId,windowEvidenceRef,priorAttemptRef,authorityVersionId:authority.versionId,authorityDecisionRef:authority.decisionRef,
+  package:contents.package,fields})
+ const requestDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.submission-request/1',record]))
+ start.assertCurrent()
+ return Object.freeze({record,requestDigest,assertCurrent:start.assertCurrent})
+}
+
 /** 在实际发起前再核适用窗口和原办理查重，未知时保留原办理待查。 */
 export function checkSubmissionStart(represented:Awaited<ReturnType<typeof checkRepresentedSubmission>>,source:Readonly<{
  projectId:string;objectRef:string;channelId:string;attemptRef:string;openedAt:string;closesAt:string;includesClose:boolean
- windowEvidenceRef:string;priorAttemptRef:string|null;priorState:'NONE'|'UNKNOWN'|'EXECUTED'|'NOT_EXECUTED'
- priorTerminalRef?:string;assertCurrent:()=>void
+ windowEvidenceRef:string;prior:ReturnType<typeof recoverSubmissionAttempt>|null;assertCurrent:()=>void
 }>){
- const assertCurrent=()=>{represented.assertCurrent();source.assertCurrent()}
+ const {prior}=source
+ const assertCurrent=()=>{represented.assertCurrent();source.assertCurrent();prior?.assertCurrent()}
  assertCurrent()
- const {projectId,objectRef,channelId,attemptRef,openedAt,closesAt,windowEvidenceRef,priorAttemptRef,priorState,priorTerminalRef}=source
+ const {projectId,objectRef,channelId,attemptRef,openedAt,closesAt,windowEvidenceRef}=source
  const {actionAt}=represented
  if(projectId!==represented.contents.projectId||attemptRef!==represented.contents.attemptRef||
   objectRef!==represented.objectRef||![channelId,windowEvidenceRef].every(identity)||
-  (priorState==='NONE'?priorAttemptRef!==null:!identity(priorAttemptRef))||
-  (priorState==='NOT_EXECUTED'&&!identity(priorTerminalRef)))throw Error('SUBMISSION_START_SCOPE')
+  prior!==null&&(prior.projectId!==projectId||prior.channelId!==channelId||prior.lotId!==objectRef||
+   prior.subjectId!==represented.enterpriseId))throw Error('SUBMISSION_START_SCOPE')
  const dates=[openedAt,actionAt,closesAt].map(value=>{
   const instant=Date.parse(value)
   if(!Number.isFinite(instant)||!/(?:Z|[+-]\d{2}:\d{2})$/u.test(value))throw Error('SUBMISSION_START_WINDOW')
@@ -34,11 +57,11 @@ export function checkSubmissionStart(represented:Awaited<ReturnType<typeof check
  })
  const [open,action,close]=dates
  if(open===undefined||action===undefined||close===undefined||open>=close)throw Error('SUBMISSION_START_WINDOW')
- const state=priorState==='UNKNOWN'?'ORIGINAL_PENDING':
-  priorState==='EXECUTED'||priorAttemptRef===attemptRef?'ORIGINAL_ALREADY_RECORDED':
+ const state=prior?.status==='UNKNOWN'||prior?.status==='PARTIAL'?'ORIGINAL_PENDING':
+  prior!==null&&(prior.status!=='NOT_EXECUTED'||prior.attemptRef===attemptRef)?'ORIGINAL_ALREADY_RECORDED':
    action<open||action>close||action===close&&!source.includesClose?'OUTSIDE_WINDOW':represented.authorizedContentsReady?'READY':'NOT_READY'
  assertCurrent()
- return Object.freeze({state,represented,channelId,windowEvidenceRef,priorAttemptRef,assertCurrent})
+ return Object.freeze({state,represented,channelId,windowEvidenceRef,priorAttemptRef:prior?.attemptRef??null,assertCurrent})
 }
 
 /** 交付内容和经办人的代表权按同一待递交事项核准。 */
@@ -53,7 +76,8 @@ export async function checkRepresentedSubmission(input:Parameters<typeof checkSu
  const contents=await checkSubmissionContents(input,sources.contents)
  const assertCurrent=()=>{operation.assertCurrent();active.assertCurrent();contents.assertCurrent()}
  assertCurrent()
- return Object.freeze({contents,authority:active,representativeId:operation.representativeId,objectRef:operation.objectRef,actionAt:operation.actionAt,
+ return Object.freeze({contents,authority:active,enterpriseId:operation.enterpriseId,representativeId:operation.representativeId,
+  objectRef:operation.objectRef,actionAt:operation.actionAt,
   authorizedContentsReady:active.state==='COVERED'&&contents.contentsReady,assertCurrent})
 }
 

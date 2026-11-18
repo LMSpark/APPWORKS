@@ -5,7 +5,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {validateContentDraftPayload} from '../../content-draft-save-rule'
 import {hashContentNode} from '../../content-node-hash'
 import {resolveContentTargetScope} from '../content-target-scope'
-import {checkScopedResponseChanges} from '../content-scoped-preview'
+import {previewScopedContentTree} from '../content-scoped-preview'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '../revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '../references/snapshot-reference-values'
 
@@ -14,11 +14,14 @@ type Draft=Readonly<{
  draftJson:string;contentDigest:string;assertCurrent:()=>void
 }>
 type Basis=Readonly<Omit<Parameters<typeof resolveContentTargetScope>[0],'scope'>&{
- revisionId:string|null;baselineId:string;stageRef:unknown;inputSnapshotHash?:string;batchId?:string;lockHash?:string;assertCurrent:()=>void
+ revisionId:string|null;baselineId:string;stageRef:unknown;inputSnapshotHash?:string;batchId?:string;lockHash?:string
+ nodePayloads:readonly unknown[];assertCurrent:()=>void
 }>
 
 /** 请求只引用已保存草稿；独立答复合并和原子登记按正式执行证据办理。 */
-export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input:Readonly<{requestKey:string;targetScope:unknown}>){
+export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input:Readonly<{
+ requestKey:string;targetScope:unknown;declaredAddedNodeIds?:readonly string[]
+}>){
  const assertCurrent=()=>{draft.assertCurrent();basis.assertCurrent()}
  assertCurrent()
  const {projectId,draftId,actorUserId,draftVersion,baseRevisionId,contentDigest,draftJson}=draft
@@ -34,10 +37,13 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
  const snapshot:unknown=JSON.parse(draftJson)
  validateContentDraftPayload({projectId,draft:snapshot})
  if(!isRecord(snapshot)||!Array.isArray(snapshot['nodes'])||canonicalSnapshotValue(snapshot)!==draftJson)throw Error(error)
- const {scope,responseTargets}=resolveContentTargetScope({...basis,scope:input.targetScope})
- const responseScope=checkScopedResponseChanges({changes:snapshot['responseChanges'],responses:basis.responses,selected:responseTargets})
- if(responseScope.violations.length||scope.targets.every(item=>item.kind==='RESPONSE')&&snapshot['nodes'].length>0)
-  throw Error('CONTENT_DRAFT_CANDIDATE_TARGET_MISMATCH')
+ const {scope}=resolveContentTargetScope({...basis,scope:input.targetScope})
+ const responseOnly=scope.targets.every(item=>item.kind==='RESPONSE')
+ if(responseOnly&&snapshot['nodes'].length>0)throw Error('CONTENT_DRAFT_CANDIDATE_TARGET_MISMATCH')
+ const preview=previewScopedContentTree({projectId,basis:basis.nodePayloads,current:basis.nodePayloads,
+  candidate:responseOnly?basis.nodePayloads:snapshot['nodes'],targetScope:scope,responses:basis.responses,
+  declaredAddedNodeIds:input.declaredAddedNodeIds??[],responseChanges:snapshot['responseChanges']})
+ if(!preview.scopeCheckPassed)throw Error('CONTENT_DRAFT_CANDIDATE_TARGET_MISMATCH')
  const targetScope:unknown=JSON.parse(canonicalSnapshotValue(scope))
  const capturedStage:unknown=JSON.parse(canonicalSnapshotValue(stageRef))
  const [nodes,actualDigest]=await Promise.all([Promise.all(snapshot['nodes'].map(async(node:unknown)=>{
@@ -47,7 +53,8 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
  if(actualDigest!==contentDigest)throw Error('CONTENT_DRAFT_CANDIDATE_DIGEST')
  nodes.sort((left,right)=>left.nodeId<right.nodeId?-1:left.nodeId>right.nodeId?1:0)
  const requestJson=canonicalSnapshotValue({projectId,draftId,actorUserId,draftVersion,baseRevisionId,baselineId,
-  stageRef:capturedStage,targetScope,requestKey,contentDigest,nodes,responseChanges:responseScope.responseChanges,
+  stageRef:capturedStage,targetScope,requestKey,contentDigest,nodes,responseChanges:preview.responseChanges,
+  declaredAddedNodeIds:preview.addedNodeIds,
   ...(inputSnapshotHash?{inputSnapshotHash,batchId,lockHash}:{})})
  const requestDigest=await hashCanonicalSnapshotText(`["spark-bid.draft-candidate/1",${requestJson}]`)
  assertCurrent()

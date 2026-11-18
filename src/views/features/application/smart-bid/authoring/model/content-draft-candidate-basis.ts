@@ -25,15 +25,17 @@ async function readBasisMembers(host:ContentRevisionReadHost,snapshot:Awaited<Re
  const nodes=await readContentSnapshotNodes(host,snapshot)
  const members=nodes.dataViewKey?host.runtime.resolveView(nodes.dataViewKey)?.rows:[]
  if(!members)throw Error(error)
- const basisNodes=members.map(member=>{
+ const nodePayloads=members.map(member=>{
   const nodeId=member['nodeId'],payload=member['payload']
   if(!identity(nodeId))throw Error(error)
   assertContentNodeVersionPayload(payload,nodeId)
-  return Object.freeze({nodeId,parentId:payload.parentId,type:payload.type,index:payload.index})
+  return structuredClone(payload)
  })
+ const basisNodes=nodePayloads.map(({nodeId,parentId,type,index})=>Object.freeze({nodeId,parentId,type,index}))
  const responses=readRevisionBasisResponses(host.projectId,manifest)
  nodes.assertCurrent()
- return Object.freeze({basisNodes:Object.freeze(basisNodes),responses:Object.freeze(responses),assertCurrent:nodes.assertCurrent})
+ return Object.freeze({basisNodes:Object.freeze(basisNodes),nodePayloads:Object.freeze(nodePayloads),
+  responses:Object.freeze(responses),assertCurrent:nodes.assertCurrent})
 }
 
 /** 首版须由调用方已核空头；已有基版沿原修订保留固定基线。 */
@@ -93,5 +95,5 @@ export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selec
  const assertCurrent=()=>{nodes.assertCurrent();frozen.assertCurrent()}
  assertCurrent()
  return Object.freeze({projectId,revisionId,baselineId,stageRef:structuredClone(stageRef),
-  basisNodes:nodes.basisNodes,responses:nodes.responses,assertCurrent})
+  basisNodes:nodes.basisNodes,nodePayloads:nodes.nodePayloads,responses:nodes.responses,assertCurrent})
 }

@@ -28,7 +28,9 @@ type OriginalSave=Awaited<ReturnType<typeof readRegisteredOriginalContentDraftSa
 /** 原回执与当前草稿在同一版本下的比较结果。 */
 type SaveComparison=Awaited<ReturnType<typeof reconcileSavedContentDraft>>
 type CandidatePreviewInput=Parameters<ContentCandidateBinding['previewScope']>[0]
-type DraftCandidateInput=Readonly<{requestKey:string;targetScope?:unknown;firstBatchId?:string;targetScopeIndex?:number}>
+type DraftCandidateInput=Readonly<{
+ requestKey:string;targetScope?:unknown;firstBatchId?:string;targetScopeIndex?:number;declaredAddedNodeIds?:readonly string[]
+}>
 
 /** 实例池创建宿主后，仅在三文件脚本连接时装配原视图。并行连接共享本次装载。 */
 export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:ContentAuthoringTarget,
@@ -102,6 +104,8 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
     async prepareDraftCandidate(selection:DraftCandidateInput){
      assertCurrent()
      const request=structuredClone(selection)
+     const requestFields={requestKey:request.requestKey,
+      ...(request.declaredAddedNodeIds===undefined?{}:{declaredAddedNodeIds:request.declaredAddedNodeIds})}
      const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
      if(!scenarioId)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
      const captured=await commands.captureCandidateDraft(commands.epoch)
@@ -111,7 +115,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      if(revisionId!==null){
       if(request.firstBatchId!==undefined||request.targetScopeIndex!==undefined)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
       const basis=await readDraftCandidateBasis(host,{revisionId})
-      return prepareDraftCandidateRequest(captured,basis,{requestKey:request.requestKey,targetScope:request.targetScope})
+      return prepareDraftCandidateRequest(captured,basis,{...requestFields,targetScope:request.targetScope})
      }
      const projectKey=buildDataViewKey('ContentProject','selectedProject',scenarioId)
      const projectView=runtime.resolveView(projectKey),project=projectView?.rows[0]
@@ -129,7 +133,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
       {revisionId,firstBaselineId:project['activeBaselineId'],firstBatchId,targetScope:request.targetScope,
        ...(request.targetScopeIndex===undefined?{}:{targetScopeIndex:request.targetScopeIndex})})
      if(!('targetScope' in basis))throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
-     return prepareDraftCandidateRequest(captured,basis,{requestKey:request.requestKey,targetScope:basis.targetScope})
+     return prepareDraftCandidateRequest(captured,basis,{...requestFields,targetScope:basis.targetScope})
     },
     async captureCandidateDraft(){
      assertCurrent()

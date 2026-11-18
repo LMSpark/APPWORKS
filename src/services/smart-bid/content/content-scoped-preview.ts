@@ -92,7 +92,7 @@ function responseBasis(value:unknown):ContentScopeResponse[] {
 }
 
 /** 核拟变更的分工、旧响应和新响应身份，供草稿准备和候选预演共用。 */
-export function checkScopedResponseChanges(input:Readonly<{
+function checkScopedResponseChanges(input:Readonly<{
  changes:unknown;responses:readonly ContentScopeResponse[]
  selected:ReturnType<typeof resolveContentTargetScope>['responseTargets']
 }>){

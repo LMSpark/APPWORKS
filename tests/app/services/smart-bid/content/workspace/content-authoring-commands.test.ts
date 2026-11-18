@@ -59,7 +59,7 @@ it('captures the saved draft for candidacy and withdraws it when edits start',as
   const captured=await f.commands.captureCandidateDraft(f.commands.epoch)
   expect(captured).toMatchObject({projectId:'P',draftId:'D',actorUserId:'U',draftVersion:'V1',baseRevisionId:'BASE',
    draftJson:'{"nodes":[],"responseChanges":[]}',contentDigest:expect.stringMatching(/^[a-f0-9]{64}$/u)})
-  const basis={projectId:'P',revisionId:'BASE',baselineId:'B',stageRef:'ST',basisNodes:[],responses:[],assertCurrent:()=>{}}
+  const basis={projectId:'P',revisionId:'BASE',baselineId:'B',stageRef:'ST',basisNodes:[],nodePayloads:[],responses:[],assertCurrent:()=>{}}
   const input={requestKey:'CANDIDATE',targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]}}
   const candidate=await prepareDraftCandidateRequest(captured,basis,input)
   expect(candidate).toMatchObject({draftVersion:'V1',baseRevisionId:'BASE',baselineId:'B',
@@ -75,6 +75,22 @@ it('captures the saved draft for candidacy and withdraws it when edits start',as
   expect((await prepareDraftCandidateRequest(withResponse,responseBasis,responseInput)).requestJson)
    .toContain('"responseChanges":[{"assignmentId":"A","basisResponseId":"R1","responseId":"R2"}]')
   await expect(prepareDraftCandidateRequest(withResponse,responseBasis,input)).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_TARGET_MISMATCH')
+  const headline={nodeId:'H',parentId:'C',index:0,type:'heading',class:[],value:'正文',data:{}}
+  const nodePayloads=[
+   {nodeId:'B',parentId:'P',index:0,type:'document',class:[],value:'',data:{}},
+   {nodeId:'C',parentId:'B',index:0,type:'chapter',class:[],value:'',data:{}},
+   headline,
+  ]
+  const editedDraft=canonicalSnapshotValue({nodes:nodePayloads,responseChanges:[]})
+  const edited={...captured,draftJson:editedDraft,contentDigest:await hashCanonicalSnapshotText(editedDraft)}
+  await expect(prepareDraftCandidateRequest(edited,basis,input)).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_TARGET_MISMATCH')
+  expect((await prepareDraftCandidateRequest(edited,basis,{...input,declaredAddedNodeIds:['H','B','C']})).requestJson)
+   .toContain('"declaredAddedNodeIds":["B","C","H"]')
+  const previousNodes=[nodePayloads[0]!,nodePayloads[1]!,{...headline,value:'原文'}]
+  const previous={...basis,basisNodes:previousNodes,nodePayloads:previousNodes}
+  await expect(prepareDraftCandidateRequest(edited,previous,{...input,targetScope:{...input.targetScope,targets:[
+   {kind:'NODE',nodeId:'C',extent:'NODE'},
+  ]}})).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_TARGET_MISMATCH')
   f.commands.run(add,f.commands.epoch)
   expect(()=>captured.assertCurrent()).toThrow()
   expect(()=>candidate.assertCurrent()).toThrow()

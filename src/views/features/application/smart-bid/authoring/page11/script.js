@@ -22,7 +22,7 @@ async function openDraftCandidate() {
   const {visible, disabled} = bindDraftCandidate()
   if (!visible || disabled) return
   const {projectId, draftCandidateRequestKey, candidateTargetKind, candidateTargetNodeId, candidateNodeExtent,
-    candidateAssignmentId, candidateBasisResponseId, candidateFirstBatchId, candidateBatchScopeIndex} = $route.query
+    candidateAssignmentId, candidateBasisResponseId, candidateFirstBatchId, candidateBatchScopeIndex, candidateAddedNodeId} = $route.query
   const id = value => typeof value === 'string' && !!value && value.trim() === value
   try {
     if (!id(projectId) || (candidateFirstBatchId !== undefined && !id(candidateFirstBatchId))) throw Error('CONTENT_DRAFT_CANDIDATE_SCOPE')
@@ -40,9 +40,12 @@ async function openDraftCandidate() {
       (candidateBasisResponseId === null || id(candidateBasisResponseId))) {
       target = {kind: 'RESPONSE', assignmentId: candidateAssignmentId, responseId: candidateBasisResponseId}
     } else throw Error('CONTENT_DRAFT_CANDIDATE_SCOPE')
+    const declaredAddedNodeIds = Array.isArray(candidateAddedNodeId) ? [...candidateAddedNodeId] : [candidateAddedNodeId]
+    if (candidateAddedNodeId !== undefined && !declaredAddedNodeIds.every(id)) throw Error('CONTENT_DRAFT_CANDIDATE_SCOPE')
     const result = await editorSession.prepareDraftCandidate({requestKey: draftCandidateRequestKey,
       ...(target ? {targetScope: {schemaVersion: 2, projectId, targets: [target]}} : {targetScopeIndex}),
-      ...(candidateFirstBatchId ? {firstBatchId: candidateFirstBatchId} : {})})
+      ...(candidateFirstBatchId ? {firstBatchId: candidateFirstBatchId} : {}),
+      ...(candidateAddedNodeId === undefined ? {} : {declaredAddedNodeIds})})
     result.assertCurrent()
     await $page.showAlert([
       `草稿 ${result.draftId} · 版本 ${result.draftVersion}`,

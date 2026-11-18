@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {resolveContentAuthoringTarget,resolvePublishedContentAuthoringTarget,type ContentAuthoringRoute} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
-import {preparePublishedResourceAllocationCall,preparePublishedConfigurationReleaseCall,preparePublishedBidClassModelCatalogCall,preparePublishedKnowledgeDirectoryCall,preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
+import {preparePublishedBidResponseCall,preparePublishedResourceAllocationCall,preparePublishedConfigurationReleaseCall,preparePublishedBidClassModelCatalogCall,preparePublishedKnowledgeDirectoryCall,preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
 
 const auth=vi.hoisted(()=>({token:'SESSION',appId:'D8490EC99436A8B9AFDE205BE3153802'}))
 vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
@@ -14,6 +14,7 @@ const route=():ContentAuthoringRoute=>({path:`/apps/${app}/features/application/
  meta:{type:'config-page',nodeId:'NAV11',pageId:'TOOL11',tool:{projectId:app,pageId:'TOOL11'}},query:{scenarioId:space,projectId:'P',draftId:'D'}})
 it.each([
  {number:7,prepareCall:preparePublishedResourceAllocationCall},
+ {number:10,prepareCall:preparePublishedBidResponseCall},
  {number:12,prepareCall:preparePublishedContentReviewCall},
  {number:13,prepareCall:preparePublishedContentSubmissionCall},
  {number:14,prepareCall:preparePublishedContentDeadlineCall},
@@ -107,6 +108,27 @@ it('binds page 19 to the current configuration scope and rejects route scope ove
   expect(bindScope).toHaveBeenCalledExactlyOnceWith(runtime,expect.objectContaining({projectId:'P',scenarioId:space}))
   scopeCurrent=false
   expect(()=>host?.assertCurrent()).toThrow('SCOPE_STALE')
+ }finally{runtime.dispose()}
+})
+it('requires page 10 evidence sources to match the published project',()=>{
+ const entry={applicationId:app,scenarioId:space,nodeId:'NAV10',pageId:'TOOL10'}
+ const publishedRoute={path:`/apps/${app}/page10`,meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,
+  blueprintScenarioId:space,tool:{projectId:app,pageId:entry.pageId}},query:{projectId:'P',scenarioId:space}}
+ let projectId='OTHER'
+ const read=vi.fn(async()=>{throw Error('UNEXPECTED_COMMITMENT_READ')})
+ const context={scopeRef:'LOT',purposeRef:'USE',rateOnly:false,asOf:10,assertCurrent:()=>{}}
+ const bind=()=>({context,sources:{commitmentBasis:{projectId,read,assertCurrent:context.assertCurrent},
+  readPriceEvidence:read,readSecurityReceipts:async()=>[]}})
+ const runtime=new PageRuntime({pageId:entry.pageId,scenarioIds:[space],deferredScenarioIds:[space],
+  loadScenario:async()=>{throw Error('UNEXPECTED_SCENARIO_LOAD')}})
+ try{
+  expect(()=>preparePublishedBidResponseCall({...publishedRoute,query:{...publishedRoute.query,purposeRef:'OTHER'}},entry,bind))
+   .toThrow('BID_RESPONSE_PUBLICATION_SCOPE')
+  const prepared=preparePublishedBidResponseCall(publishedRoute,entry,bind)
+  expect(()=>prepared?.createHost(runtime)).toThrow('BID_RESPONSE_PUBLICATION_SCOPE')
+  projectId='P'
+  expect(prepared?.createHost(runtime).runtime).toBe(runtime)
+  expect(read).not.toHaveBeenCalled()
  }finally{runtime.dispose()}
 })
 it('dispatches only the published node and tool pair in the declared space',()=>{

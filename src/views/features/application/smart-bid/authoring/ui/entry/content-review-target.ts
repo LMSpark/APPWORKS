@@ -14,6 +14,7 @@ import {createBidFindingsScriptHost} from '../../../collaboration/tasks/bid-find
 
 import {createKnowledgeDirectoryScriptHost} from '../../../knowledge/knowledge-directory-script-host'
 import {createBidClassModelCatalogHost} from '../../../knowledge/class-model-catalog-script-host'
+import {createBidResponseScriptHost} from '../../../response/ui/entry/response-script-host'
 import {createResourceAllocationScriptHost} from '../../../authority/resource-allocation-script-host'
 import {createConfigurationReleaseScriptHost} from '../../../configuration/configuration-release-script-host'
 
@@ -111,6 +112,28 @@ export function preparePublishedResourceAllocationCall(route:ContentAuthoringRou
    binding.readSnapshot,binding.readRelease)
  })
  if(prepared&&Object.hasOwn(route.query,'enterpriseId'))throw Error('BID_RESOURCE_ALLOCATION_PAGE_SCOPE')
+ return prepared
+}
+
+type ResponseHost=Parameters<typeof createBidResponseScriptHost>
+
+/** 页10绑定已发布项目及本轮响应范围，原证据由同一实例读取。 */
+export function preparePublishedBidResponseCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+ bindResponse:(runtime:PageRuntime,scope:Scope)=>Readonly<{
+  context:Omit<ResponseHost[1],'scenarioId'>;sources:ResponseHost[2]
+ }>,
+){
+ const prepared=preparePublishedCall(route,entry,(runtime,scope)=>{
+  const {context,sources}=bindResponse(runtime,scope)
+  const assertCurrent=()=>{scope.assertCurrent();context.assertCurrent()}
+  assertCurrent()
+  const {appointmentBasis,commitmentBasis,assignmentBasis,fixedFacts}=sources
+  if([appointmentBasis,commitmentBasis,assignmentBasis,fixedFacts].some(source=>source&&source.projectId!==scope.projectId))
+   throw Error('BID_RESPONSE_PUBLICATION_SCOPE')
+  return createBidResponseScriptHost(runtime,{...context,scenarioId:scope.scenarioId,assertCurrent},sources)
+ })
+ if(prepared&&['scopeRef','purposeRef','asOf','rateOnly'].some(key=>Object.hasOwn(route.query,key)))
+  throw Error('BID_RESPONSE_PUBLICATION_SCOPE')
  return prepared
 }
 

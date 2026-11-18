@@ -5,11 +5,11 @@
  */
 import type {DataSet,DataRow,DataTableQuerySaveReferences,DataTableQueryReferenceChange} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {isJsonObject,parseJsonDocument} from '@spark-appworks/spark-json-document'
+import {isJsonObject} from '@spark-appworks/spark-json-document'
 import {readExcelTransformRows} from '../metadata/queries'
 import {resolveExcelPhysicalObject} from '../metadata/physical-source'
 import {readSingleExportLayout,validateSingleExportLayout} from './definition'
-import {excelLayoutTableKey,hasExcelLayoutReferences as configured} from './routes'
+import {excelLayoutTableKey,hasExcelLayoutReferences as configured,readExcelLayoutDeleteTargets} from './routes'
 const design='0F93B82141CF40852021D704B0E30BF4',sourceId='34BDBE645F461A3D83282A941D6037F4',table='Base_ImportData_Config'
 const dependencies=['schemeid','pid','relatedappid','table','sheet_layout_json','exportType'],fields=['rowid',...dependencies]
 /** 本次原设计实例及按需原宿主。 */
@@ -118,14 +118,12 @@ export function createExcelLayoutDeleteReferences(context:ExcelLayoutContext):Da
      if(deleting.values['schemeid']!==scheme||deleting.values['pid']!==ancestor['pid'])throw Error('同批删除的版式祖先正式归属已变化')
      parent=ancestor['pid'];continue
     }
-    const raw=ancestor['sheet_layout_json']
-    if(configured(raw)){
-     if(typeof raw!=='string')throw Error('版式删除引用无法核定');const layout=parseJsonDocument(raw)
-     if(!isJsonObject(layout)||layout['version']!==3||!Array.isArray(layout['tables'])||layout['tables'].some(value=>!isJsonObject(value)||typeof value['table']!=='string'||!value['table']))throw Error('版式删除引用无法核定')
-     if(layout['tables'].some(value=>isJsonObject(value)&&value['configId']===id))throw Error('祖先版式仍引用该配置身份，请先清除并保存版式引用')
+    const targets=readExcelLayoutDeleteTargets(ancestor['sheet_layout_json'])
+    if(targets){
+     if(targets.some(target=>target.configId===id))throw Error('祖先版式仍引用该配置身份，请先清除并保存版式引用')
      const target=await exact(id,['rowid','schemeid','pid','table']),route=excelLayoutTableKey(target['table'])
      if(target['pid']!==targetParent||!route)throw Error('删除版式节点正式目标已变化或缺少来源')
-     if(layout['tables'].some(value=>isJsonObject(value)&&excelLayoutTableKey(value['table'])===route))throw Error('祖先版式仍引用该明细物理来源，请先清除并保存版式引用')
+     if(targets.some(target=>target.route===route))throw Error('祖先版式仍引用该明细物理来源，请先清除并保存版式引用')
     }
     parent=ancestor['pid']
    }

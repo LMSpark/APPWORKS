@@ -79,6 +79,13 @@ it('does not treat an unrelated root layout configId as a node reference', async
   f.http.records['Base_ImportData_Config']![1]!['sheet_layout_json']='{"version":3,"enabled":false,"tables":[{"id":"T","configId":"C1","table":"db@detail"}]}'
   const command=await f.open();command.cancel();expect(f.http.saves).toEqual([])
 })
+it('rejects an ancestor route that normalizes to an empty identity', async () => {
+  const f = await fixture()
+  Object.assign(f.http.records['Base_ImportData_Config']![0]!, {pid:'SIB', table:'db@detail'})
+  f.http.records['Base_ImportData_Config']![1]!['sheet_layout_json'] = '{"version":3,"tables":[{"table":"   "}]}'
+  await expect(f.open()).rejects.toThrow(/删除引用无法核定/)
+  expect(f.http.saves).toEqual([])
+})
 it('allows a leaf under an explicitly disabled historical definition without rewriting it',async()=>{
   const f=await fixture(),raw='{"version":1,"enabled":false}'
   f.http.records['Base_ImportData_Config']![0]!['pid']='SIB';f.http.records['Base_ImportData_Config']![1]!['sheet_layout_json']=raw

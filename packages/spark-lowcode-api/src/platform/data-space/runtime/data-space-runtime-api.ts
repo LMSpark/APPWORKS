@@ -153,6 +153,15 @@ export class DataSpaceRuntimeApi {
       const context = await flight
       if (cache === undefined) accept?.(context)
       this.assertScope(scope)
+      if (options.allPages && context.resultKind === 'entity' && context.resultPrimaryKey) {
+        const keys = new Set<string>()
+        for (const row of context.rows) {
+          const key = String(context.rowKey(row) ?? '').trim()
+          if (!key) throw new Error('SPARK 批量查询记录主键无效')
+          if (keys.has(key)) throw new Error('SPARK 批量查询记录主键重复')
+          keys.add(key)
+        }
+      }
       this.#contexts.set(context, key)
       this.#queryOrigins.set(context, {identity: normalized, options, config, ...(accept === undefined ? {} : {accept}), ...(definition === undefined ? {} : {definition})})
       return context

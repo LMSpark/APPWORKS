@@ -509,7 +509,13 @@ viewId: string
     let changed = true
     try {changed = JSON.stringify(value) !== JSON.stringify(this._queryContext)} catch { /* 非JSON输入仍保留原赋值语义，由查询入口校验。 */ }
     this._queryContext = value
-    if (changed) this.emitConfigChanged()
+    if (!changed) return
+    if (this.currentLoadRequestId > 0 || this.requestState === RequestState.Preparing) {
+      this.currentLoadRequestId++
+      this._resultStale = true
+      this.setRequestState(RequestState.Idle)
+    }
+    this.emitConfigChanged()
   }
 
   private _queryConfig: NonNullable<ViewMetadata['queryConfig']> = Object.freeze({})
@@ -2701,6 +2707,10 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
 
   private updateNativeRow(id: string | number, data: Partial<DataRow>, onApplied?: (row: DataRow) => void): boolean {
     this.assertResultWritable()
+    return this.applyNativeRowUpdate(id, data, onApplied)
+  }
+
+  private applyNativeRowUpdate(id: string | number, data: Partial<DataRow>, onApplied?: (row: DataRow) => void): boolean {
     const updated = this.localMutationDelegate.updateRowById(id, data, onApplied)
     if (updated) this.syncTreeManagerFromRows()
     return updated
@@ -3511,12 +3521,17 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       throw new Error('DATA_VIEW_SAVED_ROW_PERMISSIONS: 当前不能恢复新增行权限')
     }
     const identity = this.refreshIdentity()
-    this._trackMutating(1)
+    if (this.#queryResultRefreshIdentity !== identity) {
+      throw new Error('DATA_VIEW_SAVED_ROW_PERMISSIONS_STALE: 原查询身份已改变')
+    }
+    const requestId = this.currentLoadRequestId
     this.#refreshingSavedRowPermissions = true
     try {
+      this.updateMutatingState(1)
       const refreshed = await executor.refreshSavedRowPermissions(context)
       this.checkDestroyed()
-      if (this.#queryResult !== context || this.#queryExecutor !== executor || identity !== this.refreshIdentity()) {
+      if (this.#queryResult !== context || this.#queryExecutor !== executor || identity !== this.refreshIdentity()
+        || requestId !== this.currentLoadRequestId) {
         throw new Error('DATA_VIEW_SAVED_ROW_PERMISSIONS_STALE: 原查询身份已改变')
       }
       const pending = new Set(context.pendingSavedRowIds ?? [])
@@ -3534,7 +3549,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
           if (field === '_pk' || this.effectivePkFields.includes(field) || this.computedColumnNames.has(field)) continue
           if (this.sameQuerySaveValue(current[field], baseline[field])) patch[field] = accepted[field]
         }
-        this.updateRowById(id, structuredClone(patch))
+        this.applyNativeRowUpdate(id, structuredClone(patch))
         if (this._editingPatches.has(id)) this._editingOriginalRows.set(id, structuredClone(accepted))
         this.rebaseQuerySaveDirty(id, accepted)
       }
@@ -4839,6 +4854,10 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
   private _trackMutating(delta: 1 | -1, error?: Error | null): void {
     if (delta === 1 && this.#refreshingSavedRowPermissions) throw new Error('DATA_VIEW_SAVED_ROW_PERMISSIONS_BUSY: 新增行权限正在回读')
     if (delta === 1) this.assertResultWritable()
+    this.updateMutatingState(delta, error)
+  }
+
+  private updateMutatingState(delta: 1 | -1, error?: Error | null): void {
     this._mutatingCount = Math.max(0, this._mutatingCount + delta)
     this.mutating = this._mutatingCount > 0
     if (delta === 1) {

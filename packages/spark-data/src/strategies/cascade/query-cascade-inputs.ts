@@ -118,14 +118,19 @@ export class DataViewQueryCascadeInputs {
 
   /** 同一子视图的同一输入只能有一个定义来源，禁止顺序覆盖。 */
   static validateAll(cascades: readonly unknown[]): void {
-    const seen = new Set<string>()
+    const targetsByView = new Map<string, Set<string>>()
     for (const cascade of cascades) {
       if (!isRecord(cascade)) throw new Error('QUERY_CASCADE_INPUT: 级联必须是对象')
       if (cascade['kind'] === 'field') continue
+      const view = JSON.stringify([cascade['childTable'], cascade['childViewId']])
+      const seen = targetsByView.get(view) ?? new Set<string>()
+      targetsByView.set(view, seen)
       for (const binding of this.parse(cascade['inputBindings'])) {
-        const key = JSON.stringify([cascade['childTable'], cascade['childViewId'], binding.target])
-        if (seen.has(key)) throw new Error(`QUERY_CASCADE_INPUT: 重复目标 ${key}`)
-        seen.add(key)
+        if (seen.has(binding.target)) throw new Error(`QUERY_CASCADE_INPUT: 重复目标 ${view} ${binding.target}`)
+        seen.add(binding.target)
+      }
+      if (seen.has('queryContext') && [...seen].some(target => this.contextKey(target) !== undefined)) {
+        throw new Error(`QUERY_CASCADE_INPUT: 整体queryContext与单键目标不能混用 ${view}`)
       }
     }
   }

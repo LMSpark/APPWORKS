@@ -313,6 +313,15 @@ describe('DataSpaceRuntimeApi', () => {
     expect(context.addActionState()).toBe('hidden')
   })
 
+  it('rejects duplicate entity keys across otherwise complete pages', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    http.queryResults = [1, 2].map(() => ({ primaryKeyField: 'rowid',
+      data: { Items: [{ rowid: 'REPEATED' }], Count: 2 } }))
+    await expect(api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: 'Payroll' },
+      { allPages: true, page: { index: 1, size: 1 } })).rejects.toThrow('记录主键重复')
+  })
+
   it('collects every page through the root request owner before publishing a context', async () => {
     const http = new DataSpaceFixtureHttpClient()
     const api = activeApi(http)

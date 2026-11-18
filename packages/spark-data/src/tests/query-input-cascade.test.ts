@@ -34,6 +34,28 @@ const cascade: DataViewQueryCascade = {parentTable: 'Inputs', parentViewId: 'def
   ]}
 
 describe('query cascade configuration inputs', () => {
+  it('ignores an in-flight result after switching query inputs away and back', async () => {
+    const {child, list} = fixture()
+    let deliver!: (value: Awaited<ReturnType<typeof child.crud.list>>) => void
+    list.mockReturnValueOnce(new Promise(resolve => { deliver = resolve }))
+    const original = child.queryContext
+    const load = child.loadFromServer()
+    child.queryContext = {fixed: 2}
+    child.queryContext = {...original}
+    deliver({success: true, data: {rows: [{id: 'late', parent: ''}], total: 1}})
+    await load
+    expect(child.rows).toEqual([])
+  })
+
+  it.each([false, true])('rejects overlapping context assignments from different parents (%s)', reverse => {
+    const {ds} = fixture()
+    const other: DataViewQueryCascade = {...cascade, parentTable: 'Range',
+      inputBindings: [{sourceField: 'all', target: 'queryContext.flag'}]}
+    const [first, second] = reverse ? [other, cascade] : [cascade, other]
+    ds.addCascade(first!)
+    expect(() => ds.addCascade(second!)).toThrow('整体queryContext与单键目标不能混用')
+  })
+
   it('defers multiple parent inputs in manual mode, queries the latest values explicitly and preserves the policy', async () => {
     const {ds, source, range, child, list} = fixture()
     child.queryConfig = {...child.queryConfig, autoQuery: false}

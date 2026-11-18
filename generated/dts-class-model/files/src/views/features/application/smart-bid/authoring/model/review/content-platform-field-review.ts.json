@@ -252,7 +252,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T02:41:20.631Z",
+  "generatedAt": "2026-11-18T02:47:01.067Z",
   "models": {
     "FieldSelection": {
       "name": "FieldSelection",

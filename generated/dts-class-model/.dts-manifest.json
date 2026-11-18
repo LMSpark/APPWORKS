@@ -5899,7 +5899,7 @@
     "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts.json",
-      "sourceModifiedAt": "2026-11-18T02:41:20.631Z"
+      "sourceModifiedAt": "2026-11-18T02:47:01.067Z"
     },
     "src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts",
@@ -5920,6 +5920,11 @@
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-versions.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-review-versions.ts.json",
       "sourceModifiedAt": "2026-11-18T02:21:54.838Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader.ts.json",
+      "sourceModifiedAt": "2026-11-18T02:44:59.758Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",

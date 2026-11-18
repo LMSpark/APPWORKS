@@ -11679,3 +11679,7 @@ flowchart TD
 - 工作流领码复用边界：Excel catalog/creation.ts 已复用 BusinessCodeAssignmentResource，并对原方案确认、专用规则和仅 coding 回写作领域校验。工作流目录 pagedata 明确 workflow_key 不可变，不能直接搬用 Excel 的普通字段回写；须另证工作流正式创建命令或专用回写权限，本轮零写入。
 - 工作流创建合同复核：源码派生的 /ai/workflow/create 归 AiWorkflowController，数据工作流 /api/Workflow 只列运行和测试，不能将不同领域端点接入。SPARK data 的 DataView/save-rule-validator 会拦截普通 workflow_key 回写；通用领码资源仅负责编码命令，不提供工作流建行授权。
 - 工作流字段历史回读仅确认 workflow_key 为 varchar、输出字段、非主键、非计算；未覆盖可空性、默认值及实服回写权限。前端 immutable 继续保护普通编辑。
+- 第10包现入口核查：数据工作流目录未设整流程删除操作，触发表的删除选项是触发事件类型；Agent 工作流目录删除属于不同资源。Cron 当前由正式 timeExp 字段编辑，端点目录未定位独立 Cron 校验，不将文本可保存当作已验证调度。
+- 第10包触发配置：正式页面上 activeType 与 timeExp 分别由标准 Radio/Text 绑定；两项保存/取消回归通过。台账历史独立回读已证 time/Cron 保存及重开，夹具已清理；当前实际调度仍待验。
+- 工作流创建只读前置核查入口：数据库表字段元数据现有标准列 IsNill、DefaultValue（field-metadata.ts），可用于已授权物理表读取；当前未确认 Base_WorkflowDefinition 到物理库表的正式定位及目标字段返回，未写入。
+- 工作流物理表只读定位：历史正式编码规则 E06753D019382D5E479264B70258ADE0 给出 BusTableRowid=F73ED4B293524AD7A251D37DEE659CCF、BusTableName=Base_WorkflowDefinition、KeyFields=rowid。可按该物理表身份在授权字段目录取证，仍待当前读回 IsNill/DefaultValue，未发起服务写入。

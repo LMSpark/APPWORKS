@@ -41,7 +41,7 @@ AI用途：每个页签只保存本页签视图，不夹带其它页签草稿；
             :auto-columns="false" :stripe="true" :border="true" :show-data-view-meta="false" />
         </RendererTabPane>
       </RendererTabs>
-      <RendererButton v-if="unconfirmed" label="重读核验（放弃本地修改）" :disabled="busy" @click="reload" />
+      <RendererButton v-if="unconfirmed" label="核验原保存结果" :disabled="busy" @click="verifyOriginalSaves" />
     </RendererSection>
   </RendererDialog>
 </template>
@@ -161,10 +161,12 @@ function run(viewKey: string, action: FeatureTableAction): Promise<void> {
 function save(viewKey: string): Promise<void> {
   return run(viewKey, 'save')
 }
-function reload(): Promise<void> {
+function verifyOriginalSaves(): Promise<void> {
   return act(async () => {
-    const targets = views.value.filter(item => item.hasUnconfirmedSave || item.hasEditingChanges() || item.dirtyTracking.hasPendingChanges())
-    await dataSet?.discardAndReload({views: targets.map(item => ({tableName: item.tableName, viewId: item.viewId}))})
+    for (const target of views.value.filter(item => item.hasUnconfirmedSave)) {
+      const result=await target.saveChanges()
+      if(!result.success)throw new Error(result.message || '原保存结果尚未核定')
+    }
   })
 }
 async function close(): Promise<void> {
@@ -193,8 +195,10 @@ async function loadTab(name: string | number): Promise<void> {
       unsubscribeCascade = dataSet.onFieldCascadeChange(changed)
     }
     const targets = tabViews[name].map(view)
+    if (targets.some(target => target.hasEditingChanges() || target.dirtyTracking.hasPendingChanges() || target.hasUnconfirmedSave)) {
+      throw new Error('当前配置视图仍有待处理的修改或保存结果')
+    }
     for (const target of targets) {
-      if (target.hasEditingChanges() || target.dirtyTracking.hasPendingChanges() || target.hasUnconfirmedSave) target.discardPendingChanges()
       if ('providerId' in target.queryContext) target.queryContext = {...target.queryContext, providerId: props.providerId}
     }
     await Promise.all(targets.map(target => target.refresh()))

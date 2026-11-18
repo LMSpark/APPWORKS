@@ -383,6 +383,34 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(api.current.state.http.saves).toHaveLength(1)
   })
 
+  it('verifies only the original configuration save and preserves an unrelated header draft',async()=>{
+    const observed=new Set<PageRuntime>(),original=PageRuntime.prototype.load
+    vi.spyOn(PageRuntime.prototype,'load').mockImplementation(function(this:PageRuntime){observed.add(this);return original.call(this)})
+    const wrapper=await mountAt(ManagementPage)
+    await button(wrapper,'基础配置')!.trigger('click')
+    await vi.waitFor(()=>expect(document.body.textContent).toContain('配置信息设置'))
+    const tab=(label:string)=>wrapper.findAll('.el-tabs__item').find(item=>item.text()===label)!
+    await vi.waitFor(()=>expect(tab('请求头部信息')).toBeDefined())
+    await tab('请求头部信息').trigger('click')
+    const ds=[...observed].find(page=>page.getDataSet(CONFIG))!.getDataSet(CONFIG)!
+    const auth=ds.getView('Base_InterfaceProvider','authentication')!,headers=ds.getView('Base_InterfaceProvider_Headers')!
+    await vi.waitFor(()=>expect(headers.rows).toHaveLength(1))
+    const id=headers.getPkKey(headers.rows[0]!)!
+    headers.updateEditingValue(id,'paramName','unsaved-header')
+    await tab('JWT设置').trigger('click')
+    auth.updateEditingValue('P1','TokenPrefix','Updated prefix ')
+    api.current.state.http.failAfterWrite=true
+    const save=wrapper.findAllComponents(RendererButton).find(item=>item.props('label')==='保存'&&item.props('dataViewKey')?.endsWith('@authentication'))
+    expect(save).toBeDefined()
+    save!.vm.$emit('click')
+    await vi.waitFor(()=>expect(auth.hasUnconfirmedSave,wrapper.text()).toBe(true))
+    await button(wrapper,'核验原保存结果')!.trigger('click')
+    await flushPromises()
+    expect(api.current.state.http.saves).toHaveLength(1)
+    expect(headers.getEditingRow(id)?.['paramName']).toBe('unsaved-header')
+    expect(headers.hasEditingChanges()).toBe(true)
+  })
+
   it('loads each configuration tab on demand and adds an account owned by the provider', async () => {
     const observed = new Set<PageRuntime>(), original = PageRuntime.prototype.load
     vi.spyOn(PageRuntime.prototype, 'load').mockImplementation(function (this: PageRuntime) {observed.add(this); return original.call(this)})

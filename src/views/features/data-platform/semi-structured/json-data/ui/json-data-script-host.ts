@@ -86,7 +86,7 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
    }
    if(typeof id!=='string'||!id||id.trim()!==id)throw new Error('JSON_DOCUMENT_REQUEST')
    if(command==='jsonData.closeDocument'){
-    if(!document||document.queryContext['jsonId']!==id||runtime.isDirty)throw new Error('请先处理当前修改')
+    if(!document||document.queryContext['jsonId']!==id||inputPending||runtime.isDirty)throw new Error('请先处理当前修改')
     document.dataTable?.destroyView(document.viewId)
     document=undefined
     return
@@ -114,6 +114,7 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
       return {closed:true}
      }
     }else{
+     if(inputPending)throw new Error('请先处理当前正文输入')
      if(creating===id&&!fileConfirmed&&catalog&&!catalog.hasUnconfirmedSave){
       const draft=catalog.getEditingRow(id)
       if(!draft)throw new Error('JSON目录新增草稿缺失')
@@ -146,7 +147,7 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
     if(row)view.setCurrentRow(row)
     return
    }
-   if(command!=='jsonData.openDocument'||!editable||runtime.isDirty)throw new Error('JSON_DOCUMENT_REQUEST')
+   if(command!=='jsonData.openDocument'||!editable||inputPending||runtime.isDirty)throw new Error('JSON_DOCUMENT_REQUEST')
    const next=LowcodeJsonData.openDocument(dataSet,id)
    if(document&&document!==next)document.dataTable?.destroyView(document.viewId)
    document=next

@@ -11,7 +11,8 @@ it('requires verification of the exact AI-assisted position separately from the 
  })
  const {assertCurrent:_proof,...body}=draft
  const draftHash=await hashCanonicalSnapshotText(canonicalSnapshotValue(body))
- const position={positionRef:'FIELD',contentHash:'a'.repeat(64),requiresAiVerification:true}
+ const contentHash=await hashCanonicalSnapshotText(canonicalSnapshotValue(draft.body))
+ const position={positionRef:'FIELD',contentHash,requiresAiVerification:true}
  const check={...position,accepted:true,reviewRef:'R',aiVerificationRef:null,assertCurrent}
  const source={draftHash,reviewerRef:'REVIEWER',ruleVersionRef:'RULE',deviation:null,deviationAllowed:false,
   positions:[position],deferredPositionRefs:['FILE-FIELD'],assertCurrent}
@@ -29,5 +30,8 @@ it('requires verification of the exact AI-assisted position separately from the 
   .rejects.toThrow('BID_RESPONSE_CANDIDATE_VERSION')
  await expect(reviewResponseDraft(draft,{...source,checks:[{...check,contentHash:'b'.repeat(64)}]}))
   .rejects.toThrow('BID_RESPONSE_REVIEW_EVIDENCE')
+ const otherPosition={...position,contentHash:'b'.repeat(64)}
+ await expect(reviewResponseDraft(draft,{...source,positions:[otherPosition],checks:[{...check,...otherPosition}]}))
+  .rejects.toThrow('BID_RESPONSE_REVIEW_VERSION')
  await expect(reviewResponseDraft(draft,{...source,deviation:'NONE',checks:[check]})).rejects.toThrow('BID_RESPONSE_REVIEW_SCOPE')
 })

@@ -32,6 +32,11 @@ export async function reviewResponseDraft(draft:Draft,source:Readonly<{
   !identity(item.positionRef)||!/^[a-f0-9]{64}$/u.test(item.contentHash)||typeof item.requiresAiVerification!=='boolean')||
   !source.deferredPositionRefs.every(identity)||new Set(source.deferredPositionRefs).size!==source.deferredPositionRefs.length)
   throw Error('BID_RESPONSE_REVIEW_POSITIONS')
+ if(!('chapterId' in draft.body)){
+  const bodyHash=await hashCanonicalSnapshotText(canonicalSnapshotValue(draft.body))
+  assertCurrent()
+  if(positions.get(draft.targetRef)?.contentHash!==bodyHash)throw Error('BID_RESPONSE_REVIEW_VERSION')
+ }
  const byPosition=new Map<string,Check>()
  for(const check of checks){
   const position=positions.get(check.positionRef)

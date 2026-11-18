@@ -11,13 +11,19 @@ export type ComputedQueryOutput=Readonly<{nodeId:string;inputHash:string;data:Re
 
 /** 工位绑定的只读 ClassModel 根，每次读取前复核宿主授权。 */
 export class ComputedQueryRoot {
- constructor(private readonly read:(input:unknown)=>ComputedQueryOutput,private readonly assertAllowed:()=>void){}
+ readonly #read:(input:unknown)=>ComputedQueryOutput
+ readonly #assertAllowed:()=>void
+
+ constructor(read:(input:unknown)=>ComputedQueryOutput,assertAllowed:()=>void){
+  this.#read=read
+  this.#assertAllowed=assertAllowed
+ }
 
  /** 读取当前工位同次展开的固定表格 JSON。 */
  computed_get(input:ComputedQueryInput):ComputedQueryOutput {
-  this.assertAllowed()
-  const result=this.read(input)
-  this.assertAllowed()
+  this.#assertAllowed()
+  const result=this.#read(input)
+  this.#assertAllowed()
   return result
  }
 }

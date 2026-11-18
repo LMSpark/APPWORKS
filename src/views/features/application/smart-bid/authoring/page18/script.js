@@ -1,6 +1,7 @@
 /* global $page, $route */
 let directory
 let directoryError
+let directoryIsCurrent
 let selectionGeneration = 0
 let dispatch
 let dispatchError
@@ -15,6 +16,9 @@ async function __init__() {
   dispatch = undefined
   dispatchError = undefined
   const {projectId, runId, attemptRef, requestKey, targetDigest, configurationLockHash} = $route.query
+  const directoryRef = $route.query.directoryRef
+  const isDirectoryCurrent = () => $route.query.projectId === projectId && $route.query.directoryRef === directoryRef
+  directoryIsCurrent = isDirectoryCurrent
   const attempt = {runId, attemptRef, requestKey, targetDigest, configurationLockHash}
   const isCurrent = () => $route.query.projectId === projectId &&
     Object.entries(attempt).every(([key, value]) => $route.query[key] === value)
@@ -29,21 +33,21 @@ async function __init__() {
       if (generation === selectionGeneration && isCurrent()) dispatchError = '原试次实发记录无法读取'
     }
   }
-  if (generation !== selectionGeneration) return
-  const directoryRef = $route.query.directoryRef
+  if (generation !== selectionGeneration || !isDirectoryCurrent()) return
   if (typeof directoryRef !== 'string' || !directoryRef || directoryRef.trim() !== directoryRef) {
     if (!hasAttempt) directoryError = '请从业务目录打开本工作区'
     return
   }
   try {
     const result = await $page.invokeHostCommand('content.operation.discover', {directoryRef})
-    if (generation === selectionGeneration) directory = result
+    if (generation === selectionGeneration && isDirectoryCurrent()) directory = result
   } catch {
-    if (generation === selectionGeneration) directoryError = '指南目录读取失败'
+    if (generation === selectionGeneration && isDirectoryCurrent()) directoryError = '指南目录读取失败'
   }
 }
 
 function currentDirectory() {
+  if (!directoryIsCurrent?.()) return undefined
   try {
     directory?.assertCurrent()
     return directory
@@ -58,6 +62,7 @@ function bindDirectory() {
 }
 
 function bindDirectoryStatus() {
+  if (directoryIsCurrent && !directoryIsCurrent()) return {visible: false}
   const current = currentDirectory()
   if (current) return {status: `目录指南 ${current.count} 项，当前可达动作 ${current.reachable} 项`}
   return hasAttempt && !directory && !directoryError ? {} : {error: directoryError ?? '目录查询已失效'}

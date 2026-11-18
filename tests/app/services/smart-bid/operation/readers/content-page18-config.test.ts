@@ -14,7 +14,8 @@ it('binds the original directory and never displays a superseded row response',a
  const readGuide=vi.fn((key:string)=>key==='first'?first:Promise.resolve({guide:'新指南',assertCurrent}))
  const invokeHostCommand=vi.fn(async()=>({dataViewKey,count:2,reachable:2,assertCurrent,readGuide}))
  const resolveView=vi.fn(()=>({getPkKey:(row:{id:string})=>row.id}))
- const functions=compileFunctions(script,{$route:{query:{directoryRef:'DIR'}},
+ const query={directoryRef:'DIR'}
+ const functions=compileFunctions(script,{$route:{query},
   $page:{invokeHostCommand,resolveView,showAlert,showMessage}} as unknown as PageContext)
  const {__init__,bindDirectory,readGuide:click,bindDirectoryStatus}=functions
  if(!__init__||!bindDirectory||!click||!bindDirectoryStatus)throw Error('TEST_PAGE18_HANDLERS_REQUIRED')
@@ -33,6 +34,13 @@ it('binds the original directory and never displays a superseded row response',a
  expect(bindDirectoryStatus()).toEqual({error:'目录查询已失效'})
  await click({id:'third'})
  expect(readGuide).toHaveBeenCalledTimes(2)
+ assertCurrent.mockReset()
+ const oldDirectory=click({id:'fourth'})
+ query.directoryRef='OTHER'
+ await oldDirectory
+ expect(bindDirectory()).toEqual({visible:false})
+ expect(bindDirectoryStatus()).toEqual({visible:false})
+ expect(showAlert).toHaveBeenCalledTimes(1)
  expect(showMessage).not.toHaveBeenCalled()
 })
 

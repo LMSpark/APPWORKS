@@ -22,6 +22,40 @@ function valid(view:DataView){
   scopeFields.every(([field,ParamName])=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
 }
 
+/** 按原装封请求找登记，保留空查未知并核对后续实包。 */
+export async function recoverRegisteredPackingCandidate(host:ContentRevisionReadHost,packingRequestRef:string,
+ candidate:Parameters<typeof verifyRegisteredPackingCandidate>[2],openAuthorized:Parameters<typeof verifyRegisteredPackingCandidate>[3]){
+ const {runtime,scenarioId,projectId}=host
+ host.assertCurrent();candidate.assertCurrent()
+ if(candidate.projectId!==projectId||![scenarioId,projectId,packingRequestRef].every(identity))throw Error(error)
+ const key=buildDataViewKey('SubmissionPackage','originalPackedZipByRequest',scenarioId)
+ const view=runtime.resolveView(key),context={projectId,packingRequestRef}
+ const isRequestView=(target:DataView)=>target.dataTable?.modelBinding?.modelName==='SubmissionPackage'&&
+  target.commitMode==='staged'&&target.queryConfig.autoQuery===false&&Object.keys(context).every(field=>
+   hasContentScopeCondition(target,field,{Type:'GetInputParam',ParamName:field}))
+ if(!view||!isRequestView(view)||view.hasEditingChanges())throw Error('SUBMISSION_ORIGINAL_PACKAGE_VIEW')
+ view.queryContext={...view.queryContext,...context}
+ const assertScope=()=>{
+  host.assertCurrent();candidate.assertCurrent()
+  if(runtime.resolveView(key)!==view||!isRequestView(view)||view.loadingError||view.hasEditingChanges()||
+   Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('SUBMISSION_ORIGINAL_PACKAGE_STALE')
+ }
+ await view.refresh()
+ assertScope()
+ if(view.countReported!==true||view.total!==view.rows.length||view.nextPageAvailable===true||view.rows.length>1)
+  throw Error('SUBMISSION_ORIGINAL_PACKAGE_NOT_UNIQUE')
+ const assertResult=view.captureReadResult(),row=view.rows[0]
+ if(!row)return Object.freeze({status:'REGISTRATION_UNKNOWN' as const,assertCurrent:()=>{assertScope();assertResult()}})
+ const assertRow=view.captureReadRow(row,['id','projectId','packingRequestRef','format'])
+ const packageId=row['id']
+ if(!identity(packageId)||row['projectId']!==projectId||row['packingRequestRef']!==packingRequestRef||row['format']!=='ZIP')
+  throw Error(error)
+ const verified=await verifyRegisteredPackingCandidate({...host,assertCurrent:()=>{
+  assertScope();assertResult();assertRow()
+ }},{packageId,packingRequestRef},candidate,openAuthorized)
+ return Object.freeze({status:'REGISTRATION_VERIFIED' as const,verified,assertCurrent:verified.assertCurrent})
+}
+
 /** 核本次装封回执所指原登记及实包，给下游交付同版证据。 */
 export async function verifyRegisteredPackingCandidate(host:ContentRevisionReadHost,input:Selection,
  candidate:Omit<Awaited<ReturnType<typeof packFrozenDeliveryZip>>,'bytes'>,

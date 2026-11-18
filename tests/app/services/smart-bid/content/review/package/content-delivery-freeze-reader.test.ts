@@ -24,7 +24,8 @@ it('preserves unknown on a complete empty original read and requires readable te
   views:{default:{},originalFreeze:DeliveryManifest.originalFreeze},
  },SubmissionPackage:{
   modelBinding:{modelId:'PKG-M',modelName:'SubmissionPackage'},columns:packageColumns.map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalPackedZip:SubmissionPackage.originalPackedZip},
+  views:{default:{},originalPackedZip:SubmissionPackage.originalPackedZip,
+   originalPackedZipByRequest:SubmissionPackage.originalPackedZipByRequest},
  }}})
  const view=ds.getView('DeliveryManifest','originalFreeze')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'DeliveryManifest'})
  let items:Array<Omit<typeof original,'frozenResult'>&{frozenResult:unknown}>=[],hidden=false
@@ -33,8 +34,10 @@ it('preserves unknown on a complete empty original read and requires readable te
    data:{Count:items.length,Items:items.map(item=>({...item,lingma_sys_params:{r:[],e:[],h:hidden?['terminalRef']:[],m:[],d:false}}))}}}),
  })})
  const packageView=ds.getView('SubmissionPackage','originalPackedZip')!
+ const packageRequestView=ds.getView('SubmissionPackage','originalPackedZipByRequest')!
  const host={runtime:{resolveView:(key:string)=>key==='S@DeliveryManifest@originalFreeze'?view:
-  key==='S@SubmissionPackage@originalPackedZip'?packageView:undefined},
+  key==='S@SubmissionPackage@originalPackedZip'?packageView:
+  key==='S@SubmissionPackage@originalPackedZipByRequest'?packageRequestView:undefined},
   scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  try{
   const unknown=await readRegisteredDeliveryFreeze(host,request)
@@ -66,6 +69,13 @@ it('preserves unknown on a complete empty original read and requires readable te
     data:{Count:1,Items:[{...pack,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
   }))
   packageView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:executePackage})
+  let registrationFound=false
+  packageRequestView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>{
+   const requestTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'SubmissionPackage'})
+   return new DataSpaceQueryContext({identity:requestTable.identity,scope:'pkg-request',readScope:()=> 'pkg-request',
+    snapshot:requestTable.applyResult({Result:{primaryKeyField:'id',data:{Count:registrationFound?1:0,
+     Items:registrationFound?[{...pack,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]:[]}}})})
+  }})
   const reviewOptions={package:{packageId:'PKG',packingRequestRef:'PACKING'},openAuthorized,limits:{maxEntries:1,maxExpandedBytes:128}}
   items=[]
   expect(await reviewRegisteredDeliveryZipPackage(host,request,reviewOptions)).toMatchObject({status:'UNKNOWN'})
@@ -130,14 +140,13 @@ it('preserves unknown on a complete empty original read and requires readable te
   const verified=await verifyRegisteredPackingCandidate(host,registered,latest.candidate,openRegistered)
   expect(verified).toMatchObject({packageId:pack.id,packageHash:pack.packageHash,selectionHash:hashes.selectionHash})
   const registeredPage=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
-   readPackingSelection:async selectionRef=>selectionRef==='PENDING'
-    ?{selectionRef,request,state:'REGISTRATION_UNKNOWN',assertCurrent:host.assertCurrent}
-    :{selectionRef:'PACK',request,state:'REGISTERED',assertCurrent:host.assertCurrent,
-     target:registered,candidate:latest.candidate,openAuthorized:openRegistered},
+   readPackingSelection:async()=>({selectionRef:'PACK',request,state:'RECOVER',assertCurrent:host.assertCurrent,
+    packingRequestRef:registered.packingRequestRef,candidate:latest.candidate,openAuthorized:openRegistered}),
   })
-  await expect(registeredPage.invoke('content.submission.preparePacking',{selectionRef:'PENDING'},signal))
+  await expect(registeredPage.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal))
    .resolves.toMatchObject({status:'REGISTRATION_UNKNOWN'})
   expect(openOriginal).toHaveBeenCalledTimes(2)
+  registrationFound=true
   await expect(registeredPage.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal))
    .resolves.toMatchObject({status:'REGISTRATION_VERIFIED',verified:{packageId:pack.id,packageHash:pack.packageHash}})
   expect(openOriginal).toHaveBeenCalledTimes(2)

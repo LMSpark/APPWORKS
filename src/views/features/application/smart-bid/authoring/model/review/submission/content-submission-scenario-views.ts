@@ -40,6 +40,7 @@ export function contentDeliveryPackageScenarioViews(primaryKeys:Readonly<Record<
    }),
   },
   SubmissionPackage:{
+   originalPackedZipByRequest:view(SubmissionPackage,['projectId','packingRequestRef'],{fields:['id','format']}),
    originalPackedZip:view(SubmissionPackage,packageKeys,{
     fields:['format','packageHash','resourceVersionId','selectionId','selectionVersion','selectionHash','requiredPositions','packed'],
    }),

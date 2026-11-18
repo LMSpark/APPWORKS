@@ -10,7 +10,7 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {recoverSubmissionAttempt} from '@/services/smart-bid/content/review/submission-attempt-recovery'
 import {prepareDeliveryFreezeSelection} from '@/services/smart-bid/content/review/delivery-selection-digest'
 import {prepareRegisteredDeliveryZipPackage} from '../../model/review/package/content-delivery-package-preparation'
-import {verifyRegisteredPackingCandidate} from '../../model/review/package/content-submission-package-reader'
+import {recoverRegisteredPackingCandidate} from '../../model/review/package/content-submission-package-reader'
 import {readRegisteredSubmissionRequest} from '../../model/review/submission/content-submission-request-reader'
 import {readRegisteredSubmissionEvents} from '../../model/review/submission/content-submission-events-reader'
 import {readRegisteredChannelReceiptPairing} from '../../model/review/submission/content-channel-receipt-pairing-reader'
@@ -35,14 +35,13 @@ type PackageReview=Parameters<typeof reviewRegisteredDeliveryZipPackage>
 type PackageRelease=Parameters<typeof assessSubmissionPackageRelease>
 type FreezePreparation=Parameters<typeof prepareDeliveryFreezeSelection>
 type PackingPreparation=Parameters<typeof prepareRegisteredDeliveryZipPackage>
-type PackingVerification=Parameters<typeof verifyRegisteredPackingCandidate>
+type PackingRecovery=Parameters<typeof recoverRegisteredPackingCandidate>
 type PackingSelection=Readonly<{
  selectionRef:string;request:PackingPreparation[1];assertCurrent:()=>void
 }>&(
  Readonly<{state:'PREPARE';options:PackingPreparation[2]}>|
- Readonly<{state:'REGISTRATION_UNKNOWN'}>|
- Readonly<{state:'REGISTERED';target:PackingVerification[1];candidate:PackingVerification[2];
-  openAuthorized:PackingVerification[3]}>
+ Readonly<{state:'RECOVER';packingRequestRef:PackingRecovery[1];candidate:PackingRecovery[2];
+  openAuthorized:PackingRecovery[3]}>
 )
 /** 读取原截止记录对应的回执和核对证据。 */
 type ReadDeadline=(record:Awaited<ReturnType<typeof readRegisteredDeadlineRecord>>,signal:AbortSignal)=>Promise<Readonly<{
@@ -106,12 +105,8 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     if(selected.selectionRef!==selectionRef||selected.request.groupScope.projectId!==projectId)
      throw Error('SUBMISSION_PAGE_PACKING_SCOPE')
     const scopedHost={...host,assertCurrent:assertSelection}
-    if(selected.state==='REGISTRATION_UNKNOWN')
-     return Object.freeze({status:selected.state,assertCurrent:assertSelection})
     if(selected.state==='PREPARE')return prepareRegisteredDeliveryZipPackage(scopedHost,selected.request,selected.options)
-    const {target,candidate,openAuthorized}=selected
-    const verified=await verifyRegisteredPackingCandidate(scopedHost,target,candidate,openAuthorized)
-    return Object.freeze({status:'REGISTRATION_VERIFIED' as const,verified,assertCurrent:verified.assertCurrent})
+    return recoverRegisteredPackingCandidate(scopedHost,selected.packingRequestRef,selected.candidate,selected.openAuthorized)
    }
    if(name==='content.submission.prepareFreeze'&&sources.readFreezeSelection){
     const {selectionRef}=input

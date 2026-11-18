@@ -24,3 +24,20 @@ function bindEmptyResult() {
 }
 async function invokeInterface() { await $page.invokeHostCommand('interfaces.invoke') }
 async function abandonInterface() { await $page.invokeHostCommand('interfaces.abandonCall') }
+
+function bindOutputReset() {
+  const state=interfaces?.output()
+  return {disabled:!state || state.locked || state.pendingCreate || state.unknown}
+}
+function bindOutputSave() {
+  const state=interfaces?.output()
+  return {disabled:!state || state.locked || !state.pending}
+}
+function bindOutputBinding() {
+  const state=interfaces?.output()
+  return {disabled:!state || state.locked || state.pending}
+}
+function bindOutputUnknown() { return {visible:interfaces?.output().unknown === true} }
+async function resetOutput() { await $page.invokeHostCommand('interfaces.resetOutput') }
+async function saveOutput() { await $page.invokeHostCommand('interfaces.saveOutput') }
+async function bindOutput(row) { await $page.invokeHostCommand('interfaces.bindOutput',row?.rowid) }

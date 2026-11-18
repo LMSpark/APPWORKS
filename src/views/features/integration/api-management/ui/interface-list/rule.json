@@ -28,5 +28,28 @@
       ]},
       {"type":"r-empty","props":{"onBeforeRender":"bindEmptyResult"}}
     ]
+  },
+  {
+    "id":"api-interface-output",
+    "type":"r-section",
+    "props":{"class":"interface-output","bordered":false,"gridColumns":1},
+    "children":[
+      {"type":"r-section","props":{"bordered":false,"gridColumns":6},"children":[
+        {"type":"r-form","props":{"colSpan":4,"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","gridColumns":1,"labelWidth":"0","autoColumns":false,"showDataViewMeta":false},"children":[
+          {"type":"r-text","props":{"field":"resultPath","label":"","placeholder":"请输入结果过滤"}}
+        ]},
+        {"type":"r-button","props":{"colSpan":1,"label":"重新设置输出","onBeforeRender":"bindOutputReset","onClick":"resetOutput"}},
+        {"type":"r-button","props":{"colSpan":1,"label":"保存","buttonType":"primary","onBeforeRender":"bindOutputSave","onClick":"saveOutput"}}
+      ]},
+      {"type":"r-alert","props":{"alertType":"warning","closable":false,"title":"上次调用结果未知，请在“调用输出”中放弃该结果后再重新设置","onBeforeRender":"bindOutputUnknown"}},
+      {"type":"r-table","props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_TblField@default","showPagination":false,"showDataViewMeta":false,"maxHeight":460,
+        "actionColumn":{"label":"公共参数","width":140},"actions":{"children":[
+          {"type":"r-button","props":{"label":"设置公共参数","buttonType":"primary","link":true,"onBeforeRender":"bindOutputBinding","onClick":"bindOutput"}}
+        ]}},"children":[
+        {"type":"r-text","props":{"field":"enname","label":"字段名","readonly":true}},
+        {"type":"r-select","props":{"field":"DataType","label":"字段类型","optionDataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@ParamType@default","readonly":true}},
+        {"type":"r-text","props":{"field":"Memo","label":"描述","showCellControl":true}}
+      ]}
+    ]
   }
 ]

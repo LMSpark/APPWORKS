@@ -1,0 +1,10 @@
+[
+  {
+    "id": "bid-original-approved-price",
+    "type": "r-section",
+    "props": {"title": "原报价批准"},
+    "children": [
+      {"type": "r-button", "props": {"label": "读取指定批准版", "onBeforeRender": "bindApprovedPrice", "onClick": "openApprovedPrice"}}
+    ]
+  }
+]

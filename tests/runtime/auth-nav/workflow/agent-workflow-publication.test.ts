@@ -95,6 +95,22 @@ describe('Agent workflow first publication command', () => {
     } finally {state.dataSet.destroy()}
   })
 
+  it('keeps a newer command edit when the target lookup is still in progress', async () => {
+    const state = fixture()
+    try {
+      const row = await state.prepare()
+      const key = String(row['commandId'])
+      state.readTextFile.mockResolvedValueOnce(designContent).mockImplementationOnce(async () => {
+        state.view.updateEditingValue(key, 'definitionContent', '{}')
+        throw new LowcodeApiError(404, 'missing')
+      })
+      await expect(state.save()).rejects.toThrow('原命令输入已变化')
+      expect(state.uploadTextVersion).not.toHaveBeenCalled()
+      expect(state.view.getEditingRow(key)?.['definitionContent']).toBe('{}')
+      expect(state.view.hasUnconfirmedSave).toBe(false)
+    } finally {state.dataSet.destroy()}
+  })
+
   it('retains the original command and verifies unknown upload without replay', async () => {
     let active = true
     const state = fixture({afterUpload: () => {throw new Error('response lost')}, assertCurrent: () => {if (!active) throw new Error('scope stale')}})

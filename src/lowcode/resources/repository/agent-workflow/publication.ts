@@ -119,14 +119,14 @@ function commandOptions(view: DataView, input: Input): BindCommandSubmitOptions 
       if (attempts.has(commandId)) throw unknown(new Error('原命令已经派发，不能重传'))
       assertDefinitionIdentity(designContent, definitionContent)
       const original: DataRow = {commandId, workflowId, designContent, definitionContent}
-      const current = view.getEditingRow(commandId)
-      if (!current || ['commandId', 'workflowId', 'designContent', 'definitionContent'].some(field => current[field] !== original[field])) {
-        throw new Error('AGENT_WORKFLOW_PUBLICATION_INPUT: 原命令输入已变化')
-      }
       const attempt: Attempt = {row: original, customPath: `${directory}/${workflowId}`, designContent, definitionContent}
       await readDesign(attempt)
       await assertDefinitionMissing(attempt)
       guard()
+      const current = view.getEditingRow(commandId)
+      if (!current || ['commandId', 'workflowId', 'designContent', 'definitionContent'].some(field => current[field] !== original[field])) {
+        throw new Error('AGENT_WORKFLOW_PUBLICATION_INPUT: 原命令输入已变化')
+      }
       attempts.set(commandId, attempt)
       try {
         await input.fileUpload.uploadTextVersion({customPath: attempt.customPath, fileName: 'definition.json', text: definitionContent})

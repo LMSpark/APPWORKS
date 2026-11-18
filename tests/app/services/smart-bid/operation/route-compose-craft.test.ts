@@ -34,6 +34,13 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
   sourceRef:'SOURCE',versionRef:'V1',useRef:'USE',assertCurrent:source.assertCurrent}))
  const manifest=await freezeOperationRouteContext(scope,manifestGuide,provenance)
  expect(manifest).toMatchObject({usable:true,inputDigest:actualInputDigest})
+ const selected=provenance.map((item,index)=>index===0?{...item,requirementRead:{lineageId:'CLAUSE',version:'V1'}}:item)
+ const withRequirement=await freezeOperationRouteContext(scope,manifestGuide,selected)
+ expect(withRequirement.requirementReads).toEqual([{lineageId:'CLAUSE',version:'V1',fieldPath:provenance[0]?.slotId}])
+ expect(withRequirement.manifestDigest).not.toBe(manifest.manifestDigest)
+ expect(withRequirement.inputDigest).toBe(manifest.inputDigest)
+ await expect(freezeOperationRouteContext(scope,manifestGuide,provenance.map(item=>
+  ({...item,requirementRead:{lineageId:'CLAUSE',version:'V2'}})))).rejects.toThrow('OPERATION_ROUTE_CONTEXT_SCOPE')
  const missing=await freezeOperationRouteContext(scope,manifestGuide,provenance.slice(1))
  expect(missing).toMatchObject({usable:false,inputJson:null,inputDigest:null})
  const evidence={expectedInputDigest:actualInputDigest,assertCurrent:source.assertCurrent}

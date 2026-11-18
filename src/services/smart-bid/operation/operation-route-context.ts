@@ -13,9 +13,10 @@ import type {readOperationActionGuide} from './guides/operation-action-guide'
 type Scope=Parameters<typeof verifyOperationRouteReturn>[0]
 /** 当前工位的命名输入及其匹配条件。 */
 type Slot=Readonly<{slotId:string;required:boolean}>
+type RequirementRead=Readonly<{lineageId:string;version:string}>
 /** 参与工艺上下文计算的来源证据。 */
 type Source=Readonly<{slotId:string;assertCurrent:()=>void}>&(
- Readonly<{state:'ALLOWED';sourceRef:string;versionRef:string;useRef:string;value:unknown}>|
+ Readonly<{state:'ALLOWED';sourceRef:string;versionRef:string;useRef:string;value:unknown;requirementRead?:RequirementRead}>|
  Readonly<{state:'MISSING'|'TRIMMED'|'DENIED';reasonRef:string}>
 )
 
@@ -39,11 +40,17 @@ export async function freezeOperationRouteContext(scope:Scope,guide:Readonly<{
  if(slots.size!==guide.slots.length||bySlot.size!==evidence.length||
   guide.slots.some(slot=>!identity(slot.slotId))||evidence.some(item=>!slots.has(item.slotId)))throw Error(error)
  const entries:Array<readonly [string,unknown]>=[]
+ const requirementReads:Array<Readonly<RequirementRead&{fieldPath:string}>>=[]
  const items=guide.slots.map(({slotId,required})=>{
   const selected=bySlot.get(slotId)
   if(selected?.state==='ALLOWED'){
    const {sourceRef,versionRef,useRef,value}=selected
    if(![sourceRef,versionRef,useRef].every(identity))throw Error(error)
+   const requirementRead=selected.requirementRead
+   if(requirementRead!==undefined){
+    if(!identity(requirementRead.lineageId)||requirementRead.version!==versionRef)throw Error(error)
+    requirementReads.push(Object.freeze({fieldPath:slotId,lineageId:requirementRead.lineageId,version:versionRef}))
+   }
    const snapshot:unknown=JSON.parse(canonicalSnapshotValue(value))
    entries.push([slotId,snapshot])
    return {slotId,required,state:selected.state,sourceRef,versionRef,useRef}
@@ -54,11 +61,12 @@ export async function freezeOperationRouteContext(scope:Scope,guide:Readonly<{
  const usable=!items.some(item=>item.required&&item.state!=='ALLOWED')
  const inputJson=usable?canonicalSnapshotValue(Object.fromEntries(entries)):null
  const manifestJson=canonicalSnapshotValue({runId,attemptRef,requestKey,projectId,targetDigest,configurationLockHash,
-  guideRef,guideVersionRef,guideDigest,createdAt,items,inputJson})
+  guideRef,guideVersionRef,guideDigest,createdAt,items,inputJson,...(requirementReads.length?{requirementReads}:{})})
  const [manifestDigest,inputDigest]=await Promise.all([
   hashCanonicalSnapshotText(manifestJson),inputJson===null?null:hashCanonicalSnapshotText(inputJson),
  ])
  assertCurrent()
  return Object.freeze({scope:Object.freeze({runId,attemptRef,requestKey,projectId,targetDigest,configurationLockHash}),
-  guideRef,guideVersionRef,guideDigest,usable,manifestJson,manifestDigest,inputJson,inputDigest,assertCurrent})
+  guideRef,guideVersionRef,guideDigest,usable,manifestJson,manifestDigest,inputJson,inputDigest,
+  requirementReads:Object.freeze(requirementReads),assertCurrent})
 }

@@ -155,3 +155,24 @@ async function openApprovedPrice() {
     if (isCurrent()) $page.showMessage('指定报价批准无法核验', 'warning')
   }
 }
+
+function bindPersonAppointment() {
+  const {appointmentRef} = $route.query
+  return {visible: typeof appointmentRef === 'string' && !!appointmentRef && appointmentRef.trim() === appointmentRef}
+}
+
+async function openPersonAppointment() {
+  if (!bindPersonAppointment().visible) return
+  try {
+    const result = await $page.invokeHostCommand('bid.response.reviewAppointment', {appointmentRef: $route.query.appointmentRef})
+    result.assertCurrent()
+    const labels = {AVAILABILITY_PENDING: '用人决定或可用时段未覆盖拟任期间', ALLOCATION_PENDING: '待核本项目现行调配'}
+    const detail = result.state === 'VERIFIED'
+      ? [`人员 ${result.personId} · 岗位 ${result.positionRef}`, `材料版 ${result.materialVersionRef} · 用人决定 ${result.appointmentDecisionRef}`,
+        ...(result.allocationDecisionRef ? [`调配决定 ${result.allocationDecisionRef}`] : [])].join('\n')
+      : labels[result.state]
+    await $page.showAlert(detail, '人员拟任核对')
+  } catch {
+    $page.showMessage('原拟任及用人证据无法核验', 'warning')
+  }
+}

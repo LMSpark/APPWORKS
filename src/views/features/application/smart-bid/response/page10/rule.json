@@ -40,5 +40,13 @@
     "children": [
       {"type": "r-button", "props": {"label": "读取原分工", "onBeforeRender": "bindOriginalAssignment", "onClick": "openOriginalAssignment"}}
     ]
+  },
+  {
+    "id": "bid-person-appointment",
+    "type": "r-section",
+    "props": {"title": "人员拟任核对", "onBeforeRender": "bindPersonAppointment"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对拟任凭据", "onClick": "openPersonAppointment"}}
+    ]
   }
 ]

@@ -10,10 +10,16 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {readContentBaselineFactUse} from '../../../authoring/model/content-baseline-reader'
 import {readRegisteredResponseAssignment} from '../../model/response-assignment-reader'
 
+import {reviewPersonAppointment} from '@/services/smart-bid/content/references/commercial/person-appointment-review'
+
+type Appointment=Parameters<typeof reviewPersonAppointment>
+
 type Scope=Parameters<typeof createApprovedPriceScriptHost>[1]&Parameters<typeof createBidSecurityScriptHost>[1]
 type Sources=Readonly<{
  readPriceEvidence:Parameters<typeof createApprovedPriceScriptHost>[2]
  readSecurityReceipts:Parameters<typeof createBidSecurityScriptHost>[2]
+ appointmentBasis?:Readonly<{projectId:string;enterpriseId:string;assertCurrent:()=>void;
+  read:(appointmentRef:string,signal:AbortSignal)=>Promise<Readonly<{appointmentRef:string;request:Appointment[0];evidence:Appointment[1]}>>}>
  assignmentBasis?:Readonly<{projectId:string;baselineId:string;assertCurrent:()=>void}>
  fixedFacts?:Readonly<{
   projectId:string
@@ -30,6 +36,27 @@ export function createBidResponseScriptHost<Runtime extends Pick<PageRuntime,'re
  const price=createApprovedPriceScriptHost(runtime,scope,sources.readPriceEvidence)
  const security=createBidSecurityScriptHost(runtime,scope,sources.readSecurityReceipts)
  return {runtime,assertCurrent:scope.assertCurrent,invoke(name:string,input:unknown,signal:AbortSignal){
+  if(name==='bid.response.reviewAppointment'){
+   const basis=sources.appointmentBasis
+   if(!basis||!isRecord(input)||Object.keys(input).length!==1||!identity(input['appointmentRef']))
+    throw Error('BID_RESPONSE_APPOINTMENT_REQUEST')
+   const {appointmentRef}=input,generation=runtime.generation
+   const assertCurrent=()=>{
+    scope.assertCurrent()
+    basis.assertCurrent()
+    if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)
+     throw Error('BID_RESPONSE_APPOINTMENT_STALE')
+   }
+   assertCurrent()
+   return basis.read(appointmentRef,signal).then(selected=>{
+    assertCurrent()
+    const {request,evidence}=selected
+    if(selected.appointmentRef!==appointmentRef||request.projectId!==basis.projectId||request.enterpriseId!==basis.enterpriseId||
+     request.scopeRef!==scope.scopeRef||request.purposeRef!==scope.purposeRef)throw Error('BID_RESPONSE_APPOINTMENT_REQUEST')
+    const reviewed=reviewPersonAppointment(request,evidence)
+    return Object.freeze({...reviewed,assertCurrent:()=>{assertCurrent();reviewed.assertCurrent()}})
+   })
+  }
   if(name==='bid.response.readSecurity')return security.invoke(name,input,signal)
   if(name==='bid.response.readAssignment'){
    const {assignmentBasis}=sources

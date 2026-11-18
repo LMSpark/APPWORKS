@@ -91,6 +91,8 @@ it('shows the original save receipt without modifying the current editor',async(
  expect(bindOriginalSave()).toEqual({status:'原请求已保存草稿版 V2，回执 RC'})
  assertCurrent.mockImplementation(()=>{throw Error('STALE')})
  expect(bindOriginalSave()).toEqual({error:'原保存查询已失效'})
+ query.saveRequestKey='OTHER'
+ expect(bindOriginalSave()).toEqual({visible:false})
  expect(resolveView).not.toHaveBeenCalled()
 })
 it('prepares the selected independent response from the saved draft and original batch',async()=>{

@@ -10,6 +10,8 @@ let saveReceipt
 let saveReceiptError = false
 let saveReceiptRequested = false
 let saveReceiptLoading = false
+let saveReceiptSelection
+let initialization = 0
 let candidatePreviewPending = false
 let draftCandidatePending = false
 
@@ -304,37 +306,49 @@ async function openVolumePlanning() {
 }
 
 async function __init__() {
+  const generation = ++initialization
   editorSession = undefined
   editorFault = false
   hostUnavailable = false
   saveReceipt = undefined
   saveReceiptError = false
   const query = $route.query
-  saveReceiptRequested = ['saveRequestKey', 'saveRequestDigest', 'saveContentDigest', 'saveExpectedDraftVersion']
-    .some(key => Object.hasOwn(query, key))
+  const receiptKeys = ['saveRequestKey', 'saveRequestDigest', 'saveContentDigest', 'saveExpectedDraftVersion']
+  const keys = ['projectId', 'draftId', ...receiptKeys]
+  const values = keys.map(key => query[key])
+  const isCurrent = () => generation === initialization && keys.every((key, index) => $route.query[key] === values[index])
+  saveReceiptSelection = isCurrent
+  saveReceiptRequested = receiptKeys.some(key => Object.hasOwn(query, key))
   saveReceiptLoading = saveReceiptRequested
-  try {editorSession = await $page.invokeHostCommand('content.authoring.connect')}
+  try {
+    const session = await $page.invokeHostCommand('content.authoring.connect')
+    if (generation !== initialization) return
+    editorSession = session
+  }
   catch (cause) {
+    if (generation !== initialization) return
     hostUnavailable = cause?.message === 'PAGE_HOST_COMMAND_UNAVAILABLE'
     editorFault = !hostUnavailable
   }
-  if (!saveReceiptRequested || !editorSession) {
+  if (!saveReceiptRequested || !editorSession || !isCurrent()) {
     saveReceiptLoading = false
     return
   }
   const {saveRequestKey, saveRequestDigest, saveContentDigest, saveExpectedDraftVersion} = query
   try {
-    saveReceipt = await editorSession.readOriginalSave({requestKey: saveRequestKey, requestDigest: saveRequestDigest,
+    const receipt = await editorSession.readOriginalSave({requestKey: saveRequestKey, requestDigest: saveRequestDigest,
       contentDigest: saveContentDigest, expectedDraftVersion: saveExpectedDraftVersion})
+    if (isCurrent()) saveReceipt = receipt
   } catch {
-    saveReceiptError = true
+    if (isCurrent()) saveReceiptError = true
   } finally {
-    saveReceiptLoading = false
+    if (generation === initialization) saveReceiptLoading = false
   }
 }
 
 function bindOriginalSave() {
   if (!saveReceiptRequested) return {visible: false}
+  if (!saveReceiptSelection?.()) return {visible: false}
   if (saveReceiptLoading) return {status: '正在核验原保存结果'}
   if (saveReceiptError || !saveReceipt) return {error: '原保存结果无法核验'}
   try {

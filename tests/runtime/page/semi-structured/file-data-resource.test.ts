@@ -17,6 +17,10 @@ vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',()=>({
   loadLowcodeRuntimeScenario:vi.fn(async()=>runtimeSource.dataSet),
 }))
 
+vi.mock('@spark-appworks/spark-app',async importOriginal=>({
+  ...await importOriginal<typeof import('@spark-appworks/spark-app')>(),
+  useSystemPageDirtySource:vi.fn(),
+}))
 function fixture(formalDataSet?:DataSet) {
   const names = ['a.txt']
   const api = {
@@ -31,7 +35,8 @@ function fixture(formalDataSet?:DataSet) {
     }),
   }
   const fileUpload = {
-    uploadBinaryVersion: vi.fn(async (command: {file: File; scenarioId: string; fieldName: string; appType: string; customPath: string}) => {
+    uploadBinaryVersion: vi.fn(async (command: {file: File; scenarioId: string; fieldName: string; appType: string; customPath: string; assertReady?:()=>void}) => {
+      command.assertReady?.()
       expect(command).toMatchObject({appType: 'filedata', customPath: '', fieldName: 'files', scenarioId: 'FILES'})
       names.push(command.file.name)
       const receipt: LowcodeBinaryFileUploadReceipt = {templatePath: `/NewApp/${command.file.name}`,
@@ -106,9 +111,44 @@ describe('filedata DataView resource', () => {
       await view.requestRefresh()
       await view.removeRow('a.txt')
       await expect(view.saveChanges()).rejects.toThrow('删除后仍出现在目录中')
+      expect(view.hasUnconfirmedSave).toBe(true)
+      await expect(view.saveChanges()).rejects.toThrow('删除后仍出现在目录中')
       expect(api.removeFile).toHaveBeenCalledOnce()
-      expect(api.listFiles).toHaveBeenCalledTimes(2)
+      expect(api.listFiles).toHaveBeenCalledTimes(3)
     } finally {dataSet.destroy()}
+  })
+
+  it('recovers the original uploaded bytes after ACK without another upload',async()=>{
+    const {fileUpload,dataSet,view}=fixture()
+    try{
+      fileUpload.verifyBinaryVersion.mockRejectedValueOnce(new Error('read unavailable'))
+      await view.refresh()
+      await view.addRow({content:new File(['sample'],'b.txt')})
+      await expect(view.saveChanges()).rejects.toThrow('read unavailable')
+      expect(view.hasUnconfirmedSave).toBe(true)
+      expect((await view.saveChanges()).success).toBe(true)
+      expect(fileUpload.uploadBinaryVersion).toHaveBeenCalledOnce()
+      expect(fileUpload.verifyBinaryVersion).toHaveBeenCalledTimes(2)
+      expect(view.hasUnconfirmedSave).toBe(false)
+    }finally{dataSet.destroy()}
+  })
+
+  it('holds an upload without its original ACK and never retries or guesses the filename',async()=>{
+    const {api,fileUpload,dataSet,view}=fixture()
+    try{
+      fileUpload.uploadBinaryVersion.mockImplementationOnce(async command=>{
+        command.assertReady?.()
+        throw new Error('ACK lost')
+      })
+      await view.refresh()
+      await view.addRow({content:new File(['sample'],'b.txt')})
+      await expect(view.saveChanges()).rejects.toThrow('ACK lost')
+      expect(view.hasUnconfirmedSave).toBe(true)
+      await expect(view.saveChanges()).rejects.toThrow('缺少正式文件定位')
+      expect(fileUpload.uploadBinaryVersion).toHaveBeenCalledOnce()
+      expect(fileUpload.verifyBinaryVersion).not.toHaveBeenCalled()
+      expect(api.listFiles).toHaveBeenCalledOnce()
+    }finally{dataSet.destroy()}
   })
 
   it('deletes a listed file through RemoveFile', async () => {
@@ -156,11 +196,22 @@ it('consumes the file catalog tool and verifies the original row again after con
     await flushPromises()
     expect(api.removeFile).not.toHaveBeenCalled()
     confirm=undefined
+    const deleteOriginal=api.removeFile.getMockImplementation()!
+    api.removeFile.mockImplementationOnce(async input=>{
+      await deleteOriginal(input)
+      throw new Error('receipt lost')
+    })
     await remove().trigger('click')
     expect(confirm).toBeDefined()
     confirm!(true)
     await vi.waitFor(()=>expect(api.removeFile).toHaveBeenCalledOnce())
-    await vi.waitFor(()=>expect(view.rows).toEqual([]))
+    await vi.waitFor(()=>expect(view.hasUnconfirmedSave).toBe(true))
+    const verify=()=>wrapper.findAll('button').find(button=>button.text()==='核验原文件操作')
+    await vi.waitFor(()=>expect(verify()).toBeDefined())
+    await verify()!.trigger('click')
+    await vi.waitFor(()=>expect(view.hasUnconfirmedSave).toBe(false))
+    expect(view.rows).toEqual([])
+    expect(api.removeFile).toHaveBeenCalledOnce()
   }finally{
     wrapper.unmount()
     config.global.stubs=stubs

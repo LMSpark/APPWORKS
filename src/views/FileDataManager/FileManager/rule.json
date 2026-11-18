@@ -5,6 +5,7 @@
     "props":{"title":"文件管理","class":"file-page","bordered":false,"gridColumns":1,"gridGap":16,"onBeforeRender":"bindCatalog"},
     "children":[
       {"type":"r-space","props":{"wrap":true},"children":[
+        {"type":"r-button","props":{"label":"核验原文件操作","onBeforeRender":"bindVerify","onClick":"verifyFileAction"}},
         {"type":"r-button","props":{"label":"上传","buttonType":"primary","onBeforeRender":"bindAction","onClick":"uploadFile"}},
         {"type":"r-button","props":{"dataViewKey":"23F469CC96AC4B73BA5AE593C0002BD4@FileDataCatalog@default","label":"刷新","action":"refresh","onBeforeRender":"bindAction"}}
       ]},

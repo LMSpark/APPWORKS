@@ -5,7 +5,7 @@
  * AI用途：文件管理页通过同一 DataView 查询、新增(content携带原File)与删除时，定位本资源及其保存语义。
  */
 import {DataViewLocalQuery, type DataColumn, type DataRow, type DataView, type QueryParams} from '@spark-appworks/spark-data'
-import type {LowcodeDesignApi, LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
+import type {LowcodeBinaryFileUploadReceipt, LowcodeDesignApi, LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
 
 export const FILE_DATA_TABLE = 'FileDataCatalog'
 export const FILE_DATA_RESOURCE_ID = 'semi-structured:file-data'
@@ -49,10 +49,15 @@ function uploadTime(ms: number | null): string | null {
 
 function fileDataError(message: string): Error {return new Error(`FILE_DATA_SAVE: ${message}`)}
 
+type PendingFileMutation =
+  | {kind:'delete'; fileName:string}
+  | {kind:'upload'; file:File; receipt?:LowcodeBinaryFileUploadReceipt}
+
 /** filedata 根目录文件资源；每个查询结果绑定原视图，保存只接纳同视图捕获的新增与删除。 */
 export class FileDataResource {
   readonly #input: FileDataResourceInput
   readonly #views = new WeakMap<object, DataView>()
+  readonly #pending = new WeakMap<object, PendingFileMutation>()
 
   constructor(input: FileDataResourceInput) {this.#input = input}
 
@@ -74,38 +79,50 @@ export class FileDataResource {
     if (change.identity.scenarioId !== view.dataSet?.scenarioId || change.identity.metaName !== FILE_DATA_TABLE) throw fileDataError('保存身份与原视图不一致')
     if (change.changes.changed?.length) throw fileDataError('文件只能上传或删除，不能修改')
     const added = change.changes.added ?? [], deleted = change.changes.deleted ?? []
-    if (added.length > 1) throw fileDataError('每次只能上传一个文件')
-    const known = new Set(change.context.rows.map(row => String(row['fileName'])))
-    for (const row of deleted) {
-      const fileName = String(row['fileName'] ?? '')
-      if (!known.has(fileName)) throw fileDataError(`删除目标 ${fileName} 不属于原目录查询`)
-      await this.#input.api.removeFile({...AREA, fileName})
-      this.assertView(view)
+    if (added.length + deleted.length !== 1) throw fileDataError('每次只能上传或删除一个文件')
+    let pending = this.#pending.get(change.context)
+    if (!pending) {
+      const removed = deleted[0]
+      if (removed) {
+        const fileName = String(removed['fileName'] ?? '')
+        if (!change.context.rows.some(row => row['fileName'] === fileName)) throw fileDataError('删除目标不属于原目录查询')
+        pending = {kind:'delete',fileName}
+        this.#pending.set(change.context,pending)
+        await this.#input.api.removeFile({...AREA,fileName})
+      } else {
+        const file = added[0]?.['content']
+        if (!(file instanceof File)) throw fileDataError('新增文件缺少本次选择的原File')
+        const upload: PendingFileMutation = {kind:'upload',file}
+        upload.receipt = await this.#input.fileUpload.uploadBinaryVersion({...AREA,file,scenarioId:change.identity.scenarioId,fieldName:'files',
+          assertReady:()=>{this.assertView(view);this.#pending.set(change.context,upload)}})
+        this.#pending.set(change.context,upload)
+        pending = upload
+      }
     }
+    this.assertView(view)
     let uploaded: string | undefined
-    const source = added[0]
-    if (source) {
-      const file = source['content']
-      if (!(file instanceof File)) throw fileDataError('新增文件缺少本次选择的原File')
-      const receipt = await this.#input.fileUpload.uploadBinaryVersion({...AREA, file, scenarioId: change.identity.scenarioId, fieldName: 'files',
-        assertReady: () => this.assertView(view)})
-      await this.#input.fileUpload.verifyBinaryVersion({receipt, file})
+    if (pending.kind === 'upload') {
+      if (!pending.receipt) throw fileDataError('原上传缺少正式文件定位，结果尚未确认')
+      await this.#input.fileUpload.verifyBinaryVersion({receipt:pending.receipt,file:pending.file})
       this.assertView(view)
-      uploaded = receipt.locator.fileName
+      uploaded = pending.receipt.locator.fileName
     }
     const rows = await this.readDirectory()
     this.assertView(view)
-    const surviving = deleted.find(row => rows.some(current => current['fileName'] === row['fileName']))
+    const surviving = pending.kind === 'delete' && rows.find(row => row['fileName'] === pending.fileName)
     if (surviving) {
-      throw Object.assign(fileDataError(`${String(surviving['fileName'])} 删除后仍出现在目录中`), {fileResourceMutationMayHaveApplied: true})
+      throw fileDataError(`${String(surviving['fileName'])} 删除后仍出现在目录中`)
     }
     const accepted = uploaded === undefined ? [] : rows.filter(row => row['fileName'] === uploaded)
     if (uploaded !== undefined && accepted.length !== 1) {
-      throw Object.assign(fileDataError(`${uploaded} 上传后未出现在目录中`), {fileResourceMutationMayHaveApplied: true})
+      throw fileDataError(`${uploaded} 上传后未出现在目录中`)
     }
     return [{metaName: FILE_DATA_TABLE, added: accepted, changed: [], deleted: [...deleted], changedFields: [],
       context: this.result(view, rows, rows.length)}]
   }
+
+  hasUnconfirmedSave(context: QueryResult): boolean {return this.#pending.has(context)}
+  acknowledgeSave(context: QueryResult): undefined {this.#pending.delete(context);return undefined}
 
   private async readDownload(view: DataView): Promise<QueryResult> {
     const directory = view.dataSet?.getView(FILE_DATA_TABLE, 'default')

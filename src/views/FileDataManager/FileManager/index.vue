@@ -1,7 +1,7 @@
 <!--
 @module app:views/FileDataManager/FileManager/index
 职责：恢复文件管理：按文件名称查询 filedata 文件区、选择本地文件上传、确认后删除文件。
-边界：列表、上传与删除都经同一PageRuntime的FileDataCatalog视图提交；上传核原字节、删除回列确认，失败后丢弃本地草稿并按实际目录重读。
+边界：列表、上传与删除都经同一PageRuntime的FileDataCatalog视图提交；上传核原字节、删除回列确认，未知提交保留原捕获，只读核验。
 AI用途：迁移参考仓 FileDataManager/FileManager 时，核对文件区、导航身份(dataSpaceId)与保存回执。
 -->
 <template>
@@ -12,10 +12,11 @@ AI用途：迁移参考仓 FileDataManager/FileManager 时，核对文件区、�
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
-import {useRoute} from 'vue-router'
+import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import type {DataRow, DataView} from '@spark-appworks/spark-data'
 import {RendererSection, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
+import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import rule from './rule.json?raw'
 import script from './script.js?raw'
@@ -39,6 +40,12 @@ const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePa
   modelName: 'FileDataCatalog', componentType: 'file-manager-page', title: '文件管理',
 })
 const busy = ref(false)
+const pendingSave = () => session.runtime?.resolveView(viewKey.value)?.hasUnconfirmedSave === true
+const blocked = () => busy.value || pendingSave()
+useSystemPageDirtySource({get isDirty(){return blocked()}})
+onBeforeRouteLeave(()=>!blocked())
+onBeforeRouteUpdate(()=>!blocked())
+
 const catalogRuntime=computed(()=>ready.value?session.runtime:undefined)
 const host=computed(()=>{
   const runtime=catalogRuntime.value
@@ -46,7 +53,8 @@ const host=computed(()=>{
   const assertCurrent=()=>{if(!session.isCurrent(runtime))throw new Error('文件目录视图已失效')}
   return {runtime,assertCurrent,async invoke(command:string,input:unknown){
     assertCurrent()
-    if(command==='files.connect')return {busy:()=>busy.value,error:()=>error.value}
+    if(command==='files.connect')return {busy:()=>busy.value,pending:pendingSave,error:()=>error.value}
+    if(command==='files.verify')await verifyFileAction()
     if(command==='files.upload')await pickAndUpload()
     if(command==='files.remove'||command==='files.download'){
       const view=runtime.resolveView(viewKey.value)
@@ -60,11 +68,11 @@ const host=computed(()=>{
   }}
 })
 
-async function runFileAction(action: (view: DataView, assertCurrent: () => void) => Promise<void>): Promise<void> {
+async function runFileAction(action: (view: DataView, assertCurrent: () => void) => Promise<void>, verify = false): Promise<void> {
   const runtime = session.runtime
   const key = viewKey.value
   const view = runtime?.resolveView(key)
-  if (busy.value || !runtime || !view || view.hasUnconfirmedSave) return
+  if (busy.value || !runtime || !view || view.hasUnconfirmedSave !== verify) return
   const assertCurrent = () => {
     if (!session.isCurrent(runtime) || viewKey.value !== key || view.destroyed || runtime.resolveView(key) !== view) {
       throw new Error('文件目录视图已失效')
@@ -100,6 +108,12 @@ async function commit(view: DataView, assertCurrent: () => void, change: () => P
     }
     throw cause
   }
+}
+
+async function verifyFileAction(): Promise<void> {
+  await runFileAction(async (view, assertCurrent) => {
+    await commit(view, assertCurrent, async () => {}, '原文件操作已确认')
+  }, true)
 }
 
 async function pickAndUpload(): Promise<void> {

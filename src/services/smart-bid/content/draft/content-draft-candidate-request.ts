@@ -7,7 +7,7 @@ import {hashContentNode} from '../../content-node-hash'
 import {resolveContentTargetScope} from '../content-target-scope'
 import {previewScopedContentTree} from '../content-scoped-preview'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '../revision-snapshot-hash'
-import {snapshotReferenceIdentity as identity} from '../references/snapshot-reference-values'
+import {snapshotReferenceIdentity as identity,snapshotReferenceRecord} from '../references/snapshot-reference-values'
 import {readContentNodeFactIds} from '../content-node-links'
 import {readBaselineFactMembers,type BaselineFactMember} from '../references/baseline-fact-members'
 
@@ -72,4 +72,20 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
  assertCurrent()
  return Object.freeze({projectId,draftId,draftVersion,baseRevisionId,baselineId,requestKey,contentDigest,requestJson,requestDigest,
   factVersions:Object.freeze(referencedFacts.map(item=>Object.freeze(item))),requiresCurrentAuthorityChecks:true as const,assertCurrent})
+}
+
+/** 将已核事实记录的依赖摘要固定到本次候选请求。 */
+export async function bindDraftCandidateFactEvidence(request:Awaited<ReturnType<typeof prepareDraftCandidateRequest>>,
+ facts:Readonly<{factDependencyHash:string;assertCurrent:()=>void}>){
+ const assertCurrent=()=>{request.assertCurrent();facts.assertCurrent()}
+ assertCurrent()
+ const {factDependencyHash}=facts
+ const error='CONTENT_DRAFT_CANDIDATE_FACT_EVIDENCE'
+ if(!/^[a-f0-9]{64}$/u.test(factDependencyHash))throw Error(error)
+ const parsed:unknown=JSON.parse(request.requestJson)
+ const input=snapshotReferenceRecord(parsed,error)
+ const requestJson=canonicalSnapshotValue({...input,factDependencyHash})
+ const requestDigest=await hashCanonicalSnapshotText(`["spark-bid.draft-candidate/1",${requestJson}]`)
+ assertCurrent()
+ return Object.freeze({...request,requestJson,requestDigest,factDependencyHash,requiresFactUseCheck:true as const,assertCurrent})
 }

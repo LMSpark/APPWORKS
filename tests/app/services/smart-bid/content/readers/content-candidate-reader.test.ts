@@ -66,6 +66,8 @@ it('binds a prepared draft candidate to the original fact version query',async()
   basis,{requestKey:'Q',targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]}})
   expect(request).toMatchObject({factVersions:[{factId:'PRICE',version:2}],
    factDependencyHash:expect.stringMatching(/^[a-f0-9]{64}$/u),requiresFactUseCheck:true})
+  expect(request.requestJson).toContain(`"factDependencyHash":"${request.factDependencyHash}"`)
+  expect(request.requestDigest).toBe(await hashCanonicalSnapshotText(`["spark-bid.draft-candidate/1",${request.requestJson}]`))
   await f.ds.getView('FactVersion','effectiveFactVersions')?.refresh()
   expect(()=>request.assertCurrent()).toThrow()
  }finally{f.ds.destroy()}

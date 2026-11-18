@@ -10,7 +10,7 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {readContentReviewWorkspace} from '../../model/review/content-review-workspace'
 import {readPlatformFieldObservation} from '../../model/review/content-platform-field-review'
 import {compareApprovedFileAnswer,readRegisteredFileAnswer,verifyOriginalFormFileAnswer} from '../../model/review/content-file-answer-reader'
-import {readPaperRegistration,readRegisteredPaperAnswer,readRegisteredPaperCopy} from '../../model/review/content-paper-answer-reader'
+import {readPaperRegistration,readRegisteredPaperAnswer} from '../../model/review/content-paper-answer-reader'
 import {recoverProductionRequest} from '@/services/smart-bid/content/review/production/production-recovery'
 import {readCompletedProductionFiles} from '../../model/review/content-produced-file-review'
 import {readOriginalExportRegistration,readOriginalSignedRegistration} from '../../model/review/production/production-registration-reader'
@@ -25,8 +25,6 @@ type Observation=Parameters<typeof readPlatformFieldObservation>
 /** 电子实件及其原填报位置的读取合同。 */
 type FileObservation=Parameters<typeof readRegisteredFileAnswer>
 type FormVerification=Parameters<typeof verifyOriginalFormFileAnswer>
-/** 原纸件观察的宿主、原登记和页栏参数合同。 */
-type PaperObservation=Parameters<typeof readRegisteredPaperAnswer>
 type ProductionRecovery=Parameters<typeof recoverProductionRequest>
 type SignedRegistration=Parameters<typeof prepareSignedOutputRegistration>
 type PaperRegistration=Parameters<typeof preparePaperOutputRegistration>
@@ -54,9 +52,6 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
   readFileObservationSelection?:(observationRef:string,signal:AbortSignal)=>Promise<Readonly<{
    projectId:string;input:FileObservation[1];approved?:Parameters<typeof compareApprovedFileAnswer>[1]
    originalForm?:Readonly<{mapping:FormVerification[1];placement:FormVerification[2]}>;assertCurrent:()=>void
-  }>>
-  readPaperObservationSelection?:(observationRef:string,signal:AbortSignal)=>Promise<Readonly<{
-   projectId:string;input:PaperObservation[1];assertCurrent:()=>void
   }>>
  }>){
  return {runtime,assertCurrent:scope.assertCurrent,
@@ -123,15 +118,8 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
     return Object.freeze({state:result.state,verifiedFiles:verified.files,assertCurrent:verified.assertCurrent,
      ...(result.state==='PARTIAL'?{missingScopeRefs:result.missingScopeRefs}:{})})
    }
-   if(name==='content.review.readPaperObservation'&&sources.readPaperObservationSelection){
-    const selection=await sources.readPaperObservationSelection(selectionRef,signal)
-    const assertSelection=()=>{assertCurrent();selection.assertCurrent()}
-    assertSelection()
-    if(selection.input.observationId!==selectionRef||selection.projectId!==scope.projectId)
-     throw Error('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
-    const host={...scope,runtime,assertCurrent:assertSelection}
-    return readRegisteredPaperAnswer(host,selection.input,inputScope=>readRegisteredPaperCopy(host,inputScope))
-   }
+   if(name==='content.review.readPaperObservation')
+    return readRegisteredPaperAnswer({...scope,runtime,assertCurrent},selectionRef)
    if(name==='content.review.readFileObservation'&&sources.readFileObservationSelection){
     const selection=await sources.readFileObservationSelection(selectionRef,signal)
     const assertSelection=()=>{assertCurrent();selection.assertCurrent()}

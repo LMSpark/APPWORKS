@@ -15,8 +15,7 @@ import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevi
 type PaperScope=Readonly<{projectId:string;paperRef:string;copyRef:string;revisionId:string}>
 /** 已登记纸件及可证明属于该份次的页。 */
 type RegisteredPaper=PaperScope&Readonly<{registrationRef:string;pageRefs:readonly string[];assertCurrent:()=>void}>
-const keys=[['projectId','projectId'],['id','observationId'],['paperRef','paperRef'],['copyRef','copyRef'],
- ['producedFileId','producedFileId']] as const
+const keys=[['projectId','projectId'],['id','observationId']] as const
 const fields=['id','projectId','paperRef','copyRef','producedFileId','revisionId','pageRef','locationRef','evidenceRef','value','unit']
 
 /** 纸件观察和电子实件观察共用 ProducedFile 身份字段。 */
@@ -90,24 +89,17 @@ export async function readRegisteredPaperCopy(host:ContentRevisionReadHost,scope
 }
 
 /** 原登记给实际纸件和份次，观察视图给其原版位置与值。 */
-export async function readRegisteredPaperAnswer(host:ContentRevisionReadHost,input:Omit<PaperScope,'projectId'>&Readonly<{
- observationId:string;pageRef:string;locationRef:string
-}>,readPaper:(scope:PaperScope)=>Promise<RegisteredPaper>){
- const {runtime,scenarioId,projectId}=host,{paperRef,copyRef,revisionId,observationId,pageRef,locationRef}=input
+export async function readRegisteredPaperAnswer(host:ContentRevisionReadHost,observationId:string){
+ const {runtime,scenarioId,projectId}=host
  host.assertCurrent()
- const scope=Object.freeze({projectId,paperRef,copyRef,revisionId})
  const error='CONTENT_PAPER_ANSWER_SCOPE'
- if(![scenarioId,...Object.values(scope),observationId,pageRef,locationRef].every(identity))throw Error(error)
- const paper=await readPaper(scope)
- host.assertCurrent();paper.assertCurrent()
- if(paper.projectId!==projectId||paper.paperRef!==paperRef||paper.copyRef!==copyRef||paper.revisionId!==revisionId||!identity(paper.registrationRef)||
-  paper.pageRefs.filter(ref=>ref===pageRef).length!==1)throw Error(error)
+ if(![scenarioId,projectId,observationId].every(identity))throw Error(error)
  const key=buildDataViewKey('AnswerLocation','selectedPaperObservation',scenarioId),view=runtime.resolveView(key)
  if(!view||!valid(view)||view.hasEditingChanges())throw Error('CONTENT_PAPER_ANSWER_VIEW_REQUIRED')
- const context={projectId,observationId,paperRef,copyRef,producedFileId:paper.registrationRef}
+ const context={projectId,observationId}
  view.queryContext={...view.queryContext,...context}
  const assertScope=()=>{
-  host.assertCurrent();paper.assertCurrent()
+  host.assertCurrent()
   if(runtime.resolveView(key)!==view||!valid(view)||view.loadingError||view.hasEditingChanges()||
    Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('CONTENT_PAPER_ANSWER_STALE')
  }
@@ -116,13 +108,17 @@ export async function readRegisteredPaperAnswer(host:ContentRevisionReadHost,inp
  const row=view.rows[0]
  if(!row||!hasCompleteSingleContentResult(view))throw Error('CONTENT_PAPER_ANSWER_NOT_UNIQUE')
  const assertRead=view.captureReadResult(),assertRow=view.captureReadRow(row,fields)
- const assertCurrent=()=>{assertScope();assertRead();assertRow()}
- const {evidenceRef,unit,value}=row
- if(row['id']!==observationId||row['pageRef']!==pageRef||row['locationRef']!==locationRef||row['producedFileId']!==paper.registrationRef||
-  Object.entries(scope).some(([field,expected])=>row[field]!==expected)||
-  !identity(evidenceRef)||(unit!==null&&!identity(unit))||!Object.hasOwn(row,'value'))throw Error(error)
- const observedValueJson=canonicalSnapshotValue(value)
+ const {paperRef,copyRef,revisionId,pageRef,locationRef,producedFileId,evidenceRef,unit,value}=row
+ if(row['id']!==observationId||row['projectId']!==projectId||
+  !identity(paperRef)||!identity(copyRef)||!identity(revisionId)||!identity(pageRef)||
+  !identity(locationRef)||!identity(producedFileId)||!identity(evidenceRef)||
+  (unit!==null&&!identity(unit))||!Object.hasOwn(row,'value'))throw Error(error)
+ const scope={projectId,paperRef,copyRef,revisionId}
+ const paper=await readRegisteredPaperCopy(host,scope)
+ const assertCurrent=()=>{assertScope();assertRead();assertRow();paper.assertCurrent()}
  assertCurrent()
+ if(paper.registrationRef!==producedFileId||!paper.pageRefs.includes(pageRef))throw Error(error)
+ const observedValueJson=canonicalSnapshotValue(value)
  return Object.freeze({...scope,observationId,pageRef,locationRef,registrationRef:paper.registrationRef,
   evidenceRef,observedValueJson,unit,assertCurrent})
 }

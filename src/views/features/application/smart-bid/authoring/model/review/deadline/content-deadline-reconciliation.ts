@@ -6,9 +6,26 @@
 import {reconcileDeadlineFieldValues} from './content-deadline-field-reconciliation'
 import {reconcileDeadlinePackageMembers} from './content-deadline-package-reconciliation'
 import {reconcileSubmissionReceiptEffects} from '@/services/smart-bid/content/review/submission/submission-receipt-effects'
+import {projectSubmissionOpeningDisposition} from '@/services/smart-bid/content/review/submission/submission-opening-disposition'
 
 type FieldSource=Parameters<typeof reconcileDeadlineFieldValues>[0]
 type PackageSource=Parameters<typeof reconcileDeadlinePackageMembers>[0]
+
+/** 后续开启和准入只附在同一批次及原包，原截止时点和结论仍可独立读取。 */
+export function attachDeadlinePackageDisposition(delivery:ReturnType<typeof reconcileDeadlineDelivery>,
+ binding:Parameters<typeof projectSubmissionOpeningDisposition>[0]&Readonly<{packageHash:string;assertCurrent:()=>void}>,
+ source:Parameters<typeof projectSubmissionOpeningDisposition>[1]){
+ delivery.assertCurrent()
+ binding.assertCurrent()
+ const {projectId,lotId,roundId,attemptRef,objectRef,packageHash}=binding
+ if(projectId!==delivery.scope.projectId||lotId!==delivery.scope.lotId||
+  !delivery.packageChecks.some(pack=>pack.attemptRef===attemptRef&&pack.packageId===objectRef&&pack.packageHash===packageHash))
+  throw Error('SUBMISSION_DEADLINE_DISPOSITION_SCOPE')
+ const disposition=projectSubmissionOpeningDisposition({projectId,lotId,roundId,attemptRef,objectRef},source)
+ const assertCurrent=()=>{delivery.assertCurrent();binding.assertCurrent();disposition.assertCurrent()}
+ assertCurrent()
+ return Object.freeze({delivery,disposition,assertCurrent})
+}
 
 /** 用同一次规则核验所得的截止结论选择内容证据，保留结论所用原回执。 */
 export function reconcileDeadlineDelivery(input:Parameters<typeof reconcileSubmissionReceiptEffects>[0],

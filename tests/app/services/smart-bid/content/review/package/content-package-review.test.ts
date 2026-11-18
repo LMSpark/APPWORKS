@@ -2,7 +2,7 @@ import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {readSubmissionPackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-review'
 import {reconcileDeadlinePackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation'
-import {reconcileDeadlineContents,reconcileDeadlineDelivery} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation'
+import {attachDeadlinePackageDisposition,reconcileDeadlineContents,reconcileDeadlineDelivery} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation'
 import {pairOriginalChannelReceipt} from '@/services/smart-bid/content/review/submission/channel-receipt-pairing'
 import {reconcileSubmissionDeadline} from '@/services/smart-bid/content/review/submission-reconciliation'
 
@@ -55,6 +55,17 @@ it('verifies the sealed bytes before enumerating and compares independently read
  expect(checked.items[0]).toMatchObject({attemptRef:'SEND',contentState:'MATCHED'})
  expect(checked.evidence).toMatchObject([{eventRef:'REC',ruleRef:'RULE'}])
  expect(checked.packageChecks).toEqual(actual.packageChecks)
+ const openingScope={projectId:'P',lotId:'L',roundId:'R',attemptRef:'SEND',objectRef:'PKG'}
+ const later='2026-11-18T11:00:00+08:00'
+ const dispositionSource={knownAt:later,assertCurrent:()=>{},records:[{...openingScope,
+  eventRef:'OPEN',issuerRef:'ISSUER',eventAt:later,knownAt:later,stage:'OPENING' as const,
+  state:'OPEN_FAILED' as const,assertCurrent:()=>{}}]}
+ const binding={...openingScope,packageHash:link.packageHash,assertCurrent:()=>{}}
+ const linked=attachDeadlinePackageDisposition(checked,binding,dispositionSource)
+ expect(linked).toMatchObject({delivery:{knownAt:at,items:[{state:'EFFECTIVE_ATTEMPT'}]},
+  disposition:{knownAt:later,opening:{state:'OPEN_FAILED'},admissibility:{state:'PENDING'}}})
+ expect(()=>attachDeadlinePackageDisposition(checked,{...binding,attemptRef:'OTHER'},dispositionSource))
+  .toThrow('SUBMISSION_DEADLINE_DISPOSITION_SCOPE')
  expect(actual.items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',contentState:'MATCHED'})
  expect(actual.packageChecks).toMatchObject([{attemptRef:'SEND',packageId:'PKG',membershipMatches:false,
   issues:[{position:'未列入清单.pdf',issues:['UNPLANNED','PACKING_RECORD_MISSING']}]}])

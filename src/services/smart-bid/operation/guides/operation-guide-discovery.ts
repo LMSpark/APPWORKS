@@ -35,10 +35,12 @@ export async function discoverOperationGuides(runtime:Pick<ClassModelRuntime,'ex
  const models=isRecord(query.data)?query.data['models']:undefined
  if(!query.ok||!isRecord(query.data)||query.data['rootKind']!==rootKind||!Array.isArray(models))throw Error(error)
  const methods=new Map<string,Set<string>>()
- for(const model of models as unknown[]){
+ const modelEntries:readonly unknown[]=models
+ for(const model of modelEntries){
   if(!isRecord(model)||!identity(model['kind'])||!Array.isArray(model['methods'])||methods.has(model['kind']))throw Error(error)
   const names=new Set<string>()
-  for(const method of model['methods'] as unknown[]){
+  const methodEntries:readonly unknown[]=model['methods']
+  for(const method of methodEntries){
    if(!isRecord(method)||!identity(method['name']))throw Error(error)
    names.add(method['name'])
   }

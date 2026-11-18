@@ -31,6 +31,7 @@
     <RendererDialog
       v-model="addDialog.visible"
       title="添加办理人"
+      :data-view-key="parameterViewKey || listViewKey || undefined"
       :width="560"
       :append-to-body="true"
       :close-on-click-modal="false"
@@ -38,13 +39,13 @@
       :close-disabled="addCloseDisabled"
       @closed="resetAddDialog"
     >
-      <div v-loading="addDialog.loading" class="flow-append-user__dialog-body">
-        <DisplayAlert v-if="pageError" alert-type="error" :closable="false" :show-icon="true" :title="pageError" />
+      <RendererSection class="flow-append-user__dialog-body" :bordered="false" :grid-columns="1"
+        :status="addDialog.loading ? '正在读取办理人候选…' : ''" :error="pageError">
         <RendererForm v-if="parameterViewKey && candidateViewKey && !addDialog.loading" :data-view-key="parameterViewKey"
           :children="inputFields" :auto-columns="false" :show-data-view-meta="false" />
         <RendererForm v-if="optionsViewKey && !addDialog.loading" :data-view-key="optionsViewKey"
           :children="limitFields" :auto-columns="false" :show-data-view-meta="false" />
-      </div>
+      </RendererSection>
       <template #footer>
         <RendererButton v-if="revokeUnconfirmed" label="核验原命令结果" :disabled="addDialog.submitting" @click="verifyOriginalRevoke" />
         <RendererButton label="取消" :disabled="addDialog.loading || addDialog.submitting || commandLocked" @click="resetAddDialog" />
@@ -56,7 +57,7 @@
 
 <script setup lang="ts">
 import {computed} from 'vue'
-import {DisplayAlert, RendererButton, RendererDialog, RendererForm, RendererSection, RendererTable, type RToolbarProps} from '@spark-appworks/spark-component'
+import {RendererButton, RendererDialog, RendererForm, RendererSection, RendererTable, type RToolbarProps} from '@spark-appworks/spark-component'
 import type {SparkNode} from '@spark-appworks/spark-data'
 import type {FlowAppendUserContext} from '@/lowcode/resources/system/workflow/manage'
 import {useFlowAppendUser} from './use-flow-append-user'

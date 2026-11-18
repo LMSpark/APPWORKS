@@ -121,6 +121,7 @@ it('reads the original result only for the selected attempt and verifies the ret
   const unknown=await verificationHost.invoke('content.operation.readDispatch',scope,signal)
   expect(unknown).toMatchObject({dispatchRef:'DISPATCH',verification:{state:'RETURN_UNKNOWN'}})
   expect(unknown).not.toHaveProperty('verification.readCandidate')
+  await expect(inspected.verification.readCandidate()).rejects.toThrow('DATA_VIEW_READ_RESULT')
   unknown.assertCurrent()
   hasResult=true
   await view.refresh()

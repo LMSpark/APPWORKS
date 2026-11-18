@@ -370,6 +370,7 @@ function bindOriginalSave() {
       const status = `原请求已保存草稿版 ${saveReceipt.draftVersion}，回执 ${saveReceipt.receiptRef}`
       try {
         saveReceipt.comparison?.assertCurrent()
+        if (saveReceipt.comparison?.localChanges) return {status: `${status}。当前编辑仍有本地未保存改动。`}
         if (saveReceipt.comparison?.currentState === 'MATCHED') return {status: `${status}。当前草稿与原保存内容一致。`}
         if (saveReceipt.comparison?.currentState === 'NEWER_EDITS') return {status: `${status}。当前草稿与原保存内容不同。`}
       } catch {

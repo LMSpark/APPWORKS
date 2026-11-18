@@ -233,18 +233,26 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const receipt=await readRegisteredOriginalContentDraftSave({runtime,scenarioId,projectId,draftId,actorUserId,receiptDataViewKey,assertCurrent},request)
      if(receipt.state!=='SAVED'||commands.hasPendingInput)return receipt
      const view=runtime.resolveView(binding.dataViewKey)
-     const draft=()=>{
+     if(!view)return receipt
+     const isLocal=()=>view.hasEditingChanges(draftId)||view.dirtyTracking.hasPendingChanges(draftId)
+     const localChanges=isLocal()
+     const assertComparison=()=>{
       assertCurrent()
-      const row=view?.rows.find(item=>view.getPkKey(item)===draftId)
-      if(commands.hasPendingInput||!view||!row||view.fieldAccess(row,'draft').read!=='visible')
+      if(runtime.resolveView(binding.dataViewKey)!==view||isLocal()!==localChanges)
+       throw Error('CONTENT_DRAFT_SAVE_COMPARISON_UNAVAILABLE')
+     }
+     const draft=()=>{
+      assertComparison()
+      const row=view.rows.find(item=>view.getPkKey(item)===draftId)
+      if(commands.hasPendingInput||!row||view.fieldAccess(row,'draft').read!=='visible')
        throw Error('CONTENT_DRAFT_SAVE_COMPARISON_UNAVAILABLE')
       return view.getEditingRow(draftId)?.['draft']
      }
      try{
       const comparison=await reconcileSavedContentDraft(receipt,{
-       projectId,draftId,authorId:actorUserId,get draft(){return draft()},assertCurrent,
+       projectId,draftId,authorId:actorUserId,get draft(){return draft()},assertCurrent:assertComparison,
       })
-      return Object.freeze({...receipt,comparison})
+      return Object.freeze({...receipt,comparison:Object.freeze({...comparison,localChanges})})
      }catch{
       receipt.assertCurrent()
       return receipt

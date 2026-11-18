@@ -69,7 +69,7 @@ it('passes exact candidate and original-form inputs to preview and renders the s
 it('shows the original save receipt without modifying the current editor',async()=>{
  const assertCurrent=vi.fn(),assertComparison=vi.fn(),resolveView=vi.fn()
  const receipt={state:'SAVED',draftVersion:'V2',receiptRef:'RC',assertCurrent,
-  comparison:{currentState:'NEWER_EDITS',assertCurrent:assertComparison}}
+  comparison:{currentState:'NEWER_EDITS',localChanges:false,assertCurrent:assertComparison}}
  let resolveReceipt:()=>void=()=>{throw Error('TEST_RECEIPT_NOT_INITIALIZED')}
  const pending=new Promise<typeof receipt>(resolve=>{resolveReceipt=()=>resolve(receipt)})
  const readOriginalSave=vi.fn(()=>pending)
@@ -87,6 +87,8 @@ it('shows the original save receipt without modifying the current editor',async(
  expect(readOriginalSave).toHaveBeenCalledExactlyOnceWith({requestKey:'Q',requestDigest:query.saveRequestDigest,
   contentDigest:query.saveContentDigest,expectedDraftVersion:null})
  expect(bindOriginalSave()).toEqual({status:'原请求已保存草稿版 V2，回执 RC。当前草稿与原保存内容不同。'})
+ receipt.comparison.localChanges=true
+ expect(bindOriginalSave()).toEqual({status:'原请求已保存草稿版 V2，回执 RC。当前编辑仍有本地未保存改动。'})
  assertComparison.mockImplementation(()=>{throw Error('DRAFT_CHANGED')})
  expect(bindOriginalSave()).toEqual({status:'原请求已保存草稿版 V2，回执 RC'})
  assertCurrent.mockImplementation(()=>{throw Error('STALE')})

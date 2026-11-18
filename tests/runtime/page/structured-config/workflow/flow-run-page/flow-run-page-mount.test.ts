@@ -210,8 +210,8 @@ describe('flow run page mount', () => {
     const model = 'WFOBJ_FLOW_RELATIONLINE_STEP'
     const configured = workbenchScenario.tables[model]
     const workbench = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {
-      [model]: {...configured, views: {default: configured.views.default}, columns: ['rowid', 'description', 'ReceiveUserName', 'STARTTIME', 'StepState', 'WFOBJID', 'STEPTYPE']
-        .map(name => ({name, type: 'string'}))},
+      [model]: {...configured, views: {default: configured.views.default}, columns: configured.views.default.queryConfig.fields
+        .map(name => ({name, type: name === 'STEPTYPE' ? 'number' : 'string', isPrimaryKey: name === 'rowid'}))},
     }})
     const runtime = markRaw(new PageRuntime({tool, scenarioIds: [FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID],
       mainScenarioId: FLOW_MONITOR_SCENARIO_ID,
@@ -231,10 +231,28 @@ describe('flow run page mount', () => {
       await flushPromises()
       const history = workbench.getView(model)
       if (!history) throw new Error('步骤历史视图装配失败')
-      history.replaceRows([{rowid: 'STEP-1', WFOBJID: 'WF-1', description: '原步骤摘要', ReceiveUserName: '测试办理人', STARTTIME: '2026-11-19', StepState: '1'}])
+      history.queryContext = {WFOBJID: 'WF-1'}
+      const readAccess = (field: string) => field === 'STARTTIME' ? 'invisible' as const : 'visible' as const
+      history.bindQueryExecutor({executeQuery: async () => ({
+        rows: [{rowid: 'STEP-1', WFOBJID: 'WF-1', STEPTYPE: 0, description: '原步骤摘要',
+          ReceiveUserName: '测试办理人', STARTTIME: '2026-11-19', StepState: '1'}],
+        total: 1,
+        assertIdentity: identity => expect(identity).toMatchObject({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, metaName: model}),
+        rowKey: row => row['rowid'],
+        fieldAccess: (_key, field) => ({read: readAccess(field), write: 'denied', required: false,
+          component: readAccess(field) === 'visible' ? 'readonly' : 'hidden', writeMode: 'readonly'}),
+        readFieldAccess: (_row, field) => readAccess(field),
+        addActionState: () => 'hidden', editActionState: () => 'hidden', deleteActionState: () => 'hidden',
+        createChildActionState: () => 'hidden', viewActionState: () => 'enabled',
+      })})
+      await history.refresh()
+      expect(history.loadingError).toBeNull()
       await flushPromises()
       expect(wrapper.text()).toContain('步骤历史')
       expect(wrapper.findComponent({name: 'ElTable'}).props('data')).toMatchObject([{rowid: 'STEP-1', description: '原步骤摘要', ReceiveUserName: '测试办理人'}])
+      expect(wrapper.text()).toContain('原步骤摘要')
+      expect(wrapper.text()).toContain('测试办理人')
+      expect(wrapper.text()).not.toContain('2026-11-19')
     } finally {
       wrappers.pop()?.unmount()
       runtime.dispose()

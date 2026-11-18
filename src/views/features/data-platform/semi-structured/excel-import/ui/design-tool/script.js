@@ -106,6 +106,29 @@ async function retryNode() { await $page.invokeHostCommand('excel.design.retryNo
 async function acceptNode() { await $page.invokeHostCommand('excel.design.acceptNode') }
 async function discardNode() { await $page.invokeHostCommand('excel.design.discardNode') }
 
+function bindOpenTarget() {
+  return {disabled:tree?.canOpenTarget() !== true}
+}
+
+function bindTransformSwitch() {
+  return {readonly:tree?.locked() !== false || tree?.transformSwitch().pending === true}
+}
+
+function bindSaveTransformSwitch() {
+  const state = tree?.transformSwitch()
+  return {disabled:state?.busy !== false || state.pending,
+    label:state?.switchUnconfirmed ? '核验增强规则开关保存结果' : '保存增强规则开关'}
+}
+
+function bindCancelTransformSwitch() {
+  const state = tree?.transformSwitch()
+  return {disabled:state?.busy !== false || state.pending || state.unconfirmed}
+}
+
+async function openTarget() { await $page.invokeHostCommand('excel.design.openTarget') }
+async function saveTransformSwitch() { await $page.invokeHostCommand('excel.design.saveTransformSwitch') }
+async function cancelTransformSwitch() { await $page.invokeHostCommand('excel.design.cancelTransformSwitch') }
+
 async function addRoot() { await $page.invokeHostCommand('excel.design.addRoot') }
 async function addSibling() { await $page.invokeHostCommand('excel.design.addSibling') }
 async function addChild() { await $page.invokeHostCommand('excel.design.addChild') }

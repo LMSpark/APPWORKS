@@ -28,18 +28,14 @@
           <SparkComponentRenderer :config="designRegion(children,'excel-node-basic')" />
           <SparkComponentRenderer :config="designRegion(children,'excel-node-filter')" />
           <SparkComponentRenderer :config="designRegion(children,'excel-node-sort')" />
-          <RendererButton :data-view-key="nodesKey" label="选择目标数据" perm-action="edit" :disabled="locked || !!targetChange || !targetAllowed" @click="openTarget" />
+          <SparkComponentRenderer :config="designRegion(children,'excel-node-target')" />
               </template>
               <p v-else role="status">请选择左侧节点后再编辑</p>
             </RendererTabPane>
             <RendererTabPane name="transform" label="增强规则" :index="1" :data-view-key="rulesKey">
       <ExcelTransformRulesPane :data-view-key="rulesKey" :field-options-key="ruleFieldOptionsKey" :has-node="!!selectedNode" :disabled="locked" @session-change="value => pending('rules.dialog',value)">
         <template #scheme-tools>
-          <RendererForm :data-view-key="schemeKey" :auto-columns="false" :show-data-view-meta="false">
-            <FieldCheckbox field="transform_enabled" label="启用增强规则" :true-value="1" :false-value="0" :readonly="locked || pendingPart('rules')" />
-          </RendererForm>
-          <RendererButton :label="isUnconfirmed(schemeTable) ? '核验增强规则开关保存结果' : '保存增强规则开关'" :disabled="busy || pendingPart('rules')" @click="save(schemeTable)" />
-          <RendererButton label="取消增强规则开关修改" :disabled="busy || unconfirmed || pendingPart('rules')" @click="cancel(schemeTable)" />
+          <SparkComponentRenderer :config="designRegion(children,'excel-scheme-transform')" />
         </template>
       </ExcelTransformRulesPane>
             </RendererTabPane>
@@ -115,7 +111,7 @@ import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
 import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
 import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
-const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTable, RendererForm, RendererButton, RendererDialog, RendererTabs, RendererTabPane, FieldText, FieldCheckbox, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTable, RendererButton, RendererDialog, RendererTabs, RendererTabPane, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
@@ -136,7 +132,6 @@ const schemeTable = 'Base_Import_solution'
 const key = (table: string) => buildDataViewKey(table, 'default', scene)
 const nodesKey = key(nodesTable), fieldsKey = key(fieldsTable), rulesKey = key(rulesTable)
 const ruleFieldOptionsKey=buildDataViewKey(fieldsTable,'foreignKeyFields',scene)
-const schemeKey = buildDataViewKey('Base_Import_solution', 'editorTarget', catalogScene)
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'excel-import-editor-page'})
 const session = new NativePageRuntimeSession({
   provide: () => undefined,
@@ -271,6 +266,23 @@ function makeTreeHost(runtime:PageRuntime){
         discard:!!targetChange.value&&targetState.value?.applyStarted===true&&targetState.value.canDiscard,
       }),
       validateSorted,
+      canOpenTarget:()=>!locked.value&&!targetChange.value&&targetAllowed.value,
+      transformSwitch:()=>({
+        pending:pendingPart('rules'),busy:busy.value,unconfirmed:unconfirmed.value,
+        switchUnconfirmed:isUnconfirmed(schemeTable),
+      }),
+    }
+    if(command==='excel.design.openTarget'){
+      openTarget()
+      return undefined
+    }
+    if(command==='excel.design.saveTransformSwitch'){
+      if(!busy.value&&!pendingPart('rules'))await save(schemeTable)
+      return undefined
+    }
+    if(command==='excel.design.cancelTransformSwitch'){
+      if(!pendingPart('rules'))cancel(schemeTable)
+      return undefined
     }
     if(command==='excel.design.saveNode'&&selectedNode.value){await save(nodesTable);return undefined}
     if(command==='excel.design.cancelNode'&&selectedNode.value){cancel(nodesTable);return undefined}

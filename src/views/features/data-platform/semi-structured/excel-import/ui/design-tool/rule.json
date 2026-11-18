@@ -84,5 +84,23 @@
       {"type":"r-button","props":{"onBeforeRender":"bindNodeDiscard","onClick":"discardNode"}}
       ]}
     ]
+  },
+  {
+    "id":"excel-node-target",
+    "type":"r-button",
+    "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","label":"选择目标数据","permAction":"edit","onBeforeRender":"bindOpenTarget","onClick":"openTarget"}
+  },
+  {
+    "id":"excel-scheme-transform",
+    "type":"r-section",
+    "props":{"bordered":false,"gridColumns":1},
+    "children":[
+      {"type":"r-form","props":{"dataViewKey":"36B01771C627B9BF5CD493DC75B996A1@Base_Import_solution@editorTarget","autoColumns":false,"showDataViewMeta":false},
+        "children":[{"type":"r-checkbox","props":{"field":"transform_enabled","label":"启用增强规则","trueValue":1,"falseValue":0,"onBeforeRender":"bindTransformSwitch"}}]},
+      {"type":"r-space","props":{"size":8,"wrap":true},"children":[
+        {"type":"r-button","props":{"label":"保存增强规则开关","onBeforeRender":"bindSaveTransformSwitch","onClick":"saveTransformSwitch"}},
+        {"type":"r-button","props":{"label":"取消增强规则开关修改","onBeforeRender":"bindCancelTransformSwitch","onClick":"cancelTransformSwitch"}}
+      ]}
+    ]
   }
 ]

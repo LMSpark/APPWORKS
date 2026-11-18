@@ -60,10 +60,13 @@
         </main>
       </div>
         <SparkComponentRenderer :config="designRegion(children,'excel-node-removal')" />
+        <ExcelTargetDialog ref="sourcePicker" v-if="sourceTargetId" :data-view-key="nodesKey" :record-id="sourceTargetId" :busy="acting" :validate-target="validateSourceTarget" @close="sourceTargetId = ''" @confirm="applyTarget">
+          <SparkComponentRenderer :config="designRegion(children,'excel-target-picker')" />
+        </ExcelTargetDialog>
+
 
       </template>
     </SparkPageRenderer>
-    <ExcelTargetDialog v-if="sourceTargetId" :data-view-key="nodesKey" :record-id="sourceTargetId" :busy="acting" :validate-target="validateSourceTarget" @close="sourceTargetId = ''" @confirm="applyTarget" />
     <ExcelReferenceDialog v-if="fieldReference" :data-view-key="fieldsKey" :reference="fieldReference" :busy="acting" @close="fieldReference=undefined" />
   </section>
 </template>
@@ -109,6 +112,7 @@ function designRegion(children:readonly SparkNode[],id:string):SparkNode {
 const treeRuntime=shallowRef<PageRuntime>()
 const treeHost=shallowRef<ReturnType<typeof makeTreeHost>>()
 const rulePane=shallowRef<InstanceType<typeof ExcelTransformRulesPane>>()
+const sourcePicker=shallowRef<InstanceType<typeof ExcelTargetDialog>>()
 const layoutPane=shallowRef<InstanceType<typeof ExcelImportSheetLayoutPane>>()
 const importConfigId = computed(() => props.schemeRowid ?? (typeof route.query['importConfigId'] === 'string' ? route.query['importConfigId'] : ''))
 const navigationProjectId=computed(()=>resolveExecutionProjectId(route.path))
@@ -269,12 +273,15 @@ function makeTreeHost(runtime:PageRuntime){
       ruleRowClick:(row:Parameters<InstanceType<typeof ExcelTransformRulesPane>['rowClick']>[0],column:unknown,event?:Event)=>{
         if(active&&session.isCurrent(runtime))rulePane.value?.rowClick(row,column,event)
       },
+      sourcePicker:()=>sourcePicker.value,
       canOpenTarget:()=>!locked.value&&!targetChange.value&&targetAllowed.value,
       transformSwitch:()=>({
         pending:pendingPart('rules'),busy:busy.value,unconfirmed:unconfirmed.value,
         switchUnconfirmed:isUnconfirmed(schemeTable),
       }),
     }
+    if(command==='excel.design.closeSourcePicker'){sourcePicker.value?.close();return undefined}
+    if(command==='excel.design.confirmSourcePicker'){sourcePicker.value?.confirm();return undefined}
     if(command==='excel.design.selectFieldTab'){
       if(input==='fields'||input==='dynamicDict')activeBottomTab.value=input
       return undefined

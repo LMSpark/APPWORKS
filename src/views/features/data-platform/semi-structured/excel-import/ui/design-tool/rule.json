@@ -145,6 +145,44 @@
     ]
   },
   {
+    "id":"excel-target-picker",
+    "type":"r-dialog",
+    "props":{"modelValue":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","title":"选择目标数据","width":1000,"appendToBody":true,"on":{"update:modelValue":"closeSourcePicker"},
+      "footer":{"children":[
+        {"type":"r-button","props":{"label":"取消目标选择","onBeforeRender":"bindSourceCancel","onClick":"cancelSourcePicker"}},
+        {"type":"r-button","props":{"label":"确认并暂存目标及字段","buttonType":"primary","onBeforeRender":"bindSourceConfirm","onClick":"confirmSourcePicker"}}
+      ]}
+    },
+    "children":[
+      {"type":"r-section","props":{"bordered":false,"onBeforeRender":"bindSourceStatus"}},
+      {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindSourceContent"},"children":[
+        {"type":"r-form","props":{"onBeforeRender":"bindSourceAppForm","autoColumns":false,"showDataViewMeta":false},"children":[
+          {"type":"r-select","props":{"dataMember":"value","onBeforeRender":"bindSourceApplication","label":"来源应用"}}
+        ]},
+        {"type":"r-section","props":{"bordered":false,"gridColumns":3},"children":[
+          {"type":"r-section","props":{"bordered":false,"title":"数据库","colSpan":1},"children":[
+            {"type":"r-table","props":{"highlightCurrentRow":true,"maxHeight":220,"onBeforeRender":"bindSourceDatabase"},"children":[
+              {"type":"r-text","props":{"field":"conName","label":"数据库","readonly":true}}
+            ]}
+          ]},
+          {"type":"r-section","props":{"bordered":false,"title":"目标数据表","colSpan":2},"children":[
+            {"type":"r-table","props":{"highlightCurrentRow":true,"maxHeight":220,"onBeforeRender":"bindSourceTable"},"children":[
+              {"type":"r-text","props":{"field":"tblname","label":"表名","readonly":true}},
+              {"type":"r-text","props":{"field":"tbldesc","label":"说明","readonly":true}}
+            ]}
+          ]}
+        ]},
+        {"type":"r-section","props":{"bordered":false,"title":"字段替换预览","status":"确认后暂存目标及完整字段替换，Excel 列号留空；保存配置时一起提交。"},"children":[
+          {"type":"r-table","props":{"onBeforeRender":"bindSourceFields","maxHeight":250},"children":[
+            {"type":"r-text","props":{"field":"enname","label":"字段名称","readonly":true}},
+            {"type":"r-text","props":{"field":"cnname","label":"标题","readonly":true}},
+            {"type":"r-text","props":{"field":"DataType","label":"数据类型","readonly":true}}
+          ]}
+        ]}
+      ]}
+    ]
+  },
+  {
     "id":"excel-node-removal",
     "type":"r-dialog",
     "props":{"title":"删除配置确认","width":560,"destroyOnClose":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","onBeforeRender":"bindRemovalDialog","on":{"update:modelValue":"closeRemovalDialog"},

@@ -389,3 +389,33 @@ function bindLayoutDocumentError() {
   return {visible:!!title,title}
 }
 async function diagnoseLayout() { await $page.invokeHostCommand('excel.design.diagnoseLayout') }
+
+function sourcePickerState() { return tree?.sourcePicker?.()?.state() }
+
+function bindSourceStatus() {
+  const state = sourcePickerState()
+  return {status:state?.loading ? '正在读取目标来源…' : '',error:state?.error || ''}
+}
+
+function bindSourceContent() {
+  const state = sourcePickerState()
+  return {visible:state?.ready === true,inert:state?.busy || undefined}
+}
+
+function bindSourceAppForm() { return {dataViewKey:tree?.sourcePicker?.()?.bindings.appsKey} }
+function bindSourceApplication() { return {optionDataViewKey:tree?.sourcePicker?.()?.bindings.appsKey} }
+function bindSourceDatabase() {
+  const picker = tree?.sourcePicker?.()
+  return {dataViewKey:picker?.bindings.databasesKey,onRowClick:picker?.chooseDatabase}
+}
+function bindSourceTable() {
+  const picker = tree?.sourcePicker?.()
+  return {dataViewKey:picker?.bindings.tablesKey,onRowClick:picker?.chooseTable}
+}
+function bindSourceFields() { return {dataViewKey:tree?.sourcePicker?.()?.bindings.fieldsKey} }
+function bindSourceCancel() { return {disabled:sourcePickerState()?.busy === true} }
+function bindSourceConfirm() { return {disabled:sourcePickerState()?.canConfirm !== true} }
+
+async function cancelSourcePicker() { await $page.invokeHostCommand('excel.design.closeSourcePicker') }
+async function closeSourcePicker(open) { if (open === false) await cancelSourcePicker() }
+async function confirmSourcePicker() { await $page.invokeHostCommand('excel.design.confirmSourcePicker') }

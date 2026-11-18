@@ -10,6 +10,8 @@ import {captureContentAuthoringSession} from '../../model/content-authoring-host
 import type {ContentAuthoringRoute} from './content-authoring-target'
 import {createContentReviewScriptHost} from './content-review-script-host'
 import {createContentSubmissionScriptHost} from './content-submission-script-host'
+import {createBidHandoffScriptHost} from '../../../collaboration/handoff/bid-handoff-script-host'
+import {createTenderFollowupScriptHost} from '../../../followup/tender-followup-script-host'
 import {createBidFindingsScriptHost} from '../../../collaboration/tasks/bid-findings-script-host'
 
 import {createKnowledgeDirectoryScriptHost} from '../../../knowledge/knowledge-directory-script-host'
@@ -134,6 +136,39 @@ export function preparePublishedBidResponseCall(route:ContentAuthoringRoute,entr
  })
  if(prepared&&['scopeRef','purposeRef','asOf','rateOnly'].some(key=>Object.hasOwn(route.query,key)))
   throw Error('BID_RESPONSE_PUBLICATION_SCOPE')
+ return prepared
+}
+
+type PublishedScopeBinding<Options>=Readonly<{projectId:string;options:Options;assertCurrent:()=>void}>
+
+/** 页08原移交与签收按本轮正式绑定的标段和阶段读取。 */
+export function preparePublishedBidHandoffCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+ bindHandoff:(runtime:PageRuntime,scope:Scope)=>PublishedScopeBinding<Parameters<typeof createBidHandoffScriptHost>[2]>,
+){
+ return preparePublishedTenderScopeCall(route,entry,bindHandoff,createBidHandoffScriptHost)
+}
+
+/** 页09沿同一项目、轮次和主体查询正式通知。 */
+export function preparePublishedTenderFollowupCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+ bindFollowup:(runtime:PageRuntime,scope:Scope)=>PublishedScopeBinding<Parameters<typeof createTenderFollowupScriptHost>[2]>,
+){
+ return preparePublishedTenderScopeCall(route,entry,bindFollowup,createTenderFollowupScriptHost)
+}
+
+function preparePublishedTenderScopeCall<Options,Host>(
+ route:ContentAuthoringRoute,entry:PublishedEntry,
+ bind:(runtime:PageRuntime,scope:Scope)=>PublishedScopeBinding<Options>,
+ createHost:(runtime:PageRuntime,scope:Scope,options:Options)=>Host,
+){
+ const prepared=preparePublishedCall(route,entry,(runtime,scope)=>{
+  const binding=bind(runtime,scope)
+  const assertCurrent=()=>{scope.assertCurrent();binding.assertCurrent()}
+  assertCurrent()
+  if(binding.projectId!==scope.projectId)throw Error('BID_TENDER_PUBLICATION_SCOPE')
+  return createHost(runtime,{...scope,assertCurrent},binding.options)
+ })
+ if(prepared&&['lotId','roundId','stageId','subjectId'].some(key=>Object.hasOwn(route.query,key)))
+  throw Error('BID_TENDER_PUBLICATION_SCOPE')
  return prepared
 }
 

@@ -1,0 +1,9 @@
+[
+  {"type":"r-table","props":{"class":"flow-monitor-page","dataViewKey":"E328FBBF518141973C575D612CD75151@View_FlowObjList@default","autoColumns":false,"stripe":true,"showRowIndex":true,"showDataViewMeta":false,"pagination":{"pageSizes":[10,15,20,50],"showJumper":true},"filter":{"autoQuery":false,"queryOnReset":true,"firstPageOnSearch":true,"showExpressionEditor":false,"showDataViewMeta":false,"children":[{"type":"r-text","props":{"field":"AppDesc","label":"应用名称","placeholder":"应用名称","filterTrim":true}},{"type":"r-text","props":{"field":"TITLE","label":"流程标题","placeholder":"流程标题","filterTrim":true}},{"type":"r-select","props":{"field":"status","label":"流程状态","placeholder":"流程状态","clearable":true,"optionDataViewKey":"E328FBBF518141973C575D612CD75151@Dict_state@default"}}]},"actions":{"children":[{"type":"r-button","props":{"label":"办理","buttonType":"primary","onClick":"openFlowMonitorRun"}},{"type":"r-button","props":{"label":"运行详情","onClick":"openFlowMonitorDetail"}}]}},"children":[
+    {"type":"r-text","props":{"field":"AppDesc","label":"应用名称","readonly":true,"minWidth":160,"showOverflowTooltip":true}},
+    {"type":"r-text","props":{"field":"TITLE","label":"流程标题","readonly":true,"minWidth":240,"showOverflowTooltip":true}},
+    {"type":"r-text","props":{"field":"handleInfo","label":"办理信息","readonly":true,"minWidth":200,"sortable":false,"showOverflowTooltip":true}},
+    {"type":"r-select","props":{"field":"CrtUserID","label":"创建人","readonly":true,"minWidth":120,"sortable":false,"optionDataViewKey":"E328FBBF518141973C575D612CD75151@Base_UserInfo@default"}},
+    {"type":"r-text","props":{"field":"CrtTime","label":"创建时间","readonly":true,"minWidth":160,"onBeforeRender":"bindMonitorTime"}}
+  ]}
+]

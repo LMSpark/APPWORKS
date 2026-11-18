@@ -5,22 +5,25 @@
 AI用途：迁移系统运维流程监控时，核对状态字典、创建人映射与查询条件。
 -->
 <template>
-  <RendererSection class="flow-monitor-page" :bordered="false" :grid-columns="1" :grid-gap="16"
+  <RendererSection :bordered="false" :grid-columns="1" :grid-gap="16"
     :status="loading ? '正在读取流程列表…' : ''" :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
-    <RendererTable v-if="ready" :data-view-key="viewKey" :children="fields" :filter="filter" :actions="actions"
-      :stripe="true" :show-row-index="true" :show-data-view-meta="false"
-      :pagination="{pageSizes: [10, 15, 20, 50], showJumper: true}" />
+    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false" />
   </RendererSection>
 </template>
 
 <script setup lang="ts">
 import {computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererSection, RendererTable, consumeRequiredPageService, type RFilterProps, type RToolbarProps, useSparkComponent} from '@spark-appworks/spark-component'
+import type {DataRow} from '@spark-appworks/spark-data'
+import {PageTool} from '@spark-appworks/spark-project-model'
+import {RendererSection, SparkPageRenderer, consumeRequiredPageService, useSparkComponent} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import {buildFlowRunDetailRoute, buildFlowRunPageRoute} from '@/lowcode/resources/system/workflow/manage'
+
+import rule from './tool/rule.json?raw'
+import script from './tool/script.js?raw'
+import style from './tool/style.css?raw'
 
 const {sparkConsume} = useSparkComponent({type: 'flow-monitor-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'flow-monitor-page')
@@ -28,29 +31,16 @@ const pageService = consumeRequiredPageService(sparkConsume, 'flow-monitor-page'
 const scenarioId = 'E328FBBF518141973C575D612CD75151'
 const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'View_FlowObjList', componentType: 'flow-monitor-page', title: '流程监控',
+  tool: pageId => {
+    const tool = new PageTool({pageId})
+    tool.hydrateFileText('rule.json', rule)
+    tool.hydrateFileText('script.js', script)
+    tool.hydrateFileText('style.css', style)
+    tool.markLoaded()
+    return tool
+  },
   optionModels: ['Dict_state', 'Base_UserInfo'],
 })
-const stateKey = buildDataViewKey('Dict_state', 'default', scenarioId)
-const userKey = buildDataViewKey('Base_UserInfo', 'default', scenarioId)
-
-function formatMinute(value: unknown): string {
-  const text = typeof value === 'string' || typeof value === 'number' ? String(value).trim() : ''
-  if (!text) return '-'
-  const date = new Date(text)
-  if (Number.isNaN(date.getTime())) return text.slice(0, 16)
-  const pad = (part: number) => String(part).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
-}
-const text = (field: string, label: string, minWidth = 140): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, minWidth, showOverflowTooltip: true}})
-const fields: SparkNode[] = [
-  text('AppDesc', '应用名称', 160), text('TITLE', '流程标题', 240),
-  {type: 'r-text', props: {field: 'handleInfo', label: '办理信息', readonly: true, minWidth: 200, sortable: false, showOverflowTooltip: true}},
-  {type: 'r-select', props: {field: 'CrtUserID', label: '创建人', readonly: true, minWidth: 120, sortable: false,
-    optionDataViewKey: userKey}},
-  {type: 'r-text', props: {field: 'CrtTime', label: '创建时间', readonly: true, minWidth: 160,
-    displayFormatter: formatMinute}},
-]
 const router = useRouter()
 const route = useRoute()
 const appScope = () => {
@@ -78,25 +68,26 @@ function openRun(row: DataRow, detail: boolean): void {
     void pageService.showMessage('当前流程记录已失效，请重新查询', 'warning')
   }
 }
-const actions = computed<RToolbarProps>(() => ({children: [
-  {type: 'r-button', props: {label: '办理', buttonType: 'primary', onClick: (row: DataRow) => openRun(row, false)}},
-  {type: 'r-button', props: {label: '运行详情', onClick: (row: DataRow) => openRun(row, true)}},
-]}))
 function textValue(row: DataRow, field: string): string {
   const value = row[field]
   return typeof value === 'string' || typeof value === 'number' ? String(value).trim() : ''
 }
-const filter: RFilterProps = {
-  autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,
-  children: [
-    {type: 'r-text', props: {field: 'AppDesc', label: '应用名称', placeholder: '应用名称', filterTrim: true}},
-    {type: 'r-text', props: {field: 'TITLE', label: '流程标题', placeholder: '流程标题', filterTrim: true}},
-    {type: 'r-select', props: {field: 'status', label: '流程状态', placeholder: '流程状态', clearable: true,
-      optionDataViewKey: stateKey}},
-  ],
-}
+const runtime = computed(() => ready.value ? session.runtime : undefined)
+const routeSnapshot = computed(() => {
+  const {path, fullPath, name, params, query, hash} = route
+  return {path, fullPath, name: name ?? null, params, query, hash}
+})
+const host = computed(() => {
+  const current = runtime.value
+  if (!current) return undefined
+  const assertCurrent = () => {
+    if (!session.isCurrent(current)) throw new Error('流程监控运行实例已失效')
+  }
+  return {runtime: current, assertCurrent, invoke(command: string, input: unknown) {
+    assertCurrent()
+    if (input && typeof input === 'object' && (command === 'flowMonitor.run' || command === 'flowMonitor.detail')) {
+      openRun(input as DataRow, command === 'flowMonitor.detail')
+    }
+  }}
+})
 </script>
-
-<style scoped>
-.flow-monitor-page {padding: 8px}
-</style>

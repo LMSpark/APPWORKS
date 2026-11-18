@@ -7,6 +7,7 @@
 import type {freezeOperationRouteContext} from './operation-route-context'
 import {verifyOriginalOperationRouteDispatch} from './operation-route-dispatch-evidence'
 import {verifyDispatchedOperationRouteReturn} from './operation-route-return'
+import {isRecord} from '@spark-appworks/spark-utils'
 
 /** 原调用固定的输入、工具版本和证据清单。 */
 type Manifest=Pick<Awaited<ReturnType<typeof freezeOperationRouteContext>>,
@@ -41,8 +42,11 @@ export async function recoverOperationRouteAttempt(manifest:Manifest,source:Read
  dispatch.assertCurrent()
  if(response===undefined)return Object.freeze({state:'RETURN_UNKNOWN' as const,dispatch,assertCurrent:dispatch.assertCurrent})
  const result=await verifyDispatchedOperationRouteReturn(dispatch,response,source.guide)
- const actualRequirementReads=result.state==='VERIFIED_CANDIDATE'&&manifest.requirementReads?.length?
-  Object.freeze(manifest.requirementReads.map(reference=>Object.freeze({
+ const actualInput:unknown=dispatch.inputJson===null?null:JSON.parse(dispatch.inputJson)
+ const requirementReads=manifest.requirementReads
+ const actualRequirementReads=result.state==='VERIFIED_CANDIDATE'&&requirementReads?.length&&
+  isRecord(actualInput)&&requirementReads.every(reference=>Object.hasOwn(actualInput,reference.fieldPath))?
+  Object.freeze(requirementReads.map(reference=>Object.freeze({
    ...reference,callRef:dispatch.dispatchRef,resultRef:response.receiptRef,
   }))):null
  result.assertCurrent()

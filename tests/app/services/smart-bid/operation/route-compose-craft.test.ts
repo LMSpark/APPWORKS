@@ -77,9 +77,14 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
  expect(readResult).not.toHaveBeenCalled()
  expect(await recoverOperationRouteAttempt(manifest,recovery)).toMatchObject({state:'VERIFIED_CANDIDATE',
   result:{dispatchRef:'SENT',guideRef:'GUIDE'},actualRequirementReads:null})
- expect(await recoverOperationRouteAttempt(withRequirement,recovery)).toMatchObject({state:'VERIFIED_CANDIDATE',
+ expect(await recoverOperationRouteAttempt(withRequirement,recovery)).toMatchObject({state:'VERIFIED_CANDIDATE',actualRequirementReads:null})
+ const verifiedDispatch={...recovery,readDispatch:async()=>({...sent,input:craft.inputExample})}
+ expect(await recoverOperationRouteAttempt(withRequirement,verifiedDispatch)).toMatchObject({state:'VERIFIED_CANDIDATE',
   actualRequirementReads:[{lineageId:'CLAUSE',version:'V1',fieldPath:provenance[0]?.slotId,callRef:'SENT',resultRef:'RESULT'}]})
- expect(await recoverOperationRouteAttempt(withRequirement,{...recovery,readResult:async()=>({...receipt,state:'PARTIAL'})}))
+ expect(await recoverOperationRouteAttempt({...withRequirement,requirementReads:[{
+  fieldPath:'missingField',lineageId:'CLAUSE',version:'V1',
+ }]},verifiedDispatch)).toMatchObject({state:'VERIFIED_CANDIDATE',actualRequirementReads:null})
+ expect(await recoverOperationRouteAttempt(withRequirement,{...verifiedDispatch,readResult:async()=>({...receipt,state:'PARTIAL'})}))
   .toMatchObject({state:'PARTIAL',actualRequirementReads:null})
  expect(readResult).toHaveBeenCalledWith(scope)
  await expect(recoverOperationRouteAttempt(manifest,{...recovery,guide:{...guide,guideDigest:'0'.repeat(64)}}))

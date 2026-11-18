@@ -11631,3 +11631,4 @@ flowchart TD
 - Agent 工作流离页确认期间，同一待丢弃视图的 editingChanged 使原确认失效，保留后续修改；32 项既有页面回归及同一节点二次编辑用例通过，全仓类型检查与专项 ESLint 通过。另核投标平台：src 中 preparePublishedContentAuthoringCall 与 createBidResponseScriptHost 仅命中定义，蓝图管理页已有工具离页守卫，仍需页11正式运行宿主实际注册和触发证据。
 - 2026-11-19 第20包页面交付与预览本地复验：page-tool-publication、use-dev-state-page-data-history、page-design-sop/gates、page-tool-directory-resource 共5文件85项通过。覆盖三文件部分发布后同实例与冷重开、快照缺失或失配、发布指针丢回执、预览所声明的场景及共享 pagedata；均为本地测试。投标页10/11/12正式菜单、部署与实际场景冷回读仍待。本批发布模块有并行未跟踪文件，仅记录工作区验证结果。
 - 正式配置页 PageRuntime 在三文件读取结束、装载页面前重新核对蓝图节点的项目、工具与发布版本；读取期间切换发布指针时拒绝旧结果。动态路由36项及专项ESLint通过，未将模拟发布指针视为投标实服回执。
+- 发布指针竞态补验：拒绝旧三文件后，同一 PageRuntime 重新加载，三次读取分别为 rule.json、script.js、style.css 且均使用新指针，页面实例成功加载。动态路由36项通过，运行时补丁全仓 typecheck 通过。

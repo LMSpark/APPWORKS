@@ -434,10 +434,12 @@ describe('DynamicRouter formal routes and runtime calls', () => {
 
   it('rejects files from a superseded version when navigation changes during the read', async () => {
     const navigation = { ...TOOL_NAV, items: [...TOOL_NAV.items] }
+    const requests: PageFileReadCommand[] = []
     const started = deferred<void>(), finish = deferred<void>()
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
     const dynamic = createDynamicRouter({ router, pageComponent: DummyPage, applicationPathPrefix: '/apps/:projectId',
       loadNavigation: async () => navigation, readPageFile: async command => {
+        requests.push(command)
         started.resolve(); await finish.promise
         return command.fileName === 'rule.json' ? '[]' : ''
       } })
@@ -452,6 +454,13 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     finish.resolve()
     await expect(loading).rejects.toThrow('发布版本已改变')
     expect(runtime.isLoaded).toBe(false)
+    await runtime.reload()
+    expect(runtime.isLoaded).toBe(true)
+    expect(requests.slice(3).map(({fileName, versionId}) => [fileName, versionId])).toEqual([
+      ['rule.json', 'rule=5;script=5;style=5'],
+      ['script.js', 'rule=5;script=5;style=5'],
+      ['style.css', 'rule=5;script=5;style=5'],
+    ])
   })
 
   it('reloads the latest published files in the retained instance and rejects changed tool identity', async () => {

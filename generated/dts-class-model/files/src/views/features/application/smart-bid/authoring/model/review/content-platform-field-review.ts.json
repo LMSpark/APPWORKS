@@ -144,6 +144,18 @@
       "type": "object",
       "title": "FieldObservation",
       "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "assignmentId": {
+          "type": "string"
+        },
+        "fieldId": {
+          "type": "string"
+        },
         "stage": {
           "enum": [
             "DRAFT",
@@ -173,10 +185,74 @@
           "additionalProperties": false
         },
         "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "revisionId",
+        "assignmentId",
+        "fieldId"
+      ]
+    },
+    "SubmissionEvidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SubmissionEvidence",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "receiptRef": {
+          "type": "string"
+        },
+        "observationRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
       }
+    },
+    "ExpectedObservation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExpectedObservation",
+      "properties": {
+        "stage": {
+          "enum": [
+            "SAVED",
+            "SUBMITTED"
+          ]
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "submission": {
+          "$ref": "#/$defs/SubmissionEvidence"
+        }
+      },
+      "required": [
+        "stage",
+        "attemptRef"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T02:34:08.023Z",
+  "generatedAt": "2026-11-18T02:41:20.631Z",
   "models": {
     "FieldSelection": {
       "name": "FieldSelection",
@@ -350,12 +426,12 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Pick<FieldSelection, 'projectId' | 'fieldId' | 'assignmentId'> & Readonly<{\n    stage: 'DRAFT' | 'SAVED' | 'SUBMITTED';\n    attemptRef: string;\n    observationRef: string;\n    value: unknown;\n    unit: string | null;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "FieldSelection & Readonly<{\n    stage: 'DRAFT' | 'SAVED' | 'SUBMITTED';\n    attemptRef: string;\n    observationRef: string;\n    value: unknown;\n    unit: string | null;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "Pick<FieldSelection, 'projectId' | 'fieldId' | 'assignmentId'>",
-            "targetName": "Pick"
+            "typeText": "FieldSelection",
+            "targetName": "FieldSelection"
           },
           {
             "kind": "intersection",
@@ -399,6 +475,94 @@
                 "type": "intrinsic",
                 "name": "void"
               }
+            }
+          ]
+        }
+      }
+    },
+    "SubmissionEvidence": {
+      "name": "SubmissionEvidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    revisionId: string;\n    attemptRef: string;\n    receiptRef: string;\n    observationRefs: readonly string[];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    revisionId: string;\n    attemptRef: string;\n    receiptRef: string;\n    observationRefs: readonly string[];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "receiptRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "observationRefs",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ExpectedObservation": {
+      "name": "ExpectedObservation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    stage: 'SAVED' | 'SUBMITTED';\n    attemptRef: string;\n    submission?: SubmissionEvidence;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    stage: 'SAVED' | 'SUBMITTED';\n    attemptRef: string;\n    submission?: SubmissionEvidence;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "stage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "submission",
+              "readable": true,
+              "writable": false
             }
           ]
         }

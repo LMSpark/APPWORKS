@@ -1,5 +1,5 @@
 {
-  "gapCount": 6708,
+  "gapCount": 6719,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -21420,9 +21420,9 @@
     {
       "kind": "attribute",
       "className": "TreeModel",
-      "memberName": "__@iterator@285849",
+      "memberName": "__@iterator@285932",
       "reason": "missing-jsdoc",
-      "chainBreak": "TreeModel.__@iterator@285849 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "TreeModel.__@iterator@285932 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-json-document/src/tree/tree-types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-json-document/src/tree/tree-types.ts",
       "declarationLine": 50,
@@ -77716,7 +77716,7 @@
       "chainBreak": "FieldSelection 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 1,
+      "declarationLine": 2,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77728,7 +77728,7 @@
       "chainBreak": "FieldSelection.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 2,
+      "declarationLine": 3,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -77740,7 +77740,7 @@
       "chainBreak": "FieldSelection.revisionId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 3,
+      "declarationLine": 4,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -77752,7 +77752,7 @@
       "chainBreak": "FieldSelection.assignmentId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 4,
+      "declarationLine": 5,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -77764,7 +77764,7 @@
       "chainBreak": "FieldSelection.fieldId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 5,
+      "declarationLine": 6,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -77775,7 +77775,7 @@
       "chainBreak": "ProposedField 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 7,
+      "declarationLine": 8,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77787,7 +77787,7 @@
       "chainBreak": "ProposedField.responseId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 8,
+      "declarationLine": 9,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -77799,7 +77799,7 @@
       "chainBreak": "ProposedField.fieldRuleRef 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -77811,7 +77811,7 @@
       "chainBreak": "ProposedField.approvalRef 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 10,
+      "declarationLine": 11,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -77823,7 +77823,7 @@
       "chainBreak": "ProposedField.value 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 11,
+      "declarationLine": 12,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -77835,7 +77835,7 @@
       "chainBreak": "ProposedField.unit 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 12,
+      "declarationLine": 13,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -77847,7 +77847,7 @@
       "chainBreak": "ProposedField.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 13,
+      "declarationLine": 14,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77859,7 +77859,7 @@
       "chainBreak": "ApprovedField.approvalRef 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 28,
+      "declarationLine": 29,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77871,7 +77871,7 @@
       "chainBreak": "ApprovedField.assertCurrent 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 28,
+      "declarationLine": 29,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77883,7 +77883,7 @@
       "chainBreak": "ApprovedField.assignmentId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 28,
+      "declarationLine": 29,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77895,7 +77895,7 @@
       "chainBreak": "ApprovedField.fieldId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 28,
+      "declarationLine": 29,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77907,7 +77907,7 @@
       "chainBreak": "ApprovedField.fieldRuleRef 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 28,
+      "declarationLine": 29,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77919,7 +77919,7 @@
       "chainBreak": "ApprovedField.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 28,
+      "declarationLine": 29,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77931,7 +77931,7 @@
       "chainBreak": "ApprovedField.responseId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 28,
+      "declarationLine": 29,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77943,7 +77943,7 @@
       "chainBreak": "ApprovedField.revisionId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 28,
+      "declarationLine": 29,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77955,7 +77955,7 @@
       "chainBreak": "ApprovedField.valueHash 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 28,
+      "declarationLine": 29,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77967,7 +77967,7 @@
       "chainBreak": "ApprovedField.versionHash 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 28,
+      "declarationLine": 29,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77978,7 +77978,7 @@
       "chainBreak": "ApprovedField 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 28,
+      "declarationLine": 29,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -77989,7 +77989,7 @@
       "chainBreak": "FieldObservation 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 29,
+      "declarationLine": 30,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
     },
@@ -78001,7 +78001,7 @@
       "chainBreak": "FieldObservation.stage 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 30,
+      "declarationLine": 31,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -78013,7 +78013,7 @@
       "chainBreak": "FieldObservation.attemptRef 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 31,
+      "declarationLine": 32,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -78025,7 +78025,7 @@
       "chainBreak": "FieldObservation.observationRef 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 32,
+      "declarationLine": 33,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -78037,7 +78037,7 @@
       "chainBreak": "FieldObservation.value 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 33,
+      "declarationLine": 34,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -78049,7 +78049,7 @@
       "chainBreak": "FieldObservation.unit 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 34,
+      "declarationLine": 35,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "interface"
     },
@@ -78061,9 +78061,139 @@
       "chainBreak": "FieldObservation.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
-      "declarationLine": 35,
+      "declarationLine": 36,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "SubmissionEvidence",
+      "reason": "missing-jsdoc",
+      "chainBreak": "SubmissionEvidence 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationLine": 38,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "SubmissionEvidence",
+      "memberName": "projectId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "SubmissionEvidence.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationLine": 39,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "SubmissionEvidence",
+      "memberName": "revisionId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "SubmissionEvidence.revisionId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationLine": 40,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "SubmissionEvidence",
+      "memberName": "attemptRef",
+      "reason": "missing-jsdoc",
+      "chainBreak": "SubmissionEvidence.attemptRef 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationLine": 41,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "SubmissionEvidence",
+      "memberName": "receiptRef",
+      "reason": "missing-jsdoc",
+      "chainBreak": "SubmissionEvidence.receiptRef 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationLine": 42,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "SubmissionEvidence",
+      "memberName": "observationRefs",
+      "reason": "missing-jsdoc",
+      "chainBreak": "SubmissionEvidence.observationRefs 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationLine": 43,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "SubmissionEvidence",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "SubmissionEvidence.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationLine": 44,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "ExpectedObservation",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ExpectedObservation 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationLine": 46,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "ExpectedObservation",
+      "memberName": "stage",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ExpectedObservation.stage 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationLine": 47,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ExpectedObservation",
+      "memberName": "attemptRef",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ExpectedObservation.attemptRef 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationLine": 48,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ExpectedObservation",
+      "memberName": "submission",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ExpectedObservation.submission 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationLine": 49,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "declarationKind": "interface"
     },
     {
       "kind": "module",

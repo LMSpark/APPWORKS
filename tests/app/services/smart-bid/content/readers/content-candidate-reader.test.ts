@@ -22,6 +22,22 @@ it('reads candidate-generation scope from the exact adopted draft basis',async()
   expect(()=>basis.assertCurrent()).toThrow()
  }finally{f.ds.destroy()}
 })
+it('rejects a draft basis response with no original assignment',async()=>{
+ const f=await fixture('bad-response',{threeVersions:true})
+ try{
+  await expect(readDraftCandidateBasis(f.host,{revisionId:'V1'})).rejects.toThrow('CONTENT_SCOPE_ASSIGNMENT_BASIS')
+ }finally{f.ds.destroy()}
+})
+it('keeps exact original responses and unfilled assignments distinct for draft preparation',async()=>{
+ const f=await fixture('response-fact',{threeVersions:true})
+ try{
+  const basis=await readDraftCandidateBasis(f.host,{revisionId:'V1'})
+  expect(basis.responses).toEqual([
+   {projectId:'P',assignmentId:'A',responseId:'I'},
+   {projectId:'P',assignmentId:'UNANSWERED',responseId:null},
+  ])
+ }finally{f.ds.destroy()}
+})
 it('takes first draft target nodes from the frozen input snapshot',async()=>{
  const f=await fixture('populated')
  try{

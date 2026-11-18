@@ -184,6 +184,20 @@ function readBasisResponseIds(basisManifest:unknown,responseComparison:ReturnTyp
 
 /** 从同一固定基准清单投影目标检查使用的分工与答复身份。 */
 export function readRevisionBasisResponses(projectId:string,manifest:unknown):readonly ContentScopeResponse[]{
+ const error='CONTENT_SCOPE_ASSIGNMENT_BASIS'
+ const source=snapshotReferenceRecord(manifest,error)
+ const assignments=new Map<string,Readonly<{lineageId:string;version:string}>>()
+ visitSnapshotReferences(source['responseAssignments'],value=>{
+  const {id:assignmentId,lineageId,version}=snapshotReferenceRecord(value,error)
+  if(!snapshotReferenceIdentity(assignmentId)||!snapshotReferenceIdentity(lineageId)||!snapshotReferenceIdentity(version)||
+   assignments.has(assignmentId))throw Error(error)
+  assignments.set(assignmentId,{lineageId,version})
+ },error)
+ visitSnapshotReferences(source['responses'],value=>{
+  const {assignmentId,lineageId,version}=snapshotReferenceRecord(value,error)
+  const assignment=snapshotReferenceIdentity(assignmentId)?assignments.get(assignmentId):undefined
+  if(!assignment||assignment.lineageId!==lineageId||assignment.version!==version)throw Error(error)
+ },error)
  const compared=compareRevisionResponses({basis:manifest,current:manifest,candidate:manifest,expectedProjectId:projectId})
  return [...readBasisResponseIds(manifest,compared).basisIds].map(([assignmentId,responseId])=>({projectId,assignmentId,responseId}))
 }

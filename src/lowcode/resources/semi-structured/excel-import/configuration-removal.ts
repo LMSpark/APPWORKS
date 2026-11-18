@@ -135,8 +135,13 @@ export class ExcelConfigurationRemoval {
         }
       }
       this.guard(false); this.clean(true)
-      for(const view of this.#views){await view.refresh();this.guard(false);if(view.loadingError||view.rows.length!==view.total||!view.countReported)throw new Error('删除后依赖未完整回读')}
-      if(this.#views[0].rows.some(row=>row['rowid']===this.input.nodeId||row['pid']===this.input.nodeId)||this.#views[1].rows.length>0||this.#views[2].rows.length>0)throw new Error('删除后仍有配置或关联记录，保留原核验入口')
+      const id=this.input.nodeId
+      this.#views[0].filterExpression={logic:'or',filters:[{field:'rowid',operator:'eq',value:id},{field:'pid',operator:'eq',value:id}]}
+      for(const view of this.#views){
+        await view.refresh();this.guard(false)
+        if(view.loadingError||view.requestState!==RequestState.Loaded||!view.countReported||view.rows.length!==view.total)throw new Error('删除后依赖未完整回读')
+        if(view.total!==0)throw new Error('删除后仍有配置或关联记录，保留原核验入口')
+      }
       for(const view of this.#originals){this.clean(true);await view.refresh();this.guard(false);this.clean(true);if(view.loadingError)throw view.loadingError}
       this.#done=true;this.release()
     } finally {this.#busy=false}

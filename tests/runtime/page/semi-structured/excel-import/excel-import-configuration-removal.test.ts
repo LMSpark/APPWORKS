@@ -59,6 +59,20 @@ it('retains database confirmation when refreshing the original page fails and re
   const count = f.http.saves.length; fail.mockRestore(); await command.save()
   expect(f.http.saves).toHaveLength(count); expect(command.getState().done).toBe(true)
 })
+it.each([false,true])('keeps a confirmed deletion open for a concurrent foreign child (masked parent: %s)',async masked=>{
+  const f=await fixture(),command=await f.open(),save=f.ds.saveChanges.bind(f.ds)
+  vi.spyOn(f.ds,'saveChanges').mockImplementation(async options=>{
+    const receipt=await save(options)
+    f.http.records['Base_ImportData_Config']!.push({rowid:'LATE',schemeid:'E2',pid:'C1'})
+    if(masked)f.http.maskedFields['Base_ImportData_Config']=['pid']
+    return receipt
+  })
+  await expect(command.save()).rejects.toThrow(masked?'删除后依赖未完整回读':'删除后仍有配置或关联记录')
+  expect(command.getState()).toMatchObject({databaseConfirmed:true,done:false,canCancel:false})
+  const count=f.http.saves.length
+  await expect(command.save()).rejects.toThrow(masked?'删除后依赖未完整回读':'删除后仍有配置或关联记录')
+  expect(f.http.saves).toHaveLength(count)
+})
 it('protects a physical route referenced by an ancestor layout', async () => {
   const f = await fixture()
   Object.assign(f.http.records['Base_ImportData_Config']![0]!,{pid:'SIB',table:'db@detail'})

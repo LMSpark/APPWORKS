@@ -218,7 +218,10 @@ async function loadConfig():Promise<void> {
   releaseViewSubscriptions.push(runtime.onContentChange(refresh))
   for(const scenarioId of runtime.call.scenarioIds) {
    const ds=runtime.getDataSet(scenarioId)
-   if(!ds)throw new Error(`页面场景尚未装载: ${scenarioId}`)
+   if(!ds){
+    if(runtime.call.deferredScenarioIds?.includes(scenarioId))continue
+    throw new Error(`页面场景尚未装载: ${scenarioId}`)
+   }
    ds.setAppServices(pageRuntimeServices);ds.setPageRoute(route)
   }
   sparkProvide(PAGE_RUNTIME,runtime)
@@ -256,7 +259,8 @@ async function loadConfig():Promise<void> {
    }catch(errorLike){if(current())report('script-function',runtime,errorLike);throw errorLike}
   }
   for(const scenarioId of runtime.call.scenarioIds) {
-   const ds=runtime.getDataSet(scenarioId)!
+   const ds=runtime.getDataSet(scenarioId)
+   if (!ds) continue // Deferred scenarios are not part of the initial render.
    releaseViewSubscriptions.push(ds.onAnyViewChange({
     currentRowChanged:refresh,
     selectedRowsChanged:refresh,

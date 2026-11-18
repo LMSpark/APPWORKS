@@ -62,7 +62,7 @@ async function open(importConfigId = 'E1',path='/editor') {
   await flushPromises()
   const click = async (label: string) => {const button = wrapper.findAll('button').find(button => button.text() === label); expect(button, label).toBeDefined(); await button!.trigger('click'); await flushPromises()}
   const choose = async (tableCount=2) => {
-    await vi.waitFor(() => expect(wrapper.findComponent(RendererTree).exists()).toBe(true))
+    await vi.waitFor(() => expect(wrapper.findComponent(RendererTree).exists(),wrapper.text()).toBe(true))
     await wrapper.get('.el-tree-node__content').trigger('click'); await flushPromises()
     await vi.waitFor(() => expect(wrapper.findAllComponents(RendererTable)).toHaveLength(tableCount))
   }

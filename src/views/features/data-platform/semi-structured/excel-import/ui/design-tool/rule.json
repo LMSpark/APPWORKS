@@ -1,0 +1,14 @@
+[
+  {
+    "id":"excel-design-tree",
+    "type":"r-section",
+    "props":{"bordered":false,"gridColumns":1,"class":"excel-design-tree"},
+    "children":[
+      {"type":"r-button","props":{"label":"新增根配置","permAction":"create","onBeforeRender":"bindTreeAction","onClick":"addRoot"}},
+      {"type":"r-button","props":{"label":"新增同级配置","permAction":"create","onBeforeRender":"bindTreeAction","onClick":"addSibling"}},
+      {"type":"r-button","props":{"label":"新增子级配置","permAction":"create","onBeforeRender":"bindSelectedAction","onClick":"addChild"}},
+      {"type":"r-button","props":{"label":"删除配置","permAction":"delete","onBeforeRender":"bindSelectedAction","onClick":"removeNode"}},
+      {"type":"r-tree","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","expandLevel":1,"treeProps":{"highlightCurrent":true,"expandOnClickNode":false},"showDataViewMeta":false}}
+    ]
+  }
+]

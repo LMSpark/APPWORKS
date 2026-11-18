@@ -11,11 +11,7 @@
     <template v-if="ready && validTarget">
       <div class="excel-workspaces">
         <aside :inert="(acting || unconfirmed || !!targetChange || !!removal || !!fieldReference || pendingPart('nodes') || pendingPart('rules')) || undefined">
-          <RendererButton :data-view-key="nodesKey" label="新增根配置" perm-action="create" :disabled="locked" @click="addRoot" />
-          <RendererButton :data-view-key="nodesKey" label="新增同级配置" perm-action="create" :disabled="locked" @click="addNode('sibling')" />
-          <RendererButton :data-view-key="nodesKey" label="新增子级配置" perm-action="create" :disabled="locked || !selectedNode" @click="addNode('child')" />
-          <RendererButton :data-view-key="nodesKey" label="删除配置" perm-action="delete" :disabled="locked || !selectedNode" @click="openRemoval" />
-          <RendererTree :data-view-key="nodesKey" :expand-level="1" :tree-props="{highlightCurrent:true,expandOnClickNode:false}" :show-data-view-meta="false" />
+          <SparkPageRenderer v-if="treeRuntime && treeHost" :page-runtime="treeRuntime" :route-snapshot="routeSnapshot" :host="treeHost" />
         </aside>
         <main>
           <header class="excel-workspace-header">
@@ -130,6 +126,10 @@ import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {buildDataViewKey, RequestState, type DataSet, type SparkNode} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
+import {PageTool,type PageRuntime} from '@spark-appworks/spark-project-model'
+import treeRule from './design-tool/rule.json?raw'
+import treeScript from './design-tool/script.js?raw'
+import treeStyle from './design-tool/style.css?raw'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
 import {resolveExecutionProjectId} from '@/services/application-scope'
@@ -147,8 +147,14 @@ import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
 import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
 import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
-const {PAGE_RUNTIME, RendererTree, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, RendererTabs, RendererTabPane, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, SparkPageRenderer, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, RendererTabs, RendererTabPane, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
+const routeSnapshot=computed(()=>{
+  const {path,fullPath,name,params,query,hash}=route
+  return {path,fullPath,name:name??null,params,query,hash}
+})
+const treeRuntime=shallowRef<PageRuntime>()
+const treeHost=shallowRef<ReturnType<typeof makeTreeHost>>()
 const importConfigId = computed(() => props.schemeRowid ?? (typeof route.query['importConfigId'] === 'string' ? route.query['importConfigId'] : ''))
 const navigationProjectId=computed(()=>resolveExecutionProjectId(route.path))
 const scene = LowcodeExcelImport.designScenarioId, catalogScene = LowcodeExcelImport.navigationScenarioId
@@ -276,19 +282,41 @@ const fieldColumns = computed<SparkNode[]>(() => [
 onBeforeRouteLeave(() => !hasPending.value)
 onBeforeRouteUpdate(() => !hasPending.value)
 defineExpose({hasPending,busy,unconfirmed,discardChanges:discardAll})
+function makeTreeHost(runtime:PageRuntime){
+  const assertCurrent=()=>{if(!active||!session.isCurrent(runtime))throw new Error('Excel 设计运行实例已失效')}
+  return {runtime,assertCurrent,async invoke(command:string){
+    assertCurrent()
+    if(command==='excel.design.connect')return {locked:()=>locked.value,selected:()=>!!selectedNode.value}
+    if(locked.value)return undefined
+    if(command==='excel.design.addRoot')await addNode('root')
+    if(command==='excel.design.addSibling')await addNode('sibling')
+    if(command==='excel.design.addChild'&&selectedNode.value)await addNode('child')
+    if(command==='excel.design.remove'&&selectedNode.value)await openRemoval()
+    return undefined
+  }}
+}
 watch([importConfigId,navigationProjectId], async ([id,project]) => {
   const own = ++generation
   sourceTargetId.value = ''; targetChange.value = undefined; removal.value = undefined; fieldReference.value=undefined
-  unsubscribers.forEach(off=>off()); unsubscribers=[]; association.value=undefined; sortDirectory.value?.dispose();sortDirectory.value=undefined; dataSet.value=undefined; catalog.value=undefined; session.dispose()
+  unsubscribers.forEach(off=>off()); unsubscribers=[]; association.value=undefined; sortDirectory.value?.dispose();sortDirectory.value=undefined; dataSet.value=undefined; catalog.value=undefined; treeRuntime.value=undefined;treeHost.value=undefined;session.dispose()
   ready.value=false; opening.value=true; error.value=''; recoveryNotice.value=''; inputs.value.clear()
   try {
     if (!id.trim()) throw new Error('缺少 importConfigId 参数')
     const capturedProject=LowcodeExcelImport.designProject(project)
-    const current = session.acquire({pageId:'excel-import-editor-page',scenarioIds:[catalogScene,scene,LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],deferredScenarioIds:[LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],targetId:`${capturedProject}:${id}`,scenarioInputs:{[catalogScene]:{importConfigId:id},[scene]:{importConfigId:id}},
-      loadScenario: space => {
+    const tool=new PageTool({pageId:'excel-import-editor-page'})
+    tool.hydrateFileText('rule.json',treeRule)
+    tool.hydrateFileText('script.js',treeScript)
+    tool.hydrateFileText('style.css',treeStyle)
+    tool.markLoaded()
+    const current = session.acquire({tool,scenarioIds:[catalogScene,scene,LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],deferredScenarioIds:[LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],targetId:`${capturedProject}:${id}`,scenarioInputs:{[catalogScene]:{importConfigId:id},[scene]:{importConfigId:id}},
+      loadScenario: async space => {
         LowcodeExcelImport.designProject(capturedProject)
         if(space===scene)return LowcodeExcelImport.loadEditor(scene,()=>current)
-        if(space===catalogScene)return LowcodeExcelImport.loadCatalog(catalogScene,capturedProject)
+        if(space===catalogScene){
+          const directory=await LowcodeExcelImport.loadCatalog(catalogScene,capturedProject)
+          for(const table of Object.values(directory.tables))for(const view of Object.values(table.views))view.autoLoad=false
+          return directory
+        }
         if(space===LowcodeExcelImport.referenceScenarioId)return LowcodeExcelImport.loadReferenceSources()
         if(space===LowcodeDictionary.editorScenarioId)return LowcodeDictionary.loadEditor().then(result=>result.dataSet)
         throw new Error('Excel页面未声明该来源空间')
@@ -309,7 +337,11 @@ watch([importConfigId,navigationProjectId], async ([id,project]) => {
     if (target.rows.length===1) {
       if (target.getPkKey(target.rows[0]!) !== id) throw new Error('方案身份与调用参数不一致')
       nodes.setTreeConfig({idField:'rowid',parentIdField:'pid',textField:'sheetName',rootParentValue:id,lazy:false})
-      if (active && own===generation && session.isCurrent(current)) sparkProvide(PAGE_RUNTIME,current); dataSet.value!.triggerAutoLoad()
+      if (active && own===generation && session.isCurrent(current)){
+        sparkProvide(PAGE_RUNTIME,current)
+        treeHost.value=makeTreeHost(current)
+        treeRuntime.value=current
+      }
     }
     ready.value=true
   } catch(cause) {if(active && own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
@@ -408,7 +440,6 @@ function editReference(clear:boolean):void{
     error.value='';revision.value++
   }catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}
 }
-async function addRoot(): Promise<void> {await addNode('root')}
 async function addNode(mode: 'root' | 'sibling' | 'child'): Promise<void> {
   if (unconfirmed.value) return
   await act(nodesTable, async target => {

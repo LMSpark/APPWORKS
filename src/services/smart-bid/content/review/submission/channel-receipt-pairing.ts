@@ -9,7 +9,7 @@ type Receipt=Scope&Readonly<{
  eventRef:string;sourceRef:string;kind:'RECEIVED'|'REJECTED'|'WITHDRAWAL_CONFIRMED'
  eventAt:string;knownAt:string;operationRef:string|null;objectRef:string|null
 }>
-type Candidate=Scope&Readonly<{attemptRef:string;operationRef:string|null;objectRef:string|null}>
+type Candidate=Scope&Readonly<{attemptRef:string;operationRef:string|null;objectRef:string|null;withdrawalTargetRef?:string}>
 const time=(value:string)=>{
  const instant=Date.parse(value)
  if(!Number.isFinite(instant)||!/(?:Z|[+-]\d{2}:\d{2})$/u.test(value))throw Error('CHANNEL_RECEIPT_TIME')
@@ -36,15 +36,18 @@ export function pairOriginalChannelReceipt(scope:Scope,receiptReads:readonly Rec
  const seen=new Set<string>()
  const compatible=attempts.filter(attempt=>{
   if(!matchesScope(attempt)||!identity(attempt.attemptRef)||seen.has(attempt.attemptRef)||
+   attempt.withdrawalTargetRef!==undefined&&!identity(attempt.withdrawalTargetRef)||
    [attempt.operationRef,attempt.objectRef].some(value=>value!==null&&!identity(value)))throw Error('CHANNEL_RECEIPT_SCOPE')
   seen.add(attempt.attemptRef)
   return (first.operationRef!==null||first.objectRef!==null)&&
    (first.operationRef===null||first.operationRef===attempt.operationRef)&&
    (first.objectRef===null||first.objectRef===attempt.objectRef)
  })
- const attemptRef=compatible.length===1?compatible[0]?.attemptRef??null:null
+ const paired=compatible.length===1?compatible[0]:undefined
+ const attemptRef=paired?.attemptRef??null
  return Object.freeze({projectId:first.projectId,lotId:first.lotId,subjectId:first.subjectId,channelId:first.channelId,
   eventRef:first.eventRef,kind:first.kind,eventAt:first.eventAt,attemptRef,
+  withdrawalTargetRef:first.kind==='WITHDRAWAL_CONFIRMED'?paired?.withdrawalTargetRef??null:null,
   state:attemptRef===null?'PENDING_PAIR':'PAIRED',
   sources:Object.freeze([...sources].map(([sourceRef,knownAt])=>Object.freeze({sourceRef,knownAt})))})
 }

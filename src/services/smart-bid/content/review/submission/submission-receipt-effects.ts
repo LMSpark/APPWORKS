@@ -34,7 +34,8 @@ export function reconcileSubmissionReceiptEffects(input:Omit<DeadlineInput,'effe
  const adjudicated=decisions.map(decision=>{
   const receipt=byEvent.get(decision.eventRef)
   const kind=decision.kind==='WITHDRAWN'?'WITHDRAWAL_CONFIRMED':'RECEIVED'
-  if(receipt?.state!=='PAIRED'||receipt.kind!==kind||receipt.attemptRef!==decision.attemptRef||
+  if(receipt?.state!=='PAIRED'||receipt.kind!==kind||
+   (decision.kind==='WITHDRAWN'?receipt.withdrawalTargetRef:receipt.attemptRef)!==decision.attemptRef||
    !identity(decision.ruleRef))throw Error(error)
   const earliest=receipt.sources[0]
   if(!earliest)throw Error(error)
@@ -49,6 +50,7 @@ export function reconcileSubmissionReceiptEffects(input:Omit<DeadlineInput,'effe
  const known=time(result.knownAt),cutoff=time(result.cutoffAt)
  const evidence=adjudicated.filter(({effect})=>time(effect.knownAt)<=known&&time(effect.effectiveAt)<=cutoff)
   .map(({effect,receipt,ruleRef})=>Object.freeze({...effect,ruleRef,receiptEventAt:receipt.eventAt,
+   receiptAttemptRef:receipt.attemptRef,
    sources:Object.freeze(receipt.sources.filter(item=>time(item.knownAt)<=known))}))
  assertCurrent()
  return Object.freeze({...result,scope:Object.freeze({...source.scope}),evidence:Object.freeze(evidence),assertCurrent})

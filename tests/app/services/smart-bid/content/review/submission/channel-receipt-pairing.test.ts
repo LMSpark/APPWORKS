@@ -22,10 +22,26 @@ it('keeps an ambiguous receipt pending and retains sources when exact evidence p
  const deadline={cutoffAt:'2026-11-18T10:00:00+08:00',knownAt:exact.eventAt,obligationIds:['O']}
  const source={scope,receipts:[matched],decisions:[decision],assertCurrent}
  expect(reconcileSubmissionReceiptEffects(deadline,source).items[0]?.state).toBe('PENDING_DELIVERY')
- expect(reconcileSubmissionReceiptEffects({...deadline,knownAt:exact.knownAt},source).items[0])
-  .toMatchObject({state:'EFFECTIVE_ATTEMPT',attemptRef:'B'})
+ const atCutoff=reconcileSubmissionReceiptEffects({...deadline,knownAt:exact.knownAt},source)
+ expect(atCutoff.items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',attemptRef:'B'})
+ expect(atCutoff.evidence).toMatchObject([{ruleRef:'RULE',eventRef:exact.eventRef,receiptEventAt:exact.eventAt,
+  sources:[{sourceRef:exact.sourceRef,knownAt:exact.knownAt}]}])
+ expect(reconcileSubmissionReceiptEffects(deadline,source).evidence).toEqual([])
  expect(()=>reconcileSubmissionReceiptEffects(deadline,{...source,scope:{...scope,projectId:'OTHER'}}))
   .toThrow('SUBMISSION_RECEIPT_EFFECT_SCOPE')
  expect(()=>reconcileSubmissionReceiptEffects(deadline,{...source,receipts:[pairOriginalChannelReceipt(scope,[first],attempts)]}))
+  .toThrow('SUBMISSION_RECEIPT_EFFECT_SCOPE')
+ const withdrawAt='2026-11-18T09:30:00+08:00'
+ const withdrawalRead={...exact,eventRef:'WITHDRAW',kind:'WITHDRAWAL_CONFIRMED' as const,
+  eventAt:withdrawAt,knownAt:withdrawAt,operationRef:'OP-W'}
+ const withdrawalOperation={...scope,attemptRef:'W',operationRef:'OP-W',objectRef:exact.objectRef,withdrawalTargetRef:'B'}
+ const withdrawal=pairOriginalChannelReceipt(scope,[withdrawalRead],[...attempts,withdrawalOperation])
+ const withdrawalSource={...source,receipts:[matched,withdrawal],decisions:[decision,
+  {...decision,kind:'WITHDRAWN' as const,eventRef:'WITHDRAW',effectiveAt:withdrawAt,knownAt:withdrawAt}]}
+ const revoked=reconcileSubmissionReceiptEffects({...deadline,knownAt:withdrawAt},withdrawalSource)
+ expect(revoked.items[0]?.state).toBe('WITHDRAWN')
+ expect(revoked.evidence[1]).toMatchObject({attemptRef:'B',receiptAttemptRef:'W'})
+ const wrongTarget=pairOriginalChannelReceipt(scope,[withdrawalRead],[{...withdrawalOperation,withdrawalTargetRef:'A'}])
+ expect(()=>reconcileSubmissionReceiptEffects({...deadline,knownAt:withdrawAt},{...withdrawalSource,receipts:[matched,wrongTarget]}))
   .toThrow('SUBMISSION_RECEIPT_EFFECT_SCOPE')
 })

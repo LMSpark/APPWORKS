@@ -5,9 +5,23 @@
  */
 import {reconcileDeadlineFieldValues} from './content-deadline-field-reconciliation'
 import {reconcileDeadlinePackageMembers} from './content-deadline-package-reconciliation'
+import {reconcileSubmissionReceiptEffects} from '@/services/smart-bid/content/review/submission/submission-receipt-effects'
 
 type FieldSource=Parameters<typeof reconcileDeadlineFieldValues>[0]
 type PackageSource=Parameters<typeof reconcileDeadlinePackageMembers>[0]
+
+/** 用同一次规则核验所得的截止结论选择内容证据，保留结论所用原回执。 */
+export function reconcileDeadlineDelivery(input:Parameters<typeof reconcileSubmissionReceiptEffects>[0],
+ receipts:Parameters<typeof reconcileSubmissionReceiptEffects>[1],
+ options:Readonly<{contents:Omit<FieldSource&PackageSource,'deadline'>;proofs:Parameters<typeof reconcileDeadlineContents>[1]}>){
+ const {contents,proofs}=options
+ contents.assertCurrent()
+ if(contents.projectId!==receipts.scope.projectId)throw Error('SUBMISSION_DEADLINE_CONTENT_SCOPE')
+ const deadline=reconcileSubmissionReceiptEffects(input,receipts)
+ const assertCurrent=()=>{contents.assertCurrent();deadline.assertCurrent()}
+ const result=reconcileDeadlineContents({...contents,deadline,assertCurrent},proofs)
+ return Object.freeze({...result,scope:deadline.scope,evidence:deadline.evidence})
+}
 
 /** 文件或平台栏任一应交落点未核实，整项内容仍待核。 */
 export function reconcileDeadlineContents(source:FieldSource&PackageSource,inputs:Readonly<{

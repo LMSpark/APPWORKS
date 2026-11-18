@@ -2,7 +2,8 @@ import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {readSubmissionPackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-review'
 import {reconcileDeadlinePackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation'
-import {reconcileDeadlineContents} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation'
+import {reconcileDeadlineContents,reconcileDeadlineDelivery} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation'
+import {pairOriginalChannelReceipt} from '@/services/smart-bid/content/review/submission/channel-receipt-pairing'
 import {reconcileSubmissionDeadline} from '@/services/smart-bid/content/review/submission-reconciliation'
 
 it('verifies the sealed bytes before enumerating and compares independently read member bytes',async()=>{
@@ -45,6 +46,15 @@ it('verifies the sealed bytes before enumerating and compares independently read
   requiredMembers:[{obligationId:'O',position:record.position}],requiredFields:[],
  }
  const actual=reconcileDeadlineContents(combinedSource,{packages:[extra],batches:[]})
+ const scope={projectId:'P',lotId:'L',subjectId:'ORG',channelId:'PORTAL'}
+ const receipt=pairOriginalChannelReceipt(scope,[{...scope,eventRef:'REC',operationRef:'OP',objectRef:'PKG',
+  sourceRef:'ISSUER',eventAt:at,knownAt:at,kind:'RECEIVED'}],[{...scope,attemptRef:'SEND',operationRef:'OP',objectRef:'PKG'}])
+ const receiptSource={scope,receipts:[receipt],decisions:[{eventRef:'REC',attemptRef:'SEND',kind:'RECEIVED' as const,
+  obligationId:'O',ruleRef:'RULE',effectiveAt:at,knownAt:at,assertCurrent:()=>{}}],assertCurrent:()=>{}}
+ const checked=reconcileDeadlineDelivery({cutoffAt:at,knownAt:at,obligationIds:['O']},receiptSource,{contents:combinedSource,proofs:{packages:[extra],batches:[]}})
+ expect(checked.items[0]).toMatchObject({attemptRef:'SEND',contentState:'MATCHED'})
+ expect(checked.evidence).toMatchObject([{eventRef:'REC',ruleRef:'RULE'}])
+ expect(checked.packageChecks).toEqual(actual.packageChecks)
  expect(actual.items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',contentState:'MATCHED'})
  expect(actual.packageChecks).toMatchObject([{attemptRef:'SEND',packageId:'PKG',membershipMatches:false,
   issues:[{position:'未列入清单.pdf',issues:['UNPLANNED','PACKING_RECORD_MISSING']}]}])

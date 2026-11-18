@@ -13,14 +13,14 @@ function scoped(view:DataView):boolean {
 }
 
 /** 返回原视图和失效证明，当前用途由业务调用链另核。 */
-export async function readContentTenderRecord(host:ContentRevisionReadHost,reference:unknown):Promise<Readonly<{
+export async function readContentTenderRecord(host:ContentRevisionReadHost,reference:unknown,viewName='selectedTenderRecord'):Promise<Readonly<{
  dataViewKey:string;assertCurrent:()=>void
 }>>{
  const {runtime,scenarioId,projectId}=host
  host.assertCurrent()
  if(!snapshotReferenceIdentity(scenarioId)||!snapshotReferenceIdentity(projectId))throw Error('CONTENT_TENDER_RECORD_IDENTITY_REQUIRED')
  const parameters={projectId,...readTenderRecordReference(reference)}
- const dataViewKey=buildDataViewKey('TenderRecord','selectedTenderRecord',scenarioId)
+ const dataViewKey=buildDataViewKey('TenderRecord',viewName,scenarioId)
  const view=runtime.resolveView(dataViewKey)
  if(!view||!scoped(view))throw Error('CONTENT_TENDER_RECORD_SCOPE_REQUIRED')
  if(view.hasEditingChanges())throw Error('CONTENT_TENDER_RECORD_EDITING')

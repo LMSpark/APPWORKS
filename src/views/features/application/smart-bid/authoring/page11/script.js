@@ -17,6 +17,33 @@ function bindOriginalForm() {
     disabled: !editorSession || editorFault}
 }
 
+function bindOriginalFormComparison() {
+  const {previousFormTemplateVersion, formTemplateVersion} = $route.query
+  const {visible, disabled} = bindOriginalForm()
+  return {visible: visible && typeof previousFormTemplateVersion === 'string' && !!previousFormTemplateVersion &&
+    previousFormTemplateVersion.trim() === previousFormTemplateVersion && previousFormTemplateVersion !== formTemplateVersion, disabled}
+}
+
+async function openOriginalFormComparison() {
+  const {visible, disabled} = bindOriginalFormComparison()
+  if (!visible || disabled) return
+  const {formTemplateRef, previousFormTemplateVersion, formTemplateVersion} = $route.query
+  try {
+    const result = await editorSession.compareOriginalForms({templateRef: formTemplateRef,
+      previousVersion: previousFormTemplateVersion, currentVersion: formTemplateVersion})
+    result.assertCurrent()
+    const lines = result.state === 'COMPARED' ? [
+      `原表旧版 ${result.previousFormVersion} · 新版 ${result.currentFormVersion}`,
+      ...result.changedFields.map(field => `需重新匹配 ${field}`),
+      ...result.addedFields.map(field => `新增栏位 ${field}`),
+      ...(!result.changedFields.length && !result.addedFields.length ? ['两版已登记的栏位映射一致'] : []),
+    ] : ['两版原表映射待核']
+    await $page.showAlert(lines.join('\n'), '换表差异')
+  } catch {
+    $page.showMessage('换表差异无法核验', 'warning')
+  }
+}
+
 async function openOriginalForm() {
   const {visible, disabled} = bindOriginalForm()
   if (!visible || disabled) return

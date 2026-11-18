@@ -101,7 +101,7 @@ export async function readContentBaselineFactIndex(host:ContentRevisionReadHost,
 }
 /** 证明原基线固定了这条完整来源引用，原核定记录内容和准用另核。 */
 export async function readContentBaselineTenderRecord(
- host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown}>,selection:unknown,
+ host:ContentRevisionReadHost,input:Readonly<{baselineId:string;stageRef:unknown;viewName?:string}>,selection:unknown,
 ):Promise<Readonly<{baselineDataViewKey:string;assertCurrent:()=>void}>>{
  const baseline=await readOriginalBaseline(host,input,'tenderRecords')
  assertBaselineTenderRecordMember(baseline.row['tenderRecords'],selection)

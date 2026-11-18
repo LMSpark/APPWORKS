@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey} from '@spark-appworks/spark-data'
 import {readContentBaselineTenderRecord} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
-import {originalFormMappingScenarioView,readBaselineOriginalForm,readRegisteredOriginalForm} from '@/views/features/application/smart-bid/response/model/original-form-reader'
+import {compareRegisteredOriginalForms,originalFormMappingScenarioView,previousFormMappingScenarioViews,readBaselineOriginalForm,readRegisteredOriginalForm} from '@/views/features/application/smart-bid/response/model/original-form-reader'
 import {readContentBaselineFact,readContentBaselineFactUse,readContentBaselineRequirementPins,readContentBaselineRequirement} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -25,9 +25,10 @@ function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,u
   {name:'DocumentTemplate',view:'originalFormMapping',params:{projectId:'projectId',templateRef:'templateRef',templateVersion:'templateVersion'},
    record:{id:'TM',projectId:'P',templateRef:'T',templateVersion:'V1',baselineId:baseline.id,stageRef:baseline.stageRef,
     tenderRecordRef:requirementSource,formRef:'FORM',fillerRef:'P',mappings:[{fieldRef:'F',cellRef:'CELL',meaningRef:'PRICE'}]}}]
+ const priorViews=previousFormMappingScenarioViews({DocumentTemplate:'id',Baseline:'id',TenderRecord:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:Object.fromEntries(definitions.map(d=>[d.name,{
   modelBinding:{modelId:d.name,modelName:d.name},columns:Object.keys(d.record).map(name=>({name,isPrimaryKey:name==='id',...(d.name==='FactVersion'&&name==='version'?{type:'number' as const}:{})})),
-  views:{default:{},[d.view]:d.name==='DocumentTemplate'?originalFormMappingScenarioView('id'):
+  views:{default:{},...priorViews[d.name as keyof typeof priorViews],[d.view]:d.name==='DocumentTemplate'?originalFormMappingScenarioView('id'):
    {commitMode:'staged',scopeFilter:{logic:'and',filters:Object.entries(d.params).map(([field,ParamName])=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName}}))}}}}]))})
  const save=vi.fn(async()=>{throw Error('NO_WRITE')}),queries=definitions.map(d=>{
   const table=new DataSpaceQueryTable({scenarioId:'S',metaName:d.name})
@@ -48,7 +49,32 @@ it('reads the original template mapping and checks exact form cells against the 
   const result=await readRegisteredOriginalForm(scoped.host,{templateRef:'T',templateVersion:'V1'})
   expect(result).toMatchObject({state:'MATCHED',formVersion:'002',baselineId:'B',
    mappings:[{fieldRef:'F',cell:{rowRef:'1',meaningRef:'PRICE',unit:'元'}}]})
+  const previous=previousFormMappingScenarioViews({DocumentTemplate:'id',Baseline:'id',TenderRecord:'id'})
+  const previousTenderRef={...requirementSource,recordVersion:'001'}
+  const previousRows={
+   DocumentTemplate:{id:'TM-OLD',projectId:'P',templateRef:'T',templateVersion:'V0',baselineId:'B-OLD',stageRef:input.stageRef,
+    tenderRecordRef:previousTenderRef,formRef:'FORM',fillerRef:'P',mappings:[{fieldRef:'F',cellRef:'CELL',meaningRef:'OLD-MEANING'}]},
+   Baseline:{id:'B-OLD',projectId:'P',stageRef:input.stageRef,tenderRecords:[previousTenderRef]},
+   TenderRecord:{id:'TR-OLD',projectId:'P',...previousTenderRef,sourceSpan:{page:1},parseQuality:'LOCATED',confirmStatus:'CONFIRMED',
+    payload:{formRef:'FORM',cells:[
+     {cellRef:'CELL',rowRef:'1',columnRef:'COL',meaningRef:'OLD-MEANING',fillerRef:'P',unit:'元',displayRef:'DECIMAL'},
+    ]}},
+  }
+  for(const model of Object.keys(previous) as Array<keyof typeof previous>){
+   const name=Object.keys(previous[model])[0]!
+   const view=scoped.ds.getView(model,name)
+   if(!view)throw Error('TEST_PREVIOUS_FORM_VIEW_REQUIRED')
+   const table=new DataSpaceQueryTable({scenarioId:'S',metaName:model})
+   view.bindQueryExecutor({save:scoped.save,executeQuery:async()=>new DataSpaceQueryContext({identity:table.identity,scope:'previous',
+    readScope:()=> 'previous',snapshot:table.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[
+     {...previousRows[model],lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}},
+    ]}}})})})
+  }
+  const comparison=await compareRegisteredOriginalForms(scoped.host,{templateRef:'T',previousVersion:'V0',currentVersion:'V1'})
+  expect(comparison).toMatchObject({state:'COMPARED',previousFormVersion:'001',currentFormVersion:'002',changedFields:['F'],addedFields:[]})
+  comparison.assertCurrent()
   await scoped.ds.getView('DocumentTemplate','originalFormMapping')?.refresh()
+  expect(()=>comparison.assertCurrent()).toThrow()
   expect(()=>result.assertCurrent()).toThrow()
  }finally{scoped.ds.destroy()}
 })

@@ -1,6 +1,6 @@
 import {expect,it} from 'vitest'
 import {prepareContentDraftSaveRequest} from '@/services/smart-bid/content/draft/content-draft-save-request'
-import {readOriginalContentDraftSave} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
+import {readOriginalContentDraftSave,reconcileSavedContentDraft} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
 
 it('seals the original content and distinguishes saves against different draft versions',async()=>{
  let current=true
@@ -19,8 +19,16 @@ it('seals the original content and distinguishes saves against different draft v
  const recover=(lookup:Parameters<typeof readOriginalContentDraftSave>[1]['lookup'])=>
   readOriginalContentDraftSave({...sealed,authorId:'U'},{lookup,assertCurrent})
  expect(await recover(async()=>undefined)).toMatchObject({state:'UNKNOWN'})
- expect(await recover(async request=>({...request,state:'SAVED',draftVersion:'V2',receiptRef:'SAVE',assertCurrent})))
-  .toMatchObject({state:'SAVED',draftVersion:'V2',contentDigest:sealed.contentDigest})
+ const receipt=await recover(async request=>({...request,state:'SAVED',draftVersion:'V2',receiptRef:'SAVE',assertCurrent}))
+ expect(receipt).toMatchObject({state:'SAVED',draftVersion:'V2',contentDigest:sealed.contentDigest})
+ if(receipt.state!=='SAVED')throw Error('EXPECTED_DRAFT_RECEIPT')
+ const edit={projectId:'P',draftId:'D',authorId:'U',draft:{nodes:[],responseChanges:[] as string[]},assertCurrent}
+ const matched=await reconcileSavedContentDraft(receipt,edit)
+ expect(matched.currentState).toBe('MATCHED')
+ edit.draft.responseChanges.push('later change')
+ expect(()=>matched.assertCurrent()).toThrow('CONTENT_DRAFT_SAVE_STALE')
+ expect(await reconcileSavedContentDraft(receipt,edit)).toMatchObject({savedVersion:'V2',currentState:'NEWER_EDITS'})
+ expect(edit.draft.responseChanges).toEqual(['later change'])
  await expect(recover(async request=>({...request,state:'SAVED',draftVersion:'V3',receiptRef:'LATER',
   requestKey:'OTHER',assertCurrent}))).rejects.toThrow('CONTENT_DRAFT_SAVE_RECEIPT_SCOPE')
 })

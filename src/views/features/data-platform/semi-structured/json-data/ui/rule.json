@@ -4,6 +4,8 @@
     "type": "r-section",
     "props": {"title": "JSON 文件数据管理", "class": "json-data-catalog", "bordered": false, "gridColumns": 1},
     "children": [
+      {"type": "r-button", "props": {"label": "保存目录", "onBeforeRender": "bindCatalogSave", "onClick": "saveJsonCatalog"}},
+      {"type": "r-button", "props": {"label": "取消目录修改", "onBeforeRender": "bindCatalogCancel", "onClick": "cancelJsonCatalog"}},
       {
         "id": "json-data-definitions",
         "type": "r-table",
@@ -16,8 +18,8 @@
           "onRowClick": "openJsonDocument"
         },
         "children": [
-          {"type": "r-text", "props": {"field": "name", "label": "名称", "readonly": true, "minWidth": 220}},
-          {"type": "r-text", "props": {"field": "description", "label": "摘要", "readonly": true, "minWidth": 220}}
+          {"type": "r-text", "props": {"field": "name", "label": "名称", "maxlength": 200, "minWidth": 220, "onBeforeRender": "bindCatalogField"}},
+          {"type": "r-text", "props": {"field": "description", "label": "摘要", "maxlength": 500, "minWidth": 220, "onBeforeRender": "bindCatalogField"}}
         ]
       },
       {
@@ -27,7 +29,8 @@
         "children": [
           {"type": "r-json", "props": {"field": "content", "label": "JSON 内容", "mode": "tree", "onBeforeRender": "bindJsonField", "onEditingChange": "trackJsonInput"}},
           {"type": "r-button", "props": {"label": "保存内容", "onBeforeRender": "bindJsonSave", "onClick": "saveJsonDocument"}},
-          {"type": "r-button", "props": {"label": "取消修改", "onBeforeRender": "bindJsonCancel", "onClick": "cancelJsonDocument"}}
+          {"type": "r-button", "props": {"label": "取消修改", "onBeforeRender": "bindJsonCancel", "onClick": "cancelJsonDocument"}},
+          {"type": "r-button", "props": {"label": "关闭正文", "onClick": "closeJsonDocument"}}
         ]
       }
     ]

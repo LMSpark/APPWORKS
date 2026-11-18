@@ -8,25 +8,6 @@
   <p v-if="catalogToolRuntime && error" role="alert">{{ error }}</p>
   <p v-if="creation?.phase === 'retained'" role="status">方案已保留；编码处理未标记完成，请核查正式结果。</p>
   <template v-if="ready">
-      <RendererDialog v-if="editingId !== undefined" :data-view-key="catalogKey" :model-value="true" :title="creating ? '新增方案' : '编辑方案'"
-        :width="760" :destroy-on-close="true" :close-disabled="acting || pending || unconfirmed || creationSaved || templatePending" @update:model-value="closeEdit">
-        <p v-if="unconfirmed" role="status">保存结果尚未确认，请核验原保存；不会重复提交。</p>
-        <p v-else-if="creationSaved" role="status">方案已保存，请继续完成原方案的编码处理。</p>
-        <RendererForm :key="editingId" :context-row-id="editingId" :data-view-key="catalogKey" :children="editorFields"
-          :grid-columns="1" label-width="88px" :show-data-view-meta="false" />
-        <RendererButton label="选择模板" :data-view-key="catalogKey" :disabled="acting || unconfirmed || templateDispatched || !pageService?.browseFiles" @click="chooseTemplate" />
-        <p v-if="templateUpload" role="status">模板：{{ templateUpload.name }}；{{ templateUpload.phase === 'retained' ? '文件已保留，尚未发布' : templateUpload.phase === 'complete' ? '已保存' : templateDispatched ? '正在确认文件及方案路径' : '已选择，尚未上传' }}</p>
-        <RendererButton v-if="templateUpload?.phase === 'selected'" label="取消选择" :data-view-key="catalogKey" :disabled="acting" @click="cancelTemplate" />
-        <p v-if="templateUpload?.phase === 'retained'" role="status">未发布文件：{{ templateUpload.retainedPath }}</p>
-        <RendererButton v-if="templateUpload?.phase === 'publication' && !templateUpload.unconfirmed" label="保留文件并结束" :data-view-key="catalogKey" :disabled="acting" @click="retainTemplate" />
-        <RendererButton v-if="templateUpload && templateUpload.phase !== 'complete' && templateUpload.phase !== 'retained'" :label="templateUpload.unconfirmed ? '核验原模板结果' : '确认上传模板'" :data-view-key="catalogKey"
-          :disabled="acting || pending || creationSaved || creating || (!templateUpload.unconfirmed && unconfirmed)" @click="uploadTemplate" />
-        <template #footer>
-          <RendererButton :label="unconfirmed ? '核验保存结果' : creationSaved ? '继续完成新增' : '保存方案'" :disabled="acting || templateDispatched" @click="saveEdit" />
-          <RendererButton :label="templateUpload?.phase === 'complete' || templateUpload?.phase === 'retained' ? '关闭' : '取消修改'" :disabled="acting || unconfirmed || creationSaved || (templateDispatched && templateUpload?.phase !== 'upload')" @click="cancelEdit" />
-          <RendererButton v-if="creationSaved" label="保留方案并结束" :disabled="acting || unconfirmed" @click="endCreation" />
-        </template>
-      </RendererDialog>
       <RendererDialog v-if="designTarget" :model-value="true" title="Excel 导入方案设计" :data-view-key="catalogKey"
         :width="1560" :destroy-on-close="true" :close-disabled="designPending" @update:model-value="closeDesign">
         <ExcelEditor ref="designPage" :scheme-rowid="designTarget" />
@@ -41,7 +22,7 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
-import {buildDataViewKey,RequestState,type DataRow,type DataView,type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey,RequestState,type DataRow,type DataView} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {APPLICATION_CATALOG_PROJECT_ID, resolveExecutionProjectId} from '@/services/application-scope'
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
@@ -54,7 +35,7 @@ import rule from './rule.json?raw'
 import script from './script.js?raw'
 import style from './style.css?raw'
 
-const {PAGE_RUNTIME,RendererSection,RendererDialog,RendererForm,RendererButton,SparkPageRenderer,useSparkComponent,consumeRequiredPageService}=SparkComponent
+const {PAGE_RUNTIME,RendererSection,RendererDialog,RendererButton,SparkPageRenderer,useSparkComponent,consumeRequiredPageService}=SparkComponent
 const route = useRoute()
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
@@ -95,12 +76,6 @@ const selected = computed(() => {
 const projectId = computed(() => resolveExecutionProjectId(route.path))
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodeExcelImport.catalogMetaName, 'default', scenarioId.value))
-const editorFields=computed<SparkNode[]>(()=>[
-  {type:'r-text',props:{field:'solutionName',label:'方案名称',maxlength:200,readonly:acting.value||unconfirmed.value||creationSaved.value||templateDispatched.value}},
-  {type:'r-select',props:{field:'dataSetId',label:'数据空间',optionDataViewKey:buildDataViewKey('Base_DataSet','default',scenarioId.value),readonly:acting.value||unconfirmed.value||creationSaved.value||templateDispatched.value}},
-  {type:'r-text',props:{field:'templatePath',label:'文件路径',readonly:true}},
-  {type:'r-textarea',props:{field:'description',label:'备注',maxlength:500,showWordLimit:true,readonly:acting.value||unconfirmed.value||creationSaved.value||templateDispatched.value}},
-])
 async function createScheme():Promise<void>{
  const ds=view.value?.dataSet,own=generation;if(!ds||locked.value)return
  acting.value=true;error.value=''
@@ -188,6 +163,22 @@ function makeCatalogHost(runtime:PageRuntime,editable:boolean){
     assertCurrent()
     if(command==='excel.catalog.connect')return {
       editable, locked:()=>locked.value, selected:()=>!!selected.value, canCopy:()=>!!pageService?.copyText,
+      editState:()=>({
+        id:editingId.value, creating:creating.value, acting:acting.value, pending:pending.value,
+        unconfirmed:unconfirmed.value, creationSaved:creationSaved.value, templatePending:templatePending.value,
+        templateDispatched:templateDispatched.value, canBrowse:!!pageService?.browseFiles,
+        template:templateUpload.value,
+      }),
+    }
+    if(editable&&editingId.value!==undefined){
+      if(command==='excel.catalog.saveEdit'){await saveEdit();return}
+      if(command==='excel.catalog.cancelEdit'){cancelEdit();return}
+      if(command==='excel.catalog.closeEdit'){closeEdit(false);return}
+      if(command==='excel.catalog.chooseTemplate'){await chooseTemplate();return}
+      if(command==='excel.catalog.cancelTemplate'){cancelTemplate();return}
+      if(command==='excel.catalog.uploadTemplate'){await uploadTemplate();return}
+      if(command==='excel.catalog.retainTemplate'){await retainTemplate();return}
+      if(command==='excel.catalog.endCreation'){await endCreation();return}
     }
     if(!editable||locked.value)return
     if(command==='excel.catalog.create'){await createScheme();return}

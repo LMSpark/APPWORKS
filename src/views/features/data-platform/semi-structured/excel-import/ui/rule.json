@@ -36,6 +36,142 @@
           {"type":"r-select","props":{"field":"createuser","label":"创建人","readonly":true,"width":150,"onBeforeRender":"bindCreator"}},
           {"type":"r-text","props":{"field":"createtime","label":"创建时间","readonly":true,"width":140}}
         ]
+      },
+      {
+        "id": "excel-scheme-edit",
+        "type": "r-dialog",
+        "props": {
+          "width": 760,
+          "destroyOnClose": true,
+          "onBeforeRender": "bindSchemeDialog",
+          "on": {
+            "update:modelValue": "closeSchemeDialog"
+          },
+          "footer": {
+            "children": [
+              {
+                "type": "r-button",
+                "props": {
+                  "label": "保存方案",
+                  "onBeforeRender": "bindSaveScheme",
+                  "onClick": "saveScheme"
+                }
+              },
+              {
+                "type": "r-button",
+                "props": {
+                  "label": "取消修改",
+                  "onBeforeRender": "bindCancelScheme",
+                  "onClick": "cancelScheme"
+                }
+              },
+              {
+                "type": "r-button",
+                "props": {
+                  "label": "保留方案并结束",
+                  "onBeforeRender": "bindEndScheme",
+                  "onClick": "endScheme"
+                }
+              }
+            ]
+          }
+        },
+        "children": [
+          {
+            "type": "r-alert",
+            "props": {
+              "alertType": "warning",
+              "closable": false,
+              "onBeforeRender": "bindSchemeStatus"
+            }
+          },
+          {
+            "type": "r-form",
+            "props": {
+              "gridColumns": 1,
+              "labelWidth": "88px",
+              "showDataViewMeta": false,
+              "onBeforeRender": "bindSchemeForm"
+            },
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "solutionName",
+                  "label": "方案名称",
+                  "maxlength": 200,
+                  "onBeforeRender": "bindSchemeField"
+                }
+              },
+              {
+                "type": "r-select",
+                "props": {
+                  "field": "dataSetId",
+                  "label": "数据空间",
+                  "onBeforeRender": "bindSchemeDataSpace"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "templatePath",
+                  "label": "文件路径",
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-textarea",
+                "props": {
+                  "field": "description",
+                  "label": "备注",
+                  "maxlength": 500,
+                  "showWordLimit": true,
+                  "onBeforeRender": "bindSchemeField"
+                }
+              }
+            ]
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "选择模板",
+              "onBeforeRender": "bindChooseTemplate",
+              "onClick": "chooseSchemeTemplate"
+            }
+          },
+          {
+            "type": "r-alert",
+            "props": {
+              "alertType": "info",
+              "closable": false,
+              "onBeforeRender": "bindTemplateStatus"
+            }
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "取消选择",
+              "onBeforeRender": "bindCancelTemplate",
+              "onClick": "cancelSchemeTemplate"
+            }
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "保留文件并结束",
+              "onBeforeRender": "bindRetainTemplate",
+              "onClick": "retainSchemeTemplate"
+            }
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "确认上传模板",
+              "onBeforeRender": "bindUploadTemplate",
+              "onClick": "uploadSchemeTemplate"
+            }
+          }
+        ]
       }
     ]
   }

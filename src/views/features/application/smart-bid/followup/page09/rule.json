@@ -16,6 +16,14 @@
     ]
   },
   {
+    "id": "tender-followup-call-impact",
+    "type": "r-section",
+    "props": {"title": "原调用条款引用", "onBeforeRender": "bindCallImpact"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看本次调用引用", "onClick": "openCallImpact"}}
+    ]
+  },
+  {
     "id": "tender-followup-chapter-impact",
     "type": "r-section",
     "props": {"title": "正文条款引用追查", "onBeforeRender": "bindChapterImpact"},

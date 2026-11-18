@@ -8,6 +8,7 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {readRegisteredTenderFollowupNotices} from './tender-followup-notice-reader'
 import {readTenderChangeChapterPins} from './tender-change-chapter-reader'
 import {readTenderAddendum} from './tender-addendum-reader'
+import {readTenderChangeCallReferences} from './tender-change-call-reader'
 import {matchFollowupNoticeToDeadlinePackage,type reconcileDeadlineDelivery} from '../authoring/model/review/deadline/content-deadline-reconciliation'
 
 type Read=Parameters<typeof readRegisteredTenderFollowupNotices>
@@ -32,6 +33,20 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
    if(Object.keys(input).length!==1||!identity(addendumId))throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
    return readTenderAddendum({...host,runtime,assertCurrent},
     {projectId:host.projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
+  }
+  if(name==='tender.followup.traceCallReferences'){
+   const {addendumId,runId,attemptRef,requestKey}=input
+   if(Object.keys(input).length!==4||!identity(addendumId)||!identity(runId)||!identity(attemptRef)||!identity(requestKey))
+    throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
+   const readHost={...host,runtime,assertCurrent},projectId=host.projectId
+   const addendum=await readTenderAddendum(readHost,{projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
+   if(addendum.state!=='REGISTERED')return addendum
+   const calls=await readTenderChangeCallReferences({...readHost,assertCurrent:addendum.assertCurrent},{projectId,runId,attemptRef,requestKey})
+   if(calls.state!=='REGISTERED')return calls
+   const impacts=addendum.items.map(source=>Object.freeze({source,references:Object.freeze(calls.items.filter(item=>
+    item.lineageId===source.requirementLineageId&&item.version===source.previousRequirementVersion))}))
+   calls.assertCurrent()
+   return Object.freeze({state:'CALLS_TRACED' as const,attemptRef,impacts:Object.freeze(impacts),assertCurrent:calls.assertCurrent})
   }
   if(name==='tender.followup.traceChapterPins'){
    const {revisionId,previousId,currentId,addendumId}=input

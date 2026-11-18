@@ -4,6 +4,7 @@ import {readRegisteredTenderFollowupNotices,tenderFollowupNoticeView} from '@/vi
 import {createTenderFollowupScriptHost} from '@/views/features/application/smart-bid/followup/tender-followup-script-host'
 import {tenderAddendumScenarioView} from '@/views/features/application/smart-bid/followup/tender-addendum-reader'
 import {tenderChangeChapterScenarioViews} from '@/views/features/application/smart-bid/followup/tender-change-chapter-reader'
+import {tenderChangeCallScenarioView} from '@/views/features/application/smart-bid/followup/tender-change-call-reader'
 import {bidProjectScopeScenarioViews} from '@/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {SNAPSHOT_HASH_CONTRACT} from '@/services/smart-bid/content/revision-snapshot-index'
@@ -34,10 +35,14 @@ it('reads the original addendum locations for the current project, lot and round
   ContentRevision:{projectId:'P',id:'ORIGINAL',status:'ADOPTED',stageRef:'STAGE',baselineId:'OLD',templateRefs:[],snapshotHash},
   RevisionSnapshot:{projectId:'P',id:'S1',snapshotHash,manifest},
   Baseline:{projectId:'P',id:'OLD',stageRef:'STAGE',factVersions:[],requirementVersions:[{lineageId:'CLAUSE',version:'V1'}],tenderRecords:[]},
+  GenerationRun:{projectId:'P',id:'CALLS',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST',actualRequirementReads:[
+   {lineageId:'CLAUSE',version:'V1',callRef:'USED',resultRef:'RESULT',fieldPath:'requirements.qualification'},
+   {lineageId:'CLAUSE',version:'V2',callRef:'OTHER',resultRef:'RESULT',fieldPath:'requirements.qualification'},
+  ]},
  }
  const chapterViews=tenderChangeChapterScenarioViews({ContentRevision:'id',RevisionSnapshot:'id'})
  const baselineViews=bidProjectScopeScenarioViews({ContentProject:'id',ContentRevision:'id',Baseline:'id'}).Baseline
- const views={...chapterViews,Baseline:baselineViews}
+ const views={...chapterViews,Baseline:baselineViews,GenerationRun:{originalRequirementReads:tenderChangeCallScenarioView('id')}}
  const contextTables=Object.fromEntries(Object.entries(rows).map(([model,record])=>[model,{
   modelBinding:{modelName:model,modelId:model},columns:Object.keys(record).map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},...views[model as keyof typeof views]},
@@ -55,7 +60,8 @@ it('reads the original addendum locations for the current project, lot and round
    identity:table.identity,scope:'addendum',readScope:()=> 'addendum',snapshot:table.applyResult({Result:{primaryKeyField:'id',
     data:{Count:1,Items:[{...row,roundId,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
   })})
-  const revisionViews={ContentRevision:'originalImpactRevision',RevisionSnapshot:'originalImpactSnapshot',Baseline:'previousFrozenBaseline'}
+  const revisionViews={ContentRevision:'originalImpactRevision',RevisionSnapshot:'originalImpactSnapshot',Baseline:'previousFrozenBaseline',
+   GenerationRun:'originalRequirementReads'}
   for(const model of Object.keys(rows) as Array<keyof typeof rows>){
    const source=ds.getView(model,revisionViews[model])
    if(!source)throw Error('TEST_REFERENCE_VIEW_REQUIRED')
@@ -87,6 +93,11 @@ it('reads the original addendum locations for the current project, lot and round
    'ITEM · REQUIREMENT · 修改依据 V2 / 1.3','原位 V1 / 5.2','已核旧版原挂接 · CHAPTER','本项的基线条款差异待核',
   ].join('\n'),'正文条款引用追查')
   expect(showMessage).not.toHaveBeenCalled()
+  const calls=await page.invoke('tender.followup.traceCallReferences',
+   {addendumId:'A',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST'},signal)
+  expect(calls).toMatchObject({state:'CALLS_TRACED',impacts:[{references:[
+   {callRef:'USED',version:'V1',resultRef:'RESULT',fieldPath:'requirements.qualification'},
+  ]}]})
   roundId='OTHER'
   await expect(page.invoke('tender.followup.readAddendum',{addendumId:'A'},signal)).rejects.toThrow('ORIGINAL_REGISTRATION_VIEW_REQUIRED')
   expect(()=>result.assertCurrent()).toThrow()

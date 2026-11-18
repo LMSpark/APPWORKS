@@ -1,4 +1,33 @@
 /* global $page, $route */
+function bindCallImpact() {
+  const {addendumId, runId, attemptRef, requestKey} = $route.query
+  return {visible: [addendumId, runId, attemptRef, requestKey]
+    .every(value => typeof value === 'string' && !!value && value.trim() === value)}
+}
+
+async function openCallImpact() {
+  if (!bindCallImpact().visible) return
+  const {addendumId, runId, attemptRef, requestKey} = $route.query
+  try {
+    const result = await $page.invokeHostCommand('tender.followup.traceCallReferences', {addendumId, runId, attemptRef, requestKey})
+    result.assertCurrent()
+    const lines = ['原调用引用或正式修改登记待核']
+    if (result.state === 'CALLS_TRACED') {
+      lines[0] = '原试次 ' + result.attemptRef
+      for (const {source, references} of result.impacts) {
+        lines.push(`${source.id} · 修改依据 ${source.current.documentVersionId} / ${source.current.locator}`)
+        if (!references.length) lines.push('本试次未核得对应旧版引用')
+        for (const item of references) {
+          lines.push(`调用 ${item.callRef} · 成果 ${item.resultRef} · 字段 ${item.fieldPath} · 版本 ${item.version}`)
+        }
+      }
+    }
+    await $page.showAlert(lines.join('\n'), '原调用条款引用')
+  } catch {
+    $page.showMessage('原调用条款引用无法核验', 'warning')
+  }
+}
+
 function bindTenderAddendum() {
   const {addendumId} = $route.query
   return {visible: typeof addendumId === 'string' && !!addendumId && addendumId.trim() === addendumId}

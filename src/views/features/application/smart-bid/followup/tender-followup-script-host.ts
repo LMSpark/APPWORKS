@@ -34,10 +34,27 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
     {projectId:host.projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
   }
   if(name==='tender.followup.traceChapterPins'){
-   const {revisionId,previousId,currentId}=input
-   if(Object.keys(input).length!==3||!identity(revisionId)||!identity(previousId)||!identity(currentId)||previousId===currentId)
+   const {revisionId,previousId,currentId,addendumId}=input
+   if(Object.keys(input).length!==4||!identity(revisionId)||!identity(previousId)||!identity(currentId)
+    ||!identity(addendumId)||previousId===currentId)
     throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
-   return readTenderChangeChapterPins({...host,runtime,assertCurrent},{revisionId,previousId,currentId})
+   const readHost={...host,runtime,assertCurrent}
+   const addendum=await readTenderAddendum(readHost,{projectId:host.projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
+   if(addendum.state!=='REGISTERED')return addendum
+   const trace=await readTenderChangeChapterPins({...readHost,assertCurrent:addendum.assertCurrent},{revisionId,previousId,currentId})
+   const tracedItems=trace.state==='TRACED'?trace.items:[]
+   const impacts=addendum.items.map(source=>{
+    const matching=tracedItems.find(({previous,current})=>{
+     if((previous??current)?.lineageId!==source.requirementLineageId)return false
+     if((previous?.version??null)!==source.previousRequirementVersion||(current?.version??null)!==source.currentRequirementVersion)
+      return false
+     return source.kind==='ADDED'?previous===null:source.kind==='CANCELLED'?current===null:previous!==null&&current!==null
+    })
+    return Object.freeze({source,matching:matching??null})
+   })
+   trace.assertCurrent()
+   return Object.freeze({state:'ADDENDUM_TRACED' as const,revisionId,addendumId,revisionEvidence:trace.state,
+    impacts:Object.freeze(impacts),assertCurrent:trace.assertCurrent})
   }
   const knownAt=input['knownAt']
   if(name!=='tender.followup.readNotices'||Object.keys(input).length!==1||!identity(knownAt))

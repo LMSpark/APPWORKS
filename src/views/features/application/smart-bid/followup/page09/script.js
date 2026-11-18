@@ -28,28 +28,36 @@ async function openTenderAddendum() {
 }
 
 function bindChapterImpact() {
-  const {revisionId, previousFrozenBaselineId, frozenBaselineId} = $route.query
-  return {visible: [revisionId, previousFrozenBaselineId, frozenBaselineId]
+  const {revisionId, previousFrozenBaselineId, frozenBaselineId, addendumId} = $route.query
+  return {visible: [revisionId, previousFrozenBaselineId, frozenBaselineId, addendumId]
     .every(value => typeof value === 'string' && !!value && value.trim() === value) &&
     previousFrozenBaselineId !== frozenBaselineId}
 }
 
 async function openChapterImpact() {
   if (!bindChapterImpact().visible) return
-  const {revisionId, previousFrozenBaselineId, frozenBaselineId} = $route.query
+  const {revisionId, previousFrozenBaselineId, frozenBaselineId, addendumId} = $route.query
   try {
     const result = await $page.invokeHostCommand('tender.followup.traceChapterPins',
-      {revisionId, previousId: previousFrozenBaselineId, currentId: frozenBaselineId})
+      {revisionId, previousId: previousFrozenBaselineId, currentId: frozenBaselineId, addendumId})
     result.assertCurrent()
-    const lines = ['原正文或基线证据待核']
-    if (result.state === 'TRACED') {
-      lines[0] = '原正文 ' + result.revisionId
+    const lines = ['正式修改、原正文或基线证据待核']
+    if (result.state === 'ADDENDUM_TRACED') {
+      lines[0] = `正式修改 ${result.addendumId} · 原正文 ${result.revisionId}`
+      if (result.revisionEvidence === 'UNKNOWN') lines.push('原正文或基线证据待核，以下为正式修改列明的影响范围')
       const labels = {PIN_CONFIRMED: '已核原挂接', REFERENCE_UNVERIFIED: '待查原引用', NEW_OBLIGATION: '新增义务'}
-      for (const {previous, current, state, actualPins} of result.items) {
-        lines.push([previous?.lineageId ?? current.lineageId, previous?.version ?? '无原版', current?.version ?? '未入新基线',
+      for (const {source, matching} of result.impacts) {
+        lines.push(`${source.id} · ${source.subjectRef} · 修改依据 ${source.current.documentVersionId} / ${source.current.locator}`)
+        if (source.previous) lines.push(`原位 ${source.previous.documentVersionId} / ${source.previous.locator}`)
+        if (!matching) {
+          lines.push('本项的基线条款差异待核')
+          continue
+        }
+        const {previous, current, state, actualPins} = matching
+        lines.push([source.requirementLineageId, previous?.version ?? '无原版', current?.version ?? '未入新基线',
           labels[state], ...actualPins.map(pin => pin.chapterId)].join(' · '))
       }
-      if (!result.items.length) lines.push('两版基线要求引用一致')
+      if (!result.impacts.length) lines.push('登记无可追查的变动条项')
     }
     await $page.showAlert(lines.join('\n'), '正文条款引用追查')
   } catch {

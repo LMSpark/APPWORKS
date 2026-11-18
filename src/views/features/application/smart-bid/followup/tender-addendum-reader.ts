@@ -18,11 +18,18 @@ function source(value:unknown){
 }
 
 function change(value:unknown){
- const {id,kind,subjectRef,previousSource,currentSource}=snapshotReferenceFields(value,
-  ['id','kind','subjectRef','previousSource','currentSource'],error)
- if(!identity(id)||!identity(subjectRef)||(kind!=='ADDED'&&kind!=='REPLACED'&&kind!=='CANCELLED'))throw Error(error)
+ const {id,kind,subjectRef,requirementLineageId,previousRequirementVersion,currentRequirementVersion,previousSource,currentSource}=
+  snapshotReferenceFields(value,
+   ['id','kind','subjectRef','requirementLineageId','previousRequirementVersion','currentRequirementVersion','previousSource','currentSource'],error)
+ if(!identity(id)||!identity(subjectRef)||(requirementLineageId!==null&&!identity(requirementLineageId))
+  ||(kind!=='ADDED'&&kind!=='REPLACED'&&kind!=='CANCELLED'))throw Error(error)
  if(kind==='ADDED'?previousSource!==null:previousSource===null)throw Error(error)
- return Object.freeze({id,kind,subjectRef,previous:previousSource===null?null:source(previousSource),current:source(currentSource)})
+ if(previousRequirementVersion!==null&&!identity(previousRequirementVersion)
+  ||currentRequirementVersion!==null&&!identity(currentRequirementVersion)
+  ||previousRequirementVersion!==null&&(requirementLineageId===null||kind==='ADDED')
+  ||currentRequirementVersion!==null&&(requirementLineageId===null||kind==='CANCELLED'))throw Error(error)
+ return Object.freeze({id,kind,subjectRef,requirementLineageId,previousRequirementVersion,currentRequirementVersion,
+  previous:previousSource===null?null:source(previousSource),current:source(currentSource)})
 }
 
 /** 将同一原登记按当次项目、标段及轮次查询。 */

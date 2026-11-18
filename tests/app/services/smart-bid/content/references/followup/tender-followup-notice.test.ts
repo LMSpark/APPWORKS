@@ -18,7 +18,8 @@ it('reads the original addendum locations for the current project, lot and round
  const scope={projectId:'P',lotId:'L',roundId:'R',subjectId:'ORG',stageId:'FOLLOW-UP'}
  const row={projectId:'P',lotId:'L',roundId:'R',id:'A',issuerRef:'ISSUER',publicationRef:'PUBLICATION',
   applicableScopeRef:'LOT-L',effectiveAt:'2026-11-18T08:00:00+08:00',changes:[
-   {id:'ITEM',kind:'REPLACED',subjectRef:'REQUIREMENT',
+   {id:'ITEM',kind:'REPLACED',subjectRef:'REQUIREMENT',requirementLineageId:'CLAUSE',
+    previousRequirementVersion:'V1',currentRequirementVersion:'V2',
     previousSource:{documentVersionId:'V1',locator:'5.2'},currentSource:{documentVersionId:'V2',locator:'1.3'}},
   ]}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{TenderAddendum:{
@@ -41,7 +42,7 @@ it('reads the original addendum locations for the current project, lot and round
   const result=await page.invoke('tender.followup.readAddendum',{addendumId:'A'},signal)
   expect(view.queryContext).toMatchObject({projectId:'P',lotId:'L',roundId:'R',id:'A'})
   expect(result).toMatchObject({state:'REGISTERED',items:[{
-   previous:{documentVersionId:'V1',locator:'5.2'},current:{documentVersionId:'V2',locator:'1.3'},
+   requirementLineageId:'CLAUSE',previous:{documentVersionId:'V1',locator:'5.2'},current:{documentVersionId:'V2',locator:'1.3'},
   }]})
   roundId='OTHER'
   await expect(page.invoke('tender.followup.readAddendum',{addendumId:'A'},signal)).rejects.toThrow('ORIGINAL_REGISTRATION_VIEW_REQUIRED')

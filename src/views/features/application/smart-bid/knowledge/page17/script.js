@@ -5,7 +5,7 @@ async function openBidClassModelCatalog() {
     result.assertCurrent()
     const lines = [`根模型 ${result.rootKind} · ${result.models.length} 个定义`]
     for (const model of result.models) {
-      lines.push(model.methods.length ? `${model.kind} · 方法 ${model.methods.join('、')}` : `${model.kind} · 无方法定义`)
+      lines.push(model.methods.length ? `${model.kind} · 方法\n${model.methods.map(method => method.signature).join('\n')}` : `${model.kind} · 无方法定义`)
     }
     await $page.showAlert(lines.join('\n'), 'ClassModel 定义目录')
   } catch {

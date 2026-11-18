@@ -26,18 +26,21 @@ export function createBidClassModelCatalogHost<Runtime extends Pick<PageRuntime,
   const seen=new Set<string>()
   const models=Array.from<unknown>(result.data['models']).map(model=>{
    if(!isRecord(model)||!identity(model['kind'])||!Array.isArray(model['methods'])||seen.has(model['kind']))throw Error(error)
-   const kind=model['kind'],methods=new Set<string>()
-   for(const method of Array.from<unknown>(model['methods'])){
-    if(!isRecord(method)||!identity(method['name'])||methods.has(method['name']))throw Error(error)
-    methods.add(method['name'])
-   }
+   const kind=model['kind'],methodNames=new Set<string>()
+   const methods=Array.from<unknown>(model['methods']).map(method=>{
+    if(!isRecord(method)||!identity(method['name'])||methodNames.has(method['name'])||
+     typeof method['signature']!=='string'||!method['signature'].trim())throw Error(error)
+    const {name:methodName,signature}=method
+    methodNames.add(methodName)
+    return Object.freeze({name:methodName,signature})
+   })
    seen.add(kind)
-   return Object.freeze({kind,methods:Object.freeze([...methods])})
+   return Object.freeze({kind,methods:Object.freeze(methods)})
   })
   return Object.freeze({rootKind,models:Object.freeze(models),assertCurrent,async readGuide(kind:string,actionName?:string){
    assertCurrent()
    const model=models.find(item=>item.kind===kind)
-   if(!model||(actionName!==undefined&&!model.methods.includes(actionName)))throw Error(error)
+   if(!model||(actionName!==undefined&&!model.methods.some(method=>method.name===actionName)))throw Error(error)
    const guide=actionName===undefined
     ?await classModel.executeTool(CLASS_MODEL_TOOL_NAMES.modelGuide,{kind})
     :await classModel.executeTool(CLASS_MODEL_TOOL_NAMES.actionGuide,{kind,actionName})

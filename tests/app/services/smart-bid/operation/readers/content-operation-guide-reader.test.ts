@@ -53,7 +53,7 @@ it('discovers only the complete scoped directory and retains the original public
  const host={runtime:{resolveView:(key:string)=>key==='S@KnowledgeGuide@effectiveDirectory'?view:
   key==='S@KnowledgeGuide@originalVersion'?originalView:undefined},
   scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
- const executeTool=vi.fn(async()=>({ok:true,data:{rootKind:'OperationRoute',models:[{kind:'OperationRoute',methods:[{name:'verify'}]}]}}))
+ const executeTool=vi.fn(async()=>({ok:true,data:{rootKind:'OperationRoute',models:[{kind:'OperationRoute',methods:[{name:'verify',signature:'verify(target: string): boolean'}]}]}}))
  const discover=()=>discoverRegisteredOperationGuides(host,{executeTool},{rootKind:'OperationRoute',directoryRef:'DIR'})
  try{
   const result=await discover()
@@ -108,13 +108,17 @@ it('discovers only the complete scoped directory and retains the original public
   }} as unknown as PageContext)
   if(!openBidClassModelCatalog||!openBidClassModelGuide)throw Error('TEST_CLASS_MODEL_CATALOG_HANDLER_REQUIRED')
   await openBidClassModelCatalog()
-  expect(showCatalog).toHaveBeenCalledExactlyOnceWith('根模型 OperationRoute · 1 个定义\nOperationRoute · 方法 verify','ClassModel 定义目录')
+  expect(showCatalog).toHaveBeenCalledExactlyOnceWith('根模型 OperationRoute · 1 个定义\nOperationRoute · 方法\nverify(target: string): boolean','ClassModel 定义目录')
   await openBidClassModelGuide()
   expect(showCatalog).toHaveBeenLastCalledWith(guideText,'方法指南 · OperationRoute.verify')
   expect(catalogTools.executeTool).toHaveBeenCalledWith('model_action_guide',{kind:'OperationRoute',actionName:'verify'})
   await expect(catalog.invoke('bid.models.readCatalog',{rootKind:'OTHER'},controller.signal))
    .rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')
   const evidence=await catalog.invoke('bid.models.readCatalog',{},controller.signal)
+  expect(evidence.models[0]?.methods).toEqual([{name:'verify',signature:'verify(target: string): boolean'}])
+  catalogTools.executeTool.mockResolvedValueOnce({ok:true,data:{rootKind:'OperationRoute',
+   models:[{kind:'OperationRoute',methods:[{name:'verify',signature:''}]}]}})
+  await expect(catalog.invoke('bid.models.readCatalog',{},controller.signal)).rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')
   const callCount=catalogTools.executeTool.mock.calls.length
   await expect(evidence.readGuide('OperationRoute','unknown')).rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')
   expect(catalogTools.executeTool).toHaveBeenCalledTimes(callCount)

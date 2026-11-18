@@ -180,7 +180,7 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
     authorization:{items:records.map(record=>({id:record.nodeId, target, targetKind:'route', formKey:record.nodeId, children:[]})), contexts:[]}})
   const router = createRouter({history:createMemoryHistory(), routes:navTree.items.map(node=>({
     path:`/apps/:projectId/__page/${node.id}`, component:defineComponent({render:()=>h('div')}),
-    meta:{type:'config-page', nodeId:node.id, tool:node.tool},
+    meta:{type:'config-page', nodeId:node.id, tool:node.tool, blueprintScenarioId:node.blueprintScenarioId},
   }))})
   const openMenu = (nodeId:string) => router.push(`/apps/APP${navTree.items.find(node=>node.id===nodeId)!.path}`)
   const readPageFiles = vi.fn(async () => [rule, script, ''])

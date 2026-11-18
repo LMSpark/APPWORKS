@@ -17,6 +17,10 @@ function bindCurrentNode() {
   return {visible:tree?.selected() === true}
 }
 
+function bindNodeField() {
+  return {readonly:tree?.locked() !== false}
+}
+
 async function addRoot() { await $page.invokeHostCommand('excel.design.addRoot') }
 async function addSibling() { await $page.invokeHostCommand('excel.design.addSibling') }
 async function addChild() { await $page.invokeHostCommand('excel.design.addChild') }

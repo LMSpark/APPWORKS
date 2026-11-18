@@ -27,5 +27,19 @@
     "children":[
       {"type":"r-text","props":{"field":"sheetName","label":"当前节点","readonly":true}}
     ]
+  },
+  {
+    "id":"excel-node-basic",
+    "type":"r-form",
+    "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":3},
+    "children":[
+      {"type":"r-text","props":{"field":"sheetName","label":"工作表名称","onBeforeRender":"bindNodeField"}},
+      {"type":"r-number","props":{"field":"sheet","label":"工作表索引","onBeforeRender":"bindNodeField"}},
+      {"type":"r-number","props":{"field":"titleIndex","label":"表头行（负数则无表头）","onBeforeRender":"bindNodeField"}},
+      {"type":"r-number","props":{"field":"dataIndex","label":"数据开始行","onBeforeRender":"bindNodeField"}},
+      {"type":"r-text","props":{"field":"relatedAppName","label":"应用","readonly":true}},
+      {"type":"r-text","props":{"field":"tableDesc","label":"目标数据","readonly":true}},
+      {"type":"r-select","props":{"field":"exportType","label":"导入导出方式","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@ImportExportMethods@default","onBeforeRender":"bindNodeField"}}
+    ]
   }
 ]

@@ -32,14 +32,8 @@
           <RendererTabs v-model="activeTopTab" :data-view-key="nodesKey" data-member="currentRow">
             <RendererTabPane name="basic" label="基本信息" :index="0" :data-view-key="nodesKey">
               <template v-if="selectedNode">
+          <SparkComponentRenderer :config="designRegion(children,'excel-node-basic')" />
           <RendererForm class="excel-node-form" :data-view-key="nodesKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="3">
-            <FieldText field="sheetName" label="工作表名称" :readonly="locked" />
-            <FieldNumber field="sheet" label="工作表索引" :readonly="locked" />
-            <FieldNumber field="titleIndex" label="表头行（负数则无表头）" :readonly="locked" />
-            <FieldNumber field="dataIndex" label="数据开始行" :readonly="locked" />
-            <FieldText field="relatedAppName" label="应用" :readonly="true" />
-            <FieldText field="tableDesc" label="目标数据" :readonly="true" />
-            <FieldSelect field="exportType" label="导入导出方式" :option-data-view-key="methodsKey" :readonly="locked" />
             <FieldSelect v-if="association" field="parentField" label="父字段" :option-data-view-key="association.parentKey" :option-label-fields="['title','name']" :readonly="locked" :on-change="associationHandlers.parent" />
             <FieldSelect v-if="association" field="foreignKeyField" label="外键字段" :option-data-view-key="association.foreignKey" :option-label-fields="['title','name']" :readonly="locked" :on-change="associationHandlers.foreign" />
             <section class="excel-filter-definition">
@@ -145,7 +139,7 @@ import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
 import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
 import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
-const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, RendererTabs, RendererTabPane, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, RendererTabs, RendererTabPane, FieldText, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
@@ -164,7 +158,7 @@ const scene = LowcodeExcelImport.designScenarioId, catalogScene = LowcodeExcelIm
 const nodesTable = 'Base_ImportData_Config', fieldsTable = 'Base_ImportData_Field', rulesTable = 'Base_Import_Transform_Rule'
 const schemeTable = 'Base_Import_solution'
 const key = (table: string) => buildDataViewKey(table, 'default', scene)
-const nodesKey = key(nodesTable), fieldsKey = key(fieldsTable), rulesKey = key(rulesTable), methodsKey = key('ImportExportMethods')
+const nodesKey = key(nodesTable), fieldsKey = key(fieldsTable), rulesKey = key(rulesTable)
 const ruleFieldOptionsKey=buildDataViewKey(fieldsTable,'foreignKeyFields',scene)
 const schemeKey = buildDataViewKey('Base_Import_solution', 'editorTarget', catalogScene)
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'excel-import-editor-page'})

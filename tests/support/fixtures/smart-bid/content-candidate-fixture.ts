@@ -14,7 +14,7 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   {nodeId:'C',parentId:'D',index:0,type:'chapter',class:[],value:'',data:{}},
   {nodeId:'H',parentId:'C',index:0,type:'heading',class:['candidate-heading'],value:options.headingText??'标题{{册名}}',
    data:{册名:{type:'xref',nodeId:'D',show:'title'}}}]
- if(mode==='fact'){
+ if(mode==='fact'||mode==='fixed-pin'){
   Object.assign(payloads[2]!,{value:'报价{{报价}}元',data:{报价:{type:'fact',factId:'PRICE'}}})
  }
  if(mode==='sibling-tree')payloads.push({nodeId:'Z',parentId:'C',index:1,type:'paragraph',class:[],value:'第一段',data:{}},
@@ -27,7 +27,8 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
  const manifest={hashContract:'spark-bid.revision-snapshot/1',projectId:'P',baselineId:'B',stageRef:{id:'ST',version:'1'},
   templateRefs,nodes:populated?members.map(({nodeId,nodeHash})=>({nodeId,nodeHash})).sort((a,b)=>a.nodeId<b.nodeId?-1:1):[],
   requirementPins:['bad-pin','valid-pin','fixed-pin','bad-response'].includes(mode)?[{chapterId:mode==='bad-pin'?'H':'C',lineageId:'L',version:mode==='fixed-pin'?'R2':'R1'}]:[],
-  responseAssignments:[],responses:mode==='bad-response'?[{id:'R',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',chapterId:'C',anchorNodeId:'D'}]:
+  responseAssignments:mode==='response-fact'?[{id:'A',lineageId:'L',version:'R1'}]:[],
+  responses:mode==='bad-response'?[{id:'R',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',chapterId:'C',anchorNodeId:'D'}]:
    ['bad-response-text','response-fact'].includes(mode)?[{id:'I',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',
     statement:mode==='response-fact'?'报价{{金额}}元，再确认{{金额}}元':'报价{{金额}}元',
     data:mode==='response-fact'?{金额:{type:'fact',factId:'PRICE'}}:{}}]:[],
@@ -46,7 +47,8 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
    views:{default:{},selectedTenderRecord:{commitMode:'staged',scopeFilter:{logic:'and',
     filters:['projectId','runId','type','ordinal','recordVersion','recordHash'].map(field=>eq(field))}}}},
   Requirement:{modelBinding:{modelId:'REQ_MODEL',modelName:'Requirement'},columns:Object.keys(requirement).map(name=>({name,isPrimaryKey:name==='id',type:['sourceSpan','supportingSpans','sourceRecord','checks','constraint','applicability'].includes(name)?'object':name==='score'?'number':'string'})),
-   views:{default:{},selectedRequirement:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('lineageId'),eq('version')]}}}},
+   views:{default:{},selectedRequirement:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('lineageId'),eq('version')]}},
+    effectiveRequirementVersions:{commitMode:'staged',scopeFilter:eq('projectId'),queryConfig:{autoQuery:false,allPages:true,pagination:'paged'}}}},
   Baseline:{modelBinding:{modelId:'BM',modelName:'Baseline'},columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'stageRef',type:'object'},{name:'factVersions',type:'object'},{name:'requirementVersions',type:'object'},{name:'tenderRecords',type:'object'}],
    views:{default:{},...Object.fromEntries(['selectedBaseline','selectedBasisBaseline','selectedHeadBaseline'].map(key=>[
     key,{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','baselineId')]}},

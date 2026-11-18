@@ -1,6 +1,6 @@
 import {expect,it} from 'vitest'
 import {readContentNodeFactIds,readContentNodeLinkOccurrences,readContentNodeLinks} from '@/services/smart-bid/content/content-node-links'
-import {hashCrossReferenceDisplays,projectContentCrossReferences} from '@/services/smart-bid/content/cross-reference-projection'
+import {hashCrossReferenceDisplays,projectContentCrossReferences} from '@/services/smart-bid/content/projection/cross-reference-projection'
 
 const node=(type='paragraph',value='',data:Record<string,unknown>={})=>({nodeId:'N',parentId:'P',index:0,type,class:[],value,data})
 it('hashes xref displays at their positions among all original placeholders',async()=>{

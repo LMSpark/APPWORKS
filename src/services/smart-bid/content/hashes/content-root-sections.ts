@@ -5,6 +5,7 @@
  */
 import {canonicalRevisionSnapshot,canonicalSnapshotValue,hashCanonicalSnapshotText} from '../revision-snapshot-hash'
 import {snapshotReferenceFields,snapshotReferenceIdentity,snapshotReferenceRecord,visitSnapshotReferences} from '../references/snapshot-reference-values'
+import type {IndependentResponseFactTarget} from '../references/revision-response-text'
 
 function compare(left:string,right:string):number{return left<right?-1:left>right?1:0}
 function requirementPins(value:unknown){
@@ -30,6 +31,22 @@ function indexedRecords(value:unknown){
 }
 function ordered(records:ReadonlyMap<string,Record<string,unknown>>){
  return [...records].sort(([left],[right])=>compare(left,right)).map(([,record])=>record)
+}
+
+/** 从固定快照取显式选中的独立答复及其完整原分工，不推断其它规定落点。 */
+export async function hashSelectedIndependentResponses(manifest:unknown,targets:readonly IndependentResponseFactTarget[]){
+ const source=snapshotReferenceRecord(manifest,'CONTENT_ROOT_SNAPSHOT_MODEL')
+ const assignments=indexedRecords(source['responseAssignments']),responses=indexedRecords(source['responses'])
+ const selectedAssignments=new Map<string,Record<string,unknown>>(),selectedResponses=new Map<string,Record<string,unknown>>()
+ for(const {assignmentId,responseId} of targets){
+  const assignment=assignments.get(assignmentId),response=responses.get(responseId)
+  if(!assignment||!response||response['assignmentId']!==assignmentId||Object.hasOwn(response,'chapterId')||selectedResponses.has(responseId))
+   throw Error('CONTENT_EFFECTIVE_RESPONSE_SCOPE')
+  selectedAssignments.set(assignmentId,assignment)
+  selectedResponses.set(responseId,response)
+ }
+ return hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.selected-independent-responses/1',
+  ordered(selectedAssignments),ordered(selectedResponses)]))
 }
 
 /** 固定原响应及分工完整记录；落点、承诺和证明不会在计算前被投影丢弃。 */

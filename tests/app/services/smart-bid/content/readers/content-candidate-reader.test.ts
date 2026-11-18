@@ -4,6 +4,36 @@ import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/co
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
 
+it('retains simultaneous fact and requirement proofs from one original baseline query',async()=>{
+ const f=await fixture('fixed-pin')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const result=await candidate.readReviewDependencies({nodeIds:['C','H'],responses:[]})
+  expect(result.facts.displayHashes.map(item=>item.factId)).toEqual(['PRICE'])
+  expect(result.requirements.requirementBindingHash).toMatch(/^[a-f0-9]{64}$/)
+  expect(f.query.mock.calls.filter(([view])=>view.viewId==='selectedBaseline')).toHaveLength(1)
+  result.assertCurrent()
+  await f.ds.getView('Baseline','selectedBaseline')!.refresh()
+  expect(()=>result.facts.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  expect(()=>result.requirements.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+ }finally{f.ds.destroy()}
+})
+
+it('hashes scoped requirement bindings from the original baseline and requirement batch',async()=>{
+ const f=await fixture('fixed-pin')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const empty=await candidate.readRequirementBindingHash(['H'])
+  expect(f.query.mock.calls.some(([view])=>view.viewId==='effectiveRequirementVersions')).toBe(false)
+  const result=await candidate.readRequirementBindingHash(['C'])
+  expect(result.requirementBindingHash).toMatch(/^[a-f0-9]{64}$/)
+  expect(result.requirementBindingHash).not.toBe(empty.requirementBindingHash)
+  expect(result.requiresUseCheck).toBe(true)
+  await f.ds.getView('Requirement','effectiveRequirementVersions')!.refresh()
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+ }finally{f.ds.destroy()}
+})
+
 it('requires calculation inputs for exactly the original selected table placeholders',async()=>{
  const f=await fixture('calculation')
  try{
@@ -93,8 +123,12 @@ it('reads only explicitly selected independent response facts with exact assignm
   expect(result.responseDisplayRefs).toEqual([0,1].map(occurrence=>({
    responseId:'I',assignmentId:'A',occurrence,displayHash:result.displayHashes[0]?.displayHash,
   })))
+  const empty=await candidate.readReviewDependencies({nodeIds:[],responses:[]})
+  const scoped=await candidate.readReviewDependencies({nodeIds:[],responses:[{assignmentId:'A',responseId:'I'}]})
+  expect(scoped.independentResponseDependencyHash).not.toBe(empty.independentResponseDependencyHash)
+  scoped.assertCurrent()
   await f.ds.getView('RevisionSnapshot','selectedSnapshot')!.refresh()
-  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  expect(()=>scoped.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(f.save).not.toHaveBeenCalled()
  }finally{f.ds.destroy()}
 })

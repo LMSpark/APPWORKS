@@ -13,18 +13,23 @@ import {assertContentNodeVersionPayload} from './content-node-version-reader'
 import {assertRevisionManifest,readContentSnapshotIndex,type ContentSnapshotIndexBinding,type ContentSnapshotRole} from './content-snapshot-reader'
 import {readContentSnapshotNodes,type ContentSnapshotNodesBinding} from './content-snapshot-nodes'
 import {verifyReadableRevisionRoot} from './hashes/content-revision-root-reader'
-import {readContentBaselineFact,readContentBaselineRequirement,readContentBaselineRequirementPins,readContentBaselineTenderRecord,type ContentBaselineFactBinding,type ContentBaselineRequirementPinsBinding} from './content-baseline-reader'
+import {readContentBaselineFact,readContentBaselineRequirement,readContentBaselineRequirementPins,readContentBaselineTenderRecord,readContentReviewBaseline,type ContentBaselineFactBinding,type ContentBaselineRequirementPinsBinding} from './content-baseline-reader'
+import {assessBaselineRequirementPins} from '@/services/smart-bid/content/references/baseline-requirement-members'
 import type {RevisionRequirementPin} from '@/services/smart-bid/content/references/revision-requirement-pins'
 import {snapshotReferenceFields,snapshotReferenceIdentity,snapshotReferenceRecord,visitSnapshotReferences} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readTenderRecordReference} from '@/services/smart-bid/content/references/baseline-tender-records'
 import {readContentTenderRecord} from './content-tender-record-reader'
 import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/services/smart-bid/content/content-scoped-preview'
-import {readEffectiveFactDependencies} from './hashes/effective-fact-reader'
+import {readEffectiveFactDependencies,readEffectiveFactsFromBaseline} from './hashes/effective-fact-reader'
 import {hashCalculationInputs} from '@/services/smart-bid/content/hashes/calculation-inputs-hash'
+import {hashRequirementBindings} from '@/services/smart-bid/content/hashes/requirement-binding-hash'
+import {hashSelectedIndependentResponses} from '@/services/smart-bid/content/hashes/content-root-sections'
+import {hashEffectiveResponseDependencies} from '@/services/smart-bid/content/hashes/content-effective-hash'
+import {readEffectiveRequirementVersions} from './content-requirement-reader'
 import {projectFactDisplayOccurrences,projectResponseFactDisplayOccurrences} from '@/services/smart-bid/content/hashes/fact-display-occurrences'
-import {expandBuiltInCalculationTable,readBuiltInCalculationGenerator} from '@/services/smart-bid/content/calculation-table-registry'
-import {ATTACHMENT_INDEX_GENERATOR} from '@/services/smart-bid/content/attachment-index-generator'
-import {ComputedQueryRoot,computedGetTool} from '@/services/smart-bid/content/computed-query-tool'
+import {expandBuiltInCalculationTable,readBuiltInCalculationGenerator} from '@/services/smart-bid/content/calculation/calculation-table-registry'
+import {ATTACHMENT_INDEX_GENERATOR} from '@/services/smart-bid/content/calculation/attachment-index-generator'
+import {ComputedQueryRoot,computedGetTool} from '@/services/smart-bid/content/calculation/computed-query-tool'
 import {previewContentTextSnapshot,type ContentResponseTextSnapshot,type ContentTextSnapshotPreview} from '@/services/smart-bid/content/content-text-snapshot-preview'
 import {captureContentTextSpan,type ContentTextSelection,type VerifiedContentTextSpan} from '@/services/smart-bid/content/content-text-span'
 
@@ -47,6 +52,9 @@ type EffectiveFactsWithDisplays=Awaited<ReturnType<typeof readEffectiveFactDepen
  nodeDisplayRefs:ReturnType<typeof projectFactDisplayOccurrences>
  responseDisplayRefs:ReturnType<typeof projectResponseFactDisplayOccurrences>
 }>
+type ReviewBaseline=Awaited<ReturnType<typeof readContentReviewBaseline>>
+type ReviewScope=Readonly<{nodeIds:readonly string[];responses:readonly IndependentResponseFactTarget[]}>
+type RequirementBindingDigest=Readonly<{requirementBindingHash:string;requiresUseCheck:true;assertCurrent:()=>void}>
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
 type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>
 type CandidateScopePreview=Readonly<ReturnType<typeof previewScopedRevisionChanges>&{assertCurrent:()=>void}>
@@ -85,8 +93,12 @@ export type ContentCandidateBinding=Readonly<{
  resolveCalculationGenerators:(nodeIds:readonly string[],readTemplate:ReadFixedCalculationTemplate)=>Promise<Readonly<{
   tables:ReadonlyArray<Readonly<{nodeId:string;generatorKey:string}>>;assertCurrent:()=>void
  }>>
- readEffectiveFacts:(scope:Readonly<{nodeIds:readonly string[];responses:readonly IndependentResponseFactTarget[]}>,assertConsumer?:()=>void)=>Promise<EffectiveFactsWithDisplays>
+ readEffectiveFacts:(scope:ReviewScope,assertConsumer?:()=>void)=>Promise<EffectiveFactsWithDisplays>
  readRequirementPinIssues:(assertConsumer?:()=>void,nodeIds?:readonly string[])=>Promise<ContentCandidateRequirementPinsBinding>
+ readRequirementBindingHash:(nodeIds:readonly string[],assertConsumer?:()=>void)=>Promise<RequirementBindingDigest>
+ readReviewDependencies:(scope:ReviewScope,assertConsumer?:()=>void)=>Promise<Readonly<{
+  facts:EffectiveFactsWithDisplays;requirements:RequirementBindingDigest;independentResponseDependencyHash:string;assertCurrent:()=>void
+ }>>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
  readPreviewVersions:(assertConsumer?:()=>void)=>Promise<PreviewVersionSession>
@@ -210,7 +222,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   return Object.freeze({table,calculationInputsHash:digest.calculationInputsHash,assertCurrent:assertInputs,readComputed,computedGet,computedGetTool,
    createComputedQueryRoot:(assertAllowed:()=>void)=>new ComputedQueryRoot(computedGet,assertAllowed)})
  }
- const readEffectiveFacts:ContentCandidateBinding['readEffectiveFacts']=async(scope,assertConsumer)=>{
+ const readEffectiveFacts=async(scope:ReviewScope,assertConsumer?:()=>void,baseline?:ReviewBaseline):Promise<EffectiveFactsWithDisplays>=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}
   assertContext()
   const baselineId=row['baselineId']
@@ -218,7 +230,9 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const responseOccurrences=readIndependentResponseFactOccurrences(responses,scope.responses)
   const usedFactIds=[...nodes.readFactIds(scope.nodeIds),...responseOccurrences.map(item=>item.factId)]
   const selectedNodeIds=new Set(scope.nodeIds)
-  const result=await readEffectiveFactDependencies({...host,assertCurrent:assertContext},{baselineId,stageRef:row['stageRef'],usedFactIds})
+  const readHost={...host,assertCurrent:assertContext}
+  const result=baseline?await readEffectiveFactsFromBaseline(readHost,usedFactIds,baseline):
+   await readEffectiveFactDependencies(readHost,{baselineId,stageRef:row['stageRef'],usedFactIds})
   result.assertCurrent()
   const nodeDisplayRefs=projectFactDisplayOccurrences(payloads.filter(node=>selectedNodeIds.has(node.nodeId)),result.displayHashes)
   const responseDisplayRefs=projectResponseFactDisplayOccurrences(responseOccurrences,result.displayHashes)
@@ -234,7 +248,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertFact()
   return Object.freeze({...fact,requiresRevisionMatchCheck:false,assertCurrent:assertFact})
  }
- const readRequirementPinIssues:ContentCandidateBinding['readRequirementPinIssues']=async(assertConsumer,nodeIds)=>{
+ const readScopedRequirementPins=async(assertConsumer?:()=>void,nodeIds?:readonly string[],baseline?:ReviewBaseline)=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}
   assertContext()
   const baselineId=row['baselineId']
@@ -243,16 +257,56 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const scopedNodes=payloads.filter(node=>selected.has(node.nodeId))
   if(selected.size!==scopedNodes.length||nodeIds!==undefined&&selected.size!==nodeIds.length)
    throw Error('CONTENT_CANDIDATE_REQUIREMENT_SCOPE')
-  const pins:unknown[]=[]
+  const pins:RevisionRequirementPin[]=[]
   visitSnapshotReferences(requirementPins,item=>{
-   const pin=snapshotReferenceRecord(item,'CONTENT_CANDIDATE_REQUIREMENT_PIN'),chapterId=pin['chapterId']
-   if(typeof chapterId==='string'&&selected.has(chapterId))pins.push(pin)
+   const {chapterId,lineageId,version}=snapshotReferenceFields(item,['chapterId','lineageId','version'],'CONTENT_CANDIDATE_REQUIREMENT_PIN')
+   if(typeof chapterId!=='string'||typeof lineageId!=='string'||typeof version!=='string')
+    throw Error('CONTENT_CANDIDATE_REQUIREMENT_PIN')
+   if(selected.has(chapterId))pins.push({chapterId,lineageId,version})
   },'CONTENT_CANDIDATE_REQUIREMENT_PIN')
-  const report=await readContentBaselineRequirementPins({...host,assertCurrent:assertContext},
-   {baselineId,stageRef:row['stageRef'],pins,nodes:scopedNodes})
+  baseline?.assertCurrent()
+  const report=baseline?{
+   baselineDataViewKey:baseline.dataViewKey,issues:assessBaselineRequirementPins(baseline.requirementVersions,pins,scopedNodes),
+   requiresUseCheck:true as const,assertCurrent:baseline.assertCurrent,
+  }:await readContentBaselineRequirementPins({...host,assertCurrent:assertContext},
+    {baselineId,stageRef:row['stageRef'],pins,nodes:scopedNodes})
   const assertReport=()=>{assertContext();report.assertCurrent()}
   assertReport()
-  return Object.freeze({...report,requiresRevisionMatchCheck:false,assertCurrent:assertReport})
+  return {pins,report:Object.freeze({...report,requiresRevisionMatchCheck:false as const,assertCurrent:assertReport})}
+ }
+ const readRequirementPinIssues:ContentCandidateBinding['readRequirementPinIssues']=async(assertConsumer,nodeIds)=>
+  (await readScopedRequirementPins(assertConsumer,nodeIds)).report
+ const readRequirementBindingHash=async(nodeIds:readonly string[],assertConsumer?:()=>void,baseline?:ReviewBaseline):Promise<RequirementBindingDigest>=>{
+  const {pins,report}=await readScopedRequirementPins(assertConsumer,nodeIds,baseline)
+  const originals=await readEffectiveRequirementVersions({...host,assertCurrent:report.assertCurrent},pins)
+  originals.assertCurrent()
+  const key=(pin:Pick<RevisionRequirementPin,'lineageId'|'version'>)=>JSON.stringify([pin.lineageId,pin.version])
+  const pinKey=(pin:RevisionRequirementPin)=>JSON.stringify([pin.chapterId,pin.lineageId,pin.version])
+  const contents=new Map(originals.records.map(record=>[key(record),record.requirementContentHash]))
+  const issues=new Map(report.issues.map(issue=>[pinKey(issue),issue]))
+  const records=pins.map(pin=>{
+   const issue=issues.get(pinKey(pin))
+   return {...pin,selectedVersion:issue===undefined?pin.version:issue.reason==='VERSION_CHANGED'?issue.selectedVersion:null,
+    requirementContentHash:contents.get(key(pin))}
+  })
+  const requirementBindingHash=await hashRequirementBindings(pins,records)
+  originals.assertCurrent()
+  return Object.freeze({requirementBindingHash,requiresUseCheck:true,assertCurrent:originals.assertCurrent})
+ }
+ const readReviewDependencies:ContentCandidateBinding['readReviewDependencies']=async(scope,assertConsumer)=>{
+  const assertContext=()=>{assertCurrent();assertConsumer?.()}
+  assertContext()
+  const baselineId=row['baselineId']
+  if(typeof baselineId!=='string')throw Error('CONTENT_CANDIDATE_BASELINE_REQUIRED')
+  const captured=structuredClone(scope)
+  const baseline=await readContentReviewBaseline({...host,assertCurrent:assertContext},{baselineId,stageRef:row['stageRef']})
+  const facts=await readEffectiveFacts(captured,assertConsumer,baseline)
+  const requirements=await readRequirementBindingHash(captured.nodeIds,assertConsumer,baseline)
+  const responseHash=await hashSelectedIndependentResponses(manifest,captured.responses)
+  const independentResponseDependencyHash=await hashEffectiveResponseDependencies(responseHash,facts.responseDisplayRefs)
+  const assertDependencies=()=>{facts.assertCurrent();requirements.assertCurrent()}
+  assertDependencies()
+  return Object.freeze({facts,requirements,independentResponseDependencyHash,assertCurrent:assertDependencies})
  }
  const readFixedRequirement=async(pin:RevisionRequirementPin,assertConsumer?:()=>void):Promise<ContentCandidateRequirementBinding>=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}
@@ -402,9 +456,13 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   if(capturedInput.role==='head')return (await readPreviewVersions(assertConsumer)).captureNodeTextSelection(capturedInput)
   return captureNodeSelection(capturedInput,{snapshot,nodes},()=>{assertCurrent();assertConsumer?.()})
  }
- return Object.freeze({runtime:host.runtime,readFixedFact,readEffectiveFacts,hashNodeCalculationInputs,readCalculationTemplates,resolveCalculationGenerators,expandAttachmentIndex,
+ return Object.freeze({runtime:host.runtime,readFixedFact,
+  readEffectiveFacts:(scope:ReviewScope,assertConsumer?:()=>void)=>readEffectiveFacts(scope,assertConsumer),
+  hashNodeCalculationInputs,readCalculationTemplates,resolveCalculationGenerators,expandAttachmentIndex,
   readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readEffectiveFacts({nodeIds,responses:[]},assertConsumer),
-  readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
+  readFixedRequirement,readRequirementPinIssues,
+  readRequirementBindingHash:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readRequirementBindingHash(nodeIds,assertConsumer),
+  readReviewDependencies,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   verifyRootHash:(contract:string)=>verifyReadableRevisionRoot({host:{...host,assertCurrent},revisionDataViewKey:revisions.candidateDataViewKey,snapshot,contract}),
   responseAnchorsVerified:true,responseTextVerified:true,requiresResponseReferenceChecks:true,requiresResponsePayloadChecks:true,
   requiresTemplateResourceChecks:true,requiresRequirementVersionChecks:true,

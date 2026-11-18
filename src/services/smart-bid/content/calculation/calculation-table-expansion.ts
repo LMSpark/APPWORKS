@@ -1,10 +1,10 @@
 /**
- * @module app:services/smart-bid/content/calculation-table-expansion
+ * @module app:services/smart-bid/content/calculation/calculation-table-expansion
  * 职责：按已核输入运行固定生成器，校验展开后的正文表格和节点引用。
  * 边界：结果供呈现、计算读取和质检共用；不写回节点、草稿或事实。
  */
-import {readContentNodeLinks,readExpandedContentTable} from './content-node-links'
-import {snapshotReferenceFields,snapshotReferenceIdentity} from './references/snapshot-reference-values'
+import {readContentNodeLinks,readExpandedContentTable} from '../content-node-links'
+import {snapshotReferenceFields,snapshotReferenceIdentity} from '../references/snapshot-reference-values'
 
 function freezeJson(value:unknown):void {
  if(typeof value!=='object'||value===null)return

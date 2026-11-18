@@ -1,8 +1,8 @@
 import {expect,it,vi} from 'vitest'
-import {expandCalculationTable} from '@/services/smart-bid/content/calculation-table-expansion'
-import {ATTACHMENT_INDEX_GENERATOR,generateAttachmentIndex} from '@/services/smart-bid/content/attachment-index-generator'
-import {expandBuiltInCalculationTable} from '@/services/smart-bid/content/calculation-table-registry'
-import {projectContentPageReferences} from '@/services/smart-bid/content/page-reference-projection'
+import {expandCalculationTable} from '@/services/smart-bid/content/calculation/calculation-table-expansion'
+import {ATTACHMENT_INDEX_GENERATOR,generateAttachmentIndex} from '@/services/smart-bid/content/calculation/attachment-index-generator'
+import {expandBuiltInCalculationTable} from '@/services/smart-bid/content/calculation/calculation-table-registry'
+import {projectContentPageReferences} from '@/services/smart-bid/content/projection/page-reference-projection'
 
 const placeholder={nodeId:'T',parentId:'C',type:'table',index:0,class:['deviation'],value:'',data:{header:[],rows:[]}}
 const data={header:['页'],rows:[[{value:'{{页}}',data:{页:{type:'page',nodeId:'H'}}}]]}

@@ -1,5 +1,5 @@
 /**
- * @module app:services/smart-bid/content/calculation-table-registry
+ * @module app:services/smart-bid/content/calculation/calculation-table-registry
  * 职责：固定内置计算表生成器的键、版本和实现。
  * 边界：输入由正式来源提供；不执行远端脚本或自动替换不匹配的版本。
  */

@@ -1,10 +1,10 @@
 /**
- * @module app:services/smart-bid/content/computed-query-tool
+ * @module app:services/smart-bid/content/calculation/computed-query-tool
  * 职责：定义候选计算结果的只读函数及闭合参数。
  * 边界：调用方按工位和原实例范围挂接；读取权及原证明由候选绑定检查。
  */
 import type {AiAgentToolSpec} from '@spark-appworks/spark-ai/agent'
-import type {ContentTableData} from './content-node-links'
+import type {ContentTableData} from '../content-node-links'
 
 /** 本次工位固定的计算结果身份。 */
 export type ComputedQueryInput=Readonly<{projectId:string;revisionId:string;nodeId:string;inputHash:string}>

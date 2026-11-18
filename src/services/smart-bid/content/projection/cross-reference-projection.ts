@@ -1,11 +1,11 @@
 /**
- * @module app:services/smart-bid/content/cross-reference-projection
+ * @module app:services/smart-bid/content/projection/cross-reference-projection
  * 职责：将固定呈现目标的标题或编号关联到每处 xref。
  * 边界：编号和标题解析由本次呈现提供；不改原节点或提前填页码。
  */
-import {readContentNodeLinkOccurrences} from './content-node-links'
-import {canonicalSnapshotValue,hashCanonicalSnapshotText} from './revision-snapshot-hash'
-import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from './references/snapshot-reference-values'
+import {readContentNodeLinkOccurrences} from '../content-node-links'
+import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '../revision-snapshot-hash'
+import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from '../references/snapshot-reference-values'
 
 /** 目标没有适用的标题或编号时，报告原引用位置。 */
 export function projectContentCrossReferences(nodes:readonly unknown[],targets:unknown){

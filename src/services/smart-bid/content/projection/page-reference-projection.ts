@@ -1,10 +1,10 @@
 /**
- * @module app:services/smart-bid/content/page-reference-projection
+ * @module app:services/smart-bid/content/projection/page-reference-projection
  * 职责：将一次出件的分页结果绑定到原正文和展开表格中的每处页码引用。
  * 边界：只返回呈现替换位置和值，不改变原节点、引用或中间表示。
  */
-import {readContentNodeLinkOccurrences} from './content-node-links'
-import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from './references/snapshot-reference-values'
+import {readContentNodeLinkOccurrences} from '../content-node-links'
+import {snapshotReferenceFields,snapshotReferenceIdentity,visitSnapshotReferences} from '../references/snapshot-reference-values'
 
 /** 分页适配器提供目标节点和实际显示页标；保留罗马数字等版面标签。 */
 export function projectContentPageReferences(nodes:readonly unknown[],pagination:unknown){

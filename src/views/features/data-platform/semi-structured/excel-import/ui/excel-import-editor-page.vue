@@ -20,14 +20,7 @@
             <h1>导入配置设置</h1>
             <SparkComponentRenderer :config="designRegion(children,'excel-scheme-summary')" />
             <SparkComponentRenderer :config="designRegion(children,'excel-current-node')" />
-            <div v-if="selectedNode" class="excel-workspace-actions">
-          <p v-if="targetState?.kind==='source'" role="status">目标及字段替换共同保存；提交开始后沿同一次保存核验。</p>
-          <RendererButton :label="targetChange ? targetSaveLabel : isUnconfirmed(nodesTable) ? '核验配置保存结果' : '保存配置'" :disabled="busy || !!targetChange && !targetChange.owns(nodesTable) || pendingPart('nodes')" @click="save(nodesTable)" />
-          <RendererButton label="取消配置修改" :disabled="busy || unconfirmed || !!targetChange && (!targetState?.canCancel || !targetChange.owns(nodesTable))" @click="cancel(nodesTable)" />
-          <RendererButton v-if="targetState?.canRetry" :label="targetState?.kind==='source' ? '确认未生效，重新提交目标及字段' : '确认未生效，重新提交原修改'" :disabled="busy" @click="retryTarget" />
-          <RendererButton v-if="targetState?.canAcceptCurrent" :label="targetState?.kind==='source' ? '读取并采用当前正式结果，结束原换源' : '读取并采用当前正式结果，结束原保存'" :disabled="busy" @click="acceptTargetCurrent" />
-          <RendererButton v-if="targetChange && targetState?.applyStarted && targetState.canDiscard" :label="targetState?.kind==='source' ? '放弃本次配置和字段的本地修改' : '放弃本次保存范围的本地修改'" :disabled="busy" @click="discardTarget" />
-            </div>
+            <SparkComponentRenderer :config="designRegion(children,'excel-node-actions')" />
           </header>
           <RendererTabs v-model="activeTopTab" :data-view-key="nodesKey" data-member="currentRow">
             <RendererTabPane name="basic" label="基本信息" :index="0" :data-view-key="nodesKey">
@@ -269,8 +262,21 @@ function makeTreeHost(runtime:PageRuntime){
       setFilterPending:(editing:boolean)=>{if(active&&session.isCurrent(runtime))pending('nodes.filters',editing)},
       sort:()=>({mode:sortMode.value,...sortState.value,options:sortDirectory.value?.dataViewKey,blocked:busy.value||pendingPart('nodes')}),
       setSortPending:(editing:boolean)=>{if(active&&session.isCurrent(runtime))pending('nodes.sorted',editing)},
+      nodeCommands:()=>({
+        source:targetState.value?.kind==='source',busy:busy.value,
+        saveLabel:targetChange.value?targetSaveLabel.value : isUnconfirmed(nodesTable)?'核验配置保存结果':'保存配置',
+        saveDisabled:busy.value||!!targetChange.value&&!targetChange.value.owns(nodesTable)||pendingPart('nodes'),
+        cancelDisabled:busy.value||unconfirmed.value||!!targetChange.value&&(!targetState.value?.canCancel||!targetChange.value.owns(nodesTable)),
+        retry:targetState.value?.canRetry===true,accept:targetState.value?.canAcceptCurrent===true,
+        discard:!!targetChange.value&&targetState.value?.applyStarted===true&&targetState.value.canDiscard,
+      }),
       validateSorted,
     }
+    if(command==='excel.design.saveNode'&&selectedNode.value){await save(nodesTable);return undefined}
+    if(command==='excel.design.cancelNode'&&selectedNode.value){cancel(nodesTable);return undefined}
+    if(command==='excel.design.retryNode'&&targetState.value?.canRetry){await retryTarget();return undefined}
+    if(command==='excel.design.acceptNode'&&targetState.value?.canAcceptCurrent){await acceptTargetCurrent();return undefined}
+    if(command==='excel.design.discardNode'&&targetState.value?.applyStarted&&targetState.value.canDiscard){discardTarget();return undefined}
     if(command==='excel.design.toggleSort'){
       if(!busy.value&&!pendingPart('nodes'))sortMode.value=sortMode.value==='rows'?'text':'rows'
       return undefined
@@ -461,7 +467,6 @@ onBeforeUnmount(()=>{active=false;generation++;unsubscribers.forEach(off=>off())
 .excel-workspaces main {min-width:0;display:grid;gap:12px;}
 .excel-workspaces aside,.excel-workspace-header {min-width:0;}
 .excel-workspace-header h1 {margin:0;}
-.excel-workspace-actions {display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
 @media (max-width:1280px) {.excel-workspaces {grid-template-columns:minmax(0,1fr);}}
 @media (max-width:1280px) {.excel-node-form :deep(.renderer-form-grid) {grid-template-columns:repeat(2,minmax(0,1fr)) !important;}}
 @media (max-width:900px) {.excel-node-form :deep(.renderer-form-grid) {grid-template-columns:minmax(0,1fr) !important;}}

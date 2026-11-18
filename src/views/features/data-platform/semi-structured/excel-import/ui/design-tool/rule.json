@@ -70,5 +70,19 @@
         ]
       }
     ]
+  },
+  {
+    "id":"excel-node-actions",
+    "type":"r-section",
+    "props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindNodeCommands"},
+    "children":[
+      {"type":"r-space","props":{"wrap":true,"size":8,"alignment":"center"},"children":[
+      {"type":"r-button","props":{"label":"保存配置","onBeforeRender":"bindNodeSave","onClick":"saveNode"}},
+      {"type":"r-button","props":{"label":"取消配置修改","onBeforeRender":"bindNodeCancel","onClick":"cancelNode"}},
+      {"type":"r-button","props":{"onBeforeRender":"bindNodeRetry","onClick":"retryNode"}},
+      {"type":"r-button","props":{"onBeforeRender":"bindNodeAccept","onClick":"acceptNode"}},
+      {"type":"r-button","props":{"onBeforeRender":"bindNodeDiscard","onClick":"discardNode"}}
+      ]}
+    ]
   }
 ]

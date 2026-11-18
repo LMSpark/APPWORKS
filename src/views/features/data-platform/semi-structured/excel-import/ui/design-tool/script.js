@@ -68,6 +68,44 @@ function bindSortOptions() {
 
 async function toggleSort() { await $page.invokeHostCommand('excel.design.toggleSort') }
 
+function bindNodeCommands() {
+  return {visible:tree?.selected() === true,
+    status:tree?.nodeCommands().source ? '目标及字段替换共同保存；提交开始后沿同一次保存核验。' : ''}
+}
+
+function bindNodeSave() {
+  const state = tree?.nodeCommands()
+  return {label:state?.saveLabel || '保存配置',disabled:state?.saveDisabled !== false}
+}
+
+function bindNodeCancel() {
+  return {disabled:tree?.nodeCommands().cancelDisabled !== false}
+}
+
+function bindNodeRetry() {
+  const state = tree?.nodeCommands()
+  return {visible:state?.retry === true,disabled:state?.busy !== false,
+    label:state?.source ? '确认未生效，重新提交目标及字段' : '确认未生效，重新提交原修改'}
+}
+
+function bindNodeAccept() {
+  const state = tree?.nodeCommands()
+  return {visible:state?.accept === true,disabled:state?.busy !== false,
+    label:state?.source ? '读取并采用当前正式结果，结束原换源' : '读取并采用当前正式结果，结束原保存'}
+}
+
+function bindNodeDiscard() {
+  const state = tree?.nodeCommands()
+  return {visible:state?.discard === true,disabled:state?.busy !== false,
+    label:state?.source ? '放弃本次配置和字段的本地修改' : '放弃本次保存范围的本地修改'}
+}
+
+async function saveNode() { await $page.invokeHostCommand('excel.design.saveNode') }
+async function cancelNode() { await $page.invokeHostCommand('excel.design.cancelNode') }
+async function retryNode() { await $page.invokeHostCommand('excel.design.retryNode') }
+async function acceptNode() { await $page.invokeHostCommand('excel.design.acceptNode') }
+async function discardNode() { await $page.invokeHostCommand('excel.design.discardNode') }
+
 async function addRoot() { await $page.invokeHostCommand('excel.design.addRoot') }
 async function addSibling() { await $page.invokeHostCommand('excel.design.addSibling') }
 async function addChild() { await $page.invokeHostCommand('excel.design.addChild') }

@@ -533,12 +533,14 @@ describe('catalog page entry',()=>{
     expect(server.writes).toBe(1);expect(wrapper.text()).toContain('Applied once')
   })
   it('renders navigation paths from a bound standard table and releases the views on close',async()=>{
-    const leaf={rowid:'NODE',SysId:'APP',prowid:'000000',FunName:'Bound feature',name:'node',NavigationUrl:'/bound'}
-    executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_NavigationInfo'?[leaf]:defaults[view.tableName]??[]))
+    const parent={rowid:'PARENT',SysId:'APP',prowid:'000000',FunName:'Parent area',name:'parent',NavigationUrl:''}
+    const leaf={rowid:'NODE',SysId:'APP',prowid:'PARENT',FunName:'Bound feature',name:'node',NavigationUrl:'/bound'}
+    executeQuery.mockImplementation(async(view:DataView)=>context(view,view.viewId==='catalogBindings'?[leaf]:
+      view.viewId==='catalogBindingAncestors'?[parent,leaf]:defaults[view.tableName]??[]))
     const {wrapper}=await page();await wrapper.get('tbody tr').trigger('click');await flushPromises()
     await button(wrapper,'查询绑定').trigger('click');await flushPromises()
     expect(wrapper.findAllComponents(RendererTable).map(table=>table.props('dataViewKey'))).toContain('SCENE@Base_NavigationInfo@catalogBindings')
-    expect(wrapper.text()).toContain('Bound feature');expect(wrapper.text()).toContain('/bound')
+    expect(wrapper.text()).toContain('Parent area');expect(wrapper.text()).toContain('Bound feature');expect(wrapper.text()).toContain('/bound')
     await button(wrapper,'关闭').trigger('click');await flushPromises();expect(wrapper.text()).not.toContain('Bound feature')
   })
   it('copies only the information returned by the formal session',async()=>{

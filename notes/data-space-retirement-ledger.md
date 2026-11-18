@@ -11367,3 +11367,5 @@ flowchart TD
 2026-11-18 SmartBid I5：工艺任务准备消费正式版本证明及 SPARK AI 注册输入合同，校验归一后的 JSON、业务实例和运行实例仍等于已固定输入。正式 Agent 类夹具验证正常构造及错实例拒绝；专项 Vitest/ESLint 通过，生产注册和SSE未验。
 
 2026-11-18 SmartBid I5：路线工艺沿现有 SPARK Agent session start/send 使用既定 turnId，启动后复核原作用域权限再发。官方会话类夹具证实一次进入原 turn callback，错运行实例零额外调用。专项 Vitest/ESLint 通过；生产注册、实际后端 SSE、原试次记录及恢复仍待验。
+
+2026-11-18 SmartBid I5：路线工艺在发前须取得同注册、业务实例、运行实例与轮次的原试次排他领取，已存在或不明只提示查原试次。Agent夹具验证两次入口只有首笔触发原回调；专项Vitest及ESLint通过。远端核 e9f2e414c；原子领取实服、恢复和真实SSE待验。

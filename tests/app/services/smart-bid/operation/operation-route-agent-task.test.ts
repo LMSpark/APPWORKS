@@ -25,9 +25,15 @@ it('uses a registered SPARK Agent input contract and rejects another runtime ins
  const options={registry,turnCallbacks:{executeTurn,appendMessages:async()=>{}}}
  const time='2026-11-18T10:00:00+08:00'
  const turn={turnId:crypto.randomUUID(),seq:1,baseRevision:0,queuedAt:time,startedAt:time,maxParallelTurns:1}
- const dispatched=await dispatchOperationRouteAgentTask(options,{...source,turn})
+ const claimOriginalTurn=vi.fn<Parameters<typeof dispatchOperationRouteAgentTask>[1]['claimOriginalTurn']>()
+  .mockImplementationOnce(async input=>({...input,state:'CLAIMED',assertCurrent:()=>{}}))
+  .mockImplementation(async input=>({...input,state:'EXISTING',assertCurrent:()=>{}}))
+ const dispatched=await dispatchOperationRouteAgentTask(options,{...source,turn,claimOriginalTurn})
+ expect(dispatched.state).toBe('DISPATCHED')
  expect(dispatched.turnId).toBe(turn.turnId)
  expect(executeTurn).toHaveBeenCalledOnce()
- await expect(dispatchOperationRouteAgentTask(options,{...source,turn,runtimeInstanceId:'OTHER'})).rejects.toThrow('OPERATION_ROUTE_AGENT_SCOPE')
+ expect(await dispatchOperationRouteAgentTask(options,{...source,turn,claimOriginalTurn})).toMatchObject({state:'CHECK_ORIGINAL'})
+ await expect(dispatchOperationRouteAgentTask(options,{...source,turn,claimOriginalTurn,runtimeInstanceId:'OTHER'}))
+  .rejects.toThrow('OPERATION_ROUTE_AGENT_SCOPE')
  expect(executeTurn).toHaveBeenCalledOnce()
 })

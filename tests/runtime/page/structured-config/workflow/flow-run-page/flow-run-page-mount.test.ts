@@ -2,7 +2,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DOMWrapper,config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {defineComponent, h, markRaw, reactive} from 'vue'
-import {PAGE_RUNTIME, RendererDialog, RendererForm, RendererTabs, Spark, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererDialog, RendererForm, RendererTable, RendererTabs, Spark, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {PageRuntime, type PageTool} from '@spark-appworks/spark-project-model'
 import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, ensureDataSetStaticInputTable, parseDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {createFlowRunOptionsBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding'
@@ -360,6 +360,9 @@ describe('flow run page mount', () => {
       await flushPromises()
       expect(query).toHaveBeenCalledWith({modelId: 'FM-1', stepId: 'S1', busRowId: 'BUS-1', formid: 'F1'})
       expect(wrapper.text()).toContain('正式后续节点')
+      const nodes = wrapper.findAllComponents(RendererTable)
+        .find(table => table.props('dataViewKey') === `${FLOW_WORKBENCH_SCENARIO_ID}@ApprovalNodeInput@default`)
+      expect(nodes?.text()).toContain('下一节点')
       expect(wrapper.findAllComponents(RendererForm).some(form => form.props('dataViewKey') === `${FLOW_WORKBENCH_SCENARIO_ID}@ApprovalInput@default`)).toBe(true)
       expect(view.rows[0]?.['payload']).toEqual(payload)
       expect(readDirectory).toHaveBeenCalledTimes(outcome === 'directory' ? 1 : 0)

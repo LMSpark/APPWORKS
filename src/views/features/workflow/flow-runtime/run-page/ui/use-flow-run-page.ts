@@ -23,7 +23,6 @@ import {
   readFlowRunAllowForceBack,
 } from '@/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options'
 import {FlowRunApprovalInputWorkspace} from '@/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
-import {flowRunNodeFields} from '../model/flow-run-input-fields'
 import {submitFlowBusinessPage} from '../model/flow-run-business-submit'
 import {
   createFlowBusinessPageRegistry,
@@ -63,7 +62,6 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     try {view.captureReadRow(row, ['payload'])(); return isRecord(row['payload']) ? row['payload'] : {}}
     catch {return {}}
   })
-  const nodeInputViewKey = buildDataViewKey('ApprovalNodeInput', 'default', FLOW_WORKBENCH_SCENARIO_ID)
   const commandView = computed(() => {
     runtimeReady(); prepared.value
     const view = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('ApprovalCommand')
@@ -84,7 +82,6 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   useSystemPageDirtySource({get isDirty() { return hasPendingWork() }})
   const appendCloseDisabled = computed(() => handleLoading.value || commandState.resultReplacementBlocked.value || commandState.mutating.value || appendOptionsState.requestState.value === RequestState.Loading || appendInputState.rows.value.length > 0 || appendInputState.resultReplacementBlocked.value)
   const inputLocked = computed(() => {commandState.mutating.value; commandState.requestState.value; return handleLoading.value || hasPendingApproval()})
-  const nodeFields = computed(() => flowRunNodeFields(inputLocked.value))
   const activeFormId = ref('')
   const appendOpen = ref(false)
   const appendContext = shallowRef<FlowAppendUserContext | null>(null)
@@ -393,8 +390,6 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     handleLoading,
     handleError,
     inputLocked,
-    nodeInputViewKey,
-    nodeFields,
     backNodeOptions,
     forceBackNodeOptions,
     allowForceBack,

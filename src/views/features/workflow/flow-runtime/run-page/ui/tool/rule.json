@@ -120,5 +120,79 @@
         }
       }
     ]
+  },
+  {
+    "id": "approvalNodes",
+    "type": "r-table",
+    "props": {
+      "autoColumns": false,
+      "showPagination": false,
+      "showDataViewMeta": false
+    },
+    "children": [
+      {
+        "type": "r-column-group",
+        "props": {
+          "title": "选择"
+        },
+        "children": [
+          {
+            "type": "r-checkbox",
+            "props": {
+              "field": "selected",
+              "label": "",
+              "saveOnCellExit": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "r-text",
+        "props": {
+          "field": "title",
+          "label": "下一节点",
+          "readonly": true
+        }
+      },
+      {
+        "type": "r-column-group",
+        "props": {
+          "title": "办理人"
+        },
+        "children": [
+          {
+            "type": "r-user-picker",
+            "props": {
+              "field": "ExecUserList",
+              "multiple": true,
+              "valueMode": "array",
+              "readonly": "$[peopleReadonly]",
+              "optionValueField": "value",
+              "optionLabelField": "name",
+              "editOnDblclick": false,
+              "label": "",
+              "saveOnCellExit": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "r-column-group",
+        "props": {
+          "title": "返回原办理人"
+        },
+        "children": [
+          {
+            "type": "r-checkbox",
+            "props": {
+              "field": "checkedReturn",
+              "readonly": "$[returnReadonly]",
+              "label": "",
+              "saveOnCellExit": false
+            }
+          }
+        ]
+      }
+    ]
   }
 ]

@@ -35,7 +35,7 @@
       </SparkPageRenderer>
       <aside v-if="handleOpen" class="flow-run-page__handle">
         <h3 class="flow-run-page__handle-title">办理</h3>
-        <SparkComponent.RendererTable :data-view-key="nodeInputViewKey" :children="nodeFields" :auto-columns="false" :show-pagination="false" :show-data-view-meta="false" />
+        <SparkComponentRenderer :config="approvalNodesConfig" />
         <SparkComponentRenderer :config="approvalInputConfig" />
         <div class="flow-run-page__handle-actions">
           <SparkComponent.RendererButton label="提交" button-type="primary" :loading="handleLoading" @click="submitFlow" />
@@ -125,9 +125,7 @@ const {
   handleOpen,
   handleLoading,
   handleError,
-  nodeInputViewKey,
   inputLocked,
-  nodeFields,
   backNodeOptions,
   forceBackNodeOptions,
   allowForceBack,
@@ -157,8 +155,10 @@ const {
   stepViewKey,
 } = useFlowRunPage(routeQuery, () => runtimeReady.value, () => reloadBlocked.value)
 
-const approvalInputRule = compileRule(rule).find(node => nodeId(node) === 'approvalInput')
-if (!approvalInputRule) throw new Error('流程办理工具缺少办理参数表单')
+const toolRules = compileRule(rule)
+const approvalInputRule = toolRules.find(node => nodeId(node) === 'approvalInput')
+const approvalNodesRule = toolRules.find(node => nodeId(node) === 'approvalNodes')
+if (!approvalInputRule || !approvalNodesRule) throw new Error('流程办理工具缺少办理参数组件')
 const approvalInputConfig = computed(() => ({
   ...approvalInputRule,
   props: {...approvalInputRule.props, dataViewKey: buildDataViewKey('ApprovalInput', 'default', FLOW_WORKBENCH_SCENARIO_ID)},
@@ -169,6 +169,19 @@ const approvalInputConfig = computed(() => ({
         ? {optionDataViewKey: buildDataViewKey('ApprovalForceTargets', 'default', FLOW_WORKBENCH_SCENARIO_ID)}
         : {}),
     }})),
+}))
+const approvalNodesConfig = computed(() => ({
+  ...approvalNodesRule,
+  props: {...approvalNodesRule.props, dataViewKey: buildDataViewKey('ApprovalNodeInput', 'default', FLOW_WORKBENCH_SCENARIO_ID)},
+  children: getSparkNodeChildren(approvalNodesRule.children).map(column => {
+    if (column.type !== 'r-column-group') return column
+    return {...column, children: getSparkNodeChildren(column.children).map(field => ({
+      ...field,
+      props: {...field.props, readonly: inputLocked.value || field.props?.['readonly'] || false,
+        ...(field.type === 'r-user-picker' ? {optionDataViewKey: '$[candidateViewKey]'} : {}),
+      },
+    }))}
+  }),
 }))
 const runtime = computed(() => runtimeReady.value ? session.runtime : undefined)
 const routeSnapshot = computed(() => {

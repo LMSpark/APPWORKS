@@ -4,7 +4,7 @@
 边界：值写入宿主传入的原DataView并由公共记录编辑保存；页面专有校验由宿主validate给出，不另建草稿或提交通道。
 -->
 <template>
-  <RendererDialog :model-value="true" :data-view-key="dataViewKey" :title="title" :width="width"
+  <RendererDialog v-if="!headless" :model-value="true" :data-view-key="dataViewKey" :title="title" :width="width"
     :append-to-body="true" :close-disabled="busy || ownUnconfirmed" @update:model-value="cancel">
     <p v-if="error || hint" role="alert">{{ error || hint }}</p>
     <p v-if="!current" role="status">原记录已变化，请关闭并保留原修改。</p>
@@ -26,7 +26,7 @@ import {missingFeatureField, type FeatureFieldSpec} from './feature-field-spec'
 import FeatureRecordFields from './feature-record-fields.vue'
 const {PAGE_RUNTIME, RendererDialog, RendererButton, useSparkComponent, useDataViewRecordEditing} = Components
 const props = withDefaults(defineProps<{dataViewKey: string; recordId: string | number; title: string; specs: readonly FeatureFieldSpec[]
-  created?: boolean; width?: number; columns?: number; validate?: ((row: Readonly<DataRow>) => string | undefined) | undefined}>(),
+  created?: boolean; headless?: boolean; width?: number; columns?: number; validate?: ((row: Readonly<DataRow>) => string | undefined) | undefined}>(),
 {created: false, width: 660, columns: 1})
 const emit = defineEmits<{close: []}>()
 const {sparkConsume} = useSparkComponent({type: 'feature-record-dialog'})
@@ -45,4 +45,10 @@ async function submit(): Promise<void> {
   }
   await save()
 }
+defineExpose({
+  state:()=>({busy:busy.value,current:current.value,locked:locked.value,error:error.value||hint.value,
+    ownUnconfirmed:ownUnconfirmed.value,foreignRecovery:foreignRecovery.value,recoveryEnded:recoveryEnded.value,
+    hasStaged:hasStaged.value,permissionsPending:permissionsPending.value,confirmedCreation:confirmedCreation.value}),
+  submit,cancel,
+})
 </script>

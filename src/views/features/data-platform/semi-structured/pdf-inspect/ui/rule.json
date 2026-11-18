@@ -25,6 +25,24 @@
     ]
   },
   {
+    "id":"pdf-rule-creation",
+    "type":"r-dialog",
+    "props":{"title":"新增PDF核验规则","width":660,"appendToBody":true,"onBeforeRender":"bindCreationDialog","on":{"update:modelValue":"closeCreation"},
+      "footer":{"children":[
+        {"type":"r-button","props":{"onBeforeRender":"bindCreationCancel","onClick":"cancelCreation"}},
+        {"type":"r-button","props":{"buttonType":"primary","onBeforeRender":"bindCreationSubmit","onClick":"submitCreation"}}
+      ]}},
+    "children":[
+      {"type":"r-section","props":{"bordered":false,"onBeforeRender":"bindCreationStatus"}},
+      {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"gridColumns":1,"onBeforeRender":"bindCreationForm"},"children":[
+        {"type":"r-text","props":{"field":"name","label":"规则名称","onBeforeRender":"bindCreationField"}},
+        {"type":"r-text","props":{"field":"description","label":"描述","onBeforeRender":"bindCreationField"}},
+        {"type":"r-textarea","props":{"field":"rule_config","label":"规则JSON","onBeforeRender":"bindCreationField"}},
+        {"type":"r-radio","props":{"field":"enabled","label":"启用","options":[{"value":0,"label":"停用"},{"value":1,"label":"启用"}],"onBeforeRender":"bindCreationField"}}
+      ]}
+    ]
+  },
+  {
     "id":"pdf-inspection-preparation",
     "type":"r-section",
     "props":{"title":"核验准备","bordered":false,"onBeforeRender":"bindPreparation"},

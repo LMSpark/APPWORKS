@@ -6,7 +6,7 @@
     :status="loading ? '正在读取规则目录…' : ''" :error="error">
     <SparkPageRenderer v-if="ready && catalogRuntime && catalogHost" :page-runtime="catalogRuntime"
       :route-snapshot="routeSnapshot" :host="catalogHost" />
-    <FeatureRecordDialog v-if="creationId !== undefined" :data-view-key="creationKey" :record-id="creationId"
+    <FeatureRecordDialog v-if="creationId !== undefined" ref="creationDialog" headless :data-view-key="creationKey" :record-id="creationId"
       title="新增PDF核验规则" :created="true" :specs="creationFields" :validate="validateCreation" @close="closeCreation" />
   </RendererSection>
 </template>
@@ -36,6 +36,7 @@ const {PAGE_RUNTIME, RendererSection, SparkPageRenderer,
 const route = useRoute()
 const router = useRouter()
 const creationId=ref<string|number>(),adding=ref(false)
+const creationDialog=shallowRef<InstanceType<typeof FeatureRecordDialog>>()
 const creationKey=computed(()=>buildDataViewKey(LowcodePdfInspect.catalogMetaName,'creation',scenarioId.value))
 const creationFields:readonly FeatureFieldSpec[]=[{field:'name',label:'规则名称',required:true},{field:'description',label:'描述'},
   {field:'rule_config',label:'规则JSON',kind:'textarea',required:true},
@@ -330,6 +331,7 @@ function makeCatalogHost(runtime:PageRuntime){
   return {runtime,assertCurrent,async invoke(command:string,input:unknown){
     assertCurrent()
     if(command==='pdf.catalog.connect')return {
+      creation:()=>({id:creationId.value,key:creationKey.value,session:creationDialog.value?.state()}),
       actions:()=>({catalogScope:catalogScope.value,loading:loading.value,adding:adding.value||creationId.value!==undefined,selected:!!selected.value,
         executionAvailable:executionAvailable.value,preparing:preparing.value,pending:pendingExecution(),
         historyAvailable:historyAvailable.value,historyLoading:historyLoading.value,resultLoading:resultLoading.value,requests:pendingRequests.value}),
@@ -345,6 +347,8 @@ function makeCatalogHost(runtime:PageRuntime){
       const row=runtime.resolveView(historyKey.value)?.rows.find(item=>item['inspectJobId']===input)
       if(row)openHistoryResult(row)
     }
+    if(command==='pdf.catalog.submitCreation')await creationDialog.value?.submit()
+    if(command==='pdf.catalog.cancelCreation')creationDialog.value?.cancel()
     if(command==='pdf.catalog.create'&&!catalogScope.value)await createRule()
     if(command==='pdf.catalog.design'&&!catalogScope.value)await openEditor()
     if(command==='pdf.catalog.prepare'&&executionAvailable.value)await prepareInspection()

@@ -109,3 +109,31 @@ async function navigateCatalog(command,id) {
     if (!String(cause?.message).startsWith('PAGE_RUNTIME_STALE')) throw cause
   }
 }
+
+function bindCreationDialog() {
+  const state = catalog?.creation()
+  const open = state?.id !== undefined && !!state.session
+  return {visible:open,modelValue:open,dataViewKey:state?.key,closeDisabled:!!(state?.session?.busy || state?.session?.ownUnconfirmed)}
+}
+function bindCreationStatus() {
+  const state = catalog?.creation().session
+  return {error:state?.error || '',status:state && !state.current ? '原记录已变化，请关闭并保留原修改。' : ''}
+}
+function bindCreationForm() {
+  const state = catalog?.creation()
+  return {dataViewKey:state?.key,contextRowId:state?.id}
+}
+function bindCreationField() { return {readonly:catalog?.creation().session?.locked !== false} }
+function bindCreationCancel() {
+  const state = catalog?.creation().session
+  return {label:state?.foreignRecovery || state?.recoveryEnded ? '关闭并保留修改' : state?.confirmedCreation ? '关闭' : '取消',
+    disabled:!state || state.busy || state.ownUnconfirmed}
+}
+function bindCreationSubmit() {
+  const state = catalog?.creation().session
+  return {label:state?.permissionsPending ? '回读已保存权限' : state?.ownUnconfirmed ? '核验原保存结果' : '确定',
+    disabled:!state || state.busy || state.foreignRecovery || !state.permissionsPending && (state.recoveryEnded || !state.current && !state.ownUnconfirmed)}
+}
+async function cancelCreation() { await $page.invokeHostCommand('pdf.catalog.cancelCreation') }
+async function closeCreation(open) { if (open === false) await cancelCreation() }
+async function submitCreation() { await $page.invokeHostCommand('pdf.catalog.submitCreation') }

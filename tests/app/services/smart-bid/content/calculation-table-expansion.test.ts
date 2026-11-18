@@ -2,6 +2,7 @@ import {expect,it,vi} from 'vitest'
 import {expandCalculationTable} from '@/services/smart-bid/content/calculation-table-expansion'
 import {ATTACHMENT_INDEX_GENERATOR,generateAttachmentIndex} from '@/services/smart-bid/content/attachment-index-generator'
 import {expandBuiltInCalculationTable} from '@/services/smart-bid/content/calculation-table-registry'
+import {projectContentPageReferences} from '@/services/smart-bid/content/page-reference-projection'
 
 const placeholder={nodeId:'T',parentId:'C',type:'table',index:0,class:['deviation'],value:'',data:{header:[],rows:[]}}
 const data={header:['页'],rows:[[{value:'{{页}}',data:{页:{type:'page',nodeId:'H'}}}]]}
@@ -31,6 +32,14 @@ it('expands an attachment index in recorded order with fixed resource and page r
  const {generate:_generate,...scope}=input
  const request={...scope,generatorKey:ATTACHMENT_INDEX_GENERATOR.key,generatorVersion:ATTACHMENT_INDEX_GENERATOR.version,entries}
  const result=expandBuiltInCalculationTable(request)
+ const page={nodeId:'H',pageLabel:'iv'}
+ const references=projectContentPageReferences([result.presentationNode],[page])
+ expect(references.map(({path,pageLabel})=>[path,pageLabel])).toEqual([
+  [['data','rows','0','1','data','页码'],'iv'],
+  [['data','rows','1','1','data','页码'],'iv'],
+ ])
+ expect(()=>projectContentPageReferences([result.presentationNode],[])).toThrow('CONTENT_PAGE_TARGET_MISSING:T:H')
+ expect(()=>projectContentPageReferences([result.presentationNode],[page,page])).toThrow('CONTENT_PAGE_PAGINATION_MODEL')
  expect(result.data).toEqual({
   header:['附件','页码'],
   rows:entries.map(({resourceVersionId,nodeId})=>[

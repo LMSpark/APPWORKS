@@ -1,7 +1,16 @@
 import {expect,it} from 'vitest'
 import {readContentNodeFactIds,readContentNodeLinkOccurrences,readContentNodeLinks} from '@/services/smart-bid/content/content-node-links'
+import {projectContentCrossReferences} from '@/services/smart-bid/content/cross-reference-projection'
 
 const node=(type='paragraph',value='',data:Record<string,unknown>={})=>({nodeId:'N',parentId:'P',index:0,type,class:[],value,data})
+it('projects target titles and numbers independently of page placeholders',()=>{
+ const input=node('paragraph','{{标题}}{{编号}}{{页}}',{
+  标题:{type:'xref',nodeId:'D',show:'title'},编号:{type:'xref',nodeId:'D',show:'number'},页:{type:'page',nodeId:'D'}})
+ const target={nodeId:'D',title:'实施方案',number:'3.2'}
+ expect(projectContentCrossReferences([input],[target]).map(item=>item.display)).toEqual(['实施方案','3.2'])
+ expect(()=>projectContentCrossReferences([input],[{...target,number:null}])).toThrow('CONTENT_XREF_TARGET_MISSING:N:D')
+ expect(input.value).toBe('{{标题}}{{编号}}{{页}}')
+})
 it('preserves repeated link occurrences in original UTF-16 order',()=>{
  const value='📎{{页}} {{册}} {{页}}'
  const locations=readContentNodeLinkOccurrences(node('paragraph',value,{

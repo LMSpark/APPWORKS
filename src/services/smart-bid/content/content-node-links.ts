@@ -23,7 +23,7 @@ export type ContentTableData=Readonly<{
  rows:ReadonlyArray<ReadonlyArray<Readonly<{value:string;data:Readonly<Record<string,unknown>>}>>>
 }>
 /** 位置按原文 UTF-16 左闭右开区间，表格位置由 path 中的行列标识。 */
-export type ContentNodeLinkOccurrence=ContentNodeLink&Readonly<{start:number;end:number}>
+export type ContentNodeLinkOccurrence=ContentNodeLink&Readonly<{start:number;end:number;show?:'title'|'number'}>
 type NodeReferences={links:ContentNodeLink[];factIds:Set<string>;resourceVersionIds:Set<string>;linkOccurrences:ContentNodeLinkOccurrence[]}
 const containers=new Set(['document','toc','chapter','list','item','figure','quote'])
 const texts=new Set(['heading','paragraph','caption','image'])
@@ -58,7 +58,10 @@ function checkFields(input:Readonly<{value:string;data:Record<string,unknown>;ow
  const parsed=inspectContentPlaceholders(value)
  for(const {name,start,end} of parsed.occurrences){
   const link=fieldLinks.get(name)
-  if(link)references.linkOccurrences.push({...link,start,end})
+  if(link){
+   const show=record(data[name])['show']
+   references.linkOccurrences.push({...link,start,end,...(show==='title'||show==='number'?{show}:{})})
+  }
  }
  for(const key of parsed.names){
   const reference=record(data[key]),factId=reference['factId'],resourceVersionId=reference['resourceVersionId']

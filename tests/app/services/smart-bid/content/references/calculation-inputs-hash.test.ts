@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {hashCalculationInputs} from '@/services/smart-bid/content/hashes/calculation-inputs-hash'
+import {hashCalculationInputs} from '@/services/smart-bid/content/calculation/calculation-inputs-hash'
 
 const table={nodeId:'A',generatorVersion:'deviation/1',formInstructionRefs:[{id:'form',version:2}],
  requirementVersions:[{id:'req',version:1}],confirmedResponses:[{id:'response',coverage:['req'],selected:true,exceptions:[]}],

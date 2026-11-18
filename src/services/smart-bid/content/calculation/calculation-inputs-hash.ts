@@ -1,5 +1,5 @@
 /**
- * @module app:services/smart-bid/content/hashes/calculation-inputs-hash
+ * @module app:services/smart-bid/content/calculation/calculation-inputs-hash
  * 职责：固定计算表生成器和已核业务输入，形成单表及审核范围摘要。
  * 边界：原表、填写说明、响应核定和版本归属由输入来源核验；不展开、回填或固化生成结果。
  */

@@ -22,7 +22,7 @@ import {readTenderRecordReference} from '@/services/smart-bid/content/references
 import {readContentTenderRecord} from './content-tender-record-reader'
 import {previewScopedRevisionChanges,type ScopedContentPreviewInput} from '@/services/smart-bid/content/content-scoped-preview'
 import {readEffectiveFactDependencies,readEffectiveFactsFromBaseline} from './hashes/effective-fact-reader'
-import {hashCalculationInputs,hashCalculationInputSet} from '@/services/smart-bid/content/hashes/calculation-inputs-hash'
+import {hashCalculationInputs,hashCalculationInputSet} from '@/services/smart-bid/content/calculation/calculation-inputs-hash'
 import {hashRequirementBindings} from '@/services/smart-bid/content/hashes/requirement-binding-hash'
 import {hashQualificationReviews} from '@/services/smart-bid/content/hashes/qualification-review-hash'
 import {hashContentRules} from '@/services/smart-bid/content/hashes/content-rules-hash'

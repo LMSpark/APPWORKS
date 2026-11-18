@@ -11640,3 +11640,5 @@ flowchart TD
 - Excel 单组导出版式的序列化签名用于字段目录失效，正式编辑仍由绑定 DataView 承担。创建/清空在宿主 beforeChange 返回后重核行身份、可编辑状态和原字段值，避免覆盖回调期间较新的版式编辑。版式、引用和面板3文件23项通过，新用例确认新编辑保留且无服务写入。
 - Excel 导入页面专项完整复跑 tests/runtime/page/semi-structured/excel-import：25 文件、307 项全部通过。TLS 恢复后已推送版式修复并独立核对远端 32f88ea89；本轮未派发实服导入。
 - Excel 版式回调修复后，根 pnpm run typecheck 及版式面板和对应回归的 ESLint 均退出0。
+- Excel 实际导入入口核对：正式端点目录区分 sheet.importExcel（文件、encodingId、params、values）和 sheet.importExcelData（文件、sheetConfigs），两者响应均为 AjaxResult<unknown>。在 src 与 packages 业务实现搜索端点、encodingId、sheetConfigs 未发现对应消费；目录已证实的模板上传和方案编辑不能证明业务导入。当前没有该链可用的任务号/原请求回查合同证据，本轮零派发，业务结果仍待。
+- Excel 导入合同复核（对照本台账6463、6977及 SheetDataController 端点目录）：按已保存方案的参考执行器使用 sheet.importExcel。参考实现成功文案不含原请求号；业务行 lingma_sys_task_id、导入主账和明细、事务外归档须分别独立核实。当前仓内端点清单的 /api/import/void 仅有来源标记，不能据以确认清理附件，现有模板上传证据也未执行导入。实服与原请求核验仍待，未派发。

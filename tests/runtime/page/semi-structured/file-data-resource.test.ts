@@ -189,6 +189,32 @@ it('consumes the file catalog tool and verifies the original row again after con
     expect(wrapper.getComponent(SparkPageRenderer).props('pageRuntime')?.getDataSet(formal.scenarioId!)).toBe(dataSet)
     const remove=()=>wrapper.getComponent(RendererTable).get('tbody tr').findAll('button').find(button=>button.text()==='删除')!
     await vi.waitFor(()=>expect(remove().text()).toBe('删除'))
+    const createObjectURL=vi.fn((_blob:Blob)=>'blob:file-download-test')
+    const revokeObjectURL=vi.fn()
+    const browserURL=URL
+    vi.stubGlobal('URL',class extends browserURL {
+      static createObjectURL=createObjectURL
+      static revokeObjectURL=revokeObjectURL
+    })
+    const clicked:HTMLAnchorElement[]=[]
+    const browserClick=vi.spyOn(HTMLAnchorElement.prototype,'click').mockImplementation(function(this:HTMLAnchorElement){clicked.push(this)})
+    try{
+      const buttons=()=>wrapper.getComponent(RendererTable).get('tbody tr').findAll('button')
+      await buttons().find(button=>button.text()==='下载')!.trigger('click')
+      await vi.waitFor(()=>expect(clicked).toHaveLength(1))
+      expect(clicked[0]?.download).toBe('a.txt')
+      expect(clicked[0]?.href).toBe('blob:file-download-test')
+      const blob=createObjectURL.mock.calls[0]![0]
+      const bytes=await new Promise<ArrayBuffer>((resolve,reject)=>{
+        const reader=new FileReader()
+        reader.onload=()=>resolve(reader.result as ArrayBuffer)
+        reader.onerror=()=>reject(reader.error)
+        reader.readAsArrayBuffer(blob)
+      })
+      expect(Array.from(new Uint8Array(bytes))).toEqual([0,255,42])
+      expect(api.readFileBytes).toHaveBeenCalledOnce()
+      await vi.waitFor(()=>expect(revokeObjectURL).toHaveBeenCalledWith('blob:file-download-test'),{timeout:2000})
+    }finally{browserClick.mockRestore()}
     await remove().trigger('click')
     expect(confirm).toBeDefined()
     await view.refresh()

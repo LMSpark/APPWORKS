@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {resolveContentAuthoringTarget,resolvePublishedContentAuthoringTarget,type ContentAuthoringRoute} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
-import {preparePublishedBidHandoffCall,preparePublishedTenderFollowupCall,preparePublishedBidResponseCall,preparePublishedResourceAllocationCall,preparePublishedConfigurationReleaseCall,preparePublishedBidClassModelCatalogCall,preparePublishedKnowledgeDirectoryCall,preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
+import {preparePublishedAuthorityGrantCall,preparePublishedResourceVersionCall,preparePublishedResourceUseCall,preparePublishedBidHandoffCall,preparePublishedTenderFollowupCall,preparePublishedBidResponseCall,preparePublishedResourceAllocationCall,preparePublishedConfigurationReleaseCall,preparePublishedBidClassModelCatalogCall,preparePublishedKnowledgeDirectoryCall,preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
 
 const auth=vi.hoisted(()=>({token:'SESSION',appId:'D8490EC99436A8B9AFDE205BE3153802'}))
 vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
@@ -13,6 +13,7 @@ const app='D8490EC99436A8B9AFDE205BE3153802',space='D3BBA1F0780056C837AC35E9825C
 const route=():ContentAuthoringRoute=>({path:`/apps/${app}/features/application/smart-bid/authoring/entry/content-authoring-page`,
  meta:{type:'config-page',nodeId:'NAV11',pageId:'TOOL11',tool:{projectId:app,pageId:'TOOL11'}},query:{scenarioId:space,projectId:'P',draftId:'D'}})
 it.each([
+ {number:6,prepareCall:preparePublishedResourceUseCall},
  {number:7,prepareCall:preparePublishedResourceAllocationCall},
  {number:8,prepareCall:preparePublishedBidHandoffCall},
  {number:9,prepareCall:preparePublishedTenderFollowupCall},
@@ -148,6 +149,21 @@ it('rejects a different handoff project or a route-provided round at the publish
   expect(()=>prepared?.createHost(runtime)).toThrow('BID_TENDER_PUBLICATION_SCOPE')
   expect(readReceipts).not.toHaveBeenCalled()
  }finally{runtime.dispose()}
+})
+it.each([
+ {pageNumber:'04',prepareCall:preparePublishedAuthorityGrantCall,field:'enterpriseId'},
+ {pageNumber:'05',prepareCall:preparePublishedResourceVersionCall,field:'resourceId'},
+])('prepares enterprise page $pageNumber without a project and rejects URL binding overrides',({pageNumber,prepareCall,field})=>{
+ const entry={applicationId:app,scenarioId:space,nodeId:`NAV${pageNumber}`,pageId:`TOOL${pageNumber}`}
+ const publishedRoute={path:`/apps/${app}/page${pageNumber}`,meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,
+  blueprintScenarioId:space,tool:{projectId:app,pageId:entry.pageId}},query:{scenarioId:space}}
+ const binding=vi.fn(()=>({enterpriseId:'ORG',resourceId:'RESOURCE',assertCurrent:()=>{}}))
+ expect(prepareCall(publishedRoute,entry,binding)?.scenarioInputs).toEqual({[space]:{currentUserId:'ACTOR'}})
+ expect(()=>prepareCall({...publishedRoute,query:{...publishedRoute.query,[field]:'OTHER'}},entry,binding))
+  .toThrow('BID_AUTHORITY_PUBLICATION_SCOPE')
+ expect(()=>prepareCall({...publishedRoute,query:{...publishedRoute.query,projectId:'OTHER'}},entry,binding))
+  .toThrow('BID_AUTHORITY_PUBLICATION_SCOPE')
+ expect(binding).not.toHaveBeenCalled()
 })
 it('dispatches only the published node and tool pair in the declared space',()=>{
  const entry={nodeId:'NAV11',pageId:'TOOL11'}

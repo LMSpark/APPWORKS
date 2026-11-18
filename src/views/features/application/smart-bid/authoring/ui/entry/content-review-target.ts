@@ -17,6 +17,9 @@ import {createBidFindingsScriptHost} from '../../../collaboration/tasks/bid-find
 import {createKnowledgeDirectoryScriptHost} from '../../../knowledge/knowledge-directory-script-host'
 import {createBidClassModelCatalogHost} from '../../../knowledge/class-model-catalog-script-host'
 import {createBidResponseScriptHost} from '../../../response/ui/entry/response-script-host'
+import {createAuthorityGrantScriptHost} from '../../../authority/authority-grant-script-host'
+import {createBidResourceVersionHost} from '../../../authority/resource-version-reader'
+import {createResourceUseScriptHost} from '../../../authority/resource-use-script-host'
 import {createResourceAllocationScriptHost} from '../../../authority/resource-allocation-script-host'
 import {createConfigurationReleaseScriptHost} from '../../../configuration/configuration-release-script-host'
 
@@ -172,26 +175,92 @@ function preparePublishedTenderScopeCall<Options,Host>(
  return prepared
 }
 
+type EnterpriseScope=Omit<Scope,'projectId'>
+type EnterpriseBinding=Readonly<{enterpriseId:string;assertCurrent:()=>void}>
+
+/** 页04从企业级发布实例取得委托企业。 */
+export function preparePublishedAuthorityGrantCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+ bindEnterprise:(runtime:PageRuntime,scope:EnterpriseScope)=>EnterpriseBinding,
+){
+ return preparePublishedEnterpriseCall(route,entry,['enterpriseId'],(runtime,scope)=>{
+  const binding=bindEnterprise(runtime,scope)
+  if(!identity(binding.enterpriseId))throw Error('BID_AUTHORITY_PUBLICATION_SCOPE')
+  return createAuthorityGrantScriptHost(runtime,{...scope,enterpriseId:binding.enterpriseId,
+   assertCurrent:()=>{scope.assertCurrent();binding.assertCurrent()}})
+ })
+}
+
+/** 页05从企业级发布实例读取已选原资料及其历史。 */
+export function preparePublishedResourceVersionCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+ bindResource:(runtime:PageRuntime,scope:EnterpriseScope)=>Readonly<{resourceId:string;assertCurrent:()=>void}>,
+){
+ return preparePublishedEnterpriseCall(route,entry,['resourceId','enterpriseId'],(runtime,scope)=>{
+  const binding=bindResource(runtime,scope)
+  if(!identity(binding.resourceId))throw Error('BID_AUTHORITY_PUBLICATION_SCOPE')
+  return createBidResourceVersionHost(runtime,{...scope,resourceId:binding.resourceId,
+   assertCurrent:()=>{scope.assertCurrent();binding.assertCurrent()}})
+ })
+}
+
+/** 页06按当前项目及可信企业读取原用途决定。 */
+export function preparePublishedResourceUseCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+ bindEnterprise:(runtime:PageRuntime,scope:Scope)=>EnterpriseBinding,
+){
+ const prepared=preparePublishedCall(route,entry,(runtime,scope)=>{
+  const binding=bindEnterprise(runtime,scope)
+  if(!identity(binding.enterpriseId))throw Error('BID_AUTHORITY_PUBLICATION_SCOPE')
+  return createResourceUseScriptHost(runtime,{...scope,enterpriseId:binding.enterpriseId,
+   assertCurrent:()=>{scope.assertCurrent();binding.assertCurrent()}})
+ })
+ if(prepared&&Object.hasOwn(route.query,'enterpriseId'))throw Error('BID_AUTHORITY_PUBLICATION_SCOPE')
+ return prepared
+}
+
+function preparePublishedEnterpriseCall<Host>(route:ContentAuthoringRoute,entry:PublishedEntry,forbidden:readonly string[],
+ createHost:(runtime:PageRuntime,scope:EnterpriseScope)=>Host,
+){
+ if(!matchesPublishedNavigation(route,entry))return undefined
+ if(forbidden.some(key=>Object.hasOwn(route.query,key))||Object.hasOwn(route.query,'projectId'))
+  throw Error('BID_AUTHORITY_PUBLICATION_SCOPE')
+ const {applicationId,scenarioId}=entry
+ const session=captureContentAuthoringSession({applicationId,scenarioId})
+ return bindPublishedRuntime(entry,session,runtime=>createHost(runtime,{scenarioId,assertCurrent:session.assertCurrent}))
+}
+
 function preparePublishedCall<Host>(route:ContentAuthoringRoute,entry:PublishedEntry,createHost:(runtime:PageRuntime,scope:Scope)=>Host){
+ if(!matchesPublishedNavigation(route,entry))return undefined
+ const {projectId}=route.query
+ if(!identity(projectId))throw Error('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
+ const {applicationId,scenarioId}=entry
+ const session=captureContentAuthoringSession({applicationId,scenarioId,projectId})
+ const scope=Object.freeze({projectId,scenarioId,assertCurrent:session.assertCurrent})
+ return bindPublishedRuntime(entry,session,runtime=>createHost(runtime,scope))
+}
+
+function matchesPublishedNavigation(route:ContentAuthoringRoute,entry:PublishedEntry):boolean{
  const {applicationId,scenarioId,nodeId,pageId}=entry
  if(![applicationId,scenarioId,nodeId,pageId].every(identity))throw Error('CONTENT_REVIEW_PUBLICATION_IDENTITY_REQUIRED')
- if(resolveExecutionProjectId(route.path)!==applicationId||route.meta['nodeId']!==nodeId)return undefined
+ if(resolveExecutionProjectId(route.path)!==applicationId||route.meta['nodeId']!==nodeId)return false
  const {tool,type,blueprintScenarioId,programmaticTool}=route.meta
- const {projectId}=route.query
  if(type!=='config-page'||programmaticTool===true||!isRecord(tool)||tool['projectId']!==applicationId||
   tool['pageId']!==pageId||route.meta['pageId']!==pageId||blueprintScenarioId!==scenarioId||
-  route.query['scenarioId']!==scenarioId||!identity(projectId)||
+  route.query['scenarioId']!==scenarioId||
   ['actorUserId','currentUserId','userId','scenarioInputs','additionalScenarioIds','rootKind'].some(key=>Object.hasOwn(route.query,key))||
   Object.entries({applicationId,pageId}).some(([key,value])=>Object.hasOwn(route.query,key)&&route.query[key]!==value))
   throw Error('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
- const session=captureContentAuthoringSession({applicationId,scenarioId,projectId})
- const scope=Object.freeze({projectId,scenarioId,assertCurrent:session.assertCurrent})
+ return true
+}
+
+function bindPublishedRuntime<Host>(entry:PublishedEntry,session:ReturnType<typeof captureContentAuthoringSession>,
+ createHost:(runtime:PageRuntime)=>Host,
+){
+ const {pageId,scenarioId}=entry
  return Object.freeze({scenarioInputs:session.scenarioInputs,assertCurrent:session.assertCurrent,
   createHost(runtime:PageRuntime){
    session.assertCurrent()
    if(runtime.pageId!==pageId||!runtime.call.scenarioIds.includes(scenarioId))
     throw Error('CONTENT_REVIEW_PUBLICATION_RUNTIME_CONFLICT')
-   return createHost(runtime,scope)
+   return createHost(runtime)
   },
  })
 }

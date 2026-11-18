@@ -10,6 +10,10 @@ it('requires calculation inputs for exactly the original selected table placehol
   const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
   const table={nodeId:'T',generatorVersion:'deviation/1',formInstructionRefs:[],requirementVersions:[],
    confirmedResponses:[],factVersions:[],resourceVersions:[]}
+  expect(candidate.readCalculationTemplates(['H'])).toEqual([])
+  expect(candidate.readCalculationTemplates(['T'])).toEqual([{
+   nodeId:'T',template:{documentId:'D',key:'T',version:'1',hash:'a'.repeat(64)},
+  }])
   let current=true
   const assertInputs=()=>{if(!current)throw Error('CALCULATION_INPUT_STALE')}
   await expect(candidate.hashNodeCalculationInputs(['T'],[],assertInputs)).rejects.toThrow('CONTENT_CALCULATION_INPUT_SCOPE')
@@ -19,6 +23,7 @@ it('requires calculation inputs for exactly the original selected table placehol
   current=false;expect(()=>result.assertCurrent()).toThrow('CALCULATION_INPUT_STALE')
   current=true;await f.ds.getView('ContentNodeVersion','snapshotMembers')!.refresh()
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  expect(()=>candidate.readCalculationTemplates(['T'])).toThrow('DATA_VIEW_READ_RESULT')
  }finally{f.ds.destroy()}
 })
 

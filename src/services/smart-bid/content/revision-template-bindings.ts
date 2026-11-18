@@ -31,3 +31,24 @@ export function assertRevisionTemplateBindings(value:unknown,nodes:ReadonlyArray
   byVersion.set(ref.version,ref.hash);versions.set(ref.key,byVersion)
  },'SNAPSHOT_TEMPLATE_MODEL')
 }
+
+/** 每个所选计算表沿原父链找到逻辑册，必须有该册明确固定的模板。 */
+export function readCalculationTableTemplateRefs(value:unknown,nodes:readonly ContentStructureNode[],tableIds:readonly string[]){
+ assertRevisionTemplateBindings(value,nodes)
+ const bindings=new Map<string,RevisionTemplateRef>()
+ visitSnapshotReferences(value,item=>{const ref=reference(item);bindings.set(ref.documentId,ref)},'SNAPSHOT_TEMPLATE_MODEL')
+ const byId=new Map(nodes.map(node=>[node.nodeId,node]))
+ return Object.freeze(tableIds.map(nodeId=>{
+  const table=byId.get(nodeId)
+  if(table?.type!=='table')throw Error('SNAPSHOT_CALCULATION_TABLE')
+  const seen=new Set<string>()
+  let current:ContentStructureNode|undefined=table
+  while(current&&current.type!=='document'&&!seen.has(current.nodeId)){
+   seen.add(current.nodeId)
+   current=byId.get(current.parentId)
+  }
+  const template=current?.type==='document'?bindings.get(current.nodeId):undefined
+  if(!template)throw Error('SNAPSHOT_CALCULATION_TEMPLATE_REQUIRED')
+  return Object.freeze({nodeId,template:Object.freeze(template)})
+ }))
+}

@@ -4,7 +4,7 @@
  * 边界：仅返回原视图绑定与证明；不缓存载荷、不采用、不冒充完整业务闭包或三版预演。
  * AI用途：候选内容先核固定依据一致，再交后续业务检查；JSON内容与模板引用分别核对。
  */
-import {assertRevisionTemplateBindings} from '@/services/smart-bid/content/revision-template-bindings'
+import {assertRevisionTemplateBindings,readCalculationTableTemplateRefs} from '@/services/smart-bid/content/revision-template-bindings'
 import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
 import {assertRevisionResponseText,readIndependentResponseFactIds,type IndependentResponseFactTarget} from '@/services/smart-bid/content/references/revision-response-text'
 import {hasCompleteSingleContentResult,readContentRevisionBasis,readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
@@ -56,6 +56,7 @@ export type ContentCandidateBinding=Readonly<{
  readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>ReturnType<typeof readEffectiveFactDependencies>
  hashNodeCalculationInputs:(nodeIds:readonly string[],tables:unknown,assertInputsCurrent:()=>void)=>
   Promise<Awaited<ReturnType<typeof hashCalculationInputs>>&Readonly<{assertCurrent:()=>void}>>
+ readCalculationTemplates:(nodeIds:readonly string[])=>ReturnType<typeof readCalculationTableTemplateRefs>
  readEffectiveFacts:(scope:Readonly<{nodeIds:readonly string[];responses:readonly IndependentResponseFactTarget[]}>,assertConsumer?:()=>void)=>ReturnType<typeof readEffectiveFactDependencies>
  readRequirementPinIssues:(assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementPinsBinding>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
@@ -106,10 +107,14 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
  assertRevisionResponseAnchors(responses,requirementPins,payloads)
  assertRevisionResponseText(responses,payloads.map(payload=>payload.nodeId))
  assertCurrent()
+ const readCalculationTemplates=(nodeIds:readonly string[])=>{
+  assertCurrent()
+  return readCalculationTableTemplateRefs(templateRefs,payloads,nodes.readCalculationTableIds(nodeIds))
+ }
  const hashNodeCalculationInputs:ContentCandidateBinding['hashNodeCalculationInputs']=async(nodeIds,tables,assertInputsCurrent)=>{
   const assertInputs=()=>{assertCurrent();assertInputsCurrent()}
   assertInputs()
-  const expectedNodeIds=nodes.readCalculationTableIds(nodeIds)
+  const expectedNodeIds=readCalculationTemplates(nodeIds).map(item=>item.nodeId)
   const result=await hashCalculationInputs({expectedNodeIds,tables})
   assertInputs()
   return Object.freeze({...result,assertCurrent:assertInputs})
@@ -291,7 +296,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   if(capturedInput.role==='head')return (await readPreviewVersions(assertConsumer)).captureNodeTextSelection(capturedInput)
   return captureNodeSelection(capturedInput,{snapshot,nodes},()=>{assertCurrent();assertConsumer?.()})
  }
- return Object.freeze({runtime:host.runtime,readFixedFact,readEffectiveFacts,hashNodeCalculationInputs,
+ return Object.freeze({runtime:host.runtime,readFixedFact,readEffectiveFacts,hashNodeCalculationInputs,readCalculationTemplates,
   readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readEffectiveFacts({nodeIds,responses:[]},assertConsumer),
   readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   verifyRootHash:(contract:string)=>verifyReadableRevisionRoot({host:{...host,assertCurrent},revisionDataViewKey:revisions.candidateDataViewKey,snapshot,contract}),

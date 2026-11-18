@@ -11,6 +11,9 @@ it('dispatches only the published node and tool pair in the declared space',()=>
  expect(()=>resolvePublishedContentAuthoringTarget(route(),{...entry,pageId:'OTHER'})).toThrow('PUBLICATION_IDENTITY_CONFLICT')
  expect(()=>resolvePublishedContentAuthoringTarget({...route(),query:{...route().query,additionalScenarioIds:'OTHER'}},entry))
   .toThrow('PUBLICATION_IDENTITY_CONFLICT')
+ expect(()=>resolvePublishedContentAuthoringTarget({...route(),meta:{...route().meta,blueprintScenarioId:'OTHER'}},entry))
+  .toThrow('CONTENT_AUTHORING_ENTRY_IDENTITY_CONFLICT')
+ expect(resolvePublishedContentAuthoringTarget({...route(),meta:{...route().meta,blueprintScenarioId:space}},entry)?.scenarioId).toBe(space)
 })
 it('takes page and space identity from resolved navigation while keeping explicit project/draft',()=>{
  const target=resolveContentAuthoringTarget(route())

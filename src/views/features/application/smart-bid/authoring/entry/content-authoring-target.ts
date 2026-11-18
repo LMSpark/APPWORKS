@@ -43,11 +43,13 @@ export function resolvePublishedContentAuthoringTarget(
 /** 空缺或冲突身份在任何查询前拒绝。 */
 export function resolveContentAuthoringTarget(route:ContentAuthoringRoute):ContentAuthoringTarget {
  const tool=route.meta['tool'],nodeId=route.meta['nodeId'],projectId=route.query['projectId'],draftId=route.query['draftId']
+ const publishedScenario=route.meta['blueprintScenarioId']
  if(resolveExecutionProjectId(route.path)!==applicationId||route.meta['type']!=='config-page'||route.meta['programmaticTool']===true
   ||!identity(nodeId)||!isRecord(tool)||tool['projectId']!==applicationId||!identity(tool['pageId'])
   ||route.meta['pageId']!==tool['pageId']||route.query['scenarioId']!==scenarioId||!identity(projectId)||!identity(draftId)
   ||['actorUserId','currentUserId','userId','scenarioInputs'].some(key=>Object.hasOwn(route.query,key)))throw Error('CONTENT_AUTHORING_ENTRY_IDENTITY_REQUIRED')
  const pageId=tool['pageId']
+ if(publishedScenario!==undefined&&publishedScenario!==scenarioId)throw Error('CONTENT_AUTHORING_ENTRY_IDENTITY_CONFLICT')
  for(const [key,value] of Object.entries({applicationId,scenarioId,pageId})){
   if(Object.hasOwn(route.query,key)&&route.query[key]!==value)throw Error('CONTENT_AUTHORING_ENTRY_IDENTITY_CONFLICT')
  }

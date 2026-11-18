@@ -119,8 +119,15 @@ it('keeps responsibility with the original assignee until the current version is
     snapshot:headTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[{...headRow,lingma_sys_params:proof}]}}})})
   }})
   const frozenBaseline=ds.getView('Baseline','originalFrozenBaseline')
-  if(!frozenBaseline)throw Error('TEST_FROZEN_BASELINE_VIEW_REQUIRED')
+  const previousFrozen=ds.getView('Baseline','previousFrozenBaseline')
+  if(!frozenBaseline||!previousFrozen)throw Error('TEST_FROZEN_BASELINE_VIEW_REQUIRED')
   const frozenTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'Baseline'})
+  const previousFrozenTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'Baseline'})
+  previousFrozen.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+   identity:previousFrozenTable.identity,scope:'prior-frozen',readScope:()=> 'prior-frozen',
+   snapshot:previousFrozenTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[{...baselineRow,
+    id:'PREVIOUS-BASELINE',stageRef:'PREVIOUS-STAGE',factVersions:[],lingma_sys_params:proof}]}}}),
+  })})
   let duplicateFact=false
   frozenBaseline.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:frozenTable.identity,scope:'frozen',readScope:()=> 'frozen',
@@ -131,7 +138,7 @@ it('keeps responsibility with the original assignee until the current version is
   const host={scenarioId:'S',projectId:'P',runtime:{resolveView:(key:string)=>key==='S@BidHandoff@originalHandoff'?view:
    key==='S@BidHandoff@previousHandoff'?previousView:key==='S@ContentProject@originalProjectScope'?projectView:
     key==='S@Baseline@originalProjectBaseline'?baseline:key==='S@ContentRevision@originalProjectHead'?head:key==='S@Baseline@originalHeadBaseline'?fixedBaseline:
-    key==='S@Baseline@originalFrozenBaseline'?frozenBaseline:undefined},
+    key==='S@Baseline@originalFrozenBaseline'?frozenBaseline:key==='S@Baseline@previousFrozenBaseline'?previousFrozen:undefined},
    assertCurrent}
   let hasCurrentReceipt=true
   const readReceipts=vi.fn(async()=>({receipts:hasCurrentReceipt?[old,current]:[old],
@@ -182,6 +189,13 @@ it('keeps responsibility with the original assignee until the current version is
    '基线 BASELINE · 阶段 STAGE-1','固定事实 1 项 · 固定要求 1 项 · 招标记录 1 项',
    '事实 FACT · 版本 1','要求 CLAUSE · 版本 V1',`招标记录 RUN / CLAUSES / 0 · 版本 TV1 · 摘要 ${'b'.repeat(64)}`,
   ].join('\n'),'冻结依据回查')
+  const baselineComparison=await page.invoke('bid.project.compareFrozenBaselines',
+   {previousId:'PREVIOUS-BASELINE',currentId:'BASELINE'},signal)
+  expect(baselineComparison).toMatchObject({state:'COMPARED',previousStage:'PREVIOUS-STAGE',currentStage:'STAGE-1',
+   facts:[{previous:null,current:{factId:'FACT',version:1}}],requirements:[],tenderRecords:[]})
+  baselineComparison.assertCurrent()
+  await previousFrozen.refresh()
+  expect(()=>baselineComparison.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   duplicateFact=true
   await expect(page.invoke('bid.project.readFrozenBaseline',{baselineId:'BASELINE'},signal)).rejects.toThrow('BASELINE_FACT_MEMBER_DUPLICATE')
   headUnavailable=true

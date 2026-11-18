@@ -12,6 +12,7 @@ import {readBaselineRequirementMembers} from '@/services/smart-bid/content/refer
 import {readBaselineTenderRecords} from '@/services/smart-bid/content/references/baseline-tender-records'
 
 const frozenView='originalFrozenBaseline'
+const previousFrozenView='previousFrozenBaseline'
 const frozenFields=['stageRef','factVersions','requirementVersions','tenderRecords']
 const fields=['stageRefs','headRevisionId','activeBaselineId']
 const fixedBaselineView='originalHeadBaseline'
@@ -29,7 +30,8 @@ export function bidProjectScopeScenarioViews(primaryKeys:Readonly<Record<'Conten
   ContentRevision:{originalProjectHead:originalRegistrationView(primaryKeys.ContentRevision,keys,targets.ContentRevision.fields)},
   Baseline:{originalProjectBaseline:originalRegistrationView(primaryKeys.Baseline,keys,targets.Baseline.fields),
    [fixedBaselineView]:originalRegistrationView(primaryKeys.Baseline,keys,targets.Baseline.fields),
-   [frozenView]:originalRegistrationView(primaryKeys.Baseline,keys,frozenFields)},
+   [frozenView]:originalRegistrationView(primaryKeys.Baseline,keys,frozenFields),
+   [previousFrozenView]:originalRegistrationView(primaryKeys.Baseline,keys,frozenFields)},
  }
 }
 
@@ -90,9 +92,9 @@ export async function readBidProjectScope(host:Host){
 }
 
 /** 按明确版本回读冻结引用。来源准用和正式激活仍沿各自办理。 */
-export async function readBidFrozenBaseline(host:Host,id:string){
+export async function readBidFrozenBaseline(host:Host,id:string,side:'current'|'previous'='current'){
  const {projectId}=host
- const read=await readOriginalRegistrationView(host,{model:'Baseline',viewName:frozenView},{projectId,id})
+ const read=await readOriginalRegistrationView(host,{model:'Baseline',viewName:side==='current'?frozenView:previousFrozenView},{projectId,id})
  if(!read.row)return Object.freeze({state:'UNKNOWN' as const,assertCurrent:read.assertCurrent})
  const assertCurrent=read.captureFields(frozenFields)
  assertCurrent()
@@ -105,5 +107,35 @@ export async function readBidFrozenBaseline(host:Host,id:string){
   stage:identity(stageRef)?stageRef:canonicalSnapshotValue(stageRef),facts:Object.freeze([...facts].map(([factId,version])=>Object.freeze({factId,version}))),
   requirements:Object.freeze([...requirements].map(([lineageId,version])=>Object.freeze({lineageId,version}))),
   tenderRecords:Object.freeze([...tenders.values()]),
+  assertCurrent})
+}
+
+function compareReferences<T>(before:readonly T[],after:readonly T[],key:(reference:T)=>string){
+ const oldReferences=new Map(before.map(reference=>[key(reference),reference]))
+ const newReferences=new Map(after.map(reference=>[key(reference),reference]))
+ const changes=[]
+ for(const id of new Set([...oldReferences.keys(),...newReferences.keys()])){
+  const previous=oldReferences.get(id)??null
+  const current=newReferences.get(id)??null
+  if(canonicalSnapshotValue(previous)===canonicalSnapshotValue(current))continue
+  changes.push(Object.freeze({previous,current}))
+ }
+ return Object.freeze(changes)
+}
+
+/** 比较同一项目两份原冻结记录，保留变化两侧的精确引用。 */
+export async function compareBidFrozenBaselines(host:Host,previousId:string,currentId:string){
+ const [previous,current]=await Promise.all([
+  readBidFrozenBaseline(host,previousId,'previous'),
+  readBidFrozenBaseline(host,currentId),
+ ])
+ const assertCurrent=()=>{previous.assertCurrent();current.assertCurrent()}
+ assertCurrent()
+ if(previous.state!=='REGISTERED'||current.state!=='REGISTERED')
+  return Object.freeze({state:'UNKNOWN' as const,assertCurrent})
+ return Object.freeze({state:'COMPARED' as const,previousId,currentId,previousStage:previous.stage,currentStage:current.stage,
+  facts:compareReferences(previous.facts,current.facts,item=>item.factId),
+  requirements:compareReferences(previous.requirements,current.requirements,item=>item.lineageId),
+  tenderRecords:compareReferences(previous.tenderRecords,current.tenderRecords,item=>JSON.stringify([item.runId,item.type,item.ordinal])),
   assertCurrent})
 }

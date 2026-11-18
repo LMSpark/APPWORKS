@@ -30,5 +30,13 @@
     "children": [
       {"type": "r-button", "props": {"label": "查询指定基线", "onClick": "openFrozenBaseline"}}
     ]
+  },
+  {
+    "id": "bid-project-frozen-baseline-comparison",
+    "type": "r-section",
+    "props": {"title": "冻结依据差异", "onBeforeRender": "bindFrozenBaselineComparison"},
+    "children": [
+      {"type": "r-button", "props": {"label": "比较两版基线", "onClick": "openFrozenBaselineComparison"}}
+    ]
   }
 ]

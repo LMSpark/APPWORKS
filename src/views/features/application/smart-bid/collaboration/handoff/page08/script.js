@@ -78,6 +78,43 @@ function bindFrozenBaseline() {
   return {visible: typeof frozenBaselineId === 'string' && !!frozenBaselineId && frozenBaselineId.trim() === frozenBaselineId}
 }
 
+function bindFrozenBaselineComparison() {
+  const {frozenBaselineId, previousFrozenBaselineId} = $route.query
+  return {visible: bindFrozenBaseline().visible && typeof previousFrozenBaselineId === 'string' &&
+    !!previousFrozenBaselineId && previousFrozenBaselineId.trim() === previousFrozenBaselineId &&
+    previousFrozenBaselineId !== frozenBaselineId}
+}
+
+async function openFrozenBaselineComparison() {
+  if (!bindFrozenBaselineComparison().visible) return
+  const {frozenBaselineId, previousFrozenBaselineId} = $route.query
+  try {
+    const result = await $page.invokeHostCommand('bid.project.compareFrozenBaselines',
+      {previousId: previousFrozenBaselineId, currentId: frozenBaselineId})
+    result.assertCurrent()
+    if (result.state !== 'COMPARED') {
+      await $page.showAlert('两份冻结依据的登记待确认', '冻结依据差异')
+      return
+    }
+    const describe = ({previous, current}, title, version) =>
+      [title(current ?? previous), previous ? '原版 ' + version(previous) : '新增',
+        current ? '新版 ' + version(current) : '移出'].join(' · ')
+    const changes = [
+      ...result.facts.map(change => describe(change, item => '事实 ' + item.factId, item => item.version)),
+      ...result.requirements.map(change => describe(change, item => '要求 ' + item.lineageId, item => item.version)),
+      ...result.tenderRecords.map(change => describe(change,
+        item => [item.runId, item.type, item.ordinal].join(' / '),
+        item => [item.recordVersion, item.recordHash].join(' / '))),
+    ]
+    const lines = [`原基线 ${result.previousId} · 阶段 ${result.previousStage}`,
+      `新基线 ${result.currentId} · 阶段 ${result.currentStage}`,
+      ...(changes.length ? changes : ['两版的固定引用一致'])]
+    await $page.showAlert(lines.join('\n'), '冻结依据差异')
+  } catch {
+    $page.showMessage('冻结依据差异无法核验', 'warning')
+  }
+}
+
 async function openFrozenBaseline() {
   if (!bindFrozenBaseline().visible) return
   try {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1352,
+  "scannedFileCount": 1357,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17906,6 +17906,32 @@
         "symbols": []
       }
     },
+    "src/services/smart-bid/content/review/submission-package-members.ts": {
+      "file": "files/src/services/smart-bid/content/review/submission-package-members.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/submission-package-members",
+        "sourcePath": "src/services/smart-bid/content/review/submission-package-members.ts",
+        "sourceFile": "src/services/smart-bid/content/review/submission-package-members.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/submission-package-members",
+        "jsdoc": "@module app:services/smart-bid/content/review/submission-package-members\n职责：动作50逐位置核对冻结清单、装封记录和独立实包读取。\n边界：包身份、材料准用、审核与签署覆盖由原证据另核。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/submission-reconciliation.ts": {
+      "file": "files/src/services/smart-bid/content/review/submission-reconciliation.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/submission-reconciliation",
+        "sourcePath": "src/services/smart-bid/content/review/submission-reconciliation.ts",
+        "sourceFile": "src/services/smart-bid/content/review/submission-reconciliation.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/submission-reconciliation",
+        "jsdoc": "@module app:services/smart-bid/content/review/submission-reconciliation\n职责：按动作54指定截止与获知时点，逐项归并已经核定效力的渠道事件。\n边界：事件的生效条件由原规则和渠道证据核定；本函数不认定开启、准入或审批值相符。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/revision-response-comparison.ts": {
       "file": "files/src/services/smart-bid/content/revision-response-comparison.ts.json",
       "module": {
@@ -19206,6 +19232,45 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/review/content-approval-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-approval-reader\n职责：按项目和原批准 ID 读取动作45的固定 Approval 记录。\n边界：不选最近批准、不判断当前用途、不推断项目批准所覆盖的平台栏。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation\n职责：给动作54已核截止批次关联同批平台栏回读及批准值比较。\n边界：栏位比对不改变送达、实件装入、开启或准入结论。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation\n职责：给截止义务关联经渠道记录唯一定位的原实包及同位置成员。\n边界：包关联来自原办理证据；只投影已核成员，不改变送达或准入状态。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/content-package-review",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-package-review",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-package-review\n职责：重开登记电子包，用同一次原始字节及全量解包逐件核对。\n边界：原包授权读取、格式适配和全量枚举由调用方负责，不判签审覆盖。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

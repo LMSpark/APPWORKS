@@ -1,0 +1,362 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation\n职责：给动作54已核截止批次关联同批平台栏回读及批准值比较。\n边界：栏位比对不改变送达、实件装入、开启或准入结论。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Deadline": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Deadline",
+      "properties": {
+        "cutoffAt": {
+          "type": "string"
+        },
+        "knownAt": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "obligationId": {
+                "type": "string"
+              },
+              "state": {
+                "enum": [
+                  "PENDING_EFFECT",
+                  "PENDING_DELIVERY",
+                  "EFFECTIVE_ATTEMPT"
+                ]
+              },
+              "attemptRef": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "eventRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "obligationId",
+              "state",
+              "attemptRef",
+              "eventRefs"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "cutoffAt",
+        "knownAt",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "Batch": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Batch",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "receiptRef": {
+          "type": "string"
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "assignmentId": {
+                    "type": "string"
+                  },
+                  "fieldId": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "const": "STAGE_REQUIRED"
+                  },
+                  "observationRef": {
+                    "type": "string"
+                  },
+                  "assertCurrent": {
+                    "type": "object",
+                    "title": "() => void"
+                  }
+                },
+                "required": [
+                  "assignmentId",
+                  "fieldId",
+                  "state",
+                  "observationRef",
+                  "assertCurrent"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "assignmentId": {
+                    "type": "string"
+                  },
+                  "fieldId": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "const": "RECEIPT_REQUIRED"
+                  },
+                  "observationRef": {
+                    "type": "string"
+                  },
+                  "assertCurrent": {
+                    "type": "object",
+                    "title": "() => void"
+                  }
+                },
+                "required": [
+                  "assignmentId",
+                  "fieldId",
+                  "state",
+                  "observationRef",
+                  "assertCurrent"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "assignmentId": {
+                    "type": "string"
+                  },
+                  "fieldId": {
+                    "type": "string"
+                  },
+                  "assertCurrent": {
+                    "type": "object",
+                    "title": "() => void"
+                  },
+                  "receiptRef": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "enum": [
+                      "MATCHED",
+                      "MISMATCHED"
+                    ]
+                  },
+                  "observationRef": {
+                    "type": "string"
+                  },
+                  "observedValueHash": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "assignmentId",
+                  "fieldId",
+                  "assertCurrent",
+                  "state",
+                  "observationRef",
+                  "observedValueHash"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "allSelectedFieldsMatched": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "projectId",
+        "revisionId",
+        "attemptRef",
+        "receiptRef",
+        "results",
+        "allSelectedFieldsMatched",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "Field": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Field",
+      "properties": {
+        "obligationId": {
+          "type": "string"
+        },
+        "assignmentId": {
+          "type": "string"
+        },
+        "fieldId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "obligationId",
+        "assignmentId",
+        "fieldId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T03:07:33.299Z",
+  "models": {
+    "Deadline": {
+      "name": "Deadline",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof reconcileSubmissionDeadline>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<typeof reconcileSubmissionDeadline>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "cutoffAt",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "items",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Batch": {
+      "name": "Batch",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof readSubmittedPlatformFields>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof readSubmittedPlatformFields>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "receiptRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "results",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "allSelectedFieldsMatched",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Field": {
+      "name": "Field",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    obligationId: string;\n    assignmentId: string;\n    fieldId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    obligationId: string;\n    assignmentId: string;\n    fieldId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "obligationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

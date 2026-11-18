@@ -30,8 +30,8 @@ beforeEach(()=>{
  state.runtime=new DataSpaceRuntimeApi({http:state.http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})});registerAllRenderers();const stubs={...original};for(const name of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])Reflect.deleteProperty(stubs,name);config.global.stubs=stubs
 })
 afterEach(()=>{wrappers.splice(0).forEach(w=>w.unmount());config.global.stubs=original})
-async function open(path='/json',meta:Record<string,unknown>={blueprintScenarioId:SCENE}){
- const router=createRouter({history:createMemoryHistory(),routes:[{path,component:JsonPage,meta},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push(path);await router.isReady()
+async function open(path='/json',meta:Record<string,unknown>={blueprintScenarioId:SCENE},routePath=path){
+ const router=createRouter({history:createMemoryHistory(),routes:[{path:routePath,component:JsonPage,meta},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push(path);await router.isReady()
  const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'json-page-test-host'});const service:PageServiceCapability={copyText:async()=>{},showMessage:()=>{},showConfirm:async()=>true,showPrompt:async()=>null,showAlert:async()=>{},showDialog:async()=> 'cancel',selectEntities:async()=>[],browseFiles:async options=>{state.browseCalls.push(options??{});return state.picked},uploadFiles:async()=>{throw new Error('Direct host upload is forbidden in this JSON flow')},showLoading:()=>{},navigate:()=>{}};sparkProvide(PAGE_SERVICE,service);sparkProvide(PAGE_RUNTIME_SERVICES,{logger:{debug:vi.fn(),info:vi.fn(),warn:vi.fn(),error:vi.fn()},pageService:service});return()=>h(RouterView)}}),{attachTo:document.body,global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}});wrappers.push(wrapper);await flushPromises()
  const click=async(requested:string)=>{const label=({'保存':'保存目录','取消':'取消目录修改','关闭':'关闭正文'} as Record<string,string>)[requested]??requested;const button=wrapper.findAll('button').find(b=>b.text()===label&&b.attributes('disabled')===undefined);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
  const choose=async(index=0)=>{await vi.waitFor(()=>expect(wrapper.findComponent(RendererTable).exists()).toBe(true));await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.get('button').trigger('click');await flushPromises()}
@@ -39,6 +39,20 @@ async function open(path='/json',meta:Record<string,unknown>={blueprintScenarioI
  return {wrapper,router,click,choose,edit}
 }
 function documentValue(wrapper:VueWrapper):unknown{const value=wrapper.getComponent(FieldJson).getComponent(JsonTreeEditor).props('modelValue');if(typeof value!=='string')throw new Error('JSON editor text is absent');return JSON.parse(value)}
+it('releases the JSON tool without querying when the same route changes to a different application',async()=>{
+ const f=await open('/apps/APP/json',{blueprintScenarioId:SCENE},'/apps/:app/json')
+ await f.choose()
+ await vi.waitFor(()=>expect(documentValue(f.wrapper)).toEqual({flag:false,nested:[[1,null],{}]}))
+ const original=f.wrapper.getComponent(SparkPageRenderer).props('pageRuntime')!.getDataSet(SCENE)!
+ const directoryReads=state.http.reads.length
+ await f.router.push('/apps/other-app/json')
+ await vi.waitFor(()=>expect(f.wrapper.text()).toContain('JSON目录导航与当前执行应用不一致'))
+ expect(original.destroyed).toBe(true)
+ expect(f.wrapper.findComponent(FieldJson).exists()).toBe(false)
+ expect(state.http.reads).toHaveLength(directoryReads)
+ expect(state.reads).toEqual(['data.json'])
+ expect(state.uploads).toEqual([])
+})
 it('pins document editing across cursor changes and renews the form only after confirmed saves',async()=>{
  const opening=vi.spyOn(LowcodeJsonData,'openDocument');const f=await open();await f.choose();const loaded=opening.mock.results[0];opening.mockRestore();if(loaded?.type!=='return')throw new Error('Document open missing');loaded.value.setCurrentRow(null);await flushPromises()
  await f.edit('{"pinned":false}');await f.click('保存内容');expect(state.files.get('data.json')).toBe('{"pinned":false}')

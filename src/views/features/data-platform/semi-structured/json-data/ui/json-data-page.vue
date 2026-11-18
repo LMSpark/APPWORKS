@@ -47,8 +47,8 @@ watch([scenarioId,projectId],([id,project])=>{
  tool.hydrateFileText('script.js',script)
  tool.hydrateFileText('style.css',style)
  tool.markLoaded()
- const current=session.acquire({tool,scenarioIds:[id],targetId:id,
-  loadScenario:()=>LowcodeJsonData.loadCatalog(id,inCatalog?APPLICATION_CATALOG_PROJECT_ID:undefined)})
+ const current=session.acquire({tool,scenarioIds:[id],targetId:project===undefined?id:`${project}:${id}`,
+  loadScenario:()=>LowcodeJsonData.loadCatalog(id,project)})
  host.value=createJsonDataScriptHost(current,id,()=>{
   if(!session.isCurrent(current))throw new Error('JSON目录运行实例已失效')
  },!inCatalog)

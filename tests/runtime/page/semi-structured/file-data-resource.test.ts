@@ -193,8 +193,8 @@ it('consumes the file catalog tool and verifies the original row again after con
     const revokeObjectURL=vi.fn()
     const browserURL=URL
     vi.stubGlobal('URL',class extends browserURL {
-      static createObjectURL=createObjectURL
-      static revokeObjectURL=revokeObjectURL
+      static override createObjectURL=createObjectURL
+      static override revokeObjectURL=revokeObjectURL
     })
     const clicked:HTMLAnchorElement[]=[]
     const browserClick=vi.spyOn(HTMLAnchorElement.prototype,'click').mockImplementation(function(this:HTMLAnchorElement){clicked.push(this)})

@@ -57,5 +57,16 @@ it('reads the specified security requirement before requesting finance receipts'
   expect(bindBidSecurity()).toEqual({disabled:false})
   await openBidSecurity()
   expect(showAlert).toHaveBeenCalledExactlyOnceWith('待核\n原条款 CLAUSE\n欠项 到账','投标担保')
+  const unavailable:ReadReceipts=async()=>{throw Error('FINANCE_UNAVAILABLE')}
+  await expect(readRegisteredBidSecurity(host,target,unavailable)).resolves.toMatchObject({
+   state:'PENDING',clauseRef:'CLAUSE',pending:['RECEIVED'],receiptsUnavailable:true,
+  })
+  const controller=new AbortController()
+  const closingPage=createBidResponseScriptHost(host.runtime,{...host,asOf:10,purposeRef:'BID',rateOnly:false},{
+   readPriceEvidence:async()=>{throw Error('UNEXPECTED_PRICE_READ')},
+   readSecurityReceipts:async()=>{controller.abort();throw Error('FINANCE_UNAVAILABLE')},
+  })
+  await expect(closingPage.invoke('bid.response.readSecurity',{requirementVersion:'R1',liablePartyRef:'BIDDER'},controller.signal))
+   .rejects.toThrow('BID_SECURITY_PAGE_STALE')
  }finally{ds.destroy()}
 })

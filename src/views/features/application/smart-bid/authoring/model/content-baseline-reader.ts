@@ -15,6 +15,7 @@ import {assessBaselineRequirementPins,selectBaselineRequirementMember,type Basel
 import {readContentRequirement,type ContentRequirementSelection} from './content-requirement-reader'
 import {assertBaselineTenderRecordMember} from '@/services/smart-bid/content/references/baseline-tender-records'
 import {readContentTenderRecord} from './content-tender-record-reader'
+import {checkFixedFactUse} from '@/services/smart-bid/content/references/fixed-fact-use'
 
 /** 原基线挂接诊断；不是要求原记录或当前用途证明。 */
 export type ContentBaselineRequirementPinsBinding=Readonly<{
@@ -129,6 +130,28 @@ export async function readContentBaselineFact(host:ContentRevisionReadHost,input
  assertCurrent()
  return Object.freeze({baselineDataViewKey:baseline.key,factDataViewKey:fact.dataViewKey,
   ...(source?{sourceDataViewKey:source.dataViewKey}:{}),baselineMembershipVerified:true,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent})
+}
+
+/** 动作31使用目标修订的固定基线，对原事实的当前用途作独立核验。 */
+export async function readContentBaselineFactUse(
+ host:ContentRevisionReadHost,
+ input:ContentBaselineFactSelection&Pick<Parameters<typeof checkFixedFactUse>[0],'scopeRef'|'purposeRef'|'useAt'>,
+ readUse:(target:Parameters<typeof checkFixedFactUse>[0],fact:Parameters<typeof checkFixedFactUse>[1])=>
+  Promise<Parameters<typeof checkFixedFactUse>[2]>,
+){
+ const binding=await readContentBaselineFact(host,input)
+ binding.assertCurrent()
+ const row=host.runtime.resolveView(binding.factDataViewKey)?.rows[0]
+ const version=row?.['version'],decisionRefs=row?.['decisionRefs'],factRowId=row?.['id']
+ if(!snapshotReferenceIdentity(factRowId)||typeof version!=='number'||!Array.isArray(decisionRefs)||!decisionRefs.every(snapshotReferenceIdentity))
+  throw Error('BID_FACT_USE_ORIGINAL_REQUIRED')
+ const target=Object.freeze({projectId:host.projectId,baselineId:input.baselineId,factId:input.factId,version,
+  scopeRef:input.scopeRef,purposeRef:input.purposeRef,useAt:input.useAt})
+ const fact=Object.freeze({...target,scopeRef:row?.['scopeRef'],decisionRefs:Object.freeze([...decisionRefs]),
+  assertCurrent:binding.assertCurrent})
+ checkFixedFactUse(target,fact)
+ const use=checkFixedFactUse(target,fact,await readUse(target,fact))
+ return Object.freeze({...binding,factRowId,use,assertCurrent:use.assertCurrent})
 }
 
 /** 基线成员与要求原记录的组合证明，当前用途仍须核定。 */

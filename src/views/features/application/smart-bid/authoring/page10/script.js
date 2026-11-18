@@ -1,6 +1,48 @@
 /* global $page, $route */
 let priceGeneration = 0
 let securityGeneration = 0
+let factGeneration = 0
+let fixedFact
+
+function selectedFixedFact() {
+  const {factId} = $route.query
+  return typeof factId === 'string' && factId && factId.trim() === factId ? factId : undefined
+}
+
+function bindFixedFact() {
+  return {disabled: !selectedFixedFact()}
+}
+
+function bindFixedFactRecord() {
+  try {
+    if (!fixedFact || fixedFact.use.factId !== selectedFixedFact()) return {visible: false}
+    fixedFact.assertCurrent()
+    return {dataViewKey: fixedFact.factDataViewKey, contextRowId: fixedFact.factRowId}
+  } catch {
+    return {visible: false}
+  }
+}
+
+async function openFixedFact() {
+  const factId = selectedFixedFact()
+  if (!factId) return
+  const generation = ++factGeneration
+  fixedFact = undefined
+  const isCurrent = () => generation === factGeneration && selectedFixedFact() === factId
+  try {
+    const result = await $page.invokeHostCommand('bid.response.readFixedFact', {factId})
+    if (!isCurrent()) return
+    result.assertCurrent()
+    fixedFact = result
+    const {version, state, useCheckRef} = result.use
+    const labels = {USABLE: '可用', RESTRICTED: '受限', PENDING: '待核'}
+    const lines = [`原事实 ${factId} · 版本 ${version}`, `本次用途 ${labels[state]}`]
+    if (useCheckRef) lines.push(`准用核验 ${useCheckRef}`)
+    await $page.showAlert(lines.join('\n'), '固定事实与用途')
+  } catch {
+    if (isCurrent()) $page.showMessage('本次事实准用无法核验', 'warning')
+  }
+}
 
 function selectedBidSecurity() {
   const {securityRequirementVersion: requirementVersion, liablePartyRef} = $route.query
@@ -30,6 +72,7 @@ async function openBidSecurity() {
     const state = {VERIFIED: '办理凭据齐备', EXEMPT: '符合免交', PENDING: '待核', UNAVAILABLE: '未取得指定要求'}[result.state]
     const lines = [state]
     if (result.clauseRef) lines.push(`原条款 ${result.clauseRef}`)
+    if (result.receiptsUnavailable) lines.push('财务凭据暂无法读取')
     if (result.requested && result.state === 'PENDING') lines.push('已申请')
     if (result.pending?.length) {
       const labels = {ISSUED: '出函', RECEIVED: '到账', LINKED: '平台关联', HANDED_OVER: '现场交件'}

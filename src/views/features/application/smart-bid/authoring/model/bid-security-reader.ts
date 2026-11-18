@@ -54,6 +54,15 @@ export async function readRegisteredBidSecurity(
  const {clauseRef,terms}=original.row
  if(!identity(clauseRef))throw Error(error)
  const requirement=readTerms({scopeRef,requirementVersion,liablePartyRef,clauseRef,assertCurrent},terms)
- const receipts=requirement.kind==='EXEMPT'?[]:await readReceipts(requirement,asOf)
- return reviewBidSecurity(requirement,{asOf,receipts})
+ let receipts:Observation['receipts']=[]
+ let receiptsUnavailable=false
+ if(requirement.kind!=='EXEMPT'){
+  try{
+   receipts=await readReceipts(requirement,asOf)
+  }catch{
+   assertCurrent()
+   receiptsUnavailable=true
+  }
+ }
+ return Object.freeze({...reviewBidSecurity(requirement,{asOf,receipts}),receiptsUnavailable})
 }

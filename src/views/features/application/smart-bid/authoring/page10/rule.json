@@ -14,5 +14,23 @@
     "children": [
       {"type": "r-button", "props": {"label": "核担保办理", "onBeforeRender": "bindBidSecurity", "onClick": "openBidSecurity"}}
     ]
+  },
+  {
+    "id": "bid-fixed-fact-use",
+    "type": "r-section",
+    "props": {"title": "固定事实与用途"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核事实准用", "onBeforeRender": "bindFixedFact", "onClick": "openFixedFact"}},
+      {
+        "type": "r-form",
+        "props": {"autoColumns": false, "onBeforeRender": "bindFixedFactRecord"},
+        "children": [
+          {"type": "r-text", "props": {"field": "unit", "label": "单位", "readonly": true}},
+          {"type": "r-json", "props": {"field": "value", "label": "原事实值", "valueFormat": "native", "readonly": true}},
+          {"type": "r-json", "props": {"field": "sourceIds", "label": "原来源", "valueFormat": "native", "readonly": true}},
+          {"type": "r-json", "props": {"field": "decisionRefs", "label": "原决定", "valueFormat": "native", "readonly": true}}
+        ]
+      }
+    ]
   }
 ]

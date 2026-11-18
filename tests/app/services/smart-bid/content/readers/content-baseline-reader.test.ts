@@ -1,9 +1,13 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey} from '@spark-appworks/spark-data'
 import {readContentBaselineTenderRecord} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
-import {readContentBaselineFact,readContentBaselineRequirementPins,readContentBaselineRequirement} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
+import {readContentBaselineFact,readContentBaselineFactUse,readContentBaselineRequirementPins,readContentBaselineRequirement} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {createBidResponseScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/response-script-host'
+import script from '@/views/features/application/smart-bid/authoring/page10/script.js?raw'
+import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
+import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 
 const requirementSource={runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}
 function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,unknown>;requirementSource?:unknown;tender?:Record<string,unknown>;count?:number;hidden?:string}={}){
@@ -31,6 +35,38 @@ function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,u
  return {ds,host,queries,save,expire:()=>{active=false}}
 }
 const input={baselineId:'B',stageRef:{decisionId:'STAGE'},factId:'PRICE',version:2}
+it('checks current use against the fixed fact row and its original decision references',async()=>{
+ const scoped=fixture({fact:{scopeRef:{lot:'LOT',phase:'BID'},decisionRefs:['APPROVAL']}})
+ try{
+  const request={...input,scopeRef:{phase:'BID',lot:'LOT'},purposeRef:'SUBMIT',useAt:10}
+  type ReadUse=Parameters<typeof readContentBaselineFactUse>[2]
+  const readUse=vi.fn<ReadUse>(async(target,fact)=>({...target,state:'RESTRICTED',useCheckRef:'USE',
+   decisionRefs:fact.decisionRefs,assertCurrent:()=>{}}))
+  const result=await readContentBaselineFactUse(scoped.host,request,readUse)
+  expect(result.use).toMatchObject({factId:'PRICE',version:2,state:'RESTRICTED',useCheckRef:'USE'})
+  await expect(readContentBaselineFactUse(scoped.host,{...request,scopeRef:{lot:'OTHER'}},readUse)).rejects.toThrow('BID_FACT_USE_SCOPE')
+  expect(readUse).toHaveBeenCalledTimes(1)
+  expect(()=>result.assertCurrent()).toThrow()
+  const page=createBidResponseScriptHost({...scoped.host.runtime,generation:1,isLoaded:true,destroyed:false},
+   {scenarioId:'S',scopeRef:'LOT',purposeRef:'SUBMIT',asOf:10,rateOnly:false,assertCurrent:scoped.host.assertCurrent},{
+    readPriceEvidence:async()=>{throw Error('NO_PRICE')},readSecurityReceipts:async()=>{throw Error('NO_SECURITY')},
+    fixedFacts:{projectId:'P',basis:{baselineId:input.baselineId,stageRef:input.stageRef,scopeRef:request.scopeRef},
+     assertCurrent:scoped.host.assertCurrent,readUse},
+   })
+  const signal=new AbortController().signal,showAlert=vi.fn()
+  expect(()=>page.invoke('bid.response.readFixedFact',{factId:'PRICE',version:1},signal)).toThrow('BID_RESPONSE_FACT_REQUEST')
+  const {openFixedFact,bindFixedFactRecord}=compileFunctions(script,{
+   $route:{query:{factId:'PRICE'}},$page:{invokeHostCommand:(name:string,data:unknown)=>page.invoke(name,data,signal),showAlert},
+  } as unknown as PageContext)
+  if(!openFixedFact||!bindFixedFactRecord)throw Error('TEST_SCRIPT_REQUIRED')
+  expect(bindFixedFactRecord()).toEqual({visible:false})
+  await openFixedFact()
+  expect(showAlert).toHaveBeenCalledExactlyOnceWith('原事实 PRICE · 版本 2\n本次用途 受限\n准用核验 USE','固定事实与用途')
+  expect(bindFixedFactRecord()).toEqual({dataViewKey:'S@FactVersion@selectedFactVersion',contextRowId:'FV2'})
+  await scoped.ds.getView('FactVersion','selectedFactVersion')?.refresh()
+  expect(bindFixedFactRecord()).toEqual({visible:false})
+ }finally{scoped.ds.destroy()}
+})
 it('requires a fixed fact source to belong to its baseline and keeps the original record proof',async()=>{
  const missing=fixture({fact:{sourceRecord:requirementSource},baseline:{tenderRecords:[]}})
  const exact=fixture({fact:{sourceRecord:requirementSource},baseline:{tenderRecords:[requirementSource]}})

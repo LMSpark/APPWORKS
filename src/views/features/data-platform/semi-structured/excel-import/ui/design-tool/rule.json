@@ -230,5 +230,194 @@
         {"type":"r-button","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","label":"创建单组导出版式","permAction":"edit","onBeforeRender":"bindLayoutCreate","onClick":"createLayout"}}
       ]}
     ]
+  },
+  {
+    "type": "r-section",
+    "props": {
+      "bordered": false,
+      "gridColumns": 1
+    },
+    "children": [
+      {
+        "type": "r-form",
+        "props": {
+          "autoColumns": false,
+          "showDataViewMeta": false,
+          "gridColumns": 1,
+          "onBeforeRender": "bindLayoutForm"
+        },
+        "children": [
+          {
+            "type": "r-json",
+            "props": {
+              "field": "sheet_layout_json",
+              "label": "启用设置",
+              "mode": "form",
+              "onBeforeRender": "bindLayoutEnabled"
+            }
+          },
+          {
+            "type": "r-alert",
+            "props": {
+              "alertType": "info",
+              "closable": false,
+              "onBeforeRender": "bindLayoutSources"
+            }
+          },
+          {
+            "type": "r-section",
+            "props": {
+              "title": "主表",
+              "bordered": false,
+              "gridColumns": 1,
+              "class": "excel-layout-region"
+            },
+            "children": [
+              {
+                "type": "r-json",
+                "props": {
+                  "field": "sheet_layout_json",
+                  "label": "主表范围",
+                  "mode": "form",
+                  "onBeforeRender": "bindFormBounds"
+                }
+              },
+              {
+                "type": "r-json",
+                "props": {
+                  "field": "sheet_layout_json",
+                  "label": "主表字段",
+                  "mode": "rows",
+                  "onBeforeRender": "bindFormRows",
+                  "reorderable": true
+                }
+              }
+            ]
+          },
+          {
+            "type": "r-section",
+            "props": {
+              "title": "明细",
+              "bordered": false,
+              "gridColumns": 1,
+              "class": "excel-layout-region"
+            },
+            "children": [
+              {
+                "type": "r-json",
+                "props": {
+                  "field": "sheet_layout_json",
+                  "label": "明细范围",
+                  "mode": "form",
+                  "onBeforeRender": "bindListBounds"
+                }
+              },
+              {
+                "type": "r-json",
+                "props": {
+                  "field": "sheet_layout_json",
+                  "label": "明细表头及数据起点",
+                  "mode": "form",
+                  "onBeforeRender": "bindListScan"
+                }
+              },
+              {
+                "type": "r-json",
+                "props": {
+                  "field": "sheet_layout_json",
+                  "label": "主表与明细关联",
+                  "mode": "form",
+                  "onBeforeRender": "bindListLink"
+                }
+              },
+              {
+                "type": "r-json",
+                "props": {
+                  "field": "sheet_layout_json",
+                  "label": "明细字段",
+                  "mode": "rows",
+                  "onBeforeRender": "bindListRows",
+                  "reorderable": true
+                }
+              }
+            ]
+          },
+          {
+            "type": "r-section",
+            "props": {
+              "title": "表尾",
+              "bordered": false,
+              "gridColumns": 1,
+              "class": "excel-layout-region"
+            },
+            "children": [
+              {
+                "type": "r-json",
+                "props": {
+                  "field": "sheet_layout_json",
+                  "label": "表尾范围",
+                  "mode": "form",
+                  "onBeforeRender": "bindBlockBounds"
+                }
+              },
+              {
+                "type": "r-json",
+                "props": {
+                  "field": "sheet_layout_json",
+                  "label": "表尾字段",
+                  "mode": "rows",
+                  "onBeforeRender": "bindBlockRows",
+                  "reorderable": true
+                }
+              }
+            ]
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "检查版式结构",
+              "onBeforeRender": "bindLayoutDiagnose",
+              "onClick": "diagnoseLayout"
+            }
+          },
+          {
+            "type": "r-alert",
+            "props": {
+              "alertType": "info",
+              "closable": false,
+              "onBeforeRender": "bindLayoutDiagnostic"
+            }
+          }
+        ]
+      },
+      {
+        "type": "r-form",
+        "props": {
+          "autoColumns": false,
+          "showDataViewMeta": false,
+          "onBeforeRender": "bindLayoutFallback"
+        },
+        "children": [
+          {
+            "type": "r-json",
+            "props": {
+              "field": "sheet_layout_json",
+              "label": "当前原定义（只读）",
+              "mode": "text",
+              "readonly": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "r-alert",
+        "props": {
+          "alertType": "error",
+          "closable": false,
+          "onBeforeRender": "bindLayoutDocumentError"
+        }
+      }
+    ],
+    "id": "excel-layout-document"
   }
 ]

@@ -51,6 +51,7 @@
             <RendererTabPane name="layout" label="相对版式" :lazy="true" :index="2" :data-view-key="nodesKey">
               <ExcelImportSheetLayoutPane v-if="selectedNode" ref="layoutPane" :data-view-key="nodesKey" :disabled="locked" :before-change="changeLayout" @session-change="value => pending('nodes.layout',value)">
                 <template #layout-controls><SparkComponentRenderer :config="designRegion(children,'excel-layout-controls')" /></template>
+                <template #layout-document><SparkComponentRenderer :config="designRegion(children,'excel-layout-document')" /></template>
               </ExcelImportSheetLayoutPane>
               <p v-else role="status">请选择左侧节点后再编辑</p>
             </RendererTabPane>
@@ -273,6 +274,7 @@ function makeTreeHost(runtime:PageRuntime){
       ruleOperation:()=>rulePane.value?.operation()?.state(),
       ruleEditor:()=>rulePane.value?.editor(),
       layout:()=>layoutPane.value?.state(),
+      layoutDocument:()=>layoutPane.value,
       ruleDirection:(value:unknown)=>rulePane.value?.scopeLabel(value)??'',
       ruleRowClick:(row:Parameters<InstanceType<typeof ExcelTransformRulesPane>['rowClick']>[0],column:unknown,event?:Event)=>{
         if(active&&session.isCurrent(runtime))rulePane.value?.rowClick(row,column,event)
@@ -282,6 +284,10 @@ function makeTreeHost(runtime:PageRuntime){
         pending:pendingPart('rules'),busy:busy.value,unconfirmed:unconfirmed.value,
         switchUnconfirmed:isUnconfirmed(schemeTable),
       }),
+    }
+    if(command==='excel.design.diagnoseLayout'){
+      if(layoutPane.value?.documentState().canDiagnose)layoutPane.value.diagnose()
+      return undefined
     }
     if(command==='excel.design.clearLayout'){
       if(layoutPane.value?.state().canClear)layoutPane.value.clear()

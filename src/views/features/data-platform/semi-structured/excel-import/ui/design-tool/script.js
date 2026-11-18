@@ -324,3 +324,55 @@ function bindLayoutDetails() { return {visible:tree?.layout()?.showDetails === t
 function bindLayoutCreate() { return {disabled:tree?.layout()?.canCreate !== true} }
 async function clearLayout() { await $page.invokeHostCommand('excel.design.clearLayout') }
 async function createLayout() { await $page.invokeHostCommand('excel.design.createLayout') }
+
+const layoutKey = '0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default'
+function layoutDocumentState() { return tree?.layoutDocument()?.documentState() }
+function bindLayoutForm() {
+  const state = layoutDocumentState()
+  return {visible:!!state?.sources,key:state?.epoch,contextRowId:state?.rootId,dataViewKey:layoutKey}
+}
+function bindLayoutFallback() {
+  const state = layoutDocumentState()
+  return {visible:state?.problem === true,contextRowId:state?.rootId,dataViewKey:layoutKey}
+}
+function layoutField(document, state, input) {
+  return {dataViewKey:layoutKey,readonly:state?.readOnly !== false,onChange:document?.beforeChange,
+    onEditingChange:value=>document?.pending(input,value)}
+}
+function bindLayoutEnabled() {
+  const document = tree?.layoutDocument()
+  const state = document?.documentState()
+  return {...layoutField(document,state,'enabled'),schema:state?.enabledSchema}
+}
+function bindLayoutRegion(shape,member) {
+  const document = tree?.layoutDocument()
+  const state = document?.documentState()
+  const region = state?.regions.find(candidate=>candidate.shape === shape)
+  if (!region) return {visible:false}
+  const field = {...layoutField(document,state,region.id + '.' + member),valuePath:['regions',region.index,member]}
+  if (member === 'fields') return {...field,children:region.children,rowAdapter:region.adapter}
+  const schema = member === 'bounds' ? state.boundsSchema : member === 'scan' ? state.scanSchema : state.linkSchema
+  return {...field,schema}
+}
+function bindFormBounds() { return bindLayoutRegion('form','bounds') }
+function bindFormRows() { return bindLayoutRegion('form','fields') }
+function bindListBounds() { return bindLayoutRegion('list','bounds') }
+function bindListScan() { return bindLayoutRegion('list','scan') }
+function bindListLink() { return bindLayoutRegion('list','link') }
+function bindListRows() { return bindLayoutRegion('list','fields') }
+function bindBlockBounds() { return bindLayoutRegion('block','bounds') }
+function bindBlockRows() { return bindLayoutRegion('block','fields') }
+function bindLayoutSources() {
+  const sources = layoutDocumentState()?.sources
+  return {visible:!!sources,title:sources ? '主表来源：' + sources.root + '；明细来源：' + sources.detail : ''}
+}
+function bindLayoutDiagnose() { return {disabled:layoutDocumentState()?.canDiagnose !== true} }
+function bindLayoutDiagnostic() {
+  const title = layoutDocumentState()?.diagnostic || ''
+  return {visible:!!title,title}
+}
+function bindLayoutDocumentError() {
+  const title = layoutDocumentState()?.error || ''
+  return {visible:!!title,title}
+}
+async function diagnoseLayout() { await $page.invokeHostCommand('excel.design.diagnoseLayout') }

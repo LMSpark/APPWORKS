@@ -18,6 +18,7 @@
       </template>
     </template>
     </slot>
+    <slot name="layout-document">
     <template v-if="root">
       <RendererForm v-if="part" :key="rowEpoch" :data-view-key="dataViewKey" v-bind="rootId===undefined?{}:{contextRowId:rootId}" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
         <FieldJson field="sheet_layout_json" label="启用设置" mode="form" :schema="enabledSchema" :readonly="blocked || !directoriesReady || !modeReady" :on-change="beforeChange" :on-editing-change="value=>pending('enabled',value)" />
@@ -37,6 +38,7 @@
       </RendererForm>
       <p v-if="error" role="alert">{{ error }}</p>
     </template>
+    </slot>
   </section>
 </template>
 <script setup lang="ts">
@@ -131,7 +133,14 @@ defineExpose({
   showDetails:!!root.value&&!part.value&&!problem.value,
   canClear:!blocked.value&&!!raw.value&&editing.value.size===0,
   canCreate:!blocked.value&&directoriesReady.value&&modeReady.value&&!!detailId.value}),
- clear,create,
+ documentState:()=>({
+  rootId:rootId.value,epoch:rowEpoch.value,problem:!!problem.value,
+  readOnly:blocked.value||!directoriesReady.value||!modeReady.value,
+  canDiagnose:!blocked.value&&editing.value.size===0,error:error.value,diagnostic:diagnostic.value,
+  sources:part.value?{root:part.value.rootTable['table'],detail:part.value.detailTable['table']}:undefined,
+  regions:regions.value,enabledSchema,boundsSchema,scanSchema,linkSchema:linkSchema.value,
+ }),
+ clear,create,diagnose,beforeChange,pending,
 })
 </script>
 <style scoped>

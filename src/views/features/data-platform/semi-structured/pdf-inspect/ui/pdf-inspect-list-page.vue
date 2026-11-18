@@ -18,27 +18,6 @@
       :route-snapshot="routeSnapshot" :host="catalogHost" />
     <FeatureRecordDialog v-if="creationId !== undefined" :data-view-key="creationKey" :record-id="creationId"
       title="新增PDF核验规则" :created="true" :specs="creationFields" :validate="validateCreation" @close="closeCreation" />
-    <RendererSection v-if="preparationOpen" title="核验准备" :bordered="false"
-      :status="preparing ? '正在读取正式规则和服务限制…' : ''" :error="preparationError">
-      <RendererForm v-if="preparationReady" :data-view-key="limitsKey" :auto-columns="false" :show-data-view-meta="false">
-        <FieldNumber field="maxFiles" label="最多文件数" readonly />
-        <FieldNumber field="maxFileBytes" label="单文件字节上限" readonly />
-        <FieldNumber field="maxTotalFileBytes" label="文件总字节上限" readonly />
-      </RendererForm>
-      <template v-if="execution">
-        <RendererButton label="选择 PDF 或 ZIP" :disabled="executionBusy || execution.uploadIds.length > 0" @click="selectInspectionFiles" />
-        <RendererButton v-if="execution.uploadIds.length" :label="execution.submitLabel" button-type="primary"
-          :disabled="executionBusy" @click="submitInspection" />
-        <RendererButton v-if="execution.uploadIds.length && !execution.dispatched" label="取消所选文件"
-          :disabled="executionBusy" @click="cancelInspectionFiles" />
-        <RendererButton v-if="execution.requestId" label="复制原请求恢复链接" @click="copyInspectionRecoveryLink" />
-        <RendererTable v-if="execution.uploadIds.length" :data-view-key="uploadKey" :show-data-view-meta="false">
-          <FieldText field="originalName" label="文件名称" readonly />
-          <FieldNumber field="size" label="字节数" readonly />
-        </RendererTable>
-      </template>
-      <p v-if="executionMessage" role="status">{{ executionMessage }}</p>
-    </RendererSection>
   </RendererSection>
 </template>
 
@@ -62,7 +41,7 @@ import catalogRule from './rule.json?raw'
 import catalogScript from './script.js?raw'
 import catalogStyle from './style.css?raw'
 
-const {PAGE_RUNTIME, RendererSection, RendererTable, SparkPageRenderer, RendererButton, RendererForm, FieldText, FieldNumber,
+const {PAGE_RUNTIME, RendererSection, SparkPageRenderer, RendererButton,
   useSparkComponent, consumeRequiredPageService} = SparkComponent
 const route = useRoute()
 const router = useRouter()
@@ -361,6 +340,10 @@ function makeCatalogHost(runtime:PageRuntime){
   return {runtime,assertCurrent,async invoke(command:string,input:unknown){
     assertCurrent()
     if(command==='pdf.catalog.connect')return {
+      preparation:()=>({open:preparationOpen.value,loading:preparing.value,ready:preparationReady.value,
+        error:preparationError.value,message:executionMessage.value,limitsKey:limitsKey.value,uploadKey:uploadKey.value,
+        running:!!execution.value,busy:executionBusy.value,hasFiles:!!execution.value?.uploadIds.length,
+        dispatched:execution.value?.dispatched===true,hasRequest:!!execution.value?.requestId,submitLabel:execution.value?.submitLabel}),
       history:()=>({open:ready.value&&historyOpen.value,error:historyError.value,key:historyKey.value}),
       result:()=>({open:resultOpen.value,recovering:recovering.value,loading:resultLoading.value,ready:resultReady.value,
         error:resultError.value,key:recovering.value?recoveryKey.value:resultKey.value}),
@@ -370,6 +353,10 @@ function makeCatalogHost(runtime:PageRuntime){
       if(row)openHistoryResult(row)
     }
     if(command==='pdf.catalog.recover')await recoverOriginal()
+    if(command==='pdf.catalog.selectFiles')await selectInspectionFiles()
+    if(command==='pdf.catalog.submitInspection')await submitInspection()
+    if(command==='pdf.catalog.cancelFiles')await cancelInspectionFiles()
+    if(command==='pdf.catalog.copyRecovery')await copyInspectionRecoveryLink()
     if(command==='pdf.catalog.select'){
       const row=view.value?.rows.find(item=>view.value?.getPkKey(item)===input)
       if(row)choose(row)

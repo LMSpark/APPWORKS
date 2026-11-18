@@ -11,6 +11,29 @@
     ]
   },
   {
+    "id":"pdf-inspection-preparation",
+    "type":"r-section",
+    "props":{"title":"核验准备","bordered":false,"onBeforeRender":"bindPreparation"},
+    "children":[
+      {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindLimits"},"children":[
+        {"type":"r-number","props":{"field":"maxFiles","label":"最多文件数","readonly":true}},
+        {"type":"r-number","props":{"field":"maxFileBytes","label":"单文件字节上限","readonly":true}},
+        {"type":"r-number","props":{"field":"maxTotalFileBytes","label":"文件总字节上限","readonly":true}}
+      ]},
+      {"type":"r-space","props":{"wrap":true},"children":[
+        {"type":"r-button","props":{"label":"选择 PDF 或 ZIP","onBeforeRender":"bindSelectFiles","onClick":"selectInspectionFiles"}},
+        {"type":"r-button","props":{"buttonType":"primary","onBeforeRender":"bindSubmitInspection","onClick":"submitInspection"}},
+        {"type":"r-button","props":{"label":"取消所选文件","onBeforeRender":"bindCancelFiles","onClick":"cancelInspectionFiles"}},
+        {"type":"r-button","props":{"label":"复制原请求恢复链接","onBeforeRender":"bindCopyRecovery","onClick":"copyInspectionRecoveryLink"}}
+      ]},
+      {"type":"r-table","props":{"showDataViewMeta":false,"onBeforeRender":"bindInspectionUploads"},"children":[
+        {"type":"r-text","props":{"field":"originalName","label":"文件名称","readonly":true}},
+        {"type":"r-number","props":{"field":"size","label":"字节数","readonly":true}}
+      ]},
+      {"type":"r-section","props":{"bordered":false,"onBeforeRender":"bindExecutionMessage"}}
+    ]
+  },
+  {
     "id":"pdf-inspection-history",
     "type":"r-section",
     "props":{"title":"核验历史","bordered":false,"onBeforeRender":"bindHistory"},

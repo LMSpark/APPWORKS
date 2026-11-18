@@ -5,12 +5,14 @@
 import {reviewApprovedPrice} from '@/services/smart-bid/content/references/approved-price-review'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {originalRegistrationView,readOriginalRegistrationView} from '../../authority/original-registration-view'
+import {readRegisteredApprovedPriceDetail} from './price-sheet-reader'
 
 const model='ApprovedPrice',viewName='selectedApprovedPrice'
 const keys=['scopeRef','approvalRef','version'] as const
-const fields=['approverRef','value','unit','detailRef','rateOnly'] as const
+const fields=['approverRef','value','unit','detailRef','pricingVersion','rateOnly'] as const
 type ReviewInput=Parameters<typeof reviewApprovedPrice>[0]
-type ReviewEvidence=Omit<Parameters<typeof reviewApprovedPrice>[1],'approval'>
+type ReviewSource=Parameters<typeof reviewApprovedPrice>[1]
+type ReviewEvidence=Omit<ReviewSource,'approval'|'detail'>
 
 /** 查询指定业务范围及批准版，禁止默认使用最新批准。 */
 export function approvedPriceReadView(primaryKey:string){
@@ -21,7 +23,7 @@ export function approvedPriceReadView(primaryKey:string){
 export async function readRegisteredApprovedPrice(
  host:Parameters<typeof readOriginalRegistrationView>[0]&Readonly<{scopeRef:string}>,
  target:Omit<ReviewInput,'scopeRef'>,
- readEvidence:(request:ReviewInput,assertCurrent:()=>void)=>Promise<ReviewEvidence>,
+ readEvidence:(request:ReviewInput,approval:NonNullable<ReviewSource['approval']>)=>Promise<ReviewEvidence>,
 ){
  const {approvalRef,version,purposeRef,rateOnly}=target
  const request=Object.freeze({scopeRef:host.scopeRef,approvalRef,version,purposeRef,rateOnly})
@@ -32,11 +34,19 @@ export async function readRegisteredApprovedPrice(
  if(!row)return reviewApprovedPrice(request,{assertCurrent:original.assertCurrent})
  const assertOriginal=original.captureFields(fields)
  assertOriginal()
- const {approverRef,value,unit,detailRef,rateOnly:originalRateOnly}=row
+ const {approverRef,value,unit,detailRef,pricingVersion,rateOnly:originalRateOnly}=row
  if(!identity(approverRef)||typeof value!=='string'||!identity(unit)||(detailRef!==null&&!identity(detailRef))||
+  (detailRef!==null?!identity(pricingVersion):pricingVersion!==null)||
   typeof originalRateOnly!=='boolean')throw Error('BID_APPROVED_PRICE_EVIDENCE')
- const evidence=await readEvidence(request,assertOriginal)
+ const approval=Object.freeze({scopeRef:request.scopeRef,approvalRef,version,
+  approverRef,value,unit,detailRef,rateOnly:originalRateOnly,assertCurrent:assertOriginal})
+ const evidence=await readEvidence(request,approval)
  assertOriginal()
- return reviewApprovedPrice(request,{...evidence,approval:{scopeRef:host.scopeRef,approvalRef,version,
-  approverRef,value,unit,detailRef,rateOnly:originalRateOnly,assertCurrent:assertOriginal}})
+ const detailRead=identity(detailRef)&&identity(pricingVersion)
+  ? await readRegisteredApprovedPriceDetail(host,{...approval,detailRef,pricingVersion})
+  : undefined
+ const assertCurrent=()=>{assertOriginal();evidence.assertCurrent();detailRead?.assertCurrent()}
+ const detail=detailRead?.state==='READ'?detailRead.detail:undefined
+ const {use,findings}=evidence
+ return reviewApprovedPrice(request,{approval,assertCurrent,...(detail?{detail}:{}),...(use?{use}:{}),...(findings?{findings}:{})})
 }

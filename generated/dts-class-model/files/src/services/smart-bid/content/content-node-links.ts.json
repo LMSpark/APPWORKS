@@ -11,7 +11,9 @@
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "ContentNodeLink",
-      "ContentNodeLinks"
+      "ContentNodeLinks",
+      "ContentTableData",
+      "ContentNodeLinkOccurrence"
     ]
   },
   "$defs": {
@@ -70,9 +72,101 @@
         "requiresTableGeneratorCheck"
       ],
       "additionalProperties": false
+    },
+    "ContentTableData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTableData",
+      "properties": {
+        "header": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              },
+              "required": [
+                "value",
+                "data"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "required": [
+        "header",
+        "rows"
+      ],
+      "additionalProperties": false
+    },
+    "ContentNodeLinkOccurrence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentNodeLinkOccurrence",
+      "properties": {
+        "ownerNodeId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "kind": {
+          "enum": [
+            "page",
+            "xref"
+          ]
+        },
+        "targetNodeId": {
+          "type": "string"
+        },
+        "occurrence": {
+          "type": "number"
+        },
+        "start": {
+          "type": "number"
+        },
+        "end": {
+          "type": "number"
+        },
+        "show": {
+          "enum": [
+            "number",
+            "title"
+          ]
+        }
+      },
+      "required": [
+        "ownerNodeId",
+        "path",
+        "kind",
+        "targetNodeId",
+        "occurrence",
+        "start",
+        "end"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T00:21:12.689Z",
+  "generatedAt": "2026-11-18T00:45:34.756Z",
   "models": {
     "ContentNodeLink": {
       "name": "ContentNodeLink",
@@ -135,6 +229,79 @@
             },
             {
               "name": "requiresTableGeneratorCheck",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTableData": {
+      "name": "ContentTableData",
+      "jsdoc": "普通表和已展开计算表共用的正文 JSON 结构。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    header: readonly string[];\n    rows: ReadonlyArray<ReadonlyArray<Readonly<{\n        value: string;\n        data: Readonly<Record<string, unknown>>;\n    }>>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    header: readonly string[];\n    rows: ReadonlyArray<ReadonlyArray<Readonly<{\n        value: string;\n        data: Readonly<Record<string, unknown>>;\n    }>>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentNodeLinkOccurrence": {
+      "name": "ContentNodeLinkOccurrence",
+      "jsdoc": "位置按原文 UTF-16 左闭右开区间，表格位置由 path 中的行列标识。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ContentNodeLink & Readonly<{\n    occurrence: number;\n    start: number;\n    end: number;\n    show?: 'title' | 'number';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ContentNodeLink",
+            "targetName": "ContentNodeLink"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    occurrence: number;\n    start: number;\n    end: number;\n    show?: 'title' | 'number';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "occurrence",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "start",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "end",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "show",
               "readable": true,
               "writable": false
             }

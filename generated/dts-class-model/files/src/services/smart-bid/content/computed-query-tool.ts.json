@@ -1,0 +1,255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/computed-query-tool",
+    "sourcePath": "src/services/smart-bid/content/computed-query-tool.ts",
+    "sourceFile": "src/services/smart-bid/content/computed-query-tool.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/computed-query-tool",
+    "jsdoc": "@module app:services/smart-bid/content/computed-query-tool\n职责：定义候选计算结果的只读函数及闭合参数。\n边界：调用方按工位和原实例范围挂接；读取权及原证明由候选绑定检查。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ComputedQueryInput",
+      "ComputedQueryOutput",
+      "ComputedQueryRoot"
+    ]
+  },
+  "$defs": {
+    "ComputedQueryInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ComputedQueryInput",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "inputHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "revisionId",
+        "nodeId",
+        "inputHash"
+      ],
+      "additionalProperties": false
+    },
+    "ComputedQueryOutput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ComputedQueryOutput",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "inputHash": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "content-node-links.ts.json#/$defs/ContentTableData"
+        }
+      },
+      "required": [
+        "nodeId",
+        "inputHash",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "ComputedQueryRoot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ComputedQueryRoot",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "read": {
+              "type": "object",
+              "title": "(input: unknown) => ComputedQueryOutput"
+            },
+            "assertAllowed": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.computed_get.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ComputedQueryInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.computed_get.return": {
+          "$ref": "#/$defs/ComputedQueryOutput"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T00:37:54.639Z",
+  "models": {
+    "ComputedQueryInput": {
+      "name": "ComputedQueryInput",
+      "jsdoc": "本次工位固定的计算结果身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    revisionId: string;\n    nodeId: string;\n    inputHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    revisionId: string;\n    nodeId: string;\n    inputHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ComputedQueryOutput": {
+      "name": "ComputedQueryOutput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    inputHash: string;\n    data: ContentTableData;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    inputHash: string;\n    data: ContentTableData;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ComputedQueryRoot": {
+      "name": "ComputedQueryRoot",
+      "jsdoc": "工位绑定的只读 ClassModel 根，每次读取前复核宿主授权。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(read: (input: unknown) => ComputedQueryOutput, assertAllowed: () => void)",
+          "parameters": [
+            {
+              "name": "read",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [
+                        {
+                          "name": "input",
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        }
+                      ],
+                      "type": {
+                        "type": "reference",
+                        "name": "ComputedQueryOutput",
+                        "sourcePath": "src/services/smart-bid/content/computed-query-tool.ts"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "assertAllowed",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "computed_get",
+              "jsdoc": "读取当前工位同次展开的固定表格 JSON。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ComputedQueryInput",
+                    "sourcePath": "src/services/smart-bid/content/computed-query-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ComputedQueryOutput",
+                "sourcePath": "src/services/smart-bid/content/computed-query-tool.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

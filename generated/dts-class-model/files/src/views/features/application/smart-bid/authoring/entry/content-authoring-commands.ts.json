@@ -439,48 +439,7 @@
                   "type": "string"
                 },
                 {
-                  "type": "object",
-                  "properties": {
-                    "nodeId": {
-                      "type": "string"
-                    },
-                    "header": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "rows": {
-                      "type": "array",
-                      "items": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "value": {
-                              "type": "string"
-                            },
-                            "data": {
-                              "type": "object",
-                              "properties": {},
-                              "additionalProperties": true
-                            }
-                          },
-                          "required": [
-                            "value",
-                            "data"
-                          ],
-                          "additionalProperties": false
-                        }
-                      }
-                    }
-                  },
-                  "required": [
-                    "nodeId",
-                    "header",
-                    "rows"
-                  ],
-                  "additionalProperties": false
+                  "$ref": "../../../../../../services/smart-bid/content-tree-draft-editor.ts.json#/$defs/ContentTableInput"
                 },
                 {
                   "type": "number"

@@ -140,13 +140,13 @@
               "type": "object",
               "title": "(path: string, params?: Record<string, unknown>) => void"
             },
-            "getDataSet": {
-              "type": "object",
-              "title": "(scenarioId: string) => DataSet | undefined"
-            },
             "resolveView": {
               "type": "object",
               "title": "(binding: string) => DataView | undefined"
+            },
+            "getDataSet": {
+              "type": "object",
+              "title": "(scenarioId: string) => DataSet | undefined"
             },
             "invokeHostCommand": {
               "type": "object",
@@ -165,8 +165,8 @@
             "uploadFiles",
             "showLoading",
             "navigate",
-            "getDataSet",
             "resolveView",
+            "getDataSet",
             "invokeHostCommand"
           ],
           "additionalProperties": false

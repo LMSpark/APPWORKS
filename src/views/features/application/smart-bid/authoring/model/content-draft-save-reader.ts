@@ -1,12 +1,15 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/model/content-draft-save-reader
  * 职责：从正式办理记录的命名视图回查页11原保存结果。
+ * 边界：只读原办理命名视图，草稿编辑与原保存命令各自维护状态。
+ * AI用途：检查保存结果未知时是否可以从原办理视图确认结果。
  */
 import {parseDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {readOriginalContentDraftSave} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
 
+/** 独立于当前草稿内容的原保存回查请求。 */
 type Request=Parameters<typeof readOriginalContentDraftSave>[0]
 const keys=['projectId','draftId','authorId','requestKey','requestDigest'] as const
 const fields=[...keys,'expectedDraftVersion','contentDigest','state']

@@ -1,6 +1,8 @@
 /**
  * @module app:services/smart-bid/operation/rework/operation-step-rework
  * 职责：第07项沿原试次定位返工与逐笔外部接手。
+ * 边界：定位首个退回点并移交责任，原办理状态继续由对应责任方维护。
+ * AI用途：根据原调用与检查记录找到返工责任方。
  */
 import {snapshotReferenceIdentity as identity} from '../../content/references/snapshot-reference-values'
 
@@ -8,12 +10,16 @@ const routes={
  DIRECTORY:'01',BINDING:'02',INPUT:'03',RECOMPUTE:'04',ACTUAL_INPUT_MISSING:'05',EVIDENCE_ONLY:'06',
  MODEL_DEFECT:'MODEL_OWNER',BUSINESS_CONDITION:'BUSINESS_OWNER',UNKNOWN_IMPACT:'CALL_OWNER',
 } as const
+/** 返工发现所指向的责任原因。 */
 type Cause=keyof typeof routes
+/** 参与返工定位的原调用事实。 */
 type Call=Readonly<{
  callRef:string;ownerRef:string;effect:'COMPUTE'|'SIGN'|'SUBMIT'|'WITHDRAW'|'OTHER_EXTERNAL'
  state:'NOT_STARTED'|'COMPLETE'|'PARTIAL'|'UNKNOWN';inputRef:string|null;returnRef:string|null;assertCurrent:()=>void
 }>
+/** 本次返工检查记录及其证据引用。 */
 type Finding=Readonly<{cause:Cause;callRef:string;evidenceRef:string;affectedRefs:readonly string[];assertCurrent:()=>void}>
+/** 可供本次返工核对的原结果。 */
 type PriorResult=Readonly<{resultRef:string;applicabilityRef:string;assertCurrent:()=>void}>
 
 /** 原调用按办理顺序传入，影响及可沿用依据来自原试次核验、正式变更追查或执行记录。 */

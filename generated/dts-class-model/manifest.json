@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1389,
+  "scannedFileCount": 1405,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -18264,6 +18264,32 @@
         ]
       }
     },
+    "src/services/smart-bid/operation/guides/operation-action-guide.ts": {
+      "file": "files/src/services/smart-bid/operation/guides/operation-action-guide.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/guides/operation-action-guide",
+        "sourcePath": "src/services/smart-bid/operation/guides/operation-action-guide.ts",
+        "sourceFile": "src/services/smart-bid/operation/guides/operation-action-guide.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/guides/operation-action-guide",
+        "jsdoc": "@module app:services/smart-bid/operation/guides/operation-action-guide\n职责：第02项沿当前 ClassModel 根读取原动作指南并核固定版本摘要。\n边界：按原动作定义及指南版本生成展示内容，发布和执行归原工艺调用链。\nAI用途：核对页面展示与已发布原指南的动作身份是否一致。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/operation/guides/operation-guide-discovery.ts": {
+      "file": "files/src/services/smart-bid/operation/guides/operation-guide-discovery.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/guides/operation-guide-discovery",
+        "sourcePath": "src/services/smart-bid/operation/guides/operation-guide-discovery.ts",
+        "sourceFile": "src/services/smart-bid/operation/guides/operation-guide-discovery.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/guides/operation-guide-discovery",
+        "jsdoc": "@module app:services/smart-bid/operation/guides/operation-guide-discovery\n职责：第01项在当前根的可达目录内核正式指南与动作引用。\n边界：发现可达动作并保留定义身份，调用许可由原执行上下文确认。\nAI用途：定位目录为什么显示或过滤某个工艺动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/operation/operation-choice-decision.ts": {
       "file": "files/src/services/smart-bid/operation/operation-choice-decision.ts.json",
       "module": {
@@ -18313,6 +18339,19 @@
         ]
       }
     },
+    "src/services/smart-bid/operation/operation-route-context.ts": {
+      "file": "files/src/services/smart-bid/operation/operation-route-context.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/operation-route-context",
+        "sourcePath": "src/services/smart-bid/operation/operation-route-context.ts",
+        "sourceFile": "src/services/smart-bid/operation/operation-route-context.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/operation-route-context",
+        "jsdoc": "@module app:services/smart-bid/operation/operation-route-context\n职责：第03项固定本试次待发参数与来源，分开保存清单和实际输入摘要。\n边界：组织命名输入和来源上下文，正式数据由提供该上下文的 DataView 持有。\nAI用途：检查工位是否得到指定来源的命名输入。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/operation/operation-route-dispatch-evidence.ts": {
       "file": "files/src/services/smart-bid/operation/operation-route-dispatch-evidence.ts.json",
       "module": {
@@ -18340,6 +18379,19 @@
           "OperationTaskClasses",
           "OperationRoutePreview"
         ]
+      }
+    },
+    "src/services/smart-bid/operation/operation-route-recovery.ts": {
+      "file": "files/src/services/smart-bid/operation/operation-route-recovery.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/operation-route-recovery",
+        "sourcePath": "src/services/smart-bid/operation/operation-route-recovery.ts",
+        "sourceFile": "src/services/smart-bid/operation/operation-route-recovery.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/operation-route-recovery",
+        "jsdoc": "@module app:services/smart-bid/operation/operation-route-recovery\n职责：从原冻结清单只读回查路线试次的实际输入及返回。\n边界：依据原调用清单和回执核对结果，正式办理记录由原服务持有。\nAI用途：判断原试次能否沿原回执继续处理。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
       }
     },
     "src/services/smart-bid/operation/operation-route-return.ts": {
@@ -18383,6 +18435,19 @@
           "OperationNodeType",
           "OperationTreeStructureInput"
         ]
+      }
+    },
+    "src/services/smart-bid/operation/rework/operation-step-rework.ts": {
+      "file": "files/src/services/smart-bid/operation/rework/operation-step-rework.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/rework/operation-step-rework",
+        "sourcePath": "src/services/smart-bid/operation/rework/operation-step-rework.ts",
+        "sourceFile": "src/services/smart-bid/operation/rework/operation-step-rework.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/rework/operation-step-rework",
+        "jsdoc": "@module app:services/smart-bid/operation/rework/operation-step-rework\n职责：第07项沿原试次定位返工与逐笔外部接手。\n边界：定位首个退回点并移交责任，原办理状态继续由对应责任方维护。\nAI用途：根据原调用与检查记录找到返工责任方。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
       }
     },
     "src/services/sse-events.ts": {
@@ -19293,6 +19358,45 @@
         ]
       }
     },
+    "src/views/features/application/smart-bid/authoring/entry/content-operation-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-operation-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/entry/content-operation-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-operation-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-operation-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/entry/content-operation-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-operation-script-host\n职责：把本次页18工作区的目录查询与同版指南交给四文件脚本。\n边界：把本次 PageRuntime 的工艺能力交给脚本，读写仍由原绑定负责。\nAI用途：核对页18脚本能够调用哪些当前实例能力。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/entry/content-operation-target.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-operation-target.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/entry/content-operation-target",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-operation-target.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-operation-target.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/entry/content-operation-target",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-operation-target\n职责：仅从正式发布导航和可信业务根准备页18工具实例。\n边界：只消费发布导航和当前会话，工作区装配交给本次 PageRuntime。\nAI用途：排查入口是否缺少授权节点、工具或场景身份。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/entry/content-operation-workspace.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-operation-workspace.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/entry/content-operation-workspace",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-operation-workspace.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-operation-workspace.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/entry/content-operation-workspace",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-operation-workspace\n职责：页18在当前 PageRuntime 和 ClassModel 根中办理发现、回读、验证与退回准备。\n边界：组织工艺工作区调用和原证据，按本次运行实例检查会话有效性。\nAI用途：追踪页18从目录发现到原试次回查的操作顺序。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts": {
       "file": "files/src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts.json",
       "module": {
@@ -19384,6 +19488,19 @@
           "ContentCandidateRequirementBinding",
           "ContentCandidateBinding"
         ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/content-draft-save-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/content-draft-save-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/content-draft-save-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-draft-save-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-draft-save-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/content-draft-save-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-draft-save-reader\n职责：从正式办理记录的命名视图回查页11原保存结果。\n边界：只读原办理命名视图，草稿编辑与原保存命令各自维护状态。\nAI用途：检查保存结果未知时是否可以从原办理视图确认结果。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
       }
     },
     "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts": {
@@ -19519,6 +19636,97 @@
         "modulePath": "views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader\n职责：一次查询同范围实际使用的固定事实版本并生成原依赖摘要。\n边界：不抓取全项目事实，不核本次用途，不写入。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader\n职责：第05项通过原 ContextManifest 视图定位同试次实发记录。\n边界：通过原命名视图读取派发记录，保留未知办理结果。\nAI用途：定位请求发出后缺少派发凭据的原因。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader\n职责：冷回读冻结输入摘要，供页18核验原试次。\n边界：按原试次身份读取固定清单，本次视图仅用于查询。\nAI用途：定位原试次输入或清单身份不匹配的原因。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader\n职责：页18第01项沿正式目录视图发现当前根可达的指南。\n边界：通过标准绑定读取目录动作与指南，调用由原工具宿主执行。\nAI用途：核对目录行展示与点击打开的指南是否一致。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader\n职责：按原冻结的精确版本核读页18返回核验所用的动作指南。\n边界：按原清单锁定指南版本，核对其来源与身份。\nAI用途：排查回查是否误读到其他版本的指南。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader\n职责：第06项以 GenerationRun 原试次视图读取原返回。\n边界：通过原办理记录核验结果，保留不确定状态。\nAI用途：确认原结果回执是否支持本次核验结论。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader\n职责：页18从原试次的返工证据视图准备第07项交接。\n边界：读取原试次证据供返工判断，责任域继续办理后续动作。\nAI用途：定位工艺返工前需要读取哪些原调用证明。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views\n职责：为正式共享场景提供页18所需的命名视图定义；模型身份和字段仍来自已登记模型。\n边界：场景配置责任方用正式主键装配视图，发布和存储仍由原场景负责。\nAI用途：配置工艺目录、原指南版本、派发凭据、办理回执和返工查询的命名视图。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },

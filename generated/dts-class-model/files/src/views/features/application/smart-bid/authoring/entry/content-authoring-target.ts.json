@@ -51,6 +51,9 @@
         },
         "pageId": {
           "type": "string"
+        },
+        "receiptDataViewKey": {
+          "type": "string"
         }
       },
       "required": [
@@ -60,7 +63,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T05:05:43.683Z",
+  "generatedAt": "2026-11-18T08:18:30.171Z",
   "models": {
     "ContentAuthoringRoute": {
       "name": "ContentAuthoringRoute",
@@ -101,11 +104,11 @@
       "jsdoc": "Published IDs captured from the authorized blueprint readback.",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    pageId: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    pageId: string;\n    receiptDataViewKey?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    nodeId: string;\n    pageId: string;\n}>",
+            "typeText": "Readonly<{\n    nodeId: string;\n    pageId: string;\n    receiptDataViewKey?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -118,6 +121,11 @@
             },
             {
               "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "receiptDataViewKey",
               "readable": true,
               "writable": false
             }

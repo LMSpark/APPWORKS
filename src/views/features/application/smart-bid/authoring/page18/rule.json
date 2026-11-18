@@ -20,7 +20,10 @@
   {
     "id": "original-operation-dispatch",
     "type": "r-section",
-    "props": {"title": "原试次实发记录", "onBeforeRender": "bindOriginalDispatch"}
+    "props": {"title": "原试次实发记录", "onBeforeRender": "bindOriginalDispatch"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看原实发 JSON", "onBeforeRender": "bindActualInput", "onClick": "openActualInput"}}
+    ]
   },
   {
     "id": "original-operation-verification",

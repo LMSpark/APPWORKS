@@ -1,0 +1,364 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/operation-route-recovery",
+    "sourcePath": "src/services/smart-bid/operation/operation-route-recovery.ts",
+    "sourceFile": "src/services/smart-bid/operation/operation-route-recovery.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/operation-route-recovery",
+    "jsdoc": "@module app:services/smart-bid/operation/operation-route-recovery\n职责：从原冻结清单只读回查路线试次的实际输入及返回。\n边界：依据原调用清单和回执核对结果，正式办理记录由原服务持有。\nAI用途：判断原试次能否沿原回执继续处理。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Manifest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Manifest",
+      "properties": {
+        "scope": {
+          "type": "object",
+          "properties": {
+            "runId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "targetDigest": {
+              "type": "string"
+            },
+            "configurationLockHash": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "runId",
+            "attemptRef",
+            "requestKey",
+            "projectId",
+            "targetDigest",
+            "configurationLockHash"
+          ],
+          "additionalProperties": false
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "guideVersionRef": {
+          "type": "string"
+        },
+        "guideRef": {
+          "type": "string"
+        },
+        "guideDigest": {
+          "type": "string"
+        },
+        "usable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "inputDigest": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "scope",
+        "assertCurrent",
+        "guideVersionRef",
+        "guideRef",
+        "guideDigest",
+        "usable",
+        "inputDigest"
+      ],
+      "additionalProperties": false
+    },
+    "Dispatch": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Dispatch",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "runId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "targetDigest": {
+              "type": "string"
+            },
+            "configurationLockHash": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "state": {
+              "const": "DISPATCH_RECORDED"
+            },
+            "dispatchRef": {
+              "type": "string"
+            },
+            "actualInputDigest": {
+              "type": "string"
+            },
+            "input": true
+          },
+          "required": [
+            "runId",
+            "attemptRef",
+            "requestKey",
+            "projectId",
+            "targetDigest",
+            "configurationLockHash",
+            "assertCurrent",
+            "state",
+            "dispatchRef",
+            "actualInputDigest"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "runId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "targetDigest": {
+              "type": "string"
+            },
+            "configurationLockHash": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "state": {
+              "const": "UNKNOWN"
+            }
+          },
+          "required": [
+            "runId",
+            "attemptRef",
+            "requestKey",
+            "projectId",
+            "targetDigest",
+            "configurationLockHash",
+            "assertCurrent",
+            "state"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Result": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Result",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "runId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "targetDigest": {
+              "type": "string"
+            },
+            "configurationLockHash": {
+              "type": "string"
+            },
+            "receiptRef": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "state": {
+              "const": "COMPLETE"
+            },
+            "output": true
+          },
+          "required": [
+            "runId",
+            "attemptRef",
+            "requestKey",
+            "projectId",
+            "targetDigest",
+            "configurationLockHash",
+            "receiptRef",
+            "assertCurrent",
+            "state",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "runId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "targetDigest": {
+              "type": "string"
+            },
+            "configurationLockHash": {
+              "type": "string"
+            },
+            "receiptRef": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "state": {
+              "enum": [
+                "UNKNOWN",
+                "PARTIAL",
+                "FAILED"
+              ]
+            }
+          },
+          "required": [
+            "runId",
+            "attemptRef",
+            "requestKey",
+            "projectId",
+            "targetDigest",
+            "configurationLockHash",
+            "receiptRef",
+            "assertCurrent",
+            "state"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T08:28:10.387Z",
+  "models": {
+    "Manifest": {
+      "name": "Manifest",
+      "jsdoc": "原调用固定的输入、工具版本和证据清单。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Awaited<ReturnType<typeof freezeOperationRouteContext>>, 'scope' | 'guideRef' | 'guideVersionRef' | 'guideDigest' | 'usable' | 'inputDigest' | 'assertCurrent'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<Awaited<ReturnType<typeof freezeOperationRouteContext>>, 'scope' | 'guideRef' | 'guideVersionRef' | 'guideDigest' | 'usable' | 'inputDigest' | 'assertCurrent'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideVersionRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "usable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputDigest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Dispatch": {
+      "name": "Dispatch",
+      "jsdoc": "原办理发出的请求及其回查凭据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof verifyOriginalOperationRouteDispatch>[1]",
+        "members": {}
+      }
+    },
+    "Result": {
+      "name": "Result",
+      "jsdoc": "原调用返回并用于核验的结果证据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof verifyDispatchedOperationRouteReturn>[1]",
+        "members": {}
+      }
+    }
+  }
+}

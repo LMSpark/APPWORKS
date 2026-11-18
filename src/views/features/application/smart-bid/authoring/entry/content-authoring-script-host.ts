@@ -13,8 +13,11 @@ import {parseDataViewKey} from '@spark-appworks/spark-data'
 import {readRegisteredOriginalContentDraftSave} from '../model/content-draft-save-reader'
 import {reconcileSavedContentDraft} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
 type Binding=Pick<ContentAuthoringBinding,'runtime'|'dataViewKey'|'projectId'|'draftId'|'actorUserId'|'assertCurrent'|'setPending'>
+/** 定位原保存办理的请求和内容摘要。 */
 type SaveReadInput=Parameters<typeof readRegisteredOriginalContentDraftSave>[1]
+/** 从正式办理记录读取的原保存结果。 */
 type OriginalSave=Awaited<ReturnType<typeof readRegisteredOriginalContentDraftSave>>
+/** 原回执与当前草稿在同一版本下的比较结果。 */
 type SaveComparison=Awaited<ReturnType<typeof reconcileSavedContentDraft>>
 
 /** 实例池创建宿主后，仅在三文件脚本连接时装配原视图。并行连接共享本次装载。 */

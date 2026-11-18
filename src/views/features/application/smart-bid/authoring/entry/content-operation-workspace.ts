@@ -1,6 +1,8 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/entry/content-operation-workspace
  * 职责：页18在当前 PageRuntime 和 ClassModel 根中办理发现、回读、验证与退回准备。
+ * 边界：组织工艺工作区调用和原证据，按本次运行实例检查会话有效性。
+ * AI用途：追踪页18从目录发现到原试次回查的操作顺序。
  */
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type {ClassModelRuntime} from '@spark-appworks/spark-ai/class-model'
@@ -14,8 +16,11 @@ import {readRegisteredOriginalOperationGuide} from '../model/operation/content-o
 import {recoverRegisteredOperationRouteAttempt} from '../model/operation/content-operation-result-reader'
 import {prepareRegisteredOperationStepRework} from '../model/operation/content-operation-rework-reader'
 
+/** 待回查试次固定的原调用清单。 */
 type OriginalManifest=NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>>
+/** 回查原试次使用的同一版本指南。 */
 type RecoveryGuide=Parameters<typeof recoverRegisteredOperationRouteAttempt>[2]
+/** 按原调用证据定位精确指南版本的函数。 */
 type ResolveOriginalGuide=(original:Readonly<Pick<OriginalManifest,'scope'|'guideRef'|'guideVersionRef'|'guideDigest'>>,
  signal:AbortSignal)=>Promise<Omit<RecoveryGuide,'guideRef'|'guideVersionRef'|'guideDigest'|'assertGuideCurrent'>|undefined>
 

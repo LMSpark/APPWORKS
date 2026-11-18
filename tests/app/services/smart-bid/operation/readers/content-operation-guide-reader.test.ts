@@ -10,6 +10,7 @@ import {discoverRegisteredOperationGuides} from '@/views/features/application/sm
 import {openContentOperationWorkspace} from '@/views/features/application/smart-bid/authoring/entry/content-operation-workspace'
 import {createContentOperationScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-operation-script-host'
 import {hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
+import {contentOperationScenarioViews} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views'
 import rule from '@/views/features/application/smart-bid/authoring/page18/rule.json?raw'
 import script from '@/views/features/application/smart-bid/authoring/page18/script.js?raw'
 import style from '@/views/features/application/smart-bid/authoring/page18/style.css?raw'
@@ -22,17 +23,11 @@ it('discovers only the complete scoped directory and retains the original public
  const row={id:'G',projectId:'P',directoryRef:'DIR',state:'EFFECTIVE',source:'PUBLIC',publicationRef:'PUB',
   guideRef:'GUIDE',versionRef:'V1',guideDigest,kind:'OperationRoute',actionName:'verify',
   pathRefs:['DIR'],materialRefs:['MATERIAL']}
- const filters=['projectId','directoryRef'].map(field=>({field,operator:'eq' as const,
-  value:{Type:'GetInputParam',ParamName:field}}))
- const originalFilters=['projectId','guideRef','versionRef'].map(field=>({field,operator:'eq' as const,
-  value:{Type:'GetInputParam',ParamName:field}}))
  const ds=DataSet.fromJson({scenarioId:'S',tables:{KnowledgeGuide:{
   modelBinding:{modelId:'GUIDES',modelName:'KnowledgeGuide'},columns:Object.keys(row).map(name=>({
    name,type:name==='pathRefs'||name==='materialRefs'?'object':'string',isPrimaryKey:name==='id',
   })),
-  views:{default:{},originalVersion:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters:originalFilters}},
-   effectiveDirectory:{commitMode:'staged',queryConfig:{autoQuery:false},
-   scopeFilter:{logic:'and',filters:[...filters,{field:'state',operator:'eq',value:'EFFECTIVE'}]}}},
+  views:{default:{},...contentOperationScenarioViews({KnowledgeGuide:'id',ContextManifest:'id',GenerationRun:'id'}).KnowledgeGuide},
  }}})
  const view=ds.getView('KnowledgeGuide','effectiveDirectory')!
  const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'KnowledgeGuide'})

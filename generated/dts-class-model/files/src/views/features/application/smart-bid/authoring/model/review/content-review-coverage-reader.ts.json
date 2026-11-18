@@ -93,7 +93,8 @@
         "findings": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../../services/smart-bid/content/review/review-check-evidence.ts.json#/$defs/Finding"
+            "type": "object",
+            "title": "Finding"
           }
         }
       },

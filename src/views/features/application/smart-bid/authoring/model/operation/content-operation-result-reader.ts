@@ -1,6 +1,8 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader
  * 职责：第06项以 GenerationRun 原试次视图读取原返回。
+ * 边界：通过原办理记录核验结果，保留不确定状态。
+ * AI用途：确认原结果回执是否支持本次核验结论。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
@@ -9,7 +11,9 @@ import {recoverOperationRouteAttempt} from '@/services/smart-bid/operation/opera
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 import {readRegisteredOperationDispatch} from './content-operation-dispatch-reader'
 
+/** 读取工艺证据所需的项目、场景和当前会话约束。 */
 type Scope=Parameters<typeof verifyOperationRouteReturn>[0]
+/** 原办理返回的持久结果凭据。 */
 type Receipt=Parameters<typeof verifyOperationRouteReturn>[1]
 const keys=['projectId','runId','attemptRef','requestKey'] as const
 const fields=[...keys,'targetDigest','configurationLockHash','receiptRef','state']

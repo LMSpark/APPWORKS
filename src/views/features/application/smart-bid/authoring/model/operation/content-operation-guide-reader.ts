@@ -1,12 +1,15 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader
  * 职责：页18第01项沿正式目录视图发现当前根可达的指南。
+ * 边界：通过标准绑定读取目录动作与指南，调用由原工具宿主执行。
+ * AI用途：核对目录行展示与点击打开的指南是否一致。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {discoverOperationGuides} from '@/services/smart-bid/operation/guides/operation-guide-discovery'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 
+/** 正式目录查询得到的可达动作定义。 */
 type Discovery = Parameters<typeof discoverOperationGuides>
 const scopeFields=['projectId','directoryRef'] as const
 const evidenceFields=[...scopeFields,'state','source','publicationRef','guideRef','versionRef','guideDigest',

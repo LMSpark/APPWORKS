@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/entry/content-operation-workspace",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-operation-workspace.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-operation-workspace.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/entry/content-operation-workspace",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-operation-workspace\n职责：页18在当前 PageRuntime 和 ClassModel 根中办理发现、回读、验证与退回准备。\n边界：组织工艺工作区调用和原证据，按本次运行实例检查会话有效性。\nAI用途：追踪页18从目录发现到原试次回查的操作顺序。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "OriginalManifest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OriginalManifest",
+      "properties": {
+        "scope": {
+          "type": "object",
+          "properties": {
+            "runId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "targetDigest": {
+              "type": "string"
+            },
+            "configurationLockHash": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "runId",
+            "attemptRef",
+            "requestKey",
+            "projectId",
+            "targetDigest",
+            "configurationLockHash"
+          ],
+          "additionalProperties": false
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "guideVersionRef": {
+          "type": "string"
+        },
+        "guideRef": {
+          "type": "string"
+        },
+        "guideDigest": {
+          "type": "string"
+        },
+        "usable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "inputDigest": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "scope",
+        "assertCurrent",
+        "guideVersionRef",
+        "guideRef",
+        "guideDigest",
+        "usable",
+        "inputDigest"
+      ],
+      "additionalProperties": false
+    },
+    "RecoveryGuide": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RecoveryGuide",
+      "properties": {
+        "catalog": {
+          "type": "object",
+          "properties": {
+            "stationRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "routeRefs": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../services/smart-bid/operation/operation-route-candidate.ts.json#/$defs/OperationDataValue"
+              }
+            }
+          },
+          "required": [
+            "stationRefs",
+            "routeRefs"
+          ],
+          "additionalProperties": false
+        },
+        "match": {
+          "type": "object",
+          "title": "(stationRef: string, classes: readonly string[]) => boolean"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "guideRef": {
+          "type": "string"
+        },
+        "configurationLockHash": {
+          "type": "string"
+        },
+        "assertGuideCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "guideVersionRef": {
+          "type": "string"
+        },
+        "guideDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "catalog",
+        "match",
+        "assertCurrent",
+        "guideRef",
+        "configurationLockHash",
+        "assertGuideCurrent",
+        "guideVersionRef",
+        "guideDigest"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T08:28:10.390Z",
+  "models": {
+    "OriginalManifest": {
+      "name": "OriginalManifest",
+      "jsdoc": "待回查试次固定的原调用清单。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>>",
+            "targetName": "NonNullable"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideVersionRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "usable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputDigest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "RecoveryGuide": {
+      "name": "RecoveryGuide",
+      "jsdoc": "回查原试次使用的同一版本指南。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof recoverRegisteredOperationRouteAttempt>[2]",
+        "members": {
+          "attributes": [
+            {
+              "name": "catalog",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "match",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "configurationLockHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertGuideCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideVersionRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideDigest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ResolveOriginalGuide": {
+      "name": "ResolveOriginalGuide",
+      "jsdoc": "按原调用证据定位精确指南版本的函数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(original: Readonly<Pick<OriginalManifest, 'scope' | 'guideRef' | 'guideVersionRef' | 'guideDigest'>>, signal: AbortSignal) => Promise<Omit<RecoveryGuide, 'guideRef' | 'guideVersionRef' | 'guideDigest' | 'assertGuideCurrent'> | undefined>",
+        "members": {}
+      }
+    }
+  }
+}

@@ -72,6 +72,28 @@ function bindOriginalDispatch() {
   return {error: dispatchError ?? '原试次实发记录无法读取'}
 }
 
+function bindActualInput() {
+  try {
+    dispatch?.assertCurrent()
+    return {visible: typeof dispatch?.readActualInput === 'function'}
+  } catch {
+    return {visible: false}
+  }
+}
+
+async function openActualInput() {
+  const current = dispatch
+  if (!bindActualInput().visible) return
+  try {
+    const json = await current.readActualInput()
+    if (current !== dispatch) return
+    current.assertCurrent()
+    await $page.showAlert(JSON.stringify(JSON.parse(json), null, 2), '原实发 JSON')
+  } catch {
+    if (current === dispatch) $page.showMessage('原实发明细无法核验', 'warning')
+  }
+}
+
 function bindOriginalVerification() {
   if (!hasAttempt) return {visible: false}
   const result = dispatch?.verification

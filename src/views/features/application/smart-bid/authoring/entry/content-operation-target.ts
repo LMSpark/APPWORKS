@@ -1,6 +1,8 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/entry/content-operation-target
  * 职责：仅从正式发布导航和可信业务根准备页18工具实例。
+ * 边界：只消费发布导航和当前会话，工作区装配交给本次 PageRuntime。
+ * AI用途：排查入口是否缺少授权节点、工具或场景身份。
  */
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
@@ -10,7 +12,9 @@ import {captureContentAuthoringSession} from '../model/content-authoring-host'
 import type {ContentAuthoringRoute} from './content-authoring-target'
 import {createContentOperationScriptHost} from './content-operation-script-host'
 
+/** 正式导航发布的应用、节点、工具和场景身份。 */
 type PublishedEntry=Readonly<{applicationId:string;nodeId:string;pageId:string;scenarioId:string}>
+/** 工艺脚本宿主装配使用的参数合同。 */
 type ScriptHost=Parameters<typeof createContentOperationScriptHost>
 
 /** 只认蓝图回读确认的节点、工具和空间；查询仅接受明确业务项目及浏览参数。 */

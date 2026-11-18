@@ -1,6 +1,8 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader
  * 职责：按原冻结的精确版本核读页18返回核验所用的动作指南。
+ * 边界：按原清单锁定指南版本，核对其来源与身份。
+ * AI用途：排查回查是否误读到其他版本的指南。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {readOperationActionGuide} from '@/services/smart-bid/operation/guides/operation-action-guide'
@@ -8,7 +10,9 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 import type {readRegisteredFrozenOperationContext} from './content-operation-frozen-reader'
 
+/** 原调用冻结的工艺证据。 */
 type Frozen=NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>>
+/** 按原调用身份读取的指南结果。 */
 type Original=Pick<Frozen,'scope'|'guideRef'|'guideVersionRef'|'guideDigest'>
 const keys=['projectId','guideRef','versionRef'] as const
 const fields=[...keys,'guideDigest','kind','actionName','source','publicationRef']

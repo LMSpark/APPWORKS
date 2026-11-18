@@ -27,6 +27,95 @@
       ],
       "additionalProperties": false
     },
+    "FrozenContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FrozenContext",
+      "properties": {
+        "scope": {
+          "type": "object",
+          "properties": {
+            "runId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "targetDigest": {
+              "type": "string"
+            },
+            "configurationLockHash": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "runId",
+            "attemptRef",
+            "requestKey",
+            "projectId",
+            "targetDigest",
+            "configurationLockHash"
+          ],
+          "additionalProperties": false
+        },
+        "guideRef": {
+          "type": "string"
+        },
+        "guideVersionRef": {
+          "type": "string"
+        },
+        "guideDigest": {
+          "type": "string"
+        },
+        "usable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "manifestJson": {
+          "type": "string"
+        },
+        "manifestDigest": {
+          "type": "string"
+        },
+        "inputJson": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "inputDigest": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "scope",
+        "guideRef",
+        "guideVersionRef",
+        "guideDigest",
+        "usable",
+        "manifestJson",
+        "manifestDigest",
+        "inputJson",
+        "inputDigest",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
     "DispatchIdentity": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -43,13 +132,61 @@
         },
         "turnId": {
           "type": "string"
+        },
+        "publishedVersionRef": {
+          "type": "string"
+        },
+        "guideRef": {
+          "type": "string"
+        },
+        "guideVersionRef": {
+          "type": "string"
+        },
+        "guideDigest": {
+          "type": "string"
+        },
+        "manifestDigest": {
+          "type": "string"
+        },
+        "inputDigest": {
+          "type": "string"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "targetDigest": {
+          "type": "string"
+        },
+        "configurationLockHash": {
+          "type": "string"
         }
       },
       "required": [
         "registrationId",
         "businessInstanceId",
         "runtimeInstanceId",
-        "turnId"
+        "turnId",
+        "publishedVersionRef",
+        "guideRef",
+        "guideVersionRef",
+        "guideDigest",
+        "manifestDigest",
+        "inputDigest",
+        "runId",
+        "attemptRef",
+        "requestKey",
+        "projectId",
+        "targetDigest",
+        "configurationLockHash"
       ],
       "additionalProperties": false
     },
@@ -68,6 +205,42 @@
           "type": "string"
         },
         "turnId": {
+          "type": "string"
+        },
+        "publishedVersionRef": {
+          "type": "string"
+        },
+        "guideRef": {
+          "type": "string"
+        },
+        "guideVersionRef": {
+          "type": "string"
+        },
+        "guideDigest": {
+          "type": "string"
+        },
+        "manifestDigest": {
+          "type": "string"
+        },
+        "inputDigest": {
+          "type": "string"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "targetDigest": {
+          "type": "string"
+        },
+        "configurationLockHash": {
           "type": "string"
         },
         "state": {
@@ -91,11 +264,23 @@
         "registrationId",
         "businessInstanceId",
         "runtimeInstanceId",
-        "turnId"
+        "turnId",
+        "publishedVersionRef",
+        "guideRef",
+        "guideVersionRef",
+        "guideDigest",
+        "manifestDigest",
+        "inputDigest",
+        "runId",
+        "attemptRef",
+        "requestKey",
+        "projectId",
+        "targetDigest",
+        "configurationLockHash"
       ]
     }
   },
-  "generatedAt": "2026-11-18T06:34:50.719Z",
+  "generatedAt": "2026-11-18T08:26:57.245Z",
   "models": {
     "Registry": {
       "name": "Registry",
@@ -114,17 +299,90 @@
         }
       }
     },
+    "FrozenContext": {
+      "name": "FrozenContext",
+      "jsdoc": "本次工艺动作冻结的执行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof freezeOperationRouteContext>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof freezeOperationRouteContext>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideVersionRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "usable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "manifestJson",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "manifestDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputJson",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
     "DispatchIdentity": {
       "name": "DispatchIdentity",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    registrationId: string;\n    businessInstanceId: string;\n    runtimeInstanceId: string;\n    turnId: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    registrationId: string;\n    businessInstanceId: string;\n    runtimeInstanceId: string;\n    turnId: string;\n    publishedVersionRef: string;\n    guideRef: string;\n    guideVersionRef: string;\n    guideDigest: string;\n    manifestDigest: string;\n    inputDigest: string;\n}> & FrozenContext['scope']",
         "declarationRelations": [
           {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    registrationId: string;\n    businessInstanceId: string;\n    runtimeInstanceId: string;\n    turnId: string;\n}>",
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    registrationId: string;\n    businessInstanceId: string;\n    runtimeInstanceId: string;\n    turnId: string;\n    publishedVersionRef: string;\n    guideRef: string;\n    guideVersionRef: string;\n    guideDigest: string;\n    manifestDigest: string;\n    inputDigest: string;\n}>",
             "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "FrozenContext['scope']"
           }
         ],
         "members": {
@@ -146,6 +404,36 @@
             },
             {
               "name": "turnId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "publishedVersionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "guideRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "guideVersionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "guideDigest",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "manifestDigest",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputDigest",
               "readable": true,
               "writable": false
             }

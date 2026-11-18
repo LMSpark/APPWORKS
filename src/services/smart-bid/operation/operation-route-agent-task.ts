@@ -8,6 +8,7 @@ import {snapshotReferenceIdentity as identity} from '../content/references/snaps
 import type {freezeOperationRouteContext} from './operation-route-context'
 
 type Registry=Parameters<typeof createAiAgentTask>[0]
+/** 本次工艺动作冻结的执行上下文。 */
 type FrozenContext=Awaited<ReturnType<typeof freezeOperationRouteContext>>
 type DispatchIdentity=Readonly<{registrationId:string;businessInstanceId:string;runtimeInstanceId:string;turnId:string;
  publishedVersionRef:string;guideRef:string;guideVersionRef:string;guideDigest:string;manifestDigest:string;inputDigest:string}>&FrozenContext['scope']

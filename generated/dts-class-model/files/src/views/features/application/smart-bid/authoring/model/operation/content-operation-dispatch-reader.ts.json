@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader\n职责：第05项通过原 ContextManifest 视图定位同试次实发记录。\n边界：通过原命名视图读取派发记录，保留未知办理结果。\nAI用途：定位请求发出后缺少派发凭据的原因。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "targetDigest": {
+          "type": "string"
+        },
+        "configurationLockHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "runId",
+        "attemptRef",
+        "requestKey",
+        "projectId",
+        "targetDigest",
+        "configurationLockHash"
+      ],
+      "additionalProperties": false
+    },
+    "Readback": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Readback",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "runId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "targetDigest": {
+              "type": "string"
+            },
+            "configurationLockHash": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "state": {
+              "const": "DISPATCH_RECORDED"
+            },
+            "dispatchRef": {
+              "type": "string"
+            },
+            "actualInputDigest": {
+              "type": "string"
+            },
+            "input": true
+          },
+          "required": [
+            "runId",
+            "attemptRef",
+            "requestKey",
+            "projectId",
+            "targetDigest",
+            "configurationLockHash",
+            "assertCurrent",
+            "state",
+            "dispatchRef",
+            "actualInputDigest"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "runId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "targetDigest": {
+              "type": "string"
+            },
+            "configurationLockHash": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "state": {
+              "const": "UNKNOWN"
+            }
+          },
+          "required": [
+            "runId",
+            "attemptRef",
+            "requestKey",
+            "projectId",
+            "targetDigest",
+            "configurationLockHash",
+            "assertCurrent",
+            "state"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T08:28:10.391Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "读取工艺证据所需的项目、场景和当前会话约束。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof verifyOriginalOperationRouteDispatch>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "runId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "configurationLockHash",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Readback": {
+      "name": "Readback",
+      "jsdoc": "原派发办理记录回读合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof verifyOriginalOperationRouteDispatch>[1]",
+        "members": {}
+      }
+    }
+  }
+}

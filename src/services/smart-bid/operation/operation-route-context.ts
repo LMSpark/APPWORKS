@@ -1,14 +1,19 @@
 /**
  * @module app:services/smart-bid/operation/operation-route-context
  * 职责：第03项固定本试次待发参数与来源，分开保存清单和实际输入摘要。
+ * 边界：组织命名输入和来源上下文，正式数据由提供该上下文的 DataView 持有。
+ * AI用途：检查工位是否得到指定来源的命名输入。
  */
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '../content/revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '../content/references/snapshot-reference-values'
 import type {verifyOperationRouteReturn} from './operation-route-return'
 import type {readOperationActionGuide} from './guides/operation-action-guide'
 
+/** 读取工艺证据所需的项目、场景和当前会话约束。 */
 type Scope=Parameters<typeof verifyOperationRouteReturn>[0]
+/** 当前工位的命名输入及其匹配条件。 */
 type Slot=Readonly<{slotId:string;required:boolean}>
+/** 参与工艺上下文计算的来源证据。 */
 type Source=Readonly<{slotId:string;assertCurrent:()=>void}>&(
  Readonly<{state:'ALLOWED';sourceRef:string;versionRef:string;useRef:string;value:unknown}>|
  Readonly<{state:'MISSING'|'TRIMMED'|'DENIED';reasonRef:string}>

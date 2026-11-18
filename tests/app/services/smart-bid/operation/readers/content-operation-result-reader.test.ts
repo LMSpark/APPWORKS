@@ -5,6 +5,7 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {readRegisteredOperationResult} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader'
 import {freezeOperationRouteContext} from '@/services/smart-bid/operation/operation-route-context'
 import {hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
+import {contentOperationScenarioViews} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views'
 import craft from '@/services/smart-bid/craft/route-compose-v1.json'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -19,22 +20,20 @@ it('reads the original result only for the selected attempt and verifies the ret
   createdAt:'2026-11-18T10:00:00+08:00',slots:[{slotId:'target',required:true}]},[
   {slotId:'target',state:'ALLOWED',sourceRef:'SOURCE',versionRef:'V1',useRef:'USE',value:craft.inputExample.targetScope,assertCurrent:()=>{}},
  ])
- const dispatch={...scope,id:'DISPATCH-ROW',dispatchRef:'DISPATCH',actualInputDigest:manifest.inputDigest}
+ const actualInput={target:craft.inputExample.targetScope}
+ const dispatch={...scope,id:'DISPATCH-ROW',dispatchRef:'DISPATCH',actualInputDigest:manifest.inputDigest,actualInput}
  const frozen={...scope,id:'FROZEN-ROW',guideVersionRef:'GV1',guideRef:'GUIDE',guideDigest,usable:true,inputDigest:manifest.inputDigest}
- const filters=['projectId','runId','attemptRef','requestKey'].map(field=>({field,operator:'eq' as const,
-  value:{Type:'GetInputParam',ParamName:field}}))
+ const views=contentOperationScenarioViews({KnowledgeGuide:'id',ContextManifest:'id',GenerationRun:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{GenerationRun:{
   modelBinding:{modelId:'M',modelName:'GenerationRun'},columns:Object.keys(original).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalResult:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters}}},
+  views:{default:{},originalResult:views.GenerationRun.originalResult},
  },ContextManifest:{
   modelBinding:{modelId:'CTX',modelName:'ContextManifest'},
   columns:Object.keys({...dispatch,...frozen}).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalDispatch:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters}},
-   originalFrozen:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters}}},
+  views:{default:{},...views.ContextManifest},
  },KnowledgeGuide:{
   modelBinding:{modelId:'GUIDES',modelName:'KnowledgeGuide'},columns:Object.keys(guideRow).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalVersion:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',
-   filters:['projectId','guideRef','versionRef'].map(field=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName:field}}))}}},
+  views:{default:{},originalVersion:views.KnowledgeGuide.originalVersion},
  }}})
  const view=ds.getView('GenerationRun','originalResult')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'GenerationRun'})
  let hidden=false
@@ -43,9 +42,10 @@ it('reads the original result only for the selected attempt and verifies the ret
    data:{Count:1,Items:[{...original,lingma_sys_params:{r:[],e:[],h:hidden?['output']:[],m:[],d:false}}]}}}),
  })})
  const dispatchView=ds.getView('ContextManifest','originalDispatch')!,dispatchTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContextManifest'})
+ let hideDispatchInput=false
  dispatchView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
   identity:dispatchTable.identity,scope:'dispatch',readScope:()=> 'dispatch',snapshot:dispatchTable.applyResult({Result:{primaryKeyField:'id',
-   data:{Count:1,Items:[{...dispatch,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
+   data:{Count:1,Items:[{...dispatch,lingma_sys_params:{r:[],e:[],h:hideDispatchInput?['actualInput']:[],m:[],d:false}}]}}}),
  })})
  const frozenView=ds.getView('ContextManifest','originalFrozen')
  if(!frozenView)throw Error('TEST_FROZEN_VIEW_REQUIRED')
@@ -75,6 +75,12 @@ it('reads the original result only for the selected attempt and verifies the ret
   const projected=await scriptHost.invoke('content.operation.readDispatch',scope,signal)
   expect(projected).toMatchObject({state:'DISPATCH_RECORDED',dispatchRef:'DISPATCH',actualInputDigest:manifest.inputDigest})
   expect(projected).not.toHaveProperty('input')
+  if(!('readActualInput' in projected)||!projected.readActualInput)throw Error('TEST_INPUT_PROOF_REQUIRED')
+  await expect(projected.readActualInput()).resolves.toBe(manifest.inputJson)
+  hideDispatchInput=true
+  const restricted=await scriptHost.invoke('content.operation.readDispatch',scope,signal)
+  expect(restricted).not.toHaveProperty('readActualInput')
+  await expect(projected.readActualInput()).rejects.toThrow('DATA_VIEW_READ_RESULT')
   const result=await readRegisteredOperationResult(host,scope)
   expect(result).toMatchObject({state:'COMPLETE',receiptRef:'RECEIPT',output:craft.outputExample})
   const tools={executeTool:async(name:string)=>name==='model_action_guide'?{ok:true,data:guideText}:

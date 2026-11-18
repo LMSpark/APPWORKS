@@ -1,13 +1,17 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader
  * 职责：第05项通过原 ContextManifest 视图定位同试次实发记录。
+ * 边界：通过原命名视图读取派发记录，保留未知办理结果。
+ * AI用途：定位请求发出后缺少派发凭据的原因。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import type {verifyOriginalOperationRouteDispatch} from '@/services/smart-bid/operation/operation-route-dispatch-evidence'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 
+/** 读取工艺证据所需的项目、场景和当前会话约束。 */
 type Scope=Parameters<typeof verifyOriginalOperationRouteDispatch>[0]
+/** 原派发办理记录回读合同。 */
 type Readback=Parameters<typeof verifyOriginalOperationRouteDispatch>[1]
 const contextFields=['projectId','runId','attemptRef','requestKey'] as const
 const fields=[...contextFields,'targetDigest','configurationLockHash','dispatchRef','actualInputDigest']

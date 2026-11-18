@@ -1,12 +1,15 @@
 /**
  * @module app:services/smart-bid/operation/guides/operation-guide-discovery
  * 职责：第01项在当前根的可达目录内核正式指南与动作引用。
+ * 边界：发现可达动作并保留定义身份，调用许可由原执行上下文确认。
+ * AI用途：定位目录为什么显示或过滤某个工艺动作。
  */
 import {CLASS_MODEL_TOOL_NAMES,type ClassModelRuntime} from '@spark-appworks/spark-ai/class-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '../../content/references/snapshot-reference-values'
 import {readOperationActionGuide} from './operation-action-guide'
 
+/** 目录可达动作及其原始定义引用。 */
 type Entry=Readonly<{guideRef:string;versionRef:string;guideDigest:string;kind:string;actionName:string;pathRefs:readonly string[];
  materialRefs:readonly string[];assertCurrent:()=>void}>
 

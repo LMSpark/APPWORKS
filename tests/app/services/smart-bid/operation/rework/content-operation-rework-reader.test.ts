@@ -2,6 +2,7 @@ import {expect,it} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {prepareRegisteredOperationStepRework} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader'
 import {openContentOperationWorkspace} from '@/views/features/application/smart-bid/authoring/entry/content-operation-workspace'
+import {contentOperationScenarioViews} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -10,11 +11,10 @@ it('prepares rework only from a visible, complete original attempt projection',a
  const original={...scope,id:'ROW',inputRef:'INPUT',returnRef:null,
   calls:[{callRef:'CALL',ownerRef:'REP',effect:'WITHDRAW',state:'UNKNOWN',inputRef:'WITHDRAW-INPUT',returnRef:null}],
   findings:[{callRef:'CALL',cause:'RECOMPUTE',evidenceRef:'F',affectedRefs:[]}],priorResults:[]}
- const filters=Object.keys(scope).map(field=>({field,operator:'eq' as const,value:{Type:'GetInputParam',ParamName:field}}))
  const ds=DataSet.fromJson({scenarioId:'S',tables:{GenerationRun:{
   modelBinding:{modelId:'RUN-MODEL',modelName:'GenerationRun'},
   columns:Object.keys(original).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalReworkEvidence:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters}}},
+  views:{default:{},originalReworkEvidence:contentOperationScenarioViews({KnowledgeGuide:'id',ContextManifest:'id',GenerationRun:'id'}).GenerationRun.originalReworkEvidence},
  }}})
  const view=ds.getView('GenerationRun','originalReworkEvidence')
  if(!view)throw Error('TEST_VIEW_REQUIRED')

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views\n职责：为正式共享场景提供页18所需的命名视图定义；模型身份和字段仍来自已登记模型。\n边界：场景配置责任方用正式主键装配视图，发布和存储仍由原场景负责。\nAI用途：配置工艺目录、原指南版本、派发凭据、办理回执和返工查询的命名视图。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T08:28:31.986Z",
+  "models": {}
+}

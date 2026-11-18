@@ -1,6 +1,8 @@
 /**
  * @module app:services/smart-bid/operation/guides/operation-action-guide
  * 职责：第02项沿当前 ClassModel 根读取原动作指南并核固定版本摘要。
+ * 边界：按原动作定义及指南版本生成展示内容，发布和执行归原工艺调用链。
+ * AI用途：核对页面展示与已发布原指南的动作身份是否一致。
  */
 import {CLASS_MODEL_TOOL_NAMES,type ClassModelRuntime} from '@spark-appworks/spark-ai/class-model'
 import {isRecord} from '@spark-appworks/spark-utils'

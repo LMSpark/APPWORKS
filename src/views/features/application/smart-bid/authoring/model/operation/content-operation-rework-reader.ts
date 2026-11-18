@@ -1,6 +1,8 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader
  * 职责：页18从原试次的返工证据视图准备第07项交接。
+ * 边界：读取原试次证据供返工判断，责任域继续办理后续动作。
+ * AI用途：定位工艺返工前需要读取哪些原调用证明。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'

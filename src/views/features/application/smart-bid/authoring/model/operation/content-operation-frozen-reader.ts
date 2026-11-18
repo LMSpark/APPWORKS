@@ -1,12 +1,15 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader
  * 职责：冷回读冻结输入摘要，供页18核验原试次。
+ * 边界：按原试次身份读取固定清单，本次视图仅用于查询。
+ * AI用途：定位原试次输入或清单身份不匹配的原因。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 import type {recoverRegisteredOperationRouteAttempt} from './content-operation-result-reader'
 
+/** 原调用固定的输入、工具版本和证据清单。 */
 type Manifest=Parameters<typeof recoverRegisteredOperationRouteAttempt>[1]
 const keys=['projectId','runId','attemptRef','requestKey'] as const
 const fields=[...keys,'targetDigest','configurationLockHash','guideRef','guideVersionRef','guideDigest','usable','inputDigest']

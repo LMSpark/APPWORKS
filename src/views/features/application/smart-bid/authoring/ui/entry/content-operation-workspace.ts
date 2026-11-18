@@ -99,7 +99,7 @@ export function openContentOperationWorkspace(
   async recoverOriginal(attempt:Freeze[0],resolveGuide:ResolveOriginalGuide){
    const manifest=await readRegisteredFrozenOperationContext(host,attempt)
    assertCurrent()
-   if(!manifest)throw Error('OPERATION_FROZEN_READ_REQUIRED')
+   if(!manifest)return undefined
    const {scope:originalScope,guideRef,guideVersionRef,guideDigest}=manifest
    const original=Object.freeze({scope:originalScope,guideRef,guideVersionRef,guideDigest})
    const guide=await readRegisteredOriginalOperationGuide(host,classModel,{rootKind,original})

@@ -50,10 +50,10 @@ it('reads the original result only for the selected attempt and verifies the ret
  const frozenView=ds.getView('ContextManifest','originalFrozen')
  if(!frozenView)throw Error('TEST_FROZEN_VIEW_REQUIRED')
  const frozenTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContextManifest'})
- let hideFrozen=false
+ let hideFrozen=false,hasFrozen=true
  frozenView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
   identity:frozenTable.identity,scope:'frozen',readScope:()=> 'frozen',snapshot:frozenTable.applyResult({Result:{primaryKeyField:'id',
-   data:{Count:1,Items:[{...frozen,lingma_sys_params:{r:[],e:[],h:hideFrozen?['inputDigest']:[],m:[],d:false}}]}}}),
+   data:{Count:hasFrozen?1:0,Items:hasFrozen?[{...frozen,lingma_sys_params:{r:[],e:[],h:hideFrozen?['inputDigest']:[],m:[],d:false}}]:[]}}}),
  })})
  const guideView=ds.getView('KnowledgeGuide','originalVersion')
  if(!guideView)throw Error('TEST_GUIDE_VIEW_REQUIRED')
@@ -108,6 +108,13 @@ it('reads the original result only for the selected attempt and verifies the ret
   expect(inspected).toMatchObject({state:'DISPATCH_RECORDED',dispatchRef:'DISPATCH',
    verification:{state:'VERIFIED_CANDIDATE',receiptRef:'RECEIPT'}})
   expect(inspected).not.toHaveProperty('verification.candidateJson')
+  hasFrozen=false
+  const beforeMissingFrozen=resolveGuide.mock.calls.length
+  const withoutFrozen=await verificationHost.invoke('content.operation.readDispatch',scope,signal)
+  expect(withoutFrozen).toMatchObject({state:'DISPATCH_RECORDED',dispatchRef:'DISPATCH'})
+  expect(withoutFrozen).not.toHaveProperty('verification')
+  expect(resolveGuide).toHaveBeenCalledTimes(beforeMissingFrozen)
+  hasFrozen=true
   hideFrozen=true
   await expect(workspace.recoverOriginal(scope,resolveGuide)).rejects.toThrow('DATA_VIEW_READ_ROW')
   hidden=true

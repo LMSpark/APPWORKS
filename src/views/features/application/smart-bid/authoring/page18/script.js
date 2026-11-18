@@ -97,7 +97,7 @@ async function openActualInput() {
 function bindOriginalVerification() {
   if (!hasAttempt) return {visible: false}
   const result = dispatch?.verification
-  if (!result) return {error: dispatchError ?? '缺同版核验指南，待核原返回'}
+  if (!result) return {error: dispatchError ?? '缺原冻结输入或同版核验依据，待核原返回'}
   try {
     result.assertCurrent()
     const state = {

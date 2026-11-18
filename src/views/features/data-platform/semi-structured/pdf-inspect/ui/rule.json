@@ -1,0 +1,13 @@
+[
+  {
+    "id":"pdf-inspect-rule-catalog",
+    "type":"r-table",
+    "props":{"dataViewKey":"A2D63AB2AAEF156E7727094A23AEA433@Base_FileInspectConfig@default","class":"pdf-rule-catalog-table",
+      "stripe":true,"border":true,"highlightCurrentRow":true,"showDataViewMeta":false,"onRowClick":"selectRule"},
+    "children":[
+      {"type":"r-text","props":{"field":"name","label":"规则名称","minWidth":240,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"description","label":"描述","minWidth":300,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"enabled","label":"启用状态","width":120}}
+    ]
+  }
+]

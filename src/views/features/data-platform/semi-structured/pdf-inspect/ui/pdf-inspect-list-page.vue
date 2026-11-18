@@ -14,8 +14,8 @@
     <RendererButton v-for="id in pendingRequests" :key="id" :label="'核验原请求 ' + id"
       :disabled="resultLoading || pendingExecution()" @click="router.push(resolveInspectionRecoveryUrl(id))" />
     <p v-if="ready && catalogScope" role="status">请进入已授权应用后设计规则或发起核验。</p>
-    <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :stripe="true" :border="true"
-      :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
+    <SparkPageRenderer v-if="ready && catalogRuntime && catalogHost" :page-runtime="catalogRuntime"
+      :route-snapshot="routeSnapshot" :host="catalogHost" />
     <FeatureRecordDialog v-if="creationId !== undefined" :data-view-key="creationKey" :record-id="creationId"
       title="新增PDF核验规则" :created="true" :specs="creationFields" :validate="validateCreation" @close="closeCreation" />
     <RendererSection v-if="preparationOpen" title="核验准备" :bordered="false"
@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, reactive, ref, shallowReactive, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router'
-import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
@@ -77,8 +77,12 @@ import {APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath, parseApplicationPa
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import {validatePdfRuleConfig} from '@/lowcode/resources/semi-structured/pdf-inspect/rule-config'
+import {PageTool,type PageRuntime} from '@spark-appworks/spark-project-model'
+import catalogRule from './rule.json?raw'
+import catalogScript from './script.js?raw'
+import catalogStyle from './style.css?raw'
 
-const {PAGE_RUNTIME, RendererSection, RendererTable, RendererButton, RendererForm, FieldText, FieldNumber, FieldJson,
+const {PAGE_RUNTIME, RendererSection, RendererTable, SparkPageRenderer, RendererButton, RendererForm, FieldText, FieldNumber, FieldJson,
   useSparkComponent, consumeRequiredPageService} = SparkComponent
 const route = useRoute()
 const router = useRouter()
@@ -126,7 +130,6 @@ const selected = computed(() => {
 })
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogScope = computed(() => resolveExecutionProjectId(route.path) === APPLICATION_CATALOG_PROJECT_ID)
-const catalogKey = computed(() => buildDataViewKey(LowcodePdfInspect.catalogMetaName, 'default', scenarioId.value))
 const historyKey = computed(() => buildDataViewKey(PDF_INSPECTION_HISTORY_TABLE, 'default', scenarioId.value))
 const limitsKey = computed(() => buildDataViewKey('PdfInspectionLimits', 'default', scenarioId.value))
 const uploadKey = computed(() => buildDataViewKey(PDF_INSPECTION_UPLOAD_TABLE, 'default', scenarioId.value))
@@ -367,11 +370,23 @@ async function openHistory(): Promise<void> {
   }
 }
 const editorPath = '/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page'
-const fields = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'name', label: '规则名称', minWidth: 240, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'description', label: '描述', minWidth: 300, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'enabled', label: '启用状态', width: 120}},
-])
+const catalogRuntime=shallowRef<PageRuntime>()
+const catalogHost=shallowRef<ReturnType<typeof makeCatalogHost>>()
+const routeSnapshot=computed(()=>{
+  const {path,fullPath,name,params,query,hash}=route
+  return {path,fullPath,name:name??null,params,query,hash}
+})
+function makeCatalogHost(runtime:PageRuntime){
+  const assertCurrent=()=>{if(!active||!session.isCurrent(runtime))throw Error('PDF目录实例已失效')}
+  return {runtime,assertCurrent,async invoke(command:string,input:unknown){
+    assertCurrent()
+    if(command==='pdf.catalog.select'){
+      const row=view.value?.rows.find(item=>view.value?.getPkKey(item)===input)
+      if(row)choose(row)
+    }
+    return undefined
+  }}
+}
 function choose(row: DataRow): void {if (!pendingExecution()) view.value?.setSelectedRows([row])}
 async function refreshCatalog(): Promise<void> {
   if (loading.value || !view.value) return
@@ -393,13 +408,18 @@ watch([scenarioId, catalogScope], async ([id, inCatalog]) => {
   execution.value = undefined; executionBusy.value = false; executionMessage.value = ''
   resultGeneration++
   recovering.value = false; resultOpen.value = false; resultLoading.value = false; resultReady.value = false; resultError.value = ''
-  unsubscribe?.(); view.value = undefined
+  unsubscribe?.(); catalogRuntime.value=undefined; catalogHost.value=undefined; view.value = undefined
   session.dispose()
   try {
     if (!id) throw new Error('PDF 识别入口缺少导航绑定的数据空间ID')
     const dataSet = await LowcodePdfInspect.loadCatalog(id, inCatalog ? APPLICATION_CATALOG_PROJECT_ID : undefined)
     if (!active || own !== generation) {dataSet.destroy(); return}
-    const current = session.acquire({pageId: 'pdf-inspect-list-page', scenarioIds: [id], targetId: id,
+    const tool=new PageTool({pageId:'pdf-inspect-list-page'})
+    tool.hydrateFileText('rule.json',catalogRule)
+    tool.hydrateFileText('script.js',catalogScript)
+    tool.hydrateFileText('style.css',catalogStyle)
+    tool.markLoaded()
+    const current = session.acquire({tool, scenarioIds: [id], targetId: id,
       loadScenario: async () => dataSet})
     await current.load()
     if (!active || own !== generation || !session.isCurrent(current)) return
@@ -408,8 +428,7 @@ watch([scenarioId, catalogScope], async ([id, inCatalog]) => {
     executionAvailable.value = dataSet.getView(LowcodePdfInspect.catalogMetaName, 'executionRule') !== undefined &&
       current.resolveView(limitsKey.value) !== undefined
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: () => revision.value++})
-    if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); ready.value = true}
-    dataSet.triggerAutoLoad()
+    if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); catalogRuntime.value=current; catalogHost.value=makeCatalogHost(current); ready.value = true}
     if (executionAvailable.value) pendingRequests.value = pendingPdfInspectionRequests(dataSet, resolveInspectionRecoveryUrl)
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}

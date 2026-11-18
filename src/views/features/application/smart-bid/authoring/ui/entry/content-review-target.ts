@@ -1,6 +1,6 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/ui/entry/content-review-target
- * 职责：按正式发布身份为页12至15准备业务宿主。
+ * 职责：按正式发布身份为页12至17准备业务宿主。
  */
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
@@ -11,6 +11,9 @@ import type {ContentAuthoringRoute} from './content-authoring-target'
 import {createContentReviewScriptHost} from './content-review-script-host'
 import {createContentSubmissionScriptHost} from './content-submission-script-host'
 import {createBidFindingsScriptHost} from '../../../collaboration/tasks/bid-findings-script-host'
+
+import {createKnowledgeDirectoryScriptHost} from '../../../knowledge/knowledge-directory-script-host'
+import {createBidClassModelCatalogHost} from '../../../knowledge/class-model-catalog-script-host'
 
 type PublishedEntry=Readonly<{applicationId:string;scenarioId:string;nodeId:string;pageId:string}>
 type Scope=Readonly<{projectId:string;scenarioId:string;assertCurrent:()=>void}>
@@ -45,6 +48,30 @@ export function preparePublishedBidFindingsCall(route:ContentAuthoringRoute,entr
  return preparePublishedCall(route,entry,(runtime,scope)=>createBidFindingsScriptHost(runtime,scope,createSources(runtime,scope)))
 }
 
+type RootBinding<ClassModel>=Readonly<{classModel:ClassModel;rootKind:string;assertCurrent:()=>void}>
+
+/** 页16消费正式绑定的知识目录及模型根。 */
+export function preparePublishedKnowledgeDirectoryCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+ bindRoot:(runtime:PageRuntime,scope:Scope)=>RootBinding<Parameters<typeof createKnowledgeDirectoryScriptHost>[1]>,
+){
+ return preparePublishedCall(route,entry,(runtime,scope)=>{
+  const root=bindRoot(runtime,scope)
+  return createKnowledgeDirectoryScriptHost(runtime,root.classModel,{...scope,rootKind:root.rootKind,
+   assertCurrent:()=>{scope.assertCurrent();root.assertCurrent()}})
+ })
+}
+
+/** 页17从发布实例的可信模型根读取目录及指南。 */
+export function preparePublishedBidClassModelCatalogCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+ bindRoot:(runtime:PageRuntime,scope:Scope)=>RootBinding<Parameters<typeof createBidClassModelCatalogHost>[1]>,
+){
+ return preparePublishedCall(route,entry,(runtime,scope)=>{
+  const root=bindRoot(runtime,scope)
+  return createBidClassModelCatalogHost(runtime,root.classModel,{rootKind:root.rootKind,
+   assertCurrent:()=>{scope.assertCurrent();root.assertCurrent()}})
+ })
+}
+
 function preparePublishedCall<Host>(route:ContentAuthoringRoute,entry:PublishedEntry,createHost:(runtime:PageRuntime,scope:Scope)=>Host){
  const {applicationId,scenarioId,nodeId,pageId}=entry
  if(![applicationId,scenarioId,nodeId,pageId].every(identity))throw Error('CONTENT_REVIEW_PUBLICATION_IDENTITY_REQUIRED')
@@ -54,7 +81,7 @@ function preparePublishedCall<Host>(route:ContentAuthoringRoute,entry:PublishedE
  if(type!=='config-page'||programmaticTool===true||!isRecord(tool)||tool['projectId']!==applicationId||
   tool['pageId']!==pageId||route.meta['pageId']!==pageId||blueprintScenarioId!==scenarioId||
   route.query['scenarioId']!==scenarioId||!identity(projectId)||
-  ['actorUserId','currentUserId','userId','scenarioInputs','additionalScenarioIds'].some(key=>Object.hasOwn(route.query,key))||
+  ['actorUserId','currentUserId','userId','scenarioInputs','additionalScenarioIds','rootKind'].some(key=>Object.hasOwn(route.query,key))||
   Object.entries({applicationId,pageId}).some(([key,value])=>Object.hasOwn(route.query,key)&&route.query[key]!==value))
   throw Error('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
  const session=captureContentAuthoringSession({applicationId,scenarioId,projectId})

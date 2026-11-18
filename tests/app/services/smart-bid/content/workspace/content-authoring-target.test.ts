@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {resolveContentAuthoringTarget,resolvePublishedContentAuthoringTarget,type ContentAuthoringRoute} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
-import {preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
+import {preparePublishedBidClassModelCatalogCall,preparePublishedKnowledgeDirectoryCall,preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
 
 const auth=vi.hoisted(()=>({token:'SESSION',appId:'D8490EC99436A8B9AFDE205BE3153802'}))
 vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
@@ -17,6 +17,8 @@ it.each([
  {number:13,prepareCall:preparePublishedContentSubmissionCall},
  {number:14,prepareCall:preparePublishedContentDeadlineCall},
  {number:15,prepareCall:preparePublishedBidFindingsCall},
+ {number:16,prepareCall:preparePublishedKnowledgeDirectoryCall},
+ {number:17,prepareCall:preparePublishedBidClassModelCatalogCall},
 ])('prepares published page $number inputs for the authorized route and invalidates stale sessions',({number,prepareCall})=>{
  const nodeId=`NAV${number}`,pageId=`TOOL${number}`
  const entry={applicationId:app,scenarioId:space,nodeId,pageId}
@@ -29,6 +31,8 @@ it.each([
  expect(()=>prepareCall({...reviewRoute,meta:{...reviewRoute.meta,blueprintScenarioId:'OTHER'}},entry,createSources))
   .toThrow('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
  expect(()=>prepareCall({...reviewRoute,meta:{...reviewRoute.meta,tool:{projectId:app,pageId:'OTHER'}}},entry,createSources))
+  .toThrow('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
+ expect(()=>prepareCall({...reviewRoute,query:{...reviewRoute.query,rootKind:'OTHER'}},entry,createSources))
   .toThrow('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
  const prepared=prepareCall(reviewRoute,entry,createSources)
  expect(prepared?.scenarioInputs).toEqual({[space]:{projectId:'P',currentUserId:'ACTOR'}})
@@ -59,6 +63,31 @@ it('binds the deadline host to the published page runtime and active session',as
    .rejects.toThrow('CONTENT_AUTHORING_STALE')
   expect(readDeadline).not.toHaveBeenCalled()
  }finally{auth.token='SESSION';runtime.dispose();wrongRuntime.dispose()}
+})
+it('binds page 17 to the model root supplied by the published runtime',async()=>{
+ const entry={applicationId:app,scenarioId:space,nodeId:'NAV17',pageId:'TOOL17'}
+ const publishedRoute={path:`/apps/${app}/page17`,meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,
+  blueprintScenarioId:space,tool:{projectId:app,pageId:entry.pageId}},query:{projectId:'P',scenarioId:space}}
+ const executeTool=vi.fn(async()=>({ok:true as const,data:{rootKind:'OperationRoute',models:[]}}))
+ let rootCurrent=true
+ const bindRoot=vi.fn(()=>({classModel:{executeTool},rootKind:'OperationRoute',
+  assertCurrent:()=>{if(!rootCurrent)throw Error('ROOT_CHANGED')}}))
+ const prepared=preparePublishedBidClassModelCatalogCall(publishedRoute,entry,bindRoot)
+ if(!prepared)throw Error('TEST_MODEL_CATALOG_ENTRY_REQUIRED')
+ const runtime=new PageRuntime({pageId:entry.pageId,scenarioIds:[space],deferredScenarioIds:[space],
+  loadScenario:async()=>{throw Error('UNEXPECTED_SCENARIO_LOAD')}})
+ try{
+  await runtime.load()
+  const host=prepared.createHost(runtime)
+  expect(bindRoot).toHaveBeenCalledExactlyOnceWith(runtime,expect.objectContaining({projectId:'P',scenarioId:space}))
+  const signal=new AbortController().signal
+  const catalog=await host.invoke('bid.models.readCatalog',{},signal)
+  expect(catalog.rootKind).toBe('OperationRoute')
+  rootCurrent=false
+  expect(()=>catalog.assertCurrent()).toThrow('ROOT_CHANGED')
+  await expect(host.invoke('bid.models.readCatalog',{},signal)).rejects.toThrow('ROOT_CHANGED')
+  expect(executeTool).toHaveBeenCalledOnce()
+ }finally{runtime.dispose()}
 })
 it('dispatches only the published node and tool pair in the declared space',()=>{
  const entry={nodeId:'NAV11',pageId:'TOOL11'}

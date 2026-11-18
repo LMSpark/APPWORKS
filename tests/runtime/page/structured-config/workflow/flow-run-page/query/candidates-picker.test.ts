@@ -12,7 +12,7 @@ import {submitApprovalCommand} from '@/lowcode/resources/system/workflow/manage/
 const originalStubs = {...config.global.stubs}
 afterEach(() => {config.global.stubs = originalStubs})
 
-async function fixture(freeChoice = false) {
+async function fixture(freeChoice = false, nodeId = 'N1') {
   const ds = DataSet.fromJson({scenarioId: 'S', tables: {}})
   const source = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})
   bindDataSetReadonlyCommandQuery(source, {resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, guard: () => {}, loadRows: async () => [{id: 'current', payload: {execUser: [{nodeId: 'N1', maxNum: 1, allowChange: freeChoice, userList: [{UserId: 'U1', UserName: '张三'}]}, {nodeId: 'N2', userList: []}]}}]})
@@ -22,14 +22,14 @@ async function fixture(freeChoice = false) {
   if (freeChoice) await directory.refresh()
   const candidates = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCandidates', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-candidates'}, columns: [{name: 'id', primary: true}, {name: 'name'}, {name: 'value'}, {name: 'nodeId'}]})
   bindDataSetReadonlyCommandQuery(candidates, createFlowRunCandidatesBinding({view: candidates, source, guard: () => {}, userDirectory: () => directory}))
-  await source.refresh(); candidates.queryContext = {nodeId: 'N1'}; await candidates.refresh()
+  await source.refresh(); candidates.queryContext = {nodeId}; await candidates.refresh()
   const command = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCommand', resource: {resourceType: 'command', resourceId: 'workflow:approval'}, columns: [{name: 'rowid', primary: true}, {name: 'action'}, {name: 'flowObjectId'}, {name: 'stepId'}, {name: 'nextNode', type: 'array'}]})
   const dispatch = vi.fn(async () => {})
   bindDataSetCommandSubmit(command, new FlowRunCommandResource({view: command, guard: () => {}, dispatch, captureTarget: () => () => {}}).binding())
   ensureDataSetStaticInputTable(ds, 'ApprovalInput', [{name: 'inputId', primary: true}, {name: 'nextNode', type: 'array'}])
   const input = ds.getView('ApprovalInput')!
   input.commitMode = 'staged'
-  await input.addRow({inputId: 'current', nextNode: [{NodeId: 'N1', ExecUserList: []}]})
+  await input.addRow({inputId: 'current', nextNode: [{NodeId: nodeId, ExecUserList: []}]})
   const id = 'current'
   input.setCurrentRowById(id)
   const runtime = new PageRuntime({pageId: 'candidate-picker', scenarioIds: ['S'], loadScenario: async () => ds})
@@ -92,6 +92,18 @@ it('does not open the selector with cached people after the original options sou
     f.source.queryContext = {stepId: 'other-step'}
     await f.wrapper.get('.primary-action-button').trigger('click'); await flushPromises()
     expect(f.select).not.toHaveBeenCalled()
+    expect(f.dispatch).not.toHaveBeenCalled()
+  } finally {f.wrapper.unmount(); f.runtime.dispose()}
+})
+
+it('keeps an empty node candidate list scoped even when the tenant directory contains people', async () => {
+  const f = await fixture(true, 'N2')
+  try {
+    expect(f.directory.rows).toHaveLength(2)
+    expect(f.candidates.rows).toHaveLength(0)
+    await f.wrapper.get('.primary-action-button').trigger('click'); await flushPromises()
+    expect(f.select.mock.calls[0]?.[0].options).toEqual([])
+    expect(f.input.getEditingRow(f.id)?.['nextNode']).toEqual([{NodeId: 'N2', ExecUserList: []}])
     expect(f.dispatch).not.toHaveBeenCalled()
   } finally {f.wrapper.unmount(); f.runtime.dispose()}
 })

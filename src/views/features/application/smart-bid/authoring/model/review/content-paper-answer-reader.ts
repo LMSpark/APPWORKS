@@ -5,6 +5,7 @@
  * AI用途：核对纸件观察是否对应实际登记份次和页栏。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
@@ -18,6 +19,41 @@ const fields=['id','projectId','paperRef','copyRef','revisionId','pageRef','loca
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='AnswerLocation'&&
  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&keys.every(([field,ParamName])=>
   hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
+
+/** 从正式纸件登记中取观察指定的份次和页标识。 */
+export async function readRegisteredPaperCopy(host:ContentRevisionReadHost,scope:PaperScope):Promise<RegisteredPaper>{
+ const {projectId,paperRef,copyRef,revisionId}=scope
+ const error='CONTENT_PAPER_ANSWER_SCOPE'
+ host.assertCurrent()
+ if(projectId!==host.projectId||![projectId,paperRef,copyRef,revisionId,host.scenarioId].every(identity))throw Error(error)
+ const context={projectId,paperRef,revisionId}
+ const key=buildDataViewKey('ProducedFile','selectedPaperRegistration',host.scenarioId)
+ const view=host.runtime.resolveView(key)
+ const validRegistration=(target:DataView)=>target.dataTable?.modelBinding?.modelName==='ProducedFile'&&
+  target.commitMode==='staged'&&target.queryConfig.autoQuery===false&&Object.keys(context).every(field=>
+   hasContentScopeCondition(target,field,{Type:'GetInputParam',ParamName:field}))
+ if(!view||!validRegistration(view)||view.hasEditingChanges())throw Error('CONTENT_PAPER_REGISTRATION_VIEW_REQUIRED')
+ view.queryContext={...view.queryContext,...context}
+ const assertScope=()=>{
+  host.assertCurrent()
+  if(host.runtime.resolveView(key)!==view||!validRegistration(view)||view.loadingError||view.hasEditingChanges()||
+   Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('CONTENT_PAPER_REGISTRATION_STALE')
+ }
+ await view.refresh()
+ assertScope()
+ const row=view.rows[0]
+ if(!row||!hasCompleteSingleContentResult(view))throw Error('CONTENT_PAPER_REGISTRATION_NOT_UNIQUE')
+ const assertResult=view.captureReadResult(),assertRow=view.captureReadRow(row,[...Object.keys(context),'id','copies'])
+ const {id,copies}=row
+ if(!identity(id)||!Array.isArray(copies)||Object.entries(context).some(([field,value])=>row[field]!==value))throw Error(error)
+ const matches=(copies as unknown[]).filter(copy=>isRecord(copy)&&copy['copyRef']===copyRef)
+ const copy=matches[0]
+ if(matches.length!==1||!isRecord(copy)||!Array.isArray(copy['pageRefs']))throw Error(error)
+ const pages:unknown[]=copy['pageRefs']
+ if(!pages.length||!pages.every(identity)||new Set(pages).size!==pages.length)throw Error(error)
+ return Object.freeze({...scope,registrationRef:id,pageRefs:Object.freeze([...pages]),
+  assertCurrent:()=>{assertScope();assertResult();assertRow()}})
+}
 
 /** 原登记给实际纸件和份次，观察视图给其原版位置与值。 */
 export async function readRegisteredPaperAnswer(host:ContentRevisionReadHost,input:Omit<PaperScope,'projectId'>&Readonly<{

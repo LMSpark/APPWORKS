@@ -15,6 +15,8 @@ export function producedFileScenarioViews(){
   queryConfig:{autoQuery:false,cacheType:'none',fields,...(batch?{allPages:true,pagination:'paged'}:{pagination:'none'})},
  })
  return {
+  selectedPaperRegistration:view([['projectId','projectId'],['paperRef','paperRef'],['revisionId','revisionId']],
+   ['id','projectId','paperRef','revisionId','copies']),
   originalExportRegistration:view([['projectId','projectId'],['requestKey','requestKey'],['outputRef','outputRef']],
    [...originalFileFields,'requestKey','outputRef','inputDigest']),
   originalSignedRegistration:view([['projectId','projectId'],['signatureOperationRef','signatureOperationRef'],['signedObjectRef','signedObjectRef']],

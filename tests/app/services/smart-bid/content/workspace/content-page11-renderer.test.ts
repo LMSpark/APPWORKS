@@ -78,6 +78,7 @@ it.each([false,true])('renders the three-file tool with original draft and optio
   const project=ds.getView('ContentProject','selectedProject')!
   project.queryContext={projectId:'OTHER'}
   await expect(session.readCurrentHead()).rejects.toThrow('CONTENT_AUTHORING_HEAD_SCOPE')
+  await expect(session.readVolumePlanningObligations()).rejects.toThrow('CONTENT_VOLUME_PLAN_SCOPE')
   project.queryContext={projectId:'P'}
  }
  const router=createRouter({history:createMemoryHistory(),routes:[{path:'/',component:defineComponent({render:()=>h('div')})}]})

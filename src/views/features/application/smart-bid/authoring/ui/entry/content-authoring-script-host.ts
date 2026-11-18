@@ -200,7 +200,6 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
       proof()
      }
      assertHead()
-     assertHead()
      return Object.freeze({headRevisionId,assertCurrent:assertHead})
     },
     async readVolumePlanningObligations(){
@@ -208,12 +207,20 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
      if(!scenarioId)throw Error('CONTENT_VOLUME_PLAN_SCOPE')
      const key=buildDataViewKey('ContentProject','selectedProject',scenarioId),view=runtime.resolveView(key)
-     const row=view?.rows[0]
-     if(!view||row?.['projectId']!==projectId||!identity(row['activeBaselineId']))throw Error('CONTENT_VOLUME_PLAN_SCOPE')
+     if(view?.dataTable?.modelBinding?.modelName!=='ContentProject'||view.hasEditingChanges()||
+      view.queryContext['projectId']!==projectId||
+      !hasContentScopeCondition(view,'projectId',{Type:'GetInputParam',ParamName:'projectId'}))throw Error('CONTENT_VOLUME_PLAN_SCOPE')
+     await view.refresh()
+     assertCurrent()
+     const row=view.rows[0]
+     if(view.loadingError||!hasCompleteSingleContentResult(view)||row?.['projectId']!==projectId||
+      !identity(row['activeBaselineId']))throw Error('CONTENT_VOLUME_PLAN_SCOPE')
      const baselineId=row['activeBaselineId'],proof=view.captureReadRow(row,['projectId','activeBaselineId'])
+     const resultProof=view.captureReadResult()
      const assertProject=()=>{
       assertCurrent()
       if(runtime.resolveView(key)!==view)throw Error('CONTENT_VOLUME_PLAN_SCOPE')
+      resultProof()
       proof()
      }
      return readBaselineSubmissionObligations({runtime,scenarioId,projectId,assertCurrent:assertProject},baselineId)

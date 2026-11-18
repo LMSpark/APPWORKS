@@ -9,7 +9,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readContentReviewWorkspace} from '../../model/review/content-review-workspace'
 import {readPlatformFieldObservation} from '../../model/review/content-platform-field-review'
-import {compareApprovedFileAnswer,readRegisteredFileAnswer} from '../../model/review/content-file-answer-reader'
+import {compareApprovedFileAnswer,readRegisteredFileAnswer,verifyOriginalFormFileAnswer} from '../../model/review/content-file-answer-reader'
 import {readRegisteredPaperAnswer} from '../../model/review/content-paper-answer-reader'
 
 /** 审定覆盖工作区的宿主、固定范围与证据读取合同。 */
@@ -18,6 +18,7 @@ type Review=Parameters<typeof readContentReviewWorkspace>
 type Observation=Parameters<typeof readPlatformFieldObservation>
 /** 电子实件及其原填报位置的读取合同。 */
 type FileObservation=Parameters<typeof readRegisteredFileAnswer>
+type FormVerification=Parameters<typeof verifyOriginalFormFileAnswer>
 /** 原纸件观察的宿主、原登记和页栏参数合同。 */
 type PaperObservation=Parameters<typeof readRegisteredPaperAnswer>
 
@@ -29,7 +30,8 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
    approved:Observation[1];input:Observation[2];assertCurrent:()=>void
   }>>
   readFileObservationSelection?:(observationRef:string,signal:AbortSignal)=>Promise<Readonly<{
-   projectId:string;input:FileObservation[1];approved?:Parameters<typeof compareApprovedFileAnswer>[1];assertCurrent:()=>void
+   projectId:string;input:FileObservation[1];approved?:Parameters<typeof compareApprovedFileAnswer>[1]
+   originalForm?:Readonly<{mapping:FormVerification[1];placement:FormVerification[2]}>;assertCurrent:()=>void
   }>>
   readPaperObservationSelection?:(observationRef:string,signal:AbortSignal)=>Promise<Readonly<{
    projectId:string;input:PaperObservation[1];readPaper:PaperObservation[2];assertCurrent:()=>void
@@ -62,7 +64,9 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
      throw Error('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
     const answer=await readRegisteredFileAnswer({...scope,runtime,assertCurrent:assertSelection},selection.input,sources.openFile)
     const comparison=selection.approved&&compareApprovedFileAnswer(answer,selection.approved)
-    return Object.freeze({...answer,...(comparison?{comparison}:{})})
+    const form=selection.originalForm&&verifyOriginalFormFileAnswer(answer,selection.originalForm.mapping,selection.originalForm.placement)
+    const assertAnswer=()=>{answer.assertCurrent();comparison?.assertCurrent();form?.assertCurrent()}
+    return Object.freeze({...answer,...(comparison?{comparison}:{}),...(form?{form}:{}),assertCurrent:assertAnswer})
    }
    if(name==='content.review.readPlatformObservation'&&sources.readObservationSelection){
     const selection=await sources.readObservationSelection(selectionRef,signal)

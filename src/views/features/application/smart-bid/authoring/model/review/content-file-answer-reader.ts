@@ -9,6 +9,7 @@ import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snap
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 import {readRegisteredProducedFileReviewVersion} from './content-produced-file-review'
+import type {mapOriginalForm} from '@/services/smart-bid/content/references/response/original-form-mapping'
 
 /** 从正式文件记录和实际字节确认版本的输入合同。 */
 type FileInput=Parameters<typeof readRegisteredProducedFileReviewVersion>
@@ -70,4 +71,25 @@ export function compareApprovedFileAnswer(answer:FileAnswer,approved:Readonly<{
  const valueJson=canonicalSnapshotValue(approved.value)
  return Object.freeze({state:answer.observedValueJson===valueJson&&answer.unit===unit?'MATCHED':'MISMATCHED',
   approvalRef,valueJson,unit,assertCurrent})
+}
+
+/** 承接动作33的原表栏位及制作登记的实件定位，不用原表行号猜实际文件位置。 */
+export function verifyOriginalFormFileAnswer(
+ answer:FileAnswer,mapping:ReturnType<typeof mapOriginalForm>,placement:Readonly<{
+  fieldRef:string;formRef:string;formVersion:string;cellRef:string;locationRef:string
+  revisionId:string;producedFileId:string;fileHash:string;assertCurrent:()=>void
+ }>,
+){
+ const assertCurrent=()=>{answer.assertCurrent();mapping.assertCurrent();placement.assertCurrent()}
+ assertCurrent()
+ const {file}=answer
+ const field=mapping.mappings.find(item=>item.fieldRef===placement.fieldRef)
+ if(field?.cell.cellRef!==placement.cellRef||mapping.projectId!==file.projectId||
+  mapping.formRef!==placement.formRef||mapping.formVersion!==placement.formVersion||
+  placement.locationRef!==answer.locationRef||placement.revisionId!==file.revisionId||
+  placement.producedFileId!==file.producedFileId||placement.fileHash!==file.versionHash)
+  throw Error('CONTENT_FILE_ANSWER_FORM_SCOPE')
+ return Object.freeze({fieldRef:field.fieldRef,cellRef:field.cell.cellRef,formVersion:mapping.formVersion,
+  displayRef:field.cell.displayRef,expectedUnit:field.cell.unit,observedUnit:answer.unit,
+  unitMatched:field.cell.unit===answer.unit,assertCurrent})
 }

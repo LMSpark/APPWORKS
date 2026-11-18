@@ -1,6 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey} from '@spark-appworks/spark-data'
 import {readContentBaselineTenderRecord} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
+import {readBaselineOriginalForm} from '@/views/features/application/smart-bid/response/model/original-form-reader'
 import {readContentBaselineFact,readContentBaselineFactUse,readContentBaselineRequirementPins,readContentBaselineRequirement} from '@/views/features/application/smart-bid/authoring/model/content-baseline-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -35,6 +36,23 @@ function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,u
  return {ds,host,queries,save,expire:()=>{active=false}}
 }
 const input={baselineId:'B',stageRef:{decisionId:'STAGE'},factId:'PRICE',version:2}
+it('maps a located original form only from the reference fixed by the baseline',async()=>{
+ const scoped=fixture({baseline:{tenderRecords:[requirementSource]}})
+ try{
+  const readCells=vi.fn(()=>({formRef:'FORM',cells:[
+   {cellRef:'CELL',rowRef:'1',columnRef:'COL',meaningRef:'PRICE',fillerRef:'P',unit:'元',displayRef:'DECIMAL'},
+  ]}))
+  const request={basis:input,reference:requirementSource,mapping:{formRef:'FORM',fillerRef:'P',
+   mappings:[{fieldRef:'F',cellRef:'CELL',meaningRef:'PRICE'}]}}
+  const form=await readBaselineOriginalForm(scoped.host,request,readCells)
+  expect(form).toMatchObject({formVersion:'002',mappings:[{fieldRef:'F',cell:{unit:'元'}}]})
+  expect(readCells).toHaveBeenCalledExactlyOnceWith({text:'原文'},{page:1})
+  await expect(readBaselineOriginalForm(scoped.host,{...request,reference:{...requirementSource,recordVersion:'003'}},readCells))
+   .rejects.toThrow('BASELINE_TENDER_RECORD_MISSING')
+  expect(readCells).toHaveBeenCalledTimes(1)
+  expect(()=>form.assertCurrent()).toThrow()
+ }finally{scoped.ds.destroy()}
+})
 it('checks current use against the fixed fact row and its original decision references',async()=>{
  const scoped=fixture({fact:{scopeRef:{lot:'LOT',phase:'BID'},decisionRefs:[{id:'APPROVAL',version:'V1'}]}})
  try{

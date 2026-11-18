@@ -3,7 +3,8 @@ import {createHash} from 'node:crypto'
 import {readProducedFileReviewVersion,readRegisteredProducedFileReviewVersion,readRegisteredProducedFileReviewVersions} from '@/views/features/application/smart-bid/authoring/model/review/content-produced-file-review'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
-import {compareApprovedFileAnswer,readRegisteredFileAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-file-answer-reader'
+import {compareApprovedFileAnswer,readRegisteredFileAnswer,verifyOriginalFormFileAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-file-answer-reader'
+import {mapOriginalForm} from '@/services/smart-bid/content/references/response/original-form-mapping'
 import script from '@/views/features/application/smart-bid/authoring/page12/script.js?raw'
 import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
 import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
@@ -139,19 +140,29 @@ it('opens only the original registered resource version read through SPARK data'
   const selected={...selection,observationId:'OBS',locationRef:'PAGE-1-TOTAL'}
   const approved={projectId:'P',revisionId:'R',producedFileId:'F',fileHash:row.fileHash,locationRef:selected.locationRef,
    approvalRef:'APP',value:'1.00',unit:'元',assertCurrent:host.assertCurrent}
+  const form={projectId:'P',formRef:'FORM',formVersion:'V1'}
+  const mapping=mapOriginalForm({...form,assertCurrent:()=>{},cells:[
+   {cellRef:'T',rowRef:'1',columnRef:'TOTAL',meaningRef:'PRICE',fillerRef:'P',unit:'元',displayRef:'DECIMAL'},
+  ]},{...form,fillerRef:'P',mappings:[{fieldRef:'TOTAL',cellRef:'T',meaningRef:'PRICE'}]})
+  const placement={...form,fieldRef:'TOTAL',cellRef:'T',locationRef:selected.locationRef,revisionId:'R',
+   producedFileId:'F',fileHash:row.fileHash,assertCurrent:()=>{}}
   const unused=async()=>{throw Error('UNEXPECTED_REVIEW_CALL')}
   const page=createContentReviewScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
    readSelection:unused,openFile:open,readField:unused,readDecision:unused,readCompleted:unused,
-   readFileObservationSelection:async()=>({projectId:'P',input:selected,approved,assertCurrent:host.assertCurrent}),
+   readFileObservationSelection:async()=>({projectId:'P',input:selected,approved,originalForm:{mapping,placement},assertCurrent:host.assertCurrent}),
   })
   const observed=await page.invoke('content.review.readFileObservation',{selectionRef:'OBS'},new AbortController().signal)
   expect(observed).toMatchObject({locationRef:'PAGE-1-TOTAL',observedValueJson:'"0.00"',unit:'元',file:{versionHash:row.fileHash},
-   comparison:{state:'MISMATCHED',approvalRef:'APP',valueJson:'"1.00"'}})
+   comparison:{state:'MISMATCHED',approvalRef:'APP',valueJson:'"1.00"'},form:{formVersion:'V1',cellRef:'T',unitMatched:true}})
   if(!('file' in observed))throw Error('TEST_FILE_ANSWER_REQUIRED')
   expect(()=>compareApprovedFileAnswer(observed,{...approved,locationRef:'OTHER'})).toThrow('CONTENT_FILE_ANSWER_APPROVAL_SCOPE')
+  const verified=verifyOriginalFormFileAnswer(observed,mapping,placement)
+  expect(verified).toMatchObject({formVersion:'V1',cellRef:'T',unitMatched:true})
+  expect(()=>verifyOriginalFormFileAnswer(observed,mapping,{...placement,formVersion:'V2'})).toThrow('CONTENT_FILE_ANSWER_FORM_SCOPE')
   answer.fileHash='a'.repeat(64)
   await expect(readRegisteredFileAnswer(host,selected,open)).rejects.toThrow('CONTENT_FILE_ANSWER_SCOPE')
   expect(()=>observed.assertCurrent()).toThrow()
+  expect(()=>verified.assertCurrent()).toThrow()
   answer.fileHash=row.fileHash
   hidden=true
   await expect(readRegisteredFileAnswer(host,selected,open)).rejects.toThrow('DATA_VIEW_READ_ROW')

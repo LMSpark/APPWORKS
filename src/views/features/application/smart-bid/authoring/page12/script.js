@@ -86,6 +86,11 @@ async function openFileObservation() {
     result.assertCurrent()
     const lines = [`文件 ${result.file.producedFileId} · 位置 ${result.locationRef}`,
       `原实填值 ${result.observedValueJson}${result.unit ? ` ${result.unit}` : ''}`]
+    if (result.form) {
+      const {formVersion, cellRef, expectedUnit, unitMatched} = result.form
+      lines.push(`原表版本 ${formVersion} · 栏位 ${cellRef}`)
+      if (!unitMatched) lines.push(`实填单位与原表不同，应为 ${expectedUnit ?? '无单位'}`)
+    }
     if (result.comparison) {
       result.comparison.assertCurrent()
       const {approvalRef, valueJson, unit, state} = result.comparison

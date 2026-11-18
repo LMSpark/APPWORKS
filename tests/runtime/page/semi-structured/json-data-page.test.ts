@@ -63,7 +63,7 @@ it('renders the shared JSON catalog through the three tool files without reading
  try{
   const runtime=session.acquire({tool,targetId:SCENE,scenarioIds:[SCENE],loadScenario:id=>LowcodeJsonData.loadCatalog(id)})
   const {path,fullPath,name,params,query,hash}=router.currentRoute.value
-  const host=createJsonDataScriptHost(runtime,SCENE,()=>{if(!session.isCurrent(runtime))throw new Error('Stale JSON session')})
+  const host=createJsonDataScriptHost(runtime,SCENE,()=>{if(!session.isCurrent(runtime))throw new Error('Stale JSON session')},true)
   wrapper=mount(SparkPageRenderer,{props:{pageRuntime:runtime,host,routeSnapshot:{path,fullPath,name:name??null,params,query,hash}},global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
   const rendered=wrapper
   await vi.waitFor(()=>expect(rendered.text()).toContain('样例JSON'))
@@ -80,6 +80,28 @@ it('renders the shared JSON catalog through the three tool files without reading
   expect(dataSet?.getView('JsonDocumentFile','document-J1')).toBeUndefined()
   expect(state.reads).toEqual(['data.json','J2.json'])
   expect(state.uploads).toEqual([])
+  const click=async(label:string)=>{
+   const button=rendered.findAll('button').find(item=>item.text()===label)
+   expect(button).toBeDefined()
+   await button!.trigger('click')
+  }
+  rendered.getComponent(JsonTreeEditor).vm.$emit('update:modelValue','[99]')
+  await flushPromises()
+  await click('取消修改')
+  await vi.waitFor(()=>expect(documentValue(rendered)).toEqual([false,0]))
+  expect(state.uploads).toEqual([])
+  rendered.getComponent(JsonTreeEditor).vm.$emit('update:modelValue','[false,88]')
+  await flushPromises()
+  state.lose=true
+  await click('保存内容')
+  await vi.waitFor(()=>expect(rendered.text()).toContain('核验内容保存结果'))
+  await click('核验内容保存结果')
+  await flushPromises()
+  expect(dataSet?.getView('JsonDocumentFile','document-J2')?.hasUnconfirmedSave).toBe(false)
+  await vi.waitFor(()=>expect(rendered.text()).not.toContain('核验内容保存结果'))
+  expect(state.files.get('J2.json')).toBe('[false,88]')
+  expect(state.uploads).toEqual(['J2.json'])
+  expect(state.http.saves).toEqual([])
  }finally{wrapper?.unmount();session.dispose()}
 })
 it('displays a failed catalog query once through the standard table with metadata hidden',async()=>{

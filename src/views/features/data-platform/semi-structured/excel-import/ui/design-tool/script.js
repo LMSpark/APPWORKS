@@ -283,7 +283,7 @@ function bindUnpivotSource() { return {optionDataViewKey:ruleEditorState()?.fiel
 function bindRuleCondition() {
   const editor = tree?.ruleEditor()
   const kind = editor?.state().kind
-  return {...bindRuleField(),visible:!!kind && !['DEDUPLICATE','PIVOT'].includes(kind),onEditingChange:value=>editor?.pending('condition',value)}
+  return {...bindRuleField(),visible:!!editor && !['DEDUPLICATE','PIVOT'].includes(kind),onEditingChange:value=>editor?.pending('condition',value)}
 }
 function bindRuleEditorError() {
   const title = ruleEditorState()?.error || ''

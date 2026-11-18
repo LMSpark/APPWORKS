@@ -9,7 +9,7 @@
     <slot name="scheme-tools" />
     <slot name="rule-list" />
     <RuleDialog v-if="editing" ref="editDialog" :key="editing.epoch" :data-view-key="dataViewKey" :record-id="editing.id" :created="editing.created" :field-options-key="fieldOptionsKey" @close="editing=undefined">
-      <template v-if="$slots['rule-editor']" #default><slot name="rule-editor" /></template>
+      <slot name="rule-editor" />
     </RuleDialog>
     <OperationDialog v-if="operation" ref="operationDialog" :key="operation.epoch" :data-view-key="dataViewKey" :record-id="operation.id" :mode="operation.mode" @close="operation=undefined">
       <slot name="rule-operation" />

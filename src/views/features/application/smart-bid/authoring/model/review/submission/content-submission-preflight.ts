@@ -3,6 +3,7 @@
  * 职责：第51项固定待发送包与平台栏，交发送前的原办理检查。
  */
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {checkRegisteredAuthorityGrant} from '@/services/smart-bid/content/review/submission/authority-grant-coverage'
 import {comparePlatformFieldObservation} from '../content-platform-field-review'
 import type {assessSubmissionPackageRelease} from '../content-package-release'
 
@@ -11,6 +12,50 @@ type SavedObservation=Parameters<typeof comparePlatformFieldObservation>[2]
 type Release=ReturnType<typeof assessSubmissionPackageRelease>
 type FieldRequirement=Readonly<{assignmentId:string;fieldId:string;versionHash:string;savedReadbackRequired:boolean}>
 const fieldKey=({assignmentId,fieldId}:Pick<FieldRequirement,'assignmentId'|'fieldId'>)=>JSON.stringify([assignmentId,fieldId])
+
+/** 在实际发起前再核适用窗口和原办理查重，未知时保留原办理待查。 */
+export function checkSubmissionStart(represented:Awaited<ReturnType<typeof checkRepresentedSubmission>>,source:Readonly<{
+ projectId:string;objectRef:string;channelId:string;attemptRef:string;openedAt:string;closesAt:string;includesClose:boolean
+ windowEvidenceRef:string;priorAttemptRef:string|null;priorState:'NONE'|'UNKNOWN'|'EXECUTED'|'NOT_EXECUTED'
+ priorTerminalRef?:string;assertCurrent:()=>void
+}>){
+ const assertCurrent=()=>{represented.assertCurrent();source.assertCurrent()}
+ assertCurrent()
+ const {projectId,objectRef,channelId,attemptRef,openedAt,closesAt,windowEvidenceRef,priorAttemptRef,priorState,priorTerminalRef}=source
+ const {actionAt}=represented
+ if(projectId!==represented.contents.projectId||attemptRef!==represented.contents.attemptRef||
+  objectRef!==represented.objectRef||![channelId,windowEvidenceRef].every(identity)||
+  (priorState==='NONE'?priorAttemptRef!==null:!identity(priorAttemptRef))||
+  (priorState==='NOT_EXECUTED'&&!identity(priorTerminalRef)))throw Error('SUBMISSION_START_SCOPE')
+ const dates=[openedAt,actionAt,closesAt].map(value=>{
+  const instant=Date.parse(value)
+  if(!Number.isFinite(instant)||!/(?:Z|[+-]\d{2}:\d{2})$/u.test(value))throw Error('SUBMISSION_START_WINDOW')
+  return instant
+ })
+ const [open,action,close]=dates
+ if(open===undefined||action===undefined||close===undefined||open>=close)throw Error('SUBMISSION_START_WINDOW')
+ const state=priorState==='UNKNOWN'?'ORIGINAL_PENDING':
+  priorState==='EXECUTED'||priorAttemptRef===attemptRef?'ORIGINAL_ALREADY_RECORDED':
+   action<open||action>close||action===close&&!source.includesClose?'OUTSIDE_WINDOW':represented.authorizedContentsReady?'READY':'NOT_READY'
+ assertCurrent()
+ return Object.freeze({state,represented,channelId,windowEvidenceRef,priorAttemptRef,assertCurrent})
+}
+
+/** 交付内容和经办人的代表权按同一待递交事项核准。 */
+export async function checkRepresentedSubmission(input:Parameters<typeof checkSubmissionContents>[0],sources:Readonly<{
+ contents:Parameters<typeof checkSubmissionContents>[1]
+ operation:Readonly<{enterpriseId:string;grantId:string;representativeId:string;objectRef:string;actionAt:string;knownAt:string;assertCurrent:()=>void}>
+ authority:Parameters<typeof checkRegisteredAuthorityGrant>[1]
+}>){
+ const {operation,authority}=sources
+ operation.assertCurrent()
+ const active=checkRegisteredAuthorityGrant({...operation,projectId:input.projectId,action:'SUBMIT'},authority)
+ const contents=await checkSubmissionContents(input,sources.contents)
+ const assertCurrent=()=>{operation.assertCurrent();active.assertCurrent();contents.assertCurrent()}
+ assertCurrent()
+ return Object.freeze({contents,authority:active,representativeId:operation.representativeId,objectRef:operation.objectRef,actionAt:operation.actionAt,
+  authorizedContentsReady:active.state==='COVERED'&&contents.contentsReady,assertCurrent})
+}
 
 /** 文件与字段均须按原要求核齐，提交后才可回读的栏保留待核。 */
 export async function checkSubmissionContents(input:Readonly<{

@@ -1,5 +1,6 @@
 import {expect,it} from 'vitest'
-import {checkSubmissionContents} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight'
+import {checkRepresentedSubmission,checkSubmissionContents,checkSubmissionStart} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight'
+import {prepareAuthorityGrantDecision} from '@/services/smart-bid/content/review/submission/authority-grant-decision'
 import {readPlatformFieldReviewVersion} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
 
 it('holds a mixed submission until the original package and same-attempt saved field both pass',async()=>{
@@ -23,4 +24,23 @@ it('holds a mixed submission until the original package and same-attempt saved f
   .rejects.toThrow('SUBMISSION_PREFLIGHT_SCOPE')
  expect(await checkSubmissionContents(request,sources)).toMatchObject({contentsReady:true,packageReady:true,
   fields:[{state:'MATCHED'},{state:'POST_SUBMISSION_REQUIRED'}]})
+ const at='2026-11-18T10:00:00+08:00'
+ const operation={enterpriseId:'ORG',grantId:'G',representativeId:'REP',objectRef:'LOT',actionAt:at,knownAt:at,assertCurrent}
+ const grant={enterpriseId:'ORG',grantId:'G',requestKey:'GRANT-Q',expectedVersion:null,intent:'REGISTER' as const,decisionRef:'DEC'}
+ const original={...grant,representativeId:'REP',projectId,decisionMakerId:'ISSUER',decisionAuthorityRef:'AUTH',
+  objectRefs:['LOT'],effectiveAt:at,knownAt:at,expiresAt:'2026-11-18T11:00:00+08:00',assertCurrent}
+ const represented=async(actions:string[])=>{
+  const record=await prepareAuthorityGrantDecision(grant,{...original,actions})
+  return checkRepresentedSubmission(request,{contents:sources,operation,authority:{versions:[{...record,versionId:'V1'}],assertCurrent}})
+ }
+ expect(await represented(['WITHDRAW'])).toMatchObject({contents:{contentsReady:true},authorizedContentsReady:false})
+ const checked=await represented(['SUBMIT'])
+ expect(checked).toMatchObject({authority:{state:'COVERED'},authorizedContentsReady:true})
+ const channel={projectId,objectRef:'LOT',channelId:'PORTAL',attemptRef,openedAt:'2026-11-18T09:00:00+08:00',
+  closesAt:at,includesClose:false,windowEvidenceRef:'WINDOW',priorAttemptRef:null,priorState:'NONE' as const,assertCurrent}
+ expect(checkSubmissionStart(checked,channel).state).toBe('OUTSIDE_WINDOW')
+ expect(checkSubmissionStart(checked,{...channel,includesClose:true}).state).toBe('READY')
+ expect(checkSubmissionStart(checked,{...channel,includesClose:true,priorAttemptRef:'OLD',priorState:'UNKNOWN'}).state)
+  .toBe('ORIGINAL_PENDING')
+ expect(()=>checkSubmissionStart(checked,{...channel,priorAttemptRef:'OLD',priorState:'NOT_EXECUTED'})).toThrow('SUBMISSION_START_SCOPE')
 })

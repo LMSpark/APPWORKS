@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/entry/content-submission-script-host",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/entry/content-submission-script-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-submission-script-host\n职责：页14按原请求查办理及回执配对，供页13递交辅助共用。\n边界：仅查当前 PageRuntime 的原办理，正式递交和撤回由原服务执行。\nAI用途：核对查询命令是否保留原请求和渠道身份。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Read": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Read",
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "../model/review/package/content-delivery-package-preparation.ts.json#/$defs/Host"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "requestDigest": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "requestDigest",
+            "projectId",
+            "requestKey",
+            "attemptRef"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T08:50:49.186Z",
+  "models": {
+    "Read": {
+      "name": "Read",
+      "jsdoc": "原递交请求的读取合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readRegisteredSubmissionRequest>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof readRegisteredSubmissionRequest>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

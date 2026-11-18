@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates\n职责：第53项从同标段、主体和渠道查可配对的原办理索引。\n边界：读取同一运行实例的完整候选视图，配对判定由原业务规则执行。\nAI用途：核对候选视图的授权范围、数量完整性和原办理身份。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Pair": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Pair",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "lotId": {
+              "type": "string"
+            },
+            "subjectId": {
+              "type": "string"
+            },
+            "channelId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "projectId",
+            "lotId",
+            "subjectId",
+            "channelId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Receipt"
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Candidate"
+          }
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T08:50:49.188Z",
+  "models": {
+    "Pair": {
+      "name": "Pair",
+      "jsdoc": "约束回执配对范围和原办理候选的数据合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof pairOriginalChannelReceipt>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof pairOriginalChannelReceipt>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

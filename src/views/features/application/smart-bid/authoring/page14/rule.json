@@ -1,0 +1,12 @@
+[
+  {
+    "id": "original-submission",
+    "type": "r-section",
+    "props": {"title": "原办理记录", "onBeforeRender": "bindOriginalSubmission"}
+  },
+  {
+    "id": "original-channel-receipt",
+    "type": "r-section",
+    "props": {"title": "接收凭据", "onBeforeRender": "bindOriginalReceipt"}
+  }
+]

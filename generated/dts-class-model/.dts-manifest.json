@@ -3909,7 +3909,7 @@
     "src/lowcode/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-16T11:46:30.210Z"
+      "sourceModifiedAt": "2026-11-18T08:45:45.767Z"
     },
     "src/lowcode/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
@@ -4494,12 +4494,17 @@
     "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/pdf-inspect/resource.ts.json",
-      "sourceModifiedAt": "2026-11-01T18:56:49.507Z"
+      "sourceModifiedAt": "2026-11-18T08:45:45.767Z"
     },
     "src/lowcode/resources/semi-structured/pdf-inspect/rule-config.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/rule-config.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/pdf-inspect/rule-config.ts.json",
       "sourceModifiedAt": "2026-11-17T12:13:44.501Z"
+    },
+    "src/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings.ts": {
+      "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings.ts",
+      "shardFile": "files/src/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings.ts.json",
+      "sourceModifiedAt": "2026-11-18T08:45:45.766Z"
     },
     "src/lowcode/resources/shared/ai-data-entry-host.ts": {
       "sourceFile": "src/lowcode/resources/shared/ai-data-entry-host.ts",
@@ -5986,6 +5991,11 @@
       "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-review-script-host.ts.json",
       "sourceModifiedAt": "2026-11-18T08:41:43.990Z"
     },
+    "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts.json",
+      "sourceModifiedAt": "2026-11-18T08:50:49.186Z"
+    },
     "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts.json",
@@ -6196,6 +6206,21 @@
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts.json",
       "sourceModifiedAt": "2026-11-18T04:05:16.414Z"
     },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates.ts.json",
+      "sourceModifiedAt": "2026-11-18T08:50:49.188Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader.ts.json",
+      "sourceModifiedAt": "2026-11-18T08:49:59.717Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts.json",
+      "sourceModifiedAt": "2026-11-18T08:49:59.718Z"
+    },
     "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts.json",
@@ -6204,7 +6229,7 @@
     "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts.json",
-      "sourceModifiedAt": "2026-11-18T04:42:34.788Z"
+      "sourceModifiedAt": "2026-11-18T08:42:58.456Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",
@@ -6534,7 +6559,7 @@
     "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-17T12:50:07.678Z"
+      "sourceModifiedAt": "2026-11-18T08:47:08.763Z"
     },
     "src/views/features/data-platform/shared/model/design-json-ui.ts": {
       "sourceFile": "src/views/features/data-platform/shared/model/design-json-ui.ts",

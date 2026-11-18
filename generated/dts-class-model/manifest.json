@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1408,
+  "scannedFileCount": 1413,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -15111,6 +15111,19 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/pdf-inspect/runtime-bindings",
+        "sourcePath": "src/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/pdf-inspect/runtime-bindings",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/pdf-inspect/runtime-bindings\n职责：把正式 PDF 场景的历史投影接入 SPARK Data。\n边界：沿当前应用作用域读取服务端分页，运行时绑定不创建任务。\nAI用途：核对 PDF 历史视图的授权、资源身份和生命周期。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/lowcode/resources/shared/ai-data-entry-host.ts": {
       "file": "files/src/lowcode/resources/shared/ai-data-entry-host.ts.json",
       "module": {
@@ -19410,6 +19423,19 @@
         "symbols": []
       }
     },
+    "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/entry/content-submission-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/entry/content-submission-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-submission-script-host\n职责：页14按原请求查办理及回执配对，供页13递交辅助共用。\n边界：仅查当前 PageRuntime 的原办理，正式递交和撤回由原服务执行。\nAI用途：核对查询命令是否保留原请求和渠道身份。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts": {
       "file": "files/src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts.json",
       "module": {
@@ -19986,6 +20012,45 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader\n职责：由 SPARK data 的原装封记录定位第50项应重开的固定原包。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates\n职责：第53项从同标段、主体和渠道查可配对的原办理索引。\n边界：读取同一运行实例的完整候选视图，配对判定由原业务规则执行。\nAI用途：核对候选视图的授权范围、数量完整性和原办理身份。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader\n职责：第53项读取原渠道回执来源，交同范围原办理配对。\n边界：从正式视图取得回执及来源，候选范围由原办理提供。\nAI用途：排查原回执为何仍待配对或指向唯一办理。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader\n职责：读取原递交批次的办理事实，不把上传或查空当终局。\n边界：业务事实由原办理 DataView 提供，未知结果留给后续回查。\nAI用途：核查原批次事件与项目、标段、渠道和请求摘要之间的对应关系。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

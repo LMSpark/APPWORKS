@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader\n职责：第53项读取原渠道回执来源，交同范围原办理配对。\n边界：从正式视图取得回执及来源，候选范围由原办理提供。\nAI用途：排查原回执为何仍待配对或指向唯一办理。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Pair": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Pair",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "lotId": {
+              "type": "string"
+            },
+            "subjectId": {
+              "type": "string"
+            },
+            "channelId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "projectId",
+            "lotId",
+            "subjectId",
+            "channelId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Receipt"
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Candidate"
+          }
+        }
+      ]
+    },
+    "Read": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Read",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "channelId": {
+          "type": "string"
+        },
+        "eventRef": {
+          "type": "string"
+        },
+        "sourceRef": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "RECEIVED",
+            "REJECTED",
+            "WITHDRAWAL_CONFIRMED"
+          ]
+        },
+        "eventAt": {
+          "type": "string"
+        },
+        "knownAt": {
+          "type": "string"
+        },
+        "operationRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "objectRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "subjectId",
+        "channelId",
+        "eventRef",
+        "sourceRef",
+        "kind",
+        "eventAt",
+        "knownAt",
+        "operationRef",
+        "objectRef"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T08:49:59.717Z",
+  "models": {
+    "Pair": {
+      "name": "Pair",
+      "jsdoc": "原渠道回执与原办理的配对合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof pairOriginalChannelReceipt>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof pairOriginalChannelReceipt>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Read": {
+      "name": "Read",
+      "jsdoc": "单个回执来源及其获知时点。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pair[1][number]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "subjectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "channelId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventAt",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "operationRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "objectRef",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

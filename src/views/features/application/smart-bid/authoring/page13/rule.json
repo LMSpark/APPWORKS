@@ -1,0 +1,7 @@
+[
+  {
+    "id": "original-submission",
+    "type": "r-section",
+    "props": {"title": "签署与递交", "onBeforeRender": "bindOriginalSubmission"}
+  }
+]

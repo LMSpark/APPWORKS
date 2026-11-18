@@ -3,6 +3,7 @@
  * 职责：独立回读第51项原待发请求，为第52项提供同一请求证明。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../../content-revision-reader'
@@ -45,8 +46,14 @@ export async function readRegisteredSubmissionRequest(host:ContentRevisionReadHo
  if(row['id']!==attemptRef||row['projectId']!==projectId||row['requestKey']!==requestKey||row['requestDigest']!==requestDigest)
   throw Error('SUBMISSION_REQUEST_READ_CONFLICT')
  const payload=structuredClone(row['requestPayload'])
+ if(!isRecord(payload)||payload['projectId']!==projectId||payload['attemptRef']!==attemptRef||payload['requestKey']!==requestKey)
+  throw Error('SUBMISSION_REQUEST_READ_CONFLICT')
+ const {enterpriseId,objectRef,channelId,priorAttemptRef}=payload
+ if(!identity(enterpriseId)||!identity(objectRef)||!identity(channelId)||(priorAttemptRef!==null&&!identity(priorAttemptRef)))
+  throw Error('SUBMISSION_REQUEST_READ_CONFLICT')
  const encoded=canonicalSnapshotValue(['spark-bid.submission-request/1',payload])
  if(await hashCanonicalSnapshotText(encoded)!==requestDigest)throw Error('SUBMISSION_REQUEST_READ_CONFLICT')
  assertCurrent()
- return Object.freeze({state:'REGISTERED' as const,...context,requestDigest,assertCurrent})
+ return Object.freeze({state:'REGISTERED' as const,...context,requestDigest,
+  lotId:objectRef,subjectId:enterpriseId,channelId,priorAttemptRef,assertCurrent})
 }

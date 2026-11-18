@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader\n职责：读取原递交批次的办理事实，不把上传或查空当终局。\n边界：业务事实由原办理 DataView 提供，未知结果留给后续回查。\nAI用途：核查原批次事件与项目、标段、渠道和请求摘要之间的对应关系。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Recovery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Recovery",
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/Scope"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Event"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "combinedWithdrawalTarget": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "events",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "channelId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "subjectId",
+        "channelId",
+        "attemptRef",
+        "requestDigest"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T08:49:59.718Z",
+  "models": {
+    "Recovery": {
+      "name": "Recovery",
+      "jsdoc": "原递交试次的回查合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof recoverSubmissionAttempt>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof recoverSubmissionAttempt>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "固定项目、标段、主体、渠道和请求的回查范围。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Recovery[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "subjectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "channelId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

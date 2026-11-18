@@ -150,7 +150,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T11:46:30.210Z",
+  "generatedAt": "2026-11-18T08:45:45.767Z",
   "models": {
     "LoadScenarioDataSetInput": {
       "name": "LoadScenarioDataSetInput",

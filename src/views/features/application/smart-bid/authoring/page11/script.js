@@ -34,8 +34,22 @@ async function openCandidatePreview() {
       if (![candidateFormDocumentId, formTemplateRef, formTemplateVersion].every(id)) throw Error('CONTENT_CANDIDATE_PAGE_SELECTION')
       options.originalFormTemplate = {documentId: candidateFormDocumentId, templateRef: formTemplateRef, templateVersion: formTemplateVersion}
     }
-    const result = await editorSession.previewCandidate({candidateRevisionId, expectedHead: candidateExpectedHead ?? null}, options)
+    const session = editorSession
+    const selection = {candidateRevisionId, expectedHead: candidateExpectedHead ?? null}
+    let result = await session.previewCandidate(selection, options)
     result.assertCurrent()
+    const missing = result.violations.filter(issue => issue.code === 'UNDECLARED_ADDITION').map(issue => issue.ownerId)
+    if (missing.length) {
+      const confirmed = await $page.showConfirm(`以下新增节点尚未声明：${missing.join('、')}`,
+        '确认新增节点', {confirmText: '确认并重新预演', cancelText: '保留原预演'})
+      result.assertCurrent()
+      if (editorSession !== session) throw Error('CONTENT_PAGE_RENDER_STALE')
+      if (confirmed) {
+        const additions = [...new Set([...declaredAddedNodeIds, ...missing])]
+        result = await session.previewCandidate(selection, {...options, declaredAddedNodeIds: additions})
+        result.assertCurrent()
+      }
+    }
     const lines = [
       `候选 ${candidateRevisionId} · ${result.scopeCheckPassed ? '变更范围已核' : '变更范围待处理'}`,
       `变更节点 ${result.changedNodeIds.join('、') || '无'}`,

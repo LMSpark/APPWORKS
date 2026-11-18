@@ -42,6 +42,7 @@ it('explains missing edit integration without enabling edit actions',async()=>{
 })
 it('passes exact candidate and original-form inputs to preview and renders the scope issues',async()=>{
  const assertCurrent=vi.fn(),showAlert=vi.fn(async(_text:string,_title:string)=>{}),showMessage=vi.fn()
+ const showConfirm=vi.fn(async()=>false)
  const previewCandidate=vi.fn(async()=>({scopeCheckPassed:false,changedNodeIds:['C'],addedNodeIds:['D'],responseChanges:[],
   comparison:{nodes:[{nodeId:'C',conflicts:['changed'],deletionReferenceCheck:'REFERENCED',referencedBy:['H']}],
    siblings:[{parentId:'P',status:'CONFLICT'}]},responseComparison:[{assignmentId:'A',delta:'DIVERGED'}],
@@ -49,7 +50,7 @@ it('passes exact candidate and original-form inputs to preview and renders the s
  const query={candidateRevisionId:'CANDIDATE',candidateExpectedHead:'HEAD',candidateAddedNodeId:['D','CHAPTER'],
   candidateFormDocumentId:'D',formTemplateRef:'FORM',formTemplateVersion:'V1'}
  const {__init__,openCandidatePreview}=compileFunctions(script,{$route:{query},
-  $page:{invokeHostCommand:async()=>({previewCandidate}),showAlert,showMessage}} as unknown as PageContext)
+  $page:{invokeHostCommand:async()=>({previewCandidate}),showAlert,showMessage,showConfirm}} as unknown as PageContext)
  if(!__init__||!openCandidatePreview)throw Error('TEST_PAGE11_PREVIEW_REQUIRED')
  await __init__()
  await openCandidatePreview()
@@ -98,6 +99,26 @@ it('withdraws the binding when the original query is replaced instead of recaptu
  f.resultProof.mockImplementation(()=>{throw Error('REPLACED_RESULT')})
  expect(f.functions['bindContentOutline']!()).toEqual({visible:false})
  expect(f.view.captureReadResult).toHaveBeenCalledTimes(1)
+})
+it('only adds undeclared nodes after confirmation against a current preview',async()=>{
+ const proof=vi.fn(),showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
+ const initial={scopeCheckPassed:false,changedNodeIds:[],addedNodeIds:['D'],responseChanges:[],
+  comparison:{nodes:[],siblings:[]},responseComparison:[],violations:[{ownerId:'D',code:'UNDECLARED_ADDITION'}],assertCurrent:proof}
+ const previewCandidate=vi.fn(async()=>initial)
+ previewCandidate.mockResolvedValueOnce(initial).mockResolvedValueOnce({...initial,scopeCheckPassed:true,violations:[]})
+ const showConfirm=vi.fn(async()=>true)
+ const {__init__,openCandidatePreview}=compileFunctions(script,{$route:{query:{candidateRevisionId:'C'}},
+  $page:{invokeHostCommand:async()=>({previewCandidate}),showAlert,showMessage,showConfirm}} as unknown as PageContext)
+ if(!__init__||!openCandidatePreview)throw Error('TEST_PAGE11_PREVIEW_REQUIRED')
+ await __init__()
+ await openCandidatePreview()
+ expect(previewCandidate).toHaveBeenNthCalledWith(1,{candidateRevisionId:'C',expectedHead:null},{declaredAddedNodeIds:[]})
+ expect(previewCandidate).toHaveBeenNthCalledWith(2,{candidateRevisionId:'C',expectedHead:null},{declaredAddedNodeIds:['D']})
+ expect(showAlert).toHaveBeenCalledWith(expect.stringContaining('变更范围已核'),'候选变更预演')
+ showConfirm.mockImplementationOnce(async()=>{proof.mockImplementation(()=>{throw Error('STALE')});return true})
+ await openCandidatePreview()
+ expect(previewCandidate).toHaveBeenCalledTimes(3)
+ expect(showMessage).toHaveBeenCalledWith('候选变更无法预演','warning')
 })
 it.each([false,true])('keeps the original query proof when the draft already has an edit overlay (%s), then withdraws after refresh',async edited=>{
  const scenarioId='D3BBA1F0780056C837AC35E9825CAD5A'

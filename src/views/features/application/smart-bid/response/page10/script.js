@@ -176,3 +176,21 @@ async function openPersonAppointment() {
     $page.showMessage('原拟任及用人证据无法核验', 'warning')
   }
 }
+
+function bindCommitmentReview() {
+  const {commitmentRef} = $route.query
+  return {visible: typeof commitmentRef === 'string' && !!commitmentRef && commitmentRef.trim() === commitmentRef}
+}
+
+async function openCommitmentReview() {
+  if (!bindCommitmentReview().visible) return
+  try {
+    const result = await $page.invokeHostCommand('bid.response.reviewCommitment', {commitmentRef: $route.query.commitmentRef})
+    result.assertCurrent()
+    const fields = result.fields.map(field => field.state === 'VERIFIED'
+      ? `${field.key} · 已核批准 ${field.decisionRefs.join('、')}` : `${field.key} · 待核批准`)
+    await $page.showAlert([result.ready ? '批准齐全 · 承诺事实待登记' : '待补批准，暂缓登记', ...fields].join('\n'), '承诺登记前核对')
+  } catch {
+    $page.showMessage('原承诺或批准凭据无法核验', 'warning')
+  }
+}

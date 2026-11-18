@@ -48,5 +48,13 @@
     "children": [
       {"type": "r-button", "props": {"label": "核对拟任凭据", "onClick": "openPersonAppointment"}}
     ]
+  },
+  {
+    "id": "bid-commitment-review",
+    "type": "r-section",
+    "props": {"title": "承诺登记前核对", "onBeforeRender": "bindCommitmentReview"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对承诺批准", "onClick": "openCommitmentReview"}}
+    ]
   }
 ]

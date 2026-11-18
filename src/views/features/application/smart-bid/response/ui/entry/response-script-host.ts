@@ -12,6 +12,10 @@ import {readRegisteredResponseAssignment} from '../../model/response-assignment-
 
 import {reviewPersonAppointment} from '@/services/smart-bid/content/references/commercial/person-appointment-review'
 
+import {checkCommitmentApprovalCoverage,prepareApprovedCommitmentFacts} from '@/services/smart-bid/content/references/commercial/commitment-approval-coverage'
+
+type Commitment=Parameters<typeof checkCommitmentApprovalCoverage>[0]
+type CommitmentSource=Parameters<typeof prepareApprovedCommitmentFacts>[1]
 type Appointment=Parameters<typeof reviewPersonAppointment>
 
 type Scope=Parameters<typeof createApprovedPriceScriptHost>[1]&Parameters<typeof createBidSecurityScriptHost>[1]
@@ -20,6 +24,10 @@ type Sources=Readonly<{
  readSecurityReceipts:Parameters<typeof createBidSecurityScriptHost>[2]
  appointmentBasis?:Readonly<{projectId:string;enterpriseId:string;assertCurrent:()=>void;
   read:(appointmentRef:string,signal:AbortSignal)=>Promise<Readonly<{appointmentRef:string;request:Appointment[0];evidence:Appointment[1]}>>}>
+ commitmentBasis?:Readonly<{projectId:string;assertCurrent:()=>void;
+  read:(commitmentRef:string,signal:AbortSignal)=>Promise<Readonly<{
+   commitmentRef:string;coverage:Commitment;source:CommitmentSource
+  }>>}>
  assignmentBasis?:Readonly<{projectId:string;baselineId:string;assertCurrent:()=>void}>
  fixedFacts?:Readonly<{
   projectId:string
@@ -36,6 +44,32 @@ export function createBidResponseScriptHost<Runtime extends Pick<PageRuntime,'re
  const price=createApprovedPriceScriptHost(runtime,scope,sources.readPriceEvidence)
  const security=createBidSecurityScriptHost(runtime,scope,sources.readSecurityReceipts)
  return {runtime,assertCurrent:scope.assertCurrent,invoke(name:string,input:unknown,signal:AbortSignal){
+  if(name==='bid.response.reviewCommitment'){
+   const basis=sources.commitmentBasis
+   if(!basis||!isRecord(input)||Object.keys(input).length!==1||!identity(input['commitmentRef']))
+    throw Error('BID_RESPONSE_COMMITMENT_REQUEST')
+   const {commitmentRef}=input,generation=runtime.generation
+   const assertCurrent=()=>{
+    scope.assertCurrent()
+    basis.assertCurrent()
+    if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)
+     throw Error('BID_RESPONSE_COMMITMENT_STALE')
+   }
+   assertCurrent()
+   return basis.read(commitmentRef,signal).then(selected=>{
+    assertCurrent()
+    const {coverage,source}=selected
+    if(selected.commitmentRef!==commitmentRef||coverage.projectId!==basis.projectId||source.projectId!==basis.projectId||
+     coverage.scopeRef!==scope.scopeRef||source.scopeRef!==scope.scopeRef||coverage.purposeRef!==scope.purposeRef)
+     throw Error('BID_RESPONSE_COMMITMENT_REQUEST')
+    const reviewed=checkCommitmentApprovalCoverage({...coverage,assertCurrent:()=>{
+     assertCurrent();coverage.assertCurrent();source.assertCurrent()
+    }})
+    if(!reviewed.ready)return reviewed
+    const prepared=prepareApprovedCommitmentFacts(reviewed,source)
+    return Object.freeze({...reviewed,facts:prepared.facts,assertCurrent:prepared.assertCurrent})
+   })
+  }
   if(name==='bid.response.reviewAppointment'){
    const basis=sources.appointmentBasis
    if(!basis||!isRecord(input)||Object.keys(input).length!==1||!identity(input['appointmentRef']))

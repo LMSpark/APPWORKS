@@ -53,7 +53,7 @@ it('will not prepare formal production from an adopted index without matching co
   expect(readEvidence).not.toHaveBeenCalled()
  }finally{f.ds.destroy()}
 })
-function fixture(options:{count?:number;requestDigest?:string;withRoot?:boolean}={}){
+function fixture(options:{count?:number;requestDigest?:string;withRoot?:boolean;registeredRoot?:string}={}){
  const manifest={hashContract:'spark-bid.revision-snapshot/1',projectId:'P',stageRef:{id:'ST'},baselineId:'B',
   templateRefs:[],nodes:[],requirementPins:[],responseAssignments:[],responses:[],qualificationReviews:[],sensitiveRefs:[]}
  const hash=hashRevisionSnapshot(manifest)
@@ -89,7 +89,7 @@ function fixture(options:{count?:number;requestDigest?:string;withRoot?:boolean}
  const revisionQuery=vi.fn(async()=>new DataSpaceQueryContext({identity:revisionTable.identity,scope:'q',readScope:()=> 'q',
   snapshot:revisionTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[
    {id:'R',projectId:'P',status:'ADOPTED',snapshotHash:await hash,baselineId:'B',stageRef:manifest.stageRef,templateRefs:[],
-    rootHash:await root,
+    rootHash:options.registeredRoot??await root,
     lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}},
   ]}}})}))
  revision.bindQueryExecutor({executeQuery:revisionQuery,save})
@@ -110,6 +110,15 @@ function fixture(options:{count?:number;requestDigest?:string;withRoot?:boolean}
    key==='S@RevisionSnapshot@selectedAdoptionSnapshot'?snapshot:key==='S@Baseline@selectedBaseline'?baselineView:undefined}}
  return {host,view,ds,query,revision,revisionQuery,snapshotQuery,baselineView,baselineQuery,root,save}
 }
+it('keeps the recovered snapshot visible when its registered root contradicts the recomputation',async()=>{
+ const f=fixture({registeredRoot:'f'.repeat(64)})
+ try{
+  const result=await inspectRegisteredAdoption(f.host,request)
+  expect(result).toMatchObject({revisionEvidence:'SNAPSHOT_VERIFIED',rootHashVerified:false,rootHashMismatch:true})
+  result.assertCurrent()
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
 it('reads the adopted merge revision by the original record and invalidates it when that record is refreshed',async()=>{
  const f=fixture()
  try{

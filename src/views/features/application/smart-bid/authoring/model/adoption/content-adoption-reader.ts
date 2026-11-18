@@ -75,9 +75,10 @@ export async function inspectRegisteredAdoption(host:ContentRevisionReadHost,inp
   try{
    const root=await snapshot.verifyRootHash(CONTENT_ROOT_HASH_CONTRACT)
    return Object.freeze({...result,...root})
-  }catch{
+  }catch(cause){
    snapshot.assertCurrent()
-   return Object.freeze({...result,rootHashVerified:false as const,assertCurrent:snapshot.assertCurrent})
+   const rootHashMismatch=cause instanceof Error&&cause.message==='CONTENT_ROOT_HASH_MISMATCH'
+   return Object.freeze({...result,rootHashVerified:false as const,rootHashMismatch,assertCurrent:snapshot.assertCurrent})
   }
  }catch{
   merge.assertCurrent()

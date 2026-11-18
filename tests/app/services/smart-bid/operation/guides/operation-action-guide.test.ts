@@ -2,6 +2,7 @@ import {expect,it,vi} from 'vitest'
 import {ClassModelRuntime,createClassModelDocumentFromRuntimeApiMetadata} from '@spark-appworks/spark-ai/class-model'
 import {hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {readOperationActionGuide} from '@/services/smart-bid/operation/guides/operation-action-guide'
+import {discoverOperationGuides,readDiscoveredOperationGuide} from '@/services/smart-bid/operation/guides/operation-guide-discovery'
 
 it('reads the exact reachable ClassModel action and rejects guide drift',async()=>{
  const guide='### 核路线候选'
@@ -31,5 +32,13 @@ it('matches the ClassModelRuntime method projection under the registered root',a
  const source={rootKind:'OperationRoute',kind:'OperationRoute',actionName:'verify',guideRef:'FIXED-GUIDE',guideDigest,assertCurrent:()=>{}}
  expect(await readOperationActionGuide(runtime,source)).toMatchObject({guide:published.data,guideDigest})
  await expect(readOperationActionGuide(runtime,{...source,rootKind:'OtherRoot'})).rejects.toThrow('OPERATION_ACTION_GUIDE_UNREACHABLE')
+ const entry={guideRef:'GUIDE',versionRef:'V1',guideDigest,kind:'OperationRoute',actionName:'verify',pathRefs:['DIRECTORY'],
+  materialRefs:['RESOURCE-REF'],assertCurrent:source.assertCurrent}
+ const discovery=await discoverOperationGuides(runtime,{rootKind:'OperationRoute',assertCurrent:source.assertCurrent,
+  entries:[entry,{...entry,actionName:'missing'}]})
+ expect(discovery.items).toMatchObject([{state:'REACHABLE',materialRefs:['RESOURCE-REF']},{state:'DEFINITION_REQUIRED'}])
+ expect(await readDiscoveredOperationGuide(runtime,discovery,entry)).toMatchObject({versionRef:'V1',guideDigest,guide:published.data})
+ await expect(readDiscoveredOperationGuide(runtime,discovery,{...entry,versionRef:'V2'})).rejects.toThrow('OPERATION_GUIDE_SELECTION_UNAVAILABLE')
+ await expect(readDiscoveredOperationGuide(runtime,discovery,{...entry,actionName:'missing'})).rejects.toThrow('OPERATION_GUIDE_SELECTION_UNAVAILABLE')
  expect(execute).not.toHaveBeenCalled()
 })

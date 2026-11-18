@@ -146,6 +146,9 @@ describe('formal topic catalog pages', () => {
     await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises()
     const open=wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='打开设计')!
     expect(open.props('disabled')).toBe(true)
+    const rowActions=wrapper.findAllComponents(RendererButton).filter(button=>button.props('label')==='设计')
+    expect(rowActions.length).toBeGreaterThan(0)
+    expect(rowActions.every(button=>button.props('disabled')===true)).toBe(true)
     open.vm.$emit('click');await flushPromises()
     expect(wrapper.findAllComponents(RendererDialog).some(dialog=>dialog.props('title')==='Excel 导入方案设计'&&dialog.props('modelValue'))).toBe(false)
     expect(state.http.saves).toEqual([])

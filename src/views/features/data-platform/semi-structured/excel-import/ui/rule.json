@@ -19,7 +19,7 @@
           ]},
           "actions": {"children":[
             {"type":"r-button","props":{"label":"复制KEY","onBeforeRender":"bindCopyAction","onClick":"copySchemeKey"}},
-            {"type":"r-button","props":{"label":"设计","permAction":"edit","onBeforeRender":"bindMaintenanceAction","onClick":"designScheme"}},
+            {"type":"r-button","props":{"label":"设计","permAction":"edit","onBeforeRender":"bindDesignRowAction","onClick":"designScheme"}},
             {"type":"r-button","props":{"label":"编辑","permAction":"edit","onBeforeRender":"bindMaintenanceAction","onClick":"editScheme"}}
           ]},
           "filter": {"autoQuery": false, "children": [

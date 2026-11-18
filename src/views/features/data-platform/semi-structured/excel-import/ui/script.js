@@ -25,6 +25,10 @@ function bindSelectedAction() {
   return {...bindMaintenanceAction(), disabled: catalog?.locked() !== false || !catalog?.selected()}
 }
 
+function bindDesignRowAction(context) {
+  return {...bindMaintenanceAction(), disabled: catalog?.locked() !== false || !catalog?.canDesign(context.row)}
+}
+
 function bindCopyAction() {
   return {...bindMaintenanceAction(), disabled: catalog?.locked() !== false || !catalog?.canCopy()}
 }

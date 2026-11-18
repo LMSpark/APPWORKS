@@ -70,7 +70,7 @@ const selected= computed(() => {
   const target=view.value
   return target?.selectedRows.length===1 ? target.selectedRows[0] : undefined
 })
-function designId(row:DataRow|undefined):string|undefined {
+function designId(row:DataRow|null|undefined):string|undefined {
   const target=view.value
   if(!target||!row||target.editActionState(row)!=='enabled'||target.fieldAccess(row,'rowid').read!=='visible')return undefined
   const id=target.getPkKey(row)
@@ -179,7 +179,7 @@ function makeCatalogHost(runtime:PageRuntime,editable:boolean){
   return {runtime,assertCurrent,async invoke(command:string,input:unknown){
     assertCurrent()
     if(command==='excel.catalog.connect')return {
-      editable, locked:()=>locked.value, selected:()=>!!designId(selected.value), canCopy:()=>!!pageService?.copyText,
+      editable, locked:()=>locked.value, selected:()=>!!designId(selected.value), canDesign:(row:DataRow|null|undefined)=>!!designId(row), canCopy:()=>!!pageService?.copyText,
       error:()=>error.value,
       creationRetained:()=>creation.value?.phase==='retained',
       editState:()=>({

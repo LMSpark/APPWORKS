@@ -2,7 +2,7 @@ import {expect,it} from 'vitest'
 import {checkCommitmentApprovalCoverage,prepareApprovedCommitmentFacts,priceCommitmentApproval} from '@/services/smart-bid/content/references/commercial/commitment-approval-coverage'
 import {reviewApprovedPrice} from '@/services/smart-bid/content/references/commercial/approved-price-review'
 
-const scope={scopeRef:'SCOPE',purposeRef:'USE',assertCurrent:()=>{}}
+const scope={projectId:'PROJECT',scopeRef:'SCOPE',purposeRef:'USE',assertCurrent:()=>{}}
 const price={key:'fee',kind:'PRICE' as const,value:'0',unit:'CNY'}
 const person={key:'lead',kind:'PERSON' as const,value:'P1',unit:null}
 const approvedPrice={...scope,...price,usable:true,decisionRefs:['PRICE-V1']}
@@ -32,6 +32,7 @@ it('prepares append inputs only when all original approvals are available',()=>{
   {key:'lead',kind:'PERSON',value:'P1',unit:null,decisionRefs:['PERSON-DECISION']},
  ])
  expect(facts[0]).not.toHaveProperty('version')
+ expect(()=>prepareApprovedCommitmentFacts(approved,{...source,projectId:'OTHER'})).toThrow('BID_COMMITMENT_FACT_SOURCE')
  expect(()=>prepareApprovedCommitmentFacts(approved,{...source,scopeRef:'OTHER'})).toThrow('BID_COMMITMENT_FACT_SOURCE')
 })
 

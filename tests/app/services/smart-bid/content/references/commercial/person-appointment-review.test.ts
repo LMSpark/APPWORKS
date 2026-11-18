@@ -39,12 +39,13 @@ it('hands only an exact verified appointment to commitment registration',()=>{
  const pending=reviewPersonAppointment(request,{material,appointment,availability})
  const evidence=personCommitmentApproval('lead',approved)
  if(!evidence)throw Error('VERIFIED_APPOINTMENT_REQUIRED')
- const input={scopeRef:request.scopeRef,purposeRef:request.purposeRef,assertCurrent,
+ const input={projectId:request.projectId,scopeRef:request.scopeRef,purposeRef:request.purposeRef,assertCurrent,
   fields:[{key:'lead',kind:'PERSON' as const,value:request.personId,unit:null}],approvals:[evidence]}
  expect(checkCommitmentApprovalCoverage(input)).toMatchObject({
   ready:true,fields:[{sourceVersion:'M1',decisionRefs:['A1','D1']}],
  })
  expect(personCommitmentApproval('lead',pending)).toBeUndefined()
+ expect(()=>checkCommitmentApprovalCoverage({...input,projectId:'OTHER'})).toThrow('BID_COMMITMENT_APPROVAL_SCOPE')
  expect(()=>checkCommitmentApprovalCoverage({...input,purposeRef:'OTHER'})).toThrow('BID_COMMITMENT_APPROVAL_SCOPE')
 })
 

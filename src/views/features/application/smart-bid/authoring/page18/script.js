@@ -118,12 +118,15 @@ function bindRework() {
 
 async function prepareRework() {
   if (reworkPending || bindRework().disabled) return
+  const {projectId, runId, attemptRef, requestKey} = $route.query
+  const isCurrent = () => $route.query.projectId === projectId && $route.query.runId === runId &&
+    $route.query.attemptRef === attemptRef && $route.query.requestKey === requestKey
   reworkPending = true
   try {
     const reason = await $page.showPrompt('请说明本次返工原因', '准备返工交接')
-    if (typeof reason !== 'string' || !reason.trim()) return
-    const {runId, attemptRef, requestKey} = $route.query
+    if (!isCurrent() || typeof reason !== 'string' || !reason.trim()) return
     const prepared = await $page.invokeHostCommand('content.operation.prepareRework', {runId, attemptRef, requestKey, reason})
+    if (!isCurrent()) return
     prepared.assertCurrent()
     const lines = [
       ...prepared.handoffs.map(item => `调用 ${item.callRef} → ${item.destination}`),
@@ -132,7 +135,7 @@ async function prepareRework() {
     ]
     await $page.showAlert(lines.join('\n'), '返工交接预览')
   } catch {
-    $page.showMessage('返工证据无法核验', 'warning')
+    if (isCurrent()) $page.showMessage('返工证据无法核验', 'warning')
   } finally {
     reworkPending = false
   }

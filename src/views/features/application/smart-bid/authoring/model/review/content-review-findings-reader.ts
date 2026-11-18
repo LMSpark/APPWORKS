@@ -3,7 +3,7 @@
  * 职责：批读固定目标及检查器版本的原 CheckFinding 记录。
  * 边界：零问题只证明查询结果为零；已完成检查及用途许可仍由独立原记录证明。
  */
-import {buildDataViewKey,type DataViewFilterTree} from '@spark-appworks/spark-data'
+import {buildDataViewKey,type DataViewFilterTree,type ViewMetadata} from '@spark-appworks/spark-data'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 import type {projectReviewChecks} from '@/services/smart-bid/content/review/review-check-evidence'
@@ -14,6 +14,13 @@ type CompletedCoverage=Parameters<typeof projectReviewChecks>[0][number]&Finding
 const fields=['id','projectId','targetHash','checkerHash','anchor','code','severity','status','message']
 const isDigest=(value:unknown):value is string=>typeof value==='string'&&/^[a-f0-9]{64}$/u.test(value)
 const key=(targetHash:unknown,checkerHash:unknown)=>JSON.stringify([targetHash,checkerHash])
+
+/** 同项目所选检查范围按完整分页回读。 */
+export function selectedReviewFindingsView():ViewMetadata{
+ return {commitMode:'staged',autoLoad:false,autoSelectFirst:false,autoCurrentFirst:false,
+  scopeFilter:{field:'projectId',operator:'eq',value:{Type:'GetInputParam',ParamName:'projectId'}},
+  queryConfig:{autoQuery:false,cacheType:'none',pagination:'paged',allPages:true,fields:[...fields]}}
+}
 
 export async function readContentReviewFindings(host:ContentRevisionReadHost,selections:readonly FindingSelection[]){
  const {runtime,scenarioId,projectId,assertCurrent:assertHost}=host

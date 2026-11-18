@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {resolveContentAuthoringTarget,resolvePublishedContentAuthoringTarget,type ContentAuthoringRoute} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
-import {preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
+import {preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
 
 const auth=vi.hoisted(()=>({token:'SESSION',appId:'D8490EC99436A8B9AFDE205BE3153802'}))
 vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
@@ -16,6 +16,7 @@ it.each([
  {number:12,prepareCall:preparePublishedContentReviewCall},
  {number:13,prepareCall:preparePublishedContentSubmissionCall},
  {number:14,prepareCall:preparePublishedContentDeadlineCall},
+ {number:15,prepareCall:preparePublishedBidFindingsCall},
 ])('prepares published page $number inputs for the authorized route and invalidates stale sessions',({number,prepareCall})=>{
  const nodeId=`NAV${number}`,pageId=`TOOL${number}`
  const entry={applicationId:app,scenarioId:space,nodeId,pageId}

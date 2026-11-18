@@ -8,8 +8,7 @@ import {compileFunctions} from '../../../../../../packages/spark-component/src/p
 import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 import {prepareReviewFindingRecheck} from '@/services/smart-bid/content/review/finding/review-finding-recheck'
 import {prepareReviewFindingRegistration} from '@/services/smart-bid/content/review/finding/review-finding-registration'
-import {bidFindingRecheckResultView,bidFindingRecheckView} from '@/views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader'
-import {bidFindingRegistrationResultView,bidFindingRegistrationView} from '@/views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader'
+import {bidFindingsScenarioViews} from '@/views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -19,8 +18,7 @@ it('accepts complete zero findings and rejects findings from a different checker
  const ds=DataSet.fromJson({scenarioId:'S',tables:{CheckFinding:{
   modelBinding:{modelId:'M',modelName:'CheckFinding'},
   columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},selectedReviewFindings:{commitMode:'staged',queryConfig:{autoQuery:false,allPages:true,pagination:'paged'},
-   scopeFilter:{field:'projectId',operator:'eq',value:{Type:'GetInputParam',ParamName:'projectId'}}}},
+  views:{default:{},selectedReviewFindings:bidFindingsScenarioViews('id').selectedReviewFindings},
  }}})
  const view=ds.getView('CheckFinding','selectedReviewFindings')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'CheckFinding'})
  let rows:Array<typeof row>=[]
@@ -107,7 +105,7 @@ it('registers one issue identity across matching observations and requires posit
   findingId:null}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{CheckFinding:{
   modelBinding:{modelName:'CheckFinding',modelId:'CHECK-M'},columns:Object.keys({...checkRow,...resultRow}).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalCompletedCheck:bidFindingRegistrationView('id'),originalFindingRegistration:bidFindingRegistrationResultView('id')},
+  views:{default:{},...bidFindingsScenarioViews('id')},
  }}})
  try{
  const view=ds.getView('CheckFinding','originalCompletedCheck')
@@ -197,7 +195,7 @@ it('prepares recheck only for the expected finding version and matching target e
  const resultRow={...request,id:'RECHECK',requestDigest:prepared.requestDigest,outcome:'CORRECTED',evidenceRef:'RESOURCE-V2'}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{CheckFinding:{
   modelBinding:{modelName:'CheckFinding',modelId:'M'},columns:Object.keys({...row,...resultRow}).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},originalRecheckFinding:bidFindingRecheckView('id'),originalRecheckResult:bidFindingRecheckResultView('id')},
+  views:{default:{},...bidFindingsScenarioViews('id')},
  }}})
  try{
  const view=ds.getView('CheckFinding','originalRecheckFinding')

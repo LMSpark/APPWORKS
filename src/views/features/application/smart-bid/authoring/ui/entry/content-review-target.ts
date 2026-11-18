@@ -1,6 +1,6 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/ui/entry/content-review-target
- * 职责：按正式发布身份为页12至14准备业务宿主。
+ * 职责：按正式发布身份为页12至15准备业务宿主。
  */
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
@@ -10,6 +10,7 @@ import {captureContentAuthoringSession} from '../../model/content-authoring-host
 import type {ContentAuthoringRoute} from './content-authoring-target'
 import {createContentReviewScriptHost} from './content-review-script-host'
 import {createContentSubmissionScriptHost} from './content-submission-script-host'
+import {createBidFindingsScriptHost} from '../../../collaboration/tasks/bid-findings-script-host'
 
 type PublishedEntry=Readonly<{applicationId:string;scenarioId:string;nodeId:string;pageId:string}>
 type Scope=Readonly<{projectId:string;scenarioId:string;assertCurrent:()=>void}>
@@ -35,6 +36,13 @@ export function preparePublishedContentDeadlineCall(route:ContentAuthoringRoute,
  createSources:(runtime:PageRuntime,scope:Scope)=>SubmissionSources&Required<Pick<SubmissionSources,'readDeadline'>>,
 ){
  return preparePublishedContentSubmissionCall(route,entry,createSources)
+}
+
+/** 页15使用正式运行实例读取原问题、登记及复验。 */
+export function preparePublishedBidFindingsCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+ createSources:(runtime:PageRuntime,scope:Scope)=>Parameters<typeof createBidFindingsScriptHost>[2],
+){
+ return preparePublishedCall(route,entry,(runtime,scope)=>createBidFindingsScriptHost(runtime,scope,createSources(runtime,scope)))
 }
 
 function preparePublishedCall<Host>(route:ContentAuthoringRoute,entry:PublishedEntry,createHost:(runtime:PageRuntime,scope:Scope)=>Host){

@@ -12,9 +12,19 @@ type Open=Parameters<typeof openContentOperationWorkspace>
 export function createContentOperationScriptHost<Runtime extends Open[0]>(runtime:Runtime,classModel:Open[1],scope:Omit<Open[2],'signal'>){
  return {runtime,assertCurrent:scope.assertCurrent,
   async invoke(name:string,input:unknown,signal:AbortSignal){
-   if(name!=='content.operation.discover'||!isRecord(input)||!identity(input['directoryRef']))
-    throw Error('OPERATION_PAGE_COMMAND_REQUIRED')
+   if(!isRecord(input))throw Error('OPERATION_PAGE_COMMAND_REQUIRED')
    const workspace=openContentOperationWorkspace(runtime,classModel,{...scope,signal})
+   if(name==='content.operation.readDispatch'){
+    const {runId,attemptRef,requestKey,targetDigest,configurationLockHash}=input
+    if(!identity(runId)||!identity(attemptRef)||!identity(requestKey)||!identity(targetDigest)||!identity(configurationLockHash)||
+     ![targetDigest,configurationLockHash].every(value=>/^[a-f0-9]{64}$/u.test(value)))throw Error('OPERATION_PAGE_ATTEMPT_REQUIRED')
+    const readback=await workspace.readDispatch({projectId:scope.projectId,runId,attemptRef,requestKey,targetDigest,configurationLockHash})
+    readback.assertCurrent()
+    return readback.state==='DISPATCH_RECORDED'
+     ?Object.freeze({state:readback.state,dispatchRef:readback.dispatchRef,actualInputDigest:readback.actualInputDigest,assertCurrent:readback.assertCurrent})
+     :Object.freeze({state:readback.state,assertCurrent:readback.assertCurrent})
+   }
+   if(name!=='content.operation.discover'||!identity(input['directoryRef']))throw Error('OPERATION_PAGE_COMMAND_REQUIRED')
    const discovery=await workspace.discover(input['directoryRef'])
    discovery.assertCurrent()
    const dataViewKey=buildDataViewKey('KnowledgeGuide','effectiveDirectory',scope.scenarioId)

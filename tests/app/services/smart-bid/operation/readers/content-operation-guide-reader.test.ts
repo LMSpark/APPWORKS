@@ -55,6 +55,7 @@ it('discovers only the complete scoped directory and retains the original public
   const scriptHost=createContentOperationScriptHost({...host.runtime,generation:1,destroyed:false,isLoaded:true},
    tools,{...host,rootKind:'OperationRoute'})
   const directory=await scriptHost.invoke('content.operation.discover',{directoryRef:'DIR'},controller.signal)
+  if(!('dataViewKey' in directory)||typeof directory.readGuide!=='function')throw Error('TEST_DIRECTORY_REQUIRED')
   expect(directory).toMatchObject({dataViewKey:'S@KnowledgeGuide@effectiveDirectory',count:1,reachable:1})
   expect(scriptHost.runtime.resolveView(directory.dataViewKey)).toBe(view)
   await expect(directory.readGuide('G')).resolves.toMatchObject({versionRef:'V1',guide:guideText})

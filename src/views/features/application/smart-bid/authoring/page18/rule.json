@@ -16,5 +16,10 @@
         ]
       }
     ]
+  },
+  {
+    "id": "original-operation-dispatch",
+    "type": "r-section",
+    "props": {"title": "原试次实发记录", "onBeforeRender": "bindOriginalDispatch"}
   }
 ]

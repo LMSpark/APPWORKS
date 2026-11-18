@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1374,
+  "scannedFileCount": 1375,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -19570,6 +19570,19 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight\n职责：第51项固定待发送包与平台栏，交发送前的原办理检查。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader\n职责：独立回读第51项原待发请求，为第52项提供同一请求证明。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

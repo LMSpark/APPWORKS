@@ -6034,7 +6034,12 @@
     "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts.json",
-      "sourceModifiedAt": "2026-11-18T04:10:05.055Z"
+      "sourceModifiedAt": "2026-11-18T04:39:31.163Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts.json",
+      "sourceModifiedAt": "2026-11-18T04:42:34.788Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",

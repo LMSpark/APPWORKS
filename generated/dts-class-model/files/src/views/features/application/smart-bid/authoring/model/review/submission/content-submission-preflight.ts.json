@@ -225,7 +225,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T04:10:05.055Z",
+  "generatedAt": "2026-11-18T04:39:31.163Z",
   "models": {
     "ApprovedField": {
       "name": "ApprovedField",

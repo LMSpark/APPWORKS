@@ -1,5 +1,5 @@
 {
-  "gapCount": 7120,
+  "gapCount": 7125,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -21420,9 +21420,9 @@
     {
       "kind": "attribute",
       "className": "TreeModel",
-      "memberName": "__@iterator@288512",
+      "memberName": "__@iterator@288788",
       "reason": "missing-jsdoc",
-      "chainBreak": "TreeModel.__@iterator@288512 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "TreeModel.__@iterator@288788 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-json-document/src/tree/tree-types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-json-document/src/tree/tree-types.ts",
       "declarationLine": 50,
@@ -83349,7 +83349,7 @@
       "chainBreak": "ApprovedField.approvalRef 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 3,
+      "declarationLine": 5,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83361,7 +83361,7 @@
       "chainBreak": "ApprovedField.assertCurrent 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 3,
+      "declarationLine": 5,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83373,7 +83373,7 @@
       "chainBreak": "ApprovedField.assignmentId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 3,
+      "declarationLine": 5,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83385,7 +83385,7 @@
       "chainBreak": "ApprovedField.fieldId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 3,
+      "declarationLine": 5,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83397,7 +83397,7 @@
       "chainBreak": "ApprovedField.fieldRuleRef 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 3,
+      "declarationLine": 5,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83409,7 +83409,7 @@
       "chainBreak": "ApprovedField.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 3,
+      "declarationLine": 5,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83421,7 +83421,7 @@
       "chainBreak": "ApprovedField.responseId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 3,
+      "declarationLine": 5,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83433,7 +83433,7 @@
       "chainBreak": "ApprovedField.revisionId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 3,
+      "declarationLine": 5,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83445,7 +83445,7 @@
       "chainBreak": "ApprovedField.valueHash 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 3,
+      "declarationLine": 5,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83457,7 +83457,7 @@
       "chainBreak": "ApprovedField.versionHash 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 3,
+      "declarationLine": 5,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83468,7 +83468,7 @@
       "chainBreak": "ApprovedField 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 3,
+      "declarationLine": 5,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83480,7 +83480,7 @@
       "chainBreak": "SavedObservation.assertCurrent 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 4,
+      "declarationLine": 6,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83492,7 +83492,7 @@
       "chainBreak": "SavedObservation.assignmentId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 4,
+      "declarationLine": 6,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83504,7 +83504,7 @@
       "chainBreak": "SavedObservation.attemptRef 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 4,
+      "declarationLine": 6,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83516,7 +83516,7 @@
       "chainBreak": "SavedObservation.fieldId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 4,
+      "declarationLine": 6,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83528,7 +83528,7 @@
       "chainBreak": "SavedObservation.observationRef 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 4,
+      "declarationLine": 6,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83540,7 +83540,7 @@
       "chainBreak": "SavedObservation.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 4,
+      "declarationLine": 6,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83552,7 +83552,7 @@
       "chainBreak": "SavedObservation.revisionId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 4,
+      "declarationLine": 6,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83564,7 +83564,7 @@
       "chainBreak": "SavedObservation.stage 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 4,
+      "declarationLine": 6,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83576,7 +83576,7 @@
       "chainBreak": "SavedObservation.unit 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 4,
+      "declarationLine": 6,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83588,7 +83588,7 @@
       "chainBreak": "SavedObservation.value 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 4,
+      "declarationLine": 6,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83599,7 +83599,7 @@
       "chainBreak": "SavedObservation 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 4,
+      "declarationLine": 6,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83611,7 +83611,7 @@
       "chainBreak": "Release.assertCurrent 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 5,
+      "declarationLine": 7,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83623,7 +83623,7 @@
       "chainBreak": "Release.decisions 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 5,
+      "declarationLine": 7,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83635,7 +83635,7 @@
       "chainBreak": "Release.deliverable 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 5,
+      "declarationLine": 7,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83647,7 +83647,7 @@
       "chainBreak": "Release.packageHash 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 5,
+      "declarationLine": 7,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83659,7 +83659,7 @@
       "chainBreak": "Release.packageId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 5,
+      "declarationLine": 7,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83671,7 +83671,7 @@
       "chainBreak": "Release.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 5,
+      "declarationLine": 7,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83683,7 +83683,7 @@
       "chainBreak": "Release.selectionHash 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 5,
+      "declarationLine": 7,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83694,7 +83694,7 @@
       "chainBreak": "Release 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 5,
+      "declarationLine": 7,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83705,7 +83705,7 @@
       "chainBreak": "FieldRequirement 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 6,
+      "declarationLine": 8,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "typeAlias"
     },
@@ -83717,7 +83717,7 @@
       "chainBreak": "FieldRequirement.assignmentId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 7,
+      "declarationLine": 9,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "interface"
     },
@@ -83729,7 +83729,7 @@
       "chainBreak": "FieldRequirement.fieldId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 8,
+      "declarationLine": 10,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "interface"
     },
@@ -83741,7 +83741,7 @@
       "chainBreak": "FieldRequirement.versionHash 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 9,
+      "declarationLine": 11,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "interface"
     },
@@ -83753,9 +83753,67 @@
       "chainBreak": "FieldRequirement.savedReadbackRequired 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
-      "declarationLine": 10,
+      "declarationLine": 12,
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
       "declarationKind": "interface"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader",
+      "moduleName": "app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "Prepared",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Prepared.assertCurrent 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Prepared",
+      "memberName": "record",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Prepared.record 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Prepared",
+      "memberName": "requestDigest",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Prepared.requestDigest 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "Prepared",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Prepared 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "model",

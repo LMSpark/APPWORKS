@@ -180,6 +180,7 @@
             ]
           },
           "queryConfig": {
+            "autoQuery": false,
             "fields": [
               "rowid",
               "WFOBJID",
@@ -222,6 +223,7 @@
             ]
           },
           "queryConfig": {
+            "autoQuery": false,
             "fields": [
               "rowid",
               "WFOBJID",
@@ -292,6 +294,7 @@
             }
           },
           "queryConfig": {
+            "autoQuery": false,
             "fields": [
               "rowid",
               "wfid",
@@ -341,6 +344,7 @@
             }
           },
           "queryConfig": {
+            "autoQuery": false,
             "fields": [
               "rowid",
               "WFMID",

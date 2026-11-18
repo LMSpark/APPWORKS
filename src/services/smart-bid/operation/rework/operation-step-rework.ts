@@ -11,7 +11,7 @@ const routes={
 type Cause=keyof typeof routes
 type Call=Readonly<{
  callRef:string;ownerRef:string;effect:'COMPUTE'|'SIGN'|'SUBMIT'|'WITHDRAW'|'OTHER_EXTERNAL'
- state:'NOT_STARTED'|'COMPLETE'|'PARTIAL'|'UNKNOWN';assertCurrent:()=>void
+ state:'NOT_STARTED'|'COMPLETE'|'PARTIAL'|'UNKNOWN';inputRef:string|null;returnRef:string|null;assertCurrent:()=>void
 }>
 type Finding=Readonly<{cause:Cause;callRef:string;evidenceRef:string;affectedRefs:readonly string[];assertCurrent:()=>void}>
 type PriorResult=Readonly<{resultRef:string;applicabilityRef:string;assertCurrent:()=>void}>
@@ -28,7 +28,8 @@ export function prepareOperationStepRework(source:Readonly<{
  assertCurrent()
  const order=new Map(calls.map((call,index)=>[call.callRef,index]))
  if(![projectId,runId,attemptRef,inputRef].every(identity)||!reason.trim()||returnRef!==null&&!identity(returnRef)||
-  !findings.length||order.size!==calls.length||calls.some(call=>![call.callRef,call.ownerRef].every(identity)))
+  !findings.length||order.size!==calls.length||calls.some(call=>![call.callRef,call.ownerRef].every(identity)||
+   [call.inputRef,call.returnRef].some(ref=>ref!==null&&!identity(ref))))
   throw Error('OPERATION_REWORK_SCOPE')
  const affected=new Set<string>()
  const handoffs=findings.map(({cause,callRef,evidenceRef,affectedRefs})=>{
@@ -36,9 +37,12 @@ export function prepareOperationStepRework(source:Readonly<{
   if(!call||!Object.hasOwn(routes,cause)||!identity(evidenceRef)||!affectedRefs.every(identity))
    throw Error('OPERATION_REWORK_SCOPE')
   for(const ref of affectedRefs)affected.add(ref)
-  const destination=cause==='RECOMPUTE'&&(call.effect!=='COMPUTE'||call.state==='PARTIAL'||call.state==='UNKNOWN')
-   ?'ORIGINAL_CALL':cause==='EVIDENCE_ONLY'&&returnRef===null?'ORIGINAL_CALL':routes[cause]
-  return Object.freeze({cause,callRef,evidenceRef,affectedRefs:Object.freeze([...affectedRefs]),destination})
+  let destination:typeof routes[Cause]|'ORIGINAL_CALL'=routes[cause]
+  if(cause==='RECOMPUTE'&&(call.effect!=='COMPUTE'||call.state!=='COMPLETE'))destination='ORIGINAL_CALL'
+  else if((cause==='RECOMPUTE'||cause==='EVIDENCE_ONLY')&&call.inputRef===null)destination='05'
+  else if(cause==='EVIDENCE_ONLY'&&(call.returnRef===null||call.state!=='COMPLETE'))destination='ORIGINAL_CALL'
+  return Object.freeze({cause,callRef,evidenceRef,affectedRefs:Object.freeze([...affectedRefs]),destination,
+   inputRef:call.inputRef,returnRef:call.returnRef})
  })
  handoffs.sort((left,right)=>(order.get(left.callRef)??calls.length)-(order.get(right.callRef)??calls.length))
  const originalOperations=calls.flatMap(({callRef,ownerRef,effect,state})=>

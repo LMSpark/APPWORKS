@@ -47,12 +47,13 @@ export async function prepareRegisteredOperationStepRework(host:ContentRevisionR
   throw Error('OPERATION_REWORK_READ_SCOPE')
  const assertResult=view.captureReadResult(),assertRow=view.captureReadRow(row,evidence)
  const assertCurrent=()=>{assertScope();assertResult();assertRow()}
- const {inputRef,returnRef}=row
- if(!identity(inputRef)||(returnRef!==null&&!identity(returnRef)))throw Error('OPERATION_REWORK_READ_EVIDENCE')
- const calls=records(row['calls']).map(({callRef,ownerRef,effect,state}):Source['calls'][number]=>{
+ const {inputRef:attemptInputRef,returnRef:attemptReturnRef}=row
+ if(!identity(attemptInputRef)||(attemptReturnRef!==null&&!identity(attemptReturnRef)))throw Error('OPERATION_REWORK_READ_EVIDENCE')
+ const calls=records(row['calls']).map(({callRef,ownerRef,effect,state,inputRef,returnRef}):Source['calls'][number]=>{
   if(!identity(callRef)||!identity(ownerRef)||!isChoice(effect,['COMPUTE','SIGN','SUBMIT','WITHDRAW','OTHER_EXTERNAL'])||
-   !isChoice(state,['NOT_STARTED','COMPLETE','PARTIAL','UNKNOWN']))throw Error('OPERATION_REWORK_READ_EVIDENCE')
-  return {callRef,ownerRef,effect,state,assertCurrent}
+   !isChoice(state,['NOT_STARTED','COMPLETE','PARTIAL','UNKNOWN'])||(inputRef!==null&&!identity(inputRef))||
+   (returnRef!==null&&!identity(returnRef)))throw Error('OPERATION_REWORK_READ_EVIDENCE')
+  return {callRef,ownerRef,effect,state,inputRef,returnRef,assertCurrent}
  })
  const findings=records(row['findings']).map(({cause,callRef,evidenceRef,affectedRefs}):Source['findings'][number]=>{
   if(!identity(callRef)||!identity(evidenceRef)||!Array.isArray(affectedRefs)||!affectedRefs.every(identity)||
@@ -64,6 +65,7 @@ export async function prepareRegisteredOperationStepRework(host:ContentRevisionR
   if(!identity(resultRef)||!identity(applicabilityRef))throw Error('OPERATION_REWORK_READ_EVIDENCE')
   return {resultRef,applicabilityRef,assertCurrent}
  })
- const rework=prepareOperationStepRework({...context,reason,inputRef,returnRef,calls,findings,priorResults,assertCurrent})
+ const rework=prepareOperationStepRework({...context,reason,inputRef:attemptInputRef,returnRef:attemptReturnRef,
+  calls,findings,priorResults,assertCurrent})
  return Object.freeze({...rework,requestKey})
 }

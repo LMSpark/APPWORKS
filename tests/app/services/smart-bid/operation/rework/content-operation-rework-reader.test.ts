@@ -1,13 +1,14 @@
 import {expect,it} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {prepareRegisteredOperationStepRework} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader'
+import {openContentOperationWorkspace} from '@/views/features/application/smart-bid/authoring/entry/content-operation-workspace'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 it('prepares rework only from a visible, complete original attempt projection',async()=>{
  const scope={projectId:'P',runId:'RUN',attemptRef:'A',requestKey:'Q'}
  const original={...scope,id:'ROW',inputRef:'INPUT',returnRef:null,
-  calls:[{callRef:'CALL',ownerRef:'REP',effect:'WITHDRAW',state:'UNKNOWN'}],
+  calls:[{callRef:'CALL',ownerRef:'REP',effect:'WITHDRAW',state:'UNKNOWN',inputRef:'WITHDRAW-INPUT',returnRef:null}],
   findings:[{callRef:'CALL',cause:'RECOMPUTE',evidenceRef:'F',affectedRefs:[]}],priorResults:[]}
  const filters=Object.keys(scope).map(field=>({field,operator:'eq' as const,value:{Type:'GetInputParam',ParamName:field}}))
  const ds=DataSet.fromJson({scenarioId:'S',tables:{GenerationRun:{
@@ -27,12 +28,20 @@ it('prepares rework only from a visible, complete original attempt projection',a
   scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  const prepare=()=>prepareRegisteredOperationStepRework(host,{...scope,reason:'撤回结果未知'})
  try{
-  const prepared=await prepare()
+  const controller=new AbortController()
+  const workspace=openContentOperationWorkspace({...host.runtime,generation:1,destroyed:false,isLoaded:true},
+   {executeTool:async()=>{throw Error('UNEXPECTED_CLASS_MODEL_CALL')}},
+   {...host,rootKind:'OperationRoute'},controller.signal)
+  const prepared=await workspace.prepareRework({...scope,reason:'撤回结果未知'})
   expect(prepared).toMatchObject({...scope,firstCallRef:'CALL',handoffs:[{destination:'ORIGINAL_CALL'}],
    originalOperations:[{destination:'52',ownerRef:'REP'}]})
+  controller.abort()
+  expect(()=>prepared.assertCurrent()).toThrow('OPERATION_WORKSPACE_STALE')
+  await expect(workspace.prepareRework({...scope,reason:'撤回结果未知'})).rejects.toThrow('OPERATION_WORKSPACE_STALE')
+  const originalPrepared=await prepare()
   hidden=['findings']
   await expect(prepare()).rejects.toThrow('DATA_VIEW_READ_ROW')
-  expect(()=>prepared.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  expect(()=>originalPrepared.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   hidden=[]
   returnedKey='OTHER'
   await expect(prepare()).rejects.toThrow('OPERATION_REWORK_READ_SCOPE')

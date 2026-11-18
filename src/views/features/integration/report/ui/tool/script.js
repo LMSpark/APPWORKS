@@ -7,3 +7,6 @@ async function editReport(row) { await $page.invokeHostCommand('reports.edit', r
 async function removeReport(row) { await $page.invokeHostCommand('reports.remove', row) }
 async function versionReport(row) { await $page.invokeHostCommand('reports.version', row) }
 async function modelReport(row) { await $page.invokeHostCommand('reports.model', row) }
+function bindReportVerification() { return reports?.verification() ?? {visible: false} }
+async function verifyReport() { await $page.invokeHostCommand('reports.verify') }
+async function createReport() { await $page.invokeHostCommand('reports.create') }

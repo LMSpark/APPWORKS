@@ -6,11 +6,7 @@
   <SparkComponent.RendererSection class="flow-run-page" title="流程办理" :bordered="false" :grid-columns="1"
     :status="shellStatus" :error="shellError" :retryable="!shellLoading" @retry="retryShell">
     <template v-if="prepared" #header-actions>
-      <SparkComponent.RendererButton label="流程图" :disabled="reloadBlocked" @click="openFlowChart" />
-      <SparkComponent.RendererButton label="加签" :disabled="reloadBlocked" @click="openAppendDialog" />
-      <SparkComponent.RendererButton label="撤回" :disabled="reloadBlocked" :loading="handleLoading" @click="revokeCurrentStep" />
-      <SparkComponent.RendererButton label="办理" :disabled="reloadBlocked" button-type="primary" :loading="handleLoading" @click="openHandlePanel" />
-      <SparkComponent.RendererButton label="核验原办理结果" :loading="handleLoading" @click="verifyOriginalApproval" />
+      <SparkComponentRenderer :config="pageActionsConfig" />
     </template>
     <SparkComponent.RendererButton v-if="reloadBlocked" label="切换到当前导航" :disabled="hasPendingWork()" @click="retryShell" />
     <div v-if="prepared" class="flow-run-page__layout">
@@ -37,14 +33,7 @@
         <h3 class="flow-run-page__handle-title">办理</h3>
         <SparkComponentRenderer :config="approvalNodesConfig" />
         <SparkComponentRenderer :config="approvalInputConfig" />
-        <div class="flow-run-page__handle-actions">
-          <SparkComponent.RendererButton label="提交" button-type="primary" :loading="handleLoading" @click="submitFlow" />
-          <SparkComponent.RendererButton v-if="backNodeOptions.length > 0" label="普通退回" :loading="handleLoading" @click="backByHistory" />
-          <SparkComponent.RendererButton v-if="allowForceBack && forceBackNodeOptions.length > 0" label="强制退回"
-            :loading="handleLoading" @click="forceBack" />
-          <SparkComponent.RendererButton label="退回发起人" :loading="handleLoading" @click="backToCreator" />
-          <SparkComponent.RendererButton label="关闭" @click="closeHandlePanel" />
-        </div>
+        <SparkComponentRenderer :config="approvalActionsConfig" />
       </aside>
     </div>
 
@@ -79,7 +68,7 @@ import {
 } from '@/lowcode/resources/system/workflow/manage'
 import {compileRule, PageTool} from '@spark-appworks/spark-project-model'
 import {SparkComponentRenderer, SparkPageRenderer} from '@spark-appworks/spark-component'
-import {buildDataViewKey, getSparkNodeChildren, nodeId} from '@spark-appworks/spark-data'
+import {buildDataViewKey, getSparkNodeChildren, nodeId, type SparkNode} from '@spark-appworks/spark-data'
 import rule from './tool/rule.json?raw'
 import script from './tool/script.js?raw'
 import style from './tool/style.css?raw'
@@ -158,7 +147,9 @@ const {
 const toolRules = compileRule(rule)
 const approvalInputRule = toolRules.find(node => nodeId(node) === 'approvalInput')
 const approvalNodesRule = toolRules.find(node => nodeId(node) === 'approvalNodes')
-if (!approvalInputRule || !approvalNodesRule) throw new Error('流程办理工具缺少办理参数组件')
+const pageActionsRule = toolRules.find(node => nodeId(node) === 'pageActions')
+const approvalActionsRule = toolRules.find(node => nodeId(node) === 'approvalActions')
+if (!approvalInputRule || !approvalNodesRule || !pageActionsRule || !approvalActionsRule) throw new Error('流程办理工具缺少办理组件')
 const approvalInputConfig = computed(() => ({
   ...approvalInputRule,
   props: {...approvalInputRule.props, dataViewKey: buildDataViewKey('ApprovalInput', 'default', FLOW_WORKBENCH_SCENARIO_ID)},
@@ -183,6 +174,31 @@ const approvalNodesConfig = computed(() => ({
     }))}
   }),
 }))
+const actions: Record<string, {run: () => void | Promise<void>; loading?: true; blockedByNavigation?: true; visible?: () => boolean}> = {
+  chart: {run: openFlowChart, blockedByNavigation: true},
+  append: {run: openAppendDialog, blockedByNavigation: true},
+  revoke: {run: revokeCurrentStep, loading: true, blockedByNavigation: true},
+  handle: {run: openHandlePanel, loading: true, blockedByNavigation: true},
+  verify: {run: verifyOriginalApproval, loading: true},
+  submit: {run: submitFlow, loading: true},
+  back: {run: backByHistory, loading: true, visible: () => backNodeOptions.value.length > 0},
+  forceBack: {run: forceBack, loading: true, visible: () => allowForceBack.value && forceBackNodeOptions.value.length > 0},
+  backToCreator: {run: backToCreator, loading: true},
+  close: {run: closeHandlePanel},
+}
+function bindActions(toolbar: SparkNode): SparkNode {
+  const children = getSparkNodeChildren(toolbar.children).flatMap(button => {
+    const action = actions[nodeId(button) ?? '']
+    if (!action || action.visible?.() === false) return []
+    return [{...button, props: {...button.props, onClick: action.run,
+      disabled: action.blockedByNavigation === true && reloadBlocked.value,
+      loading: action.loading === true && handleLoading.value,
+    }}]
+  })
+  return {...toolbar, children}
+}
+const pageActionsConfig = computed(() => bindActions(pageActionsRule))
+const approvalActionsConfig = computed(() => bindActions(approvalActionsRule))
 const runtime = computed(() => runtimeReady.value ? session.runtime : undefined)
 const routeSnapshot = computed(() => {
   const {path, fullPath, name, params, query, hash} = route
@@ -211,7 +227,6 @@ const chartBadgeRules = [
 .flow-run-page__handle-title {margin: 0; font-size: 16px}
 .flow-run-page__nodes {display: grid; gap: 8px}
 .flow-run-page__node-option {display: flex; gap: 8px; align-items: center}
-.flow-run-page__handle-actions {display: flex; flex-wrap: wrap; gap: 8px}
 .flow-run-page__chart {min-height: 50vh}
 @media (max-width: 960px) {
   .flow-run-page__layout {grid-template-columns: 1fr}

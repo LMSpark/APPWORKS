@@ -187,6 +187,8 @@ beforeEach(async () => {
   originalOptionsView = undefined
   originalDirectoryView = undefined
   config.global.stubs = {...baselineStubs}
+  delete config.global.stubs['SparkComponentRenderer']
+  delete config.global.stubs['spark-component-renderer']
   reloadRuntime.mockClear()
   callbacks.end.mockReset().mockResolvedValue(true); callbacks.succeeded.mockReset().mockResolvedValue(undefined); callbacks.failed.mockClear()
   routeState.reloadBlocked = false
@@ -240,8 +242,6 @@ describe('flow run page mount', () => {
       mainScenarioId: FLOW_MONITOR_SCENARIO_ID,
       loadScenario: async id => id === FLOW_WORKBENCH_SCENARIO_ID ? workbench : DataSet.fromJson({scenarioId: id, tables: {}}),
     }))
-    delete config.global.stubs['SparkComponentRenderer']
-    delete config.global.stubs['spark-component-renderer']
     delete config.global.stubs['el-table']
     delete config.global.stubs['el-table-column']
     try {
@@ -335,7 +335,7 @@ describe('flow run page mount', () => {
     bindDataSetReadonlyCommandQuery(appendOptions, {resource: {resourceType: 'logical-view', resourceId: 'workflow:append-options'}, guard: () => {}, loadRows: async () => []})
     originalOptionsView = view
     const originalStubs = {...config.global.stubs}, stubs = {...config.global.stubs}
-    for (const key of ['el-table', 'el-table-column', 'el-button', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[key]
+    for (const key of ['el-table', 'el-table-column', 'el-button']) delete stubs[key]
     config.global.stubs = stubs
     routeState.query.stepid = 'S1'
     const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(Host))}), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})

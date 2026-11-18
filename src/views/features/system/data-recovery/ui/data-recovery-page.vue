@@ -10,18 +10,7 @@ AI用途：迁移系统运维数据恢复时，核对级联输入、data_id取�
     :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
     <RendererButton v-if="reloadBlocked" label="切换到当前导航" :disabled="locked" @click="loadCurrentRoute" />
     <div v-if="ready" class="recovery-page__body">
-      <RendererSection class="recovery-page__side" title="数据表选择" :grid-columns="1" :grid-gap="12">
-        <RendererForm :data-view-key="appKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
-          <FieldSelect data-member="value" :option-data-view-key="appKey" :option-label-fields="['AppDesc', 'AppName']"
-            label="应用系统" placeholder="请选择应用系统" :filterable="true" :clearable="true" :disabled="locked || reloadBlocked" />
-        </RendererForm>
-        <RendererForm :data-view-key="dbKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
-          <FieldSelect data-member="value" :option-data-view-key="dbKey" :option-label-fields="['conName']"
-            label="数据库" placeholder="请选择数据库" :filterable="true" :clearable="true" :disabled="locked || reloadBlocked" />
-        </RendererForm>
-        <RendererTable :data-view-key="tableKey" :children="tableFields" :show-data-view-meta="false"
-          :pagination="{pageSizes: [15, 30, 50]}" />
-      </RendererSection>
+      <SparkPageRenderer v-if="runtime && toolHost" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="toolHost" :auto-load="false" />
       <RendererSection class="recovery-page__main" :title="table?.label ?? '数据'" :grid-columns="1"
         :status="table ? notice : '请先选择应用系统和数据库，再选择数据表'" :error="message">
         <RendererButton v-if="unconfirmed" label="核验原保存结果" :disabled="busy" @click="verifyOriginalSave" />
@@ -48,13 +37,19 @@ AI用途：迁移系统运维数据恢复时，核对级联输入、data_id取�
 
 <script setup lang="ts">
 import {computed, nextTick, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
+import {PageTool} from '@spark-appworks/spark-project-model'
+import {useRoute} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import type {RToolbarProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
-const {RendererSection, RendererForm, RendererTable, RendererTabs, RendererTabPane, RendererButton, FieldSelect, consumeRequiredPageService} = Components
+import rule from './tool/rule.json?raw'
+import script from './tool/script.js?raw'
+import style from './tool/style.css?raw'
+
+const {RendererSection, SparkPageRenderer, RendererTable, RendererTabs, RendererTabPane, RendererButton, consumeRequiredPageService} = Components
 const scenarioId = '70D5D8FACCC201A822F64B16A441BE8F'
 const {sparkConsume} = Components.useSparkComponent({type: 'data-recovery-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'data-recovery-page')
@@ -63,7 +58,31 @@ const unconfirmed = shallowRef<RecoveryCommit>()
 const locked = computed(() => busy.value || unconfirmed.value !== undefined)
 const {session, ready, loading, error, reloadBlocked, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Base_AppSystemList', componentType: 'data-recovery-page', title: '数据恢复',
+  tool: pageId => {
+    const tool = new PageTool({pageId})
+    tool.hydrateFileText('rule.json', rule)
+    tool.hydrateFileText('script.js', script)
+    tool.hydrateFileText('style.css', style)
+    tool.markLoaded()
+    return tool
+  },
   preserveRuntime: () => locked.value,
+})
+const route = useRoute()
+const routeSnapshot = computed(() => {
+  const {path, fullPath, name, params, query, hash} = route
+  return {path, fullPath, name: name ?? null, params, query, hash}
+})
+const runtime = computed(() => ready.value ? session.runtime : undefined)
+const toolHost = computed(() => {
+  const current = runtime.value
+  if (!current) return undefined
+  return {runtime: current, assertCurrent() {
+    if (!session.isCurrent(current)) throw new Error('数据恢复运行实例已失效')
+  }, invoke(command: string) {
+    if (command === 'recovery.connect') return {selectionLocked: () => locked.value || reloadBlocked.value}
+    return undefined
+  }}
 })
 const key = (model: string) => buildDataViewKey(model, 'default', scenarioId)
 const appKey = key('Base_AppSystemList'), dbKey = key('Base_AppAndSource_Relation'), tableKey = key('_Base_TblList')
@@ -71,7 +90,6 @@ const fieldKey = key('Base_TblField'), deletedKey = key('获取软删除的数�
 const recoveredKey = key('Base_TableData_Recovery')
 const text = (field: string, label: string, minWidth = 140): SparkNode =>
   ({type: 'r-text', props: {field, label, readonly: true, minWidth, showOverflowTooltip: true}})
-const tableFields: SparkNode[] = [text('tbldesc', '表描述', 120), text('tblname', '表名', 120)]
 const recoveredFields: SparkNode[] = [text('sys_id', '应用系统ID'), text('db_id', '数据库ID'), text('data_id', '表数据ID'),
   text('recovery_date', '恢复操作日期', 160), text('table_id', '表名称'), text('recovery_userid', '恢复操作人')]
 const tab = ref<string | number>('deleted')

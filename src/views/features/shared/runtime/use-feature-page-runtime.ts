@@ -18,7 +18,7 @@ type FeaturePageRuntimeOptions = Readonly<{
   /** 本页消费的正式数据空间身份。 */
   scenarioId: string
   /** 正式工具定义；与主场景共用同一运行实例。 */
-  tool?: PageTool
+  tool?: PageTool | ((navigationId: string) => PageTool)
   /** 页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。 */
   navigationId?: string
   /** 主视图所属的正式模型名称，而非物理来源别名。 */
@@ -89,8 +89,9 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
         throw new Error(`${title}伙伴数据空间身份无效或重复`)
       }
       const context = options.queryContext?.()
+      const tool = typeof options.tool === 'function' ? options.tool(nodeId) : options.tool
       current = session.acquire({
-        ...(options.tool ? {tool:options.tool} : {pageId:nodeId}),
+        ...(tool ? {tool} : {pageId:nodeId}),
         scenarioIds: [scenarioId, ...peers],
         ...(peers.length > 0 ? {mainScenarioId: scenarioId} : {}),
         targetId: `${projectId}:${nodeId}`,

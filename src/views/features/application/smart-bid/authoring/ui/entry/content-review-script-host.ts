@@ -11,6 +11,8 @@ import {readContentReviewWorkspace} from '../../model/review/content-review-work
 import {readPlatformFieldObservation} from '../../model/review/content-platform-field-review'
 import {compareApprovedFileAnswer,readRegisteredFileAnswer,verifyOriginalFormFileAnswer} from '../../model/review/content-file-answer-reader'
 import {readRegisteredPaperAnswer} from '../../model/review/content-paper-answer-reader'
+import {recoverProductionRequest} from '@/services/smart-bid/content/review/production/production-recovery'
+import {readCompletedProductionFile} from '../../model/review/content-produced-file-review'
 
 /** 审定覆盖工作区的宿主、固定范围与证据读取合同。 */
 type Review=Parameters<typeof readContentReviewWorkspace>
@@ -21,11 +23,15 @@ type FileObservation=Parameters<typeof readRegisteredFileAnswer>
 type FormVerification=Parameters<typeof verifyOriginalFormFileAnswer>
 /** 原纸件观察的宿主、原登记和页栏参数合同。 */
 type PaperObservation=Parameters<typeof readRegisteredPaperAnswer>
+type ProductionRecovery=Parameters<typeof recoverProductionRequest>
 
 /** 固定审定范围由正式办理记录提供，调用地址只携带引用。 */
 export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
  runtime:Runtime,scope:Omit<Review[0],'runtime'>,sources:Review[2]&Readonly<{
   readSelection:(selectionRef:string,signal:AbortSignal)=>Promise<Review[1]&Readonly<{selectionRef:string}>>
+  readProductionSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
+   selectionRef:string;request:ProductionRecovery[0];source:ProductionRecovery[1]
+  }>>
   readObservationSelection?:(observationRef:string,signal:AbortSignal)=>Promise<Readonly<{
    approved:Observation[1];input:Observation[2];assertCurrent:()=>void
   }>>
@@ -48,6 +54,19 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
      throw Error('CONTENT_REVIEW_PAGE_STALE')
    }
    assertCurrent()
+   if(name==='content.review.recoverProduction'&&sources.readProductionSelection){
+    const selection=await sources.readProductionSelection(selectionRef,signal)
+    const assertSelection=()=>{assertCurrent();selection.source.assertCurrent()}
+    assertSelection()
+    if(selection.selectionRef!==selectionRef||selection.request.projectId!==scope.projectId)
+     throw Error('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
+    const result=await recoverProductionRequest(selection.request,{
+     lookup:request=>selection.source.lookup(request),assertCurrent:assertSelection,
+    })
+    if(result.state!=='COMPLETED')return result
+    const file=await readCompletedProductionFile({...scope,runtime,assertCurrent:assertSelection},result,sources.openFile)
+    return Object.freeze({state:result.state,verifiedFile:file,assertCurrent:file.assertCurrent})
+   }
    if(name==='content.review.readPaperObservation'&&sources.readPaperObservationSelection){
     const selection=await sources.readPaperObservationSelection(selectionRef,signal)
     const assertSelection=()=>{assertCurrent();selection.assertCurrent()}

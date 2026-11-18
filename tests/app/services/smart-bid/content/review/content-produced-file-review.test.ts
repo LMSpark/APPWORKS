@@ -159,10 +159,30 @@ it('opens only the original registered resource version read through SPARK data'
   const placement={...form,fieldRef:'TOTAL',cellRef:'T',locationRef:selected.locationRef,revisionId:'R',
    producedFileId:'F',fileHash:row.fileHash,assertCurrent:()=>{}}
   const unused=async()=>{throw Error('UNEXPECTED_REVIEW_CALL')}
+  const pending=vi.fn(async()=>undefined)
   const page=createContentReviewScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
    readSelection:unused,openFile:open,readField:unused,readDecision:unused,readCompleted:unused,
+   readProductionSelection:async requestedRef=>({selectionRef:requestedRef==='PENDING'?'PENDING':'RUN',request:production,source:{
+    ...(requestedRef==='PENDING'?{lookup:pending}:{
+     lookup:async()=>({request:production,state:'COMPLETED' as const,assertCurrent:host.assertCurrent,
+      file:{...selection,fileHash:row.fileHash,completedScopeRefs:['TOTAL']}}),
+    }),
+    assertCurrent:host.assertCurrent,
+   }}),
    readFileObservationSelection:async()=>({projectId:'P',input:selected,approved,originalForm:{mapping,placement},assertCurrent:host.assertCurrent}),
   })
+  const recoverySignal=new AbortController()
+  const openCount=open.mock.calls.length
+  await expect(page.invoke('content.review.recoverProduction',{selectionRef:'PENDING'},recoverySignal.signal))
+   .resolves.toMatchObject({state:'UNKNOWN'})
+  expect(pending).toHaveBeenCalledWith(production)
+  expect(open).toHaveBeenCalledTimes(openCount)
+  await expect(page.invoke('content.review.recoverProduction',{selectionRef:'OTHER'},recoverySignal.signal))
+   .rejects.toThrow('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
+  const recovered=await page.invoke('content.review.recoverProduction',{selectionRef:'RUN'},recoverySignal.signal)
+  expect(recovered).toMatchObject({state:'COMPLETED',verifiedFile:{producedFileId:'F',versionHash:row.fileHash}})
+  recoverySignal.abort()
+  expect(()=>recovered.assertCurrent()).toThrow('CONTENT_REVIEW_PAGE_STALE')
   const observed=await page.invoke('content.review.readFileObservation',{selectionRef:'OBS'},new AbortController().signal)
   expect(observed).toMatchObject({locationRef:'PAGE-1-TOTAL',observedValueJson:'"0.00"',unit:'元',file:{versionHash:row.fileHash},
    comparison:{state:'MISMATCHED',approvalRef:'APP',valueJson:'"1.00"'},form:{formVersion:'V1',cellRef:'T',unitMatched:true}})

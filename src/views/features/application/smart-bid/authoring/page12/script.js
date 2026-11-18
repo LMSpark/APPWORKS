@@ -7,8 +7,29 @@ function hasRef(ref) {
 }
 
 function hasObservation() {
-  const {platformObservationRef, fileObservationRef, paperObservationRef} = $route.query
-  return [platformObservationRef, fileObservationRef, paperObservationRef].some(hasRef)
+  const {platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef} = $route.query
+  return [platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef].some(hasRef)
+}
+
+function bindProductionRecovery() {
+  return {visible: hasRef($route.query.productionSelectionRef)}
+}
+
+async function openProductionRecovery() {
+  if (!bindProductionRecovery().visible) return
+  try {
+    const result = await $page.invokeHostCommand('content.review.recoverProduction',
+      {selectionRef: $route.query.productionSelectionRef})
+    result.assertCurrent()
+    const labels = {UNKNOWN: '原制作请求的结果待确认', IN_PROGRESS: '原制作请求正在处理',
+      NOT_EFFECTIVE: '原制作请求未生效'}
+    const details = result.state === 'COMPLETED'
+      ? `已核验文件 ${result.verifiedFile.producedFileId}\n修订 ${result.verifiedFile.revisionId}\nSHA-256 ${result.verifiedFile.versionHash}`
+      : labels[result.state]
+    await $page.showAlert(details, '原制作结果')
+  } catch {
+    $page.showMessage('原制作结果无法核验', 'warning')
+  }
 }
 
 async function __init__() {

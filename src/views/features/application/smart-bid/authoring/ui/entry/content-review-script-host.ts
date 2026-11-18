@@ -14,6 +14,8 @@ import {readRegisteredPaperAnswer} from '../../model/review/content-paper-answer
 import {recoverProductionRequest} from '@/services/smart-bid/content/review/production/production-recovery'
 import {readCompletedProductionFiles} from '../../model/review/content-produced-file-review'
 import {readOriginalExportRegistration} from '../../model/review/production/production-registration-reader'
+import {readOriginalSignatureRequest} from '../../model/review/submission/content-signature-request-reader'
+import {prepareSignedOutputRegistration} from '@/services/smart-bid/content/review/production/signed-output-registration'
 
 /** 审定覆盖工作区的宿主、固定范围与证据读取合同。 */
 type Review=Parameters<typeof readContentReviewWorkspace>
@@ -25,6 +27,7 @@ type FormVerification=Parameters<typeof verifyOriginalFormFileAnswer>
 /** 原纸件观察的宿主、原登记和页栏参数合同。 */
 type PaperObservation=Parameters<typeof readRegisteredPaperAnswer>
 type ProductionRecovery=Parameters<typeof recoverProductionRequest>
+type SignedRegistration=Parameters<typeof prepareSignedOutputRegistration>
 
 /** 固定审定范围由正式办理记录提供，调用地址只携带引用。 */
 export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
@@ -35,6 +38,10 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
   }>>
   readExportRegistrationSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
    selectionRef:string;prepared:Parameters<typeof readOriginalExportRegistration>[1]
+  }>>
+  readSignedRegistrationSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
+   selectionRef:string;request:Parameters<typeof readOriginalSignatureRequest>[1];
+   original:SignedRegistration[0];receipt:SignedRegistration[1];open:SignedRegistration[3];assertCurrent:()=>void
   }>>
   readObservationSelection?:(observationRef:string,signal:AbortSignal)=>Promise<Readonly<{
    approved:Observation[1];input:Observation[2];assertCurrent:()=>void
@@ -58,6 +65,17 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
      throw Error('CONTENT_REVIEW_PAGE_STALE')
    }
    assertCurrent()
+   if(name==='content.review.prepareSignedRegistration'&&sources.readSignedRegistrationSelection){
+    const selection=await sources.readSignedRegistrationSelection(selectionRef,signal)
+    const assertSelection=()=>{assertCurrent();selection.assertCurrent()}
+    assertSelection()
+    if(selection.selectionRef!==selectionRef||selection.request.projectId!==scope.projectId)
+     throw Error('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
+    const recovered=await readOriginalSignatureRequest({...scope,runtime,assertCurrent:assertSelection},selection.request)
+    if(recovered.state!=='SIGNED')return recovered
+    const prepared=await prepareSignedOutputRegistration(selection.original,selection.receipt,recovered,selection.open)
+    return Object.freeze({state:'PREPARED' as const,...prepared})
+   }
    if(name==='content.review.readExportRegistration'&&sources.readExportRegistrationSelection){
     const selection=await sources.readExportRegistrationSelection(selectionRef,signal)
     assertCurrent()

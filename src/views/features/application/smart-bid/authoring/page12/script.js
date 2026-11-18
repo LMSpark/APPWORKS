@@ -7,8 +7,28 @@ function hasRef(ref) {
 }
 
 function hasObservation() {
-  const {platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef, exportRegistrationRef} = $route.query
-  return [platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef, exportRegistrationRef].some(hasRef)
+  const {platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef, exportRegistrationRef, signedRegistrationRef} = $route.query
+  return [platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef, exportRegistrationRef, signedRegistrationRef].some(hasRef)
+}
+
+function bindSignedRegistration() {
+  return {visible: hasRef($route.query.signedRegistrationRef)}
+}
+
+async function openSignedRegistration() {
+  if (!bindSignedRegistration().visible) return
+  try {
+    const result = await $page.invokeHostCommand('content.review.prepareSignedRegistration',
+      {selectionRef: $route.query.signedRegistrationRef})
+    result.assertCurrent()
+    const labels = {UNKNOWN: '原签署结果待确认', IN_PROGRESS: '原签署正在办理', NOT_EFFECTIVE: '原签署未生效'}
+    const details = result.state === 'PREPARED'
+      ? `签后对象 ${result.record.signedObjectRef} · 原签署操作 ${result.record.signatureOperationRef}\n实件 SHA-256 ${result.record.fileHash}`
+      : labels[result.state]
+    await $page.showAlert(details, '签后件登记前核验')
+  } catch {
+    $page.showMessage('签后件与原签署结果无法核验', 'warning')
+  }
 }
 
 function bindExportRegistration() {

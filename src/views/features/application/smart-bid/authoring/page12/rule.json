@@ -16,7 +16,8 @@
       {"type": "r-button", "props": {"label": "回读文件实填值", "onBeforeRender": "bindFileObservation", "onClick": "openFileObservation"}},
       {"type": "r-button", "props": {"label": "回读纸件实填值", "onBeforeRender": "bindPaperObservation", "onClick": "openPaperObservation"}},
       {"type": "r-button", "props": {"label": "核对原制作结果", "onBeforeRender": "bindProductionRecovery", "onClick": "openProductionRecovery"}},
-      {"type": "r-button", "props": {"label": "核对导出件登记", "onBeforeRender": "bindExportRegistration", "onClick": "openExportRegistration"}}
+      {"type": "r-button", "props": {"label": "核对导出件登记", "onBeforeRender": "bindExportRegistration", "onClick": "openExportRegistration"}},
+      {"type": "r-button", "props": {"label": "核验待登记签后件", "onBeforeRender": "bindSignedRegistration", "onClick": "openSignedRegistration"}}
     ]
   }
 ]

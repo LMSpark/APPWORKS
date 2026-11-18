@@ -11604,3 +11604,5 @@ flowchart TD
 - Excel 目录实服条件查询：初始 58 条，按现有方案编码 IMEX_00094 查询为 1 条，名称为人力资源-考勤信息导入导出。点击重置清空输入，已应用条件和结果仍为 1 条；手动查询后条件清空并恢复 58 条。页面 filter 配置为 autoQuery:false。仅操作查询。
 - 数据资产管理应用内实服：从应用列表进入后当前标签实际切换至应用 00BE6ED455CD4BD7B785C61A12A1E67D。数据资源管理 → 半结构化数据管理下，JSON数据管理（5891F146302CE6ADFF227E1DFA59A542，/DataCenter/JsonDataList.html）与电子表格导入导出配置（FA56ED3115DD4705D7E5802C31CD3BE5，/SysForm/ImportSolution.html）均显示 CONFIG PAGE TARGET ERROR，原因为 navigation page node has no explicit tool target。该菜单组只显示这两项；未取得应用内 PDF 入口。未改导航或写业务数据。
 - 路由复核：当前 src、packages、config 与 tests 中未找到上述两个旧地址的显式映射。spark-app 的 dynamic-untargeted-config-page 定向测试 1/1 通过，实际页面命中 invalid-config-page 分支。两个节点仍需核对正式工具绑定与场景归属。
+- 应用归属和实服入口复验：11月16日蓝图中 JSON 与 Excel 的 vue: 导航归属 D99 元数据管理。当前授权应用列表进入「元数据管理」，实际路由应用 ID 匹配；半结构化数据菜单同时列出 JSON数据管理、电子表格导入导出配置、PDF效验管理。JSON 列表显示新增及行内编辑文件入口；PDF 正式节点 A2D63AB2AAEF156E7727094A23AEA433 可达，目录显示 No Data，核验准备禁用，打开核验历史显示任务/请求/规则编号及状态列，当前列表显示 No Data。此次未上传、未发起任务。00BE 数据资产管理旧节点的问题独立保留。
+- Excel 应用内设计器只读烟测：D99 元数据管理 → 电子表格导入导出配置 → IMEX_00093 行内设计。弹窗显示测试方案数据，与原行数据空间 70E2F859E011F351D8BC0FF0411FFBA6 一致；选中树节点后基本信息显示工作表索引 0、表头行 1、数据开始行 2。字段当时为禁用状态；未编辑、保存、上传或执行导入。

@@ -25,6 +25,28 @@ function index(members:readonly Member[]){
  return result
 }
 
+/** 第49项固定实际封条、原冻结及装入的纸件，交独立清点。 */
+export function preparePaperPackingRecord(
+ frozen:Evidence<Pick<Scope,'projectId'|'selectionHash'>&Readonly<{members:readonly Member[]}>>,
+ packed:Evidence<Scope&Readonly<{packingRef:string;members:readonly Member[]}>>,
+){
+ const assertCurrent=()=>{frozen.assertCurrent();packed.assertCurrent()}
+ assertCurrent()
+ const {projectId,packageId,sealRef,selectionHash,packingRef}=packed
+ if(![projectId,packageId,sealRef,packingRef].every(identity)||!/^[a-f0-9]{64}$/u.test(selectionHash)||
+  projectId!==frozen.projectId||selectionHash!==frozen.selectionHash)throw Error('PAPER_PACKING_SCOPE')
+ const planned=index(frozen.members),actual=index(packed.members)
+ if(!planned.size||planned.size!==actual.size)throw Error('PAPER_PACKING_MEMBERS')
+ for(const [position,member] of planned){
+  const observed=actual.get(position)
+  if(observed?.paperRef!==member.paperRef||observed.versionRef!==member.versionRef||observed.copies!==member.copies)
+   throw Error('PAPER_PACKING_MEMBERS')
+ }
+ const members=Object.freeze([...actual.values()].map(member=>Object.freeze({...member})))
+ assertCurrent()
+ return Object.freeze({record:Object.freeze({projectId,packageId,sealRef,selectionHash,packingRef,members}),assertCurrent})
+}
+
 /** 不完整清点可报告已见差异，缺项只记待核。 */
 export function reviewPaperSubmissionPackage(scope:Scope,source:Readonly<{
  frozen:Evidence<Pick<Scope,'projectId'|'selectionHash'>&Readonly<{members:readonly Member[]}>>

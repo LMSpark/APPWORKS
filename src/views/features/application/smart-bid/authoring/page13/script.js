@@ -16,7 +16,7 @@ async function __init__() {
 }
 
 function bindOriginalSubmission() {
-  if ($route.query.attemptRef === undefined && (bindPackage().visible || bindPaperPackage().visible || bindSubmissionPreparation().visible || bindFreezePreparation().visible || bindPackingPreparation().visible)) return {visible: false}
+  if ($route.query.attemptRef === undefined && (bindPackage().visible || bindPaperPackage().visible || bindSubmissionPreparation().visible || bindFreezePreparation().visible || bindPackingPreparation().visible || bindPaperPacking().visible)) return {visible: false}
   if (!original) return {error: lookupError ?? '原递交记录无法读取'}
   try {
     original.assertCurrent()
@@ -97,6 +97,24 @@ async function openSubmissionPreparation() {
     await $page.showAlert(message, '递交前核验')
   } catch {
     $page.showMessage('待发请求无法核验', 'warning')
+  }
+}
+
+function bindPaperPacking() {
+  const ref = $route.query.paperPackingSelectionRef
+  return {visible: typeof ref === 'string' && !!ref && ref.trim() === ref}
+}
+
+async function openPaperPacking() {
+  if (!bindPaperPacking().visible) return
+  try {
+    const prepared = await $page.invokeHostCommand('content.submission.preparePaperPacking', {selectionRef: $route.query.paperPackingSelectionRef})
+    prepared.assertCurrent()
+    const {record} = prepared
+    const members = record.members.map(member => `${member.position} · 版本 ${member.versionRef} · ${member.copies} 份`)
+    await $page.showAlert([`封条 ${record.sealRef} · 装封 ${record.packingRef}`, ...members].join('\n'), '纸包装封核验')
+  } catch {
+    $page.showMessage('纸包实装与原冻结清单无法核对', 'warning')
   }
 }
 

@@ -1,5 +1,5 @@
 import {expect,it,vi} from 'vitest'
-import {reviewPaperSubmissionPackage} from '@/services/smart-bid/content/review/paper-submission-package'
+import {preparePaperPackingRecord,reviewPaperSubmissionPackage} from '@/services/smart-bid/content/review/paper-submission-package'
 import {DataSet} from '@spark-appworks/spark-data'
 import {assessSubmissionPackageRelease} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-release'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
@@ -18,6 +18,11 @@ it('checks the actual seal, version and number of copies while retaining partial
   {position:'技术册',paperRef:'TECH',versionRef:'V1',copies:1}]
  const source={frozen:{...scope,members,assertCurrent:()=>{}},packed:{...scope,packingRef:'PACK',members,assertCurrent:()=>{}},
   observed:{...scope,witnessRef:'WITNESS',complete:true,members,assertCurrent:()=>{if(!witnessCurrent)throw Error('WITNESS_STALE')}}}
+ expect(preparePaperPackingRecord(source.frozen,source.packed).record).toEqual({...scope,packingRef:'PACK',members})
+ expect(()=>preparePaperPackingRecord(source.frozen,{...source.packed,members:members.slice(1)}))
+  .toThrow('PAPER_PACKING_MEMBERS')
+ expect(()=>preparePaperPackingRecord(source.frozen,{...source.packed,selectionHash:'b'.repeat(64)}))
+  .toThrow('PAPER_PACKING_SCOPE')
  expect(reviewPaperSubmissionPackage(scope,source)).toMatchObject({membershipMatches:true,packingRef:'PACK',witnessRef:'WITNESS'})
  const observed={...source.observed,complete:false,members:[{...members[0],position:'商务册',paperRef:'BOOK',versionRef:'V2',copies:1}]}
  const partial=reviewPaperSubmissionPackage(scope,{...source,observed})
@@ -68,8 +73,19 @@ it('opens the original paper packing record before asking for same-seal witness 
  try{
   const page=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
    paperEvidence:{readFrozen,readWitness},readPackageRelease,
+   readPaperPackingSelection:async()=>({selectionRef:'PAPER',frozen:{...scope,members,assertCurrent:host.assertCurrent},
+    packed:{...scope,members,packingRef:'PACK',assertCurrent:host.assertCurrent}}),
   })
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
+  await expect(page.invoke('content.submission.preparePaperPacking',{selectionRef:'OTHER'},signal))
+   .rejects.toThrow('SUBMISSION_PAGE_PACKING_SCOPE')
+  const packingAlert=vi.fn(async()=>{})
+  const {openPaperPacking}=compileFunctions(script,{$route:{query:{paperPackingSelectionRef:'PAPER'}},
+   $page:{invokeHostCommand:(name:string,params:unknown)=>page.invoke(name,params,signal),showAlert:packingAlert}} as unknown as PageContext)
+  if(!openPaperPacking)throw Error('TEST_PAPER_PACKING_HANDLER_REQUIRED')
+  await openPaperPacking()
+  expect(packingAlert).toHaveBeenCalledExactlyOnceWith('封条 SEAL · 装封 PACK\n册 · 版本 V1 · 1 份','纸包装封核验')
+  expect(readWitness).not.toHaveBeenCalled()
   const {openPaperPackage,bindOriginalSubmission}=compileFunctions(script,{$route:{query:{paperPackageId:'PKG',paperPackingRequestRef:'Q'}},
    $page:{invokeHostCommand:(name:string,params:unknown)=>page.invoke(name,params,signal),showAlert}} as unknown as PageContext)
   if(!openPaperPackage||!bindOriginalSubmission)throw Error('TEST_PAPER_PACKAGE_HANDLERS_REQUIRED')

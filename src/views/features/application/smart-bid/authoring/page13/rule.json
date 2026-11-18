@@ -37,6 +37,14 @@
     ]
   },
   {
+    "id": "delivery-paper-packing",
+    "type": "r-section",
+    "props": {"title": "纸包装封", "onBeforeRender": "bindPaperPacking"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核验纸包装封记录", "onClick": "openPaperPacking"}}
+    ]
+  },
+  {
     "id": "submission-paper-package",
     "type": "r-section",
     "props": {"title": "纸件清点", "onBeforeRender": "bindPaperPackage"},

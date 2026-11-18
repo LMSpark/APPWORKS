@@ -9,6 +9,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {recoverSubmissionAttempt} from '@/services/smart-bid/content/review/submission-attempt-recovery'
 import {prepareDeliveryFreezeSelection} from '@/services/smart-bid/content/review/delivery-selection-digest'
+import {preparePaperPackingRecord} from '@/services/smart-bid/content/review/paper-submission-package'
 import {prepareRegisteredDeliveryZipPackage} from '../../model/review/package/content-delivery-package-preparation'
 import {recoverRegisteredPackingCandidate} from '../../model/review/package/content-submission-package-reader'
 import {readRegisteredSubmissionRequest} from '../../model/review/submission/content-submission-request-reader'
@@ -36,6 +37,7 @@ type PackageRelease=Parameters<typeof assessSubmissionPackageRelease>
 type FreezePreparation=Parameters<typeof prepareDeliveryFreezeSelection>
 type PackingPreparation=Parameters<typeof prepareRegisteredDeliveryZipPackage>
 type PackingRecovery=Parameters<typeof recoverRegisteredPackingCandidate>
+type PaperPacking=Parameters<typeof preparePaperPackingRecord>
 type PackingSelection=Readonly<{
  selectionRef:string;request:PackingPreparation[1];assertCurrent:()=>void
 }>&(
@@ -70,6 +72,9 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
  runtime:Runtime,scope:Omit<Read[0],'runtime'>,sources:Readonly<{
   readDeadline?:ReadDeadline;readPackageSelection?:PackageSelection
   paperEvidence?:Parameters<typeof reviewRegisteredPaperSubmissionPackage>[2]
+  readPaperPackingSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
+   selectionRef:string;frozen:PaperPacking[0];packed:PaperPacking[1]
+  }>>
   readPackageRelease?:(
    original:Readonly<Pick<PackageRelease[0],'projectId'|'packageId'|'packageHash'|'selectionHash'>>,signal:AbortSignal
   )=>Promise<Readonly<{rules:PackageRelease[1];evidence:PackageRelease[2]}>>
@@ -95,6 +100,17 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)throw Error('SUBMISSION_PAGE_STALE')
    }
    const host={...scope,runtime,assertCurrent}
+   if(name==='content.submission.preparePaperPacking'&&sources.readPaperPackingSelection){
+    const {selectionRef}=input
+    if(!identity(selectionRef))throw Error('SUBMISSION_PAGE_PACKING_SCOPE')
+    assertCurrent()
+    const selected=await sources.readPaperPackingSelection(selectionRef,signal)
+    assertCurrent()
+    if(selected.selectionRef!==selectionRef||selected.packed.projectId!==projectId)
+     throw Error('SUBMISSION_PAGE_PACKING_SCOPE')
+    const prepared=preparePaperPackingRecord(selected.frozen,selected.packed)
+    return Object.freeze({...prepared,assertCurrent:()=>{assertCurrent();prepared.assertCurrent()}})
+   }
    if(name==='content.submission.preparePacking'&&sources.readPackingSelection){
     const {selectionRef}=input
     if(!identity(selectionRef))throw Error('SUBMISSION_PAGE_PACKING_SCOPE')

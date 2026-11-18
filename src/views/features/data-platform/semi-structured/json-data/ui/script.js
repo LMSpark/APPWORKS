@@ -30,6 +30,10 @@ function bindCatalogCancel() {
   return {visible: catalogEditable, disabled: !!documentBinding || view?.mutating || view?.hasUnconfirmedSave}
 }
 
+function bindCatalogSection() {
+  return {status: catalogEditable ? '' : '请进入已授权应用后维护 JSON 文件。'}
+}
+
 async function submitJsonCatalog(command) {
   if (!catalogEditable || documentBinding || acting) return
   acting = true
@@ -68,6 +72,7 @@ function currentDocument() {
 }
 
 async function openJsonDocument(row) {
+  if (!catalogEditable) return
   const view = currentDocument()
   const catalog = catalogView()
   if (acting || inputPending || catalog?.hasUnconfirmedSave || catalog?.hasEditingChanges() ||

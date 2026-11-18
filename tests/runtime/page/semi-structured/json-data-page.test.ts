@@ -272,8 +272,11 @@ it('reads only the JSON directory from the enterprise homepage',async()=>{
  try{
   const {wrapper}=await open('/apps/homepage/json')
   await vi.waitFor(()=>expect(wrapper.text()).toContain('样例JSON'))
+  expect(wrapper.findComponent(SparkPageRenderer).exists()).toBe(true)
+  await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click')
+  await flushPromises()
   expect(new Set(state.http.reads.map(read=>read.table))).toEqual(new Set(['Base_JsonData']))
-  expect(wrapper.text()).not.toMatch(/编辑文件|导入JSON|新增/)
+  expect(wrapper.text()).not.toMatch(/编辑文件|导入JSON|新增|保存目录|JSON 内容/)
   expect(state.reads).toEqual([])
   expect(state.http.saves).toEqual([])
  }finally{fetchScenario.mockRestore()}

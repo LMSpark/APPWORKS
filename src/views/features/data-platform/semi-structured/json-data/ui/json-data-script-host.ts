@@ -52,7 +52,7 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
     if(row)view.setCurrentRow(row)
     return
    }
-   if(command!=='jsonData.openDocument'||runtime.isDirty)throw new Error('请先处理当前修改')
+   if(command!=='jsonData.openDocument'||!editable||runtime.isDirty)throw new Error('JSON_DOCUMENT_REQUEST')
    const next=LowcodeJsonData.openDocument(dataSet,id)
    if(document&&document!==next)document.dataTable?.destroyView(document.viewId)
    document=next

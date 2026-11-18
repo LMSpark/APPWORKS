@@ -2,7 +2,9 @@
 @module app:views/features/data-platform/semi-structured/json-data/ui/json-data-page
 -->
 <template>
- <RendererSection class="json-data-page" title="JSON 文件数据管理" :bordered="false" :grid-columns="1" :grid-gap="16"
+ <SparkPageRenderer v-if="catalogToolRuntime && catalogToolHost" :page-runtime="catalogToolRuntime"
+  :host="catalogToolHost" :route-snapshot="routeSnapshot" />
+ <RendererSection v-else class="json-data-page" title="JSON 文件数据管理" :bordered="false" :grid-columns="1" :grid-gap="16"
   :status="loading ? '正在读取目录…' : ''" :error="document ? '' : error">
   <template v-if="ready && !catalogScope" #header-actions>
    <RendererButton label="新增" button-type="primary" icon="Plus" :disabled="addBlocked" @click="createDocument()" />
@@ -10,8 +12,7 @@
    <RendererButton label="取消" icon="Close" :disabled="busy || !!document || catalogUnconfirmed || !catalogPending" @click="cancelCatalog" />
    <RendererButton label="导入JSON" icon="Upload" :disabled="addBlocked || !pageService?.browseFiles" @click="importDocument" />
   </template>
-  <p v-if="ready && catalogScope" role="status">请进入已授权应用后维护 JSON 文件。</p>
-  <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" v-bind="catalogScope ? {} : {actions: rowActions}" :highlight-current-row="true" :on-row-click="choose"
+  <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :actions="rowActions" :highlight-current-row="true" :on-row-click="choose"
    :stripe="true" :border="true" :show-row-index="true" :show-data-view-meta="false" :action-column="{label: '操作', width: 180, fixed: true}" />
   <RendererDialog v-if="document" :model-value="true" title="JSON 编辑" :data-view-key="contentKey" :width="1180" :close-disabled="busy || hasPending" :destroy-on-close="true" @update:model-value="closeDocument">
    <DisplayAlert v-if="documentLoading" alert-type="info" :closable="false" title="正在读取内容…" />
@@ -41,11 +42,20 @@ import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
 import {buildDataViewKey,RequestState,type DataRow,type DataSet,type DataView,type SparkNode} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
+import {PageTool,type PageRuntime} from '@spark-appworks/spark-project-model'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {APPLICATION_CATALOG_PROJECT_ID,resolveExecutionProjectId} from '@/services/application-scope'
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
-const {PAGE_RUNTIME,RendererSection,RendererTable,RendererForm,RendererDialog,RendererButton,FieldJson,FieldText,DisplayAlert,useSparkComponent,consumeRequiredPageService}=SparkComponent
+import {createJsonDataScriptHost} from './json-data-script-host'
+import catalogRule from './rule.json?raw'
+import catalogScript from './script.js?raw'
+import catalogStyle from './style.css?raw'
+const {PAGE_RUNTIME,RendererSection,RendererTable,RendererForm,RendererDialog,RendererButton,FieldJson,FieldText,DisplayAlert,SparkPageRenderer,useSparkComponent,consumeRequiredPageService}=SparkComponent
 const route=useRoute(),{sparkProvide,sparkRemove,sparkConsume}=useSparkComponent({type:'json-data-page'})
+const routeSnapshot=computed(()=>{
+ const {path,fullPath,name,params,query,hash}=route
+ return {path,fullPath,name:name??null,params,query,hash}
+})
 const session=new NativePageRuntimeSession({
   provide:()=>undefined,
   remove:()=>sparkRemove(PAGE_RUNTIME),
@@ -53,6 +63,8 @@ const session=new NativePageRuntimeSession({
 const pageService=consumeRequiredPageService(sparkConsume,'json-data-page')
 const scenarioId=computed(()=>typeof route.meta['blueprintScenarioId']==='string'?route.meta['blueprintScenarioId']:'')
 const catalogScope=computed(()=>resolveExecutionProjectId(route.path)===APPLICATION_CATALOG_PROJECT_ID)
+const catalogToolRuntime=shallowRef<PageRuntime>()
+const catalogToolHost=shallowRef<ReturnType<typeof createJsonDataScriptHost>>()
 const catalogKey=computed(()=>buildDataViewKey(LowcodeJsonData.catalogMetaName,'default',scenarioId.value))
 const dataSet=shallowRef<DataSet>(),catalog=shallowRef<DataView>(),document=shallowRef<DataView>(),opening=ref(false),openingDocument=ref(false),ready=ref(false),acting=ref(false),inputPending=ref(false),error=ref(''),revision=ref(0)
 const creating=ref('')
@@ -165,10 +177,23 @@ function cancelContent():void{if(busy.value||unconfirmed.value||creationFileComm
 function discardAndClose():void{cancelContent();if(!hasPending.value)closeDocument(false)}
 async function refreshCatalog():Promise<void>{if(busy.value||hasPending.value)return;closeDocument(false);try{await catalog.value?.refresh()}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 watch([scenarioId,catalogScope],async ([id,inCatalog])=>{
- const own=++generation;ready.value=false;opening.value=true;acting.value=false;openingDocument.value=false;importing.value=false;inputPending.value=false;error.value='';off?.();documentGeneration++;creating.value='';document.value=undefined;catalog.value=undefined;dataSet.value=undefined;session.dispose()
+ const own=++generation;ready.value=false;opening.value=true;acting.value=false;openingDocument.value=false;importing.value=false;inputPending.value=false;error.value='';off?.();documentGeneration++;creating.value='';document.value=undefined;catalog.value=undefined;dataSet.value=undefined;catalogToolRuntime.value=undefined;catalogToolHost.value=undefined;session.dispose()
  try{
   if(!id)throw new Error('JSON数据入口缺少导航数据空间ID')
-  const current=session.acquire({pageId:'json-data-page',scenarioIds:[id],targetId:id,loadScenario:()=>LowcodeJsonData.loadCatalog(id,inCatalog ? APPLICATION_CATALOG_PROJECT_ID : undefined)})
+  if(inCatalog){
+   const tool=new PageTool({pageId:'json-data-page'})
+   tool.hydrateFileText('rule.json',catalogRule)
+   tool.hydrateFileText('script.js',catalogScript)
+   tool.hydrateFileText('style.css',catalogStyle)
+   tool.markLoaded()
+   const current=session.acquire({tool,scenarioIds:[id],targetId:id,loadScenario:()=>LowcodeJsonData.loadCatalog(id,APPLICATION_CATALOG_PROJECT_ID)})
+   catalogToolHost.value=createJsonDataScriptHost(current,id,()=>{
+    if(!active||own!==generation||!session.isCurrent(current))throw new Error('JSON目录运行实例已失效')
+   })
+   catalogToolRuntime.value=current
+   return
+  }
+  const current=session.acquire({pageId:'json-data-page',scenarioIds:[id],targetId:id,loadScenario:()=>LowcodeJsonData.loadCatalog(id)})
   await current.load()
   if(!active||own!==generation||!session.isCurrent(current))return
   dataSet.value=current.getDataSet(id);catalog.value=dataSet.value?.getView(LowcodeJsonData.catalogMetaName)

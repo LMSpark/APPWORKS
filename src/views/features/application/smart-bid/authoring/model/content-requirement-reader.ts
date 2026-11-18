@@ -3,15 +3,17 @@
  * 边界：只返回原DataView证明，基线成员与用途许可由上层确认。
  */
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
 
 export type ContentRequirementSelection=Readonly<{lineageId:string;version:string}>
 /** 原版本可读证明；两个待核标志不因status=ADOPTED而消失。 */
 export type ContentRequirementBinding=Readonly<{
- dataViewKey:string;requiresBaselineMembershipCheck:true;requiresUseCheck:true;assertCurrent:()=>void
+ dataViewKey:string;requirementContentHash:string;requiresBaselineMembershipCheck:true;requiresUseCheck:true;assertCurrent:()=>void
 }>
-const fields=['id','projectId','lineageId','version','kind','text','score','sourceSpan','supportingSpans','sourceRecord','parseQuality','checks','constraint','applicability','status']
+const contentFields=['projectId','lineageId','version','kind','text','score','sourceSpan','supportingSpans','sourceRecord','parseQuality','checks','constraint','applicability']
+const fields=['id',...contentFields,'status']
 
 function validScope(view:DataView):boolean{
  return view.dataTable?.modelBinding?.modelName==='Requirement'&&view.commitMode==='staged'
@@ -41,8 +43,12 @@ export async function readContentRequirement(host:ContentRevisionReadHost,input:
  if(!row||!identity(row['id'])||row['projectId']!==projectId||row['lineageId']!==lineageId||row['version']!==version)
   throw Error('CONTENT_REQUIREMENT_UNAVAILABLE')
  const assertRow=view.captureReadRow(row,fields)
- return Object.freeze({dataViewKey,requiresBaselineMembershipCheck:true,requiresUseCheck:true,assertCurrent:()=>{
+ const assertCurrent=()=>{
   assertScope();assertResult();assertRow()
   if(!hasCompleteSingleContentResult(view))throw Error('CONTENT_REQUIREMENT_NOT_UNIQUE')
- }})
+ }
+ const content=Object.fromEntries(contentFields.map(field=>[field,row[field]]))
+ const requirementContentHash=await hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.requirement-content/1',content]))
+ assertCurrent()
+ return Object.freeze({dataViewKey,requirementContentHash,requiresBaselineMembershipCheck:true,requiresUseCheck:true,assertCurrent})
 }

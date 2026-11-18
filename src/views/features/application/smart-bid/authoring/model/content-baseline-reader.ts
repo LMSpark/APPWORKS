@@ -127,7 +127,7 @@ export async function readContentBaselineRequirement(
  host:ContentRevisionReadHost,
  input:ContentRequirementSelection&Readonly<{baselineId:string;stageRef:unknown}>,
 ):Promise<Readonly<{
- baselineDataViewKey:string;requirementDataViewKey:string;sourceDataViewKey?:string;baselineMembershipVerified:true
+ baselineDataViewKey:string;requirementDataViewKey:string;requirementContentHash:string;sourceDataViewKey?:string;baselineMembershipVerified:true
  requiresRevisionMatchCheck:true;requiresUseCheck:true;assertCurrent:()=>void
 }>>{
  const {lineageId,version}=input
@@ -138,5 +138,6 @@ export async function readContentBaselineRequirement(
  const assertCurrent=()=>{requirement.assertCurrent();source?.assertCurrent()}
  assertCurrent()
  return Object.freeze({baselineDataViewKey:baseline.key,requirementDataViewKey:requirement.dataViewKey,
+  requirementContentHash:requirement.requirementContentHash,
   ...(source?{sourceDataViewKey:source.dataViewKey}:{}),baselineMembershipVerified:true,requiresRevisionMatchCheck:true,requiresUseCheck:true,assertCurrent})
 }

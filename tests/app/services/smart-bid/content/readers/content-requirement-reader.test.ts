@@ -32,11 +32,19 @@ it('reads the exact version string and preserves original text, without granting
   expect(f.view.rows[0]?.['text']).toBe('原件文字')
   expect(result.requiresUseCheck).toBe(true)
   expect(result.requiresBaselineMembershipCheck).toBe(true)
+  expect(result.requirementContentHash).toMatch(/^[a-f0-9]{64}$/)
   result.assertCurrent()
   await f.view.refresh()
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(f.save).not.toHaveBeenCalled()
  }finally{f.ds.destroy()}
+})
+it('changes the content digest when original text changes at the same identity',async()=>{
+ const f=await fixture(),changed=await fixture({wrong:'text'})
+ try{
+  const [first,second]=await Promise.all([readContentRequirement(f.host,requested),readContentRequirement(changed.host,requested)])
+  expect(first.requirementContentHash).not.toBe(second.requirementContentHash)
+ }finally{f.ds.destroy();changed.ds.destroy()}
 })
 it.each([{wrong:'version',error:'CONTENT_REQUIREMENT_UNAVAILABLE'},{count:2,error:'CONTENT_REQUIREMENT_NOT_UNIQUE'},{hidden:'sourceRecord',error:'DATA_VIEW_READ_ROW'}])('rejects the wrong, ambiguous or unreadable original %j',async options=>{
  const f=await fixture(options)

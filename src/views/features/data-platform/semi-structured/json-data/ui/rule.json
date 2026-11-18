@@ -25,8 +25,11 @@
           ]}
         },
         "children": [
-          {"type": "r-text", "props": {"field": "name", "label": "名称", "maxlength": 200, "minWidth": 220, "onBeforeRender": "bindCatalogField"}},
-          {"type": "r-text", "props": {"field": "description", "label": "摘要", "maxlength": 500, "minWidth": 220, "onBeforeRender": "bindCatalogField"}}
+          {"type": "r-text", "props": {"field": "name", "label": "名称", "placeholder": "请输入文件名称", "maxlength": 200, "minWidth": 220, "showOverflowTooltip": true, "onBeforeRender": "bindCatalogField"}},
+          {"type": "r-text", "props": {"field": "description", "label": "摘要", "placeholder": "请输入摘要", "maxlength": 500, "minWidth": 260, "showOverflowTooltip": true, "onBeforeRender": "bindCatalogField"}},
+          {"type": "r-text", "props": {"field": "path", "label": "文件地址", "readonly": true, "minWidth": 280, "showOverflowTooltip": true}},
+          {"type": "r-select", "props": {"field": "createuser", "label": "创建人", "readonly": true, "width": 140, "onBeforeRender": "bindCatalogCreator"}},
+          {"type": "r-text", "props": {"field": "createtime", "label": "创建时间", "readonly": true, "width": 140}}
         ]
       },
       {

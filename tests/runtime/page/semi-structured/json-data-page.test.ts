@@ -74,6 +74,8 @@ it('renders the shared JSON catalog through the three tool files without reading
   const rendered=wrapper
   await vi.waitFor(()=>expect(rendered.getComponent(RendererTable).findAll('input').some(item=>item.element.value==='样例JSON')).toBe(true))
   expect(rendered.getComponent(RendererTable).props('dataViewKey')).toBe(`${SCENE}@Base_JsonData@default`)
+  expect(rendered.getComponent(RendererTable).text()).toContain('/NewApp/data.json')
+  expect(rendered.getComponent(RendererTable).text()).toMatch(/文件地址.*创建人.*创建时间/)
   const dataSet=runtime.getDataSet(SCENE)
   expect(dataSet?.getView('JsonDocumentFile')).toBeDefined()
   expect(state.reads).toEqual([])
@@ -354,6 +356,8 @@ it('reads only the JSON directory from the enterprise homepage',async()=>{
   const {wrapper}=await open('/apps/homepage/json')
   await vi.waitFor(()=>expect(wrapper.text()).toContain('样例JSON'))
   expect(wrapper.findComponent(SparkPageRenderer).exists()).toBe(true)
+  expect(wrapper.getComponent(RendererTable).text()).toMatch(/文件地址.*创建时间/)
+  expect(wrapper.getComponent(RendererTable).text()).not.toContain('创建人')
   await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click')
   await flushPromises()
   expect(new Set(state.http.reads.map(read=>read.table))).toEqual(new Set(['Base_JsonData']))

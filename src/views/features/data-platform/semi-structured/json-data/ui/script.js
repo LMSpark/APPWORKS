@@ -77,6 +77,12 @@ function bindCatalogField() {
   return {showCellControl: catalogEditable, readonly: !catalogEditable || !!documentBinding || view?.mutating || view?.hasUnconfirmedSave}
 }
 
+function bindCatalogCreator() {
+  return catalogEditable
+    ? {visible: true, optionDataViewKey: 'FFDEF2AED3E19A38C0FCDDC748CF939B@Base_UserInfo@default'}
+    : {visible: false}
+}
+
 function bindCatalogSave() {
   const view = catalogView()
   return {visible: catalogEditable, disabled: !!documentBinding || view?.mutating,

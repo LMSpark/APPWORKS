@@ -55,7 +55,11 @@ export async function hashRevisionSnapshot(value:unknown):Promise<string> {
 }
 /** 对已规范编码的原文计算 UTF-8 SHA-256。 */
 export async function hashCanonicalSnapshotText(text:string):Promise<string>{
- const bytes=new TextEncoder().encode(text)
+ return hashContentBytes(new TextEncoder().encode(text))
+}
+
+/** 对原实件或原规范编码的字节计算 SHA-256。 */
+export async function hashContentBytes(bytes:BufferSource):Promise<string>{
  const digest=await globalThis.crypto.subtle.digest('SHA-256',bytes)
  return Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('')
 }

@@ -4,6 +4,7 @@
  * 边界：文件和登记读取方核原授权；不登记、签署、保存或代纸件验收。
  */
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 
@@ -25,8 +26,7 @@ export async function readProducedFileReviewVersion(selection:FileSelection,read
  const bytes=await record.reopen()
  record.assertCurrent()
  if(bytes.byteLength===0)throw Error('CONTENT_PRODUCED_FILE_EMPTY')
- const digest=await globalThis.crypto.subtle.digest('SHA-256',bytes)
- const versionHash=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('')
+ const versionHash=await hashContentBytes(bytes)
  record.assertCurrent()
  if(versionHash!==fileHash)throw Error('CONTENT_PRODUCED_FILE_HASH_MISMATCH')
  return Object.freeze({projectId,producedFileId,productionRequestRef,revisionId,documentId,versionHash,

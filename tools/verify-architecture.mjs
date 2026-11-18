@@ -132,6 +132,9 @@ function checkSrcImplementationRules(root, exclude, violations) {
     if (isPathWithin(legacyFeaturesRoot, filePath)) continue
     forEachParsedSource(filePath, root, ({ file, sourceFile, lineOffset }) => {
       for (const ref of collectModuleReferences(sourceFile)) {
+        if (file.startsWith('src/views/') && ['element-plus', '@element-plus/icons-vue'].includes(packageNameFromSpecifier(ref.specifier))) {
+          violations.push({file, line: lineFor(sourceFile, ref.node, lineOffset), message: 'Business pages must use SPARK standard components instead of importing Element Plus directly'})
+        }
         const targetPath = resolveSrcModuleTarget(root, filePath, ref.specifier)
         if (targetPath && isPathWithin(legacyFeaturesRoot, targetPath)) {
           violations.push({

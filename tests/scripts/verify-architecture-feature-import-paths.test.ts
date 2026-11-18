@@ -15,6 +15,18 @@ afterEach(() => {
 })
 
 describe('architecture feature import paths', () => {
+  it('rejects direct Element Plus imports in business page scripts and helpers', () => {
+    const root = createTempRoot()
+    writeFile(root, 'src/views/page.vue', '<script setup>\nimport { ElTable } from "element-plus"\n</script>')
+    writeFile(root, 'src/views/icons.ts', 'export { Search } from "@element-plus/icons-vue"')
+    writeFile(root, 'src/views/fields.ts', 'import Input from "element-plus/es/components/input"')
+    const result = runArchitectureCheck(root)
+    expect(result.status).toBe(1)
+    for (const file of ['page.vue', 'icons.ts', 'fields.ts']) {
+      expect(result.stderr).toContain(`src/views/${file}:`)
+    }
+  })
+
   it('allows preserved src/views/features page imports from the legacy page hierarchy', () => {
     const root = createTempRoot()
     writeFile(root, 'src/views/DataBaseManage/DataBaseManage/index.vue', [

@@ -9,8 +9,13 @@ const input={placeholder,generatorKey:'deviation',generatorVersion:'1',inputHash
 
 it('retains original position and input identity and returns independent structured output',()=>{
  const result=expandCalculationTable(input)
- expect(result).toEqual({nodeId:'T',generatorKey:'deviation',generatorVersion:'1',inputHash:'a'.repeat(64),data})
+ expect(result).toEqual({nodeId:'T',generatorKey:'deviation',generatorVersion:'1',inputHash:'a'.repeat(64),data,
+  presentationNode:{...placeholder,data}})
  expect(result.data).not.toBe(data)
+ expect(result.presentationNode.data).toBe(result.data)
+ expect(Object.isFrozen(result.presentationNode)).toBe(true)
+ expect(Object.isFrozen(result.data['rows'])).toBe(true)
+ expect(Object.isFrozen(data.rows)).toBe(false)
  expect(placeholder.data).toEqual({header:[],rows:[]})
 })
 

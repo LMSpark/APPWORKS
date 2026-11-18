@@ -95,6 +95,19 @@ describe('Agent workflow first publication command', () => {
     } finally {state.dataSet.destroy()}
   })
 
+  it('rejects a design changed during the missing Definition check', async () => {
+    const state = fixture()
+    try {
+      await state.prepare()
+      state.readTextFile.mockResolvedValueOnce(designContent).mockImplementationOnce(async () => {
+        state.files.set('APP/workflow-designs/alpha/design.json', '{}')
+        throw new LowcodeApiError(404, 'missing')
+      })
+      await expect(state.save()).rejects.toThrow('设计与发布捕获不同')
+      expect(state.uploadTextVersion).not.toHaveBeenCalled()
+    } finally {state.dataSet.destroy()}
+  })
+
   it('keeps a newer command edit when the target lookup is still in progress', async () => {
     const state = fixture()
     try {

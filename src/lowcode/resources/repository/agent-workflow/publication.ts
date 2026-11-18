@@ -122,6 +122,7 @@ function commandOptions(view: DataView, input: Input): BindCommandSubmitOptions 
       const attempt: Attempt = {row: original, customPath: `${directory}/${workflowId}`, designContent, definitionContent}
       await readDesign(attempt)
       await assertDefinitionMissing(attempt)
+      await readDesign(attempt)
       guard()
       const current = view.getEditingRow(commandId)
       if (!current || ['commandId', 'workflowId', 'designContent', 'definitionContent'].some(field => current[field] !== original[field])) {

@@ -84,6 +84,7 @@ async function openDraftCandidate() {
       CONTENT_DRAFT_CANDIDATE_FACT_NOT_FROZEN: '草稿引用的事实尚未列入冻结基线，请先核定并冻结事实版本',
       CONTENT_DRAFT_RESPONSE_VERSION: '无法核对所选独立答复的原版本，请确认答复与冻结基线中的分工版本一致',
       CONTENT_DRAFT_FIRST_HEAD_CHANGED: '项目已有采用的正文，请基于当前正文版本重新发起候选',
+      CONTENT_CANDIDATE_DRAFT_UNSAVED: '当前草稿还有未保存的改动，请处理改动后再核对候选输入',
     }
     const code = cause?.message
     $page.showMessage(typeof code === 'string' && Object.hasOwn(messages, code) ? messages[code] :

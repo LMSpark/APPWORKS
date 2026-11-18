@@ -134,6 +134,10 @@ it('prepares the selected independent response from the saved draft and original
  prepareDraftCandidate.mockRejectedValueOnce(Error('CONTENT_DRAFT_FIRST_HEAD_CHANGED'))
  await openDraftCandidate()
  expect(showMessage).toHaveBeenLastCalledWith('项目已有采用的正文，请基于当前正文版本重新发起候选','warning')
+ prepareDraftCandidate.mockRejectedValueOnce(Error('CONTENT_CANDIDATE_DRAFT_UNSAVED'))
+ await openDraftCandidate()
+ expect(showMessage).toHaveBeenLastCalledWith('当前草稿还有未保存的改动，请处理改动后再核对候选输入','warning')
+ expect(showAlert).toHaveBeenCalledTimes(3)
 })
 it('withdraws original form and comparison results when the selected template changes',async()=>{
  const query={projectId:'P',draftId:'D',formTemplateRef:'T',formTemplateVersion:'V2',previousFormTemplateVersion:'V1'}

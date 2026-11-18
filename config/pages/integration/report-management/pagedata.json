@@ -9,7 +9,7 @@
         "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
         "page": 1, "pageSize": 10,
         "sortExpression": [{"field": "CreateTime", "direction": "desc"}],
-        "queryConfig": {"fields": ["rowid", "RptName", "RptDesc", "CreateTime", "createuser", "version_id", "version_dataid",
+        "queryConfig": {"autoQuery": false, "fields": ["rowid", "RptName", "RptDesc", "CreateTime", "createuser", "version_id", "version_dataid",
           "useStatus", "modid", "modname"]}
       }}
     },

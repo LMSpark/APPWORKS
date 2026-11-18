@@ -1,14 +1,17 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
-import type {PageRuntime} from '@spark-appworks/spark-project-model'
+import {PageTool, type PageRuntime} from '@spark-appworks/spark-project-model'
 import {getSparkNodeChildren} from '@spark-appworks/spark-data'
 import {RendererButton, RendererDialog, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
-import {createReportRuntime} from './report.fixture'
+import {createReportRuntime, readPersistedReport} from './report.fixture'
 import {provideTestPageService} from '../../../support/helpers/page-service-host'
+import rule from '@/views/features/integration/report/ui/tool/rule.json?raw'
+import script from '@/views/features/integration/report/ui/tool/script.js?raw'
+import style from '@/views/features/integration/report/ui/tool/style.css?raw'
 
 const state: {runtime: PageRuntime | undefined} = vi.hoisted(() => ({runtime: undefined}))
 const scenario = 'FB291E325272007AEED8921C28B93CFD'
@@ -19,7 +22,7 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
     if (!state.runtime) throw new Error('缺少测试运行实例')
     const {sparkProvide} = useSparkComponent({type: 'report-test-runtime'})
     sparkProvide(PAGE_RUNTIME, state.runtime)
-    return {viewKey: ref(`${scenario}@Base_ReportInfo@default`), session: {runtime: state.runtime},
+    return {viewKey: ref(`${scenario}@Base_ReportInfo@default`), session: {runtime: state.runtime, isCurrent: (runtime: PageRuntime) => state.runtime === runtime},
       ready: ref(true), loading: ref(false), error: ref(''), loadCurrentRoute: vi.fn()}
   }}
 })
@@ -27,9 +30,14 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
 const {default: ReportManagementPage} = await import('@/views/features/integration/report/ui/report-management-page.vue')
 const wrappers: VueWrapper[] = []
 const runtimes: PageRuntime[] = []
+const originalStubs = config.global.stubs
 beforeEach(() => {
   registerAllRenderers()
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
+  const stubs = {...originalStubs}
+  delete stubs['SparkComponentRenderer']
+  delete stubs['spark-component-renderer']
+  config.global.stubs = stubs
 })
 afterEach(() => {
   wrappers.splice(0).forEach(wrapper => wrapper.unmount())
@@ -37,10 +45,16 @@ afterEach(() => {
   state.runtime = undefined
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
+  config.global.stubs = originalStubs
 })
 
 async function open() {
-  const f = await createReportRuntime(scenario)
+  const tool = new PageTool({pageId: 'report-test'})
+  tool.hydrateFileText('rule.json', rule)
+  tool.hydrateFileText('script.js', script)
+  tool.hydrateFileText('style.css', style)
+  tool.markLoaded()
+  const f = await createReportRuntime(scenario, undefined, tool)
   runtimes.push(f.runtime)
   state.runtime = f.runtime
   const clean = defineComponent({render: () => h('div', 'clean')})
@@ -94,7 +108,7 @@ describe('报表系统页的新增生命周期', () => {
     expect(f.http.saves).toHaveLength(0)
   })
 
-  it('未知保存阻止离开，核验原批次后释放系统页', async () => {
+  it.each([false, true])('新增只在收到双记录回执后释放系统页（回执中断=%s）', async lost => {
     const f = await open()
     await f.click('新增')
     const row = f.info.rows[0]
@@ -103,17 +117,27 @@ describe('报表系统页的新增生命周期', () => {
     if (id === undefined) throw new Error('缺少本地报表身份')
     f.info.updateEditingValue(id, 'RptName', '测试报表')
     f.info.updateEditingValue(id, 'modid', 'APP')
-    f.http.failAfterWrite = true
+    f.http.failAfterWrite = lost
+    f.http.beforeSave = vi.fn()
     await f.click('确定')
-    await vi.waitFor(() => expect(f.info.hasUnconfirmedSave).toBe(true))
-    expect(f.instance.isDirty).toBe(true)
-    await f.router.push('/clean')
-    expect(f.router.currentRoute.value.path).toBe('/report')
-    await f.click('核验原保存结果')
-    await vi.waitFor(() => expect(f.instance.isDirty).toBe(false))
+    if (lost) {
+      await vi.waitFor(() => expect(f.info.hasUnconfirmedSave).toBe(true))
+      await f.router.push('/clean')
+      expect(f.router.currentRoute.value.path).toBe('/report')
+      await f.click('核验原保存结果')
+      expect(document.body.textContent).toContain('SPARK_SAVE_UNVERIFIABLE')
+      expect(f.info.hasUnconfirmedSave).toBe(true)
+      expect(f.report.hasUnconfirmedSave).toBe(true)
+      expect(() => f.dynamic.closeSystemPageInstance(f.instance.instanceId)).toThrow('未保存')
+    }
+    await vi.waitFor(() => expect(f.instance.isDirty).toBe(lost))
+    const persisted = await readPersistedReport(scenario, f.http)
+    expect(persisted.info.rows).toMatchObject([{rowid: id, RptName: '测试报表', modid: 'APP'}])
+    expect(persisted.versions.rows).toMatchObject([{rowid: persisted.info.rows[0]?.['version_id'], RptID: id}])
+    expect(f.http.beforeSave).toHaveBeenCalledOnce()
     expect(f.http.saves).toHaveLength(2)
     await f.router.push('/clean')
-    expect(f.router.currentRoute.value.path).toBe('/clean')
+    expect(f.router.currentRoute.value.path).toBe(lost ? '/report' : '/clean')
   })
 
   it('用户明确放弃部分结果核验后，目录保留原目标与非回滚提示', async () => {
@@ -160,7 +184,7 @@ async function rowAction(f: Awaited<ReturnType<typeof open>>, label: string, row
   const target = f.wrapper.findAllComponents(RendererTable).at(table)
   const actions = target?.props('actions') as {children?: ActionNode[]} | undefined
   const action = actions?.children?.find(item => item.props?.label === label)?.props?.onClick
-  if (!action) throw new Error(`行按钮不存在: ${label}`)
+  if (!action) throw new Error(`行按钮不存在: ${label} ${f.wrapper.text()} ${JSON.stringify(actions)}`)
   action(row)
   await flushPromises()
 }
@@ -188,10 +212,11 @@ describe('报表多记录修改的失败收敛', () => {
     }
   })
 
-  it('删除回执中断后锁定目录，核验原批次确认已删除且不重发', async () => {
+  it('删除回执中断后保留原删除捕获，即使独立重开已读不到目录与版本', async () => {
     const f = await open()
     await seed(f)
     f.http.failAfterWrite = true
+    f.http.beforeSave = vi.fn()
     await rowAction(f, '删除', infoRow(f))
     await confirmBox(true)
     await vi.waitFor(() => expect(document.body.textContent).toContain('核验原保存结果'))
@@ -200,11 +225,18 @@ describe('报表多记录修改的失败收敛', () => {
     await f.click('新增')
     expect(f.info.dirtyTracking.hasPendingChanges()).toBe(true)
     await f.click('核验原保存结果')
-    await vi.waitFor(() => expect(f.instance.isDirty).toBe(false))
-    expect(document.body.textContent).toContain('原保存结果已确认')
+    expect(document.body.textContent).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(f.instance.isDirty).toBe(true)
+    expect(f.info.hasUnconfirmedSave).toBe(true)
+    expect(f.info.dirtyTracking.pendingDeleteIds).toEqual(new Set(['R1']))
+    const versions = f.runtime.resolveView(`${scenario}@Base_Report@byReport`)!
+    expect(versions.hasUnconfirmedSave).toBe(true)
+    expect(versions.dirtyTracking.pendingDeleteIds).toEqual(new Set(['V1', 'V2']))
+    const persisted = await readPersistedReport(scenario, f.http)
+    expect(f.http.beforeSave).toHaveBeenCalledOnce()
     expect(f.http.saves).toHaveLength(2)
-    expect(f.http.records['Base_ReportInfo']).toHaveLength(0)
-    expect(f.http.records['Base_Report']).toHaveLength(0)
+    expect(persisted.info).toMatchObject({rows: [], total: 0})
+    expect(persisted.versions).toMatchObject({rows: [], total: 0})
     expect(f.info.rows).toHaveLength(0)
   })
 
@@ -271,12 +303,18 @@ describe('报表多记录修改的失败收敛', () => {
     close.vm.$emit('update:model-value', false)
     await flushPromises()
     expect(document.body.textContent).toContain('结果未确认')
+    f.info.updateEditingValue('R1', 'RptDesc', '稍后补充的说明')
     await f.click('核验原保存结果')
-    await vi.waitFor(() => expect(f.instance.isDirty).toBe(false))
+    expect(document.body.textContent).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(f.instance.isDirty).toBe(true)
+    expect(f.info.hasUnconfirmedSave).toBe(true)
+    expect(versions.hasUnconfirmedSave).toBe(true)
+    expect(f.info.getEditingPatch('R1')).toMatchObject({RptDesc: '稍后补充的说明'})
+    const persisted = await readPersistedReport(scenario, f.http)
     expect(f.http.saves).toHaveLength(saves)
-    expect(f.http.records['Base_ReportInfo']?.[0]?.['version_id']).toBe('V2')
-    expect(f.http.records['Base_Report']?.find(row => row['rowid'] === 'V2')?.['State']).toBe('1')
-    expect(f.http.records['Base_Report']?.find(row => row['rowid'] === 'V1')?.['State']).toBe('0')
+    expect(persisted.info.rows).toMatchObject([{rowid: 'R1', version_id: 'V2', RptDesc: ''}])
+    expect(persisted.versions.rows.find(row => row['rowid'] === 'V2')?.['State']).toBe('1')
+    expect(persisted.versions.rows.find(row => row['rowid'] === 'V1')?.['State']).toBe('0')
   })
   it('绑定模型被拒绝时撤销两表修改，回执中断后关窗核验不重发', async () => {
     const f = await open()
@@ -307,9 +345,13 @@ describe('报表多记录修改的失败收敛', () => {
     expect(f.http.saves).toHaveLength(saves)
     await f.click('取消')
     await f.click('核验原保存结果')
-    await vi.waitFor(() => expect(f.instance.isDirty).toBe(false))
+    expect(document.body.textContent).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(f.instance.isDirty).toBe(true)
+    expect(f.info.hasUnconfirmedSave).toBe(true)
+    expect(f.report.hasUnconfirmedSave).toBe(true)
+    const persisted = await readPersistedReport(scenario, f.http)
     expect(f.http.saves).toHaveLength(saves)
-    expect(f.http.records['Base_ReportInfo']?.[0]?.['version_dataid']).toBe('D2')
-    expect(f.http.records['Base_Report']?.find(row => row['rowid'] === 'V1')?.['DataFormID']).toBe('D2')
+    expect(persisted.info.rows).toMatchObject([{rowid: 'R1', version_dataid: 'D2'}])
+    expect(persisted.versions.rows.find(row => row['rowid'] === 'V1')?.['DataFormID']).toBe('D2')
   })
 })

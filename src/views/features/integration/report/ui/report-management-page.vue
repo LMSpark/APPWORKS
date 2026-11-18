@@ -5,16 +5,14 @@
 AI用途：迁移参考仓 integration/report 页面时，核对报表头与版本双表写入、启用版本切换及模型绑定。
 -->
 <template>
-  <RendererSection class="report-page" title="报表列表" :bordered="false" :grid-columns="1" :grid-gap="16"
+  <RendererSection title="报表列表" :bordered="false" :grid-columns="1" :grid-gap="16"
     :status="loading ? '正在读取报表列表…' : ''" :error="error || message" :retryable="!loading && !ready" @retry="loadCurrentRoute">
     <template v-if="ready" #header-actions>
       <RendererButton v-if="unconfirmed" label="核验原保存结果" button-type="warning" :disabled="busy" @click="verify" />
       <RendererButton :data-view-key="viewKey" label="新增" button-type="primary" icon="Plus" perm-action="create"
         :disabled="busy || !!dialog || unconfirmed" @click="create" />
     </template>
-    <RendererTable v-if="ready" :data-view-key="viewKey" :children="columns" :filter="filter" :actions="actions"
-      :auto-columns="false" :stripe="true" :border="true" :show-data-view-meta="false"
-      :action-column="{label: '操作', width: 420, fixed: true}" :pagination="{pageSizes: [10, 20, 50, 100], showJumper: true}" />
+    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false" />
     <ReportCreateDialog v-if="ready && dialog?.kind === 'create' && dialog.reportId !== undefined" :key="dialog.epoch" :info-key="viewKey"
       :report-key="reportKey" :app-key="appKey" :info-id="dialog.infoId" :report-id="dialog.reportId" @close="closeDialog" />
     <FeatureRecordDialog v-if="ready && dialog?.kind === 'edit'" :key="dialog.epoch" :data-view-key="viewKey" :record-id="dialog.infoId"
@@ -28,10 +26,11 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
 
 <script setup lang="ts">
 import {computed, ref, shallowRef} from 'vue'
-import {onBeforeRouteLeave, onBeforeRouteUpdate} from 'vue-router'
+import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
+import {PageTool} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererSection, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {buildDataViewKey, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {RendererButton, RendererSection, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
@@ -41,16 +40,28 @@ import ReportModelDialog from './report-model-dialog.vue'
 import {formatDay, syncAppName, textOf} from './report-format'
 import {commitReportChanges, reportPendingReason, UNCONFIRMED_HINT, verifyReportSaves} from './report-save'
 
+import rule from './tool/rule.json?raw'
+import script from './tool/script.js?raw'
+import style from './tool/style.css?raw'
+
 const scenarioId = 'FB291E325272007AEED8921C28B93CFD'
 const key = (model: string, view = 'default') => buildDataViewKey(model, view, scenarioId)
 const {sparkConsume} = useSparkComponent({type: 'report-management-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'report-management-page')
 const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Base_ReportInfo', componentType: 'report-management-page', title: '业务报表管理',
+  tool: pageId => {
+    const tool = new PageTool({pageId})
+    tool.hydrateFileText('rule.json', rule)
+    tool.hydrateFileText('script.js', script)
+    tool.hydrateFileText('style.css', style)
+    tool.markLoaded()
+    return tool
+  },
   optionModels: ['Base_Report', 'Base_AppSystemList', 'Base_UserInfo', 'Base_DataSet', '功能导航状态字典'],
 })
-const reportKey = key('Base_Report'), appKey = key('Base_AppSystemList'), userKey = key('Base_UserInfo')
-const dataSetKey = key('Base_DataSet'), pickerKey = key('Base_DataSet', 'picker'), statusKey = key('功能导航状态字典')
+const reportKey = key('Base_Report'), appKey = key('Base_AppSystemList')
+const pickerKey = key('Base_DataSet', 'picker'), statusKey = key('功能导航状态字典')
 
 type Dialog = Readonly<{kind: 'create' | 'edit' | 'version' | 'model'; infoId: string | number; reportId?: string | number; epoch: number}>
 const busy = ref(false), message = ref(''), revision = ref(0)
@@ -100,39 +111,30 @@ const verify = () => guarded(async () => {
   }
 })
 
-/** sortable=false 用于存不透明记录 ID、按标签显示的列：服务端按 ID 排序与所见名称次序无关。 */
-type ReportColumn = Readonly<{field: string; label: string; width?: number; minWidth?: number; optionDataViewKey?: string; sortable?: false}>
-const column = ({field, label, width, minWidth, optionDataViewKey, sortable}: ReportColumn): SparkNode =>
-  ({type: optionDataViewKey ? 'r-select' : 'r-text', props: {field, label, readonly: true, showOverflowTooltip: true,
-    ...(width ? {width, align: 'center'} : {minWidth}), ...(optionDataViewKey ? {optionDataViewKey} : {}),
-    ...(sortable === false ? {sortable} : {})}})
-const columns: SparkNode[] = [
-  column({field: 'RptName', label: '报表名称', minWidth: 180}),
-  column({field: 'modid', label: '应用系统', minWidth: 180, optionDataViewKey: appKey, sortable: false}),
-  column({field: 'RptDesc', label: '报表描述', minWidth: 220}),
-  {type: 'r-text', props: {field: 'CreateTime', label: '创建时间', readonly: true, width: 130, align: 'center', displayFormatter: formatDay}},
-  {type: 'r-select', props: {field: 'createuser', label: '创建人', readonly: true, width: 120, sortable: false, optionDataViewKey: userKey}},
-  column({field: 'version_id', label: '启用版本名称', width: 140, optionDataViewKey: reportKey, sortable: false}),
-  column({field: 'version_dataid', label: '当前版本模型', minWidth: 180, optionDataViewKey: dataSetKey, sortable: false}),
-  column({field: 'useStatus', label: '使用状态', width: 120, optionDataViewKey: statusKey}),
-]
-const filter: RFilterProps = {
-  autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,
-  children: [
-    {type: 'r-select', props: {field: 'modid', label: '应用系统', placeholder: '请选择应用系统', clearable: true, filterable: true, optionDataViewKey: appKey}},
-    {type: 'r-text', props: {field: 'RptName', label: '报表名称', placeholder: '请输入报表名称', clearable: true, filterTrim: true}},
-    {type: 'r-text', props: {field: 'RptDesc', label: '报表描述', placeholder: '请输入报表描述', clearable: true, filterTrim: true}},
-    {type: 'r-select', props: {field: 'useStatus', label: '使用状态', placeholder: '请选择状态', clearable: true, optionDataViewKey: statusKey}},
-  ],
-}
-const actions = computed<RToolbarProps>(() => {
-  const disabled = busy.value || !!dialog.value || unconfirmed.value
-  type RowAction = Readonly<{label: string; run: (row: DataRow) => void; danger?: boolean; permAction?: 'edit' | 'delete'}>
-  const button = ({label, run, danger, permAction}: RowAction): SparkNode => ({type: 'r-button', props: {dataViewKey: viewKey.value, label, link: true,
-    buttonType: danger ? 'danger' : 'primary', disabled, onClick: run, ...(permAction ? {permAction} : {})}})
-  return {gap: 4, children: [button({label: '编辑', run: row => open('edit', row), permAction: 'edit'}),
-    button({label: '删除', run: row => void remove(row), danger: true, permAction: 'delete'}),
-    button({label: '历史版本', run: row => open('version', row)}), button({label: '模型', run: row => open('model', row)})]}
+const runtime = computed(() => ready.value ? session.runtime : undefined)
+const route = useRoute()
+const routeSnapshot = computed(() => {
+  const {path, fullPath, name, params, query, hash} = route
+  return {path, fullPath, name: name ?? null, params, query, hash}
+})
+const host = computed(() => {
+  const current = runtime.value
+  if (!current) return undefined
+  const assertCurrent = () => {
+    if (!session.isCurrent(current)) throw new Error('报表列表运行实例已失效')
+  }
+  return {runtime: current, assertCurrent, async invoke(command: string, input: unknown) {
+    assertCurrent()
+    if (command === 'reports.connect') return {locked: () => busy.value || !!dialog.value || unconfirmed.value, formatDay}
+    if (busy.value || dialog.value || unconfirmed.value || !input || typeof input !== 'object') return undefined
+    const row = input as DataRow
+    if (!view(viewKey.value).rows.includes(row)) return undefined
+    if (command === 'reports.remove') await remove(row)
+    if (command === 'reports.edit') open('edit', row)
+    if (command === 'reports.version') open('version', row)
+    if (command === 'reports.model') open('model', row)
+    return undefined
+  }}
 })
 const editSpecs: readonly FeatureFieldSpec[] = [
   {field: 'RptName', label: '报表名称', required: true},
@@ -209,7 +211,3 @@ const remove = (row: DataRow) => guarded(async () => {
   pageService.showMessage('删除成功', 'success')
 })
 </script>
-
-<style scoped>
-.report-page {padding: 8px}
-</style>

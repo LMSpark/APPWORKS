@@ -1,7 +1,16 @@
 import {expect,it} from 'vitest'
-import {readContentNodeFactIds,readContentNodeLinks} from '@/services/smart-bid/content/content-node-links'
+import {readContentNodeFactIds,readContentNodeLinkOccurrences,readContentNodeLinks} from '@/services/smart-bid/content/content-node-links'
 
 const node=(type='paragraph',value='',data:Record<string,unknown>={})=>({nodeId:'N',parentId:'P',index:0,type,class:[],value,data})
+it('preserves repeated link occurrences in original UTF-16 order',()=>{
+ const value='📎{{页}} {{册}} {{页}}'
+ const locations=readContentNodeLinkOccurrences(node('paragraph',value,{
+  册:{type:'xref',nodeId:'D',show:'title'},页:{type:'page',nodeId:'H'}}))
+ expect(locations.map(({kind,start,end})=>[kind,start,value.slice(start,end)])).toEqual([
+  ['page',2,'{{页}}'],['xref',8,'{{册}}'],['page',14,'{{页}}'],
+ ])
+ expect(locations[0]?.path).toEqual(['data','页'])
+})
 it('reads distinct fact keys in original placeholder order',()=>{
  const input=node('paragraph','{{first}} {{second}} {{first}} {{third}}',{
   third:{type:'fact',factId:'F1'},second:{type:'fact',factId:'F2'},first:{type:'fact',factId:'F1'}})

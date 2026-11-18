@@ -22,7 +22,9 @@ export type ContentTableData=Readonly<{
  header:readonly string[]
  rows:ReadonlyArray<ReadonlyArray<Readonly<{value:string;data:Readonly<Record<string,unknown>>}>>>
 }>
-type NodeReferences={links:ContentNodeLink[];factIds:Set<string>;resourceVersionIds:Set<string>}
+/** 位置按原文 UTF-16 左闭右开区间，表格位置由 path 中的行列标识。 */
+export type ContentNodeLinkOccurrence=ContentNodeLink&Readonly<{start:number;end:number}>
+type NodeReferences={links:ContentNodeLink[];factIds:Set<string>;resourceVersionIds:Set<string>;linkOccurrences:ContentNodeLinkOccurrence[]}
 const containers=new Set(['document','toc','chapter','list','item','figure','quote'])
 const texts=new Set(['heading','paragraph','caption','image'])
 
@@ -43,13 +45,22 @@ function checkFields(input:Readonly<{value:string;data:Record<string,unknown>;ow
  const {value,data,ownerNodeId,path,references}=input
  const errors=validateContentPlaceholders({value,data})
  if(errors.length)throw Error(`CONTENT_LINK_PLACEHOLDER:${errors.join(';')}`)
+ const fieldLinks=new Map<string,ContentNodeLink>()
  for(const key of Object.keys(data)){
   const reference=record(data[key]),referenceErrors=validateContentReference(reference)
   if(referenceErrors.length)throw Error(`CONTENT_LINK_REFERENCE:${referenceErrors.join(';')}`)
   const kind=reference['type'],targetNodeId=reference['nodeId']
-  if((kind==='page'||kind==='xref')&&typeof targetNodeId==='string')references.links.push({ownerNodeId,path:[...path,key],kind,targetNodeId})
+  if((kind==='page'||kind==='xref')&&typeof targetNodeId==='string'){
+   const link:ContentNodeLink={ownerNodeId,path:[...path,key],kind,targetNodeId}
+   references.links.push(link);fieldLinks.set(key,link)
+  }
  }
- for(const key of inspectContentPlaceholders(value).names){
+ const parsed=inspectContentPlaceholders(value)
+ for(const {name,start,end} of parsed.occurrences){
+  const link=fieldLinks.get(name)
+  if(link)references.linkOccurrences.push({...link,start,end})
+ }
+ for(const key of parsed.names){
   const reference=record(data[key]),factId=reference['factId'],resourceVersionId=reference['resourceVersionId']
   if(reference['type']==='fact'&&typeof factId==='string')references.factIds.add(factId)
   if(reference['type']==='resource'&&typeof resourceVersionId==='string')references.resourceVersionIds.add(resourceVersionId)
@@ -83,7 +94,7 @@ function readNodeReferences(input:unknown) {
  canonicalContentNode(input)
  const node=record(input),ownerNodeId=text(own(node,'nodeId')),type=text(own(node,'type'))
  const value=text(own(node,'value')),data=record(own(node,'data'))
- const references:NodeReferences={links:[],factIds:new Set(),resourceVersionIds:new Set()}
+ const references:NodeReferences={links:[],factIds:new Set(),resourceVersionIds:new Set(),linkOccurrences:[]}
  let requiresTableGeneratorCheck=false
  if(containers.has(type)){
   if(value!==''||Object.keys(data).length!==0)throw Error('CONTENT_LINK_CONTAINER')
@@ -117,4 +128,9 @@ export function readContentNodeFactIds(input:unknown):readonly string[] {
 /** 返回节点正文、图片或表格中直接引用的固定资源版本。 */
 export function readContentNodeResourceVersions(input:unknown):readonly string[] {
  return [...readNodeReferences(input).resourceVersionIds]
+}
+
+/** 逐处返回页码和交叉引用，重复占位仍保留各自位置。 */
+export function readContentNodeLinkOccurrences(input:unknown):readonly ContentNodeLinkOccurrence[] {
+ return readNodeReferences(input).linkOccurrences
 }

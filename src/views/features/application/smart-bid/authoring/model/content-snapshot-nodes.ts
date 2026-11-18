@@ -8,7 +8,7 @@ import {buildDataViewKey,type DataView,type DataViewFilterTree,type TreeConfig} 
 import {isRecord} from '@spark-appworks/spark-utils'
 import {hashContentNode} from '@/services/smart-bid/content-node-hash'
 import {validateContentTreeStructure} from '@/services/smart-bid/content-tree-structure'
-import {readContentNodeFactIds,readContentNodeLinks} from '@/services/smart-bid/content/content-node-links'
+import {readContentNodeFactIds,readContentNodeLinks,readContentNodeResourceVersions} from '@/services/smart-bid/content/content-node-links'
 import {hashContentSubtrees,SUBTREE_HASH_CONTRACT,type ContentSubtreeHash} from '@/services/smart-bid/content/hashes/content-subtree-hash'
 import {assertContentNodeVersionPayload} from './content-node-version-reader'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
@@ -23,6 +23,7 @@ export type ContentSnapshotNodesBinding=Readonly<{
  subtreeHashContract:typeof SUBTREE_HASH_CONTRACT;subtreeHashes:readonly ContentSubtreeHash[]
  readFactIds:(nodeIds:readonly string[])=>readonly string[]
  readCalculationTableIds:(nodeIds:readonly string[])=>readonly string[]
+ readResourceReferences:(nodeIds:readonly string[])=>ReadonlyArray<Readonly<{nodeId:string;resourceVersionId:string}>>
 }>
 function validScope(view:DataView):boolean {
  const hashScope=(node:DataViewFilterTree):boolean=>{
@@ -55,7 +56,8 @@ export async function readContentSnapshotNodes(host:ContentRevisionReadHost,snap
   return Object.freeze({dataViewKey:null,nodeMembershipVerified:true,requiresBusinessSectionChecks:true,assertCurrent:assertOwners,
    subtreeHashContract:SUBTREE_HASH_CONTRACT,subtreeHashes:Object.freeze([]),
    readFactIds:(nodeIds:readonly string[])=>emptySelection(nodeIds,'CONTENT_SNAPSHOT_FACT_SCOPE'),
-   readCalculationTableIds:(nodeIds:readonly string[])=>emptySelection(nodeIds,'CONTENT_SNAPSHOT_NODE_SCOPE')})
+   readCalculationTableIds:(nodeIds:readonly string[])=>emptySelection(nodeIds,'CONTENT_SNAPSHOT_NODE_SCOPE'),
+   readResourceReferences:(nodeIds:readonly string[])=>emptySelection(nodeIds,'CONTENT_SNAPSHOT_NODE_SCOPE')})
  }
  const dataViewKey=buildDataViewKey('ContentNodeVersion',memberViews[snapshot.role],scenarioId),view=runtime.resolveView(dataViewKey)
  if(!view||!validScope(view))throw Error('CONTENT_SNAPSHOT_NODES_SCOPE_REQUIRED')
@@ -110,6 +112,9 @@ export async function readContentSnapshotNodes(host:ContentRevisionReadHost,snap
   selectNodes(nodeIds,'CONTENT_SNAPSHOT_FACT_SCOPE').flatMap(({payload})=>readContentNodeFactIds(payload)))])
  const readCalculationTableIds=(nodeIds:readonly string[])=>Object.freeze(
   selectNodes(nodeIds,'CONTENT_SNAPSHOT_NODE_SCOPE').filter(item=>item.requiresTableGeneratorCheck).map(({payload})=>payload.nodeId))
+ const readResourceReferences=(nodeIds:readonly string[])=>Object.freeze(
+  selectNodes(nodeIds,'CONTENT_SNAPSHOT_NODE_SCOPE').flatMap(({payload})=>readContentNodeResourceVersions(payload)
+   .map(resourceVersionId=>Object.freeze({nodeId:payload.nodeId,resourceVersionId}))))
  return Object.freeze({dataViewKey,nodeMembershipVerified:true,requiresBusinessSectionChecks:true,assertCurrent,
-  subtreeHashContract:SUBTREE_HASH_CONTRACT,subtreeHashes,readFactIds,readCalculationTableIds})
+  subtreeHashContract:SUBTREE_HASH_CONTRACT,subtreeHashes,readFactIds,readCalculationTableIds,readResourceReferences})
 }

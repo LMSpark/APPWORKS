@@ -8,8 +8,9 @@ import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-ap
 async function fixture(mode='normal'){
  const nodes=[{nodeId:'D',parentId:'P',index:0,type:'document',class:[],value:'',data:{}},
   {nodeId:'C',parentId:mode==='tree'?'MISSING':'D',index:0,type:'chapter',class:[],value:'',data:{}},
-  {nodeId:'H',parentId:'C',index:0,type:'heading',class:[],value:mode==='link'?'{{missing}}':'标题',
-   data:mode==='link'?{missing:{type:'xref',nodeId:'MISSING',show:'title'}}:{}}]
+  {nodeId:'H',parentId:'C',index:0,type:'heading',class:[],value:mode==='link'?'{{missing}}':mode==='resource'?'{{附件}}{{附件}}':'标题',
+   data:mode==='link'?{missing:{type:'xref',nodeId:'MISSING',show:'title'}}:
+    mode==='resource'?{附件:{type:'resource',resourceVersionId:'ATTACHMENT-2'}}:{}}]
  const entries=await Promise.all(nodes.map(async payload=>({nodeId:payload.nodeId,nodeHash:await hashContentNode(payload),payload})))
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ContentNodeVersion:{modelBinding:{modelId:'M',modelName:'ContentNodeVersion'},
   columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'nodeId'},{name:'nodeHash'},{name:'payload',type:'object'}],views:{default:{},
@@ -36,6 +37,17 @@ async function fixture(mode='normal'){
  const host={runtime:{resolveView:(key:string)=>{const k=parseDataViewKey(key);return k?ds.getView(k.tableName,k.viewId):undefined}},scenarioId:'S',projectId:'P',assertCurrent:vi.fn()}
  return {ds,view,query,save,snapshot,host}
 }
+it('returns original scoped resource versions with their owning node and revokes stale reads',async()=>{
+ const f=await fixture('resource')
+ try{
+  const result=await readContentSnapshotNodes(f.host,f.snapshot)
+  expect(result.readResourceReferences(['C'])).toEqual([])
+  expect(result.readResourceReferences(['H'])).toEqual([{nodeId:'H',resourceVersionId:'ATTACHMENT-2'}])
+  expect(()=>result.readResourceReferences(['UNKNOWN'])).toThrow('CONTENT_SNAPSHOT_NODE_SCOPE')
+  await f.view.refresh()
+  expect(()=>result.readResourceReferences(['H'])).toThrow('DATA_VIEW_READ_RESULT')
+ }finally{f.ds.destroy()}
+})
 it('queries each revision role in its own complete member view',async()=>{
  const f=await fixture()
  try{

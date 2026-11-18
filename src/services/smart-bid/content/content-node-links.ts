@@ -16,7 +16,7 @@ export type ContentNodeLink=Readonly<{
 export type ContentNodeLinks=Readonly<{
  links:readonly ContentNodeLink[];requiresTableGeneratorCheck:boolean
 }>
-type NodeReferences={links:ContentNodeLink[];factIds:Set<string>}
+type NodeReferences={links:ContentNodeLink[];factIds:Set<string>;resourceVersionIds:Set<string>}
 const containers=new Set(['document','toc','chapter','list','item','figure','quote'])
 const texts=new Set(['heading','paragraph','caption','image'])
 
@@ -44,8 +44,9 @@ function checkFields(input:Readonly<{value:string;data:Record<string,unknown>;ow
   if((kind==='page'||kind==='xref')&&typeof targetNodeId==='string')references.links.push({ownerNodeId,path:[...path,key],kind,targetNodeId})
  }
  for(const key of inspectContentPlaceholders(value).names){
-  const reference=record(data[key]),factId=reference['factId']
+  const reference=record(data[key]),factId=reference['factId'],resourceVersionId=reference['resourceVersionId']
   if(reference['type']==='fact'&&typeof factId==='string')references.factIds.add(factId)
+  if(reference['type']==='resource'&&typeof resourceVersionId==='string')references.resourceVersionIds.add(resourceVersionId)
  }
 }
 function checkTable(data:Record<string,unknown>,ownerNodeId:string,references:NodeReferences):boolean {
@@ -76,7 +77,7 @@ function readNodeReferences(input:unknown) {
  canonicalContentNode(input)
  const node=record(input),ownerNodeId=text(own(node,'nodeId')),type=text(own(node,'type'))
  const value=text(own(node,'value')),data=record(own(node,'data'))
- const references:NodeReferences={links:[],factIds:new Set()}
+ const references:NodeReferences={links:[],factIds:new Set(),resourceVersionIds:new Set()}
  let requiresTableGeneratorCheck=false
  if(containers.has(type)){
   if(value!==''||Object.keys(data).length!==0)throw Error('CONTENT_LINK_CONTAINER')
@@ -105,4 +106,9 @@ export function readContentNodeLinks(input:unknown):ContentNodeLinks {
 /** 返回正文或表格按首次出现排列的直接事实键，供固定版本批查。 */
 export function readContentNodeFactIds(input:unknown):readonly string[] {
  return [...readNodeReferences(input).factIds]
+}
+
+/** 返回节点正文、图片或表格中直接引用的固定资源版本。 */
+export function readContentNodeResourceVersions(input:unknown):readonly string[] {
+ return [...readNodeReferences(input).resourceVersionIds]
 }

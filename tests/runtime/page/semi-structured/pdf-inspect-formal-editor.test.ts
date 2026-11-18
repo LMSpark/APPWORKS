@@ -57,7 +57,7 @@ async function open(ruleId = 'P1',catalog:boolean|string=false,recoveryRequestId
     const record=router.getRoutes().find(item=>item.path===path)
     if(record)record.meta['blueprintScenarioId']=PDF
   }
-  await router.push({path:catalog?path:'/editor',query:catalog?{pdfInspectionRequestId:recoveryRequestId}:{ruleId}}); await router.isReady()
+  await router.push({path:catalog?path:'/editor',query:catalog?{__sparkNavigationId:PDF,pdfInspectionRequestId:recoveryRequestId}:{ruleId}}); await router.isReady()
   const copied: string[] = []
   const wrapper = mount(defineComponent({setup: () => {
     const service = provideTestPageService(router)
@@ -128,7 +128,7 @@ describe('formal PDF rule editor', () => {
       if (lostReply) {
         await vi.waitFor(() => expect(f.wrapper.text()).toContain('继续核验原操作'))
         await f.click('复制原请求恢复链接')
-        expect(f.copied).toEqual([`/catalog?pdfInspectionRequestId=${Reflect.get(Object(backend.initCalls[0]?.data),'requestId')}`])
+        expect(f.copied.map(link=>new URL(link).pathname+new URL(link).search)).toEqual([`/catalog?__sparkNavigationId=${PDF}&pdfInspectionRequestId=${Reflect.get(Object(backend.initCalls[0]?.data),'requestId')}`])
         await f.click('继续核验原操作')
       }
       await vi.waitFor(() => expect(f.wrapper.text()).toContain('任务已接纳'))
@@ -328,7 +328,7 @@ describe('formal PDF rule editor', () => {
     expect(f.wrapper.findComponent(FieldJson).exists()).toBe(false)
     expect(state.http.saves).toEqual([])
   })
-  it('confirms an unknown save through the same owner without replaying writes', async () => {
+  it('keeps an unknown save pending when the original receipt cannot be recovered', async () => {
     const f = await open()
     await vi.waitFor(() => expect(f.wrapper.findComponent(SparkJsonEditor).exists()).toBe(true))
     f.wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', ruleText('committed')); await flushPromises()
@@ -336,6 +336,8 @@ describe('formal PDF rule editor', () => {
     expect(state.http.saves).toHaveLength(1)
     await f.click('核验保存结果')
     expect(state.http.saves).toHaveLength(1)
-    expect(f.wrapper.text()).not.toContain('保存结果尚未确认')
+    expect(f.wrapper.text()).toContain('保存结果尚未确认')
+    expect(f.wrapper.text()).toContain('服务未提供原请求的权威终态')
+    expect(f.wrapper.getComponent(SparkJsonEditor).props('modelValue')).toContain('committed')
   })
 })

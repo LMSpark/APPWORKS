@@ -64,7 +64,7 @@
 import {computed, onBeforeUnmount, reactive, ref, shallowReactive, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
 import {PDF_INSPECTION_HISTORY_TABLE} from '@/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings'
@@ -187,12 +187,14 @@ function discardInspectionFiles(run: InspectionExecution): void {
   }
 }
 function resolveInspectionRecoveryUrl(requestId: string): string {
-  return router.resolve({path: route.path, query: {pdfInspectionRequestId: requestId}}).href
+  return router.resolve({path: route.path, query: {
+    [SYSTEM_PAGE_NAVIGATION_ID_QUERY]: route.query[SYSTEM_PAGE_NAVIGATION_ID_QUERY], pdfInspectionRequestId: requestId,
+  }}).href
 }
 async function copyInspectionRecoveryLink(): Promise<void> {
   const requestId = execution.value?.requestId
   if (!requestId) return
-  try {await pageService.copyText(resolveInspectionRecoveryUrl(requestId))}
+  try {await pageService.copyText(new URL(resolveInspectionRecoveryUrl(requestId), window.location.href).href)}
   catch (cause) {preparationError.value = cause instanceof Error ? cause.message : String(cause)}
 }
 async function submitInspection(): Promise<void> {

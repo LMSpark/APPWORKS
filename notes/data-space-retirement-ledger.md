@@ -11710,3 +11710,4 @@ flowchart TD
 - JSON 整删定位核查：正式 Base_JsonData 目录按 rowid 选中唯一可读行，正文资源在 jsondatapath 根按 path 的末段定位，空 path 使用原 id.json。现有正文定位只证明访问目标，不证明文件独占；整删还需核对其他定义是否解析到同一文件及下游引用，分别回读目录和文件。
 - 第11包删除合同续核：BatchData 载荷按数据集 name 提交 delJsonData 对象数组，DelJsonData 在本仓无消费方、只有动态请求声明。正文可用的通用 RemoveFile 按应用类型、目录和文件名派发一次并回列核验缺失。数据空间设计和工作流编辑均声明 Base_JsonData 来源，单独删除正文前仍缺跨消费方引用与独占性的正式查询。保持整删入口关闭。上轮全仓类型检查退出0、JSON目录和正文专项38项通过，仅覆盖现有路径。
 - 第11包导航身份回归：当前企业导航登记落原生 JSON 页面，PageRuntime 消费共享 pagedata；缺导航场景 ID 时不渲染目录，不发目录/正文读写。新增挂载反例随 JSON 页面专项29项通过，verify:pages-config 通过。原生宿主加共享场景目前仍缺工具三文件的运行消费证据。
+- 第11包工具装配：PageTool 三文件测试夹具经 NativePageRuntimeSession 装配真实共享 pagedata，目录与正文 DataView 均存在，打开正文前文件读取为零；JSON 页面专项30项通过。按已核源码保留原导航薄宿主，由 SparkPageRenderer 渲染标准表格、表单、弹窗；静态绑定先验，正文需在原目录行派生视图创建后动态绑定真实键。保留文件→目录分次提交、未知核验及离页保护。本批只验证装配，正式页面仍待接线。

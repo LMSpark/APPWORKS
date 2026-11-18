@@ -10,13 +10,14 @@ import {dispatchOperationRouteAgentTask} from '@/services/smart-bid/operation/op
 import {discoverRegisteredOperationGuides} from '../model/operation/content-operation-guide-reader'
 import {readRegisteredOperationDispatch} from '../model/operation/content-operation-dispatch-reader'
 import {readRegisteredFrozenOperationContext} from '../model/operation/content-operation-frozen-reader'
+import {readRegisteredOriginalOperationGuide} from '../model/operation/content-operation-original-guide-reader'
 import {recoverRegisteredOperationRouteAttempt} from '../model/operation/content-operation-result-reader'
 import {prepareRegisteredOperationStepRework} from '../model/operation/content-operation-rework-reader'
 
 type OriginalManifest=NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>>
 type RecoveryGuide=Parameters<typeof recoverRegisteredOperationRouteAttempt>[2]
 type ResolveOriginalGuide=(original:Readonly<Pick<OriginalManifest,'scope'|'guideRef'|'guideVersionRef'|'guideDigest'>>,
- signal:AbortSignal)=>Promise<RecoveryGuide|undefined>
+ signal:AbortSignal)=>Promise<Omit<RecoveryGuide,'guideRef'|'guideVersionRef'|'guideDigest'|'assertGuideCurrent'>|undefined>
 
 /** 调用方提供正式运行实例、当前业务项目和已绑定的 ClassModel 根。 */
 export function openContentOperationWorkspace(
@@ -83,6 +84,9 @@ export function openContentOperationWorkspace(
   readDispatch(attempt:Parameters<typeof readRegisteredOperationDispatch>[1]){
    return readRegisteredOperationDispatch(host,attempt)
   },
+  readOriginalGuide(original:Parameters<typeof readRegisteredOriginalOperationGuide>[3]){
+   return readRegisteredOriginalOperationGuide(host,classModel,{rootKind,original})
+  },
   recover(manifest:Parameters<typeof recoverRegisteredOperationRouteAttempt>[1],
    guide:Parameters<typeof recoverRegisteredOperationRouteAttempt>[2]){
    return recoverRegisteredOperationRouteAttempt(host,manifest,guide)
@@ -92,10 +96,16 @@ export function openContentOperationWorkspace(
    assertCurrent()
    if(!manifest)throw Error('OPERATION_FROZEN_READ_REQUIRED')
    const {scope:originalScope,guideRef,guideVersionRef,guideDigest}=manifest
-   const guide=await resolveGuide(Object.freeze({scope:originalScope,guideRef,guideVersionRef,guideDigest}),signal)
+   const original=Object.freeze({scope:originalScope,guideRef,guideVersionRef,guideDigest})
+   const guide=await readRegisteredOriginalOperationGuide(host,classModel,{rootKind,original})
    manifest.assertCurrent()
    if(!guide)return undefined
-   return recoverRegisteredOperationRouteAttempt(host,manifest,guide)
+   const rules=await resolveGuide(original,signal)
+   manifest.assertCurrent()
+   guide.assertCurrent()
+   if(!rules)return undefined
+   return recoverRegisteredOperationRouteAttempt(host,manifest,{...rules,guideRef:guide.guideRef,
+    guideVersionRef:guide.guideVersionRef,guideDigest:guide.guideDigest,assertGuideCurrent:guide.assertCurrent})
   },
   prepareRework(selection:Parameters<typeof prepareRegisteredOperationStepRework>[1]){
    return prepareRegisteredOperationStepRework(host,selection)

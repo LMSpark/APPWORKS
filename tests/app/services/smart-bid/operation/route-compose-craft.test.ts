@@ -58,6 +58,15 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
  const recovery={readDispatch:async()=>sent,readResult,guide,assertCurrent:source.assertCurrent}
  expect(await recoverOperationRouteAttempt(manifest,{...recovery,readDispatch:async()=>undefined}))
   .toMatchObject({state:'DISPATCH_UNKNOWN'})
+ let emptyResultCurrent=true
+ const empty=await recoverOperationRouteAttempt(manifest,{...recovery,readDispatch:async()=>({...scope,state:'UNKNOWN',
+  assertCurrent:()=>{if(!emptyResultCurrent)throw Error('ORIGINAL_DISPATCH_REFRESHED')}})})
+ expect(empty).toMatchObject({state:'DISPATCH_UNKNOWN'})
+ emptyResultCurrent=false
+ expect(()=>empty.assertCurrent()).toThrow('ORIGINAL_DISPATCH_REFRESHED')
+ expect(await recoverOperationRouteAttempt(manifest,{...recovery,
+  readDispatch:async()=>({...sent,actualInputDigest:'0'.repeat(64),input:undefined})}))
+  .toMatchObject({state:'DISPATCH_EVIDENCE_REQUIRED'})
  expect(readResult).not.toHaveBeenCalled()
  expect(await recoverOperationRouteAttempt(manifest,recovery)).toMatchObject({state:'VERIFIED_CANDIDATE',
   result:{dispatchRef:'SENT',guideRef:'GUIDE'}})

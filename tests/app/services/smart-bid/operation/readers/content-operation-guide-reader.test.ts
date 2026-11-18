@@ -15,9 +15,12 @@ it('discovers only the complete scoped directory and retains the original public
   pathRefs:['DIR'],materialRefs:['MATERIAL']}
  const filters=['projectId','directoryRef'].map(field=>({field,operator:'eq' as const,
   value:{Type:'GetInputParam',ParamName:field}}))
+ const originalFilters=['projectId','guideRef','versionRef'].map(field=>({field,operator:'eq' as const,
+  value:{Type:'GetInputParam',ParamName:field}}))
  const ds=DataSet.fromJson({scenarioId:'S',tables:{KnowledgeGuide:{
   modelBinding:{modelId:'GUIDES',modelName:'KnowledgeGuide'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},effectiveDirectory:{commitMode:'staged',queryConfig:{autoQuery:false},
+  views:{default:{},originalVersion:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters:originalFilters}},
+   effectiveDirectory:{commitMode:'staged',queryConfig:{autoQuery:false},
    scopeFilter:{logic:'and',filters:[...filters,{field:'state',operator:'eq',value:'EFFECTIVE'}]}}},
  }}})
  const view=ds.getView('KnowledgeGuide','effectiveDirectory')!
@@ -27,7 +30,16 @@ it('discovers only the complete scoped directory and retains the original public
   identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',
    data:{Count:count,Items:[{...row,projectId,publicationRef,lingma_sys_params:{r:[],e:[],h:hidden,m:[],d:false}}]}}}),
  })})
- const host={runtime:{resolveView:(key:string)=>key==='S@KnowledgeGuide@effectiveDirectory'?view:undefined},
+ const originalView=ds.getView('KnowledgeGuide','originalVersion')
+ if(!originalView)throw Error('TEST_ORIGINAL_VIEW_REQUIRED')
+ let originalVersion='V1'
+ const originalTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'KnowledgeGuide'})
+ originalView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+  identity:originalTable.identity,scope:'original',readScope:()=> 'original',snapshot:originalTable.applyResult({Result:{primaryKeyField:'id',
+   data:{Count:1,Items:[{...row,versionRef:originalVersion,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
+ })})
+ const host={runtime:{resolveView:(key:string)=>key==='S@KnowledgeGuide@effectiveDirectory'?view:
+  key==='S@KnowledgeGuide@originalVersion'?originalView:undefined},
   scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  const executeTool=vi.fn(async()=>({ok:true,data:{rootKind:'OperationRoute',models:[{kind:'OperationRoute',methods:[{name:'verify'}]}]}}))
  const discover=()=>discoverRegisteredOperationGuides(host,{executeTool},{rootKind:'OperationRoute',directoryRef:'DIR'})
@@ -66,6 +78,13 @@ it('discovers only the complete scoped directory and retains the original public
   const discovery=await workspace.discover('DIR'),guide=await workspace.readGuide(discovery,row)
   expect(()=>directory.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   const attempt={projectId:'P',runId:'R',attemptRef:'A',requestKey:'Q',targetDigest:'b'.repeat(64),configurationLockHash:'c'.repeat(64)}
+  const original={scope:attempt,guideRef:'GUIDE',guideVersionRef:'V1',guideDigest}
+  const historical=await workspace.readOriginalGuide(original)
+  expect(historical).toMatchObject({guideVersionRef:'V1',guide:guideText})
+  expect(originalView.queryContext).toMatchObject({projectId:'P',guideRef:'GUIDE',versionRef:'V1'})
+  originalVersion='V2'
+  await expect(workspace.readOriginalGuide(original)).rejects.toThrow('OPERATION_ORIGINAL_GUIDE_SCOPE')
+  expect(()=>historical?.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   const definition={versionRef:'V1',guideDigest,configurationLockHash:attempt.configurationLockHash,
    createdAt:'2026-11-18T10:00:00+08:00',slots:[{slotId:'target',required:true}],assertCurrent:host.assertCurrent}
   await expect(workspace.freeze(attempt,{...guide},{definition,sources:[]})).rejects.toThrow('OPERATION_WORKSPACE_GUIDE_SCOPE')

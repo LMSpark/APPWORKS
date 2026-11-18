@@ -29,6 +29,7 @@ export async function recoverOperationRouteAttempt(manifest:Manifest,source:Read
  assertCurrent()
  if(sent===undefined)return Object.freeze({state:'DISPATCH_UNKNOWN' as const,assertCurrent})
  const dispatch=await verifyOriginalOperationRouteDispatch(scope,sent,{expectedInputDigest:manifest.inputDigest,assertCurrent})
+ if(dispatch.state==='UNKNOWN')return Object.freeze({state:'DISPATCH_UNKNOWN' as const,assertCurrent:dispatch.assertCurrent})
  if(dispatch.state!=='MATCHED')return Object.freeze({state:'DISPATCH_EVIDENCE_REQUIRED' as const,dispatch,assertCurrent:dispatch.assertCurrent})
  const response=await source.readResult(scope)
  dispatch.assertCurrent()

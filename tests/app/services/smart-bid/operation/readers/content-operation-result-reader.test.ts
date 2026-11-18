@@ -4,6 +4,7 @@ import {openContentOperationWorkspace} from '@/views/features/application/smart-
 import {DataSet} from '@spark-appworks/spark-data'
 import {readRegisteredOperationResult} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader'
 import {freezeOperationRouteContext} from '@/services/smart-bid/operation/operation-route-context'
+import {hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import craft from '@/services/smart-bid/craft/route-compose-v1.json'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -11,7 +12,9 @@ import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-ap
 it('reads the original result only for the selected attempt and verifies the returned field permissions',async()=>{
  const scope={projectId:'P',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'Q',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}
  const original={...scope,id:'ROW',receiptRef:'RECEIPT',state:'COMPLETE',output:craft.outputExample}
- const guideDigest='c'.repeat(64)
+ const guideText='### 原核验指南',guideDigest=await hashCanonicalSnapshotText(guideText)
+ const guideRow={id:'GUIDE-ROW',projectId:'P',guideRef:'GUIDE',versionRef:'GV1',guideDigest,
+  kind:'OperationRoute',actionName:'verify',source:'PUBLIC',publicationRef:'PUB'}
  const manifest=await freezeOperationRouteContext(scope,{guideVersionRef:'GV1',action:{guideRef:'GUIDE',guideDigest,assertCurrent:()=>{}},
   createdAt:'2026-11-18T10:00:00+08:00',slots:[{slotId:'target',required:true}]},[
   {slotId:'target',state:'ALLOWED',sourceRef:'SOURCE',versionRef:'V1',useRef:'USE',value:craft.inputExample.targetScope,assertCurrent:()=>{}},
@@ -28,6 +31,10 @@ it('reads the original result only for the selected attempt and verifies the ret
   columns:Object.keys({...dispatch,...frozen}).map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},originalDispatch:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters}},
    originalFrozen:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters}}},
+ },KnowledgeGuide:{
+  modelBinding:{modelId:'GUIDES',modelName:'KnowledgeGuide'},columns:Object.keys(guideRow).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},originalVersion:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',
+   filters:['projectId','guideRef','versionRef'].map(field=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName:field}}))}}},
  }}})
  const view=ds.getView('GenerationRun','originalResult')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'GenerationRun'})
  let hidden=false
@@ -48,8 +55,16 @@ it('reads the original result only for the selected attempt and verifies the ret
   identity:frozenTable.identity,scope:'frozen',readScope:()=> 'frozen',snapshot:frozenTable.applyResult({Result:{primaryKeyField:'id',
    data:{Count:1,Items:[{...frozen,lingma_sys_params:{r:[],e:[],h:hideFrozen?['inputDigest']:[],m:[],d:false}}]}}}),
  })})
+ const guideView=ds.getView('KnowledgeGuide','originalVersion')
+ if(!guideView)throw Error('TEST_GUIDE_VIEW_REQUIRED')
+ const guideTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'KnowledgeGuide'})
+ guideView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+  identity:guideTable.identity,scope:'guide',readScope:()=> 'guide',snapshot:guideTable.applyResult({Result:{primaryKeyField:'id',
+   data:{Count:1,Items:[{...guideRow,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
+ })})
  const host={runtime:{resolveView:(key:string)=>key==='S@GenerationRun@originalResult'?view:
-  key==='S@ContextManifest@originalDispatch'?dispatchView:key==='S@ContextManifest@originalFrozen'?frozenView:undefined},
+  key==='S@ContextManifest@originalDispatch'?dispatchView:key==='S@ContextManifest@originalFrozen'?frozenView:
+   key==='S@KnowledgeGuide@originalVersion'?guideView:undefined},
   scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  try{
   const scriptHost=createContentOperationScriptHost({...host.runtime,generation:1,destroyed:false,isLoaded:true},
@@ -62,25 +77,26 @@ it('reads the original result only for the selected attempt and verifies the ret
   expect(projected).not.toHaveProperty('input')
   const result=await readRegisteredOperationResult(host,scope)
   expect(result).toMatchObject({state:'COMPLETE',receiptRef:'RECEIPT',output:craft.outputExample})
-  const workspace=openContentOperationWorkspace(scriptHost.runtime,
-   {executeTool:async()=>{throw Error('UNEXPECTED_CLASS_MODEL_CALL')}},{...host,rootKind:'OperationRoute',signal})
-  const guide={guideVersionRef:'GV1',guideRef:'GUIDE',guideDigest,configurationLockHash:scope.configurationLockHash,
+  const tools={executeTool:async(name:string)=>name==='model_action_guide'?{ok:true,data:guideText}:
+   {ok:true,data:{rootKind:'OperationRoute',models:[{kind:'OperationRoute',methods:[{name:'verify'}]}]}}}
+  const workspace=openContentOperationWorkspace(scriptHost.runtime,tools,{...host,rootKind:'OperationRoute',signal})
+  const guide={configurationLockHash:scope.configurationLockHash,
    catalog:{stationRefs:craft.inputExample.stationCatalog.map(station=>station.ref),routeRefs:[]},match:()=>true,
-   assertCurrent:host.assertCurrent,assertGuideCurrent:host.assertCurrent}
+   assertCurrent:host.assertCurrent}
   const resolveGuide=vi.fn(async()=>guide)
   const verified=await workspace.recoverOriginal(scope,resolveGuide)
   expect(resolveGuide).toHaveBeenCalledExactlyOnceWith({scope,guideRef:'GUIDE',guideVersionRef:'GV1',guideDigest},signal)
   expect(verified).toMatchObject({state:'VERIFIED_CANDIDATE',dispatch:{dispatchRef:'DISPATCH'},result:{receiptRef:'RECEIPT'}})
   await dispatchView.refresh()
+  if(!verified)throw Error('TEST_OPERATION_VERIFICATION_REQUIRED')
   expect(()=>verified.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
-  await expect(workspace.recoverOriginal(scope,async()=>({...guide,guideVersionRef:'GV2'})))
+  await expect(workspace.recoverOriginal(scope,async()=>({...guide,configurationLockHash:'d'.repeat(64)})))
    .rejects.toThrow('OPERATION_ROUTE_RETURN_GUIDE_SCOPE')
   await expect(workspace.recoverOriginal(scope,async()=>{
    await frozenView.refresh()
    return guide
   })).rejects.toThrow('DATA_VIEW_READ_RESULT')
-  const verificationHost=createContentOperationScriptHost(scriptHost.runtime,
-   {executeTool:async()=>{throw Error('UNEXPECTED_CLASS_MODEL_CALL')}},
+  const verificationHost=createContentOperationScriptHost(scriptHost.runtime,tools,
    {...host,rootKind:'OperationRoute',resolveOriginalGuide:resolveGuide})
   const inspected=await verificationHost.invoke('content.operation.readDispatch',scope,signal)
   expect(inspected).toMatchObject({state:'DISPATCH_RECORDED',dispatchRef:'DISPATCH',

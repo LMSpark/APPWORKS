@@ -286,7 +286,7 @@ describe('formal topic catalog pages', () => {
     await vi.waitFor(()=>expect(wrapper.text()).toContain('入库流程'))
     await wrapper.findAll('button').find(button=>button.text()==='新增工作流')!.trigger('click');await flushPromises()
     expect(wrapper.findComponent({name:'WorkflowEditorStub'}).exists()).toBe(false)
-    expect(wrapper.text()).toContain('业务编码生成能力尚未确认')
+    expect(wrapper.text()).toContain('领码要求工作流记录已存在')
     expect(state.http.saves).toEqual([])
   })
   it.each(['dirty','busy','unknown'])('guards the workflow dialog while %s and permits only a safe explicit discard',async kind=>{

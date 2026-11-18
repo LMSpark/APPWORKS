@@ -101,7 +101,7 @@ const fields = computed<SparkNode[]>(() => [
     optionDataViewKey: buildDataViewKey('workflowStatus', 'default', scenarioId.value)}},
 ])
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
-function createFlow(): void {error.value='暂不能创建工作流：业务编码生成能力尚未确认。'}
+function createFlow(): void {error.value='暂不能创建工作流：领码要求工作流记录已存在，创建时的建行及编码回写流程尚未确认。'}
 function openDesign(): void {if(selected.value&&!designTarget.value&&!editTarget.value)designTarget.value=selected.value}
 async function openTrigger():Promise<void>{if(conditionEditing.value){error.value='请先应用或取消触发条件编辑';return}await openDefinition();if(editReady.value)triggerOpen.value=true}
 function validateTriggerTarget():void{

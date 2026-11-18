@@ -116,6 +116,16 @@ it('prepares the selected independent response from the saved draft and original
  await openDraftCandidate()
  expect(showAlert).toHaveBeenCalledTimes(2)
  expect(showMessage).toHaveBeenCalledTimes(1)
+ assertCurrent.mockReset()
+ const pending=openDraftCandidate()
+ query['candidateBatchScopeIndex']='2'
+ await openDraftCandidate()
+ await pending
+ expect(prepareDraftCandidate).toHaveBeenCalledTimes(4)
+ expect(showAlert).toHaveBeenCalledTimes(2)
+ await openDraftCandidate()
+ expect(prepareDraftCandidate).toHaveBeenLastCalledWith({requestKey:'Q',firstBatchId:'BATCH',targetScopeIndex:2})
+ expect(showAlert).toHaveBeenCalledTimes(3)
 })
 it('shows a later project head without changing the original adoption revision',async()=>{
  const showAlert=vi.fn(async()=>{}),showMessage=vi.fn()

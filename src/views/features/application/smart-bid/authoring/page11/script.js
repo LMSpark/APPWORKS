@@ -11,11 +11,19 @@ let saveReceiptError = false
 let saveReceiptRequested = false
 let saveReceiptLoading = false
 let candidatePreviewPending = false
+let draftCandidatePending = false
+
+function draftCandidateRouteKey() {
+  const {projectId, draftCandidateRequestKey, candidateTargetKind, candidateTargetNodeId, candidateNodeExtent,
+    candidateAssignmentId, candidateBasisResponseId, candidateFirstBatchId, candidateBatchScopeIndex, candidateAddedNodeId} = $route.query
+  return JSON.stringify({projectId, draftCandidateRequestKey, candidateTargetKind, candidateTargetNodeId, candidateNodeExtent,
+    candidateAssignmentId, candidateBasisResponseId, candidateFirstBatchId, candidateBatchScopeIndex, candidateAddedNodeId})
+}
 
 function bindDraftCandidate() {
   const {draftCandidateRequestKey} = $route.query
   return {visible: typeof draftCandidateRequestKey === 'string' && !!draftCandidateRequestKey &&
-    draftCandidateRequestKey.trim() === draftCandidateRequestKey, disabled: !editorSession || editorFault}
+    draftCandidateRequestKey.trim() === draftCandidateRequestKey, disabled: !editorSession || editorFault || draftCandidatePending}
 }
 
 async function openDraftCandidate() {
@@ -24,6 +32,10 @@ async function openDraftCandidate() {
   const {projectId, draftCandidateRequestKey, candidateTargetKind, candidateTargetNodeId, candidateNodeExtent,
     candidateAssignmentId, candidateBasisResponseId, candidateFirstBatchId, candidateBatchScopeIndex, candidateAddedNodeId} = $route.query
   const id = value => typeof value === 'string' && !!value && value.trim() === value
+  const session = editorSession
+  const routeKey = draftCandidateRouteKey()
+  const isCurrent = () => editorSession === session && draftCandidateRouteKey() === routeKey
+  draftCandidatePending = true
   try {
     if (!id(projectId) || (candidateFirstBatchId !== undefined && !id(candidateFirstBatchId))) throw Error('CONTENT_DRAFT_CANDIDATE_SCOPE')
     let target, targetScopeIndex
@@ -42,10 +54,11 @@ async function openDraftCandidate() {
     } else throw Error('CONTENT_DRAFT_CANDIDATE_SCOPE')
     const declaredAddedNodeIds = Array.isArray(candidateAddedNodeId) ? [...candidateAddedNodeId] : [candidateAddedNodeId]
     if (candidateAddedNodeId !== undefined && !declaredAddedNodeIds.every(id)) throw Error('CONTENT_DRAFT_CANDIDATE_SCOPE')
-    const result = await editorSession.prepareDraftCandidate({requestKey: draftCandidateRequestKey,
+    const result = await session.prepareDraftCandidate({requestKey: draftCandidateRequestKey,
       ...(target ? {targetScope: {schemaVersion: 2, projectId, targets: [target]}} : {targetScopeIndex}),
       ...(candidateFirstBatchId ? {firstBatchId: candidateFirstBatchId} : {}),
       ...(candidateAddedNodeId === undefined ? {} : {declaredAddedNodeIds})})
+    if (!isCurrent()) return
     result.assertCurrent()
     await $page.showAlert([
       `草稿 ${result.draftId} · 版本 ${result.draftVersion}`,
@@ -54,6 +67,7 @@ async function openDraftCandidate() {
       '候选登记待办理',
     ].join('\n'), '候选生成输入')
   } catch (cause) {
+    if (!isCurrent()) return
     const messages = {
       CONTENT_DRAFT_CANDIDATE_UNRESOLVED_LINK: '候选中存在找不到目标的正文引用，请核对引用或恢复目标节点',
       CONTENT_DRAFT_CANDIDATE_NODE_TYPE_CHANGED: '候选改变了既有节点的类型，请核对节点身份',
@@ -63,6 +77,8 @@ async function openDraftCandidate() {
     const code = cause?.message
     $page.showMessage(typeof code === 'string' && Object.hasOwn(messages, code) ? messages[code] :
       '无法核验候选生成输入，请确认草稿已保存且编制范围与原依据一致', 'warning')
+  } finally {
+    draftCandidatePending = false
   }
 }
 

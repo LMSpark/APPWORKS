@@ -5,6 +5,7 @@ import {createTenderFollowupScriptHost} from '@/views/features/application/smart
 import {tenderAddendumScenarioView} from '@/views/features/application/smart-bid/followup/tender-addendum-reader'
 import {tenderChangeChapterScenarioViews} from '@/views/features/application/smart-bid/followup/tender-change-chapter-reader'
 import {tenderChangeCallScenarioView} from '@/views/features/application/smart-bid/followup/tender-change-call-reader'
+import {tenderChangeAttemptScenarioView} from '@/views/features/application/smart-bid/followup/tender-change-attempt-reader'
 import {bidProjectScopeScenarioViews} from '@/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {SNAPSHOT_HASH_CONTRACT} from '@/services/smart-bid/content/revision-snapshot-index'
@@ -35,7 +36,7 @@ it('reads the original addendum locations for the current project, lot and round
   ContentRevision:{projectId:'P',id:'ORIGINAL',status:'ADOPTED',stageRef:'STAGE',baselineId:'OLD',templateRefs:[],snapshotHash},
   RevisionSnapshot:{projectId:'P',id:'S1',snapshotHash,manifest},
   Baseline:{projectId:'P',id:'OLD',stageRef:'STAGE',factVersions:[],requirementVersions:[{lineageId:'CLAUSE',version:'V1'}],tenderRecords:[]},
-  GenerationRun:{projectId:'P',id:'CALLS',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST',actualRequirementReads:[
+  GenerationRun:{projectId:'P',id:'CALLS',basisRevisionId:'ORIGINAL',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST',actualRequirementReads:[
    {lineageId:'CLAUSE',version:'V1',callRef:'USED',resultRef:'RESULT',fieldPath:'requirements.qualification'},
    {lineageId:'CLAUSE',version:'V2',callRef:'OTHER',resultRef:'RESULT',fieldPath:'requirements.qualification'},
   ],changeDispositions:[
@@ -45,7 +46,8 @@ it('reads the original addendum locations for the current project, lot and round
  }
  const chapterViews=tenderChangeChapterScenarioViews({ContentRevision:'id',RevisionSnapshot:'id'})
  const baselineViews=bidProjectScopeScenarioViews({ContentProject:'id',ContentRevision:'id',Baseline:'id'}).Baseline
- const views={...chapterViews,Baseline:baselineViews,GenerationRun:{originalRequirementReads:tenderChangeCallScenarioView('id')}}
+ const views={...chapterViews,Baseline:baselineViews,GenerationRun:{originalRequirementReads:tenderChangeCallScenarioView('id'),
+  originalBasisAttempts:tenderChangeAttemptScenarioView('id')}}
  const contextTables=Object.fromEntries(Object.entries(rows).map(([model,record])=>[model,{
   modelBinding:{modelName:model,modelId:model},columns:Object.keys(record).map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},...views[model as keyof typeof views]},
@@ -78,6 +80,14 @@ it('reads the original addendum locations for the current project, lot and round
    const [scenario,model,name]=key.split('@')
    return scenario==='S'&&model&&name?ds.getView(model,name):undefined
   }}
+  const attempts=ds.getView('GenerationRun','originalBasisAttempts')
+  if(!attempts)throw Error('TEST_ATTEMPT_VIEW_REQUIRED')
+  const attemptTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'GenerationRun'})
+  let attemptCount=1
+  attempts.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+   identity:attemptTable.identity,scope:'attempts',readScope:()=> 'attempts',snapshot:attemptTable.applyResult({Result:{primaryKeyField:'id',
+    data:{Count:attemptCount,Items:[{...rows.GenerationRun,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
+  })})
   const receiptScope={projectId:'P',lotId:'L',subjectId:'ORG',channelId:'PORTAL'}
   const receiptIdentity={...receiptScope,operationRef:'SEND',objectRef:'PKG'}
   const knownAt=row.effectiveAt
@@ -92,6 +102,11 @@ it('reads the original addendum locations for the current project, lot and round
   const readDeadline=vi.fn(async()=>deadline)
   const page=createTenderFollowupScriptHost(runtime,{scenarioId:'S',projectId:'P',assertCurrent},{selection:scope,readDeadline})
   const signal=new AbortController().signal
+  const listed=await page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL'},signal)
+  expect(listed).toMatchObject({basisRevisionId:'ORIGINAL',items:[{runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST'}]})
+  attemptCount=2
+  await expect(page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL'},signal))
+   .rejects.toThrow('TENDER_CHANGE_ATTEMPT_INCOMPLETE')
   const result=await page.invoke('tender.followup.readAddendum',{addendumId:'A'},signal)
   expect(view.queryContext).toMatchObject({projectId:'P',lotId:'L',roundId:'R',id:'A'})
   expect(result).toMatchObject({state:'REGISTERED',items:[{

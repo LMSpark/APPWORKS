@@ -1,4 +1,22 @@
 /* global $page, $route */
+function bindOriginalAttempts() {
+  const {revisionId} = $route.query
+  return {visible: typeof revisionId === 'string' && !!revisionId && revisionId.trim() === revisionId}
+}
+
+async function openOriginalAttempts() {
+  if (!bindOriginalAttempts().visible) return
+  try {
+    const result = await $page.invokeHostCommand('tender.followup.readOriginalAttempts', {revisionId: $route.query.revisionId})
+    result.assertCurrent()
+    const lines = ['正文基版 ' + result.basisRevisionId, ...result.items.map(item => `运行 ${item.runId} · 试次 ${item.attemptRef}`)]
+    if (!result.items.length) lines.push('当前查询范围内无原工艺试次登记')
+    await $page.showAlert(lines.join('\n'), '原正文工艺试次')
+  } catch {
+    $page.showMessage('原工艺试次目录无法核验', 'warning')
+  }
+}
+
 function bindOutboundImpact() {
   return {visible: bindTenderAddendum().visible && bindFollowupNotices().visible}
 }

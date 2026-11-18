@@ -24,6 +24,14 @@
     ]
   },
   {
+    "id": "tender-followup-attempt-history",
+    "type": "r-section",
+    "props": {"title": "原正文工艺试次", "onBeforeRender": "bindOriginalAttempts"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看原调用试次", "onClick": "openOriginalAttempts"}}
+    ]
+  },
+  {
     "id": "tender-followup-call-impact",
     "type": "r-section",
     "props": {"title": "原调用条款引用", "onBeforeRender": "bindCallImpact"},

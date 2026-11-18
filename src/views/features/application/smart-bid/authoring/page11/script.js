@@ -11,6 +11,51 @@ let saveReceiptError = false
 let saveReceiptRequested = false
 let saveReceiptLoading = false
 
+function bindCandidatePreview() {
+  const {candidateRevisionId} = $route.query
+  return {visible: typeof candidateRevisionId === 'string' && !!candidateRevisionId && candidateRevisionId.trim() === candidateRevisionId,
+    disabled: !editorSession || editorFault}
+}
+
+async function openCandidatePreview() {
+  const {visible, disabled} = bindCandidatePreview()
+  if (!visible || disabled) return
+  const {candidateRevisionId, candidateExpectedHead, candidateAddedNodeId, candidateFormDocumentId,
+    formTemplateRef, formTemplateVersion} = $route.query
+  try {
+    const id = value => typeof value === 'string' && !!value && value.trim() === value
+    const declaredAddedNodeIds = candidateAddedNodeId === undefined ? [] :
+      Array.isArray(candidateAddedNodeId) ? [...candidateAddedNodeId] : [candidateAddedNodeId]
+    if (!declaredAddedNodeIds.every(id) || (candidateExpectedHead !== undefined && !id(candidateExpectedHead))) {
+      throw Error('CONTENT_CANDIDATE_PAGE_SELECTION')
+    }
+    const options = {declaredAddedNodeIds}
+    if (candidateFormDocumentId !== undefined) {
+      if (![candidateFormDocumentId, formTemplateRef, formTemplateVersion].every(id)) throw Error('CONTENT_CANDIDATE_PAGE_SELECTION')
+      options.originalFormTemplate = {documentId: candidateFormDocumentId, templateRef: formTemplateRef, templateVersion: formTemplateVersion}
+    }
+    const result = await editorSession.previewCandidate({candidateRevisionId, expectedHead: candidateExpectedHead ?? null}, options)
+    result.assertCurrent()
+    const lines = [
+      `候选 ${candidateRevisionId} · ${result.scopeCheckPassed ? '变更范围已核' : '变更范围待处理'}`,
+      `变更节点 ${result.changedNodeIds.join('、') || '无'}`,
+      `新增节点 ${result.addedNodeIds.join('、') || '无'}`,
+      `答复变更 ${result.responseChanges.length} 项`,
+    ]
+    if (result.originalFormBasisCheck) lines.push('已核同册原表映射')
+    const violations = {
+      NODE_OUTSIDE_SCOPE: '节点越出授权范围', STRUCTURE_PARENT_OUTSIDE_SCOPE: '父节点越出授权范围',
+      ADDITION_OUTSIDE_SCOPE: '新增节点越出授权范围', UNDECLARED_ADDITION: '新增节点未声明',
+      UNEXPECTED_ADDITION_DECLARATION: '声明的新增节点未出现', RESPONSE_OUTSIDE_SCOPE: '答复越出授权范围',
+      RESPONSE_BASIS_MISMATCH: '答复依据不符', RESPONSE_ID_REUSE: '答复标识重复使用',
+    }
+    for (const issue of result.violations) lines.push(`${issue.ownerId} · ${violations[issue.code]}`)
+    await $page.showAlert(lines.join('\n'), '候选变更预演')
+  } catch {
+    $page.showMessage('候选变更无法预演', 'warning')
+  }
+}
+
 function bindOriginalForm() {
   const {formTemplateRef, formTemplateVersion} = $route.query
   return {visible: [formTemplateRef, formTemplateVersion].every(value => typeof value === 'string' && !!value && value.trim() === value),

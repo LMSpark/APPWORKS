@@ -8,6 +8,7 @@
       {"type": "r-button", "props": {"label": "核对原表映射", "onBeforeRender": "bindOriginalForm", "onClick": "openOriginalForm"}},
       {"type": "r-button", "props": {"label": "核对换表差异", "onBeforeRender": "bindOriginalFormComparison", "onClick": "openOriginalFormComparison"}},
       {"type": "r-button", "props": {"label": "回查原采用记录", "onBeforeRender": "bindOriginalAdoption", "onClick": "openOriginalAdoption"}},
+      {"type": "r-button", "props": {"label": "预演候选变更", "onBeforeRender": "bindCandidatePreview", "onClick": "openCandidatePreview"}},
       {
         "id": "original-draft",
         "type": "r-form",

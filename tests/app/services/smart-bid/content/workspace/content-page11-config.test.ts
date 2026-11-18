@@ -40,6 +40,25 @@ it('explains missing edit integration without enabling edit actions',async()=>{
  expect(bindOriginalDraft()).toEqual({visible:false})
  expect(bindCancel()).toEqual({visible:false,disabled:true})
 })
+it('passes exact candidate and original-form inputs to preview and renders the scope issues',async()=>{
+ const assertCurrent=vi.fn(),showAlert=vi.fn(async(_text:string,_title:string)=>{}),showMessage=vi.fn()
+ const previewCandidate=vi.fn(async()=>({scopeCheckPassed:false,changedNodeIds:['C'],addedNodeIds:['D'],responseChanges:[],
+  originalFormBasisCheck:{},violations:[{ownerId:'D',code:'UNDECLARED_ADDITION'}],assertCurrent}))
+ const query={candidateRevisionId:'CANDIDATE',candidateExpectedHead:'HEAD',candidateAddedNodeId:['D','CHAPTER'],
+  candidateFormDocumentId:'D',formTemplateRef:'FORM',formTemplateVersion:'V1'}
+ const {__init__,openCandidatePreview}=compileFunctions(script,{$route:{query},
+  $page:{invokeHostCommand:async()=>({previewCandidate}),showAlert,showMessage}} as unknown as PageContext)
+ if(!__init__||!openCandidatePreview)throw Error('TEST_PAGE11_PREVIEW_REQUIRED')
+ await __init__()
+ await openCandidatePreview()
+ expect(previewCandidate).toHaveBeenCalledExactlyOnceWith({candidateRevisionId:'CANDIDATE',expectedHead:'HEAD'},
+  {declaredAddedNodeIds:['D','CHAPTER'],originalFormTemplate:{documentId:'D',templateRef:'FORM',templateVersion:'V1'}})
+ expect(showAlert).toHaveBeenCalledWith(expect.stringContaining('D · 新增节点未声明'),'候选变更预演')
+ assertCurrent.mockImplementation(()=>{throw Error('STALE')})
+ await openCandidatePreview()
+ expect(showAlert).toHaveBeenCalledTimes(1)
+ expect(showMessage).toHaveBeenCalledWith('候选变更无法预演','warning')
+})
 it('shows the original save receipt without modifying the current editor',async()=>{
  const assertCurrent=vi.fn(),assertComparison=vi.fn(),resolveView=vi.fn()
  const receipt={state:'SAVED',draftVersion:'V2',receiptRef:'RC',assertCurrent,

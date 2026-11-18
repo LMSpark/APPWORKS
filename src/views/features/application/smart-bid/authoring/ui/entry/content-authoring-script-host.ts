@@ -14,6 +14,8 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {readBaselineSubmissionObligations} from '../../../followup/submission-obligation-reader'
 import {inspectRegisteredAdoption,type ContentAdoptionSelection} from '../../model/adoption/content-adoption-reader'
 import {compareRegisteredOriginalForms,readRegisteredOriginalForm} from '../../../response/model/original-form-reader'
+import {readCandidateContent,type ContentCandidateBinding} from '../../model/content-candidate-reader'
+import type {ContentRevisionSelection} from '../../model/content-revision-reader'
 import {readRegisteredOriginalContentDraftSave} from '../../model/content-draft-save-reader'
 import {reconcileSavedContentDraft} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
 type Binding=Pick<ContentAuthoringBinding,'runtime'|'dataViewKey'|'projectId'|'draftId'|'actorUserId'|'assertCurrent'|'setPending'>
@@ -23,6 +25,7 @@ type SaveReadInput=Parameters<typeof readRegisteredOriginalContentDraftSave>[1]
 type OriginalSave=Awaited<ReturnType<typeof readRegisteredOriginalContentDraftSave>>
 /** 原回执与当前草稿在同一版本下的比较结果。 */
 type SaveComparison=Awaited<ReturnType<typeof reconcileSavedContentDraft>>
+type CandidatePreviewInput=Parameters<ContentCandidateBinding['previewScope']>[0]
 
 /** 实例池创建宿主后，仅在三文件脚本连接时装配原视图。并行连接共享本次装载。 */
 export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:ContentAuthoringTarget,
@@ -70,6 +73,7 @@ export type ContentAuthoringScriptSession=Readonly<{
  readOriginalAdoption:(input:ContentAdoptionSelection)=>ReturnType<typeof inspectRegisteredAdoption>
  readOriginalForm:(selection:Parameters<typeof readRegisteredOriginalForm>[1])=>ReturnType<typeof readRegisteredOriginalForm>
  compareOriginalForms:(selection:Parameters<typeof compareRegisteredOriginalForms>[1])=>ReturnType<typeof compareRegisteredOriginalForms>
+ previewCandidate:(selection:ContentRevisionSelection,options:CandidatePreviewInput)=>ReturnType<ContentCandidateBinding['previewScope']>
 }>
 /** 供正式SparkPageRenderer.host使用；命令对象仍归原薄宿主释放。 */
 export function createContentAuthoringScriptHost(binding:Binding,commands:ContentAuthoringCommands,receiptDataViewKey?:string){
@@ -90,6 +94,14 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
    }
    return Object.freeze({assertCurrent,
     get canLeave(){return commands.canLeave},
+    async previewCandidate(selection:ContentRevisionSelection,options:CandidatePreviewInput){
+     assertCurrent()
+     const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
+     if(!scenarioId)throw Error('CONTENT_CANDIDATE_SCOPE_REQUIRED')
+     const previewInput=structuredClone(options)
+     const candidate=await readCandidateContent({runtime,scenarioId,projectId,assertCurrent},selection)
+     return candidate.previewScope(previewInput,assertCurrent)
+    },
     compareOriginalForms(selection:Parameters<typeof compareRegisteredOriginalForms>[1]){
      assertCurrent()
      const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope

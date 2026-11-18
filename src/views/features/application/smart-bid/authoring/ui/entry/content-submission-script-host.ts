@@ -20,7 +20,7 @@ import {attachDeadlinePackageDisposition,reconcileDeadlineDelivery} from '../../
 import {readRegisteredTenderOutcome} from '../../model/review/submission/content-tender-outcome-reader'
 import {readRegisteredDeadlineRecord} from '../../model/review/deadline/content-deadline-record-reader'
 import {reviewRegisteredDeliveryZipPackage} from '../../model/review/package/content-package-review'
-import {reviewRegisteredPaperSubmissionPackage} from '../../model/review/package/content-paper-submission-package-reader'
+import {readRegisteredPaperPacking,reviewRegisteredPaperSubmissionPackage} from '../../model/review/package/content-paper-submission-package-reader'
 import {assessSubmissionPackageRelease} from '../../model/review/package/content-package-release'
 import {checkRepresentedSubmission,checkSubmissionStart,prepareSubmissionRequest} from '../../model/review/submission/content-submission-preflight'
 
@@ -73,8 +73,11 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
   readDeadline?:ReadDeadline;readPackageSelection?:PackageSelection
   paperEvidence?:Parameters<typeof reviewRegisteredPaperSubmissionPackage>[2]
   readPaperPackingSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
-   selectionRef:string;frozen:PaperPacking[0];packed:PaperPacking[1]
-  }>>
+   selectionRef:string;frozen:PaperPacking[0]
+  }>&(
+   Readonly<{state:'PREPARE';packed:PaperPacking[1]}>|
+   Readonly<{state:'REGISTERED';target:Parameters<typeof readRegisteredPaperPacking>[1]}>
+  )>
   readPackageRelease?:(
    original:Readonly<Pick<PackageRelease[0],'projectId'|'packageId'|'packageHash'|'selectionHash'>>,signal:AbortSignal
   )=>Promise<Readonly<{rules:PackageRelease[1];evidence:PackageRelease[2]}>>
@@ -106,9 +109,10 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     assertCurrent()
     const selected=await sources.readPaperPackingSelection(selectionRef,signal)
     assertCurrent()
-    if(selected.selectionRef!==selectionRef||selected.packed.projectId!==projectId)
+    if(selected.selectionRef!==selectionRef||selected.frozen.projectId!==projectId)
      throw Error('SUBMISSION_PAGE_PACKING_SCOPE')
-    const prepared=preparePaperPackingRecord(selected.frozen,selected.packed)
+    const packed=selected.state==='PREPARE'?selected.packed:(await readRegisteredPaperPacking(host,selected.target)).packed
+    const prepared=preparePaperPackingRecord(selected.frozen,packed)
     return Object.freeze({...prepared,assertCurrent:()=>{assertCurrent();prepared.assertCurrent()}})
    }
    if(name==='content.submission.preparePacking'&&sources.readPackingSelection){

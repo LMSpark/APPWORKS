@@ -73,8 +73,8 @@ it('opens the original paper packing record before asking for same-seal witness 
  try{
   const page=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
    paperEvidence:{readFrozen,readWitness},readPackageRelease,
-   readPaperPackingSelection:async()=>({selectionRef:'PAPER',frozen:{...scope,members,assertCurrent:host.assertCurrent},
-    packed:{...scope,members,packingRef:'PACK',assertCurrent:host.assertCurrent}}),
+   readPaperPackingSelection:async()=>({selectionRef:'PAPER',state:'REGISTERED',frozen:{...scope,members,assertCurrent:host.assertCurrent},
+    target:input}),
   })
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
   await expect(page.invoke('content.submission.preparePaperPacking',{selectionRef:'OTHER'},signal))

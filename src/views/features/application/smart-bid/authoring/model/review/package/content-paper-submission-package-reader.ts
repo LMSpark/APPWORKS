@@ -23,11 +23,8 @@ const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='Submissi
   hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
 
 /** 原包先读取；后续只请求同封装、同次选件的两个原证据。 */
-export async function reviewRegisteredPaperSubmissionPackage(host:ContentRevisionReadHost,
- input:Readonly<{packageId:string;packingRequestRef:string}>,sources:Readonly<{
-  readFrozen:(scope:Review[0])=>Promise<Source['frozen']>
-  readWitness:(scope:Review[0])=>Promise<Source['observed']>
- }>){
+export async function readRegisteredPaperPacking(host:ContentRevisionReadHost,
+ input:Readonly<{packageId:string;packingRequestRef:string}>){
  const {runtime,scenarioId,projectId}=host,{packageId,packingRequestRef}=input
  host.assertCurrent()
  const context={projectId,packageId,packingRequestRef}
@@ -55,11 +52,21 @@ export async function reviewRegisteredPaperSubmissionPackage(host:ContentRevisio
  const members=packed.map((entry:unknown):Member=>{
   if(!isRecord(entry)||!identity(entry['position'])||!identity(entry['paperRef'])||!identity(entry['versionRef'])||
    typeof entry['copies']!=='number')throw Error(error)
-  return {position:entry['position'],paperRef:entry['paperRef'],versionRef:entry['versionRef'],copies:entry['copies']}
+  return Object.freeze({position:entry['position'],paperRef:entry['paperRef'],versionRef:entry['versionRef'],copies:entry['copies']})
  })
  const scope=Object.freeze({projectId,packageId,sealRef,selectionHash})
- const [frozen,observed]=await Promise.all([sources.readFrozen(scope),sources.readWitness(scope)])
  assertCurrent()
- const report=reviewPaperSubmissionPackage(scope,{frozen,packed:{...scope,packingRef,members,assertCurrent},observed})
+ return Object.freeze({scope,packageHash,packed:Object.freeze({...scope,packingRef,members:Object.freeze(members),assertCurrent})})
+}
+
+/** 原包先读取；后续只请求同封装、同次选件的两个原证据。 */
+export async function reviewRegisteredPaperSubmissionPackage(host:ContentRevisionReadHost,
+ input:Parameters<typeof readRegisteredPaperPacking>[1],sources:Readonly<{
+  readFrozen:(scope:Review[0])=>Promise<Source['frozen']>
+  readWitness:(scope:Review[0])=>Promise<Source['observed']>
+ }>){
+ const {scope,packageHash,packed}=await readRegisteredPaperPacking(host,input)
+ const [frozen,observed]=await Promise.all([sources.readFrozen(scope),sources.readWitness(scope)])
+ const report=reviewPaperSubmissionPackage(scope,{frozen,packed,observed})
  return Object.freeze({...report,packageHash})
 }

@@ -2,6 +2,7 @@ import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {readSubmissionPackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/content-package-review'
 import {reconcileDeadlinePackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation'
+import {reconcileDeadlineContents} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation'
 import {reconcileSubmissionDeadline} from '@/services/smart-bid/content/review/submission-reconciliation'
 
 it('verifies the sealed bytes before enumerating and compares independently read member bytes',async()=>{
@@ -32,6 +33,11 @@ it('verifies the sealed bytes before enumerating and compares independently read
   {obligationId:'O',position:record.position},{obligationId:'O',position:'经济/分项表.pdf'},
  ]},[result])
  expect(mixed.items[0]).toMatchObject({contentState:'PENDING',members:[{state:'MATCHED'},{state:'PENDING'}]})
+ const combined=reconcileDeadlineContents({projectId:'P',deadline,links:[link],assertCurrent:()=>{},
+  requiredMembers:[{obligationId:'O',position:record.position}],requiredFields:[{obligationId:'O',assignmentId:'A',fieldId:'F'}],
+ },{packages:[result],batches:[]})
+ expect(combined.items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',contentState:'PENDING',
+  members:[{state:'MATCHED'}],fields:[{state:'PENDING'}]})
  await expect(readSubmissionPackageMembers({...source,packageHash:'a'.repeat(64)},enumerate)).rejects.toThrow('SUBMISSION_PACKAGE_HASH_MISMATCH')
  expect(enumerate).toHaveBeenCalledOnce()
  await expect(readSubmissionPackageMembers(source,async()=>({complete:false,members:[]}))).rejects.toThrow('SUBMISSION_PACKAGE_INVENTORY_INCOMPLETE')

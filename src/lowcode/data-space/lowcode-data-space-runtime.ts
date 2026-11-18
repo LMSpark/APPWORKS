@@ -31,6 +31,7 @@ import {createAgentWorkflowPublicationBindings} from '../resources/repository/ag
 import {createAgentWorkflowDeletionBindings} from '../resources/repository/agent-workflow/deletion'
 import {createLogicViewDesignExecutor, LOGIC_VIEW_DESIGN_RESOURCE_ID, LOGIC_VIEW_DESIGN_VIEW} from '../resources/structured-config/logic-view/design-ops'
 import {createExcelCatalogBindings} from '../resources/semi-structured/excel-import/catalog/creation'
+import {createPdfInspectionProjectionBindings} from '../resources/semi-structured/pdf-inspect/runtime-bindings'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
 export type LoadScenarioDataSetInput = Readonly<{
@@ -217,7 +218,8 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
   },
   ...(input.getPage?{getPage:input.getPage}:{}),
   ...definitions,
-  projectionBindings: {...definitions.projectionBindings, ...approvalOptions.projectionBindings}})
+  projectionBindings: {...definitions.projectionBindings, ...approvalOptions.projectionBindings,
+   ...createPdfInspectionProjectionBindings({config,http:lowcodeHttp,readScope,assertCurrent})}})
  try {
   assertCurrent()
   if (result.diagnostics.length > 0) {

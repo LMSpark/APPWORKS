@@ -17,6 +17,19 @@
         "queryConfig": {"fields": ["id", "name", "description", "enabled", "rule_config"]},
         "filterExpression": {"field": "id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "ruleId"}}
       }}
+    },
+    "PdfInspectionHistory": {
+      "resourceType": "logical-view", "resourceId": "pdf-inspect:history",
+      "columns": [
+        {"name": "inspectJobId", "type": "string", "isPrimaryKey": true},
+        {"name": "requestId", "type": "string"},
+        {"name": "configId", "type": "string"},
+        {"name": "status", "type": "string"}
+      ],
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
+        "pageSize": 20, "queryConfig": {"pagination": "paged"}
+      }}
     }
   },
   "resourceRelations": [], "viewCascades": []

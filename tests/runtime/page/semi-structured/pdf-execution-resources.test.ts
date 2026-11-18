@@ -1,8 +1,11 @@
 import {expect,it} from 'vitest'
-import {DataSpaceRuntimeApi,PdfInspectionApi,pdfInspectionReadonlyBinding} from '@spark-appworks/spark-lowcode-api'
+import {readFileSync} from 'node:fs'
+import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
+import {buildDataViewKey,resolveDataViewKey} from '@spark-appworks/spark-data'
 import {HttpClientBase,type RequestConfig,type HttpResponse} from '@spark-appworks/spark-utils'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
+import {createPdfInspectionProjectionBindings,PDF_INSPECTION_HISTORY_TABLE,PDF_INSPECTION_SCENARIO_ID} from '@/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings'
 
 class HistoryHttp extends HttpClientBase{
  calls:RequestConfig[]=[]
@@ -15,12 +18,16 @@ class HistoryHttp extends HttpClientBase{
 }
 
 it('loads PDF history through the formal scenario assembler and the exported readonly binding',async()=>{
- const config=new ScenarioViewConfig('PDF',JSON.stringify({scenarioId:'PDF',tables:{History:{resourceType:'logical-view',resourceId:'pdf-inspect:history',columns:['inspectJobId','requestId','configId','status'].map(name=>({name,type:'string',isPrimaryKey:name==='inspectJobId'})),views:{default:{autoLoad:false,page:2,pageSize:1,commitMode:'staged',queryConfig:{pagination:'paged'}}}}}}))
+ const source=readFileSync('config/pages/semi-structured/pdf-inspect-catalog/pagedata.json','utf8')
+ const config=new ScenarioViewConfig(PDF_INSPECTION_SCENARIO_ID,source).selectModelScope(PDF_INSPECTION_HISTORY_TABLE,[])
  const http=new HistoryHttp(),readScope=()=>({token:'scope',headers:{'X-AppId':'APP'}})
- const api=new PdfInspectionApi({http,readScope}),runtime=new DataSpaceRuntimeApi({http,readScope})
- const {dataSet}=new LowcodeDataSpaceAssembler(runtime,http).assemble({config,space:{dataSpaceId:'PDF',name:'PDF核验'},models:[],relations:[],projectionBindings:{History:()=>pdfInspectionReadonlyBinding({api,kind:'history',assertCurrent:()=>{}})}})
+ const runtime=new DataSpaceRuntimeApi({http,readScope})
+ const projectionBindings=createPdfInspectionProjectionBindings({config,http,readScope,assertCurrent:()=>{}})
+ const {dataSet}=new LowcodeDataSpaceAssembler(runtime,http).assemble({config,space:{dataSpaceId:PDF_INSPECTION_SCENARIO_ID,name:'PDF核验'},models:[],relations:[],projectionBindings})
  try{
-  const view=dataSet.getView('History')!
+  const view=dataSet.getView(PDF_INSPECTION_HISTORY_TABLE)!
+  expect(resolveDataViewKey(buildDataViewKey(PDF_INSPECTION_HISTORY_TABLE,'default',PDF_INSPECTION_SCENARIO_ID),dataSet)).toBe(view)
+  view.pageSize=1;view.page=2
   await view.refresh()
   expect(view.loadingError).toBeNull();expect(view.rows).toMatchObject([{inspectJobId:'JOB',requestId:'REQ'}])
   expect(view.total).toBe(7);expect(http.calls).toHaveLength(1)

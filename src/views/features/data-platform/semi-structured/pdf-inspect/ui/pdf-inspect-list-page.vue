@@ -8,11 +8,15 @@
       <RendererButton label="新增规则" :disabled="loading || adding || !!creationId" @click="createRule" />
       <RendererButton label="打开设计" icon="Setting" :disabled="loading || !selected" @click="openEditor" />
       <RendererButton label="刷新" icon="Refresh" :disabled="loading" @click="refreshCatalog" />
+      <RendererButton v-if="historyAvailable" label="核验历史" :disabled="loading || historyLoading" @click="openHistory" />
     </template>
     <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :stripe="true" :border="true"
       :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
     <FeatureRecordDialog v-if="creationId !== undefined" :data-view-key="creationKey" :record-id="creationId"
       title="新增PDF核验规则" :created="true" :specs="creationFields" :validate="validateCreation" @close="closeCreation" />
+    <RendererSection v-if="ready && historyOpen" title="核验历史" :error="historyError" :bordered="false">
+      <RendererTable :data-view-key="historyKey" :children="historyFields" :show-data-view-meta="false" />
+    </RendererSection>
   </RendererSection>
 </template>
 
@@ -23,6 +27,7 @@ import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@sp
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
+import {PDF_INSPECTION_HISTORY_TABLE} from '@/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings'
 import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
@@ -75,6 +80,28 @@ const selected = computed(() => {
 })
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodePdfInspect.catalogMetaName, 'default', scenarioId.value))
+const historyKey = computed(() => buildDataViewKey(PDF_INSPECTION_HISTORY_TABLE, 'default', scenarioId.value))
+const historyAvailable = ref(false), historyOpen = ref(false), historyLoading = ref(false), historyError = ref('')
+const historyFields: SparkNode[] = [
+  {type: 'r-text', props: {field: 'inspectJobId', label: '任务编号'}},
+  {type: 'r-text', props: {field: 'requestId', label: '请求编号'}},
+  {type: 'r-text', props: {field: 'configId', label: '规则编号'}},
+  {type: 'r-text', props: {field: 'status', label: '处理状态'}},
+]
+async function openHistory(): Promise<void> {
+  const current = session.runtime, history = current?.resolveView(historyKey.value)
+  if (!history || historyLoading.value) return
+  const own = generation
+  historyOpen.value = true; historyLoading.value = true; historyError.value = ''
+  try {
+    await history.refresh()
+    if (history.loadingError) throw history.loadingError
+  } catch (cause) {
+    if (active && own === generation) historyError.value = cause instanceof Error ? cause.message : String(cause)
+  } finally {
+    if (active && own === generation) historyLoading.value = false
+  }
+}
 const editorPath = '/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page'
 const fields = computed<SparkNode[]>(() => [
   {type: 'r-text', props: {field: 'name', label: '规则名称', minWidth: 240, showOverflowTooltip: true}},
@@ -96,6 +123,7 @@ async function openEditor(): Promise<void> {
 watch(scenarioId, async id => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
+  historyAvailable.value = false; historyOpen.value = false; historyLoading.value = false; historyError.value = ''
   unsubscribe?.(); view.value = undefined
   session.dispose()
   try {
@@ -107,6 +135,7 @@ watch(scenarioId, async id => {
     await current.load()
     if (!active || own !== generation || !session.isCurrent(current)) return
     view.value = dataSet.getView(LowcodePdfInspect.catalogMetaName, 'default')
+    historyAvailable.value = current.resolveView(historyKey.value) !== undefined
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: () => revision.value++})
     if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); ready.value = true}
     dataSet.triggerAutoLoad()

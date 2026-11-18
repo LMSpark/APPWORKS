@@ -9,29 +9,13 @@ AI用途：迁移系统运维数据恢复时，核对级联输入、data_id取�
     :status="loading ? '正在读取应用系统…' : reloadBlocked ? '当前显示原导航的数据恢复记录。' : ''"
     :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
     <RendererButton v-if="reloadBlocked" label="切换到当前导航" :disabled="locked" @click="loadCurrentRoute" />
-    <div v-if="ready" class="recovery-page__body">
-      <SparkPageRenderer v-if="runtime && toolHost" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="toolHost" :auto-load="false" />
-      <RendererSection class="recovery-page__main" :title="table?.label ?? '数据'" :grid-columns="1"
-        :status="table ? notice : '请先选择应用系统和数据库，再选择数据表'" :error="message">
-        <RendererButton v-if="unconfirmed" label="核验原保存结果" :disabled="busy" @click="verifyOriginalSave" />
-        <template v-if="table">
-          <RendererTabs v-model="tab" @tab-change="loadAll">
-            <RendererTabPane label="待恢复数据" name="deleted" :index="0">
-              <RendererTable :key="`deleted-${columnsEpoch}`" :data-view-key="deletedKey" :children="dataFields" :actions="deletedActions"
-                :show-data-view-meta="false" :pagination="{pageSizes: [15, 30, 50, 100]}" />
-            </RendererTabPane>
-            <RendererTabPane label="已恢复数据" name="recovered" :index="1">
-              <RendererTable :data-view-key="recoveredKey" :children="recoveredFields" :actions="recoveredActions"
-                :show-data-view-meta="false" :pagination="{pageSizes: [15, 30, 50, 100]}" />
-            </RendererTabPane>
-            <RendererTabPane label="全部数据" name="all" :index="2" :lazy="true">
-              <RendererTable :key="`all-${columnsEpoch}`" :data-view-key="allKey" :children="dataFields"
-                :show-data-view-meta="false" :pagination="{pageSizes: [15, 30, 50, 100]}" />
-            </RendererTabPane>
-          </RendererTabs>
-        </template>
-      </RendererSection>
-    </div>
+    <SparkPageRenderer v-if="runtime && toolHost" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="toolHost" :auto-load="false">
+      <template #content="{children}">
+        <div class="recovery-page__body">
+          <SparkComponentRenderer v-for="(node, index) in children" :key="nodeId(node) ?? index" :config="bindDataFields(node)" />
+        </div>
+      </template>
+    </SparkPageRenderer>
   </RendererSection>
 </template>
 
@@ -40,16 +24,15 @@ import {computed, nextTick, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {useRoute} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, getSparkNodeChildren, nodeId, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
-import type {RToolbarProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
 import rule from './tool/rule.json?raw'
 import script from './tool/script.js?raw'
 import style from './tool/style.css?raw'
 
-const {RendererSection, SparkPageRenderer, RendererTable, RendererTabs, RendererTabPane, RendererButton, consumeRequiredPageService} = Components
+const {RendererSection, SparkPageRenderer, SparkComponentRenderer, RendererButton, consumeRequiredPageService} = Components
 const scenarioId = '70D5D8FACCC201A822F64B16A441BE8F'
 const {sparkConsume} = Components.useSparkComponent({type: 'data-recovery-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'data-recovery-page')
@@ -79,8 +62,25 @@ const toolHost = computed(() => {
   if (!current) return undefined
   return {runtime: current, assertCurrent() {
     if (!session.isCurrent(current)) throw new Error('数据恢复运行实例已失效')
-  }, invoke(command: string) {
-    if (command === 'recovery.connect') return {selectionLocked: () => locked.value || reloadBlocked.value}
+  }, async invoke(command: string, input: unknown) {
+    if (!session.isCurrent(current)) throw new Error('数据恢复运行实例已失效')
+    if (command === 'recovery.connect') return {
+      selectionLocked: () => locked.value || reloadBlocked.value,
+      status: () => ({title: table.value?.label ?? '数据',
+        status: table.value ? notice.value : '请先选择应用系统和数据库，再选择数据表', error: message.value}),
+      selected: () => table.value !== undefined,
+      tab: () => tab.value,
+      verification: () => ({visible: unconfirmed.value !== undefined, disabled: busy.value}),
+    }
+    if (command === 'recovery.tab' && (input === 'deleted' || input === 'recovered' || input === 'all')) {
+      tab.value = input
+      await loadAll()
+    }
+    if (command === 'recovery.verify') await verifyOriginalSave()
+    if (input && typeof input === 'object') {
+      if (command === 'recovery.restore') await recover(input as DataRow)
+      if (command === 'recovery.undo') await undo(input as DataRow)
+    }
     return undefined
   }}
 })
@@ -90,18 +90,23 @@ const fieldKey = key('Base_TblField'), deletedKey = key('获取软删除的数�
 const recoveredKey = key('Base_TableData_Recovery')
 const text = (field: string, label: string, minWidth = 140): SparkNode =>
   ({type: 'r-text', props: {field, label, readonly: true, minWidth, showOverflowTooltip: true}})
-const recoveredFields: SparkNode[] = [text('sys_id', '应用系统ID'), text('db_id', '数据库ID'), text('data_id', '表数据ID'),
-  text('recovery_date', '恢复操作日期', 160), text('table_id', '表名称'), text('recovery_userid', '恢复操作人')]
 const tab = ref<string | number>('deleted')
 const table = shallowRef<{rowid: string; label: string}>()
 const columns = shallowRef<readonly {name: string; label: string}[]>([])
-const columnsEpoch = ref(0), message = ref(''), notice = ref('')
+const message = ref(''), notice = ref('')
 useSystemPageDirtySource({get isDirty() {return locked.value}})
 /** 软删除读取适配器拒绝排序，表数据列为运行时生成、不在视图输出合同内，二者均不提供表头排序。 */
 const dataFields = computed(() => columns.value.map(column => {
   const node = text(column.name, column.label)
   return {...node, props: {...node.props, sortable: false}}
 }))
+function bindDataFields(node: SparkNode): SparkNode {
+  if (nodeId(node) === 'recovery-deleted-table' || nodeId(node) === 'recovery-all-table') {
+    return {...node, children: dataFields.value}
+  }
+  if (!node.children) return node
+  return {...node, children: getSparkNodeChildren(node.children).map(bindDataFields)}
+}
 const view = (dataViewKey: string): DataView => {
   const found = session.runtime?.resolveView(dataViewKey)
   if (!found) throw new Error(`数据恢复缺少正式视图 ${dataViewKey}`)
@@ -127,7 +132,6 @@ function syncTable(): void {
 function syncColumns(): void {
   columns.value = view(fieldKey).rows.map(row => ({name: value(row, 'enname'), label: value(row, 'cnname') || value(row, 'enname')}))
     .filter(column => column.name)
-  columnsEpoch.value++
 }
 watch(ready, isReady => {
   unbind()
@@ -165,13 +169,6 @@ function undoBlocker(row: DataRow): string {
   const target = recoveredView()
   return target.editActionState(row) === 'enabled' && target.fieldAccess(row, 'status').write === 'allowed' ? '' : '当前无撤销该恢复记录的权限'
 }
-const deletedActions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
-  label: '恢复', buttonType: 'primary', link: true, disabled: locked.value || reloadBlocked.value, onClick: recover,
-}}]}))
-const recoveredActions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
-  label: '撤销恢复', buttonType: 'warning', link: true, disabled: locked.value || reloadBlocked.value, onClick: undo,
-}}]}))
-
 async function confirm(text: string): Promise<boolean> {
   return pageService.showConfirm(text, '提示', {type: 'warning'})
 }

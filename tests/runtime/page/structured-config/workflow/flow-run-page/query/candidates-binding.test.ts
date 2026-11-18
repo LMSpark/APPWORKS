@@ -1,4 +1,4 @@
-import {expect, it} from 'vitest'
+import {expect, it, vi} from 'vitest'
 import {DataSet, ensureDataSetResourceView, bindDataSetReadonlyCommandQuery} from '@spark-appworks/spark-data'
 import {createFlowRunCandidatesBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding'
 
@@ -67,6 +67,13 @@ it('uses the original full directory only for explicit free choice and expires i
     expect(view.rows.map(row => row['value'])).toEqual(['U2:李四'])
     const assignedProof = view.captureReadResult()
     await assigned.refresh(); expect(() => assignedProof()).toThrow()
+    const originalAccess = assigned.fieldAccess.bind(assigned)
+    const access = vi.spyOn(assigned, 'fieldAccess').mockImplementation((row, field) => ({...originalAccess(row, field), read: 'masked'}))
+    try {
+      await view.refresh()
+      expect(view.loadingError?.message).toContain('已有办理人身份不可读')
+      expect(() => view.captureReadResult()).toThrow()
+    } finally {access.mockRestore()}
     assignedUser = false; await assigned.refresh()
     allowChange = '0'; await source.refresh(); reads = 0; await view.refresh()
     expect(view.loadingError).toBeNull(); expect(reads).toBe(0)

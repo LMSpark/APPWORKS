@@ -36,7 +36,10 @@ export function createFlowRunCandidatesBinding({view, source, guard, userDirecto
       const readable = directory?.rows.filter(user => ['rowid', 'UserName'].every(field => directory.fieldAccess(user, field).read === 'visible'))
       const proofs = directory && readable ? readable.map(user => directory.captureReadRow(user, ['rowid', 'UserName'])) : []
       const assertAssigned = assigned?.captureReadResult()
-      const assignedRows = assigned?.rows.filter(item => assigned.fieldAccess(item, 'ReceiveUserId').read === 'visible') ?? []
+      const assignedRows = assigned?.rows ?? []
+      if (assigned?.rows.some(item => assigned.fieldAccess(item, 'ReceiveUserId').read !== 'visible')) {
+        throw Error('已有办理人身份不可读，无法安全追加办理人')
+      }
       const assignedProofs = assigned ? assignedRows.map(item => assigned.captureReadRow(item, ['ReceiveUserId'])) : []
       const excluded = new Set(assignedRows.flatMap(item => {
         const id = item['ReceiveUserId']

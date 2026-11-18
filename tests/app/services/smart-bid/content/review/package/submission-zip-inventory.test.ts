@@ -3,6 +3,7 @@ import {BlobWriter,TextReader,ZipWriter} from '@zip.js/zip.js'
 import {expect,it,vi} from 'vitest'
 import {readFrozenDeliveryZipPackageMembers,readSubmissionZipPackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/content-package-review'
 import {computeDeliverySelectionDigests} from '@/services/smart-bid/content/review/delivery-selection-digest'
+import {packFrozenDeliveryZip} from '@/services/smart-bid/content/review/delivery-zip-packing'
 
 it('checks the original ZIP and its exact member paths within the requested reading budget',async()=>{
  const writer=new ZipWriter(new BlobWriter(),{useWebWorkers:false})
@@ -38,6 +39,15 @@ it('checks the original ZIP and its exact member paths within the requested read
  await expect(readFrozenDeliveryZipPackageMembers(pack,{...original,record:{...original.record,targetBasisRefs:['A3']}},limits))
   .rejects.toThrow('DELIVERY_SELECTION_HASH_MISMATCH')
  expect(reopen).toHaveBeenCalledOnce()
+ const originalFile={projectId:'P',fileVersionId:record.fileVersionId,bytes:new TextEncoder().encode(content).buffer,assertCurrent:()=>{}}
+ const packInput={...original,positions:[position],maxMemberBytes:128,openOriginal:vi.fn(async()=>originalFile)}
+ const candidate=await packFrozenDeliveryZip(packInput)
+ expect(packInput.openOriginal).toHaveBeenCalledOnce()
+ const reviewed=await readFrozenDeliveryZipPackageMembers({...candidate,packageId:'PACKED',requiredPositions:[position],
+  reopen:async()=>candidate.bytes},original,limits)
+ expect(reviewed).toMatchObject({membershipMatches:true})
+ await expect(packFrozenDeliveryZip({...packInput,openOriginal:async()=>({...originalFile,fileVersionId:'OLD'})}))
+  .rejects.toThrow('DELIVERY_PACK_VERSION')
  current=false
  expect(()=>linked.assertCurrent()).toThrow('FROZEN_STALE')
 })

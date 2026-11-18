@@ -4,6 +4,7 @@ import {BlobWriter,TextReader,ZipWriter} from '@zip.js/zip.js'
 import {createHash} from 'node:crypto'
 import {computeDeliverySelectionDigests} from '@/services/smart-bid/content/review/delivery-selection-digest'
 import {reviewRegisteredDeliveryZipPackage} from '@/views/features/application/smart-bid/authoring/model/review/content-package-review'
+import {prepareRegisteredDeliveryZipPackage} from '@/views/features/application/smart-bid/authoring/model/review/content-delivery-package-preparation'
 import {readRegisteredDeliveryFreeze} from '@/views/features/application/smart-bid/authoring/model/review/content-delivery-freeze-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -60,5 +61,18 @@ it('preserves unknown on a complete empty original read and requires readable te
   expect(reopen).toHaveBeenCalledOnce()
   await view.refresh()
   expect(()=>checked.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  const openOriginal=vi.fn(async()=>({projectId:'P',fileVersionId:'FILE1',bytes:new TextEncoder().encode(text).buffer,
+   assertCurrent:()=>{}}))
+  const options={positions:[position],maxMemberBytes:128,openOriginal}
+  const use={allowed:true,selectionHash:hashes.selectionHash,positions:[position],assertCurrent:()=>{}}
+  await expect(prepareRegisteredDeliveryZipPackage(host,request,{...options,readCurrentUse:async()=>({...use,allowed:false})}))
+   .rejects.toThrow('DELIVERY_PACK_CURRENT_USE_REQUIRED')
+  expect(openOriginal).not.toHaveBeenCalled()
+  const prepared=await prepareRegisteredDeliveryZipPackage(host,request,{...options,readCurrentUse:async scope=>{
+   expect(scope.selectionHash).toBe(hashes.selectionHash)
+   return use
+  }})
+  expect(prepared.status).toBe('PREPARED')
+  expect(openOriginal).toHaveBeenCalledOnce()
  }finally{ds.destroy()}
 })

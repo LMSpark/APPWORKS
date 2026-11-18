@@ -3,6 +3,10 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {readRegisteredTenderFollowupNotices,tenderFollowupNoticeView} from '@/views/features/application/smart-bid/followup/tender-followup-notice-reader'
 import {createTenderFollowupScriptHost} from '@/views/features/application/smart-bid/followup/tender-followup-script-host'
 import {tenderAddendumScenarioView} from '@/views/features/application/smart-bid/followup/tender-addendum-reader'
+import {tenderChangeChapterScenarioViews} from '@/views/features/application/smart-bid/followup/tender-change-chapter-reader'
+import {bidProjectScopeScenarioViews} from '@/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader'
+import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
+import {SNAPSHOT_HASH_CONTRACT} from '@/services/smart-bid/content/revision-snapshot-index'
 import script from '@/views/features/application/smart-bid/followup/page09/script.js?raw'
 import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
 import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
@@ -22,7 +26,23 @@ it('reads the original addendum locations for the current project, lot and round
     previousRequirementVersion:'V1',currentRequirementVersion:'V2',
     previousSource:{documentVersionId:'V1',locator:'5.2'},currentSource:{documentVersionId:'V2',locator:'1.3'}},
   ]}
- const ds=DataSet.fromJson({scenarioId:'S',tables:{TenderAddendum:{
+ const manifest={hashContract:SNAPSHOT_HASH_CONTRACT,projectId:'P',stageRef:'STAGE',baselineId:'OLD',
+  nodes:[{nodeId:'CHAPTER',nodeHash:'a'.repeat(64)}],requirementPins:[{chapterId:'CHAPTER',lineageId:'CLAUSE',version:'V1'}],
+  templateRefs:[],responseAssignments:[],responses:[],qualificationReviews:[],sensitiveRefs:[]}
+ const snapshotHash=await hashRevisionSnapshot(manifest)
+ const rows={
+  ContentRevision:{projectId:'P',id:'ORIGINAL',status:'ADOPTED',stageRef:'STAGE',baselineId:'OLD',templateRefs:[],snapshotHash},
+  RevisionSnapshot:{projectId:'P',id:'S1',snapshotHash,manifest},
+  Baseline:{projectId:'P',id:'OLD',stageRef:'STAGE',factVersions:[],requirementVersions:[{lineageId:'CLAUSE',version:'V1'}],tenderRecords:[]},
+ }
+ const chapterViews=tenderChangeChapterScenarioViews({ContentRevision:'id',RevisionSnapshot:'id'})
+ const baselineViews=bidProjectScopeScenarioViews({ContentProject:'id',ContentRevision:'id',Baseline:'id'}).Baseline
+ const views={...chapterViews,Baseline:baselineViews}
+ const contextTables=Object.fromEntries(Object.entries(rows).map(([model,record])=>[model,{
+  modelBinding:{modelName:model,modelId:model},columns:Object.keys(record).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},...views[model as keyof typeof views]},
+ }]))
+ const ds=DataSet.fromJson({scenarioId:'S',tables:{...contextTables,TenderAddendum:{
   modelBinding:{modelName:'TenderAddendum',modelId:'M'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},originalTenderAddendum:tenderAddendumScenarioView('id')},
  }}})
@@ -35,8 +55,20 @@ it('reads the original addendum locations for the current project, lot and round
    identity:table.identity,scope:'addendum',readScope:()=> 'addendum',snapshot:table.applyResult({Result:{primaryKeyField:'id',
     data:{Count:1,Items:[{...row,roundId,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
   })})
-  const runtime={generation:1,isLoaded:true,destroyed:false,
-   resolveView:(key:string)=>key==='S@TenderAddendum@originalTenderAddendum'?view:undefined}
+  const revisionViews={ContentRevision:'originalImpactRevision',RevisionSnapshot:'originalImpactSnapshot',Baseline:'previousFrozenBaseline'}
+  for(const model of Object.keys(rows) as Array<keyof typeof rows>){
+   const source=ds.getView(model,revisionViews[model])
+   if(!source)throw Error('TEST_REFERENCE_VIEW_REQUIRED')
+   const queryTable=new DataSpaceQueryTable({scenarioId:'S',metaName:model})
+   source.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+    identity:queryTable.identity,scope:model,readScope:()=>model,snapshot:queryTable.applyResult({Result:{primaryKeyField:'id',
+     data:{Count:1,Items:[{...rows[model],lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
+   })})
+  }
+  const runtime={generation:1,isLoaded:true,destroyed:false,resolveView:(key:string)=>{
+   const [scenario,model,name]=key.split('@')
+   return scenario==='S'&&model&&name?ds.getView(model,name):undefined
+  }}
   const page=createTenderFollowupScriptHost(runtime,{scenarioId:'S',projectId:'P',assertCurrent:()=>{}},{selection:scope})
   const signal=new AbortController().signal
   const result=await page.invoke('tender.followup.readAddendum',{addendumId:'A'},signal)
@@ -51,8 +83,8 @@ it('reads the original addendum locations for the current project, lot and round
   if(!openChapterImpact)throw Error('TEST_CHAPTER_IMPACT_HANDLER_REQUIRED')
   await openChapterImpact()
   expect(showAlert).toHaveBeenCalledExactlyOnceWith([
-   '正式修改 A · 原正文 ORIGINAL','原正文或基线证据待核，以下为正式修改列明的影响范围',
-   'ITEM · REQUIREMENT · 修改依据 V2 / 1.3','原位 V1 / 5.2','本项的基线条款差异待核',
+   '正式修改 A · 原正文 ORIGINAL',
+   'ITEM · REQUIREMENT · 修改依据 V2 / 1.3','原位 V1 / 5.2','已核旧版原挂接 · CHAPTER','本项的基线条款差异待核',
   ].join('\n'),'正文条款引用追查')
   expect(showMessage).not.toHaveBeenCalled()
   roundId='OTHER'

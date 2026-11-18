@@ -48,10 +48,11 @@ async function openChapterImpact() {
       lines[0] = `正式修改 ${result.addendumId} · 原正文 ${result.revisionId}`
       if (result.revisionEvidence === 'UNKNOWN') lines.push('原正文或基线证据待核，以下为正式修改列明的影响范围')
       const labels = {PIN_CONFIRMED: '已核原挂接', REFERENCE_UNVERIFIED: '待查原引用', NEW_OBLIGATION: '新增义务'}
-      for (const {source, matching} of result.impacts) {
+      for (const {source, matching, originalPins} of result.impacts) {
         lines.push(`${source.id} · ${source.subjectRef} · 修改依据 ${source.current.documentVersionId} / ${source.current.locator}`)
         if (source.previous) lines.push(`原位 ${source.previous.documentVersionId} / ${source.previous.locator}`)
         if (!matching) {
+          if (originalPins.length) lines.push('已核旧版原挂接 · ' + originalPins.map(pin => pin.chapterId).join('、'))
           lines.push('本项的基线条款差异待核')
           continue
         }

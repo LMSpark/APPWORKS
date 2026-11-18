@@ -41,8 +41,7 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
    const readHost={...host,runtime,assertCurrent}
    const addendum=await readTenderAddendum(readHost,{projectId:host.projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
    if(addendum.state!=='REGISTERED')return addendum
-   const trace=currentId===null?{state:'UNKNOWN' as const,assertCurrent:addendum.assertCurrent}:
-    await readTenderChangeChapterPins({...readHost,assertCurrent:addendum.assertCurrent},{revisionId,previousId,currentId})
+   const trace=await readTenderChangeChapterPins({...readHost,assertCurrent:addendum.assertCurrent},{revisionId,previousId,currentId})
    const tracedItems=trace.state==='TRACED'?trace.items:[]
    const impacts=addendum.items.map(source=>{
     const matching=tracedItems.find(({previous,current})=>{
@@ -51,7 +50,9 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
       return false
      return source.kind==='ADDED'?previous===null:source.kind==='CANCELLED'?current===null:previous!==null&&current!==null
     })
-    return Object.freeze({source,matching:matching??null})
+    const originalPins=trace.state==='PREVIOUS_ONLY'?trace.pins.filter(pin=>
+     pin.lineageId===source.requirementLineageId&&pin.version===source.previousRequirementVersion):[]
+    return Object.freeze({source,matching:matching??null,originalPins:Object.freeze(originalPins)})
    })
    trace.assertCurrent()
    return Object.freeze({state:'ADDENDUM_TRACED' as const,revisionId,addendumId,revisionEvidence:trace.state,

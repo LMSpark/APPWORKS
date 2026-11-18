@@ -8,7 +8,7 @@ import {readSnapshotRequirementPins} from '@/services/smart-bid/content/hashes/c
 import {traceTenderChangeChapterPins} from '@/services/smart-bid/content/references/tender-change-requirement-impact'
 import {originalRegistrationView,readOriginalRegistrationView} from '../authority/original-registration-view'
 import {assertRevisionManifest} from '../authoring/model/hashes/content-snapshot-reader'
-import {compareBidFrozenBaselines} from '../collaboration/handoff/bid-project-scope-reader'
+import {compareBidFrozenBaselines,readBidFrozenBaseline} from '../collaboration/handoff/bid-project-scope-reader'
 
 const revisionFields=['baselineId','snapshotHash','stageRef','templateRefs','status']
 const revisionView='originalImpactRevision',snapshotView='originalImpactSnapshot'
@@ -22,7 +22,7 @@ export function tenderChangeChapterScenarioViews(primaryKeys:Readonly<Record<'Co
  }
 }
 
-export async function readTenderChangeChapterPins(host:Host,selection:Readonly<{revisionId:string;previousId:string;currentId:string}>){
+export async function readTenderChangeChapterPins(host:Host,selection:Readonly<{revisionId:string;previousId:string;currentId:string|null}>){
  const {projectId}=host,{revisionId,previousId,currentId}=selection
  const original=await readOriginalRegistrationView(host,{model:'ContentRevision',viewName:revisionView},{projectId,id:revisionId})
  if(!original.row)return Object.freeze({state:'UNKNOWN' as const,assertCurrent:original.assertCurrent})
@@ -41,6 +41,14 @@ export async function readTenderChangeChapterPins(host:Host,selection:Readonly<{
  const pins=readSnapshotRequirementPins(manifest['requirementPins'])
  const ids=new Set(index.nodes.map(node=>node.nodeId))
  if(pins.some(pin=>!ids.has(pin.chapterId)))throw Error('TENDER_CHANGE_CHAPTER_PIN')
+ if(currentId===null){
+  const previous=await readBidFrozenBaseline({...host,assertCurrent},previousId,'previous')
+  if(previous.state!=='REGISTERED')return previous
+  const versions=new Map(previous.requirements.map(({lineageId,version})=>[lineageId,version]))
+  const originalPins=pins.filter(({lineageId,version})=>versions.get(lineageId)===version)
+  previous.assertCurrent()
+  return Object.freeze({state:'PREVIOUS_ONLY' as const,pins:Object.freeze(originalPins),assertCurrent:previous.assertCurrent})
+ }
  const comparison=await compareBidFrozenBaselines({...host,assertCurrent},previousId,currentId)
  if(comparison.state!=='COMPARED')return comparison
  const changes=comparison.requirements.flatMap(({previous,current})=>previous?[{previous,current}]:[])

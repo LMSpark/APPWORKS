@@ -58,6 +58,7 @@ type AllocationRequirement=Readonly<{
  start:string;end:string;units:number;assertCurrent:()=>void
  decision?:Readonly<{
   enterpriseId:string;projectId:string;resourceVersionId:string;allocationRef:string
+  intent:'ASSIGN'|'ADJUST'|'RELEASE'
   start:string;end:string;effectiveAt:string;knownAt:string;units:number;assertCurrent:()=>void
  }>
 }>
@@ -77,9 +78,10 @@ export function checkApplicableResourceUse(input:Parameters<typeof checkRegister
  const assertCurrent=()=>{coverage.assertCurrent();allocation.assertCurrent();decision?.assertCurrent()}
  assertCurrent()
  if(decision&&(decision.enterpriseId!==input.recipientEnterpriseId||decision.projectId!==input.projectId||
-  decision.resourceVersionId!==input.resourceVersionId||!identity(decision.allocationRef)))
+  decision.resourceVersionId!==input.resourceVersionId||!identity(decision.allocationRef)||
+  !['ASSIGN','ADJUST','RELEASE'].includes(decision.intent)))
   throw Error('RESOURCE_USE_ALLOCATION_SCOPE')
- const matched=decision!==undefined&&Number.isSafeInteger(decision.units)&&decision.units>=units&&
+ const matched=decision!==undefined&&decision.intent!=='RELEASE'&&Number.isSafeInteger(decision.units)&&decision.units>=units&&
   time(decision.start)<=start&&time(decision.end)>=end&&time(decision.effectiveAt)<=Math.min(start,time(input.useAt))&&
   time(decision.knownAt)<=time(input.knownAt)
  return Object.freeze({...coverage,allowed:coverage.allowed&&matched,allocationRef:matched?decision.allocationRef:null,assertCurrent})

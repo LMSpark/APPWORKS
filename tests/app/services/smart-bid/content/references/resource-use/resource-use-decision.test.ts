@@ -46,10 +46,11 @@ it('requires an original decision from the source enterprise for exact recipient
  const validUse={...coverage,useAt:source.knownAt,knownAt:source.knownAt}
  const requirement={start:source.knownAt,end:later,units:1,assertCurrent:()=>{}}
  const allocation={...requirement,enterpriseId:'RECIPIENT',projectId:'P',resourceVersionId:'FILE-V1',
-  allocationRef:'ALLOC',effectiveAt:source.effectiveAt,knownAt:source.knownAt}
+  allocationRef:'ALLOC',intent:'ASSIGN' as const,effectiveAt:source.effectiveAt,knownAt:source.knownAt}
  expect(checkApplicableResourceUse(validUse,evidence,requirement).allowed).toBe(false)
  expect(checkApplicableResourceUse(validUse,evidence,{...requirement,decision:allocation}))
   .toMatchObject({allowed:true,allocationRef:'ALLOC'})
+ expect(checkApplicableResourceUse(validUse,evidence,{...requirement,decision:{...allocation,intent:'RELEASE'}}).allowed).toBe(false)
  expect(checkApplicableResourceUse(validUse,evidence,{...requirement,decision:{...allocation,knownAt:later}}).allowed).toBe(false)
  expect(checkApplicableResourceUse(coverage,evidence,{...requirement,decision:allocation}).allowed).toBe(false)
  expect(()=>checkApplicableResourceUse(validUse,evidence,{...requirement,decision:{...allocation,projectId:'OTHER'}}))

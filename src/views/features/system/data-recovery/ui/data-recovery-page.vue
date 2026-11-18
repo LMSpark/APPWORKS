@@ -158,9 +158,20 @@ async function confirm(text: string): Promise<boolean> {
   return pageService.showConfirm(text, '提示', {type: 'warning'})
 }
 /** 一次恢复记录提交：目标视图、记录主键、失败后丢弃本地变更的方式及成功提示。 */
-type RecoveryCommit = Readonly<{target: DataView; id: string | number; discard: () => void; done: string}>
+type RecoveryCommit = Readonly<{target: DataView; id: string | number; tableId: string; discard: () => void; done: string}>
+async function refreshAfterCommit({target, tableId, done}: RecoveryCommit): Promise<void> {
+  notice.value = done
+  const isCurrent = () => !reloadBlocked.value && !target.destroyed && table.value?.rowid === tableId && target === recoveredView()
+  if (!isCurrent()) return
+  const views = [view(deletedKey), target]
+  const results = await Promise.allSettled(views.map(item => item.refresh()))
+  if (!isCurrent()) return
+  const rejected = results.find(result => result.status === 'rejected')
+  const readError = rejected?.reason ?? views.find(item => item.loadingError)?.loadingError
+  if (readError) message.value = `恢复记录已确认，列表回读失败：${failure(readError)}`
+}
 async function commit(operation: RecoveryCommit): Promise<void> {
-  const {target, id, discard, done} = operation
+  const {target, id, discard} = operation
   const result = await target.dataSet?.saveChanges({views: [{tableName: target.tableName, viewId: target.viewId, ids: [id]}]})
   if (!result) throw new Error('恢复记录视图缺少DataSet')
   if (!result.success) {
@@ -168,8 +179,7 @@ async function commit(operation: RecoveryCommit): Promise<void> {
     else discard()
     throw new Error(result.error?.message ?? '保存未确认，请刷新核验')
   }
-  notice.value = done
-  await Promise.all([view(deletedKey).refresh(), target.refresh()])
+  await refreshAfterCommit(operation)
 }
 
 async function verifyOriginalSave(): Promise<void> {
@@ -182,8 +192,7 @@ async function verifyOriginalSave(): Promise<void> {
     const result = await target.saveChanges([operation.id])
     if (!result.success) throw new Error(result.message || '原保存结果尚未核定')
     unconfirmed.value = undefined
-    notice.value = '原保存结果已确认'
-    await Promise.all([view(deletedKey).refresh(), target.refresh()])
+    await refreshAfterCommit(operation)
   } catch (cause) { message.value = failure(cause) } finally { busy.value = false }
 }
 
@@ -211,13 +220,14 @@ async function recover(row: DataRow): Promise<void> {
     const created = await target.addRow({data_id: String(identity.id), table_id: tableId, db_id: dbId, sys_id: appId})
     const pk = target.getPkKey(created)
     if (pk === undefined) throw new Error('恢复记录新增缺少正式行身份')
-    await commit({target, id: pk, discard: () => target.discardPendingChanges([pk]), done: '恢复成功'})
+    await commit({target, id: pk, tableId, discard: () => target.discardPendingChanges([pk]), done: '恢复登记已确认'})
   } catch (cause) { message.value = `恢复失败：${failure(cause)}` } finally { busy.value = false }
 }
 
 async function undo(row: DataRow): Promise<void> {
   const target = recoveredView(), id = target.rows.includes(row) ? target.getPkKey(row) : undefined
-  if (locked.value || reloadBlocked.value || id === undefined) return
+  const tableId = table.value?.rowid
+  if (locked.value || reloadBlocked.value || id === undefined || !tableId) return
   const blocker = undoBlocker(row)
   if (blocker) { message.value = `无法撤销恢复：${blocker}`; return }
   busy.value = true; message.value = ''; notice.value = ''
@@ -226,11 +236,11 @@ async function undo(row: DataRow): Promise<void> {
     if (!await confirm('撤销恢复后，原数据将重新进入回收站。确认继续吗？')) return
     if (reloadBlocked.value) throw new Error('导航已变化，请重新选择恢复记录')
     original()
-    if (recoveredView() !== target) throw new Error('恢复记录视图已变化，请重新选择')
+    if (table.value?.rowid !== tableId || recoveredView() !== target) throw new Error('恢复记录视图已变化，请重新选择')
     const currentBlocker = undoBlocker(row)
     if (currentBlocker) throw new Error(currentBlocker)
     target.updateEditingValue(id, 'status', 1)
-    await commit({target, id, discard: () => target.discardEditingRows([id]), done: '撤销恢复成功'})
+    await commit({target, id, tableId, discard: () => target.discardEditingRows([id]), done: '撤销恢复登记已确认'})
   } catch (cause) { message.value = `撤销恢复失败：${failure(cause)}` } finally { busy.value = false }
 }
 </script>

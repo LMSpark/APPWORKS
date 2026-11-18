@@ -1,6 +1,7 @@
 import {vi} from 'vitest'
 import {submissionObligationScenarioView} from '@/views/features/application/smart-bid/followup/submission-obligation-reader'
 import {originalFormMappingScenarioView} from '@/views/features/application/smart-bid/response/model/original-form-reader'
+import {bidProjectScopeScenarioViews} from '@/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader'
 import {DataSet,parseDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {hashContentNode} from '@/services/smart-bid/content-node-hash'
@@ -66,7 +67,8 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
    views:{default:{},selectedRequirement:{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('lineageId'),eq('version')]}},
     effectiveRequirementVersions:{commitMode:'staged',scopeFilter:eq('projectId'),queryConfig:{autoQuery:false,allPages:true,pagination:'paged'}}}},
   Baseline:{modelBinding:{modelId:'BM',modelName:'Baseline'},columns:[{name:'id',isPrimaryKey:true},{name:'projectId'},{name:'stageRef',type:'object'},{name:'factVersions',type:'object'},{name:'requirementVersions',type:'object'},{name:'tenderRecords',type:'object'}],
-   views:{default:{},...Object.fromEntries(['selectedBaseline','selectedBasisBaseline','selectedHeadBaseline'].map(key=>[
+   views:{default:{},originalFrozenBaseline:bidProjectScopeScenarioViews({ContentProject:'id',ContentRevision:'id',Baseline:'id'}).Baseline.originalFrozenBaseline,
+    ...Object.fromEntries(['selectedBaseline','selectedBasisBaseline','selectedHeadBaseline'].map(key=>[
     key,{commitMode:'staged',scopeFilter:{logic:'and',filters:[eq('projectId'),eq('id','baselineId')]}},
    ]))}},
   FactVersion:{modelBinding:{modelId:'FM',modelName:'FactVersion'},columns:['id','projectId','key','version','kind','value','unit','sourceIds','claimId','scopeRef','decisionRefs','dependencyRefs','promiseTerms','sourceRecord','status'].map(name=>({name,isPrimaryKey:name==='id',type:name==='version'?'number':['value','sourceIds','scopeRef','decisionRefs','dependencyRefs','promiseTerms','sourceRecord'].includes(name)?'object':'string'})),

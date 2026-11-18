@@ -28,6 +28,7 @@ type OriginalSave=Awaited<ReturnType<typeof readRegisteredOriginalContentDraftSa
 /** 原回执与当前草稿在同一版本下的比较结果。 */
 type SaveComparison=Awaited<ReturnType<typeof reconcileSavedContentDraft>>
 type CandidatePreviewInput=Parameters<ContentCandidateBinding['previewScope']>[0]
+type DraftCandidateInput=Parameters<typeof prepareDraftCandidateRequest>[2]&Readonly<{firstInputSnapshotHash?:string}>
 
 /** 实例池创建宿主后，仅在三文件脚本连接时装配原视图。并行连接共享本次装载。 */
 export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:ContentAuthoringTarget,
@@ -77,7 +78,7 @@ export type ContentAuthoringScriptSession=Readonly<{
  compareOriginalForms:(selection:Parameters<typeof compareRegisteredOriginalForms>[1])=>ReturnType<typeof compareRegisteredOriginalForms>
  previewCandidate:(selection:ContentRevisionSelection,options:CandidatePreviewInput)=>ReturnType<ContentCandidateBinding['previewScope']>
  captureCandidateDraft:()=>ReturnType<ContentAuthoringCommands['captureCandidateDraft']>
- prepareDraftCandidate:(input:Parameters<typeof prepareDraftCandidateRequest>[2])=>ReturnType<typeof prepareDraftCandidateRequest>
+ prepareDraftCandidate:(input:DraftCandidateInput)=>ReturnType<typeof prepareDraftCandidateRequest>
 }>
 /** 供正式SparkPageRenderer.host使用；命令对象仍归原薄宿主释放。 */
 export function createContentAuthoringScriptHost(binding:Binding,commands:ContentAuthoringCommands,receiptDataViewKey?:string){
@@ -98,7 +99,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
    }
    return Object.freeze({assertCurrent,
     get canLeave(){return commands.canLeave},
-    async prepareDraftCandidate(request:Parameters<typeof prepareDraftCandidateRequest>[2]){
+    async prepareDraftCandidate(request:DraftCandidateInput){
      assertCurrent()
      const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
      if(!scenarioId)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
@@ -107,12 +108,15 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const host={runtime,projectId,scenarioId,assertCurrent:assertDraft}
      const {baseRevisionId:revisionId}=captured
      if(revisionId!==null){
+      if(request.firstInputSnapshotHash!==undefined)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
       const basis=await readDraftCandidateBasis(host,{revisionId})
       return prepareDraftCandidateRequest(captured,basis,request)
      }
      const projectKey=buildDataViewKey('ContentProject','selectedProject',scenarioId)
      const projectView=runtime.resolveView(projectKey),project=projectView?.rows[0]
-     if(!projectView||project?.['projectId']!==projectId||project['headRevisionId']!==null||!identity(project['activeBaselineId']))
+     const {firstInputSnapshotHash}=request
+     if(!projectView||project?.['projectId']!==projectId||project['headRevisionId']!==null||!identity(project['activeBaselineId'])||
+      !identity(firstInputSnapshotHash))
       throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
      const proof=projectView.captureReadRow(project,['projectId','headRevisionId','activeBaselineId'])
      const assertFirst=()=>{
@@ -120,7 +124,8 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
       if(runtime.resolveView(projectKey)!==projectView)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
       proof()
      }
-     const basis=await readDraftCandidateBasis({...host,assertCurrent:assertFirst},{revisionId,firstBaselineId:project['activeBaselineId']})
+     const basis=await readDraftCandidateBasis({...host,assertCurrent:assertFirst},
+      {revisionId,firstBaselineId:project['activeBaselineId'],firstInputSnapshotHash})
      return prepareDraftCandidateRequest(captured,basis,request)
     },
     async captureCandidateDraft(){

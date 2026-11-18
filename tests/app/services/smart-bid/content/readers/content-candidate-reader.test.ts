@@ -22,6 +22,20 @@ it('reads candidate-generation scope from the exact adopted draft basis',async()
   expect(()=>basis.assertCurrent()).toThrow()
  }finally{f.ds.destroy()}
 })
+it('takes first draft target nodes from the frozen input snapshot',async()=>{
+ const f=await fixture('populated')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const snapshotHash=f.host.runtime.resolveView(candidate.snapshot.dataViewKey)?.rows[0]?.['snapshotHash']
+  if(typeof snapshotHash!=='string')throw Error('TEST_SNAPSHOT_HASH_REQUIRED')
+  const selection={revisionId:null,firstBaselineId:'B',firstInputSnapshotHash:snapshotHash}
+  const first=await readDraftCandidateBasis(f.host,selection)
+  expect(first).toMatchObject({revisionId:null,baselineId:'B',inputSnapshotHash:snapshotHash,
+   basisNodes:expect.arrayContaining([{nodeId:'D',parentId:'P',type:'document',index:0}])})
+  await expect(readDraftCandidateBasis(f.host,{...selection,firstInputSnapshotHash:'0'.repeat(64)})).rejects.toThrow('CONTENT_SNAPSHOT_UNAVAILABLE')
+  expect(()=>first.assertCurrent()).toThrow()
+ }finally{f.ds.destroy()}
+})
 
 it('prepares a review-only production request from a verified candidate root',async()=>{
  const f=await fixture('populated',{computeRoot:true})

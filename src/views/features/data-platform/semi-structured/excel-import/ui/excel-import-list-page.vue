@@ -2,12 +2,12 @@
 @module app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page
 -->
 <template>
-  <RendererSection class="structured-catalog-page" title="Excel 导入配置" :bordered="false" :grid-columns="1"
+  <SparkPageRenderer v-if="catalogToolRuntime" :page-runtime="catalogToolRuntime" :route-snapshot="routeSnapshot" />
+  <RendererSection v-else class="structured-catalog-page" title="Excel 导入配置" :bordered="false" :grid-columns="1"
     :status="loading ? '正在读取导入目录…' : '导入方案目录；Sheet 布局与转换规则在编辑器中维护。'" :error="error">
     <p v-if="creation?.phase === 'retained'" role="status">方案已保留；编码处理未标记完成，请核查正式结果。</p>
     <template v-if="ready">
-      <p v-if="catalogScope" role="status">请进入已授权应用后维护导入方案。</p>
-      <RendererTable :data-view-key="catalogKey" :children="fields" v-bind="catalogScope ? {} : {toolbar, actions}" :filter="filter" :stripe="true"
+      <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :actions="actions" :filter="filter" :stripe="true"
         :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
       <RendererDialog v-if="editingId !== undefined" :data-view-key="catalogKey" :model-value="true" :title="creating ? '新增方案' : '编辑方案'"
         :width="760" :destroy-on-close="true" :close-disabled="acting || pending || unconfirmed || creationSaved || templatePending" @update:model-value="closeEdit">
@@ -52,9 +52,18 @@ import {startExcelSchemeCreation,saveExcelSchemeCreation,cancelExcelSchemeCreati
 import {selectExcelTemplate,cancelExcelTemplate,saveExcelTemplate,readExcelTemplate,retainExcelTemplate} from '@/lowcode/resources/semi-structured/excel-import/catalog/template'
 import ExcelEditor from './excel-import-editor-page.vue'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {PageTool,type PageRuntime} from '@spark-appworks/spark-project-model'
+import rule from './rule.json?raw'
+import script from './script.js?raw'
+import style from './style.css?raw'
 
-const {PAGE_RUNTIME,RendererSection,RendererTable,RendererDialog,RendererForm,RendererButton,useSparkComponent,consumeRequiredPageService}=SparkComponent
+const {PAGE_RUNTIME,RendererSection,RendererTable,RendererDialog,RendererForm,RendererButton,SparkPageRenderer,useSparkComponent,consumeRequiredPageService}=SparkComponent
 const route = useRoute()
+const routeSnapshot=computed(()=>{
+  const {path,fullPath,name,params,query,hash}=route
+  return {path,fullPath,name:name??null,params,query,hash}
+})
+const catalogToolRuntime=shallowRef<PageRuntime>()
 const designTarget = ref('')
 const designPage = ref<{hasPending: boolean; busy: boolean; unconfirmed: boolean; discardChanges: () => boolean}>()
 const designPending = computed(() => designPage.value?.hasPending === true || designPage.value?.busy === true)
@@ -106,10 +115,10 @@ const filter=computed<RFilterProps>(()=>({autoQuery:false,children:[
 const fields = computed<SparkNode[]>(() => [
   {type: 'r-text', props: {field: 'coding', label: '方案编码', width: 180}},
   {type: 'r-text', props: {field: 'solutionName', label: '方案名称', width: 240}},
-  catalogScope.value ? {type:'r-text',props:{field:'dataSetId',label:'数据空间 ID',readonly:true}} : {type: 'r-select', props: {field: 'dataSetId', label: '数据空间', width: 200,
+  {type: 'r-select', props: {field: 'dataSetId', label: '数据空间', width: 200,
     optionDataViewKey: buildDataViewKey('Base_DataSet', 'default', scenarioId.value)}},
   {type: 'r-text', props: {field: 'description', label: '描述', width: 300}},
-  catalogScope.value ? {type:'r-text',props:{field:'createuser',label:'创建人 ID',readonly:true}} : {type: 'r-select', props: {field: 'createuser', label: '创建人', width: 150,
+  {type: 'r-select', props: {field: 'createuser', label: '创建人', width: 150,
     optionDataViewKey: buildDataViewKey('Base_UserInfo', 'default', scenarioId.value)}},
   {type:'r-text',props:{field:'createtime',label:'创建时间',width:140}},
 ])
@@ -205,10 +214,21 @@ watch([scenarioId, catalogScope], async ([id, inCatalog]) => {
   ready.value = false; loading.value = true; error.value = ''
   editingId.value=undefined;acting.value=false;designTarget.value=''
   unsubscribe?.(); view.value = undefined
+  catalogToolRuntime.value=undefined
   session.dispose()
   try {
     if (!id) throw new Error('Excel 导入入口缺少导航绑定的数据空间ID')
-    const dataSet = await LowcodeExcelImport.loadCatalog(id, inCatalog ? APPLICATION_CATALOG_PROJECT_ID : undefined)
+    if(inCatalog){
+      const tool=new PageTool({pageId:'excel-import-list-page'})
+      tool.hydrateFileText('rule.json',rule)
+      tool.hydrateFileText('script.js',script)
+      tool.hydrateFileText('style.css',style)
+      tool.markLoaded()
+      catalogToolRuntime.value=session.acquire({tool,scenarioIds:[id],targetId:id,
+        loadScenario:scenario=>LowcodeExcelImport.loadCatalog(scenario,APPLICATION_CATALOG_PROJECT_ID)})
+      return
+    }
+    const dataSet = await LowcodeExcelImport.loadCatalog(id)
     if (!active || own !== generation) {dataSet.destroy(); return}
     const current = session.acquire({pageId: 'excel-import-list-page', scenarioIds: [id], targetId: id,
       loadScenario: async () => dataSet})

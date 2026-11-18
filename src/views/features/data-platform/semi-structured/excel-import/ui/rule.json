@@ -1,0 +1,29 @@
+[
+  {
+    "type": "r-section",
+    "props": {"title": "Excel 导入配置", "class": "excel-import-catalog", "bordered": false, "gridColumns": 1, "status": "请进入已授权应用后维护导入方案。"},
+    "children": [
+      {
+        "type": "r-table",
+        "props": {
+          "dataViewKey": "36B01771C627B9BF5CD493DC75B996A1@Base_Import_solution@default",
+          "stripe": true,
+          "highlightCurrentRow": true,
+          "showDataViewMeta": false,
+          "filter": {"autoQuery": false, "children": [
+            {"type": "r-text", "props": {"field":"coding", "label":"方案编码", "placeholder":"按编码搜索"}},
+            {"type": "r-text", "props": {"field":"solutionName", "label":"方案名称", "placeholder":"按名称搜索"}}
+          ]}
+        },
+        "children": [
+          {"type":"r-text","props":{"field":"coding","label":"方案编码","readonly":true,"width":180}},
+          {"type":"r-text","props":{"field":"solutionName","label":"方案名称","readonly":true,"width":240}},
+          {"type":"r-text","props":{"field":"dataSetId","label":"数据空间 ID","readonly":true}},
+          {"type":"r-text","props":{"field":"description","label":"描述","readonly":true,"width":300}},
+          {"type":"r-text","props":{"field":"createuser","label":"创建人 ID","readonly":true}},
+          {"type":"r-text","props":{"field":"createtime","label":"创建时间","readonly":true,"width":140}}
+        ]
+      }
+    ]
+  }
+]

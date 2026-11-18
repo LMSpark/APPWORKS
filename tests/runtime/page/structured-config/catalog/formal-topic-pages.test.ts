@@ -1,11 +1,12 @@
 import {readFileSync} from 'node:fs'
+import {createHash} from 'node:crypto'
 import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {RendererTable, RendererDialog, RendererButton, RendererForm, RendererFilter, RendererFilterExpression, FieldText, FieldSelect, FieldRadio, FieldCheckboxGroup, Spark, registerAllRenderers,PAGE_SERVICE,useSparkComponent,type PageServiceCapability} from '@spark-appworks/spark-component'
+import {RendererTable, RendererDialog, RendererButton, RendererForm, RendererFilter, RendererFilterExpression, FieldText, FieldSelect, FieldRadio, FieldCheckboxGroup, Spark, SparkPageRenderer, registerAllRenderers,PAGE_SERVICE,useSparkComponent,type PageServiceCapability} from '@spark-appworks/spark-component'
 import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
@@ -24,17 +25,23 @@ vi.mock('@spark-appworks/spark-app', async () => {
   return {NativePageRuntimeSession, useSystemPageDirtySource: () => {}}
 })
 const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runtime: undefined as unknown as DataSpaceRuntimeApi,appId:'D99A1DCE9894698799101EFD70F8FC76'}))
-vi.mock('@/lowcode/lowcode-runtime', () => ({
-  get lowcodeHttp() {return state.http}, lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
+vi.mock('@/lowcode/lowcode-runtime', () => {
+ const module = {
+  lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
   createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => topicTexts[id] ?? null}}),
-  lowcodeApi: {readRequestScope: () => ({token: `scope:${state.appId}`, headers: {'X-AppId': state.appId,'tenant-id':'tenant'}}), dataSpace: {
+  lowcodeApi: {application:{get:()=>null},readAuthenticatedRequestScope:()=>({token:'catalog',headers:{'tenant-id':'tenant'}}),readRequestScope: () => ({token: `scope:${state.appId}`, headers: {'X-AppId': state.appId,'tenant-id':'tenant'}}), dataSpace: {
     get runtime() {return state.runtime}, design: {
       readSpaceDefinition: async ({dataSpaceId}: {dataSpaceId: string}) => ({dataSpaceId, name: 'formal topic'}),
       readModelBatch: async ({dataSpaceId, metaNames}: {dataSpaceId: string; metaNames: string[]}) => topicModels(dataSpaceId).filter(model => metaNames.includes(model.metaName)),
       readRelations: async () => [],
     },
   }},
-}))
+ }
+ return {...module,get lowcodeHttp(){return state.http},get lowcodeCatalogDataSpace(){return {
+  runtime:new DataSpaceRuntimeApi({http:state.http,readScope:module.lowcodeApi.readAuthenticatedRequestScope}),
+  design:module.lowcodeApi.dataSpace.design,
+ }}}
+})
 const original = {...config.global.stubs}, wrappers: VueWrapper[] = []
 class TopicBackend extends ApiBackend{
  allocations=0
@@ -66,6 +73,26 @@ beforeEach(() => {
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it('renders the enterprise Excel catalog through four files with only the catalog query',async()=>{
+    const text=topicTexts[EXCEL]!
+    const resourceId=`repository:scenario-view:${EXCEL}`
+    const fetchScenario=vi.spyOn(globalThis,'fetch').mockImplementation(async()=>Response.json({
+      resourceId,scenarioId:EXCEL,text,sourceRevision:createHash('sha256').update(text).digest('hex'),
+    }))
+    try{
+      const path='/apps/homepage/excel'
+      const router=createRouter({history:createMemoryHistory(),routes:[{path,component:Excel,meta:{blueprintScenarioId:EXCEL}}]})
+      await router.push(path)
+      const wrapper=mount(withTestPageService(RouterView),{global:{plugins:[router,ElementPlus,Spark.createPlugin()]}})
+      wrappers.push(wrapper)
+      await vi.waitFor(()=>expect(wrapper.text()).toContain('订单导入'))
+      expect(wrapper.findComponent(SparkPageRenderer).exists()).toBe(true)
+      expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe(`${EXCEL}@Base_Import_solution@default`)
+      expect(new Set(state.http.reads.map(read=>read.table))).toEqual(new Set(['Base_Import_solution']))
+      expect(wrapper.text()).not.toMatch(/新增方案|选择模板|编辑方案/)
+      expect(state.http.saves).toEqual([])
+    }finally{fetchScenario.mockRestore()}
+  })
   it('hosts the PDF catalog runtime through the shared native session', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue'), 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')

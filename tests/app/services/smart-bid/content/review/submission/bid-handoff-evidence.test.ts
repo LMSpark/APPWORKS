@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {assessBidHandoff} from '@/services/smart-bid/content/review/submission/bid-handoff-evidence'
+import {assessBidHandoff,compareBidHandoffVersions} from '@/services/smart-bid/content/review/submission/bid-handoff-evidence'
 
 it('keeps responsibility with the original assignee until the current version is accepted',()=>{
  const scope={projectId:'P',lotId:'L',roundId:'R',stageId:'RESULT'}
@@ -17,4 +17,14 @@ it('keeps responsibility with the original assignee until the current version is
  expect(assessBidHandoff(scope,{items:[{...item,followupRef:null}],receipts:[current],assertCurrent}))
   .toMatchObject({items:[{state:'FOLLOWUP_REQUIRED',trackingAssigneeId:'OWNER'}]})
  expect(()=>assess([{...current,receiverId:'OTHER'}])).toThrow('BID_HANDOFF_SCOPE')
+ const past=assessBidHandoff(scope,{items:[{...item,versionRef:'V1'}],receipts:[old],assertCurrent})
+ expect(compareBidHandoffVersions(past,assess([old])).items).toMatchObject([
+  {state:'CHANGED',originalVersionRef:'V1',versionRef:'V2',requiresAcceptance:true},
+ ])
+ expect(compareBidHandoffVersions(past,past).items).toMatchObject([{state:'UNCHANGED',requiresAcceptance:false}])
+ expect(compareBidHandoffVersions(past,assessBidHandoff(scope,{items:[],receipts:[],assertCurrent})).removed)
+  .toMatchObject([{id:item.id,openIssueRefs:['REFUND'],trackingAssigneeId:'FINANCE'}])
+ expect(()=>compareBidHandoffVersions(past,assessBidHandoff(scope,{
+  items:[{...item,versionRef:'V1',nextDueAt:'2026-11-20T10:00:00+08:00'}],receipts:[old],assertCurrent,
+ }))).toThrow('BID_HANDOFF_VERSION_DRIFT')
 })

@@ -50,3 +50,28 @@ export function assessBidHandoff(scope:Scope,source:Readonly<{
  assertCurrent()
  return Object.freeze({...scope,items:Object.freeze(items),handoffConfirmed:items.length>0&&items.every(item=>item.state==='ACCEPTED'),assertCurrent})
 }
+
+/** 交接差异保留原版签收，只对新增或换版事项重签。 */
+export function compareBidHandoffVersions(previous:ReturnType<typeof assessBidHandoff>,current:ReturnType<typeof assessBidHandoff>){
+ const assertCurrent=()=>{previous.assertCurrent();current.assertCurrent()}
+ assertCurrent()
+ const fields=['projectId','lotId','roundId','stageId'] as const
+ if(fields.some(field=>previous[field]!==current[field]))throw Error('BID_HANDOFF_SCOPE')
+ const originals=new Map(previous.items.map(item=>[item.id,item]))
+ const items=current.items.map(item=>{
+  const original=originals.get(item.id)
+  originals.delete(item.id)
+  if(original?.versionRef!==item.versionRef)return Object.freeze({id:item.id,originalVersionRef:original?.versionRef??null,
+   versionRef:item.versionRef,state:original?'CHANGED':'ADDED',requiresAcceptance:item.state!=='ACCEPTED'})
+  const originalIssues=[...original.openIssueRefs].sort(),currentIssues=[...item.openIssueRefs].sort()
+  if(original.receiverId!==item.receiverId||original.followupRef!==item.followupRef||original.nextDueAt!==item.nextDueAt||
+   JSON.stringify(originalIssues)!==JSON.stringify(currentIssues))throw Error('BID_HANDOFF_VERSION_DRIFT')
+  return Object.freeze({id:item.id,originalVersionRef:original.versionRef,versionRef:item.versionRef,
+   state:'UNCHANGED',requiresAcceptance:item.state!=='ACCEPTED'&&
+    (item.state!=='AWAITING_ACCEPTANCE'||original.state!=='ACCEPTED')})
+ })
+ const removed=Object.freeze([...originals.values()].map(item=>Object.freeze({
+  id:item.id,versionRef:item.versionRef,openIssueRefs:item.openIssueRefs,trackingAssigneeId:item.trackingAssigneeId,
+ })))
+ return Object.freeze({items:Object.freeze(items),removed,assertCurrent})
+}

@@ -110,12 +110,15 @@ it('prepares the selected independent response from the saved draft and original
   responseVersions:[{responseId:'RESPONSE'}],factVersions:[{factId:'PRICE',version:2}],assertCurrent}))
  const query:Record<string,string|null>={projectId:'P',draftCandidateRequestKey:'Q',candidateTargetKind:'RESPONSE',candidateAssignmentId:'ASSIGNMENT',
   candidateBasisResponseId:null,candidateFirstBatchId:'BATCH'}
+ const session={prepareDraftCandidate,assertCurrent,canEditDraft:true}
  const {__init__,openDraftCandidate,bindEditorStatus}=compileFunctions(script,{$route:{query},$page:{
-  invokeHostCommand:async()=>({prepareDraftCandidate,assertCurrent}),showAlert,showMessage,
+  invokeHostCommand:async()=>session,showAlert,showMessage,
  }} as unknown as PageContext)
  if(!__init__||!openDraftCandidate)throw Error('TEST_CANDIDATE_PREPARATION_REQUIRED')
  await __init__()
  expect(bindEditorStatus?.()).toEqual({status:'本页可暂存编辑。正式保存尚不可用，离页前可取消本次编辑。'})
+ session.canEditDraft=false
+ expect(bindEditorStatus?.()).toEqual({status:'当前草稿仅可查看。'})
  await openDraftCandidate()
  expect(prepareDraftCandidate).toHaveBeenCalledExactlyOnceWith({requestKey:'Q',firstBatchId:'BATCH',
   targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'RESPONSE',assignmentId:'ASSIGNMENT',responseId:null}]}})

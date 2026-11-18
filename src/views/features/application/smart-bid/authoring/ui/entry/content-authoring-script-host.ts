@@ -69,7 +69,7 @@ export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:C
 /** 脚本句柄只有业务能力和选择代次，没有业务数据副本。 */
 export type ContentAuthoringScriptSession=Readonly<{
  assertCurrent:()=>void;select:()=>void;cancel:()=>void;setInputPending:(pending:boolean)=>void
- canLeave:boolean
+ canLeave:boolean;canEditDraft:boolean
  actionProps:(label:string,path:JsonPath|null)=>Readonly<{disabled:boolean;onClick:()=>void}>
  editorProps:(path:JsonPath)=>Readonly<Record<string,unknown>>
  readOriginalSave:(input:SaveReadInput)=>Promise<OriginalSave&Readonly<{comparison?:SaveComparison}>>
@@ -101,6 +101,14 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
    }
    return Object.freeze({assertCurrent,
     get canLeave(){return commands.canLeave},
+    get canEditDraft(){
+     assertCurrent()
+     const view=binding.runtime.resolveView(binding.dataViewKey)
+     const row=view?.getEditingRow(binding.draftId)
+     if(!view||!row)return false
+     const access=view.fieldAccess(row,'draft')
+     return access.read==='visible'&&access.write==='allowed'
+    },
     async prepareDraftCandidate(selection:DraftCandidateInput){
      assertCurrent()
      const request=structuredClone(selection)

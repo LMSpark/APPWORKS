@@ -388,9 +388,11 @@ function bindOriginalSave() {
 function bindEditorStatus() {
   if (hostUnavailable) return {error: '正文编制未接入当前页面实例'}
   if (editorFault) return {error: '当前项目或工作草稿无法打开'}
-  try {editorSession?.assertCurrent()}
-  catch {return {error: '正文编制会话已失效，请重新打开草稿'}}
-  return editorSession ? {status: '本页可暂存编辑。正式保存尚不可用，离页前可取消本次编辑。'} : {}
+  if (!editorSession) return {}
+  try {
+    return {status: editorSession.canEditDraft ?
+      '本页可暂存编辑。正式保存尚不可用，离页前可取消本次编辑。' : '当前草稿仅可查看。'}
+  } catch {return {error: '正文编制会话已失效，请重新打开草稿'}}
 }
 
 function originalDraft() {

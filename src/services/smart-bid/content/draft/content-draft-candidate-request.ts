@@ -71,21 +71,25 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
  const requestDigest=await hashCanonicalSnapshotText(`["spark-bid.draft-candidate/1",${requestJson}]`)
  assertCurrent()
  return Object.freeze({projectId,draftId,draftVersion,baseRevisionId,baselineId,requestKey,contentDigest,requestJson,requestDigest,
-  factVersions:Object.freeze(referencedFacts.map(item=>Object.freeze(item))),requiresCurrentAuthorityChecks:true as const,assertCurrent})
+  factVersions:Object.freeze(referencedFacts.map(item=>Object.freeze(item))),
+  nodeIds:Object.freeze((responseOnly?basis.basisNodes:nodes).map(item=>item.nodeId)),
+  responseChanges:Object.freeze(preview.responseChanges.map(item=>Object.freeze(item))),requiresCurrentAuthorityChecks:true as const,assertCurrent})
 }
 
 /** 将已核事实记录的依赖摘要固定到本次候选请求。 */
 export async function bindDraftCandidateFactEvidence(request:Awaited<ReturnType<typeof prepareDraftCandidateRequest>>,
- facts:Readonly<{factDependencyHash:string;assertCurrent:()=>void}>){
+ facts:Readonly<{factDependencyHash:string;factVersions:readonly BaselineFactMember[]
+  responseVersions:ReadonlyArray<Readonly<{responseId:string;assignmentId:string;payloadHash:string}>>;assertCurrent:()=>void}>){
  const assertCurrent=()=>{request.assertCurrent();facts.assertCurrent()}
  assertCurrent()
- const {factDependencyHash}=facts
+ const {factDependencyHash,factVersions,responseVersions}=facts
  const error='CONTENT_DRAFT_CANDIDATE_FACT_EVIDENCE'
  if(!/^[a-f0-9]{64}$/u.test(factDependencyHash))throw Error(error)
  const parsed:unknown=JSON.parse(request.requestJson)
  const input=snapshotReferenceRecord(parsed,error)
- const requestJson=canonicalSnapshotValue({...input,factDependencyHash})
+ const requestJson=canonicalSnapshotValue({...input,factDependencyHash,factVersions,responseVersions})
  const requestDigest=await hashCanonicalSnapshotText(`["spark-bid.draft-candidate/1",${requestJson}]`)
  assertCurrent()
- return Object.freeze({...request,requestJson,requestDigest,factDependencyHash,requiresFactUseCheck:true as const,assertCurrent})
+ return Object.freeze({...request,requestJson,requestDigest,factDependencyHash,factVersions:Object.freeze([...factVersions]),
+  requiresFactUseCheck:true as const,requiresResponseUseCheck:responseVersions.length>0,assertCurrent})
 }

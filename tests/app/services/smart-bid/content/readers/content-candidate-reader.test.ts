@@ -72,6 +72,21 @@ it('binds a prepared draft candidate to the original fact version query',async()
   expect(()=>request.assertCurrent()).toThrow()
  }finally{f.ds.destroy()}
 })
+it('pins a new independent response and its frozen facts in the candidate request',async()=>{
+ const f=await fixture('response-fact',{threeVersions:true,baselineRequirementVersion:'R1'})
+ try{
+  const basis=await readDraftCandidateBasis(f.host,{revisionId:'V1'})
+  const draftJson=canonicalSnapshotValue({nodes:[],responseChanges:[{assignmentId:'A',basisResponseId:'I',responseId:'NEW'}]})
+  const prepared=await prepareRegisteredDraftCandidateRequest(f.host,{projectId:'P',draftId:'D',actorUserId:'U',
+   draftVersion:'D1',baseRevisionId:'V1',draftJson,contentDigest:await hashCanonicalSnapshotText(draftJson),assertCurrent:()=>{}},
+  basis,{requestKey:'Q',targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'RESPONSE',assignmentId:'A',responseId:'I'}]}})
+  expect(prepared).toMatchObject({factVersions:[{factId:'PRICE',version:2}],requiresResponseUseCheck:true})
+  expect(prepared.requestJson).toContain('"responseId":"NEW"')
+  expect(prepared.requestJson).toContain('"payloadHash":')
+  await f.ds.getView('Response','selectedDraftResponseVersions')?.refresh()
+  expect(()=>prepared.assertCurrent()).toThrow()
+ }finally{f.ds.destroy()}
+})
 it('takes first draft target nodes from the frozen input snapshot',async()=>{
  const f=await fixture('populated')
  try{

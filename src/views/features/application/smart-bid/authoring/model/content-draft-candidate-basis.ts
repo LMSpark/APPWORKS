@@ -20,6 +20,7 @@ import {snapshotReferenceRecord,visitSnapshotReferences} from '@/services/smart-
 import {originalRegistrationView,readOriginalRegistrationView} from '../../authority/original-registration-view'
 import {bindDraftCandidateFactEvidence,prepareDraftCandidateRequest} from '@/services/smart-bid/content/draft/content-draft-candidate-request'
 import {readEffectiveFactsFromBaseline} from './hashes/effective-fact-reader'
+import {readDraftResponseVersions} from './content-draft-response-versions'
 
 const error='CONTENT_DRAFT_CANDIDATE_BASIS'
 const batchFields=['basisRevisionId','baselineId','inputSnapshotHash','targetScopes','lockHash']
@@ -30,11 +31,14 @@ function assertBasisRequirementVersions(manifest:unknown,basisNodes:Awaited<Retu
  const versions=readBaselineRequirementMembers(requirements)
  if(assessBaselineRequirementPins(requirements,sections['requirementPins'],basisNodes).length)
   throw Error('CONTENT_DRAFT_CANDIDATE_BASIS_REQUIREMENT')
+ const assignments=new Map<string,Readonly<{lineageId:string;version:string}>>()
  visitSnapshotReferences(sections['responseAssignments'],value=>{
-  const {lineageId,version}=snapshotReferenceRecord(value,error)
-  if(!identity(lineageId)||!identity(version)||versions.get(lineageId)!==version)
+  const {id, lineageId,version}=snapshotReferenceRecord(value,error)
+  if(!identity(id)||!identity(lineageId)||!identity(version)||versions.get(lineageId)!==version)
    throw Error('CONTENT_DRAFT_CANDIDATE_BASIS_REQUIREMENT')
+  assignments.set(id,Object.freeze({lineageId,version}))
  },error)
+ return assignments
 }
 
 export function firstCandidateBatchScenarioView(primaryKey:string){
@@ -116,10 +120,10 @@ export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selec
   if(snapshot.index.baselineId!==frozen.baselineId||canonicalSnapshotValue(stageRef)!==canonicalSnapshotValue(frozen.stageRef))
    throw Error(error)
   const members=await readBasisMembers(scopedHost,snapshot,manifest)
-  assertBasisRequirementVersions(manifest,members.basisNodes,frozen.requirements)
+  const assignments=assertBasisRequirementVersions(manifest,members.basisNodes,frozen.requirements)
   const factVersions=readCandidateBasisFactVersions(members.factIds,frozen.facts)
   members.assertCurrent()
-  return Object.freeze({...members,projectId,revisionId,baselineId:frozen.baselineId,stageRef:frozen.stageRef,factVersions,
+  return Object.freeze({...members,projectId,revisionId,baselineId:frozen.baselineId,stageRef:frozen.stageRef,factVersions,assignments,
    inputSnapshotHash,batchId:firstBatchId,lockHash,targetScope:registeredTargetScope})
  }
  const revision=await readAdoptedContentRevision(host,{kind:'basis',revisionId})
@@ -138,19 +142,29 @@ export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selec
   readContentReviewBaseline(scopedHost,{baselineId,stageRef,viewName:'selectedBasisBaseline'}),
  ])
  const assertCurrent=()=>{nodes.assertCurrent();frozen.assertCurrent()}
- assertBasisRequirementVersions(manifest,nodes.basisNodes,frozen.requirementVersions)
+ const assignments=assertBasisRequirementVersions(manifest,nodes.basisNodes,frozen.requirementVersions)
  const factVersions=readCandidateBasisFactVersions(nodes.factIds,frozen.factVersions)
  assertCurrent()
- return Object.freeze({projectId,revisionId,baselineId,stageRef:structuredClone(stageRef),factVersions,
+ return Object.freeze({projectId,revisionId,baselineId,stageRef:structuredClone(stageRef),factVersions,assignments,
   basisNodes:nodes.basisNodes,nodePayloads:nodes.nodePayloads,responses:nodes.responses,assertCurrent})
 }
 
 /** 按请求实际使用的事实读取原版本，保留读取证明供登记前再核。 */
 export async function prepareRegisteredDraftCandidateRequest(host:ContentRevisionReadHost,
- ...inputs:Parameters<typeof prepareDraftCandidateRequest>){
- const request=await prepareDraftCandidateRequest(...inputs)
+ draft:Parameters<typeof prepareDraftCandidateRequest>[0],basis:Awaited<ReturnType<typeof readDraftCandidateBasis>>,
+ input:Parameters<typeof prepareDraftCandidateRequest>[2]){
+ const request=await prepareDraftCandidateRequest(draft,basis,input)
  if(host.projectId!==request.projectId)throw Error(error)
- const facts=await readEffectiveFactsFromBaseline(host,request.factVersions.map(item=>item.factId),
-  {factVersions:request.factVersions,assertCurrent:request.assertCurrent})
- return bindDraftCandidateFactEvidence(request,facts)
+ const selected=request.responseChanges.flatMap(({assignmentId,responseId})=>{
+  if(responseId===null)return []
+  const assignment=basis.assignments.get(assignmentId)
+  if(!assignment)throw Error(error)
+  return [{assignmentId,responseId,...assignment}]
+ })
+ const responses=await readDraftResponseVersions({...host,assertCurrent:request.assertCurrent},selected,request.nodeIds)
+ const usedIds=new Set([...request.factVersions.map(item=>item.factId),...responses.factIds])
+ const factVersions=basis.factVersions.filter(item=>usedIds.has(item.factId))
+  .sort((left,right)=>left.factId<right.factId?-1:left.factId>right.factId?1:0)
+ const facts=await readEffectiveFactsFromBaseline(host,[...usedIds],{factVersions,assertCurrent:responses.assertCurrent})
+ return bindDraftCandidateFactEvidence(request,{...facts,factVersions,responseVersions:responses.versions})
 }

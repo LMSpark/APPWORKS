@@ -30,23 +30,39 @@
         ]
       },
       {
-        "id": "json-document-create-metadata",
-        "type": "r-form",
-        "props": {"autoColumns": false, "showDataViewMeta": false, "onBeforeRender": "bindCreationMetadata"},
+        "id": "json-document-dialog",
+        "type": "r-dialog",
+        "props": {
+          "title": "JSON 编辑",
+          "width": 1180,
+          "destroyOnClose": true,
+          "onBeforeRender": "bindDocumentDialog",
+          "on": {"update:modelValue":"changeDocumentDialog"},
+          "footer": {"children": [
+            {"type": "r-button", "props": {"label": "保存内容", "onBeforeRender": "bindJsonSave", "onClick": "saveJsonDocument"}},
+            {"type": "r-button", "props": {"label": "取消修改", "onBeforeRender": "bindJsonCancel", "onClick": "cancelJsonDocument"}},
+            {"type": "r-button", "props": {"label": "关闭正文", "onBeforeRender": "bindDocumentClose", "onClick": "closeJsonDocument"}}
+          ]}
+        },
         "children": [
-          {"type":"r-text","props":{"field":"name","label":"名称","maxlength":200,"onBeforeRender":"bindCreationField"}},
-          {"type":"r-text","props":{"field":"description","label":"摘要","maxlength":500,"onBeforeRender":"bindCreationField"}}
-        ]
-      },
-      {
-        "id": "json-document-preview",
-        "type": "r-form",
-        "props": {"autoColumns": false, "showDataViewMeta": false, "onBeforeRender": "bindJsonDocument"},
-        "children": [
-          {"type": "r-json", "props": {"field": "content", "label": "JSON 内容", "mode": "tree", "onBeforeRender": "bindJsonField"}},
-          {"type": "r-button", "props": {"label": "保存内容", "onBeforeRender": "bindJsonSave", "onClick": "saveJsonDocument"}},
-          {"type": "r-button", "props": {"label": "取消修改", "onBeforeRender": "bindJsonCancel", "onClick": "cancelJsonDocument"}},
-          {"type": "r-button", "props": {"label": "关闭正文", "onClick": "closeJsonDocument"}}
+          {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindDocumentError"}},
+          {
+            "id": "json-document-create-metadata",
+            "type": "r-form",
+            "props": {"autoColumns": false, "showDataViewMeta": false, "gridColumns":2, "onBeforeRender": "bindCreationMetadata"},
+            "children": [
+              {"type":"r-text","props":{"field":"name","label":"名称","maxlength":200,"onBeforeRender":"bindCreationField"}},
+              {"type":"r-text","props":{"field":"description","label":"摘要","maxlength":500,"onBeforeRender":"bindCreationField"}}
+            ]
+          },
+          {
+            "id": "json-document-preview",
+            "type": "r-form",
+            "props": {"autoColumns": false, "showDataViewMeta": false, "onBeforeRender": "bindJsonDocument"},
+            "children": [
+              {"type": "r-json", "props": {"field": "content", "label": "JSON 内容", "mode": "tree", "onBeforeRender": "bindJsonField"}}
+            ]
+          }
         ]
       }
     ]

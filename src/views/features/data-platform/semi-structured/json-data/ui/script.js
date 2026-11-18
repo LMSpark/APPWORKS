@@ -90,7 +90,31 @@ function bindCatalogCancel() {
 
 function bindCatalogSection() {
   return {status: catalogEditable ? '' : '请进入已授权应用后维护 JSON 文件。',
-    error: error || documentBinding?.loadError || ''}
+    error: documentBinding ? '' : error}
+}
+
+function documentCloseBlocked() {
+  const view = currentDocument()
+  return inputPending || documentBinding?.creating === true || view?.mutating === true ||
+    view?.hasUnconfirmedSave === true || view?.hasEditingChanges() === true ||
+    view?.dirtyTracking.hasPendingChanges() === true
+}
+
+function bindDocumentDialog() {
+  return {visible: !!documentBinding, modelValue: !!documentBinding, closeDisabled: documentCloseBlocked()}
+}
+
+function bindDocumentClose() {
+  return {disabled: documentCloseBlocked()}
+}
+
+function bindDocumentError() {
+  const title = error || documentBinding?.loadError || ''
+  return {title, visible: !!title}
+}
+
+async function changeDocumentDialog(value) {
+  if (value === false) await closeJsonDocument()
 }
 
 async function submitJsonCatalog(command) {
@@ -115,7 +139,7 @@ async function cancelJsonCatalog() {
 }
 
 async function closeJsonDocument() {
-  if (acting || inputPending || !documentBinding) return
+  if (acting || documentCloseBlocked() || !documentBinding) return
   error = ''
   acting = true
   try {

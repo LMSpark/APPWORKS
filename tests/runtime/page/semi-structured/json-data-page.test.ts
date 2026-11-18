@@ -203,10 +203,15 @@ describe('JSON document page on the formal DataSet',()=>{
   await f.edit('{"flag":false,"nested":[[1,null],{}],"new":0}');await f.click('保存内容')
   expect(JSON.parse(state.files.get('data.json')!)).toEqual({flag:false,nested:[[1,null],{}],new:0});expect(state.http.saves).toEqual([])
  })
- it('cancels native edits and protects closing or leaving until cancellation',async()=>{
+ it('protects the JSON dialog and route until edits are cancelled',async()=>{
   const f=await open();await f.choose();await f.edit('{"changed":1}');await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/json')
+  const dialog=f.wrapper.getComponent({name:'RendererDialog'})
+  expect(dialog.props('closeDisabled')).toBe(true)
   await f.click('取消修改');expect(state.dirty[0]?.isDirty).toBe(false);expect(state.uploads).toEqual([])
-  await f.click('关闭');await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/other')
+  expect(dialog.props('closeDisabled')).toBe(false)
+  dialog.vm.$emit('update:modelValue',false)
+  await vi.waitFor(()=>expect(f.wrapper.findComponent({name:'RendererDialog'}).exists()).toBe(false))
+  await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/other')
  })
  it('reports a missing file and disables save without fabricating an empty document',async()=>{
   const f=await open();await f.choose(1);await vi.waitFor(()=>expect(f.wrapper.text()).toContain('文件不存在'))

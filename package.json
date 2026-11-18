@@ -79,6 +79,7 @@
         "@spark-appworks/spark-lowcode-api": "workspace:*",
         "@spark-appworks/spark-project-model": "workspace:*",
         "@spark-appworks/spark-utils": "workspace:*",
+        "@zip.js/zip.js": "2.25.0",
         "element-plus": "catalog:",
         "vue": "catalog:",
         "vue-router": "catalog:",

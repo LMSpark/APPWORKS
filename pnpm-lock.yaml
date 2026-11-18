@@ -176,6 +176,9 @@ importers:
       '@vue-flow/minimap':
         specifier: 'catalog:'
         version: 1.5.4(@vue-flow/core@1.48.2(vue@3.5.38(typescript@6.0.3)))(vue@3.5.38(typescript@6.0.3))
+      '@zip.js/zip.js':
+        specifier: 2.25.0
+        version: 2.25.0
       element-plus:
         specifier: 'catalog:'
         version: 2.14.2(vue@3.5.38(typescript@6.0.3))
@@ -1484,6 +1487,10 @@ packages:
     resolution: {integrity: sha512-bEMnvZl+R39+midxlz0vcpWS/w4WsdN9bOfjxWIfz7o95FyxOQWUjHs63IT9wNeUP09WhLkmUDKKjdl7BQYUMw==}
     peerDependencies:
       vue: 3.5.38
+
+  '@zip.js/zip.js@2.25.0':
+    resolution: {integrity: sha512-oNRqUuU1XFu6G5d7Z0jufJ9dS9WteO0xiU/PNxsUrb4itZCsSbn191jpJzU00Gmc6S680X3DPZeF5EV4zAEMAg==}
+    engines: {bun: '>=0.7.0', deno: '>=1.0.0', node: '>=18.0.0'}
 
   abbrev@5.0.0:
     resolution: {integrity: sha512-/XrFJgzQQQHpti1raDJC6m4ws6aNktmjBlhk8Fdlk7LwCEuDoieEJJY9OFHjfiFJFFRM2tK+Ky/IsfbbmlMu1w==}
@@ -3583,6 +3590,8 @@ snapshots:
       dom-zindex: 1.0.7
       vue: 3.5.38(typescript@6.0.3)
       xe-utils: 4.0.9
+
+  '@zip.js/zip.js@2.25.0': {}
 
   abbrev@5.0.0: {}
 

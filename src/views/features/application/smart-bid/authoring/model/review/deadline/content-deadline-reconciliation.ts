@@ -27,5 +27,6 @@ export function reconcileDeadlineContents(source:FieldSource&PackageSource,input
  })
  const assertCurrent=()=>{files.assertCurrent();fields.assertCurrent()}
  assertCurrent()
- return Object.freeze({projectId:source.projectId,cutoffAt:files.cutoffAt,knownAt:files.knownAt,items:Object.freeze(items),assertCurrent})
+ return Object.freeze({projectId:source.projectId,cutoffAt:files.cutoffAt,knownAt:files.knownAt,
+  items:Object.freeze(items),packageChecks:files.packageChecks,assertCurrent})
 }

@@ -44,11 +44,21 @@ export function reconcileDeadlinePackageMembers(source:Readonly<{
  }
  const byPackage=new Map(proofs.map(item=>[item.packageId,item]))
  if(byPackage.size!==proofs.length||proofs.some(item=>item.projectId!==source.projectId))throw Error('SUBMISSION_PACKAGE_RECONCILIATION_SCOPE')
+ const checks=new Map<string,Readonly<{
+  attemptRef:string;packageId:string;packageHash:string;membershipMatches:boolean;issues:ReviewedPackage['members']
+ }>>()
  const items=source.deadline.items.map(item=>{
   const members=source.requiredMembers.filter(entry=>entry.obligationId===item.obligationId).map(entry=>{
    const link=byMember.get(memberKey(entry))
    const pack=link&&item.state==='EFFECTIVE_ATTEMPT'&&link.attemptRef===item.attemptRef?byPackage.get(link.packageId):undefined
    const verified=link&&pack?.packageHash===link.packageHash?pack:undefined
+   if(verified&&link){
+    const key=JSON.stringify([link.attemptRef,verified.packageId])
+    if(!checks.has(key))checks.set(key,Object.freeze({
+     attemptRef:link.attemptRef,packageId:verified.packageId,packageHash:verified.packageHash,
+     membershipMatches:verified.membershipMatches,issues:Object.freeze(verified.members.filter(value=>value.issues.length>0)),
+    }))
+   }
    const member=verified?.members.find(value=>value.position===entry.position)
    const state=!member?'PENDING':member.issues.length?'MISMATCHED':'MATCHED'
    return Object.freeze({position:entry.position,packageId:verified?.packageId??null,state})
@@ -58,5 +68,6 @@ export function reconcileDeadlinePackageMembers(source:Readonly<{
   return Object.freeze({...item,members:Object.freeze(members),contentState})
  })
  assertCurrent()
- return Object.freeze({items:Object.freeze(items),cutoffAt:source.deadline.cutoffAt,knownAt:source.deadline.knownAt,assertCurrent})
+ return Object.freeze({items:Object.freeze(items),packageChecks:Object.freeze([...checks.values()]),
+  cutoffAt:source.deadline.cutoffAt,knownAt:source.deadline.knownAt,assertCurrent})
 }

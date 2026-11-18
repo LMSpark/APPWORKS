@@ -5,6 +5,7 @@
  */
 import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {compareSubmissionPackageMembers} from '@/services/smart-bid/content/review/submission-package-members'
+import {readSubmissionZipInventory} from '@/services/smart-bid/content/review/submission-zip-inventory'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 
 type Members=Parameters<typeof compareSubmissionPackageMembers>[0]
@@ -12,6 +13,11 @@ type PackageSource=Readonly<{
  projectId:string;packageId:string;packageHash:string;expected:Members['expected'];packed:Members['packed']
  reopen:()=>Promise<ArrayBuffer>;assertCurrent:()=>void
 }>
+
+/** 动作50核对登记为 ZIP 的递交原件。 */
+export function readSubmissionZipPackageMembers(source:PackageSource,limits:Parameters<typeof readSubmissionZipInventory>[1]){
+ return readSubmissionPackageMembers(source,bytes=>readSubmissionZipInventory(bytes,limits))
+}
 
 /** 不用外层附件名或装封声明推断实际成员。 */
 export async function readSubmissionPackageMembers(source:PackageSource,

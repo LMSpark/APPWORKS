@@ -38,6 +38,18 @@ it('verifies the sealed bytes before enumerating and compares independently read
  },{packages:[result],batches:[]})
  expect(combined.items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',contentState:'PENDING',
   members:[{state:'MATCHED'}],fields:[{state:'PENDING'}]})
+ const extra=await readSubmissionPackageMembers(source,async()=>({complete:true,members:[
+  {position:record.position,bytes:member.buffer},{position:'未列入清单.pdf',bytes:member.buffer},
+ ]}))
+ const combinedSource={projectId:'P',deadline,links:[link],assertCurrent:()=>{},
+  requiredMembers:[{obligationId:'O',position:record.position}],requiredFields:[],
+ }
+ const actual=reconcileDeadlineContents(combinedSource,{packages:[extra],batches:[]})
+ expect(actual.items[0]).toMatchObject({state:'EFFECTIVE_ATTEMPT',contentState:'MATCHED'})
+ expect(actual.packageChecks).toMatchObject([{attemptRef:'SEND',packageId:'PKG',membershipMatches:false,
+  issues:[{position:'未列入清单.pdf',issues:['UNPLANNED','PACKING_RECORD_MISSING']}]}])
+ expect(reconcileDeadlineContents({...combinedSource,links:[{...link,attemptRef:'OTHER'}]},
+  {packages:[extra],batches:[]}).packageChecks).toEqual([])
  await expect(readSubmissionPackageMembers({...source,packageHash:'a'.repeat(64)},enumerate)).rejects.toThrow('SUBMISSION_PACKAGE_HASH_MISMATCH')
  expect(enumerate).toHaveBeenCalledOnce()
  await expect(readSubmissionPackageMembers(source,async()=>({complete:false,members:[]}))).rejects.toThrow('SUBMISSION_PACKAGE_INVENTORY_INCOMPLETE')

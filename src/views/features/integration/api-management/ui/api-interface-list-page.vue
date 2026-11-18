@@ -9,7 +9,7 @@
   <RendererDialog v-if="ready" :data-view-key="INTERFACE_KEYS.interfaces" :model-value="true" :title="`${providerName || '当前提供商'} - 接口列表`" :width="1480" :close-disabled="busy" @update:model-value="close">
     <div class="interface-list">
       <RendererList class="interface-list__sidebar" :data-view-key="INTERFACE_KEYS.interfaces" :children="listItem" :toolbar="listToolbar" :highlight-current="true" :show-pagination="false" empty-text="当前提供商暂无接口，可先新建接口" :on-item-click="choose" />
-      <RendererSection :grid-columns="1" :bordered="false" :title="selected ? `${providerName || '当前提供商'} / ${selectedName || '接口配置'}` : ''" :status="status" :error="error" :retryable="unconfirmed" retry-text="重读核验（放弃本地修改）" @retry="reload">
+      <RendererSection :grid-columns="1" :bordered="false" :title="selected ? `${providerName || '当前提供商'} / ${selectedName || '接口配置'}` : ''" :status="status" :error="error" :retryable="definitionUnconfirmed && !busy" retry-text="核验原保存结果" @retry="verifyOriginalSaves">
         <template v-if="selected" #header-actions>
           <RendererButton label="保存" button-type="primary" :disabled="locked || !interfacePending" @click="saveApi" />
         </template>
@@ -18,7 +18,7 @@
             <InterfaceEditPanel :key="String(selectedId)" :workspace="workspace" :pending-create="pendingCreate" />
           </RendererTabPane>
           <RendererTabPane name="invoke" label="调用输出" :index="1" :lazy="true" :data-view-key="INTERFACE_KEYS.calls">
-            <InterfaceInvokePanel :workspace="workspace" :pending-create="pendingCreate" />
+            <InterfaceInvokePanel :workspace="workspace" :busy="busy" :pending-create="pendingCreate" />
           </RendererTabPane>
           <RendererTabPane name="output" label="输出内容" :index="2" :lazy="true" :data-view-key="INTERFACE_KEYS.outputs">
             <InterfaceOutputPanel :workspace="workspace" :pending-create="pendingCreate" @bind="openBinding" />
@@ -64,7 +64,9 @@ let dataSet: DataSet | undefined, unsubscribe: (() => void) | undefined, active 
 const view = (table: string, viewId = 'default'): DataView | undefined => {revision.value; return dataSet?.getView(table, viewId)}
 const views = computed(() => [...writable.map(table => view(table)), view('Base_Interface_PublicParam', 'outputBinding')].flatMap(item => item ?? []))
 const dirty = computed(() => views.value.some(item => item.hasEditingChanges() || item.dirtyTracking.hasPendingChanges()))
-const unconfirmed = computed(() => [...views.value, view('InterfaceCallRequest')].some(item => item?.hasUnconfirmedSave === true))
+const definitionUnconfirmed = computed(() => views.value.some(item => item.hasUnconfirmedSave))
+const callUnconfirmed = computed(() => view('InterfaceCallRequest')?.hasUnconfirmedSave === true)
+const unconfirmed = computed(() => definitionUnconfirmed.value || callUnconfirmed.value)
 const locked = computed(() => busy.value || unconfirmed.value)
 const selected = computed(() => view('Base_DataServiceInterface')?.currentRow ?? null)
 const selectedId = computed(() => {const interfaces = view('Base_DataServiceInterface'), row = selected.value; return row && interfaces ? interfaces.getPkKey(row) : undefined})
@@ -75,7 +77,8 @@ const selectedName = computed(() => {
 })
 const pendingCreate = computed(() => {const id = selectedId.value; return id !== undefined && view('Base_DataServiceInterface')?.dirtyTracking.isPendingCreate(id) === true})
 const interfacePending = computed(() => {const interfaces = view('Base_DataServiceInterface'); return !!interfaces && (interfaces.hasEditingChanges() || interfaces.dirtyTracking.hasPendingChanges())})
-const status = computed(() => unconfirmed.value ? '保存结果尚未确认，请重读核验后再继续' : '')
+const status = computed(() => definitionUnconfirmed.value ? '保存结果尚未确认，请核验原保存结果' :
+  callUnconfirmed.value ? '上次外部调用结果尚未确认，请在调用输出中处理' : '')
 const workspace = computed<InterfaceWorkspace>(() => ({locked: locked.value, revision: revision.value, run: act}))
 const listItem: SparkNode[] = [{type: 'r-text-display', props: {field: 'Name', placeholder: '未命名接口'}}]
 const listToolbar = computed<RToolbarProps>(() => {
@@ -194,17 +197,21 @@ async function closeBinding(result: SparkComponent.DataViewRecordEditingFinish):
     await catalog.refresh(); if (catalog.loadingError) throw catalog.loadingError
   } catch {if (active && session.runtime === owner) error.value = '绑定已保存，公共参数目录待刷新；不会重新提交原绑定'}
 }
-async function reload(): Promise<void> {
-  const target = dataSet, calls = view('InterfaceCallRequest')
-  if (!target || bindingWindow.value) return
-  await act(() => target.discardAndReload({views: [...views.value, ...(calls ? [calls] : [])].map(item => ({tableName: item.tableName, viewId: item.viewId}))}))
+async function verifyOriginalSaves(): Promise<void> {
+  if (bindingWindow.value) return
+  await act(async () => {
+    for (const view of views.value.filter(item => item.hasUnconfirmedSave)) {
+      const result=await view.saveChanges()
+      if(!result.success)throw new Error(result.error?.message || result.message || '原保存结果尚未核定')
+    }
+  })
 }
 async function close(): Promise<void> {
   if (busy.value || bindingWindow.value) return
   if (dirty.value || unconfirmed.value) {
     const confirmed = await pageService.showConfirm('存在未保存的修改，关闭将放弃这些修改。', '关闭确认', {type: 'warning'})
     if (!confirmed || busy.value) return
-    if (unconfirmed.value) {error.value = '保存结果尚未确认，请先重读核验'; return}
+    if (unconfirmed.value) {error.value = '仍有未确认的保存或调用结果，请先处理原操作'; return}
     for (const item of views.value) item.discardPendingChanges()
   }
   emit('close')

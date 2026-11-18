@@ -63,6 +63,7 @@ export class ApiBackend extends HttpClientBase {
     let result: unknown
     if (request.url?.startsWith('/api/dataInterface/callApi/')) {
       this.invocations.push(request)
+      if (this.invocationResult instanceof Error) throw this.invocationResult
       result = this.invocationResult
     } else if (request.url === '/api/DataOperation/GetData') {
       const body = request.data as {Table: Array<{Name: string; Filter?: unknown; Fields: Array<{Name: string}>}>; InputParams?: Row; Params?: Row}

@@ -8,7 +8,7 @@
     <div class="interface-invoke__bar">
       <RendererForm :data-view-key="INTERFACE_KEYS.interfaces" :children="filterField" :grid-columns="1" label-width="0" :show-data-view-meta="false" />
       <RendererButton label="调用" button-type="primary" :disabled="workspace.locked || pendingCreate || unknown" @click="invoke" />
-      <RendererButton v-if="unknown" label="放弃未知结果" :disabled="workspace.locked" @click="abandon" />
+      <RendererButton v-if="unknown" label="放弃未知结果" :disabled="busy" @click="abandon" />
     </div>
     <DisplayAlert v-if="unknown" alert-type="warning" :closable="false" title="上次调用结果未知，不会重新发送；如需再次调用请先放弃该结果" />
     <RendererForm v-if="hasResult" :data-view-key="INTERFACE_KEYS.calls" :children="resultField" :grid-columns="1" label-position="top" :show-data-view-meta="false" />
@@ -20,7 +20,7 @@ import {computed} from 'vue'
 import type {SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useSparkComponent, RendererForm, RendererButton, DisplayAlert, DisplayEmpty} from '@spark-appworks/spark-component'
 import {INTERFACE_KEYS, abandonInterfaceCall, invokeApi, type InterfaceWorkspace} from './interface-list-workspace'
-const props = defineProps<{workspace: InterfaceWorkspace; pendingCreate: boolean}>()
+const props = defineProps<{workspace: InterfaceWorkspace; pendingCreate: boolean; busy: boolean}>()
 const {sparkConsume} = useSparkComponent({type: 'interface-invoke-panel'})
 const runtime = sparkConsume(PAGE_RUNTIME)
 const resolve = (key: string) => {

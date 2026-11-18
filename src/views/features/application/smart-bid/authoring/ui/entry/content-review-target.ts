@@ -1,6 +1,6 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/ui/entry/content-review-target
- * 职责：按正式发布身份为页12至17准备业务宿主。
+ * 职责：按正式发布身份为审定、知识和配置业务页准备业务宿主。
  */
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
@@ -14,6 +14,8 @@ import {createBidFindingsScriptHost} from '../../../collaboration/tasks/bid-find
 
 import {createKnowledgeDirectoryScriptHost} from '../../../knowledge/knowledge-directory-script-host'
 import {createBidClassModelCatalogHost} from '../../../knowledge/class-model-catalog-script-host'
+import {createConfigurationReleaseScriptHost} from '../../../configuration/configuration-release-script-host'
+
 
 type PublishedEntry=Readonly<{applicationId:string;scenarioId:string;nodeId:string;pageId:string}>
 type Scope=Readonly<{projectId:string;scenarioId:string;assertCurrent:()=>void}>
@@ -70,6 +72,26 @@ export function preparePublishedBidClassModelCatalogCall(route:ContentAuthoringR
   return createBidClassModelCatalogHost(runtime,root.classModel,{rootKind:root.rootKind,
    assertCurrent:()=>{scope.assertCurrent();root.assertCurrent()}})
  })
+}
+
+type ConfigurationImpactReader=NonNullable<Parameters<typeof createConfigurationReleaseScriptHost>[2]>
+
+/** 页19配置作用域和影响证据由当前运行实例的正式绑定提供。 */
+export function preparePublishedConfigurationReleaseCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+ bindScope:(runtime:PageRuntime,scope:Scope)=>Readonly<{
+  scopeId:string;assertCurrent:()=>void;readDisableImpact?:ConfigurationImpactReader
+ }>,
+){
+ const prepared=preparePublishedCall(route,entry,(runtime,scope)=>{
+  const binding=bindScope(runtime,scope)
+  const assertCurrent=()=>{scope.assertCurrent();binding.assertCurrent()}
+  assertCurrent()
+  if(!identity(binding.scopeId))throw Error('CONFIGURATION_RELEASE_PAGE_SCOPE')
+  return createConfigurationReleaseScriptHost(runtime,{scenarioId:scope.scenarioId,scopeId:binding.scopeId,assertCurrent},
+   binding.readDisableImpact)
+ })
+ if(prepared&&Object.hasOwn(route.query,'scopeId'))throw Error('CONFIGURATION_RELEASE_PAGE_SCOPE')
+ return prepared
 }
 
 function preparePublishedCall<Host>(route:ContentAuthoringRoute,entry:PublishedEntry,createHost:(runtime:PageRuntime,scope:Scope)=>Host){

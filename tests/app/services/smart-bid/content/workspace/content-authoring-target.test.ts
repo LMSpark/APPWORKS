@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {resolveContentAuthoringTarget,resolvePublishedContentAuthoringTarget,type ContentAuthoringRoute} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
-import {preparePublishedBidClassModelCatalogCall,preparePublishedKnowledgeDirectoryCall,preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
+import {preparePublishedConfigurationReleaseCall,preparePublishedBidClassModelCatalogCall,preparePublishedKnowledgeDirectoryCall,preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
 
 const auth=vi.hoisted(()=>({token:'SESSION',appId:'D8490EC99436A8B9AFDE205BE3153802'}))
 vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
@@ -87,6 +87,25 @@ it('binds page 17 to the model root supplied by the published runtime',async()=>
   expect(()=>catalog.assertCurrent()).toThrow('ROOT_CHANGED')
   await expect(host.invoke('bid.models.readCatalog',{},signal)).rejects.toThrow('ROOT_CHANGED')
   expect(executeTool).toHaveBeenCalledOnce()
+ }finally{runtime.dispose()}
+})
+it('binds page 19 to the current configuration scope and rejects route scope overrides',async()=>{
+ const entry={applicationId:app,scenarioId:space,nodeId:'NAV19',pageId:'TOOL19'}
+ const publishedRoute={path:`/apps/${app}/page19`,meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,
+  blueprintScenarioId:space,tool:{projectId:app,pageId:entry.pageId}},query:{projectId:'P',scenarioId:space}}
+ let scopeCurrent=true
+ const bindScope=vi.fn(()=>({scopeId:'AUTHORIZED',assertCurrent:()=>{if(!scopeCurrent)throw Error('SCOPE_STALE')}}))
+ const runtime=new PageRuntime({pageId:entry.pageId,scenarioIds:[space],deferredScenarioIds:[space],
+  loadScenario:async()=>{throw Error('UNEXPECTED_SCENARIO_LOAD')}})
+ try{
+  expect(()=>preparePublishedConfigurationReleaseCall({...publishedRoute,query:{...publishedRoute.query,scopeId:'OTHER'}},entry,bindScope))
+   .toThrow('CONFIGURATION_RELEASE_PAGE_SCOPE')
+  expect(bindScope).not.toHaveBeenCalled()
+  const host=preparePublishedConfigurationReleaseCall(publishedRoute,entry,bindScope)?.createHost(runtime)
+  expect(host?.runtime).toBe(runtime)
+  expect(bindScope).toHaveBeenCalledExactlyOnceWith(runtime,expect.objectContaining({projectId:'P',scenarioId:space}))
+  scopeCurrent=false
+  expect(()=>host?.assertCurrent()).toThrow('SCOPE_STALE')
  }finally{runtime.dispose()}
 })
 it('dispatches only the published node and tool pair in the declared space',()=>{

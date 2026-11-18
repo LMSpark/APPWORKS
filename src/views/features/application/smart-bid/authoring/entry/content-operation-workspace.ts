@@ -9,6 +9,7 @@ import {freezeOperationRouteContext} from '@/services/smart-bid/operation/operat
 import {dispatchOperationRouteAgentTask} from '@/services/smart-bid/operation/operation-route-agent-task'
 import {discoverRegisteredOperationGuides} from '../model/operation/content-operation-guide-reader'
 import {readRegisteredOperationDispatch} from '../model/operation/content-operation-dispatch-reader'
+import {readRegisteredFrozenOperationContext} from '../model/operation/content-operation-frozen-reader'
 import {recoverRegisteredOperationRouteAttempt} from '../model/operation/content-operation-result-reader'
 import {prepareRegisteredOperationStepRework} from '../model/operation/content-operation-rework-reader'
 
@@ -79,6 +80,12 @@ export function openContentOperationWorkspace(
   },
   recover(manifest:Parameters<typeof recoverRegisteredOperationRouteAttempt>[1],
    guide:Parameters<typeof recoverRegisteredOperationRouteAttempt>[2]){
+   return recoverRegisteredOperationRouteAttempt(host,manifest,guide)
+  },
+  async recoverOriginal(attempt:Freeze[0],guide:Parameters<typeof recoverRegisteredOperationRouteAttempt>[2]){
+   const manifest=await readRegisteredFrozenOperationContext(host,attempt)
+   assertCurrent()
+   if(!manifest)throw Error('OPERATION_FROZEN_READ_REQUIRED')
    return recoverRegisteredOperationRouteAttempt(host,manifest,guide)
   },
   prepareRework(selection:Parameters<typeof prepareRegisteredOperationStepRework>[1]){

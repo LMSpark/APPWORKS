@@ -6,7 +6,8 @@ import type {freezeOperationRouteContext} from './operation-route-context'
 import {verifyOriginalOperationRouteDispatch} from './operation-route-dispatch-evidence'
 import {verifyDispatchedOperationRouteReturn} from './operation-route-return'
 
-type Manifest=Awaited<ReturnType<typeof freezeOperationRouteContext>>
+type Manifest=Pick<Awaited<ReturnType<typeof freezeOperationRouteContext>>,
+ 'scope'|'guideRef'|'guideDigest'|'usable'|'inputDigest'|'assertCurrent'>
 type Dispatch=Parameters<typeof verifyOriginalOperationRouteDispatch>[1]
 type Result=Parameters<typeof verifyDispatchedOperationRouteReturn>[1]
 

@@ -3,6 +3,7 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {AiAgentRegistration,AiAgentToolResult,DefaultAiAgentSessionStore,createSimpleInputContract} from '@spark-appworks/spark-ai/agent'
 import {discoverRegisteredOperationGuides} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader'
 import {openContentOperationWorkspace} from '@/views/features/application/smart-bid/authoring/entry/content-operation-workspace'
+import {createContentOperationScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-operation-script-host'
 import {hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -50,10 +51,19 @@ it('discovers only the complete scoped directory and retains the original public
   expect(executeTool).toHaveBeenCalledTimes(1)
   projectId='P'
   const controller=new AbortController()
+  const tools={executeTool:async(name:string)=>name==='model_action_guide'?{ok:true,data:guideText}:executeTool()}
+  const scriptHost=createContentOperationScriptHost({...host.runtime,generation:1,destroyed:false,isLoaded:true},
+   tools,{...host,rootKind:'OperationRoute'})
+  const directory=await scriptHost.invoke('content.operation.discover',{directoryRef:'DIR'},controller.signal)
+  expect(directory).toMatchObject({dataViewKey:'S@KnowledgeGuide@effectiveDirectory',count:1,reachable:1})
+  expect(scriptHost.runtime.resolveView(directory.dataViewKey)).toBe(view)
+  await expect(directory.readGuide('G')).resolves.toMatchObject({versionRef:'V1',guide:guideText})
+  await expect(directory.readGuide('UNKNOWN')).rejects.toThrow('OPERATION_PAGE_GUIDE_ROW_REQUIRED')
   const workspace=openContentOperationWorkspace({...host.runtime,generation:1,destroyed:false,isLoaded:true},
-   {executeTool:async(name)=>name==='model_action_guide'?{ok:true,data:guideText}:executeTool()},
+   tools,
    {...host,rootKind:'OperationRoute',signal:controller.signal})
   const discovery=await workspace.discover('DIR'),guide=await workspace.readGuide(discovery,row)
+  expect(()=>directory.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   const attempt={projectId:'P',runId:'R',attemptRef:'A',requestKey:'Q',targetDigest:'b'.repeat(64),configurationLockHash:'c'.repeat(64)}
   const definition={versionRef:'V1',guideDigest,configurationLockHash:attempt.configurationLockHash,
    createdAt:'2026-11-18T10:00:00+08:00',slots:[{slotId:'target',required:true}],assertCurrent:host.assertCurrent}

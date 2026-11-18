@@ -1,0 +1,20 @@
+[
+  {
+    "id": "operation-workspace",
+    "type": "r-section",
+    "props": {"title": "AI 作业与核验", "onBeforeRender": "bindDirectoryStatus"},
+    "children": [
+      {
+        "id": "operation-guide-directory",
+        "type": "r-table",
+        "props": {"autoColumns": false, "highlightCurrentRow": true, "showPagination": false, "onBeforeRender": "bindDirectory", "onRowClick": "readGuide"},
+        "children": [
+          {"type": "r-text", "props": {"field": "guideRef", "label": "指南", "readonly": true}},
+          {"type": "r-text", "props": {"field": "versionRef", "label": "版本", "readonly": true}},
+          {"type": "r-text", "props": {"field": "kind", "label": "类型", "readonly": true}},
+          {"type": "r-text", "props": {"field": "actionName", "label": "动作", "readonly": true}}
+        ]
+      }
+    ]
+  }
+]

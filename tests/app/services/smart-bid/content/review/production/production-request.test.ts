@@ -3,6 +3,7 @@ import {prepareProductionRequest} from '@/services/smart-bid/content/review/prod
 import {prepareExportRegistration} from '@/services/smart-bid/content/review/production/production-output-registration'
 import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {prepareSignedOutputRegistration} from '@/services/smart-bid/content/review/production/signed-output-registration'
+import {preparePaperOutputRegistration} from '@/services/smart-bid/content/review/production/paper-output-registration'
 import {recoverSignatureRequest} from '@/services/smart-bid/content/review/submission/signature-request'
 import {prepareNativePriceRegistration} from '@/services/smart-bid/content/review/production/native-price-registration'
 import {recalculatePriceLines} from '@/services/smart-bid/content/references/commercial/price-sheet-recalculation'
@@ -13,6 +14,19 @@ const version={...scope,state:'ADOPTED' as const,rootHash:'a'.repeat(64),assertC
 const evidence={...scope,templateVersionRef:'T1',ruleVersionRef:'RULE',factRefs:['F1'],
  formRequired:true,formVersionRef:'FORM-V1',requiredAttachmentRefs:['ATT-V1'],attachmentRefs:['ATT-V1'],assertCurrent:()=>{}}
 const input={...scope,requestKey:'Q',purpose:'FORMAL' as const,toolVersionRef:'TOOL',outputOptions:{format:'DOCX'}}
+
+it('matches numbered paper copies and page order against independent observation',async()=>{
+ const prepared=await prepareProductionRequest({...input,outputOptions:{format:'PAPER'}},version,evidence)
+ const paper={...prepared.request,productionRequestRef:'PRINT',paperRef:'PAPER',assertCurrent:()=>{},
+  copies:[{copyRef:'C1',pageRefs:['P1','P2']},{copyRef:'C2',pageRefs:['P1','P2']}]}
+ const observed={...paper,complete:true,witnessRef:'W'}
+ expect(preparePaperOutputRegistration(prepared,paper,observed).record).toMatchObject({paperRef:'PAPER',witnessRef:'W',copies:paper.copies})
+ expect(()=>preparePaperOutputRegistration(prepared,paper,{...observed,copies:paper.copies.slice(0,1)}))
+  .toThrow('BID_PAPER_OUTPUT_COPIES')
+ expect(()=>preparePaperOutputRegistration(prepared,paper,{...observed,copies:[
+  {copyRef:'C1',pageRefs:['P2','P1']},paper.copies[1]!,
+ ]})).toThrow('BID_PAPER_OUTPUT_PAGES')
+})
 
 it('keeps the actual disclosed member tied to its original subject and package for read-only use',async()=>{
  const bytes=new TextEncoder().encode('disclosed member').buffer

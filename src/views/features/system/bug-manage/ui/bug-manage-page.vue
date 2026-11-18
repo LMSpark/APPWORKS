@@ -64,6 +64,7 @@ const host = computed(() => {
     const id = row && view?.getPkKey(row)
     if (id === undefined) {error.value = 'BUG记录缺少原生身份'; return}
     editing.value = {id, epoch: ++epoch}
+    return undefined
   }}
 })
 </script>

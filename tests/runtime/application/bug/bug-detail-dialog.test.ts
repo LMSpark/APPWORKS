@@ -1,11 +1,17 @@
 import {afterEach, expect, it, vi} from 'vitest'
+import {readFileSync} from 'node:fs'
 import {defineComponent, h} from 'vue'
-import {mount, flushPromises} from '@vue/test-utils'
+import {config, mount, flushPromises} from '@vue/test-utils'
+import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
+import ElementPlus from 'element-plus'
+import VXETable from 'vxe-table'
 import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {PAGE_RUNTIME, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererButton, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import BugDetailDialog from '@/views/features/system/bug-manage/ui/bug-detail-dialog.vue'
+import BugManagePage from '@/views/features/system/bug-manage/ui/bug-manage-page.vue'
+import * as scenarioLoader from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {ApiBackend} from '../../page/api-provider/api-provider.fixture'
 import {buildFormalModels} from '../../page/structured-config/catalog/structured-config-catalog.fixture'
 
@@ -41,6 +47,38 @@ async function submit(f: Awaited<ReturnType<typeof open>>) {
   f.wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '保存')!.vm.$emit('click')
   await flushPromises()
 }
+it('opens the original BUG record through the configured directory action', async () => {
+  const scenarioId = '5B54AEBD5BD1BBC72710D4022589A404'
+  const text = readFileSync('config/pages/system/bug-manage/pagedata.json', 'utf8')
+  const scenario = new ScenarioViewConfig(scenarioId, text)
+  const tables = JSON.parse(text).tables as Record<string, {modelBinding: {modelId: string}; views: {default: {queryConfig: {fields: string[]}}}}>
+  const fields = Object.fromEntries(Object.entries(tables).map(([name, table]) => [name, table.views.default.queryConfig.fields]))
+  const models = buildFormalModels(fields).map(model => {
+    const id = tables[model.name]!.modelBinding.modelId
+    return {...model, id, fields: model.fields.map(field => ({...field, modelId: id}))}
+  })
+  const http = new ApiBackend()
+  http.records = {Base_Bug_Info: [{rowid: 'B1', Title: '原BUG'}, {rowid: 'B2', Title: '另一个BUG'}]}
+  const api = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}})})
+  const ds = new LowcodeDataSpaceAssembler(api, http).assemble({config: scenario,
+    space: {dataSpaceId: scenarioId, name: 'Bug'}, models, relations: []}).dataSet
+  vi.spyOn(scenarioLoader, 'loadLowcodeRuntimeScenario').mockResolvedValue(ds)
+  registerAllRenderers()
+  const router = createRouter({history: createMemoryHistory(), routes: [{path: '/apps/APP/bugs', component: BugManagePage,
+    meta: {nodeId: scenarioId, blueprintScenarioId: scenarioId, systemPageIdentityState: 'resolved'}}]})
+  await router.push('/apps/APP/bugs')
+  const originalStubs = config.global.stubs
+  const stubs = {...originalStubs}
+  for (const key of ['SparkComponentRenderer', 'spark-component-renderer', 'el-table', 'el-table-column', 'el-button']) delete stubs[key]
+  config.global.stubs = stubs
+  dispose.push(() => {config.global.stubs = originalStubs})
+  const wrapper = mount(RouterView, {attachTo: document.body, global: {plugins: [router, ElementPlus, VXETable, Spark.createPlugin()]}})
+  dispose.push(() => wrapper.unmount())
+  await vi.waitFor(() => expect(wrapper.findAllComponents(RendererButton).filter(button => button.props('label') === '详情'), wrapper.text()).toHaveLength(2))
+  await wrapper.findAllComponents(RendererButton).filter(button => button.props('label') === '详情')[1]!.trigger('click')
+  await vi.waitFor(() => expect(wrapper.getComponent(BugDetailDialog).props('recordId')).toBe('B2'))
+  expect(http.saves).toHaveLength(0)
+})
 it('does not copy an unreadable user name into the bug record', async () => {
   const f = await open(true)
   await submit(f)

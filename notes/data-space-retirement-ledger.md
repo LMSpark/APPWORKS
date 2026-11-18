@@ -11042,7 +11042,7 @@ flowchart TD
 - 728cc749a spark-data 包级复核：独立配置单 worker 60 文件、1410 项全部通过（88.89 秒），覆盖当前 DataView 新增行权限状态层修复的公共数据回归。与根测试采集可能重叠，不累计总数。根双 worker 原进程仍运行。
 - 2026-11-18 selectedTenderRecord实服配置闭合：原空间保留projectId等声明，补runId/type/ordinal/recordVersion/recordHash五项无默认非主业务，已保存并回读。原TenderRecord无同名视图后新增；Table/paged/完整集合false/过滤自动查询false/cache none/staged，以6个eq GetInputParam组成AND常驻范围。单次保存UI已保存并回读；关模型重开精确视图再核六项与运行选项一致，截图smart-bid-tender-record-view-readback-20261118.png。无核定业务行写入或实际端到端读取。
 - 包06 清理 48af2439a：整字典删除显式拒绝，内部 #deleting 从未置真；删除死分支、旁路批量提交和虚假的已删除状态推进。保留现公开查询状态与零写拒绝、普通设计/条目 DataSet 保存及未知结果原捕获核验。字典 workspace 97 项及专项 lint 通过；整删正式服务合同仍待。
-- 根双 worker 复跑退出 0：646 个文件、10865 项全部通过，1235.08 秒。运行从 6f6770976 启动，过程中工作区有后续提交，不将汇总认定为最新 HEAD 的冻结快照。后续改动的对应专项见上。backend-api-contracts 未找到独立整字典删除入口，仍需正式定义/条目及持久依赖合同。
+- 根双 worker 复跑退出 0：646 个文件、10865 项全部通过，1235.08 秒。运行从 6f6770976 启动，过程中工作区有后续提交，不将汇总认定为最新 HEAD 的冻结快照。后续改动的对应专项见上。当时未发现独立整删端点；后续已在源码派生清单确认路由，仍需核实正式定义、条目及持久依赖合同。
 - 2026-11-18 实服TenderRecord只读空结果烟测：从已保存selectedTenderRecord打开标准查询预览，仅本次输入合成projectId/runId、FORMAT、ordinal数字0、版本字符串002及64零摘要；选择完整结果后只执行原命名视图查询一次，界面Loaded、明示总数0/返回0行。CDP未取得可归因响应事件，不声明HTTP/body回执。未写业务行或默认参数，此证据不作正记录读取/候选链/用途验收。截图smart-bid-tender-record-empty-query-20261118.png。
 - 包06 界面清理 0e18791fc：保留整删不可用说明及禁用按钮，移除不可达确认弹窗、删除处理及列表 deleted 回调。RendererButton 显式布尔禁用，首测发现简写未生效，修正后字典页面36项与专项 lint 通过。
 - 0e18791fc SDK 独立全量复核：spark-lowcode-api 58 文件、1630 项均通过，29.41 秒。TenderRecord 空查询截图可核视图身份及合成调用值，结果区不在截图可见范围；零行结论来自操作会话的界面读数，未取得可归因响应。
@@ -11669,3 +11669,5 @@ flowchart TD
 - 当前主仓 271c02539 工作区复验 verify:pages-config、verify:arch、verify:dirs 均通过；实服页面消费仍须独立验收。
 - 四文件运行守卫补充复验：除已验平台用例，现有直接实例化 PageRuntimePool 的 SmartBid 三组（操作指南读取、内容编制宿主、内容编制命令）共47项通过，未复现缺蓝图身份导致的失败。正式导航实服仍待。
 - 当前主仓生产构建 pnpm run build 退出0，包构建6项、缓存跳过2项，前端 Vite 构建成功；保留动态导入分包提示。该证据覆盖打包，未部署。
+- 第06包字典目录与工作流本地复验2文件86项通过。当前列表页未发现整定义删除动作；整字典删除、引用保护及下游实服消费仍待核验。
+- 第06包整删合同纠偏：正式类型化 endpoints.ts 未覆盖整删，但服务源码派生 lowcode-endpoint-ledger.json 已列 DELETE /api/Dict/{Name}/DeleteDict 与条目 DeleteDictData，不能笼统称端点目录无整删。仍缺 Name 身份、授权、引用保护和原子性实服证据，本轮不派发。蓝图选项视图的字典类型精确过滤测试通过。

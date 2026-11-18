@@ -1,22 +1,53 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
-import {mount,flushPromises} from '@vue/test-utils'
-import {defineComponent,h} from 'vue'
+import {config,mount,flushPromises} from '@vue/test-utils'
+import {defineComponent,h,shallowRef} from 'vue'
+import {createMemoryHistory,createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
-import {RendererButton,RendererTable,Spark,PAGE_RUNTIME,useSparkComponent} from '@spark-appworks/spark-component'
-import {buildDataViewKey,getSparkNodeChildren,nodeInputProps} from '@spark-appworks/spark-data'
+import {RendererButton,RendererTable,Spark,SparkComponentRenderer,SparkPageRenderer,registerAllRenderers} from '@spark-appworks/spark-component'
+import {buildDataViewKey,getSparkNodeChildren,nodeInputProps,type SparkNode} from '@spark-appworks/spark-data'
+import {PageTool} from '@spark-appworks/spark-project-model'
 import RulePane from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue'
 import RuleDialog from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue'
 import {excelDesignRuntime,EXCEL_DESIGN} from '../../excel-import-design.fixture'
+import rules from '@/views/features/data-platform/semi-structured/excel-import/ui/design-tool/rule.json'
+import script from '@/views/features/data-platform/semi-structured/excel-import/ui/design-tool/script.js?raw'
 
 const sessions:Array<()=>void>=[]
 afterEach(()=>sessions.splice(0).forEach(close=>close()))
 async function fixture(){
+ const tool=new PageTool({pageId:'excel-transform-rule-list'})
+ tool.hydrateFileText('rule.json',JSON.stringify(rules.filter(node=>node.id==='excel-transform-list')))
+ tool.hydrateFileText('script.js',script)
+ tool.markLoaded()
  const f=await excelDesignRuntime({Base_ImportData_Config:[{rowid:'C1',schemeid:'E1',pid:'E1',sheetName:'订单',exportType:'default',sheet_layout_json:'',relatedappid:'APP',table:'db@orders',parentField:'',foreignKeyField:''}],Base_ImportData_Field:[{rowid:'F1',configid:'C1',name:'code',index:'A',isReadOnly:0}],
-  Base_Import_Transform_Rule:['R1','R2'].map((id,index)=>({id,scheme_id:'E1',config_id:'C1',rule_name:id,rule_type:'TRIM',source_field:'code',target_field:'code',sort_order:10+index*10,enabled:1,on_error:'FAIL_ROW',phase:'OLD',description:'保留',condition_json:'',config_json:'{}'}))})
- const wrapper=mount(defineComponent({setup(){useSparkComponent({type:'rule-pane-host'}).sparkProvide(PAGE_RUNTIME,f.runtime)
-  return()=>h(RulePane,{dataViewKey:buildDataViewKey('Base_Import_Transform_Rule','default',EXCEL_DESIGN),fieldOptionsKey:buildDataViewKey('Base_ImportData_Field','foreignKeyFields',EXCEL_DESIGN),hasNode:true})
- }}),{global:{plugins:[ElementPlus,Spark.createPlugin()]}})
- sessions.push(()=>{wrapper.unmount();f.runtime.dispose()});await flushPromises()
+  Base_Import_Transform_Rule:['R1','R2'].map((id,index)=>({id,scheme_id:'E1',config_id:'C1',rule_name:id,rule_type:'TRIM',source_field:'code',target_field:'code',sort_order:10+index*10,enabled:1,on_error:'FAIL_ROW',phase:'OLD',description:'保留',condition_json:'',config_json:'{}'}))},'E1','C1',tool)
+ for(const table of Object.values(f.ds.tables))for(const view of Object.values(table.views))view.autoLoad=false
+ const routeSnapshot={path:'/',fullPath:'/',name:null,params:{},query:{},hash:''}
+ const router=createRouter({history:createMemoryHistory(),routes:[{path:'/',component:{template:'<div />'}}]})
+ await router.push('/')
+ const pane=shallowRef<InstanceType<typeof RulePane>>()
+ const host={runtime:f.runtime,assertCurrent:()=>{},async invoke(command:string,input:unknown):Promise<unknown>{
+  if(command==='excel.design.connect')return {ruleList:()=>pane.value?.state(),ruleDirection:(value:unknown)=>pane.value?.scopeLabel(value)??''}
+  if(command==='excel.design.refreshRules')await pane.value?.refresh()
+  if(command==='excel.design.addRule')await pane.value?.add()
+  if(command==='excel.design.verifyRule')await pane.value?.verifyOriginal()
+  if(command==='excel.design.editRule')pane.value?.openEdit(input)
+  if(command==='excel.design.deleteRule')pane.value?.openDelete(input)
+  return undefined
+ }}
+ registerAllRenderers()
+ const originalStubs={...config.global.stubs}
+ const stubs={...originalStubs};delete stubs['SparkComponentRenderer'];delete stubs['spark-component-renderer']
+ config.global.stubs=stubs
+ const wrapper=mount(defineComponent({setup(){return()=>h(SparkPageRenderer,{pageRuntime:f.runtime,routeSnapshot,host},{
+  content:({children}:{children:SparkNode[]})=>h(RulePane,{ref:pane,dataViewKey:buildDataViewKey('Base_Import_Transform_Rule','default',EXCEL_DESIGN),
+   fieldOptionsKey:buildDataViewKey('Base_ImportData_Field','foreignKeyFields',EXCEL_DESIGN),hasNode:true},
+  {'rule-list':()=>children[0]?h(SparkComponentRenderer,{config:children[0]}):null}),
+ })}}),{global:{plugins:[ElementPlus,Spark.createPlugin(),router]}})
+ sessions.push(()=>{wrapper.unmount();f.runtime.dispose();config.global.stubs=originalStubs});await flushPromises()
+ const row=f.nodes.rows.find(record=>f.nodes.getPkKey(record)==='C1')
+ if(row){f.nodes.setCurrentRow(row);f.nodes.setSelectedRows([row])}
+ await vi.waitFor(()=>expect(f.rules.rows).toHaveLength(2))
  const click=async(label:string)=>{const button=wrapper.findAllComponents(RendererButton).find(button=>button.props('label')===label);if(!button)throw Error(`Missing ${label}`);button.vm.$emit('click');await flushPromises()}
  return {...f,wrapper,click}
 }

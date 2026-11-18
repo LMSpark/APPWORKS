@@ -7,32 +7,21 @@
   <section class="excel-transform-rules">
     <h2>增强规则</h2>
     <slot name="scheme-tools" />
-    <slot name="rule-list">
-    <p>关闭增强规则时仍可设计；启用后按执行方向和顺序消费已保存规则。</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <RendererButton label="刷新规则" :disabled="blocked || !hasNode" @click="refresh" />
-    <RendererButton :data-view-key="dataViewKey" label="新增规则" perm-action="create" :disabled="blocked || !hasNode" @click="add" />
-    <RendererButton v-if="unconfirmed" label="核验原未确认规则提交" :disabled="busy || !!editing || !!operation" @click="verifyOriginal" />
-    <template v-if="hasNode">
-      <RendererTable :data-view-key="dataViewKey" :children="columns" :actions="actions" :highlight-current-row="true" :on-row-click="rowClick" />
-    </template>
-    <p v-else role="status">选择配置后维护其增强规则。</p>
-    </slot>
+    <slot name="rule-list" />
     <RuleDialog v-if="editing" :key="editing.epoch" :data-view-key="dataViewKey" :record-id="editing.id" :created="editing.created" :field-options-key="fieldOptionsKey" @close="editing=undefined" />
     <OperationDialog v-if="operation" :key="operation.epoch" :data-view-key="dataViewKey" :record-id="operation.id" :mode="operation.mode" @close="operation=undefined" />
   </section>
 </template>
 <script setup lang="ts">
 import {computed,onBeforeUnmount,ref,shallowRef,watch} from 'vue'
-import {RequestState,type DataRow,type SparkNode} from '@spark-appworks/spark-data'
+import {RequestState,type DataRow} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import * as Components from '@spark-appworks/spark-component'
-import type {RToolbarProps} from '@spark-appworks/spark-component'
 import {createExcelTransformConfig} from '@/lowcode/resources/semi-structured/excel-import/transform/definition'
 import RuleDialog from './excel-import-transform-rule-dialog.vue'
 import OperationDialog from './excel-import-transform-operation-dialog.vue'
 
-const {PAGE_RUNTIME,RendererButton,RendererTable,useSparkComponent}=Components
+const {PAGE_RUNTIME,useSparkComponent}=Components
 const props=withDefaults(defineProps<{dataViewKey:string;fieldOptionsKey:string;hasNode:boolean;disabled?:boolean}>(),{disabled:false})
 const emit=defineEmits<{'session-change':[value:boolean]}>()
 const {sparkConsume}=useSparkComponent({type:'excel-import-transform-rules-pane'}),runtime=sparkConsume(PAGE_RUNTIME)
@@ -51,11 +40,6 @@ const unconfirmed=computed(()=>{revision.value;return view.hasUnconfirmedSave})
 const sourceCurrent=computed(()=>props.dataViewKey===openedKey&&runtime?.resolveView(openedKey)===view&&!view.destroyed&&!dataSet.destroyed)
 const blocked=computed(()=>!sourceCurrent.value||props.disabled||busy.value||unconfirmed.value||!!editing.value||!!operation.value)
 watch(()=>!!editing.value||!!operation.value,value=>emit('session-change',value),{immediate:true,flush:'sync'})
-const columns:SparkNode[]=Object.entries({sort_order:'顺序',rule_name:'规则名称',rule_type:'规则类型',source_field:'来源字段',target_field:'目标字段',config_json:'执行方向',enabled:'启用'}).map(([field,label])=>({type:'r-text',props:{field,label,readonly:true,...(field==='config_json'?{displayFormatter:scopeLabel}:{})}}))
-const actions=computed<RToolbarProps>(()=>({children:[
- {type:'r-button',props:{label:'编辑',permAction:'edit',disabled:blocked.value,onClick:openEdit}},
- {type:'r-button',props:{label:'删除',permAction:'delete',disabled:blocked.value,onClick:openDelete}},
-]}))
 function scopeLabel(value:unknown):string{
  try{const config:unknown=typeof value==='string'?JSON.parse(value):undefined;if(isRecord(config)&&typeof config['executionScope']==='string')return config['executionScope'];return '未配置'}catch{return '配置待纠正'}
 }

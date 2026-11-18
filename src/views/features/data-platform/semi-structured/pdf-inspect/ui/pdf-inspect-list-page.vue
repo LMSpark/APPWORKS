@@ -21,17 +21,18 @@
         <FieldText field="configId" label="规则编号" readonly />
         <FieldText field="status" label="处理状态" readonly />
       </RendererTable>
-      <RendererSection v-if="resultOpen" title="原任务结果" :bordered="false"
-        :status="resultLoading ? '正在读取原任务…' : ''" :error="resultError">
-        <RendererForm v-if="resultReady" :data-view-key="resultKey" :auto-columns="false" :show-data-view-meta="false">
-          <FieldText field="inspectJobId" label="任务编号" readonly />
-          <FieldText field="requestId" label="请求编号" readonly />
-          <FieldText field="status" label="处理状态" readonly />
-          <FieldNumber field="finished" label="已处理文件数" readonly />
-          <FieldNumber field="total" label="文件总数" readonly />
-          <FieldJson field="files" label="文件与规则核验明细" mode="text" value-format="native" readonly />
-        </RendererForm>
-      </RendererSection>
+    </RendererSection>
+    <RendererSection v-if="resultOpen" :title="recovering ? '恢复原核验请求' : '原任务结果'" :bordered="false"
+      :status="resultLoading ? '正在读取原任务…' : ''" :error="resultError">
+      <RendererButton v-if="recovering" label="重新核验原请求" :disabled="resultLoading" @click="recoverOriginal" />
+      <RendererForm v-if="resultReady" :data-view-key="recovering ? recoveryKey : resultKey" :auto-columns="false" :show-data-view-meta="false">
+        <FieldText field="inspectJobId" label="任务编号" readonly />
+        <FieldText field="requestId" label="请求编号" readonly />
+        <FieldText field="status" label="处理状态" readonly />
+        <FieldNumber field="finished" label="已处理文件数" readonly />
+        <FieldNumber field="total" label="文件总数" readonly />
+        <FieldJson field="files" label="文件与规则核验明细" mode="text" value-format="native" readonly />
+      </RendererForm>
     </RendererSection>
   </RendererSection>
 </template>
@@ -99,15 +100,20 @@ const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === '
 const catalogKey = computed(() => buildDataViewKey(LowcodePdfInspect.catalogMetaName, 'default', scenarioId.value))
 const historyKey = computed(() => buildDataViewKey(PDF_INSPECTION_HISTORY_TABLE, 'default', scenarioId.value))
 const resultKey = computed(() => buildDataViewKey('PdfInspectionResult', 'default', scenarioId.value))
+const recoveryKey = computed(() => buildDataViewKey('PdfInspectionRecovery', 'default', scenarioId.value))
+const recoveryRequest = computed(() => route.query['pdfInspectionRequestId'])
 const historyAvailable = ref(false), historyOpen = ref(false), historyLoading = ref(false), historyError = ref('')
 const resultOpen = ref(false), resultLoading = ref(false), resultReady = ref(false), resultError = ref('')
+const recovering = ref(false)
+let resultGeneration = 0
 function openHistoryResult(row: DataRow): void {
   if (!resultLoading.value) void readHistoryResult(row)
 }
 async function readHistoryResult(row: DataRow): Promise<void> {
   const current = session.runtime, history = current?.resolveView(historyKey.value), result = current?.resolveView(resultKey.value)
   if (!history || !result) return
-  const own = generation
+  const own = ++resultGeneration
+  recovering.value = false
   resultOpen.value = true; resultLoading.value = true; resultReady.value = false; resultError.value = ''
   try {
     const assertOriginal = history.captureReadRow(row, ['inspectJobId', 'requestId'])
@@ -115,7 +121,7 @@ async function readHistoryResult(row: DataRow): Promise<void> {
     if (typeof inspectJobId !== 'string' || typeof requestId !== 'string') throw Error('历史记录缺少原任务或请求编号')
     result.queryContext = {inspectJobId}
     await result.refresh()
-    if (!active || own !== generation) return
+    if (!active || own !== resultGeneration) return
     assertOriginal()
     if (result.loadingError) throw result.loadingError
     const original = result.rows[0]
@@ -125,11 +131,48 @@ async function readHistoryResult(row: DataRow): Promise<void> {
     result.setCurrentRowById(inspectJobId)
     resultReady.value = true
   } catch (cause) {
-    if (active && own === generation) resultError.value = cause instanceof Error ? cause.message : String(cause)
+    if (active && own === resultGeneration) resultError.value = cause instanceof Error ? cause.message : String(cause)
   } finally {
-    if (active && own === generation) resultLoading.value = false
+    if (active && own === resultGeneration) resultLoading.value = false
   }
 }
+async function recoverOriginal(): Promise<void> {
+  const own = ++resultGeneration, requestId = recoveryRequest.value
+  recovering.value = true; resultOpen.value = true; resultReady.value = false; resultLoading.value = false; resultError.value = ''
+  if (typeof requestId !== 'string' || !/^[-A-Za-z0-9_]{1,128}$/u.test(requestId)) {
+    resultError.value = '恢复链接缺少唯一有效的原请求编号'
+    return
+  }
+  const recovery = session.runtime?.resolveView(recoveryKey.value)
+  if (!recovery) {
+    resultError.value = '当前场景缺少原请求恢复视图'
+    return
+  }
+  resultLoading.value = true
+  try {
+    recovery.queryContext = {requestId}
+    await recovery.refresh()
+    if (!active || own !== resultGeneration) return
+    const original = recovery.rows[0], jobId = original?.['inspectJobId']
+    if (recovery.loadingError || recovery.rows.length !== 1 || original?.['requestId'] !== requestId || typeof jobId !== 'string') {
+      throw Error('原请求结果尚未核定，可重新核验同一请求')
+    }
+    recovery.captureReadRow(original, ['requestId', 'inspectJobId'])()
+    recovery.setCurrentRowById(jobId)
+    resultReady.value = true
+  } catch {
+    if (active && own === resultGeneration) resultError.value = '原请求结果尚未核定，可重新核验同一请求'
+  } finally {
+    if (active && own === resultGeneration) resultLoading.value = false
+  }
+}
+watch([ready, recoveryRequest], ([loaded, requestId]) => {
+  if (loaded && requestId !== undefined) void recoverOriginal()
+  else if (recovering.value) {
+    resultGeneration++
+    recovering.value = false; resultOpen.value = false; resultLoading.value = false; resultReady.value = false; resultError.value = ''
+  }
+})
 async function openHistory(): Promise<void> {
   const current = session.runtime, history = current?.resolveView(historyKey.value)
   if (!history || historyLoading.value) return
@@ -166,7 +209,8 @@ watch(scenarioId, async id => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
   historyAvailable.value = false; historyOpen.value = false; historyLoading.value = false; historyError.value = ''
-  resultOpen.value = false; resultLoading.value = false; resultReady.value = false; resultError.value = ''
+  resultGeneration++
+  recovering.value = false; resultOpen.value = false; resultLoading.value = false; resultReady.value = false; resultError.value = ''
   unsubscribe?.(); view.value = undefined
   session.dispose()
   try {

@@ -39,7 +39,7 @@ beforeEach(() => {
   state.runtime = new DataSpaceRuntimeApi({http: state.http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}})})
 })
 afterEach(() => wrappers.splice(0).forEach(wrapper => wrapper.unmount()))
-async function open(ruleId = 'P1',catalog=false) {
+async function open(ruleId = 'P1',catalog=false,recoveryRequestId?:string|string[]) {
   const router = createRouter({history: createMemoryHistory(), routes: [{path: '/editor', component: PdfEditor, meta: {blueprintScenarioId: PDF}}, {path: '/other', component: {template: '<div>other</div>'}}]})
   if(catalog){
     const dynamic=createDynamicRouter({router,pageComponent:PdfList,loadNavigation:async()=>({id:'root',title:'Root',childPlacement:'header',items:[{id:PDF,title:'PDF',path:'/catalog',itemKind:'system-page',blueprintScenarioId:PDF}]}),componentMap:{'/catalog':PdfList}})
@@ -47,13 +47,45 @@ async function open(ruleId = 'P1',catalog=false) {
     const record=router.getRoutes().find(item=>item.path==='/catalog')
     if(record)record.meta['blueprintScenarioId']=PDF
   }
-  await router.push({path:catalog?'/catalog':'/editor',query:catalog?{}:{ruleId}}); await router.isReady()
+  await router.push({path:catalog?'/catalog':'/editor',query:catalog?{pdfInspectionRequestId:recoveryRequestId}:{ruleId}}); await router.isReady()
   const wrapper = mount(defineComponent({setup: () => {provideTestPageService(router);return () => h(RouterView)}}), {global: {plugins: [router, ElementPlus, Spark.createPlugin()]}}); wrappers.push(wrapper)
   await flushPromises()
   const click = async (label: string) => {await wrapper.findAll('button').find(button => button.text() === label)!.trigger('click'); await flushPromises()}
   return {wrapper, click, router}
 }
 describe('formal PDF rule editor', () => {
+  it('retries only the original request when cold recovery initially returns no task', async () => {
+    const backend = new class extends ApiBackend {
+      calls: string[] = []
+      protected override async executeRequest(request: RequestConfig): Promise<HttpResponse<unknown>> {
+        if (!request.url.startsWith('/api/File/inspect/')) return super.executeRequest(request)
+        this.calls.push(request.url)
+        expect(request.url).toBe('/api/File/inspect/recover')
+        expect(request.data).toEqual({requestId: 'REQ'})
+        const data = this.calls.length === 1 ? {Code: 404, Message: 'missing'} : {Code: 200, Result: {
+          protocolVersion: '2.0', inspectJobId: 'JOB', requestId: 'REQ', status: 'COMPLETED', progress: {total: 0, finished: 0}, files: [],
+        }}
+        return {data, status: 200, statusText: 'OK', headers: {}}
+      }
+    }()
+    backend.primaryKeys = state.http.primaryKeys
+    backend.records = state.http.records
+    state.http = backend
+    state.runtime = new DataSpaceRuntimeApi({http: backend, readScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}})})
+    const f = await open('P1', true, 'REQ')
+    await vi.waitFor(() => expect(f.wrapper.text()).toContain('原请求结果尚未核定'))
+    expect(backend.calls).toEqual(['/api/File/inspect/recover'])
+    expect(f.wrapper.text()).not.toContain('文件与规则核验明细')
+    await f.click('重新核验原请求')
+    expect(f.wrapper.text()).toContain('文件与规则核验明细')
+    expect(backend.calls).toEqual(['/api/File/inspect/recover', '/api/File/inspect/recover'])
+    expect(backend.saves).toHaveLength(0)
+  })
+  it('rejects ambiguous original request links without querying the recovery resource', async () => {
+    const f = await open('P1', true, ['REQ', 'OTHER'])
+    expect(f.wrapper.text()).toContain('恢复链接缺少唯一有效的原请求编号')
+    expect(state.http.saves).toHaveLength(0)
+  })
   it.each(['REQ', 'OTHER'])('checks history request identity before rendering the original task (%s)', async requestId => {
     const files = [{fileId: 'FILE', rules: [{ruleId: 'RULE', matched: false}]}]
     const backend = new class extends ApiBackend {

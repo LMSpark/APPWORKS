@@ -127,17 +127,29 @@ function syncTable(): void {
   const row = view(tableKey).currentRow, rowid = value(row, 'rowid')
   const previous = table.value?.rowid, desc = value(row, 'tbldesc'), name = value(row, 'tblname')
   table.value = rowid ? {rowid, label: desc ? `${desc}[${name}]` : name} : undefined
-  if (rowid !== previous) { message.value = ''; notice.value = ''; void nextTick(loadAll) }
+  if (rowid !== previous) { syncColumns(); message.value = ''; notice.value = ''; void nextTick(loadAll) }
 }
 function syncColumns(): void {
-  columns.value = view(fieldKey).rows.map(row => ({name: value(row, 'enname'), label: value(row, 'cnname') || value(row, 'enname')}))
-    .filter(column => column.name)
+  const tableId = table.value?.rowid
+  const source = view(fieldKey)
+  if (!tableId || source.loadingError || source.nextPageAvailable === true || (source.countReported && source.total !== source.rows.length)) {
+    columns.value = []
+    return
+  }
+  columns.value = source.rows.flatMap(row => {
+    if (source.fieldAccess(row, 'tblid').read !== 'visible' || value(row, 'tblid') !== tableId
+      || source.fieldAccess(row, 'enname').read !== 'visible') return []
+    const name = value(row, 'enname')
+    if (!name) return []
+    const label = source.fieldAccess(row, 'cnname').read === 'visible' ? value(row, 'cnname') : ''
+    return [{name, label: label || name}]
+  })
 }
 watch(ready, isReady => {
   unbind()
-  if (!isReady) return
+  if (!isReady) {table.value = undefined; columns.value = []; return}
   listen(view(tableKey), ['currentRowChanged', 'rowsChanged', 'cleared'], syncTable)
-  listen(view(fieldKey), ['rowsChanged', 'cleared'], syncColumns)
+  listen(view(fieldKey), ['rowsChanged', 'cleared', 'requestStateChanged'], syncColumns)
   syncTable(); syncColumns()
 })
 onBeforeUnmount(unbind)

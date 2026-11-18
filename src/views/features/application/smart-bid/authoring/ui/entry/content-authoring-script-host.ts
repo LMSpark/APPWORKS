@@ -9,7 +9,9 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type {JsonPath} from '@spark-appworks/spark-json-document'
 import {contentTreeDraftActionLayout,contentTreeEditorLayout,type ContentTreeEditorLayoutInput} from '@/services/smart-bid/content-tree-editor-layout'
 import {isCallable,isRecord} from '@spark-appworks/spark-utils'
-import {parseDataViewKey} from '@spark-appworks/spark-data'
+import {buildDataViewKey,parseDataViewKey} from '@spark-appworks/spark-data'
+import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {readBaselineSubmissionObligations} from '../../../followup/submission-obligation-reader'
 import {readRegisteredOriginalContentDraftSave} from '../../model/content-draft-save-reader'
 import {reconcileSavedContentDraft} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
 type Binding=Pick<ContentAuthoringBinding,'runtime'|'dataViewKey'|'projectId'|'draftId'|'actorUserId'|'assertCurrent'|'setPending'>
@@ -62,6 +64,7 @@ export type ContentAuthoringScriptSession=Readonly<{
  actionProps:(label:string,path:JsonPath|null)=>Readonly<{disabled:boolean;onClick:()=>void}>
  editorProps:(path:JsonPath)=>Readonly<Record<string,unknown>>
  readOriginalSave:(input:SaveReadInput)=>Promise<OriginalSave&Readonly<{comparison?:SaveComparison}>>
+ readVolumePlanningObligations:()=>ReturnType<typeof readBaselineSubmissionObligations>
 }>
 /** 供正式SparkPageRenderer.host使用；命令对象仍归原薄宿主释放。 */
 export function createContentAuthoringScriptHost(binding:Binding,commands:ContentAuthoringCommands,receiptDataViewKey?:string){
@@ -82,6 +85,21 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
    }
    return Object.freeze({assertCurrent,
     get canLeave(){return commands.canLeave},
+    async readVolumePlanningObligations(){
+     assertCurrent()
+     const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
+     if(!scenarioId)throw Error('CONTENT_VOLUME_PLAN_SCOPE')
+     const key=buildDataViewKey('ContentProject','selectedProject',scenarioId),view=runtime.resolveView(key)
+     const row=view?.rows[0]
+     if(!view||row?.['projectId']!==projectId||!identity(row['activeBaselineId']))throw Error('CONTENT_VOLUME_PLAN_SCOPE')
+     const baselineId=row['activeBaselineId'],proof=view.captureReadRow(row,['projectId','activeBaselineId'])
+     const assertProject=()=>{
+      assertCurrent()
+      if(runtime.resolveView(key)!==view)throw Error('CONTENT_VOLUME_PLAN_SCOPE')
+      proof()
+     }
+     return readBaselineSubmissionObligations({runtime,scenarioId,projectId,assertCurrent:assertProject},baselineId)
+    },
     async readOriginalSave(request:SaveReadInput){
      assertCurrent()
      const scenarioId=parseDataViewKey(binding.dataViewKey)?.scope

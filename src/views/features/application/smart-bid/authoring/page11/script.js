@@ -11,6 +11,27 @@ let saveReceiptError = false
 let saveReceiptRequested = false
 let saveReceiptLoading = false
 
+function bindVolumePlanning() {
+  return {disabled: !editorSession || editorFault}
+}
+
+async function openVolumePlanning() {
+  if (bindVolumePlanning().disabled) return
+  try {
+    const result = await editorSession.readVolumePlanningObligations()
+    result.assertCurrent()
+    const lines = ['项目激活基线 ' + result.baselineId]
+    for (const item of result.obligations) {
+      lines.push(`${item.obligationRef} · ${item.kind === 'DOCUMENT' ? '分册' : '独立递交'} · ${item.required ? '必交' : '按条件选用'} · 依据 ${item.sourceRef}`)
+      if (item.allowedDisclosureRefs.length) lines.push('获准披露范围 ' + item.allowedDisclosureRefs.join('、'))
+    }
+    if (!result.obligations.length) lines.push('当前基线的递交事项待登记')
+    await $page.showAlert(lines.join('\n'), '分册策划依据')
+  } catch {
+    $page.showMessage('分册策划依据无法核验', 'warning')
+  }
+}
+
 async function __init__() {
   editorSession = undefined
   editorFault = false

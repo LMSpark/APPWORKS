@@ -12,6 +12,7 @@ import script from '@/views/features/application/smart-bid/authoring/page11/scri
 import css from '@/views/features/application/smart-bid/authoring/page11/style.css?raw'
 import {ContentAuthoringCommands} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands'
 import {createContentAuthoringScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host'
+import {submissionObligationScenarioView} from '@/views/features/application/smart-bid/followup/submission-obligation-reader'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {isRecord} from '@spark-appworks/spark-utils'
@@ -26,7 +27,18 @@ it.each([false,true])('renders the three-file tool with original draft and optio
  const nodes=[{nodeId:'B',parentId:'P',index:0,type:'document',class:[],value:'',data:{}},
   {nodeId:'C',parentId:'B',index:0,type:'chapter',class:[],value:'',data:{}},
   {nodeId:'H',parentId:'C',index:0,type:'heading',class:[],value:'实施方案',data:{}}]
- const ds=DataSet.fromJson({scenarioId,tables:{WorkingDraft:{modelBinding:{modelId:'M',modelName:'WorkingDraft'},
+ const planningRows={
+  ContentProject:{id:'P',projectId:'P',activeBaselineId:'ACTIVE'},
+  SubmissionObligation:{id:'O',projectId:'P',baselineId:'ACTIVE',obligationRef:'O',kind:'DOCUMENT',required:true,
+   sourceRef:'SOURCE',allowedDisclosureRefs:['PUBLIC']},
+ }
+ const planningViews={ContentProject:{selectedProject:{commitMode:'staged' as const}},
+  SubmissionObligation:{originalBaselineObligations:submissionObligationScenarioView('id')}}
+ const planningTables=Object.fromEntries(Object.entries(planningRows).map(([model,row])=>[model,{
+  modelBinding:{modelId:model,modelName:model},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},...planningViews[model as keyof typeof planningViews]},
+ }]))
+ const ds=DataSet.fromJson({scenarioId,tables:{...planningTables,WorkingDraft:{modelBinding:{modelId:'M',modelName:'WorkingDraft'},
   columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},{name:'draft',type:'object'}],
   views:{default:{},personalDraft:{commitMode:'staged'}}}}})
  const view=ds.getView('WorkingDraft','personalDraft')!,table=new DataSpaceQueryTable({scenarioId,metaName:'WorkingDraft'})
@@ -35,6 +47,16 @@ it.each([false,true])('renders the three-file tool with original draft and optio
   Items:[{...row,lingma_sys_params:{r:[],e:editable?['draft']:[],h:[],m:[],d:false}}]}}})}))
  const save=vi.fn(async()=>{throw Error('NO_WRITE')})
  view.queryContext={projectId:'P',currentUserId:'U'};view.bindQueryExecutor({executeQuery:query,save});await view.refresh()
+ for(const [model,viewName] of [['ContentProject','selectedProject'],['SubmissionObligation','originalBaselineObligations']] as const){
+  const source=ds.getView(model,viewName)
+  if(!source)throw Error('TEST_PLANNING_VIEW_REQUIRED')
+  const queryTable=new DataSpaceQueryTable({scenarioId,metaName:model})
+  source.bindQueryExecutor({save,executeQuery:async()=>new DataSpaceQueryContext({identity:queryTable.identity,scope:'planning',
+   readScope:()=> 'planning',snapshot:queryTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[
+    {...planningRows[model],lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}},
+   ]}}})})})
+  if(model==='ContentProject')await source.refresh()
+ }
  const tool=new PageTool({pageId:'PAGE11'})
  tool.hydrateFileText('rule.json',JSON.stringify(rule));tool.hydrateFileText('script.js',script);tool.hydrateFileText('style.css',css);tool.markLoaded()
  const runtime=new PageRuntime({tool,scenarioIds:[scenarioId],loadScenario:async()=>ds})
@@ -42,6 +64,13 @@ it.each([false,true])('renders the three-file tool with original draft and optio
  const binding={runtime,dataViewKey:`${scenarioId}@WorkingDraft@personalDraft`,projectId:'P',draftId:'D',actorUserId:'U',assertCurrent:()=>{},setPending:vi.fn()}
  const commands=editable?new ContentAuthoringCommands(binding):undefined
  const host=commands?createContentAuthoringScriptHost(binding,commands):undefined
+ if(host){
+  const session=host.invoke('content.authoring.connect',undefined,new AbortController().signal)
+  const obligations=await session.readVolumePlanningObligations()
+  expect(obligations).toMatchObject({baselineId:'ACTIVE',obligations:[{obligationRef:'O',sourceRef:'SOURCE',kind:'DOCUMENT'}]})
+  await ds.getView('ContentProject','selectedProject')?.refresh()
+  expect(()=>obligations.assertCurrent()).toThrow()
+ }
  const router=createRouter({history:createMemoryHistory(),routes:[{path:'/',component:defineComponent({render:()=>h('div')})}]})
  await router.push('/?projectId=P&draftId=D');await router.isReady()
  const previous={...config.global.stubs},stubs={...previous}

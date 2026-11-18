@@ -4,6 +4,7 @@
     "type": "r-section",
     "props": {"title": "标书正文编制", "gridColumns": 1, "onBeforeRender": "bindEditorStatus"},
     "children": [
+      {"type": "r-button", "props": {"label": "查看分册策划依据", "onBeforeRender": "bindVolumePlanning", "onClick": "openVolumePlanning"}},
       {
         "id": "original-draft",
         "type": "r-form",

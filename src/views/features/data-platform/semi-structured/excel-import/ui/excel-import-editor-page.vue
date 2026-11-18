@@ -4,7 +4,7 @@
 <template>
   <section class="structured-editor-page">
     <p v-if="loading" role="status">正在读取设计…</p>
-    <p v-if="error || queryError" role="alert">{{ error || queryError }}</p>
+    <p v-if="!removal && (error || queryError)" role="alert">{{ error || queryError }}</p>
     <p v-if="missing" role="alert">当前方案不存在</p>
     <p v-if="unconfirmed" role="status">存在尚未确认的保存结果，请通过原保存入口核验。</p>
     <p v-if="recoveryNotice" role="status">{{ recoveryNotice }}</p>
@@ -58,22 +58,12 @@
           </template>
         </main>
       </div>
+        <SparkComponentRenderer :config="designRegion(children,'excel-node-removal')" />
 
       </template>
     </SparkPageRenderer>
     <ExcelTargetDialog v-if="sourceTargetId" :data-view-key="nodesKey" :record-id="sourceTargetId" :busy="acting" :validate-target="validateSourceTarget" @close="sourceTargetId = ''" @confirm="applyTarget" />
     <ExcelReferenceDialog v-if="fieldReference" :data-view-key="fieldsKey" :reference="fieldReference" :busy="acting" @close="fieldReference=undefined" />
-    <RendererDialog v-if="removal" :model-value="true" :data-view-key="nodesKey" title="删除配置确认" :width="560" @update:model-value="cancelRemoval">
-      <p>将删除当前叶配置，同时删除 {{ removalState?.fields }} 个字段和 {{ removalState?.rules }} 条转换规则。</p>
-      <p>保留方案、兄弟配置、模板和来源业务数据。</p>
-      <p v-if="removalState?.databaseConfirmed" role="status">数据库删除已确认，继续回读并刷新页面。</p>
-      <p v-if="error" role="alert">{{ error }}</p>
-      <template #footer>
-        <RendererButton label="取消删除配置" :disabled="busy || !removalState?.canCancel" @click="cancelRemoval" />
-        <RendererButton v-if="removalState?.canAcceptCurrent" label="读取并采用当前正式结果，结束原删除" :disabled="busy" @click="acceptRemovalCurrent" />
-        <RendererButton :label="unconfirmed || removalState?.databaseConfirmed ? '核验删除并刷新' : '确认删除配置'" button-type="danger" :disabled="busy" @click="saveRemoval" />
-      </template>
-    </RendererDialog>
   </section>
 </template>
 
@@ -104,7 +94,7 @@ import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
 import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
 import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
-const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererButton, RendererDialog, RendererTabs, RendererTabPane, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererButton, RendererTabs, RendererTabPane, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
@@ -245,6 +235,11 @@ function makeTreeHost(runtime:PageRuntime){
       setFilterPending:(editing:boolean)=>{if(active&&session.isCurrent(runtime))pending('nodes.filters',editing)},
       sort:()=>({mode:sortMode.value,...sortState.value,options:sortDirectory.value?.dataViewKey,blocked:busy.value||pendingPart('nodes')}),
       setSortPending:(editing:boolean)=>{if(active&&session.isCurrent(runtime))pending('nodes.sorted',editing)},
+      removal:()=>({
+        open:!!removal.value,fields:removalState.value?.fields,rules:removalState.value?.rules,
+        databaseConfirmed:removalState.value?.databaseConfirmed===true,canCancel:removalState.value?.canCancel===true,
+        canAccept:removalState.value?.canAcceptCurrent===true,busy:busy.value,unconfirmed:unconfirmed.value,error:error.value||queryError.value,
+      }),
       mapping:()=>({
         referenceDisabled:locked.value||!!targetChange.value||!currentMapping.value,
         deleteDisabled:locked.value||!!targetChange.value,
@@ -279,6 +274,9 @@ function makeTreeHost(runtime:PageRuntime){
       if(!pendingPart('rules'))cancel(schemeTable)
       return undefined
     }
+    if(command==='excel.design.cancelRemoval'&&removalState.value?.canCancel){cancelRemoval();return undefined}
+    if(command==='excel.design.acceptRemoval'&&removalState.value?.canAcceptCurrent){await acceptRemovalCurrent();return undefined}
+    if(command==='excel.design.saveRemoval'&&removal.value){await saveRemoval();return undefined}
     if(command==='excel.design.setReference'){editReference(false);return undefined}
     if(command==='excel.design.clearReference'){editReference(true);return undefined}
     if(command==='excel.design.deleteField'){

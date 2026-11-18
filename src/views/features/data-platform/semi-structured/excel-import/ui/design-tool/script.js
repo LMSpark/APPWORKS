@@ -150,3 +150,35 @@ async function clearReference() { await $page.invokeHostCommand('excel.design.cl
 async function deleteField() { await $page.invokeHostCommand('excel.design.deleteField') }
 async function saveFields() { await $page.invokeHostCommand('excel.design.saveFields') }
 async function cancelFields() { await $page.invokeHostCommand('excel.design.cancelFields') }
+
+function bindRemovalDialog() {
+  const state = tree?.removal()
+  const open = state?.open === true
+  return {visible:open,modelValue:open,closeDisabled:state?.busy !== false || !state?.canCancel}
+}
+
+function bindRemovalImpact() {
+  const state = tree?.removal()
+  return {title:'将删除当前叶配置，同时删除 ' + state?.fields + ' 个字段和 ' + state?.rules + ' 条转换规则。'}
+}
+function bindRemovalConfirmed() { return {visible:tree?.removal().databaseConfirmed === true} }
+function bindRemovalError() {
+  const title = tree?.removal().error || ''
+  return {title,visible:!!title}
+}
+function bindCancelRemoval() {
+  const state = tree?.removal()
+  return {disabled:state?.busy !== false || !state?.canCancel}
+}
+function bindAcceptRemoval() {
+  const state = tree?.removal()
+  return {visible:state?.canAccept === true,disabled:state?.busy !== false}
+}
+function bindSaveRemoval() {
+  const state = tree?.removal()
+  return {disabled:state?.busy !== false,label:state?.unconfirmed || state?.databaseConfirmed ? '核验删除并刷新' : '确认删除配置'}
+}
+async function closeRemovalDialog(open) { if (open === false) await cancelRemoval() }
+async function cancelRemoval() { await $page.invokeHostCommand('excel.design.cancelRemoval') }
+async function acceptRemoval() { await $page.invokeHostCommand('excel.design.acceptRemoval') }
+async function saveRemoval() { await $page.invokeHostCommand('excel.design.saveRemoval') }

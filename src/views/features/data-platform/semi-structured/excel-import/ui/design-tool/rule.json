@@ -124,5 +124,22 @@
         {"type":"r-text","props":{"field":"refTableDesc","label":"引用表描述","readonly":true}}
       ]}
     ]
+  },
+  {
+    "id":"excel-node-removal",
+    "type":"r-dialog",
+    "props":{"title":"删除配置确认","width":560,"destroyOnClose":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","onBeforeRender":"bindRemovalDialog","on":{"update:modelValue":"closeRemovalDialog"},
+      "footer":{"children":[
+        {"type":"r-button","props":{"label":"取消删除配置","onBeforeRender":"bindCancelRemoval","onClick":"cancelRemoval"}},
+        {"type":"r-button","props":{"label":"读取并采用当前正式结果，结束原删除","onBeforeRender":"bindAcceptRemoval","onClick":"acceptRemoval"}},
+        {"type":"r-button","props":{"label":"确认删除配置","buttonType":"danger","onBeforeRender":"bindSaveRemoval","onClick":"saveRemoval"}}
+      ]}
+    },
+    "children":[
+      {"type":"r-alert","props":{"alertType":"warning","closable":false,"onBeforeRender":"bindRemovalImpact"}},
+      {"type":"r-alert","props":{"alertType":"info","closable":false,"title":"保留方案、兄弟配置、模板和来源业务数据。"}},
+      {"type":"r-alert","props":{"alertType":"info","closable":false,"title":"数据库删除已确认，继续回读并刷新页面。","onBeforeRender":"bindRemovalConfirmed"}},
+      {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindRemovalError"}}
+    ]
   }
 ]

@@ -12,13 +12,25 @@ import {readRegisteredSubmissionRequest} from '../model/review/submission/conten
 import {readRegisteredSubmissionEvents} from '../model/review/submission/content-submission-events-reader'
 import {readRegisteredChannelReceiptPairing} from '../model/review/submission/content-channel-receipt-pairing-reader'
 import {readRegisteredReceiptCandidates} from '../model/review/submission/content-channel-receipt-candidates'
+import {reconcileDeadlineDelivery} from '../model/review/deadline/content-deadline-reconciliation'
+import {readRegisteredTenderOutcome} from '../model/review/submission/content-tender-outcome-reader'
+import {readRegisteredDeadlineRecord} from '../model/review/deadline/content-deadline-record-reader'
 
 /** 原递交请求的读取合同。 */
 type Read=Parameters<typeof readRegisteredSubmissionRequest>
+/** 截止对账的原记录、证据和核对选项合同。 */
+type Deadline=Parameters<typeof reconcileDeadlineDelivery>
+/** 读取原截止记录对应的回执和核对证据。 */
+type ReadDeadline=(record:Awaited<ReturnType<typeof readRegisteredDeadlineRecord>>,signal:AbortSignal)=>Promise<Readonly<{
+ options:Deadline[2]
+ receipts:Omit<Deadline[1],'receipts'>&Readonly<{
+  receipts:ReadonlyArray<Deadline[1]['receipts'][number]&Readonly<{assertCurrent:()=>void}>>
+ }>
+}>>
 
 /** 原请求身份由当前项目与调用引用取得，原事件由已绑定办理记录读取方供给。 */
 export function createContentSubmissionScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
- runtime:Runtime,scope:Omit<Read[0],'runtime'>){
+ runtime:Runtime,scope:Omit<Read[0],'runtime'>,readDeadline?:ReadDeadline){
  return {runtime,assertCurrent:scope.assertCurrent,
   async invoke(name:string,input:unknown,signal:AbortSignal){
    if(!isRecord(input))throw Error('SUBMISSION_PAGE_COMMAND_REQUIRED')
@@ -28,6 +40,27 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)throw Error('SUBMISSION_PAGE_STALE')
    }
    const host={...scope,runtime,assertCurrent}
+   if(name==='content.submission.readOutcome'){
+    const {lotId,roundId,stageId,subjectId,knownAt}=input
+    if(!identity(lotId)||!identity(roundId)||!identity(stageId)||!identity(subjectId)||!identity(knownAt))
+     throw Error('SUBMISSION_PAGE_OUTCOME_SCOPE')
+    return readRegisteredTenderOutcome(host,{lotId,roundId,stageId,subjectId,knownAt})
+   }
+   if(name==='content.submission.readDeadline'&&readDeadline&&identity(input['deadlineRef'])){
+    assertCurrent()
+    const record=await readRegisteredDeadlineRecord(host,input['deadlineRef'])
+    const selected=await readDeadline(record,signal)
+    record.assertCurrent()
+    const {scope:receiptScope}=selected.receipts
+    if(record.scope.projectId!==receiptScope.projectId||record.scope.lotId!==receiptScope.lotId||
+     record.scope.subjectId!==receiptScope.subjectId||record.scope.channelId!==receiptScope.channelId)
+     throw Error('SUBMISSION_PAGE_DEADLINE_SCOPE')
+    const receipts=[...selected.receipts.receipts]
+    return reconcileDeadlineDelivery(record.input,{...selected.receipts,receipts,assertCurrent:()=>{
+     record.assertCurrent();selected.receipts.assertCurrent()
+     for(const receipt of receipts)receipt.assertCurrent()
+    }},selected.options)
+   }
    if(name==='content.submission.readReceipt'&&identity(input['receiptRef']))
     return readRegisteredChannelReceiptPairing(host,input['receiptRef'],(original,receipt)=>
      receipt.operationRef===null&&receipt.objectRef===null?Promise.resolve({attempts:[],assertCurrent}):

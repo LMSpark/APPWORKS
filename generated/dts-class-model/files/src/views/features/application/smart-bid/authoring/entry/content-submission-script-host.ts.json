@@ -46,9 +46,164 @@
           "additionalProperties": false
         }
       ]
+    },
+    "Deadline": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Deadline",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "knownAt": {
+              "type": "string"
+            },
+            "cutoffAt": {
+              "type": "string"
+            },
+            "obligationIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "knownAt",
+            "cutoffAt",
+            "obligationIds"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "lotId": {
+                  "type": "string"
+                },
+                "subjectId": {
+                  "type": "string"
+                },
+                "channelId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "projectId",
+                "lotId",
+                "subjectId",
+                "channelId"
+              ],
+              "additionalProperties": false
+            },
+            "receipts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Receipt"
+              }
+            },
+            "decisions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Decision"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "scope",
+            "receipts",
+            "decisions",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contents": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "(() => void) & (() => void)"
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../model/review/deadline/content-deadline-package-reconciliation.ts.json#/$defs/PackageLink"
+                  }
+                },
+                "requiredFields": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../model/review/deadline/content-deadline-field-reconciliation.ts.json#/$defs/Field"
+                  }
+                },
+                "requiredMembers": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../model/review/deadline/content-deadline-package-reconciliation.ts.json#/$defs/RequiredMember"
+                  }
+                }
+              },
+              "required": [
+                "projectId",
+                "assertCurrent",
+                "links",
+                "requiredFields",
+                "requiredMembers"
+              ],
+              "additionalProperties": false
+            },
+            "proofs": {
+              "type": "object",
+              "properties": {
+                "packages": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../model/review/deadline/content-deadline-package-reconciliation.ts.json#/$defs/ReviewedPackage"
+                  }
+                },
+                "batches": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../model/review/deadline/content-deadline-field-reconciliation.ts.json#/$defs/Batch"
+                  }
+                }
+              },
+              "required": [
+                "packages",
+                "batches"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "contents",
+            "proofs"
+          ],
+          "additionalProperties": false
+        }
+      ]
     }
   },
-  "generatedAt": "2026-11-18T08:50:49.186Z",
+  "generatedAt": "2026-11-18T09:08:34.071Z",
   "models": {
     "Read": {
       "name": "Read",
@@ -63,6 +218,31 @@
             "targetName": "Parameters"
           }
         ],
+        "members": {}
+      }
+    },
+    "Deadline": {
+      "name": "Deadline",
+      "jsdoc": "截止对账的原记录、证据和核对选项合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof reconcileDeadlineDelivery>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof reconcileDeadlineDelivery>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ReadDeadline": {
+      "name": "ReadDeadline",
+      "jsdoc": "读取原截止记录对应的回执和核对证据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(record: Awaited<ReturnType<typeof readRegisteredDeadlineRecord>>, signal: AbortSignal) => Promise<Readonly<{\n    options: Deadline[2];\n    receipts: Omit<Deadline[1], 'receipts'> & Readonly<{\n        receipts: ReadonlyArray<Deadline[1]['receipts'][number] & Readonly<{\n            assertCurrent: () => void;\n        }>>;\n    }>;\n}>>",
         "members": {}
       }
     }

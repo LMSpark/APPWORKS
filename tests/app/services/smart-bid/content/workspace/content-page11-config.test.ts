@@ -42,15 +42,21 @@ it('explains missing edit integration without enabling edit actions',async()=>{
 })
 it('shows the original save receipt without modifying the current editor',async()=>{
  const assertCurrent=vi.fn(),assertComparison=vi.fn(),resolveView=vi.fn()
- const readOriginalSave=vi.fn(async()=>({state:'SAVED',draftVersion:'V2',receiptRef:'RC',assertCurrent,
-  comparison:{currentState:'NEWER_EDITS',assertCurrent:assertComparison}}))
+ const receipt={state:'SAVED',draftVersion:'V2',receiptRef:'RC',assertCurrent,
+  comparison:{currentState:'NEWER_EDITS',assertCurrent:assertComparison}}
+ let resolveReceipt:()=>void=()=>{throw Error('TEST_RECEIPT_NOT_INITIALIZED')}
+ const pending=new Promise<typeof receipt>(resolve=>{resolveReceipt=()=>resolve(receipt)})
+ const readOriginalSave=vi.fn(()=>pending)
  const invokeHostCommand=vi.fn(async()=>({readOriginalSave}))
  const query={projectId:'P',draftId:'D',saveRequestKey:'Q',saveRequestDigest:'a'.repeat(64),
   saveContentDigest:'b'.repeat(64),saveExpectedDraftVersion:null}
  const {__init__,bindOriginalSave}=compileFunctions(script,{$route:{query},
   $page:{invokeHostCommand,resolveView}} as unknown as PageContext)
  if(!__init__||!bindOriginalSave)throw Error('TEST_PAGE11_HANDLERS_REQUIRED')
- await __init__()
+ const initialization=__init__()
+ expect(bindOriginalSave()).toEqual({status:'正在核验原保存结果'})
+ resolveReceipt()
+ await initialization
  expect(invokeHostCommand).toHaveBeenCalledExactlyOnceWith('content.authoring.connect')
  expect(readOriginalSave).toHaveBeenCalledExactlyOnceWith({requestKey:'Q',requestDigest:query.saveRequestDigest,
   contentDigest:query.saveContentDigest,expectedDraftVersion:null})

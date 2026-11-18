@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader\n职责：页14按主体与轮次的原结果视图核阶段结果。\n边界：正式主体和轮次事件由原视图提供，阶段结果仅按同次证据投影。\nAI用途：区分候选推荐、正式结果和整轮终止各自的证据。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "roundId": {
+          "type": "string"
+        },
+        "stageId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "roundId",
+        "stageId",
+        "subjectId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T09:08:34.077Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "原阶段结果的业务范围与获知时点。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof projectTenderOutcome>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "roundId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "stageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "subjectId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

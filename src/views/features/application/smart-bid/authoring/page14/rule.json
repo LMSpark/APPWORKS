@@ -8,5 +8,21 @@
     "id": "original-channel-receipt",
     "type": "r-section",
     "props": {"title": "接收凭据", "onBeforeRender": "bindOriginalReceipt"}
+  },
+  {
+    "id": "submission-deadline",
+    "type": "r-section",
+    "props": {"title": "截止有效组合", "onBeforeRender": "bindDeadline"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对截止有效组合", "onClick": "openDeadline"}}
+    ]
+  },
+  {
+    "id": "tender-stage-outcome",
+    "type": "r-section",
+    "props": {"title": "阶段结果", "onBeforeRender": "bindOutcome"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对阶段结果", "onClick": "openOutcome"}}
+    ]
   }
 ]

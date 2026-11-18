@@ -9,6 +9,7 @@ let hostUnavailable = false
 let saveReceipt
 let saveReceiptError = false
 let saveReceiptRequested = false
+let saveReceiptLoading = false
 
 async function __init__() {
   editorSession = undefined
@@ -19,23 +20,30 @@ async function __init__() {
   const query = $route.query
   saveReceiptRequested = ['saveRequestKey', 'saveRequestDigest', 'saveContentDigest', 'saveExpectedDraftVersion']
     .some(key => Object.hasOwn(query, key))
+  saveReceiptLoading = saveReceiptRequested
   try {editorSession = await $page.invokeHostCommand('content.authoring.connect')}
   catch (cause) {
     hostUnavailable = cause?.message === 'PAGE_HOST_COMMAND_UNAVAILABLE'
     editorFault = !hostUnavailable
   }
-  if (!saveReceiptRequested || !editorSession) return
+  if (!saveReceiptRequested || !editorSession) {
+    saveReceiptLoading = false
+    return
+  }
   const {saveRequestKey, saveRequestDigest, saveContentDigest, saveExpectedDraftVersion} = query
   try {
     saveReceipt = await editorSession.readOriginalSave({requestKey: saveRequestKey, requestDigest: saveRequestDigest,
       contentDigest: saveContentDigest, expectedDraftVersion: saveExpectedDraftVersion})
   } catch {
     saveReceiptError = true
+  } finally {
+    saveReceiptLoading = false
   }
 }
 
 function bindOriginalSave() {
   if (!saveReceiptRequested) return {visible: false}
+  if (saveReceiptLoading) return {status: '正在核验原保存结果'}
   if (saveReceiptError || !saveReceipt) return {error: '原保存结果无法核验'}
   try {
     saveReceipt.assertCurrent()

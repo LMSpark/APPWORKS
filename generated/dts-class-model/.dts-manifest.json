@@ -4504,7 +4504,7 @@
     "src/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings.ts.json",
-      "sourceModifiedAt": "2026-11-18T08:45:45.766Z"
+      "sourceModifiedAt": "2026-11-18T08:53:49.225Z"
     },
     "src/lowcode/resources/shared/ai-data-entry-host.ts": {
       "sourceFile": "src/lowcode/resources/shared/ai-data-entry-host.ts",
@@ -5994,7 +5994,7 @@
     "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-18T08:50:49.186Z"
+      "sourceModifiedAt": "2026-11-18T09:08:34.071Z"
     },
     "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts",
@@ -6186,6 +6186,11 @@
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation.ts.json",
       "sourceModifiedAt": "2026-11-18T04:26:37.333Z"
     },
+    "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-record-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-record-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-record-reader.ts.json",
+      "sourceModifiedAt": "2026-11-18T09:08:34.073Z"
+    },
     "src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader.ts.json",
@@ -6230,6 +6235,11 @@
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts.json",
       "sourceModifiedAt": "2026-11-18T08:42:58.456Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader.ts.json",
+      "sourceModifiedAt": "2026-11-18T09:08:34.077Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",
@@ -6559,7 +6569,7 @@
     "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-18T08:47:08.763Z"
+      "sourceModifiedAt": "2026-11-18T09:06:27.613Z"
     },
     "src/views/features/data-platform/shared/model/design-json-ui.ts": {
       "sourceFile": "src/views/features/data-platform/shared/model/design-json-ui.ts",

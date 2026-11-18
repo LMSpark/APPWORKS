@@ -18,6 +18,10 @@ it('requires verification of the exact AI-assisted position separately from the 
   positions:[position],deferredPositionRefs:['FILE-FIELD'],assertCurrent}
  const pending=await reviewResponseDraft(draft,{...source,checks:[check]})
  expect(pending).toMatchObject({verified:false})
+ const delayedCheck={...check,accepted:false,aiVerificationRef:'AI'}
+ const delayed=reviewResponseDraft(draft,{...source,checks:[delayedCheck]})
+ delayedCheck.accepted=true
+ expect(await delayed).toMatchObject({verified:false})
  const verified=await reviewResponseDraft(draft,{...source,checks:[{...check,aiVerificationRef:'AI'}]})
  expect(verified).toMatchObject({
   verified:true,deferredPositionRefs:['FILE-FIELD'],

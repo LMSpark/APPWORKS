@@ -18,25 +18,32 @@ export async function reviewResponseDraft(draft:Draft,source:Readonly<{
  deviation:'NONE'|'POSITIVE'|'NEGATIVE'|null;deviationAllowed:boolean
  positions:readonly Position[];checks:readonly Check[];deferredPositionRefs:readonly string[];assertCurrent:()=>void
 }>){
- const checks=[...source.checks]
- const assertCurrent=()=>{draft.assertCurrent();source.assertCurrent();for(const check of checks)check.assertCurrent()}
- assertCurrent()
+ const checks=source.checks.map(check=>({...check}))
+ const assertSource=()=>{draft.assertCurrent();source.assertCurrent();for(const check of checks)check.assertCurrent()}
+ assertSource()
+ const positionsInput=source.positions.map(position=>({...position}))
+ const deferredPositionRefs=Object.freeze([...source.deferredPositionRefs])
+ const {reviewerRef,ruleVersionRef,deviation,deviationAllowed,draftHash:expectedDraftHash}=source
  const {assertCurrent:_proof,...document}=draft
- const draftHash=await hashCanonicalSnapshotText(canonicalSnapshotValue(document))
- assertCurrent()
- if(draftHash!==source.draftHash||![source.reviewerRef,source.ruleVersionRef].every(identity)||
-  (source.deviation!==null&&(!source.deviationAllowed||!['NONE','POSITIVE','NEGATIVE'].includes(source.deviation))))
-  throw Error('BID_RESPONSE_REVIEW_SCOPE')
- const positions=new Map(source.positions.map(item=>[item.positionRef,item]))
- if(!positions.size||positions.size!==source.positions.length||source.positions.some(item=>
-  !identity(item.positionRef)||!/^[a-f0-9]{64}$/u.test(item.contentHash)||typeof item.requiresAiVerification!=='boolean')||
-  !source.deferredPositionRefs.every(identity)||new Set(source.deferredPositionRefs).size!==source.deferredPositionRefs.length)
-  throw Error('BID_RESPONSE_REVIEW_POSITIONS')
- if(!('chapterId' in draft.body)){
-  const bodyHash=await hashCanonicalSnapshotText(canonicalSnapshotValue(draft.body))
-  assertCurrent()
-  if(positions.get(draft.targetRef)?.contentHash!==bodyHash)throw Error('BID_RESPONSE_REVIEW_VERSION')
+ const documentText=canonicalSnapshotValue(document)
+ const assertCurrent=()=>{
+  assertSource()
+  if(canonicalSnapshotValue(document)!==documentText)throw Error('BID_RESPONSE_REVIEW_VERSION')
  }
+ const [draftHash,bodyHash]=await Promise.all([
+  hashCanonicalSnapshotText(documentText),
+  'chapterId' in draft.body?null:hashCanonicalSnapshotText(canonicalSnapshotValue(draft.body)),
+ ])
+ assertCurrent()
+ if(draftHash!==expectedDraftHash||![reviewerRef,ruleVersionRef].every(identity)||
+  (deviation!==null&&(!deviationAllowed||!['NONE','POSITIVE','NEGATIVE'].includes(deviation))))
+  throw Error('BID_RESPONSE_REVIEW_SCOPE')
+ const positions=new Map(positionsInput.map(item=>[item.positionRef,item]))
+ if(!positions.size||positions.size!==positionsInput.length||positionsInput.some(item=>
+  !identity(item.positionRef)||!/^[a-f0-9]{64}$/u.test(item.contentHash)||typeof item.requiresAiVerification!=='boolean')||
+  !deferredPositionRefs.every(identity)||new Set(deferredPositionRefs).size!==deferredPositionRefs.length)
+  throw Error('BID_RESPONSE_REVIEW_POSITIONS')
+ if(bodyHash!==null&&positions.get(draft.targetRef)?.contentHash!==bodyHash)throw Error('BID_RESPONSE_REVIEW_VERSION')
  const byPosition=new Map<string,Check>()
  for(const check of checks){
   const position=positions.get(check.positionRef)
@@ -45,16 +52,15 @@ export async function reviewResponseDraft(draft:Draft,source:Readonly<{
    throw Error('BID_RESPONSE_REVIEW_EVIDENCE')
   byPosition.set(check.positionRef,check)
  }
- const results=Object.freeze(source.positions.map(position=>{
+ const results=Object.freeze(positionsInput.map(position=>{
   const check=byPosition.get(position.positionRef)
   const verified=check?.accepted===true&&(!position.requiresAiVerification||check.aiVerificationRef!==null)
   return Object.freeze({positionRef:position.positionRef,contentHash:position.contentHash,verified,reviewRef:check?.reviewRef??null,
    aiVerificationRef:check?.aiVerificationRef??null})
  }))
  return Object.freeze({draftHash,assignmentId:draft.assignmentId,targetRef:draft.targetRef,
-  reviewerRef:source.reviewerRef,ruleVersionRef:source.ruleVersionRef,
-  verified:results.every(item=>item.verified),deviation:source.deviation,positions:results,
-  deferredPositionRefs:Object.freeze([...source.deferredPositionRefs]),assertCurrent})
+  reviewerRef,ruleVersionRef,verified:results.every(item=>item.verified),deviation,positions:results,
+  deferredPositionRefs,assertCurrent})
 }
 
 /** 候选只取同分工、同落点的已核拟答，仍携带制件后待核位置。 */

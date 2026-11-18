@@ -83,8 +83,8 @@
         "stage": {
           "enum": [
             "SAVED",
-            "DRAFT",
-            "SUBMITTED"
+            "SUBMITTED",
+            "DRAFT"
           ]
         },
         "attemptRef": {

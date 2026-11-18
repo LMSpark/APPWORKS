@@ -11,7 +11,8 @@ const directoryScope=['projectId','directoryRef']
 const attemptFields=[...attemptScope,'targetDigest','configurationLockHash']
 const guideFields=['guideRef','versionRef','guideDigest','kind','actionName','source','publicationRef']
 
-function view(keys:readonly string[],fields:readonly string[],primaryKey:string,completeDirectory=false):ViewMetadata{
+function view(keys:readonly string[],fields:readonly string[],options:Readonly<{primaryKey:string;completeDirectory?:boolean}>):ViewMetadata{
+ const {primaryKey,completeDirectory}=options
  if(!primaryKey.trim()||primaryKey.trim()!==primaryKey)throw Error('OPERATION_SCENARIO_PRIMARY_KEY_REQUIRED')
  const filters:DataViewFilterTree[]=keys.map(field=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName:field}}))
  if(completeDirectory)filters.push({field:'state',operator:'eq',value:'EFFECTIVE'})
@@ -26,16 +27,16 @@ export function contentOperationScenarioViews(primaryKeys:Readonly<Record<'Knowl
  const {KnowledgeGuide,ContextManifest,GenerationRun}=primaryKeys
  return {
   KnowledgeGuide:{
-   effectiveDirectory:view(directoryScope,[...guideFields,'state','pathRefs','materialRefs'],KnowledgeGuide,true),
-   originalVersion:view(['projectId','guideRef','versionRef'],guideFields,KnowledgeGuide),
+   effectiveDirectory:view(directoryScope,[...guideFields,'state','pathRefs','materialRefs'],{primaryKey:KnowledgeGuide,completeDirectory:true}),
+   originalVersion:view(['projectId','guideRef','versionRef'],guideFields,{primaryKey:KnowledgeGuide}),
   },
   ContextManifest:{
-   originalFrozen:view(attemptScope,[...attemptFields,'guideRef','guideVersionRef','guideDigest','usable','inputDigest'],ContextManifest),
-   originalDispatch:view(attemptScope,[...attemptFields,'dispatchRef','actualInputDigest','actualInput'],ContextManifest),
+   originalFrozen:view(attemptScope,[...attemptFields,'guideRef','guideVersionRef','guideDigest','usable','inputDigest'],{primaryKey:ContextManifest}),
+   originalDispatch:view(attemptScope,[...attemptFields,'dispatchRef','actualInputDigest','actualInput'],{primaryKey:ContextManifest}),
   },
   GenerationRun:{
-   originalResult:view(attemptScope,[...attemptFields,'receiptRef','state','output'],GenerationRun),
-   originalReworkEvidence:view(attemptScope,['inputRef','returnRef','calls','findings','priorResults'],GenerationRun),
+   originalResult:view(attemptScope,[...attemptFields,'receiptRef','state','output'],{primaryKey:GenerationRun}),
+   originalReworkEvidence:view(attemptScope,['inputRef','returnRef','calls','findings','priorResults'],{primaryKey:GenerationRun}),
   },
  }
 }

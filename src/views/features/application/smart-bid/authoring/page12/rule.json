@@ -1,0 +1,20 @@
+[
+  {
+    "id": "review-coverage",
+    "type": "r-section",
+    "props": {"title": "制件与审定", "onBeforeRender": "bindCoverage"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看审核覆盖明细", "onBeforeRender": "bindDetails", "onClick": "openDetails"}}
+    ]
+  },
+  {
+    "id": "answer-observations",
+    "type": "r-section",
+    "props": {"title": "原实填回读", "onBeforeRender": "bindObservations"},
+    "children": [
+      {"type": "r-button", "props": {"label": "回读平台实填值", "onBeforeRender": "bindObservation", "onClick": "openObservation"}},
+      {"type": "r-button", "props": {"label": "回读文件实填值", "onBeforeRender": "bindFileObservation", "onClick": "openFileObservation"}},
+      {"type": "r-button", "props": {"label": "回读纸件实填值", "onBeforeRender": "bindPaperObservation", "onClick": "openPaperObservation"}}
+    ]
+  }
+]

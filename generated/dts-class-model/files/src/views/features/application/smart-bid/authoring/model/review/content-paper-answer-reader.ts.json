@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader\n职责：第42项回读原纸件、份次及页栏；封装归属及截止另核。\n边界：纸件登记提供份次与页标识，SPARK Data 提供原填报位置及可读值。\nAI用途：核对纸件观察是否对应实际登记份次和页栏。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "PaperScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PaperScope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "paperRef": {
+          "type": "string"
+        },
+        "copyRef": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "paperRef",
+        "copyRef",
+        "revisionId"
+      ],
+      "additionalProperties": false
+    },
+    "RegisteredPaper": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RegisteredPaper",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "paperRef": {
+          "type": "string"
+        },
+        "copyRef": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "registrationRef": {
+          "type": "string"
+        },
+        "pageRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "paperRef",
+        "copyRef",
+        "revisionId"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T08:41:43.990Z",
+  "models": {
+    "PaperScope": {
+      "name": "PaperScope",
+      "jsdoc": "原纸件登记的项目、纸件、份次和修订身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    paperRef: string;\n    copyRef: string;\n    revisionId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    paperRef: string;\n    copyRef: string;\n    revisionId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "paperRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "copyRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RegisteredPaper": {
+      "name": "RegisteredPaper",
+      "jsdoc": "已登记纸件及可证明属于该份次的页。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PaperScope & Readonly<{\n    registrationRef: string;\n    pageRefs: readonly string[];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PaperScope",
+            "targetName": "PaperScope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    registrationRef: string;\n    pageRefs: readonly string[];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "registrationRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageRefs",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

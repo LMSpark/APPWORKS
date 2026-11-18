@@ -11,6 +11,7 @@ it('retains deadline reception while leaving nonmatching attempts and missing fi
   {obligationId:'O2',assignmentId:'A',fieldId:'F'}],assertCurrent:()=>{}}
  let current=true
  const result={assignmentId:'A',fieldId:'F',observationRef:'OBS',state:'MISMATCHED' as const,observedValueHash:'a'.repeat(64),
+  observedValueJson:'"实际值"',unit:null,
   assertCurrent:()=>{}}
  const batch={projectId:'P',revisionId:'R',attemptRef:'SEND',receiptRef:'REC',results:[result],allSelectedFieldsMatched:false,
   assertCurrent:()=>{if(!current)throw Error('BATCH_STALE')}}

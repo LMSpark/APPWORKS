@@ -1,6 +1,7 @@
 import {expect,it} from 'vitest'
 import {comparePlatformFieldObservation,readPlatformFieldObservation,readPlatformFieldReviewVersion,readSubmittedPlatformField,readSubmittedPlatformFields} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
 import {DataSet} from '@spark-appworks/spark-data'
+import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-review-script-host'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -80,8 +81,16 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
   scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  try{
   const input={observationId:'OBS',attemptRef:'SEND',stage:'SAVED' as const}
-  const result=await readPlatformFieldObservation(host,approved,input)
-  expect(result.state).toBe('MATCHED')
+  const unused=async()=>{throw Error('UNEXPECTED_REVIEW_CALL')}
+  const page=createContentReviewScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
+   readSelection:unused,openFile:unused,readField:unused,readDecision:unused,readCompleted:unused,
+   readObservationSelection:async()=>({approved,input,assertCurrent:host.assertCurrent}),
+  })
+  const signal=new AbortController().signal
+  await expect(page.invoke('content.review.readPlatformObservation',{selectionRef:'OTHER'},signal))
+   .rejects.toThrow('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
+  const result=await page.invoke('content.review.readPlatformObservation',{selectionRef:'OBS'},signal)
+  expect(result).toMatchObject({state:'MATCHED',observedValueJson:'false',unit:null})
   expect((await readPlatformFieldObservation(host,approved,{...input,stage:'SUBMITTED'})).state).toBe('STAGE_REQUIRED')
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   row.stage='SUBMITTED'

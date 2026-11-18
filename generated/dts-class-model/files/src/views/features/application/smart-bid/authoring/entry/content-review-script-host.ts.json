@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/entry/content-review-script-host",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-review-script-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-review-script-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/entry/content-review-script-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-review-script-host\n职责：为页12同次运行实例提供实填观察和审定覆盖证据。\n边界：只读取原选择与证据，批准及写入仍由正式办理方负责。\nAI用途：核对页12脚本命令、审定范围和证据失效条件。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Review": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Review",
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "../model/review/package/content-delivery-package-preparation.ts.json#/$defs/Host"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "revisionId": {
+              "type": "string"
+            },
+            "targets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "ReviewTarget"
+              }
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "FileTarget"
+              }
+            },
+            "approvalIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "projectId",
+            "assertCurrent",
+            "revisionId",
+            "targets",
+            "files",
+            "approvalIds"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "openFile": {
+              "type": "object",
+              "title": "OpenAuthorized"
+            },
+            "readField": {
+              "type": "object",
+              "title": "(input: Readonly<{ projectId: string; revisionId: string; fieldId: string; }>) => Promise<Readonly<{ projectId: string; revisionId: string; assignmentId: string; ... 6 more ...; assertCurrent: () => void; }>>"
+            },
+            "readDecision": {
+              "type": "object",
+              "title": "(ref: string) => Promise<Readonly<{ projectId: string; revisionId: string; approvalRef: string; authorityRef: string; decisionTraceRef: string; approvalEffectiveHash: string; approvedTargets: unknown; assertCurrent: () => void; }>>"
+            },
+            "readCompleted": {
+              "type": "object",
+              "title": "(input: Readonly<{ projectId: string; revisionId: string; targets: readonly ReviewTarget[]; }>) => Promise<Readonly<{ projectId: string; revisionId: string; completed: readonly CompletedCoverage[]; assertCurrent: () => void; resolveAnchor: (anchor: unknown) => Pick<Finding, \"kind\" | \"targetId\">; }>>"
+            }
+          },
+          "required": [
+            "openFile",
+            "readField",
+            "readDecision",
+            "readCompleted"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Observation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Observation",
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "../model/review/package/content-delivery-package-preparation.ts.json#/$defs/Host"
+        },
+        {
+          "type": "object",
+          "title": "ApprovedField"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "stage": {
+              "enum": [
+                "SAVED",
+                "SUBMITTED"
+              ]
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "submission": {
+              "$ref": "../model/review/content-platform-field-review.ts.json#/$defs/SubmissionEvidence"
+            },
+            "observationId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "stage",
+            "attemptRef",
+            "observationId"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "FileObservation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "FileObservation",
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "../model/review/package/content-delivery-package-preparation.ts.json#/$defs/Host"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "producedFileId": {
+              "type": "string"
+            },
+            "productionRequestRef": {
+              "type": "string"
+            },
+            "observationId": {
+              "type": "string"
+            },
+            "locationRef": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "producedFileId",
+            "productionRequestRef",
+            "observationId",
+            "locationRef"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "OpenAuthorized"
+        }
+      ]
+    },
+    "PaperObservation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "PaperObservation",
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "../model/review/package/content-delivery-package-preparation.ts.json#/$defs/Host"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "revisionId": {
+              "type": "string"
+            },
+            "paperRef": {
+              "type": "string"
+            },
+            "copyRef": {
+              "type": "string"
+            },
+            "observationId": {
+              "type": "string"
+            },
+            "pageRef": {
+              "type": "string"
+            },
+            "locationRef": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "revisionId",
+            "paperRef",
+            "copyRef",
+            "observationId",
+            "pageRef",
+            "locationRef"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "(scope: Readonly<{ projectId: string; paperRef: string; copyRef: string; revisionId: string; }>) => Promise<RegisteredPaper>"
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T08:41:43.990Z",
+  "models": {
+    "Review": {
+      "name": "Review",
+      "jsdoc": "审定覆盖工作区的宿主、固定范围与证据读取合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readContentReviewWorkspace>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof readContentReviewWorkspace>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Observation": {
+      "name": "Observation",
+      "jsdoc": "平台实填观察和原批准依据的读取合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readPlatformFieldObservation>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof readPlatformFieldObservation>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FileObservation": {
+      "name": "FileObservation",
+      "jsdoc": "电子实件及其原填报位置的读取合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readRegisteredFileAnswer>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof readRegisteredFileAnswer>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PaperObservation": {
+      "name": "PaperObservation",
+      "jsdoc": "原纸件观察的宿主、原登记和页栏参数合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readRegisteredPaperAnswer>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof readRegisteredPaperAnswer>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

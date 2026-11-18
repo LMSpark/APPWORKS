@@ -2,7 +2,11 @@ import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {readProducedFileReviewVersion,readRegisteredProducedFileReviewVersion,readRegisteredProducedFileReviewVersions} from '@/views/features/application/smart-bid/authoring/model/review/content-produced-file-review'
 import {DataSet} from '@spark-appworks/spark-data'
-import {readContentReviewWorkspace} from '@/views/features/application/smart-bid/authoring/model/review/content-review-workspace'
+import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-review-script-host'
+import {compareApprovedFileAnswer,readRegisteredFileAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-file-answer-reader'
+import script from '@/views/features/application/smart-bid/authoring/page12/script.js?raw'
+import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
+import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -51,7 +55,8 @@ it('keeps both original file versions current from one complete read and rejects
   for(const version of versions)expect(()=>version.assertCurrent()).not.toThrow()
   const scope={projectId:'P',revisionId:'R',files:targets,approvalIds:[],assertCurrent:()=>{},
    targets:targets.map(({producedFileId})=>({kind:'FILE' as const,targetId:producedFileId,effectiveHash:fileHash,requiredUseIds:[]}))}
-  const review=await readContentReviewWorkspace(host,scope,{
+  const page=createContentReviewScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
+   readSelection:async()=>({...scope,selectionRef:'FIXED'}),
    openFile:open,readField:async()=>{throw Error('UNEXPECTED_FIELD')},
    readDecision:async()=>{throw Error('UNEXPECTED_APPROVAL')},
    readCompleted:async input=>{
@@ -59,11 +64,24 @@ it('keeps both original file versions current from one complete read and rejects
     return {projectId:'P',revisionId:'R',completed:[],resolveAnchor:()=>{throw Error('UNEXPECTED_FINDING')},assertCurrent:()=>{}}
    },
   })
+  const signal=new AbortController().signal
+  await expect(page.invoke('content.review.readCoverage',{selectionRef:'OTHER'},signal)).rejects.toThrow('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
+  const review=await page.invoke('content.review.readCoverage',{selectionRef:'FIXED'},signal)
+  if(!('items' in review))throw Error('TEST_REVIEW_COVERAGE_REQUIRED')
   expect(review.items.map(item=>item.state)).toEqual(['CHECK_REQUIRED','CHECK_REQUIRED'])
+  const showAlert=vi.fn(async()=>{})
+  const {__init__,bindCoverage,openDetails}=compileFunctions(script,{$route:{query:{reviewSelectionRef:'FIXED'}},
+   $page:{invokeHostCommand:async()=>review,showAlert}} as unknown as PageContext)
+  if(!__init__||!bindCoverage||!openDetails)throw Error('TEST_REVIEW_PAGE_HANDLERS_REQUIRED')
+  await __init__()
+  expect(bindCoverage()).toEqual({status:'已覆盖 0 项，共 2 项'})
+  await openDetails()
+  expect(showAlert).toHaveBeenCalledExactlyOnceWith('文件 F1 · 待同版检查\n文件 F2 · 待同版检查','审核覆盖明细')
   rows[0]!.productionRequestRef='OTHER'
   await expect(readRegisteredProducedFileReviewVersions(host,targets,open)).rejects.toThrow('CONTENT_PRODUCED_FILE_SCOPE')
   expect(open).toHaveBeenCalledTimes(4)
   expect(()=>review.assertCurrent()).toThrow()
+  expect(bindCoverage()).toEqual({error:'审核覆盖已失效'})
   for(const version of versions)expect(()=>version.assertCurrent()).toThrow()
  }finally{ds.destroy()}
 })
@@ -73,18 +91,35 @@ it('opens only the original registered resource version read through SPARK data'
  const selection={producedFileId:'F',productionRequestRef:'REQUEST'}
  const row={id:'F',projectId:'P',productionRequestRef:'REQUEST',revisionId:'R',documentId:'D',
   fileHash:createHash('sha256').update(bytes).digest('hex'),resourceVersionId:'RESOURCE-V1'}
+ const answer={id:'OBS',projectId:'P',producedFileId:'F',revisionId:'R',documentId:'D',fileHash:row.fileHash,
+  locationRef:'PAGE-1-TOTAL',value:'0.00',unit:'元'}
  const filters=([['projectId','projectId'],['id','producedFileId'],['productionRequestRef','productionRequestRef']] as const)
   .map(([field,ParamName])=>({field,operator:'eq' as const,value:{Type:'GetInputParam',ParamName}}))
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ProducedFile:{
   modelBinding:{modelId:'M',modelName:'ProducedFile'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},selectedReviewFile:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters}}},
+ },AnswerLocation:{
+  modelBinding:{modelId:'ANSWER',modelName:'AnswerLocation'},
+  columns:Object.keys(answer).map(name=>({name,type:'string',isPrimaryKey:name==='id'})),
+  views:{default:{},selectedFileObservation:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',
+   filters:([['projectId','projectId'],['id','observationId'],['producedFileId','producedFileId']] as const)
+    .map(([field,ParamName])=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName}}))}}},
  }}})
  const view=ds.getView('ProducedFile','selectedReviewFile')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ProducedFile'})
  view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
   identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',
    data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
  })})
- const host={runtime:{resolveView:()=>view},scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
+ const answers=ds.getView('AnswerLocation','selectedFileObservation')
+ if(!answers)throw Error('TEST_FILE_ANSWER_VIEW_REQUIRED')
+ const answerTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'AnswerLocation'})
+ let hidden=false
+ answers.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+  identity:answerTable.identity,scope:'a',readScope:()=> 'a',snapshot:answerTable.applyResult({Result:{primaryKeyField:'id',
+   data:{Count:1,Items:[{...answer,lingma_sys_params:{r:[],e:[],h:hidden?['value']:[],m:[],d:false}}]}}}),
+ })})
+ const host={runtime:{resolveView:(key:string)=>key==='S@AnswerLocation@selectedFileObservation'?answers:view},
+  scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  let current=true
  const open=vi.fn(async()=>({projectId:'P',resourceVersionId:'RESOURCE-V1',bytes:bytes.buffer,
   assertCurrent:()=>{if(!current)throw Error('RESOURCE_STALE')}}))
@@ -101,5 +136,24 @@ it('opens only the original registered resource version read through SPARK data'
   await expect(readRegisteredProducedFileReviewVersion(host,selection,async()=>({...await open(),resourceVersionId:'OTHER'})))
    .rejects.toThrow('CONTENT_PRODUCED_FILE_RESOURCE_MISMATCH')
   expect(()=>result.assertCurrent()).toThrow()
+  const selected={...selection,observationId:'OBS',locationRef:'PAGE-1-TOTAL'}
+  const approved={projectId:'P',revisionId:'R',producedFileId:'F',fileHash:row.fileHash,locationRef:selected.locationRef,
+   approvalRef:'APP',value:'1.00',unit:'元',assertCurrent:host.assertCurrent}
+  const unused=async()=>{throw Error('UNEXPECTED_REVIEW_CALL')}
+  const page=createContentReviewScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
+   readSelection:unused,openFile:open,readField:unused,readDecision:unused,readCompleted:unused,
+   readFileObservationSelection:async()=>({projectId:'P',input:selected,approved,assertCurrent:host.assertCurrent}),
+  })
+  const observed=await page.invoke('content.review.readFileObservation',{selectionRef:'OBS'},new AbortController().signal)
+  expect(observed).toMatchObject({locationRef:'PAGE-1-TOTAL',observedValueJson:'"0.00"',unit:'元',file:{versionHash:row.fileHash},
+   comparison:{state:'MISMATCHED',approvalRef:'APP',valueJson:'"1.00"'}})
+  if(!('file' in observed))throw Error('TEST_FILE_ANSWER_REQUIRED')
+  expect(()=>compareApprovedFileAnswer(observed,{...approved,locationRef:'OTHER'})).toThrow('CONTENT_FILE_ANSWER_APPROVAL_SCOPE')
+  answer.fileHash='a'.repeat(64)
+  await expect(readRegisteredFileAnswer(host,selected,open)).rejects.toThrow('CONTENT_FILE_ANSWER_SCOPE')
+  expect(()=>observed.assertCurrent()).toThrow()
+  answer.fileHash=row.fileHash
+  hidden=true
+  await expect(readRegisteredFileAnswer(host,selected,open)).rejects.toThrow('DATA_VIEW_READ_ROW')
  }finally{ds.destroy()}
 })

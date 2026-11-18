@@ -87,13 +87,13 @@
                 "value": {
                   "type": "number"
                 },
-                "__@RefSymbol@294583": {
+                "__@RefSymbol@294922": {
                   "const": true
                 }
               },
               "required": [
                 "value",
-                "__@RefSymbol@294583"
+                "__@RefSymbol@294922"
               ],
               "additionalProperties": false
             },

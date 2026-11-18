@@ -25,7 +25,9 @@ export function preparePublishedContentAuthoringCall(route:ContentAuthoringRoute
  if(!target)return undefined
  const session=captureContentAuthoringSession(target)
  return {scenarioInputs:session.scenarioInputs,assertCurrent:session.assertCurrent,
-  createHost:(runtime:PageRuntime)=>createPublishedContentAuthoringHost(runtime,target,session.assertCurrent,entry.receiptDataViewKey)}
+  createHost:(runtime:PageRuntime)=>createPublishedContentAuthoringHost(runtime,target,{
+   assertSession:session.assertCurrent,...(entry.receiptDataViewKey===undefined?{}:{receiptDataViewKey:entry.receiptDataViewKey}),
+  })}
 }
 
 /** Select only the registered tool before preparing its authenticated runtime inputs. */

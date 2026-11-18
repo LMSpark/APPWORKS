@@ -126,7 +126,7 @@ it('connects the published script to the original runtime only once per load',as
  const runtime=new PageRuntime({pageId:target.pageId,scenarioIds:[target.scenarioId],
   scenarioInputs:session.scenarioInputs,loadScenario:async()=>ds})
  try{
-  const host=createPublishedContentAuthoringHost(runtime,target,session.assertCurrent)
+  const host=createPublishedContentAuthoringHost(runtime,target,{assertSession:session.assertCurrent})
   expect(host.runtime).toBe(runtime)
   await runtime.load()
   const controller=new AbortController()

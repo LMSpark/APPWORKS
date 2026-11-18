@@ -175,6 +175,15 @@
                   },
                   "observedValueHash": {
                     "type": "string"
+                  },
+                  "observedValueJson": {
+                    "type": "string"
+                  },
+                  "unit": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
                   }
                 },
                 "required": [
@@ -183,7 +192,9 @@
                   "assertCurrent",
                   "state",
                   "observationRef",
-                  "observedValueHash"
+                  "observedValueHash",
+                  "observedValueJson",
+                  "unit"
                 ],
                 "additionalProperties": false
               }

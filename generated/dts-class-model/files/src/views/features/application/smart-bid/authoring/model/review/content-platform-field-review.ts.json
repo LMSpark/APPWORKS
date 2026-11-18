@@ -159,8 +159,8 @@
         "stage": {
           "enum": [
             "SAVED",
-            "DRAFT",
-            "SUBMITTED"
+            "SUBMITTED",
+            "DRAFT"
           ]
         },
         "attemptRef": {
@@ -252,7 +252,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T02:55:20.429Z",
+  "generatedAt": "2026-11-18T08:32:44.875Z",
   "models": {
     "FieldSelection": {
       "name": "FieldSelection",

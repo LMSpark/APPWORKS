@@ -62,10 +62,11 @@ export async function comparePlatformFieldObservation(approved:ApprovedField,exp
    throw Error('CONTENT_PLATFORM_FIELD_RECEIPT_SCOPE')
  }
  if(observation.unit!==null&&!identity(observation.unit))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
- const observedValueHash=await hashFieldValue(observation.value,observation.unit)
+ const observedValueJson=canonicalSnapshotValue(observation.value),unit=observation.unit
+ const observedValueHash=await hashFieldValue(observation.value,unit)
  assertCurrent()
  const state=observedValueHash===approved.valueHash?'MATCHED':'MISMATCHED'
- return Object.freeze({state,observationRef:observation.observationRef,observedValueHash,
+ return Object.freeze({state,observationRef:observation.observationRef,observedValueHash,observedValueJson,unit,
   ...(submission?{receiptRef:submission.receiptRef}:{}),assertCurrent})
 }
 

@@ -5959,12 +5959,12 @@
     "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-18T08:26:57.248Z"
+      "sourceModifiedAt": "2026-11-18T08:41:16.334Z"
     },
     "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts.json",
-      "sourceModifiedAt": "2026-11-18T08:18:30.171Z"
+      "sourceModifiedAt": "2026-11-18T08:41:16.335Z"
     },
     "src/views/features/application/smart-bid/authoring/entry/content-operation-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-operation-script-host.ts",
@@ -5980,6 +5980,11 @@
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-operation-workspace.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-operation-workspace.ts.json",
       "sourceModifiedAt": "2026-11-18T08:28:10.390Z"
+    },
+    "src/views/features/application/smart-bid/authoring/entry/content-review-script-host.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-review-script-host.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/entry/content-review-script-host.ts.json",
+      "sourceModifiedAt": "2026-11-18T08:41:43.990Z"
     },
     "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts",
@@ -6094,7 +6099,7 @@
     "src/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views.ts.json",
-      "sourceModifiedAt": "2026-11-18T08:28:31.986Z"
+      "sourceModifiedAt": "2026-11-18T08:41:16.337Z"
     },
     "src/views/features/application/smart-bid/authoring/model/review/content-approval-coverage.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-approval-coverage.ts",
@@ -6106,15 +6111,25 @@
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-approval-reader.ts.json",
       "sourceModifiedAt": "2026-11-18T03:47:54.477Z"
     },
+    "src/views/features/application/smart-bid/authoring/model/review/content-file-answer-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-file-answer-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-file-answer-reader.ts.json",
+      "sourceModifiedAt": "2026-11-18T08:38:24.268Z"
+    },
     "src/views/features/application/smart-bid/authoring/model/review/content-package-release.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-package-release.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-package-release.ts.json",
       "sourceModifiedAt": "2026-11-18T04:06:24.580Z"
     },
+    "src/views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader.ts.json",
+      "sourceModifiedAt": "2026-11-18T08:41:43.990Z"
+    },
     "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts.json",
-      "sourceModifiedAt": "2026-11-18T02:55:20.429Z"
+      "sourceModifiedAt": "2026-11-18T08:32:44.875Z"
     },
     "src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts",

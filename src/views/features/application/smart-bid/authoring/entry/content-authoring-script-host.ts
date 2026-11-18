@@ -21,8 +21,8 @@ type OriginalSave=Awaited<ReturnType<typeof readRegisteredOriginalContentDraftSa
 type SaveComparison=Awaited<ReturnType<typeof reconcileSavedContentDraft>>
 
 /** 实例池创建宿主后，仅在三文件脚本连接时装配原视图。并行连接共享本次装载。 */
-export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:ContentAuthoringTarget,assertSession:()=>void,
- receiptDataViewKey?:string){
+export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:ContentAuthoringTarget,
+ {assertSession,receiptDataViewKey}:Readonly<{assertSession:()=>void;receiptDataViewKey?:string}>){
  let active:Readonly<{generation:number;connection:Promise<ReturnType<typeof createContentAuthoringScriptHost>>}>|undefined
  const assertCurrent=()=>{
   assertSession()

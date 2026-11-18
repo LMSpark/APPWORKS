@@ -1,0 +1,298 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/resource-use/resource-use-coverage",
+    "sourcePath": "src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts",
+    "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/resource-use/resource-use-coverage",
+    "jsdoc": "@module app:services/smart-bid/content/references/resource-use/resource-use-coverage\n职责：第17项按当时用途和字段核原资料决定链。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Decision": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Decision",
+      "properties": {
+        "sourceEnterpriseId": {
+          "type": "string"
+        },
+        "recipientEnterpriseId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "applicationRef": {
+          "type": "string"
+        },
+        "resourceVersionId": {
+          "type": "string"
+        },
+        "decisionChainId": {
+          "type": "string"
+        },
+        "decisionRef": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "expectedVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "intent": {
+          "$ref": "resource-use-decision.ts.json#/$defs/Intent"
+        },
+        "decisionEnterpriseId": {
+          "type": "string"
+        },
+        "decisionMakerId": {
+          "type": "string"
+        },
+        "authorityRef": {
+          "type": "string"
+        },
+        "effectiveAt": {
+          "type": "string"
+        },
+        "knownAt": {
+          "type": "string"
+        },
+        "uses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "purposeId": {
+                "type": "string"
+              },
+              "recipientId": {
+                "type": "string"
+              },
+              "fieldIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "expiresAt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "purposeId",
+              "recipientId",
+              "fieldIds",
+              "expiresAt"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "sourceEnterpriseId",
+        "recipientEnterpriseId",
+        "projectId",
+        "applicationRef",
+        "resourceVersionId",
+        "decisionChainId",
+        "decisionRef",
+        "requestKey",
+        "expectedVersion",
+        "intent",
+        "decisionEnterpriseId",
+        "decisionMakerId",
+        "authorityRef",
+        "effectiveAt",
+        "knownAt",
+        "uses"
+      ],
+      "additionalProperties": false
+    },
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "sourceEnterpriseId": {
+          "type": "string"
+        },
+        "recipientEnterpriseId": {
+          "type": "string"
+        },
+        "applicationRef": {
+          "type": "string"
+        },
+        "resourceVersionId": {
+          "type": "string"
+        },
+        "decisionChainId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "sourceEnterpriseId",
+        "recipientEnterpriseId",
+        "applicationRef",
+        "resourceVersionId",
+        "decisionChainId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T04:49:57.886Z",
+  "models": {
+    "Decision": {
+      "name": "Decision",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof prepareResourceUseDecision>>['record']",
+        "members": {
+          "attributes": [
+            {
+              "name": "sourceEnterpriseId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "recipientEnterpriseId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "applicationRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resourceVersionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "decisionChainId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "decisionRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expectedVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "intent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "decisionEnterpriseId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "decisionMakerId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "authorityRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "effectiveAt",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "uses",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Decision, (typeof scopeFields)[number]>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<Decision, (typeof scopeFields)[number]>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceEnterpriseId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "recipientEnterpriseId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "applicationRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resourceVersionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "decisionChainId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

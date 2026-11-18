@@ -5411,6 +5411,16 @@
       "shardFile": "files/src/services/smart-bid/content/references/content-reference-editor-schema.ts.json",
       "sourceModifiedAt": "2026-11-17T16:52:00.148Z"
     },
+    "src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts": {
+      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts",
+      "shardFile": "files/src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts.json",
+      "sourceModifiedAt": "2026-11-18T04:49:57.886Z"
+    },
+    "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts": {
+      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts",
+      "shardFile": "files/src/services/smart-bid/content/references/resource-use/resource-use-decision.ts.json",
+      "sourceModifiedAt": "2026-11-18T04:49:01.181Z"
+    },
     "src/services/smart-bid/content/references/revision-requirement-pins.ts": {
       "sourceFile": "src/services/smart-bid/content/references/revision-requirement-pins.ts",
       "shardFile": "files/src/services/smart-bid/content/references/revision-requirement-pins.ts.json",

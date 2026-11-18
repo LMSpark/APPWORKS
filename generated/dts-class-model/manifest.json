@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1375,
+  "scannedFileCount": 1377,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17807,6 +17807,32 @@
         "modulePath": "services/smart-bid/content/references/content-reference-editor-schema",
         "jsdoc": "@module app:services/smart-bid/content/references/content-reference-editor-schema\n职责：以正文占位与已有原绑定生成标准JSON表单Schema。\n边界：只生成显示合同，不复制或填充绑定，不确认事实/资源/敏感字段的版本与授权。\nAI用途：同一原节点编辑实例维护正文、分类和字段引用；呈现属性不进入内容。",
         "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts": {
+      "file": "files/src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/resource-use/resource-use-coverage",
+        "sourcePath": "src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts",
+        "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/resource-use/resource-use-coverage",
+        "jsdoc": "@module app:services/smart-bid/content/references/resource-use/resource-use-coverage\n职责：第17项按当时用途和字段核原资料决定链。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts": {
+      "file": "files/src/services/smart-bid/content/references/resource-use/resource-use-decision.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/resource-use/resource-use-decision",
+        "sourcePath": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts",
+        "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/resource-use/resource-use-decision",
+        "jsdoc": "@module app:services/smart-bid/content/references/resource-use/resource-use-decision\n职责：第56项绑定来源企业的决定、原件版本和接收方的逐项用途。",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },

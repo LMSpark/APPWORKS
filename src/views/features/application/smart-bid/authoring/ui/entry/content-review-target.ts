@@ -1,6 +1,6 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/ui/entry/content-review-target
- * 职责：按正式发布身份为页12、13准备业务宿主。
+ * 职责：按正式发布身份为页12至14准备业务宿主。
  */
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
@@ -21,11 +21,20 @@ export function preparePublishedContentReviewCall(route:ContentAuthoringRoute,en
  return preparePublishedCall(route,entry,(runtime,scope)=>createContentReviewScriptHost(runtime,scope,createSources(runtime,scope)))
 }
 
-/** 递交的原签署、封装和渠道证据在本次正式运行实例中装配。 */
+/** 页13递交的签署、封装和渠道证据在本次正式运行实例中装配。 */
 export function preparePublishedContentSubmissionCall(route:ContentAuthoringRoute,entry:PublishedEntry,
  createSources:(runtime:PageRuntime,scope:Scope)=>NonNullable<Parameters<typeof createContentSubmissionScriptHost>[2]>,
 ){
  return preparePublishedCall(route,entry,(runtime,scope)=>createContentSubmissionScriptHost(runtime,scope,createSources(runtime,scope)))
+}
+
+type SubmissionSources=NonNullable<Parameters<typeof createContentSubmissionScriptHost>[2]>
+
+/** 页14必须提供截止对账的原始证据来源，供本次正式运行实例读取。 */
+export function preparePublishedContentDeadlineCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+ createSources:(runtime:PageRuntime,scope:Scope)=>SubmissionSources&Required<Pick<SubmissionSources,'readDeadline'>>,
+){
+ return preparePublishedContentSubmissionCall(route,entry,createSources)
 }
 
 function preparePublishedCall<Host>(route:ContentAuthoringRoute,entry:PublishedEntry,createHost:(runtime:PageRuntime,scope:Scope)=>Host){
@@ -45,6 +54,8 @@ function preparePublishedCall<Host>(route:ContentAuthoringRoute,entry:PublishedE
  return Object.freeze({scenarioInputs:session.scenarioInputs,assertCurrent:session.assertCurrent,
   createHost(runtime:PageRuntime){
    session.assertCurrent()
+   if(runtime.pageId!==pageId||!runtime.call.scenarioIds.includes(scenarioId))
+    throw Error('CONTENT_REVIEW_PUBLICATION_RUNTIME_CONFLICT')
    return createHost(runtime,scope)
   },
  })

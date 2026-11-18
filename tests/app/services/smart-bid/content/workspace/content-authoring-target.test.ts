@@ -1,6 +1,7 @@
 import {expect,it,vi} from 'vitest'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {resolveContentAuthoringTarget,resolvePublishedContentAuthoringTarget,type ContentAuthoringRoute} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
-import {preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
+import {preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
 
 const auth=vi.hoisted(()=>({token:'SESSION',appId:'D8490EC99436A8B9AFDE205BE3153802'}))
 vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
@@ -11,16 +12,22 @@ vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
 const app='D8490EC99436A8B9AFDE205BE3153802',space='D3BBA1F0780056C837AC35E9825CAD5A'
 const route=():ContentAuthoringRoute=>({path:`/apps/${app}/features/application/smart-bid/authoring/entry/content-authoring-page`,
  meta:{type:'config-page',nodeId:'NAV11',pageId:'TOOL11',tool:{projectId:app,pageId:'TOOL11'}},query:{scenarioId:space,projectId:'P',draftId:'D'}})
-it.each([preparePublishedContentReviewCall,preparePublishedContentSubmissionCall])(
- 'prepares published page inputs only for the authorized route and invalidates stale sessions',prepareCall=>{
- const entry={applicationId:app,scenarioId:space,nodeId:'NAV12',pageId:'TOOL12'}
- const reviewRoute={...route(),meta:{type:'config-page',nodeId:'NAV12',pageId:'TOOL12',
-  blueprintScenarioId:space,tool:{projectId:app,pageId:'TOOL12'}},query:{projectId:'P',scenarioId:space}}
+it.each([
+ {number:12,prepareCall:preparePublishedContentReviewCall},
+ {number:13,prepareCall:preparePublishedContentSubmissionCall},
+ {number:14,prepareCall:preparePublishedContentDeadlineCall},
+])('prepares published page $number inputs for the authorized route and invalidates stale sessions',({number,prepareCall})=>{
+ const nodeId=`NAV${number}`,pageId=`TOOL${number}`
+ const entry={applicationId:app,scenarioId:space,nodeId,pageId}
+ const reviewRoute={...route(),path:`/apps/${app}/page${number}`,meta:{type:'config-page',nodeId,pageId,
+  blueprintScenarioId:space,tool:{projectId:app,pageId}},query:{projectId:'P',scenarioId:space}}
  const createSources=vi.fn(()=>{throw Error('NO_RUNTIME_YET')})
  expect(prepareCall(route(),entry,createSources)).toBeUndefined()
  expect(()=>prepareCall({...reviewRoute,query:{...reviewRoute.query,userId:'OTHER'}},entry,createSources))
   .toThrow('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
  expect(()=>prepareCall({...reviewRoute,meta:{...reviewRoute.meta,blueprintScenarioId:'OTHER'}},entry,createSources))
+  .toThrow('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
+ expect(()=>prepareCall({...reviewRoute,meta:{...reviewRoute.meta,tool:{projectId:app,pageId:'OTHER'}}},entry,createSources))
   .toThrow('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
  const prepared=prepareCall(reviewRoute,entry,createSources)
  expect(prepared?.scenarioInputs).toEqual({[space]:{projectId:'P',currentUserId:'ACTOR'}})
@@ -28,6 +35,29 @@ it.each([preparePublishedContentReviewCall,preparePublishedContentSubmissionCall
  auth.token='NEXT'
  try{expect(()=>prepared?.assertCurrent()).toThrow('CONTENT_AUTHORING_STALE')}
  finally{auth.token='SESSION'}
+})
+it('binds the deadline host to the published page runtime and active session',async()=>{
+ const entry={applicationId:app,scenarioId:space,nodeId:'NAV14',pageId:'TOOL14'}
+ const publishedRoute={path:`/apps/${app}/page14`,meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,
+  blueprintScenarioId:space,tool:{projectId:app,pageId:entry.pageId}},query:{projectId:'P',scenarioId:space}}
+ const readDeadline=vi.fn(async()=>{throw Error('UNEXPECTED_DEADLINE_SOURCE')})
+ const createSources=vi.fn(()=>({readDeadline}))
+ const prepared=preparePublishedContentDeadlineCall(publishedRoute,entry,createSources)
+ if(!prepared)throw Error('TEST_DEADLINE_ENTRY_REQUIRED')
+ const loadScenario=async()=>{throw Error('UNEXPECTED_SCENARIO_LOAD')}
+ const runtime=new PageRuntime({pageId:entry.pageId,scenarioIds:[space],deferredScenarioIds:[space],loadScenario})
+ const wrongRuntime=new PageRuntime({pageId:entry.pageId,scenarioIds:[],loadScenario})
+ try{
+  expect(()=>prepared.createHost(wrongRuntime)).toThrow('CONTENT_REVIEW_PUBLICATION_RUNTIME_CONFLICT')
+  await runtime.load()
+  const host=prepared.createHost(runtime)
+  expect(host.runtime).toBe(runtime)
+  expect(createSources).toHaveBeenCalledExactlyOnceWith(runtime,expect.objectContaining({projectId:'P',scenarioId:space}))
+  auth.token='NEXT'
+  await expect(host.invoke('content.submission.readDeadline',{deadlineRef:'D'},new AbortController().signal))
+   .rejects.toThrow('CONTENT_AUTHORING_STALE')
+  expect(readDeadline).not.toHaveBeenCalled()
+ }finally{auth.token='SESSION';runtime.dispose();wrongRuntime.dispose()}
 })
 it('dispatches only the published node and tool pair in the declared space',()=>{
  const entry={nodeId:'NAV11',pageId:'TOOL11'}

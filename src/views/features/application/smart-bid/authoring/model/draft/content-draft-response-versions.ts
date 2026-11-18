@@ -12,6 +12,7 @@ const model='Response',viewName='selectedDraftResponseVersions'
 const fields=['id','projectId','assignmentId','lineageId','version','revisionId','statement','data',
  'deviation','answerLocation','promiseRefs','evidenceRefs','reviewedBy','reviewedAt']
 const optional=['chapterId','anchorNodeId']
+const outputFields=[...fields,...optional]
 const error='CONTENT_DRAFT_RESPONSE_VERSION'
 type Selection=Readonly<{responseId:string;assignmentId:string;lineageId:string;version:string}>
 
@@ -22,7 +23,7 @@ function validReviewStamp(reviewer:unknown,time:unknown):boolean{
 }
 
 export function draftResponseVersionsScenarioView(primaryKey:string):ViewMetadata{
- const view=originalRegistrationView(primaryKey,['projectId'],[...fields,...optional])
+ const view=originalRegistrationView(primaryKey,['projectId'],outputFields)
  return {...view,queryConfig:{...view.queryConfig,pagination:'paged',allPages:true}}
 }
 
@@ -38,6 +39,7 @@ export async function readDraftResponseVersions(host:ContentRevisionReadHost,sel
  const valid=()=>view?.dataTable?.modelBinding?.modelName===model&&view.commitMode==='staged'&&
   view.queryConfig.autoQuery===false&&view.queryConfig.cacheType==='none'&&
   view.queryConfig.pagination==='paged'&&view.queryConfig.allPages===true&&
+  (view.queryConfig.fields===undefined||outputFields.every(field=>view.queryConfig.fields?.includes(field)))&&
   hasContentScopeCondition(view,'projectId',{Type:'GetInputParam',ParamName:'projectId'})
  if(!view||!valid()||view.hasEditingChanges())throw Error(error)
  view.queryContext={...view.queryContext,projectId}

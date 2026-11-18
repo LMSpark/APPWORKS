@@ -114,6 +114,9 @@ it('pins the original review stamp in the independent response version digest',a
   const queryCount=f.query.mock.calls.length
   await expect(read()).rejects.toThrow('CONTENT_DRAFT_RESPONSE_VERSION')
   expect(f.query).toHaveBeenCalledTimes(queryCount)
+  view.queryConfig={...view.queryConfig,cacheType:'none',fields:['id','projectId','statement']}
+  await expect(read()).rejects.toThrow('CONTENT_DRAFT_RESPONSE_VERSION')
+  expect(f.query).toHaveBeenCalledTimes(queryCount)
  }finally{f.ds.destroy()}
 })
 it('takes first draft target nodes from the frozen input snapshot',async()=>{

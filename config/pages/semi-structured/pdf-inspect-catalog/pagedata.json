@@ -16,6 +16,10 @@
         "queryContext": {"ruleId": ""},
         "queryConfig": {"fields": ["id", "name", "description", "enabled", "rule_config"]},
         "filterExpression": {"field": "id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "ruleId"}}
+      }, "executionRule": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
+        "queryConfig": {"autoQuery": false, "cacheType": "none", "fields": ["id", "enabled", "rule_config"]},
+        "scopeFilter": {"field": "id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "ruleId"}}
       }}
     },
     "PdfInspectionHistory": {

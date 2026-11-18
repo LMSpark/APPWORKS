@@ -54,6 +54,33 @@ async function open(ruleId = 'P1',catalog=false,recoveryRequestId?:string|string
   return {wrapper, click, router}
 }
 describe('formal PDF rule editor', () => {
+  it.each([1, 0])('prepares only an authorized enabled formal rule before reading limits (%s)', async enabled => {
+    const backend = new class extends ApiBackend {
+      limitsCalls = 0
+      protected override async executeRequest(request: RequestConfig): Promise<HttpResponse<unknown>> {
+        if (request.url !== '/api/File/inspect/limits') return super.executeRequest(request)
+        this.limitsCalls++
+        return {data: {Code: 200, Result: {protocolVersion: '2.0', maxFiles: 4, maxFileBytes: 1024,
+          maxTotalFileBytes: 4096, maxTotalSourceBytes: 8192, maxZipBytes: 4096, maxZipEntries: 16,
+          maxPages: 32, maxTextCharsPerPage: 512, maxRenderedPixels: 4096}}, status: 200, statusText: 'OK', headers: {}}
+      }
+    }()
+    backend.primaryKeys = state.http.primaryKeys
+    backend.records = {Base_FileInspectConfig: [{id: 'P1', name: '核验规则', enabled, rule_config: ruleText('value')}]}
+    state.http = backend
+    state.runtime = new DataSpaceRuntimeApi({http: backend, readScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}})})
+    const load = vi.spyOn(LowcodePdfInspect, 'loadCatalog')
+    const f = await open('P1', true)
+    const dataSet = await load.mock.results[0]!.value
+    load.mockRestore()
+    const catalog = dataSet.getView('Base_FileInspectConfig')!
+    catalog.setSelectedRows([catalog.rows[0]!])
+    await flushPromises()
+    await f.click('核验准备')
+    expect(backend.limitsCalls).toBe(enabled)
+    expect(f.wrapper.text()).toContain(enabled ? '最多文件数' : '规则未启用')
+    expect(backend.saves).toHaveLength(0)
+  })
   it('retries only the original request when cold recovery initially returns no task', async () => {
     const backend = new class extends ApiBackend {
       calls: string[] = []

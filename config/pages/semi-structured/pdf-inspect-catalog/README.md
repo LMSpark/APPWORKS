@@ -6,4 +6,6 @@
 
 `PdfInspectionLimits`、`PdfInspectionResult` 和 `PdfInspectionRecovery` 是执行工作区的按需查询视图。结果接收原 `inspectJobId`，恢复接收原 `requestId`，两者均保留服务返回的逐文件和逐规则证据。
 
+「核验准备」通过 `executionRule` 按选中 `ruleId` 回读原规则。只有唯一、启用且规则配置可读并有效时，才从 `PdfInspectionLimits` 读取当前服务限制。
+
 `definition` 由宿主输入 `ruleId` 定位单个 `id`，按需查询 `rule_config`。标准 JSON 字段直接维护原文本；修改时校验 JSON 语法，取消和保存沿同一 DataView，提交只包含本次变更。名称单独修改不覆盖历史规则文本。数据库保存回执与实际 PDF 文件校验执行能力分别验证，不能由配置可保存推断校验命令可用。

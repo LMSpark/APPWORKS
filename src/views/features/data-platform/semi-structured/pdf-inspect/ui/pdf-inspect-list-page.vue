@@ -7,6 +7,7 @@
     <template v-if="ready" #header-actions>
       <RendererButton label="新增规则" :disabled="loading || adding || !!creationId" @click="createRule" />
       <RendererButton label="打开设计" icon="Setting" :disabled="loading || !selected" @click="openEditor" />
+      <RendererButton v-if="executionAvailable" label="核验准备" :disabled="loading || !selected || preparing" @click="prepareInspection" />
       <RendererButton label="刷新" icon="Refresh" :disabled="loading" @click="refreshCatalog" />
       <RendererButton v-if="historyAvailable" label="核验历史" :disabled="loading || historyLoading" @click="openHistory" />
     </template>
@@ -14,6 +15,14 @@
       :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
     <FeatureRecordDialog v-if="creationId !== undefined" :data-view-key="creationKey" :record-id="creationId"
       title="新增PDF核验规则" :created="true" :specs="creationFields" :validate="validateCreation" @close="closeCreation" />
+    <RendererSection v-if="preparationOpen" title="核验准备" :bordered="false"
+      :status="preparing ? '正在读取正式规则和服务限制…' : ''" :error="preparationError">
+      <RendererForm v-if="preparationReady" :data-view-key="limitsKey" :auto-columns="false" :show-data-view-meta="false">
+        <FieldNumber field="maxFiles" label="最多文件数" readonly />
+        <FieldNumber field="maxFileBytes" label="单文件字节上限" readonly />
+        <FieldNumber field="maxTotalFileBytes" label="文件总字节上限" readonly />
+      </RendererForm>
+    </RendererSection>
     <RendererSection v-if="ready && historyOpen" title="核验历史" :error="historyError" :bordered="false">
       <RendererTable :data-view-key="historyKey" :show-data-view-meta="false" :on-row-click="openHistoryResult">
         <FieldText field="inspectJobId" label="任务编号" readonly />
@@ -45,6 +54,7 @@ import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appwork
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
 import {PDF_INSPECTION_HISTORY_TABLE} from '@/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings'
+import {readPdfExecutionRule} from '@/lowcode/resources/semi-structured/pdf-inspect/execution-rule'
 import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
@@ -99,6 +109,7 @@ const selected = computed(() => {
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodePdfInspect.catalogMetaName, 'default', scenarioId.value))
 const historyKey = computed(() => buildDataViewKey(PDF_INSPECTION_HISTORY_TABLE, 'default', scenarioId.value))
+const limitsKey = computed(() => buildDataViewKey('PdfInspectionLimits', 'default', scenarioId.value))
 const resultKey = computed(() => buildDataViewKey('PdfInspectionResult', 'default', scenarioId.value))
 const recoveryKey = computed(() => buildDataViewKey('PdfInspectionRecovery', 'default', scenarioId.value))
 const recoveryRequest = computed(() => route.query['pdfInspectionRequestId'])
@@ -106,6 +117,35 @@ const historyAvailable = ref(false), historyOpen = ref(false), historyLoading = 
 const resultOpen = ref(false), resultLoading = ref(false), resultReady = ref(false), resultError = ref('')
 const recovering = ref(false)
 let resultGeneration = 0
+const executionAvailable = ref(false), preparationOpen = ref(false), preparing = ref(false)
+const preparationReady = ref(false), preparationError = ref('')
+async function prepareInspection(): Promise<void> {
+  const current = session.runtime, ruleId = selected.value, limits = current?.resolveView(limitsKey.value)
+  const dataSet = current?.getDataSet(scenarioId.value)
+  if (!current || !dataSet || !limits || !ruleId || preparing.value) return
+  const own = generation
+  const assertCurrent = () => {
+    if (!active || own !== generation || !session.isCurrent(current) || selected.value !== ruleId) {
+      throw Error('核验准备的原规则已变化，请重新选择')
+    }
+  }
+  preparationOpen.value = true; preparing.value = true; preparationReady.value = false; preparationError.value = ''
+  try {
+    const assertRule = await readPdfExecutionRule(dataSet, ruleId, assertCurrent)
+    await limits.refresh()
+    assertRule()
+    const row = limits.rows[0]
+    if (limits.loadingError || limits.rows.length !== 1 || !row) throw Error('未读取到服务限制')
+    limits.captureReadRow(row, ['id', 'maxFiles', 'maxFileBytes', 'maxTotalFileBytes'])()
+    limits.setCurrentRowById('limits')
+    preparationReady.value = true
+  } catch (cause) {
+    if (active && own === generation) preparationError.value = cause instanceof Error ? cause.message : String(cause)
+  } finally {
+    if (active && own === generation) preparing.value = false
+  }
+}
+watch(selected, () => {preparationReady.value = false; preparationOpen.value = false})
 function openHistoryResult(row: DataRow): void {
   if (!resultLoading.value) void readHistoryResult(row)
 }
@@ -209,6 +249,7 @@ watch(scenarioId, async id => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
   historyAvailable.value = false; historyOpen.value = false; historyLoading.value = false; historyError.value = ''
+  executionAvailable.value = false; preparationOpen.value = false; preparing.value = false; preparationReady.value = false; preparationError.value = ''
   resultGeneration++
   recovering.value = false; resultOpen.value = false; resultLoading.value = false; resultReady.value = false; resultError.value = ''
   unsubscribe?.(); view.value = undefined
@@ -223,6 +264,8 @@ watch(scenarioId, async id => {
     if (!active || own !== generation || !session.isCurrent(current)) return
     view.value = dataSet.getView(LowcodePdfInspect.catalogMetaName, 'default')
     historyAvailable.value = current.resolveView(historyKey.value) !== undefined
+    executionAvailable.value = dataSet.getView(LowcodePdfInspect.catalogMetaName, 'executionRule') !== undefined &&
+      current.resolveView(limitsKey.value) !== undefined
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: () => revision.value++})
     if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); ready.value = true}
     dataSet.triggerAutoLoad()

@@ -1,6 +1,7 @@
 import {expect,it} from 'vitest'
 import {mergeTenderFollowupNoticeReads,prepareTenderFollowupNotice,projectTenderFollowupNotices} from '@/services/smart-bid/content/references/followup/tender-followup-notice'
 import {checkTenderFollowupResponseScope} from '@/services/smart-bid/content/references/followup/tender-followup-response-scope'
+import {linkTenderOutcomeFollowup,projectTenderOutcome} from '@/services/smart-bid/content/review/submission/tender-outcome-evidence'
 
 it('retains a formal notice and deadline while the historical package and scope are still pending',async()=>{
  const scope={projectId:'P',lotId:'L',roundId:'R',subjectId:'ORG',stageId:'FOLLOW-UP'}
@@ -38,4 +39,11 @@ it('retains a formal notice and deadline while the historical package and scope 
  expect(checkTenderFollowupResponseScope(actual,{...request,noticeId:'NOTICE'},proof).state).toBe('NOTICE_REQUIRED')
  expect(()=>checkTenderFollowupResponseScope(actual,request,{...proof,eventDigest:same.eventDigest}))
   .toThrow('TENDER_FOLLOWUP_RESPONSE_SCOPE')
+ const outcome=projectTenderOutcome(scope,{knownAt:later.knownAt,officialEvents:[{...scope,eventRef:'RESULT',
+  issuerRef:'ISSUER',documentVersionId:'OUTCOME-V1',eventAt:later.knownAt,knownAt:later.knownAt,
+  supersedesRef:null,kind:'AWARDED',assertCurrent:line.assertCurrent}],assertCurrent:line.assertCurrent})
+ const link={outcomeEventRef:'RESULT',noticeId:'NOTICE',noticeDigest:same.eventDigest,linkRef:'FORMAL-LINK',assertCurrent:line.assertCurrent}
+ expect(linkTenderOutcomeFollowup(outcome,actual,link)).toMatchObject({state:'LINKED',noticeVersionId:'DOC-V1'})
+ expect(linkTenderOutcomeFollowup(outcome,actual,{...link,noticeId:'UNSEEN'}).state).toBe('PENDING_LINK')
+ expect(()=>linkTenderOutcomeFollowup(outcome,actual,{...link,noticeDigest:corrected.eventDigest})).toThrow('TENDER_OUTCOME_FOLLOWUP_SCOPE')
 })

@@ -17,5 +17,8 @@ it('retains recommendations and prior results while limiting corrections to thei
  expect(assess(at('12'),[recommendation,award,correction])).toMatchObject({
   subjectState:'NOT_AWARDED',roundState:'UNCONFIRMED',evidence:[{eventRef:'REC'},{eventRef:'AWARD'},{eventRef:'CORRECT'}],
  })
+ expect(assess(at('12'),[recommendation,correction])).toMatchObject({
+  subjectState:'PENDING_CORRECTION',roundState:'UNCONFIRMED',pendingCorrectionRefs:['CORRECT'],
+ })
  expect(()=>assess(at('12'),[{...award,subjectId:'OTHER'}])).toThrow('TENDER_OUTCOME_SCOPE')
 })

@@ -32,3 +32,22 @@ it('binds the original directory and never displays a superseded row response',a
  expect(readGuide).toHaveBeenCalledTimes(2)
  expect(showMessage).not.toHaveBeenCalled()
 })
+
+it('prepares rework from the route attempt and a confirmed reason',async()=>{
+ const assertCurrent=vi.fn(),showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
+ const query={runId:'R',attemptRef:'A',requestKey:'Q'}
+ const showPrompt=vi.fn<()=>Promise<string|null>>().mockResolvedValueOnce(null).mockResolvedValueOnce('撤回结果未知')
+ const invokeHostCommand=vi.fn(async()=>({assertCurrent,handoffs:[{callRef:'CALL',destination:'ORIGINAL_CALL'}],
+  originalOperations:[{callRef:'CALL',destination:'52',ownerRef:'REP'}],reusable:[]}))
+ const {prepareRework,bindRework}=compileFunctions(script,{$route:{query},
+  $page:{showPrompt,invokeHostCommand,showAlert,showMessage}} as unknown as PageContext)
+ if(!prepareRework||!bindRework)throw Error('TEST_PAGE18_HANDLERS_REQUIRED')
+ expect(bindRework()).toEqual({disabled:false})
+ await prepareRework()
+ expect(invokeHostCommand).not.toHaveBeenCalled()
+ await prepareRework()
+ expect(invokeHostCommand).toHaveBeenCalledExactlyOnceWith('content.operation.prepareRework',{...query,reason:'撤回结果未知'})
+ expect(assertCurrent).toHaveBeenCalledOnce()
+ expect(showAlert).toHaveBeenCalledExactlyOnceWith('调用 CALL → ORIGINAL_CALL\n原办理 CALL → 52（REP）','返工交接预览')
+ expect(showMessage).not.toHaveBeenCalled()
+})

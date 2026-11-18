@@ -46,6 +46,7 @@ describe('filedata DataView resource', () => {
       expect(view.rows).toMatchObject([{fileName: 'a.txt', path: 'filedata/a.txt'}])
       expect(String(view.rows[0]!['lastModified'])).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
       expect(view.fieldAccess(view.rows[0]!, 'fileName')).toMatchObject({read: 'visible', write: 'denied'})
+      expect(()=>view.captureReadRow(view.rows[0]!, ['fileName','path'])()).not.toThrow()
       expect(api.listFiles).toHaveBeenCalledOnce()
     } finally {dataSet.destroy()}
   })
@@ -62,6 +63,18 @@ describe('filedata DataView resource', () => {
       expect(fileUpload.verifyBinaryVersion).toHaveBeenCalledOnce()
       await view.refresh()
       expect(view.rows.map(row => row['fileName'])).toEqual(['a.txt', 'b.txt'])
+    } finally {dataSet.destroy()}
+  })
+
+  it('does not issue a success receipt while the target is still present after RemoveFile', async () => {
+    const {api, dataSet, view} = fixture()
+    try {
+      api.removeFile.mockResolvedValueOnce(undefined)
+      await view.requestRefresh()
+      await view.removeRow('a.txt')
+      await expect(view.saveChanges()).rejects.toThrow('删除后仍出现在目录中')
+      expect(api.removeFile).toHaveBeenCalledOnce()
+      expect(api.listFiles).toHaveBeenCalledTimes(2)
     } finally {dataSet.destroy()}
   })
 

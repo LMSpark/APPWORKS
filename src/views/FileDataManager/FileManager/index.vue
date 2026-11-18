@@ -41,42 +41,71 @@ const actions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', pr
   label: '删除', buttonType: 'danger', link: true, permAction: 'delete', disabled: busy.value, onClick: remove,
 }}]}))
 
-function currentView(): DataView {
-  const view = session.runtime?.resolveView(viewKey.value)
-  if (!view) throw new Error('文件目录视图已失效')
-  return view
-}
-
-async function commit(view: DataView, change: () => Promise<unknown>, done: string): Promise<boolean> {
+async function runFileAction(action: (view: DataView, assertCurrent: () => void) => Promise<void>): Promise<void> {
+  const runtime = session.runtime
+  const key = viewKey.value
+  const view = runtime?.resolveView(key)
+  if (busy.value || !runtime || !view || view.hasUnconfirmedSave) return
+  const assertCurrent = () => {
+    if (!session.isCurrent(runtime) || viewKey.value !== key || view.destroyed || runtime.resolveView(key) !== view) {
+      throw new Error('文件目录视图已失效')
+    }
+  }
   busy.value = true
   try {
+    await action(view, assertCurrent)
+  } catch (cause) {
+    if (session.isCurrent(runtime)) pageService.showMessage(cause instanceof Error ? cause.message : String(cause), 'error')
+  } finally {
+    busy.value = false
+  }
+}
+
+async function commit(view: DataView, assertCurrent: () => void, change: () => Promise<unknown>, done: string): Promise<void> {
+  assertCurrent()
+  try {
     await change()
+    assertCurrent()
     const result = await view.saveChanges()
+    assertCurrent()
     if (!result.success) throw new Error(result.message || '保存失败')
     await view.refresh()
+    assertCurrent()
+    if (view.loadingError) throw view.loadingError
     pageService.showMessage(done, 'success')
-    return true
   } catch (cause) {
-    pageService.showMessage(cause instanceof Error ? cause.message : String(cause), 'error')
-    try {await view.discardAndReload()} catch (reload) {error.value = reload instanceof Error ? reload.message : String(reload)}
-    return false
-  } finally {busy.value = false}
+    if (!view.destroyed && !view.hasUnconfirmedSave) {
+      try {assertCurrent(); await view.discardAndReload()} catch (reload) {
+        if (!view.destroyed) error.value = reload instanceof Error ? reload.message : String(reload)
+      }
+    }
+    throw cause
+  }
 }
 
 async function pickAndUpload(): Promise<void> {
-  const selected = await pageService.browseFiles({multiple: false})
-  const file = selected[0]?.file
-  if (!file) return
-  const view = currentView()
-  await commit(view, () => view.addRow({content: file}), `${file.name} 已上传`)
+  await runFileAction(async (view, assertCurrent) => {
+    const selected = await pageService.browseFiles({multiple: false})
+    assertCurrent()
+    if (selected.length > 1) throw new Error('每次只能上传一个文件')
+    const file = selected[0]?.file
+    if (file) await commit(view, assertCurrent, () => view.addRow({content: file}), `${file.name} 已上传`)
+  })
 }
 
 async function remove(row: DataRow): Promise<void> {
-  const view = currentView()
-  const key = view.rows.includes(row) ? view.getPkKey(row) : undefined
-  if (key === undefined) {error.value = '文件记录缺少正式身份'; return}
-  if (!await pageService.showConfirm(`确定删除文件“${String(key)}”？`, '删除确认', {type: 'warning'})) return
-  await commit(view, () => view.removeRow(key), `${String(key)} 已删除`)
+  await runFileAction(async (view, assertCurrent) => {
+    const key = view.rows.includes(row) ? view.getPkKey(row) : undefined
+    if (key === undefined) throw new Error('文件记录缺少正式身份')
+    const assertRow = view.captureReadRow(row, ['fileName', 'path'])
+    if (!await pageService.showConfirm(`确定删除文件“${String(key)}”？`, '删除确认', {type: 'warning'})) return
+    assertCurrent()
+    assertRow()
+    if (view.deleteActionState(row) !== 'enabled') throw new Error('当前文件不允许删除')
+    await commit(view, assertCurrent, async () => {
+      if (!await view.removeRow(key)) throw new Error('文件删除未暂存')
+    }, `${String(key)} 已删除`)
+  })
 }
 </script>
 

@@ -91,6 +91,10 @@ export class FileDataResource {
     }
     const rows = await this.readDirectory()
     this.assertView(view)
+    const surviving = deleted.find(row => rows.some(current => current['fileName'] === row['fileName']))
+    if (surviving) {
+      throw Object.assign(fileDataError(`${String(surviving['fileName'])} 删除后仍出现在目录中`), {fileResourceMutationMayHaveApplied: true})
+    }
     const accepted = uploaded === undefined ? [] : rows.filter(row => row['fileName'] === uploaded)
     if (uploaded !== undefined && accepted.length !== 1) {
       throw Object.assign(fileDataError(`${uploaded} 上传后未出现在目录中`), {fileResourceMutationMayHaveApplied: true})

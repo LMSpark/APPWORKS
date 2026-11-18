@@ -408,7 +408,7 @@ function originalDraft() {
   if (!assertOriginalDraft) {
     const originalRow = view.rows.find(item => view.getPkKey(item) === draftId)
     if (!originalRow) throw Error('CONTENT_PAGE_ORIGINAL_DRAFT_REQUIRED')
-    const assertResult = view.captureReadResult(), assertRow = view.captureReadRow(originalRow, ['id', 'projectId', 'userId', 'draft'])
+    const assertResult = view.captureReadResult(), assertRow = view.captureReadRow(originalRow, [view.primaryKey, 'projectId', 'userId', 'draft'])
     assertOriginalDraft = () => {
       if ($page.resolveView(originalDraftKey) !== view) throw Error('CONTENT_PAGE_RUNTIME_CHANGED')
       assertResult(); assertRow()
@@ -416,6 +416,11 @@ function originalDraft() {
   }
   assertOriginalDraft()
   return {view, projectId, draftId}
+}
+
+function bindDraftIdentity() {
+  try {return {field: originalDraft().view.primaryKey}}
+  catch {return {visible: false}}
 }
 
 function bindOriginalDraft() {

@@ -7,10 +7,10 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
-function fixture(user='U'){
- const row={id:'D',projectId:'P',userId:user,draft:{nodes:[],responseChanges:[]}}
+function fixture(user='U',primaryKey='id'){
+ const row={[primaryKey]:'D',projectId:'P',userId:user,draft:{nodes:[],responseChanges:[]}}
  const proof=vi.fn(),resultProof=vi.fn(),view={dataTable:{modelBinding:{modelName:'WorkingDraft'}},queryContext:{projectId:'P',currentUserId:'U'},
-  rows:[row],getPkKey:(item:typeof row)=>item.id,getEditingRow:vi.fn(()=>row),captureReadRow:vi.fn(()=>proof),captureReadResult:vi.fn(()=>resultProof)}
+  primaryKey,rows:[row],getPkKey:(item:typeof row)=>item[primaryKey],getEditingRow:vi.fn(()=>row),captureReadRow:vi.fn(()=>proof),captureReadResult:vi.fn(()=>resultProof)}
  const resolveView=vi.fn(()=>view)
  const functions=compileFunctions(script,{$route:{query:{projectId:'P',draftId:'D'}},$page:{resolveView}} as unknown as PageContext)
  return {row,view,proof,resultProof,functions,resolveView}
@@ -23,6 +23,12 @@ it('expresses the draft structure with standard children and binds its original 
  expect(f.resolveView).toHaveBeenCalledWith('D3BBA1F0780056C837AC35E9825CAD5A@WorkingDraft@personalDraft')
  expect(f.view.captureReadRow).toHaveBeenCalledWith(f.row,['id','projectId','userId','draft'])
  expect(f.proof).toHaveBeenCalled()
+})
+it('uses the original DataView primary key for both proof and draft identity display',()=>{
+ const f=fixture('U','draftId')
+ expect(f.functions['bindOriginalDraft']!()).toEqual({contextRowId:'D'})
+ expect(f.functions['bindDraftIdentity']!()).toEqual({field:'draftId'})
+ expect(f.view.captureReadRow).toHaveBeenCalledWith(f.row,['draftId','projectId','userId','draft'])
 })
 it('hides data when the original authenticated draft or its read proof is unavailable',()=>{
  const wrong=fixture('OTHER')

@@ -19,7 +19,7 @@
           "onBeforeRender": "bindOriginalDraft"
         },
         "children": [
-          {"type": "r-text", "props": {"field": "id", "label": "工作草稿", "readonly": true}},
+          {"type": "r-text", "props": {"label": "工作草稿", "readonly": true, "onBeforeRender": "bindDraftIdentity"}},
           {"type": "r-button", "props": {"label": "新增逻辑册", "permAction": "edit", "onBeforeRender": "bindAddDocument"}},
           {"type": "r-button", "props": {"label": "新增章节", "permAction": "edit", "onBeforeRender": "bindAddChapter"}},
           {"type": "r-button", "props": {"label": "新增段落", "permAction": "edit", "onBeforeRender": "bindAddParagraph"}},

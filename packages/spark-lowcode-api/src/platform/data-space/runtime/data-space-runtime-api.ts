@@ -156,10 +156,10 @@ export class DataSpaceRuntimeApi {
       if (options.allPages && context.resultKind === 'entity' && context.resultPrimaryKey) {
         const keys = new Set<string>()
         for (const row of context.rows) {
-          const key = String(context.rowKey(row) ?? '').trim()
-          if (!key) throw new Error('SPARK 批量查询记录主键无效')
-          if (keys.has(key)) throw new Error('SPARK 批量查询记录主键重复')
-          keys.add(key)
+          const rowKey = String(context.rowKey(row) ?? '').trim()
+          if (!rowKey) throw new Error('SPARK 批量查询记录主键无效')
+          if (keys.has(rowKey)) throw new Error('SPARK 批量查询记录主键重复')
+          keys.add(rowKey)
         }
       }
       this.#contexts.set(context, key)

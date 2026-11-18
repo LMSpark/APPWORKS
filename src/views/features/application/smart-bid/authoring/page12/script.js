@@ -7,8 +7,30 @@ function hasRef(ref) {
 }
 
 function hasObservation() {
-  const {platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef} = $route.query
-  return [platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef].some(hasRef)
+  const {platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef, exportRegistrationRef} = $route.query
+  return [platformObservationRef, fileObservationRef, paperObservationRef, productionSelectionRef, exportRegistrationRef].some(hasRef)
+}
+
+function bindExportRegistration() {
+  return {visible: hasRef($route.query.exportRegistrationRef)}
+}
+
+async function openExportRegistration() {
+  if (!bindExportRegistration().visible) return
+  try {
+    const result = await $page.invokeHostCommand('content.review.readExportRegistration',
+      {selectionRef: $route.query.exportRegistrationRef})
+    result.assertCurrent()
+    const details = result.state === 'REGISTERED'
+      ? `原登记 ${result.producedFileId} · 文件版本 ${result.resourceVersionId}`
+      : '原登记结果待确认'
+    await $page.showAlert(details, '导出件登记')
+  } catch (error) {
+    const message = error?.message === 'BID_EXPORT_REGISTRATION_HASH_CONFLICT'
+      ? '同一输出的文件摘要与原登记不同，请交制作人核查'
+      : '原登记结果无法核验'
+    $page.showMessage(message, 'warning')
+  }
 }
 
 function bindProductionRecovery() {

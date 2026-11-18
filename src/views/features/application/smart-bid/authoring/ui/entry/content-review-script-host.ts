@@ -13,6 +13,7 @@ import {compareApprovedFileAnswer,readRegisteredFileAnswer,verifyOriginalFormFil
 import {readRegisteredPaperAnswer} from '../../model/review/content-paper-answer-reader'
 import {recoverProductionRequest} from '@/services/smart-bid/content/review/production/production-recovery'
 import {readCompletedProductionFiles} from '../../model/review/content-produced-file-review'
+import {readOriginalExportRegistration} from '../../model/review/production/production-registration-reader'
 
 /** 审定覆盖工作区的宿主、固定范围与证据读取合同。 */
 type Review=Parameters<typeof readContentReviewWorkspace>
@@ -31,6 +32,9 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
   readSelection:(selectionRef:string,signal:AbortSignal)=>Promise<Review[1]&Readonly<{selectionRef:string}>>
   readProductionSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
    selectionRef:string;request:ProductionRecovery[0];source:ProductionRecovery[1]
+  }>>
+  readExportRegistrationSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
+   selectionRef:string;prepared:Parameters<typeof readOriginalExportRegistration>[1]
   }>>
   readObservationSelection?:(observationRef:string,signal:AbortSignal)=>Promise<Readonly<{
    approved:Observation[1];input:Observation[2];assertCurrent:()=>void
@@ -54,6 +58,13 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
      throw Error('CONTENT_REVIEW_PAGE_STALE')
    }
    assertCurrent()
+   if(name==='content.review.readExportRegistration'&&sources.readExportRegistrationSelection){
+    const selection=await sources.readExportRegistrationSelection(selectionRef,signal)
+    assertCurrent()
+    if(selection.selectionRef!==selectionRef||selection.prepared.record.projectId!==scope.projectId)
+     throw Error('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
+    return readOriginalExportRegistration({...scope,runtime,assertCurrent},selection.prepared)
+   }
    if(name==='content.review.recoverProduction'&&sources.readProductionSelection){
     const selection=await sources.readProductionSelection(selectionRef,signal)
     const assertSelection=()=>{assertCurrent();selection.source.assertCurrent()}

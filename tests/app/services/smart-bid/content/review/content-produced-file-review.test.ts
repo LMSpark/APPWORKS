@@ -2,6 +2,7 @@ import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {readCompletedProductionFiles,readProducedFileReviewVersion,readRegisteredProducedFileReviewVersion,readRegisteredProducedFileReviewVersions} from '@/views/features/application/smart-bid/authoring/model/review/content-produced-file-review'
 import {recoverProductionRequest} from '@/services/smart-bid/content/review/production/production-recovery'
+import {producedFileScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
 import {compareApprovedFileAnswer,readRegisteredFileAnswer,verifyOriginalFormFileAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-file-answer-reader'
@@ -38,8 +39,7 @@ it('keeps both original file versions current from one complete read and rejects
   revisionId:'R',documentId:'D',fileHash,resourceVersionId:id,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}})).reverse()
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ProducedFile:{
   modelBinding:{modelId:'M',modelName:'ProducedFile'},columns:Object.keys(rows[0]!).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},selectedReviewFiles:{commitMode:'staged',queryConfig:{autoQuery:false,allPages:true,pagination:'paged'},
-   scopeFilter:{logic:'and',filters:[{field:'projectId',operator:'eq',value:{Type:'GetInputParam',ParamName:'projectId'}}]}}},
+  views:{default:{},selectedReviewFiles:producedFileScenarioViews().selectedReviewFiles},
  }}})
  const view=ds.getView('ProducedFile','selectedReviewFiles')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ProducedFile'})
  const executeQuery=vi.fn(async()=>new DataSpaceQueryContext({
@@ -107,11 +107,9 @@ it('opens only the original registered resource version read through SPARK data'
   fileHash:createHash('sha256').update(bytes).digest('hex'),resourceVersionId:'RESOURCE-V1'}
  const answer={id:'OBS',projectId:'P',producedFileId:'F',revisionId:'R',documentId:'D',fileHash:row.fileHash,
   locationRef:'PAGE-1-TOTAL',value:'0.00',unit:'元'}
- const filters=([['projectId','projectId'],['id','producedFileId'],['productionRequestRef','productionRequestRef']] as const)
-  .map(([field,ParamName])=>({field,operator:'eq' as const,value:{Type:'GetInputParam',ParamName}}))
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ProducedFile:{
   modelBinding:{modelId:'M',modelName:'ProducedFile'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},selectedReviewFile:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters}}},
+  views:{default:{},selectedReviewFile:producedFileScenarioViews().selectedReviewFile},
  },AnswerLocation:{
   modelBinding:{modelId:'ANSWER',modelName:'AnswerLocation'},
   columns:Object.keys(answer).map(name=>({name,type:'string',isPrimaryKey:name==='id'})),

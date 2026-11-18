@@ -9,7 +9,9 @@
     <slot name="scheme-tools" />
     <slot name="rule-list" />
     <RuleDialog v-if="editing" :key="editing.epoch" :data-view-key="dataViewKey" :record-id="editing.id" :created="editing.created" :field-options-key="fieldOptionsKey" @close="editing=undefined" />
-    <OperationDialog v-if="operation" :key="operation.epoch" :data-view-key="dataViewKey" :record-id="operation.id" :mode="operation.mode" @close="operation=undefined" />
+    <OperationDialog v-if="operation" ref="operationDialog" :key="operation.epoch" :data-view-key="dataViewKey" :record-id="operation.id" :mode="operation.mode" @close="operation=undefined">
+      <slot name="rule-operation" />
+    </OperationDialog>
   </section>
 </template>
 <script setup lang="ts">
@@ -32,6 +34,7 @@ const openedKey=props.dataViewKey
 const revision=ref(0),acting=ref(false),error=ref('')
 const editing=shallowRef<{id:string|number;created:boolean;epoch:number}>()
 const operation=shallowRef<{id:string|number;mode:'pending'|'delete';epoch:number}>()
+const operationDialog=shallowRef<InstanceType<typeof OperationDialog>>()
 let active=true,epoch=0
 const stop=dataSet.onAnyViewChange({rowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed})
 function changed():void{revision.value++}
@@ -86,5 +89,6 @@ defineExpose({
   state:()=>({blocked:blocked.value,busy:busy.value,hasNode:props.hasNode,unconfirmed:unconfirmed.value,
     canVerify:!busy.value&&!editing.value&&!operation.value,error:error.value}),
   refresh,add,verifyOriginal,openEdit,openDelete,rowClick,scopeLabel,
+  operation:()=>operationDialog.value,
 })
 </script>

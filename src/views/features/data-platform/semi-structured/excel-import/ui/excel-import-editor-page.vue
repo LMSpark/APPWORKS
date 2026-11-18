@@ -40,6 +40,9 @@
         <template #rule-list>
           <SparkComponentRenderer :config="designRegion(children,'excel-transform-list')" />
         </template>
+        <template #rule-operation>
+          <SparkComponentRenderer :config="designRegion(children,'excel-transform-operation')" />
+        </template>
       </ExcelTransformRulesPane>
             </RendererTabPane>
             <RendererTabPane name="layout" label="相对版式" :lazy="true" :index="2" :data-view-key="nodesKey">
@@ -261,6 +264,7 @@ function makeTreeHost(runtime:PageRuntime){
       }),
       validateSorted,
       ruleList:()=>rulePane.value?.state(),
+      ruleOperation:()=>rulePane.value?.operation()?.state(),
       ruleDirection:(value:unknown)=>rulePane.value?.scopeLabel(value)??'',
       ruleRowClick:(row:Parameters<InstanceType<typeof ExcelTransformRulesPane>['rowClick']>[0],column:unknown,event?:Event)=>{
         if(active&&session.isCurrent(runtime))rulePane.value?.rowClick(row,column,event)
@@ -271,6 +275,9 @@ function makeTreeHost(runtime:PageRuntime){
         switchUnconfirmed:isUnconfirmed(schemeTable),
       }),
     }
+    if(command==='excel.design.saveRuleOperation'){await rulePane.value?.operation()?.save();return undefined}
+    if(command==='excel.design.cancelRuleOperation'){rulePane.value?.operation()?.cancel();return undefined}
+    if(command==='excel.design.discardRuleOperation'){rulePane.value?.operation()?.discard();return undefined}
     if(command==='excel.design.refreshRules'){await rulePane.value?.refresh();return undefined}
     if(command==='excel.design.addRule'){await rulePane.value?.add();return undefined}
     if(command==='excel.design.verifyRule'){await rulePane.value?.verifyOriginal();return undefined}

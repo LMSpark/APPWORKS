@@ -171,5 +171,20 @@
         ]
       }
     ]
+  },
+  {
+    "id":"excel-transform-operation",
+    "type":"r-dialog",
+    "props":{"width":520,"appendToBody":true,"destroyOnClose":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Import_Transform_Rule@default",
+      "onBeforeRender":"bindRuleOperationDialog","on":{"update:modelValue":"closeRuleOperation"},
+      "footer":{"children":[
+        {"type":"r-button","props":{"onBeforeRender":"bindCancelRuleOperation","onClick":"cancelRuleOperation"}},
+        {"type":"r-button","props":{"label":"放弃本条待提交修改","onBeforeRender":"bindDiscardRuleOperation","onClick":"discardRuleOperation"}},
+        {"type":"r-button","props":{"buttonType":"primary","onBeforeRender":"bindSaveRuleOperation","onClick":"saveRuleOperation"}}
+      ]}},
+    "children":[
+      {"type":"r-alert","props":{"alertType":"info","closable":false,"onBeforeRender":"bindRuleOperationPrompt"}},
+      {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindRuleOperationError"}}
+    ]
   }
 ]

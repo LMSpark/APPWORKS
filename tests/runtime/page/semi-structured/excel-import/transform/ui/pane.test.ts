@@ -16,7 +16,7 @@ const sessions:Array<()=>void>=[]
 afterEach(()=>sessions.splice(0).forEach(close=>close()))
 async function fixture(){
  const tool=new PageTool({pageId:'excel-transform-rule-list'})
- tool.hydrateFileText('rule.json',JSON.stringify(rules.filter(node=>node.id==='excel-transform-list')))
+ tool.hydrateFileText('rule.json',JSON.stringify(rules.filter(node=>['excel-transform-list','excel-transform-operation'].includes(node.id))))
  tool.hydrateFileText('script.js',script)
  tool.markLoaded()
  const f=await excelDesignRuntime({Base_ImportData_Config:[{rowid:'C1',schemeid:'E1',pid:'E1',sheetName:'订单',exportType:'default',sheet_layout_json:'',relatedappid:'APP',table:'db@orders',parentField:'',foreignKeyField:''}],Base_ImportData_Field:[{rowid:'F1',configid:'C1',name:'code',index:'A',isReadOnly:0}],
@@ -27,12 +27,16 @@ async function fixture(){
  await router.push('/')
  const pane=shallowRef<InstanceType<typeof RulePane>>()
  const host={runtime:f.runtime,assertCurrent:()=>{},async invoke(command:string,input:unknown):Promise<unknown>{
-  if(command==='excel.design.connect')return {ruleList:()=>pane.value?.state(),ruleDirection:(value:unknown)=>pane.value?.scopeLabel(value)??''}
+  if(command==='excel.design.connect')return {ruleList:()=>pane.value?.state(),ruleDirection:(value:unknown)=>pane.value?.scopeLabel(value)??'',
+   ruleOperation:()=>pane.value?.operation()?.state()}
   if(command==='excel.design.refreshRules')await pane.value?.refresh()
   if(command==='excel.design.addRule')await pane.value?.add()
   if(command==='excel.design.verifyRule')await pane.value?.verifyOriginal()
   if(command==='excel.design.editRule')pane.value?.openEdit(input)
   if(command==='excel.design.deleteRule')pane.value?.openDelete(input)
+  if(command==='excel.design.saveRuleOperation')await pane.value?.operation()?.save()
+  if(command==='excel.design.discardRuleOperation')pane.value?.operation()?.discard()
+  if(command==='excel.design.cancelRuleOperation')pane.value?.operation()?.cancel()
   return undefined
  }}
  registerAllRenderers()
@@ -42,7 +46,8 @@ async function fixture(){
  const wrapper=mount(defineComponent({setup(){return()=>h(SparkPageRenderer,{pageRuntime:f.runtime,routeSnapshot,host},{
   content:({children}:{children:SparkNode[]})=>h(RulePane,{ref:pane,dataViewKey:buildDataViewKey('Base_Import_Transform_Rule','default',EXCEL_DESIGN),
    fieldOptionsKey:buildDataViewKey('Base_ImportData_Field','foreignKeyFields',EXCEL_DESIGN),hasNode:true},
-  {'rule-list':()=>children[0]?h(SparkComponentRenderer,{config:children[0]}):null}),
+  {'rule-list':()=>children[0]?h(SparkComponentRenderer,{config:children[0]}):null,
+   'rule-operation':()=>children[1]?h(SparkComponentRenderer,{config:children[1]}):null}),
  })}}),{global:{plugins:[ElementPlus,Spark.createPlugin(),router]}})
  sessions.push(()=>{wrapper.unmount();f.runtime.dispose();config.global.stubs=originalStubs});await flushPromises()
  const row=f.nodes.rows.find(record=>f.nodes.getPkKey(record)==='C1')

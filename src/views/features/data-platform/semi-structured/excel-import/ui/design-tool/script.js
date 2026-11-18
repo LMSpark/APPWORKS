@@ -206,3 +206,40 @@ async function addRule() { await $page.invokeHostCommand('excel.design.addRule')
 async function verifyRule() { await $page.invokeHostCommand('excel.design.verifyRule') }
 async function editRule(row) { await $page.invokeHostCommand('excel.design.editRule', row) }
 async function deleteRule(row) { await $page.invokeHostCommand('excel.design.deleteRule', row) }
+
+function bindRuleOperationDialog() {
+  const state = tree?.ruleOperation()
+  return {modelValue:!!state,visible:!!state,closeDisabled:!!(state?.busy || state?.ownUnconfirmed),
+    title:state?.mode === 'delete' ? '删除增强规则' : '处理本条待提交修改'}
+}
+function bindRuleOperationPrompt() {
+  const state = tree?.ruleOperation()
+  const title = state?.mode === 'delete' ? '确认删除这条增强规则？'
+    : '原视图保留了本条待提交修改。继续保存或明确放弃，只处理当前这条记录。'
+  return {title,description:state ? '规则：' + String(state.name ?? '') : ''}
+}
+function bindRuleOperationError() {
+  const title = tree?.ruleOperation()?.error || ''
+  return {title,visible:!!title}
+}
+function bindCancelRuleOperation() {
+  const state = tree?.ruleOperation()
+  return {disabled:!!(state?.busy || state?.ownUnconfirmed),label:state?.foreignRecovery
+    ? '关闭并保留草稿' : state?.mode === 'delete' ? '取消删除规则' : '关闭'}
+}
+function bindDiscardRuleOperation() {
+  const state = tree?.ruleOperation()
+  return {visible:state?.mode === 'pending',disabled:!!(state?.busy || state?.ownUnconfirmed || state?.foreignRecovery || state?.confirmedCreation)}
+}
+function bindSaveRuleOperation() {
+  const state = tree?.ruleOperation()
+  const removing = state?.mode === 'delete'
+  const label = state?.permissionsPending ? '回读已保存规则权限'
+    : state?.ownUnconfirmed ? (removing ? '核验原删除结果' : '核验原保存结果')
+      : state?.recoveryEnded ? '原提交已结束，请重新选择' : removing ? '确认删除规则' : '继续保存本条修改'
+  return {label,disabled:!!(state?.busy || state?.foreignRecovery || state?.recoveryEnded && !state.permissionsPending)}
+}
+async function closeRuleOperation(open) { if (open === false) await cancelRuleOperation() }
+async function cancelRuleOperation() { await $page.invokeHostCommand('excel.design.cancelRuleOperation') }
+async function discardRuleOperation() { await $page.invokeHostCommand('excel.design.discardRuleOperation') }
+async function saveRuleOperation() { await $page.invokeHostCommand('excel.design.saveRuleOperation') }

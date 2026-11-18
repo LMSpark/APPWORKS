@@ -30,6 +30,15 @@ it('uses the original DataView primary key for both proof and draft identity dis
  expect(f.functions['bindDraftIdentity']!()).toEqual({field:'draftId'})
  expect(f.view.captureReadRow).toHaveBeenCalledWith(f.row,['draftId','projectId','userId','draft'])
 })
+it('keeps selected content attached to the original node when local rows move',()=>{
+ const f=fixture()
+ Object.assign(f.row.draft,{nodes:[{nodeId:'A'},{nodeId:'B'}]})
+ f.functions['selectContentNode']!([0])
+ Object.assign(f.row.draft,{nodes:[{nodeId:'B'},{nodeId:'A'}]})
+ expect(f.functions['bindSelectedNode']!()).toEqual({valuePath:['nodes',1]})
+ Object.assign(f.row.draft,{nodes:[{nodeId:'B'}]})
+ expect(f.functions['bindSelectedNode']!()).toEqual({visible:false})
+})
 it('hides data when the original authenticated draft or its read proof is unavailable',()=>{
  const wrong=fixture('OTHER')
  expect(wrong.functions['bindOriginalDraft']!()).toEqual({visible:false})

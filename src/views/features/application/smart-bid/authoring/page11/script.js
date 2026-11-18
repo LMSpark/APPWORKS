@@ -2,7 +2,7 @@
 // 页11业务配置：消费宿主原视图；不装配第二运行实例、不查询、不推导认证或保存。
 const originalDraftKey = 'D3BBA1F0780056C837AC35E9825CAD5A@WorkingDraft@personalDraft'
 let assertOriginalDraft
-let selectedPath = null
+let selectedNodeId = null
 let editorSession
 let editorFault = false
 let hostUnavailable = false
@@ -431,13 +431,24 @@ function bindOriginalDraft() {
 }
 
 function bindContentOutline() {
-  try {return {outlineRootValue: originalDraft().projectId, ...(selectedPath === null ? {} : {selectedPath})}}
+  try {
+    const draft = originalDraft(), path = selectedNodePath(draft)
+    return {outlineRootValue: draft.projectId, ...(path === null ? {} : {selectedPath: path})}
+  }
   catch {return {visible: false}}
+}
+
+function selectedNodePath({view, draftId}) {
+  if (selectedNodeId === null) return null
+  const nodes = view.getEditingRow(draftId)?.draft?.nodes
+  if (!Array.isArray(nodes)) return null
+  const index = nodes.findIndex(node => node?.nodeId === selectedNodeId)
+  return index < 0 ? null : [index]
 }
 
 function selectContentNode(path) {
   let current
-  try {current = originalDraft()} catch {selectedPath = null; return}
+  try {current = originalDraft()} catch {selectedNodeId = null; return}
   const {view, draftId} = current
   const draft = view.getEditingRow(draftId)?.draft
   if (path !== null && (!Array.isArray(path) || path.length !== 1 || !Number.isSafeInteger(path[0]) || path[0] < 0
@@ -447,15 +458,15 @@ function selectContentNode(path) {
     if (cause?.message === 'CONTENT_COMMAND_PENDING_INPUT') return
     throw cause
   }
-  selectedPath = path === null ? null : [path[0]]
+  selectedNodeId = path === null ? null : draft.nodes[path[0]].nodeId
 }
 
 function bindAction(label) {
   try {
-    originalDraft()
+    const draft = originalDraft()
     if (!editorSession) return {visible: false}
-    const action = editorSession.actionProps(label, selectedPath)
-    return {...action, onClick: () => {action.onClick(); selectedPath = null}}
+    const action = editorSession.actionProps(label, selectedNodePath(draft))
+    return {...action, onClick: () => {action.onClick(); selectedNodeId = null}}
   } catch {return {disabled: true}}
 }
 function bindAddDocument() {return bindAction('新增逻辑册')}
@@ -474,13 +485,13 @@ function bindCancel() {
   try {return {visible: !!editorSession, disabled: !editorSession || editorSession.canLeave}}
   catch {return {disabled: true}}
 }
-function cancelDraft() {editorSession?.cancel(); selectedPath = null}
+function cancelDraft() {editorSession?.cancel(); selectedNodeId = null}
 
 function bindSelectedNode() {
   try {
-    originalDraft()
-    if (selectedPath === null) return {visible: false}
-    if (editorSession?.canEditDraft) return editorSession.editorProps(selectedPath)
-    return {valuePath: ['nodes', ...selectedPath]}
+    const path = selectedNodePath(originalDraft())
+    if (path === null) return {visible: false}
+    if (editorSession?.canEditDraft) return editorSession.editorProps(path)
+    return {valuePath: ['nodes', ...path]}
   } catch {return {visible: false}}
 }

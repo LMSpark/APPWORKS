@@ -5,7 +5,7 @@
 AI用途：恢复岗位目录时，核对正式导航身份与机构选项绑定。
 -->
 <template>
-  <RendererSection :title="ready ? undefined : '岗位管理'" :bordered="false" :grid-columns="1" :grid-gap="12"
+  <RendererSection :title="ready ? '' : '岗位管理'" :bordered="false" :grid-columns="1" :grid-gap="12"
     :status="loading ? '正在读取岗位…' : ''" :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
     <SparkPageRenderer v-if="runtime" :page-runtime="runtime" :route-snapshot="routeSnapshot" :auto-load="false" />
   </RendererSection>
@@ -22,7 +22,7 @@ import script from './tool/script.js?raw'
 import style from './tool/style.css?raw'
 
 const scenarioId = '0A835EB88AAC2BDFBDE344477C6827BB'
-const tool = new PageTool({pageId: 'job-management-page'})
+const tool = new PageTool({pageId: scenarioId})
 tool.hydrateFileText('rule.json', rule)
 tool.hydrateFileText('script.js', script)
 tool.hydrateFileText('style.css', style)

@@ -1,0 +1,12 @@
+[
+  {"type":"r-section","props":{"class":"organization-page","title":"机构管理","bordered":false,"gridColumns":1,"gridGap":12,"header":{"children":[{"type":"r-tag","props":{"content":"当前租户","tagType":"info"}},{"type":"r-button","props":{"dataViewKey":"4138A7C47ECB96EA85CA61A8A8B7191F@Base_DepartInfo@default","label":"刷新","action":"refresh"}}]}},"children":[
+    {"type":"r-alert","props":{"alertType":"info","closable":false,"showIcon":true,"title":"本页只读取当前登录租户的正式组织投影，不提供跨租户切换。"}},
+    {"type":"r-table","props":{"dataViewKey":"4138A7C47ECB96EA85CA61A8A8B7191F@Base_DepartInfo@default","stripe":true,"showRowIndex":true,"showDataViewMeta":false,"autoColumns":false,"pagination":{"pageSizes":[10,20,50,100],"showJumper":false},"filter":{"autoQuery":false,"queryOnReset":true,"firstPageOnSearch":true,"showExpressionEditor":false,"showDataViewMeta":false,"children":[{"type":"r-text","props":{"field":"DepName","label":"机构名称","placeholder":"请输入机构名称","filterTrim":true}}]}},"children":[
+      {"type":"r-text","props":{"field":"DepName","label":"机构名称","readonly":true,"minWidth":220,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"DepID","label":"机构 ID","readonly":true,"minWidth":180,"showOverflowTooltip":true,"emptyText":"未提供"}},
+      {"type":"r-text","props":{"field":"Prowid","label":"上级机构 ID","readonly":true,"minWidth":180,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"DepLevel","label":"机构层级","readonly":true,"minWidth":140,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"CSR","label":"层级路径","readonly":true,"minWidth":260,"showOverflowTooltip":true}}
+    ]}
+  ]}
+]

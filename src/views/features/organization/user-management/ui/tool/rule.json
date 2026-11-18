@@ -1,0 +1,11 @@
+[
+  {"type":"r-section","props":{"class":"user-page","title":"人员管理","bordered":false,"gridColumns":1,"gridGap":12,"header":{"children":[{"type":"r-tag","props":{"content":"当前租户","tagType":"info"}},{"type":"r-button","props":{"dataViewKey":"4138A7C47ECB96EA85CA61A8A8B7191F@View_UserDJAndDepCSR@default","label":"刷新","action":"refresh"}}]}},"children":[
+    {"type":"r-alert","props":{"alertType":"info","closable":false,"showIcon":true,"title":"本页只读取当前登录租户的正式组织投影，不提供跨租户切换。"}},
+    {"type":"r-table","props":{"dataViewKey":"4138A7C47ECB96EA85CA61A8A8B7191F@View_UserDJAndDepCSR@default","stripe":true,"showRowIndex":true,"showDataViewMeta":false,"autoColumns":false,"pagination":{"pageSizes":[10,20,50,100],"showJumper":false},"filter":{"autoQuery":false,"queryOnReset":true,"firstPageOnSearch":true,"showExpressionEditor":false,"showDataViewMeta":false,"children":[{"type":"r-text","props":{"field":"UserName","label":"人员姓名","placeholder":"请输入人员姓名","filterTrim":true}},{"type":"r-select","props":{"field":"DepID","label":"所属机构","placeholder":"请选择所属机构","filterable":true,"clearable":true,"optionDataViewKey":"4138A7C47ECB96EA85CA61A8A8B7191F@Base_DepartInfo@options","optionLabelField":"DepName","optionLabelFields":["DepName","DepID"],"optionValueField":"DepID","optionValueTrim":true}}]}},"children":[
+      {"type":"r-text","props":{"field":"UserName","label":"人员姓名","readonly":true,"minWidth":180,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"UserID","label":"人员 ID","readonly":true,"minWidth":200,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"DepName","label":"所属机构","readonly":true,"minWidth":220,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"JobName","label":"岗位","readonly":true,"minWidth":180,"showOverflowTooltip":true}}
+    ]}
+  ]}
+]

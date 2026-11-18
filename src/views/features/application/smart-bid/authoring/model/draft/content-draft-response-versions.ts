@@ -10,10 +10,16 @@ import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-
 
 const model='Response',viewName='selectedDraftResponseVersions'
 const fields=['id','projectId','assignmentId','lineageId','version','revisionId','statement','data',
- 'deviation','answerLocation','promiseRefs','evidenceRefs']
+ 'deviation','answerLocation','promiseRefs','evidenceRefs','reviewedBy','reviewedAt']
 const optional=['chapterId','anchorNodeId']
 const error='CONTENT_DRAFT_RESPONSE_VERSION'
 type Selection=Readonly<{responseId:string;assignmentId:string;lineageId:string;version:string}>
+
+function validReviewStamp(reviewer:unknown,time:unknown):boolean{
+ return reviewer===null&&time===null||identity(reviewer)&&(
+  typeof time==='number'&&Number.isSafeInteger(time)&&time>=0||
+  typeof time==='string'&&Number.isFinite(Date.parse(time))&&/(?:Z|[+-]\d{2}:\d{2})$/u.test(time))
+}
 
 export function draftResponseVersionsScenarioView(primaryKey:string):ViewMetadata{
  const view=originalRegistrationView(primaryKey,['projectId'],[...fields,...optional])
@@ -52,16 +58,18 @@ export async function readDraftResponseVersions(host:ContentRevisionReadHost,sel
   const proof=view.captureReadRow(row,[...fields,...optional.filter(field=>Object.hasOwn(row,field))])
   proof()
   const {id,assignmentId,lineageId,version,revisionId,statement,data,chapterId,anchorNodeId,deviation,answerLocation,promiseRefs,evidenceRefs}=row
+  const {reviewedBy,reviewedAt}=row
   const matched=identity(id)?wanted.get(id):undefined
   if(!identity(id)||!matched||seen.has(id)||row['projectId']!==projectId||matched.assignmentId!==assignmentId||
    matched.lineageId!==lineageId||matched.version!==version||!identity(revisionId)||typeof statement!=='string'||
    chapterId!==null&&chapterId!==undefined||anchorNodeId!==null&&anchorNodeId!==undefined||
    deviation!==null&&deviation!=='NONE'&&deviation!=='POSITIVE'&&deviation!=='NEGATIVE'||
-   answerLocation===null||answerLocation===undefined||!Array.isArray(promiseRefs)||!Array.isArray(evidenceRefs))throw Error(error)
+   answerLocation===null||answerLocation===undefined||!Array.isArray(promiseRefs)||!Array.isArray(evidenceRefs)||
+   !validReviewStamp(reviewedBy,reviewedAt))throw Error(error)
   seen.add(id)
   rowProofs.push(proof)
   return {id,assignmentId:matched.assignmentId,lineageId:matched.lineageId,version:matched.version,revisionId,statement,data,
-   deviation,answerLocation,promiseRefs,evidenceRefs}
+   deviation,answerLocation,promiseRefs,evidenceRefs,reviewedBy,reviewedAt}
  })
  assertRevisionResponseText(responses,nodeIds)
  const factIds=[...new Set(readIndependentResponseFactOccurrences(responses,selection).map(item=>item.factId))].sort()

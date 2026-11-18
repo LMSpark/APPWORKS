@@ -40,6 +40,7 @@ type CalculationSources=Readonly<{
  readGenerator?:(key:string)=>Readonly<{key:string;version:string;assertCurrent:()=>void}>|undefined
  assertInputsCurrent:()=>void
 }>
+type ComputedTable=ReturnType<typeof expandBuiltInCalculationTable>
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
 type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>
 type CandidateScopePreview=Readonly<ReturnType<typeof previewScopedRevisionChanges>&{assertCurrent:()=>void}>
@@ -68,7 +69,11 @@ export type ContentCandidateBinding=Readonly<{
   Promise<Awaited<ReturnType<typeof hashCalculationInputs>>&Readonly<{assertCurrent:()=>void}>>
  readCalculationTemplates:(nodeIds:readonly string[])=>ReturnType<typeof readCalculationTableTemplateRefs>
  expandAttachmentIndex:(nodeId:string,source:Readonly<{entries:unknown;assertCurrent:()=>void}>,readTemplate:ReadFixedCalculationTemplate)=>
-  Promise<Readonly<{table:ReturnType<typeof expandBuiltInCalculationTable>;calculationInputsHash:string;assertCurrent:()=>void}>>
+  Promise<Readonly<{
+   table:ComputedTable;calculationInputsHash:string;assertCurrent:()=>void
+   readComputed:(target:Readonly<{nodeId:string;inputHash:string}>)=>ComputedTable
+   computedGet:(input:unknown)=>Readonly<{nodeId:string;inputHash:string;data:ComputedTable['data']}>
+  }>>
  resolveCalculationGenerators:(nodeIds:readonly string[],readTemplate:ReadFixedCalculationTemplate)=>Promise<Readonly<{
   tables:ReadonlyArray<Readonly<{nodeId:string;generatorKey:string}>>;assertCurrent:()=>void
  }>>
@@ -180,7 +185,21 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   if(!inputHash)throw Error('CONTENT_CALCULATION_INPUT_SCOPE')
   const table=expandBuiltInCalculationTable({placeholder:payloads.find(node=>node.nodeId===nodeId),
    generatorKey:key,generatorVersion:version,inputHash,nodeIds:new Set(payloads.map(node=>node.nodeId)),entries,assertCurrent:assertInputs})
-  return Object.freeze({table,calculationInputsHash:digest.calculationInputsHash,assertCurrent:assertInputs})
+  const readComputed=(target:Readonly<{nodeId:string;inputHash:string}>)=>{
+   assertInputs()
+   if(target.nodeId!==table.nodeId||target.inputHash!==table.inputHash)throw Error('CONTENT_COMPUTED_RESULT_MISMATCH')
+   return table
+  }
+  const computedGet=(input:unknown)=>{
+   const error='CONTENT_COMPUTED_QUERY_SCOPE'
+   const query=snapshotReferenceFields(input,['projectId','revisionId','nodeId','inputHash'],error)
+   const {nodeId,inputHash}=query
+   if(query['projectId']!==host.projectId||query['revisionId']!==candidateRevisionId||
+    !snapshotReferenceIdentity(nodeId)||typeof inputHash!=='string'||!/^[a-f0-9]{64}$/u.test(inputHash))throw Error(error)
+   const result=readComputed({nodeId,inputHash})
+   return Object.freeze({nodeId:result.nodeId,inputHash:result.inputHash,data:result.data})
+  }
+  return Object.freeze({table,calculationInputsHash:digest.calculationInputsHash,assertCurrent:assertInputs,readComputed,computedGet})
  }
  const readEffectiveFacts:ContentCandidateBinding['readEffectiveFacts']=async(scope,assertConsumer)=>{
   const assertContext=()=>{assertCurrent();assertConsumer?.()}

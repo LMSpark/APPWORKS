@@ -2,6 +2,8 @@
 
 > **当前用户任务（2026-11-16）：** 按本台账[全量重核与迁移计划](#appworks-full-migration-20261116)持续实现完整20包，纠正前期错误、真实烟测、逐轮修复重验并提交推送；当前I26已收齐已交付标书增量及公共PDF命令恢复屏障的工程检查，后续继续页11实例命令桥/正式导航、PDF整页及其余20包用例；精确断点看文末，不另建总计划。仅在主仓、标准组件+唯一SPARK data，不开Node服务、不改/启停/部署后端Java。后面的 S1–S4 条目保留历史证据，不能将已通过的工程检查等同于20包业务验收。
 
+> **2026-11-18 项目结构、APP 工序和断链专项复核**见[验证记录与修复路线](#appworks-chain-audit-20261118)。本次复核已复现公共查询代次与保存终态问题，核定 APP 开发入口及执行资源的接线差距。全量迁移仍以同一台账 A–G 与末尾实施记录为准。
+
 > **历史分层索引（2026-11-10，当日S1、S2与S3冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见 [BH](#bh-s4-data-code-catalog-host)，编码设计见 [BI](#bi-s4-data-code-editor-host)，逻辑视图目录见 [BJ](#bj-s4-logic-view-catalog-host)，工作流目录见 [BK](#bk-s4-workflow-catalog-host)，工作流设计见 [BL](#bl-s4-workflow-design-host)，JSON 目录见 [BM](#bm-s4-json-catalog-host)，Excel 目录见 [BN](#bn-s4-excel-catalog-host)，Excel 设计见 [BO](#bo-s4-excel-editor-host)，PDF 目录见 [BP](#bp-s4-pdf-catalog-host)，PDF 设计见 [BQ](#bq-s4-pdf-editor-host)，外部 API 目录见 [BR](#br-s4-api-catalog-host)，API 配置见 [BS](#bs-s4-api-config-host)，API 接口目录见 [BT](#bt-s4-api-interface-host)，缓存管理见 [BU](#bu-s4-cache-management-host)，分阶段设计助手见 [BV](#bv-s4-staged-design-host)，设计查询预览见 [BW](#bw-s4-query-preview-host)，工作流文件 owner 见 [BX](#bx-s4-workflow-file-owner-host)，工作台见 [BY](#by-s4-workbench-host)，启动导航见 [BZ](#bz-s4-startup-navigation-host)，表和视图旧路径见 [CA](#ca-s4-table-view-alias-removal)，系统页 alias 链见 [CB](#cb-s4-system-page-alias-chain)，路由回滚不再恢复 alias 见 [CC](#cc-s4-route-rollback-alias)，数据库目录第二路径见 [CD](#cd-s4-dbms-path-removal)，缓存直连统计见文末 CE，系统设置假配置见 CF，项目设置弹窗见 CG。S4未冻结。RendererCollapse 布局数据上下文的专项结果见 CW；最新 AppWorks 实施与验收断点见文末I03及2026-11-16完整20包计划，生成物、门禁与远端状态以末尾当前检查点为准，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
@@ -10035,6 +10037,34 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 
 本轮收口验证：`pnpm run verify:docs`通过（593文件）；`git diff --check`通过；JSON一致性核验通过，覆盖20包、固定参考473文件及Git对象哈希、37缺路径、31空URL分类、91蓝图节点归属/唯一性/父节点、58授权菜单、10未匹配记录/9URL及5新增页面。交付链接存在，高置信凭据模式无命中。独立只读复核纠正了被忽略cache路径引用及“报价管理”措辞，正式证据均指向本次归档。产品代码未变，未重复执行已在`b9c14db6b`通过的全量9973测试；本批形成独立文档检查点，推送目标仍为`origin/codex/spark-data-s1-command-safety`，最终提交及远端结果以实际Git回读为准。
 
+<a id="appworks-chain-audit-20261118"></a>
+
+### H. 2026-11-18 项目结构、APP 开发与数据断链专项复核
+
+**结论。** 正式数据主链已具备跨空间实例、配置、查询、绑定、编辑与分来源提交。最先阻断业务交付的是公共查询代次和原命令终态，其次是 APP 开发工作台可达、AI 工作流身份、正式发布调用和实际资源执行。方案沿本台账 P0–P9 和 S1–S5 排序，保留完整 20 包及 5 个服务增量。当前专项授权范围为分析、反例及方案验证，产品修复和整包签收待执行。
+
+#### H.1 项目结构和事实源
+
+- **应用宿主。** `src/main.ts` 组装应用作用域、认证、导航和页面运行入口。`spark-app` 承担路由、页签、系统页身份、工具运行实例池和生命周期。`config/navigation/vue-pages.json` 声明当前系统页和隐藏系统页的归属，远端正式菜单决定应用页面调用。当前配置复点 50 个页面条目、39 个场景条目。D99 的 91 个设计蓝图节点和 58 个会话授权菜单来自 11 月 16 日留档，含 31 个空 URL 节点待按嵌入语义核对。 [启动入口](../src/main.ts#L396) · [页面目录](../config/navigation/vue-pages.json) · [场景目录](../config/pages/system-scenarios.json) · [蓝图与菜单留档](evidence/appworks-migration-blueprint-20261116.json)
+- **定义与装配。** `spark-project-model` 承担 ProjectWorkspace、蓝图、工具、场景与 `PageRuntime`。节点 `nodeId` / `projectId`、工具 `pageId` 与发布版本、空间 `scenarioId`、模型 `modelId` / 注册名、来源 `MetaName`、命名视图 `viewId`、实例 `instanceId` 各有作用域。工具三文件由 `ProjectToolFile` 视图承载，场景 `pagedata.json` 只引用正式数据模型并声明视图、关系及级联。`src/lowcode` 组装工程资源与正式服务，`spark-lowcode-api` 处理请求作用域、模型元数据、数据资源和 wire 协议。 [工具合同](../packages/spark-project-model/src/page/page-file.ts) · [运行实例](../packages/spark-project-model/src/page/runtime-page.ts) · [数据空间装配](../src/lowcode/data-space/lowcode-data-space-assembler.ts)
+- **运行数据与标准组件。** `spark-data` 持有 `DataSet → DataTable → DataView`、原查询、行编辑覆盖、权限状态、变更捕获与保存。`spark-component` 的标准组件从 `PAGE_RUNTIME` 解 `scenarioId@modelName@viewId`，按数据成员、字段、容器子组件消费原视图。`src/views` 承担系统页布局与领域命令，`src/lowcode/resources` 承接来源适配。数据库、文件、只读逻辑资源、命令资源各走正式来源。模型关系和输入值级联分别声明、保存和执行。 [DataView](../packages/spark-data/src/data-view.ts) · [DataSet 保存](../packages/spark-data/src/dataset.ts#L1532) · [对象及持久边界](../docs/architecture/DATAFLOW_ARCHITECTURE.md#2-身份与唯一事实来源)
+- **开发辅助与构建。** `spark-ai` 持 ClassModel 和 AI 工作流，应用设计工具与运行页面共享项目模型和组件合同。`spark-utils` 提供基础工具和 HTTP，`spark-json-document` 处理 JSON 结构，`vite-plugin-spark-catalog` 做目录和构建集成。8 个 SPARK 包加 1 个 Vite 插件由 pnpm 工作区组织。`config`、`generated`、发布文件、测试夹具和服务回执的证据效力各有范围。 [工作区](../pnpm-workspace.yaml) · [项目包职责](../docs/SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md#包职责)
+
+#### H.2 APP 从需求到正式运行的工序
+
+1. **确认业务及入口。** 从项目蓝图记录目标节点、原 URL、实际调用人或消费者、输入与业务输出、前置条件、异常状态和后续消费，区分设计蓝图与授权导航。设计/维护分开，原生 Vue 恢复完整语义后再按相同合同四文件化。将配置、公共能力、领域命令分别落实到已有责任方。 [项目/工具合同](../docs/SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md#项目与工具) · [20 包逐项验收](#b-当前20包差距责任与业务验收)
+2. **先建 DataTable，再按消费建 DataView。** 确认数据库或文件等来源、正式主键、字段名称与别名、命令确定性和来源回执。保留数据库空间/模型/字段元数据，按需设计 `pagedata` 命名视图的字段投影、过滤、排序、分页、行选择、输入映射及显式级联。普通保存只捕获本次变化，模型删除等专有命令才按其合同检查引用。聚合走后端已知查询合同。 [数据空间主合同](../docs/architecture/DATAFLOW_ARCHITECTURE.md#12-本仓对象合同接入前的判定依据) · [设计场景样例](../config/pages/data-platform/data-space-design/pagedata.json)
+3. **依正式组件合同生成。** 核 ClassModel 来源与版本，有公开声明变动走 `generate:class-model-surface`，查目录、概要、指南和实际运行；生成 `rule.json` 的容器/字段子组件与事件，`script.js` 编排实例领域操作，`style.css` 隔离到实例。动态候选由选项视图和级联提供。在工具工作区经原 `ProjectToolFile` 视图保存草稿及回读，配置由原定义视图提交；取消分别释放各来源的本地改动。 [页面配置架构](../docs/architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md) · [生成和验证命令](../package.json)
+4. **预览、发布、重开。** 先用同一次调用的运行实例和场景验证组件绑定，核工具三文件的原字节、版本、发布引用与作用域，再用正式授权菜单回读绑定的 `nodeId/pageId/VersionId` 及场景。工具预览、工作文件读回、发布态回读、全新会话正式菜单消费分别检查。对话框及多页签均要核每次实例身份和释放。 [工具与场景交付](../docs/SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md#devsystem-与-ai) · [实例池](../packages/spark-app/src/router/page-runtime-pool.ts)
+5. **交易闭环。** 输入参数经过宿主复制及作用域校验进入对应 DataView，元数据与 `pagedata` 组合装配，查询由资源执行器返回 rows、total、身份和权限，组件复用同一视图。编辑经 `DataSet.saveChanges` 捕获正式主体和字段，DB 与文件分别提交，按原请求接纳或核验。关闭重开要从正式持久来源读取，最后由业务下游消费。区分成功、明确拒绝、未派发、部分成功、未知和回读失败，并覆盖只读、取消、切换、并发和权限变化。 [完整数据流](../docs/architecture/DATAFLOW_ARCHITECTURE.md#5-正式运行装配查询编辑保存) · [提交责任](../packages/spark-data/src/dataset.ts#L1532)
+
+#### H.3 公共数据链断点及验收
+
+1. **查询范围变化后接纳旧响应，且旧行仍可编辑。优先回 S1。** 无网络夹具先以 A 发查询，将同一 `DataView.queryContext` 改成 B，再交付 A 响应。实测 `scope=B, rows=[A], state=Loaded`。另一个夹具先加载 A 再切 B，完整读取证明正确撤销，原行仍 `write=allowed`、`editActionState=enabled`。固定范围对照通过。`queryContext` 的 setter 仅发配置变化，普通查询接纳与行编辑状态仍使用较窄身份；已有 `captureReadResult` 和父查询使用完整输入身份。复用现有请求代次和 `refreshIdentity`，接收时核实例、表、范围及发起代次，动作/编辑/保存使用同一查询证明。范围失效后撤销写入能力，保留原草稿及未知捕获以供明确核验。验收 A→B、A→B→A、快慢乱序、加载失败、同对象变化、父子级联、同名跨场景和已提交未知命令，观察旧行不能写且 B 新结果可以编辑，不重复派发。 [查询配置](../packages/spark-data/src/data-view.ts#L505) · [动作和权限](../packages/spark-data/src/data-view.ts#L920) · [读取证明](../packages/spark-data/src/data-view.ts#L1074) · [结果接纳](../packages/spark-data/src/data-view.ts#L2274)
+2. **普通权限查询误判原保存命令终态。优先回 S1 的 SDK 保存资源。** 无网络夹具模拟 POST 回执丢失。删除后查询 `Count:0`，SDK 合成删除成功和回执并清 pending。修改基线 100、原命令 120、核验读到第三值 130，SDK 报原命令 `NotApplied` 并清 pending。两个核验均未再发保存 POST，但可见缺行与第三值无法排除权限变化、并发覆盖或已派发。SDK 当前用查询值替代原请求终态。核可用服务的原命令请求 ID、目标/字段及可核定终态，公共资源保留观察结果与原捕获直至有权威结果。明确终态不可得的场景继续未知并显示当前观察，保留同一原请求核验。验收新值/基线/第三值/不可读/缺行/混合批、已确认同请求回执、回读后的新异步请求和会话切换，逐次断言原意图与派发次数。 [原捕获与核验](../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts#L589) · [结果推断](../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts#L633) · [删除回执合同](../docs/architecture/DATAFLOW_ARCHITECTURE.md#L1367)
+3. **跨来源保存后果缺少结构化结果。S1 完成前两项后处置。** 既有回归核实 DB 首组已接纳、第二组失败、后续文件未派发，后两者公共异常状态相同。保留正确的停止派发语义，核现有 `resolveUnconfirmedSaves` 与调用方数据合同，逐来源/目标提供已确认、明确失败、未知及未派发状态以供界面消费。验收 DB 已确认不重发、文件待提交可辨、两来源各自回读，以及并发确认、退出保护和取消。 [现有混合来源回归](../packages/spark-data/src/tests/crud/validation/query-save-validation.test.ts#L668) · [公共批提交](../packages/spark-data/src/data-view.ts#L3874) · [当前返回边界](../docs/architecture/DATAFLOW_ARCHITECTURE.md#L1468)
+4. **元数据冷重开缺正式分页总数。先取服务包络证据，再定责任。** 11 月 18 日台账归档显示，在原空间重开时先报 `Base_DataModel` 缺总数，重试报 `Base_DataSet`；前次保存回读仍有效，本轮复核未重新提交。适配层已有内层业务码透传、要求 paged/allPages 具备有效 total 的防护及反例。取两个精确模型的脱敏响应结构、外/内业务码、页码/总数属性与实际值，辨别服务缺有效总数、适配漏读已约定属性、内层错误三种情况。按来源修复，完整列表继续要求真实总数；只有服务书面支持的精确单目标查询才按其返回合同配置。验收跨页、空成功、内层错误/缺总数、单目标冷开至 `Requirement@effectiveRequirementVersions` 的业务消费，与保存/重开/正式查询分开。 [现场记录](#appworks-full-migration-20261116) · [wire 解码](../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts#L59) · [分页校验](../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts#L87) · [缺总数回归](../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts#L1974)
+
 ### 2026-11-16 持续实施目标启动 / I01 审批嵌入身份
 
 - 用户已授权按本节完整20包计划持续实现、纠错、烟测、检查及提交推送；目标已激活，整体未完成。烟测使用本轮授权身份，凭据不进入持久记录。
@@ -11146,3 +11176,4 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - 2026-11-18 平台栏比较读取 AnswerLocation@selectedPlatformObservation，锁项目/观察 ID/原办理，校验原修订、分工、栏位和阶段后比对，查询重跑撤销观察证明。5 文件 7 项和 ESLint 通过；实服命名视图与原提交回执仍待确认。
 - 2026-11-18 全量 72942 自然退出 0，671 文件 10984 项全过，用时 986.42 秒。共享仓期间有新提交，记录该次实际执行结果，不能将其标为后来变更或全部业务烟测。
 - 2026-11-18 平台提交态比对须有原项目、修订、原办理和指定观察均吻合的回执证明，否则待回执或拒绝错范围；回执失效同步撤销比对。review 5 文件 7 项与 ESLint 通过。正式回执源与独立实服回读仍待。
+- 2026-11-18 渠道回执读取接 ChannelReceipt@selectedPlatformReceipt，按原项目、回执和办理锁定，经原修订与接收事件核验后只交显式覆盖观察。撤回事件拒作接收证据。review 6 文件 8 项、ESLint 通过。正式视图及事件字段回读仍待，尚未作提交确认。

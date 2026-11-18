@@ -5,7 +5,7 @@
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRouter} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, DataView, RequestState, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, DataView, RequestState, type DataRow} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useDataViewState, useSparkComponent} from '@spark-appworks/spark-component'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {
@@ -123,13 +123,6 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
 
   const stepViewKey = computed(() => prepared.value?.stepHistoryViewKey
     ?? buildDataViewKey(STEP_MODEL, 'default', FLOW_WORKBENCH_SCENARIO_ID))
-
-  const stepHistoryColumns: SparkNode[] = [
-    {type: 'r-text', props: {field: 'description', label: '摘要', readonly: true, minWidth: 220, showOverflowTooltip: true}},
-    {type: 'r-text', props: {field: 'ReceiveUserName', label: '办理人', readonly: true, minWidth: 120}},
-    {type: 'r-text', props: {field: 'STARTTIME', label: '开始时间', readonly: true, minWidth: 160}},
-    {type: 'r-text', props: {field: 'StepState', label: '状态', readonly: true, minWidth: 80}},
-  ]
 
   function readCurrentStep() {
     const stepId = prepared.value?.stepId
@@ -412,7 +405,6 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     chartError,
     chartPrepared,
     stepViewKey,
-    stepHistoryColumns,
     loadPage,
     retryPage,
     openHandlePanel,

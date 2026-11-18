@@ -3,7 +3,7 @@ import {DOMWrapper,config, flushPromises, mount, type VueWrapper} from '@vue/tes
 import ElementPlus from 'element-plus'
 import {defineComponent, h, reactive} from 'vue'
 import {PAGE_RUNTIME, RendererDialog, RendererForm, RendererTabs, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
-import type {PageRuntime} from '@spark-appworks/spark-project-model'
+import type {PageRuntime, PageTool} from '@spark-appworks/spark-project-model'
 import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, ensureDataSetStaticInputTable, parseDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {createFlowRunOptionsBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding'
 import {FlowRunCommandResource} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
@@ -13,12 +13,14 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
 import {fixture as designFixture} from '../flow-design/flow-design-data.fixture'
 const {reloadRuntime} = vi.hoisted(() => ({reloadRuntime: vi.fn(async () => undefined)}))
+const {openTool} = vi.hoisted(() => ({openTool: vi.fn<(pageId: string) => PageTool>()}))
 const callbacks = vi.hoisted(() => ({end: vi.fn(async (_payload: unknown) => true), succeeded: vi.fn(async (_payload: unknown) => {}), failed: vi.fn((_payload: unknown) => {})}))
 
 vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => {
   const {ref} = await import('vue')
   return {
-    useFeaturePageRuntime: () => ({
+    useFeaturePageRuntime: ({tool}: {tool: (pageId: string) => PageTool}) => ({
+      session: {get runtime() {openTool.mockImplementation(tool); return undefined}},
       viewKey: ref('E328FBBF518141973C575D612CD75151@View_FlowObjList@default'),
       ready: ref(true),
       loading: ref(false),
@@ -190,6 +192,18 @@ afterEach(() => {
 })
 
 describe('flow run page mount', () => {
+  it('loads the history rule under the original navigation and workbench view identities', async () => {
+    wrappers.push(mount(withTestPageService(Host), {global: {plugins: [ElementPlus, Spark.createPlugin()]}}))
+    await flushPromises()
+    const tool = openTool(FLOW_MONITOR_SCENARIO_ID)
+    expect(tool.rule.children).toMatchObject([{
+      type: 'r-table',
+      props: {dataViewKey: `${FLOW_WORKBENCH_SCENARIO_ID}@WFOBJ_FLOW_RELATIONLINE_STEP@default`},
+      children: [{props: {field: 'description'}}, {props: {field: 'ReceiveUserName'}},
+        {props: {field: 'STARTTIME'}}, {props: {field: 'StepState'}}],
+    }])
+  })
+
   it('opens its flow chart with the original formal edge endpoints',async()=>{
     const wrapper=mount(withTestPageService(Host),{global:{plugins:[ElementPlus,Spark.createPlugin()]}})
     wrappers.push(wrapper);await flushPromises()

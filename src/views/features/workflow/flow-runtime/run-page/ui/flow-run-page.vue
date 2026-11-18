@@ -29,8 +29,7 @@
       </section>
       <section v-if="prepared" class="flow-run-page__history">
         <h3 class="flow-run-page__section-label">步骤历史</h3>
-        <SparkComponent.RendererTable :data-view-key="stepViewKey" :children="[...stepHistoryColumns]" :stripe="true"
-          :show-data-view-meta="false" :pagination="{pageSizes: [10, 20, 50], showJumper: true}" />
+        <SparkPageRenderer v-if="runtime" :page-runtime="runtime" :route-snapshot="routeSnapshot" :auto-load="false" />
       </section>
       <aside v-if="handleOpen" class="flow-run-page__handle">
         <h3 class="flow-run-page__handle-title">办理</h3>
@@ -76,6 +75,11 @@ import {
   FLOW_RUN_GRAPH_NODE_BADGE_FIELD,
   readFlowRuntimeRouteQuery,
 } from '@/lowcode/resources/system/workflow/manage'
+import {PageTool} from '@spark-appworks/spark-project-model'
+import {SparkPageRenderer} from '@spark-appworks/spark-component'
+import rule from './tool/rule.json?raw'
+import script from './tool/script.js?raw'
+import style from './tool/style.css?raw'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FlowAppendUser from '@/views/features/workflow/flow-append-user/ui/flow-append-user.vue'
 import FlowRunRouteRenderer from './flow-run-route-renderer.vue'
@@ -85,12 +89,21 @@ const scenarioId = 'E328FBBF518141973C575D612CD75151'
 const route = useRoute()
 const routeQuery = () => readFlowRuntimeRouteQuery(route.query)
 const {
+  session,
   ready: runtimeReady,
   loading: runtimeLoading,
   error: runtimeError,
   loadCurrentRoute: reloadFeatureRuntime,
 } = useFeaturePageRuntime({
   scenarioId,
+  tool: pageId => {
+    const tool = new PageTool({pageId})
+    tool.hydrateFileText('rule.json', rule)
+    tool.hydrateFileText('script.js', script)
+    tool.hydrateFileText('style.css', style)
+    tool.markLoaded()
+    return tool
+  },
   navigationId: FLOW_MONITOR_SCENARIO_ID,
   modelName: 'View_FlowObjList',
   componentType: 'flow-run-page',
@@ -136,9 +149,13 @@ const {
   openFlowChart,
   revokeCurrentStep,
   stepViewKey,
-  stepHistoryColumns,
 } = useFlowRunPage(routeQuery, () => runtimeReady.value)
 
+const runtime = computed(() => runtimeReady.value ? session.runtime : undefined)
+const routeSnapshot = computed(() => {
+  const {path, fullPath, name, params, query, hash} = route
+  return {path, fullPath, name: name ?? null, params, query, hash}
+})
 const shellLoading = computed(() => runtimeLoading.value || pageLoading.value)
 const shellError = computed(() => runtimeError.value || pageError.value)
 

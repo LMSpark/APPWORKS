@@ -1,0 +1,57 @@
+[
+  {
+    "type": "r-table",
+    "props": {
+      "dataViewKey": "A5BADCEE11D2438CB9E75C2453A220A6@WFOBJ_FLOW_RELATIONLINE_STEP@default",
+      "stripe": true,
+      "showDataViewMeta": false,
+      "pagination": {
+        "pageSizes": [
+          10,
+          20,
+          50
+        ],
+        "showJumper": true
+      }
+    },
+    "children": [
+      {
+        "type": "r-text",
+        "props": {
+          "field": "description",
+          "label": "摘要",
+          "readonly": true,
+          "minWidth": 220,
+          "showOverflowTooltip": true
+        }
+      },
+      {
+        "type": "r-text",
+        "props": {
+          "field": "ReceiveUserName",
+          "label": "办理人",
+          "readonly": true,
+          "minWidth": 120
+        }
+      },
+      {
+        "type": "r-text",
+        "props": {
+          "field": "STARTTIME",
+          "label": "开始时间",
+          "readonly": true,
+          "minWidth": 160
+        }
+      },
+      {
+        "type": "r-text",
+        "props": {
+          "field": "StepState",
+          "label": "状态",
+          "readonly": true,
+          "minWidth": 80
+        }
+      }
+    ]
+  }
+]

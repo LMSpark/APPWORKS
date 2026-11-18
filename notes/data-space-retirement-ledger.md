@@ -11601,3 +11601,6 @@ flowchart TD
 - JSON 企业主页目录已沿统一场景装配读取 Base_JsonData；目录表按只读字段显示，人员选项和文件编辑仅在应用内使用。JSON 页面挂载回归 28/28，新增用例断言仅查询目录、无文件读取及零写入，实际授权目录记录待重新登录后复验。
 - 2026-11-18 JSON 主页实服复验：修复 3a0e4247b 后重新登录，从应用列表进入半结构化数据，正式 JSON 导航节点 FFDEF2AED3E19A38C0FCDDC748CF939B 显示目录总数 11，并提示进入已授权应用维护文件。此次只读，应用内文件读写和整体四文件验收另计。
 - 2026-11-18 Excel 企业主页实服复验：从授权半结构化数据菜单打开 Excel 导入，修复前报 SPARK_EXECUTION_SCOPE_REQUIRED。仅装配 Base_Import_solution 后首次重开明确报 EXCEL_CREATION_BINDING，确认目录误走领码命令装配；将新增命令限定于应用域，再构建并冷重开，实服目录总数 58，显示进入已授权应用后维护方案，未编辑方案或执行导入。
+- Excel 目录实服条件查询：初始 58 条，按现有方案编码 IMEX_00094 查询为 1 条，名称为人力资源-考勤信息导入导出。点击重置清空输入，已应用条件和结果仍为 1 条；手动查询后条件清空并恢复 58 条。页面 filter 配置为 autoQuery:false。仅操作查询。
+- 数据资产管理应用内实服：从应用列表进入后当前标签实际切换至应用 00BE6ED455CD4BD7B785C61A12A1E67D。数据资源管理 → 半结构化数据管理下，JSON数据管理（5891F146302CE6ADFF227E1DFA59A542，/DataCenter/JsonDataList.html）与电子表格导入导出配置（FA56ED3115DD4705D7E5802C31CD3BE5，/SysForm/ImportSolution.html）均显示 CONFIG PAGE TARGET ERROR，原因为 navigation page node has no explicit tool target。该菜单组只显示这两项；未取得应用内 PDF 入口。未改导航或写业务数据。
+- 路由复核：当前 src、packages、config 与 tests 中未找到上述两个旧地址的显式映射。spark-app 的 dynamic-untargeted-config-page 定向测试 1/1 通过，实际页面命中 invalid-config-page 分支。两个节点仍需核对正式工具绑定与场景归属。

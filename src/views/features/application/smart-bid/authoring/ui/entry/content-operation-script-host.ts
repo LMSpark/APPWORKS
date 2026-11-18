@@ -58,7 +58,8 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
       ...(dispatch&&'dispatchRef' in dispatch&&inputJson!==null?
        {readActualInput:exposeActualInput(()=>inputJson,dispatch.actualInputDigest,assertCurrent)}:{}),
       verification:Object.freeze({state:verified.state,
-       receiptRef:result&&'receiptRef' in result?result.receiptRef:undefined,assertCurrent}),
+       receiptRef:result&&'receiptRef' in result?result.receiptRef:undefined,
+       candidateDigest:result?.state==='VERIFIED_CANDIDATE'?result.candidateDigest:undefined,assertCurrent}),
       assertCurrent,
      })
     }

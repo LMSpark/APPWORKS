@@ -116,7 +116,10 @@ function bindOriginalVerification() {
       DISPATCH_EVIDENCE_REQUIRED: '待核实发证据', RETURN_UNKNOWN: '原返回未知',
       PARTIAL: '原返回不完整', FAILED: '原试次失败', UNKNOWN: '原试次状态未知',
     }[result.state] ?? '待核原返回'
-    return {status: result.receiptRef ? `${state}，回执 ${result.receiptRef}` : state}
+    const details = [state]
+    if (result.receiptRef) details.push(`回执 ${result.receiptRef}`)
+    if (result.candidateDigest) details.push(`候选摘要 ${result.candidateDigest}`)
+    return {status: details.join('，')}
   } catch {
     return {error: '原试次核验已失效'}
   }

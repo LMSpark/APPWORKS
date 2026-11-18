@@ -112,7 +112,7 @@ it('reads the original result only for the selected attempt and verifies the ret
    {...host,rootKind:'OperationRoute',resolveOriginalGuide:resolveGuide})
   const inspected=await verificationHost.invoke('content.operation.readDispatch',scope,signal)
   expect(inspected).toMatchObject({state:'DISPATCH_RECORDED',dispatchRef:'DISPATCH',
-   verification:{state:'VERIFIED_CANDIDATE',receiptRef:'RECEIPT'}})
+   verification:{state:'VERIFIED_CANDIDATE',receiptRef:'RECEIPT',candidateDigest:expect.stringMatching(/^[a-f0-9]{64}$/u)}})
   expect(inspected).not.toHaveProperty('verification.candidateJson')
   hasResult=false
   const unknown=await verificationHost.invoke('content.operation.readDispatch',scope,signal)

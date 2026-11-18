@@ -63,11 +63,14 @@
         <ExcelTargetDialog ref="sourcePicker" v-if="sourceTargetId" :data-view-key="nodesKey" :record-id="sourceTargetId" :busy="acting" :validate-target="validateSourceTarget" @close="sourceTargetId = ''" @confirm="applyTarget">
           <SparkComponentRenderer :config="designRegion(children,'excel-target-picker')" />
         </ExcelTargetDialog>
+        <ExcelReferenceDialog ref="referencePicker" v-if="fieldReference" :data-view-key="fieldsKey" :reference="fieldReference" :busy="acting" @close="fieldReference=undefined">
+          <SparkComponentRenderer :config="designRegion(children,'excel-reference-picker')" />
+        </ExcelReferenceDialog>
+
 
 
       </template>
     </SparkPageRenderer>
-    <ExcelReferenceDialog v-if="fieldReference" :data-view-key="fieldsKey" :reference="fieldReference" :busy="acting" @close="fieldReference=undefined" />
   </section>
 </template>
 
@@ -112,6 +115,7 @@ function designRegion(children:readonly SparkNode[],id:string):SparkNode {
 const treeRuntime=shallowRef<PageRuntime>()
 const treeHost=shallowRef<ReturnType<typeof makeTreeHost>>()
 const rulePane=shallowRef<InstanceType<typeof ExcelTransformRulesPane>>()
+const referencePicker=shallowRef<InstanceType<typeof ExcelReferenceDialog>>()
 const sourcePicker=shallowRef<InstanceType<typeof ExcelTargetDialog>>()
 const layoutPane=shallowRef<InstanceType<typeof ExcelImportSheetLayoutPane>>()
 const importConfigId = computed(() => props.schemeRowid ?? (typeof route.query['importConfigId'] === 'string' ? route.query['importConfigId'] : ''))
@@ -273,12 +277,20 @@ function makeTreeHost(runtime:PageRuntime){
       ruleRowClick:(row:Parameters<InstanceType<typeof ExcelTransformRulesPane>['rowClick']>[0],column:unknown,event?:Event)=>{
         if(active&&session.isCurrent(runtime))rulePane.value?.rowClick(row,column,event)
       },
+      referencePicker:()=>referencePicker.value,
       sourcePicker:()=>sourcePicker.value,
       canOpenTarget:()=>!locked.value&&!targetChange.value&&targetAllowed.value,
       transformSwitch:()=>({
         pending:pendingPart('rules'),busy:busy.value,unconfirmed:unconfirmed.value,
         switchUnconfirmed:isUnconfirmed(schemeTable),
       }),
+    }
+    if(command==='excel.design.closeReferencePicker'){referencePicker.value?.close();return undefined}
+    if(command==='excel.design.confirmReferencePicker'){await referencePicker.value?.confirm();return undefined}
+    if(command==='excel.design.restoreReference'){await referencePicker.value?.restoreCurrent();return undefined}
+    if(command==='excel.design.browseReference'){
+      if(input==='Table'||input==='View'||input==='Dict')await referencePicker.value?.browse(input)
+      return undefined
     }
     if(command==='excel.design.closeSourcePicker'){sourcePicker.value?.close();return undefined}
     if(command==='excel.design.confirmSourcePicker'){sourcePicker.value?.confirm();return undefined}

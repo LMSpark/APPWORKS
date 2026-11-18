@@ -419,3 +419,58 @@ function bindSourceConfirm() { return {disabled:sourcePickerState()?.canConfirm 
 async function cancelSourcePicker() { await $page.invokeHostCommand('excel.design.closeSourcePicker') }
 async function closeSourcePicker(open) { if (open === false) await cancelSourcePicker() }
 async function confirmSourcePicker() { await $page.invokeHostCommand('excel.design.confirmSourcePicker') }
+
+function referencePicker() { return tree?.referencePicker?.() }
+function referencePickerState() { return referencePicker()?.state() }
+function bindReferenceStatus() {
+  const state = referencePickerState()
+  return {status:state?.loading ? '正在读取引用来源…' : '',error:state?.error || ''}
+}
+function bindReferenceIdle() { return {disabled:referencePickerState()?.busy === true} }
+function bindReferenceConfirm() { return {disabled:referencePickerState()?.canConfirm !== true} }
+function bindReferenceContent() {
+  const state = referencePickerState()
+  return {inert:state?.busy || state?.loading || undefined}
+}
+function bindReferenceBrowse() { return {visible:referencePickerState()?.mode === 'browse'} }
+function bindReferencePhysicalBrowse() {
+  const state = referencePickerState()
+  return {visible:state?.physical === true && state.mode === 'browse'}
+}
+function bindReferencePhysicalStored() {
+  const state = referencePickerState()
+  return {visible:state?.physical === true && state.mode === 'stored'}
+}
+function bindReferenceAppForm() { return {dataViewKey:referencePicker()?.bindings().appsKey} }
+function bindReferenceApplication() { return {optionDataViewKey:referencePicker()?.bindings().appsKey} }
+function bindReferenceDatabase() {
+  const picker = referencePicker()
+  return {dataViewKey:picker?.bindings().databasesKey,onRowClick:picker?.chooseDatabase}
+}
+function bindReferenceObjectTitle() { return {title:referencePickerState()?.kind === 'View' ? '物理视图' : '数据表'} }
+function bindReferenceObject() {
+  const picker = referencePicker()
+  return {dataViewKey:picker?.bindings().objectKey,onRowClick:picker?.state().mode === 'browse' ? picker.chooseObject : undefined}
+}
+function bindReferenceObjectName() { return {field:referencePickerState()?.kind === 'View' ? 'vewname' : 'tblname'} }
+function bindReferenceObjectDescription() { return {field:referencePickerState()?.kind === 'View' ? 'vewdesc' : 'tbldesc'} }
+function bindReferenceDictionary() {
+  const picker = referencePicker(), state = picker?.state()
+  return {visible:state?.dictionary === true,dataViewKey:picker?.bindings().dictionaryKey,onRowClick:state?.mode === 'browse' ? picker.chooseDictionary : undefined}
+}
+function bindReferenceFields() { return {visible:referencePickerState()?.fields === true} }
+function bindReferenceTextForm() { return {dataViewKey:referencePicker()?.bindings().textKey} }
+function bindReferenceValueForm() { return {dataViewKey:referencePicker()?.bindings().valueKey} }
+function bindReferenceFieldSelect(binding) {
+  return {optionDataViewKey:referencePicker()?.bindings()[binding],optionLabelFields:referencePickerState()?.kind === 'Dict' ? ['label'] : ['cnname','enname']}
+}
+function bindReferenceTextSelect() { return bindReferenceFieldSelect('textKey') }
+function bindReferenceValueSelect() { return bindReferenceFieldSelect('valueKey') }
+
+async function cancelReferencePicker() { await $page.invokeHostCommand('excel.design.closeReferencePicker') }
+async function closeReferencePicker(open) { if (open === false) await cancelReferencePicker() }
+async function confirmReferencePicker() { await $page.invokeHostCommand('excel.design.confirmReferencePicker') }
+async function restoreReference() { await $page.invokeHostCommand('excel.design.restoreReference') }
+async function browseReferenceTable() { await $page.invokeHostCommand('excel.design.browseReference','Table') }
+async function browseReferenceView() { await $page.invokeHostCommand('excel.design.browseReference','View') }
+async function browseReferenceDictionary() { await $page.invokeHostCommand('excel.design.browseReference','Dict') }

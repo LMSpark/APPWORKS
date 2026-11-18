@@ -145,6 +145,65 @@
     ]
   },
   {
+    "id":"excel-reference-picker",
+    "type":"r-dialog",
+    "props":{"modelValue":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default","title":"选择引用表／视图／字典字段","width":1000,"appendToBody":true,"on":{"update:modelValue":"closeReferencePicker"},"footer":{"children":[{"type":"r-button","props":{"label":"取消引用选择","onClick":"cancelReferencePicker","onBeforeRender":"bindReferenceIdle"}},{"type":"r-button","props":{"label":"确认引用","onClick":"confirmReferencePicker","onBeforeRender":"bindReferenceConfirm","buttonType":"primary"}}]}},"children":[
+    {"type":"r-section","props":{"bordered":false,"onBeforeRender":"bindReferenceStatus"}},
+    {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default","gridColumns":2},"children":[
+      {"type":"r-text","props":{"field":"refTableDesc","label":"当前引用","readonly":true}},
+      {"type":"r-text","props":{"field":"refTable","label":"引用路径","readonly":true}},
+      {"type":"r-text","props":{"field":"textField","label":"原文本字段","readonly":true}},
+      {"type":"r-text","props":{"field":"valueField","label":"原值字段","readonly":true}}
+    ]},
+    {"type":"r-space","props":{"wrap":true},"children":[
+      {"type":"r-button","props":{"label":"当前引用","onClick":"restoreReference","onBeforeRender":"bindReferenceIdle"}},
+      {"type":"r-button","props":{"label":"浏览其他来源","onClick":"browseReferenceTable","onBeforeRender":"bindReferenceIdle"}}
+    ]},
+    {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindReferenceContent"},"children":[
+      {"type":"r-space","props":{"onBeforeRender":"bindReferenceBrowse","wrap":true},"children":[
+        {"type":"r-button","props":{"label":"表","onClick":"browseReferenceTable","onBeforeRender":"bindReferenceIdle"}},
+        {"type":"r-button","props":{"label":"视图","onClick":"browseReferenceView","onBeforeRender":"bindReferenceIdle"}},
+        {"type":"r-button","props":{"label":"字典","onClick":"browseReferenceDictionary","onBeforeRender":"bindReferenceIdle"}}
+      ]},
+      {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindReferencePhysicalBrowse"},"children":[
+        {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindReferenceAppForm"},"children":[
+          {"type":"r-select","props":{"label":"来源应用","dataMember":"value","onBeforeRender":"bindReferenceApplication"}}
+        ]},
+        {"type":"r-section","props":{"bordered":false,"gridColumns":3},"children":[
+          {"type":"r-section","props":{"bordered":false,"title":"数据库","colSpan":1},"children":[
+            {"type":"r-table","props":{"onBeforeRender":"bindReferenceDatabase","maxHeight":200,"highlightCurrentRow":true},"children":[
+              {"type":"r-text","props":{"field":"conName","label":"数据库","readonly":true}}
+            ]}
+          ]},
+          {"type":"r-section","props":{"bordered":false,"onBeforeRender":"bindReferenceObjectTitle","colSpan":2},"children":[
+            {"type":"r-table","props":{"onBeforeRender":"bindReferenceObject","maxHeight":200,"highlightCurrentRow":true},"children":[
+              {"type":"r-text","props":{"label":"名称","readonly":true,"onBeforeRender":"bindReferenceObjectName"}},
+              {"type":"r-text","props":{"label":"描述","readonly":true,"onBeforeRender":"bindReferenceObjectDescription"}}
+            ]}
+          ]}
+        ]}
+      ]},
+      {"type":"r-section","props":{"bordered":false,"title":"已保存的引用对象","onBeforeRender":"bindReferencePhysicalStored"},"children":[
+        {"type":"r-table","props":{"onBeforeRender":"bindReferenceObject","maxHeight":180,"highlightCurrentRow":true},"children":[
+          {"type":"r-text","props":{"label":"名称","readonly":true,"onBeforeRender":"bindReferenceObjectName"}},
+          {"type":"r-text","props":{"label":"描述","readonly":true,"onBeforeRender":"bindReferenceObjectDescription"}}
+        ]}
+      ]},
+      {"type":"r-table","props":{"onBeforeRender":"bindReferenceDictionary","maxHeight":230,"highlightCurrentRow":true},"children":[
+        {"type":"r-text","props":{"field":"TypeName","label":"字典名称","readonly":true}},
+        {"type":"r-text","props":{"field":"functiondesc","label":"功能描述","readonly":true}}
+      ]},
+      {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindReferenceFields"},"children":[
+        {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindReferenceTextForm"},"children":[
+          {"type":"r-select","props":{"label":"文本字段","dataMember":"value","onBeforeRender":"bindReferenceTextSelect"}}
+        ]},
+        {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindReferenceValueForm"},"children":[
+          {"type":"r-select","props":{"label":"值字段","dataMember":"value","onBeforeRender":"bindReferenceValueSelect"}}
+        ]}
+      ]}
+    ]}
+  ]},
+  {
     "id":"excel-target-picker",
     "type":"r-dialog",
     "props":{"modelValue":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","title":"选择目标数据","width":1000,"appendToBody":true,"on":{"update:modelValue":"closeSourcePicker"},

@@ -346,7 +346,7 @@ describe('formal Excel design editor', () => {
     await vi.waitFor(()=>expect(application()).toBeDefined());application().getComponent(ElSelect).vm.$emit('update:modelValue','A1');await flushPromises()
     for(const model of ['Base_AppAndSource_Relation','_Base_TblList']){
       const table=()=>f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')===`${SOURCE_SCENE}@${model}@default`)!
-      await vi.waitFor(()=>expect(table().findAll('tbody tr').length).toBeGreaterThan(0));await table().get('tbody tr').trigger('click');await flushPromises()
+      await vi.waitFor(()=>expect(table().findAll('tbody tr').length).toBeGreaterThan(0));if(model==='_Base_TblList')expect(table().text()).toContain('table_one');await table().get('tbody tr').trigger('click');await flushPromises()
     }
     for(const [view,value] of [['textFields','F2'],['valueFields','F1']]){const field=f.wrapper.findAllComponents(FieldSelect).find(field=>field.props('optionDataViewKey')===`${SOURCE_SCENE}@Base_TblField@${view}`)!;field.getComponent(ElSelect).vm.$emit('update:modelValue',value);await flushPromises()}
     const cancel=async()=>{await f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='取消引用选择')!.get('button').trigger('click');await flushPromises()}
@@ -431,10 +431,12 @@ describe('formal Excel design editor', () => {
     await mappings.get('tbody tr').trigger('click');await flushPromises();await f.click('设置引用')
     const click=async(label:string)=>{await f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')===label)!.get('button').trigger('click');await flushPromises()}
     await vi.waitFor(()=>expect(f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='视图')?.props('disabled')).toBe(false));await click('视图')
-    f.wrapper.findAllComponents(FieldSelect).find(field=>field.props('optionDataViewKey')===`${SOURCE_SCENE}@Base_AppSystemList@default`)!.getComponent(ElSelect).vm.$emit('update:modelValue','A1');await flushPromises()
+    const application=()=>f.wrapper.findAllComponents(FieldSelect).find(field=>field.props('optionDataViewKey')===`${SOURCE_SCENE}@Base_AppSystemList@default`)
+    await vi.waitFor(()=>expect(application()).toBeDefined())
+    application()!.getComponent(ElSelect).vm.$emit('update:modelValue','A1');await flushPromises()
     for(const model of ['Base_AppAndSource_Relation','_Base_ViewList']){
       const table=()=>f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')===`${SOURCE_SCENE}@${model}@default`)!
-      await vi.waitFor(()=>expect(table().findAll('tbody tr').length).toBeGreaterThan(0));await table().get('tbody tr').trigger('click');await flushPromises()
+      await vi.waitFor(()=>expect(table().findAll('tbody tr').length).toBeGreaterThan(0));if(model==='_Base_ViewList')expect(table().text()).toContain('view_one');await table().get('tbody tr').trigger('click');await flushPromises()
     }
     for(const [view,value] of [['viewTextFields','VF2'],['viewValueFields','VF1']]){
       const field=f.wrapper.findAllComponents(FieldSelect).find(field=>field.props('optionDataViewKey')===`${SOURCE_SCENE}@Base_TblField@${view}`)!

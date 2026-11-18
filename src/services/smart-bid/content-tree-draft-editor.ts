@@ -6,16 +6,13 @@
 import type {DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {validateContentDraftPayload} from './content-draft-save-rule'
-import {readContentNodeLinks} from './content/content-node-links'
+import {readContentNodeLinks,type ContentTableData} from './content/content-node-links'
 
 type Node = {nodeId: string; parentId: string; index: number; type: string; class: string[]; value: string; data: Record<string, unknown>}
 type ChapterInput = Readonly<{chapterId: string; headingId: string; title: string}>
 type ParagraphInput = Readonly<{paragraphId: string; value: string; data?: Readonly<Record<string, unknown>>}>
 /** 普通表只有语义表头和原生单元格，不携带列宽、边框或文件格式。 */
-export type ContentTableInput=Readonly<{
- nodeId:string;header:readonly string[]
- rows:ReadonlyArray<ReadonlyArray<Readonly<{value:string;data:Readonly<Record<string,unknown>>}>>>
-}>
+export type ContentTableInput=ContentTableData&Readonly<{nodeId:string}>
 function node(input: Readonly<{nodeId: string; parentId: string; type: string; value?: string}>): Node {
   return {...input, index: 0, class: [], value: input.value ?? '', data: {}}
 }

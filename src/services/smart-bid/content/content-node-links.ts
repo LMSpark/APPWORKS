@@ -16,6 +16,12 @@ export type ContentNodeLink=Readonly<{
 export type ContentNodeLinks=Readonly<{
  links:readonly ContentNodeLink[];requiresTableGeneratorCheck:boolean
 }>
+
+/** 普通表和已展开计算表共用的正文 JSON 结构。 */
+export type ContentTableData=Readonly<{
+ header:readonly string[]
+ rows:ReadonlyArray<ReadonlyArray<Readonly<{value:string;data:Readonly<Record<string,unknown>>}>>>
+}>
 type NodeReferences={links:ContentNodeLink[];factIds:Set<string>;resourceVersionIds:Set<string>}
 const containers=new Set(['document','toc','chapter','list','item','figure','quote'])
 const texts=new Set(['heading','paragraph','caption','image'])

@@ -4,10 +4,11 @@
  * 边界：调用方按工位和原实例范围挂接；读取权及原证明由候选绑定检查。
  */
 import type {AiAgentToolSpec} from '@spark-appworks/spark-ai/agent'
+import type {ContentTableData} from './content-node-links'
 
 /** 本次工位固定的计算结果身份。 */
 export type ComputedQueryInput=Readonly<{projectId:string;revisionId:string;nodeId:string;inputHash:string}>
-export type ComputedQueryOutput=Readonly<{nodeId:string;inputHash:string;data:Readonly<Record<string,unknown>>}>
+export type ComputedQueryOutput=Readonly<{nodeId:string;inputHash:string;data:ContentTableData}>
 
 /** 工位绑定的只读 ClassModel 根，每次读取前复核宿主授权。 */
 export class ComputedQueryRoot {

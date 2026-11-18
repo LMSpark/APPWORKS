@@ -31,7 +31,8 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
  validateContentDraftPayload({projectId,draft:snapshot})
  if(!isRecord(snapshot)||!Array.isArray(snapshot['nodes'])||canonicalSnapshotValue(snapshot)!==draftJson)throw Error(error)
  const {scope}=resolveContentTargetScope({...basis,scope:input.targetScope})
- const scopeJson=canonicalSnapshotValue(scope),stageJson=canonicalSnapshotValue(stageRef)
+ const targetScope:unknown=JSON.parse(canonicalSnapshotValue(scope))
+ const capturedStage:unknown=JSON.parse(canonicalSnapshotValue(stageRef))
  const [nodes,actualDigest]=await Promise.all([Promise.all(snapshot['nodes'].map(async(node:unknown)=>{
   if(!isRecord(node)||!identity(node['nodeId']))throw Error(error)
   return Object.freeze({nodeId:node['nodeId'],nodeHash:await hashContentNode(node)})
@@ -39,7 +40,7 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
  if(actualDigest!==contentDigest)throw Error('CONTENT_DRAFT_CANDIDATE_DIGEST')
  nodes.sort((left,right)=>left.nodeId<right.nodeId?-1:left.nodeId>right.nodeId?1:0)
  const requestJson=canonicalSnapshotValue({projectId,draftId,actorUserId,draftVersion,baseRevisionId,baselineId,
-  stageRef:JSON.parse(stageJson),targetScope:JSON.parse(scopeJson),requestKey,contentDigest,nodes})
+  stageRef:capturedStage,targetScope,requestKey,contentDigest,nodes})
  const requestDigest=await hashCanonicalSnapshotText(`["spark-bid.draft-candidate/1",${requestJson}]`)
  assertCurrent()
  return Object.freeze({projectId,draftId,draftVersion,baseRevisionId,baselineId,requestKey,contentDigest,requestJson,requestDigest,

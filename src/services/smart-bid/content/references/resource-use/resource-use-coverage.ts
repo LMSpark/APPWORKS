@@ -53,3 +53,34 @@ export function checkRegisteredResourceUse(input:Scope&Readonly<{
  assertCurrent()
  return Object.freeze({allowed:fields.every(field=>field.state==='ALLOWED'),fields,assertCurrent})
 }
+
+type AllocationRequirement=Readonly<{
+ start:string;end:string;units:number;assertCurrent:()=>void
+ decision?:Readonly<{
+  enterpriseId:string;projectId:string;resourceVersionId:string;allocationRef:string
+  start:string;end:string;effectiveAt:string;knownAt:string;units:number;assertCurrent:()=>void
+ }>
+}>
+
+/** 动作17同时核原用途决定和宿主企业现行的项目调配。 */
+export function checkApplicableResourceUse(input:Parameters<typeof checkRegisteredResourceUse>[0],
+ source:Parameters<typeof checkRegisteredResourceUse>[1],allocation:AllocationRequirement|Readonly<{
+  unrestricted:true;assertCurrent:()=>void
+ }>){
+ const coverage=checkRegisteredResourceUse(input,source)
+ allocation.assertCurrent()
+ if('unrestricted' in allocation)return Object.freeze({...coverage,allocationRef:null,
+  assertCurrent:()=>{coverage.assertCurrent();allocation.assertCurrent()}})
+ const {decision,units}=allocation
+ const start=time(allocation.start),end=time(allocation.end)
+ if(start>=end||!Number.isSafeInteger(units)||units<1)throw Error('RESOURCE_USE_ALLOCATION_SCOPE')
+ const assertCurrent=()=>{coverage.assertCurrent();allocation.assertCurrent();decision?.assertCurrent()}
+ assertCurrent()
+ if(decision&&(decision.enterpriseId!==input.recipientEnterpriseId||decision.projectId!==input.projectId||
+  decision.resourceVersionId!==input.resourceVersionId||!identity(decision.allocationRef)))
+  throw Error('RESOURCE_USE_ALLOCATION_SCOPE')
+ const matched=decision!==undefined&&Number.isSafeInteger(decision.units)&&decision.units>=units&&
+  time(decision.start)<=start&&time(decision.end)>=end&&time(decision.effectiveAt)<=Math.min(start,time(input.useAt))&&
+  time(decision.knownAt)<=time(input.knownAt)
+ return Object.freeze({...coverage,allowed:coverage.allowed&&matched,allocationRef:matched?decision.allocationRef:null,assertCurrent})
+}

@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {prepareResourceUseDecision,readOriginalResourceUseRegistration} from '@/services/smart-bid/content/references/resource-use/resource-use-decision'
-import {checkRegisteredResourceUse} from '@/services/smart-bid/content/references/resource-use/resource-use-coverage'
+import {checkApplicableResourceUse,checkRegisteredResourceUse} from '@/services/smart-bid/content/references/resource-use/resource-use-coverage'
 import {readRegisteredResourceUseRegistration,resourceUseRegistrationView} from '@/views/features/application/smart-bid/authority/resource-use-registration-reader'
 import {createResourceUseScriptHost} from '@/views/features/application/smart-bid/authority/resource-use-script-host'
 import script from '@/views/features/application/smart-bid/authority/page06/script.js?raw'
@@ -43,6 +43,17 @@ it('requires an original decision from the source enterprise for exact recipient
   fields:[{state:'REVOKED',versionId:'V2'},{state:'ALLOWED',versionId:'V1'}]})
  expect(checkRegisteredResourceUse({...coverage,useAt:source.knownAt},evidence).allowed).toBe(true)
  expect(checkRegisteredResourceUse({...coverage,fieldIds:['TITLE']},evidence).allowed).toBe(true)
+ const validUse={...coverage,useAt:source.knownAt,knownAt:source.knownAt}
+ const requirement={start:source.knownAt,end:later,units:1,assertCurrent:()=>{}}
+ const allocation={...requirement,enterpriseId:'RECIPIENT',projectId:'P',resourceVersionId:'FILE-V1',
+  allocationRef:'ALLOC',effectiveAt:source.effectiveAt,knownAt:source.knownAt}
+ expect(checkApplicableResourceUse(validUse,evidence,requirement).allowed).toBe(false)
+ expect(checkApplicableResourceUse(validUse,evidence,{...requirement,decision:allocation}))
+  .toMatchObject({allowed:true,allocationRef:'ALLOC'})
+ expect(checkApplicableResourceUse(validUse,evidence,{...requirement,decision:{...allocation,knownAt:later}}).allowed).toBe(false)
+ expect(checkApplicableResourceUse(coverage,evidence,{...requirement,decision:allocation}).allowed).toBe(false)
+ expect(()=>checkApplicableResourceUse(validUse,evidence,{...requirement,decision:{...allocation,projectId:'OTHER'}}))
+  .toThrow('RESOURCE_USE_ALLOCATION_SCOPE')
  expect(()=>checkRegisteredResourceUse(coverage,{...evidence,versions:versions.slice(1)})).toThrow('RESOURCE_USE_VERSION_CHAIN')
  const changeRequest={...revokeRequest,intent:'CHANGE' as const,decisionRef:'CHANGE'}
  const change=await prepareResourceUseDecision(changeRequest,{...source,...changeRequest,effectiveAt:later,knownAt:later,

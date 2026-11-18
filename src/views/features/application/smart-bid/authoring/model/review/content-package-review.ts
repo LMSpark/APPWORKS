@@ -7,6 +7,7 @@ import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-h
 import {compareSubmissionPackageMembers} from '@/services/smart-bid/content/review/submission-package-members'
 import {readSubmissionZipInventory} from '@/services/smart-bid/content/review/submission-zip-inventory'
 import {verifyDeliverySelectionDigests} from '@/services/smart-bid/content/review/delivery-selection-digest'
+import {readRegisteredDeliveryFreeze} from './content-delivery-freeze-reader'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 
 type Members=Parameters<typeof compareSubmissionPackageMembers>[0]
@@ -14,6 +15,20 @@ type PackageSource=Readonly<{
  projectId:string;packageId:string;packageHash:string;expected:Members['expected'];packed:Members['packed']
  reopen:()=>Promise<ArrayBuffer>;assertCurrent:()=>void
 }>
+
+/** 从原冻结请求出发核包，保留未知或终结未生效的查询状态。 */
+export async function reviewRegisteredDeliveryZipPackage(host:Parameters<typeof readRegisteredDeliveryFreeze>[0],
+ request:Parameters<typeof readRegisteredDeliveryFreeze>[1],source:Parameters<typeof readFrozenDeliveryZipPackageMembers>[0],
+ limits:Parameters<typeof readSubmissionZipInventory>[1]){
+ if(source.projectId!==host.projectId)throw Error('SUBMISSION_FROZEN_SELECTION_SCOPE')
+ source.assertCurrent()
+ const original=await readRegisteredDeliveryFreeze(host,request)
+ const assertCurrent=()=>{source.assertCurrent();original.assertCurrent()}
+ assertCurrent()
+ if(original.status!=='FROZEN')return Object.freeze({...original,assertCurrent})
+ const proof=await readFrozenDeliveryZipPackageMembers(source,original,limits)
+ return Object.freeze({status:original.status,proof,assertCurrent:proof.assertCurrent})
+}
 
 /** 沿原装封证据定位本包应装位置，查第48项原冻结结果及第50项实际电子包。 */
 export async function readFrozenDeliveryZipPackageMembers(source:Omit<PackageSource,'expected'>&Readonly<{

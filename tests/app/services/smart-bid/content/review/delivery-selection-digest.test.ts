@@ -1,5 +1,6 @@
 import {expect,it} from 'vitest'
 import {computeDeliverySelectionDigests,verifyDeliverySelectionDigests} from '@/services/smart-bid/content/review/delivery-selection-digest'
+import {readOriginalDeliveryFreeze} from '@/services/smart-bid/content/review/delivery-freeze-recovery'
 
 it('binds fixed member positions and retains the approved basis and historical production references',async()=>{
  const member={manifestId:'COMMERCE',manifestVersion:'M1',position:'商务/投标函.pdf',fileVersionId:'L1',fileHash:'a'.repeat(64)}
@@ -16,4 +17,19 @@ it('binds fixed member positions and retains the approved basis and historical p
   .rejects.toThrow('DELIVERY_SELECTION_HASH_MISMATCH')
  await expect(computeDeliverySelectionDigests({...input,members:[member,{...other,position:member.position}]}))
   .rejects.toThrow('DELIVERY_SELECTION_MEMBER')
+ const {requestKey,requestDigest,groupScope}=input
+ const request={requestKey,requestDigest,groupScope}
+ let current=true
+ const assertCurrent=()=>{if(!current)throw Error('FREEZE_SOURCE_STALE')}
+ const read=(lookup:Parameters<typeof readOriginalDeliveryFreeze>[1]['lookup'])=>
+  readOriginalDeliveryFreeze(request,{lookup,assertCurrent})
+ expect(await read(async()=>undefined)).toMatchObject({status:'UNKNOWN'})
+ expect(await read(async()=>({request,status:'NOT_EFFECTIVE',terminalRef:'TERMINAL',assertCurrent})))
+  .toMatchObject({status:'NOT_EFFECTIVE',terminalRef:'TERMINAL'})
+ const original=await read(async()=>({request,status:'FROZEN',record:{...input,...result},assertCurrent}))
+ expect(original).toMatchObject({status:'FROZEN',record:{selectionVersion:'V2',selectionHash:result.selectionHash}})
+ await expect(read(async()=>({request,status:'FROZEN',record:{...input,...result,requestKey:'LATER'},assertCurrent})))
+  .rejects.toThrow('DELIVERY_FREEZE_REQUEST_SCOPE')
+ current=false
+ expect(()=>original.assertCurrent()).toThrow('FREEZE_SOURCE_STALE')
 })

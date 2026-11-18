@@ -440,6 +440,25 @@ describe('WorkflowDesigns on design projection DataViews', () => {
     expect(mocks.message.success).toHaveBeenCalledWith('definition.json 已首次发布')
   })
 
+  it('preserves the newer command input if first publication refuses the captured one', async () => {
+    mocks.files.delete('definition.json')
+    usePublishableDesign()
+    const wrapper = await mountPage()
+    const view = mocks.owner()?.dataSet.getView('AgentWorkflowPublication', 'default')
+    if (!view) throw new Error('missing publication view')
+    mocks.readError = () => {
+      const row = view.currentRow
+      const key = row ? view.getPkKey(row) : undefined
+      if (key !== undefined) view.updateEditingValue(key, 'definitionContent', 'new edit')
+      return undefined
+    }
+    await button(wrapper, '发布 Definition').trigger('click'); await flushPromises(); await flushPromises()
+    const row = view.currentRow
+    const key = row ? view.getPkKey(row) : undefined
+    expect(key !== undefined && view.getEditingRow(key)?.['definitionContent']).toBe('new edit')
+    expect(mocks.creations()).toBe(0)
+  })
+
   it('verifies an unknown first publication by the original command without uploading again', async () => {
     mocks.files.delete('definition.json')
     usePublishableDesign()

@@ -707,15 +707,21 @@ async function publishFirstDefinition(input: PublishFirstDefinitionInput): Promi
   if (!loaded.success) throw loaded.error ?? new Error(loaded.message ?? '首次发布命令初始化失败')
   if (pendingIn(view)) throw new Error('首次发布命令在初始化期间已变化')
   const row = await view.addRow({workflowId: targetId, designContent, definitionContent})
-  if (!active || owner.value !== current || workflowId.value !== targetId || view.destroyed) {
-    if (!view.destroyed && pendingIn(view)) view.discardPendingChanges()
-    throw new Error('首次发布目标在创建命令行期间已变化')
-  }
   const id = view.getPkKey(row)
   if (id === undefined) throw new Error('首次发布命令缺少原始身份')
+  const discardOriginal = () => {
+    if (view.destroyed || view.hasUnconfirmedSave) return
+    const original = view.getEditingRow(id)
+    if (original?.['workflowId'] === targetId && original['designContent'] === designContent
+      && original['definitionContent'] === definitionContent) view.discardPendingChanges([id])
+  }
+  if (!active || owner.value !== current || workflowId.value !== targetId || view.destroyed) {
+    discardOriginal()
+    throw new Error('首次发布目标在创建命令行期间已变化')
+  }
   view.setCurrentRow(row)
   try {await savePublicationCommand(view, id)} catch (error) {
-    if (!view.hasUnconfirmedSave && pendingIn(view)) view.discardPendingChanges()
+    discardOriginal()
     throw error
   }
 }

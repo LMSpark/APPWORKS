@@ -4,6 +4,11 @@ let catalog
 async function __init__() {
   catalog = await $page.invokeHostCommand('pdf.catalog.connect')
 }
+function bindCatalogStatus() {
+  const state = catalog?.status()
+  return {status:state?.loading ? '正在读取规则目录…' : '',error:state?.error || ''}
+}
+
 async function selectRule(row) {
   await $page.invokeHostCommand('pdf.catalog.select',row?.id)
 }

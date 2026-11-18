@@ -2,13 +2,12 @@
 @module app:views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page
 -->
 <template>
-  <RendererSection class="pdf-inspect-catalog" title="PDF 识别规则" :bordered="false" :grid-columns="1" :grid-gap="16"
-    :status="loading ? '正在读取规则目录…' : ''" :error="error">
-    <SparkPageRenderer v-if="ready && catalogRuntime && catalogHost" :page-runtime="catalogRuntime"
-      :route-snapshot="routeSnapshot" :host="catalogHost" />
-    <FeatureRecordDialog v-if="creationId !== undefined" ref="creationDialog" headless :data-view-key="creationKey" :record-id="creationId"
-      title="新增PDF核验规则" :created="true" :specs="creationFields" :validate="validateCreation" @close="closeCreation" />
-  </RendererSection>
+  <SparkPageRenderer v-if="ready && catalogRuntime && catalogHost" :page-runtime="catalogRuntime"
+    :route-snapshot="routeSnapshot" :host="catalogHost" />
+  <RendererSection v-else title="PDF 识别规则" :bordered="false"
+    :status="loading ? '正在读取规则目录…' : ''" :error="error" />
+  <FeatureRecordDialog v-if="creationId !== undefined" ref="creationDialog" headless :data-view-key="creationKey" :record-id="creationId"
+    title="新增PDF核验规则" :created="true" :specs="creationFields" :validate="validateCreation" @close="closeCreation" />
 </template>
 
 <script setup lang="ts">
@@ -331,6 +330,7 @@ function makeCatalogHost(runtime:PageRuntime){
   return {runtime,assertCurrent,async invoke(command:string,input:unknown){
     assertCurrent()
     if(command==='pdf.catalog.connect')return {
+      status:()=>({loading:loading.value,error:error.value}),
       creation:()=>({id:creationId.value,key:creationKey.value,session:creationDialog.value?.state()}),
       actions:()=>({catalogScope:catalogScope.value,loading:loading.value,adding:adding.value||creationId.value!==undefined,selected:!!selected.value,
         executionAvailable:executionAvailable.value,preparing:preparing.value,pending:pendingExecution(),
@@ -417,7 +417,3 @@ watch([scenarioId, catalogScope], async ([id, inCatalog]) => {
 }, {immediate: true})
 onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>
-
-<style scoped>
-.pdf-inspect-catalog {padding: 8px}
-</style>

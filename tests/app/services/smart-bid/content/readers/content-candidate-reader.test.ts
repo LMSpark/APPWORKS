@@ -540,11 +540,16 @@ it('compares verified first-candidate versions under the original target scope',
  const f=await fixture('populated')
  try{
   const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
-  const result=await candidate.previewScope({declaredAddedNodeIds:['D','C','H']})
+  const declaredAddedNodeIds=['D','C','H']
+  await expect(candidate.previewScope({declaredAddedNodeIds,volumeDestinations:[]})).rejects.toThrow('BID_VOLUME_PLAN_INCOMPLETE')
+  const result=await candidate.previewScope({declaredAddedNodeIds,volumeDestinations:[
+   {kind:'DOCUMENT',obligationRef:'DOC',targetRef:'C',documentId:'D',disclosureRefs:[]},
+  ]})
   expect(result.scopeCheckPassed).toBe(true)
   expect(result.addedNodeIds).toEqual(['C','D','H'])
   expect(result.requiresCurrentAuthorityChecks).toBe(true)
-  await f.ds.getView('ContentNodeVersion','snapshotMembers')!.refresh()
+  expect(result.volumeBasisCheck).toMatchObject({owner:'BidVolume',recordRefs:[{documentId:'D',sourceRef:'SOURCE-V1'}]})
+  await f.ds.getView('SubmissionObligation','originalBaselineObligations')!.refresh()
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
  }finally{f.ds.destroy()}
 })

@@ -79,8 +79,13 @@ type SubtreeReviewSources=Readonly<{
  }>>
 }>
 type PreviewVersions=Readonly<{basis:PreviewVersion|null;head:PreviewVersion|null;candidate:PreviewVersion;assertCurrent:()=>void}>
-type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>
-type CandidateScopePreview=Readonly<ReturnType<typeof previewScopedRevisionChanges>&{assertCurrent:()=>void}>
+type PreviewScopeInput=Pick<ScopedContentPreviewInput,'declaredAddedNodeIds'>&Readonly<{
+ volumeDestinations?:Parameters<typeof prepareBidVolumePlan>[0]['destinations']
+}>
+type CandidateScopePreview=Readonly<ReturnType<typeof previewScopedRevisionChanges>&{
+ volumeBasisCheck?:ReturnType<ContentCandidateBinding['verifyVolumePlan']>['basisCheck']
+ assertCurrent:()=>void
+}>
 type CandidateNodeSelection=Pick<ContentTextSelection,'path'|'start'|'end'|'mode'>&Readonly<{role:'candidate'|'head';nodeId:string}>
 type NodeTextCoordinates=Omit<CandidateNodeSelection,'role'|'mode'>
 type NodeTextChange=Readonly<{operation:'delete';target:NodeTextCoordinates}>
@@ -570,15 +575,16 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
  const previewScope=async(input:PreviewScopeInput,assertConsumer?:()=>void):Promise<CandidateScopePreview>=>{
   assertCurrent();assertConsumer?.()
   const assertTargetScope=candidate.captureReadRow(row,['targetScope'])
-  const {declaredAddedNodeIds}=structuredClone(input)
+  const {declaredAddedNodeIds,volumeDestinations}=structuredClone(input)
   const versions=await readPreviewVersions(assertConsumer)
-  const assertPreview=()=>{versions.assertCurrent();assertTargetScope()}
+  const volume=volumeDestinations===undefined?undefined:await verifyVolumePlanFromBaseline(volumeDestinations)
+  const assertPreview=()=>{versions.assertCurrent();assertTargetScope();volume?.assertCurrent()}
   assertPreview()
   const result=previewScopedRevisionChanges({projectId:host.projectId,basis:readNodes(versions.basis),
    current:readNodes(versions.head),candidate:readNodes(versions.candidate),targetScope:row['targetScope'],declaredAddedNodeIds},
   {basis:readManifest(versions.basis),current:readManifest(versions.head),candidate:readManifest(versions.candidate)})
   assertPreview()
-  return Object.freeze({...result,assertCurrent:assertPreview})
+  return Object.freeze({...result,...(volume?{volumeBasisCheck:volume.basisCheck}:{}),assertCurrent:assertPreview})
  }
  const previewTextFromVersions=async(versions:PreviewVersions,changes:unknown):Promise<TextPreviewBinding>=>{
   versions.assertCurrent()

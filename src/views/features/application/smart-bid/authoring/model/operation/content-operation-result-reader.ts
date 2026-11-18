@@ -19,6 +19,7 @@ const keys=['projectId','runId','attemptRef','requestKey'] as const
 const fields=[...keys,'targetDigest','configurationLockHash','receiptRef','state']
 function valid(view:DataView){
  return view.dataTable?.modelBinding?.modelName==='GenerationRun'&&view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+  (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
   keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
 }
 

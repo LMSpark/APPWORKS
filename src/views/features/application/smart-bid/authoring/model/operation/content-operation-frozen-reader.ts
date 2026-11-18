@@ -17,6 +17,7 @@ const fields=[...keys,'targetDigest','configurationLockHash','guideRef','guideVe
 const digest=(value:unknown):value is string=>typeof value==='string'&&/^[a-f0-9]{64}$/u.test(value)
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='ContextManifest'&&
  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+ (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
  keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
 
 /** 只读原待发摘要；不恢复发起能力，也不读取待发载荷。 */

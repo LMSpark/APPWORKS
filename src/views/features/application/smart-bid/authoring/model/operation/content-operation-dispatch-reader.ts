@@ -17,6 +17,7 @@ const contextFields=['projectId','runId','attemptRef','requestKey'] as const
 const fields=[...contextFields,'targetDigest','configurationLockHash','dispatchRef','actualInputDigest']
 function valid(view:DataView){
  return view.dataTable?.modelBinding?.modelName==='ContextManifest'&&view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+  (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
   contextFields.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
 }
 

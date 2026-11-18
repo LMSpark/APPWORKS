@@ -89,6 +89,10 @@ it('reads the original result only for the selected attempt and verifies the ret
   await expect(projected.readActualInput()).rejects.toThrow('DATA_VIEW_READ_RESULT')
   const result=await readRegisteredOperationResult(host,scope)
   expect(result).toMatchObject({state:'COMPLETE',receiptRef:'RECEIPT',output:craft.outputExample})
+  view.queryConfig={...view.queryConfig,cacheType:'page'}
+  expect(()=>result?.assertCurrent()).toThrow('OPERATION_RESULT_READ_STALE')
+  await expect(readRegisteredOperationResult(host,scope)).rejects.toThrow('OPERATION_RESULT_VIEW_REQUIRED')
+  view.queryConfig={...view.queryConfig,cacheType:'none'}
   const tools={executeTool:async(name:string)=>name==='model_action_guide'?{ok:true,data:guideText}:
    {ok:true,data:{rootKind:'OperationRoute',models:[{kind:'OperationRoute',methods:[{name:'verify'}]}]}}}
   const workspace=openContentOperationWorkspace(scriptHost.runtime,tools,{...host,rootKind:'OperationRoute',signal})

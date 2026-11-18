@@ -40,32 +40,37 @@ export async function readProducedFileReviewVersion(selection:FileSelection,read
 
 const fields=['id','projectId','productionRequestRef','revisionId','documentId','fileHash','resourceVersionId']
 const scopeFields=[['projectId','projectId'],['id','producedFileId'],['productionRequestRef','productionRequestRef']] as const
-function valid(view:DataView):boolean{
+function valid(view:DataView,requireRequest:boolean):boolean{
  return view.dataTable?.modelBinding?.modelName==='ProducedFile'&&view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
-  scopeFields.every(([field,param])=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:param}))
+  (requireRequest?scopeFields:scopeFields.slice(0,2)).every(([field,param])=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:param}))
 }
 
 /** 读取原 ProducedFile 记录及资源版本后，由原附件读取能力重开电子实件。 */
-export async function readRegisteredProducedFileReviewVersion(host:ContentRevisionReadHost,input:Omit<FileSelection,'projectId'>,
- openAuthorized:OpenAuthorized){
- const {runtime,scenarioId,projectId}=host
- if(!identity(scenarioId))throw Error('CONTENT_PRODUCED_FILE_SCOPE')
- return readProducedFileReviewVersion({projectId,producedFileId:input.producedFileId,productionRequestRef:input.productionRequestRef},async selection=>{
+export async function readRegisteredProducedFileReviewVersion(host:ContentRevisionReadHost,
+ input:Readonly<{producedFileId:string;productionRequestRef?:string}>,openAuthorized:OpenAuthorized){
+ const {runtime,scenarioId,projectId}=host,{producedFileId,productionRequestRef}=input
+ const requireRequest=productionRequestRef!==undefined
+ host.assertCurrent()
+ if(![scenarioId,projectId,producedFileId,...(requireRequest?[productionRequestRef]:[])].every(identity))
+  throw Error('CONTENT_PRODUCED_FILE_SCOPE')
+ const viewName=requireRequest?'selectedReviewFile':'selectedObservedReviewFile'
+ const dataViewKey=buildDataViewKey('ProducedFile',viewName,scenarioId),view=runtime.resolveView(dataViewKey)
+ if(!view||!valid(view,requireRequest)||view.hasEditingChanges())throw Error('CONTENT_PRODUCED_FILE_VIEW_REQUIRED')
+ const context={projectId,producedFileId,...(requireRequest?{productionRequestRef}:{})}
+ view.queryContext={...view.queryContext,...context}
+ const assertScope=()=>{
   host.assertCurrent()
-  const dataViewKey=buildDataViewKey('ProducedFile','selectedReviewFile',scenarioId),view=runtime.resolveView(dataViewKey)
-  if(!view||!valid(view)||view.hasEditingChanges())throw Error('CONTENT_PRODUCED_FILE_VIEW_REQUIRED')
-  view.queryContext={...view.queryContext,...selection}
-  const assertScope=()=>{
-   host.assertCurrent()
-   if(runtime.resolveView(dataViewKey)!==view||!valid(view)||view.hasEditingChanges()||
-    Object.entries(selection).some(([field,value])=>view.queryContext[field]!==value))throw Error('CONTENT_PRODUCED_FILE_STALE')
-  }
-  await view.refresh();assertScope()
-  if(!hasCompleteSingleContentResult(view))throw Error('CONTENT_PRODUCED_FILE_NOT_UNIQUE')
-  const row=view.rows[0]
-  if(!row)throw Error('CONTENT_PRODUCED_FILE_NOT_UNIQUE')
-  return bindRegisteredFile({view,row,selection,assertScope,assertResult:view.captureReadResult(),openAuthorized})
- })
+  if(runtime.resolveView(dataViewKey)!==view||!valid(view,requireRequest)||view.loadingError||view.hasEditingChanges()||
+   Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('CONTENT_PRODUCED_FILE_STALE')
+ }
+ await view.refresh();assertScope()
+ const row=view.rows[0]
+ if(!row||!hasCompleteSingleContentResult(view))throw Error('CONTENT_PRODUCED_FILE_NOT_UNIQUE')
+ const requestRef=row['productionRequestRef']
+ if(!identity(requestRef)||(requireRequest&&requestRef!==productionRequestRef))throw Error('CONTENT_PRODUCED_FILE_SCOPE')
+ const selection={projectId,producedFileId,productionRequestRef:requestRef}
+ const record=bindRegisteredFile({view,row,selection,assertScope,assertResult:view.captureReadResult(),openAuthorized})
+ return readProducedFileReviewVersion(selection,()=>Promise.resolve(record))
 }
 
 /** 核回执与实际登记实件是否同一制作、同册和同一文件字节。 */

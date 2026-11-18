@@ -22,8 +22,6 @@ import {preparePaperOutputRegistration} from '@/services/smart-bid/content/revie
 type Review=Parameters<typeof readContentReviewWorkspace>
 /** 平台实填观察和原批准依据的读取合同。 */
 type Observation=Parameters<typeof readPlatformFieldObservation>
-/** 电子实件及其原填报位置的读取合同。 */
-type FileObservation=Parameters<typeof readRegisteredFileAnswer>
 type FormVerification=Parameters<typeof verifyOriginalFormFileAnswer>
 type ProductionRecovery=Parameters<typeof recoverProductionRequest>
 type SignedRegistration=Parameters<typeof prepareSignedOutputRegistration>
@@ -49,8 +47,8 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
   readObservationSelection?:(observationRef:string,signal:AbortSignal)=>Promise<Readonly<{
    approved:Observation[1];input:Observation[2];assertCurrent:()=>void
   }>>
-  readFileObservationSelection?:(observationRef:string,signal:AbortSignal)=>Promise<Readonly<{
-   projectId:string;input:FileObservation[1];approved?:Parameters<typeof compareApprovedFileAnswer>[1]
+  readFileObservationContext?:(observationRef:string,signal:AbortSignal)=>Promise<Readonly<{
+   projectId:string;observationId:string;approved?:Parameters<typeof compareApprovedFileAnswer>[1]
    originalForm?:Readonly<{mapping:FormVerification[1];placement:FormVerification[2]}>;assertCurrent:()=>void
   }>>
  }>){
@@ -120,16 +118,16 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
    }
    if(name==='content.review.readPaperObservation')
     return readRegisteredPaperAnswer({...scope,runtime,assertCurrent},selectionRef)
-   if(name==='content.review.readFileObservation'&&sources.readFileObservationSelection){
-    const selection=await sources.readFileObservationSelection(selectionRef,signal)
-    const assertSelection=()=>{assertCurrent();selection.assertCurrent()}
-    assertSelection()
-    if(selection.input.observationId!==selectionRef||selection.projectId!==scope.projectId)
+   if(name==='content.review.readFileObservation'){
+    const answer=await readRegisteredFileAnswer({...scope,runtime,assertCurrent},selectionRef,sources.openFile)
+    const context=await sources.readFileObservationContext?.(selectionRef,signal)
+    if(context&&(context.observationId!==selectionRef||context.projectId!==scope.projectId))
      throw Error('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
-    const answer=await readRegisteredFileAnswer({...scope,runtime,assertCurrent:assertSelection},selection.input,sources.openFile)
-    const comparison=selection.approved&&compareApprovedFileAnswer(answer,selection.approved)
-    const form=selection.originalForm&&verifyOriginalFormFileAnswer(answer,selection.originalForm.mapping,selection.originalForm.placement)
-    const assertAnswer=()=>{answer.assertCurrent();comparison?.assertCurrent();form?.assertCurrent()}
+    context?.assertCurrent()
+    answer.assertCurrent()
+    const comparison=context?.approved&&compareApprovedFileAnswer(answer,context.approved)
+    const form=context?.originalForm&&verifyOriginalFormFileAnswer(answer,context.originalForm.mapping,context.originalForm.placement)
+    const assertAnswer=()=>{answer.assertCurrent();context?.assertCurrent();comparison?.assertCurrent();form?.assertCurrent()}
     return Object.freeze({...answer,...(comparison?{comparison}:{}),...(form?{form}:{}),assertCurrent:assertAnswer})
    }
    if(name==='content.review.readPlatformObservation'&&sources.readObservationSelection){

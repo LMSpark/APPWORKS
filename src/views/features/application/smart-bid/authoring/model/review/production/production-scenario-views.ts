@@ -24,6 +24,7 @@ export function producedFileScenarioViews(){
     'signatureRecordId','originalFileId','originalHash','signing']),
   selectedReviewFile:view([['projectId','projectId'],['id','producedFileId'],['productionRequestRef','productionRequestRef']],
    originalFileFields),
+  selectedObservedReviewFile:view([['projectId','projectId'],['id','producedFileId']],originalFileFields),
   selectedReviewFiles:view([['projectId','projectId']],[...originalFileFields,'usage'],true),
  }
 }

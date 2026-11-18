@@ -4,7 +4,7 @@
  * 边界：沿原 DataView 和实件读取证据；批准事实独立核对，保存归原办理方。
  * AI用途：核对电子实件的回读位置、文件哈希与批准版本是否一致。
  */
-import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {buildDataViewKey,type DataView,type ViewMetadata} from '@spark-appworks/spark-data'
 import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
@@ -13,28 +13,32 @@ import type {mapOriginalForm} from '@/services/smart-bid/content/references/resp
 
 /** 从正式文件记录和实际字节确认版本的输入合同。 */
 type FileInput=Parameters<typeof readRegisteredProducedFileReviewVersion>
-const scopeFields=[['projectId','projectId'],['id','observationId'],['producedFileId','producedFileId']] as const
+const scopeFields=[['projectId','projectId'],['id','observationId']] as const
 const fields=['id','projectId','revisionId','documentId','producedFileId','fileHash','locationRef','value','unit']
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='AnswerLocation'&&
  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&scopeFields.every(([field,ParamName])=>
   hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
 
+/** 正式共享场景按项目和观察编号定位电子实件。 */
+export function fileObservationView():ViewMetadata{
+ return {autoLoad:false,autoCurrentFirst:false,autoSelectFirst:false,commitMode:'staged',
+  queryConfig:{autoQuery:false,cacheType:'none',pagination:'none',fields:[...fields]},
+  scopeFilter:{logic:'and',filters:scopeFields.map(([field,ParamName])=>({
+   field,operator:'eq',value:{Type:'GetInputParam',ParamName},
+  }))}}
+}
+
 /** 交原件及所见栏位读数。批准比较、同批装入和截止归属由各自事实另核。 */
-export async function readRegisteredFileAnswer(host:ContentRevisionReadHost,input:FileInput[1]&Readonly<{
- observationId:string;locationRef:string
-}>,openFile:FileInput[2]){
+export async function readRegisteredFileAnswer(host:ContentRevisionReadHost,observationId:string,openFile:FileInput[2]){
  host.assertCurrent()
- const {runtime,projectId,scenarioId}=host,{producedFileId,productionRequestRef,observationId,locationRef}=input
- if(![scenarioId,projectId,producedFileId,productionRequestRef,observationId,locationRef].every(identity))
-  throw Error('CONTENT_FILE_ANSWER_SCOPE')
- const file=await readRegisteredProducedFileReviewVersion(host,{producedFileId,productionRequestRef},openFile)
- file.assertCurrent()
+ const {runtime,projectId,scenarioId}=host
+ if(![scenarioId,projectId,observationId].every(identity))throw Error('CONTENT_FILE_ANSWER_SCOPE')
  const key=buildDataViewKey('AnswerLocation','selectedFileObservation',scenarioId),view=runtime.resolveView(key)
  if(!view||!valid(view)||view.hasEditingChanges())throw Error('CONTENT_FILE_ANSWER_VIEW_REQUIRED')
- const context={projectId,observationId,producedFileId}
+ const context={projectId,observationId}
  view.queryContext={...view.queryContext,...context}
  const assertScope=()=>{
-  host.assertCurrent();file.assertCurrent()
+  host.assertCurrent()
   if(runtime.resolveView(key)!==view||!valid(view)||view.loadingError||view.hasEditingChanges()||
    Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('CONTENT_FILE_ANSWER_STALE')
  }
@@ -43,11 +47,13 @@ export async function readRegisteredFileAnswer(host:ContentRevisionReadHost,inpu
  const row=view.rows[0]
  if(!row||!hasCompleteSingleContentResult(view))throw Error('CONTENT_FILE_ANSWER_NOT_UNIQUE')
  const assertRead=view.captureReadResult(),assertRow=view.captureReadRow(row,fields)
- const assertCurrent=()=>{assertScope();assertRead();assertRow()}
- const {unit,value}=row
- if(row['id']!==observationId||row['locationRef']!==locationRef||row['projectId']!==projectId||
-  row['producedFileId']!==file.producedFileId||row['revisionId']!==file.revisionId||row['documentId']!==file.documentId||
-  row['fileHash']!==file.versionHash||(unit!==null&&!identity(unit))||!Object.hasOwn(row,'value'))
+ const {unit,value,locationRef,producedFileId}=row
+ if(row['id']!==observationId||row['projectId']!==projectId||!identity(locationRef)||!identity(producedFileId)||
+  (unit!==null&&!identity(unit))||!Object.hasOwn(row,'value'))throw Error('CONTENT_FILE_ANSWER_SCOPE')
+ const file=await readRegisteredProducedFileReviewVersion({...host,assertCurrent:()=>{assertScope();assertRead();assertRow()}},
+  {producedFileId},openFile)
+ const assertCurrent=file.assertCurrent
+ if(row['revisionId']!==file.revisionId||row['documentId']!==file.documentId||row['fileHash']!==file.versionHash)
   throw Error('CONTENT_FILE_ANSWER_SCOPE')
  const observedValueJson=canonicalSnapshotValue(value)
  assertCurrent()

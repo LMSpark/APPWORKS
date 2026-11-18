@@ -5,7 +5,7 @@ import {recoverProductionRequest} from '@/services/smart-bid/content/review/prod
 import {producedFileScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
-import {compareApprovedFileAnswer,readRegisteredFileAnswer,verifyOriginalFormFileAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-file-answer-reader'
+import {compareApprovedFileAnswer,fileObservationView,readRegisteredFileAnswer,verifyOriginalFormFileAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-file-answer-reader'
 import {mapOriginalForm} from '@/services/smart-bid/content/references/response/original-form-mapping'
 import script from '@/views/features/application/smart-bid/authoring/page12/script.js?raw'
 import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
@@ -114,16 +114,14 @@ it('opens only the original registered resource version read through SPARK data'
   locationRef:'PAGE-1-TOTAL',value:'0.00',unit:'元'}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ProducedFile:{
   modelBinding:{modelId:'M',modelName:'ProducedFile'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},selectedReviewFile:producedFileScenarioViews().selectedReviewFile},
+  views:{default:{},...producedFileScenarioViews()},
  },AnswerLocation:{
   modelBinding:{modelId:'ANSWER',modelName:'AnswerLocation'},
   columns:Object.keys(answer).map(name=>({name,type:'string',isPrimaryKey:name==='id'})),
-  views:{default:{},selectedFileObservation:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',
-   filters:([['projectId','projectId'],['id','observationId'],['producedFileId','producedFileId']] as const)
-    .map(([field,ParamName])=>({field,operator:'eq',value:{Type:'GetInputParam',ParamName}}))}}},
+  views:{default:{},selectedFileObservation:fileObservationView()},
  }}})
  const view=ds.getView('ProducedFile','selectedReviewFile')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ProducedFile'})
- view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+ for(const name of ['selectedReviewFile','selectedObservedReviewFile'])ds.getView('ProducedFile',name)!.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
   identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',
    data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
  })})
@@ -135,7 +133,7 @@ it('opens only the original registered resource version read through SPARK data'
   identity:answerTable.identity,scope:'a',readScope:()=> 'a',snapshot:answerTable.applyResult({Result:{primaryKeyField:'id',
    data:{Count:1,Items:[{...answer,lingma_sys_params:{r:[],e:[],h:hidden?['value']:[],m:[],d:false}}]}}}),
  })})
- const host={runtime:{resolveView:(key:string)=>key==='S@AnswerLocation@selectedFileObservation'?answers:view},
+ const host={runtime:{resolveView:(key:string)=>key==='S@AnswerLocation@selectedFileObservation'?answers:key==='S@ProducedFile@selectedObservedReviewFile'?ds.getView('ProducedFile','selectedObservedReviewFile'):view},
   scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  let current=true
  const open=vi.fn(async()=>({projectId:'P',resourceVersionId:'RESOURCE-V1',bytes:bytes.buffer,
@@ -184,7 +182,7 @@ it('opens only the original registered resource version read through SPARK data'
     }),
     assertCurrent:host.assertCurrent,
    }}),
-   readFileObservationSelection:async()=>({projectId:'P',input:selected,approved,originalForm:{mapping,placement},assertCurrent:host.assertCurrent}),
+   readFileObservationContext:async()=>({projectId:'P',observationId:'OBS',approved,originalForm:{mapping,placement},assertCurrent:host.assertCurrent}),
   })
   const recoverySignal=new AbortController()
   const openCount=open.mock.calls.length
@@ -198,6 +196,15 @@ it('opens only the original registered resource version read through SPARK data'
   expect(recovered).toMatchObject({state:'COMPLETED',verifiedFiles:[{producedFileId:'F',versionHash:row.fileHash}]})
   recoverySignal.abort()
   expect(()=>recovered.assertCurrent()).toThrow('CONTENT_REVIEW_PAGE_STALE')
+  const basePage=createContentReviewScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
+   readSelection:unused,openFile:open,readField:unused,readDecision:unused,readCompleted:unused,
+  })
+  await expect(basePage.invoke('content.review.readFileObservation',{selectionRef:'OBS'},new AbortController().signal))
+   .resolves.toMatchObject({locationRef:'PAGE-1-TOTAL',file:{productionRequestRef:'REQUEST'}})
+  const callsBeforeWrongObservation=open.mock.calls.length
+  await expect(basePage.invoke('content.review.readFileObservation',{selectionRef:'OTHER'},new AbortController().signal))
+   .rejects.toThrow('CONTENT_FILE_ANSWER_SCOPE')
+  expect(open).toHaveBeenCalledTimes(callsBeforeWrongObservation)
   const observed=await page.invoke('content.review.readFileObservation',{selectionRef:'OBS'},new AbortController().signal)
   expect(observed).toMatchObject({locationRef:'PAGE-1-TOTAL',observedValueJson:'"0.00"',unit:'元',file:{versionHash:row.fileHash},
    comparison:{state:'MISMATCHED',approvalRef:'APP',valueJson:'"1.00"'},form:{formVersion:'V1',cellRef:'T',unitMatched:true}})
@@ -207,11 +214,11 @@ it('opens only the original registered resource version read through SPARK data'
   expect(verified).toMatchObject({formVersion:'V1',cellRef:'T',unitMatched:true})
   expect(()=>verifyOriginalFormFileAnswer(observed,mapping,{...placement,formVersion:'V2'})).toThrow('CONTENT_FILE_ANSWER_FORM_SCOPE')
   answer.fileHash='a'.repeat(64)
-  await expect(readRegisteredFileAnswer(host,selected,open)).rejects.toThrow('CONTENT_FILE_ANSWER_SCOPE')
+  await expect(readRegisteredFileAnswer(host,'OBS',open)).rejects.toThrow('CONTENT_FILE_ANSWER_SCOPE')
   expect(()=>observed.assertCurrent()).toThrow()
   expect(()=>verified.assertCurrent()).toThrow()
   answer.fileHash=row.fileHash
   hidden=true
-  await expect(readRegisteredFileAnswer(host,selected,open)).rejects.toThrow('DATA_VIEW_READ_ROW')
+  await expect(readRegisteredFileAnswer(host,'OBS',open)).rejects.toThrow('DATA_VIEW_READ_ROW')
  }finally{ds.destroy()}
 })

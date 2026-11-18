@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "app:views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation",
-    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation.ts",
-    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation.ts",
+    "name": "app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation.ts",
     "packageName": "app",
-    "modulePath": "views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation",
-    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation\n职责：给截止义务关联经渠道记录唯一定位的原实包及同位置成员。\n边界：包关联来自原办理证据；只投影已核成员，不改变送达或准入状态。",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation\n职责：给截止义务关联经渠道记录唯一定位的原实包及同位置成员。\n边界：包关联来自原办理证据；只投影已核成员，不改变送达或准入状态。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
@@ -190,9 +190,27 @@
         },
         "method.assertCurrent.return": true
       }
+    },
+    "RequiredMember": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RequiredMember",
+      "properties": {
+        "obligationId": {
+          "type": "string"
+        },
+        "position": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "obligationId",
+        "position"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T03:18:26.881Z",
+  "generatedAt": "2026-11-18T03:24:18.593Z",
   "models": {
     "Deadline": {
       "name": "Deadline",
@@ -326,6 +344,35 @@
                 "type": "intrinsic",
                 "name": "void"
               }
+            }
+          ]
+        }
+      }
+    },
+    "RequiredMember": {
+      "name": "RequiredMember",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    obligationId: string;\n    position: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    obligationId: string;\n    position: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "obligationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
             }
           ]
         }

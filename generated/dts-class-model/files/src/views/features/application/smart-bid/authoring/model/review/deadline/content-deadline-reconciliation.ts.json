@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation\n职责：动作54在同一截止判断中逐义务合并同批文件和平台栏。\n边界：只读原证据，不据内容一致推断送达、开启或准入，不持久化。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "FieldSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldSource",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "deadline": {
+          "type": "object",
+          "title": "Deadline"
+        },
+        "requiredFields": {
+          "type": "array",
+          "items": {
+            "$ref": "content-deadline-field-reconciliation.ts.json#/$defs/Field"
+          }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "projectId",
+        "deadline",
+        "requiredFields",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "PackageSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PackageSource",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "deadline": {
+          "type": "object",
+          "title": "Deadline"
+        },
+        "requiredMembers": {
+          "type": "array",
+          "items": {
+            "$ref": "content-deadline-package-reconciliation.ts.json#/$defs/RequiredMember"
+          }
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "content-deadline-package-reconciliation.ts.json#/$defs/PackageLink"
+          }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "projectId",
+        "deadline",
+        "requiredMembers",
+        "links",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T03:25:44.341Z",
+  "models": {
+    "FieldSource": {
+      "name": "FieldSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof reconcileDeadlineFieldValues>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "deadline",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requiredFields",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "PackageSource": {
+      "name": "PackageSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof reconcileDeadlinePackageMembers>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "deadline",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requiredMembers",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "links",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

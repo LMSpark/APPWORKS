@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1357,
+  "scannedFileCount": 1358,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -19236,32 +19236,6 @@
         "symbols": []
       }
     },
-    "src/views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation\n职责：给动作54已核截止批次关联同批平台栏回读及批准值比较。\n边界：栏位比对不改变送达、实件装入、开启或准入结论。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-deadline-package-reconciliation\n职责：给截止义务关联经渠道记录唯一定位的原实包及同位置成员。\n边界：包关联来自原办理证据；只投影已核成员，不改变送达或准入状态。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
     "src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts": {
       "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-package-review.ts.json",
       "module": {
@@ -19350,6 +19324,45 @@
         "modulePath": "views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader\n职责：按原办理与回执身份读取渠道接收证据。\n边界：仅消费已核接收范围；拒收、撤回与待配对记录不能证明栏位提交。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation\n职责：给动作54已核截止批次关联同批平台栏回读及批准值比较。\n边界：栏位比对不改变送达、实件装入、开启或准入结论。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation\n职责：给截止义务关联经渠道记录唯一定位的原实包及同位置成员。\n边界：包关联来自原办理证据；只投影已核成员，不改变送达或准入状态。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation\n职责：动作54在同一截止判断中逐义务合并同批文件和平台栏。\n边界：只读原证据，不据内容一致推断送达、开启或准入，不持久化。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },

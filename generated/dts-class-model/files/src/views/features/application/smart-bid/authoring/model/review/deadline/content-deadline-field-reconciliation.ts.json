@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "app:views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation",
-    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation.ts",
-    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation.ts",
+    "name": "app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation.ts",
     "packageName": "app",
-    "modulePath": "views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation",
-    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-deadline-field-reconciliation\n职责：给动作54已核截止批次关联同批平台栏回读及批准值比较。\n边界：栏位比对不改变送达、实件装入、开启或准入结论。",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation\n职责：给动作54已核截止批次关联同批平台栏回读及批准值比较。\n边界：栏位比对不改变送达、实件装入、开启或准入结论。",
     "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
@@ -234,7 +234,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T03:07:33.299Z",
+  "generatedAt": "2026-11-18T03:24:18.591Z",
   "models": {
     "Deadline": {
       "name": "Deadline",

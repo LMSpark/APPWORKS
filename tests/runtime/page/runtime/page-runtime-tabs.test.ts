@@ -6,7 +6,7 @@ import { createDynamicRouter } from '../../../../packages/spark-app/src/router/d
 import { PageRuntimePool, type PageRuntimePoolOptions } from '../../../../packages/spark-app/src/router/page-runtime-pool'
 import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/nav-access'
 import { useTabPages } from '../../../../packages/spark-app/src/navigation/useTabPages'
-import { Spark, SparkPageRenderer } from '@spark-appworks/spark-component'
+import { RendererButton, Spark, SparkPageRenderer, registerAllRenderers } from '@spark-appworks/spark-component'
 import { SparkData } from '@spark-appworks/spark-data'
 
 describe('page call tabs and retained renderer instances', () => {
@@ -14,14 +14,19 @@ describe('page call tabs and retained renderer instances', () => {
     const tool = {pageId: 'TOOL', projectId: 'APP', versionId: 'v1'}
     const invoke = vi.fn()
     let assertHostCurrent: (() => void) | undefined
-    const component = defineComponent({props: ['host'], setup(props) {
+    registerAllRenderers()
+    const component = defineComponent({props: ['pageRuntime', 'routeSnapshot', 'host'], setup(props) {
       assertHostCurrent = () => props.host.assertCurrent()
-      return () => null
+      return () => h(SparkPageRenderer, {pageRuntime: props.pageRuntime, routeSnapshot: props.routeSnapshot, host: props.host})
     }})
     const options: PageRuntimePoolOptions = {
       pageComponent: component,
       readPageFile: undefined,
-      readPageFiles: async commands => commands.map(command => command.fileName === 'rule.json' ? '[]' : ''),
+      readPageFiles: async commands => commands.map(command => {
+        if (command.fileName === 'rule.json') return '[{"type":"r-button","props":{"label":"保存","onClick":"save"}}]'
+        if (command.fileName === 'script.js') return "async function save(){try{await $page.invokeHostCommand('save')}catch(error){if(!String(error).includes('发布版本已改变'))throw error}}"
+        return ''
+      }),
       preparePageCall: () => ({scenarioInputs: {}, assertCurrent() {}, createHost: runtime => ({runtime, assertCurrent() {}, invoke})}),
       loadScenario: undefined,
       readNavTree: () => ({title: 'App', childPlacement: 'header', items: [{id: 'node', title: 'Tool', itemKind: 'page', path: '/tool', tool}]}),
@@ -32,12 +37,21 @@ describe('page call tabs and retained renderer instances', () => {
     const pool = new PageRuntimePool(options)
     const runtime = pool.getPageRuntime(router.currentRoute.value)!
     await runtime.load()
-    const wrapper = mount(pool.getPageRuntimeView(router.currentRoute.value)!)
+    const wrapper = mount(pool.getPageRuntimeView(router.currentRoute.value)!, {global: {
+      plugins: [Spark.createPlugin()], stubs: {SparkComponentRenderer: false, 'spark-component-renderer': false},
+    }})
     try {
+      await flushPromises()
       expect(assertHostCurrent).toBeDefined()
       expect(() => assertHostCurrent!()).not.toThrow()
+      wrapper.getComponent(RendererButton).vm.$emit('click')
+      await flushPromises()
+      expect(invoke).toHaveBeenCalledExactlyOnceWith('save', undefined, expect.any(AbortSignal))
       tool.versionId = 'v2'
       expect(() => assertHostCurrent!()).toThrow('发布版本已改变')
+      wrapper.getComponent(RendererButton).vm.$emit('click')
+      await flushPromises()
+      expect(invoke).toHaveBeenCalledTimes(1)
     } finally {wrapper.unmount(); runtime.dispose()}
   })
   it('keeps distinct calls across native pages and twelve tabs, rejects dirty closes, and preserves aborted navigation', async () => {

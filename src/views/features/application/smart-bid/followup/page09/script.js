@@ -1,4 +1,32 @@
 /* global $page, $route */
+function bindTenderAddendum() {
+  const {addendumId} = $route.query
+  return {visible: typeof addendumId === 'string' && !!addendumId && addendumId.trim() === addendumId}
+}
+
+async function openTenderAddendum() {
+  if (!bindTenderAddendum().visible) return
+  try {
+    const result = await $page.invokeHostCommand('tender.followup.readAddendum', {addendumId: $route.query.addendumId})
+    result.assertCurrent()
+    const lines = ['正式修改登记待核']
+    if (result.state === 'REGISTERED') {
+      lines[0] = `登记 ${result.id} · 发布方 ${result.issuerRef} · 发布凭据 ${result.publicationRef}`
+      lines.push(`适用范围 ${result.applicableScopeRef} · 生效 ${result.effectiveAt}`)
+      const labels = {ADDED: '新增', REPLACED: '替换', CANCELLED: '取消'}
+      for (const item of result.items) {
+        lines.push(`${item.id} · ${labels[item.kind]} · ${item.subjectRef}`)
+        if (item.previous) lines.push(`原位 ${item.previous.documentVersionId} / ${item.previous.locator}`)
+        lines.push(`修改依据 ${item.current.documentVersionId} / ${item.current.locator}`)
+      }
+      if (!result.items.length) lines.push('登记无可核对的变动条项')
+    }
+    await $page.showAlert(lines.join('\n'), '正式澄清与修改')
+  } catch {
+    $page.showMessage('正式修改原位无法核验', 'warning')
+  }
+}
+
 function bindChapterImpact() {
   const {revisionId, previousFrozenBaselineId, frozenBaselineId} = $route.query
   return {visible: [revisionId, previousFrozenBaselineId, frozenBaselineId]

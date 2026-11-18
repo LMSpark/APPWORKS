@@ -7,6 +7,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readRegisteredTenderFollowupNotices} from './tender-followup-notice-reader'
 import {readTenderChangeChapterPins} from './tender-change-chapter-reader'
+import {readTenderAddendum} from './tender-addendum-reader'
 import {matchFollowupNoticeToDeadlinePackage,type reconcileDeadlineDelivery} from '../authoring/model/review/deadline/content-deadline-reconciliation'
 
 type Read=Parameters<typeof readRegisteredTenderFollowupNotices>
@@ -25,6 +26,12 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
    host.assertCurrent()
    if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)
     throw Error('TENDER_FOLLOWUP_PAGE_STALE')
+  }
+  if(name==='tender.followup.readAddendum'){
+   const {addendumId}=input
+   if(Object.keys(input).length!==1||!identity(addendumId))throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
+   return readTenderAddendum({...host,runtime,assertCurrent},
+    {projectId:host.projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
   }
   if(name==='tender.followup.traceChapterPins'){
    const {revisionId,previousId,currentId}=input

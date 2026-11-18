@@ -8,6 +8,14 @@
     ]
   },
   {
+    "id": "tender-followup-addendum",
+    "type": "r-section",
+    "props": {"title": "正式澄清与修改", "onBeforeRender": "bindTenderAddendum"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看变动原位", "onClick": "openTenderAddendum"}}
+    ]
+  },
+  {
     "id": "tender-followup-chapter-impact",
     "type": "r-section",
     "props": {"title": "正文条款引用追查", "onBeforeRender": "bindChapterImpact"},

@@ -2,6 +2,7 @@ import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {readRegisteredTenderFollowupNotices,tenderFollowupNoticeView} from '@/views/features/application/smart-bid/followup/tender-followup-notice-reader'
 import {createTenderFollowupScriptHost} from '@/views/features/application/smart-bid/followup/tender-followup-script-host'
+import {tenderAddendumScenarioView} from '@/views/features/application/smart-bid/followup/tender-addendum-reader'
 import script from '@/views/features/application/smart-bid/followup/page09/script.js?raw'
 import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
 import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
@@ -12,6 +13,41 @@ import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode
 import {mergeTenderFollowupNoticeReads,prepareTenderFollowupNotice,projectTenderFollowupNotices} from '@/services/smart-bid/content/references/followup/tender-followup-notice'
 import {checkTenderFollowupResponseScope} from '@/services/smart-bid/content/references/followup/tender-followup-response-scope'
 import {linkTenderOutcomeFollowup,projectTenderOutcome} from '@/services/smart-bid/content/review/submission/tender-outcome-evidence'
+
+it('reads the original addendum locations for the current project, lot and round',async()=>{
+ const scope={projectId:'P',lotId:'L',roundId:'R',subjectId:'ORG',stageId:'FOLLOW-UP'}
+ const row={projectId:'P',lotId:'L',roundId:'R',id:'A',issuerRef:'ISSUER',publicationRef:'PUBLICATION',
+  applicableScopeRef:'LOT-L',effectiveAt:'2026-11-18T08:00:00+08:00',changes:[
+   {id:'ITEM',kind:'REPLACED',subjectRef:'REQUIREMENT',
+    previousSource:{documentVersionId:'V1',locator:'5.2'},currentSource:{documentVersionId:'V2',locator:'1.3'}},
+  ]}
+ const ds=DataSet.fromJson({scenarioId:'S',tables:{TenderAddendum:{
+  modelBinding:{modelName:'TenderAddendum',modelId:'M'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},originalTenderAddendum:tenderAddendumScenarioView('id')},
+ }}})
+ try{
+  const view=ds.getView('TenderAddendum','originalTenderAddendum')
+  if(!view)throw Error('TEST_ADDENDUM_VIEW_REQUIRED')
+  const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'TenderAddendum'})
+  let roundId='R'
+  view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+   identity:table.identity,scope:'addendum',readScope:()=> 'addendum',snapshot:table.applyResult({Result:{primaryKeyField:'id',
+    data:{Count:1,Items:[{...row,roundId,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
+  })})
+  const runtime={generation:1,isLoaded:true,destroyed:false,
+   resolveView:(key:string)=>key==='S@TenderAddendum@originalTenderAddendum'?view:undefined}
+  const page=createTenderFollowupScriptHost(runtime,{scenarioId:'S',projectId:'P',assertCurrent:()=>{}},{selection:scope})
+  const signal=new AbortController().signal
+  const result=await page.invoke('tender.followup.readAddendum',{addendumId:'A'},signal)
+  expect(view.queryContext).toMatchObject({projectId:'P',lotId:'L',roundId:'R',id:'A'})
+  expect(result).toMatchObject({state:'REGISTERED',items:[{
+   previous:{documentVersionId:'V1',locator:'5.2'},current:{documentVersionId:'V2',locator:'1.3'},
+  }]})
+  roundId='OTHER'
+  await expect(page.invoke('tender.followup.readAddendum',{addendumId:'A'},signal)).rejects.toThrow('ORIGINAL_REGISTRATION_VIEW_REQUIRED')
+  expect(()=>result.assertCurrent()).toThrow()
+ }finally{ds.destroy()}
+})
 
 it('retains a formal notice and deadline while the historical package and scope are still pending',async()=>{
  const scope={projectId:'P',lotId:'L',roundId:'R',subjectId:'ORG',stageId:'FOLLOW-UP'}

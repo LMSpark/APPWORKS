@@ -4,6 +4,8 @@ import {prepareAuthorityGrantDecision,readOriginalAuthorityGrantRegistration} fr
 import {checkRegisteredAuthorityGrant} from '@/services/smart-bid/content/review/submission/authority-grant-coverage'
 import {prepareSignatureRequest,recoverSignatureRequest} from '@/services/smart-bid/content/review/submission/signature-request'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
+import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
+import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {contentPackageSignatureScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {authorityGrantRegistrationView,readRegisteredAuthorityGrantRegistration} from '@/views/features/application/smart-bid/authority/authority-grant-registration-reader'
 import {createAuthorityGrantScriptHost} from '@/views/features/application/smart-bid/authority/authority-grant-script-host'
@@ -49,7 +51,7 @@ it('binds a revocation to its authority, affected scope and original version',as
   request:{...originalSigning,objectVersion:'OTHER'},
  })})).rejects.toThrow('BID_SIGNATURE_RECOVERY_SCOPE')
  expect(signing.record).toMatchObject({authorityVersionId:'V1',objectVersion:'PACK-V1',positionRef:'SEAL'})
- const signRow={...originalSigning,id:'SIG',state:'SIGNED',operationRef:'OP',signedObjectRef:'SIGNED-PACK',
+ const signRow={...originalSigning,objectKind:'PACKAGE' as 'PACKAGE'|'FILE',id:'SIG',state:'SIGNED',operationRef:'OP',signedObjectRef:'SIGNED-PACK',
   signedObjectHash:signReceipt.signedObjectHash,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}
  const signatures=DataSet.fromJson({scenarioId:'S',tables:{SignatureRecord:{
   modelBinding:{modelId:'SIGN-M',modelName:'SignatureRecord'},columns:Object.keys(signRow).map(name=>({name,isPrimaryKey:name==='id'})),
@@ -59,9 +61,10 @@ it('binds a revocation to its authority, affected scope and original version',as
   const signatureView=signatures.getView('SignatureRecord','originalSignatureRequest')!
   const signatureTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'SignatureRecord'})
   let found=false
+  let selectedRow=signRow
   signatureView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:signatureTable.identity,scope:'sign',readScope:()=> 'sign',
-   snapshot:signatureTable.applyResult({Result:{primaryKeyField:'id',data:{Count:found?1:0,Items:found?[signRow]:[]}}}),
+   snapshot:signatureTable.applyResult({Result:{primaryKeyField:'id',data:{Count:found?1:0,Items:found?[selectedRow]:[]}}}),
   })})
   const page=createContentSubmissionScriptHost({resolveView:key=>key==='S@SignatureRecord@originalSignatureRequest'?signatureView:undefined,
    generation:1,isLoaded:true,destroyed:false},
@@ -85,6 +88,32 @@ it('binds a revocation to its authority, affected scope and original version',as
   signal.abort()
   expect(()=>pageSigning.assertCurrent()).toThrow('SUBMISSION_PAGE_STALE')
   expect(()=>pageRecovered.assertCurrent()).toThrow('SUBMISSION_PAGE_STALE')
+  const bytes=new TextEncoder().encode('signed file').buffer
+  const fileHash=await hashContentBytes(bytes)
+  const fileRequest={...originalSigning,objectKind:'FILE' as const,objectRef:'ORIGINAL-FILE'}
+  selectedRow={...signRow,...fileRequest,signedObjectRef:'SIGNED-FILE',signedObjectHash:fileHash}
+  const fileScope={projectId:'P',documentId:'DOC',revisionId:'REV'}
+  const open=vi.fn(async()=>({projectId:'P',resourceVersionId:'RESOURCE',bytes,assertCurrent:evidence.assertCurrent}))
+  const unused=async()=>{throw Error('UNEXPECTED_REVIEW_CALL')}
+  const review=createContentReviewScriptHost({resolveView:()=>signatureView,generation:1,isLoaded:true,destroyed:false},
+   {scenarioId:'S',projectId:'P',assertCurrent:evidence.assertCurrent},{readSelection:unused,readField:unused,
+    readDecision:unused,readCompleted:unused,openFile:unused,readSignedRegistrationSelection:async()=>({
+     selectionRef:'FILE',request:fileRequest,assertCurrent:evidence.assertCurrent,open,
+     original:{...fileScope,producedFileId:fileRequest.objectRef,objectVersion:fileRequest.objectVersion,
+      versionHash:fileRequest.objectHash,assertCurrent:evidence.assertCurrent},
+     receipt:{...fileScope,signatureOperationRef:'OP',signatureRecordId:'SIG',originalFileId:fileRequest.objectRef,
+      originalHash:fileRequest.objectHash,signedObjectRef:'SIGNED-FILE',resourceVersionId:'RESOURCE',fileHash,
+      assertCurrent:evidence.assertCurrent},
+    })})
+  const reviewSignal=new AbortController().signal
+  found=false
+  await expect(review.invoke('content.review.prepareSignedRegistration',{selectionRef:'FILE'},reviewSignal))
+   .resolves.toMatchObject({state:'UNKNOWN'})
+  expect(open).not.toHaveBeenCalled()
+  found=true
+  await expect(review.invoke('content.review.prepareSignedRegistration',{selectionRef:'FILE'},reviewSignal))
+   .resolves.toMatchObject({state:'PREPARED',record:{signedObjectRef:'SIGNED-FILE',fileHash}})
+  expect(open).toHaveBeenCalledOnce()
  }finally{signatures.destroy()}
  await expect(prepareSignatureRequest({...signature,actionAt:source.knownAt},signatureBasis,permitted))
   .rejects.toThrow('BID_SIGNATURE_AUTHORITY_REQUIRED')

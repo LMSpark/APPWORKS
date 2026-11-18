@@ -78,7 +78,7 @@ function validObservationView(view:DataView):boolean{
 /** 按同次原办理只读回读指定平台观察，保留原行证明到比较结果。 */
 export async function readPlatformFieldObservation(host:ContentRevisionReadHost,approved:ApprovedField,input:
  ExpectedObservation&Readonly<{observationId:string}>){
- const {projectId,scenarioId,runtime}=host,{observationId,attemptRef,stage}=input
+ const {projectId,scenarioId,runtime}=host,{observationId,attemptRef,stage,submission}=input
  const assertOwner=()=>{host.assertCurrent();approved.assertCurrent()}
  assertOwner()
  if(projectId!==approved.projectId||![scenarioId,observationId,attemptRef].every(identity))throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
@@ -101,7 +101,7 @@ export async function readPlatformFieldObservation(host:ContentRevisionReadHost,
  if((observedStage!=='DRAFT'&&observedStage!=='SAVED'&&observedStage!=='SUBMITTED')||unit!==null&&!identity(unit))
   throw Error('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
  const assertResult=view.captureReadResult(),assertRow=view.captureReadRow(row,observationFields)
- return comparePlatformFieldObservation(approved,{attemptRef,stage,...(input.submission?{submission:input.submission}:{})},{
+ return comparePlatformFieldObservation(approved,{attemptRef,stage,...(submission?{submission}:{})},{
   projectId,revisionId:approved.revisionId,assignmentId:approved.assignmentId,fieldId:approved.fieldId,
   stage:observedStage,attemptRef,observationRef:observationId,value:row['value'],unit,
   assertCurrent:()=>{assertScope();assertResult();assertRow()},

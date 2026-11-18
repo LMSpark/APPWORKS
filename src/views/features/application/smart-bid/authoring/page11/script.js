@@ -390,7 +390,7 @@ function bindEditorStatus() {
   if (editorFault) return {error: '当前项目或工作草稿无法打开'}
   try {editorSession?.assertCurrent()}
   catch {return {error: '正文编制会话已失效，请重新打开草稿'}}
-  return {}
+  return editorSession ? {status: '本页可暂存编辑。正式保存尚不可用，离页前可取消本次编辑。'} : {}
 }
 
 function originalDraft() {

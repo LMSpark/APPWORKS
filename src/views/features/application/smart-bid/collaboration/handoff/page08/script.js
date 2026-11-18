@@ -61,7 +61,9 @@ async function openBidProjectScope() {
       `编制项目 ${result.projectId}`,
       `阶段引用 ${result.stageRefs.join('、') || '待补'}`,
       `原正文头 ${pointer(result.headRevisionId, result.headState)}`,
+      ...(result.headStage ? [`正文头阶段 ${result.headStage} · 固定基线 ${result.headBaselineId}`] : []),
       `激活基线 ${pointer(result.activeBaselineId, result.baselineState)}`,
+      ...(result.baselineStage ? [`激活基线阶段 ${result.baselineStage}`] : []),
     ] : ['当前项目范围登记待确认']
     await $page.showAlert(lines.join('\n'), '原编制项目范围')
   } catch {

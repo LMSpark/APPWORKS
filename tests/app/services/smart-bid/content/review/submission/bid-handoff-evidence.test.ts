@@ -49,7 +49,7 @@ it('keeps responsibility with the original assignee until the current version is
  const row={...scope,id:'ROW',handoffId:'H',items:[item]}
  const projectRow={id:'P',projectId:'P',stageRefs:['STAGE-1'],headRevisionId:null as string|null,activeBaselineId:'BASELINE'}
  const baselineRow={id:'BASELINE',projectId:'P',stageRef:'STAGE-1'}
- const headRow={id:'HEAD',projectId:'P',status:'ADOPTED',snapshotHash:'a'.repeat(64)}
+ const headRow={id:'HEAD',projectId:'P',status:'ADOPTED',snapshotHash:'a'.repeat(64),stageRef:'PREVIOUS-STAGE',baselineId:'PREVIOUS-BASELINE'}
  const scopeViews=bidProjectScopeScenarioViews({ContentProject:'id',ContentRevision:'id',Baseline:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{BidHandoff:{
   modelBinding:{modelName:'BidHandoff',modelId:'M'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
@@ -147,7 +147,7 @@ it('keeps responsibility with the original assignee until the current version is
   projectRow.headRevisionId='HEAD'
   await openBidProjectScope()
   expect(showAlert).toHaveBeenLastCalledWith(
-   '编制项目 P\n阶段引用 STAGE-1\n原正文头 HEAD · 已核原记录\n激活基线 BASELINE · 已核原记录','原编制项目范围')
+   '编制项目 P\n阶段引用 STAGE-1\n原正文头 HEAD · 已核原记录\n正文头阶段 PREVIOUS-STAGE · 固定基线 PREVIOUS-BASELINE\n激活基线 BASELINE · 已核原记录\n激活基线阶段 STAGE-1','原编制项目范围')
   const recovered=await page.invoke('bid.project.readScope',{},signal)
   await baseline.refresh()
   expect(()=>recovered.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')

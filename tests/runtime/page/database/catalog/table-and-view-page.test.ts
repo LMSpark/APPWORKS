@@ -1216,7 +1216,7 @@ describe('table-and-view-page', () => {
     expect(row).toBeDefined()
     await row!.trigger('click')
     await flushPromises()
-    const workflowTable = dialog.findAllComponents(RendererTable).find(table => String(table.props('dataViewKey')).endsWith('@forTable'))!
+    const workflowTable = wrapper.findAllComponents(RendererTable).find(table => String(table.props('dataViewKey')).endsWith('@forTable'))!
     const workflowButton = (label: string) => workflowTable.findAll('button').find(button => button.text() === label)!
     expect(workflowButton('设计').attributes('disabled')).toBeUndefined()
     await workflowButton('刷新').trigger('click')

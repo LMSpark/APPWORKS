@@ -47,7 +47,7 @@ AI用途：需要理解页面设计如何预览工具时，用本模块定位。
 
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch, onMounted, onBeforeUnmount } from 'vue'
-import { buildDataViewKey, ensureDataSetStaticInputTable, parseDataViewKey } from '@spark-appworks/spark-data'
+import { buildDataViewKey, ensureDataSetStaticInputTable } from '@spark-appworks/spark-data'
 import type { DataSet, DataTable, DataView } from '@spark-appworks/spark-data'
 import { DisplayAlert,DisplayEmpty,FieldSwitch,RendererButton,RendererForm,SparkPageRenderer,PAGE_RUNTIME,useSparkComponent } from '@spark-appworks/spark-component'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
@@ -56,6 +56,7 @@ import type { PageRoute } from '@spark-appworks/spark-component/runtime'
 import { assembleLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { buildApplicationPath, buildConfigPageNavigationPath } from '@/services/application-scope'
+import { resolvePageToolCall } from './use-page-design'
 import type { DevState } from '../blueprint-state/useDevState'
 
 const props = defineProps<{
@@ -100,6 +101,7 @@ type PreviewInputScope = Readonly<{
   ownerRuntime: PageRuntime
   pageId: string
   nodeId: string
+  navigationTarget: string
   mainScenarioId?: string
 }>
 type PreviewTarget = PreviewInputScope & Readonly<{
@@ -112,8 +114,10 @@ function currentInputScope(): PreviewInputScope | undefined {
   if(!owner||!runtime?.isLoaded||runtime.destroyed||owner.projectId!==state.projectId||owner.nodeId!==selectedNode?.nodeId
     ||!pageId||!selectedNode||state.project.getActivePage()?.pageId!==pageId||typeof owner.dataSet.scenarioId!=='string'
     ||runtime.getDataSet(owner.dataSet.scenarioId)!==owner.dataSet)return undefined
-  const mainScenarioId=selectedNode.dataSpace?.scenarioId
-  return {projectId:state.projectId,workspace:state.editor,owner,ownerRuntime:runtime,pageId,nodeId:selectedNode.nodeId,
+  if (!owner.canRead('conid') || !owner.canRead('NavigationUrl')) return undefined
+  const mainScenarioId=String(owner.value('conid') ?? '').trim()
+  const navigationTarget=String(owner.value('NavigationUrl') ?? '')
+  return {projectId:state.projectId,workspace:state.editor,owner,ownerRuntime:runtime,pageId,nodeId:selectedNode.nodeId,navigationTarget,
     ...(mainScenarioId?{mainScenarioId}:{})}
 }
 
@@ -126,6 +130,7 @@ function sameTarget(left:PreviewTarget,right:PreviewTarget):boolean {
   return left.projectId===right.projectId&&left.workspace===right.workspace&&left.owner===right.owner
     &&left.ownerRuntime===right.ownerRuntime&&left.ownerRuntime.instanceId===right.ownerRuntime.instanceId
     &&left.pageId===right.pageId&&left.nodeId===right.nodeId&&left.mainScenarioId===right.mainScenarioId
+    &&left.navigationTarget===right.navigationTarget
     &&left.externalRevision===right.externalRevision
 }
 
@@ -292,7 +297,7 @@ async function refresh():Promise<void> {
   parseError.value = null
   let runtime:PageRuntime | undefined
   try {
-    const {pageId,workspace,projectId,mainScenarioId} = target
+    const {pageId,workspace,projectId,mainScenarioId,navigationTarget} = target
     const active = props.state.project.getActivePage()
     if (!active || active.pageId !== pageId) throw new Error('请先选择一个配置页面')
     const fileViews=await Promise.all(props.state.pageFileNames.map(fileName=>props.state.loadPageToolFileDataView({pageId,fileName})))
@@ -306,15 +311,11 @@ async function refresh():Promise<void> {
       tool.hydrateFileText(fileName,edited['text'])
     }
     tool.markLoaded()
-    const ids = new Set<string>(mainScenarioId ? [mainScenarioId] : [])
-    for(const binding of tool.getNodeTree().collectDataViewKeys()){
-      const descriptor=parseDataViewKey(binding)
-      if(!descriptor)throw new Error(`PAGE_PREVIEW_BINDING: 页面绑定无效 ${binding}`)
-      const scenarioId=descriptor.scope??mainScenarioId
-      if(!scenarioId)throw new Error(`PAGE_PREVIEW_BINDING: 局部绑定缺少主场景 ${binding}`)
-      ids.add(scenarioId)
-    }
-    runtime=previewSession.acquire({tool,scenarioIds:[...ids],targetId:`${projectId}:${pageId}`,...(mainScenarioId ? {mainScenarioId} : {}),loadScenario:async scenarioId=>{
+    const call = resolvePageToolCall(tool, navigationTarget, mainScenarioId)
+    runtime=previewSession.acquire({tool,scenarioIds:call.scenarioIds,targetId:`${projectId}:${pageId}`,
+      ...(mainScenarioId ? {mainScenarioId} : {}),
+      ...(call.scenarioInputs === undefined ? {} : {scenarioInputs:call.scenarioInputs}),
+      loadScenario:async scenarioId=>{
       assertTargetCurrent(target,current)
       const scope=lowcodeApi.readRequestScope()
       if(scope.headers['X-AppId']!==projectId)throw new Error('场景预览需要当前运行应用与编辑项目一致')
@@ -331,18 +332,15 @@ async function refresh():Promise<void> {
     if(!previewSession.isCurrent(runtime))return
     runtime.materialize()
     const path=buildApplicationPath({projectId},buildConfigPageNavigationPath(target.nodeId))
-    let fullPath=buildApplicationPath({projectId},buildConfigPageNavigationPath(target.nodeId,mainScenarioId))
+    const fullPath=buildApplicationPath({projectId},buildConfigPageNavigationPath(target.nodeId,mainScenarioId,navigationTarget))
     const query:PageRoute['query']={}
     if(mainScenarioId)query['scenarioId']=mainScenarioId
-    const call=runtime.call
-    const additionalIds=call.scenarioIds.filter(id=>id!==call.mainScenarioId)
+    const additionalIds=call.additionalIds
     const firstAdditional=additionalIds[0]
     if(firstAdditional!==undefined){
-      const parameters=new URLSearchParams()
-      for(const id of additionalIds)parameters.append('additionalScenarioIds',id)
-      fullPath+=`${mainScenarioId?'&':'?'}${parameters.toString()}`
       query['additionalScenarioIds']=additionalIds.length===1?firstAdditional:Object.freeze(additionalIds)
     }
+    if(call.inputText!==undefined)query['scenarioInputs']=call.inputText
     routeSnapshot.value=Object.freeze({path,fullPath,name:null,params:Object.freeze({projectId}),query:Object.freeze(query),hash:''})
     if(current===generation&&previewSession.isCurrent(runtime)){
       previewRuntime.value=runtime

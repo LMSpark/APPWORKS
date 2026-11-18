@@ -59,23 +59,25 @@ AI用途：调整页面设计页签布局时定位本组件；动作与 saga 在
 </template>
 
 <script setup lang="ts">
-import {computed, shallowRef} from 'vue'
+import {computed, onScopeDispose, shallowRef} from 'vue'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import type {DevState} from '../blueprint-state/useDevState'
-import type {usePageDesign} from './use-page-design'
-import type {NodeTargetResources, useNodeTargetResources} from './node-target-resources'
+import {usePageDesign} from './use-page-design'
+import {useNodeTargetResources, type NodeTargetResources} from './node-target-resources'
 import DeliveryPane from './DeliveryPane.vue'
 
 const {AiToolApprovalPanel, DisplayAlert, FieldText, RendererButton, RendererForm} = SparkComponent
 const props = defineProps<{
   state: DevState
-  pageDesign: ReturnType<typeof usePageDesign>
-  targets: ReturnType<typeof useNodeTargetResources>
   binding: Readonly<{dataViewKey?: string}>
+  registerLeaveGuard: (guard: () => boolean) => () => void
 }>()
 
+const pageDesign = usePageDesign(props.state)
+onScopeDispose(props.registerLeaveGuard(() => pageDesign.delivering.value || pageDesign.hasPendingWork()))
+const targets = useNodeTargetResources(props.state)
 const recentMessages = computed(() => props.state.statusMessages.value.slice(0, 3))
-const resources = computed(() => props.targets.resources.value)
+const resources = targets.resources
 const commandInputViewKey = computed(() => resources.value?.commandInputViewKey ?? '')
 const targetScopeKey = computed(() => resources.value
   ? `${resources.value.scope.runtime.instanceId}:${resources.value.scope.projectId}:${resources.value.scope.nodeId}:${resources.value.commandInputViewKey ?? ''}`
@@ -89,16 +91,16 @@ const creating = computed(() => creatingResources.value === resources.value && r
 
 function onToolIdChanged(): void {
   const captured = resources.value
-  if (captured) props.targets.notifyInputChanged(captured)
+  if (captured) targets.notifyInputChanged(captured)
 }
 async function onCreateTool(): Promise<void> {
   const captured = resources.value
-  if (!captured || !props.targets.isCurrent(captured)) return
+  if (!captured || !targets.isCurrent(captured)) return
   creatingResources.value = captured
   try {
-    await props.targets.createTool(captured)
+    await targets.createTool(captured)
   } catch (error) {
-    if (props.targets.isCurrent(captured)) props.state.addStatus(`工具创建失败: ${String(error)}`, 'error')
+    if (targets.isCurrent(captured)) props.state.addStatus(`工具创建失败: ${String(error)}`, 'error')
   } finally {
     if (creatingResources.value === captured) creatingResources.value = undefined
   }

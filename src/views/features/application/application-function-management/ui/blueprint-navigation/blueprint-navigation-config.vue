@@ -13,7 +13,7 @@ AI用途：调整导航属性表单时只改本组件绑定，候选视图键由
       <FieldNumber v-bind="binding" data-member="currentRow" data-field="FunOrderValue" label="排序" :min="0" @update:model-value="changed" />
       <FieldText v-bind="binding" data-member="currentRow" data-field="NavigationImageWxz" label="图标" @update:model-value="changed" />
       <FieldText v-bind="binding" data-member="currentRow" data-field="NavigationUrl" label="导航地址"
-        placeholder="填写由正式开发工具生成并进入当前 APP 构建的精确 vue:/... 资源；模块节点可留空" @update:model-value="changed" />
+        placeholder="vue:/页面路径 或 cfg:工具ID?additionalScenarioIds=附加空间ID" @update:model-value="changed" />
       <FieldText v-bind="binding" data-member="currentRow" data-field="MobileUrl" label="移动端地址" @update:model-value="changed" />
       <FieldCheckbox v-bind="binding" data-member="currentRow" data-field="IsShowAtNav" label="是否显示到导航" checkbox-text="是否显示到导航"
         :true-value="1" :false-value="0" @update:model-value="changed" />

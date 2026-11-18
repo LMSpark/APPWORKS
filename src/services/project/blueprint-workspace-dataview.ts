@@ -1550,6 +1550,7 @@ export class BlueprintWorkspaceDataView {
         if (!recovered.success) throw recovered.error ?? new Error(recovered.message ?? '蓝图 DataView 未确认保存仍无法核验')
         this.#acceptedReceiptPending=true
       }
+      if (!this.#acceptedReceiptPending) throw new Error('蓝图原提交缺少权威保存回执，不能用当前查询代替核验')
       await this.refreshView()
       this.assertTarget(revision, targetNodeId)
       this.synchronizeCurrentRow()
@@ -1578,7 +1579,13 @@ export class BlueprintWorkspaceDataView {
     const result = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: changedIds}]})
     this.assertTarget(revision, targetNodeId)
     if(result.success||(result.data?.createdCount??0)>0||(result.data?.savedCount??0)>0||(result.data?.deletedCount??0)>0)this.#acceptedReceiptPending=true
-    if (!result.success) throw result.error ?? new Error(result.message ?? '蓝图 DataView 保存失败')
+    if (!result.success) {
+      if (!this.view.hasUnconfirmedSave && !this.#acceptedReceiptPending) {
+        this.#unconfirmedIds=[]
+        this.#unconfirmedPatches.clear()
+      }
+      throw result.error ?? new Error(result.message ?? '蓝图 DataView 保存失败')
+    }
     if(expectedSavedCount!==undefined)this.assertBatchSaveCounts(result,0,expectedSavedCount)
     await this.refreshView()
     this.assertTarget(revision, targetNodeId)
@@ -1588,6 +1595,7 @@ export class BlueprintWorkspaceDataView {
     if (!saved) throw new Error('蓝图 DataView 保存后未读回目标行')
     for(const [key,patch] of patches){const confirmed=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===key);if(!confirmed)throw new Error(`蓝图行 ${String(key)} 保存后无法读回`);for(const [field,value] of Object.entries(patch))if(!Object.is(confirmed[field],value))throw new Error(`蓝图字段 ${field} 保存后读回不一致`)}
     this.#unconfirmedIds=[]
+    this.#unconfirmedPatches.clear()
     this.#acceptedReceiptPending=false
   }
 

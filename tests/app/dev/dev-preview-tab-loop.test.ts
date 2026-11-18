@@ -47,7 +47,7 @@ async function createPreviewState() {
   const state = createDevStateWithConfigPages([{pageId:'cascade-demo',nodeId:'cascade-node',title:'Cascade'}], 'cascade-demo')
   state.project.getActivePage()?.markLoaded()
   const getActivePage = vi.spyOn(state.project,'getActivePage')
-  const navigation={rowid:'cascade-node',SysId:'homepage',prowid:'000000',name:'Cascade',FunName:'Cascade',conType:'Navitem',NavigationUrl:'cfg:cascade-demo'}
+  const navigation={rowid:'cascade-node',SysId:'homepage',prowid:'000000',name:'Cascade',FunName:'Cascade',conType:'Navitem',NavigationUrl:'cfg:cascade-demo',conid:''}
   const dataSet=DataSet.fromJson({scenarioId:SCENARIO,tables:{Base_NavigationInfo:{
     modelBinding:{modelId:`${SCENARIO}p000`,modelName:'Base_NavigationInfo'},
     columns:Object.keys(navigation).map(name=>({name,type:'string',isPrimaryKey:name==='rowid'})),views:{default:{}},

@@ -10,6 +10,7 @@
         <RendererButton label="导航配置" :button-type="activeTab === 'navAttr' ? 'primary' : 'default'" @click="selectTab('navAttr')" />
         <RendererButton label="数据空间" :button-type="activeTab === 'dataSpace' ? 'primary' : 'default'" @click="selectTab('dataSpace')" />
         <RendererButton label="需求原型" :button-type="activeTab === 'prototype' ? 'primary' : 'default'" @click="selectTab('prototype')" />
+        <RendererButton label="页面工具" :button-type="activeTab === 'pageDesign' ? 'primary' : 'default'" @click="selectTab('pageDesign')" />
         <RendererButton
           v-if="canSaveChanges || state.blueprintSaving.value"
           label="保存蓝图修改"
@@ -139,6 +140,8 @@
           <NodeDataSpaceBinding :state="state" @scene-chosen="bindDataSpace" />
           <DisplayAlert v-if="bindingSaving" description="正在保存数据空间绑定…" alert-type="info" />
         </template>
+        <PageDesignPane v-else-if="isSelectedNodeReady && activeTab === 'pageDesign'" :state="state" :binding="treeBinding"
+          :register-leave-guard="registerToolLeaveGuard" />
         <template v-else-if="isSelectedNodeReady && activeTab === 'prototype'">
           <div class="application-function-page__details-toolbar">
             <h2>需求原型</h2>
@@ -300,6 +303,7 @@ import { computed } from 'vue'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import type { DataRow } from '@spark-appworks/spark-data'
 import { useApplicationFunctionPage } from './use-application-function-page'
+import PageDesignPane from './page-design/page-design-pane.vue'
 import NodeDataSpaceBinding from './blueprint-data-space/NodeDataSpaceBinding.vue'
 import DataPlanningPane from './blueprint-data-space/DataPlanningPane.vue'
 import BlueprintDimensionSource from './blueprint-dimension-source.vue'
@@ -316,6 +320,7 @@ const {
   error,
   activeTab,
   treeBinding,
+  registerToolLeaveGuard,
   treeContext,
   selectedNodeId,
   isSelectedNodeReady,

@@ -167,7 +167,7 @@ function runtimeTargetProjection(
   const target = (record.navigation?.target ?? '')
   if (target.startsWith('cfg:')) {
     if (!ProjectModel.parseConfigToolPageId(target)) throw new Error(`蓝图节点 ${record.nodeId} 的配置工具目标无效：${target}`)
-    return { targetKind: 'route', path: buildConfigPageNavigationPath(record.nodeId, record.dataSpace?.scenarioId) }
+    return { targetKind: 'route', path: buildConfigPageNavigationPath(record.nodeId, record.dataSpace?.scenarioId, target) }
   }
   const targetKind: LowcodePlatform.LowcodeNavigationTargetKind = !target
     ? 'empty'

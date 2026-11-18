@@ -4,12 +4,13 @@ import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {DataSet, buildDataViewKey, resolveDataViewKey, resolveDataViewMember, diagnoseDataViewKey, DataMember} from '@spark-appworks/spark-data'
 import {PageRuntime, PageTool, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import {createLowcodeProjectBlueprintRecord, DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {Spark, SparkPageRenderer} from '@spark-appworks/spark-component'
 import {PageRuntimePool} from '../../../../packages/spark-app/src/router/page-runtime-pool'
 import DisplayText from '../../../../packages/spark-component/src/components/display/data-components/value/DisplayText/DisplayText.vue'
 import {LowcodeDataSpaceAssembler} from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
+import {assembleLowcodeRuntimeNavigation} from '../../../../src/lowcode/lowcode-runtime'
 
 const calls: PageRuntime[] = []
 afterEach(() => { for (const call of calls.splice(0)) call.dispose() })
@@ -168,11 +169,25 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
     await view.editRowById('ROW', {title: 'Submitted'});
     return view.saveChanges();
   }`
-  const router = createRouter({history: createMemoryHistory(), routes: [{path: '/apps/:projectId/__tool/:pageId',
-    component: defineComponent({render: () => h('div')}), meta: {type: 'config-page', programmaticTool: true}}]})
-  const pool = new PageRuntimePool({pageComponent: SparkPageRenderer, readNavTree: () => null,
+  const target = 'cfg:orders-tool?additionalScenarioIds=LOOKUP'
+  const versionId = 'rule=2;script=3;style=4'
+  const records = ['A', 'B'].map(scenarioId => createLowcodeProjectBlueprintRecord({
+    nodeId: scenarioId, projectId:'APP', parentNodeId:'ROOT', kind:'page', capability:{name:scenarioId},
+    navigation:{title:scenarioId, target, order:0, publishInMenu:true, showChildren:false, beginGroup:false},
+    dataSpace:{scenarioId, models:[]}, source:{VersionId:versionId},
+  }))
+  const navTree = assembleLowcodeRuntimeNavigation({applicationName:'Orders', projectId:'APP', navigationRootId:'ROOT', records,
+    authorization:{items:records.map(record=>({id:record.nodeId, target, targetKind:'route', formKey:record.nodeId, children:[]})), contexts:[]}})
+  const router = createRouter({history:createMemoryHistory(), routes:navTree.items.map(node=>({
+    path:`/apps/:projectId/__page/${node.id}`, component:defineComponent({render:()=>h('div')}),
+    meta:{type:'config-page', nodeId:node.id, tool:node.tool},
+  }))})
+  const openMenu = (nodeId:string) => router.push(`/apps/APP${navTree.items.find(node=>node.id===nodeId)!.path}`)
+  const readPageFiles = vi.fn(async () => [rule, script, ''])
+  const pool = new PageRuntimePool({pageComponent: SparkPageRenderer, readNavTree: () => navTree,
     refreshRoutes: async () => undefined,
-    readPageFile: async ({fileName}) => fileName === 'rule.json' ? rule : fileName === 'script.js' ? script : '',
+    readPageFile: async () => {throw new Error('Expected the atomic page file reader')},
+    readPageFiles,
     loadScenario: async ({scenarioId}) => assembler.assemble({
       config: new ScenarioViewConfig(scenarioId, JSON.stringify({scenarioId, tables: {
         [differentNames ? `Internal${scenarioId}` : 'Orders']: {modelBinding: {modelId: 'MODEL', modelName: 'Orders'},
@@ -180,10 +195,13 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
       }})), space: {dataSpaceId: scenarioId, name: `Space ${scenarioId}`}, models: [model], relations: [],
     }).dataSet,
   })
-  await router.push('/apps/APP/__tool/orders-tool?scenarioId=A&additionalScenarioIds=LOOKUP')
+  await openMenu('A')
   const first = pool.getPageRuntime(router.currentRoute.value)!
   calls.push(first)
   await first.load()
+  expect(readPageFiles).toHaveBeenCalledWith(['rule.json','script.js','style.css'].map(fileName=>({
+    projectId:'APP', pageId:'orders-tool', fileName, versionId,
+  })))
   expect(first.resolveView('Orders@detail')).toBe(first.getDataSet('A')!.getView(differentNames ? 'InternalA' : 'Orders', 'detail'))
   const errors: unknown[] = []
   const registry = Spark.createRegistry()
@@ -206,7 +224,7 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
     expect(http.requests.at(-1)).toMatchObject({headers: {'x-FormKey': 'A'},
       data: [{TableName: 'Orders', CrudModel: {Changed: [{id: 'ROW', title: 'Submitted', lingma_sys_key: 'SIGNED-A'}]}}]})
 
-    await router.push('/apps/APP/__tool/orders-tool?scenarioId=B&additionalScenarioIds=LOOKUP')
+    await openMenu('B')
     const second = pool.getPageRuntime(router.currentRoute.value)!
     calls.push(second)
     await wrapper.setProps({pageRuntime: second,
@@ -224,12 +242,20 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
       data: [{TableName: 'Orders', CrudModel: {Changed: [{lingma_sys_key: 'SIGNED-B'}]}}]})
     expect(first.resolveView('Orders@detail')!.rows[0]?.['title']).toBe('A accepted')
     expect(second.resolveView('#LOOKUP@Orders@detail')!.rows[0]?.['title']).toBe('Lookup original')
+    first.dispose()
+    await openMenu('A')
+    const reopened = pool.getPageRuntime(router.currentRoute.value)!
+    calls.push(reopened)
+    expect(reopened).not.toBe(first)
+    await reopened.load()
+    await reopened.resolveView('Orders@detail')!.loadFromServer()
+    expect(reopened.resolveView('Orders@detail')!.currentRow?.['title']).toBe('A accepted')
     await second.resolveView('Orders@detail')!.loadFromServer()
     await flushPromises()
     expect(second.resolveView('Orders@detail')!.rows[0]?.['title']).toBe('B accepted')
     expect(wrapper.get('.main-title').text()).toBe('B accepted')
     http.titles.set('A', 'A changed in another call')
-    await first.resolveView('Orders@detail')!.loadFromServer()
+    await reopened.resolveView('Orders@detail')!.loadFromServer()
     await flushPromises()
     expect(wrapper.get('.main-title').text()).toBe('B accepted')
     http.hiddenTitles.add('B')
@@ -237,7 +263,6 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
     await flushPromises()
     expect(wrapper.get('.main-title').text()).toBe('-')
     expect(wrapper.get('.lookup-title').text()).toBe('Lookup original')
-    first.dispose()
     expect(() => first.resolveView('Orders@detail')).toThrow(/DESTROYED/)
     expect(second.resolveView('Orders@detail')!.dataSet?.destroyed).toBe(false)
   } finally { wrapper.unmount(); pool.disposePageRuntimes() }

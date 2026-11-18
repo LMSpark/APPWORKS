@@ -3,7 +3,7 @@ import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource } from '@spark-appworks/spark-app'
 import { buildDataViewKey, DataViewFilter, ensureDataSetStaticInputTable, isDataRow, type DataRow, type DataSet, type DataView } from '@spark-appworks/spark-data'
 import { PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component'
-import type { PageRuntime } from '@spark-appworks/spark-project-model'
+import { parseConfigToolPageId, type PageRuntime } from '@spark-appworks/spark-project-model'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, RichTextImageUploadResource, type AiTurnDraftRunner } from '@spark-appworks/spark-lowcode-api'
 import { loadLowcodeRuntimeScenario, readLowcodeExecutionProject } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { lowcodeApi, lowcodeDesignFileUpload, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
@@ -23,8 +23,10 @@ import { useBlueprintDesktop } from './blueprint-navigation/use-blueprint-deskto
 import { useBlueprintNavHost } from './blueprint-navigation/use-blueprint-nav-host'
 import { BLUEPRINT_VERIFY_FIELDS, verifyBlueprintNodeTree, type BlueprintNodeVerifyResult } from './blueprint-navigation/blueprint-node-verify'
 import { getVuePageOptions } from '@/registries/vue-page-registry'
+import { readConfigPageScenarioCall } from '@/services/application-scope'
+import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 
-type BlueprintTab = 'basic' | 'navAttr' | 'dataSpace' | 'prototype'
+type BlueprintTab = 'basic' | 'navAttr' | 'dataSpace' | 'prototype' | 'pageDesign'
 type NodeOption = Readonly<{label: string; value: string}>
 type CreatePosition = 'root' | 'sibling' | 'child'
 /** 当前有效的蓝图树上下文：同一 PageRuntime、目标应用与 owner 的组合身份。 */
@@ -146,7 +148,7 @@ async function prepareNodeOptionViews(input: Readonly<{
 
 function readTab(value: unknown): BlueprintTab {
   if (value === undefined) return 'basic'
-  if (value === 'basic' || value === 'navAttr' || value === 'dataSpace' || value === 'prototype') return value
+  if (value === 'basic' || value === 'navAttr' || value === 'dataSpace' || value === 'prototype' || value === 'pageDesign') return value
   throw new Error(`蓝图页面不支持 blueprintTab=${String(value)}`)
 }
 
@@ -448,8 +450,18 @@ export function useApplicationFunctionPage() {
   })
   onScopeDispose(() => dimensionSource.dispose())
 
-  /** 图片上传进行中时禁止切换节点或页签，避免上传结果插入到其他节点。 */
+  let toolLeaveGuard: (() => boolean) | undefined
+  function registerToolLeaveGuard(guard: () => boolean): () => void {
+    toolLeaveGuard = guard
+    return () => {if (toolLeaveGuard === guard) toolLeaveGuard = undefined}
+  }
+
+  /** 图片上传或工具操作待处理时保留当前工作区。 */
   function uploadsBlockSwitch(): boolean {
+    if (toolLeaveGuard?.()) {
+      error.value = '页面工具有未完成操作，请先保存、取消或核验后再切换'
+      return true
+    }
     if (prototype.uploadState.value.pending === 0) return false
     error.value = '图片正在上传，请等待完成后再切换'
     return true
@@ -788,10 +800,24 @@ export function useApplicationFunctionPage() {
     }
     state.blueprintSaving.value = true
     try {
+      const row = context.owner.row
+      const rowId = row && context.owner.view.getPkKey(row)
+      const patch = rowId === undefined ? undefined : context.owner.view.getEditingPatch(rowId)
+      const changedTarget = patch?.['NavigationUrl']
+      if (typeof changedTarget === 'string' && changedTarget.startsWith('cfg:')) {
+        if (!parseConfigToolPageId(changedTarget)) throw new Error('配置工具导航地址不符合调用合同')
+        if (!context.owner.canRead('conid')) throw new Error('主场景字段不可读，无法核对工具调用')
+        readConfigPageScenarioCall(changedTarget, String(context.owner.value('conid') ?? '').trim())
+      }
       await context.owner.save()
       if (!isCurrentContext(context.key)) throw new Error('保存期间蓝图项目或运行时身份已变化')
       state.refreshBlueprintTreeProjection()
       error.value = ''
+      if (changedTarget !== undefined) {
+        try {
+          if (readLowcodeExecutionProject().projectId === context.projectId) await reloadAndSyncNavigation()
+        } catch (cause) {error.value = `蓝图已保存，菜单刷新失败：${String(cause)}`}
+      }
       return true
     } catch (cause) {
       error.value = String(cause)
@@ -857,9 +883,9 @@ export function useApplicationFunctionPage() {
     }
   }
 
-  useSystemPageDirtySource({ get isDirty() { return state.hasAnyDirty.value } })
+  useSystemPageDirtySource({ get isDirty() { return state.hasAnyDirty.value || toolLeaveGuard?.() === true } })
   const guardPendingChanges = () => {
-    if (!state.hasAnyDirty.value) return true
+    if (!state.hasAnyDirty.value && !toolLeaveGuard?.()) return true
     error.value = '蓝图存在未保存修改或待核验提交，处理完成后才能离开'
     return false
   }
@@ -874,6 +900,7 @@ export function useApplicationFunctionPage() {
   onBeforeUnmount(stopTargetWatch)
 
   return {
+    registerToolLeaveGuard,
     state,
     loading,
     error,

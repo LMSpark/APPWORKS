@@ -1,3 +1,5 @@
+import { PageRuntime } from '@spark-appworks/spark-project-model'
+
 /** Application Path Scope 的语义模型。 */
 export type ApplicationPathScope = { projectId: string }
 
@@ -41,9 +43,31 @@ export function buildApplicationPath(scope: ApplicationPathScope, subPath: strin
   return `${buildApplicationRootPath(scope)}${normalized}`
 }
 
-export function buildConfigPageNavigationPath(nodeId: string, scenarioId?: string): string {
+/** 配置工具的显式调用声明存于蓝图导航地址，主空间仍由 conid 提供。 */
+export function readConfigPageScenarioCall(target: string, mainScenarioId?: string) {
+  const separator = target.indexOf('?')
+  const params = new URLSearchParams(separator === -1 ? '' : target.slice(separator + 1))
+  const additionalIds = params.getAll('additionalScenarioIds').sort()
+  const inputTexts = params.getAll('scenarioInputs')
+  const inputText = inputTexts[0]
+  if (additionalIds.some(id => id.length === 0 || id.trim() !== id || id === mainScenarioId)
+    || new Set(additionalIds).size !== additionalIds.length || inputTexts.length > 1) {
+    throw new Error('工具调用的附加场景为空、重复或与主场景冲突，或调用参数重复')
+  }
+  const scenarioIds = mainScenarioId ? [mainScenarioId, ...additionalIds] : additionalIds
+  const scenarioInputs = inputText === undefined ? undefined : PageRuntime.parseScenarioInputs(inputText)
+  if (scenarioInputs && Object.keys(scenarioInputs).some(id => !scenarioIds.includes(id))) {
+    throw new Error('工具调用参数引用了未声明的场景')
+  }
+  return {scenarioIds, additionalIds, scenarioInputs, inputText}
+}
+
+export function buildConfigPageNavigationPath(nodeId: string, scenarioId?: string, target = ''): string {
   const query = new URLSearchParams()
   if (scenarioId) query.set('scenarioId', scenarioId)
+  const call = readConfigPageScenarioCall(target, scenarioId)
+  for (const id of call.additionalIds) query.append('additionalScenarioIds', id)
+  if (call.inputText !== undefined) query.set('scenarioInputs', call.inputText)
   const parameters = query.toString()
   return `/__page/${encodeURIComponent(nodeId)}${parameters ? `?${parameters}` : ''}`
 }

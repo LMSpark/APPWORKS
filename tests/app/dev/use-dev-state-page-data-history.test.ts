@@ -6,6 +6,7 @@ import DevDataSetDesigner from '@/views/features/application/application-functio
 import DevPreviewTab from '@/views/features/application/application-function-management/ui/page-design/DevPreviewTab.vue'
 import DevFileEditor from '@/views/features/application/application-function-management/ui/page-design/DevFileEditor.vue'
 import {useDevFileEditor} from '@/views/features/application/application-function-management/ui/page-design/useDevFileEditor'
+import {usePageDesign} from '@/views/features/application/application-function-management/ui/page-design/use-page-design'
 import ScenarioHistoryPanel from '@/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {DataSet, type DataRow, type DataView, type DataViewSourceHistoryStatus} from '@spark-appworks/spark-data'
@@ -16,10 +17,16 @@ import {PageRuntime, ScenarioDefinitionResource, type ProjectWorkspace} from '@s
 import metadataConfig from '../../../config/pages/data-platform/data-space-design/pagedata.json'
 import appConfig from '../../../config/pages/application/project-blueprint/pagedata.json'
 
-const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterceptors, readModels, previewLoad } = vi.hoisted(() => ({
+vi.mock('@/services/sse-events', async importOriginal => ({
+  ...await importOriginal<typeof import('@/services/sse-events')>(),
+  onPageConfigChange: () => () => {},
+}))
+
+const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterceptors, readModels, previewLoad, previewCalls } = vi.hoisted(() => ({
   httpGet: vi.fn(),
   readModels: vi.fn(),
   previewLoad: vi.fn(),
+  previewCalls: new Map<string, {target: string; main: string; publish?: boolean; failReadback?: boolean}>(),
   httpPost: vi.fn(),
   httpPut: vi.fn(),
   httpRequestFull: vi.fn(),
@@ -59,29 +66,55 @@ vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
     const view = dataSet.getView('Base_NavigationInfo')!
     const rows = ['orders-page-node', 'orders-page-v2-node', 'demo-node'].map(rowid => ({rowid, SysId: projectId,
       prowid: '000000', FunOrderValue: '0', name: rowid, FunName: rowid, conType: 'Model',conid:rowid==='orders-page-node'?'scene':''}))
+    const savedVersions = new Map<string,string>()
+    let failReadback = false
+    const result = (matching: typeof rows) => ({
+      rows: matching.map(row => {
+        const call = previewCalls.get(row.rowid)
+        return {...row, NavigationUrl: call?.target ?? `cfg:${row.rowid.replace(/-node$/, '')}`,
+          conid: call?.main ?? row.conid, VersionId:savedVersions.get(row.rowid) ?? ''}
+      }), total: matching.length,
+      assertIdentity: (identity: {scenarioId: string; metaName: string}) => {
+        if (identity.scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY || identity.metaName !== 'Base_NavigationInfo') throw new Error('blueprint identity mismatch')
+      },
+      rowKey: (row: Readonly<Record<string, unknown>>) => row['rowid'],
+      prepareNewRow: (row: Readonly<Record<string, unknown>>) => ({...row, rowid: `new-${Date.now()}`}),
+      fieldAccess: (row: unknown, field: string) => {
+        const key = typeof row === 'object' && row !== null && 'rowid' in row ? row.rowid : row
+        const writable = field === 'VersionId' && previewCalls.get(String(key))?.publish === true
+        return {read:'visible' as const,write:writable?'allowed' as const:'denied' as const,
+          component:writable?'editable' as const:'readonly' as const,required:false,writeMode:writable?'editable' as const:'readonly' as const}
+      },
+      readFieldAccess: (_row: Readonly<Record<string, unknown>>, _field: string) => 'visible' as const,
+      addActionState: () => 'disabled' as const,
+      editActionState: (rowKey: unknown) => previewCalls.get(String(rowKey))?.publish ? 'enabled' as const : 'disabled' as const,
+      deleteActionState: () => 'disabled' as const,
+      createChildActionState: () => 'disabled' as const,
+      viewActionState: () => 'enabled' as const,
+    })
     view.bindQueryExecutor({
       queryColumns: current => current.columns,
       executeQuery: async (_current, params) => {
+        if (failReadback) {
+          failReadback = false
+          throw new Error('publication readback interrupted')
+        }
         const filter = params.filter as {filters?: Array<{field?: string; value?: unknown}>} | undefined
         const matching = rows.filter(row => row.SysId === projectId && (filter?.filters ?? []).every(condition =>
           condition.field === undefined || String(row[condition.field as keyof typeof row] ?? '') === String(condition.value ?? '')))
-        return {
-          rows: matching, total: matching.length,
-          assertIdentity: (identity: {scenarioId: string; metaName: string}) => {
-            if (identity.scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY || identity.metaName !== 'Base_NavigationInfo') throw new Error('blueprint identity mismatch')
-          },
-          rowKey: (row: Readonly<Record<string, unknown>>) => row['rowid'],
-          prepareNewRow: (row: Readonly<Record<string, unknown>>) => ({...row, rowid: `new-${Date.now()}`}),
-          fieldAccess: (_rowKey: unknown, _field: string) => ({read: 'visible' as const, write: 'denied' as const, component: 'readonly' as const, required: false, writeMode: 'readonly' as const}),
-          readFieldAccess: (_row: Readonly<Record<string, unknown>>, _field: string) => 'visible' as const,
-          addActionState: () => 'disabled' as const,
-          editActionState: () => 'disabled' as const,
-          deleteActionState: () => 'disabled' as const,
-          createChildActionState: () => 'disabled' as const,
-          viewActionState: () => 'enabled' as const,
-        }
+        return result(matching)
       },
-      save: async () => [],
+      save: async command => command.changes.map(change => {
+        const changed = change.changes.changed ?? []
+        for (const row of changed) {
+          const id = String(row['rowid'])
+          if (!previewCalls.get(id)?.publish || typeof row['VersionId'] !== 'string') throw new Error('unexpected pointer save')
+          savedVersions.set(id, row['VersionId'])
+          if (previewCalls.get(id)?.failReadback) failReadback = true
+        }
+        return {metaName:change.identity.metaName, added:[], deleted:[], changed,
+          changedFields:changed.map(row=>Object.keys(row)), context:result(rows)}
+      }),
     })
     return dataSet
   },
@@ -159,8 +192,10 @@ import { createDevStateWithConfigPages, ensureDevStateActivePageLoaded, isolateA
 import type { ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 const fixtureText=(pageSize:number)=>JSON.stringify({scenarioId:'scene',tables:{Orders:{modelBinding:{modelId:'orders-model',modelName:'Orders'},views:{default:{pageSize},detail:{}}}}})
 function sceneNode():ProjectBlueprintTreeNodeData{return {nodeId:'orders-page-node',parentNodeId:'homepage_root',projectId:'homepage',kind:'page',capability:{name:'Orders'},navigation:{title:'Orders',target:'cfg:orders-page',order:0,publishInMenu:true,showChildren:true,beginGroup:false},dataSpace:{scenarioId:'scene',models:[{metaName:'Orders'}]},source:{}}}
-async function selectPreviewNode(state:ReturnType<typeof createDevStateWithConfigPages>):Promise<void>{
+async function selectPreviewNode(state:ReturnType<typeof createDevStateWithConfigPages>,target?:string,publish=false):Promise<void>{
  const node=sceneNode();delete node.dataSpace
+ if(target)node.navigation!.target=target
+ previewCalls.set(node.nodeId, {target:node.navigation!.target!,main:'',publish})
  state.project.replaceBlueprintChildren([node]);await state.selectNode(node)
 }
 function mountDesigner(options:{state:ReturnType<typeof createDevStateWithConfigPages>;shallow?:boolean;stubs?:Record<string,Component|boolean>}){
@@ -631,7 +666,7 @@ describe('tool and shared scenario editing owners',()=>{
   expect(state.statusMessages.value.some(item=>item.text.includes('工具 orders-page 文件加载失败'))).toBe(false)
  })
  beforeEach(()=>{isolateAppProjectWorkspaceForTest();localStorage.clear();httpGet.mockReset();httpPut.mockReset();httpGet.mockResolvedValue({content:''});readModels.mockReset();previewLoad.mockReset();vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:DataSet.fromJson({scenarioId:LowcodeDictionary.editorScenarioId,tables:{_Base_DictType:{modelBinding:{modelId:`${LowcodeDictionary.editorScenarioId}dictionary`,modelName:'_Base_DictType'},columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'Name',type:'string'}],views:{default:{}}}}})}))})
- afterEach(()=>{vi.useRealTimers()})
+ afterEach(()=>{vi.useRealTimers();previewCalls.clear()})
  it('opens the active file through its DataView without loading PageTool owner text',async()=>{
   httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':url.endsWith('/script.js')?'owner duplicate':''}))
   const state=createDevStateWithConfigPages()
@@ -681,7 +716,7 @@ describe('tool and shared scenario editing owners',()=>{
    httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20).replaceAll('"scene"','"extra"'):url.endsWith('/rule.json')?rule:''}))
    previewLoad.mockImplementation(async({scenarioId}:{scenarioId:string})=>({dataSet:DataSet.fromJson({scenarioId,tables:{Internal:{modelBinding:{modelId:'orders-model',modelName:'Orders'},columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{}}}}})}))
    const state=createDevStateWithConfigPages()
-   await selectPreviewNode(state)
+   await selectPreviewNode(state,'cfg:orders-page?additionalScenarioIds=extra')
    await ensureDevStateActivePageLoaded(state)
    const Renderer=defineComponent({name:'SparkPageRenderer',props:['pageRuntime','routeSnapshot'],template:'<div />'})
    const wrapper=mount(DevPreviewTab,{props:{state},global:{stubs:{DisplayAlert:true,DisplayEmpty:true,FieldSwitch:true,RendererButton:true,SparkPageRenderer:Renderer}}})
@@ -698,6 +733,66 @@ describe('tool and shared scenario editing owners',()=>{
    } finally {wrapper.unmount()}
   },
  )
+ it('resumes a partial publication with the original confirmed snapshot',async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':''}))
+  const state=createDevStateWithConfigPages()
+  await selectPreviewNode(state,undefined,true)
+  await ensureDevStateActivePageLoaded(state)
+  const owner=state.blueprintWorkspaceDataView.value!
+  const fileViews=await Promise.all(state.pageFileNames.map(fileName=>state.loadPageToolFileDataView({pageId:'orders-page',fileName})))
+  const statuses=state.pageFileNames.map(fileName=>({state:'confirmed' as const,version:1,fileName:`1__${fileName}`,message:null}))
+  const [rule,script,style]=fileViews.map((view,index)=>{
+   vi.spyOn(view,'acknowledgeSourceHistoryAttempt').mockImplementation(()=>{})
+   return vi.spyOn(view,'createSourceVersion').mockResolvedValue(statuses[index]!)
+  })
+  script!.mockRejectedValueOnce(new Error('script upload rejected'))
+  const readSnapshot=vi.spyOn(fileViews[0]!,'previewSourceVersion').mockResolvedValue('[]')
+  const save=vi.spyOn(owner,'save')
+  let page!:ReturnType<typeof usePageDesign>
+  const wrapper=mount(defineComponent({setup(){page=usePageDesign(state);return ()=>h('div')}}))
+  try {
+   expect(owner.canWrite('VersionId')).toBe(true)
+   page.actions.value.saveDelivery()
+   await vi.waitFor(()=>expect(state.statusMessages.value.map(status=>status.text).join('\n')).toContain('script upload rejected'))
+   expect(save).not.toHaveBeenCalled()
+   expect(owner.value('VersionId')).toBe('')
+   expect(style).not.toHaveBeenCalled()
+   page.actions.value.saveDelivery()
+   await vi.waitFor(()=>expect(state.statusMessages.value.map(status=>status.text).join('\n')).toContain('发布指针已一次切换并读回'))
+   expect(save).toHaveBeenCalledTimes(1)
+   expect(owner.row?.['VersionId']).toBe('rule=1;script=1;style=1')
+   expect(rule).toHaveBeenCalledTimes(1)
+   expect(readSnapshot).toHaveBeenCalledWith(1)
+   expect(script).toHaveBeenCalledTimes(2)
+   expect(style).toHaveBeenCalledTimes(1)
+  } finally {wrapper.unmount()}
+ })
+ it('recovers a confirmed pointer with an interrupted readback without writing again',async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':''}))
+  const state=createDevStateWithConfigPages()
+  await selectPreviewNode(state,undefined,true)
+  previewCalls.get('orders-page-node')!.failReadback=true
+  await ensureDevStateActivePageLoaded(state)
+  const owner=state.blueprintWorkspaceDataView.value!
+  for (const fileName of state.pageFileNames) {
+   const view=await state.loadPageToolFileDataView({pageId:'orders-page',fileName})
+   vi.spyOn(view,'acknowledgeSourceHistoryAttempt').mockImplementation(()=>{})
+   vi.spyOn(view,'createSourceVersion').mockResolvedValue({state:'confirmed',version:1,fileName:`1__${fileName}`,message:null})
+  }
+  const save=vi.spyOn(owner.dataSet,'saveChanges')
+  let page!:ReturnType<typeof usePageDesign>
+  const wrapper=mount(defineComponent({setup(){page=usePageDesign(state);return ()=>h('div')}}))
+  try {
+   page.actions.value.saveDelivery()
+   await vi.waitFor(()=>expect(state.statusMessages.value.map(status=>status.text).join('\n')).toContain('publication readback interrupted'))
+   expect(page.canVerifyPendingWrites.value).toBe(true)
+   expect(save).toHaveBeenCalledTimes(1)
+   page.verifyPendingWrites()
+   await vi.waitFor(()=>expect(state.statusMessages.value.map(status=>status.text).join('\n')).toContain('发布指针已一次切换并读回'))
+   expect(save).toHaveBeenCalledTimes(1)
+   expect(owner.row?.['VersionId']).toBe('rule=1;script=1;style=1')
+  } finally {wrapper.unmount()}
+ })
  it('keeps the preview route snapshot aligned with the main and additional runtime spaces',async()=>{
   const rule=JSON.stringify([{id:'field',type:'r-select',props:{
    dataViewKey:'Orders@default',optionDataViewKey:'extra & space@Orders@default',edgeDataViewKey:'third@Orders@default',
@@ -708,7 +803,10 @@ describe('tool and shared scenario editing owners',()=>{
    modelBinding:{modelId:'orders-model',modelName:'Orders'},columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{}},
   }}})}))
   const state=createDevStateWithConfigPages([], '')
-  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
+  const node=sceneNode()
+  node.navigation!.target='cfg:orders-page?additionalScenarioIds=extra+%26+space&additionalScenarioIds=third'
+  previewCalls.set(node.nodeId, {target:node.navigation!.target,main:'scene'})
+  state.project.replaceBlueprintChildren([node]);await state.selectNode(node)
   await ensureDevStateActivePageLoaded(state)
   const Renderer=defineComponent({name:'SparkPageRenderer',props:['pageRuntime','routeSnapshot'],template:'<div />'})
   const wrapper=mount(DevPreviewTab,{props:{state},global:{stubs:{DisplayAlert:true,DisplayEmpty:true,FieldSwitch:true,RendererButton:true,SparkPageRenderer:Renderer}}})

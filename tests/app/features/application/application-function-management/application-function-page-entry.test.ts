@@ -21,6 +21,10 @@ import ApplicationFunctionPage from '@/views/features/application/application-fu
 import {getVuePageOptions} from '@/registries/vue-page-registry'
 
 let capturedPage: ReturnType<typeof useApplicationFunctionPage> | undefined
+vi.mock('@/services/sse-events', async importOriginal => ({
+  ...await importOriginal<typeof import('@/services/sse-events')>(),
+  onPageConfigChange: () => () => {},
+}))
 function readPageInstance(): ReturnType<typeof useApplicationFunctionPage> {
   if (!capturedPage) throw new Error('page fixture did not mount')
   return capturedPage
@@ -304,6 +308,8 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
     get projectId() {return editingProject.value},
     blueprintWorkspaceDataView: shallowRef(owner), blueprintPageRuntime: shallowRef(runtime),
     selectedNode, externalDataViewRevision: revision,
+    activePageId: ref(''), projectRevision: ref(0), aiToolApprovalPending: ref([]),
+    hasPendingBlueprintWrite: () => false, allSaving: ref(false), pageIoBusy: ref(false),
     persistedDataSpaceId: computed(() => conidOf(field => owner.row?.[field]) ?? ''),
     sceneBindingPending: computed(() => {
       const raw = conidOf(field => owner.row?.[field])
@@ -605,6 +611,12 @@ function typeInput(setupResult: Awaited<ReturnType<typeof setup>>, field: string
 }
 
 describe('application function page AI and prototype', () => {
+  it('opens the tool workbench tab from a formal blueprint route', async () => {
+    const {page, wrapper} = await setup({nodeId: 'NODE-1', blueprintTab: 'pageDesign'})
+    expect(page.activeTab.value).toBe('pageDesign')
+    expect(wrapper.find('.page-design-pane').exists()).toBe(true)
+  })
+
   it('rejects a formally output grouping field whose write access is denied', async () => {
     const ds = catalogDataSet(), view = ds.getView('Base_NavigationInfo')!
     const rows: DataRow[] = [{rowid: 'ROOT', SysId: TARGET, prowid: '000000', FunOrderValue: 0, name: 'Root', FunName: 'Root', conType: 'Model', NavigationUrl: ''}]

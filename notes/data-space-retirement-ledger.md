@@ -11591,3 +11591,5 @@ flowchart TD
 - 2026-11-18，按集成会话交接清除标书4处目录超限。入口模块归 authoring/ui/entry，快照读取归 model/hashes，放行归 review/package，递交回执读取归 review/submission，核包测试归 package，更新引用及模块声明，正式页面路径未变。verify:dirs、改动 ESLint、diff 检查及迁移后 SmartBid 全量109文件745项通过。先启动的全仓 verify 出现平台 use-application-function-page.ts:816 TS2367，交集成处理，最终 ClassModel 由集成生成。
 
 - 2026-11-18，迁移后补跑页11目标、渲染、平台运行导航和视图绑定四组联测，4文件89项通过，目录与差异检查通过。生成产物已有 authoring/ui/entry 的9份声明；正式 preparePublishedContentAuthoringCall 和页13递交宿主仍只见定义，当前 lowcode-runtime 未消费，联测范围为配置与夹具。
+
+- 平台配置工具调用检查点：授权 cfg 导航保留蓝图声明的主/附加场景与输入，校验重复、未声明场景及工具身份。工具预览和交付沿同一三文件、DataView 与发布版本链；蓝图导航修改保存后按原执行应用刷新菜单。五组定向170项通过。当前仍缺标书正式已发布节点、工具、场景及同运行实例业务宿主配置；未做线上发布或业务写入。

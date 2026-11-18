@@ -13,7 +13,12 @@ export function normalizePageIdFromPath(path: string | undefined | null): string
 export function normalizeConfigPageId(value: string | undefined | null): string { return value?.trim() ?? '' }
 export function parseConfigToolPageId(target: string | undefined | null): string {
   if (!target?.startsWith('cfg:')) return ''
-  const pageId = target.slice(4)
+  const separator = target.indexOf('?')
+  const pageId = target.slice(4, separator === -1 ? undefined : separator)
+  if (separator !== -1) {
+    const params = new URLSearchParams(target.slice(separator + 1))
+    if (params.size === 0 || [...params.keys()].some(key => key !== 'additionalScenarioIds' && key !== 'scenarioInputs')) return ''
+  }
   return pageId.length > 0 && pageId.trim() === pageId && pageId !== '.' && pageId !== '..'
     && !/[\\/%\u0000-\u001f\u007f?#]/.test(pageId) ? pageId : ''
 }

@@ -7,21 +7,40 @@
  */
 import { computed, onScopeDispose, ref, shallowRef, watch } from 'vue'
 import { getNavTree, resolveNavNodeRuntimeTarget, useNav, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
-import { buildDataViewKey, ensureDataSetStaticInputTable, type DataSet, type DataTable, type DataView } from '@spark-appworks/spark-data'
-import { parseConfigToolPageId, type PageToolFileName } from '@spark-appworks/spark-project-model'
+import { buildDataViewKey, ensureDataSetStaticInputTable, parseDataViewKey, type DataSet, type DataTable, type DataView } from '@spark-appworks/spark-data'
+import { PageTool, parseConfigToolPageId, type PageToolFileName } from '@spark-appworks/spark-project-model'
 import {
   encodeLowcodeBlueprintFileVersions,
   lowcodeBlueprintFileVersionKey,
   parseLowcodeBlueprintFileVersions,
   type LowcodeBlueprintFileName,
 } from '@spark-appworks/spark-lowcode-api'
-import { buildConfigPageNavigationPath } from '@/services/application-scope'
+import { buildConfigPageNavigationPath, readConfigPageScenarioCall } from '@/services/application-scope'
 import { onPageConfigChange } from '@/services/sse-events'
+import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import type { DevState } from '../blueprint-state/useDevState'
 
 const PAGE_DESIGN_PROMPT_ROW = 'page-design-prompt'
 const DELIVERY_FILES = ['rule.json', 'script.js', 'style.css'] as const satisfies readonly LowcodeBlueprintFileName[]
+type DeliveryIntent = {
+  digest: string
+  snapshots: Map<LowcodeBlueprintFileName, {version: number; fileName: string}>
+}
+const deliveryIntents = new WeakMap<DevState, Map<string, DeliveryIntent>>()
+
+export function resolvePageToolCall(tool: PageTool, target: string, mainScenarioId?: string) {
+  if (parseConfigToolPageId(target) !== tool.pageId) throw new Error('配置工具调用目标与页面身份不符')
+  const call = readConfigPageScenarioCall(target, mainScenarioId)
+  for (const binding of tool.getNodeTree().collectDataViewKeys()) {
+    const descriptor = parseDataViewKey(binding)
+    const scenarioId = descriptor?.scope ?? mainScenarioId
+    if (!descriptor || !scenarioId || !call.scenarioIds.includes(scenarioId)) {
+      throw new Error(`页面绑定 ${binding} 引用了未声明的数据空间，请先配置导航地址`)
+    }
+  }
+  return call
+}
 
 /** 预览请求：只在同一项目、节点、工具与运行实例下被预览页签接受。 */
 export type DevPreviewRequest = Readonly<{
@@ -194,9 +213,14 @@ export function usePageDesign(state: DevState) {
     const resource=target.startsWith('vue:') ? target.slice(4).replace(/^\/+/,'') : ''
     const matchesNative=resource!=='' && match?.node.itemKind==='system-page' && match.node.path===`/${resource}`
     const toolPageId=parseConfigToolPageId(target)
+    let configPath: string | undefined
+    if (toolPageId) {
+      try {configPath = buildConfigPageNavigationPath(scope.nodeId, scenarioId, target)}
+      catch (error) {state.addStatus(String(error), 'warning');return}
+    }
     const matchesConfig=toolPageId!=='' && toolPageId===scope.pageId && match?.node.itemKind==='page'
       && match.node.tool?.projectId===scope.projectId && match.node.tool.pageId===toolPageId
-      && match.node.path===buildConfigPageNavigationPath(scope.nodeId,scenarioId)
+      && match.node.path===configPath
     if (matches.length!==1 || !match || match.unavailable || (!matchesNative && !matchesConfig)
       || (match.node.blueprintScenarioId ?? '')!==scenarioId) {
       state.addStatus('运行导航的节点、目标或数据空间身份不匹配，或该页面尚不可用', 'warning')
@@ -230,20 +254,22 @@ export function usePageDesign(state: DevState) {
   }
 
   /** 待定提交核验：只在原文件/命令回执未知时出现，沿工作区原 attempt 核验，不重复写入。 */
+  let recoverPublication: (() => Promise<void>) | undefined
+  const delivering = ref(false)
   const canVerifyPendingWrites = computed(() => {
     void state.externalDataViewRevision.value
     void state.projectRevision.value
-    return state.hasPendingBlueprintWrite() && !state.allSaving.value && !state.pageIoBusy.value && !state.blueprintSaving.value
+    return state.hasPendingBlueprintWrite() && !delivering.value && !state.allSaving.value && !state.pageIoBusy.value && !state.blueprintSaving.value
   })
   function verifyPendingWrites(): void {
     if (hasPendingPreview()) {
       state.addStatus('预览页面仍有未保存业务数据或待核验写入，请在预览中处理；页面设计不会代替业务提交', 'warning')
       return
     }
-    void state.saveAll()
+    if (recoverPublication) void recoverPublication()
+    else void state.saveAll()
   }
 
-  const delivering = ref(false)
   const canSaveDelivery = computed(() => {
     void state.externalDataViewRevision.value
     const owner=actionScope.value?.owner
@@ -259,7 +285,9 @@ export function usePageDesign(state: DevState) {
     if (current.dirty || current.hasUnconfirmedSave) {state.addStatus('请先保存或取消当前节点字段修改，再提交发布文件', 'warning'); return}
     const scopeToken = lowcodeApi.readRequestScope().token
     const originalNavigationUrl = String(current.value('NavigationUrl') ?? '')
-    let expectedVersionId = String(current.value('VersionId') ?? '')
+    const mainScenarioId = String(current.value('conid') ?? '').trim()
+    const originalVersionId = String(current.value('VersionId') ?? '')
+    let expectedVersionId = originalVersionId
     let fileViews=new Map<LowcodeBlueprintFileName,DataView>()
     const written: string[] = []
     const confirmed: string[] = []
@@ -281,25 +309,32 @@ export function usePageDesign(state: DevState) {
         || lowcodeApi.readRequestScope().token !== scopeToken
         || current.projectId !== projectId || current.nodeId !== nodeId) throw new Error('交付目标已切换，后续交付已停止')
       if (current.isBusy || current.view.loadingError) throw new Error('交付蓝图 DataView 查询状态已改变，后续交付已停止')
-      if (!current.canRead('NavigationUrl') || !current.canRead('VersionId') || !current.canWrite('VersionId')) {
+      if (!current.canRead('NavigationUrl') || !current.canRead('conid') || !current.canRead('VersionId') || !current.canWrite('VersionId')) {
         throw new Error('交付期间正式 DataView 字段权限已改变，后续交付已停止')
       }
       const row = current.row
       const rowKey = row ? current.view.getPkKey(row) : undefined
       if (!row || rowKey === undefined || row['rowid'] !== nodeId || row['SysId'] !== projectId
         || String(current.value('NavigationUrl') ?? '') !== originalNavigationUrl
+        || String(current.value('conid') ?? '').trim() !== mainScenarioId
         || String(current.value('VersionId') ?? '') !== expectedVersionId) throw new Error('交付 DataView 行或发布身份已改变，后续交付已停止')
       const patch = current.view.getEditingPatch(rowKey)
       const changedFields = Object.keys(patch ?? {})
+      const tracking = current.view.dirtyTracking
       const submittedRowIds = current.view.rows.map(candidate => current.view.getPkKey(candidate))
         .filter((key): key is string | number => key !== undefined
           && (current.view.hasEditingChanges(key) || current.view.dirtyTracking.hasPendingChanges(key)))
-      if (current.hasUnconfirmedSave || current.hasPendingBlueprintCommand || current.view.dirtyTracking.hasPendingChanges(rowKey)) {
+      if (current.hasUnconfirmedSave || current.hasPendingBlueprintCommand
+        || tracking.isPendingCreate(rowKey) || tracking.pendingDeleteIds.has(rowKey)) {
         throw new Error('交付 DataView 保存或命令状态已改变，后续交付已停止')
       }
       if (allowOnlyOwnedVersionPatch) {
-        if (submittedRowIds.length !== 1 || submittedRowIds[0] !== rowKey
-          || changedFields.length !== 1 || changedFields[0] !== 'VersionId' || patch?.['VersionId'] !== expectedVersionId) {
+        const diff = current.view.getDirtyChanges(rowKey)
+        const staged = tracking.hasPendingChanges(rowKey)
+        const isOwnedPatch = !staged && changedFields.length === 1 && patch?.['VersionId'] === expectedVersionId
+        const isOwnedStage = staged && changedFields.length === 0 && Object.keys(diff).length === 1
+          && String(diff['VersionId']?.from ?? '') === originalVersionId && diff['VersionId']?.to === expectedVersionId
+        if (submittedRowIds.length !== 1 || submittedRowIds[0] !== rowKey || (!isOwnedPatch && !isOwnedStage)) {
           throw new Error('交付期间 DataView 出现其他未保存修改，后续交付已停止')
         }
       } else if (current.dirty || changedFields.length > 0) {
@@ -311,10 +346,23 @@ export function usePageDesign(state: DevState) {
       fileViews=new Map(await Promise.all(DELIVERY_FILES.map(async fileName=>[fileName,await state.loadPageToolFileDataView({pageId,fileName})] as const)))
       assertTarget()
       const texts = new Map(DELIVERY_FILES.map(name=>[name,readFileText(name)]))
-      const runtimeTarget = String(current.value('NavigationUrl') ?? '')
       if (lowcodeApi.readRequestScope().headers['X-AppId'] !== projectId || pageId.trim() !== pageId
         || pageId === '.' || pageId === '..' || /[\\/%\u0000-\u001f\u007f?#]/.test(pageId)
-        || runtimeTarget !== `cfg:${pageId}`) throw new Error('交付工具身份必须与当前项目及页面一致')
+        || !current.canRead('conid')) throw new Error('交付工具与主空间身份必须可核验')
+      const tool = new PageTool({pageId})
+      const ruleText = texts.get('rule.json')
+      if (ruleText === undefined) throw new Error('交付规则文本缺失')
+      tool.hydrateFileText('rule.json', ruleText)
+      resolvePageToolCall(tool, originalNavigationUrl, mainScenarioId)
+      const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify([...texts])))
+      assertTarget()
+      const digest = JSON.stringify(Array.from(new Uint8Array(hash)))
+      const intentKey = JSON.stringify([scopeToken, projectId, nodeId, pageId, originalNavigationUrl, mainScenarioId, expectedVersionId])
+      const intents = deliveryIntents.get(state) ?? new Map<string, DeliveryIntent>()
+      deliveryIntents.set(state, intents)
+      const previousIntent = intents.get(intentKey)
+      const intent: DeliveryIntent = previousIntent?.digest === digest ? previousIntent : {digest, snapshots: new Map()}
+      intents.set(intentKey, intent)
       let versions = parseLowcodeBlueprintFileVersions(expectedVersionId.trim())
       for (const fileName of DELIVERY_FILES) {
         assertTarget()
@@ -323,34 +371,80 @@ export function usePageDesign(state: DevState) {
         const fileView=await state.loadPageToolFileDataView({pageId,fileName})
         assertTarget()
         if(readFileText(fileName)!==text)throw new Error(`${fileName} 交付期间 DataView 已修改`)
-        const history=await fileView.createSourceVersion(attempt=>{
-          if(typeof attempt.fileName==='string'&&!attemptedSnapshots.includes(attempt.fileName))attemptedSnapshots.push(attempt.fileName)
-        })
-        if(history.state!=='confirmed'||typeof history.version!=='number'||typeof history.fileName!=='string') {
-          throw new Error(`${fileName} 文件 DataView 未确认快照回执`)
+        let snapshot = intent.snapshots.get(fileName)
+        if (snapshot) {
+          if (await fileView.previewSourceVersion(snapshot.version) !== text) {
+            intent.snapshots.delete(fileName)
+            throw new Error(`${fileName} 已确认版本与原发布意图不符，请重新发布`)
+          }
+          assertTarget()
         }
-        const {version,fileName:versionedName}=history
-        written.push(versionedName)
-        assertTarget()
-        fileView.acknowledgeSourceHistoryAttempt()
+        if (!snapshot) {
+          const history=await fileView.createSourceVersion(attempt=>{
+            if(typeof attempt.fileName==='string'&&!attemptedSnapshots.includes(attempt.fileName))attemptedSnapshots.push(attempt.fileName)
+          })
+          if(history.state!=='confirmed'||typeof history.version!=='number'||typeof history.fileName!=='string') {
+            throw new Error(`${fileName} 文件 DataView 未确认快照回执`)
+          }
+          assertTarget()
+          fileView.acknowledgeSourceHistoryAttempt()
+          snapshot = {version: history.version, fileName: history.fileName}
+          intent.snapshots.set(fileName, snapshot)
+        }
+        written.push(snapshot.fileName)
         if (readFileText(fileName)!==text) throw new Error(`${fileName} 上传期间 DataView 已修改，未更新发布引用`)
-        versions = Object.freeze({ ...versions, [lowcodeBlueprintFileVersionKey(fileName)]: version })
+        versions = Object.freeze({ ...versions, [lowcodeBlueprintFileVersionKey(fileName)]: snapshot.version })
       }
       assertTarget()
       for (const fileName of DELIVERY_FILES) {
         if (readFileText(fileName) !== texts.get(fileName)) throw new Error(`${fileName} 交付期间 DataView 已修改，未更新发布引用`)
       }
       expectedVersionId = encodeLowcodeBlueprintFileVersions(versions)
+      const finishPublication = async () => {
+        assertTarget()
+        const readbackVersions = String(current.value('VersionId') ?? '').trim()
+        if (encodeLowcodeBlueprintFileVersions(parseLowcodeBlueprintFileVersions(readbackVersions)) !== expectedVersionId) {
+          throw new Error('三文件发布指针回读不一致')
+        }
+        recoverPublication = undefined
+        confirmed.push(...written)
+        intents.delete(intentKey)
+        state.refreshBlueprintTreeProjection()
+        state.addStatus('三个交付文件快照均已确认，发布指针已一次切换并读回', 'success')
+        try {await reloadAndSyncNavigation()} catch (error) {
+          state.addStatus(`发布已确认，运行菜单刷新失败：${String(error)}`, 'warning')
+        }
+      }
       current.update('VersionId', expectedVersionId)
       state.notifyExternalDataViewChanged()
       assertTarget(true)
       attemptedReferences.push(...written)
-      await current.save()
-      assertTarget()
-      const readbackVersions = String(current.value('VersionId') ?? '').trim()
-      if (encodeLowcodeBlueprintFileVersions(parseLowcodeBlueprintFileVersions(readbackVersions)) !== expectedVersionId) throw new Error('三文件发布指针回读不一致')
-      confirmed.push(...written)
-      state.addStatus('三个交付文件快照均已确认，发布指针已一次切换并读回', 'success')
+      try {
+        await current.save()
+      } catch (error) {
+        if (isCurrentScope(captured) && current.hasPendingBlueprintCommand) {
+          recoverPublication = async () => {
+            if (delivering.value || !isCurrentScope(captured)) return
+            delivering.value = true
+            try {
+              if (lowcodeApi.readRequestScope().token !== scopeToken || !current.hasPendingBlueprintCommand) {
+                throw new Error('原发布指针的核验范围已失效')
+              }
+              await current.saveSelectedNode()
+              await finishPublication()
+            } catch (cause) {
+              state.addStatus(`发布指针仍待核验：${String(cause)}`, 'error')
+            } finally {
+              delivering.value = false
+              state.notifyExternalDataViewChanged()
+            }
+          }
+        }
+        // 只有当前仍只包含本次发布的覆盖、且没有未知保存时，才释放覆盖以便续办。
+        try {assertTarget(true);current.cancel()} catch { /* 保留当前编辑或未知回执 */ }
+        throw error
+      }
+      await finishPublication()
     } catch (error) {
       state.addStatus(`交付保存失败: ${String(error)}；已确认快照：${written.join('、') || '无'}；已确认发布引用：${confirmed.join('、') || '无'}；已尝试快照：${attemptedSnapshots.join('、') || '无'}；已尝试发布引用：${attemptedReferences.join('、') || '无'}。未确认的请求须核查远端结果`, 'error')
     } finally {

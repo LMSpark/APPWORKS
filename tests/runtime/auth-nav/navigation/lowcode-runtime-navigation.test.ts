@@ -1059,6 +1059,23 @@ describe('lowcode project navigation projection', () => {
       + `?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=7AB874097A1E8711A42FD845939A6E05`)
   })
 
+  it('routes an authorized cfg menu using the explicit additional spaces and input values', () => {
+    const inputs = JSON.stringify({'SCENE-2': {order: 'O-1'}})
+    const target = `cfg:orders?${new URLSearchParams({additionalScenarioIds:'SCENE-2', scenarioInputs:inputs})}`
+    const tool = record({nodeId:'NODE-1', name:'Orders', title:'订单', target, scenarioId:'SCENE-1'})
+    const projection = assembleLowcodeRuntimeNavigation({
+      applicationName:'测试应用', projectId:'PROJECT-1', navigationRootId:'ROOT-1', records:[tool],
+      authorization:{items:[{id:'NODE-1', target, targetKind:'route', formKey:'SCENE-1', children:[]}], contexts:[]},
+    })
+    const menu = projection.items[0]!
+    expect(menu.tool?.pageId).toBe('orders')
+    expect(menu.path?.split('?')[0]).toBe('/__page/NODE-1')
+    const query = new URLSearchParams(menu.path?.split('?')[1])
+    expect(query.get('scenarioId')).toBe('SCENE-1')
+    expect(query.getAll('additionalScenarioIds')).toEqual(['SCENE-2'])
+    expect(query.get('scenarioInputs')).toBe(inputs)
+  })
+
   it('skips maintenance pages and maintenance groups when selecting the landing page', () => {
     const maintenance = (node: LowcodeProjectBlueprintRecord): LowcodeProjectBlueprintRecord => ({
       ...node, capability: {...node.capability, deliveryStatus: 'maintenance'},

@@ -26,56 +26,61 @@
       {"type":"r-text","props":{"field":"updatetime","label":"修改时间","width":140,"readonly":true,"showOverflowTooltip":true,"onBeforeRender":"bindDate"}}
     ]
   },
-  {"id":"api-provider-config","type":"r-tabs","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication"},"children":[
-    {"id":"jwt","type":"r-tab-pane","props":{"name":"jwt","label":"JWT设置","index":0},"children":[
-      {"type":"r-section","props":{"bordered":false,"gridColumns":1},"children":[
-        {"type":"r-form","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication","gridColumns":2,"labelWidth":"130px","showDataViewMeta":false,"autoColumns":false},"children":[
-          {"type":"r-text","props":{"field":"Name","label":"提供商名称","readonly":true}},
-          {"type":"r-text","props":{"field":"BaseURL","label":"API 基础 URL","readonly":true}}
+  {"id":"api-provider-config","type":"r-dialog","props":{"modelValue":true,"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication","width":1180},"children":[
+    {"type":"r-section","props":{"class":"api-config-page","title":"配置信息设置","bordered":false,"gridColumns":1,"gridGap":12,"style":{"minHeight":"560px"},"header":{"children":[{"id":"config-interfaces","type":"r-button","props":{"label":"接口列表","buttonType":"primary"}},{"id":"config-save","type":"r-button","props":{"label":"保存","dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication","buttonType":"primary","permAction":"edit"}}]}},"children":[
+      {"type":"r-tabs","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication"},"children":[
+        {"id":"jwt","type":"r-tab-pane","props":{"name":"jwt","label":"JWT设置","index":0},"children":[
+          {"type":"r-section","props":{"bordered":false,"gridColumns":1},"children":[
+            {"type":"r-form","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication","gridColumns":2,"labelWidth":"130px","showDataViewMeta":false,"autoColumns":false},"children":[
+              {"type":"r-text","props":{"field":"Name","label":"提供商名称","readonly":true}},
+              {"type":"r-text","props":{"field":"BaseURL","label":"API 基础 URL","readonly":true}}
+            ]},
+            {"type":"r-section","props":{"title":"认证设置","bordered":true,"gridColumns":1},"children":[
+              {"type":"r-form","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication","gridColumns":2,"labelWidth":"130px","showDataViewMeta":false,"autoColumns":false},"children":[
+                {"type":"r-select","props":{"field":"loginApiName","label":"认证接口","clearable":true,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_DataServiceInterface@default"}},
+                {"type":"r-text","props":{"field":"TokenPrefix","label":"令牌前缀"}},
+                {"type":"r-select","props":{"field":"TokenField","label":"从响应中提取的令牌字段名","clearable":true,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"}},
+                {"type":"r-select","props":{"field":"refreshTokenField","label":"刷新令牌提取","clearable":true,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"}},
+                {"type":"r-select","props":{"field":"expireTimeField","label":"过期时间提取","clearable":true,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"}},
+                {"type":"r-select","props":{"field":"expireRefreshTokenField","label":"刷新令牌过期时间字段","clearable":true,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"}}
+              ]}
+            ]},
+            {"type":"r-section","props":{"title":"令牌过期刷新","bordered":true,"gridColumns":1},"children":[
+              {"type":"r-form","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication","gridColumns":2,"labelWidth":"130px","showDataViewMeta":false,"autoColumns":false},"children":[
+                {"type":"r-text","props":{"field":"tokenHeaderField","label":"Header提取令牌属性"}},
+                {"type":"r-text","props":{"field":"refreshTokenHeaderField","label":"Header提取刷新令牌属性"}},
+                {"type":"r-text","props":{"field":"expireTimeHeaderField","label":"Header提取过期时间属性"}}
+              ]}
+            ]}
+          ]},
+          {"type":"r-alert","props":{"title":"认证接口引用失效，已保留原值，请重新选择后保存。","alertType":"warning","closable":false,"showIcon":true}}
         ]},
-        {"type":"r-section","props":{"title":"认证设置","bordered":true,"gridColumns":1},"children":[
-          {"type":"r-form","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication","gridColumns":2,"labelWidth":"130px","showDataViewMeta":false,"autoColumns":false},"children":[
-            {"type":"r-select","props":{"field":"loginApiName","label":"认证接口","clearable":true,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_DataServiceInterface@default"}},
-            {"type":"r-text","props":{"field":"TokenPrefix","label":"令牌前缀"}},
-            {"type":"r-select","props":{"field":"TokenField","label":"从响应中提取的令牌字段名","clearable":true,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"}},
-            {"type":"r-select","props":{"field":"refreshTokenField","label":"刷新令牌提取","clearable":true,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"}},
-            {"type":"r-select","props":{"field":"expireTimeField","label":"过期时间提取","clearable":true,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"}},
-            {"type":"r-select","props":{"field":"expireRefreshTokenField","label":"刷新令牌过期时间字段","clearable":true,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@jwt"}}
+        {"id":"headers","type":"r-tab-pane","props":{"name":"headers","label":"请求头部信息","index":1,"lazy":true},"children":[
+          {"type":"r-table","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider_Headers@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
+            {"type":"r-text","props":{"field":"paramName","label":"参数名称","minWidth":240,"showCellControl":true,"sortable":false}},
+            {"type":"r-value-function","props":{"field":"paramValue","label":"值函数","minWidth":280,"publicParameterDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_Interface_PublicParam@references","functionContext":{"capabilities":["huoshan"]}}},
+            {"type":"r-select","props":{"field":"type","label":"使用场景","minWidth":220,"showCellControl":true,"sortable":false,"clearable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@接口公共头部信息使用类型@default"}}
           ]}
         ]},
-        {"type":"r-section","props":{"title":"令牌过期刷新","bordered":true,"gridColumns":1},"children":[
-          {"type":"r-form","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication","gridColumns":2,"labelWidth":"130px","showDataViewMeta":false,"autoColumns":false},"children":[
-            {"type":"r-text","props":{"field":"tokenHeaderField","label":"Header提取令牌属性"}},
-            {"type":"r-text","props":{"field":"refreshTokenHeaderField","label":"Header提取刷新令牌属性"}},
-            {"type":"r-text","props":{"field":"expireTimeHeaderField","label":"Header提取过期时间属性"}}
+        {"id":"publicParams","type":"r-tab-pane","props":{"name":"publicParams","label":"公共参数","index":2,"lazy":true},"children":[
+          {"type":"r-table","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_Interface_PublicParam@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
+            {"type":"r-text","props":{"field":"paramName","label":"参数名称","minWidth":180,"showCellControl":true,"sortable":false}},
+            {"type":"r-text","props":{"field":"desc","label":"参数描述","minWidth":180,"showCellControl":true,"sortable":false}},
+            {"id":"outputfield","type":"r-select","props":{"field":"outputfield","label":"输出字段","minWidth":180,"showCellControl":true,"sortable":false,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@default"}},
+            {"type":"r-select","props":{"field":"interfaceId","label":"接口名称","minWidth":180,"showCellControl":true,"sortable":false,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_DataServiceInterface@default"}},
+            {"type":"r-text","props":{"field":"accessPath","label":"接口路径","minWidth":220,"readonly":true,"sortable":false,"showOverflowTooltip":true}}
+          ]},
+          {"type":"r-alert","props":{"title":"当前公共参数的接口或输出字段引用失效，已保留原值，请选择有效引用后保存。","alertType":"warning","closable":false,"showIcon":true}}
+        ]},
+        {"id":"accounts","type":"r-tab-pane","props":{"name":"accounts","label":"认证账号","index":3,"lazy":true},"children":[
+          {"type":"r-table","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider_Account@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
+            {"type":"r-text","props":{"field":"UserName","label":"用户名","minWidth":220,"showCellControl":true,"sortable":false}},
+            {"type":"r-text","props":{"field":"Password","label":"密码","minWidth":240,"showCellControl":true,"sortable":false,"showPassword":true}},
+            {"type":"r-text","props":{"field":"description","label":"备注","minWidth":240,"showCellControl":true,"sortable":false}}
           ]}
         ]}
       ]},
-      {"type":"r-alert","props":{"title":"认证接口引用失效，已保留原值，请重新选择后保存。","alertType":"warning","closable":false,"showIcon":true}}
-    ]},
-    {"id":"headers","type":"r-tab-pane","props":{"name":"headers","label":"请求头部信息","index":1,"lazy":true},"children":[
-      {"type":"r-table","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider_Headers@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
-        {"type":"r-text","props":{"field":"paramName","label":"参数名称","minWidth":240,"showCellControl":true,"sortable":false}},
-        {"type":"r-value-function","props":{"field":"paramValue","label":"值函数","minWidth":280,"publicParameterDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_Interface_PublicParam@references","functionContext":{"capabilities":["huoshan"]}}},
-        {"type":"r-select","props":{"field":"type","label":"使用场景","minWidth":220,"showCellControl":true,"sortable":false,"clearable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@接口公共头部信息使用类型@default"}}
-      ]}
-    ]},
-    {"id":"publicParams","type":"r-tab-pane","props":{"name":"publicParams","label":"公共参数","index":2,"lazy":true},"children":[
-      {"type":"r-table","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_Interface_PublicParam@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
-        {"type":"r-text","props":{"field":"paramName","label":"参数名称","minWidth":180,"showCellControl":true,"sortable":false}},
-        {"type":"r-text","props":{"field":"desc","label":"参数描述","minWidth":180,"showCellControl":true,"sortable":false}},
-        {"id":"outputfield","type":"r-select","props":{"field":"outputfield","label":"输出字段","minWidth":180,"showCellControl":true,"sortable":false,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@default"}},
-        {"type":"r-select","props":{"field":"interfaceId","label":"接口名称","minWidth":180,"showCellControl":true,"sortable":false,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_DataServiceInterface@default"}},
-        {"type":"r-text","props":{"field":"accessPath","label":"接口路径","minWidth":220,"readonly":true,"sortable":false,"showOverflowTooltip":true}}
-      ]},
-      {"type":"r-alert","props":{"title":"当前公共参数的接口或输出字段引用失效，已保留原值，请选择有效引用后保存。","alertType":"warning","closable":false,"showIcon":true}}
-    ]},
-    {"id":"accounts","type":"r-tab-pane","props":{"name":"accounts","label":"认证账号","index":3,"lazy":true},"children":[
-      {"type":"r-table","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider_Account@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
-        {"type":"r-text","props":{"field":"UserName","label":"用户名","minWidth":220,"showCellControl":true,"sortable":false}},
-        {"type":"r-text","props":{"field":"Password","label":"密码","minWidth":240,"showCellControl":true,"sortable":false,"showPassword":true}},
-        {"type":"r-text","props":{"field":"description","label":"备注","minWidth":240,"showCellControl":true,"sortable":false}}
-      ]}
+      {"id":"config-verify","type":"r-button","props":{"label":"核验原保存结果"}}
     ]}
   ]}
 ]

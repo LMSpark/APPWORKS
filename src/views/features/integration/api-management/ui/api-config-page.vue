@@ -5,19 +5,7 @@
 AI用途：每个页签只保存本页签视图，不夹带其它页签草稿；未知回执须重读核验，不自动重放。
 -->
 <template>
-  <RendererDialog :model-value="true" :data-view-key="authKey" :width="1180" :close-disabled="busy || unconfirmed || pendingTabs.size > 0"
-    @update:model-value="close">
-    <RendererSection class="api-config-page" title="配置信息设置" :bordered="false" :grid-columns="1" :grid-gap="12"
-      :status="selectedTabLoading ? '正在读取服务提供商配置…' : ''" :error="selectedTabError || error" :retryable="Boolean(selectedTabError) && !selectedTabLoading" @retry="loadTab(tab)">
-      <template #header-actions>
-        <RendererButton label="接口列表" button-type="primary" :disabled="busy" @click="emit('interfaces')" />
-        <RendererButton :data-view-key="authKey" label="保存" button-type="primary" perm-action="edit"
-          :disabled="!ready || busy || unconfirmed" @click="save(authKey)" />
-      </template>
-      <SparkComponentRenderer v-if="ready" :config="tabsConfig" />
-      <RendererButton v-if="unconfirmed" label="核验原保存结果" :disabled="busy" @click="verifyOriginalSaves" />
-    </RendererSection>
-  </RendererDialog>
+  <SparkComponentRenderer :config="dialogConfig" />
 </template>
 
 <script setup lang="ts">
@@ -29,7 +17,7 @@ import {featureTableToolbar, runFeatureTableAction, type FeatureTableAction} fro
 import type {ApiConfigPageProps} from './api-config-page.props'
 
 type RToolbarProps = SparkComponent.RToolbarProps
-const {PAGE_RUNTIME, SparkComponentRenderer, RendererDialog, RendererButton, RendererSection, useSparkComponent, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, SparkComponentRenderer, useSparkComponent, consumeRequiredPageService} = SparkComponent
 
 const scenarioId = '446B5D94A71587E9BD4D325A4DF5F6F8'
 const props = defineProps<ApiConfigPageProps>()
@@ -91,33 +79,67 @@ function selectTab(name: string | number): void {
   tab.value = name
   void loadTab(name)
 }
-const tabsConfig = computed<SparkNode>(() => ({
-  ...props.config,
-  props: {...props.config.props, modelValue: tab.value, on: {'update:modelValue': selectTab}},
-  children: getSparkNodeChildren(props.config.children).map(pane => {
-    const name = nodeId(pane)
-    if (name === undefined || !isTab(name)) throw new Error('服务商配置包含未知页签')
-    if (!loaded.has(name)) return {...pane, children: []}
-    const children = getSparkNodeChildren(pane.children).flatMap(node => {
-      if (node.type === 'r-alert') {
-        const invalidReference = name === 'jwt' ? invalid(authKey, 'loginApiName')
-          : invalid(parameterKey, 'interfaceId') || invalid(parameterKey, 'outputfield')
-        return invalidReference ? [node] : []
-      }
-      if (name === 'jwt') return [node]
-      const {viewKey, actions} = tableTabs[name]
-      return [{
-        ...node,
-        props: {...node.props, toolbar: toolbar(viewKey, actions)},
-        children: getSparkNodeChildren(node.children).map(child =>
-          name === 'publicParams' && nodeId(child) === 'outputfield'
-            ? {...child, props: {...child.props, cellReadonly: notCurrent}}
-            : child),
-      }]
-    })
-    return {...pane, children}
-  }),
-}))
+function bindTabs(tabs: SparkNode): SparkNode {
+  return {
+    ...tabs,
+    props: {...tabs.props, modelValue: tab.value, on: {'update:modelValue': selectTab}},
+    children: getSparkNodeChildren(tabs.children).map(pane => {
+      const name = nodeId(pane)
+      if (name === undefined || !isTab(name)) throw new Error('服务商配置包含未知页签')
+      if (!loaded.has(name)) return {...pane, children: []}
+      const children = getSparkNodeChildren(pane.children).flatMap(node => {
+        if (node.type === 'r-alert') {
+          const invalidReference = name === 'jwt' ? invalid(authKey, 'loginApiName')
+            : invalid(parameterKey, 'interfaceId') || invalid(parameterKey, 'outputfield')
+          return invalidReference ? [node] : []
+        }
+        if (name === 'jwt') return [node]
+        const {viewKey, actions} = tableTabs[name]
+        return [{
+          ...node,
+          props: {...node.props, toolbar: toolbar(viewKey, actions)},
+          children: getSparkNodeChildren(node.children).map(child =>
+            name === 'publicParams' && nodeId(child) === 'outputfield'
+              ? {...child, props: {...child.props, cellReadonly: notCurrent}}
+              : child),
+        }]
+      })
+      return {...pane, children}
+    }),
+  }
+}
+
+const dialogConfig = computed<SparkNode>(() => {
+  const [section] = getSparkNodeChildren(props.config.children)
+  if (!section) throw new Error('服务商配置缺少弹窗内容')
+  const header = section.props?.['header'] as {children?: SparkNode[]} | undefined
+  const actions = getSparkNodeChildren(header?.children).map(node => ({
+    ...node,
+    props: nodeId(node) === 'config-save'
+      ? {...node.props, disabled: !ready.value || busy.value || unconfirmed.value, onClick: () => save(authKey)}
+      : {...node.props, disabled: busy.value, onClick: () => emit('interfaces')},
+  }))
+  const children = getSparkNodeChildren(section.children).flatMap(node => {
+    if (node.type === 'r-tabs') return ready.value ? [bindTabs(node)] : []
+    return unconfirmed.value
+      ? [{...node, props: {...node.props, disabled: busy.value, onClick: verifyOriginalSaves}}]
+      : []
+  })
+  return {
+    ...props.config,
+    props: {...props.config.props, closeDisabled: busy.value || unconfirmed.value || pendingTabs.size > 0,
+      on: {'update:modelValue': close}},
+    children: [{
+      ...section,
+      props: {...section.props, header: {...header, children: actions},
+        status: selectedTabLoading.value ? '正在读取服务提供商配置…' : '',
+        error: selectedTabError.value || error.value,
+        retryable: Boolean(selectedTabError.value) && !selectedTabLoading.value,
+        on: {retry: () => loadTab(tab.value)}},
+      children,
+    }],
+  }
+})
 
 function toolbar(viewKey: string, order: readonly FeatureTableAction[]): RToolbarProps {
   revision.value
@@ -197,7 +219,3 @@ async function loadTab(name: string | number): Promise<void> {
 void loadTab('jwt')
 onBeforeUnmount(() => {active = false; unsubscribe?.(); unsubscribeCascade?.()})
 </script>
-
-<style scoped>
-.api-config-page {min-height: 560px}
-</style>

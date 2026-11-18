@@ -73,7 +73,7 @@ export function captureContentAuthoringSession(target: ContentAuthoringTarget) {
  const applicationId = target.applicationId
  return {
   actorUserId,
-  scenarioInputs: {[target.scenarioId]: {projectId: target.projectId, currentUserId: actorUserId}},
+  scenarioInputs: Object.freeze({[target.scenarioId]: Object.freeze({projectId: target.projectId, currentUserId: actorUserId})}),
   assertCurrent() {
    const current = lowcodeApi.readRequestScope()
    if (current.token !== scope.token || current.headers['X-AppId'] !== applicationId

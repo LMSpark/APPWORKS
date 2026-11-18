@@ -106,6 +106,8 @@ it('binds the supplied runtime without taking ownership of it',async()=>{
 it('connects the published script to the original runtime only once per load',async()=>{
  const {ds,queries}=fixture(true,false,'id')
  const session=captureContentAuthoringSession(target)
+ expect(Object.isFrozen(session.scenarioInputs)).toBe(true)
+ expect(Object.isFrozen(session.scenarioInputs[target.scenarioId])).toBe(true)
  const runtime=new PageRuntime({pageId:target.pageId,scenarioIds:[target.scenarioId],
   scenarioInputs:session.scenarioInputs,loadScenario:async()=>ds})
  try{
@@ -135,7 +137,7 @@ it('loads the actual three files and authoring host through the page runtime poo
  const tool={pageId:entry.pageId,projectId:applicationId}
  const path=`/apps/${applicationId}/__page/${entry.nodeId}`
  const router=createRouter({history:createMemoryHistory(),routes:[{path,component:SparkPageRenderer,
-  meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,tool}}]})
+  meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,blueprintScenarioId:scenarioId,tool}}]})
  const readPageFiles=vi.fn(async(commands:ReadonlyArray<{fileName:string}>)=>
   commands.map(({fileName})=>fileName==='rule.json'?rule:fileName==='script.js'?script:style))
  const pool=new PageRuntimePool({pageComponent:SparkPageRenderer,readPageFile:undefined,readPageFiles,

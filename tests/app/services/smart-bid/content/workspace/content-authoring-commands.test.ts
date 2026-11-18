@@ -89,6 +89,12 @@ it('captures the saved draft for candidacy and withdraws it when edits start',as
  const f=await fixture()
  try{
   const captured=await f.commands.captureCandidateDraft(f.commands.epoch)
+  const original=f.view.rows[0]!
+  f.view.dirtyTracking.markDirty('D',original)
+  expect(f.view.hasEditingChanges()).toBe(false)
+  expect(()=>captured.assertCurrent()).toThrow('CONTENT_CANDIDATE_DRAFT_UNSAVED')
+  await expect(f.commands.captureCandidateDraft(f.commands.epoch)).rejects.toThrow('CONTENT_CANDIDATE_DRAFT_UNSAVED')
+  f.view.dirtyTracking.clearDirty('D')
   expect(captured).toMatchObject({projectId:'P',draftId:'D',actorUserId:'U',draftVersion:'V1',baseRevisionId:'BASE',
    draftJson:'{"nodes":[],"responseChanges":[]}',contentDigest:expect.stringMatching(/^[a-f0-9]{64}$/u)})
   const basis={projectId:'P',revisionId:'BASE',baselineId:'B',stageRef:'ST',basisNodes:[],nodePayloads:[],responses:[],

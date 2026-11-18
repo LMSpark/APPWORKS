@@ -54,7 +54,8 @@ export class ContentAuthoringCommands {
   const {draftId,projectId,actorUserId}=this.binding,view=this.#view
   const assertSaved=()=>{
    this.assertCurrent(epoch)
-   if(this.#inputs.size||view.hasEditingChanges())throw Error('CONTENT_CANDIDATE_DRAFT_UNSAVED')
+   if(this.#inputs.size||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges(draftId))
+    throw Error('CONTENT_CANDIDATE_DRAFT_UNSAVED')
   }
   assertSaved()
   const row=view.rows.find(item=>view.getPkKey(item)===draftId)

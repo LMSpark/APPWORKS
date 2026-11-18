@@ -1059,6 +1059,23 @@ describe('lowcode project navigation projection', () => {
       + `?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=7AB874097A1E8711A42FD845939A6E05`)
   })
 
+  it('skips maintenance pages and maintenance groups when selecting the landing page', () => {
+    const maintenance = (node: LowcodeProjectBlueprintRecord): LowcodeProjectBlueprintRecord => ({
+      ...node, capability: {...node.capability, deliveryStatus: 'maintenance'},
+    })
+    const initial = {applicationName: '测试应用', projectId: 'PROJECT-1', navigationRootId: 'ROOT-1'}
+    const route = (id: string) => ({id, target: `cfg:${id}`, targetKind: 'route' as const, formKey: null, children: []})
+    const page = (id: string, order: number, parentNodeId?: string) => record({nodeId: id, name: id, title: id,
+      target: `cfg:${id}`, order, ...(parentNodeId === undefined ? {} : {parentNodeId})})
+    const records = [maintenance(page('paused', 0)),
+      maintenance(record({nodeId: 'group', name: 'group', title: 'group', kind: 'module', order: 1})), page('nested', 0, 'group')]
+    const items = [route('paused'), {id: 'group', target: '', targetKind: 'empty' as const, formKey: null, children: [route('nested')]}]
+    const fallback = assembleLowcodeRuntimeNavigation({...initial, records: [], authorization: {items: [], contexts: []}})
+    expect(assembleLowcodeRuntimeNavigation({...initial, records, authorization: {items, contexts: []}}).homePath).toBe(fallback.homePath)
+    expect(assembleLowcodeRuntimeNavigation({...initial, records: [...records, page('ready', 2)],
+      authorization: {items: [...items, route('ready')], contexts: []}}).homePath).toBe('/__page/ready')
+  })
+
   it('rejects cfg navigation targets that cannot name one tool file directory', () => {
     const tool = record({ nodeId: 'NODE-1', name: 'Orders.Query', title: '订单查询', target: 'cfg:PROJECT-1/orders' })
     expect(() => assembleLowcodeRuntimeNavigation({

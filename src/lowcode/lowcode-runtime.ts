@@ -236,6 +236,7 @@ function buildRuntimeNavigationItem(
 
 function firstRuntimePage(items: readonly RuntimeNavigationItem[]): RuntimeNavigationItem | undefined {
   for (const item of items) {
+    if (item.disabled) continue
     if ((item.itemKind === 'page' || item.itemKind === 'system-page') && item.path !== undefined) {
       return item
     }

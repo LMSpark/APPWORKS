@@ -7,7 +7,10 @@ async function __init__() {
 }
 
 function bindCatalogSection() {
-  return {status: catalog?.editable ? '导入方案目录；Sheet 布局与转换规则在编辑器中维护。' : '请进入已授权应用后维护导入方案。'}
+  return {
+    status: catalog?.editable ? '导入方案目录；Sheet 布局与转换规则在编辑器中维护。' : '请进入已授权应用后维护导入方案。',
+    error: catalog?.editState().id === undefined ? catalog?.error() : '',
+  }
 }
 
 function bindMaintenanceAction() {
@@ -73,6 +76,11 @@ function bindSchemeStatus() {
   const state = catalog?.editState()
   const title = state?.unconfirmed ? '保存结果尚未确认，请核验原保存；不会重复提交。'
     : state?.creationSaved ? '方案已保存，请继续完成原方案的编码处理。' : ''
+  return {visible:!!title,title}
+}
+
+function bindSchemeError() {
+  const title = catalog?.error() || ''
   return {visible:!!title,title}
 }
 

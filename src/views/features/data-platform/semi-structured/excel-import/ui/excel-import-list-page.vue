@@ -5,7 +5,6 @@
   <SparkPageRenderer v-if="catalogToolRuntime && catalogHost" :page-runtime="catalogToolRuntime" :route-snapshot="routeSnapshot" :host="catalogHost" />
   <RendererSection v-else title="Excel 导入配置" :bordered="false"
     :status="loading ? '正在读取导入目录…' : ''" :error="error" />
-  <p v-if="catalogToolRuntime && error" role="alert">{{ error }}</p>
   <p v-if="creation?.phase === 'retained'" role="status">方案已保留；编码处理未标记完成，请核查正式结果。</p>
   <template v-if="ready">
       <RendererDialog v-if="designTarget" :model-value="true" title="Excel 导入方案设计" :data-view-key="catalogKey"
@@ -163,6 +162,7 @@ function makeCatalogHost(runtime:PageRuntime,editable:boolean){
     assertCurrent()
     if(command==='excel.catalog.connect')return {
       editable, locked:()=>locked.value, selected:()=>!!selected.value, canCopy:()=>!!pageService?.copyText,
+      error:()=>error.value,
       editState:()=>({
         id:editingId.value, creating:creating.value, acting:acting.value, pending:pending.value,
         unconfirmed:unconfirmed.value, creationSaved:creationSaved.value, templatePending:templatePending.value,

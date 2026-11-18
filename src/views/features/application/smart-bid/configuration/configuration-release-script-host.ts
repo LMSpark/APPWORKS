@@ -41,7 +41,7 @@ export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRu
     if(stop.kind!==kind||stop.key!==key||stop.scopeId!==scopeId||stop.versionId!==versionId||stop.digest!==digest||
      stop.releaseRef!==releaseRef)throw Error('CONFIGURATION_DISABLE_IMPACT_SCOPE')
     const impact=assessConfigurationDisableImpact(stop,uses)
-    return Object.freeze({...result,impact,assertCurrent:()=>{result.assertCurrent();impact.assertCurrent()}})
+    return Object.freeze({...result,impact})
    }catch{
     result.assertCurrent()
     return Object.freeze({...result,impactState:'UNVERIFIED' as const})

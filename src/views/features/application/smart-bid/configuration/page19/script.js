@@ -24,12 +24,18 @@ async function openConfigurationRelease() {
       : result.status === 'NOT_APPLIED' ? `${heading}未生效 · 凭据 ${result.terminalRef}` : `${heading}结果未知`
     const lines = [message]
     if (result.impact) {
-      const labels = {PRESERVE_HISTORY: '保留已执行记录', CHECK_ORIGINAL: '待查原操作', HOLD: '暂停执行',
-        CHECK_PERMISSION: '待核当前用途', MAY_CONTINUE: '原锁可续办'}
-      lines.push(result.impact.assessmentComplete ? '已核停用影响' : '停用影响尚未核全')
-      for (const item of result.impact.items) lines.push(`${item.operationRef} · ${labels[item.action]} · 跟踪人 ${item.ownerId}`)
+      try {
+        result.impact.assertCurrent()
+        const labels = {PRESERVE_HISTORY: '保留已执行记录', CHECK_ORIGINAL: '待查原操作', HOLD: '暂停执行',
+          CHECK_PERMISSION: '待核当前用途', MAY_CONTINUE: '原锁可续办'}
+        lines.push(result.impact.assessmentComplete ? '已核停用影响' : '停用影响尚未核全')
+        for (const item of result.impact.items) lines.push(`${item.operationRef} · ${labels[item.action]} · 跟踪人 ${item.ownerId}`)
+      } catch {
+        lines.push('停用影响证据无法核验')
+      }
     } else if (result.impactState === 'PENDING') lines.push('停用影响待核')
     else if (result.impactState === 'UNVERIFIED') lines.push('停用影响证据无法核验')
+    result.assertCurrent()
     await $page.showAlert(lines.join('\n'), '配置启停回查')
   } catch {
     $page.showMessage('原启停结果无法核验', 'warning')

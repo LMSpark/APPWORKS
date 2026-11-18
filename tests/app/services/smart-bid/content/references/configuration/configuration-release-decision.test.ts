@@ -73,13 +73,18 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   const original={...disabled.record,requestDigest:disabled.requestDigest}
   const proved=await readRegisteredConfigurationRelease(host,original)
   expect(proved).toMatchObject({status:'APPLIED',state:'DISABLED',resultPointerVersion:'P2'})
-  const readDisableImpact=vi.fn(async()=>({stop,uses:refs}))
+  let impactCurrent=true,expireImpactAfterRead=false
+  const readDisableImpact=vi.fn(async()=>({stop:{...stop,assertCurrent:()=>{if(!impactCurrent)throw Error('IMPACT_STALE')}},uses:refs}))
   const page=createConfigurationReleaseScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,readDisableImpact)
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
   const {openConfigurationRelease}=compileFunctions(script,{$route:{query:{
    configurationKind:scope.kind,configurationKey:scope.key,releaseRequestKey:request.requestKey,releaseRequestDigest:disabled.requestDigest,
    configurationVersionId:version.versionId,configurationVersionDigest:version.digest,releaseAction:'DISABLE',expectedPointerVersion:'P1',
-  }},$page:{invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert}} as unknown as PageContext)
+  }},$page:{invokeHostCommand:async(name:string,input:unknown)=>{
+   const result=await page.invoke(name,input,signal)
+   if(expireImpactAfterRead)impactCurrent=false
+   return result
+  },showAlert}} as unknown as PageContext)
   if(!openConfigurationRelease)throw Error('TEST_CONFIGURATION_RELEASE_HANDLER_REQUIRED')
   expect(()=>page.invoke('configuration.release.readOriginal',{scopeId:'OTHER'},signal)).toThrow('CONFIGURATION_RELEASE_PAGE_REQUEST')
   await openConfigurationRelease()
@@ -97,6 +102,10 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   expect(readDisableImpact).toHaveBeenCalledTimes(1)
   row.status='APPLIED'
   readDisableImpact.mockResolvedValueOnce({stop:{...stop,releaseRef:'DIFFERENT'},uses:refs})
+  await openConfigurationRelease()
+  expect(showAlert).toHaveBeenLastCalledWith(
+   '原停用已生效 · 原回执 STOP · 当次指针 P2 · 配置版本 V1\n停用影响证据无法核验','配置启停回查')
+  expireImpactAfterRead=true
   await openConfigurationRelease()
   expect(showAlert).toHaveBeenLastCalledWith(
    '原停用已生效 · 原回执 STOP · 当次指针 P2 · 配置版本 V1\n停用影响证据无法核验','配置启停回查')

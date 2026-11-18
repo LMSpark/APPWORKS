@@ -33,7 +33,8 @@ const originalStubs={...config.global.stubs}
 let wrapper:VueWrapper|undefined
 beforeEach(()=>{auth.token='session-1';auth.userId='U';auth.appId='APP';load.mockReset()})
 afterEach(()=>{wrapper?.unmount();wrapper=undefined;config.global.stubs=originalStubs})
-function fixture(scoped=true,hiddenProject:boolean|(()=>boolean)=false,draftKey='draftId',scenarioId='SPACE') {
+function fixture(scoped=true,hiddenProject:boolean|(()=>boolean)=false,draftKey='draftId',scenarioId='SPACE',projectCount=1,
+ readDraftAuthor?:(actor:unknown)=>unknown) {
  const ds=DataSet.fromJson({scenarioId,tables:{
   ContentProject:{modelBinding:{modelId:'PM',modelName:'ContentProject'},columns:[{name:'projectId',type:'string',isPrimaryKey:true}],
    views:{default:{},selectedProject:{...(scoped?{scopeFilter:projectScope}:{}),commitMode:'staged'}}},
@@ -52,9 +53,10 @@ function fixture(scoped=true,hiddenProject:boolean|(()=>boolean)=false,draftKey=
   const rows=model==='ContentProject'?[{projectId:params.context!['projectId']}]:
    model==='ContentAdoption'?[{id:'A',projectId:params.context!['projectId'],candidateRevisionId:'C',requestKey:'K',
     requestDigest:'DIGEST',previewRef:'PV',mergeRevisionId:'R',commitCheckRef:null}]:[
-   {[draftKey]:'D',projectId:params.context!['projectId'],userId:params.context!['currentUserId'],draft:{nodes:[],responseChanges:[]}}]
+   {[draftKey]:'D',projectId:params.context!['projectId'],userId:readDraftAuthor?readDraftAuthor(params.context!['currentUserId']):
+    params.context!['currentUserId'],draft:{nodes:[],responseChanges:[]}}]
   return new DataSpaceQueryContext({identity:query.identity,scope:'original',readScope:()=> 'original',snapshot:query.applyResult({Result:{
-   primaryKeyField:model==='ContentProject'?'projectId':model==='ContentAdoption'?'id':draftKey,data:{Count:rows.length,Items:rows.map(row=>({...row,
+   primaryKeyField:model==='ContentProject'?'projectId':model==='ContentAdoption'?'id':draftKey,data:{Count:model==='ContentProject'?projectCount:rows.length,Items:rows.map(row=>({...row,
     lingma_sys_params:{r:[],e:['draft'],h:model==='ContentProject'&&(typeof hiddenProject==='function'?hiddenProject():hiddenProject)?['projectId']:[],m:[],d:false}}))}}})})
  })
  const save=vi.fn(async()=>{throw Error('UNEXPECTED_REMOTE_WRITE')})
@@ -73,6 +75,14 @@ it('loads the original views with fixed project and trusted session-author input
  expect(filters.join(' ')).toContain('projectId')
  expect(filters.join(' ')).toContain('userId')
  binding.assertCurrent();host.close()
+})
+it('rejects a partial project result even when the only loaded row matches the requested project',async()=>{
+ const f=fixture(true,false,'draftId','SPACE',2),host=new ContentAuthoringHost()
+ try{
+  await expect(host.open(target)).rejects.toThrow('CONTENT_AUTHORING_TARGET_UNAVAILABLE')
+  expect(host.binding).toBeUndefined()
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{host.close()}
 })
 it('reads adoption with its original project binding and revokes evidence on session change',async()=>{
  const f=fixture(),host=new ContentAuthoringHost(),binding=await host.open(target)
@@ -242,6 +252,17 @@ it('invalidates the binding when a refreshed project identity is no longer reada
  expect(()=>binding.assertCurrent()).toThrow('CONTENT_AUTHORING_STALE')
  expect(f.save).not.toHaveBeenCalled()
  host.close()
+})
+it('revokes the opened draft binding when the returned author changes under the same draft key',async()=>{
+ let draftAuthor='U'
+ const f=fixture(true,false,'draftId','SPACE',1,()=>draftAuthor)
+ const host=new ContentAuthoringHost(),binding=await host.open(target)
+ try{
+  draftAuthor='OTHER'
+  await f.ds.getView('WorkingDraft','personalDraft')!.refresh()
+  expect(()=>binding.assertCurrent()).toThrow('CONTENT_AUTHORING_STALE')
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{host.close()}
 })
 it('rejects OR scope and a route-supplied author cannot replace the authenticated author',async()=>{
  const f=fixture(),view=f.ds.getView('WorkingDraft','personalDraft')!

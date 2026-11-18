@@ -1,5 +1,5 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/model/review/content-delivery-package-preparation
+ * @module app:views/features/application/smart-bid/authoring/model/review/package/content-delivery-package-preparation
  * 职责：第49项在获得本次用途和封装范围证明后，从原冻结读回制待核包。
  */
 import {packFrozenDeliveryZip} from '@/services/smart-bid/content/review/delivery-zip-packing'

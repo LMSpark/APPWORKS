@@ -1,8 +1,8 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {readRegisteredSubmissionZipSource} from '@/views/features/application/smart-bid/authoring/model/review/content-submission-package-reader'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {readRegisteredSubmissionZipSource} from '@/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader'
+import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 it('only opens the resource version of the exact original packing request',async()=>{
  const hash='a'.repeat(64),position='商务/函.pdf'

@@ -1,5 +1,5 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/model/review/content-package-review
+ * @module app:views/features/application/smart-bid/authoring/model/review/package/content-package-review
  * 职责：重开登记电子包，用同一次原始字节及全量解包逐件核对。
  * 边界：原包授权读取、格式适配和全量枚举由调用方负责，不判签审覆盖。
  */
@@ -9,6 +9,7 @@ import {readSubmissionZipInventory} from '@/services/smart-bid/content/review/su
 import {verifyDeliverySelectionDigests} from '@/services/smart-bid/content/review/delivery-selection-digest'
 import {readRegisteredDeliveryFreeze} from './content-delivery-freeze-reader'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {readRegisteredSubmissionZipSource} from './content-submission-package-reader'
 
 type Members=Parameters<typeof compareSubmissionPackageMembers>[0]
 type PackageSource=Readonly<{
@@ -19,16 +20,15 @@ type PackageSource=Readonly<{
 /** 从原冻结请求出发核包，保留未知或终结未生效的查询状态。 */
 export async function reviewRegisteredDeliveryZipPackage(host:Parameters<typeof readRegisteredDeliveryFreeze>[0],
  request:Parameters<typeof readRegisteredDeliveryFreeze>[1],options:Readonly<{
-  source:Parameters<typeof readFrozenDeliveryZipPackageMembers>[0];limits:Parameters<typeof readSubmissionZipInventory>[1]
+  package:Parameters<typeof readRegisteredSubmissionZipSource>[1]
+  openAuthorized:Parameters<typeof readRegisteredSubmissionZipSource>[2]
+  limits:Parameters<typeof readSubmissionZipInventory>[1]
  }>){
- const {source,limits}=options
- if(source.projectId!==host.projectId)throw Error('SUBMISSION_FROZEN_SELECTION_SCOPE')
- source.assertCurrent()
  const original=await readRegisteredDeliveryFreeze(host,request)
- const assertCurrent=()=>{source.assertCurrent();original.assertCurrent()}
- assertCurrent()
- if(original.status!=='FROZEN')return Object.freeze({...original,assertCurrent})
- const proof=await readFrozenDeliveryZipPackageMembers(source,original,limits)
+ original.assertCurrent()
+ if(original.status!=='FROZEN')return original
+ const source=await readRegisteredSubmissionZipSource({...host,assertCurrent:original.assertCurrent},options.package,options.openAuthorized)
+ const proof=await readFrozenDeliveryZipPackageMembers(source,original,options.limits)
  return Object.freeze({status:original.status,proof,assertCurrent:proof.assertCurrent})
 }
 

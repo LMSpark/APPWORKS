@@ -1,12 +1,12 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/model/review/content-delivery-freeze-reader
+ * @module app:views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader
  * 职责：通过指定 DataView 查询原冻结，不读取当前选件指针。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {readOriginalDeliveryFreeze} from '@/services/smart-bid/content/review/delivery-freeze-recovery'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
+import {hasContentScopeCondition,type ContentRevisionReadHost} from '../../content-revision-reader'
 
 type Request=Parameters<typeof readOriginalDeliveryFreeze>[0]
 type Frozen=Extract<Awaited<ReturnType<typeof readOriginalDeliveryFreeze>>,{status:'FROZEN'}>

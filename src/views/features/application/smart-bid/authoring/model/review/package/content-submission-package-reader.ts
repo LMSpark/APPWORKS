@@ -1,10 +1,10 @@
 /**
- * @module app:views/features/application/smart-bid/authoring/model/review/content-submission-package-reader
+ * @module app:views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader
  * 职责：由 SPARK data 的原装封记录定位第50项应重开的固定原包。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {snapshotReferenceFields,snapshotReferenceIdentity as identity,visitSnapshotReferences} from '@/services/smart-bid/content/references/snapshot-reference-values'
-import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
+import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../../content-revision-reader'
 import type {readFrozenDeliveryZipPackageMembers} from './content-package-review'
 
 type Source=Parameters<typeof readFrozenDeliveryZipPackageMembers>[0]

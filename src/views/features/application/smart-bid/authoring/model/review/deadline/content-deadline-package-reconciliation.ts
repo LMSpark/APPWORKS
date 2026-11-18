@@ -5,7 +5,7 @@
  */
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import type {reconcileSubmissionDeadline} from '@/services/smart-bid/content/review/submission-reconciliation'
-import type {readSubmissionPackageMembers} from '../content-package-review'
+import type {readSubmissionPackageMembers} from '../package/content-package-review'
 
 type Deadline=ReturnType<typeof reconcileSubmissionDeadline>
 type ReviewedPackage=Awaited<ReturnType<typeof readSubmissionPackageMembers>>

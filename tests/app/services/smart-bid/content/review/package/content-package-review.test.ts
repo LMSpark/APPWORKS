@@ -1,6 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
-import {readSubmissionPackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/content-package-review'
+import {readSubmissionPackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-review'
 import {reconcileDeadlinePackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-package-reconciliation'
 import {reconcileDeadlineContents} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation'
 import {reconcileSubmissionDeadline} from '@/services/smart-bid/content/review/submission-reconciliation'

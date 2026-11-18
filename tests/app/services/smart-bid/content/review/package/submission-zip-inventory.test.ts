@@ -1,9 +1,10 @@
 import {createHash} from 'node:crypto'
 import {BlobWriter,TextReader,ZipWriter} from '@zip.js/zip.js'
 import {expect,it,vi} from 'vitest'
-import {readFrozenDeliveryZipPackageMembers,readSubmissionZipPackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/content-package-review'
+import {readFrozenDeliveryZipPackageMembers,readSubmissionZipPackageMembers} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-review'
 import {computeDeliverySelectionDigests} from '@/services/smart-bid/content/review/delivery-selection-digest'
 import {packFrozenDeliveryZip} from '@/services/smart-bid/content/review/delivery-zip-packing'
+import {assessSubmissionPackageRelease} from '@/views/features/application/smart-bid/authoring/model/review/content-package-release'
 
 it('checks the original ZIP and its exact member paths within the requested reading budget',async()=>{
  const writer=new ZipWriter(new BlobWriter(),{useWebWorkers:false})
@@ -34,6 +35,16 @@ it('checks the original ZIP and its exact member paths within the requested read
  const linked=await readFrozenDeliveryZipPackageMembers(pack,original,limits)
  expect(linked).toMatchObject({selectionId:'SET',selectionVersion:'S2',membershipMatches:true})
  expect(linked.members).toHaveLength(1)
+ const requirements=[{kind:'SELECTION_USE' as const,targetId:'SET'},{kind:'APPROVAL' as const,targetId:'V1'},
+  {kind:'SIGNATURE' as const,targetId:'PKG'}]
+ const rules={projectId:'P',selectionHash:digests.selectionHash,requirements,assertCurrent:()=>{}}
+ const evidence=requirements.map(requirement=>({...requirement,projectId:'P',packageId:'PKG',
+  packageHash:source.packageHash,selectionHash:digests.selectionHash,evidenceRef:requirement.kind,accepted:true,assertCurrent:()=>{}}))
+ expect(assessSubmissionPackageRelease(linked,rules,evidence.slice(0,2)).deliverable).toBe(false)
+ const release=assessSubmissionPackageRelease(linked,rules,evidence)
+ expect(release.deliverable).toBe(true)
+ expect(()=>assessSubmissionPackageRelease(linked,rules,[{...evidence[0]!,packageHash:'0'.repeat(64)}]))
+  .toThrow('SUBMISSION_PACKAGE_RELEASE_SCOPE')
  await expect(readFrozenDeliveryZipPackageMembers({...pack,selectionVersion:'S1'},original,limits))
   .rejects.toThrow('SUBMISSION_FROZEN_SELECTION_SCOPE')
  await expect(readFrozenDeliveryZipPackageMembers(pack,{...original,record:{...original.record,targetBasisRefs:['A3']}},limits))
@@ -49,5 +60,6 @@ it('checks the original ZIP and its exact member paths within the requested read
  await expect(packFrozenDeliveryZip({...packInput,openOriginal:async()=>({...originalFile,fileVersionId:'OLD'})}))
   .rejects.toThrow('DELIVERY_PACK_VERSION')
  current=false
+ expect(()=>release.assertCurrent()).toThrow('FROZEN_STALE')
  expect(()=>linked.assertCurrent()).toThrow('FROZEN_STALE')
 })

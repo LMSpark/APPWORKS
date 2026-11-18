@@ -1,9 +1,33 @@
-import {expect,it} from 'vitest'
+import {expect,it,vi} from 'vitest'
 import {resolveContentAuthoringTarget,resolvePublishedContentAuthoringTarget,type ContentAuthoringRoute} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
+import {preparePublishedContentReviewCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
+
+const auth=vi.hoisted(()=>({token:'SESSION',appId:'D8490EC99436A8B9AFDE205BE3153802'}))
+vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
+ session:{get:()=>({identity:{userId:'ACTOR'}})},
+ readRequestScope:()=>({token:auth.token,headers:{'X-AppId':auth.appId}}),
+}}))
 
 const app='D8490EC99436A8B9AFDE205BE3153802',space='D3BBA1F0780056C837AC35E9825CAD5A'
 const route=():ContentAuthoringRoute=>({path:`/apps/${app}/features/application/smart-bid/authoring/entry/content-authoring-page`,
  meta:{type:'config-page',nodeId:'NAV11',pageId:'TOOL11',tool:{projectId:app,pageId:'TOOL11'}},query:{scenarioId:space,projectId:'P',draftId:'D'}})
+it('prepares review inputs only for the authorized published route and invalidates stale sessions',()=>{
+ const entry={applicationId:app,scenarioId:space,nodeId:'NAV12',pageId:'TOOL12'}
+ const reviewRoute={...route(),meta:{type:'config-page',nodeId:'NAV12',pageId:'TOOL12',
+  blueprintScenarioId:space,tool:{projectId:app,pageId:'TOOL12'}},query:{projectId:'P',scenarioId:space}}
+ const createSources=vi.fn(()=>{throw Error('NO_RUNTIME_YET')})
+ expect(preparePublishedContentReviewCall(route(),entry,createSources)).toBeUndefined()
+ expect(()=>preparePublishedContentReviewCall({...reviewRoute,query:{...reviewRoute.query,userId:'OTHER'}},entry,createSources))
+  .toThrow('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
+ expect(()=>preparePublishedContentReviewCall({...reviewRoute,meta:{...reviewRoute.meta,blueprintScenarioId:'OTHER'}},entry,createSources))
+  .toThrow('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
+ const prepared=preparePublishedContentReviewCall(reviewRoute,entry,createSources)
+ expect(prepared?.scenarioInputs).toEqual({[space]:{projectId:'P',currentUserId:'ACTOR'}})
+ expect(createSources).not.toHaveBeenCalled()
+ auth.token='NEXT'
+ try{expect(()=>prepared?.assertCurrent()).toThrow('CONTENT_AUTHORING_STALE')}
+ finally{auth.token='SESSION'}
+})
 it('dispatches only the published node and tool pair in the declared space',()=>{
  const entry={nodeId:'NAV11',pageId:'TOOL11'}
  expect(resolvePublishedContentAuthoringTarget(route(),entry)?.draftId).toBe('D')

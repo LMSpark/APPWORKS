@@ -42,6 +42,18 @@ async function openCandidatePreview() {
       `新增节点 ${result.addedNodeIds.join('、') || '无'}`,
       `答复变更 ${result.responseChanges.length} 项`,
     ]
+    for (const node of result.comparison.nodes) {
+      if (node.nodeId !== null && node.conflicts.length) lines.push(`节点冲突 ${node.nodeId}`)
+      if (node.nodeId !== null && node.deletionReferenceCheck === 'REFERENCED') {
+        lines.push(`删除仍有引用的节点 ${node.nodeId} · 引用方 ${node.referencedBy.join('、')}`)
+      }
+    }
+    for (const sibling of result.comparison.siblings) {
+      if (sibling.status === 'CONFLICT') lines.push(`同级顺序冲突 · 父节点 ${sibling.parentId}`)
+    }
+    for (const response of result.responseComparison) {
+      if (response.delta === 'DIVERGED') lines.push(`答复冲突 · 任务 ${response.assignmentId}`)
+    }
     if (result.originalFormBasisCheck) lines.push('已核同册原表映射')
     const violations = {
       NODE_OUTSIDE_SCOPE: '节点越出授权范围', STRUCTURE_PARENT_OUTSIDE_SCOPE: '父节点越出授权范围',
@@ -50,6 +62,7 @@ async function openCandidatePreview() {
       RESPONSE_BASIS_MISMATCH: '答复依据不符', RESPONSE_ID_REUSE: '答复标识重复使用',
     }
     for (const issue of result.violations) lines.push(`${issue.ownerId} · ${violations[issue.code]}`)
+    lines.push('采用依据仍需在正式办理时核验')
     await $page.showAlert(lines.join('\n'), '候选变更预演')
   } catch {
     $page.showMessage('候选变更无法预演', 'warning')

@@ -43,6 +43,8 @@ it('explains missing edit integration without enabling edit actions',async()=>{
 it('passes exact candidate and original-form inputs to preview and renders the scope issues',async()=>{
  const assertCurrent=vi.fn(),showAlert=vi.fn(async(_text:string,_title:string)=>{}),showMessage=vi.fn()
  const previewCandidate=vi.fn(async()=>({scopeCheckPassed:false,changedNodeIds:['C'],addedNodeIds:['D'],responseChanges:[],
+  comparison:{nodes:[{nodeId:'C',conflicts:['changed'],deletionReferenceCheck:'REFERENCED',referencedBy:['H']}],
+   siblings:[{parentId:'P',status:'CONFLICT'}]},responseComparison:[{assignmentId:'A',delta:'DIVERGED'}],
   originalFormBasisCheck:{},violations:[{ownerId:'D',code:'UNDECLARED_ADDITION'}],assertCurrent}))
  const query={candidateRevisionId:'CANDIDATE',candidateExpectedHead:'HEAD',candidateAddedNodeId:['D','CHAPTER'],
   candidateFormDocumentId:'D',formTemplateRef:'FORM',formTemplateVersion:'V1'}
@@ -54,6 +56,10 @@ it('passes exact candidate and original-form inputs to preview and renders the s
  expect(previewCandidate).toHaveBeenCalledExactlyOnceWith({candidateRevisionId:'CANDIDATE',expectedHead:'HEAD'},
   {declaredAddedNodeIds:['D','CHAPTER'],originalFormTemplate:{documentId:'D',templateRef:'FORM',templateVersion:'V1'}})
  expect(showAlert).toHaveBeenCalledWith(expect.stringContaining('D · 新增节点未声明'),'候选变更预演')
+ expect(showAlert.mock.lastCall?.[0]).toContain('节点冲突 C')
+ expect(showAlert.mock.lastCall?.[0]).toContain('删除仍有引用的节点 C · 引用方 H')
+ expect(showAlert.mock.lastCall?.[0]).toContain('同级顺序冲突 · 父节点 P')
+ expect(showAlert.mock.lastCall?.[0]).toContain('答复冲突 · 任务 A')
  assertCurrent.mockImplementation(()=>{throw Error('STALE')})
  await openCandidatePreview()
  expect(showAlert).toHaveBeenCalledTimes(1)

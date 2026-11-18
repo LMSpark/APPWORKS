@@ -1,7 +1,9 @@
 import {expect,it} from 'vitest'
 import {reviewPersonAppointment} from '@/services/smart-bid/content/references/person-appointment-review'
+import {checkCommitmentApprovalCoverage,personCommitmentApproval} from '@/services/smart-bid/content/references/commitment-approval-coverage'
 
-const request={personId:'PERSON',employerId:'EMPLOYER',enterpriseId:'E',projectId:'P',positionRef:'POSITION',start:10,end:20}
+const request={personId:'PERSON',employerId:'EMPLOYER',enterpriseId:'E',projectId:'P',positionRef:'POSITION',
+ scopeRef:'SCOPE',purposeRef:'USE',start:10,end:20}
 const assertCurrent=()=>{}
 const material={personId:'PERSON',employerId:'EMPLOYER',versionRef:'M1',assertCurrent}
 const appointment={...request,decisionRef:'D1',assertCurrent}
@@ -26,4 +28,18 @@ it('requires full availability and allocation for the requested period',()=>{
   .toBe('AVAILABILITY_PENDING')
  expect(()=>reviewPersonAppointment(request,{material,appointment,availability:{...availability,allocation:{...allocation,projectId:'OTHER'}}}))
   .toThrow('BID_PERSON_APPOINTMENT_SCOPE')
+})
+
+it('hands only an exact verified appointment to commitment registration',()=>{
+ const approved=reviewPersonAppointment(request,{material,appointment,availability:{...availability,allocation}})
+ const pending=reviewPersonAppointment(request,{material,appointment,availability})
+ const evidence=personCommitmentApproval('lead',approved)
+ if(!evidence)throw Error('VERIFIED_APPOINTMENT_REQUIRED')
+ const input={scopeRef:request.scopeRef,purposeRef:request.purposeRef,assertCurrent,
+  fields:[{key:'lead',kind:'PERSON' as const,value:request.personId,unit:null}],approvals:[evidence]}
+ expect(checkCommitmentApprovalCoverage(input)).toMatchObject({
+  ready:true,fields:[{sourceVersion:'M1',decisionRefs:['A1','D1']}],
+ })
+ expect(personCommitmentApproval('lead',pending)).toBeUndefined()
+ expect(()=>checkCommitmentApprovalCoverage({...input,purposeRef:'OTHER'})).toThrow('BID_COMMITMENT_APPROVAL_SCOPE')
 })

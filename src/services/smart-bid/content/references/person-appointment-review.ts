@@ -5,7 +5,7 @@
 import {snapshotReferenceIdentity as identity} from './snapshot-reference-values'
 
 type PersonScope=Readonly<{personId:string;employerId:string}>
-type AppointmentScope=PersonScope&Readonly<{enterpriseId:string;projectId:string;positionRef:string}>
+type AppointmentScope=PersonScope&Readonly<{enterpriseId:string;projectId:string;positionRef:string;scopeRef:string;purposeRef:string}>
 type Period=Readonly<{start:number;end:number}>
 type Proof=Readonly<{assertCurrent:()=>void}>
 type AppointmentEvidence=Readonly<{
@@ -15,7 +15,7 @@ type AppointmentEvidence=Readonly<{
   allocation?:AppointmentScope&Period&Proof&Readonly<{decisionRef:string;intent:'ASSIGN'|'ADJUST'|'RELEASE'}>
  }>)
 }>
-const scopeFields=['personId','employerId','enterpriseId','projectId','positionRef'] as const
+const scopeFields=['personId','employerId','enterpriseId','projectId','positionRef','scopeRef','purposeRef'] as const
 
 /** 时段为经来源核实的时间戳，返回拟任核验及下游可回查的引用。 */
 export function reviewPersonAppointment(request:AppointmentScope&Period,evidence:AppointmentEvidence){
@@ -36,7 +36,8 @@ export function reviewPersonAppointment(request:AppointmentScope&Period,evidence
  if(availability.restricted&&(!allocation||allocation.intent==='RELEASE'||!covers(allocation)))
   return Object.freeze({state:'ALLOCATION_PENDING' as const,assertCurrent})
  return Object.freeze({state:'VERIFIED' as const,personId:request.personId,employerId:request.employerId,
-  enterpriseId:request.enterpriseId,projectId:request.projectId,positionRef:request.positionRef,start:request.start,end:request.end,
+  enterpriseId:request.enterpriseId,projectId:request.projectId,positionRef:request.positionRef,scopeRef:request.scopeRef,
+  purposeRef:request.purposeRef,start:request.start,end:request.end,
   materialVersionRef:material.versionRef,appointmentDecisionRef:appointment.decisionRef,
   allocationDecisionRef:allocation?.decisionRef??null,assertCurrent})
 }

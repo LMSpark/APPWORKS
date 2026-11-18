@@ -17,6 +17,10 @@ function bindCurrentNode() {
   return {visible:tree?.selected() === true}
 }
 
+function bindMissingNode() {
+  return {visible:tree?.selected() === false}
+}
+
 function bindLayoutMappingNotice() {
   return {visible:tree?.fieldWorkspace()?.layoutEnabled === true}
 }

@@ -24,13 +24,7 @@
           </header>
           <RendererTabs v-model="activeTopTab" :data-view-key="nodesKey" data-member="currentRow">
             <RendererTabPane name="basic" label="基本信息" :index="0" :data-view-key="nodesKey">
-              <template v-if="selectedNode">
-          <SparkComponentRenderer :config="designRegion(children,'excel-node-basic')" />
-          <SparkComponentRenderer :config="designRegion(children,'excel-node-filter')" />
-          <SparkComponentRenderer :config="designRegion(children,'excel-node-sort')" />
-          <SparkComponentRenderer :config="designRegion(children,'excel-node-target')" />
-              </template>
-              <p v-else role="status">请选择左侧节点后再编辑</p>
+              <SparkComponentRenderer :config="designRegion(children,'excel-basic-workspace')" />
             </RendererTabPane>
             <RendererTabPane name="transform" label="增强规则" :index="1" :data-view-key="rulesKey">
       <ExcelTransformRulesPane ref="rulePane" :data-view-key="rulesKey" :field-options-key="ruleFieldOptionsKey" :has-node="!!selectedNode" :disabled="locked" @session-change="value => pending('rules.dialog',value)">

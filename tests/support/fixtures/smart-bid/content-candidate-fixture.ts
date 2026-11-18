@@ -2,6 +2,7 @@ import {vi} from 'vitest'
 import {submissionObligationScenarioView} from '@/views/features/application/smart-bid/followup/submission-obligation-reader'
 import {originalFormMappingScenarioView} from '@/views/features/application/smart-bid/response/model/original-form-reader'
 import {bidProjectScopeScenarioViews} from '@/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader'
+import {firstCandidateBatchScenarioView} from '@/views/features/application/smart-bid/authoring/model/content-draft-candidate-basis'
 import {DataSet,parseDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {hashContentNode} from '@/services/smart-bid/content-node-hash'
@@ -52,7 +53,12 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   tenderRecordRef:tenderReference,formRef:'FORM',fillerRef:'P',mappings:[{fieldRef:'F',cellRef:'CELL',meaningRef:'PRICE'}]}
  const obligation={id:'DOC',projectId:'P',baselineId:'B',obligationRef:'DOC',sourceRef:'SOURCE-V1',kind:'DOCUMENT',
   required:true,allowedDisclosureRefs:[]}
+ const firstBatch={id:'BATCH',projectId:'P',basisRevisionId:null,baselineId:'B',inputSnapshotHash:snapshotHash,
+  targetScopes:[{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]}],lockHash:'f'.repeat(64)}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{
+  GenerationBatch:{modelBinding:{modelId:'GENERATION_BATCH',modelName:'GenerationBatch'},
+   columns:Object.keys(firstBatch).map(name=>({name,isPrimaryKey:name==='id'})),
+   views:{default:{},originalFirstCandidateBatch:firstCandidateBatchScenarioView('id')}},
   DocumentTemplate:{modelBinding:{modelId:'TEMPLATE',modelName:'DocumentTemplate'},
    columns:Object.keys(originalForm).map(name=>({name,isPrimaryKey:name==='id'})),
    views:{default:{},originalFormMapping:originalFormMappingScenarioView('id')}},
@@ -95,7 +101,7 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   templateRefs:mode==='template'?[{documentId:'D',key:'T',version:'2',hash:'a'.repeat(64)}]:templateRefs}
  const query=vi.fn(async(view:DataView)=>{
   const model=view.dataTable!.tableName,q=new DataSpaceQueryTable({scenarioId:'S',metaName:model})
-  const rows=model==='DocumentTemplate'?[originalForm]:model==='SubmissionObligation'?[obligation]:model==='TenderRecord'?[tender]:model==='Requirement'?[requirement]:model==='Baseline'?[{id:mode==='wrong-fact-baseline'?'OTHER':'B',projectId:'P',stageRef:{id:'ST',version:'1'},factVersions:[{factId:'PRICE',version:2}],requirementVersions:[{lineageId:'L',version:'R2'}],
+  const rows=model==='GenerationBatch'?[firstBatch]:model==='DocumentTemplate'?[originalForm]:model==='SubmissionObligation'?[obligation]:model==='TenderRecord'?[tender]:model==='Requirement'?[requirement]:model==='Baseline'?[{id:mode==='wrong-fact-baseline'?'OTHER':'B',projectId:'P',stageRef:{id:'ST',version:'1'},factVersions:[{factId:'PRICE',version:2}],requirementVersions:[{lineageId:'L',version:'R2'}],
    tenderRecords:[{runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}]}]:
    model==='FactVersion'?[{id:'FV2',projectId:'P',key:'PRICE',version:2,kind:'PRICE',value:'0.00',unit:'元',sourceIds:[],claimId:null,scopeRef:null,decisionRefs:[],dependencyRefs:[],promiseTerms:null,sourceRecord:null,status:'ADOPTED'}]:
    model==='ContentProject'?[{projectId:'P',headRevisionId:options.threeVersions?'V2':null}]:

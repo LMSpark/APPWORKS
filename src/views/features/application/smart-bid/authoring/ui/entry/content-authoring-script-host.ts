@@ -28,7 +28,7 @@ type OriginalSave=Awaited<ReturnType<typeof readRegisteredOriginalContentDraftSa
 /** 原回执与当前草稿在同一版本下的比较结果。 */
 type SaveComparison=Awaited<ReturnType<typeof reconcileSavedContentDraft>>
 type CandidatePreviewInput=Parameters<ContentCandidateBinding['previewScope']>[0]
-type DraftCandidateInput=Parameters<typeof prepareDraftCandidateRequest>[2]&Readonly<{firstInputSnapshotHash?:string}>
+type DraftCandidateInput=Parameters<typeof prepareDraftCandidateRequest>[2]&Readonly<{firstBatchId?:string}>
 
 /** 实例池创建宿主后，仅在三文件脚本连接时装配原视图。并行连接共享本次装载。 */
 export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:ContentAuthoringTarget,
@@ -99,8 +99,9 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
    }
    return Object.freeze({assertCurrent,
     get canLeave(){return commands.canLeave},
-    async prepareDraftCandidate(request:DraftCandidateInput){
+    async prepareDraftCandidate(selection:DraftCandidateInput){
      assertCurrent()
+     const request=structuredClone(selection)
      const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
      if(!scenarioId)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
      const captured=await commands.captureCandidateDraft(commands.epoch)
@@ -108,15 +109,15 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const host={runtime,projectId,scenarioId,assertCurrent:assertDraft}
      const {baseRevisionId:revisionId}=captured
      if(revisionId!==null){
-      if(request.firstInputSnapshotHash!==undefined)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
+      if(request.firstBatchId!==undefined)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
       const basis=await readDraftCandidateBasis(host,{revisionId})
       return prepareDraftCandidateRequest(captured,basis,request)
      }
      const projectKey=buildDataViewKey('ContentProject','selectedProject',scenarioId)
      const projectView=runtime.resolveView(projectKey),project=projectView?.rows[0]
-     const {firstInputSnapshotHash}=request
+     const {firstBatchId}=request
      if(!projectView||project?.['projectId']!==projectId||project['headRevisionId']!==null||!identity(project['activeBaselineId'])||
-      !identity(firstInputSnapshotHash))
+      !identity(firstBatchId))
       throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
      const proof=projectView.captureReadRow(project,['projectId','headRevisionId','activeBaselineId'])
      const assertFirst=()=>{
@@ -125,7 +126,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
       proof()
      }
      const basis=await readDraftCandidateBasis({...host,assertCurrent:assertFirst},
-      {revisionId,firstBaselineId:project['activeBaselineId'],firstInputSnapshotHash})
+      {revisionId,firstBaselineId:project['activeBaselineId'],firstBatchId,targetScope:request.targetScope})
      return prepareDraftCandidateRequest(captured,basis,request)
     },
     async captureCandidateDraft(){

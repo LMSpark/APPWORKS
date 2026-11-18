@@ -10,9 +10,16 @@ import {readContentSnapshotNodes} from './content-snapshot-nodes'
 import {assertContentNodeVersionPayload} from './content-node-version-reader'
 import {readContentReviewBaseline} from './content-baseline-reader'
 import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
-import {snapshotReferenceRecord} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {snapshotReferenceRecord,visitSnapshotReferences} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {originalRegistrationView,readOriginalRegistrationView} from '../../authority/original-registration-view'
 
 const error='CONTENT_DRAFT_CANDIDATE_BASIS'
+const batchFields=['basisRevisionId','baselineId','inputSnapshotHash','targetScopes','lockHash']
+const batchView='originalFirstCandidateBatch'
+
+export function firstCandidateBatchScenarioView(primaryKey:string){
+ return originalRegistrationView(primaryKey,['projectId','id'],batchFields)
+}
 
 async function readBasisMembers(host:ContentRevisionReadHost,snapshot:Awaited<ReturnType<typeof readContentSnapshotIndex>>,manifest:unknown){
  const nodes=await readContentSnapshotNodes(host,snapshot)
@@ -31,20 +38,38 @@ async function readBasisMembers(host:ContentRevisionReadHost,snapshot:Awaited<Re
 
 /** 首版须由调用方已核空头；已有基版沿原修订保留固定基线。 */
 export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selection:
- Readonly<{revisionId:string}|{revisionId:null;firstBaselineId:string;firstInputSnapshotHash:string}>){
+ Readonly<{revisionId:string}|{revisionId:null;firstBaselineId:string;firstBatchId:string;targetScope:unknown}>){
  const {runtime,projectId}=host,{revisionId}=selection
  if(revisionId===null){
-  const frozen=await readBidFrozenBaseline(host,selection.firstBaselineId)
+  const {firstBatchId,firstBaselineId,targetScope}=selection
+  if(!identity(firstBatchId)||!identity(firstBaselineId))throw Error(error)
+  const requestedScope=canonicalSnapshotValue(targetScope)
+  const batch=await readOriginalRegistrationView(host,{model:'GenerationBatch',viewName:batchView},{projectId,id:firstBatchId})
+  if(!batch.row)throw Error(error)
+  const assertBatch=batch.captureFields(batchFields)
+  assertBatch()
+  const {inputSnapshotHash,lockHash}=batch.row
+  if(batch.row['basisRevisionId']!==null||batch.row['baselineId']!==firstBaselineId||
+   typeof inputSnapshotHash!=='string'||!/^[a-f0-9]{64}$/u.test(inputSnapshotHash)||
+   typeof lockHash!=='string'||!/^[a-f0-9]{64}$/u.test(lockHash))throw Error(error)
+  const scopes=new Set<string>()
+  visitSnapshotReferences(batch.row['targetScopes'],value=>{
+   const encoded=canonicalSnapshotValue(value)
+   if(scopes.has(encoded))throw Error(error)
+   scopes.add(encoded)
+  },error)
+  if(!scopes.has(requestedScope))throw Error(error)
+  const frozen=await readBidFrozenBaseline({...host,assertCurrent:assertBatch},firstBaselineId)
   if(frozen.state!=='REGISTERED')throw Error(error)
   const scopedHost={...host,assertCurrent:frozen.assertCurrent}
-  const snapshot=await readContentSnapshotIndex(scopedHost,{snapshotHash:selection.firstInputSnapshotHash},'basis')
+  const snapshot=await readContentSnapshotIndex(scopedHost,{snapshotHash:inputSnapshotHash},'basis')
   const manifest=runtime.resolveView(snapshot.dataViewKey)?.rows[0]?.['manifest']
   const {stageRef}=snapshotReferenceRecord(manifest,error)
   if(snapshot.index.baselineId!==frozen.baselineId||canonicalSnapshotValue(stageRef)!==canonicalSnapshotValue(frozen.stageRef))
    throw Error(error)
   const members=await readBasisMembers(scopedHost,snapshot,manifest)
   return Object.freeze({...members,projectId,revisionId,baselineId:frozen.baselineId,stageRef:frozen.stageRef,
-   inputSnapshotHash:selection.firstInputSnapshotHash})
+   inputSnapshotHash,batchId:firstBatchId,lockHash})
  }
  const revision=await readAdoptedContentRevision(host,{kind:'basis',revisionId})
  const view=runtime.resolveView(revision.dataViewKey),row=view?.rows[0]

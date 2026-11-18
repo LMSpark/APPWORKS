@@ -13,7 +13,7 @@ type Draft=Readonly<{
  draftJson:string;contentDigest:string;assertCurrent:()=>void
 }>
 type Basis=Readonly<Omit<Parameters<typeof resolveContentTargetScope>[0],'scope'>&{
- revisionId:string|null;baselineId:string;stageRef:unknown;inputSnapshotHash?:string;assertCurrent:()=>void
+ revisionId:string|null;baselineId:string;stageRef:unknown;inputSnapshotHash?:string;batchId?:string;lockHash?:string;assertCurrent:()=>void
 }>
 
 /** 请求只引用已保存草稿；独立答复合并和原子登记按正式执行证据办理。 */
@@ -21,12 +21,14 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
  const assertCurrent=()=>{draft.assertCurrent();basis.assertCurrent()}
  assertCurrent()
  const {projectId,draftId,actorUserId,draftVersion,baseRevisionId,contentDigest,draftJson}=draft
- const {baselineId,stageRef,inputSnapshotHash}=basis,{requestKey}=input
+ const {baselineId,stageRef,inputSnapshotHash,batchId,lockHash}=basis,{requestKey}=input
  const error='CONTENT_DRAFT_CANDIDATE_SCOPE'
  if(![projectId,draftId,actorUserId,draftVersion,baselineId,requestKey].every(identity)||projectId!==basis.projectId||
   baseRevisionId!==basis.revisionId||(baseRevisionId!==null&&!identity(baseRevisionId))||
   (!identity(stageRef)&&!isRecord(stageRef))||
-  (baseRevisionId===null?(typeof inputSnapshotHash!=='string'||!/^[a-f0-9]{64}$/u.test(inputSnapshotHash)):inputSnapshotHash!==undefined))
+  (baseRevisionId===null?(!identity(batchId)||typeof inputSnapshotHash!=='string'||!/^[a-f0-9]{64}$/u.test(inputSnapshotHash)||
+   typeof lockHash!=='string'||!/^[a-f0-9]{64}$/u.test(lockHash)):
+   [inputSnapshotHash,batchId,lockHash].some(value=>value!==undefined)))
   throw Error(error)
  const snapshot:unknown=JSON.parse(draftJson)
  validateContentDraftPayload({projectId,draft:snapshot})
@@ -41,7 +43,7 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
  if(actualDigest!==contentDigest)throw Error('CONTENT_DRAFT_CANDIDATE_DIGEST')
  nodes.sort((left,right)=>left.nodeId<right.nodeId?-1:left.nodeId>right.nodeId?1:0)
  const requestJson=canonicalSnapshotValue({projectId,draftId,actorUserId,draftVersion,baseRevisionId,baselineId,
-  stageRef:capturedStage,targetScope,requestKey,contentDigest,nodes,...(inputSnapshotHash?{inputSnapshotHash}:{})})
+  stageRef:capturedStage,targetScope,requestKey,contentDigest,nodes,...(inputSnapshotHash?{inputSnapshotHash,batchId,lockHash}:{})})
  const requestDigest=await hashCanonicalSnapshotText(`["spark-bid.draft-candidate/1",${requestJson}]`)
  assertCurrent()
  return Object.freeze({projectId,draftId,draftVersion,baseRevisionId,baselineId,requestKey,contentDigest,requestJson,requestDigest,

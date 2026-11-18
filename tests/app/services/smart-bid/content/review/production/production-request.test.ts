@@ -2,12 +2,30 @@ import {expect,it} from 'vitest'
 import {prepareProductionRequest} from '@/services/smart-bid/content/review/production/production-request'
 import {prepareExportRegistration} from '@/services/smart-bid/content/review/production/production-output-registration'
 import {hashContentBytes} from '@/services/smart-bid/content/revision-snapshot-hash'
+import {prepareSignedOutputRegistration} from '@/services/smart-bid/content/review/production/signed-output-registration'
 
 const scope={projectId:'P',documentId:'D',revisionId:'R',baselineId:'B'}
 const version={...scope,state:'ADOPTED' as const,rootHash:'a'.repeat(64),assertCurrent:()=>{}}
 const evidence={...scope,templateVersionRef:'T1',ruleVersionRef:'RULE',factRefs:['F1'],
  formRequired:true,formVersionRef:'FORM-V1',requiredAttachmentRefs:['ATT-V1'],attachmentRefs:['ATT-V1'],assertCurrent:()=>{}}
 const input={...scope,requestKey:'Q',purpose:'FORMAL' as const,toolVersionRef:'TOOL',outputOptions:{format:'DOCX'}}
+
+it('keeps a signed file attached to its original file and signing operation',async()=>{
+ const bytes=new TextEncoder().encode('signed file').buffer
+ const fileHash=await hashContentBytes(bytes)
+ const original={...scope,producedFileId:'BEFORE',versionHash:'b'.repeat(64),assertCurrent:()=>{}}
+ const receipt={...scope,signatureOperationRef:'SIGN',signatureRecordId:'SR',originalFileId:'BEFORE',
+  originalHash:original.versionHash,resourceVersionId:'AFTER',fileHash,assertCurrent:()=>{}}
+ const open=async()=>({projectId:'P',resourceVersionId:'AFTER',bytes,assertCurrent:()=>{}})
+ const signed=await prepareSignedOutputRegistration(original,receipt,open)
+ expect(signed.record).toMatchObject({originalFileId:'BEFORE',signatureOperationRef:'SIGN',resourceVersionId:'AFTER',fileHash})
+ await expect(prepareSignedOutputRegistration({...original,producedFileId:'OTHER'},receipt,open))
+  .rejects.toThrow('BID_SIGNED_OUTPUT_SCOPE')
+ await expect(prepareSignedOutputRegistration(original,receipt,async()=>({...await open(),resourceVersionId:'OTHER'})))
+  .rejects.toThrow('BID_SIGNED_OUTPUT_RESOURCE')
+ await expect(prepareSignedOutputRegistration(original,{...receipt,fileHash:'c'.repeat(64)},open))
+  .rejects.toThrow('BID_SIGNED_OUTPUT_HASH')
+})
 
 it('fixes production inputs and checks a required original form and attachment independently',async()=>{
  const {request}=await prepareProductionRequest(input,version,evidence)

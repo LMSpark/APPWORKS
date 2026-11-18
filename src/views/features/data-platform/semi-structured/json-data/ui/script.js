@@ -16,6 +16,25 @@ function catalogView() {
   return $page.resolveView(catalogKey)
 }
 
+function bindCatalogReload() {
+  const catalog = catalogView()
+  return {visible: catalogEditable && !documentBinding && catalog?.hasPendingSavedRowPermissions === true, disabled: acting || catalog?.mutating === true}
+}
+
+async function reloadJsonCatalog() {
+  const state = bindCatalogReload()
+  if (!state.visible || state.disabled) return
+  acting = true
+  try {
+    await $page.invokeHostCommand('jsonData.reloadCatalog')
+    error = ''
+  } catch (cause) {
+    error = '目录回读失败。' + String(cause?.message || cause)
+  } finally {
+    acting = false
+  }
+}
+
 function bindCatalogCreate() {
   const catalog = catalogView()
   return {visible: catalogEditable, disabled: !!documentBinding || catalog?.addActionState() !== 'enabled' ||

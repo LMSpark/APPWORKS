@@ -71,6 +71,13 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
      throw error
     }
    }
+   if(command==='jsonData.reloadCatalog'){
+    if(!editable||document||!catalog||!catalog.hasPendingSavedRowPermissions||catalog.mutating||catalog.hasUnconfirmedSave||catalog.hasEditingChanges()||catalog.dirtyTracking.hasPendingChanges())throw new Error('JSON_CATALOG_REQUEST')
+    await catalog.refresh()
+    assertActive()
+    if(catalog.loadingError)throw catalog.loadingError
+    return
+   }
    if(command==='jsonData.saveCatalog'||command==='jsonData.cancelCatalog'){
     const view=dataSet.getView(LowcodeJsonData.catalogMetaName)
     if(!editable||document||!view||view.mutating)throw new Error('JSON_CATALOG_REQUEST')
@@ -138,7 +145,7 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
       if(imported)return {closed:true}
       await catalog.refresh()
       assertActive()
-      if(catalog.loadingError)return {closed:true,readError:catalog.loadingError.message}
+      if(catalog.loadingError)return {closed:true,readError:'正文和目录已保存，但目录回读失败。'+catalog.loadingError.message}
       if(!catalog.rows.some(row=>catalog.getPkKey(row)===id))return {closed:true}
       const saved=LowcodeJsonData.openDocument(dataSet,id)
       document=saved

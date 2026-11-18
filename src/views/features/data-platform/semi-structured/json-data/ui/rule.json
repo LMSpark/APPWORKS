@@ -4,6 +4,7 @@
     "type": "r-section",
     "props": {"title": "JSON 文件数据管理", "class": "json-data-catalog", "bordered": false, "gridColumns": 1, "onBeforeRender": "bindCatalogSection"},
     "children": [
+      {"type": "r-button", "props": {"label": "重新读取目录", "onBeforeRender": "bindCatalogReload", "onClick": "reloadJsonCatalog"}},
       {"type": "r-button", "props": {"label": "新增", "onBeforeRender": "bindCatalogCreate", "onClick": "createJsonDocument"}},
       {"type": "r-button", "props": {"label": "导入JSON", "onBeforeRender": "bindCatalogCreate", "onClick": "importJsonDocument"}},
       {"type": "r-button", "props": {"label": "保存目录", "onBeforeRender": "bindCatalogSave", "onClick": "saveJsonCatalog"}},

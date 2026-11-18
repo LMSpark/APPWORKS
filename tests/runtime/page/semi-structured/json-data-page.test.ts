@@ -299,6 +299,31 @@ it('creates JSON through native file and catalog views, file first, with both re
  expect(state.dirty[0]?.isDirty).toBe(false)
 
 })
+it('closes the confirmed creation when the directory reread fails and reopens the same record without another write',async()=>{
+ const f=await open()
+ await f.click('新增')
+ await setNewName(f.wrapper,'回读暂不可用')
+ state.http.beforeDefinitionRead=async table=>{
+  if(table==='Base_JsonData'&&state.http.saves.length)throw new Error('catalog read unavailable')
+ }
+ await f.click('创建JSON')
+ await vi.waitFor(()=>expect(f.wrapper.text()).toContain('正文和目录已保存，但目录回读失败。'))
+ expect(f.wrapper.findAll('button').some(button=>button.text()==='创建JSON')).toBe(false)
+ expect(state.dirty[0]?.isDirty).toBe(true)
+ const id=state.http.saves[0]?.added[0]?.['rowid']
+ expect(typeof id).toBe('string')
+ expect(state.uploads).toEqual([`${String(id)}.json`])
+ delete state.http.beforeDefinitionRead
+ await f.click('重新读取目录')
+ expect(f.wrapper.text()).not.toContain('目录回读失败')
+ expect(state.dirty[0]?.isDirty).toBe(false)
+ const row=f.wrapper.getComponent(RendererTable).findAll('tbody tr').find(item=>item.findAll('input').some(input=>input.element.value==='回读暂不可用'))
+ expect(row).toBeDefined()
+ await row!.get('button').trigger('click')
+ await vi.waitFor(()=>expect(documentValue(f.wrapper)).toEqual({}))
+ expect(state.http.saves).toHaveLength(1)
+ expect(state.uploads).toHaveLength(1)
+})
 it('cancels a new JSON before either source is written',async()=>{
  const f=await open();await f.click('新增');await setNewName(f.wrapper,'cancel');await f.edit('{"cancel":true}');await f.click('取消新增');expect(state.http.saves).toEqual([]);expect(state.uploads).toEqual([]);expect(state.http.records['Base_JsonData']).toHaveLength(2);expect(state.dirty[0]?.isDirty).toBe(false);await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/other')
 })

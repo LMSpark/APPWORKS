@@ -11,7 +11,7 @@ it('reports snapshot and revision evidence separately from original registration
  const f=fixture()
  try{
   const complete=await inspectRegisteredAdoption(f.host,request)
-  expect(complete).toMatchObject({recordFound:true,revisionEvidence:'SNAPSHOT_VERIFIED',baselineId:'B',nodeCount:0})
+  expect(complete).toMatchObject({recordFound:true,revisionEvidence:'SNAPSHOT_VERIFIED',baselineId:'B',nodeCount:0,rootHashVerified:false})
   f.snapshotQuery.mockRejectedValueOnce(Error('SNAPSHOT_UNAVAILABLE'))
   expect(await inspectRegisteredAdoption(f.host,request)).toMatchObject({adoptionRef:'A',revisionEvidence:'REVISION_READ'})
   f.revisionQuery.mockRejectedValueOnce(Error('REVISION_UNAVAILABLE'))

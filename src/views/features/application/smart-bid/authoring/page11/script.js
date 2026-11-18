@@ -257,6 +257,7 @@ async function openOriginalAdoption() {
       result.commitCheckRef ? `登记引用的提交核验 ${result.commitCheckRef}` : '提交核验引用待补'] : ['未查到原采用记录']
     if (result.revisionEvidence === 'SNAPSHOT_VERIFIED') {
       lines.push(`已核合并修订快照 · 基线 ${result.baselineId} · 节点 ${result.nodeCount} 个`)
+      lines.push(result.rootHashVerified ? `已复算内容根摘要 ${result.rootHash}` : '内容根摘要待核')
     } else if (result.revisionEvidence === 'REVISION_READ') {
       lines.push('已回读合并修订，快照待核')
     } else if (result.revisionEvidence === 'UNVERIFIED') {

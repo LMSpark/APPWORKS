@@ -5,6 +5,7 @@
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/content-root-hash'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,readAdoptedContentRevision,type ContentRevisionReadHost} from '../content-revision-reader'
 import {readAdoptionSnapshot} from './content-adoption-snapshot-reader'
 
@@ -69,8 +70,15 @@ export async function inspectRegisteredAdoption(host:ContentRevisionReadHost,inp
  try{
   const snapshot=await merge.readSnapshot()
   snapshot.assertCurrent()
-  return Object.freeze({...original,revisionEvidence:'SNAPSHOT_VERIFIED' as const,baselineId:snapshot.snapshot.index.baselineId,
-   nodeCount:snapshot.snapshot.index.nodes.length,assertCurrent:snapshot.assertCurrent})
+  const result={...original,revisionEvidence:'SNAPSHOT_VERIFIED' as const,baselineId:snapshot.snapshot.index.baselineId,
+   nodeCount:snapshot.snapshot.index.nodes.length}
+  try{
+   const root=await snapshot.verifyRootHash(CONTENT_ROOT_HASH_CONTRACT)
+   return Object.freeze({...result,...root})
+  }catch{
+   snapshot.assertCurrent()
+   return Object.freeze({...result,rootHashVerified:false as const,assertCurrent:snapshot.assertCurrent})
+  }
  }catch{
   merge.assertCurrent()
   return Object.freeze({...original,revisionEvidence:'REVISION_READ' as const,assertCurrent:merge.assertCurrent})

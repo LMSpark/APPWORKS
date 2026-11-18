@@ -113,6 +113,10 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   await openConfigurationRelease()
   expect(showAlert).toHaveBeenLastCalledWith(
    '原停用已生效 · 原回执 STOP · 当次指针 P2 · 配置版本 V1\n停用影响证据无法核验','配置启停回查')
+  await expect(readRegisteredConfigurationRelease(host,{...original,requestDigest:'c'.repeat(64)}))
+   .rejects.toThrow('CONFIGURATION_RELEASE_REGISTERED_READ')
+  expect(view.queryContext).toMatchObject({...scope,requestKey:'Q'})
+  expect(view.queryContext).not.toHaveProperty('requestDigest')
   await expect(readRegisteredConfigurationRelease(host,{...original,expectedPointerVersion:'OTHER'}))
    .rejects.toThrow('CONFIGURATION_RELEASE_REGISTERED_READ')
   await openConfigurationCandidate()

@@ -7,8 +7,8 @@ import {readOriginalConfigurationRelease} from '@/services/smart-bid/content/ref
 import {originalRegistrationView,readOriginalRegistrationView} from '../authority/original-registration-view'
 
 type Request=Parameters<typeof readOriginalConfigurationRelease>[0]
-const keys=['kind','key','scopeId','requestKey','requestDigest']
-const versionFields=['action','versionId','versionDigest','expectedPointerVersion','status']
+const keys=['kind','key','scopeId','requestKey']
+const versionFields=['requestDigest','action','versionId','versionDigest','expectedPointerVersion','status']
 const error='CONFIGURATION_RELEASE_REGISTERED_READ'
 
 /** 在页19场景装配 ConfigurationRelease@originalRelease 精确查询。 */
@@ -22,16 +22,16 @@ export function readRegisteredConfigurationRelease(
  host.assertCurrent()
  if(host.scopeId!==input.scopeId)throw Error(error)
  return readOriginalConfigurationRelease(input,{assertCurrent:()=>host.assertCurrent(),lookup:async request=>{
-  const {kind,key,scopeId,requestKey,requestDigest}=request
+  const {kind,key,scopeId,requestKey}=request
   const read=await readOriginalRegistrationView(host,{model:'ConfigurationRelease',viewName:'originalRelease'},
-   {kind,key,scopeId,requestKey,requestDigest})
+   {kind,key,scopeId,requestKey})
   const {row}=read
   if(!row)return {...request,status:'UNKNOWN',assertCurrent:read.assertCurrent}
   const {action,versionId,versionDigest,expectedPointerVersion,status,state,releaseRef,resultPointerVersion,terminalRef}=row
   const assertCurrent=read.captureFields([...versionFields,...(status==='APPLIED'?['state','releaseRef','resultPointerVersion']:
    status==='NOT_APPLIED'?['terminalRef']:[])])
   assertCurrent()
-  if(action!==request.action||versionId!==request.version.versionId||versionDigest!==request.version.digest||
+  if(row['requestDigest']!==request.requestDigest||action!==request.action||versionId!==request.version.versionId||versionDigest!==request.version.digest||
    expectedPointerVersion!==request.expectedPointerVersion)throw Error(error)
   if(status==='UNKNOWN')return {...request,status,assertCurrent}
   if(status==='NOT_APPLIED'&&identity(terminalRef))return {...request,status,terminalRef,assertCurrent}

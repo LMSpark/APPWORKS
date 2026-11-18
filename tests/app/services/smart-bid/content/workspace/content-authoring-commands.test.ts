@@ -91,6 +91,14 @@ it('captures the saved draft for candidacy and withdraws it when edits start',as
   await expect(prepareDraftCandidateRequest(edited,previous,{...input,targetScope:{...input.targetScope,targets:[
    {kind:'NODE',nodeId:'C',extent:'NODE'},
   ]}})).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_TARGET_MISMATCH')
+  const unresolved=canonicalSnapshotValue({nodes:[...nodePayloads.slice(0,2),{...headline,
+   value:'见{{后文}}',data:{后文:{type:'xref',nodeId:'MISSING',show:'title'}}}],responseChanges:[]})
+  await expect(prepareDraftCandidateRequest({...edited,draftJson:unresolved,contentDigest:await hashCanonicalSnapshotText(unresolved)},
+   previous,input)).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_UNRESOLVED_LINK')
+  const changedType=canonicalSnapshotValue({nodes:[...nodePayloads.slice(0,2),{...headline,nodeId:'NEW-HEADING'},
+   {...headline,index:1,type:'paragraph'}],responseChanges:[]})
+  await expect(prepareDraftCandidateRequest({...edited,draftJson:changedType,contentDigest:await hashCanonicalSnapshotText(changedType)},
+   previous,{...input,declaredAddedNodeIds:['NEW-HEADING']})).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_NODE_TYPE_CHANGED')
   f.commands.run(add,f.commands.epoch)
   expect(()=>captured.assertCurrent()).toThrow()
   expect(()=>candidate.assertCurrent()).toThrow()

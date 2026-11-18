@@ -53,8 +53,15 @@ async function openDraftCandidate() {
       `请求摘要 ${result.requestDigest}`,
       '候选登记待办理',
     ].join('\n'), '候选生成输入')
-  } catch {
-    $page.showMessage('无法核验候选生成输入，请确认草稿已保存且编制范围与原依据一致', 'warning')
+  } catch (cause) {
+    const messages = {
+      CONTENT_DRAFT_CANDIDATE_UNRESOLVED_LINK: '候选中存在找不到目标的正文引用，请核对引用或恢复目标节点',
+      CONTENT_DRAFT_CANDIDATE_NODE_TYPE_CHANGED: '候选改变了既有节点的类型，请核对节点身份',
+      CONTENT_DRAFT_CANDIDATE_TARGET_MISMATCH: '候选含范围外改动或未声明的新增节点',
+    }
+    const code = cause?.message
+    $page.showMessage(typeof code === 'string' && Object.hasOwn(messages, code) ? messages[code] :
+      '无法核验候选生成输入，请确认草稿已保存且编制范围与原依据一致', 'warning')
   }
 }
 

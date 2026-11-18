@@ -44,6 +44,10 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
   candidate:responseOnly?basis.nodePayloads:snapshot['nodes'],targetScope:scope,responses:basis.responses,
   declaredAddedNodeIds:input.declaredAddedNodeIds??[],responseChanges:snapshot['responseChanges']})
  if(!preview.scopeCheckPassed)throw Error('CONTENT_DRAFT_CANDIDATE_TARGET_MISMATCH')
+ if(!responseOnly&&preview.comparison.linkChecks.some(link=>link.snapshot==='CANDIDATE'&&!link.targetExists))
+  throw Error('CONTENT_DRAFT_CANDIDATE_UNRESOLVED_LINK')
+ if(preview.comparison.nodes.some(node=>node.conflicts.includes('TYPE_CHANGED')))
+  throw Error('CONTENT_DRAFT_CANDIDATE_NODE_TYPE_CHANGED')
  const targetScope:unknown=JSON.parse(canonicalSnapshotValue(scope))
  const capturedStage:unknown=JSON.parse(canonicalSnapshotValue(stageRef))
  const [nodes,actualDigest]=await Promise.all([Promise.all(snapshot['nodes'].map(async(node:unknown)=>{

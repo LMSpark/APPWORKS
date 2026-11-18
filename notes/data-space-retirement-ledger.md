@@ -11833,3 +11833,5 @@ flowchart TD
 - 第16/17包回核 appendParticipants 正式场景配置为全页查询。追加办理人候选核对原列表返回的续页及正式总数，结果不全时拒绝候选查询与旧结果证明，避免将未读到的已办人员重新列入。正式多页办理场景仍待烟测。
 
 - 第16/17包追加办理人命令回归验证：选人确认捕获原候选后，已有办理人 DataView 即使原值不变，重查也令旧凭据失效。提交被拒绝，未发送 POST，也未建立未知保存。追加参数工作区6项通过，正式服务待验。
+
+- 标书页11平台交接核对：当前生产源码中的 preparePublishedContentAuthoringCall 尚无调用方。需要授权蓝图回读确认 nodeId/pageId 后接入通用工具运行入口；共享场景 D3BBA1F0780056C837AC35E9825CAD5A 的 GenerationBatch@originalFirstCandidateBatch 与 Response@selectedDraftResponseVersions 当前只查到业务视图工厂及夹具接线，正式场景需独立回读。原保存回执视图通过已发布入口 receiptDataViewKey 注入，真实服务资源和权威终态未证。页11宿主、配置及渲染37项通过，保存/重开实服未验。

@@ -302,6 +302,21 @@ describe('WorkflowDesigns on design projection DataViews', () => {
     } finally {uploaded?.(); await flushPromises(); await flushPromises()}
   })
 
+  it('preserves edits made to the same draft while leave confirmation is open', async () => {
+    await mountPage()
+    const view = mocks.owner()?.design.nodes
+    if (!view) throw new Error('missing node view')
+    const id = 'workflow.graph#start'
+    view.updateEditingValue(id, 'title', '第一次修改')
+    let confirm: ((value: string) => void) | undefined
+    mocks.messageBox.confirm.mockImplementationOnce(() => new Promise<string>(resolve => {confirm = resolve}))
+    const leaving = mocks.leave(); await flushPromises()
+    view.updateEditingValue(id, 'title', '确认期间的新修改')
+    confirm?.('confirm')
+    expect(await leaving).toBe(false)
+    expect(view.getEditingRow(id)?.['title']).toBe('确认期间的新修改')
+  })
+
   it('does not let an old leave confirmation discard a replacement creation row', async () => {
     const wrapper = await mountPage(), owner = mocks.owner()
     if (!owner) throw new Error('missing owner')

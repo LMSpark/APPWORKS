@@ -482,8 +482,15 @@ async function confirmDiscard(): Promise<boolean> {
   const pendingViews = editableViews().filter(pendingIn)
   if (pendingViews.length === 0) return true
   if (pendingViews.some(view => view.hasUnconfirmedSave)) {pageService.showMessage('保存结果尚未确认，请先核验保存', 'error'); return false}
-  if (!await pageService.showConfirm('当前工作流设计有未保存更改，是否丢弃？', '丢弃修改', {type: 'warning', confirmText: '丢弃', cancelText: '取消'})) return false
-  if (!active || owner.value !== current || workflowId.value !== targetId || creationView.value !== command || creationId.value !== commandId
+  let changed = false
+  const markChanged = () => {changed = true}
+  for (const view of pendingViews) view.events.on('editingChanged', markChanged)
+  try {
+    if (!await pageService.showConfirm('当前工作流设计有未保存更改，是否丢弃？', '丢弃修改', {type: 'warning', confirmText: '丢弃', cancelText: '取消'})) return false
+  } finally {
+    for (const view of pendingViews) view.events.off('editingChanged', markChanged)
+  }
+  if (changed || !active || owner.value !== current || workflowId.value !== targetId || creationView.value !== command || creationId.value !== commandId
     || publicationView.value !== publication
     || command && (command.rows.length !== commandRows.length || command.rows.some((row, index) => row !== commandRows[index]))
     || publication && (publication.rows.length !== publicationRows.length || publication.rows.some((row, index) => row !== publicationRows[index]))

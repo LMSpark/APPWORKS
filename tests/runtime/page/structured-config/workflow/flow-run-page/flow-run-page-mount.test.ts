@@ -1,9 +1,9 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DOMWrapper,config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
-import {defineComponent, h, reactive} from 'vue'
-import {PAGE_RUNTIME, RendererDialog, RendererForm, RendererTabs, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
-import type {PageRuntime, PageTool} from '@spark-appworks/spark-project-model'
+import {defineComponent, h, markRaw, reactive} from 'vue'
+import {PAGE_RUNTIME, RendererDialog, RendererForm, RendererTabs, Spark, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {PageRuntime, type PageTool} from '@spark-appworks/spark-project-model'
 import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, ensureDataSetStaticInputTable, parseDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {createFlowRunOptionsBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding'
 import {FlowRunCommandResource} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
@@ -11,6 +11,7 @@ import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENAR
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
+import workbenchScenario from '../../../../../../config/pages/workflow/flow-workbench/pagedata.json'
 import {fixture as designFixture} from '../flow-design/flow-design-data.fixture'
 const {reloadRuntime} = vi.hoisted(() => ({reloadRuntime: vi.fn(async () => undefined)}))
 const {openTool} = vi.hoisted(() => ({openTool: vi.fn<(pageId: string) => PageTool>()}))
@@ -202,6 +203,36 @@ describe('flow run page mount', () => {
       children: [{props: {field: 'description'}}, {props: {field: 'ReceiveUserName'}},
         {props: {field: 'STARTTIME'}}, {props: {field: 'StepState'}}],
     }])
+    const model = 'WFOBJ_FLOW_RELATIONLINE_STEP'
+    const configured = workbenchScenario.tables[model]
+    const workbench = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {
+      [model]: {...configured, views: {default: configured.views.default}, columns: ['rowid', 'description', 'ReceiveUserName', 'STARTTIME', 'StepState', 'WFOBJID', 'STEPTYPE']
+        .map(name => ({name, type: 'string'}))},
+    }})
+    const runtime = markRaw(new PageRuntime({tool, scenarioIds: [FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID],
+      mainScenarioId: FLOW_MONITOR_SCENARIO_ID,
+      loadScenario: async id => id === FLOW_WORKBENCH_SCENARIO_ID ? workbench : DataSet.fromJson({scenarioId: id, tables: {}}),
+    }))
+    delete config.global.stubs['SparkComponentRenderer']
+    delete config.global.stubs['spark-component-renderer']
+    delete config.global.stubs['el-table']
+    delete config.global.stubs['el-table-column']
+    try {
+      const wrapper = mount(withTestPageService(defineComponent({setup: () => () => h(SparkPageRenderer, {
+        pageRuntime: runtime,
+        routeSnapshot: {path: '/test', fullPath: '/test', params: {}, query: {}, hash: '', name: null},
+        autoLoad: false,
+      })})), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+      wrappers.push(wrapper)
+      await flushPromises()
+      workbench.getView(model).replaceRows([{rowid: 'STEP-1', WFOBJID: 'WF-1', description: '原步骤摘要', ReceiveUserName: '测试办理人', STARTTIME: '2026-11-19', StepState: '1'}])
+      await flushPromises()
+      expect(wrapper.findComponent({name: 'ElTable'}).props('data')).toMatchObject([{rowid: 'STEP-1', description: '原步骤摘要', ReceiveUserName: '测试办理人'}])
+    } finally {
+      wrappers.pop()?.unmount()
+      runtime.dispose()
+    }
+
   })
 
   it('opens its flow chart with the original formal edge endpoints',async()=>{

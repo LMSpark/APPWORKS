@@ -2,13 +2,16 @@ import {expect,it} from 'vitest'
 import {prepareResponseDraft} from '@/services/smart-bid/content/references/response/response-draft'
 
 const scope={projectId:'P',baselineId:'B',assignmentId:'A',lineageId:'R',version:'R1',targetRef:'FIELD'}
-const input={...scope,authorRef:'OWNER',body:{statement:'承诺 {{price}}',data:{price:{type:'fact',factId:'PRICE'}}}}
+const input={...scope,authorRef:'OWNER',at:10,body:{statement:'承诺 {{price}}',data:{price:{type:'fact',factId:'PRICE'}}}}
 const fact={kind:'FACT' as const,ref:'PRICE-V1',usable:true,assertCurrent:()=>{}}
-const source={...scope,currentAssigneeRef:'OWNER',allowedNodeIds:[],requiredEvidence:[fact],evidence:[fact],assertCurrent:()=>{}}
+const source={...scope,task:{...scope,taskRef:'TASK',assignmentVersion:'A1',assigneeRef:'OWNER',dueAt:20,state:'ACCEPTED' as const,acceptance:{receiptRef:'ACCEPT',assignmentVersion:'A1',assigneeRef:'OWNER',acceptedAt:1},assertCurrent:()=>{}},allowedNodeIds:[],requiredEvidence:[fact],evidence:[fact],assertCurrent:()=>{}}
 
 it('keeps the independent response and its evidence with the current assignment',()=>{
  expect(prepareResponseDraft(input,source)).toMatchObject({body:input.body,evidenceRefs:[{kind:'FACT',ref:'PRICE-V1'}]})
- expect(()=>prepareResponseDraft(input,{...source,currentAssigneeRef:'OTHER'})).toThrow('BID_RESPONSE_DRAFT_SCOPE')
+ expect(()=>prepareResponseDraft(input,{...source,task:{...source.task,assigneeRef:'OTHER'}})).toThrow('BID_RESPONSE_TASK_NOT_ACCEPTED')
+ expect(()=>prepareResponseDraft(input,{...source,task:{...source.task,assignmentVersion:'A2'}}))
+  .toThrow('BID_RESPONSE_TASK_NOT_ACCEPTED')
+ expect(()=>prepareResponseDraft({...input,at:21},source)).toThrow('BID_RESPONSE_TASK_NOT_ACCEPTED')
  expect(()=>prepareResponseDraft(input,{...source,evidence:[]})).toThrow('BID_RESPONSE_DRAFT_EVIDENCE')
  expect(()=>prepareResponseDraft(input,{...source,evidence:[{...fact,usable:false}]})).toThrow('BID_RESPONSE_DRAFT_EVIDENCE')
 })

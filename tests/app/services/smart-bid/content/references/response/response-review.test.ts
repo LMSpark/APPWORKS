@@ -6,8 +6,8 @@ import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart
 it('requires verification of the exact AI-assisted position separately from the original response',async()=>{
  const scope={projectId:'P',baselineId:'B',assignmentId:'A',lineageId:'L',version:'V1',targetRef:'FIELD'}
  const assertCurrent=()=>{}
- const draft=prepareResponseDraft({...scope,authorRef:'AUTHOR',body:{statement:'按条款答复',data:{}}},{
-  ...scope,currentAssigneeRef:'AUTHOR',allowedNodeIds:[],requiredEvidence:[],evidence:[],assertCurrent,
+ const draft=prepareResponseDraft({...scope,authorRef:'AUTHOR',at:10,body:{statement:'按条款答复',data:{}}},{
+  ...scope,task:{...scope,taskRef:'TASK',assignmentVersion:'A1',assigneeRef:'AUTHOR',dueAt:20,state:'ACCEPTED' as const,acceptance:{receiptRef:'ACCEPT',assignmentVersion:'A1',assigneeRef:'AUTHOR',acceptedAt:1},assertCurrent:()=>{}},allowedNodeIds:[],requiredEvidence:[],evidence:[],assertCurrent,
  })
  const {assertCurrent:_proof,...body}=draft
  const draftHash=await hashCanonicalSnapshotText(canonicalSnapshotValue(body))

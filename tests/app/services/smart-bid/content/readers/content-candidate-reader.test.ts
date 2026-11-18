@@ -2,7 +2,42 @@ import {expect,it,vi} from 'vitest'
 import {createHash} from 'node:crypto'
 import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/content-root-hash'
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
+import {prepareResponseDraft} from '@/services/smart-bid/content/references/response/response-draft'
+import {readReviewedResponseForCandidate,reviewResponseDraft} from '@/services/smart-bid/content/references/response/response-review'
+import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
+
+it.each(['response-fact','scoped-response'] as const)('matches reviewed response content against the actual candidate manifest (%s)',async mode=>{
+ const f=await fixture(mode)
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const anchored=mode==='scoped-response',responseId=anchored?'R':'I',targetRef=anchored?'H':'FIELD'
+  const scope={projectId:'P',baselineId:'B',assignmentId:'A',lineageId:'L',version:anchored?'R2':'R1',targetRef}
+  const assertCurrent=()=>{}
+  const draft=prepareResponseDraft({...scope,authorRef:'OWNER',at:10,
+   body:anchored?{chapterId:'C',anchorNodeId:'H'}:{statement:'报价{{金额}}元，再确认{{金额}}元',data:{金额:{type:'fact',factId:'PRICE'}}}},{
+   ...scope,task:{...scope,taskRef:'TASK',assignmentVersion:'A1',assigneeRef:'OWNER',dueAt:20,state:'ACCEPTED' as const,acceptance:{receiptRef:'ACCEPT',assignmentVersion:'A1',assigneeRef:'OWNER',acceptedAt:1},assertCurrent:()=>{}},allowedNodeIds:['H'],...(anchored?{chapterId:'C'}:{}),
+   requiredEvidence:[],evidence:[],assertCurrent,
+  })
+  const {assertCurrent:_proof,...body}=draft
+  const draftHash=await hashCanonicalSnapshotText(canonicalSnapshotValue(body))
+  const nodeHash=f.ds.getView('ContentNodeVersion','snapshotMembers')?.rows.find(item=>item['nodeId']==='H')?.['nodeHash']
+  const getReview=(hash:string)=>{
+   const position={positionRef:targetRef,contentHash:hash,requiresAiVerification:false}
+   return reviewResponseDraft(draft,{draftHash,reviewerRef:'REVIEWER',ruleVersionRef:'RULE',deviation:null,
+    deviationAllowed:false,positions:[position],checks:[{...position,accepted:true,reviewRef:'REVIEW',aiVerificationRef:null,assertCurrent}],
+    deferredPositionRefs:[],assertCurrent})
+  }
+  const review=await getReview(typeof nodeHash==='string'?nodeHash:'a'.repeat(64))
+  const reviewed=await readReviewedResponseForCandidate(scope,draft,review)
+  expect(candidate.verifyReviewedResponse(responseId,reviewed)).toMatchObject({responseId,reviewHash:draftHash})
+  expect(()=>candidate.verifyReviewedResponse('OTHER',reviewed)).toThrow('CONTENT_CANDIDATE_REVIEWED_RESPONSE')
+  if(anchored){
+   const wrong=await readReviewedResponseForCandidate(scope,draft,await getReview('b'.repeat(64)))
+   expect(()=>candidate.verifyReviewedResponse(responseId,wrong)).toThrow('CONTENT_CANDIDATE_REVIEWED_RESPONSE')
+  }
+ }finally{f.ds.destroy()}
+})
 
 it('requires every original non-fact display and rejects an invented position on a normal node',async()=>{
  const f=await fixture('populated')

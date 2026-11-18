@@ -8,6 +8,8 @@ import {assertRevisionTemplateBindings,readCalculationTableTemplateRefs,readCont
 import {resolveTemplateContentRules} from '@/services/smart-bid/content/references/template-content-rules'
 import {resolveCalculationTableGenerator} from '@/services/smart-bid/content/references/calculation-table-generator'
 import {assertRevisionResponseAnchors} from '@/services/smart-bid/content/references/revision-response-anchors'
+import type {readReviewedResponseForCandidate} from '@/services/smart-bid/content/references/response/response-review'
+import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {assertRevisionResponseText,readIndependentResponseFactOccurrences,type IndependentResponseFactTarget} from '@/services/smart-bid/content/references/revision-response-text'
 import {hasCompleteSingleContentResult,readContentRevisionBasis,readContentRevisions,type ContentRevisionReadHost,type ContentRevisionSelection,type ContentRevisionReadBinding} from './content-revision-reader'
 import {assertContentNodeVersionPayload} from './content-node-version-reader'
@@ -126,6 +128,8 @@ export type ContentCandidateBinding=Readonly<{
  readSubtreeEffectiveHash:(nodeId:string,responses:readonly ScopedResponseTarget[],sources:SubtreeReviewSources)=>
   Promise<Readonly<{effectiveHash:string;requiresUseCheck:true;assertCurrent:()=>void}>>
  readFixedRequirement:(pin:RevisionRequirementPin,assertConsumer?:()=>void)=>Promise<ContentCandidateRequirementBinding>
+ verifyReviewedResponse:(responseId:string,reviewed:Awaited<ReturnType<typeof readReviewedResponseForCandidate>>)=>
+  Readonly<{responseId:string;reviewHash:string;assertCurrent:()=>void}>
  readFixedTenderRecord:(reference:unknown,assertConsumer?:()=>void)=>ReturnType<typeof readContentTenderRecord>
  readPreviewVersions:(assertConsumer?:()=>void)=>Promise<PreviewVersionSession>
  verifyRootHash:(contract:string)=>ReturnType<typeof verifyReadableRevisionRoot>
@@ -173,6 +177,32 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
  assertRevisionResponseAnchors(responses,requirementPins,payloads)
  assertRevisionResponseText(responses,payloads.map(payload=>payload.nodeId))
  assertCurrent()
+ const verifyReviewedResponse:ContentCandidateBinding['verifyReviewedResponse']=(responseId,reviewed)=>{
+  const assertProof=()=>{assertCurrent();reviewed.assertCurrent()}
+  assertProof()
+  const error='CONTENT_CANDIDATE_REVIEWED_RESPONSE'
+  const {response}=reviewed
+  if(!responseId||response.projectId!==host.projectId||response.baselineId!==row['baselineId'])throw Error(error)
+  const matched:string[]=[]
+  visitSnapshotReferences(responses,value=>{
+   const item=snapshotReferenceRecord(value,error)
+   if(item['id']!==responseId)return
+   if(item['assignmentId']!==response.assignmentId||item['lineageId']!==response.lineageId||
+    item['version']!==response.version)throw Error(error)
+   const body=Object.hasOwn(item,'chapterId')?{chapterId:item['chapterId'],anchorNodeId:item['anchorNodeId']}:
+    {statement:item['statement'],data:item['data']}
+   if(canonicalSnapshotValue(body)!==canonicalSnapshotValue(response.body))throw Error(error)
+   matched.push(responseId)
+  },error)
+  if(matched.length!==1)throw Error(error)
+  if('chapterId' in response.body){
+   const {anchorNodeId}=response.body
+   const verifiedAnchor=reviewed.reviewedPositions.find(position=>position.positionRef===anchorNodeId&&position.verified)
+   const node=nodes.dataViewKey?host.runtime.resolveView(nodes.dataViewKey)?.rows.find(item=>item['nodeId']===anchorNodeId):undefined
+   if(!verifiedAnchor||node?.['nodeHash']!==verifiedAnchor.contentHash)throw Error(error)
+  }
+  return Object.freeze({responseId,reviewHash:reviewed.reviewHash,assertCurrent:assertProof})
+ }
  const verifiedExpansions=new WeakSet<object>()
  const readCalculationTemplates=(nodeIds:readonly string[])=>{
   assertCurrent()
@@ -575,7 +605,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   readEffectiveFacts:(scope:ReviewScope,assertConsumer?:()=>void)=>readEffectiveFacts(scope,assertConsumer),
   hashNodeCalculationInputs,readCalculationTemplates,resolveCalculationGenerators,expandAttachmentIndex,
   readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readEffectiveFacts({nodeIds,responses:[]},assertConsumer),
-  readFixedRequirement,readRequirementPinIssues,
+  readFixedRequirement,readRequirementPinIssues,verifyReviewedResponse,
   readRequirementBindingHash:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readRequirementBindingHash(nodeIds,assertConsumer),
   readReviewDependencies,readSubtreeReviewDependencies,readSubtreeEffectiveHash,readQualificationHash,readContentRulesHash,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   verifyRootHash:(contract:string)=>verifyReadableRevisionRoot({host:{...host,assertCurrent},revisionDataViewKey:revisions.candidateDataViewKey,snapshot,contract}),

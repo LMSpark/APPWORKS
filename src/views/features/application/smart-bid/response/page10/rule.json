@@ -32,5 +32,13 @@
         ]
       }
     ]
+  },
+  {
+    "id": "bid-original-response-assignment",
+    "type": "r-section",
+    "props": {"title": "原答复分工"},
+    "children": [
+      {"type": "r-button", "props": {"label": "读取原分工", "onBeforeRender": "bindOriginalAssignment", "onClick": "openOriginalAssignment"}}
+    ]
   }
 ]

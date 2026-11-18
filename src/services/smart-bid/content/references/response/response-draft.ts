@@ -4,6 +4,7 @@
  */
 import {assertRevisionResponseText} from '../revision-response-text'
 import {snapshotReferenceIdentity as identity} from '../snapshot-reference-values'
+import {checkResponseTaskAuthor} from './response-task'
 
 type Scope=Readonly<{projectId:string;baselineId:string;assignmentId:string;lineageId:string;version:string;targetRef:string}>
 type Proof=Readonly<{assertCurrent:()=>void}>
@@ -12,15 +13,17 @@ type Evidence=Readonly<{ref:string;kind:'FACT'|'MATERIAL'|'QUALIFICATION';usable
 const fields=['projectId','baselineId','assignmentId','lineageId','version','targetRef'] as const
 
 /** 只接受原任务当前承办人及规定落点；章内正文仍由原节点承载。 */
-export function prepareResponseDraft(input:Scope&Readonly<{authorRef:string;body:Body}>,source:Scope&Proof&Readonly<{
- currentAssigneeRef:string;chapterId?:string;allowedNodeIds:readonly string[]
+export function prepareResponseDraft(input:Scope&Readonly<{authorRef:string;at:number;body:Body}>,source:Scope&Proof&Readonly<{
+ task:Parameters<typeof checkResponseTaskAuthor>[1];chapterId?:string;allowedNodeIds:readonly string[]
  requiredEvidence:ReadonlyArray<Pick<Evidence,'kind'|'ref'>>;evidence:readonly Evidence[]
 }>){
  const evidence=[...source.evidence]
- const assertCurrent=()=>{source.assertCurrent();for(const item of evidence)item.assertCurrent()}
+ source.assertCurrent()
+ if(![...fields.map(key=>input[key]),input.authorRef].every(identity)||fields.some(key=>source[key]!==input[key]))
+  throw Error('BID_RESPONSE_DRAFT_SCOPE')
+ const {taskRef,assignmentVersion,acceptanceRef,assertCurrent:assertTask}=checkResponseTaskAuthor(input,source.task)
+ const assertCurrent=()=>{source.assertCurrent();assertTask();for(const item of evidence)item.assertCurrent()}
  assertCurrent()
- if(![...fields.map(key=>input[key]),input.authorRef].every(identity)||fields.some(key=>source[key]!==input[key])||
-  input.authorRef!==source.currentAssigneeRef)throw Error('BID_RESPONSE_DRAFT_SCOPE')
  const {body}=input
  if('chapterId' in body){
   if(!identity(body.chapterId)||body.chapterId!==source.chapterId||!source.allowedNodeIds.includes(body.anchorNodeId)||
@@ -41,5 +44,5 @@ export function prepareResponseDraft(input:Scope&Readonly<{authorRef:string;body
  if(expected.size)throw Error('BID_RESPONSE_DRAFT_EVIDENCE')
  return Object.freeze({projectId:input.projectId,baselineId:input.baselineId,assignmentId:input.assignmentId,
   lineageId:input.lineageId,version:input.version,targetRef:input.targetRef,authorRef:input.authorRef,
-  body:structuredClone(body),evidenceRefs:Object.freeze(evidenceRefs),assertCurrent})
+  body:structuredClone(body),taskRef,assignmentVersion,acceptanceRef,evidenceRefs:Object.freeze(evidenceRefs),assertCurrent})
 }

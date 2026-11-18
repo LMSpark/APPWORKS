@@ -2,7 +2,40 @@
 let priceGeneration = 0
 let securityGeneration = 0
 let factGeneration = 0
+let assignmentGeneration = 0
 let fixedFact
+
+function selectedOriginalAssignment() {
+  const {assignmentId} = $route.query
+  return typeof assignmentId === 'string' && assignmentId && assignmentId.trim() === assignmentId ? assignmentId : undefined
+}
+
+function bindOriginalAssignment() {
+  return {disabled: !selectedOriginalAssignment()}
+}
+
+async function openOriginalAssignment() {
+  const assignmentId = selectedOriginalAssignment()
+  if (!assignmentId) return
+  const generation = ++assignmentGeneration
+  const isCurrent = () => generation === assignmentGeneration && selectedOriginalAssignment() === assignmentId
+  try {
+    const result = await $page.invokeHostCommand('bid.response.readAssignment', {assignmentId})
+    if (!isCurrent()) return
+    result.assertCurrent()
+    if (result.state === 'UNAVAILABLE') {
+      await $page.showAlert('未取得指定的原分工', '原答复分工')
+      return
+    }
+    const duties = {LEAD: '主答', SEPARATE: '分答', EVIDENCE: '举证'}
+    const destinations = {DOCUMENT: '册件', FORM_CELL: '原表栏', PLATFORM_FIELD: '平台字段'}
+    const lines = [`要求 ${result.lineageId} · 版本 ${result.version}`,
+      ...result.assignments.map(item => `${destinations[item.kind]} ${item.targetRef} · ${duties[item.duty]} ${item.assigneeRef}`)]
+    await $page.showAlert(lines.join('\n'), '原答复分工')
+  } catch {
+    if (isCurrent()) $page.showMessage('指定原分工无法核验', 'warning')
+  }
+}
 
 function selectedFixedFact() {
   const {factId} = $route.query

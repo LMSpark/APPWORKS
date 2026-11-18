@@ -8,11 +8,13 @@ import {createBidSecurityScriptHost} from './bid-security-script-host'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readContentBaselineFactUse} from '../../../authoring/model/content-baseline-reader'
+import {readRegisteredResponseAssignment} from '../../model/response-assignment-reader'
 
 type Scope=Parameters<typeof createApprovedPriceScriptHost>[1]&Parameters<typeof createBidSecurityScriptHost>[1]
 type Sources=Readonly<{
  readPriceEvidence:Parameters<typeof createApprovedPriceScriptHost>[2]
  readSecurityReceipts:Parameters<typeof createBidSecurityScriptHost>[2]
+ assignmentBasis?:Readonly<{projectId:string;baselineId:string;assertCurrent:()=>void}>
  fixedFacts?:Readonly<{
   projectId:string
   basis:Omit<Parameters<typeof readContentBaselineFactUse>[1],'factId'|'version'|'purposeRef'|'useAt'>
@@ -29,6 +31,19 @@ export function createBidResponseScriptHost<Runtime extends Pick<PageRuntime,'re
  const security=createBidSecurityScriptHost(runtime,scope,sources.readSecurityReceipts)
  return {runtime,assertCurrent:scope.assertCurrent,invoke(name:string,input:unknown,signal:AbortSignal){
   if(name==='bid.response.readSecurity')return security.invoke(name,input,signal)
+  if(name==='bid.response.readAssignment'){
+   const {assignmentBasis}=sources
+   if(!assignmentBasis||!isRecord(input)||Object.keys(input).length!==1||!identity(input['assignmentId']))
+    throw Error('BID_RESPONSE_ASSIGNMENT_REQUEST')
+   const generation=runtime.generation
+   const assertCurrent=()=>{
+    scope.assertCurrent()
+    assignmentBasis.assertCurrent()
+    if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)
+     throw Error('BID_RESPONSE_ASSIGNMENT_STALE')
+   }
+   return readRegisteredResponseAssignment({...assignmentBasis,runtime,scenarioId:scope.scenarioId,assertCurrent},input['assignmentId'])
+  }
   if(name==='bid.response.readFixedFact'){
    const {fixedFacts}=sources
    if(!fixedFacts||!isRecord(input)||Object.keys(input).length!==1||!identity(input['factId']))

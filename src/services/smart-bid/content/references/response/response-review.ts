@@ -43,7 +43,7 @@ export async function reviewResponseDraft(draft:Draft,source:Readonly<{
  const results=Object.freeze(source.positions.map(position=>{
   const check=byPosition.get(position.positionRef)
   const verified=check?.accepted===true&&(!position.requiresAiVerification||check.aiVerificationRef!==null)
-  return Object.freeze({positionRef:position.positionRef,verified,reviewRef:check?.reviewRef??null,
+  return Object.freeze({positionRef:position.positionRef,contentHash:position.contentHash,verified,reviewRef:check?.reviewRef??null,
    aiVerificationRef:check?.aiVerificationRef??null})
  }))
  return Object.freeze({draftHash,assignmentId:draft.assignmentId,targetRef:draft.targetRef,
@@ -65,9 +65,13 @@ export async function readReviewedResponseForCandidate(
   throw Error('BID_RESPONSE_CANDIDATE_SCOPE')
  const {assertCurrent:_proof,...record}=draft
  const snapshot=structuredClone(record)
- if(await hashCanonicalSnapshotText(canonicalSnapshotValue(snapshot))!==review.draftHash)
+ const snapshotText=canonicalSnapshotValue(snapshot)
+ if(await hashCanonicalSnapshotText(snapshotText)!==review.draftHash)
   throw Error('BID_RESPONSE_CANDIDATE_VERSION')
  assertCurrent()
  return Object.freeze({response:snapshot,reviewHash:review.draftHash,deviation:review.deviation,
-  reviewedPositions:review.positions,deferredPositionRefs:review.deferredPositionRefs,assertCurrent})
+  reviewedPositions:review.positions,deferredPositionRefs:review.deferredPositionRefs,assertCurrent:()=>{
+   assertCurrent()
+   if(canonicalSnapshotValue(snapshot)!==snapshotText)throw Error('BID_RESPONSE_CANDIDATE_VERSION')
+  }})
 }

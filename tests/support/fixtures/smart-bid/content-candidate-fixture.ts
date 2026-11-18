@@ -18,8 +18,10 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
  }
  if(mode==='sibling-tree')payloads.push({nodeId:'Z',parentId:'C',index:1,type:'paragraph',class:[],value:'第一段',data:{}},
   {nodeId:'A',parentId:'C',index:2,type:'paragraph',class:[],value:'第二段',data:{}})
+ if(mode==='calculation')payloads.push({nodeId:'T',parentId:'C',index:1,type:'table',class:['deviation'],value:'',
+  data:{header:[],rows:[]}})
  const members=await Promise.all(payloads.map(async payload=>({nodeId:payload.nodeId,nodeHash:await hashContentNode(payload),payload})))
- const populated=['populated','bad-template','bad-pin','valid-pin','fixed-pin','bad-response','sibling-tree','fact'].includes(mode)
+ const populated=['populated','bad-template','bad-pin','valid-pin','fixed-pin','bad-response','sibling-tree','fact','calculation'].includes(mode)
  const templateRefs=populated?[{documentId:mode==='bad-template'?'H':'D',key:'T',version:'1',hash:'a'.repeat(64)}]:[]
  const manifest={hashContract:'spark-bid.revision-snapshot/1',projectId:'P',baselineId:'B',stageRef:{id:'ST',version:'1'},
   templateRefs,nodes:populated?members.map(({nodeId,nodeHash})=>({nodeId,nodeHash})).sort((a,b)=>a.nodeId<b.nodeId?-1:1):[],

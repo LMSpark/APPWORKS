@@ -22,6 +22,7 @@ export type ContentSnapshotNodesBinding=Readonly<{
  dataViewKey:string|null;nodeMembershipVerified:true;requiresBusinessSectionChecks:true;assertCurrent:()=>void
  subtreeHashContract:typeof SUBTREE_HASH_CONTRACT;subtreeHashes:readonly ContentSubtreeHash[]
  readFactIds:(nodeIds:readonly string[])=>readonly string[]
+ readCalculationTableIds:(nodeIds:readonly string[])=>readonly string[]
 }>
 function validScope(view:DataView):boolean {
  const hashScope=(node:DataViewFilterTree):boolean=>{
@@ -45,12 +46,17 @@ export async function readContentSnapshotNodes(host:ContentRevisionReadHost,snap
  assertOwners()
  if(snapshot.index.projectId!==projectId)throw Error('CONTENT_SNAPSHOT_NODES_PROJECT')
  const members=snapshot.index.nodes
- if(!members.length)return Object.freeze({dataViewKey:null,nodeMembershipVerified:true,requiresBusinessSectionChecks:true,assertCurrent:assertOwners,
-  subtreeHashContract:SUBTREE_HASH_CONTRACT,subtreeHashes:Object.freeze([]),readFactIds:(nodeIds:readonly string[])=>{
+ if(!members.length){
+  const emptySelection=(nodeIds:readonly string[],error:string)=>{
    assertOwners()
-   if(nodeIds.length)throw Error('CONTENT_SNAPSHOT_FACT_SCOPE')
+   if(nodeIds.length)throw Error(error)
    return Object.freeze([])
-  }})
+  }
+  return Object.freeze({dataViewKey:null,nodeMembershipVerified:true,requiresBusinessSectionChecks:true,assertCurrent:assertOwners,
+   subtreeHashContract:SUBTREE_HASH_CONTRACT,subtreeHashes:Object.freeze([]),
+   readFactIds:(nodeIds:readonly string[])=>emptySelection(nodeIds,'CONTENT_SNAPSHOT_FACT_SCOPE'),
+   readCalculationTableIds:(nodeIds:readonly string[])=>emptySelection(nodeIds,'CONTENT_SNAPSHOT_NODE_SCOPE')})
+ }
  const dataViewKey=buildDataViewKey('ContentNodeVersion',memberViews[snapshot.role],scenarioId),view=runtime.resolveView(dataViewKey)
  if(!view||!validScope(view))throw Error('CONTENT_SNAPSHOT_NODES_SCOPE_REQUIRED')
  if(view.hasEditingChanges())throw Error('CONTENT_SNAPSHOT_NODES_EDITING')
@@ -77,8 +83,9 @@ export async function readContentSnapshotNodes(host:ContentRevisionReadHost,snap
   seen.add(nodeId)
   const proof=view.captureReadRow(row,['projectId','nodeId','nodeHash','payload']),payload=row['payload']
   assertContentNodeVersionPayload(payload,nodeId)
-  if(readContentNodeLinks(payload).links.some(link=>!expected.has(link.targetNodeId)))throw Error('CONTENT_SNAPSHOT_NODES_REFERENCE')
-  return {payload,hash,proof}
+  const {links,requiresTableGeneratorCheck}=readContentNodeLinks(payload)
+  if(links.some(link=>!expected.has(link.targetNodeId)))throw Error('CONTENT_SNAPSHOT_NODES_REFERENCE')
+  return {payload,hash,proof,requiresTableGeneratorCheck}
  })
  const errors=validateContentTreeStructure({projectId,nodes:prepared.map(item=>item.payload)})
  if(errors.length)throw Error(`CONTENT_SNAPSHOT_NODES_TREE:${errors.join(';')}`)
@@ -92,14 +99,17 @@ export async function readContentSnapshotNodes(host:ContentRevisionReadHost,snap
  const subtreeHashes=await hashContentSubtrees({projectId,nodes:prepared.map(({payload,hash})=>({
   nodeId:payload.nodeId,parentId:payload.parentId,index:payload.index,type:payload.type,nodeHash:hash}))})
  assertCurrent()
- const readFactIds=(nodeIds:readonly string[])=>{
+ const selectNodes=(nodeIds:readonly string[],error:string)=>{
   assertCurrent()
   const selected=new Set(nodeIds)
-  if(selected.size!==nodeIds.length||nodeIds.some(id=>!expected.has(id)))throw Error('CONTENT_SNAPSHOT_FACT_SCOPE')
-  const payloads=prepared.map(item=>item.payload).filter(item=>selected.has(item.nodeId))
-  payloads.sort((a,b)=>a.nodeId<b.nodeId?-1:a.nodeId>b.nodeId?1:0)
-  return Object.freeze([...new Set(payloads.flatMap(readContentNodeFactIds))])
+  if(selected.size!==nodeIds.length||nodeIds.some(id=>!expected.has(id)))throw Error(error)
+  return prepared.filter(({payload})=>selected.has(payload.nodeId)).sort((a,b)=>
+   a.payload.nodeId<b.payload.nodeId?-1:a.payload.nodeId>b.payload.nodeId?1:0)
  }
+ const readFactIds=(nodeIds:readonly string[])=>Object.freeze([...new Set(
+  selectNodes(nodeIds,'CONTENT_SNAPSHOT_FACT_SCOPE').flatMap(({payload})=>readContentNodeFactIds(payload)))])
+ const readCalculationTableIds=(nodeIds:readonly string[])=>Object.freeze(
+  selectNodes(nodeIds,'CONTENT_SNAPSHOT_NODE_SCOPE').filter(item=>item.requiresTableGeneratorCheck).map(({payload})=>payload.nodeId))
  return Object.freeze({dataViewKey,nodeMembershipVerified:true,requiresBusinessSectionChecks:true,assertCurrent,
-  subtreeHashContract:SUBTREE_HASH_CONTRACT,subtreeHashes,readFactIds})
+  subtreeHashContract:SUBTREE_HASH_CONTRACT,subtreeHashes,readFactIds,readCalculationTableIds})
 }

@@ -4,6 +4,24 @@ import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/co
 import {readCandidateContent} from '@/views/features/application/smart-bid/authoring/model/content-candidate-reader'
 import {createCandidateReadFixture as fixture} from '../../../../../support/fixtures/smart-bid/content-candidate-fixture'
 
+it('requires calculation inputs for exactly the original selected table placeholders',async()=>{
+ const f=await fixture('calculation')
+ try{
+  const candidate=await readCandidateContent(f.host,{candidateRevisionId:'C',expectedHead:null})
+  const table={nodeId:'T',generatorVersion:'deviation/1',formInstructionRefs:[],requirementVersions:[],
+   confirmedResponses:[],factVersions:[],resourceVersions:[]}
+  let current=true
+  const assertInputs=()=>{if(!current)throw Error('CALCULATION_INPUT_STALE')}
+  await expect(candidate.hashNodeCalculationInputs(['T'],[],assertInputs)).rejects.toThrow('CONTENT_CALCULATION_INPUT_SCOPE')
+  await expect(candidate.hashNodeCalculationInputs(['H'],[table],assertInputs)).rejects.toThrow('CONTENT_CALCULATION_INPUT_SCOPE')
+  const result=await candidate.hashNodeCalculationInputs(['H','T'],[table],assertInputs)
+  expect(result.tables.map(item=>item.nodeId)).toEqual(['T'])
+  current=false;expect(()=>result.assertCurrent()).toThrow('CALCULATION_INPUT_STALE')
+  current=true;await f.ds.getView('ContentNodeVersion','snapshotMembers')!.refresh()
+  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+ }finally{f.ds.destroy()}
+})
+
 it('reads only explicitly selected independent response facts with exact assignment identity',async()=>{
  const f=await fixture('response-fact')
  try{

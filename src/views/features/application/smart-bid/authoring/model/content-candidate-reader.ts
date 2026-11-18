@@ -291,7 +291,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   if(capturedInput.role==='head')return (await readPreviewVersions(assertConsumer)).captureNodeTextSelection(capturedInput)
   return captureNodeSelection(capturedInput,{snapshot,nodes},()=>{assertCurrent();assertConsumer?.()})
  }
- return Object.freeze({runtime:host.runtime,readFixedFact,readEffectiveFacts,
+ return Object.freeze({runtime:host.runtime,readFixedFact,readEffectiveFacts,hashNodeCalculationInputs,
   readNodeEffectiveFacts:(nodeIds:readonly string[],assertConsumer?:()=>void)=>readEffectiveFacts({nodeIds,responses:[]},assertConsumer),
   readFixedRequirement,readRequirementPinIssues,readFixedTenderRecord,readPreviewVersions,previewScope,previewText,captureNodeTextSelection,revisions,snapshot,nodes,revisionMatchVerified:true,templateBindingsVerified:true,requirementBindingsVerified:true,
   verifyRootHash:(contract:string)=>verifyReadableRevisionRoot({host:{...host,assertCurrent},revisionDataViewKey:revisions.candidateDataViewKey,snapshot,contract}),
